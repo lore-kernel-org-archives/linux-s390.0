@@ -1,120 +1,113 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18098 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726541AbhAGRZf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jan 2021 12:25:35 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 2/3] s390/qeth: fix locking for discipline setup / removal
-Date: Thu,  7 Jan 2021 18:24:41 +0100
-Message-Id: <20210107172442.1737-3-jwi@linux.ibm.com>
-In-Reply-To: <20210107172442.1737-1-jwi@linux.ibm.com>
-References: <20210107172442.1737-1-jwi@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64408 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2388473AbhATLoY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 20 Jan 2021 06:44:24 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 09/11] s390x: Add diag318 intercept test
+Date: Wed, 20 Jan 2021 06:41:56 -0500
+Message-Id: <20210120114158.104559-10-frankja@linux.ibm.com>
+In-Reply-To: <20210120114158.104559-1-frankja@linux.ibm.com>
+References: <20210120114158.104559-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Due to insufficient locking, qeth_core_set_online() and
-qeth_dev_layer2_store() can run in parallel, both attempting to load &
-setup the discipline (and stepping on each other toes along the way).
-A similar race can also occur between qeth_core_remove_device() and
-qeth_dev_layer2_store().
+Not much to test except for the privilege and specification
+exceptions.
 
-Access to .discipline is meant to be protected by the discipline_mutex,
-so add/expand the locking in qeth_core_remove_device() and
-qeth_core_set_online().
-Adjust the locking in qeth_l*_remove_device() accordingly, as it's now
-handled by the callers in a consistent manner.
-
-Based on an initial patch by Ursula Braun.
-
-Fixes: 9dc48ccc68b9 ("qeth: serialize sysfs-triggered device configurations")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/net/qeth_core_main.c | 7 +++++--
- drivers/s390/net/qeth_l2_main.c   | 5 +----
- drivers/s390/net/qeth_l3_main.c   | 5 +----
- 3 files changed, 7 insertions(+), 10 deletions(-)
+ lib/s390x/sclp.c  |  1 +
+ lib/s390x/sclp.h  |  6 +++++-
+ s390x/intercept.c | 19 +++++++++++++++++++
+ 3 files changed, 25 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index d45e223fc521..cf18d87da41e 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -6585,6 +6585,7 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
- 		break;
- 	default:
- 		card->info.layer_enforced = true;
-+		/* It's so early that we don't need the discipline_mutex yet. */
- 		rc = qeth_core_load_discipline(card, enforced_disc);
- 		if (rc)
- 			goto err_load;
-@@ -6617,10 +6618,12 @@ static void qeth_core_remove_device(struct ccwgroup_device *gdev)
+diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+index 06819a6..7a9b2c5 100644
+--- a/lib/s390x/sclp.c
++++ b/lib/s390x/sclp.c
+@@ -138,6 +138,7 @@ void sclp_facilities_setup(void)
+ 	assert(read_info);
  
- 	QETH_CARD_TEXT(card, 2, "removedv");
+ 	cpu = sclp_get_cpu_entries();
++	sclp_facilities.has_diag318 = read_info->byte_134_diag318;
+ 	for (i = 0; i < read_info->entries_cpu; i++, cpu++) {
+ 		/*
+ 		 * The logic for only reading the facilities from the
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index c3128b9..e7407ea 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -105,7 +105,8 @@ extern struct sclp_facilities sclp_facilities;
  
-+	mutex_lock(&card->discipline_mutex);
- 	if (card->discipline) {
- 		card->discipline->remove(gdev);
- 		qeth_core_free_discipline(card);
- 	}
-+	mutex_unlock(&card->discipline_mutex);
+ struct sclp_facilities {
+ 	uint64_t has_sief2 : 1;
+-	uint64_t : 63;
++	uint64_t has_diag318 : 1;
++	uint64_t : 62;
+ };
  
- 	qeth_free_qdio_queues(card);
+ typedef struct ReadInfo {
+@@ -130,6 +131,9 @@ typedef struct ReadInfo {
+     uint16_t highest_cpu;
+     uint8_t  _reserved5[124 - 122];     /* 122-123 */
+     uint32_t hmfai;
++    uint8_t reserved7[134 - 128];
++    uint8_t byte_134_diag318 : 1;
++    uint8_t : 7;
+     struct CPUEntry entries[0];
+ } __attribute__((packed)) ReadInfo;
  
-@@ -6635,6 +6638,7 @@ static int qeth_core_set_online(struct ccwgroup_device *gdev)
- 	int rc = 0;
- 	enum qeth_discipline_id def_discipline;
- 
-+	mutex_lock(&card->discipline_mutex);
- 	if (!card->discipline) {
- 		def_discipline = IS_IQD(card) ? QETH_DISCIPLINE_LAYER3 :
- 						QETH_DISCIPLINE_LAYER2;
-@@ -6648,11 +6652,10 @@ static int qeth_core_set_online(struct ccwgroup_device *gdev)
- 		}
- 	}
- 
--	mutex_lock(&card->discipline_mutex);
- 	rc = qeth_set_online(card, card->discipline);
--	mutex_unlock(&card->discipline_mutex);
- 
- err:
-+	mutex_unlock(&card->discipline_mutex);
- 	return rc;
+diff --git a/s390x/intercept.c b/s390x/intercept.c
+index cde2f5f..86e57e1 100644
+--- a/s390x/intercept.c
++++ b/s390x/intercept.c
+@@ -8,6 +8,7 @@
+  *  Thomas Huth <thuth@redhat.com>
+  */
+ #include <libcflat.h>
++#include <sclp.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/interrupt.h>
+ #include <asm/page.h>
+@@ -152,6 +153,23 @@ static void test_testblock(void)
+ 	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
  }
  
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 37279b1e29f6..4254caf1d9b6 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2207,11 +2207,8 @@ static void qeth_l2_remove_device(struct ccwgroup_device *gdev)
- 	qeth_set_allowed_threads(card, 0, 1);
- 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
++static void test_diag318(void)
++{
++	expect_pgm_int();
++	enter_pstate();
++	asm volatile("diag %0,0,0x318\n" : : "d" (0x42));
++	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
++
++	if (!sclp_facilities.has_diag318)
++		expect_pgm_int();
++
++	asm volatile("diag %0,0,0x318\n" : : "d" (0x42));
++
++	if (!sclp_facilities.has_diag318)
++		check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
++
++}
++
+ struct {
+ 	const char *name;
+ 	void (*func)(void);
+@@ -162,6 +180,7 @@ struct {
+ 	{ "stap", test_stap, false },
+ 	{ "stidp", test_stidp, false },
+ 	{ "testblock", test_testblock, false },
++	{ "diag318", test_diag318, false },
+ 	{ NULL, NULL, false }
+ };
  
--	if (gdev->state == CCWGROUP_ONLINE) {
--		mutex_lock(&card->discipline_mutex);
-+	if (gdev->state == CCWGROUP_ONLINE)
- 		qeth_set_offline(card, card->discipline, false);
--		mutex_unlock(&card->discipline_mutex);
--	}
- 
- 	cancel_work_sync(&card->close_dev_work);
- 	if (card->dev->reg_state == NETREG_REGISTERED)
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 8d474179ce98..6970597bc885 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1970,11 +1970,8 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
- 	qeth_set_allowed_threads(card, 0, 1);
- 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
- 
--	if (cgdev->state == CCWGROUP_ONLINE) {
--		mutex_lock(&card->discipline_mutex);
-+	if (cgdev->state == CCWGROUP_ONLINE)
- 		qeth_set_offline(card, card->discipline, false);
--		mutex_unlock(&card->discipline_mutex);
--	}
- 
- 	cancel_work_sync(&card->close_dev_work);
- 	if (card->dev->reg_state == NETREG_REGISTERED)
 -- 
-2.17.1
+2.25.1
