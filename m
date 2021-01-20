@@ -1,124 +1,92 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47806 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726793AbhAXKG6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Jan 2021 05:06:58 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 09/10] block: remove DISK_PITER_REVERSE
-Date: Sun, 24 Jan 2021 11:02:40 +0100
-Message-Id: <20210124100241.1167849-10-hch@lst.de>
-In-Reply-To: <20210124100241.1167849-1-hch@lst.de>
-References: <20210124100241.1167849-1-hch@lst.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH V3 3/3] s390/mm: Define arch_get_mappable_range()
+References: <1610975582-12646-1-git-send-email-anshuman.khandual@arm.com>
+ <1610975582-12646-4-git-send-email-anshuman.khandual@arm.com>
+ <cbdb32af-74af-ceb2-fa68-3912ef20d784@redhat.com>
+ <a58eb974-4700-d877-7033-4ad6dfd2476f@arm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <31c19215-3f25-4d60-29f6-77127c05abbb@redhat.com>
+Date: Wed, 20 Jan 2021 11:39:49 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <a58eb974-4700-d877-7033-4ad6dfd2476f@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
+To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com
+Cc: Oscar Salvador <osalvador@suse.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-There is good reason to iterate backwards when deleting all partitions in
-del_gendisk, just like we don't in blk_drop_partitions.
+On 20.01.21 09:28, Anshuman Khandual wrote:
+> 
+> 
+> On 1/19/21 5:56 PM, David Hildenbrand wrote:
+>> On 18.01.21 14:13, Anshuman Khandual wrote:
+>>> This overrides arch_get_mappabble_range() on s390 platform which will be
+>>> used with recently added generic framework. It modifies the existing range
+>>> check in vmem_add_mapping() using arch_get_mappable_range(). It also adds a
+>>> VM_BUG_ON() check that would ensure that memhp_range_allowed() has already
+>>> been called on the hotplug path.
+>>>
+>>> Cc: Heiko Carstens <hca@linux.ibm.com>
+>>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>>> Cc: David Hildenbrand <david@redhat.com>
+>>> Cc: linux-s390@vger.kernel.org
+>>> Cc: linux-kernel@vger.kernel.org
+>>> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+>>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>>> ---
+>>>  arch/s390/mm/init.c |  1 +
+>>>  arch/s390/mm/vmem.c | 15 ++++++++++++++-
+>>>  2 files changed, 15 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+>>> index 73a163065b95..97017a4bcc90 100644
+>>> --- a/arch/s390/mm/init.c
+>>> +++ b/arch/s390/mm/init.c
+>>> @@ -297,6 +297,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
+>>>  	if (WARN_ON_ONCE(params->pgprot.pgprot != PAGE_KERNEL.pgprot))
+>>>  		return -EINVAL;
+>>>  
+>>> +	VM_BUG_ON(!memhp_range_allowed(start, size, true));
+>>>  	rc = vmem_add_mapping(start, size);
+>>>  	if (rc)
+>>>  		return rc;
+>>> diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+>>> index 01f3a5f58e64..afc39ff1cc8d 100644
+>>> --- a/arch/s390/mm/vmem.c
+>>> +++ b/arch/s390/mm/vmem.c
+>>> @@ -4,6 +4,7 @@
+>>>   *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
+>>>   */
+>>>  
+>>> +#include <linux/memory_hotplug.h>
+>>>  #include <linux/memblock.h>
+>>>  #include <linux/pfn.h>
+>>>  #include <linux/mm.h>
+>>> @@ -532,11 +533,23 @@ void vmem_remove_mapping(unsigned long start, unsigned long size)
+>>>  	mutex_unlock(&vmem_mutex);
+>>>  }
+>>>  
+>>> +struct range arch_get_mappable_range(void)
+>>> +{
+>>> +	struct range memhp_range;
+>>
+>> You could do:
+>>
+>> memhp_range = {
+>> 	.start = 0,
+>> 	.end =  VMEM_MAX_PHYS - 1,
+>> };
+>>
+>> Similar in the arm64 patch.
+> 
+> There is a comment block just before this assignment on arm64. Also
+> it seems like code style preference and Heiko had originally agreed
+> on this particular patch. Could we just leave it unchanged please ?
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Tejun Heo <tj@kernel.org>
----
- block/genhd.c         | 37 +++++++------------------------------
- include/linux/genhd.h |  1 -
- 2 files changed, 7 insertions(+), 31 deletions(-)
+That's not how review works. But as I said, "You could do".
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 7094612c7510a8..1832add5c73849 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -184,24 +184,13 @@ static struct block_device *__disk_get_part(struct gendisk *disk, int partno)
- void disk_part_iter_init(struct disk_part_iter *piter, struct gendisk *disk,
- 			  unsigned int flags)
- {
--	struct disk_part_tbl *ptbl;
--
--	rcu_read_lock();
--	ptbl = rcu_dereference(disk->part_tbl);
--
- 	piter->disk = disk;
- 	piter->part = NULL;
--
--	if (flags & DISK_PITER_REVERSE)
--		piter->idx = ptbl->len - 1;
--	else if (flags & (DISK_PITER_INCL_PART0 | DISK_PITER_INCL_EMPTY_PART0))
-+	if (flags & (DISK_PITER_INCL_PART0 | DISK_PITER_INCL_EMPTY_PART0))
- 		piter->idx = 0;
- 	else
- 		piter->idx = 1;
--
- 	piter->flags = flags;
--
--	rcu_read_unlock();
- }
- 
- /**
-@@ -216,7 +205,6 @@ void disk_part_iter_init(struct disk_part_iter *piter, struct gendisk *disk,
- struct block_device *disk_part_iter_next(struct disk_part_iter *piter)
- {
- 	struct disk_part_tbl *ptbl;
--	int inc, end;
- 
- 	/* put the last partition */
- 	disk_part_iter_exit(piter);
-@@ -225,21 +213,8 @@ struct block_device *disk_part_iter_next(struct disk_part_iter *piter)
- 	rcu_read_lock();
- 	ptbl = rcu_dereference(piter->disk->part_tbl);
- 
--	/* determine iteration parameters */
--	if (piter->flags & DISK_PITER_REVERSE) {
--		inc = -1;
--		if (piter->flags & (DISK_PITER_INCL_PART0 |
--				    DISK_PITER_INCL_EMPTY_PART0))
--			end = -1;
--		else
--			end = 0;
--	} else {
--		inc = 1;
--		end = ptbl->len;
--	}
--
- 	/* iterate to the next partition */
--	for (; piter->idx != end; piter->idx += inc) {
-+	for (; piter->idx != ptbl->len; piter->idx += 1) {
- 		struct block_device *part;
- 
- 		part = rcu_dereference(ptbl->part[piter->idx]);
-@@ -257,7 +232,10 @@ struct block_device *disk_part_iter_next(struct disk_part_iter *piter)
- 			continue;
- 		}
- 
--		piter->idx += inc;
-+		piter->part = bdgrab(part);
-+		if (!piter->part)
-+			continue;
-+		piter->idx += 1;
- 		break;
- 	}
- 
-@@ -781,8 +759,7 @@ void del_gendisk(struct gendisk *disk)
- 	down_write(&bdev_lookup_sem);
- 
- 	/* invalidate stuff */
--	disk_part_iter_init(&piter, disk,
--			     DISK_PITER_INCL_EMPTY | DISK_PITER_REVERSE);
-+	disk_part_iter_init(&piter, disk, DISK_PITER_INCL_EMPTY);
- 	while ((part = disk_part_iter_next(&piter))) {
- 		invalidate_partition(part);
- 		delete_partition(part);
-diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-index 670eaef0e87622..51609133c9a347 100644
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -218,7 +218,6 @@ void disk_uevent(struct gendisk *disk, enum kobject_action action);
- /*
-  * Smarter partition iterator without context limits.
-  */
--#define DISK_PITER_REVERSE	(1 << 0) /* iterate in the reverse direction */
- #define DISK_PITER_INCL_EMPTY	(1 << 1) /* include 0-sized parts */
- #define DISK_PITER_INCL_PART0	(1 << 2) /* include partition 0 */
- #define DISK_PITER_INCL_EMPTY_PART0 (1 << 3) /* include empty partition 0 */
 -- 
-2.29.2
+Thanks,
+
+David / dhildenb
