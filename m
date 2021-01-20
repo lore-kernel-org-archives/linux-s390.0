@@ -1,125 +1,473 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19758 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2406684AbhARQ4H (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28828 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388394AbhATLoR (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 Jan 2021 11:56:07 -0500
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH 1/1] s390/dasd: Fix inconsistent kobject removal
-Date: Mon, 18 Jan 2021 17:55:18 +0100
-Message-Id: <20210118165518.14578-2-sth@linux.ibm.com>
-In-Reply-To: <20210118165518.14578-1-sth@linux.ibm.com>
-References: <20210118165518.14578-1-sth@linux.ibm.com>
+        Wed, 20 Jan 2021 06:44:17 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 01/11] s390x: Move to GPL 2 and SPDX license identifiers
+Date: Wed, 20 Jan 2021 06:41:48 -0500
+Message-Id: <20210120114158.104559-2-frankja@linux.ibm.com>
+In-Reply-To: <20210120114158.104559-1-frankja@linux.ibm.com>
+References: <20210120114158.104559-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+In the past we had some issues when developers wanted to use code
+snippets or constants from the kernel in a test or in the library. To
+remedy that the s390x maintainers decided to move all files to GPL
+2 (if possible).
 
-Our intention was to only remove path kobjects whenever a device is
-being set offline. However, one corner case was missing.
+At the same time let's move to SPDX identifiers as they are much nicer
+to read.
 
-If a device is disabled and enabled (using the IOCTLs BIODASDDISABLE and
-BIODASDENABLE respectively), the enabling process will call
-dasd_eckd_reload_device() which itself calls dasd_eckd_read_conf() in
-order to update path information. During that update,
-dasd_eckd_clear_conf_data() clears all old data and also removes all
-kobjects. This will leave us with an inconsistent state of path kobjects
-and a subsequent path verification leads to a failing kobject creation.
-
-Fix this by removing kobjects only in the context of offlining a device
-as initially intended.
-
-Fixes: 19508b204740 ("s390/dasd: Display FC Endpoint Security information via sysfs")
-Reported-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/s390/block/dasd_devmap.c | 20 ++++++++++++++------
- drivers/s390/block/dasd_eckd.c   |  3 ++-
- drivers/s390/block/dasd_int.h    |  2 +-
- 3 files changed, 17 insertions(+), 8 deletions(-)
+ s390x/cmm.c       | 4 +---
+ s390x/cpumodel.c  | 4 +---
+ s390x/css.c       | 4 +---
+ s390x/cstart64.S  | 4 +---
+ s390x/diag10.c    | 4 +---
+ s390x/diag288.c   | 4 +---
+ s390x/diag308.c   | 5 +----
+ s390x/emulator.c  | 4 +---
+ s390x/gs.c        | 4 +---
+ s390x/iep.c       | 4 +---
+ s390x/intercept.c | 4 +---
+ s390x/pfmf.c      | 4 +---
+ s390x/sclp.c      | 4 +---
+ s390x/selftest.c  | 4 +---
+ s390x/skey.c      | 4 +---
+ s390x/skrf.c      | 4 +---
+ s390x/smp.c       | 4 +---
+ s390x/sthyi.c     | 4 +---
+ s390x/sthyi.h     | 4 +---
+ s390x/stsi.c      | 4 +---
+ s390x/uv-guest.c  | 4 +---
+ s390x/vector.c    | 4 +---
+ 22 files changed, 22 insertions(+), 67 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
-index 16bb135c20aa..03d27ee9cac6 100644
---- a/drivers/s390/block/dasd_devmap.c
-+++ b/drivers/s390/block/dasd_devmap.c
-@@ -1874,18 +1874,26 @@ void dasd_path_create_kobjects(struct dasd_device *device)
- }
- EXPORT_SYMBOL(dasd_path_create_kobjects);
+diff --git a/s390x/cmm.c b/s390x/cmm.c
+index fe4d9df..c3f0c93 100644
+--- a/s390x/cmm.c
++++ b/s390x/cmm.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * CMM tests (ESSA)
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *  Janosch Frank <frankja@linux.vnet.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
  
--/*
-- * As we keep kobjects for the lifetime of a device, this function must not be
-- * called anywhere but in the context of offlining a device.
-- */
--void dasd_path_remove_kobj(struct dasd_device *device, int chp)
-+static void dasd_path_remove_kobj(struct dasd_device *device, int chp)
- {
- 	if (device->path[chp].in_sysfs) {
- 		kobject_put(&device->path[chp].kobj);
- 		device->path[chp].in_sysfs = false;
- 	}
- }
--EXPORT_SYMBOL(dasd_path_remove_kobj);
-+
-+/*
-+ * As we keep kobjects for the lifetime of a device, this function must not be
-+ * called anywhere but in the context of offlining a device.
-+ */
-+void dasd_path_remove_kobjects(struct dasd_device *device)
-+{
-+	int i;
-+
-+	for (i = 0; i < 8; i++)
-+		dasd_path_remove_kobj(device, i);
-+}
-+EXPORT_SYMBOL(dasd_path_remove_kobjects);
+ #include <libcflat.h>
+diff --git a/s390x/cpumodel.c b/s390x/cpumodel.c
+index 116a966..4dd8b96 100644
+--- a/s390x/cpumodel.c
++++ b/s390x/cpumodel.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Test the known dependencies for facilities
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *    Christian Borntraeger <borntraeger@de.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
  
- int dasd_add_sysfs_files(struct ccw_device *cdev)
- {
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 3caa1ee5f4b0..65eb87cbbb9b 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1036,7 +1036,6 @@ static void dasd_eckd_clear_conf_data(struct dasd_device *device)
- 		device->path[i].ssid = 0;
- 		device->path[i].chpid = 0;
- 		dasd_path_notoper(device, i);
--		dasd_path_remove_kobj(device, i);
- 	}
- }
+ #include <asm/facility.h>
+diff --git a/s390x/css.c b/s390x/css.c
+index ee3bc83..23a7b7c 100644
+--- a/s390x/css.c
++++ b/s390x/css.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Channel Subsystem tests
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *  Pierre Morel <pmorel@linux.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License version 2.
+  */
  
-@@ -2173,6 +2172,7 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
- 	device->block = NULL;
- out_err1:
- 	dasd_eckd_clear_conf_data(device);
-+	dasd_path_remove_kobjects(device);
- 	kfree(device->private);
- 	device->private = NULL;
- 	return rc;
-@@ -2191,6 +2191,7 @@ static void dasd_eckd_uncheck_device(struct dasd_device *device)
- 	private->vdsneq = NULL;
- 	private->gneq = NULL;
- 	dasd_eckd_clear_conf_data(device);
-+	dasd_path_remove_kobjects(device);
- }
+ #include <libcflat.h>
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index 4e51150..cc86fc7 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * s390x startup code
+  *
+@@ -6,9 +7,6 @@
+  * Authors:
+  *  Thomas Huth <thuth@redhat.com>
+  *  David Hildenbrand <david@redhat.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <asm/asm-offsets.h>
+ #include <asm/sigp.h>
+diff --git a/s390x/diag10.c b/s390x/diag10.c
+index 7ee8945..579a7a5 100644
+--- a/s390x/diag10.c
++++ b/s390x/diag10.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Release pages hypercall tests (DIAG 10)
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *  Janosch Frank <frankja@linux.vnet.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
  
- static struct dasd_ccw_req *
-diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index 3bc008f9136c..b8a04c42d1d2 100644
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -858,7 +858,7 @@ int dasd_add_sysfs_files(struct ccw_device *);
- void dasd_remove_sysfs_files(struct ccw_device *);
- void dasd_path_create_kobj(struct dasd_device *, int);
- void dasd_path_create_kobjects(struct dasd_device *);
--void dasd_path_remove_kobj(struct dasd_device *, int);
-+void dasd_path_remove_kobjects(struct dasd_device *);
+ #include <libcflat.h>
+diff --git a/s390x/diag288.c b/s390x/diag288.c
+index e2ecdc8..e132ff0 100644
+--- a/s390x/diag288.c
++++ b/s390x/diag288.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Timer Event DIAG288 test
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *  Janosch Frank <frankja@linux.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
  
- struct dasd_device *dasd_device_from_cdev(struct ccw_device *);
- struct dasd_device *dasd_device_from_cdev_locked(struct ccw_device *);
+ #include <libcflat.h>
+diff --git a/s390x/diag308.c b/s390x/diag308.c
+index 7fc4abd..c9d6c49 100644
+--- a/s390x/diag308.c
++++ b/s390x/diag308.c
+@@ -1,11 +1,8 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
+ /*
+  * Diagnose 0x308 hypercall tests
+  *
+  * Copyright (c) 2019 Thomas Huth, Red Hat Inc.
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License version 2, or (at
+- * your option) any later version.
+  */
+ 
+ #include <libcflat.h>
+diff --git a/s390x/emulator.c b/s390x/emulator.c
+index 70ef51a..b2787a5 100644
+--- a/s390x/emulator.c
++++ b/s390x/emulator.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Emulator tests - for s390x CPU instructions that are usually interpreted
+  *                  by the hardware
+@@ -6,9 +7,6 @@
+  *
+  * Authors:
+  *  David Hildenbrand <david@redhat.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+ #include <asm/cpacf.h>
+diff --git a/s390x/gs.c b/s390x/gs.c
+index f685aa9..1376d0e 100644
+--- a/s390x/gs.c
++++ b/s390x/gs.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Tests guarded storage support.
+  *
+@@ -6,9 +7,6 @@
+  * Authors:
+  *    Martin Schwidefsky <schwidefsky@de.ibm.com>
+  *    Janosch Frank <frankja@de.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+ #include <asm/page.h>
+diff --git a/s390x/iep.c b/s390x/iep.c
+index 55c01ee..fe167ef 100644
+--- a/s390x/iep.c
++++ b/s390x/iep.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Instruction Execution Prevention (IEP) DAT test.
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *	Janosch Frank <frankja@de.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+ #include <vmalloc.h>
+diff --git a/s390x/intercept.c b/s390x/intercept.c
+index 2e38257..cde2f5f 100644
+--- a/s390x/intercept.c
++++ b/s390x/intercept.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Interception tests - for s390x CPU instruction that cause a VM exit
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *  Thomas Huth <thuth@redhat.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+ #include <asm/asm-offsets.h>
+diff --git a/s390x/pfmf.c b/s390x/pfmf.c
+index ac57fe4..2f3cb11 100644
+--- a/s390x/pfmf.c
++++ b/s390x/pfmf.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Perform Frame Management Function (pfmf) tests
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *  Janosch Frank <frankja@linux.vnet.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+ #include <asm/asm-offsets.h>
+diff --git a/s390x/sclp.c b/s390x/sclp.c
+index 7d92bf3..73d722f 100644
+--- a/s390x/sclp.c
++++ b/s390x/sclp.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Service Call tests
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *  Claudio Imbrenda <imbrenda@linux.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License version 2.
+  */
+ 
+ #include <libcflat.h>
+diff --git a/s390x/selftest.c b/s390x/selftest.c
+index eaf5b18..b2fe2e7 100644
+--- a/s390x/selftest.c
++++ b/s390x/selftest.c
+@@ -1,12 +1,10 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Copyright (c) 2017 Red Hat Inc
+  *
+  * Authors:
+  *  Thomas Huth <thuth@redhat.com>
+  *  David Hildenbrand <david@redhat.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+ #include <util.h>
+diff --git a/s390x/skey.c b/s390x/skey.c
+index 86d15e2..2539944 100644
+--- a/s390x/skey.c
++++ b/s390x/skey.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Storage key tests
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *  Janosch Frank <frankja@linux.vnet.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+ #include <asm/asm-offsets.h>
+diff --git a/s390x/skrf.c b/s390x/skrf.c
+index b19d0f4..57524ba 100644
+--- a/s390x/skrf.c
++++ b/s390x/skrf.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Storage key removal facility tests
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *  Janosch Frank <frankja@linux.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License version 2.
+  */
+ #include <libcflat.h>
+ #include <asm/asm-offsets.h>
+diff --git a/s390x/smp.c b/s390x/smp.c
+index 4ca1dce..b0ece49 100644
+--- a/s390x/smp.c
++++ b/s390x/smp.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Tests sigp emulation
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *    Janosch Frank <frankja@linux.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License version 2.
+  */
+ #include <libcflat.h>
+ #include <asm/asm-offsets.h>
+diff --git a/s390x/sthyi.c b/s390x/sthyi.c
+index 68c57cb..d8dfc85 100644
+--- a/s390x/sthyi.c
++++ b/s390x/sthyi.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Tests exceptions and data validity for the emulated sthyi
+  * instruction.
+@@ -6,9 +7,6 @@
+  *
+  * Authors:
+  *    Janosch Frank <frankja@linux.vnet.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+ #include <asm/asm-offsets.h>
+diff --git a/s390x/sthyi.h b/s390x/sthyi.h
+index 06f757f..bbd74c6 100644
+--- a/s390x/sthyi.h
++++ b/s390x/sthyi.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * STHYI related flags and structure definitions.
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *    Janosch Frank <frankja@linux.vnet.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ #ifndef _STHYI_H_
+ #define _STHYI_H_
+diff --git a/s390x/stsi.c b/s390x/stsi.c
+index b81cea7..4109b8d 100644
+--- a/s390x/stsi.c
++++ b/s390x/stsi.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Store System Information tests
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *  Janosch Frank <frankja@linux.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ 
+ #include <libcflat.h>
+diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
+index d47333e..bc947ab 100644
+--- a/s390x/uv-guest.c
++++ b/s390x/uv-guest.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Guest Ultravisor Call tests
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *  Janosch Frank <frankja@linux.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License version 2.
+  */
+ 
+ #include <libcflat.h>
+diff --git a/s390x/vector.c b/s390x/vector.c
+index 0159ba1..d1b6a57 100644
+--- a/s390x/vector.c
++++ b/s390x/vector.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Tests vector instruction support
+  *
+@@ -5,9 +6,6 @@
+  *
+  * Authors:
+  *    Janosch Frank <frankja@de.ibm.com>
+- *
+- * This code is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+ #include <asm/page.h>
 -- 
-2.17.1
+2.25.1
