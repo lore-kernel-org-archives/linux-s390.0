@@ -1,102 +1,84 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 11 Jan 2021 23:50:58 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v13 07/15] s390/vfio-ap: introduce shadow APCB
-Message-ID: <20210111235058.32ed94b5.pasic@linux.ibm.com>
-In-Reply-To: <20201223011606.5265-8-akrowiak@linux.ibm.com>
-References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
-        <20201223011606.5265-8-akrowiak@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23724 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732667AbhAUPPr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 21 Jan 2021 10:15:47 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [PATCH v2 1/2] s390: uv: Fix sysfs max number of VCPUs reporting
+Date: Thu, 21 Jan 2021 10:14:34 -0500
+Message-Id: <20210121151436.417240-2-frankja@linux.ibm.com>
+In-Reply-To: <20210121151436.417240-1-frankja@linux.ibm.com>
+References: <20210121151436.417240-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, gor@linux.ibm.com, hca@linux.ibm.com, mihajlov@linux.ibm.com
 
-On Tue, 22 Dec 2020 20:15:58 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+The number reported by the query is N-1 and I think people reading the
+sysfs file would expect N instead. For users creating VMs there's no
+actual difference because KVM's limit is currently below the UV's
+limit.
 
-> The APCB is a field within the CRYCB that provides the AP configuration
-> to a KVM guest. Let's introduce a shadow copy of the KVM guest's APCB and
-> maintain it for the lifespan of the guest.
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c     | 15 +++++++++++++++
->  drivers/s390/crypto/vfio_ap_private.h |  2 ++
->  2 files changed, 17 insertions(+)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 2d58b39977be..44b3a81cadfb 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -293,6 +293,20 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
->  	matrix->adm_max = info->apxa ? info->Nd : 15;
->  }
->  
-> +static bool vfio_ap_mdev_has_crycb(struct ap_matrix_mdev *matrix_mdev)
-> +{
-> +	return (matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd);
-> +}
-> +
-> +static void vfio_ap_mdev_commit_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
-> +{
-> +	if (vfio_ap_mdev_has_crycb(matrix_mdev))
-> +		kvm_arch_crypto_set_masks(matrix_mdev->kvm,
-> +					  matrix_mdev->shadow_apcb.apm,
-> +					  matrix_mdev->shadow_apcb.aqm,
-> +					  matrix_mdev->shadow_apcb.adm);
-> +}
-> +
->  static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
->  {
->  	struct ap_matrix_mdev *matrix_mdev;
-> @@ -308,6 +322,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
->  
->  	matrix_mdev->mdev = mdev;
->  	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
-> +	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
->  	hash_init(matrix_mdev->qtable);
->  	mdev_set_drvdata(mdev, matrix_mdev);
->  	matrix_mdev->pqap_hook.hook = handle_pqap;
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index 4e5cc72fc0db..d2d26ba18602 100644
-> --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -75,6 +75,7 @@ struct ap_matrix {
->   * @list:	allows the ap_matrix_mdev struct to be added to a list
->   * @matrix:	the adapters, usage domains and control domains assigned to the
->   *		mediated matrix device.
-> + * @shadow_apcb:    the shadow copy of the APCB field of the KVM guest's CRYCB
->   * @group_notifier: notifier block used for specifying callback function for
->   *		    handling the VFIO_GROUP_NOTIFY_SET_KVM event
->   * @kvm:	the struct holding guest's state
-> @@ -82,6 +83,7 @@ struct ap_matrix {
->  struct ap_matrix_mdev {
->  	struct list_head node;
->  	struct ap_matrix matrix;
-> +	struct ap_matrix shadow_apcb;
->  	struct notifier_block group_notifier;
->  	struct notifier_block iommu_notifier;
->  	struct kvm *kvm;
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Fixes: a0f60f8431999 ("s390/protvirt: Add sysfs firmware interface for Ultravisor information")
+Cc: stable@vger.kernel.org
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+---
+ arch/s390/boot/uv.c        | 2 +-
+ arch/s390/include/asm/uv.h | 4 ++--
+ arch/s390/kernel/uv.c      | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-What happened to the following hunk from v12?
-
-@@ -1218,13 +1233,9 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 	if (ret)
- 		return NOTIFY_DONE;
+diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
+index a15c033f53ca..87641dd65ccf 100644
+--- a/arch/s390/boot/uv.c
++++ b/arch/s390/boot/uv.c
+@@ -35,7 +35,7 @@ void uv_query_info(void)
+ 		uv_info.guest_cpu_stor_len = uvcb.cpu_stor_len;
+ 		uv_info.max_sec_stor_addr = ALIGN(uvcb.max_guest_stor_addr, PAGE_SIZE);
+ 		uv_info.max_num_sec_conf = uvcb.max_num_sec_conf;
+-		uv_info.max_guest_cpus = uvcb.max_guest_cpus;
++		uv_info.max_guest_cpu_id = uvcb.max_guest_cpu_id;
+ 	}
  
--	/* If there is no CRYCB pointer, then we can't copy the masks */
--	if (!matrix_mdev->kvm->arch.crypto.crycbd)
--		return NOTIFY_DONE;
--
--	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
--				  matrix_mdev->matrix.aqm,
--				  matrix_mdev->matrix.adm);
-+	memcpy(&matrix_mdev->shadow_apcb, &matrix_mdev->matrix,
-+	       sizeof(matrix_mdev->shadow_apcb));
-+	vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
+ #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+index 0325fc0469b7..7b98d4caee77 100644
+--- a/arch/s390/include/asm/uv.h
++++ b/arch/s390/include/asm/uv.h
+@@ -96,7 +96,7 @@ struct uv_cb_qui {
+ 	u32 max_num_sec_conf;
+ 	u64 max_guest_stor_addr;
+ 	u8  reserved88[158 - 136];
+-	u16 max_guest_cpus;
++	u16 max_guest_cpu_id;
+ 	u8  reserveda0[200 - 160];
+ } __packed __aligned(8);
  
- 	return NOTIFY_OK;
+@@ -273,7 +273,7 @@ struct uv_info {
+ 	unsigned long guest_cpu_stor_len;
+ 	unsigned long max_sec_stor_addr;
+ 	unsigned int max_num_sec_conf;
+-	unsigned short max_guest_cpus;
++	unsigned short max_guest_cpu_id;
+ };
+ 
+ extern struct uv_info uv_info;
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index 883bfed9f5c2..b2d2ad153067 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -368,7 +368,7 @@ static ssize_t uv_query_max_guest_cpus(struct kobject *kobj,
+ 				       struct kobj_attribute *attr, char *page)
+ {
+ 	return scnprintf(page, PAGE_SIZE, "%d\n",
+-			uv_info.max_guest_cpus);
++			uv_info.max_guest_cpu_id + 1);
  }
+ 
+ static struct kobj_attribute uv_query_max_guest_cpus_attr =
+-- 
+2.25.1
