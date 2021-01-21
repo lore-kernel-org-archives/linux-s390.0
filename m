@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <0d72bc0b518c416d32e11abfacda36e6370b8f2c.camel@perches.com>
-Subject: Re: [PATCH 19/29] s390/tty3270: Avoid comma separated statements
-From: Joe Perches <joe@perches.com>
-Date: Sat, 30 Jan 2021 11:01:21 -0800
-In-Reply-To: <9988babd9cca4ac841961d9f0bbf5e49caa87659.1598331149.git.joe@perches.com>
-References: <cover.1598331148.git.joe@perches.com>
-         <9988babd9cca4ac841961d9f0bbf5e49caa87659.1598331149.git.joe@perches.com>
-Content-Type: text/plain; charset="iso-8859-1"
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22412 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732224AbhAUN0M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 21 Jan 2021 08:26:12 -0500
+Subject: Re: [kvm-unit-tests PATCH v4 3/3] s390x: css: pv: css test adaptation
+ for PV
+References: <1611220392-22628-1-git-send-email-pmorel@linux.ibm.com>
+ <1611220392-22628-4-git-send-email-pmorel@linux.ibm.com>
+ <20210121134824.041100f3.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <d9f78616-a6a2-1aa9-35bb-92fdf2462866@linux.ibm.com>
+Date: Thu, 21 Jan 2021 14:25:07 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210121134824.041100f3.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jiri Kosina <trivial@kernel.org>, linux-kernel@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com, drjones@redhat.com, pbonzini@redhat.com
 
-On Mon, 2020-08-24 at 21:56 -0700, Joe Perches wrote:
-> Use semicolons and braces.
 
-ping?
 
-> Signed-off-by: Joe Perches <joe@perches.com>
-> ---
-> =EF=BF=BDdrivers/s390/char/tty3270.c | 6 ++++--
-> =EF=BF=BD1 file changed, 4 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-> index aec996de44d9..6acce975df26 100644
-> --- a/drivers/s390/char/tty3270.c
-> +++ b/drivers/s390/char/tty3270.c
-> @@ -424,8 +424,10 @@ tty3270_update(struct timer_list *t)
-> =EF=BF=BD			 * last output position matches the start address
-> =EF=BF=BD			 * of this line.
-> =EF=BF=BD			 */
-> -			if (s->string[1] =3D=3D sba[0] && s->string[2] =3D=3D sba[1])
-> -				str +=3D 3, len -=3D 3;
-> +			if (s->string[1] =3D=3D sba[0] && s->string[2] =3D=3D sba[1]) {
-> +				str +=3D 3;
-> +				len -=3D 3;
-> +			}
-> =EF=BF=BD			if (raw3270_request_add_data(wrq, str, len) !=3D 0)
-> =EF=BF=BD				break;
-> =EF=BF=BD			list_del_init(&s->update);
+On 1/21/21 1:48 PM, Cornelia Huck wrote:
+> On Thu, 21 Jan 2021 10:13:12 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> We want the tests to automatically work with or without protected
+>> virtualisation.
+>> To do this we need to share the I/O memory with the host.
+>>
+>> Let's replace all static allocations with dynamic allocations
+>> to clearly separate shared and private memory.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/css.h     |  3 +--
+>>   lib/s390x/css_lib.c | 28 ++++++++--------------------
+>>   s390x/css.c         | 43 +++++++++++++++++++++++++++++++------------
+>>   3 files changed, 40 insertions(+), 34 deletions(-)
+>>
+> 
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> 
+
+Thanks,
+Pierre
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
