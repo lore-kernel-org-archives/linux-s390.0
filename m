@@ -1,17 +1,17 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8468 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731618AbhAUNDs (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20252 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728923AbhAUJ6U (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 21 Jan 2021 08:03:48 -0500
+        Thu, 21 Jan 2021 04:58:20 -0500
 Subject: Re: [kvm-unit-tests PATCH v4 2/3] s390x: define UV compatible I/O
  allocation
 References: <1611220392-22628-1-git-send-email-pmorel@linux.ibm.com>
  <1611220392-22628-3-git-send-email-pmorel@linux.ibm.com>
  <6c232520-dbd1-80e4-e3a3-949964df7403@linux.ibm.com>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <3bce47db-c58c-6a2e-be72-9953f16a2dd4@linux.ibm.com>
-Date: Thu, 21 Jan 2021 14:02:34 +0100
+Message-ID: <54e3ff71-073b-2c98-40b3-c5b575577cfc@linux.ibm.com>
+Date: Thu, 21 Jan 2021 10:57:32 +0100
 MIME-Version: 1.0
 In-Reply-To: <6c232520-dbd1-80e4-e3a3-949964df7403@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
@@ -52,6 +52,11 @@ On 1/21/21 10:46 AM, Janosch Frank wrote:
 > 
 > If you're ok with the amount of mails you'll get then go ahead.
 > But I think maintainer file changes should always be in a separate patch.
+
+You are right it was more an attempts to bring the Linux checkpatch to 
+be quiet but this would need more changes so.. we can discuss this in a 
+separate patch.
+
 > 
 >>   L: kvm@vger.kernel.org
 >>   L: linux-s390@vger.kernel.org
@@ -65,28 +70,29 @@ On 1/21/21 10:46 AM, Janosch Frank wrote:
 >> +// SPDX-License-Identifier: GPL-2.0
 > 
 > I think we wanted to use:
-
-@Janosch , @Thomas
-
 > /* SPDX-License-Identifier: GPL-2.0-or-later */
 
-or
-
-// SPDX-License-Identifier: GPL-2.0-only
-
-later or only ?
-
-/* or // ?
+yes
 
 
-If both are OK, I will take the Janosch proposition which is in use in 
-vm.[ch] and ignore the Linux checkpatch warning.
+...snip...
+>> +
+>> +void free_io_pages(void *p, int size)
+>> +{
+>> +	int order = size >> PAGE_SHIFT;
+>> +
+>> +	assert(IS_ALIGNED((uintptr_t)p, PAGE_SIZE));
+>> +
+>> +	if (test_facility(158))
+>> +		unshare_pages(p, 1 << order);
+> 
+> I have a lib file in the making that will let you check UV features like
+> test_facility(). When that's ready I'm gonna check for unshare here.
 
-Just to : Why are you people not using the Linux style code completely 
-instead of making new exceptions.
+OK
 
-i.e. SPDX license and MAINTAINERS
-
+Thanks,
+Pierre
 
 -- 
 Pierre Morel
