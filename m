@@ -1,80 +1,102 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Vladimir Oltean <olteanv@gmail.com>
-Subject: [RFC PATCH v2 net-next 11/12] net: mark ndo_get_stats64 as being able to sleep
-Date: Tue,  5 Jan 2021 20:59:01 +0200
-Message-Id: <20210105185902.3922928-12-olteanv@gmail.com>
-In-Reply-To: <20210105185902.3922928-1-olteanv@gmail.com>
-References: <20210105185902.3922928-1-olteanv@gmail.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39794 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726251AbhAUJI0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 21 Jan 2021 04:08:26 -0500
+Subject: Re: [kvm-unit-tests PATCH v3 3/3] s390x: css: pv: css test adaptation
+ for PV
+References: <1611085944-21609-1-git-send-email-pmorel@linux.ibm.com>
+ <1611085944-21609-4-git-send-email-pmorel@linux.ibm.com>
+ <b4656e81-1492-d902-73cf-5a08a0a6247d@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <b08a9fa2-6b08-d616-ba3d-a04140490f75@linux.ibm.com>
+Date: Thu, 21 Jan 2021 10:07:29 +0100
 MIME-Version: 1.0
+In-Reply-To: <b4656e81-1492-d902-73cf-5a08a0a6247d@redhat.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jiri Benc <jbenc@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>, Jamal Hadi Salim <jhs@mojatatu.com>, Stephen Hemminger <stephen@networkplumber.org>, Eric Dumazet <edumazet@google.com>, George McCollister <george.mccollister@gmail.com>, Oleksij Rempel <o.rempel@pengutronix.de>, Jay Vosburgh <j.vosburgh@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, Andy Gospodarek <andy@greyhouse.net>, Arnd Bergmann <arnd@arndb.de>, Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andriin@fb.com>, Daniel Borkmann <daniel@iogearbox.net>, Taehee Yoo <ap420073@gmail.com>, Jiri Pirko <jiri@mellanox.com>, =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>, Paolo Abeni <pabeni@redhat.com>, Christian Brauner <christian.brauner@ubuntu.com>, Florian Westphal <fw@strlen.de>, linux-s390@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org, dev@openvswitch.org
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, drjones@redhat.com, pbonzini@redhat.com
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Now that all callers have been converted to not use atomic context when
-calling dev_get_stats, it is time to update the documentation and put a
-notice in the function that it expects process context.
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
----
- Documentation/networking/netdevices.rst | 8 ++++++--
- Documentation/networking/statistics.rst | 9 ++++-----
- net/core/dev.c                          | 2 ++
- 3 files changed, 12 insertions(+), 7 deletions(-)
+On 1/20/21 1:03 PM, Thomas Huth wrote:
+> On 19/01/2021 20.52, Pierre Morel wrote:
+>> We want the tests to automatically work with or without protected
+>> virtualisation.
+>> To do this we need to share the I/O memory with the host.
+>>
+>> Let's replace all static allocations with dynamic allocations
+>> to clearly separate shared and private memory.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+> [...]
+>> diff --git a/s390x/css.c b/s390x/css.c
+>> index ee3bc83..4b0b6b1 100644
+>> --- a/s390x/css.c
+>> +++ b/s390x/css.c
+>> @@ -17,13 +17,15 @@
+>>   #include <interrupt.h>
+>>   #include <asm/arch_def.h>
+>> +#include <malloc_io.h>
+>>   #include <css.h>
+>> +#include <asm/barrier.h>
+>>   #define DEFAULT_CU_TYPE        0x3832 /* virtio-ccw */
+>>   static unsigned long cu_type = DEFAULT_CU_TYPE;
+>>   static int test_device_sid;
+>> -static struct senseid senseid;
+>> +static struct senseid *senseid;
+>>   static void test_enumerate(void)
+>>   {
+>> @@ -57,6 +59,7 @@ static void test_enable(void)
+>>    */
+>>   static void test_sense(void)
+>>   {
+>> +    struct ccw1 *ccw;
+>>       int ret;
+>>       int len;
+>> @@ -80,9 +83,15 @@ static void test_sense(void)
+>>       lowcore_ptr->io_int_param = 0;
+>> -    memset(&senseid, 0, sizeof(senseid));
+>> -    ret = start_single_ccw(test_device_sid, CCW_CMD_SENSE_ID,
+>> -                   &senseid, sizeof(senseid), CCW_F_SLI);
+>> +    senseid = alloc_io_page(sizeof(*senseid));
+> 
+> Would it make sense to move the above alloc_io_page into the ccw_alloc() 
+> function, too?
 
-diff --git a/Documentation/networking/netdevices.rst b/Documentation/networking/netdevices.rst
-index 5a85fcc80c76..944599722c76 100644
---- a/Documentation/networking/netdevices.rst
-+++ b/Documentation/networking/netdevices.rst
-@@ -64,8 +64,12 @@ ndo_do_ioctl:
- 	Context: process
- 
- ndo_get_stats:
--	Synchronization: dev_base_lock rwlock.
--	Context: nominally process, but don't sleep inside an rwlock
-+	Synchronization:
-+		none. netif_lists_lock(net) might be held, but not guaranteed.
-+		It is illegal to hold rtnl_lock() in this method, since it will
-+		cause a lock inversion with netif_lists_lock and a deadlock.
-+	Context:
-+		process
- 
- ndo_start_xmit:
- 	Synchronization: __netif_tx_lock spinlock.
-diff --git a/Documentation/networking/statistics.rst b/Documentation/networking/statistics.rst
-index 234abedc29b2..ad3e353df0dd 100644
---- a/Documentation/networking/statistics.rst
-+++ b/Documentation/networking/statistics.rst
-@@ -155,11 +155,10 @@ Drivers must ensure best possible compliance with
- Please note for example that detailed error statistics must be
- added into the general `rx_error` / `tx_error` counters.
- 
--The `.ndo_get_stats64` callback can not sleep because of accesses
--via `/proc/net/dev`. If driver may sleep when retrieving the statistics
--from the device it should do so periodically asynchronously and only return
--a recent copy from `.ndo_get_stats64`. Ethtool interrupt coalescing interface
--allows setting the frequency of refreshing statistics, if needed.
-+Drivers may sleep when retrieving the statistics from the device, or they might
-+read the counters periodically and only return in `.ndo_get_stats64` a recent
-+copy collected asynchronously. In the latter case, the ethtool interrupt
-+coalescing interface allows setting the frequency of refreshing statistics.
- 
- Retrieving ethtool statistics is a multi-syscall process, drivers are advised
- to keep the number of statistics constant to avoid race conditions with
-diff --git a/net/core/dev.c b/net/core/dev.c
-index d48b75479b3e..6b7cdf8ab875 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -10389,6 +10389,8 @@ void dev_get_stats(struct net_device *dev, struct rtnl_link_stats64 *storage)
- {
- 	const struct net_device_ops *ops = dev->netdev_ops;
- 
-+	might_sleep();
-+
- 	if (ops->ndo_get_stats64) {
- 		memset(storage, 0, sizeof(*storage));
- 		ops->ndo_get_stats64(dev, storage);
+If the goal is to have all allocations inside the ccw_alloc(),
+I don't think so, we may have an already allocated buffer for which we 
+want to pass the address without any allocation inside ccw_alloc() to 
+reuse the same buffer.
+
+
+> 
+>> +    if (!senseid)
+>> +        goto error_senseid;
+>> +
+>> +    ccw = ccw_alloc(CCW_CMD_SENSE_ID, senseid, sizeof(*senseid), 
+>> CCW_F_SLI);
+>> +    if (!ccw)
+>> +        goto error_ccw;
+>> +
+>> +    ret = start_ccw1_chain(test_device_sid, ccw);
+>>       if (ret)
+>>           goto error;
+> 
+> I think you should add a "report(0, ...)" or report_abort() in front of 
+> all three gotos above - otherwise the problems might go unnoticed.
+
+Yes, right, I will do this,
+Thanks.
+
+Pierre
+
+
 -- 
-2.25.1
+Pierre Morel
+IBM Lab Boeblingen
