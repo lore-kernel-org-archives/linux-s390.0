@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 27 Jan 2021 23:15:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v4 1/2] drivers/misc: sysgenid: add system generation id
- driver
-Message-ID: <20210127221505.GB24799@amd>
+Subject: Re: [PATCH v4 1/2] drivers/misc: sysgenid: add system generation id driver
+From: "Catangiu, Adrian Costin" <acatan@amazon.com>
+Date: Thu, 21 Jan 2021 12:48:23 +0000
+Message-ID: <3159F7DB-C72B-4727-9C83-7E7619FC7D98@amazon.com>
 References: <1610453760-13812-1-git-send-email-acatan@amazon.com>
  <1610453760-13812-2-git-send-email-acatan@amazon.com>
+ <20210112080427-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20210112080427-mutt-send-email-mst@kernel.org>
+Content-Language: en-GB
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <4E59309106369F468D00E8FFBB8BA324@amazon.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
-Content-Disposition: inline
-In-Reply-To: <1610453760-13812-2-git-send-email-acatan@amazon.com>
+Content-Transfer-Encoding: base64
 List-ID: <linux-s390.vger.kernel.org>
-To: Adrian Catangiu <acatan@amazon.com>
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, gregkh@linuxfoundation.org, graf@amazon.com, arnd@arndb.de, ebiederm@xmission.com, rppt@kernel.org, 0x7f454c46@gmail.com, borntraeger@de.ibm.com, Jason@zx2c4.com, jannh@google.com, w@1wt.eu, colmmacc@amazon.com, luto@kernel.org, tytso@mit.edu, ebiggers@kernel.org, dwmw@amazon.co.uk, bonzini@gnu.org, sblbir@amazon.com, raduweis@amazon.com, corbet@lwn.net, mst@redhat.com, mhocko@kernel.org, rafael@kernel.org, mpe@ellerman.id.au, areber@redhat.com, ovzxemul@gmail.com, avagin@gmail.com, ptikhomirov@virtuozzo.com, gil@azul.com, asmehra@redhat.com, dgunigun@redhat.com, vijaysun@ca.ibm.com, oridgar@gmail.com, ghammer@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "Graf (AWS), Alexander" <graf@amazon.de>, "arnd@arndb.de" <arnd@arndb.de>, "ebiederm@xmission.com" <ebiederm@xmission.com>, "rppt@kernel.org" <rppt@kernel.org>, "0x7f454c46@gmail.com" <0x7f454c46@gmail.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "Jason@zx2c4.com" <Jason@zx2c4.com>, "jannh@google.com" <jannh@google.com>, "w@1wt.eu" <w@1wt.eu>, "MacCarthaigh, Colm" <colmmacc@amazon.com>, "luto@kernel.org" <luto@kernel.org>, "tytso@mit.edu" <tytso@mit.edu>, "ebiggers@kernel.org" <ebiggers@kernel.org>, "Woodhouse, David" <dwmw@amazon.co.uk>, "bonzini@gnu.org" <bonzini@gnu.org>, "Singh, Balbir" <sblbir@amazon.com>, "Weiss, Radu" <raduweis@amazon.com>, "corbet@lwn.net" <corbet@lwn.net>, "mhocko@kernel.org" <mhocko@kernel.org>, "rafael@kernel.org" <rafael@kernel.org>, "pavel@ucw.cz" <pavel@ucw.cz>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "areber@redhat.com" <areber@redhat.com>, "ovzxemul@gmail.com" <ovzxemul@gmail.com>, "avagin@gmail.com" <avagin@gmail.com>, "ptikhomirov@virtuozzo.com" <ptikhomirov@virtuozzo.com>, "gil@azul.com" <gil@azul.com>, "asmehra@redhat.com" <asmehra@redhat.com>, "dgunigun@redhat.com" <dgunigun@redhat.com>, "vijaysun@ca.ibm.com" <vijaysun@ca.ibm.com>, "oridgar@gmail.com" <oridgar@gmail.com>, "ghammer@redhat.com" <ghammer@redhat.com>
 
-
---qlTNgmc+xy1dBmNv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi!
-
-> - Solution
->=20
-> The System Generation ID is a simple concept meant to alleviate the
-> issue by providing a monotonically increasing u32 counter that changes
-> each time the VM or container is restored from a snapshot.
-
-I'd make it u64.
-
-But as people explained, this has race problems that may be impossible
-to solve?
-
-Best regards,
-								Pavel
-							=09
---=20
-http://www.livejournal.com/~pavelmachek
-
---qlTNgmc+xy1dBmNv
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmAR5ekACgkQMOfwapXb+vIeRACdFFlEw9Qzjgj/nAuNJzxFeb2z
-28wAoKXL22jBt2ohyVp9BgmFr64wldNZ
-=T3KQ
------END PGP SIGNATURE-----
-
---qlTNgmc+xy1dBmNv--
+T24gMTIvMDEvMjAyMSwgMTU6MDksICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0LmNv
+bT4gd3JvdGU6DQoNCiAgICBPbiBUdWUsIEphbiAxMiwgMjAyMSBhdCAwMjoxNTo1OVBNICswMjAw
+LCBBZHJpYW4gQ2F0YW5naXUgd3JvdGU6DQogICAgDQogICAgPiArMykgTWFwcGVkIG1lbW9yeSBw
+b2xsaW5nIHNpbXBsaWZpZWQgZXhhbXBsZTo6DQogICAgPiArDQogICAgPiArICAgICAvKg0KICAg
+ID4gKyAgICAgICogYXBwL2xpYnJhcnkgZnVuY3Rpb24gdGhhdCBwcm92aWRlcyBjYWNoZWQgc2Vj
+cmV0cw0KICAgID4gKyAgICAgICovDQogICAgPiArICAgICBjaGFyICogc2FmZV9jYWNoZWRfc2Vj
+cmV0KGFwcF9kYXRhX3QgKmFwcCkNCiAgICA+ICsgICAgIHsNCiAgICA+ICsgICAgICAgICAgICAg
+Y2hhciAqc2VjcmV0Ow0KICAgID4gKyAgICAgICAgICAgICB2b2xhdGlsZSB1bnNpZ25lZCAqY29u
+c3QgZ2VuaWRfcHRyID0gZ2V0X3N5c2dlbmlkX21hcHBpbmcoYXBwKTsNCiAgICA+ICsgICAgIGFn
+YWluOg0KICAgID4gKyAgICAgICAgICAgICBzZWNyZXQgPSBfX2NhY2hlZF9zZWNyZXQoYXBwKTsN
+CiAgICA+ICsNCiAgICA+ICsgICAgICAgICAgICAgaWYgKHVubGlrZWx5KCpnZW5pZF9wdHIgIT0g
+YXBwLT5jYWNoZWRfZ2VuaWQpKSB7DQogICAgPiArICAgICAgICAgICAgICAgICAgICAgYXBwLT5j
+YWNoZWRfZ2VuaWQgPSAqZ2VuaWRfcHRyOw0KICAgID4gKyAgICAgICAgICAgICAgICAgICAgIGJh
+cnJpZXIoKTsNCiAgICA+ICsNCiAgICA+ICsgICAgICAgICAgICAgICAgICAgICAvLyByZWJ1aWxk
+IHdvcmxkIHRoZW4gY29uZmlybSB0aGUgZ2VuaWQgdXBkYXRlICh0aHJ1IHdyaXRlKQ0KICAgID4g
+KyAgICAgICAgICAgICAgICAgICAgIHJlYnVpbGRfY2FjaGVzKGFwcCk7DQogICAgPiArDQogICAg
+PiArICAgICAgICAgICAgICAgICAgICAgYWNrX3N5c2dlbmlkX3VwZGF0ZShhcHApOw0KICAgID4g
+Kw0KICAgID4gKyAgICAgICAgICAgICAgICAgICAgIGdvdG8gYWdhaW47DQogICAgPiArICAgICAg
+ICAgICAgIH0NCiAgICA+ICsNCiAgICA+ICsgICAgICAgICAgICAgcmV0dXJuIHNlY3JldDsNCg0K
+DQoNCiAgICBIbW0uIFRoaXMgc2VlbXMgdG8gcmVseSBvbiB0aGUgYXNzdW1wdGlvbiB0aGF0IGlm
+IHlvdSBoYXZlDQogICAgcmVhZCB0aGUgSUQgYW5kIGl0IGRpZCBub3QgY2hhbmdlLCB0aGVuIGFs
+bCBpcyB3ZWxsLg0KDQogICAgUHJvYmxlbSBpcywgaW4gdGhlIGludGVycnVwdCBkcml2ZW4gaW1w
+bGVtZW50YXRpb24NCiAgICB0aGlzIGlzIG5vdCBhIHNhZmUgYXNzdW1wdGlvbiB0byBtYWtlOiBJ
+RA0KICAgIGZyb20gaHlwZXJ2aXNvciBtaWdodCBoYXZlIGNoYW5nZWQgYnV0IGludGVycnVwdA0K
+ICAgIGNvdWxkIGJlIGRlbGF5ZWQuDQoNCg0KICAgIElmIHdlIG1hcCB0aGUgaHlwZXJ2aXNvciBJ
+RCB0byB1c2Vyc3BhY2UgdGhlbiB3ZSB3b24ndA0KICAgIGhhdmUgdGhpcyByYWNlIC4uLiB3b3J0
+aCB3b3JyeSBhYm91dD8gd2h5IG5vdD8NCg0KVGhpcyBpcyBhIHZlcnkgZ29vZCBwb2ludCEgVW5m
+b3J0dW5hdGVseSwgdGhlcmUgaXMgbm8gaW1tZWRpYXRlIHNvbHV0aW9uIGhlcmUuDQpUaGUgY3Vy
+cmVudCBwYXRjaC1zZXQgbWFrZXMgdGhpcyB0cmFkZS1vZmYgaW4gb3JkZXIgdG8gZ2FpbiB0aGUg
+Z2VuZXJpY2l0eSBvZg0KYSBzeXN0ZW0tbGV2ZWwgZ2VuZXJhdGlvbiBJRCB3aGljaCBpcyBub3Qg
+bGltaXRlZCB0byBWTXMgdXNlY2FzZXMsIGJ1dCBjYW4gYWxzbw0KYmUgdXNlZCB3aXRoIHRoaW5n
+cyBsaWtlIENSSVUuDQoNCkRpcmVjdGx5IG1hcHBpbmcgdGhlIHZtZ2VuaWQgVVVJRCB0byB1c2Vy
+c3BhY2Ugd2FzIHRoZSBpbml0aWFsIGRlc2lnbiBvZiB0aGlzDQpwYXRjaC1zZXQgKHNlZSB2MSks
+IGJ1dCBpdCB3YXMgYXJndWVkIGFnYWluc3QgYW5kIGV2b2x2ZWQgaW50byBjdXJyZW50IHN0YXRl
+Lg0KDQpJIHdvdWxkIHBlcnNvbmFsbHkgcmF0aGVyIGVuaGFuY2UgdGhlIEhXIHN1cHBvcnQgKHZt
+Z2VuaWQgZGV2aWNlIGZvciBleGFtcGxlKQ0KdG8gYWxzbyBleHBvc2UgYSBjb25maWd1cmFibGUg
+dTMyIFZtIEdlbiBDb3VudGVyIGFsb25nc2lkZSB0aGUgMTI4LWJpdCBVVUlEOw0KYW5kIGFkZCBz
+dXBwb3J0IGluIFN5c0dlbklEIHRvIG9mZmxvYWQgdGhlIGNvdW50ZXIgdG8gSFcgd2hlbiBhcHBs
+aWNhYmxlLg0KDQoNClRoZSBicm9hZGVyIHZpZXcgaXMgd2UgbmVlZCB0byBzdHJpa2UgdGhlIHJp
+Z2h0IGJhbGFuY2UgYmV0d2VlbiBhIGZ1bmN0aW9uYWwsDQpzYWZlIG1lY2hhbmlzbSB3aXRoIHRv
+ZGF5J3MgdGVjaG5vbG9neSwgYnV0IGFsc28gZGVzaWduIGEgZnV0dXJlLXByb29mIGdlbmVyaWMN
+Cm1lY2hhbmlzbS4NCg0KRml4aW5nIHRoZSByYWNlIHlvdSBtZW50aW9uZWQgaW4gU3lzR2VuSUQg
+b25seSBtb3ZlcyB0aGUgcmFjZSBhIGJpdCBmdXJ0aGVyIHVwDQp0aGUgc3RhY2sgLSB5b3UgZ2Vu
+ZXJhdGUgdGhlIHNlY3JldCByYWNlLWZyZWUgYnV0IHRoZSBzZWNyZXQgY2FuIHN0aWxsIGJlIGR1
+cGxpY2F0ZWQNCmluIHRoZSBuZXh0IGxheWVyLiBUbyBtYWtlIGFueSBtZWNoYW5pc20gY29tcGxl
+dGVseSBzYWZlIHdlIG5lZWQgdG8gY29uY2VwdHVhbGx5DQpkaXNjb25uZWN0IG91cnNlbHZlcyBm
+cm9tIGJlbGlldmluZyB0aGF0IGEgcmVzdG9yZWQgc25hcHNob3QgaXMgaW1tZWRpYXRlbHkgYXZh
+aWxhYmxlLg0KVGhlcmUgbmVlZHMgdG8gYmUgc29tZSBlbnRpdHkgdGhhdCBtb3ZlcyB0aGUgcmVz
+dG9yZWQgVk0vY29udGFpbmVyL3N5c3RlbQ0KZnJvbSBhIHRyYW5zaWVudCBzdGF0ZSB0byAiYXZh
+aWxhYmxlIi4gVGhhdCBlbnRpdHkgY2FuIGJlIGEgcHJvY2VzcyBpbnNpZGUgdGhlIFZNLA0KYnV0
+IGl0IGNhbiBhbHNvIGJlIHNvbWV0aGluZyBvdXRzaWRlIHRoZSBWTSwgaW4gdGhlIGh5cGVydmlz
+b3Igb3IgaW4gdGhlIHN0YWNrDQpzdXJyb3VuZGluZyBpdC4gVGhhdCBlbnRpdHkgaXMgcmVzcG9u
+c2libGUgZm9yIG1hbmFnaW5nIHRoZSB0cmFuc2l0aW9uIG9mIHRoZSBWTQ0Kb3IgY29udGFpbmVy
+IGZyb20gdHJhbnNpZW50IC0+IGF2YWlsYWJsZS4gSXQgaXMgcmVzcG9uc2libGUgZm9yIG5vdCBh
+bGxvd2luZyB0aGUgVk0vDQpjb250YWluZXIgdG8gYmUgdXNlZCBvciB1c2FibGUgdW50aWwgdGhh
+dCB0cmFuc2l0aW9uIGlzIGNvbXBsZXRlLg0KDQpJbiB0aGUgZmlyc3QgZ2VuZXJhdGlvbnMgb2Yg
+Vk0gY2xvbmVzIGFuZCBDUklVIHByb2R1Y3Rpb24gZGVwbG95bWVudHMsIEkgZXhwZWN0DQp0aGlz
+IGVudGl0eSB0byBiZSBhIHN0YWNrLXNwZWNpZmljIGNvbXBvbmVudCB3aXRoIGludGltYXRlIGtu
+b3dsZWRnZSBvZiB0aGUgc3lzdGVtDQpjb21wb25lbnRzLCB0cmFuc2llbnQgc3RhdGVzLCBsaWZl
+Y3ljbGUsIGV0Yy4gV2hpY2ggdGhpcyBwYXRjaC1zZXQgZW5hYmxlcy4NCg0KDQpUaGFua3MsDQpB
+ZHJpYW4uDQoNCg0KCgoKQW1hem9uIERldmVsb3BtZW50IENlbnRlciAoUm9tYW5pYSkgUy5SLkwu
+IHJlZ2lzdGVyZWQgb2ZmaWNlOiAyN0EgU2YuIExhemFyIFN0cmVldCwgVUJDNSwgZmxvb3IgMiwg
+SWFzaSwgSWFzaSBDb3VudHksIDcwMDA0NSwgUm9tYW5pYS4gUmVnaXN0ZXJlZCBpbiBSb21hbmlh
+LiBSZWdpc3RyYXRpb24gbnVtYmVyIEoyMi8yNjIxLzIwMDUuCg==
