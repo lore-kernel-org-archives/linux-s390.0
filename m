@@ -1,73 +1,59 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58654 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726316AbhAUUvy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 21 Jan 2021 15:51:54 -0500
-Date: Thu, 21 Jan 2021 13:50:21 -0700
-From: Alex Williamson <alex.williamson@redhat.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 Subject: Re: [PATCH 4/4] vfio-pci/zdev: Introduce the zPCI I/O vfio region
-Message-ID: <20210121135021.0eb7e873@omen.home.shazbot.org>
-In-Reply-To: <90d99da8-02cf-e051-314b-2ab192f8fd57@linux.ibm.com>
 References: <1611086550-32765-1-git-send-email-mjrosato@linux.ibm.com>
-        <1611086550-32765-5-git-send-email-mjrosato@linux.ibm.com>
-        <90d99da8-02cf-e051-314b-2ab192f8fd57@linux.ibm.com>
+ <1611086550-32765-5-git-send-email-mjrosato@linux.ibm.com>
+ <5d048eb9-72e5-e713-5c1a-56a1c3d957c4@linux.ibm.com>
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Message-ID: <594f94fd-d725-bc3f-31d1-2d7333234682@linux.ibm.com>
+Date: Thu, 21 Jan 2021 10:57:12 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <5d048eb9-72e5-e713-5c1a-56a1c3d957c4@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>, cohuck@redhat.com, pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Niklas Schnelle <schnelle@linux.ibm.com>, alex.williamson@redhat.com, cohuck@redhat.com
+Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 20 Jan 2021 14:21:59 +0100
-Niklas Schnelle <schnelle@linux.ibm.com> wrote:
-
+On 1/21/21 5:01 AM, Niklas Schnelle wrote:
+> 
+> 
 > On 1/19/21 9:02 PM, Matthew Rosato wrote:
-> > Some s390 PCI devices (e.g. ISM) perform I/O operations that have very  
-> .. snip ...
-> > +
-> > +static size_t vfio_pci_zdev_io_rw(struct vfio_pci_device *vdev,
-> > +				  char __user *buf, size_t count,
-> > +				  loff_t *ppos, bool iswrite)
-> > +{  
-> ... snip ...
-> > +	/*
-> > +	 * For now, the largest allowed block I/O is advertised as PAGE_SIZE,
-> > +	 * and cannot exceed a page boundary - so a single page is enough.  The
-> > +	 * guest should have validated this but let's double-check that the
-> > +	 * request will not cross a page boundary.
-> > +	 */
-> > +	if (((region->req.gaddr & ~PAGE_MASK)
-> > +			+ region->req.len - 1) & PAGE_MASK) {
-> > +		return -EIO;
-> > +	}
-> > +
-> > +	mutex_lock(&zdev->lock);  
+>> Some s390 PCI devices (e.g. ISM) perform I/O operations that have very
+>> specific requirements in terms of alignment as well as the patterns in
+>> which the data is read/written. Allowing these to proceed through the
+>> typical vfio_pci_bar_rw path will cause them to be broken in up in such a
+>> way that these requirements can't be guaranteed. In addition, ISM devices
+>> do not support the MIO codepaths that might be triggered on vfio I/O coming
+>> from userspace; we must be able to ensure that these devices use the
+>> non-MIO instructions.  To facilitate this, provide a new vfio region by
+>> which non-MIO instructions can be passed directly to the host kernel s390
+>> PCI layer, to be reliably issued as non-MIO instructions.
+>>
+>> This patch introduces the new vfio VFIO_REGION_SUBTYPE_IBM_ZPCI_IO region
+>> and implements the ability to pass PCISTB and PCILG instructions over it,
+>> as these are what is required for ISM devices.
+>>
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> ---
+>>   drivers/vfio/pci/vfio_pci.c         |   8 ++
+>>   drivers/vfio/pci/vfio_pci_private.h |   6 ++
+>>   drivers/vfio/pci/vfio_pci_zdev.c    | 158 ++++++++++++++++++++++++++++++++++++
+>>   include/uapi/linux/vfio.h           |   4 +
+>>   include/uapi/linux/vfio_zdev.h      |  33 ++++++++
+>>   5 files changed, 209 insertions(+)
 > 
-> I plan on using the zdev->lock for preventing concurrent zPCI devices
-> removal/configuration state changes between zPCI availability/error
-> events and enable_slot()/disable_slot() and /sys/bus/pci/devices/<dev>/recover.
+> Related to the discussion on the QEMU side, if we have a check
+> to make sure this is only used for ISM, then this patch should
+> make that clear in its wording and also in the paths
+> (drivers/vfio/pci/vfio_pci_ism.c instead of vfio_pci_zdev.c.)
+> This also has precedent with the region for IGD in
+> drivers/vfio/pci/vfio_pci_igd.c.
 > 
-> With that use in place using it here causes a deadlock when doing 
-> "echo 0 > /sys/bus/pci/slots/<fid>/power from the host for an ISM device
-> attached to a guest.
-> 
-> This is because the (soft) hot unplug will cause vfio to notify QEMU, which
-> sends a deconfiguration request to the guest, which then tries to
-> gracefully shutdown the device. During that shutdown the device will
-> be accessed, running into this code path which then blocks on
-> the lock held by the disable_slot() code which waits on vfio
-> releasing the device.
-> 
-> Alex may correct me if I'm wrong but I think instead vfio should
-> be holding the PCI device lock via pci_device_lock(pdev).
 
-There be dragons in device_lock, which is why we have all the crude
-try-lock semantics in reset paths.  Don't use it trivially.  Device
-lock is not necessary here otherwise, the device is bound to a driver
-and has an open userspace file descriptor through which the user is
-performing this access.  The device can't be removed without unbinding
-the driver, which can't happen while the user still has open files to
-it.  Thanks,
-
-Alex
+This is a fair point, but just to tie up threads here -- the QEMU 
+discussion has since moved towards making the use-case less restrictive 
+rather than ISM-only (though getting ISM working is still the motivating 
+factor here).  So as such I think I'd prefer to keep this in 
+vfio_pci_zdev.c as other hardware could use the region if they meet the 
+necessary criteria.
