@@ -1,50 +1,79 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:40653 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390223AbhARLdP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Jan 2021 06:33:15 -0500
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] s390/tape: Fix spelling mistake in function name tape_3590_erp_succeded
-Date: Mon, 18 Jan 2021 11:32:22 +0000
-Message-Id: <20210118113222.71708-1-colin.king@canonical.com>
+Received: from foss.arm.com ([217.140.110.172]:55122 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726492AbhAVDdZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 21 Jan 2021 22:33:25 -0500
+Subject: Re: [PATCH RFC] virtio-mem: check against memhp_get_pluggable_range()
+ which memory we can hotplug
+References: <1610975582-12646-1-git-send-email-anshuman.khandual@arm.com>
+ <1610975582-12646-5-git-send-email-anshuman.khandual@arm.com>
+ <a1644ce0-427f-7a5c-b90a-547e61341a75@arm.com>
+ <36a10a6f-a2c7-b108-5054-5e4f3e1a1daf@redhat.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <99c20d27-b759-73b3-c8a0-68365a3ef943@arm.com>
+Date: Fri, 22 Jan 2021 09:02:51 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <36a10a6f-a2c7-b108-5054-5e4f3e1a1daf@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com
+Cc: Oscar Salvador <osalvador@suse.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Michal Hocko <mhocko@kernel.org>, Wei Yang <richard.weiyang@linux.alibaba.com>, teawater <teawaterz@linux.alibaba.com>, Pankaj Gupta <pankaj.gupta@cloud.ionos.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-From: Colin Ian King <colin.king@canonical.com>
 
-Rename tape_3590_erp_succeded to tape_3590_erp_succeeded to fix a
-spelling mistake in the function name.
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/s390/char/tape_3590.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On 1/21/21 3:27 PM, David Hildenbrand wrote:
+> On 18.01.21 14:21, Anshuman Khandual wrote:
+>>
+>>
+>> On 1/18/21 6:43 PM, Anshuman Khandual wrote:
+>>> From: David Hildenbrand <david@redhat.com>
+>>>
+>>> Right now, we only check against MAX_PHYSMEM_BITS - but turns out there
+>>> are more restrictions of which memory we can actually hotplug, especially
+>>> om arm64 or s390x once we support them: we might receive something like
+>>> -E2BIG or -ERANGE from add_memory_driver_managed(), stopping device
+>>> operation.
+>>>
+>>> So, check right when initializing the device which memory we can add,
+>>> warning the user. Try only adding actually pluggable ranges: in the worst
+>>> case, no memory provided by our device is pluggable.
+>>>
+>>> In the usual case, we expect all device memory to be pluggable, and in
+>>> corner cases only some memory at the end of the device-managed memory
+>>> region to not be pluggable.
+>>>
+>>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+>>> Cc: Jason Wang <jasowang@redhat.com>
+>>> Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+>>> Cc: Michal Hocko <mhocko@kernel.org>
+>>> Cc: Oscar Salvador <osalvador@suse.de>
+>>> Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+>>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>>> Cc: catalin.marinas@arm.com
+>>> Cc: teawater <teawaterz@linux.alibaba.com>
+>>> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+>>> Cc: Pankaj Gupta <pankaj.gupta@cloud.ionos.com>
+>>> Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+>>> Cc: hca@linux.ibm.com
+>>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>>> Cc: Will Deacon <will@kernel.org>
+>>> Cc: Ard Biesheuvel <ardb@kernel.org>
+>>> Cc: Mark Rutland <mark.rutland@arm.com>
+>>> Cc: Heiko Carstens <hca@linux.ibm.com>
+>>> Cc: Michal Hocko <mhocko@kernel.org>
+>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>>
+>> Hello David,
+>>
+>> As your original patch was in the RFC state, I have just maintained
+>> the same here as well. But once you test this patch along with the
+>> new series, please do let me know if this needs to be converted to
+>> a normal PATCH instead. Thank you.
+> 
+> Yes, you can drop the RFC part. I assume you'll send another revision,
+> I'll do another test there, thanks!
 
-diff --git a/drivers/s390/char/tape_3590.c b/drivers/s390/char/tape_3590.c
-index ecf8c5006a0e..0d484fe43d7e 100644
---- a/drivers/s390/char/tape_3590.c
-+++ b/drivers/s390/char/tape_3590.c
-@@ -761,7 +761,7 @@ tape_3590_done(struct tape_device *device, struct tape_request *request)
-  * This function is called, when error recovery was successful
-  */
- static inline int
--tape_3590_erp_succeded(struct tape_device *device, struct tape_request *request)
-+tape_3590_erp_succeeded(struct tape_device *device, struct tape_request *request)
- {
- 	DBF_EVENT(3, "Error Recovery successful for %s\n",
- 		  tape_op_verbose[request->op]);
-@@ -831,7 +831,7 @@ tape_3590_erp_basic(struct tape_device *device, struct tape_request *request,
- 	case SENSE_BRA_PER:
- 		return tape_3590_erp_failed(device, request, irb, rc);
- 	case SENSE_BRA_CONT:
--		return tape_3590_erp_succeded(device, request);
-+		return tape_3590_erp_succeeded(device, request);
- 	case SENSE_BRA_RE:
- 		return tape_3590_erp_retry(device, request, irb);
- 	case SENSE_BRA_DRE:
--- 
-2.29.2
+Sure, will drop the RFC in next version.
