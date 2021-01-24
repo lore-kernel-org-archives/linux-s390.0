@@ -1,39 +1,100 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41584 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730743AbhAYQYq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Jan 2021 11:24:46 -0500
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57393C061788
-        for <linux-s390@vger.kernel.org>; Mon, 25 Jan 2021 08:24:06 -0800 (PST)
-Received: by mail-pl1-x630.google.com with SMTP id b17so1391761plz.6
-        for <linux-s390@vger.kernel.org>; Mon, 25 Jan 2021 08:24:06 -0800 (PST)
-Subject: Re: store a pointer to the block_device in struct bio (again) v2
-References: <20210124100241.1167849-1-hch@lst.de>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <86dd18e9-43e9-efe5-8445-88952a95b5d8@kernel.dk>
-Date: Mon, 25 Jan 2021 09:24:03 -0700
+        with ESMTP id S1726482AbhAXKF4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Jan 2021 05:05:56 -0500
+From: Christoph Hellwig <hch@lst.de>
+Subject: store a pointer to the block_device in struct bio (again) v2
+Date: Sun, 24 Jan 2021 11:02:31 +0100
+Message-Id: <20210124100241.1167849-1-hch@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <20210124100241.1167849-1-hch@lst.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
+To: Jens Axboe <axboe@kernel.dk>
 Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
 
-On 1/24/21 3:02 AM, Christoph Hellwig wrote:
-> Hi Jens,
-> 
-> this series switches back from storing the gendisk + partno to storing
-> a block_device pointer in struct bio.  The reason is two fold:  for one
-> the new struct block_device actually is always available, removing the
-> need to avoid originally.  Second the merge struct block_device is much
-> more useful than the old one, as storing it avoids the need for looking
-> up what used to be hd_struct during partition remapping and I/O
-> accounting.
+Hi Jens,
 
-Applied for 5.12, thanks.
+this series switches back from storing the gendisk + partno to storing
+a block_device pointer in struct bio.  The reason is two fold:  for one
+the new struct block_device actually is always available, removing the
+need to avoid originally.  Second the merge struct block_device is much
+more useful than the old one, as storing it avoids the need for looking
+up what used to be hd_struct during partition remapping and I/O
+accounting.
 
--- 
-Jens Axboe
+Note that this series depends on the posted but not merged
+"split hard read-only vs read-only policy" series.
+
+A git tree is also available:
+
+    git://git.infradead.org/users/hch/block.git bi_bdev
+
+Gitweb:
+
+    http://git.infradead.org/users/hch/block.git/shortlog/refs/heads/bi_bdev
+
+Changes since v1:
+ - protect against double remapping I/O to partitions
+
+Diffstat:
+ arch/m68k/emu/nfblock.c             |    2 
+ arch/xtensa/platforms/iss/simdisk.c |    2 
+ block/bio-integrity.c               |   18 +-
+ block/bio.c                         |   31 +---
+ block/blk-cgroup.c                  |    7 
+ block/blk-core.c                    |  100 ++++++-------
+ block/blk-crypto-fallback.c         |    2 
+ block/blk-crypto.c                  |    2 
+ block/blk-merge.c                   |   17 +-
+ block/blk-mq.c                      |    2 
+ block/blk-settings.c                |    2 
+ block/blk-throttle.c                |    2 
+ block/blk.h                         |    5 
+ block/bounce.c                      |    2 
+ block/genhd.c                       |  271 ++++--------------------------------
+ block/partitions/core.c             |   31 ----
+ drivers/block/brd.c                 |    8 -
+ drivers/block/drbd/drbd_int.h       |    4 
+ drivers/block/drbd/drbd_req.c       |    2 
+ drivers/block/null_blk/main.c       |    2 
+ drivers/block/pktcdvd.c             |    4 
+ drivers/block/ps3vram.c             |    2 
+ drivers/block/rsxx/dev.c            |    2 
+ drivers/block/umem.c                |    2 
+ drivers/block/zram/zram_drv.c       |    2 
+ drivers/lightnvm/pblk-init.c        |    2 
+ drivers/md/bcache/debug.c           |    2 
+ drivers/md/bcache/request.c         |   39 +++--
+ drivers/md/dm-bio-record.h          |    9 -
+ drivers/md/dm-raid1.c               |   10 -
+ drivers/md/dm.c                     |   14 -
+ drivers/md/md-linear.c              |    2 
+ drivers/md/md.c                     |   10 -
+ drivers/md/md.h                     |    6 
+ drivers/md/raid1.c                  |    6 
+ drivers/md/raid10.c                 |   12 -
+ drivers/md/raid5.c                  |    2 
+ drivers/nvdimm/blk.c                |    4 
+ drivers/nvdimm/btt.c                |    4 
+ drivers/nvdimm/pmem.c               |    4 
+ drivers/nvme/host/core.c            |    6 
+ drivers/nvme/host/lightnvm.c        |    3 
+ drivers/nvme/host/multipath.c       |    6 
+ drivers/nvme/host/rdma.c            |    2 
+ drivers/s390/block/dasd.c           |   26 ---
+ drivers/s390/block/dcssblk.c        |    6 
+ drivers/s390/block/xpram.c          |    2 
+ fs/btrfs/check-integrity.c          |   10 -
+ fs/btrfs/raid56.c                   |    7 
+ fs/btrfs/scrub.c                    |    2 
+ fs/direct-io.c                      |    2 
+ fs/f2fs/data.c                      |   12 -
+ include/linux/bio.h                 |   20 +-
+ include/linux/blk-mq.h              |    4 
+ include/linux/blk_types.h           |    4 
+ include/linux/blkdev.h              |   20 --
+ include/linux/genhd.h               |   21 --
+ kernel/trace/blktrace.c             |   16 +-
+ mm/page_io.c                        |    2 
+ 59 files changed, 260 insertions(+), 561 deletions(-)
