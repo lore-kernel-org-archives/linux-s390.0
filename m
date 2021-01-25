@@ -1,80 +1,151 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:34323 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729420AbhAKKxX (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58784 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729845AbhAYO4v (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Jan 2021 05:53:23 -0500
-Subject: Re: [PATCH V2 1/3] mm/hotplug: Prevalidate the address range being
- added with platform
-References: <1608218912-28932-1-git-send-email-anshuman.khandual@arm.com>
- <1608218912-28932-2-git-send-email-anshuman.khandual@arm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <10e733fa-4568-d38f-9b95-2ccc5dc627b8@redhat.com>
-Date: Mon, 11 Jan 2021 11:51:47 +0100
+        Mon, 25 Jan 2021 09:56:51 -0500
+From: Stefan Haberland <sth@linux.ibm.com>
+References: <20210118165518.14578-1-sth@linux.ibm.com>
+ <20210118165518.14578-2-sth@linux.ibm.com>
+Subject: Re: [PATCH 1/1] s390/dasd: Fix inconsistent kobject removal
+Message-ID: <7e7051ac-dbe2-2951-2362-1bc9e7a8dfc6@linux.ibm.com>
+Date: Mon, 25 Jan 2021 15:55:58 +0100
 MIME-Version: 1.0
-In-Reply-To: <1608218912-28932-2-git-send-email-anshuman.khandual@arm.com>
+In-Reply-To: <20210118165518.14578-2-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com
-Cc: linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
 
-On 17.12.20 16:28, Anshuman Khandual wrote:
-> This introduces memhp_range_allowed() which can be called in various memory
-> hotplug paths to prevalidate the address range which is being added, with
-> the platform. Then memhp_range_allowed() calls memhp_get_pluggable_range()
-> which provides applicable address range depending on whether linear mapping
-> is required or not. For ranges that require linear mapping, it calls a new
-> arch callback arch_get_mappable_range() which the platform can override. So
-> the new callback, in turn provides the platform an opportunity to configure
-> acceptable memory hotplug address ranges in case there are constraints.
-> 
-> This mechanism will help prevent platform specific errors deep down during
-> hotplug calls. This drops now redundant check_hotplug_memory_addressable()
-> check in __add_pages() but instead adds a VM_BUG_ON() check which would
-> ensure that the range has been validated with memhp_range_allowed() earlier
-> in the call chain. Besides memhp_get_pluggable_range() also can be used by
-> potential memory hotplug callers to avail the allowed physical range which
-> would go through on a given platform.
-> 
-> This does not really add any new range check in generic memory hotplug but
-> instead compensates for lost checks in arch_add_memory() where applicable
-> and check_hotplug_memory_addressable(), with unified memhp_range_allowed().
-> 
+Hi Jens,
 
-Subject s/mm\/hotplug/mm\/memory_hotplug/
+small question.
+Do you plan to include the fix still for 5.11 or with the merge window
+for 5.12?
+The faulty patch was included in the 5.11 merge window.
 
-Everywhere in this patch: Use "true/false" for boolean values.
+Best regards,
+Stefan
 
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: linux-mm@kvack.org
-> Cc: linux-kernel@vger.kernel.org
-> Suggested-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Am 18.01.21 um 17:55 schrieb Stefan Haberland:
+> From: Jan H=C3=B6ppner <hoeppner@linux.ibm.com>
+>
+> Our intention was to only remove path kobjects whenever a device is
+> being set offline. However, one corner case was missing.
+>
+> If a device is disabled and enabled (using the IOCTLs BIODASDDISABLE an=
+d
+> BIODASDENABLE respectively), the enabling process will call
+> dasd_eckd_reload_device() which itself calls dasd_eckd_read_conf() in
+> order to update path information. During that update,
+> dasd_eckd_clear_conf_data() clears all old data and also removes all
+> kobjects. This will leave us with an inconsistent state of path kobject=
+s
+> and a subsequent path verification leads to a failing kobject creation.=
+
+>
+> Fix this by removing kobjects only in the context of offlining a device=
+
+> as initially intended.
+>
+> Fixes: 19508b204740 ("s390/dasd: Display FC Endpoint Security informati=
+on via sysfs")
+> Reported-by: Stefan Haberland <sth@linux.ibm.com>
+> Signed-off-by: Jan H=C3=B6ppner <hoeppner@linux.ibm.com>
+> Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
 > ---
->  include/linux/memory_hotplug.h | 10 +++++
->  mm/memory_hotplug.c            | 79 +++++++++++++++++++++++++---------
->  mm/memremap.c                  |  6 +++
->  3 files changed, 75 insertions(+), 20 deletions(-)
-> 
-> diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-> index 551093b74596..8d72354758c8 100644
-> --- a/include/linux/memory_hotplug.h
-> +++ b/include/linux/memory_hotplug.h
-> @@ -70,6 +70,9 @@ typedef int __bitwise mhp_t;
->   */
->  #define MEMHP_MERGE_RESOURCE	((__force mhp_t)BIT(0))
->  
-> +bool memhp_range_allowed(u64 start, u64 size, bool need_mapping);
-> +struct range memhp_get_pluggable_range(bool need_mapping);
+>  drivers/s390/block/dasd_devmap.c | 20 ++++++++++++++------
+>  drivers/s390/block/dasd_eckd.c   |  3 ++-
+>  drivers/s390/block/dasd_int.h    |  2 +-
+>  3 files changed, 17 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd=
+_devmap.c
+> index 16bb135c20aa..03d27ee9cac6 100644
+> --- a/drivers/s390/block/dasd_devmap.c
+> +++ b/drivers/s390/block/dasd_devmap.c
+> @@ -1874,18 +1874,26 @@ void dasd_path_create_kobjects(struct dasd_devi=
+ce *device)
+>  }
+>  EXPORT_SYMBOL(dasd_path_create_kobjects);
+> =20
+> -/*
+> - * As we keep kobjects for the lifetime of a device, this function mus=
+t not be
+> - * called anywhere but in the context of offlining a device.
+> - */
+> -void dasd_path_remove_kobj(struct dasd_device *device, int chp)
+> +static void dasd_path_remove_kobj(struct dasd_device *device, int chp)=
 
-AFAIKs, all memhp_get_pluggable_range() users pass "1".
-
-What about the "add_pages()-only" path?
-
--- 
-Thanks,
-
-David / dhildenb
+>  {
+>  	if (device->path[chp].in_sysfs) {
+>  		kobject_put(&device->path[chp].kobj);
+>  		device->path[chp].in_sysfs =3D false;
+>  	}
+>  }
+> -EXPORT_SYMBOL(dasd_path_remove_kobj);
+> +
+> +/*
+> + * As we keep kobjects for the lifetime of a device, this function mus=
+t not be
+> + * called anywhere but in the context of offlining a device.
+> + */
+> +void dasd_path_remove_kobjects(struct dasd_device *device)
+> +{
+> +	int i;
+> +
+> +	for (i =3D 0; i < 8; i++)
+> +		dasd_path_remove_kobj(device, i);
+> +}
+> +EXPORT_SYMBOL(dasd_path_remove_kobjects);
+> =20
+>  int dasd_add_sysfs_files(struct ccw_device *cdev)
+>  {
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_e=
+ckd.c
+> index 3caa1ee5f4b0..65eb87cbbb9b 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+> @@ -1036,7 +1036,6 @@ static void dasd_eckd_clear_conf_data(struct dasd=
+_device *device)
+>  		device->path[i].ssid =3D 0;
+>  		device->path[i].chpid =3D 0;
+>  		dasd_path_notoper(device, i);
+> -		dasd_path_remove_kobj(device, i);
+>  	}
+>  }
+> =20
+> @@ -2173,6 +2172,7 @@ dasd_eckd_check_characteristics(struct dasd_devic=
+e *device)
+>  	device->block =3D NULL;
+>  out_err1:
+>  	dasd_eckd_clear_conf_data(device);
+> +	dasd_path_remove_kobjects(device);
+>  	kfree(device->private);
+>  	device->private =3D NULL;
+>  	return rc;
+> @@ -2191,6 +2191,7 @@ static void dasd_eckd_uncheck_device(struct dasd_=
+device *device)
+>  	private->vdsneq =3D NULL;
+>  	private->gneq =3D NULL;
+>  	dasd_eckd_clear_conf_data(device);
+> +	dasd_path_remove_kobjects(device);
+>  }
+> =20
+>  static struct dasd_ccw_req *
+> diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_in=
+t.h
+> index 3bc008f9136c..b8a04c42d1d2 100644
+> --- a/drivers/s390/block/dasd_int.h
+> +++ b/drivers/s390/block/dasd_int.h
+> @@ -858,7 +858,7 @@ int dasd_add_sysfs_files(struct ccw_device *);
+>  void dasd_remove_sysfs_files(struct ccw_device *);
+>  void dasd_path_create_kobj(struct dasd_device *, int);
+>  void dasd_path_create_kobjects(struct dasd_device *);
+> -void dasd_path_remove_kobj(struct dasd_device *, int);
+> +void dasd_path_remove_kobjects(struct dasd_device *);
+> =20
+>  struct dasd_device *dasd_device_from_cdev(struct ccw_device *);
+>  struct dasd_device *dasd_device_from_cdev_locked(struct ccw_device *);=
