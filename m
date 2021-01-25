@@ -1,49 +1,76 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 5/5] net/af_iucv: build SG skbs for TRANS_HIPER sockets
-Date: Thu, 28 Jan 2021 12:41:08 +0100
-Message-Id: <20210128114108.39409-6-jwi@linux.ibm.com>
-In-Reply-To: <20210128114108.39409-1-jwi@linux.ibm.com>
-References: <20210128114108.39409-1-jwi@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from foss.arm.com ([217.140.110.172]:41450 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726714AbhAYC7l (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 24 Jan 2021 21:59:41 -0500
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: [PATCH V4 2/4] arm64/mm: Define arch_get_mappable_range()
+Date: Mon, 25 Jan 2021 08:28:50 +0530
+Message-Id: <1611543532-18698-3-git-send-email-anshuman.khandual@arm.com>
+In-Reply-To: <1611543532-18698-1-git-send-email-anshuman.khandual@arm.com>
+References: <1611543532-18698-1-git-send-email-anshuman.khandual@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Oscar Salvador <osalvador@suse.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, David Hildenbrand <david@redhat.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The TX path no longer falls apart when some of its SG skbs are later
-linearized by lower layers of the stack. So enable the use of SG skbs
-in iucv_sock_sendmsg() again.
+This overrides arch_get_mappable_range() on arm64 platform which will be
+used with recently added generic framework. It drops inside_linear_region()
+and subsequent check in arch_add_memory() which are no longer required. It
+also adds a VM_BUG_ON() check that would ensure that mhp_range_allowed()
+has already been called.
 
-This effectively reverts
-commit dc5367bcc556 ("net/af_iucv: don't use paged skbs for TX on HiperSockets").
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- net/iucv/af_iucv.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm64/mm/mmu.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index 0e0656db4ae7..6092d5cb7168 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -256,7 +256,9 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
- 			err = -EMSGSIZE;
- 			goto err_free;
- 		}
--		skb_trim(skb, skb->dev->mtu);
-+		err = pskb_trim(skb, skb->dev->mtu);
-+		if (err)
-+			goto err_free;
- 	}
- 	skb->protocol = cpu_to_be16(ETH_P_AF_IUCV);
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index ae0c3d023824..b14fd1b6b1a0 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -1442,16 +1442,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
+ 	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
+ }
  
-@@ -996,7 +998,7 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
- 	if (iucv->transport == AF_IUCV_TRANS_HIPER) {
- 		headroom = sizeof(struct af_iucv_trans_hdr) +
- 			   LL_RESERVED_SPACE(iucv->hs_dev);
--		linear = len;
-+		linear = min(len, PAGE_SIZE - headroom);
- 	} else {
- 		if (len < PAGE_SIZE) {
- 			linear = len;
+-static bool inside_linear_region(u64 start, u64 size)
++struct range arch_get_mappable_range(void)
+ {
++	struct range mhp_range;
++
+ 	/*
+ 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
+ 	 * accommodating both its ends but excluding PAGE_END. Max physical
+ 	 * range which can be mapped inside this linear mapping range, must
+ 	 * also be derived from its end points.
+ 	 */
+-	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
+-	       (start + size - 1) <= __pa(PAGE_END - 1);
++	mhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
++	mhp_range.end =  __pa(PAGE_END - 1);
++	return mhp_range;
+ }
+ 
+ int arch_add_memory(int nid, u64 start, u64 size,
+@@ -1459,11 +1462,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ {
+ 	int ret, flags = 0;
+ 
+-	if (!inside_linear_region(start, size)) {
+-		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
+-		return -EINVAL;
+-	}
+-
++	VM_BUG_ON(!mhp_range_allowed(start, size, true));
+ 	if (rodata_full || debug_pagealloc_enabled())
+ 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
+ 
 -- 
-2.17.1
+2.20.1
