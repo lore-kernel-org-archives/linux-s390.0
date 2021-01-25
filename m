@@ -1,53 +1,21 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH 2/2] s390: mm: Fix secure storage access exception handling
-Date: Tue, 19 Jan 2021 05:04:02 -0500
-Message-Id: <20210119100402.84734-3-frankja@linux.ibm.com>
-In-Reply-To: <20210119100402.84734-1-frankja@linux.ibm.com>
-References: <20210119100402.84734-1-frankja@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:28552 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729369AbhAYOTr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Jan 2021 09:19:47 -0500
+From: Johannes Thumshirn <Johannes.Thumshirn@wdc.com>
+Subject: Re: [PATCH 08/10] block: add a disk_uevent helper
+Date: Mon, 25 Jan 2021 14:14:06 +0000
+Message-ID: <SN4PR0401MB35987817DFEC3A6344C34E0D9BBD9@SN4PR0401MB3598.namprd04.prod.outlook.com>
+References: <20210124100241.1167849-1-hch@lst.de>
+ <20210124100241.1167849-9-hch@lst.de>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, gor@linux.ibm.com, mihajlov@linux.ibm.com
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, "dm-devel@redhat.com" <dm-devel@redhat.com>, "linux-bcache@vger.kernel.org" <linux-bcache@vger.kernel.org>, "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>
 
-Turns out that the bit 61 in the TEID is not always 1 and if that's
-the case the address space ID and the address are
-unpredictable. Without an address and it's address space ID we can't
-export memory and hence we can only send a SIGSEGV to the process or
-panic the kernel depending on who caused the exception.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Fixes: 084ea4d611a3d ("s390/mm: add (non)secure page access exceptions handlers")
-Cc: stable@vger.kernel.org
----
- arch/s390/mm/fault.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index e30c7c781172..5442937e5b4b 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -791,6 +791,20 @@ void do_secure_storage_access(struct pt_regs *regs)
- 	struct page *page;
- 	int rc;
- 
-+	/* There are cases where we don't have a TEID. */
-+	if (!(regs->int_parm_long & 0x4)) {
-+		/*
-+		 * Userspace could for example try to execute secure
-+		 * storage and trigger this. We should tell it that it
-+		 * shouldn't do that.
-+		 */
-+		if (user_mode(regs)) {
-+			send_sig(SIGSEGV, current, 0);
-+			return;
-+		} else
-+			panic("Unexpected PGM 0x3d with TEID bit 61=0");
-+	}
-+
- 	switch (get_fault_type(regs)) {
- 	case USER_FAULT:
- 		mm = current->mm;
--- 
-2.25.1
+Looks good,=0A=
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>=0A=
