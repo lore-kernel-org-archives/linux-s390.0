@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: [PATCH 05/11] iov_iter: merge the compat case into
- rw_copy_check_uvector
-Date: Fri, 8 Jan 2021 11:49:27 +0000
-Message-ID: <7167a94511a84f30b18733d56007a7a5@AcuMS.aculab.com>
-References: <20200921143434.707844-1-hch@lst.de>
- <20200921143434.707844-6-hch@lst.de>
-In-Reply-To: <20200921143434.707844-6-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41170 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726817AbhAYScG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Jan 2021 13:32:06 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C899C06174A
+        for <linux-s390@vger.kernel.org>; Mon, 25 Jan 2021 10:31:26 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id jx18so124753pjb.5
+        for <linux-s390@vger.kernel.org>; Mon, 25 Jan 2021 10:31:26 -0800 (PST)
+Subject: Re: [PATCH 05/10] block: do not reassig ->bi_bdev when partition
+ remapping
+References: <20210124100241.1167849-1-hch@lst.de>
+ <20210124100241.1167849-6-hch@lst.de>
+ <dfdff48c-c263-8e7c-cb52-28e7bee00c45@kernel.dk>
+ <20210125175528.GA13451@lst.de>
+ <2b600368-96fa-7caf-f05b-321de616f7c9@kernel.dk>
+ <13667b22-029b-d7be-02da-96fce22cfd8f@kernel.dk>
+ <20210125181349.GA14432@lst.de>
+ <1c0fabdc-9b73-dfd7-f49d-c211d58cbf12@kernel.dk>
+ <20210125181826.GA14957@lst.de>
+ <22e0f687-3165-e9d1-e1bd-9769a11dc0ea@kernel.dk>
+ <20210125182150.GA15367@lst.de>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <387c824a-c713-a087-2f6f-434ba127b1df@kernel.dk>
+Date: Mon, 25 Jan 2021 11:31:23 -0700
 MIME-Version: 1.0
+In-Reply-To: <20210125182150.GA15367@lst.de>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: 'Christoph Hellwig' <hch@lst.de>, Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-aio@kvack.org" <linux-aio@kvack.org>, "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>, "linux-security-module@vger.kernel.org" <linux-security-module@vger.kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, device-mapper development <dm-devel@redhat.com>, linux-bcache <linux-bcache@vger.kernel.org>, "open list:SOFTWARE RAID (Multiple Disks) SUPPORT" <linux-raid@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-block <linux-block@vger.kernel.org>
 
-From: Christoph Hellwig <hch@lst.de>
-> Sent: 21 September 2020 15:34
+On 1/25/21 11:21 AM, Christoph Hellwig wrote:
+> On Mon, Jan 25, 2021 at 11:19:23AM -0700, Jens Axboe wrote:
+>> On 1/25/21 11:18 AM, Christoph Hellwig wrote:
+>>> On Mon, Jan 25, 2021 at 11:15:04AM -0700, Jens Axboe wrote:
+>>>> On 1/25/21 11:13 AM, Christoph Hellwig wrote:
+>>>>> On Mon, Jan 25, 2021 at 11:03:24AM -0700, Jens Axboe wrote:
+>>>>>> Partition table entries are not in disk order.
+>>>>>
+>>>>> And the issue shows up with the series just up to the this patch,
+>>>>> without any later patches?
+>>>>
+>>>> At that patch specifically. I bisected it, and then I double checked
+>>>> by running the previous commit (boots fine), then apply this one, and
+>>>> then I run into that error. So it should be 100% reliable.
+>>>
+>>> Ok, I have an idea.  With EOD message you mean this printk, right:
+>>>
+>>> 	pr_info_ratelimited("attempt to access beyond end of device\n"
+>>>                             "%s: rw=%d, want=%llu, limit=%llu\n",
+>>> 			    ...
+>>>
+>>> right?
+>>
+>> Yep
 > 
-> Stop duplicating the iovec verify code, and instead add add a
-> __import_iovec helper that does the whole verify and import, but takes
-> a bool compat to decided on the native or compat layout.  This also
-> ends up massively simplifying the calling conventions.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  lib/iov_iter.c | 195 ++++++++++++++++++-------------------------------
->  1 file changed, 70 insertions(+), 125 deletions(-)
-> 
-> diff --git a/lib/iov_iter.c b/lib/iov_iter.c
-> index a64867501a7483..8bfa47b63d39aa 100644
-> --- a/lib/iov_iter.c
-> +++ b/lib/iov_iter.c
-> @@ -10,6 +10,7 @@
->  #include <net/checksum.h>
->  #include <linux/scatterlist.h>
->  #include <linux/instrumented.h>
-> +#include <linux/compat.h>
-> 
->  #define PIPE_PARANOIA /* for now */
-> 
-> @@ -1650,43 +1651,76 @@ const void *dup_iter(struct iov_iter *new, struct iov_iter *old, gfp_t flags)
->  }
->  EXPORT_SYMBOL(dup_iter);
-> 
-> -static ssize_t rw_copy_check_uvector(int type,
-> -		const struct iovec __user *uvector, unsigned long nr_segs,
-> -		unsigned long fast_segs, struct iovec *fast_pointer,
-> -		struct iovec **ret_pointer)
-> +static int compat_copy_iovecs_from_user(struct iovec *iov,
-> +		const struct iovec __user *uvector, unsigned long nr_segs)
-> +{
-> +	const struct compat_iovec __user *uiov =
-> +		(const struct compat_iovec __user *)uvector;
-> +	unsigned long i;
-> +	int ret = -EFAULT;
-> +
-> +	if (!user_access_begin(uvector, nr_segs * sizeof(*uvector)))
-> +		return -EFAULT;
+> Can you give this untested patch a spin?  This should fix the
+> case where we check the eod for the original partition with the
+> remapped bi_sectors.  Looking into a local reproducer now.
 
-I little bit late, but the above isn't quite right.
-It should be sizeof(*iouv) - the length is double what it should be.
+Yep, with that applied on top my laptop boots again.
 
-Not that access_ok() can fail for compat addresses
-and the extra length won't matter for architectures that
-need the address/length to open an address hole into userspace.
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+-- 
+Jens Axboe
