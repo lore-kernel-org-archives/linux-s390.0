@@ -1,76 +1,158 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10630 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2392619AbhAROEj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 Jan 2021 09:04:39 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 10IE3Roc060525
-        for <linux-s390@vger.kernel.org>; Mon, 18 Jan 2021 09:03:59 -0500
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3657y36r7m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 18 Jan 2021 09:03:59 -0500
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 10IE3w9B065622
-        for <linux-s390@vger.kernel.org>; Mon, 18 Jan 2021 09:03:58 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH] s390x: Fix uv_call() exception behavior
-Date: Mon, 18 Jan 2021 09:03:44 -0500
-Message-Id: <20210118140344.3074-1-frankja@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH V4 4/4] virtio-mem: check against
+ mhp_get_pluggable_range() which memory we can hotplug
+References: <1611543532-18698-1-git-send-email-anshuman.khandual@arm.com>
+ <1611543532-18698-5-git-send-email-anshuman.khandual@arm.com>
+ <a62e9474-ada3-ab80-90a7-14db87c90aa6@redhat.com>
+Message-ID: <95e86a10-16db-f5ca-6aba-282ea4ead717@arm.com>
+Date: Wed, 27 Jan 2021 09:12:01 +0530
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <a62e9474-ada3-ab80-90a7-14db87c90aa6@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm390 mailing list <kvm390-list@tuxmaker.boeblingen.de.ibm.com>
-Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com
+Cc: Oscar Salvador <osalvador@suse.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Wei Yang <richard.weiyang@linux.alibaba.com>, teawater <teawaterz@linux.alibaba.com>, Pankaj Gupta <pankaj.gupta@cloud.ionos.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Michal Hocko <mhocko@kernel.org>
 
-On a program exception we usually skip the instruction that caused the
-exception and continue. That won't work for UV calls since a "brc 3,0b"
-will retry the instruction if the CC is > 1.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
 
-I know this isn't very pretty.
-I'm open for suggestions.
+On 1/25/21 5:31 PM, David Hildenbrand wrote:
+> On 25.01.21 03:58, Anshuman Khandual wrote:
+>> From: David Hildenbrand <david@redhat.com>
+>>
+>> Right now, we only check against MAX_PHYSMEM_BITS - but turns out there
+>> are more restrictions of which memory we can actually hotplug, especially
+>> om arm64 or s390x once we support them: we might receive something like
+>> -E2BIG or -ERANGE from add_memory_driver_managed(), stopping device
+>> operation.
+>>
+>> So, check right when initializing the device which memory we can add,
+>> warning the user. Try only adding actually pluggable ranges: in the worst
+>> case, no memory provided by our device is pluggable.
+>>
+>> In the usual case, we expect all device memory to be pluggable, and in
+>> corner cases only some memory at the end of the device-managed memory
+>> region to not be pluggable.
+>>
+>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+>> Cc: Jason Wang <jasowang@redhat.com>
+>> Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+>> Cc: Oscar Salvador <osalvador@suse.de>
+>> Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: catalin.marinas@arm.com
+>> Cc: teawater <teawaterz@linux.alibaba.com>
+>> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+>> Cc: Pankaj Gupta <pankaj.gupta@cloud.ionos.com>
+>> Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+>> Cc: hca@linux.ibm.com
+>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>> Cc: Will Deacon <will@kernel.org>
+>> Cc: Ard Biesheuvel <ardb@kernel.org>
+>> Cc: Mark Rutland <mark.rutland@arm.com>
+>> Cc: Heiko Carstens <hca@linux.ibm.com>
+>> Cc: Michal Hocko <mhocko@kernel.org>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>>  drivers/virtio/virtio_mem.c | 40 +++++++++++++++++++++++++------------
+>>  1 file changed, 27 insertions(+), 13 deletions(-)
+>>
+>> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+>> index 9fc9ec4a25f5..14c17c5c1695 100644
+>> --- a/drivers/virtio/virtio_mem.c
+>> +++ b/drivers/virtio/virtio_mem.c
+>> @@ -2222,7 +2222,7 @@ static int virtio_mem_unplug_pending_mb(struct virtio_mem *vm)
+>>   */
+>>  static void virtio_mem_refresh_config(struct virtio_mem *vm)
+>>  {
+>> -	const uint64_t phys_limit = 1UL << MAX_PHYSMEM_BITS;
+>> +	const struct range pluggable_range = mhp_get_pluggable_range(true);
+>>  	uint64_t new_plugged_size, usable_region_size, end_addr;
+>>  
+>>  	/* the plugged_size is just a reflection of what _we_ did previously */
+>> @@ -2234,15 +2234,25 @@ static void virtio_mem_refresh_config(struct virtio_mem *vm)
+>>  	/* calculate the last usable memory block id */
+>>  	virtio_cread_le(vm->vdev, struct virtio_mem_config,
+>>  			usable_region_size, &usable_region_size);
+>> -	end_addr = vm->addr + usable_region_size;
+>> -	end_addr = min(end_addr, phys_limit);
+>> +	end_addr = min(vm->addr + usable_region_size - 1,
+>> +		       pluggable_range.end);
+>>  
+>> -	if (vm->in_sbm)
+>> -		vm->sbm.last_usable_mb_id =
+>> -					 virtio_mem_phys_to_mb_id(end_addr) - 1;
+>> -	else
+>> -		vm->bbm.last_usable_bb_id =
+>> -				     virtio_mem_phys_to_bb_id(vm, end_addr) - 1;
+>> +	if (vm->in_sbm) {
+>> +		vm->sbm.last_usable_mb_id = virtio_mem_phys_to_mb_id(end_addr);
+>> +		if (!IS_ALIGNED(end_addr + 1, memory_block_size_bytes()))
+>> +			vm->sbm.last_usable_mb_id--;
+>> +	} else {
+>> +		vm->bbm.last_usable_bb_id = virtio_mem_phys_to_bb_id(vm,
+>> +								     end_addr);
+>> +		if (!IS_ALIGNED(end_addr + 1, vm->bbm.bb_size))
+>> +			vm->bbm.last_usable_bb_id--;
+>> +	}
+>> +	/*
+>> +	 * If we cannot plug any of our device memory (e.g., nothing in the
+>> +	 * usable region is addressable), the last usable memory block id will
+>> +	 * be smaller than the first usable memory block id. We'll stop
+>> +	 * attempting to add memory with -ENOSPC from our main loop.
+>> +	 */
+>>  
+>>  	/* see if there is a request to change the size */
+>>  	virtio_cread_le(vm->vdev, struct virtio_mem_config, requested_size,
+>> @@ -2364,6 +2374,7 @@ static int virtio_mem_init_vq(struct virtio_mem *vm)
+>>  
+>>  static int virtio_mem_init(struct virtio_mem *vm)
+>>  {
+>> +	const struct range pluggable_range = mhp_get_pluggable_range(true);
+>>  	const uint64_t phys_limit = 1UL << MAX_PHYSMEM_BITS;
+> 
+> Sorry, forgot to drop ^ (phys_limit), otherwise ther is a friendly
+> warning from the compiler. We have to drop that line.
 
----
- lib/s390x/asm/uv.h | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+Okay sure, will drop.
 
-diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-index 4c2fc48..252f1a3 100644
---- a/lib/s390x/asm/uv.h
-+++ b/lib/s390x/asm/uv.h
-@@ -53,21 +53,23 @@ struct uv_cb_share {
- static inline int uv_call(unsigned long r1, unsigned long r2)
- {
- 	int cc;
-+	struct lowcore *lc = 0x0;
- 
- 	/*
--	 * The brc instruction will take care of the cc 2/3 case where
--	 * we need to continue the execution because we were
--	 * interrupted. The inline assembly will only return on
--	 * success/error i.e. cc 0/1.
--	*/
-+	 * CC 2 and 3 tell us to re-execute because the instruction
-+	 * hasn't yet finished.
-+	 */
-+	lc->pgm_int_code = 0;
-+retry:
- 	asm volatile(
- 		"0:	.insn rrf,0xB9A40000,%[r1],%[r2],0,0\n"
--		"		brc	3,0b\n"
- 		"		ipm	%[cc]\n"
- 		"		srl	%[cc],28\n"
- 		: [cc] "=d" (cc)
- 		: [r1] "a" (r1), [r2] "a" (r2)
- 		: "memory", "cc");
-+	if (!lc->pgm_int_code && cc > 1)
-+		goto retry;
- 	return cc;
- }
- 
--- 
-2.25.1
+> 
+> 
+> 
+> Apart from that, at least on x86-64 it does what it's supposed to do. I
+> temporarily changed MAX_PHYSMEM_BITS to 35 bits and added a virtio-mem
+> device that crosses the 32 GiB address limit.
+> 
+> 
+> [    0.572084] virtio_mem virtio1: Some device memory is not
+> addressable/pluggable. This can make some memory unusable.
+> [    0.573013] virtio_mem virtio1: start address: 0x740000000
+> [    0.573497] virtio_mem virtio1: region size: 0x500000000
+> 
+> 
+> And virtio-mem won't add any memory exceeding that:
+> 
+> (qemu) qom-set vmem0 requested-size 20G
+> (qemu) info memory-devices
+> Memory device [virtio-mem]: "vmem0"
+> [...]
+> Memory device [virtio-mem]: "vmem1"
+>   memaddr: 0x740000000
+>   node: 1
+>   requested-size: 21474836480
+>   size: 3221225472
+>   max-size: 21474836480
+>   block-size: 2097152
+>   memdev: /objects/mem1
+> 
+> I adds all memory up to the 32GiB address limit (35 bits) and stops.
+> 
+> LGTM (arm64 to be tested in the future once supported).
+> 
+
+I will respin the series with the above minor change unless something
+else comes up in the meantime. But once this virtio-mem change gets
+some more reviews, I guess the series should be complete in itself.
