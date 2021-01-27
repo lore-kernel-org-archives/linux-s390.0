@@ -1,41 +1,48 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29006 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56866 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231448AbhA1Ll5 (ORCPT
+        by vger.kernel.org with ESMTP id S237961AbhA0M2x (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 Jan 2021 06:41:57 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 0/5] net/iucv: updates 2021-01-28
-Date: Thu, 28 Jan 2021 12:41:03 +0100
-Message-Id: <20210128114108.39409-1-jwi@linux.ibm.com>
+        Wed, 27 Jan 2021 07:28:53 -0500
+Date: Wed, 27 Jan 2021 13:27:31 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH] stacktrace: Move documentation for
+ arch_stack_walk_reliable() to header
+Message-ID: <your-ad-here.call-01611750451-ext-7215@work.hours>
+References: <20210118211021.42308-1-broonie@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210118211021.42308-1-broonie@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Mark Brown <broonie@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>, x86@kernel.org, linux-s390@vger.kernel.org, live-patching@vger.kernel.org
 
-Hi Dave & Jakub,
+On Mon, Jan 18, 2021 at 09:10:21PM +0000, Mark Brown wrote:
+> Currently arch_stack_wallk_reliable() is documented with an identical
+> comment in both x86 and S/390 implementations which is a bit redundant.
+> Move this to the header and convert to kerneldoc while we're at it.
+> 
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+> Cc: Jiri Kosina <jikos@kernel.org>
+> Cc: Miroslav Benes <mbenes@suse.cz>
+> Cc: Petr Mladek <pmladek@suse.com>
+> Cc: Joe Lawrence <joe.lawrence@redhat.com>
+> Cc: x86@kernel.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: live-patching@vger.kernel.org
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> ---
+>  arch/s390/kernel/stacktrace.c |  6 ------
+>  arch/x86/kernel/stacktrace.c  |  6 ------
+>  include/linux/stacktrace.h    | 19 +++++++++++++++++++
+>  3 files changed, 19 insertions(+), 12 deletions(-)
 
-please apply the following patch series for iucv to netdev's net-next tree.
-
-This reworks & simplifies the TX notification path in af_iucv, so that we
-can send out SG skbs over TRANS_HIPER sockets. Also remove a noisy
-WARN_ONCE() in the RX path.
-
-Thanks,
-Julian
-
-Alexander Egorenkov (1):
-  net/af_iucv: remove WARN_ONCE on malformed RX packets
-
-Julian Wiedmann (4):
-  net/af_iucv: don't lookup the socket on TX notification
-  net/af_iucv: count packets in the xmit path
-  net/af_iucv: don't track individual TX skbs for TRANS_HIPER sockets
-  net/af_iucv: build SG skbs for TRANS_HIPER sockets
-
- drivers/s390/net/qeth_core_main.c |   6 +-
- include/net/iucv/af_iucv.h        |   3 +-
- net/iucv/af_iucv.c                | 122 ++++++++++++------------------
- 3 files changed, 53 insertions(+), 78 deletions(-)
-
--- 
-2.17.1
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
