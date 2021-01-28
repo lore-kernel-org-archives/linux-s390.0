@@ -1,111 +1,117 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29470 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726579AbhANNEN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Jan 2021 08:04:13 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 10ED2wQ9074497
-        for <linux-s390@vger.kernel.org>; Thu, 14 Jan 2021 08:03:32 -0500
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 362p9prch8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Jan 2021 08:03:32 -0500
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 10ED3TNB079056
-        for <linux-s390@vger.kernel.org>; Thu, 14 Jan 2021 08:03:31 -0500
-Subject: Re: [RFC 1/1] s390/cio: Remove uevent-suppress from css driver
-References: <20201124093407.23189-1-vneethv@linux.ibm.com>
- <20201124093407.23189-2-vneethv@linux.ibm.com>
- <20201124140220.77c65539.cohuck@redhat.com>
- <4be7e163-1118-d365-7d25-df39ba78181f@linux.vnet.ibm.com>
- <0b4e34b7-7a4e-71b0-8a64-ea909e64f416@linux.ibm.com>
- <20201208183054.44f4fc2d.cohuck@redhat.com>
- <20201209135203.0008ab18.pasic@linux.ibm.com>
- <20201215191307.281c6e6f.cohuck@redhat.com>
- <20201219073316.1be609d5.pasic@linux.ibm.com>
- <20201221164634.11cd3813.cohuck@redhat.com>
- <20201221175117.2c5f5fcb.pasic@linux.ibm.com>
-From: Boris Fiuczynski <fiuczy@linux.ibm.com>
-Message-ID: <d4dffa29-60b3-db27-fca7-ee4901c77162@linux.ibm.com>
-Date: Thu, 14 Jan 2021 14:03:25 +0100
+Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:62208 "EHLO
+        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231932AbhA1M7R (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Jan 2021 07:59:17 -0500
+Subject: Re: [PATCH v4 0/2] System Generation ID driver and VMGENID backend
+References: <1610453760-13812-1-git-send-email-acatan@amazon.com>
+ <20210112074658-mutt-send-email-mst@kernel.org>
+ <9952EF0C-CD1D-4EDB-BAB8-21F72C0BF90D@amazon.com>
+ <20210127074549-mutt-send-email-mst@kernel.org>
+From: Alexander Graf <graf@amazon.de>
+Message-ID: <7bcd1cf3-d055-db46-95ea-5c023df2f184@amazon.de>
+Date: Thu, 28 Jan 2021 13:58:12 +0100
 MIME-Version: 1.0
-In-Reply-To: <20201221175117.2c5f5fcb.pasic@linux.ibm.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
+In-Reply-To: <20210127074549-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: Vineeth Vijayan <vneethv@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.vnet.ibm.com>, oberpar@linux.ibm.com, linux-s390@vger.kernel.org, farman@linux.ibm.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, "Catangiu, Adrian Costin" <acatan@amazon.com>
+Cc: "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "arnd@arndb.de" <arnd@arndb.de>, "ebiederm@xmission.com" <ebiederm@xmission.com>, "rppt@kernel.org" <rppt@kernel.org>, "0x7f454c46@gmail.com" <0x7f454c46@gmail.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "Jason@zx2c4.com" <Jason@zx2c4.com>, "jannh@google.com" <jannh@google.com>, "w@1wt.eu" <w@1wt.eu>, "MacCarthaigh, Colm" <colmmacc@amazon.com>, "luto@kernel.org" <luto@kernel.org>, "tytso@mit.edu" <tytso@mit.edu>, "ebiggers@kernel.org" <ebiggers@kernel.org>, "Woodhouse, David" <dwmw@amazon.co.uk>, "bonzini@gnu.org" <bonzini@gnu.org>, "Singh, Balbir" <sblbir@amazon.com>, "Weiss, Radu" <raduweis@amazon.com>, "corbet@lwn.net" <corbet@lwn.net>, "mhocko@kernel.org" <mhocko@kernel.org>, "rafael@kernel.org" <rafael@kernel.org>, "pavel@ucw.cz" <pavel@ucw.cz>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "areber@redhat.com" <areber@redhat.com>, "ovzxemul@gmail.com" <ovzxemul@gmail.com>, "avagin@gmail.com" <avagin@gmail.com>, "ptikhomirov@virtuozzo.com" <ptikhomirov@virtuozzo.com>, "gil@azul.com" <gil@azul.com>, "asmehra@redhat.com" <asmehra@redhat.com>, "dgunigun@redhat.com" <dgunigun@redhat.com>, "vijaysun@ca.ibm.com" <vijaysun@ca.ibm.com>, "oridgar@gmail.com" <oridgar@gmail.com>, "ghammer@redhat.com" <ghammer@redhat.com>
 
-On 12/21/20 5:51 PM, Halil Pasic wrote:
-> On Mon, 21 Dec 2020 16:46:34 +0100
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
->> On Sat, 19 Dec 2020 07:33:16 +0100
->> Halil Pasic <pasic@linux.ibm.com> wrote:
+Hey Michael!
+
+On 27.01.21 13:47, Michael S. Tsirkin wrote:
+> =
+
+> On Thu, Jan 21, 2021 at 10:28:16AM +0000, Catangiu, Adrian Costin wrote:
+>> On 12/01/2021, 14:49, "Michael S. Tsirkin" <mst@redhat.com> wrote:
 >>
->>> I finally came around to test this. In my experience driverctl works for
->>> subchannels and vfio_ccw without this patch, and continues to work with
->>> it. I found the code in driverctl that does the unbind and the implicit
->>> bind (via drivers_probe after after driver_override was set).
->>>
->>> So now I have to ask, how exactly was the original problem diagnosed?
->>>
->>> In https://marc.info/?l=linux-s390&m=158591045732735&w=2 there is a
->>> paragraph like:
->>>
->>> """
->>> So while there's definitely a good reason for wanting to delay uevents,
->>> it is also introducing problems. One is udev rules for subchannels that
->>> are supposed to do something before a driver binds (e.g. setting
->>> driver_override to bind an I/O subchannel to vfio_ccw instead of
->>> io_subchannel) are not effective, as the ADD uevent will only be
->>> generated when the io_subchannel driver is already done with doing all
->>> setup. Another one is that only the ADD uevent is generated after
->>> uevent suppression is lifted; any other uevents that might have been
->>> generated are lost.
->>> """
->>>
->>> This is not how driverclt works! I.e. it deals with the situation that
->>> the I/O subchannel was already bound to the io_subchannel driver at
->>> the time the udev rule installed by driverctl activates (via the
->>> mechanism I described above).
+>>      On Tue, Jan 12, 2021 at 02:15:58PM +0200, Adrian Catangiu wrote:
+>>      > The first patch in the set implements a device driver which expos=
+es a
+>>      > read-only device /dev/sysgenid to userspace, which contains a
+>>      > monotonically increasing u32 generation counter. Libraries and
+>>      > applications are expected to open() the device, and then call rea=
+d()
+>>      > which blocks until the SysGenId changes. Following an update, rea=
+d()
+>>      > calls no longer block until the application acknowledges the new
+>>      > SysGenId by write()ing it back to the device. Non-blocking read()=
+ calls
+>>      > return EAGAIN when there is no new SysGenId available. Alternativ=
+ely,
+>>      > libraries can mmap() the device to get a single shared page which
+>>      > contains the latest SysGenId at offset 0.
 >>
->> That's... weird. It definitely did not work on the LPAR I initially
->> tried it out on!
+>>      Looking at some specifications, the gen ID might actually be located
+>>      at an arbitrary address. How about instead of hard-coding the offse=
+t,
+>>      we expose it e.g. in sysfs?
 >>
-> 
-> I think Boris told me some weeks ago that it didn't work for him either.
-> I will check with him after the winter sleep.
-
-Yesterday I used driverctl successfully for a subchannel on F33.
-
-Not sure what went wrong a couple of months ago but I cannot reproduce 
-driverctl not working now.
-
-> 
->> However, I think removing the suppression still looks like a good idea:
->> we still have the "any uevent other than ADD will have been lost"
->> problem.
+>> The functionality is split between SysGenID which exposes an internal u32
+>> counter to userspace, and an (optional) VmGenID backend which drives
+>> SysGenID generation changes based on hw vmgenid updates.
 >>
-I totally agree with this.
+>> The hw UUID you're referring to (vmgenid) is not mmap-ed to userspace or
+>> otherwise exposed to userspace. It is only used internally by the vmgenid
+>> driver to find out about VM generation changes and drive the more generic
+>> SysGenID.
+>>
+>> The SysGenID u32 monotonic increasing counter is the one that is mmaped =
+to
+>> userspace, but it is a software counter. I don't see any value in using =
+a dynamic
+>> offset in the mmaped page. Offset 0 is fast and easy and most importantl=
+y it is
+>> static so no need to dynamically calculate or find it at runtime.
+> =
 
-> 
-> I agree. I didn't look into the details, in general I think removing
-> quirks specific to 390 (when possible) is a good thing.
-> 
-> Regards,
-> Halil
-> 
+> Well you are burning a whole page on it, using an offset the page
+> can be shared with other functionality.
+
+Currently, the SysGenID lives is one page owned by Linux that we share =
+
+out to multiple user space clients. So yes, we burn a single page of the =
+
+system here.
+
+If we put more data in that same page, what data would you put there? =
+
+Random other bits from other subsystems? At that point, we'd be =
+
+reinventing vdso all over again, no? Probably with the same problems.
+
+Which gets me to the second alternative: Reuse VDSO. The problem there =
+
+is that the VDSO is an extremely architecture specific mechanism. Any =
+
+new architecture we'd want to support would need multiple layers of =
+
+changes in multiple layers of both kernel and libc. I'd like to avoid =
+
+that if we can :).
+
+So that leaves us with either wasting a page per system or not having an =
+
+mmap() interface in the first place.
+
+The reason we have the mmap() interface is that it's be easier to =
+
+consume for libraries, that are not hooked into the main event loop.
+
+So, uh, what are you suggesting? :)
 
 
--- 
-Mit freundlichen Grüßen/Kind regards
-    Boris Fiuczynski
+Alex
 
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Gregor Pillen
-Geschäftsführung: Dirk Wittkopp
-Sitz der Gesellschaft: Böblingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+
+
+Amazon Development Center Germany GmbH
+Krausenstr. 38
+10117 Berlin
+Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
+Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
+Sitz: Berlin
+Ust-ID: DE 289 237 879
