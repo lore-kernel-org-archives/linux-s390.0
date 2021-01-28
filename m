@@ -1,52 +1,49 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17452 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729879AbhASUYS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 19 Jan 2021 15:24:18 -0500
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [PATCH 0/4] vfio-pci/zdev: Fixing s390 vfio-pci ISM support
-Date: Tue, 19 Jan 2021 15:02:26 -0500
-Message-Id: <1611086550-32765-1-git-send-email-mjrosato@linux.ibm.com>
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 5/5] net/af_iucv: build SG skbs for TRANS_HIPER sockets
+Date: Thu, 28 Jan 2021 12:41:08 +0100
+Message-Id: <20210128114108.39409-6-jwi@linux.ibm.com>
+In-Reply-To: <20210128114108.39409-1-jwi@linux.ibm.com>
+References: <20210128114108.39409-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Today, ISM devices are completely disallowed for vfio-pci passthrough as
-QEMU will reject the device due to an (inappropriate) MSI-X check.
-However, in an effort to enable ISM device passthrough, I realized that the
-manner in which ISM performs block write operations is highly incompatible
-with the way that QEMU s390 PCI instruction interception and
-vfio_pci_bar_rw break up I/O operations into 8B and 4B operations -- ISM
-devices have particular requirements in regards to the alignment, size and
-order of writes performed.  Furthermore, they require that legacy/non-MIO
-s390 PCI instructions are used, which is also not guaranteed when the I/O
-is passed through the typical userspace channels.
+The TX path no longer falls apart when some of its SG skbs are later
+linearized by lower layers of the stack. So enable the use of SG skbs
+in iucv_sock_sendmsg() again.
 
-As a result, this patchset proposes a new VFIO region to allow a guest to
-pass certain PCI instruction intercepts directly to the s390 host kernel
-PCI layer for execution, pinning the guest buffer in memory briefly in
-order to execute the requested PCI instruction.
+This effectively reverts
+commit dc5367bcc556 ("net/af_iucv: don't use paged skbs for TX on HiperSockets").
 
-Changes from RFC -> v1:
-- No functional changes, just minor commentary changes -- Re-posting along
-with updated QEMU set.
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ net/iucv/af_iucv.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Matthew Rosato (4):
-  s390/pci: track alignment/length strictness for zpci_dev
-  vfio-pci/zdev: Pass the relaxed alignment flag
-  s390/pci: Get hardware-reported max store block length
-  vfio-pci/zdev: Introduce the zPCI I/O vfio region
-
- arch/s390/include/asm/pci.h         |   4 +-
- arch/s390/include/asm/pci_clp.h     |   7 +-
- arch/s390/pci/pci_clp.c             |   2 +
- drivers/vfio/pci/vfio_pci.c         |   8 ++
- drivers/vfio/pci/vfio_pci_private.h |   6 ++
- drivers/vfio/pci/vfio_pci_zdev.c    | 160 ++++++++++++++++++++++++++++++++++++
- include/uapi/linux/vfio.h           |   4 +
- include/uapi/linux/vfio_zdev.h      |  34 ++++++++
- 8 files changed, 222 insertions(+), 3 deletions(-)
-
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index 0e0656db4ae7..6092d5cb7168 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -256,7 +256,9 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
+ 			err = -EMSGSIZE;
+ 			goto err_free;
+ 		}
+-		skb_trim(skb, skb->dev->mtu);
++		err = pskb_trim(skb, skb->dev->mtu);
++		if (err)
++			goto err_free;
+ 	}
+ 	skb->protocol = cpu_to_be16(ETH_P_AF_IUCV);
+ 
+@@ -996,7 +998,7 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 	if (iucv->transport == AF_IUCV_TRANS_HIPER) {
+ 		headroom = sizeof(struct af_iucv_trans_hdr) +
+ 			   LL_RESERVED_SPACE(iucv->hs_dev);
+-		linear = len;
++		linear = min(len, PAGE_SIZE - headroom);
+ 	} else {
+ 		if (len < PAGE_SIZE) {
+ 			linear = len;
 -- 
-1.8.3.1
+2.17.1
