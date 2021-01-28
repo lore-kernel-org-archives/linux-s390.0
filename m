@@ -1,169 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34112 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730808AbhASPAZ (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39050 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231398AbhA1L0o (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 19 Jan 2021 10:00:25 -0500
-References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
- <20201218141811.310267-3-imbrenda@linux.ibm.com>
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH v1 2/4] s390/kvm: extend guest_translate for MVPG
- interpretation
-Message-ID: <66d0da8a-a43d-1f04-8fa0-dec5e49b56b7@linux.ibm.com>
-Date: Tue, 19 Jan 2021 15:59:36 +0100
-MIME-Version: 1.0
-In-Reply-To: <20201218141811.310267-3-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        Thu, 28 Jan 2021 06:26:44 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 3/5] s390/qeth: pass proto to qeth_l3_get_cast_type()
+Date: Thu, 28 Jan 2021 12:25:49 +0100
+Message-Id: <20210128112551.18780-4-jwi@linux.ibm.com>
+In-Reply-To: <20210128112551.18780-1-jwi@linux.ibm.com>
+References: <20210128112551.18780-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: borntraeger@de.ibm.com, david@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-On 12/18/20 3:18 PM, Claudio Imbrenda wrote:
-> Extend guest_translate to optionally return the address of the guest
-> DAT table which caused the exception, and change the return value to int.
-> 
-> Also return the appropriate values in the low order bits of the address
-> indicating protection or EDAT.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->  arch/s390/kvm/gaccess.c | 33 ++++++++++++++++++++++++++++-----
->  1 file changed, 28 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-> index 6d6b57059493..8e256a233583 100644
-> --- a/arch/s390/kvm/gaccess.c
-> +++ b/arch/s390/kvm/gaccess.c
-> @@ -598,6 +598,10 @@ static int deref_table(struct kvm *kvm, unsigned long gpa, unsigned long *val)
->   * @asce: effective asce
->   * @mode: indicates the access mode to be used
->   * @prot: returns the type for protection exceptions
-> + * @entryptr: returns the physical address of the last DAT table entry
-> + *            processed, additionally setting a few flags in the lower bits
-> + *            to indicate whether a translation exception or a protection
-> + *            exception were encountered during the address translation.
+qeth_l3_hard_start_xmit() already determined the skb's proto. Avoid
+doing so a second time when it calls qeth_l3_get_cast_type().
 
-I'd much rather have another argument pointer than fusing the address
-and the status bits. Or we could make prot a struct and add your status
-bits in.
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_l3_main.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
->   *
->   * Translate a guest virtual address into a guest absolute address by means
->   * of dynamic address translation as specified by the architecture.
-> @@ -611,9 +615,10 @@ static int deref_table(struct kvm *kvm, unsigned long gpa, unsigned long *val)
->   *	      the returned value is the program interruption code as defined
->   *	      by the architecture
->   */
-> -static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
-> -				     unsigned long *gpa, const union asce asce,
-> -				     enum gacc_mode mode, enum prot_type *prot)
-> +static int guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
-> +			   unsigned long *gpa, const union asce asce,
-> +			   enum gacc_mode mode, enum prot_type *prot,
-> +			   unsigned long *entryptr)
->  {
->  	union vaddress vaddr = {.addr = gva};
->  	union raddress raddr = {.addr = gva};
-> @@ -628,6 +633,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
->  	edat1 = ctlreg0.edat && test_kvm_facility(vcpu->kvm, 8);
->  	edat2 = edat1 && test_kvm_facility(vcpu->kvm, 78);
->  	iep = ctlreg0.iep && test_kvm_facility(vcpu->kvm, 130);
-> +	if (entryptr)
-> +		*entryptr = 0;
->  	if (asce.r)
->  		goto real_address;
->  	ptr = asce.origin * PAGE_SIZE;
-> @@ -667,6 +674,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
->  			return PGM_ADDRESSING;
->  		if (deref_table(vcpu->kvm, ptr, &rfte.val))
->  			return -EFAULT;
-> +		if (entryptr)
-> +			*entryptr = ptr;
->  		if (rfte.i)
->  			return PGM_REGION_FIRST_TRANS;
->  		if (rfte.tt != TABLE_TYPE_REGION1)
-> @@ -685,6 +694,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
->  			return PGM_ADDRESSING;
->  		if (deref_table(vcpu->kvm, ptr, &rste.val))
->  			return -EFAULT;
-> +		if (entryptr)
-> +			*entryptr = ptr;
->  		if (rste.i)
->  			return PGM_REGION_SECOND_TRANS;
->  		if (rste.tt != TABLE_TYPE_REGION2)
-> @@ -703,6 +714,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
->  			return PGM_ADDRESSING;
->  		if (deref_table(vcpu->kvm, ptr, &rtte.val))
->  			return -EFAULT;
-> +		if (entryptr)
-> +			*entryptr = ptr;
->  		if (rtte.i)
->  			return PGM_REGION_THIRD_TRANS;
->  		if (rtte.tt != TABLE_TYPE_REGION3)
-> @@ -713,6 +726,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
->  			dat_protection |= rtte.fc1.p;
->  			iep_protection = rtte.fc1.iep;
->  			raddr.rfaa = rtte.fc1.rfaa;
-> +			if (entryptr)
-> +				*entryptr |= dat_protection ? 6 : 4;
-
-Magic constants are magic
-
->  			goto absolute_address;
->  		}
->  		if (vaddr.sx01 < rtte.fc0.tf)
-> @@ -731,6 +746,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
->  			return PGM_ADDRESSING;
->  		if (deref_table(vcpu->kvm, ptr, &ste.val))
->  			return -EFAULT;
-> +		if (entryptr)
-> +			*entryptr = ptr;
->  		if (ste.i)
->  			return PGM_SEGMENT_TRANSLATION;
->  		if (ste.tt != TABLE_TYPE_SEGMENT)
-> @@ -741,6 +758,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
->  			dat_protection |= ste.fc1.p;
->  			iep_protection = ste.fc1.iep;
->  			raddr.sfaa = ste.fc1.sfaa;
-> +			if (entryptr)
-> +				*entryptr |= dat_protection ? 6 : 4;
->  			goto absolute_address;
->  		}
->  		dat_protection |= ste.fc0.p;
-> @@ -751,10 +770,14 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
->  		return PGM_ADDRESSING;
->  	if (deref_table(vcpu->kvm, ptr, &pte.val))
->  		return -EFAULT;
-> +	if (entryptr)
-> +		*entryptr = ptr;
->  	if (pte.i)
->  		return PGM_PAGE_TRANSLATION;
->  	if (pte.z)
->  		return PGM_TRANSLATION_SPEC;
-> +	if (entryptr && dat_protection)
-> +		*entryptr |= 2;
->  	dat_protection |= pte.p;
->  	iep_protection = pte.iep;
->  	raddr.pfra = pte.pfra;
-> @@ -810,7 +833,7 @@ static int guest_page_range(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
->  					 PROT_TYPE_LA);
->  		ga &= PAGE_MASK;
->  		if (psw_bits(*psw).dat) {
-> -			rc = guest_translate(vcpu, ga, pages, asce, mode, &prot);
-> +			rc = guest_translate(vcpu, ga, pages, asce, mode, &prot, NULL);
->  			if (rc < 0)
->  				return rc;
->  		} else {
-> @@ -920,7 +943,7 @@ int guest_translate_address(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
->  	}
->  
->  	if (psw_bits(*psw).dat && !asce.r) {	/* Use DAT? */
-> -		rc = guest_translate(vcpu, gva, gpa, asce, mode, &prot);
-> +		rc = guest_translate(vcpu, gva, gpa, asce, mode, &prot, NULL);
->  		if (rc > 0)
->  			return trans_exc(vcpu, rc, gva, 0, mode, prot);
->  	} else {
-> 
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 7a7465376e29..4921afb51a1c 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1610,9 +1610,8 @@ static int qeth_l3_get_cast_type_rcu(struct sk_buff *skb, struct dst_entry *dst,
+ 	}
+ }
+ 
+-static int qeth_l3_get_cast_type(struct sk_buff *skb)
++static int qeth_l3_get_cast_type(struct sk_buff *skb, __be16 proto)
+ {
+-	__be16 proto = vlan_get_protocol(skb);
+ 	struct dst_entry *dst;
+ 	int cast_type;
+ 
+@@ -1771,7 +1770,7 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
+ 	}
+ 
+ 	if (!(dev->flags & IFF_BROADCAST) &&
+-	    qeth_l3_get_cast_type(skb) == RTN_BROADCAST)
++	    qeth_l3_get_cast_type(skb, proto) == RTN_BROADCAST)
+ 		goto tx_drop;
+ 
+ 	if (proto == htons(ETH_P_IP) || IS_IQD(card))
+@@ -1831,8 +1830,10 @@ static netdev_features_t qeth_l3_osa_features_check(struct sk_buff *skb,
+ static u16 qeth_l3_iqd_select_queue(struct net_device *dev, struct sk_buff *skb,
+ 				    struct net_device *sb_dev)
+ {
+-	return qeth_iqd_select_queue(dev, skb, qeth_l3_get_cast_type(skb),
+-				     sb_dev);
++	__be16 proto = vlan_get_protocol(skb);
++
++	return qeth_iqd_select_queue(dev, skb,
++				     qeth_l3_get_cast_type(skb, proto), sb_dev);
+ }
+ 
+ static u16 qeth_l3_osa_select_queue(struct net_device *dev, struct sk_buff *skb,
+-- 
+2.17.1
