@@ -1,114 +1,156 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57126 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729886AbhALNV4 (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16690 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229646AbhA1Vad (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 12 Jan 2021 08:21:56 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v4 1/9] s390x: Add test_bit to library
-Date: Tue, 12 Jan 2021 08:20:46 -0500
-Message-Id: <20210112132054.49756-2-frankja@linux.ibm.com>
-In-Reply-To: <20210112132054.49756-1-frankja@linux.ibm.com>
-References: <20210112132054.49756-1-frankja@linux.ibm.com>
+        Thu, 28 Jan 2021 16:30:33 -0500
+Subject: Re: [PATCH v13 08/15] s390/vfio-ap: sysfs attribute to display the
+ guest's matrix
+References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+ <20201223011606.5265-9-akrowiak@linux.ibm.com>
+ <20210111235806.5df42658.pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <6b526a2c-138c-55ad-d3f0-9c96558b255b@linux.ibm.com>
+Date: Thu, 28 Jan 2021 16:29:44 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210111235806.5df42658.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-Query/feature bits are commonly tested via MSB bit numbers on
-s390. Let's add test bit functions, so we don't need to copy code to
-test query bits.
 
-The test_bit code has been taken from the kernel since most s390x KVM unit
-test developers are used to them.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
----
- lib/s390x/asm/bitops.h   | 26 ++++++++++++++++++++++++++
- lib/s390x/asm/facility.h |  3 ++-
- s390x/uv-guest.c         |  6 +++---
- 3 files changed, 31 insertions(+), 4 deletions(-)
+On 1/11/21 5:58 PM, Halil Pasic wrote:
+> On Tue, 22 Dec 2020 20:15:59 -0500
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> The matrix of adapters and domains configured in a guest's APCB may
+>> differ from the matrix of adapters and domains assigned to the matrix mdev,
+>> so this patch introduces a sysfs attribute to display the matrix of
+>> adapters and domains that are or will be assigned to the APCB of a guest
+>> that is or will be using the matrix mdev. For a matrix mdev denoted by
+>> $uuid, the guest matrix can be displayed as follows:
+>>
+>>     cat /sys/devices/vfio_ap/matrix/$uuid/guest_matrix
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+>
+> But because vfio_ap_mdev_commit_shadow_apcb() is not used (see prev
+> patch) the attribute won't show the guest matrix at this point. :(
 
-diff --git a/lib/s390x/asm/bitops.h b/lib/s390x/asm/bitops.h
-index e7cdda9..792881e 100644
---- a/lib/s390x/asm/bitops.h
-+++ b/lib/s390x/asm/bitops.h
-@@ -1,3 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ *    Bitops taken from the kernel as most developers are already used
-+ *    to them.
-+ *
-+ *    Copyright IBM Corp. 1999,2013
-+ *
-+ *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>,
-+ *
-+ */
- #ifndef _ASMS390X_BITOPS_H_
- #define _ASMS390X_BITOPS_H_
- 
-@@ -7,4 +17,20 @@
- 
- #define BITS_PER_LONG	64
- 
-+static inline bool test_bit(unsigned long nr,
-+			    const volatile unsigned long *ptr)
-+{
-+	const volatile unsigned char *addr;
-+
-+	addr = ((const volatile unsigned char *)ptr);
-+	addr += (nr ^ (BITS_PER_LONG - 8)) >> 3;
-+	return (*addr >> (nr & 7)) & 1;
-+}
-+
-+static inline bool test_bit_inv(unsigned long nr,
-+				const volatile unsigned long *ptr)
-+{
-+	return test_bit(nr ^ (BITS_PER_LONG - 1), ptr);
-+}
-+
- #endif
-diff --git a/lib/s390x/asm/facility.h b/lib/s390x/asm/facility.h
-index 7828cf8..95d4a15 100644
---- a/lib/s390x/asm/facility.h
-+++ b/lib/s390x/asm/facility.h
-@@ -11,13 +11,14 @@
- #include <libcflat.h>
- #include <asm/facility.h>
- #include <asm/arch_def.h>
-+#include <bitops.h>
- 
- #define NB_STFL_DOUBLEWORDS 32
- extern uint64_t stfl_doublewords[];
- 
- static inline bool test_facility(int nr)
- {
--	return stfl_doublewords[nr / 64] & (0x8000000000000000UL >> (nr % 64));
-+	return test_bit_inv(nr, stfl_doublewords);
- }
- 
- static inline void stfl(void)
-diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
-index bc947ab..e51b85e 100644
---- a/s390x/uv-guest.c
-+++ b/s390x/uv-guest.c
-@@ -75,11 +75,11 @@ static void test_query(void)
- 	 * Ultravisor version and are expected to always be available
- 	 * because they are basic building blocks.
- 	 */
--	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_QUI)),
-+	report(test_bit_inv(BIT_UVC_CMD_QUI, &uvcb.inst_calls_list[0]),
- 	       "query indicated");
--	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_SET_SHARED_ACCESS)),
-+	report(test_bit_inv(BIT_UVC_CMD_SET_SHARED_ACCESS, &uvcb.inst_calls_list[0]),
- 	       "share indicated");
--	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_REMOVE_SHARED_ACCESS)),
-+	report(test_bit_inv(BIT_UVC_CMD_REMOVE_SHARED_ACCESS, &uvcb.inst_calls_list[0]),
- 	       "unshare indicated");
- 	report_prefix_pop();
- }
--- 
-2.25.1
+I'll move this patch following all of the filtering and hot plug
+patches.
+
+>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 51 ++++++++++++++++++++++---------
+>>   1 file changed, 37 insertions(+), 14 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 44b3a81cadfb..1b1d5975ee0e 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -894,29 +894,24 @@ static ssize_t control_domains_show(struct device *dev,
+>>   }
+>>   static DEVICE_ATTR_RO(control_domains);
+>>   
+>> -static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
+>> -			   char *buf)
+>> +static ssize_t vfio_ap_mdev_matrix_show(struct ap_matrix *matrix, char *buf)
+>>   {
+>> -	struct mdev_device *mdev = mdev_from_dev(dev);
+>> -	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>>   	char *bufpos = buf;
+>>   	unsigned long apid;
+>>   	unsigned long apqi;
+>>   	unsigned long apid1;
+>>   	unsigned long apqi1;
+>> -	unsigned long napm_bits = matrix_mdev->matrix.apm_max + 1;
+>> -	unsigned long naqm_bits = matrix_mdev->matrix.aqm_max + 1;
+>> +	unsigned long napm_bits = matrix->apm_max + 1;
+>> +	unsigned long naqm_bits = matrix->aqm_max + 1;
+>>   	int nchars = 0;
+>>   	int n;
+>>   
+>> -	apid1 = find_first_bit_inv(matrix_mdev->matrix.apm, napm_bits);
+>> -	apqi1 = find_first_bit_inv(matrix_mdev->matrix.aqm, naqm_bits);
+>> -
+>> -	mutex_lock(&matrix_dev->lock);
+>> +	apid1 = find_first_bit_inv(matrix->apm, napm_bits);
+>> +	apqi1 = find_first_bit_inv(matrix->aqm, naqm_bits);
+>>   
+>>   	if ((apid1 < napm_bits) && (apqi1 < naqm_bits)) {
+>> -		for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm_bits) {
+>> -			for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
+>> +		for_each_set_bit_inv(apid, matrix->apm, napm_bits) {
+>> +			for_each_set_bit_inv(apqi, matrix->aqm,
+>>   					     naqm_bits) {
+>>   				n = sprintf(bufpos, "%02lx.%04lx\n", apid,
+>>   					    apqi);
+>> @@ -925,25 +920,52 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
+>>   			}
+>>   		}
+>>   	} else if (apid1 < napm_bits) {
+>> -		for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm_bits) {
+>> +		for_each_set_bit_inv(apid, matrix->apm, napm_bits) {
+>>   			n = sprintf(bufpos, "%02lx.\n", apid);
+>>   			bufpos += n;
+>>   			nchars += n;
+>>   		}
+>>   	} else if (apqi1 < naqm_bits) {
+>> -		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, naqm_bits) {
+>> +		for_each_set_bit_inv(apqi, matrix->aqm, naqm_bits) {
+>>   			n = sprintf(bufpos, ".%04lx\n", apqi);
+>>   			bufpos += n;
+>>   			nchars += n;
+>>   		}
+>>   	}
+>>   
+>> +	return nchars;
+>> +}
+>> +
+>> +static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
+>> +			   char *buf)
+>> +{
+>> +	ssize_t nchars;
+>> +	struct mdev_device *mdev = mdev_from_dev(dev);
+>> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>> +
+>> +	mutex_lock(&matrix_dev->lock);
+>> +	nchars = vfio_ap_mdev_matrix_show(&matrix_mdev->matrix, buf);
+>>   	mutex_unlock(&matrix_dev->lock);
+>>   
+>>   	return nchars;
+>>   }
+>>   static DEVICE_ATTR_RO(matrix);
+>>   
+>> +static ssize_t guest_matrix_show(struct device *dev,
+>> +				 struct device_attribute *attr, char *buf)
+>> +{
+>> +	ssize_t nchars;
+>> +	struct mdev_device *mdev = mdev_from_dev(dev);
+>> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>> +
+>> +	mutex_lock(&matrix_dev->lock);
+>> +	nchars = vfio_ap_mdev_matrix_show(&matrix_mdev->shadow_apcb, buf);
+>> +	mutex_unlock(&matrix_dev->lock);
+>> +
+>> +	return nchars;
+>> +}
+>> +static DEVICE_ATTR_RO(guest_matrix);
+>> +
+>>   static struct attribute *vfio_ap_mdev_attrs[] = {
+>>   	&dev_attr_assign_adapter.attr,
+>>   	&dev_attr_unassign_adapter.attr,
+>> @@ -953,6 +975,7 @@ static struct attribute *vfio_ap_mdev_attrs[] = {
+>>   	&dev_attr_unassign_control_domain.attr,
+>>   	&dev_attr_control_domains.attr,
+>>   	&dev_attr_matrix.attr,
+>> +	&dev_attr_guest_matrix.attr,
+>>   	NULL,
+>>   };
+>>   
