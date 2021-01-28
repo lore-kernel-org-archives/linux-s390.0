@@ -1,119 +1,93 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47774 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726780AbhAXKGu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Jan 2021 05:06:50 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 07/10] blk-mq: use ->bi_bdev for I/O accounting
-Date: Sun, 24 Jan 2021 11:02:38 +0100
-Message-Id: <20210124100241.1167849-8-hch@lst.de>
-In-Reply-To: <20210124100241.1167849-1-hch@lst.de>
-References: <20210124100241.1167849-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31852 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231422AbhA1L0q (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 28 Jan 2021 06:26:46 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 4/5] s390/qeth: make cast type selection for af_iucv skbs robust
+Date: Thu, 28 Jan 2021 12:25:50 +0100
+Message-Id: <20210128112551.18780-5-jwi@linux.ibm.com>
+In-Reply-To: <20210128112551.18780-1-jwi@linux.ibm.com>
+References: <20210128112551.18780-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Remove the reverse map from a sector to a partition for I/O accounting by
-simply using ->bi_bdev.
+As part of the TX queue selection for af_iucv skbs,
+qeth_l3_get_cast_type_rcu() ends up calling qeth_get_ether_cast_type().
+Which is rather fragile, since such skbs don't have a proper ETH header
+and we rely on it being zeroed out in the right places. Add a separate
+case for ETH_P_AF_IUCV instead that does the right thing.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Tejun Heo <tj@kernel.org>
+When later building the HW header for such skbs, don't hard-code the
+cast type but follow the same path as for other protocol types. Here
+the cast type should naturally come from the skb's queue mapping.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- block/blk-core.c |  6 +++++-
- block/blk.h      |  2 --
- block/genhd.c    | 48 ------------------------------------------------
- 3 files changed, 5 insertions(+), 51 deletions(-)
+ drivers/s390/net/qeth_l3_main.c | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 9315311c27a913..6dfbdde6b9ff84 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -1298,7 +1298,11 @@ void blk_account_io_start(struct request *rq)
- 	if (!blk_do_io_stat(rq))
- 		return;
- 
--	rq->part = disk_map_sector_rcu(rq->rq_disk, blk_rq_pos(rq));
-+	/* passthrough requests can hold bios that do not have ->bi_bdev set */
-+	if (rq->bio && rq->bio->bi_bdev)
-+		rq->part = rq->bio->bi_bdev;
-+	else
-+		rq->part = rq->rq_disk->part0;
- 
- 	part_stat_lock();
- 	update_io_ticks(rq->part, jiffies, false);
-diff --git a/block/blk.h b/block/blk.h
-index 10ab7c0d0766f0..d965cacc5bdaa1 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -333,8 +333,6 @@ void blk_queue_free_zone_bitmaps(struct request_queue *q);
- static inline void blk_queue_free_zone_bitmaps(struct request_queue *q) {}
- #endif
- 
--struct block_device *disk_map_sector_rcu(struct gendisk *disk, sector_t sector);
--
- int blk_alloc_devt(struct block_device *part, dev_t *devt);
- void blk_free_devt(dev_t devt);
- char *disk_name(struct gendisk *hd, int partno, char *buf);
-diff --git a/block/genhd.c b/block/genhd.c
-index e536d0b4bbae34..e46de616a19e59 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -285,54 +285,6 @@ void disk_part_iter_exit(struct disk_part_iter *piter)
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 4921afb51a1c..dd441eaec66e 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1604,8 +1604,10 @@ static int qeth_l3_get_cast_type_rcu(struct sk_buff *skb, struct dst_entry *dst,
+ 	case htons(ETH_P_IPV6):
+ 		return ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr) ?
+ 				RTN_MULTICAST : RTN_UNICAST;
++	case htons(ETH_P_AF_IUCV):
++		return RTN_UNICAST;
+ 	default:
+-		/* ... and MAC address */
++		/* OSA only: ... and MAC address */
+ 		return qeth_get_ether_cast_type(skb);
+ 	}
  }
- EXPORT_SYMBOL_GPL(disk_part_iter_exit);
+@@ -1651,14 +1653,6 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
+ 	} else {
+ 		hdr->hdr.l3.id = QETH_HEADER_TYPE_LAYER3;
  
--static inline int sector_in_part(struct block_device *part, sector_t sector)
--{
--	return part->bd_start_sect <= sector &&
--		sector < part->bd_start_sect + bdev_nr_sectors(part);
--}
--
--/**
-- * disk_map_sector_rcu - map sector to partition
-- * @disk: gendisk of interest
-- * @sector: sector to map
-- *
-- * Find out which partition @sector maps to on @disk.  This is
-- * primarily used for stats accounting.
-- *
-- * CONTEXT:
-- * RCU read locked.
-- *
-- * RETURNS:
-- * Found partition on success, part0 is returned if no partition matches
-- * or the matched partition is being deleted.
-- */
--struct block_device *disk_map_sector_rcu(struct gendisk *disk, sector_t sector)
--{
--	struct disk_part_tbl *ptbl;
--	struct block_device *part;
--	int i;
--
--	rcu_read_lock();
--	ptbl = rcu_dereference(disk->part_tbl);
--
--	part = rcu_dereference(ptbl->last_lookup);
--	if (part && sector_in_part(part, sector))
--		goto out_unlock;
--
--	for (i = 1; i < ptbl->len; i++) {
--		part = rcu_dereference(ptbl->part[i]);
--		if (part && sector_in_part(part, sector)) {
--			rcu_assign_pointer(ptbl->last_lookup, part);
--			goto out_unlock;
+-		if (proto == htons(ETH_P_AF_IUCV)) {
+-			l3_hdr->flags = QETH_HDR_IPV6 | QETH_CAST_UNICAST;
+-			l3_hdr->next_hop.addr.s6_addr16[0] = htons(0xfe80);
+-			memcpy(&l3_hdr->next_hop.addr.s6_addr32[2],
+-			       iucv_trans_hdr(skb)->destUserID, 8);
+-			return;
 -		}
--	}
 -
--	part = disk->part0;
--out_unlock:
--	rcu_read_unlock();
--	return part;
--}
--
- /**
-  * disk_has_partitions
-  * @disk: gendisk of interest
+ 		if (skb->ip_summed == CHECKSUM_PARTIAL) {
+ 			qeth_tx_csum(skb, &hdr->hdr.l3.ext_flags, proto);
+ 			/* some HW requires combined L3+L4 csum offload: */
+@@ -1687,16 +1681,25 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
+ 		cast_type = qeth_l3_get_cast_type_rcu(skb, dst, proto);
+ 	l3_hdr->flags |= qeth_l3_cast_type_to_flag(cast_type);
+ 
+-	if (proto == htons(ETH_P_IP)) {
++	switch (proto) {
++	case htons(ETH_P_IP):
+ 		l3_hdr->next_hop.addr.s6_addr32[3] =
+ 					qeth_next_hop_v4_rcu(skb, dst);
+-	} else if (proto == htons(ETH_P_IPV6)) {
++		break;
++	case htons(ETH_P_IPV6):
+ 		l3_hdr->next_hop.addr = *qeth_next_hop_v6_rcu(skb, dst);
+ 
+ 		hdr->hdr.l3.flags |= QETH_HDR_IPV6;
+ 		if (!IS_IQD(card))
+ 			hdr->hdr.l3.flags |= QETH_HDR_PASSTHRU;
+-	} else {
++		break;
++	case htons(ETH_P_AF_IUCV):
++		l3_hdr->next_hop.addr.s6_addr16[0] = htons(0xfe80);
++		memcpy(&l3_hdr->next_hop.addr.s6_addr32[2],
++		       iucv_trans_hdr(skb)->destUserID, 8);
++		l3_hdr->flags |= QETH_HDR_IPV6;
++		break;
++	default:
+ 		/* OSA only: */
+ 		l3_hdr->flags |= QETH_HDR_PASSTHRU;
+ 	}
 -- 
-2.29.2
+2.17.1
