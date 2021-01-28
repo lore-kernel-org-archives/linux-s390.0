@@ -1,60 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41308 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26712 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727031AbhAMJmW (ORCPT
+        by vger.kernel.org with ESMTP id S231468AbhA1Ll7 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 13 Jan 2021 04:42:22 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH 00/14] KVM: s390: Add huge page VSIE support
-Date: Wed, 13 Jan 2021 09:40:59 +0000
-Message-Id: <20210113094113.133668-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Thu, 28 Jan 2021 06:41:59 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 1/5] net/af_iucv: remove WARN_ONCE on malformed RX packets
+Date: Thu, 28 Jan 2021 12:41:04 +0100
+Message-Id: <20210128114108.39409-2-jwi@linux.ibm.com>
+In-Reply-To: <20210128114108.39409-1-jwi@linux.ibm.com>
+References: <20210128114108.39409-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: borntraeger@de.ibm.com, david@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Alexander Egorenkov <egorenar@linux.ibm.com>
 
-As we finally want to get rid of the nested and hpage s390 KVM module
-parameters let's try again to integrate huge page VSIE support.
+From: Alexander Egorenkov <egorenar@linux.ibm.com>
 
-The following patches have been rebased on 5.11-rc3 and enable us to
-start huge page and normal page VSIE guest 3s in a huge page guest 2.
+syzbot reported the following finding:
 
-Branch:
-https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/log/?h=hlp_vsie
+AF_IUCV failed to receive skb, len=0
+WARNING: CPU: 0 PID: 522 at net/iucv/af_iucv.c:2039 afiucv_hs_rcv+0x174/0x190 net/iucv/af_iucv.c:2039
+CPU: 0 PID: 522 Comm: syz-executor091 Not tainted 5.10.0-rc1-syzkaller-07082-g55027a88ec9f #0
+Hardware name: IBM 3906 M04 701 (KVM/Linux)
+Call Trace:
+ [<00000000b87ea538>] afiucv_hs_rcv+0x178/0x190 net/iucv/af_iucv.c:2039
+([<00000000b87ea534>] afiucv_hs_rcv+0x174/0x190 net/iucv/af_iucv.c:2039)
+ [<00000000b796533e>] __netif_receive_skb_one_core+0x13e/0x188 net/core/dev.c:5315
+ [<00000000b79653ce>] __netif_receive_skb+0x46/0x1c0 net/core/dev.c:5429
+ [<00000000b79655fe>] netif_receive_skb_internal+0xb6/0x220 net/core/dev.c:5534
+ [<00000000b796ac3a>] netif_receive_skb+0x42/0x318 net/core/dev.c:5593
+ [<00000000b6fd45f4>] tun_rx_batched.isra.0+0x6fc/0x860 drivers/net/tun.c:1485
+ [<00000000b6fddc4e>] tun_get_user+0x1c26/0x27f0 drivers/net/tun.c:1939
+ [<00000000b6fe0f00>] tun_chr_write_iter+0x158/0x248 drivers/net/tun.c:1968
+ [<00000000b4f22bfa>] call_write_iter include/linux/fs.h:1887 [inline]
+ [<00000000b4f22bfa>] new_sync_write+0x442/0x648 fs/read_write.c:518
+ [<00000000b4f238fe>] vfs_write.part.0+0x36e/0x5d8 fs/read_write.c:605
+ [<00000000b4f2984e>] vfs_write+0x10e/0x148 fs/read_write.c:615
+ [<00000000b4f29d0e>] ksys_write+0x166/0x290 fs/read_write.c:658
+ [<00000000b8dc4ab4>] system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
+Last Breaking-Event-Address:
+ [<00000000b8dc64d4>] __s390_indirect_jump_r14+0x0/0xc
 
+Malformed RX packets shouldn't generate any warnings because
+debugging info already flows to dropmon via the kfree_skb().
 
-Problems that need to be solved:
-	* The VSIE guests crash on migration...
-	* I have lost most of my knowledge about this topic and I'm
-          currently paging back in
-	* Lots of testing
+Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ net/iucv/af_iucv.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-
-Janosch Frank (14):
-  s390/mm: Code cleanups
-  s390/mm: Improve locking for huge page backings
-  s390/mm: Take locking out of gmap_protect_pte
-  s390/mm: split huge pages in GMAP when protecting
-  s390/mm: Split huge pages when migrating
-  s390/mm: Provide vmaddr to pmd notification
-  s390/mm: factor out idte global flush into gmap_idte_global
-  s390/mm: Make gmap_read_table EDAT1 compatible
-  s390/mm: Make gmap_protect_rmap EDAT1 compatible
-  s390/mm: Add simple ptep shadow function
-  s390/mm: Add gmap shadowing for large pmds
-  s390/mm: Add gmap lock classes
-  s390/mm: Pull pmd invalid check in gmap_pmd_op_walk
-  KVM: s390: Allow the VSIE to be used with huge pages
-
- Documentation/virt/kvm/api.rst  |   9 +-
- arch/s390/include/asm/gmap.h    |  31 +-
- arch/s390/include/asm/pgtable.h |   5 +
- arch/s390/kvm/gaccess.c         |  52 +-
- arch/s390/kvm/kvm-s390.c        |  14 +-
- arch/s390/mm/gmap.c             | 917 ++++++++++++++++++++++++--------
- arch/s390/mm/pgtable.c          |  61 ++-
- 7 files changed, 819 insertions(+), 270 deletions(-)
-
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index 882f028992c3..427a1abce0a8 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -2036,7 +2036,6 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
+ 	char nullstring[8];
+ 
+ 	if (!pskb_may_pull(skb, sizeof(*trans_hdr))) {
+-		WARN_ONCE(1, "AF_IUCV failed to receive skb, len=%u", skb->len);
+ 		kfree_skb(skb);
+ 		return NET_RX_SUCCESS;
+ 	}
 -- 
-2.27.0
+2.17.1
