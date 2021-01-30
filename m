@@ -1,27 +1,55 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:49000 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230517AbhA3UCB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 30 Jan 2021 15:02:01 -0500
-Subject: Re: [GIT PULL] s390 updates for 5.11-rc6
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <your-ad-here.call-01612020758-ext-9054@work.hours>
-References: <your-ad-here.call-01612020758-ext-9054@work.hours>
-Message-Id: <161203688061.22475.9956161299881812060.pr-tracker-bot@kernel.org>
-Date: Sat, 30 Jan 2021 20:01:20 +0000
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 30 Jan 2021 16:32:38 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: [GIT PULL] s390 updates for 5.11-rc6
+Message-ID: <your-ad-here.call-01612020758-ext-9054@work.hours>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 List-ID: <linux-s390.vger.kernel.org>
-To: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-The pull request you sent on Sat, 30 Jan 2021 16:32:38 +0100:
+Hello Linus,
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.11-4
+please pull s390 fixes for 5.11-rc6.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/3bf255315bed7ccdde94603ec164d04dc5953ad9
+Thank you,
+Vasily
 
-Thank you!
+The following changes since commit 6ee1d745b7c9fd573fba142a2efdad76a9f1cb04:
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+  Linux 5.11-rc5 (2021-01-24 16:47:14 -0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.11-4
+
+for you to fetch changes up to e82080e1f456467cc185fe65ee69fe9f9bd0b576:
+
+  s390: uv: Fix sysfs max number of VCPUs reporting (2021-01-27 13:00:04 +0100)
+
+----------------------------------------------------------------
+- Fix max number of VCPUs reported via ultravisor information sysfs interface.
+
+- Fix memory leaks during vfio-ap resources clean up on KVM pointer
+  invalidation notification.
+
+- Fix potential specification exception by avoiding unnecessary interrupts
+  disable after queue reset in vfio-ap.
+
+----------------------------------------------------------------
+Janosch Frank (1):
+      s390: uv: Fix sysfs max number of VCPUs reporting
+
+Tony Krowiak (2):
+      s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated
+      s390/vfio-ap: No need to disable IRQ after queue reset
+
+ arch/s390/boot/uv.c                   |   2 +-
+ arch/s390/include/asm/uv.h            |   4 +-
+ arch/s390/kernel/uv.c                 |   2 +-
+ drivers/s390/crypto/vfio_ap_drv.c     |   6 +-
+ drivers/s390/crypto/vfio_ap_ops.c     | 149 ++++++++++++++++++++--------------
+ drivers/s390/crypto/vfio_ap_private.h |  12 +--
+ 6 files changed, 101 insertions(+), 74 deletions(-)
