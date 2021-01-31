@@ -1,98 +1,91 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-dm6nam12on2047.outbound.protection.outlook.com ([40.107.243.47]:34209
-        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229926AbhAaH7Q (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 31 Jan 2021 02:59:16 -0500
-From: Nadav Amit <namit@vmware.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35200 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229468AbhAaDbd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 30 Jan 2021 22:31:33 -0500
+Date: Sun, 31 Jan 2021 13:30:45 +1000
+From: Nicholas Piggin <npiggin@gmail.com>
 Subject: Re: [RFC 00/20] TLB batching consolidation and enhancements
-Date: Sun, 31 Jan 2021 07:57:01 +0000
-Message-ID: <A1589669-34AE-4E15-8358-79BAD7C72520@vmware.com>
 References: <20210131001132.3368247-1-namit@vmware.com>
- <1612063149.2awdsvvmhj.astroid@bobo.none>
-In-Reply-To: <1612063149.2awdsvvmhj.astroid@bobo.none>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <255E65CB0F9C7542894A7BCF6BD721DF@namprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
+In-Reply-To: <20210131001132.3368247-1-namit@vmware.com>
 MIME-Version: 1.0
+Message-Id: <1612063149.2awdsvvmhj.astroid@bobo.none>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: Nicholas Piggin <npiggin@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Andrea Arcangeli <aarcange@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Dave Hansen <dave.hansen@linux.intel.com>, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Andy Lutomirski <luto@kernel.org>, Mel Gorman <mgorman@techsingularity.net>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, X86 ML <x86@kernel.org>, Yu Zhao <yuzhao@google.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org, Nadav Amit <nadav.amit@gmail.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-csky@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, Mel Gorman <mgorman@techsingularity.net>, Nadav Amit <namit@vmware.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, x86@kernel.org, Yu Zhao <yuzhao@google.com>
 
-PiBPbiBKYW4gMzAsIDIwMjEsIGF0IDc6MzAgUE0sIE5pY2hvbGFzIFBpZ2dpbiA8bnBpZ2dpbkBn
-bWFpbC5jb20+IHdyb3RlOg0KPiANCj4gRXhjZXJwdHMgZnJvbSBOYWRhdiBBbWl0J3MgbWVzc2Fn
-ZSBvZiBKYW51YXJ5IDMxLCAyMDIxIDEwOjExIGFtOg0KPj4gRnJvbTogTmFkYXYgQW1pdCA8bmFt
-aXRAdm13YXJlLmNvbT4NCj4+IA0KPj4gVGhlcmUgYXJlIGN1cnJlbnRseSAoYXQgbGVhc3Q/KSA1
-IGRpZmZlcmVudCBUTEIgYmF0Y2hpbmcgc2NoZW1lcyBpbiB0aGUNCj4+IGtlcm5lbDoNCj4+IA0K
-Pj4gMS4gVXNpbmcgbW11X2dhdGhlciAoZS5nLiwgemFwX3BhZ2VfcmFuZ2UoKSkuDQo+PiANCj4+
-IDIuIFVzaW5nIHtpbmN8ZGVjfV90bGJfZmx1c2hfcGVuZGluZygpIHRvIGluZm9ybSBvdGhlciB0
-aHJlYWRzIG9uIHRoZQ0KPj4gICBvbmdvaW5nIGRlZmVycmVkIFRMQiBmbHVzaCBhbmQgZmx1c2hp
-bmcgdGhlIGVudGlyZSByYW5nZSBldmVudHVhbGx5DQo+PiAgIChlLmcuLCBjaGFuZ2VfcHJvdGVj
-dGlvbl9yYW5nZSgpKS4NCj4+IA0KPj4gMy4gYXJjaF97ZW50ZXJ8bGVhdmV9X2xhenlfbW11X21v
-ZGUoKSBmb3Igc3BhcmMgYW5kIHBvd2VycGMgKGFuZCBYZW4/KS4NCj4+IA0KPj4gNC4gQmF0Y2hp
-bmcgcGVyLXRhYmxlIGZsdXNoZXMgKG1vdmVfcHRlcygpKS4NCj4+IA0KPj4gNS4gQnkgc2V0dGlu
-ZyBhIGZsYWcgb24gdGhhdCBhIGRlZmVycmVkIFRMQiBmbHVzaCBvcGVyYXRpb24gdGFrZXMgcGxh
-Y2UsDQo+PiAgIGZsdXNoaW5nIHdoZW4gKHRyeV90b191bm1hcF9vbmUoKSBvbiB4ODYpLg0KPj4g
-DQo+PiBJdCBzZWVtcyB0aGF0ICgxKS0oNCkgY2FuIGJlIGNvbnNvbGlkYXRlZC4gSW4gYWRkaXRp
-b24sIGl0IHNlZW1zIHRoYXQNCj4+ICg1KSBpcyByYWN5LiBJdCBhbHNvIHNlZW1zIHRoZXJlIGNh
-biBiZSBtYW55IHJlZHVuZGFudCBUTEIgZmx1c2hlcywgYW5kDQo+PiBwb3RlbnRpYWxseSBUTEIt
-c2hvb3Rkb3duIHN0b3JtcywgZm9yIGluc3RhbmNlIGR1cmluZyBiYXRjaGVkDQo+PiByZWNsYW1h
-dGlvbiAodXNpbmcgdHJ5X3RvX3VubWFwX29uZSgpKSBpZiBhdCB0aGUgc2FtZSB0aW1lIG1tdV9n
-YXRoZXINCj4+IGRlZmVycyBUTEIgZmx1c2hlcy4NCj4+IA0KPj4gTW9yZSBhZ2dyZXNzaXZlIFRM
-QiBiYXRjaGluZyBtYXkgYmUgcG9zc2libGUsIGJ1dCB0aGlzIHBhdGNoLXNldCBkb2VzDQo+PiBu
-b3QgYWRkIHN1Y2ggYmF0Y2hpbmcuIFRoZSBwcm9wb3NlZCBjaGFuZ2VzIHdvdWxkIGVuYWJsZSBz
-dWNoIGJhdGNoaW5nDQo+PiBpbiBhIGxhdGVyIHRpbWUuDQo+PiANCj4+IEFkbWl0dGVkbHksIEkg
-ZG8gbm90IHVuZGVyc3RhbmQgaG93IHRoaW5ncyBhcmUgbm90IGJyb2tlbiB0b2RheSwgd2hpY2gN
-Cj4+IGZyaWdodGVucyBtZSB0byBtYWtlIGZ1cnRoZXIgYmF0Y2hpbmcgYmVmb3JlIGdldHRpbmcg
-dGhpbmdzIGluIG9yZGVyLg0KPj4gRm9yIGluc3RhbmNlLCB3aHkgaXMgb2sgZm9yIHphcF9wdGVf
-cmFuZ2UoKSB0byBiYXRjaCBkaXJ0eS1QVEUgZmx1c2hlcw0KPj4gZm9yIGVhY2ggcGFnZS10YWJs
-ZSAoYnV0IG5vdCBpbiBncmVhdGVyIGdyYW51bGFyaXR5KS4gQ2FuJ3QNCj4+IENsZWFyUGFnZURp
-cnR5KCkgYmUgY2FsbGVkIGJlZm9yZSB0aGUgZmx1c2gsIGNhdXNpbmcgd3JpdGVzIGFmdGVyDQo+
-PiBDbGVhclBhZ2VEaXJ0eSgpIGFuZCBiZWZvcmUgdGhlIGZsdXNoIHRvIGJlIGxvc3Q/DQo+IA0K
-PiBCZWNhdXNlIGl0J3MgaG9sZGluZyB0aGUgcGFnZSB0YWJsZSBsb2NrIHdoaWNoIHN0b3BzIHBh
-Z2VfbWtjbGVhbiBmcm9tIA0KPiBjbGVhbmluZyB0aGUgcGFnZS4gT3IgYW0gSSBtaXN1bmRlcnN0
-YW5kaW5nIHRoZSBxdWVzdGlvbj8NCg0KVGhhbmtzLiBJIHVuZGVyc3Rvb2QgdGhpcyBwYXJ0LiBM
-b29raW5nIGFnYWluIGF0IHRoZSBjb2RlLCBJIG5vdyB1bmRlcnN0YW5kDQpteSBjb25mdXNpb246
-IEkgZm9yZ290IHRoYXQgdGhlIHJldmVyc2UgbWFwcGluZyBpcyByZW1vdmVkIGFmdGVyIHRoZSBQ
-VEUgaXMNCnphcHBlZC4NCg0KTWFrZXMgbWUgd29uZGVyIHdoZXRoZXIgaXQgaXMgb2sgdG8gZGVm
-ZXIgdGhlIFRMQiBmbHVzaCB0byB0bGJfZmluaXNoX21tdSgpLA0KYnkgcGVyZm9ybWluZyBzZXRf
-cGFnZV9kaXJ0eSgpIGZvciB0aGUgYmF0Y2hlZCBwYWdlcyB3aGVuIG5lZWRlZCBpbg0KdGxiX2Zp
-bmlzaF9tbXUoKSBbIGkuZS4sIGJ5IG1hcmtpbmcgZm9yIGVhY2ggYmF0Y2hlZCBwYWdlIHdoZXRo
-ZXINCnNldF9wYWdlX2RpcnR5KCkgc2hvdWxkIGJlIGlzc3VlZCBmb3IgdGhhdCBwYWdlIHdoaWxl
-IGNvbGxlY3RpbmcgdGhlbSBdLg0KDQo+IEknbGwgZ28gdGhyb3VnaCB0aGUgcGF0Y2hlcyBhIGJp
-dCBtb3JlIGNsb3NlbHkgd2hlbiB0aGV5IGFsbCBjb21lIA0KPiB0aHJvdWdoLiBTcGFyYyBhbmQg
-cG93ZXJwYyBvZiBjb3Vyc2UgbmVlZCB0aGUgYXJjaCBsYXp5IG1vZGUgdG8gZ2V0IA0KPiBwZXIt
-cGFnZS9wdGUgaW5mb3JtYXRpb24gZm9yIG9wZXJhdGlvbnMgdGhhdCBhcmUgbm90IGZyZWVpbmcg
-cGFnZXMsIA0KPiB3aGljaCBpcyB3aGF0IG1tdSBnYXRoZXIgaXMgZGVzaWduZWQgZm9yLg0KDQpJ
-SVVDIHlvdSBtZWFuIGFueSBQVEUgY2hhbmdlIHJlcXVpcmVzIGEgVExCIGZsdXNoLiBFdmVuIHNl
-dHRpbmcgdXAgYSBuZXcgUFRFDQp3aGVyZSBubyBwcmV2aW91cyBQVEUgd2FzIHNldCwgcmlnaHQ/
-DQoNCj4gSSB3b3VsZG4ndCBtaW5kIHVzaW5nIGEgc2ltaWxhciBBUEkgc28gaXQncyBsZXNzIG9m
-IGEgYmxhY2sgYm94IHdoZW4gDQo+IHJlYWRpbmcgZ2VuZXJpYyBjb2RlLCBidXQgaXQgbWlnaHQg
-bm90IHF1aXRlIGZpdCB0aGUgbW11IGdhdGhlciBBUEkNCj4gZXhhY3RseSAobW9zdCBvZiB0aGVz
-ZSBwYXRocyBkb24ndCB3YW50IGEgZnVsbCBtbXVfZ2F0aGVyIG9uIHN0YWNrKS4NCg0KSSBzZWUg
-eW91ciBwb2ludC4gSXQgbWF5IGJlIHBvc3NpYmxlIHRvIGNyZWF0ZSB0d28gbW11X2dhdGhlciBz
-dHJ1Y3RzOiBhDQpzbWFsbCBvbmUgdGhhdCBvbmx5IGhvbGRzIHRoZSBmbHVzaCBpbmZvcm1hdGlv
-biBhbmQgYW5vdGhlciB0aGF0IGFsc28gaG9sZHMNCnRoZSBwYWdlcy4gDQoNCj4+IFRoaXMgcGF0
-Y2gtc2V0IHRoZXJlZm9yZSBwZXJmb3JtcyB0aGUgZm9sbG93aW5nIGNoYW5nZXM6DQo+PiANCj4+
-IDEuIENoYW5nZSBtcHJvdGVjdCwgdGFza19tbXUgYW5kIG1hcHBpbmdfZGlydHlfaGVscGVycyB0
-byB1c2UgbW11X2dhdGhlcg0KPj4gICBpbnN0ZWFkIG9mIHtpbmN8ZGVjfV90bGJfZmx1c2hfcGVu
-ZGluZygpLg0KPj4gDQo+PiAyLiBBdm9pZCBUTEIgZmx1c2hlcyBpZiBQVEUgcGVybWlzc2lvbiBp
-cyBub3QgZGVtb3RlZC4NCj4+IA0KPj4gMy4gQ2xlYW5zIHVwIG1tdV9nYXRoZXIgdG8gYmUgbGVz
-cyBhcmNoLWRlcGVuZGFudC4NCj4+IA0KPj4gNC4gVXNlcyBtbSdzIGdlbmVyYXRpb25zIHRvIHRy
-YWNrIGluIGZpbmVyIGdyYW51bGFyaXR5LCBlaXRoZXIgcGVyLVZNQQ0KPj4gICBvciBwZXIgcGFn
-ZS10YWJsZSwgd2hldGhlciBhIHBlbmRpbmcgbW11X2dhdGhlciBvcGVyYXRpb24gaXMNCj4+ICAg
-b3V0c3RhbmRpbmcuIFRoaXMgc2hvdWxkIGFsbG93IHRvIGF2b2lkIHNvbWUgVExCIGZsdXNoZXMg
-d2hlbiBLU00gb3INCj4+ICAgbWVtb3J5IHJlY2xhbWF0aW9uIHRha2VzIHBsYWNlIHdoaWxlIGFu
-b3RoZXIgb3BlcmF0aW9uIHN1Y2ggYXMNCj4+ICAgbXVubWFwKCkgb3IgbXByb3RlY3QoKSBpcyBy
-dW5uaW5nLg0KPj4gDQo+PiA1LiBDaGFuZ2VzIHRyeV90b191bm1hcF9vbmUoKSBmbHVzaGluZyBz
-Y2hlbWUsIGFzIHRoZSBjdXJyZW50IHNlZW1zDQo+PiAgIGJyb2tlbiB0byB0cmFjayBpbiBhIGJp
-dG1hcCB3aGljaCBDUFVzIGhhdmUgb3V0c3RhbmRpbmcgVExCIGZsdXNoZXMNCj4+ICAgaW5zdGVh
-ZCBvZiBoYXZpbmcgYSBmbGFnLg0KPiANCj4gUHV0dGluZyBmaXhlcyBmaXJzdCwgYW5kIGNsZWFu
-dXBzIGFuZCBpbmRlcGVuZGVudCBwYXRjaGVzIChsaWtlICMyKSBuZXh0DQo+IHdvdWxkIGhlbHAg
-d2l0aCBnZXR0aW5nIHN0dWZmIG1lcmdlZCBhbmQgYmFja3BvcnRlZC4NCg0KSSB0cmllZCB0byBk
-byBpdCBtb3N0bHkgdGhpcyB3YXkuIFRoZXJlIGFyZSBzb21lIHRoZW9yZXRpY2FsIHJhY2VzIHdo
-aWNoDQpJIGRpZCBub3QgbWFuYWdlIChvciB0cnkgaGFyZCBlbm91Z2gpIHRvIGNyZWF0ZSwgc28g
-SSBkaWQgbm90IGluY2x1ZGUgaW4NCnRoZSDigJxmaXhlc+KAnSBzZWN0aW9uLiBJIHdpbGwgcmVz
-dHJ1Y3R1cmUgdGhlIHBhdGNoLXNldCBhY2NvcmRpbmcgdG8gdGhlDQpmZWVkYmFjay4NCg0KVGhh
-bmtzLA0KTmFkYXY=
+Excerpts from Nadav Amit's message of January 31, 2021 10:11 am:
+> From: Nadav Amit <namit@vmware.com>
+>=20
+> There are currently (at least?) 5 different TLB batching schemes in the
+> kernel:
+>=20
+> 1. Using mmu_gather (e.g., zap_page_range()).
+>=20
+> 2. Using {inc|dec}_tlb_flush_pending() to inform other threads on the
+>    ongoing deferred TLB flush and flushing the entire range eventually
+>    (e.g., change_protection_range()).
+>=20
+> 3. arch_{enter|leave}_lazy_mmu_mode() for sparc and powerpc (and Xen?).
+>=20
+> 4. Batching per-table flushes (move_ptes()).
+>=20
+> 5. By setting a flag on that a deferred TLB flush operation takes place,
+>    flushing when (try_to_unmap_one() on x86).
+>=20
+> It seems that (1)-(4) can be consolidated. In addition, it seems that
+> (5) is racy. It also seems there can be many redundant TLB flushes, and
+> potentially TLB-shootdown storms, for instance during batched
+> reclamation (using try_to_unmap_one()) if at the same time mmu_gather
+> defers TLB flushes.
+>=20
+> More aggressive TLB batching may be possible, but this patch-set does
+> not add such batching. The proposed changes would enable such batching
+> in a later time.
+>=20
+> Admittedly, I do not understand how things are not broken today, which
+> frightens me to make further batching before getting things in order.
+> For instance, why is ok for zap_pte_range() to batch dirty-PTE flushes
+> for each page-table (but not in greater granularity). Can't
+> ClearPageDirty() be called before the flush, causing writes after
+> ClearPageDirty() and before the flush to be lost?
+
+Because it's holding the page table lock which stops page_mkclean from=20
+cleaning the page. Or am I misunderstanding the question?
+
+I'll go through the patches a bit more closely when they all come=20
+through. Sparc and powerpc of course need the arch lazy mode to get=20
+per-page/pte information for operations that are not freeing pages,=20
+which is what mmu gather is designed for.
+
+I wouldn't mind using a similar API so it's less of a black box when=20
+reading generic code, but it might not quite fit the mmu gather API
+exactly (most of these paths don't want a full mmu_gather on stack).
+
+>=20
+> This patch-set therefore performs the following changes:
+>=20
+> 1. Change mprotect, task_mmu and mapping_dirty_helpers to use mmu_gather
+>    instead of {inc|dec}_tlb_flush_pending().
+>=20
+> 2. Avoid TLB flushes if PTE permission is not demoted.
+>=20
+> 3. Cleans up mmu_gather to be less arch-dependant.
+>=20
+> 4. Uses mm's generations to track in finer granularity, either per-VMA
+>    or per page-table, whether a pending mmu_gather operation is
+>    outstanding. This should allow to avoid some TLB flushes when KSM or
+>    memory reclamation takes place while another operation such as
+>    munmap() or mprotect() is running.
+>=20
+> 5. Changes try_to_unmap_one() flushing scheme, as the current seems
+>    broken to track in a bitmap which CPUs have outstanding TLB flushes
+>    instead of having a flag.
+
+Putting fixes first, and cleanups and independent patches (like #2) next
+would help with getting stuff merged and backported.
+
+Thanks,
+Nick
