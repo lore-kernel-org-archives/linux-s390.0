@@ -1,123 +1,81 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:46216 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229813AbhBADZ2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 31 Jan 2021 22:25:28 -0500
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V5 0/4] mm/memory_hotplug: Pre-validate the address range with platform
-Date: Mon,  1 Feb 2021 08:54:58 +0530
-Message-Id: <1612149902-7867-1-git-send-email-anshuman.khandual@arm.com>
+Received: from mail-dm6nam12on2044.outbound.protection.outlook.com ([40.107.243.44]:28256
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S230038AbhAaIPv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 31 Jan 2021 03:15:51 -0500
+From: Nadav Amit <namit@vmware.com>
+Subject: Re: [RFC 00/20] TLB batching consolidation and enhancements
+Date: Sun, 31 Jan 2021 08:14:16 +0000
+Message-ID: <30BE6144-A66B-4FF7-9112-35EDF6EF6304@vmware.com>
+References: <20210131001132.3368247-1-namit@vmware.com>
+ <1612063149.2awdsvvmhj.astroid@bobo.none>
+ <A1589669-34AE-4E15-8358-79BAD7C72520@vmware.com>
+In-Reply-To: <A1589669-34AE-4E15-8358-79BAD7C72520@vmware.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <3581594BDEC2384E80E3AEE6C81F192A@namprd05.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com, david@redhat.com, osalvador@suse.de
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nadav Amit <namit@vmware.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>, LKML <linux-kernel@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Andrea Arcangeli <aarcange@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Dave Hansen <dave.hansen@linux.intel.com>, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Andy Lutomirski <luto@kernel.org>, Mel Gorman <mgorman@techsingularity.net>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, X86 ML <x86@kernel.org>, Yu Zhao <yuzhao@google.com>
 
-This series adds a mechanism allowing platforms to weigh in and prevalidate
-incoming address range before proceeding further with the memory hotplug.
-This helps prevent potential platform errors for the given address range,
-down the hotplug call chain, which inevitably fails the hotplug itself.
+> On Jan 30, 2021, at 11:57 PM, Nadav Amit <namit@vmware.com> wrote:
+>=20
+>> On Jan 30, 2021, at 7:30 PM, Nicholas Piggin <npiggin@gmail.com> wrote:
+>>=20
+>> Excerpts from Nadav Amit's message of January 31, 2021 10:11 am:
+>>> From: Nadav Amit <namit@vmware.com>
+>>>=20
+>>> There are currently (at least?) 5 different TLB batching schemes in the
+>>> kernel:
+>>>=20
+>>> 1. Using mmu_gather (e.g., zap_page_range()).
+>>>=20
+>>> 2. Using {inc|dec}_tlb_flush_pending() to inform other threads on the
+>>>  ongoing deferred TLB flush and flushing the entire range eventually
+>>>  (e.g., change_protection_range()).
+>>>=20
+>>> 3. arch_{enter|leave}_lazy_mmu_mode() for sparc and powerpc (and Xen?).
+>>>=20
+>>> 4. Batching per-table flushes (move_ptes()).
+>>>=20
+>>> 5. By setting a flag on that a deferred TLB flush operation takes place=
+,
+>>>  flushing when (try_to_unmap_one() on x86).
+>>>=20
+>>> It seems that (1)-(4) can be consolidated. In addition, it seems that
+>>> (5) is racy. It also seems there can be many redundant TLB flushes, and
+>>> potentially TLB-shootdown storms, for instance during batched
+>>> reclamation (using try_to_unmap_one()) if at the same time mmu_gather
+>>> defers TLB flushes.
+>>>=20
+>>> More aggressive TLB batching may be possible, but this patch-set does
+>>> not add such batching. The proposed changes would enable such batching
+>>> in a later time.
+>>>=20
+>>> Admittedly, I do not understand how things are not broken today, which
+>>> frightens me to make further batching before getting things in order.
+>>> For instance, why is ok for zap_pte_range() to batch dirty-PTE flushes
+>>> for each page-table (but not in greater granularity). Can't
+>>> ClearPageDirty() be called before the flush, causing writes after
+>>> ClearPageDirty() and before the flush to be lost?
+>>=20
+>> Because it's holding the page table lock which stops page_mkclean from=20
+>> cleaning the page. Or am I misunderstanding the question?
+>=20
+> Thanks. I understood this part. Looking again at the code, I now understa=
+nd
+> my confusion: I forgot that the reverse mapping is removed after the PTE =
+is
+> zapped.
+>=20
+> Makes me wonder whether it is ok to defer the TLB flush to tlb_finish_mmu=
+(),
+> by performing set_page_dirty() for the batched pages when needed in
+> tlb_finish_mmu() [ i.e., by marking for each batched page whether
+> set_page_dirty() should be issued for that page while collecting them ].
 
-This mechanism was suggested by David Hildenbrand during another discussion
-with respect to a memory hotplug fix on arm64 platform.
-
-https://lore.kernel.org/linux-arm-kernel/1600332402-30123-1-git-send-email-anshuman.khandual@arm.com/
-
-This mechanism focuses on the addressibility aspect and not [sub] section
-alignment aspect. Hence check_hotplug_memory_range() and check_pfn_span()
-have been left unchanged.
-
-This series applies on v5.11-rc6 and has been tested on arm64. But only
-build tested on s390.
-
-Changes in V5:
-
-- Dropped phys_limit from virtio_mem_init() to prevent build warning
-
-Changes in V4:
-
-https://lore.kernel.org/linux-mm/1611543532-18698-1-git-send-email-anshuman.khandual@arm.com/
-
-- Moved arch_get_mappable_range() earlier in vmem_add_mapping() on s390
-- Moved mhp_range_allowed() back in pagemap_range() as in V2 series
-- Changed max_phys as (1ULL << MAX_PHYSMEM_BITS) - 1 in mhp_get_pluggable_range()
-- Renamed all memhp instances into mhp
-- Dropped the RFC tag from the last patch
-
-Changes in V3:
-
-https://lore.kernel.org/linux-mm/1610975582-12646-1-git-send-email-anshuman.khandual@arm.com/
-
-- Updated the commit message in [PATCH 1/3]
-- Replaced 1 with 'true' and 0 with 'false' in memhp_range_allowed()
-- Updated memhp_range.end as VMEM_MAX_PHYS - 1 and updated vmem_add_mapping() on s390
-- Changed memhp_range_allowed() behaviour in __add_pages()
-- Updated __add_pages() to return E2BIG when memhp_range_allowed() fails for non-linear mapping based requests
-
-Changes in V2:
-
-https://lore.kernel.org/linux-mm/1608218912-28932-1-git-send-email-anshuman.khandual@arm.com/
-
-- Changed s390 version per Heiko and updated the commit message
-- Called memhp_range_allowed() only for arch_add_memory() in pagemap_range()
-- Exported the symbol memhp_get_pluggable_range() 
-
-Changes in V1:
-
-https://lore.kernel.org/linux-mm/1607400978-31595-1-git-send-email-anshuman.khandual@arm.com/
-
-- Fixed build problems with (MEMORY_HOTPLUG & !MEMORY_HOTREMOVE)
-- Added missing prototype for arch_get_mappable_range()
-- Added VM_BUG_ON() check for memhp_range_allowed() in arch_add_memory() per David
-
-Changes in RFC V2:
-
-https://lore.kernel.org/linux-mm/1606706992-26656-1-git-send-email-anshuman.khandual@arm.com/
-
-Incorporated all review feedbacks from David.
-
-- Added additional range check in __segment_load() on s390 which was lost
-- Changed is_private init in pagemap_range()
-- Moved the framework into mm/memory_hotplug.c
-- Made arch_get_addressable_range() a __weak function
-- Renamed arch_get_addressable_range() as arch_get_mappable_range()
-- Callback arch_get_mappable_range() only handles range requiring linear mapping
-- Merged multiple memhp_range_allowed() checks in register_memory_resource()
-- Replaced WARN() with pr_warn() in memhp_range_allowed()
-- Replaced error return code ERANGE with E2BIG
-
-Changes in RFC V1:
-
-https://lore.kernel.org/linux-mm/1606098529-7907-1-git-send-email-anshuman.khandual@arm.com/
-
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org
-
-Anshuman Khandual (3):
-  mm/memory_hotplug: Prevalidate the address range being added with platform
-  arm64/mm: Define arch_get_mappable_range()
-  s390/mm: Define arch_get_mappable_range()
-
-David Hildenbrand (1):
-  virtio-mem: check against mhp_get_pluggable_range() which memory we can hotplug
-
- arch/arm64/mm/mmu.c            | 15 +++----
- arch/s390/mm/init.c            |  1 +
- arch/s390/mm/vmem.c            | 14 +++++-
- drivers/virtio/virtio_mem.c    | 41 ++++++++++++------
- include/linux/memory_hotplug.h | 10 +++++
- mm/memory_hotplug.c            | 78 +++++++++++++++++++++++++---------
- mm/memremap.c                  |  6 ++-
- 7 files changed, 122 insertions(+), 43 deletions(-)
-
--- 
-2.20.1
+Correcting myself (I hope): no we cannot do so, since the buffers might be
+remove from the page at that point.
