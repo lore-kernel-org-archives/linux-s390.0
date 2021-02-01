@@ -2,43 +2,44 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D9DAC433DB
-	for <linux-s390@archiver.kernel.org>; Mon,  1 Feb 2021 17:26:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94EB4C43381
+	for <linux-s390@archiver.kernel.org>; Mon,  1 Feb 2021 17:26:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2FA3264E8F
-	for <linux-s390@archiver.kernel.org>; Mon,  1 Feb 2021 17:26:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 622F164EAA
+	for <linux-s390@archiver.kernel.org>; Mon,  1 Feb 2021 17:26:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231150AbhBAR0T (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 1 Feb 2021 12:26:19 -0500
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:44464 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229692AbhBAR0Q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Feb 2021 12:26:16 -0500
+        id S231280AbhBAR0c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 1 Feb 2021 12:26:32 -0500
+Received: from smtp-fw-9102.amazon.com ([207.171.184.29]:2359 "EHLO
+        smtp-fw-9102.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231233AbhBAR03 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Feb 2021 12:26:29 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1612200376; x=1643736376;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=4oHGTJN/orKtC2bgJVlWjuCAjE01eDUVrhYY9F6POR0=;
-  b=f5w8PYXEKyXBFQ/SU0IEYRLqu7B8Cz7Rtay2q58ct6EyAcCWIN/PPBG5
-   yrqFk5zOWxl03SULyAoz1j1Xn7PSmxDhhJCygCFE3hKe4j7P8M4JvGgA+
-   XF8ruoM/ngAVDIVGG35hA2ob/lQwmtwuXZLdG1wOHf8JpX+JajT0sfrmR
-   w=;
+  t=1612200390; x=1643736390;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version;
+  bh=UFK1IsfiUbDjOVHOm6bYAdugSWEZJc1B4mmsE5imG+8=;
+  b=n/q3G9Ju7GaZlLtfENFjTbKFbZHdFZcsVJ7EYV+hPXLmX4uY/1Cqn5sq
+   jv3FidhTrCXkd6LRZennKL7k7p8REM99bUpPv38ceWO0cDYTk2VF5SobZ
+   VQRX9x7ueUy26lOuLAtBhSvqnhr0onK6CgzeAZCSEj5r7WR6hiLg/UAH0
+   g=;
 X-IronPort-AV: E=Sophos;i="5.79,393,1602547200"; 
-   d="scan'208";a="78853071"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-2a-d0be17ee.us-west-2.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 01 Feb 2021 17:25:27 +0000
-Received: from EX13D08EUB004.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-2a-d0be17ee.us-west-2.amazon.com (Postfix) with ESMTPS id 85CDDA24D8;
-        Mon,  1 Feb 2021 17:25:23 +0000 (UTC)
+   d="scan'208";a="116237826"
+Received: from sea3-co-svc-lb6-vlan2.sea.amazon.com (HELO email-inbound-relay-2a-53356bf6.us-west-2.amazon.com) ([10.47.22.34])
+  by smtp-border-fw-out-9102.sea19.amazon.com with ESMTP; 01 Feb 2021 17:25:56 +0000
+Received: from EX13D08EUB004.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-2a-53356bf6.us-west-2.amazon.com (Postfix) with ESMTPS id 2E893A01A4;
+        Mon,  1 Feb 2021 17:25:53 +0000 (UTC)
 Received: from uf6ed9c851f4556.ant.amazon.com (10.43.161.253) by
  EX13D08EUB004.ant.amazon.com (10.43.166.158) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Mon, 1 Feb 2021 17:25:08 +0000
+ id 15.0.1497.2; Mon, 1 Feb 2021 17:25:38 +0000
 From:   Adrian Catangiu <acatan@amazon.com>
 To:     <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <qemu-devel@nongnu.org>, <kvm@vger.kernel.org>,
@@ -56,121 +57,325 @@ CC:     <gregkh@linuxfoundation.org>, <graf@amazon.com>,
         <ptikhomirov@virtuozzo.com>, <gil@azul.com>, <asmehra@redhat.com>,
         <dgunigun@redhat.com>, <vijaysun@ca.ibm.com>, <oridgar@gmail.com>,
         <ghammer@redhat.com>, Adrian Catangiu <acatan@amazon.com>
-Subject: [PATCH v5 0/2] System Generation ID driver and VMGENID backend
-Date:   Mon, 1 Feb 2021 19:24:52 +0200
-Message-ID: <1612200294-17561-1-git-send-email-acatan@amazon.com>
+Subject: [PATCH v5 2/2] drivers/virt: vmgenid: add vm generation id driver
+Date:   Mon, 1 Feb 2021 19:24:54 +0200
+Message-ID: <1612200294-17561-3-git-send-email-acatan@amazon.com>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1612200294-17561-1-git-send-email-acatan@amazon.com>
+References: <1612200294-17561-1-git-send-email-acatan@amazon.com>
 MIME-Version: 1.0
+Content-Type: text/plain
 X-Originating-IP: [10.43.161.253]
 X-ClientProxiedBy: EX13D24UWB002.ant.amazon.com (10.43.161.159) To
  EX13D08EUB004.ant.amazon.com (10.43.166.158)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
-Message-ID: <20210201172452.5b5vz1ZshmboJ-1oG7FWl3vk1DIdswlA7oY_MmWfOf0@z>
+Message-ID: <20210201172454.Wqdts9vaBxSawnMo6sbQqrVxzb61x4FWwCmMnJiL3AA@z>
 
-VGhpcyBmZWF0dXJlIGlzIGFpbWVkIGF0IHZpcnR1YWxpemVkIG9yIGNvbnRhaW5lcml6ZWQgZW52
-aXJvbm1lbnRzCndoZXJlIFZNIG9yIGNvbnRhaW5lciBzbmFwc2hvdHRpbmcgZHVwbGljYXRlcyBt
-ZW1vcnkgc3RhdGUsIHdoaWNoIGlzIGEKY2hhbGxlbmdlIGZvciBhcHBsaWNhdGlvbnMgdGhhdCB3
-YW50IHRvIGdlbmVyYXRlIHVuaXF1ZSBkYXRhIHN1Y2ggYXMKcmVxdWVzdCBJRHMsIFVVSURzLCBh
-bmQgY3J5cHRvZ3JhcGhpYyBub25jZXMuCgpUaGUgcGF0Y2ggc2V0IGludHJvZHVjZXMgYSBtZWNo
-YW5pc20gdGhhdCBwcm92aWRlcyBhIHVzZXJzcGFjZQppbnRlcmZhY2UgZm9yIGFwcGxpY2F0aW9u
-cyBhbmQgbGlicmFyaWVzIHRvIGJlIG1hZGUgYXdhcmUgb2YgdW5pcXVlbmVzcwpicmVha2luZyBl
-dmVudHMgc3VjaCBhcyBWTSBvciBjb250YWluZXIgc25hcHNob3R0aW5nLCBhbmQgYWxsb3cgdGhl
-bSB0bwpyZWFjdCBhbmQgYWRhcHQgdG8gc3VjaCBldmVudHMuCgpTb2x2aW5nIHRoZSB1bmlxdWVu
-ZXNzIHByb2JsZW0gc3Ryb25nbHkgZW5vdWdoIGZvciBjcnlwdG9ncmFwaGljCnB1cnBvc2VzIHJl
-cXVpcmVzIGEgbWVjaGFuaXNtIHdoaWNoIGNhbiBkZXRlcm1pbmlzdGljYWxseSByZXNlZWQKdXNl
-cnNwYWNlIFBSTkdzIHdpdGggbmV3IGVudHJvcHkgYXQgcmVzdG9yZSB0aW1lLiBUaGlzIG1lY2hh
-bmlzbSBtdXN0CmFsc28gc3VwcG9ydCB0aGUgaGlnaC10aHJvdWdocHV0IGFuZCBsb3ctbGF0ZW5j
-eSB1c2UtY2FzZXMgdGhhdCBsZWQKcHJvZ3JhbW1lcnMgdG8gcGljayBhIHVzZXJzcGFjZSBQUk5H
-IGluIHRoZSBmaXJzdCBwbGFjZTsgYmUgdXNhYmxlIGJ5CmJvdGggYXBwbGljYXRpb24gY29kZSBh
-bmQgbGlicmFyaWVzOyBhbGxvdyB0cmFuc3BhcmVudCByZXRyb2ZpdHRpbmcKYmVoaW5kIGV4aXN0
-aW5nIHBvcHVsYXIgUFJORyBpbnRlcmZhY2VzIHdpdGhvdXQgY2hhbmdpbmcgYXBwbGljYXRpb24K
-Y29kZTsgaXQgbXVzdCBiZSBlZmZpY2llbnQsIGVzcGVjaWFsbHkgb24gc25hcHNob3QgcmVzdG9y
-ZTsgYW5kIGJlCnNpbXBsZSBlbm91Z2ggZm9yIHdpZGUgYWRvcHRpb24uCgpUaGUgZmlyc3QgcGF0
-Y2ggaW4gdGhlIHNldCBpbXBsZW1lbnRzIGEgZGV2aWNlIGRyaXZlciB3aGljaCBleHBvc2VzIGEK
-cmVhZC1vbmx5IGRldmljZSAvZGV2L3N5c2dlbmlkIHRvIHVzZXJzcGFjZSwgd2hpY2ggY29udGFp
-bnMgYQptb25vdG9uaWNhbGx5IGluY3JlYXNpbmcgdTMyIGdlbmVyYXRpb24gY291bnRlci4gTGli
-cmFyaWVzIGFuZAphcHBsaWNhdGlvbnMgYXJlIGV4cGVjdGVkIHRvIG9wZW4oKSB0aGUgZGV2aWNl
-LCBhbmQgdGhlbiBjYWxsIHJlYWQoKQp3aGljaCBibG9ja3MgdW50aWwgdGhlIFN5c0dlbklkIGNo
-YW5nZXMuIEZvbGxvd2luZyBhbiB1cGRhdGUsIHJlYWQoKQpjYWxscyBubyBsb25nZXIgYmxvY2sg
-dW50aWwgdGhlIGFwcGxpY2F0aW9uIGFja25vd2xlZGdlcyB0aGUgbmV3ClN5c0dlbklkIGJ5IHdy
-aXRlKClpbmcgaXQgYmFjayB0byB0aGUgZGV2aWNlLiBOb24tYmxvY2tpbmcgcmVhZCgpIGNhbGxz
-CnJldHVybiBFQUdBSU4gd2hlbiB0aGVyZSBpcyBubyBuZXcgU3lzR2VuSWQgYXZhaWxhYmxlLiBB
-bHRlcm5hdGl2ZWx5LApsaWJyYXJpZXMgY2FuIG1tYXAoKSB0aGUgZGV2aWNlIHRvIGdldCBhIHNp
-bmdsZSBzaGFyZWQgcGFnZSB3aGljaApjb250YWlucyB0aGUgbGF0ZXN0IFN5c0dlbklkIGF0IG9m
-ZnNldCAwLgoKU3lzR2VuSWQgYWxzbyBzdXBwb3J0cyBhIHdhaXRpbmcgbWVjaGFuaXNtIGV4cG9z
-ZWQgdGhyb3VnaCBhIElPQ1RMIG9uCnRoZSBkZXZpY2UuIFRoZSBTWVNHRU5JRF9XQUlUX1dBVENI
-RVJTIElPQ1RMIGJsb2NrcyB1bnRpbCB0aGVyZSBhcmUgbm8Kb3BlbiBmaWxlIGhhbmRsZXMgb24g
-dGhlIGRldmljZSB3aGljaCBoYXZlbuKAmXQgYWNrbm93bGVkZ2VkIHRoZSBuZXcgaWQuClRoaXMg
-d2FpdGluZyBtZWNoYW5pc20gaXMgaW50ZW5kZWQgZm9yIHNlcnZlcmxlc3MgYW5kIGNvbnRhaW5l
-ciBjb250cm9sCnBsYW5lcywgd2hpY2ggd2FudCB0byBjb25maXJtIHRoYXQgYWxsIGFwcGxpY2F0
-aW9uIGNvZGUgaGFzIGRldGVjdGVkCmFuZCByZWFjdGVkIHRvIHRoZSBuZXcgU3lzR2VuSWQgYmVm
-b3JlIHNlbmRpbmcgYW4gaW52b2tlIHRvIHRoZQpuZXdseS1yZXN0b3JlZCBzYW5kYm94LgoKVGhl
-IHNlY29uZCBwYXRjaCBpbiB0aGUgc2V0IGFkZHMgYSBWbUdlbklkIGRyaXZlciB3aGljaCBtYWtl
-cyB1c2Ugb2YKdGhlIEFDUEkgdm1nZW5pZCBkZXZpY2UgdG8gZHJpdmUgU3lzR2VuSWQgYW5kIHRv
-IHJlc2VlZCBrZXJuZWwgZW50cm9weQpvbiBWTSBzbmFwc2hvdHMuCgotLS0KCnY0IC0+IHY1OgoK
-ICAtIHN5c2dlbmlkOiBnZW5lcmF0aW9uIGNoYW5nZXMgYXJlIGFsc28gZXhwb3J0ZWQgdGhyb3Vn
-aCB1ZXZlbnRzCiAgLSByZW1vdmUgU1lTR0VOSURfR0VUX09VVERBVEVEX1dBVENIRVJTIGlvY3Rs
-CiAgLSBkb2N1bWVudCBzeXNnZW5pZCBpb2N0bCBtYWpvci9taW5vciBudW1iZXJzCiAgLSByZWJh
-c2Ugb24gbGludXMgbGF0ZXN0ICsgdmFyaW91cyBuaXRzCgp2MyAtPiB2NDoKCiAgLSBzcGxpdCBm
-dW5jdGlvbmFsaXR5IGluIHR3byBzZXBhcmF0ZSBrZXJuZWwgbW9kdWxlczogCiAgICAxLiBkcml2
-ZXJzL21pc2Mvc3lzZ2VuaWQuYyB3aGljaCBwcm92aWRlcyB0aGUgZ2VuZXJpYyB1c2Vyc3BhY2UK
-ICAgICAgIGludGVyZmFjZSBhbmQgbWVjaGFuaXNtcwogICAgMi4gZHJpdmVycy92aXJ0L3ZtZ2Vu
-aWQuYyBhcyBWTUdFTklEIGFjcGkgZGV2aWNlIGRyaXZlciB0aGF0IHNlZWRzCiAgICAgICBrZXJu
-ZWwgZW50cm9weSBhbmQgYWN0cyBhcyBhIGRyaXZpbmcgYmFja2VuZCBmb3IgdGhlIGdlbmVyaWMK
-ICAgICAgIHN5c2dlbmlkCiAgLSByZW5hbWVkIC9kZXYvdm1nZW5pZCAtPiAvZGV2L3N5c2dlbmlk
-CiAgLSByZW5hbWVkIHVhcGkgaGVhZGVyIGZpbGUgdm1nZW5pZC5oIC0+IHN5c2dlbmlkLmgKICAt
-IHJlbmFtZWQgaW9jdGxzIFZNR0VOSURfKiAtPiBTWVNHRU5JRF8qCiAgLSBhZGRlZCDigJhtaW5f
-Z2Vu4oCZIHBhcmFtZXRlciB0byBTWVNHRU5JRF9GT1JDRV9HRU5fVVBEQVRFIGlvY3RsCiAgLSBm
-aXhlZCByYWNlcyBpbiBkb2N1bWVudGF0aW9uIGV4YW1wbGVzCiAgLSB2YXJpb3VzIHN0eWxlIG5p
-dHMKICAtIHJlYmFzZWQgb24gdG9wIG9mIGxpbnVzIGxhdGVzdAoKdjIgLT4gdjM6CgogIC0gc2Vw
-YXJhdGUgdGhlIGNvcmUgZHJpdmVyIGxvZ2ljIGFuZCBpbnRlcmZhY2UsIGZyb20gdGhlIEFDUEkg
-ZGV2aWNlLgogICAgVGhlIEFDUEkgdm1nZW5pZCBkZXZpY2UgaXMgbm93IG9uZSBwb3NzaWJsZSBi
-YWNrZW5kLgogIC0gZml4IGlzc3VlIHdoZW4gdGltZW91dD0wIGluIFZNR0VOSURfV0FJVF9XQVRD
-SEVSUwogIC0gYWRkIGxvY2tpbmcgdG8gYXZvaWQgcmFjZXMgYmV0d2VlbiBmcyBvcHMgaGFuZGxl
-cnMgYW5kIGh3IGlycQogICAgZHJpdmVuIGdlbmVyYXRpb24gdXBkYXRlcwogIC0gY2hhbmdlIFZN
-R0VOSURfV0FJVF9XQVRDSEVSUyBpb2N0bCBzbyBpZiB0aGUgY3VycmVudCBjYWxsZXIgaXMKICAg
-IG91dGRhdGVkIG9yIGEgZ2VuZXJhdGlvbiBjaGFuZ2UgaGFwcGVucyB3aGlsZSB3YWl0aW5nICh0
-aHVzIG1ha2luZwogICAgY3VycmVudCBjYWxsZXIgb3V0ZGF0ZWQpLCB0aGUgaW9jdGwgcmV0dXJu
-cyAtRUlOVFIgdG8gc2lnbmFsIHRoZQogICAgdXNlciB0byBoYW5kbGUgZXZlbnQgYW5kIHJldHJ5
-LiBGaXhlcyBibG9ja2luZyBvbiBvbmVzZWxmLgogIC0gYWRkIFZNR0VOSURfRk9SQ0VfR0VOX1VQ
-REFURSBpb2N0bCBjb25kaXRpb25lZCBieQogICAgQ0FQX0NIRUNLUE9JTlRfUkVTVE9SRSBjYXBh
-YmlsaXR5LCB0aHJvdWdoIHdoaWNoIHNvZnR3YXJlIGNhbiBmb3JjZQogICAgZ2VuZXJhdGlvbiBi
-dW1wLgoKdjEgLT4gdjI6CgogIC0gZXhwb3NlIHRvIHVzZXJzcGFjZSBhIG1vbm90b25pY2FsbHkg
-aW5jcmVhc2luZyB1MzIgVm0gR2VuIENvdW50ZXIKICAgIGluc3RlYWQgb2YgdGhlIGh3IFZtR2Vu
-IFVVSUQKICAtIHNpbmNlIHRoZSBody9oeXBlcnZpc29yLXByb3ZpZGVkIDEyOC1iaXQgVVVJRCBp
-cyBub3QgcHVibGljCiAgICBhbnltb3JlLCBhZGQgaXQgdG8gdGhlIGtlcm5lbCBSTkcgYXMgZGV2
-aWNlIHJhbmRvbW5lc3MKICAtIGluc2VydCBkcml2ZXIgcGFnZSBjb250YWluaW5nIFZtIEdlbiBD
-b3VudGVyIGluIHRoZSB1c2VyIHZtYSBpbgogICAgdGhlIGRyaXZlcidzIG1tYXAgaGFuZGxlciBp
-bnN0ZWFkIG9mIHVzaW5nIGEgZmF1bHQgaGFuZGxlcgogIC0gdHVybiBkcml2ZXIgaW50byBhIG1p
-c2MgZGV2aWNlIGRyaXZlciB0byBhdXRvLWNyZWF0ZSAvZGV2L3ZtZ2VuaWQKICAtIGNoYW5nZSBp
-b2N0bCBhcmcgdG8gYXZvaWQgbGVha2luZyBrZXJuZWwgc3RydWN0cyB0byB1c2Vyc3BhY2UKICAt
-IHVwZGF0ZSBkb2N1bWVudGF0aW9uCiAgLSB2YXJpb3VzIG5pdHMKICAtIHJlYmFzZSBvbiB0b3Ag
-b2YgbGludXMgbGF0ZXN0CgpBZHJpYW4gQ2F0YW5naXUgKDIpOgogIGRyaXZlcnMvbWlzYzogc3lz
-Z2VuaWQ6IGFkZCBzeXN0ZW0gZ2VuZXJhdGlvbiBpZCBkcml2ZXIKICBkcml2ZXJzL3ZpcnQ6IHZt
-Z2VuaWQ6IGFkZCB2bSBnZW5lcmF0aW9uIGlkIGRyaXZlcgoKIERvY3VtZW50YXRpb24vbWlzYy1k
-ZXZpY2VzL3N5c2dlbmlkLnJzdCAgICAgICAgICAgIHwgMjM2ICsrKysrKysrKysrKysrKysKIERv
-Y3VtZW50YXRpb24vdXNlcnNwYWNlLWFwaS9pb2N0bC9pb2N0bC1udW1iZXIucnN0IHwgICAxICsK
-IERvY3VtZW50YXRpb24vdmlydC92bWdlbmlkLnJzdCAgICAgICAgICAgICAgICAgICAgIHwgIDM0
-ICsrKwogTUFJTlRBSU5FUlMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-fCAgMTUgKwogZHJpdmVycy9taXNjL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgfCAgMTYgKysKIGRyaXZlcnMvbWlzYy9NYWtlZmlsZSAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgIHwgICAxICsKIGRyaXZlcnMvbWlzYy9zeXNnZW5pZC5jICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIHwgMzA3ICsrKysrKysrKysrKysrKysrKysrKwogZHJpdmVycy92aXJ0L0tjb25m
-aWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMTQgKwogZHJpdmVycy92aXJ0L01h
-a2VmaWxlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDEgKwogZHJpdmVycy92aXJ0
-L3ZtZ2VuaWQuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAxNTMgKysrKysrKysrKwog
-aW5jbHVkZS91YXBpL2xpbnV4L3N5c2dlbmlkLmggICAgICAgICAgICAgICAgICAgICAgfCAgMTcg
-KysKIDExIGZpbGVzIGNoYW5nZWQsIDc5NSBpbnNlcnRpb25zKCspCiBjcmVhdGUgbW9kZSAxMDA2
-NDQgRG9jdW1lbnRhdGlvbi9taXNjLWRldmljZXMvc3lzZ2VuaWQucnN0CiBjcmVhdGUgbW9kZSAx
-MDA2NDQgRG9jdW1lbnRhdGlvbi92aXJ0L3ZtZ2VuaWQucnN0CiBjcmVhdGUgbW9kZSAxMDA2NDQg
-ZHJpdmVycy9taXNjL3N5c2dlbmlkLmMKIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3ZpcnQv
-dm1nZW5pZC5jCiBjcmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS91YXBpL2xpbnV4L3N5c2dlbmlk
-LmgKCi0tIAoyLjcuNAoKCgoKQW1hem9uIERldmVsb3BtZW50IENlbnRlciAoUm9tYW5pYSkgUy5S
-LkwuIHJlZ2lzdGVyZWQgb2ZmaWNlOiAyN0EgU2YuIExhemFyIFN0cmVldCwgVUJDNSwgZmxvb3Ig
-MiwgSWFzaSwgSWFzaSBDb3VudHksIDcwMDA0NSwgUm9tYW5pYS4gUmVnaXN0ZXJlZCBpbiBSb21h
-bmlhLiBSZWdpc3RyYXRpb24gbnVtYmVyIEoyMi8yNjIxLzIwMDUuCg==
+- Background
+
+The VM Generation ID is a feature defined by Microsoft (paper:
+http://go.microsoft.com/fwlink/?LinkId=260709) and supported by
+multiple hypervisor vendors.
+
+The feature can be used to drive the `sysgenid` mechanism required in
+virtualized environments by software that works with local copies and
+caches of world-unique data such as random values, uuids, monotonically
+increasing counters, etc.
+
+- Solution
+
+The VM Generation ID is a hypervisor/hardware provided 128-bit unique
+ID that changes each time the VM is restored from a snapshot. It can be
+used to differentiate between VMs or different generations of the same
+VM.
+This VM Generation ID is exposed through an ACPI device by multiple
+hypervisor vendors.
+
+The `vmgenid` driver uses ACPI events to be notified by hardware
+changes to the 128-bit Vm Gen Id HW UUID. The UUID is not exposed to
+userspace, it is added by the driver as device randomness to improve
+kernel entropy following VM snapshot events.
+
+This driver also acts as a backend for the `sysgenid` kernel module
+(`drivers/misc/sysgenid.c`, `Documentation/misc-devices/sysgenid.rst`)
+to drive changes to the "System Generation Id" which is further exposed
+to userspace as a system-wide monotonically increasing counter.
+
+This patch builds on top of Or Idgar <oridgar@gmail.com>'s proposal
+https://lkml.org/lkml/2018/3/1/498
+
+Signed-off-by: Adrian Catangiu <acatan@amazon.com>
+---
+ Documentation/virt/vmgenid.rst |  34 +++++++++
+ MAINTAINERS                    |   7 ++
+ drivers/virt/Kconfig           |  14 ++++
+ drivers/virt/Makefile          |   1 +
+ drivers/virt/vmgenid.c         | 153 +++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 209 insertions(+)
+ create mode 100644 Documentation/virt/vmgenid.rst
+ create mode 100644 drivers/virt/vmgenid.c
+
+diff --git a/Documentation/virt/vmgenid.rst b/Documentation/virt/vmgenid.rst
+new file mode 100644
+index 0000000..2106354
+--- /dev/null
++++ b/Documentation/virt/vmgenid.rst
+@@ -0,0 +1,34 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++=======
++VMGENID
++=======
++
++The VM Generation ID is a feature defined by Microsoft (paper:
++http://go.microsoft.com/fwlink/?LinkId=260709) and supported by
++multiple hypervisor vendors.
++
++The feature is required in virtualized environments by applications
++that work with local copies/caches of world-unique data such as random
++values, UUIDs, monotonically increasing counters, etc.
++Such applications can be negatively affected by VM snapshotting when
++the VM is either cloned or returned to an earlier point in time.
++
++The VM Generation ID is a simple concept meant to alleviate the issue
++by providing a unique ID that changes each time the VM is restored
++from a snapshot. The hardware provided UUID value can be used to
++differentiate between VMs or different generations of the same VM.
++
++The VM Generation ID is exposed through an ACPI device by multiple
++hypervisor vendors. The driver for it lives at
++``drivers/virt/vmgenid.c``
++
++The ``vmgenid`` driver uses ACPI events to be notified by hardware
++changes to the 128-bit Vm Gen Id UUID. This UUID is not exposed to
++userspace, it is added by the driver as device randomness to improve
++kernel entropy following VM snapshot events.
++
++This driver also acts as a backend for the ``sysgenid`` kernel module
++(``drivers/misc/sysgenid.c``, ``Documentation/misc-devices/sysgenid.rst``)
++to drive changes to the "System Generation Id" which is further exposed
++to userspace as a monotonically increasing counter.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f1158b0..4615612 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -19009,6 +19009,13 @@ F:	drivers/staging/vme/
+ F:	drivers/vme/
+ F:	include/linux/vme*
+ 
++VMGENID
++M:	Adrian Catangiu <acatan@amazon.com>
++L:	linux-kernel@vger.kernel.org
++S:	Supported
++F:	Documentation/virt/vmgenid.rst
++F:	drivers/virt/vmgenid.c
++
+ VMWARE BALLOON DRIVER
+ M:	Nadav Amit <namit@vmware.com>
+ M:	"VMware, Inc." <pv-drivers@vmware.com>
+diff --git a/drivers/virt/Kconfig b/drivers/virt/Kconfig
+index 80c5f9c1..4771633 100644
+--- a/drivers/virt/Kconfig
++++ b/drivers/virt/Kconfig
+@@ -13,6 +13,20 @@ menuconfig VIRT_DRIVERS
+ 
+ if VIRT_DRIVERS
+ 
++config VMGENID
++	tristate "Virtual Machine Generation ID driver"
++	depends on ACPI && SYSGENID
++	default N
++	help
++	  The driver uses the hypervisor provided Virtual Machine Generation ID
++	  to drive the system generation counter mechanism exposed by sysgenid.
++	  The vmgenid changes on VM snapshots or VM cloning. The hypervisor
++	  provided 128-bit vmgenid is also used as device randomness to improve
++	  kernel entropy following VM snapshot events.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called vmgenid.
++
+ config FSL_HV_MANAGER
+ 	tristate "Freescale hypervisor management driver"
+ 	depends on FSL_SOC
+diff --git a/drivers/virt/Makefile b/drivers/virt/Makefile
+index f28425c..889be01 100644
+--- a/drivers/virt/Makefile
++++ b/drivers/virt/Makefile
+@@ -4,6 +4,7 @@
+ #
+ 
+ obj-$(CONFIG_FSL_HV_MANAGER)	+= fsl_hypervisor.o
++obj-$(CONFIG_VMGENID)		+= vmgenid.o
+ obj-y				+= vboxguest/
+ 
+ obj-$(CONFIG_NITRO_ENCLAVES)	+= nitro_enclaves/
+diff --git a/drivers/virt/vmgenid.c b/drivers/virt/vmgenid.c
+new file mode 100644
+index 0000000..d9d089a
+--- /dev/null
++++ b/drivers/virt/vmgenid.c
+@@ -0,0 +1,153 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Virtual Machine Generation ID driver
++ *
++ * Copyright (C) 2018 Red Hat Inc. All rights reserved.
++ *
++ * Copyright (C) 2020 Amazon. All rights reserved.
++ *
++ *	Authors:
++ *	  Adrian Catangiu <acatan@amazon.com>
++ *	  Or Idgar <oridgar@gmail.com>
++ *	  Gal Hammer <ghammer@redhat.com>
++ *
++ */
++#include <linux/acpi.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/random.h>
++#include <linux/uuid.h>
++#include <linux/sysgenid.h>
++
++#define DEV_NAME "vmgenid"
++ACPI_MODULE_NAME(DEV_NAME);
++
++struct vmgenid_data {
++	uuid_t uuid;
++	void *uuid_iomap;
++};
++static struct vmgenid_data vmgenid_data;
++
++static int vmgenid_acpi_map(struct vmgenid_data *priv, acpi_handle handle)
++{
++	int i;
++	phys_addr_t phys_addr;
++	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
++	acpi_status status;
++	union acpi_object *pss;
++	union acpi_object *element;
++
++	status = acpi_evaluate_object(handle, "ADDR", NULL, &buffer);
++	if (ACPI_FAILURE(status)) {
++		ACPI_EXCEPTION((AE_INFO, status, "Evaluating ADDR"));
++		return -ENODEV;
++	}
++	pss = buffer.pointer;
++	if (!pss || pss->type != ACPI_TYPE_PACKAGE || pss->package.count != 2)
++		return -EINVAL;
++
++	phys_addr = 0;
++	for (i = 0; i < pss->package.count; i++) {
++		element = &(pss->package.elements[i]);
++		if (element->type != ACPI_TYPE_INTEGER)
++			return -EINVAL;
++		phys_addr |= element->integer.value << i * 32;
++	}
++
++	priv->uuid_iomap = acpi_os_map_memory(phys_addr, sizeof(uuid_t));
++	if (!priv->uuid_iomap) {
++		pr_err("Could not map memory at 0x%llx, size %u\n",
++			   phys_addr,
++			   (u32) sizeof(uuid_t));
++		return -ENOMEM;
++	}
++
++	memcpy_fromio(&priv->uuid, priv->uuid_iomap, sizeof(uuid_t));
++
++	return 0;
++}
++
++static int vmgenid_acpi_add(struct acpi_device *device)
++{
++	int ret;
++
++	if (!device)
++		return -EINVAL;
++	device->driver_data = &vmgenid_data;
++
++	ret = vmgenid_acpi_map(device->driver_data, device->handle);
++	if (ret < 0) {
++		pr_err("vmgenid: failed to map acpi device\n");
++		device->driver_data = NULL;
++	}
++
++	return ret;
++}
++
++static int vmgenid_acpi_remove(struct acpi_device *device)
++{
++	if (!device || acpi_driver_data(device) != &vmgenid_data)
++		return -EINVAL;
++	device->driver_data = NULL;
++
++	if (vmgenid_data.uuid_iomap)
++		acpi_os_unmap_memory(vmgenid_data.uuid_iomap, sizeof(uuid_t));
++	vmgenid_data.uuid_iomap = NULL;
++
++	return 0;
++}
++
++static void vmgenid_acpi_notify(struct acpi_device *device, u32 event)
++{
++	uuid_t old_uuid;
++
++	if (!device || acpi_driver_data(device) != &vmgenid_data) {
++		pr_err("VMGENID notify with unexpected driver private data\n");
++		return;
++	}
++
++	/* update VM Generation UUID */
++	old_uuid = vmgenid_data.uuid;
++	memcpy_fromio(&vmgenid_data.uuid, vmgenid_data.uuid_iomap, sizeof(uuid_t));
++
++	if (memcmp(&old_uuid, &vmgenid_data.uuid, sizeof(uuid_t))) {
++		/* HW uuid updated */
++		sysgenid_bump_generation();
++		add_device_randomness(&vmgenid_data.uuid, sizeof(uuid_t));
++	}
++}
++
++static const struct acpi_device_id vmgenid_ids[] = {
++	{"VMGENID", 0},
++	{"QEMUVGID", 0},
++	{"", 0},
++};
++
++static struct acpi_driver acpi_vmgenid_driver = {
++	.name = "vm_generation_id",
++	.ids = vmgenid_ids,
++	.owner = THIS_MODULE,
++	.ops = {
++		.add = vmgenid_acpi_add,
++		.remove = vmgenid_acpi_remove,
++		.notify = vmgenid_acpi_notify,
++	}
++};
++
++static int __init vmgenid_init(void)
++{
++	return acpi_bus_register_driver(&acpi_vmgenid_driver);
++}
++
++static void __exit vmgenid_exit(void)
++{
++	acpi_bus_unregister_driver(&acpi_vmgenid_driver);
++}
++
++module_init(vmgenid_init);
++module_exit(vmgenid_exit);
++
++MODULE_AUTHOR("Adrian Catangiu");
++MODULE_DESCRIPTION("Virtual Machine Generation ID");
++MODULE_LICENSE("GPL");
++MODULE_VERSION("0.1");
+-- 
+2.7.4
+
+
+
+
+Amazon Development Center (Romania) S.R.L. registered office: 27A Sf. Lazar Street, UBC5, floor 2, Iasi, Iasi County, 700045, Romania. Registered in Romania. Registration number J22/2621/2005.
 
