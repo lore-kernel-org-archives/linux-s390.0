@@ -1,149 +1,114 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:21556 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237649AbhBBRgu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Feb 2021 12:36:50 -0500
-Subject: Re: [kvm-unit-tests PATCH v1 4/5] s390x: css: SCHM tests format 0
-References: <1611930869-25745-1-git-send-email-pmorel@linux.ibm.com>
- <1611930869-25745-5-git-send-email-pmorel@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Message-ID: <b3086f69-98fa-07c0-72c7-711c17e71c9d@redhat.com>
-Date: Tue, 2 Feb 2021 18:35:12 +0100
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Adrian Catangiu <acatan@amazon.com>
+Subject: [PATCH v5 0/2] System Generation ID driver and VMGENID backend
+Date: Mon, 1 Feb 2021 19:24:52 +0200
+Message-ID: <1612200294-17561-1-git-send-email-acatan@amazon.com>
 MIME-Version: 1.0
-In-Reply-To: <1611930869-25745-5-git-send-email-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com
+To: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: gregkh@linuxfoundation.org, graf@amazon.com, rdunlap@infradead.org, arnd@arndb.de, ebiederm@xmission.com, rppt@kernel.org, 0x7f454c46@gmail.com, borntraeger@de.ibm.com, Jason@zx2c4.com, jannh@google.com, w@1wt.eu, colmmacc@amazon.com, luto@kernel.org, tytso@mit.edu, ebiggers@kernel.org, dwmw@amazon.co.uk, bonzini@gnu.org, sblbir@amazon.com, raduweis@amazon.com, corbet@lwn.net, mst@redhat.com, mhocko@kernel.org, rafael@kernel.org, pavel@ucw.cz, mpe@ellerman.id.au, areber@redhat.com, ovzxemul@gmail.com, avagin@gmail.com, ptikhomirov@virtuozzo.com, gil@azul.com, asmehra@redhat.com, dgunigun@redhat.com, vijaysun@ca.ibm.com, oridgar@gmail.com, ghammer@redhat.com, Adrian Catangiu <acatan@amazon.com>
 
-On 29/01/2021 15.34, Pierre Morel wrote:
-> We tests the update of the mesurement block format 0, the
-> mesurement block origin is calculated from the mbo argument
-> used by the SCHM instruction and the offset calculated using
-> the measurement block index of the SCHIB.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->   lib/s390x/css.h | 29 ++++++++++++++++++++++++++++
->   s390x/css.c     | 51 +++++++++++++++++++++++++++++++++++++++++++++++++
->   2 files changed, 80 insertions(+)
-> 
-> diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-> index 938f0ab..ba0bc67 100644
-> --- a/lib/s390x/css.h
-> +++ b/lib/s390x/css.h
-> @@ -358,7 +358,36 @@ static inline void schm(void *mbo, unsigned int flags)
->   	asm("schm" : : "d" (__gpr2), "d" (__gpr1));
->   }
->   
-> +#define SCHM_DCTM	1 /* activate Device Connection TiMe */
-> +#define SCHM_MBU	2 /* activate Measurement Block Update */
-> +
->   int css_enable_mb(int schid, uint64_t mb, int format1, uint16_t mbi,
->   		  uint16_t flags);
->   
-> +struct measurement_block_format0 {
-> +	uint16_t ssch_rsch_count;
-> +	uint16_t sample_count;
-> +	uint32_t device_connect_time;
-> +	uint32_t function_pending_time;
-> +	uint32_t device_disconnect_time;
-> +	uint32_t cu_queuing_time;
-> +	uint32_t device_active_only_time;
-> +	uint32_t device_busy_time;
-> +	uint32_t initial_cmd_resp_time;
-> +};
-> +
-> +struct measurement_block_format1 {
-> +	uint32_t ssch_rsch_count;
-> +	uint32_t sample_count;
-> +	uint32_t device_connect_time;
-> +	uint32_t function_pending_time;
-> +	uint32_t device_disconnect_time;
-> +	uint32_t cu_queuing_time;
-> +	uint32_t device_active_only_time;
-> +	uint32_t device_busy_time;
-> +	uint32_t initial_cmd_resp_time;
-> +	uint32_t irq_delay_time;
-> +	uint32_t irq_prio_delay_time;
-> +};
-> +
->   #endif
-> diff --git a/s390x/css.c b/s390x/css.c
-> index 000ce04..2e9ea47 100644
-> --- a/s390x/css.c
-> +++ b/s390x/css.c
-> @@ -155,10 +155,61 @@ static void css_init(void)
->   	report(1, "CSS initialized");
->   }
->   
-> +#define SCHM_UPDATE_CNT 10
-> +static void test_schm_fmt0(struct measurement_block_format0 *mb0)
-> +{
-> +	int ret;
-> +	int i;
-> +
-> +	report_prefix_push("Format 0");
-> +	ret = css_enable_mb(test_device_sid, 0, 0, 0, PMCW_MBUE);
-> +	if (ret) {
-> +		report(0, "Enabling measurement_block_format0");
-> +		goto end;
-> +	}
-> +
-> +	for (i = 0; i < SCHM_UPDATE_CNT; i++) {
-> +		if (!do_test_sense()) {
-> +			report(0, "Error during sense");
-> +			break;
-> +		}
-> +	}
-> +
-> +	report_info("ssch_rsch_count: %d", mb0->ssch_rsch_count);
-> +	report_info("sample_count: %d", mb0->sample_count);
-> +	report_info("device_connect_time: %d", mb0->device_connect_time);
-> +	report_info("function_pending_time: %d", mb0->function_pending_time);
-> +	report_info("device_disconnect_time: %d", mb0->device_disconnect_time);
-> +	report_info("cu_queuing_time: %d", mb0->cu_queuing_time);
-> +	report_info("device_active_only_time: %d", mb0->device_active_only_time);
-> +	report_info("device_busy_time: %d", mb0->device_busy_time);
-> +	report_info("initial_cmd_resp_time: %d", mb0->initial_cmd_resp_time);
-> +
-> +	report(i == mb0->ssch_rsch_count,
-> +	       "SSCH expected %d measured %d", i, mb0->ssch_rsch_count);
-> +
-> +end:
-> +	report_prefix_pop();
-> +}
-> +
->   static void test_schm(void)
->   {
-> +	struct measurement_block_format0 *mb0;
-> +
->   	if (css_general_feature(CSSC_EXTENDED_MEASUREMENT_BLOCK))
->   		report_info("Extended measurement block available");
-> +
-> +	mb0 = alloc_io_mem(sizeof(struct measurement_block_format0), 0);
-> +	if (!mb0) {
-> +		report(0, "measurement_block_format0 allocation");
-> +		goto end_free;
-
-If allocation failed, there is certainly no need to try to free it, so you 
-can get rid of the goto and the label here and return directly instead. Or 
-maybe
-Maybe also simply use report_abort() in this case?
-
-  Thomas
-
-
-> +	}
-> +
-> +	schm(mb0, SCHM_MBU);
-> +	test_schm_fmt0(mb0);
-> +
-> +end_free:
-> +	free_io_mem(mb0, sizeof(struct measurement_block_format0));
->   }
->   
->   static struct {
-> 
+VGhpcyBmZWF0dXJlIGlzIGFpbWVkIGF0IHZpcnR1YWxpemVkIG9yIGNvbnRhaW5lcml6ZWQgZW52
+aXJvbm1lbnRzCndoZXJlIFZNIG9yIGNvbnRhaW5lciBzbmFwc2hvdHRpbmcgZHVwbGljYXRlcyBt
+ZW1vcnkgc3RhdGUsIHdoaWNoIGlzIGEKY2hhbGxlbmdlIGZvciBhcHBsaWNhdGlvbnMgdGhhdCB3
+YW50IHRvIGdlbmVyYXRlIHVuaXF1ZSBkYXRhIHN1Y2ggYXMKcmVxdWVzdCBJRHMsIFVVSURzLCBh
+bmQgY3J5cHRvZ3JhcGhpYyBub25jZXMuCgpUaGUgcGF0Y2ggc2V0IGludHJvZHVjZXMgYSBtZWNo
+YW5pc20gdGhhdCBwcm92aWRlcyBhIHVzZXJzcGFjZQppbnRlcmZhY2UgZm9yIGFwcGxpY2F0aW9u
+cyBhbmQgbGlicmFyaWVzIHRvIGJlIG1hZGUgYXdhcmUgb2YgdW5pcXVlbmVzcwpicmVha2luZyBl
+dmVudHMgc3VjaCBhcyBWTSBvciBjb250YWluZXIgc25hcHNob3R0aW5nLCBhbmQgYWxsb3cgdGhl
+bSB0bwpyZWFjdCBhbmQgYWRhcHQgdG8gc3VjaCBldmVudHMuCgpTb2x2aW5nIHRoZSB1bmlxdWVu
+ZXNzIHByb2JsZW0gc3Ryb25nbHkgZW5vdWdoIGZvciBjcnlwdG9ncmFwaGljCnB1cnBvc2VzIHJl
+cXVpcmVzIGEgbWVjaGFuaXNtIHdoaWNoIGNhbiBkZXRlcm1pbmlzdGljYWxseSByZXNlZWQKdXNl
+cnNwYWNlIFBSTkdzIHdpdGggbmV3IGVudHJvcHkgYXQgcmVzdG9yZSB0aW1lLiBUaGlzIG1lY2hh
+bmlzbSBtdXN0CmFsc28gc3VwcG9ydCB0aGUgaGlnaC10aHJvdWdocHV0IGFuZCBsb3ctbGF0ZW5j
+eSB1c2UtY2FzZXMgdGhhdCBsZWQKcHJvZ3JhbW1lcnMgdG8gcGljayBhIHVzZXJzcGFjZSBQUk5H
+IGluIHRoZSBmaXJzdCBwbGFjZTsgYmUgdXNhYmxlIGJ5CmJvdGggYXBwbGljYXRpb24gY29kZSBh
+bmQgbGlicmFyaWVzOyBhbGxvdyB0cmFuc3BhcmVudCByZXRyb2ZpdHRpbmcKYmVoaW5kIGV4aXN0
+aW5nIHBvcHVsYXIgUFJORyBpbnRlcmZhY2VzIHdpdGhvdXQgY2hhbmdpbmcgYXBwbGljYXRpb24K
+Y29kZTsgaXQgbXVzdCBiZSBlZmZpY2llbnQsIGVzcGVjaWFsbHkgb24gc25hcHNob3QgcmVzdG9y
+ZTsgYW5kIGJlCnNpbXBsZSBlbm91Z2ggZm9yIHdpZGUgYWRvcHRpb24uCgpUaGUgZmlyc3QgcGF0
+Y2ggaW4gdGhlIHNldCBpbXBsZW1lbnRzIGEgZGV2aWNlIGRyaXZlciB3aGljaCBleHBvc2VzIGEK
+cmVhZC1vbmx5IGRldmljZSAvZGV2L3N5c2dlbmlkIHRvIHVzZXJzcGFjZSwgd2hpY2ggY29udGFp
+bnMgYQptb25vdG9uaWNhbGx5IGluY3JlYXNpbmcgdTMyIGdlbmVyYXRpb24gY291bnRlci4gTGli
+cmFyaWVzIGFuZAphcHBsaWNhdGlvbnMgYXJlIGV4cGVjdGVkIHRvIG9wZW4oKSB0aGUgZGV2aWNl
+LCBhbmQgdGhlbiBjYWxsIHJlYWQoKQp3aGljaCBibG9ja3MgdW50aWwgdGhlIFN5c0dlbklkIGNo
+YW5nZXMuIEZvbGxvd2luZyBhbiB1cGRhdGUsIHJlYWQoKQpjYWxscyBubyBsb25nZXIgYmxvY2sg
+dW50aWwgdGhlIGFwcGxpY2F0aW9uIGFja25vd2xlZGdlcyB0aGUgbmV3ClN5c0dlbklkIGJ5IHdy
+aXRlKClpbmcgaXQgYmFjayB0byB0aGUgZGV2aWNlLiBOb24tYmxvY2tpbmcgcmVhZCgpIGNhbGxz
+CnJldHVybiBFQUdBSU4gd2hlbiB0aGVyZSBpcyBubyBuZXcgU3lzR2VuSWQgYXZhaWxhYmxlLiBB
+bHRlcm5hdGl2ZWx5LApsaWJyYXJpZXMgY2FuIG1tYXAoKSB0aGUgZGV2aWNlIHRvIGdldCBhIHNp
+bmdsZSBzaGFyZWQgcGFnZSB3aGljaApjb250YWlucyB0aGUgbGF0ZXN0IFN5c0dlbklkIGF0IG9m
+ZnNldCAwLgoKU3lzR2VuSWQgYWxzbyBzdXBwb3J0cyBhIHdhaXRpbmcgbWVjaGFuaXNtIGV4cG9z
+ZWQgdGhyb3VnaCBhIElPQ1RMIG9uCnRoZSBkZXZpY2UuIFRoZSBTWVNHRU5JRF9XQUlUX1dBVENI
+RVJTIElPQ1RMIGJsb2NrcyB1bnRpbCB0aGVyZSBhcmUgbm8Kb3BlbiBmaWxlIGhhbmRsZXMgb24g
+dGhlIGRldmljZSB3aGljaCBoYXZlbuKAmXQgYWNrbm93bGVkZ2VkIHRoZSBuZXcgaWQuClRoaXMg
+d2FpdGluZyBtZWNoYW5pc20gaXMgaW50ZW5kZWQgZm9yIHNlcnZlcmxlc3MgYW5kIGNvbnRhaW5l
+ciBjb250cm9sCnBsYW5lcywgd2hpY2ggd2FudCB0byBjb25maXJtIHRoYXQgYWxsIGFwcGxpY2F0
+aW9uIGNvZGUgaGFzIGRldGVjdGVkCmFuZCByZWFjdGVkIHRvIHRoZSBuZXcgU3lzR2VuSWQgYmVm
+b3JlIHNlbmRpbmcgYW4gaW52b2tlIHRvIHRoZQpuZXdseS1yZXN0b3JlZCBzYW5kYm94LgoKVGhl
+IHNlY29uZCBwYXRjaCBpbiB0aGUgc2V0IGFkZHMgYSBWbUdlbklkIGRyaXZlciB3aGljaCBtYWtl
+cyB1c2Ugb2YKdGhlIEFDUEkgdm1nZW5pZCBkZXZpY2UgdG8gZHJpdmUgU3lzR2VuSWQgYW5kIHRv
+IHJlc2VlZCBrZXJuZWwgZW50cm9weQpvbiBWTSBzbmFwc2hvdHMuCgotLS0KCnY0IC0+IHY1OgoK
+ICAtIHN5c2dlbmlkOiBnZW5lcmF0aW9uIGNoYW5nZXMgYXJlIGFsc28gZXhwb3J0ZWQgdGhyb3Vn
+aCB1ZXZlbnRzCiAgLSByZW1vdmUgU1lTR0VOSURfR0VUX09VVERBVEVEX1dBVENIRVJTIGlvY3Rs
+CiAgLSBkb2N1bWVudCBzeXNnZW5pZCBpb2N0bCBtYWpvci9taW5vciBudW1iZXJzCiAgLSByZWJh
+c2Ugb24gbGludXMgbGF0ZXN0ICsgdmFyaW91cyBuaXRzCgp2MyAtPiB2NDoKCiAgLSBzcGxpdCBm
+dW5jdGlvbmFsaXR5IGluIHR3byBzZXBhcmF0ZSBrZXJuZWwgbW9kdWxlczogCiAgICAxLiBkcml2
+ZXJzL21pc2Mvc3lzZ2VuaWQuYyB3aGljaCBwcm92aWRlcyB0aGUgZ2VuZXJpYyB1c2Vyc3BhY2UK
+ICAgICAgIGludGVyZmFjZSBhbmQgbWVjaGFuaXNtcwogICAgMi4gZHJpdmVycy92aXJ0L3ZtZ2Vu
+aWQuYyBhcyBWTUdFTklEIGFjcGkgZGV2aWNlIGRyaXZlciB0aGF0IHNlZWRzCiAgICAgICBrZXJu
+ZWwgZW50cm9weSBhbmQgYWN0cyBhcyBhIGRyaXZpbmcgYmFja2VuZCBmb3IgdGhlIGdlbmVyaWMK
+ICAgICAgIHN5c2dlbmlkCiAgLSByZW5hbWVkIC9kZXYvdm1nZW5pZCAtPiAvZGV2L3N5c2dlbmlk
+CiAgLSByZW5hbWVkIHVhcGkgaGVhZGVyIGZpbGUgdm1nZW5pZC5oIC0+IHN5c2dlbmlkLmgKICAt
+IHJlbmFtZWQgaW9jdGxzIFZNR0VOSURfKiAtPiBTWVNHRU5JRF8qCiAgLSBhZGRlZCDigJhtaW5f
+Z2Vu4oCZIHBhcmFtZXRlciB0byBTWVNHRU5JRF9GT1JDRV9HRU5fVVBEQVRFIGlvY3RsCiAgLSBm
+aXhlZCByYWNlcyBpbiBkb2N1bWVudGF0aW9uIGV4YW1wbGVzCiAgLSB2YXJpb3VzIHN0eWxlIG5p
+dHMKICAtIHJlYmFzZWQgb24gdG9wIG9mIGxpbnVzIGxhdGVzdAoKdjIgLT4gdjM6CgogIC0gc2Vw
+YXJhdGUgdGhlIGNvcmUgZHJpdmVyIGxvZ2ljIGFuZCBpbnRlcmZhY2UsIGZyb20gdGhlIEFDUEkg
+ZGV2aWNlLgogICAgVGhlIEFDUEkgdm1nZW5pZCBkZXZpY2UgaXMgbm93IG9uZSBwb3NzaWJsZSBi
+YWNrZW5kLgogIC0gZml4IGlzc3VlIHdoZW4gdGltZW91dD0wIGluIFZNR0VOSURfV0FJVF9XQVRD
+SEVSUwogIC0gYWRkIGxvY2tpbmcgdG8gYXZvaWQgcmFjZXMgYmV0d2VlbiBmcyBvcHMgaGFuZGxl
+cnMgYW5kIGh3IGlycQogICAgZHJpdmVuIGdlbmVyYXRpb24gdXBkYXRlcwogIC0gY2hhbmdlIFZN
+R0VOSURfV0FJVF9XQVRDSEVSUyBpb2N0bCBzbyBpZiB0aGUgY3VycmVudCBjYWxsZXIgaXMKICAg
+IG91dGRhdGVkIG9yIGEgZ2VuZXJhdGlvbiBjaGFuZ2UgaGFwcGVucyB3aGlsZSB3YWl0aW5nICh0
+aHVzIG1ha2luZwogICAgY3VycmVudCBjYWxsZXIgb3V0ZGF0ZWQpLCB0aGUgaW9jdGwgcmV0dXJu
+cyAtRUlOVFIgdG8gc2lnbmFsIHRoZQogICAgdXNlciB0byBoYW5kbGUgZXZlbnQgYW5kIHJldHJ5
+LiBGaXhlcyBibG9ja2luZyBvbiBvbmVzZWxmLgogIC0gYWRkIFZNR0VOSURfRk9SQ0VfR0VOX1VQ
+REFURSBpb2N0bCBjb25kaXRpb25lZCBieQogICAgQ0FQX0NIRUNLUE9JTlRfUkVTVE9SRSBjYXBh
+YmlsaXR5LCB0aHJvdWdoIHdoaWNoIHNvZnR3YXJlIGNhbiBmb3JjZQogICAgZ2VuZXJhdGlvbiBi
+dW1wLgoKdjEgLT4gdjI6CgogIC0gZXhwb3NlIHRvIHVzZXJzcGFjZSBhIG1vbm90b25pY2FsbHkg
+aW5jcmVhc2luZyB1MzIgVm0gR2VuIENvdW50ZXIKICAgIGluc3RlYWQgb2YgdGhlIGh3IFZtR2Vu
+IFVVSUQKICAtIHNpbmNlIHRoZSBody9oeXBlcnZpc29yLXByb3ZpZGVkIDEyOC1iaXQgVVVJRCBp
+cyBub3QgcHVibGljCiAgICBhbnltb3JlLCBhZGQgaXQgdG8gdGhlIGtlcm5lbCBSTkcgYXMgZGV2
+aWNlIHJhbmRvbW5lc3MKICAtIGluc2VydCBkcml2ZXIgcGFnZSBjb250YWluaW5nIFZtIEdlbiBD
+b3VudGVyIGluIHRoZSB1c2VyIHZtYSBpbgogICAgdGhlIGRyaXZlcidzIG1tYXAgaGFuZGxlciBp
+bnN0ZWFkIG9mIHVzaW5nIGEgZmF1bHQgaGFuZGxlcgogIC0gdHVybiBkcml2ZXIgaW50byBhIG1p
+c2MgZGV2aWNlIGRyaXZlciB0byBhdXRvLWNyZWF0ZSAvZGV2L3ZtZ2VuaWQKICAtIGNoYW5nZSBp
+b2N0bCBhcmcgdG8gYXZvaWQgbGVha2luZyBrZXJuZWwgc3RydWN0cyB0byB1c2Vyc3BhY2UKICAt
+IHVwZGF0ZSBkb2N1bWVudGF0aW9uCiAgLSB2YXJpb3VzIG5pdHMKICAtIHJlYmFzZSBvbiB0b3Ag
+b2YgbGludXMgbGF0ZXN0CgpBZHJpYW4gQ2F0YW5naXUgKDIpOgogIGRyaXZlcnMvbWlzYzogc3lz
+Z2VuaWQ6IGFkZCBzeXN0ZW0gZ2VuZXJhdGlvbiBpZCBkcml2ZXIKICBkcml2ZXJzL3ZpcnQ6IHZt
+Z2VuaWQ6IGFkZCB2bSBnZW5lcmF0aW9uIGlkIGRyaXZlcgoKIERvY3VtZW50YXRpb24vbWlzYy1k
+ZXZpY2VzL3N5c2dlbmlkLnJzdCAgICAgICAgICAgIHwgMjM2ICsrKysrKysrKysrKysrKysKIERv
+Y3VtZW50YXRpb24vdXNlcnNwYWNlLWFwaS9pb2N0bC9pb2N0bC1udW1iZXIucnN0IHwgICAxICsK
+IERvY3VtZW50YXRpb24vdmlydC92bWdlbmlkLnJzdCAgICAgICAgICAgICAgICAgICAgIHwgIDM0
+ICsrKwogTUFJTlRBSU5FUlMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+fCAgMTUgKwogZHJpdmVycy9taXNjL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgfCAgMTYgKysKIGRyaXZlcnMvbWlzYy9NYWtlZmlsZSAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIHwgICAxICsKIGRyaXZlcnMvbWlzYy9zeXNnZW5pZC5jICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgMzA3ICsrKysrKysrKysrKysrKysrKysrKwogZHJpdmVycy92aXJ0L0tjb25m
+aWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMTQgKwogZHJpdmVycy92aXJ0L01h
+a2VmaWxlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDEgKwogZHJpdmVycy92aXJ0
+L3ZtZ2VuaWQuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAxNTMgKysrKysrKysrKwog
+aW5jbHVkZS91YXBpL2xpbnV4L3N5c2dlbmlkLmggICAgICAgICAgICAgICAgICAgICAgfCAgMTcg
+KysKIDExIGZpbGVzIGNoYW5nZWQsIDc5NSBpbnNlcnRpb25zKCspCiBjcmVhdGUgbW9kZSAxMDA2
+NDQgRG9jdW1lbnRhdGlvbi9taXNjLWRldmljZXMvc3lzZ2VuaWQucnN0CiBjcmVhdGUgbW9kZSAx
+MDA2NDQgRG9jdW1lbnRhdGlvbi92aXJ0L3ZtZ2VuaWQucnN0CiBjcmVhdGUgbW9kZSAxMDA2NDQg
+ZHJpdmVycy9taXNjL3N5c2dlbmlkLmMKIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3ZpcnQv
+dm1nZW5pZC5jCiBjcmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS91YXBpL2xpbnV4L3N5c2dlbmlk
+LmgKCi0tIAoyLjcuNAoKCgoKQW1hem9uIERldmVsb3BtZW50IENlbnRlciAoUm9tYW5pYSkgUy5S
+LkwuIHJlZ2lzdGVyZWQgb2ZmaWNlOiAyN0EgU2YuIExhemFyIFN0cmVldCwgVUJDNSwgZmxvb3Ig
+MiwgSWFzaSwgSWFzaSBDb3VudHksIDcwMDA0NSwgUm9tYW5pYS4gUmVnaXN0ZXJlZCBpbiBSb21h
+bmlhLiBSZWdpc3RyYXRpb24gbnVtYmVyIEoyMi8yNjIxLzIwMDUuCg==
