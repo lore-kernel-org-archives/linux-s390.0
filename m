@@ -1,200 +1,76 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8720 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231466AbhA1Ll7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 Jan 2021 06:41:59 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 4/5] net/af_iucv: don't track individual TX skbs for TRANS_HIPER sockets
-Date: Thu, 28 Jan 2021 12:41:07 +0100
-Message-Id: <20210128114108.39409-5-jwi@linux.ibm.com>
-In-Reply-To: <20210128114108.39409-1-jwi@linux.ibm.com>
-References: <20210128114108.39409-1-jwi@linux.ibm.com>
+Received: from foss.arm.com ([217.140.110.172]:46256 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231269AbhBADZh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 31 Jan 2021 22:25:37 -0500
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: [PATCH V5 2/4] arm64/mm: Define arch_get_mappable_range()
+Date: Mon,  1 Feb 2021 08:55:00 +0530
+Message-Id: <1612149902-7867-3-git-send-email-anshuman.khandual@arm.com>
+In-Reply-To: <1612149902-7867-1-git-send-email-anshuman.khandual@arm.com>
+References: <1612149902-7867-1-git-send-email-anshuman.khandual@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com, david@redhat.com, osalvador@suse.de
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Stop maintaining the skb_send_q list for TRANS_HIPER sockets.
+This overrides arch_get_mappable_range() on arm64 platform which will be
+used with recently added generic framework. It drops inside_linear_region()
+and subsequent check in arch_add_memory() which are no longer required. It
+also adds a VM_BUG_ON() check that would ensure that mhp_range_allowed()
+has already been called.
 
-Not only is it extra overhead, but keeping around a list of skb clones
-means that we later also have to match the ->sk_txnotify() calls
-against these clones and free them accordingly.
-The current matching logic (comparing the skbs' shinfo location) is
-frustratingly fragile, and breaks if the skb's head is mangled in any
-sort of way while passing from dev_queue_xmit() to the device's
-HW queue.
-
-Also adjust the interface for ->sk_txnotify(), to make clear that we
-don't actually care about any skb internals.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- drivers/s390/net/qeth_core_main.c |  6 ++-
- include/net/iucv/af_iucv.h        |  2 +-
- net/iucv/af_iucv.c                | 80 ++++++++-----------------------
- 3 files changed, 26 insertions(+), 62 deletions(-)
+ arch/arm64/mm/mmu.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index cf18d87da41e..c6e93abf8635 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -1407,10 +1407,12 @@ static void qeth_notify_skbs(struct qeth_qdio_out_q *q,
- 	struct sk_buff *skb;
- 
- 	skb_queue_walk(&buf->skb_list, skb) {
-+		struct sock *sk = skb->sk;
-+
- 		QETH_CARD_TEXT_(q->card, 5, "skbn%d", notification);
- 		QETH_CARD_TEXT_(q->card, 5, "%lx", (long) skb);
--		if (skb->sk && skb->sk->sk_family == PF_IUCV)
--			iucv_sk(skb->sk)->sk_txnotify(skb, notification);
-+		if (sk && sk->sk_family == PF_IUCV)
-+			iucv_sk(sk)->sk_txnotify(sk, notification);
- 	}
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index ae0c3d023824..b14fd1b6b1a0 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -1442,16 +1442,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
+ 	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
  }
  
-diff --git a/include/net/iucv/af_iucv.h b/include/net/iucv/af_iucv.h
-index 0816bcd44dd1..ff06246dbbb9 100644
---- a/include/net/iucv/af_iucv.h
-+++ b/include/net/iucv/af_iucv.h
-@@ -133,7 +133,7 @@ struct iucv_sock {
- 	atomic_t		msg_recv;
- 	atomic_t		pendings;
- 	int			transport;
--	void                    (*sk_txnotify)(struct sk_buff *skb,
-+	void			(*sk_txnotify)(struct sock *sk,
- 					       enum iucv_tx_notify n);
- };
- 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index e487f472027a..0e0656db4ae7 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -89,7 +89,7 @@ static struct sock *iucv_accept_dequeue(struct sock *parent,
- static void iucv_sock_kill(struct sock *sk);
- static void iucv_sock_close(struct sock *sk);
- 
--static void afiucv_hs_callback_txnotify(struct sk_buff *, enum iucv_tx_notify);
-+static void afiucv_hs_callback_txnotify(struct sock *sk, enum iucv_tx_notify);
- 
- /* Call Back functions */
- static void iucv_callback_rx(struct iucv_path *, struct iucv_message *);
-@@ -211,7 +211,6 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
+-static bool inside_linear_region(u64 start, u64 size)
++struct range arch_get_mappable_range(void)
  {
- 	struct iucv_sock *iucv = iucv_sk(sock);
- 	struct af_iucv_trans_hdr *phs_hdr;
--	struct sk_buff *nskb;
- 	int err, confirm_recv = 0;
++	struct range mhp_range;
++
+ 	/*
+ 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
+ 	 * accommodating both its ends but excluding PAGE_END. Max physical
+ 	 * range which can be mapped inside this linear mapping range, must
+ 	 * also be derived from its end points.
+ 	 */
+-	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
+-	       (start + size - 1) <= __pa(PAGE_END - 1);
++	mhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
++	mhp_range.end =  __pa(PAGE_END - 1);
++	return mhp_range;
+ }
  
- 	phs_hdr = skb_push(skb, sizeof(*phs_hdr));
-@@ -261,20 +260,10 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
- 	}
- 	skb->protocol = cpu_to_be16(ETH_P_AF_IUCV);
+ int arch_add_memory(int nid, u64 start, u64 size,
+@@ -1459,11 +1462,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ {
+ 	int ret, flags = 0;
  
--	__skb_header_release(skb);
--	nskb = skb_clone(skb, GFP_ATOMIC);
--	if (!nskb) {
--		err = -ENOMEM;
--		goto err_free;
+-	if (!inside_linear_region(start, size)) {
+-		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
+-		return -EINVAL;
 -	}
 -
--	skb_queue_tail(&iucv->send_skb_q, nskb);
- 	atomic_inc(&iucv->skbs_in_xmit);
- 	err = dev_queue_xmit(skb);
- 	if (net_xmit_eval(err)) {
- 		atomic_dec(&iucv->skbs_in_xmit);
--		skb_unlink(nskb, &iucv->send_skb_q);
--		kfree_skb(nskb);
- 	} else {
- 		atomic_sub(confirm_recv, &iucv->msg_recv);
- 		WARN_ON(atomic_read(&iucv->msg_recv) < 0);
-@@ -2146,59 +2135,33 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
-  * afiucv_hs_callback_txnotify() - handle send notifcations from HiperSockets
-  *                                 transport
-  **/
--static void afiucv_hs_callback_txnotify(struct sk_buff *skb,
--					enum iucv_tx_notify n)
-+static void afiucv_hs_callback_txnotify(struct sock *sk, enum iucv_tx_notify n)
- {
--	struct iucv_sock *iucv = iucv_sk(skb->sk);
--	struct sock *sk = skb->sk;
--	struct sk_buff_head *list;
--	struct sk_buff *list_skb;
--	struct sk_buff *nskb;
--	unsigned long flags;
-+	struct iucv_sock *iucv = iucv_sk(sk);
++	VM_BUG_ON(!mhp_range_allowed(start, size, true));
+ 	if (rodata_full || debug_pagealloc_enabled())
+ 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
  
- 	if (sock_flag(sk, SOCK_ZAPPED))
- 		return;
- 
--	list = &iucv->send_skb_q;
--	spin_lock_irqsave(&list->lock, flags);
--	skb_queue_walk_safe(list, list_skb, nskb) {
--		if (skb_shinfo(list_skb) == skb_shinfo(skb)) {
--			switch (n) {
--			case TX_NOTIFY_OK:
--				atomic_dec(&iucv->skbs_in_xmit);
--				__skb_unlink(list_skb, list);
--				kfree_skb(list_skb);
--				iucv_sock_wake_msglim(sk);
--				break;
--			case TX_NOTIFY_PENDING:
--				atomic_inc(&iucv->pendings);
--				break;
--			case TX_NOTIFY_DELAYED_OK:
--				atomic_dec(&iucv->skbs_in_xmit);
--				__skb_unlink(list_skb, list);
--				atomic_dec(&iucv->pendings);
--				if (atomic_read(&iucv->pendings) <= 0)
--					iucv_sock_wake_msglim(sk);
--				kfree_skb(list_skb);
--				break;
--			case TX_NOTIFY_UNREACHABLE:
--			case TX_NOTIFY_DELAYED_UNREACHABLE:
--			case TX_NOTIFY_TPQFULL: /* not yet used */
--			case TX_NOTIFY_GENERALERROR:
--			case TX_NOTIFY_DELAYED_GENERALERROR:
--				atomic_dec(&iucv->skbs_in_xmit);
--				__skb_unlink(list_skb, list);
--				kfree_skb(list_skb);
--				if (sk->sk_state == IUCV_CONNECTED) {
--					sk->sk_state = IUCV_DISCONN;
--					sk->sk_state_change(sk);
--				}
--				break;
--			}
--			break;
-+	switch (n) {
-+	case TX_NOTIFY_OK:
-+		atomic_dec(&iucv->skbs_in_xmit);
-+		iucv_sock_wake_msglim(sk);
-+		break;
-+	case TX_NOTIFY_PENDING:
-+		atomic_inc(&iucv->pendings);
-+		break;
-+	case TX_NOTIFY_DELAYED_OK:
-+		atomic_dec(&iucv->skbs_in_xmit);
-+		if (atomic_dec_return(&iucv->pendings) <= 0)
-+			iucv_sock_wake_msglim(sk);
-+		break;
-+	default:
-+		atomic_dec(&iucv->skbs_in_xmit);
-+		if (sk->sk_state == IUCV_CONNECTED) {
-+			sk->sk_state = IUCV_DISCONN;
-+			sk->sk_state_change(sk);
- 		}
- 	}
--	spin_unlock_irqrestore(&list->lock, flags);
- 
- 	if (sk->sk_state == IUCV_CLOSING) {
- 		if (atomic_read(&iucv->skbs_in_xmit) == 0) {
-@@ -2206,7 +2169,6 @@ static void afiucv_hs_callback_txnotify(struct sk_buff *skb,
- 			sk->sk_state_change(sk);
- 		}
- 	}
--
- }
- 
- /*
 -- 
-2.17.1
+2.20.1
