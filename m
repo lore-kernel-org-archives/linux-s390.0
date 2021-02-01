@@ -1,59 +1,91 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13650 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231248AbhBIOQu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 09:16:50 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH] s390x: Workaround smp stop and store status race
-Date: Tue,  9 Feb 2021 09:15:54 -0500
-Message-Id: <20210209141554.22554-1-frankja@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH V5 3/4] s390/mm: Define arch_get_mappable_range()
+References: <1612149902-7867-1-git-send-email-anshuman.khandual@arm.com>
+ <1612149902-7867-4-git-send-email-anshuman.khandual@arm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <6e84c7a9-730d-64ee-ab8a-ae966a0e007e@redhat.com>
+Date: Mon, 1 Feb 2021 10:06:30 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1612149902-7867-4-git-send-email-anshuman.khandual@arm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com
+To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com, osalvador@suse.de
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-KVM and QEMU handle a SIGP stop and store status in two steps:
-1) Stop the CPU by injecting a stop request
-2) Store when the CPU has left SIE because of the stop request
+On 01.02.21 04:25, Anshuman Khandual wrote:
+> This overrides arch_get_mappabble_range() on s390 platform which will be
+> used with recently added generic framework. It modifies the existing range
+> check in vmem_add_mapping() using arch_get_mappable_range(). It also adds a
+> VM_BUG_ON() check that would ensure that mhp_range_allowed() has already
+> been called on the hotplug path.
+> 
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> ---
+>   arch/s390/mm/init.c |  1 +
+>   arch/s390/mm/vmem.c | 14 +++++++++++++-
+>   2 files changed, 14 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index 73a163065b95..0e76b2127dc6 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -297,6 +297,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
+>   	if (WARN_ON_ONCE(params->pgprot.pgprot != PAGE_KERNEL.pgprot))
+>   		return -EINVAL;
+>   
+> +	VM_BUG_ON(!mhp_range_allowed(start, size, true));
+>   	rc = vmem_add_mapping(start, size);
+>   	if (rc)
+>   		return rc;
+> diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+> index 01f3a5f58e64..82dbf9450105 100644
+> --- a/arch/s390/mm/vmem.c
+> +++ b/arch/s390/mm/vmem.c
+> @@ -4,6 +4,7 @@
+>    *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
+>    */
+>   
+> +#include <linux/memory_hotplug.h>
+>   #include <linux/memblock.h>
+>   #include <linux/pfn.h>
+>   #include <linux/mm.h>
+> @@ -532,11 +533,22 @@ void vmem_remove_mapping(unsigned long start, unsigned long size)
+>   	mutex_unlock(&vmem_mutex);
+>   }
+>   
+> +struct range arch_get_mappable_range(void)
+> +{
+> +	struct range mhp_range;
+> +
+> +	mhp_range.start = 0;
+> +	mhp_range.end =  VMEM_MAX_PHYS - 1;
+> +	return mhp_range;
+> +}
+> +
+>   int vmem_add_mapping(unsigned long start, unsigned long size)
+>   {
+> +	struct range range = arch_get_mappable_range();
+>   	int ret;
+>   
+> -	if (start + size > VMEM_MAX_PHYS ||
+> +	if (start < range.start ||
+> +	    start + size > range.end + 1 ||
+>   	    start + size < start)
+>   		return -ERANGE;
+>   
+> 
 
-The problem is that the SIGP order is already considered completed by
-KVM/QEMU when step 1 has been performed and not once both have
-completed. In addition we currently don't implement the busy CC so a
-kernel has no way of knowing that the store has finished other than
-checking the location for the store.
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-This workaround is based on the fact that for a new SIE entry (via the
-added smp restart) a stop with the store status has to be finished
-first.
-
-Correct handling of this in KVM/QEMU will need some thought and time.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/smp.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/s390x/smp.c b/s390x/smp.c
-index b0ece491..32f284a2 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -102,12 +102,15 @@ static void test_stop_store_status(void)
- 	lc->grs_sa[15] = 0;
- 	smp_cpu_stop_store_status(1);
- 	mb();
-+	report(smp_cpu_stopped(1), "cpu stopped");
-+	/* For the cpu to be started it should have finished storing */
-+	smp_cpu_restart(1);
- 	report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
- 	report(lc->grs_sa[15], "stack");
--	report(smp_cpu_stopped(1), "cpu stopped");
- 	report_prefix_pop();
- 
- 	report_prefix_push("stopped");
-+	smp_cpu_stop(1);
- 	lc->prefix_sa = 0;
- 	lc->grs_sa[15] = 0;
- 	smp_cpu_stop_store_status(1);
 -- 
-2.25.1
+Thanks,
+
+David / dhildenb
