@@ -1,45 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52150 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231825AbhBINvb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 08:51:31 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 1/8] s390x: Fix fpc store address in RESTORE_REGS_STACK
-Date: Tue,  9 Feb 2021 08:49:18 -0500
-Message-Id: <20210209134925.22248-2-frankja@linux.ibm.com>
-In-Reply-To: <20210209134925.22248-1-frankja@linux.ibm.com>
-References: <20210209134925.22248-1-frankja@linux.ibm.com>
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:54811 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229883AbhBBLxq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Feb 2021 06:53:46 -0500
+Date: Tue, 2 Feb 2021 12:52:09 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v1 5/5] s390x: css: testing measurement
+ block format 1
+Message-ID: <20210202125209.4ef8b66c.cohuck@redhat.com>
+In-Reply-To: <1611930869-25745-6-git-send-email-pmorel@linux.ibm.com>
+References: <1611930869-25745-1-git-send-email-pmorel@linux.ibm.com>
+        <1611930869-25745-6-git-send-email-pmorel@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, imbrenda@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com
 
-The efpc stores in bits 32-63 of a register and we store a full 8
-bytes to have the stack 8 byte aligned. This means that the fpc is
-stored at offset 4 but we load it from offset 0. Lets replace efpc
-with stfpc and get rid of the stg to store at offset 0.
+On Fri, 29 Jan 2021 15:34:29 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
----
- s390x/macros.S | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+> Measurement block format 1 is made available by the extended
+> mesurement block facility and is indicated in the SCHIB by
+> the bit in the PMCW.
+> 
+> The MBO is specified in the SCHIB of each channel and the MBO
+> defined by the SCHM instruction is ignored.
+> 
+> The test of the MB format 1 is just skip if the feature is
 
-diff --git a/s390x/macros.S b/s390x/macros.S
-index 37a6a63e..e51a557a 100644
---- a/s390x/macros.S
-+++ b/s390x/macros.S
-@@ -54,8 +54,7 @@
- 	.endr
- 	/* Save fpc, but keep stack aligned on 64bits */
- 	slgfi   %r15, 8
--	efpc	%r0
--	stg	%r0, 0(%r15)
-+	stfpc	0(%r15)
- 	.endm
- 
- /* Restore the register in reverse order */
--- 
-2.25.1
+s/skip/skipped/
+
+> not available.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>  s390x/css.c | 51 +++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 51 insertions(+)
+> 
+
+(...)
+
+> @@ -208,6 +251,14 @@ static void test_schm(void)
+>  	schm(mb0, SCHM_MBU);
+>  	test_schm_fmt0(mb0);
+>  
+> +	mb1 = alloc_io_mem(sizeof(struct measurement_block_format1), 0);
+> +	if (!mb1) {
+
+I'm wondering whether you should move this into the format 1
+invocation, so you won't try to allocate memory if format 1 is not even
+supported.
+
+> +		report(0, "mesurement_block_format0 allocation");
+
+In any case, s/mesurement_block_format0/measurement_block_format1/ :)
+
+> +		goto end_free;
+> +	}
+> +	test_schm_fmt1(mb1);
+> +
+> +	free_io_mem(mb1, sizeof(struct measurement_block_format1));
+>  end_free:
+>  	free_io_mem(mb0, sizeof(struct measurement_block_format0));
+>  }
