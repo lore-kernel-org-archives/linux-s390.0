@@ -1,68 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:38830 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231728AbhBINvf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 08:51:35 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 8/8] s390x: Remove SAVE/RESTORE_stack
-Date: Tue,  9 Feb 2021 08:49:25 -0500
-Message-Id: <20210209134925.22248-9-frankja@linux.ibm.com>
-In-Reply-To: <20210209134925.22248-1-frankja@linux.ibm.com>
-References: <20210209134925.22248-1-frankja@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47062 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230135AbhBBHPK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Feb 2021 02:15:10 -0500
+Date: Tue, 02 Feb 2021 17:14:23 +1000
+From: Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [RFC 00/20] TLB batching consolidation and enhancements
+References: <20210131001132.3368247-1-namit@vmware.com>
+        <1612063149.2awdsvvmhj.astroid@bobo.none>
+        <A1589669-34AE-4E15-8358-79BAD7C72520@vmware.com>
+        <YBf3sl3M+j3hJRoM@hirez.programming.kicks-ass.net>
+In-Reply-To: <YBf3sl3M+j3hJRoM@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-Id: <1612248111.g00kf5qxrp.astroid@bobo.none>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, imbrenda@linux.ibm.com
+To: Nadav Amit <namit@vmware.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Dave Hansen <dave.hansen@linux.intel.com>, "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Andy Lutomirski <luto@kernel.org>, Mel Gorman <mgorman@techsingularity.net>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, X86 ML <x86@kernel.org>, Yu Zhao <yuzhao@google.com>
 
-There are no more users.
+Excerpts from Peter Zijlstra's message of February 1, 2021 10:44 pm:
+> On Sun, Jan 31, 2021 at 07:57:01AM +0000, Nadav Amit wrote:
+>> > On Jan 30, 2021, at 7:30 PM, Nicholas Piggin <npiggin@gmail.com> wrote=
+:
+>=20
+>> > I'll go through the patches a bit more closely when they all come=20
+>> > through. Sparc and powerpc of course need the arch lazy mode to get=20
+>> > per-page/pte information for operations that are not freeing pages,=20
+>> > which is what mmu gather is designed for.
+>>=20
+>> IIUC you mean any PTE change requires a TLB flush. Even setting up a new=
+ PTE
+>> where no previous PTE was set, right?
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
----
- s390x/macros.S | 29 -----------------------------
- 1 file changed, 29 deletions(-)
+In cases of increasing permissiveness of access, yes it may want to=20
+update the "TLB" (read hash table) to avoid taking hash table faults.
 
-diff --git a/s390x/macros.S b/s390x/macros.S
-index 1678c821..90a842d9 100644
---- a/s390x/macros.S
-+++ b/s390x/macros.S
-@@ -28,35 +28,6 @@
- 	lpswe	\old_psw
- 	.endm
- 
--	.macro SAVE_REGS
--	/* save grs 0-15 */
--	stmg	%r0, %r15, GEN_LC_SW_INT_GRS
--	/* save crs 0-15 */
--	stctg	%c0, %c15, GEN_LC_SW_INT_CRS
--	/* load a cr0 that has the AFP control bit which enables all FPRs */
--	larl	%r1, initial_cr0
--	lctlg	%c0, %c0, 0(%r1)
--	/* save fprs 0-15 + fpc */
--	la	%r1, GEN_LC_SW_INT_FPRS
--	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
--	std	\i, \i * 8(%r1)
--	.endr
--	stfpc	GEN_LC_SW_INT_FPC
--	.endm
--
--	.macro RESTORE_REGS
--	/* restore fprs 0-15 + fpc */
--	la	%r1, GEN_LC_SW_INT_FPRS
--	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
--	ld	\i, \i * 8(%r1)
--	.endr
--	lfpc	GEN_LC_SW_INT_FPC
--	/* restore crs 0-15 */
--	lctlg	%c0, %c15, GEN_LC_SW_INT_CRS
--	/* restore grs 0-15 */
--	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
--	.endm
--
- /* Save registers on the stack (r15), so we can have stacked interrupts. */
- 	.macro SAVE_REGS_STACK
- 	/* Allocate a full stack frame */
--- 
-2.25.1
+But whatever the reason for the flush, there may have to be more
+data carried than just the virtual address range and/or physical
+pages.
+
+If you clear out the PTE then you have no guarantee of actually being
+able to go back and address the the in-memory or in-hardware translation=20
+structures to update them, depending on what exact scheme is used
+(powerpc probably could if all page sizes were the same, but THP or=20
+64k/4k sub pages would throw a spanner in those works).
+
+> These are the HASH architectures. Their hardware doesn't walk the
+> page-tables, but it consults a hash-table to resolve page translations.
+
+Yeah, it's very cool in a masochistic way.
+
+I actually don't know if it's worth doing a big rework of it, as much=20
+as I'd like to. Rather than just keep it in place and eventually
+dismantling some of the go-fast hooks from core code if we can one day
+deprecate it in favour of the much easier radix mode.
+
+The whole thing is like a big steam train, years ago Paul and Ben and=20
+Anton and co got the boiler stoked up and set all the valves just right=20
+so it runs unbelievably well for what it's actually doing but look at it
+the wrong way and the whole thing could blow up. (at least that's what=20
+it feels like to me probably because I don't know the code that well).
+
+Sparc could probably do the same, not sure about Xen. I don't suppose
+vmware is intending to add any kind of paravirt mode related to this stuff?
+
+Thanks,
+Nick
