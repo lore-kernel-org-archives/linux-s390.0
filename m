@@ -1,91 +1,79 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH V5 3/4] s390/mm: Define arch_get_mappable_range()
-References: <1612149902-7867-1-git-send-email-anshuman.khandual@arm.com>
- <1612149902-7867-4-git-send-email-anshuman.khandual@arm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <6e84c7a9-730d-64ee-ab8a-ae966a0e007e@redhat.com>
-Date: Mon, 1 Feb 2021 10:06:30 +0100
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36928 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233288AbhBDAWA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Feb 2021 19:22:00 -0500
+Date: Thu, 4 Feb 2021 01:21:07 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v13 09/15] s390/vfio-ap: allow hot plug/unplug of AP
+ resources using mdev device
+Message-ID: <20210204012107.7215cf3b.pasic@linux.ibm.com>
+In-Reply-To: <73ad5b17-f252-2aad-1d08-14635c8460ef@linux.ibm.com>
+References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+        <20201223011606.5265-10-akrowiak@linux.ibm.com>
+        <20210112021251.0d989225.pasic@linux.ibm.com>
+        <20210112185550.1ac49768.pasic@linux.ibm.com>
+        <73ad5b17-f252-2aad-1d08-14635c8460ef@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <1612149902-7867-4-git-send-email-anshuman.khandual@arm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com, osalvador@suse.de
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-On 01.02.21 04:25, Anshuman Khandual wrote:
-> This overrides arch_get_mappabble_range() on s390 platform which will be
-> used with recently added generic framework. It modifies the existing range
-> check in vmem_add_mapping() using arch_get_mappable_range(). It also adds a
-> VM_BUG_ON() check that would ensure that mhp_range_allowed() has already
-> been called on the hotplug path.
+On Wed, 3 Feb 2021 18:13:09 -0500
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+
+> On 1/12/21 12:55 PM, Halil Pasic wrote:
+> > On Tue, 12 Jan 2021 02:12:51 +0100
+> > Halil Pasic <pasic@linux.ibm.com> wrote:
+> >  
+> >>> @@ -1347,8 +1437,11 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
+> >>>   	apqi = AP_QID_QUEUE(q->apqn);
+> >>>   	vfio_ap_mdev_reset_queue(apid, apqi, 1);
+> >>>   
+> >>> -	if (q->matrix_mdev)
+> >>> +	if (q->matrix_mdev) {
+> >>> +		matrix_mdev = q->matrix_mdev;
+> >>>   		vfio_ap_mdev_unlink_queue(q);
+> >>> +		vfio_ap_mdev_refresh_apcb(matrix_mdev);
+> >>> +	}
+> >>>   
+> >>>   	kfree(q);
+> >>>   	mutex_unlock(&matrix_dev->lock);  
+> > Shouldn't we first remove the queue from the APCB and then
+> > reset? Sorry, I missed this one yesterday.  
 > 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Acked-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> ---
->   arch/s390/mm/init.c |  1 +
->   arch/s390/mm/vmem.c | 14 +++++++++++++-
->   2 files changed, 14 insertions(+), 1 deletion(-)
+> I agreed to move the reset, however if the remove callback is
+> invoked due to a manual unbind of the queue and the queue is
+> in use by a guest, the cleanup of the IRQ resources after the
+> reset of the queue will not happen because the link from the
+> queue to the matrix mdev was removed. Consequently, I'm going
+> to have to change the patch 05/15 to split the vfio_ap_mdev_unlink_queue()
+> function into two functions: one to remove the link from the matrix mdev to
+> the queue; and, one to remove the link from the queue to the matrix
+> mdev. 
+
+Does that mean we should reset before the unlink (or before the second
+part of it after the split up)?
+
+I mean have a look at unassign_adapter_store() with all patches
+of this series applied. It does an unlink but doesn't do any reset,
+or cleanup IRQ resources. And after the unlink we can't clean up
+the IRQ resources properly.
+
+But before all this we should resolve this circular lock dependency
+problem in a satisfactory way. I'm quite worried about how it is going
+to mesh with this series and dynamic ap pass-through.
+
+Regards,
+Halil
+
+>Only the first will be used for the remove callback which should
+> be fine since the queue object is freed at the end of the remove
+> function anyway.
 > 
-> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> index 73a163065b95..0e76b2127dc6 100644
-> --- a/arch/s390/mm/init.c
-> +++ b/arch/s390/mm/init.c
-> @@ -297,6 +297,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
->   	if (WARN_ON_ONCE(params->pgprot.pgprot != PAGE_KERNEL.pgprot))
->   		return -EINVAL;
->   
-> +	VM_BUG_ON(!mhp_range_allowed(start, size, true));
->   	rc = vmem_add_mapping(start, size);
->   	if (rc)
->   		return rc;
-> diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-> index 01f3a5f58e64..82dbf9450105 100644
-> --- a/arch/s390/mm/vmem.c
-> +++ b/arch/s390/mm/vmem.c
-> @@ -4,6 +4,7 @@
->    *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
->    */
->   
-> +#include <linux/memory_hotplug.h>
->   #include <linux/memblock.h>
->   #include <linux/pfn.h>
->   #include <linux/mm.h>
-> @@ -532,11 +533,22 @@ void vmem_remove_mapping(unsigned long start, unsigned long size)
->   	mutex_unlock(&vmem_mutex);
->   }
->   
-> +struct range arch_get_mappable_range(void)
-> +{
-> +	struct range mhp_range;
-> +
-> +	mhp_range.start = 0;
-> +	mhp_range.end =  VMEM_MAX_PHYS - 1;
-> +	return mhp_range;
-> +}
-> +
->   int vmem_add_mapping(unsigned long start, unsigned long size)
->   {
-> +	struct range range = arch_get_mappable_range();
->   	int ret;
->   
-> -	if (start + size > VMEM_MAX_PHYS ||
-> +	if (start < range.start ||
-> +	    start + size > range.end + 1 ||
->   	    start + size < start)
->   		return -ERANGE;
->   
+> >
+> > Regards,
+> > Halil  
 > 
-
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
--- 
-Thanks,
-
-David / dhildenb
