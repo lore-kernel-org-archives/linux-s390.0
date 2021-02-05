@@ -1,67 +1,223 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55270 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229525AbhBAMKo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Feb 2021 07:10:44 -0500
-Date: Mon, 1 Feb 2021 13:09:43 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [RFC 11/20] mm/tlb: remove arch-specific tlb_start/end_vma()
-Message-ID: <YBfvh1Imz6RRTUDV@hirez.programming.kicks-ass.net>
-References: <20210131001132.3368247-1-namit@vmware.com>
- <20210131001132.3368247-12-namit@vmware.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23242 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232402AbhBEM5r (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Feb 2021 07:57:47 -0500
+Subject: Re: [PATCH v2 1/2] s390/kvm: extend kvm_s390_shadow_fault to return
+ entry pointer
+References: <20210202180028.876888-1-imbrenda@linux.ibm.com>
+ <20210202180028.876888-2-imbrenda@linux.ibm.com>
+ <16522b25-a590-fbc4-0eb6-3537d8032577@linux.ibm.com>
+ <20210205131555.0b4f32d1@ibm-vm>
+From: Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <9eb63005-a11f-a56a-d7e1-c65dd9e8d9a2@linux.ibm.com>
+Date: Fri, 5 Feb 2021 13:56:53 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210131001132.3368247-12-namit@vmware.com>
+In-Reply-To: <20210205131555.0b4f32d1@ibm-vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Nadav Amit <nadav.amit@gmail.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Nadav Amit <namit@vmware.com>, Andrea Arcangeli <aarcange@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>, Nick Piggin <npiggin@gmail.com>, linux-csky@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, david@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
 
-On Sat, Jan 30, 2021 at 04:11:23PM -0800, Nadav Amit wrote:
+On 2/5/21 1:15 PM, Claudio Imbrenda wrote:
+> On Thu, 4 Feb 2021 17:34:00 +0100
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+> 
+>> On 2/2/21 7:00 PM, Claudio Imbrenda wrote:
+>>> Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
+>>> DAT table entry, or to the invalid entry.
+>>>
+>>> Also return some flags in the lower bits of the address:
+>>> DAT_PROT: indicates that DAT protection applies because of the
+>>>           protection bit in the segment (or, if EDAT, region) tables
+>>> NOT_PTE: indicates that the address of the DAT table entry returned
+>>>          does not refer to a PTE, but to a segment or region table.
+>>>
+>>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>>> Cc: stable@vger.kernel.org
+>>> ---
+>>>  arch/s390/kvm/gaccess.c | 26 ++++++++++++++++++++++----
+>>>  arch/s390/kvm/gaccess.h |  5 ++++-
+>>>  arch/s390/kvm/vsie.c    |  8 ++++----
+>>>  3 files changed, 30 insertions(+), 9 deletions(-)
+>>>
+>>> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+>>> index 6d6b57059493..2d7bcbfb185e 100644
+>>> --- a/arch/s390/kvm/gaccess.c
+>>> +++ b/arch/s390/kvm/gaccess.c
+>>> @@ -1034,6 +1034,7 @@ static int kvm_s390_shadow_tables(struct gmap
+>>> *sg, unsigned long saddr, rfte.val = ptr;
+>>>  			goto shadow_r2t;
+>>>  		}
+>>> +		*pgt = ptr + vaddr.rfx * 8;  
+>>
+>> So pgt either is a table entry if rc > 0 or a pointer to the first pte
+>> on rc == 0 after this change?
+> 
+> yes
+> 
+>> Hrm, if it is really based on RCs than I might be able to come to
+>> terms with having two things in a ptr with the name pgt. But it needs
+>> a comment change.
+> 
+> will do.
+> 
+>>>  		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8,
+>>> &rfte.val); if (rc)
+>>>  			return rc;
+>>> @@ -1060,6 +1061,7 @@ static int kvm_s390_shadow_tables(struct gmap
+>>> *sg, unsigned long saddr, rste.val = ptr;
+>>>  			goto shadow_r3t;
+>>>  		}
+>>> +		*pgt = ptr + vaddr.rsx * 8;
+>>>  		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8,
+>>> &rste.val); if (rc)
+>>>  			return rc;
+>>> @@ -1087,6 +1089,7 @@ static int kvm_s390_shadow_tables(struct gmap
+>>> *sg, unsigned long saddr, rtte.val = ptr;
+>>>  			goto shadow_sgt;
+>>>  		}
+>>> +		*pgt = ptr + vaddr.rtx * 8;
+>>>  		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8,
+>>> &rtte.val); if (rc)
+>>>  			return rc;
+>>> @@ -1123,6 +1126,7 @@ static int kvm_s390_shadow_tables(struct gmap
+>>> *sg, unsigned long saddr, ste.val = ptr;
+>>>  			goto shadow_pgt;
+>>>  		}
+>>> +		*pgt = ptr + vaddr.sx * 8;
+>>>  		rc = gmap_read_table(parent, ptr + vaddr.sx * 8,
+>>> &ste.val); if (rc)
+>>>  			return rc;
+>>> @@ -1157,6 +1161,8 @@ static int kvm_s390_shadow_tables(struct gmap
+>>> *sg, unsigned long saddr,
+>>>   * @vcpu: virtual cpu
+>>>   * @sg: pointer to the shadow guest address space structure
+>>>   * @saddr: faulting address in the shadow gmap
+>>> + * @pteptr: will contain the address of the faulting DAT table
+>>> entry, or of
+>>> + *          the valid leaf, plus some flags  
+>>
+>> pteptr is not the right name if it can be two things
+> 
+> it cannot be two things there, kvm_s390_shadow_fault always returns a
+> DAT _entry_ (pte, segment, region).
 
-> diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-> index 427bfcc6cdec..b97136b7010b 100644
-> --- a/include/asm-generic/tlb.h
-> +++ b/include/asm-generic/tlb.h
-> @@ -334,8 +334,8 @@ static inline void __tlb_reset_range(struct mmu_gather *tlb)
->  
->  #ifdef CONFIG_MMU_GATHER_NO_RANGE
->  
-> -#if defined(tlb_flush) || defined(tlb_start_vma) || defined(tlb_end_vma)
-> -#error MMU_GATHER_NO_RANGE relies on default tlb_flush(), tlb_start_vma() and tlb_end_vma()
-> +#if defined(tlb_flush)
-> +#error MMU_GATHER_NO_RANGE relies on default tlb_flush()
->  #endif
->  
->  /*
-> @@ -362,10 +362,6 @@ static inline void tlb_end_vma(struct mmu_gather *tlb, struct vm_area_struct *vm
->  
->  #ifndef tlb_flush
->  
-> -#if defined(tlb_start_vma) || defined(tlb_end_vma)
-> -#error Default tlb_flush() relies on default tlb_start_vma() and tlb_end_vma()
-> -#endif
-
-#ifdef CONFIG_ARCH_WANT_AGGRESSIVE_TLB_FLUSH_BATCHING
-#error ....
-#endif
-
-goes here...
+And that's exactly what I meant, it's not a pteptr i.e. not a (pte_t *)
+as the name would suggest.
 
 
->  static inline void tlb_end_vma(struct mmu_gather *tlb, struct vm_area_struct *vma)
->  {
->  	if (tlb->fullmm)
->  		return;
->  
-> +	if (IS_ENABLED(CONFIG_ARCH_WANT_AGGRESSIVE_TLB_FLUSH_BATCHING))
-> +		return;
-
-Also, can you please stick to the CONFIG_MMU_GATHER_* namespace?
-
-I also don't think AGRESSIVE_FLUSH_BATCHING quite captures what it does.
-How about:
-
-	CONFIG_MMU_GATHER_NO_PER_VMA_FLUSH
-
-?
+> 
+>>>   *
+>>>   * Returns: - 0 if the shadow fault was successfully resolved
+>>>   *	    - > 0 (pgm exception code) on exceptions while
+>>> faulting @@ -1165,11 +1171,11 @@ static int
+>>> kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>>>   *	    - -ENOMEM if out of memory
+>>>   */
+>>>  int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+>>> -			  unsigned long saddr)
+>>> +			  unsigned long saddr, unsigned long
+>>> *pteptr) {
+>>>  	union vaddress vaddr;
+>>>  	union page_table_entry pte;
+>>> -	unsigned long pgt;
+>>> +	unsigned long pgt = 0;
+>>>  	int dat_protection, fake;
+>>>  	int rc;
+>>>  
+>>> @@ -1191,8 +1197,20 @@ int kvm_s390_shadow_fault(struct kvm_vcpu
+>>> *vcpu, struct gmap *sg, pte.val = pgt + vaddr.px * PAGE_SIZE;
+>>>  		goto shadow_page;
+>>>  	}
+>>> -	if (!rc)
+>>> -		rc = gmap_read_table(sg->parent, pgt + vaddr.px *
+>>> 8, &pte.val); +
+>>> +	switch (rc) {
+>>> +	case PGM_SEGMENT_TRANSLATION:
+>>> +	case PGM_REGION_THIRD_TRANS:
+>>> +	case PGM_REGION_SECOND_TRANS:
+>>> +	case PGM_REGION_FIRST_TRANS:
+>>> +		pgt |= NOT_PTE;  
+>>
+>> GACC_TRANSL_ENTRY_INV ?
+> 
+> no, this is only for non-pte entries
+> 
+>>> +		break;
+>>> +	case 0:
+>>> +		pgt += vaddr.px * 8;
+>>> +		rc = gmap_read_table(sg->parent, pgt, &pte.val);
+>>> +	}
+>>> +	if (*pteptr)
+>>> +		*pteptr = pgt | dat_protection * DAT_PROT;
+>>>  	if (!rc && pte.i)
+>>>  		rc = PGM_PAGE_TRANSLATION;
+>>>  	if (!rc && pte.z)
+>>> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+>>> index f4c51756c462..66a6e2cec97a 100644
+>>> --- a/arch/s390/kvm/gaccess.h
+>>> +++ b/arch/s390/kvm/gaccess.h
+>>> @@ -359,7 +359,10 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
+>>>  int ipte_lock_held(struct kvm_vcpu *vcpu);
+>>>  int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu,
+>>> unsigned long gra); 
+>>> +#define DAT_PROT 2  
+>>
+>> GACC_TRANSL_ENTRY_PROT
+> 
+> this is also only for non-pte entries
+> 
+>>> +#define NOT_PTE 4
+>>> +
+>>>  int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap
+>>> *shadow,
+>>> -			  unsigned long saddr);
+>>> +			  unsigned long saddr, unsigned long
+>>> *pteptr); 
+>>>  #endif /* __KVM_S390_GACCESS_H */
+>>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+>>> index c5d0a58b2c29..7db022141db3 100644
+>>> --- a/arch/s390/kvm/vsie.c
+>>> +++ b/arch/s390/kvm/vsie.c
+>>> @@ -619,10 +619,10 @@ static int map_prefix(struct kvm_vcpu *vcpu,
+>>> struct vsie_page *vsie_page) /* with mso/msl, the prefix lies at
+>>> offset *mso* */ prefix += scb_s->mso;
+>>>  
+>>> -	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix);
+>>> +	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix,
+>>> NULL); if (!rc && (scb_s->ecb & ECB_TE))
+>>>  		rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+>>> -					   prefix + PAGE_SIZE);
+>>> +					   prefix + PAGE_SIZE,
+>>> NULL); /*
+>>>  	 * We don't have to mprotect, we will be called for all
+>>> unshadows.
+>>>  	 * SIE will detect if protection applies and trigger a
+>>> validity. @@ -913,7 +913,7 @@ static int handle_fault(struct
+>>> kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>>> current->thread.gmap_addr, 1); 
+>>>  	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+>>> -				   current->thread.gmap_addr);
+>>> +				   current->thread.gmap_addr,
+>>> NULL); if (rc > 0) {
+>>>  		rc = inject_fault(vcpu, rc,
+>>>  				  current->thread.gmap_addr,
+>>> @@ -935,7 +935,7 @@ static void handle_last_fault(struct kvm_vcpu
+>>> *vcpu, {
+>>>  	if (vsie_page->fault_addr)
+>>>  		kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+>>> -				      vsie_page->fault_addr);
+>>> +				      vsie_page->fault_addr,
+>>> NULL);  
+>>
+>> Ok
+>>
+>>>  	vsie_page->fault_addr = 0;
+>>>  }
+>>>  
+>>>   
+>>
+> 
