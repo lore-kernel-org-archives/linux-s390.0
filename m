@@ -1,32 +1,85 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49610 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229506AbhBGOtO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 7 Feb 2021 09:49:14 -0500
-Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDFC7C061756
-        for <linux-s390@vger.kernel.org>; Sun,  7 Feb 2021 06:48:33 -0800 (PST)
-Received: by mail-lj1-x22f.google.com with SMTP id a17so13603536ljq.2
-        for <linux-s390@vger.kernel.org>; Sun, 07 Feb 2021 06:48:33 -0800 (PST)
-Date: Sun, 7 Feb 2021 17:48:31 +0300
-From: "Kirill A. Shutemov" <kirill@shutemov.name>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36998 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229536AbhBGMSk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 7 Feb 2021 07:18:40 -0500
+Date: Sun, 7 Feb 2021 13:17:47 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
 Subject: Re: [PATCH] tmpfs: Disallow CONFIG_TMPFS_INODE64 on s390
-Message-ID: <20210207144831.lsrm74ypbz7i37uz@box>
+Message-ID: <20210207121747.GA15061@osiris>
 References: <20210205230620.518245-1-seth.forshee@canonical.com>
+ <20210205160551.cf57c4293ba5ccb8eb648c11@linux-foundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210205230620.518245-1-seth.forshee@canonical.com>
+In-Reply-To: <20210205160551.cf57c4293ba5ccb8eb648c11@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>, Chris Down <chris@chrisdown.name>, Amir Goldstein <amir73il@gmail.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-mm@kvack.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Seth Forshee <seth.forshee@canonical.com>, Hugh Dickins <hughd@google.com>, Chris Down <chris@chrisdown.name>, Amir Goldstein <amir73il@gmail.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-mm@kvack.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Alexander Egorenkov <egorenar@linux.vnet.ibm.com>
 
-On Fri, Feb 05, 2021 at 05:06:20PM -0600, Seth Forshee wrote:
-> This feature requires ino_t be 64-bits, which is true for every
-> 64-bit architecture but s390, so prevent this option from being
-> selected there.
+On Fri, Feb 05, 2021 at 04:05:51PM -0800, Andrew Morton wrote:
+> On Fri,  5 Feb 2021 17:06:20 -0600 Seth Forshee <seth.forshee@canonical.com> wrote:
+> 
+> > This feature requires ino_t be 64-bits, which is true for every
+> > 64-bit architecture but s390, so prevent this option from being
+> > selected there.
+> > 
+> 
+> The previous patch nicely described the end-user impact of the bug. 
+> This is especially important when requesting a -stable backport.
+> 
+> Here's what I ended up with:
+> 
+> 
+> From: Seth Forshee <seth.forshee@canonical.com>
+> Subject: tmpfs: disallow CONFIG_TMPFS_INODE64 on s390
+> 
+> Currently there is an assumption in tmpfs that 64-bit architectures also
+> have a 64-bit ino_t.  This is not true on s390 which has a 32-bit ino_t. 
+> With CONFIG_TMPFS_INODE64=y tmpfs mounts will get 64-bit inode numbers and
+> display "inode64" in the mount options, but passing the "inode64" mount
+> option will fail.  This leads to the following behavior:
+> 
+>  # mkdir mnt
+>  # mount -t tmpfs nodev mnt
+>  # mount -o remount,rw mnt
+>  mount: /home/ubuntu/mnt: mount point not mounted or bad option.
+> 
+> As mount sees "inode64" in the mount options and thus passes it in the
+> options for the remount.
+> 
+> 
+> So prevent CONFIG_TMPFS_INODE64 from being selected on s390.
+> 
+> Link: https://lkml.kernel.org/r/20210205230620.518245-1-seth.forshee@canonical.com
+> Fixes: ea3271f7196c ("tmpfs: support 64-bit inums per-sb")
+> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> Cc: Chris Down <chris@chrisdown.name>
+> Cc: Hugh Dickins <hughd@google.com>
+> Cc: Amir Goldstein <amir73il@gmail.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: <stable@vger.kernel.org>	[5.9+]
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> ---
+> 
+>  fs/Kconfig |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- a/fs/Kconfig~tmpfs-disallow-config_tmpfs_inode64-on-s390
+> +++ a/fs/Kconfig
+> @@ -203,7 +203,7 @@ config TMPFS_XATTR
+>  
+>  config TMPFS_INODE64
+>  	bool "Use 64-bit ino_t by default in tmpfs"
+> -	depends on TMPFS && 64BIT
+> +	depends on TMPFS && 64BIT && !S390
 
-Quick grep suggests the same for alpha. Am I wrong?
+Heh, it's sort of funny that we have a similar patch, which
+unfortunately was/is not yet on our external features branch,
+which does exactly the same.
 
--- 
- Kirill A. Shutemov
+In any case:
+
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
