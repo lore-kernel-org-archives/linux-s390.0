@@ -1,48 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58560 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231751AbhBINvb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 08:51:31 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15938 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231845AbhBINvd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 08:51:33 -0500
 From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 0/8] s390x: Cleanup exception register save/restore and implement backtrace
-Date: Tue,  9 Feb 2021 08:49:17 -0500
-Message-Id: <20210209134925.22248-1-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH 7/8] s390x: Move diag308_load_reset to stack saving
+Date: Tue,  9 Feb 2021 08:49:24 -0500
+Message-Id: <20210209134925.22248-8-frankja@linux.ibm.com>
+In-Reply-To: <20210209134925.22248-1-frankja@linux.ibm.com>
+References: <20210209134925.22248-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, imbrenda@linux.ibm.com
 
-Having two sets of macros for saving and restoring registers on
-exceptions doesn't seem optimal to me. Therefore this patch set
-removes the old macros that use the lowcore as storage in favor of the
-stack using ones. At the same time we move over to generated offsets
-instead of subtracting from the stack piece by piece. Changes to the
-stack struct are easier that way.
+By moving the last user of SAVE/RESTORE_REGS to the macros that use
+the stack we can finally remove these macros.
 
-Additionally let's add backtrace support and print the GRs on
-exception so we get a bit more information when something goes wrong.
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ s390x/cpu.S | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Janosch Frank (8):
-  s390x: Fix fpc store address in RESTORE_REGS_STACK
-  s390x: Fully commit to stack save area for exceptions
-  RFC: s390x: Define STACK_FRAME_INT_SIZE macro
-  s390x: Introduce and use CALL_INT_HANDLER macro
-  s390x: Provide preliminary backtrace support
-  s390x: Print more information on program exceptions
-  s390x: Move diag308_load_reset to stack saving
-  s390x: Remove SAVE/RESTORE_stack
-
- lib/s390x/asm-offsets.c   | 15 +++++--
- lib/s390x/asm/arch_def.h  | 29 ++++++++++---
- lib/s390x/asm/interrupt.h |  4 +-
- lib/s390x/interrupt.c     | 43 +++++++++++++++---
- lib/s390x/stack.c         | 20 ++++++---
- s390x/Makefile            |  1 +
- s390x/cpu.S               |  6 ++-
- s390x/cstart64.S          | 25 +++--------
- s390x/macros.S            | 91 +++++++++++++++++++--------------------
- 9 files changed, 140 insertions(+), 94 deletions(-)
-
+diff --git a/s390x/cpu.S b/s390x/cpu.S
+index 5267f029..e2ad56c8 100644
+--- a/s390x/cpu.S
++++ b/s390x/cpu.S
+@@ -18,7 +18,7 @@
+  */
+ .globl diag308_load_reset
+ diag308_load_reset:
+-	SAVE_REGS
++	SAVE_REGS_STACK
+ 	/* Backup current PSW mask, as we have to restore it on success */
+ 	epsw	%r0, %r1
+ 	st	%r0, GEN_LC_SW_INT_PSW
+@@ -31,6 +31,7 @@ diag308_load_reset:
+ 	ogr	%r0, %r1
+ 	/* Store it at the reset PSW location (real 0x0) */
+ 	stg	%r0, 0
++	stg     %r15, GEN_LC_SW_INT_GRS + 15 * 8
+ 	/* Do the reset */
+ 	diag    %r0,%r2,0x308
+ 	/* Failure path */
+@@ -40,7 +41,8 @@ diag308_load_reset:
+ 	/* load a cr0 that has the AFP control bit which enables all FPRs */
+ 0:	larl	%r1, initial_cr0
+ 	lctlg	%c0, %c0, 0(%r1)
+-	RESTORE_REGS
++	lg      %r15, GEN_LC_SW_INT_GRS + 15 * 8
++	RESTORE_REGS_STACK
+ 	lhi	%r2, 1
+ 	larl	%r0, 1f
+ 	stg	%r0, GEN_LC_SW_INT_PSW + 8
 -- 
 2.25.1
