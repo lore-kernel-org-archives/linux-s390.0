@@ -1,724 +1,314 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from smtp-fw-4101.amazon.com ([72.21.198.25]:19576 "EHLO
-        smtp-fw-4101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231350AbhBAR0i (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Feb 2021 12:26:38 -0500
-From: Adrian Catangiu <acatan@amazon.com>
-Subject: [PATCH v5 1/2] drivers/misc: sysgenid: add system generation id driver
-Date: Mon, 1 Feb 2021 19:24:53 +0200
-Message-ID: <1612200294-17561-2-git-send-email-acatan@amazon.com>
-In-Reply-To: <1612200294-17561-1-git-send-email-acatan@amazon.com>
-References: <1612200294-17561-1-git-send-email-acatan@amazon.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2784 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231627AbhBINvc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 08:51:32 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH 2/8] s390x: Fully commit to stack save area for exceptions
+Date: Tue,  9 Feb 2021 08:49:19 -0500
+Message-Id: <20210209134925.22248-3-frankja@linux.ibm.com>
+In-Reply-To: <20210209134925.22248-1-frankja@linux.ibm.com>
+References: <20210209134925.22248-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: gregkh@linuxfoundation.org, graf@amazon.com, rdunlap@infradead.org, arnd@arndb.de, ebiederm@xmission.com, rppt@kernel.org, 0x7f454c46@gmail.com, borntraeger@de.ibm.com, Jason@zx2c4.com, jannh@google.com, w@1wt.eu, colmmacc@amazon.com, luto@kernel.org, tytso@mit.edu, ebiggers@kernel.org, dwmw@amazon.co.uk, bonzini@gnu.org, sblbir@amazon.com, raduweis@amazon.com, corbet@lwn.net, mst@redhat.com, mhocko@kernel.org, rafael@kernel.org, pavel@ucw.cz, mpe@ellerman.id.au, areber@redhat.com, ovzxemul@gmail.com, avagin@gmail.com, ptikhomirov@virtuozzo.com, gil@azul.com, asmehra@redhat.com, dgunigun@redhat.com, vijaysun@ca.ibm.com, oridgar@gmail.com, ghammer@redhat.com, Adrian Catangiu <acatan@amazon.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, imbrenda@linux.ibm.com
 
-- Background and problem
+Having two sets of macros for saving registers on exceptions makes
+maintaining harder. Also we have limited space in the lowcore to save
+stuff and by using the stack as a save area, we can stack exceptions.
 
-The System Generation ID feature is required in virtualized or
-containerized environments by applications that work with local copies
-or caches of world-unique data such as random values, uuids,
-monotonically increasing counters, etc.
-Such applications can be negatively affected by VM or container
-snapshotting when the VM or container is either cloned or returned to
-an earlier point in time.
+So let's use the SAVE/RESTORE_REGS_STACK as the default. When we also
+move the diag308 macro over we can remove the old SAVE/RESTORE_REGS
+macros.
 
-Furthermore, simply finding out about a system generation change is
-only the starting point of a process to renew internal states of
-possibly multiple applications across the system. This process could
-benefit from a driver that provides an interface through which
-orchestration can be easily done.
-
-- Solution
-
-The System Generation ID is a simple concept meant to alleviate the
-issue by providing a monotonically increasing u32 counter that changes
-each time the VM or container is restored from a snapshot.
-
-The `sysgenid` driver exposes a monotonic incremental System Generation
-u32 counter via a char-dev FS interface that provides sync and async
-SysGen counter updates notifications. It also provides SysGen counter
-retrieval and confirmation mechanisms.
-
-The counter starts from zero when the driver is initialized and
-monotonically increments every time the system generation changes.
-
-The `sysgenid` driver exports the `void sysgenid_bump_generation()`
-symbol which can be used by backend drivers to drive system generation
-changes based on hardware events.
-System generation changes can also be driven by userspace software
-through a dedicated driver ioctl.
-
-Userspace applications or libraries can then (a)synchronously consume
-the system generation counter through the provided FS interface to make
-any necessary internal adjustments following a system generation
-update.
-
-Signed-off-by: Adrian Catangiu <acatan@amazon.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- Documentation/misc-devices/sysgenid.rst            | 236 ++++++++++++++++
- Documentation/userspace-api/ioctl/ioctl-number.rst |   1 +
- MAINTAINERS                                        |   8 +
- drivers/misc/Kconfig                               |  16 ++
- drivers/misc/Makefile                              |   1 +
- drivers/misc/sysgenid.c                            | 307 +++++++++++++++++++++
- include/uapi/linux/sysgenid.h                      |  17 ++
- 7 files changed, 586 insertions(+)
- create mode 100644 Documentation/misc-devices/sysgenid.rst
- create mode 100644 drivers/misc/sysgenid.c
- create mode 100644 include/uapi/linux/sysgenid.h
+ lib/s390x/asm-offsets.c   | 14 ++++++++----
+ lib/s390x/asm/arch_def.h  | 29 ++++++++++++++++++-----
+ lib/s390x/asm/interrupt.h |  4 ++--
+ lib/s390x/interrupt.c     | 14 ++++++------
+ s390x/cstart64.S          | 19 +++++++++-------
+ s390x/macros.S            | 48 +++++++++++++++++++++++----------------
+ 6 files changed, 82 insertions(+), 46 deletions(-)
 
-diff --git a/Documentation/misc-devices/sysgenid.rst b/Documentation/misc-devices/sysgenid.rst
-new file mode 100644
-index 0000000..4337ca0
---- /dev/null
-+++ b/Documentation/misc-devices/sysgenid.rst
-@@ -0,0 +1,236 @@
-+.. SPDX-License-Identifier: GPL-2.0
-+
-+========
-+SYSGENID
-+========
-+
-+The System Generation ID feature is required in virtualized or
-+containerized environments by applications that work with local copies
-+or caches of world-unique data such as random values, UUIDs,
-+monotonically increasing counters, etc.
-+Such applications can be negatively affected by VM or container
-+snapshotting when the VM or container is either cloned or returned to
-+an earlier point in time.
-+
-+The System Generation ID is a simple concept meant to alleviate the
-+issue by providing a monotonically increasing counter that changes
-+each time the VM or container is restored from a snapshot.
-+The driver for it lives at ``drivers/misc/sysgenid.c``.
-+
-+The ``sysgenid`` driver exposes a monotonic incremental System
-+Generation u32 counter via a char-dev FS interface accessible through
-+``/dev/sysgenid`` that provides sync and async SysGen counter update
-+notifications. It also provides SysGen counter retrieval and
-+confirmation mechanisms.
-+
-+The counter starts from zero when the driver is initialized and
-+monotonically increments every time the system generation changes.
-+
-+The ``sysgenid`` driver exports the ``void sysgenid_bump_generation()``
-+symbol which can be used by backend drivers to drive system generation
-+changes based on hardware events.
-+System generation changes can also be driven by userspace software
-+through a dedicated driver ioctl.
-+
-+Userspace applications or libraries can (a)synchronously consume the
-+system generation counter through the provided FS interface, to make
-+any necessary internal adjustments following a system generation update.
-+
-+Driver FS interface:
-+
-+``open()``:
-+  When the device is opened, a copy of the current Sys-Gen-Id (counter)
-+  is associated with the open file descriptor. The driver now tracks
-+  this file as an independent *watcher*. The driver tracks how many
-+  watchers are aware of the latest Sys-Gen-Id counter and how many of
-+  them are *outdated*; outdated being those that have lived through
-+  a Sys-Gen-Id change but not yet confirmed the new generation counter.
-+
-+``read()``:
-+  Read is meant to provide the *new* system generation counter when a
-+  generation change takes place. The read operation blocks until the
-+  associated counter is no longer up to date, at which point the new
-+  counter is provided/returned.
-+  Nonblocking ``read()`` uses ``EAGAIN`` to signal that there is no
-+  *new* counter value available. The generation counter is considered
-+  *new* for each open file descriptor that hasn't confirmed the new
-+  value following a generation change. Therefore, once a generation
-+  change takes place, all ``read()`` calls will immediately return the
-+  new generation counter and will continue to do so until the
-+  new value is confirmed back to the driver through ``write()``.
-+  Partial reads are not allowed - read buffer needs to be at least
-+  32 bits in size.
-+
-+``write()``:
-+  Write is used to confirm the up-to-date Sys Gen counter back to the
-+  driver.
-+  Following a VM generation change, all existing watchers are marked
-+  as *outdated*. Each file descriptor will maintain the *outdated*
-+  status until a ``write()`` confirms the up-to-date counter back to
-+  the driver.
-+  Partial writes are not allowed - write buffer should be exactly
-+  32 bits in size.
-+
-+``poll()``:
-+  Poll is implemented to allow polling for generation counter updates.
-+  Such updates result in ``EPOLLIN`` polling status until the new
-+  up-to-date counter is confirmed back to the driver through a
-+  ``write()``.
-+
-+``ioctl()``:
-+  The driver also adds support for waiting on open file descriptors
-+  that haven't acknowledged a generation counter update, as well as a
-+  mechanism for userspace to *force* a generation update:
-+
-+  - SYSGENID_WAIT_WATCHERS: blocks until there are no more *outdated*
-+    watchers, or if a ``timeout`` argument is provided, until the
-+    timeout expires.
-+    If the current caller is *outdated* or a generation change happens
-+    while waiting (thus making current caller *outdated*), the ioctl
-+    returns ``-EINTR`` to signal the user to handle event and retry.
-+  - SYSGENID_FORCE_GEN_UPDATE: forces a generation counter increment.
-+    It takes a ``minimum-generation`` argument which represents the
-+    minimum value the generation counter will be incremented to. For
-+    example if current generation is ``5`` and ``SYSGENID_FORCE_GEN_UPDATE(8)``
-+    is called, the generation counter will increment to ``8``.
-+    This IOCTL can only be used by processes with CAP_CHECKPOINT_RESTORE
-+    or CAP_SYS_ADMIN capabilities.
-+
-+``mmap()``:
-+  The driver supports ``PROT_READ, MAP_SHARED`` mmaps of a single page
-+  in size. The first 4 bytes of the mapped page will contain an
-+  up-to-date u32 copy of the system generation counter.
-+  The mapped memory can be used as a low-latency generation counter
-+  probe mechanism in critical sections - see examples.
-+
-+``close()``:
-+  Removes the file descriptor as a system generation counter *watcher*.
-+
-+Example application workflows
-+-----------------------------
-+
-+1) Watchdog thread simplified example::
-+
-+	void watchdog_thread_handler(int *thread_active)
-+	{
-+		unsigned int genid;
-+		int fd = open("/dev/sysgenid", O_RDWR | O_CLOEXEC, S_IRUSR | S_IWUSR);
-+
-+		do {
-+			// read new gen ID - blocks until VM generation changes
-+			read(fd, &genid, sizeof(genid));
-+
-+			// because of VM generation change, we need to rebuild world
-+			reseed_app_env();
-+
-+			// confirm we're done handling gen ID update
-+			write(fd, &genid, sizeof(genid));
-+		} while (atomic_read(thread_active));
-+
-+		close(fd);
-+	}
-+
-+2) ASYNC simplified example::
-+
-+	void handle_io_on_sysgenfd(int sysgenfd)
-+	{
-+		unsigned int genid;
-+
-+		// read new gen ID - we need it to confirm we've handled update
-+		read(fd, &genid, sizeof(genid));
-+
-+		// because of VM generation change, we need to rebuild world
-+		reseed_app_env();
-+
-+		// confirm we're done handling the gen ID update
-+		write(fd, &genid, sizeof(genid));
-+	}
-+
-+	int main() {
-+		int epfd, sysgenfd;
-+		struct epoll_event ev;
-+
-+		epfd = epoll_create(EPOLL_QUEUE_LEN);
-+
-+		sysgenfd = open("/dev/sysgenid",
-+		               O_RDWR | O_CLOEXEC | O_NONBLOCK,
-+		               S_IRUSR | S_IWUSR);
-+
-+		// register sysgenid for polling
-+		ev.events = EPOLLIN;
-+		ev.data.fd = sysgenfd;
-+		epoll_ctl(epfd, EPOLL_CTL_ADD, sysgenfd, &ev);
-+
-+		// register other parts of your app for polling
-+		// ...
-+
-+		while (1) {
-+			// wait for something to do...
-+			int nfds = epoll_wait(epfd, events,
-+				MAX_EPOLL_EVENTS_PER_RUN,
-+				EPOLL_RUN_TIMEOUT);
-+			if (nfds < 0) die("Error in epoll_wait!");
-+
-+			// for each ready fd
-+			for(int i = 0; i < nfds; i++) {
-+				int fd = events[i].data.fd;
-+
-+				if (fd == sysgenfd)
-+					handle_io_on_sysgenfd(sysgenfd);
-+				else
-+					handle_some_other_part_of_the_app(fd);
-+			}
-+		}
-+
-+		return 0;
-+	}
-+
-+3) Mapped memory polling simplified example::
-+
-+	/*
-+	 * app/library function that provides cached secrets
-+	 */
-+	char * safe_cached_secret(app_data_t *app)
-+	{
-+		char *secret;
-+		volatile unsigned int *const genid_ptr = get_sysgenid_mapping(app);
-+	again:
-+		secret = __cached_secret(app);
-+
-+		if (unlikely(*genid_ptr != app->cached_genid)) {
-+			app->cached_genid = *genid_ptr;
-+			barrier();
-+
-+			// rebuild world then confirm the genid update (thru write)
-+			rebuild_caches(app);
-+
-+			ack_sysgenid_update(app);
-+
-+			goto again;
-+		}
-+
-+		return secret;
-+	}
-+
-+4) Orchestrator simplified example::
-+
-+	/*
-+	 * orchestrator - manages multiple applications and libraries used by
-+	 * a service and tries to make sure all sensitive components gracefully
-+	 * handle VM generation changes.
-+	 * Following function is called on detection of a VM generation change.
-+	 */
-+	int handle_sysgen_update(int sysgen_fd, unsigned int new_gen_id)
-+	{
-+		// pause until all components have handled event
-+		pause_service();
-+
-+		// confirm *this* watcher as up-to-date
-+		write(sysgen_fd, &new_gen_id, sizeof(unsigned int));
-+
-+		// wait for all *others* for at most 5 seconds.
-+		ioctl(sysgen_fd, VMGENID_WAIT_WATCHERS, 5000);
-+
-+		// all applications on the system have rebuilt worlds
-+		resume_service();
-+	}
-diff --git a/Documentation/userspace-api/ioctl/ioctl-number.rst b/Documentation/userspace-api/ioctl/ioctl-number.rst
-index a4c75a2..d74fed4 100644
---- a/Documentation/userspace-api/ioctl/ioctl-number.rst
-+++ b/Documentation/userspace-api/ioctl/ioctl-number.rst
-@@ -356,6 +356,7 @@ Code  Seq#    Include File                                           Comments
- 0xDB  00-0F  drivers/char/mwave/mwavepub.h
- 0xDD  00-3F                                                          ZFCP device driver see drivers/s390/scsi/
-                                                                      <mailto:aherrman@de.ibm.com>
-+0xE4  01-02  uapi/linux/sysgenid.h                                   SysGenID misc driver
- 0xE5  00-3F  linux/fuse.h
- 0xEC  00-01  drivers/platform/chrome/cros_ec_dev.h                   ChromeOS EC driver
- 0xF3  00-3F  drivers/usb/misc/sisusbvga/sisusb.h                     sisfb (in development)
-diff --git a/MAINTAINERS b/MAINTAINERS
-index d3e847f..f1158b0 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -17203,6 +17203,14 @@ L:	linux-mmc@vger.kernel.org
- S:	Maintained
- F:	drivers/mmc/host/sdhci-pci-dwc-mshc.c
+diff --git a/lib/s390x/asm-offsets.c b/lib/s390x/asm-offsets.c
+index a19f14b9..a8942395 100644
+--- a/lib/s390x/asm-offsets.c
++++ b/lib/s390x/asm-offsets.c
+@@ -70,16 +70,22 @@ int main(void)
+ 	OFFSET(GEN_LC_ARS_SA, lowcore, ars_sa);
+ 	OFFSET(GEN_LC_CRS_SA, lowcore, crs_sa);
+ 	OFFSET(GEN_LC_PGM_INT_TDB, lowcore, pgm_int_tdb);
+-	OFFSET(__SF_SIE_CONTROL, stack_frame, empty1[0]);
+-	OFFSET(__SF_SIE_SAVEAREA, stack_frame, empty1[1]);
+-	OFFSET(__SF_SIE_REASON, stack_frame, empty1[2]);
+-	OFFSET(__SF_SIE_FLAGS, stack_frame, empty1[3]);
++	OFFSET(__SF_SIE_CONTROL, stack_frame, argument_area[0]);
++	OFFSET(__SF_SIE_SAVEAREA, stack_frame, argument_area[1]);
++	OFFSET(__SF_SIE_REASON, stack_frame, argument_area[2]);
++	OFFSET(__SF_SIE_FLAGS, stack_frame, argument_area[3]);
+ 	OFFSET(SIE_SAVEAREA_HOST_GRS, vm_save_area, host.grs[0]);
+ 	OFFSET(SIE_SAVEAREA_HOST_FPRS, vm_save_area, host.fprs[0]);
+ 	OFFSET(SIE_SAVEAREA_HOST_FPC, vm_save_area, host.fpc);
+ 	OFFSET(SIE_SAVEAREA_GUEST_GRS, vm_save_area, guest.grs[0]);
+ 	OFFSET(SIE_SAVEAREA_GUEST_FPRS, vm_save_area, guest.fprs[0]);
+ 	OFFSET(SIE_SAVEAREA_GUEST_FPC, vm_save_area, guest.fpc);
++	OFFSET(STACK_FRAME_INT_BACKCHAIN, stack_frame_int, back_chain);
++	OFFSET(STACK_FRAME_INT_FPC, stack_frame_int, fpc);
++	OFFSET(STACK_FRAME_INT_FPRS, stack_frame_int, fprs);
++	OFFSET(STACK_FRAME_INT_CR0, stack_frame_int, cr0);
++	OFFSET(STACK_FRAME_INT_GRS0, stack_frame_int, grs0);
++	OFFSET(STACK_FRAME_INT_GRS1, stack_frame_int, grs1);
  
-+SYSGENID
-+M:	Adrian Catangiu <acatan@amazon.com>
-+L:	linux-kernel@vger.kernel.org
-+S:	Supported
-+F:	Documentation/misc-devices/sysgenid.rst
-+F:	drivers/misc/sysgenid.c
-+F:	include/uapi/linux/sysgenid.h
-+
- SYSTEM CONFIGURATION (SYSCON)
- M:	Lee Jones <lee.jones@linaro.org>
- M:	Arnd Bergmann <arnd@arndb.de>
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index fafa8b0..931d716 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -456,6 +456,22 @@ config PVPANIC
- 	  a paravirtualized device provided by QEMU; it lets a virtual machine
- 	  (guest) communicate panic events to the host.
+ 	return 0;
+ }
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 9c4e330a..eb6a961f 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -8,13 +8,30 @@
+ #ifndef _ASM_S390X_ARCH_DEF_H_
+ #define _ASM_S390X_ARCH_DEF_H_
  
-+config SYSGENID
-+	tristate "System Generation ID driver"
-+	default N
-+	help
-+	  This is a System Generation ID driver which provides a system
-+	  generation counter. The driver exposes FS ops on /dev/sysgenid
-+	  through which it can provide information and notifications on system
-+	  generation changes that happen because of VM or container snapshots
-+	  or cloning.
-+	  This enables applications and libraries that store or cache
-+	  sensitive information, to know that they need to regenerate it
-+	  after process memory has been exposed to potential copying.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called sysgenid.
-+
- config HISI_HIKEY_USB
- 	tristate "USB GPIO Hub on HiSilicon Hikey 960/970 Platform"
- 	depends on (OF && GPIOLIB) || COMPILE_TEST
-diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index d23231e..4b4933d 100644
---- a/drivers/misc/Makefile
-+++ b/drivers/misc/Makefile
-@@ -57,3 +57,4 @@ obj-$(CONFIG_HABANA_AI)		+= habanalabs/
- obj-$(CONFIG_UACCE)		+= uacce/
- obj-$(CONFIG_XILINX_SDFEC)	+= xilinx_sdfec.o
- obj-$(CONFIG_HISI_HIKEY_USB)	+= hisi_hikey_usb.o
-+obj-$(CONFIG_SYSGENID)		+= sysgenid.o
-diff --git a/drivers/misc/sysgenid.c b/drivers/misc/sysgenid.c
-new file mode 100644
-index 0000000..95b3421
---- /dev/null
-+++ b/drivers/misc/sysgenid.c
-@@ -0,0 +1,307 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * System Generation ID driver
-+ *
-+ * Copyright (C) 2020 Amazon. All rights reserved.
-+ *
-+ *	Authors:
-+ *	  Adrian Catangiu <acatan@amazon.com>
-+ *
-+ */
-+#include <linux/acpi.h>
-+#include <linux/kernel.h>
-+#include <linux/minmax.h>
-+#include <linux/miscdevice.h>
-+#include <linux/mm.h>
-+#include <linux/module.h>
-+#include <linux/poll.h>
-+#include <linux/random.h>
-+#include <linux/uuid.h>
-+#include <linux/sysgenid.h>
-+
-+struct sysgenid_data {
-+	unsigned long		map_buf;
-+	wait_queue_head_t	read_waitq;
-+	atomic_t		generation_counter;
-+
-+	unsigned int		watchers;
-+	atomic_t		outdated_watchers;
-+	wait_queue_head_t	outdated_waitq;
-+	spinlock_t		lock;
-+};
-+static struct sysgenid_data sysgenid_data;
-+
-+struct file_data {
-+	unsigned int acked_gen_counter;
+-/*
+- * We currently only specify the stack frame members needed for the
+- * SIE library code.
+- */
+ struct stack_frame {
+-	unsigned long back_chain;
+-	unsigned long empty1[5];
++	struct stack_frame *back_chain;
++	u64 reserved;
++	/* GRs 2 - 5 */
++	unsigned long argument_area[4];
++	/* GRs 6 - 15 */
++	unsigned long grs[10];
++	/* FPRs 0, 2, 4, 6 */
++	s64  fprs[4];
 +};
 +
-+static void sysgenid_uevent(unsigned int gen_counter);
-+
-+static int equals_gen_counter(unsigned int counter)
-+{
-+	return counter == atomic_read(&sysgenid_data.generation_counter);
-+}
-+
-+static void _bump_generation(int min_gen)
-+{
-+	unsigned long flags;
-+	int counter;
-+
-+	spin_lock_irqsave(&sysgenid_data.lock, flags);
-+	counter = max(min_gen, 1 + atomic_read(&sysgenid_data.generation_counter));
-+	atomic_set(&sysgenid_data.generation_counter, counter);
-+	*((int *) sysgenid_data.map_buf) = counter;
-+	atomic_set(&sysgenid_data.outdated_watchers, sysgenid_data.watchers);
-+
-+	wake_up_interruptible(&sysgenid_data.read_waitq);
-+	wake_up_interruptible(&sysgenid_data.outdated_waitq);
-+	spin_unlock_irqrestore(&sysgenid_data.lock, flags);
-+
-+	sysgenid_uevent(counter);
-+}
-+
-+void sysgenid_bump_generation(void)
-+{
-+	_bump_generation(0);
-+}
-+EXPORT_SYMBOL(sysgenid_bump_generation);
-+
-+static void put_outdated_watchers(void)
-+{
-+	if (atomic_dec_and_test(&sysgenid_data.outdated_watchers))
-+		wake_up_interruptible(&sysgenid_data.outdated_waitq);
-+}
-+
-+static int sysgenid_open(struct inode *inode, struct file *file)
-+{
-+	struct file_data *fdata = kzalloc(sizeof(struct file_data), GFP_KERNEL);
-+	unsigned long flags;
-+
-+	if (!fdata)
-+		return -ENOMEM;
-+
-+	spin_lock_irqsave(&sysgenid_data.lock, flags);
-+	fdata->acked_gen_counter = atomic_read(&sysgenid_data.generation_counter);
-+	++sysgenid_data.watchers;
-+	spin_unlock_irqrestore(&sysgenid_data.lock, flags);
-+
-+	file->private_data = fdata;
-+
-+	return 0;
-+}
-+
-+static int sysgenid_close(struct inode *inode, struct file *file)
-+{
-+	struct file_data *fdata = file->private_data;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&sysgenid_data.lock, flags);
-+	if (!equals_gen_counter(fdata->acked_gen_counter))
-+		put_outdated_watchers();
-+	--sysgenid_data.watchers;
-+	spin_unlock_irqrestore(&sysgenid_data.lock, flags);
-+
-+	kfree(fdata);
-+
-+	return 0;
-+}
-+
-+static ssize_t sysgenid_read(struct file *file, char __user *ubuf,
-+							 size_t nbytes, loff_t *ppos)
-+{
-+	struct file_data *fdata = file->private_data;
-+	ssize_t ret;
-+	int gen_counter;
-+
-+	if (nbytes == 0)
-+		return 0;
-+	/* disallow partial reads */
-+	if (nbytes < sizeof(gen_counter))
-+		return -EINVAL;
-+
-+	if (equals_gen_counter(fdata->acked_gen_counter)) {
-+		if (file->f_flags & O_NONBLOCK)
-+			return -EAGAIN;
-+		ret = wait_event_interruptible(
-+			sysgenid_data.read_waitq,
-+			!equals_gen_counter(fdata->acked_gen_counter)
-+		);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	gen_counter = atomic_read(&sysgenid_data.generation_counter);
-+	ret = copy_to_user(ubuf, &gen_counter, sizeof(gen_counter));
-+	if (ret)
-+		return -EFAULT;
-+
-+	return sizeof(gen_counter);
-+}
-+
-+static ssize_t sysgenid_write(struct file *file, const char __user *ubuf,
-+							  size_t count, loff_t *ppos)
-+{
-+	struct file_data *fdata = file->private_data;
-+	unsigned int new_acked_gen;
-+	unsigned long flags;
-+
-+	/* disallow partial writes */
-+	if (count != sizeof(new_acked_gen))
-+		return -EINVAL;
-+	if (copy_from_user(&new_acked_gen, ubuf, count))
-+		return -EFAULT;
-+
-+	spin_lock_irqsave(&sysgenid_data.lock, flags);
-+	/* wrong gen-counter acknowledged */
-+	if (!equals_gen_counter(new_acked_gen)) {
-+		spin_unlock_irqrestore(&sysgenid_data.lock, flags);
-+		return -EINVAL;
-+	}
-+	if (!equals_gen_counter(fdata->acked_gen_counter)) {
-+		fdata->acked_gen_counter = new_acked_gen;
-+		put_outdated_watchers();
-+	}
-+	spin_unlock_irqrestore(&sysgenid_data.lock, flags);
-+
-+	return (ssize_t)count;
-+}
-+
-+static __poll_t sysgenid_poll(struct file *file, poll_table *wait)
-+{
-+	__poll_t mask = 0;
-+	struct file_data *fdata = file->private_data;
-+
-+	if (!equals_gen_counter(fdata->acked_gen_counter))
-+		return EPOLLIN | EPOLLRDNORM;
-+
-+	poll_wait(file, &sysgenid_data.read_waitq, wait);
-+
-+	if (!equals_gen_counter(fdata->acked_gen_counter))
-+		mask = EPOLLIN | EPOLLRDNORM;
-+
-+	return mask;
-+}
-+
-+static long sysgenid_ioctl(struct file *file,
-+						   unsigned int cmd, unsigned long arg)
-+{
-+	struct file_data *fdata = file->private_data;
-+	unsigned long timeout_ns, min_gen;
-+	ktime_t until;
-+	int ret = 0;
-+
-+	switch (cmd) {
-+	case SYSGENID_WAIT_WATCHERS:
-+		timeout_ns = arg * NSEC_PER_MSEC;
-+		until = timeout_ns ? ktime_set(0, timeout_ns) : KTIME_MAX;
-+
-+		ret = wait_event_interruptible_hrtimeout(
-+			sysgenid_data.outdated_waitq,
-+			(!atomic_read(&sysgenid_data.outdated_watchers) ||
-+					!equals_gen_counter(fdata->acked_gen_counter)),
-+			until
-+		);
-+		break;
-+	case SYSGENID_FORCE_GEN_UPDATE:
-+		if (!checkpoint_restore_ns_capable(current_user_ns()))
-+			return -EACCES;
-+		min_gen = arg;
-+		_bump_generation(min_gen);
-+		break;
-+	default:
-+		ret = -EINVAL;
-+		break;
-+	}
-+	return ret;
-+}
-+
-+static int sysgenid_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	struct file_data *fdata = file->private_data;
-+
-+	if (vma->vm_pgoff != 0 || vma_pages(vma) > 1)
-+		return -EINVAL;
-+
-+	if ((vma->vm_flags & VM_WRITE) != 0)
-+		return -EPERM;
-+
-+	vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
-+	vma->vm_flags &= ~VM_MAYWRITE;
-+	vma->vm_private_data = fdata;
-+
-+	return vm_insert_page(vma, vma->vm_start,
-+						  virt_to_page(sysgenid_data.map_buf));
-+}
-+
-+static const struct file_operations fops = {
-+	.owner		= THIS_MODULE,
-+	.mmap		= sysgenid_mmap,
-+	.open		= sysgenid_open,
-+	.release	= sysgenid_close,
-+	.read		= sysgenid_read,
-+	.write		= sysgenid_write,
-+	.poll		= sysgenid_poll,
-+	.unlocked_ioctl	= sysgenid_ioctl,
-+};
-+
-+static struct miscdevice sysgenid_misc = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "sysgenid",
-+	.fops = &fops,
-+};
-+
-+static void sysgenid_uevent(unsigned int gen_counter)
-+{
-+	char event_string[22];
-+	char *envp[] = { event_string, NULL };
-+	struct device *dev = sysgenid_misc.this_device;
-+
-+	if (dev) {
-+		sprintf(event_string, "SYSGENID=%u", gen_counter);
-+		kobject_uevent_env(&dev->kobj, KOBJ_CHANGE, envp);
-+	}
-+}
-+
-+static int __init sysgenid_init(void)
-+{
-+	int ret;
-+
-+	sysgenid_data.map_buf = get_zeroed_page(GFP_KERNEL);
-+	if (!sysgenid_data.map_buf)
-+		return -ENOMEM;
-+
-+	atomic_set(&sysgenid_data.generation_counter, 0);
-+	atomic_set(&sysgenid_data.outdated_watchers, 0);
-+	init_waitqueue_head(&sysgenid_data.read_waitq);
-+	init_waitqueue_head(&sysgenid_data.outdated_waitq);
-+	spin_lock_init(&sysgenid_data.lock);
-+
-+	ret = misc_register(&sysgenid_misc);
-+	if (ret < 0) {
-+		pr_err("misc_register() failed for sysgenid\n");
-+		goto err;
-+	}
-+
-+	return 0;
-+
-+err:
-+	free_pages(sysgenid_data.map_buf, 0);
-+	sysgenid_data.map_buf = 0;
-+
-+	return ret;
-+}
-+
-+static void __exit sysgenid_exit(void)
-+{
-+	misc_deregister(&sysgenid_misc);
-+	free_pages(sysgenid_data.map_buf, 0);
-+	sysgenid_data.map_buf = 0;
-+}
-+
-+module_init(sysgenid_init);
-+module_exit(sysgenid_exit);
-+
-+MODULE_AUTHOR("Adrian Catangiu");
-+MODULE_DESCRIPTION("System Generation ID");
-+MODULE_LICENSE("GPL");
-+MODULE_VERSION("0.1");
-diff --git a/include/uapi/linux/sysgenid.h b/include/uapi/linux/sysgenid.h
-new file mode 100644
-index 0000000..ba370c8
---- /dev/null
-+++ b/include/uapi/linux/sysgenid.h
-@@ -0,0 +1,17 @@
-+/* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
-+
-+#ifndef _UAPI_LINUX_SYSGENID_H
-+#define _UAPI_LINUX_SYSGENID_H
-+
-+#include <linux/ioctl.h>
-+
-+#define SYSGENID_IOCTL			0xE4
-+#define SYSGENID_WAIT_WATCHERS		_IO(SYSGENID_IOCTL, 1)
-+#define SYSGENID_FORCE_GEN_UPDATE	_IO(SYSGENID_IOCTL, 2)
-+
-+#ifdef __KERNEL__
-+void sysgenid_bump_generation(void);
-+#endif /* __KERNEL__ */
-+
-+#endif /* _UAPI_LINUX_SYSGENID_H */
-+
++struct stack_frame_int {
++	struct stack_frame *back_chain;
++	u64 reserved;
++	/*
++	 * The GRs are offset compatible with struct stack_frame so we
++	 * can easily fetch GR14 for backtraces.
++	 */
++	u64 grs0[14];
++	u64 grs1[2];
++	u32 res;
++	u32 fpc;
++	u64 fprs[16];
++	u64 cr0;
+ };
+ 
+ struct psw {
+diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
+index 1a2e2cd8..31e4766d 100644
+--- a/lib/s390x/asm/interrupt.h
++++ b/lib/s390x/asm/interrupt.h
+@@ -14,8 +14,8 @@
+ #define EXT_IRQ_SERVICE_SIG	0x2401
+ 
+ void register_pgm_cleanup_func(void (*f)(void));
+-void handle_pgm_int(void);
+-void handle_ext_int(void);
++void handle_pgm_int(struct stack_frame_int *stack);
++void handle_ext_int(struct stack_frame_int *stack);
+ void handle_mcck_int(void);
+ void handle_io_int(void);
+ void handle_svc_int(void);
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index 1ce36073..94a2cf9c 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -56,7 +56,7 @@ void register_pgm_cleanup_func(void (*f)(void))
+ 	pgm_cleanup_func = f;
+ }
+ 
+-static void fixup_pgm_int(void)
++static void fixup_pgm_int(struct stack_frame_int *stack)
+ {
+ 	/* If we have an error on SIE we directly move to sie_exit */
+ 	if (lc->pgm_old_psw.addr >= (uint64_t)&sie_entry &&
+@@ -76,7 +76,7 @@ static void fixup_pgm_int(void)
+ 		/* Handling for iep.c test case. */
+ 		if (lc->trans_exc_id & 0x80UL && lc->trans_exc_id & 0x04UL &&
+ 		    !(lc->trans_exc_id & 0x08UL))
+-			lc->pgm_old_psw.addr = lc->sw_int_grs[14];
++			lc->pgm_old_psw.addr = stack->grs0[12];
+ 		break;
+ 	case PGM_INT_CODE_SEGMENT_TRANSLATION:
+ 	case PGM_INT_CODE_PAGE_TRANSLATION:
+@@ -115,7 +115,7 @@ static void fixup_pgm_int(void)
+ 	/* suppressed/terminated/completed point already at the next address */
+ }
+ 
+-void handle_pgm_int(void)
++void handle_pgm_int(struct stack_frame_int *stack)
+ {
+ 	if (!pgm_int_expected) {
+ 		/* Force sclp_busy to false, otherwise we will loop forever */
+@@ -130,10 +130,10 @@ void handle_pgm_int(void)
+ 	if (pgm_cleanup_func)
+ 		(*pgm_cleanup_func)();
+ 	else
+-		fixup_pgm_int();
++		fixup_pgm_int(stack);
+ }
+ 
+-void handle_ext_int(void)
++void handle_ext_int(struct stack_frame_int *stack)
+ {
+ 	if (!ext_int_expected &&
+ 	    lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
+@@ -143,13 +143,13 @@ void handle_ext_int(void)
+ 	}
+ 
+ 	if (lc->ext_int_code == EXT_IRQ_SERVICE_SIG) {
+-		lc->sw_int_crs[0] &= ~(1UL << 9);
++		stack->cr0 &= ~(1UL << 9);
+ 		sclp_handle_ext();
+ 	} else {
+ 		ext_int_expected = false;
+ 	}
+ 
+-	if (!(lc->sw_int_crs[0] & CR0_EXTM_MASK))
++	if (!(stack->cr0 & CR0_EXTM_MASK))
+ 		lc->ext_old_psw.mask &= ~PSW_MASK_EXT;
+ }
+ 
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index ace0c0d9..35d20293 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -92,33 +92,36 @@ memsetxc:
+ 
+ .section .text
+ pgm_int:
+-	SAVE_REGS
++	SAVE_REGS_STACK
++	lgr     %r2, %r15
+ 	brasl	%r14, handle_pgm_int
+-	RESTORE_REGS
++	RESTORE_REGS_STACK
+ 	lpswe	GEN_LC_PGM_OLD_PSW
+ 
+ ext_int:
+-	SAVE_REGS
++	SAVE_REGS_STACK
++	lgr     %r2, %r15
+ 	brasl	%r14, handle_ext_int
+-	RESTORE_REGS
++	RESTORE_REGS_STACK
+ 	lpswe	GEN_LC_EXT_OLD_PSW
+ 
+ mcck_int:
+-	SAVE_REGS
++	SAVE_REGS_STACK
+ 	brasl	%r14, handle_mcck_int
+-	RESTORE_REGS
++	RESTORE_REGS_STACK
+ 	lpswe	GEN_LC_MCCK_OLD_PSW
+ 
+ io_int:
+ 	SAVE_REGS_STACK
++	lgr     %r2, %r15
+ 	brasl	%r14, handle_io_int
+ 	RESTORE_REGS_STACK
+ 	lpswe	GEN_LC_IO_OLD_PSW
+ 
+ svc_int:
+-	SAVE_REGS
++	SAVE_REGS_STACK
+ 	brasl	%r14, handle_svc_int
+-	RESTORE_REGS
++	RESTORE_REGS_STACK
+ 	lpswe	GEN_LC_SVC_OLD_PSW
+ 
+ 	.align	8
+diff --git a/s390x/macros.S b/s390x/macros.S
+index e51a557a..1c8a0f7c 100644
+--- a/s390x/macros.S
++++ b/s390x/macros.S
+@@ -3,9 +3,10 @@
+  * s390x assembly macros
+  *
+  * Copyright (c) 2017 Red Hat Inc
+- * Copyright (c) 2020 IBM Corp.
++ * Copyright (c) 2020, 2021 IBM Corp.
+  *
+  * Authors:
++ *  Janosch Frank <frankja@linux.ibm.com>
+  *  Pierre Morel <pmorel@linux.ibm.com>
+  *  David Hildenbrand <david@redhat.com>
+  */
+@@ -41,36 +42,45 @@
+ 
+ /* Save registers on the stack (r15), so we can have stacked interrupts. */
+ 	.macro SAVE_REGS_STACK
+-	/* Allocate a stack frame for 15 general registers */
+-	slgfi   %r15, 15 * 8
++	/* Allocate a full stack frame */
++	slgfi   %r15, 32 * 8 + 4 * 8
+ 	/* Store registers r0 to r14 on the stack */
+-	stmg    %r0, %r14, 0(%r15)
+-	/* Allocate a stack frame for 16 floating point registers */
+-	/* The size of a FP register is the size of an double word */
+-	slgfi   %r15, 16 * 8
++	stmg    %r2, %r15, STACK_FRAME_INT_GRS0(%r15)
++	stg     %r0, STACK_FRAME_INT_GRS1(%r15)
++	stg     %r1, STACK_FRAME_INT_GRS1 + 8(%r15)
++	/* Store the gr15 value before we allocated the new stack */
++	lgr     %r0, %r15
++	algfi   %r0, 32 * 8 + 4 * 8
++	stg     %r0, 13 * 8 + STACK_FRAME_INT_GRS0(%r15)
++	stg     %r0, STACK_FRAME_INT_BACKCHAIN(%r15)
++	/*
++	 * Store CR0 and load initial CR0 so AFP is active and we can
++	 * access all fprs to save them.
++	 */
++	stctg   %c0,%c0,STACK_FRAME_INT_CR0(%r15)
++	larl	%r1, initial_cr0
++	lctlg	%c0, %c0, 0(%r1)
+ 	/* Save fp register on stack: offset to SP is multiple of reg number */
+ 	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+-	std	\i, \i * 8(%r15)
++	std	\i, \i * 8 + STACK_FRAME_INT_FPRS(%r15)
+ 	.endr
+-	/* Save fpc, but keep stack aligned on 64bits */
+-	slgfi   %r15, 8
+-	stfpc	0(%r15)
++	/* Save fpc */
++	stfpc	STACK_FRAME_INT_FPC(%r15)
+ 	.endm
+ 
+ /* Restore the register in reverse order */
+ 	.macro RESTORE_REGS_STACK
+ 	/* Restore fpc */
+-	lfpc	0(%r15)
+-	algfi	%r15, 8
++	lfpc	STACK_FRAME_INT_FPC(%r15)
+ 	/* Restore fp register from stack: SP still where it was left */
+ 	/* and offset to SP is a multiple of reg number */
+ 	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+-	ld	\i, \i * 8(%r15)
++	ld	\i, \i * 8 + STACK_FRAME_INT_FPRS(%r15)
+ 	.endr
+-	/* Now that we're done, rewind the stack pointer by 16 double word */
+-	algfi   %r15, 16 * 8
++	/* Load CR0 back */
++	lctlg	%c0, %c0, STACK_FRAME_INT_CR0(%r15)
+ 	/* Load the registers from stack */
+-	lmg     %r0, %r14, 0(%r15)
+-	/* Rewind the stack by 15 double word */
+-	algfi   %r15, 15 * 8
++	lg      %r0, STACK_FRAME_INT_GRS1(%r15)
++	lg      %r1, STACK_FRAME_INT_GRS1 + 8(%r15)
++	lmg     %r2, %r15, STACK_FRAME_INT_GRS0(%r15)
+ 	.endm
 -- 
-2.7.4
-
-
-
-
-Amazon Development Center (Romania) S.R.L. registered office: 27A Sf. Lazar Street, UBC5, floor 2, Iasi, Iasi County, 700045, Romania. Registered in Romania. Registration number J22/2621/2005.
+2.25.1
