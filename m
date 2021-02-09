@@ -1,85 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6760 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:38830 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234315AbhBDJol (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Feb 2021 04:44:41 -0500
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-Subject: [RFC v2 1/1] PCI: Add s390 specific UID uniqueness attribute
-Date: Thu,  4 Feb 2021 10:43:53 +0100
-Message-Id: <20210204094353.63819-2-schnelle@linux.ibm.com>
-In-Reply-To: <20210204094353.63819-1-schnelle@linux.ibm.com>
-References: <20210204094353.63819-1-schnelle@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S231728AbhBINvf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 08:51:35 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH 8/8] s390x: Remove SAVE/RESTORE_stack
+Date: Tue,  9 Feb 2021 08:49:25 -0500
+Message-Id: <20210209134925.22248-9-frankja@linux.ibm.com>
+In-Reply-To: <20210209134925.22248-1-frankja@linux.ibm.com>
+References: <20210209134925.22248-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Peter Oberparleiter <oberpar@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, imbrenda@linux.ibm.com
 
-The global UID uniqueness attribute exposes whether the platform
-guarantees that the user-defined per-device UID attribute values
-(/sys/bus/pci/device/<dev>/uid) are unique and can thus be used as
-a global identifier for the associated PCI device. With this commit
-it is exposed at /sys/bus/pci/zpci/unique_uids
+There are no more users.
 
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- Documentation/ABI/testing/sysfs-bus-pci |  9 +++++++++
- drivers/pci/pci-sysfs.c                 | 21 +++++++++++++++++++++
- 2 files changed, 30 insertions(+)
+ s390x/macros.S | 29 -----------------------------
+ 1 file changed, 29 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-pci b/Documentation/ABI/testing/sysfs-bus-pci
-index 25c9c39770c6..812dd9d3f80d 100644
---- a/Documentation/ABI/testing/sysfs-bus-pci
-+++ b/Documentation/ABI/testing/sysfs-bus-pci
-@@ -375,3 +375,12 @@ Description:
- 		The value comes from the PCI kernel device state and can be one
- 		of: "unknown", "error", "D0", D1", "D2", "D3hot", "D3cold".
- 		The file is read only.
-+What:		/sys/bus/pci/zpci/unique_uids
-+Date:		February 2021
-+Contact:	Niklas Schnelle <schnelle@linux.ibm.com>
-+Description:
-+		This attribute exposes the global state of UID Uniqueness on an
-+		s390 Linux system. If this file contains '1' the per-device UID
-+		attribute is guaranteed to provide a unique user defined
-+		identifier for that PCI device. If this file contains '0' UIDs
-+		may collide and do not provide a unique identifier.
-diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-index fb072f4b3176..61de66ab59cf 100644
---- a/drivers/pci/pci-sysfs.c
-+++ b/drivers/pci/pci-sysfs.c
-@@ -425,6 +425,24 @@ static ssize_t rescan_store(struct bus_type *bus, const char *buf, size_t count)
- }
- static BUS_ATTR_WO(rescan);
+diff --git a/s390x/macros.S b/s390x/macros.S
+index 1678c821..90a842d9 100644
+--- a/s390x/macros.S
++++ b/s390x/macros.S
+@@ -28,35 +28,6 @@
+ 	lpswe	\old_psw
+ 	.endm
  
-+#if defined(CONFIG_S390)
-+static ssize_t unique_uids_show(struct bus_type *bus, char *buf)
-+{
-+	return sprintf(buf, "%i\n", zpci_unique_uid);
-+}
-+static BUS_ATTR_RO(unique_uids);
-+
-+static struct attribute *zpci_bus_attrs[] = {
-+	&bus_attr_unique_uids.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group zpci_bus_group = {
-+	.name = "zpci",
-+	.attrs = zpci_bus_attrs,
-+};
-+#endif
-+
- static struct attribute *pci_bus_attrs[] = {
- 	&bus_attr_rescan.attr,
- 	NULL,
-@@ -436,6 +454,9 @@ static const struct attribute_group pci_bus_group = {
- 
- const struct attribute_group *pci_bus_groups[] = {
- 	&pci_bus_group,
-+#if defined(CONFIG_S390)
-+	&zpci_bus_group,
-+#endif
- 	NULL,
- };
- 
+-	.macro SAVE_REGS
+-	/* save grs 0-15 */
+-	stmg	%r0, %r15, GEN_LC_SW_INT_GRS
+-	/* save crs 0-15 */
+-	stctg	%c0, %c15, GEN_LC_SW_INT_CRS
+-	/* load a cr0 that has the AFP control bit which enables all FPRs */
+-	larl	%r1, initial_cr0
+-	lctlg	%c0, %c0, 0(%r1)
+-	/* save fprs 0-15 + fpc */
+-	la	%r1, GEN_LC_SW_INT_FPRS
+-	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+-	std	\i, \i * 8(%r1)
+-	.endr
+-	stfpc	GEN_LC_SW_INT_FPC
+-	.endm
+-
+-	.macro RESTORE_REGS
+-	/* restore fprs 0-15 + fpc */
+-	la	%r1, GEN_LC_SW_INT_FPRS
+-	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+-	ld	\i, \i * 8(%r1)
+-	.endr
+-	lfpc	GEN_LC_SW_INT_FPC
+-	/* restore crs 0-15 */
+-	lctlg	%c0, %c15, GEN_LC_SW_INT_CRS
+-	/* restore grs 0-15 */
+-	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
+-	.endm
+-
+ /* Save registers on the stack (r15), so we can have stacked interrupts. */
+ 	.macro SAVE_REGS_STACK
+ 	/* Allocate a full stack frame */
 -- 
-2.17.1
+2.25.1
