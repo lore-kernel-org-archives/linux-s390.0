@@ -1,107 +1,410 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10634 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231842AbhBINvd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 08:51:33 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 5/8] s390x: Provide preliminary backtrace support
-Date: Tue,  9 Feb 2021 08:49:22 -0500
-Message-Id: <20210209134925.22248-6-frankja@linux.ibm.com>
-In-Reply-To: <20210209134925.22248-1-frankja@linux.ibm.com>
-References: <20210209134925.22248-1-frankja@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42388 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231998AbhBIOj0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 09:39:26 -0500
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v1 3/4] s390x: mmu: add support for large pages
+Date: Tue,  9 Feb 2021 15:38:34 +0100
+Message-Id: <20210209143835.1031617-4-imbrenda@linux.ibm.com>
+In-Reply-To: <20210209143835.1031617-1-imbrenda@linux.ibm.com>
+References: <20210209143835.1031617-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, imbrenda@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, frankja@linux.ibm.com, cohuck@redhat.com, pmorel@linux.ibm.com
 
-After the stack changes we can finally use -mbackchain and have a
-working backtrace.
+Add support for 1M and 2G pages.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- lib/s390x/interrupt.c | 12 ++++++++++++
- lib/s390x/stack.c     | 20 ++++++++++++++------
- s390x/Makefile        |  1 +
- 3 files changed, 27 insertions(+), 6 deletions(-)
+ lib/s390x/mmu.h |  73 +++++++++++++-
+ lib/s390x/mmu.c | 246 +++++++++++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 294 insertions(+), 25 deletions(-)
 
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 94a2cf9c..49f98759 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -115,6 +115,18 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
- 	/* suppressed/terminated/completed point already at the next address */
- }
+diff --git a/lib/s390x/mmu.h b/lib/s390x/mmu.h
+index 603f289e..93208467 100644
+--- a/lib/s390x/mmu.h
++++ b/lib/s390x/mmu.h
+@@ -10,9 +10,78 @@
+ #ifndef _ASMS390X_MMU_H_
+ #define _ASMS390X_MMU_H_
  
-+static void print_pgm_info(struct stack_frame_int *stack)
+-void protect_page(void *vaddr, unsigned long prot);
++/*
++ * Splits the pagetables down to the given DAT tables level.
++ * Returns a pointer to the DAT table entry of the given level.
++ * @pgtable root of the page table tree
++ * @vaddr address whose page tables are to split
++ * @level 3 (for 2GB pud), 4 (for 1 MB pmd) or 5 (for 4KB pages)
++ */
++void *split_page(pgd_t *pgtable, void *vaddr, unsigned int level);
 +
++/*
++ * Applies the given protection bits to the given DAT tables level,
++ * splitting if necessary.
++ * @pgtable root of the page table tree
++ * @vaddr address whose protection bits are to be changed
++ * @prot the protection bits to set
++ * @level 3 (for 2GB pud), 4 (for 1MB pmd) or 5 (for 4KB pages)
++ */
++void protect_dat_entry(void *vaddr, unsigned long prot, unsigned int level);
++/*
++ * Clears the given protection bits from the given DAT tables level,
++ * splitting if necessary.
++ * @pgtable root of the page table tree
++ * @vaddr address whose protection bits are to be changed
++ * @prot the protection bits to clear
++ * @level 3 (for 2GB pud), 4 (for 1MB pmd) or 5 (for 4kB pages)
++ */
++void unprotect_dat_entry(void *vaddr, unsigned long prot, unsigned int level);
++
++/*
++ * Applies the given protection bits to the given 4kB pages range,
++ * splitting if necessary.
++ * @start starting address whose protection bits are to be changed
++ * @len size in bytes
++ * @prot the protection bits to set
++ */
+ void protect_range(void *start, unsigned long len, unsigned long prot);
+-void unprotect_page(void *vaddr, unsigned long prot);
++/*
++ * Clears the given protection bits from the given 4kB pages range,
++ * splitting if necessary.
++ * @start starting address whose protection bits are to be changed
++ * @len size in bytes
++ * @prot the protection bits to set
++ */
+ void unprotect_range(void *start, unsigned long len, unsigned long prot);
+ 
++/* Similar to install_page, maps the virtual address to the physical address
++ * for the given page tables, using 1MB large pages.
++ * Returns a pointer to the DAT table entry.
++ * @pgtable root of the page table tree
++ * @phys physical address to map, must be 1MB aligned!
++ * @vaddr virtual address to map, must be 1MB aligned!
++ */
++pmdval_t *install_large_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr);
++
++/* Similar to install_page, maps the virtual address to the physical address
++ * for the given page tables, using 2GB huge pages.
++ * Returns a pointer to the DAT table entry.
++ * @pgtable root of the page table tree
++ * @phys physical address to map, must be 2GB aligned!
++ * @vaddr virtual address to map, must be 2GB aligned!
++ */
++pudval_t *install_huge_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr);
++
++static inline void protect_page(void *vaddr, unsigned long prot)
 +{
-+	printf("\n");
-+	printf("Unexpected program interrupt: %d on cpu %d at %#lx, ilen %d\n",
-+	       lc->pgm_int_code, stap(), lc->pgm_old_psw.addr,
-+	       lc->pgm_int_id);
-+	dump_stack();
-+	report_summary();
-+	abort();
++	protect_dat_entry(vaddr, prot, 5);
 +}
 +
- void handle_pgm_int(struct stack_frame_int *stack)
- {
- 	if (!pgm_int_expected) {
-diff --git a/lib/s390x/stack.c b/lib/s390x/stack.c
-index 0fcd1afb..4cf80dae 100644
---- a/lib/s390x/stack.c
-+++ b/lib/s390x/stack.c
-@@ -3,24 +3,32 @@
-  * s390x stack implementation
-  *
-  * Copyright (c) 2017 Red Hat Inc
-+ * Copyright 2021 IBM Corp
-  *
-  * Authors:
-  *  Thomas Huth <thuth@redhat.com>
-  *  David Hildenbrand <david@redhat.com>
-+ *  Janosch Frank <frankja@de.ibm.com>
-  */
- #include <libcflat.h>
- #include <stack.h>
-+#include <asm/arch_def.h>
- 
- int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
- {
--	printf("TODO: Implement backtrace_frame(%p, %p, %d) function!\n",
--	       frame, return_addrs, max_depth);
--	return 0;
-+	int depth = 0;
-+	struct stack_frame *stack = (struct stack_frame *)frame;
++static inline void unprotect_page(void *vaddr, unsigned long prot)
++{
++	unprotect_dat_entry(vaddr, prot, 5);
++}
++void *get_dat_entry(pgd_t *pgtable, void *vaddr, unsigned int level);
 +
-+	for (depth = 0; stack && depth < max_depth; depth++) {
-+		return_addrs[depth] = (void *)stack->grs[8];
-+		stack = stack->back_chain;
-+	}
-+
-+	return depth;
+ #endif /* _ASMS390X_MMU_H_ */
+diff --git a/lib/s390x/mmu.c b/lib/s390x/mmu.c
+index 5c517366..3b7cd4b1 100644
+--- a/lib/s390x/mmu.c
++++ b/lib/s390x/mmu.c
+@@ -46,54 +46,254 @@ static void mmu_enable(pgd_t *pgtable)
+ 	lc->pgm_new_psw.mask |= PSW_MASK_DAT;
  }
  
- int backtrace(const void **return_addrs, int max_depth)
+-static pteval_t *get_pte(pgd_t *pgtable, uintptr_t vaddr)
++/*
++ * Get the pud (region 3) DAT table entry for the given address and root,
++ * allocating it if necessary
++ */
++static inline pud_t *get_pud(pgd_t *pgtable, uintptr_t vaddr)
  {
--	printf("TODO: Implement backtrace(%p, %d) function!\n",
--	       return_addrs, max_depth);
--	return 0;
-+	return backtrace_frame(__builtin_frame_address(0),
-+			       return_addrs, max_depth);
- }
-diff --git a/s390x/Makefile b/s390x/Makefile
-index f3b0fccf..20bb5683 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -39,6 +39,7 @@ CFLAGS += -ffreestanding
- CFLAGS += -I $(SRCDIR)/lib -I $(SRCDIR)/lib/s390x -I lib
- CFLAGS += -O2
- CFLAGS += -march=zEC12
-+CFLAGS += -mbackchain
- CFLAGS += -fno-delete-null-pointer-checks
- LDFLAGS += -nostdlib -Wl,--build-id=none
+ 	pgd_t *pgd = pgd_offset(pgtable, vaddr);
+ 	p4d_t *p4d = p4d_alloc(pgd, vaddr);
+ 	pud_t *pud = pud_alloc(p4d, vaddr);
+-	pmd_t *pmd = pmd_alloc(pud, vaddr);
++
++	return pud;
++}
++
++/*
++ * Get the pmd (segment) DAT table entry for the given address and pud,
++ * allocating it if necessary.
++ * The pud must not be huge.
++ */
++static inline pmd_t *get_pmd(pud_t *pud, uintptr_t vaddr)
++{
++	pmd_t *pmd;
++
++	assert(!pud_huge(*pud));
++	pmd = pmd_alloc(pud, vaddr);
++	return pmd;
++}
++
++/*
++ * Get the pte (page) DAT table entry for the given address and pmd,
++ * allocating it if necessary.
++ * The pmd must not be large.
++ */
++static inline pte_t *get_pte(pmd_t *pmd, uintptr_t vaddr)
++{
+ 	pte_t *pte = pte_alloc(pmd, vaddr);
  
+-	return &pte_val(*pte);
++	assert(!pmd_large(*pmd));
++	pte = pte_alloc(pmd, vaddr);
++	return pte;
++}
++
++/*
++ * Splits a large pmd (segment) DAT table entry into equivalent 4kB small
++ * pages.
++ * @pmd The pmd to split, it must be large.
++ * @va the virtual address corresponding to this pmd.
++ */
++static void split_pmd(pmd_t *pmd, uintptr_t va)
++{
++	phys_addr_t pa = pmd_val(*pmd) & SEGMENT_ENTRY_SFAA;
++	unsigned long i;
++	pte_t *pte;
++
++	assert(pmd_large(*pmd));
++	pte = alloc_pages(PAGE_TABLE_ORDER);
++	for (i = 0; i < PAGE_TABLE_ENTRIES; i++)
++		pte_val(pte[i]) =  pa | PAGE_SIZE * i;
++	idte_pmdp(va, &pmd_val(*pmd));
++	pmd_val(*pmd) = __pa(pte) | SEGMENT_ENTRY_TT_SEGMENT;
++
++}
++
++/*
++ * Splits a huge pud (region 3) DAT table entry into equivalent 1MB large
++ * pages.
++ * @pud The pud to split, it must be huge.
++ * @va the virtual address corresponding to this pud.
++ */
++static void split_pud(pud_t *pud, uintptr_t va)
++{
++	phys_addr_t pa = pud_val(*pud) & REGION3_ENTRY_RFAA;
++	unsigned long i;
++	pmd_t *pmd;
++
++	assert(pud_huge(*pud));
++	pmd = alloc_pages(SEGMENT_TABLE_ORDER);
++	for (i = 0; i < SEGMENT_TABLE_ENTRIES; i++)
++		pmd_val(pmd[i]) =  pa | SZ_1M * i | SEGMENT_ENTRY_FC | SEGMENT_ENTRY_TT_SEGMENT;
++	idte_pudp(va, &pud_val(*pud));
++	pud_val(*pud) = __pa(pmd) | REGION_ENTRY_TT_REGION3 | REGION_TABLE_LENGTH;
++}
++
++void *get_dat_entry(pgd_t *pgtable, void *vaddr, unsigned int level)
++{
++	uintptr_t va = (uintptr_t)vaddr;
++	pgd_t *pgd;
++	p4d_t *p4d;
++	pud_t *pud;
++	pmd_t *pmd;
++
++	assert(level && (level <= 5));
++	pgd = pgd_offset(pgtable, va);
++	if (level == 1)
++		return pgd;
++	p4d = p4d_alloc(pgd, va);
++	if (level == 2)
++		return p4d;
++	pud = pud_alloc(p4d, va);
++
++	if (level == 3)
++		return pud;
++	if (!pud_none(*pud) && pud_huge(*pud))
++		split_pud(pud, va);
++	pmd = get_pmd(pud, va);
++	if (level == 4)
++		return pmd;
++	if (!pmd_none(*pmd) && pmd_large(*pmd))
++		split_pmd(pmd, va);
++	return get_pte(pmd, va);
++}
++
++void *split_page(pgd_t *pgtable, void *vaddr, unsigned int level)
++{
++	assert((level >= 3) && (level <= 5));
++	return get_dat_entry(pgtable ? pgtable : table_root, vaddr, level);
+ }
+ 
+ phys_addr_t virt_to_pte_phys(pgd_t *pgtable, void *vaddr)
+ {
+-	return (*get_pte(pgtable, (uintptr_t)vaddr) & PAGE_MASK) +
+-	       ((unsigned long)vaddr & ~PAGE_MASK);
++	uintptr_t va = (uintptr_t)vaddr;
++	pud_t *pud;
++	pmd_t *pmd;
++	pte_t *pte;
++
++	pud = get_pud(pgtable, va);
++	if (pud_huge(*pud))
++		return (pud_val(*pud) & REGION3_ENTRY_RFAA) | (va & ~REGION3_ENTRY_RFAA);
++	pmd = get_pmd(pud, va);
++	if (pmd_large(*pmd))
++		return (pmd_val(*pmd) & SEGMENT_ENTRY_SFAA) | (va & ~SEGMENT_ENTRY_SFAA);
++	pte = get_pte(pmd, va);
++	return (pte_val(*pte) & PAGE_MASK) | (va & ~PAGE_MASK);
++}
++
++/*
++ * Get the DAT table entry of the given level for the given address,
++ * splitting if necessary. If the entry was not invalid, invalidate it, and
++ * return the pointer to the entry and, if requested, its old value.
++ * @pgtable root of the page tables
++ * @vaddr virtual address
++ * @level 3 (for 2GB pud), 4 (for 1MB pmd) or 5 (for 4kB pages)
++ * @old if not NULL, will be written with the old value of the DAT table
++ * entry before invalidation
++ */
++static void *dat_get_and_invalidate(pgd_t *pgtable, void *vaddr, unsigned int level, unsigned long *old)
++{
++	unsigned long va = (unsigned long)vaddr;
++	void *ptr;
++
++	ptr = get_dat_entry(pgtable, vaddr, level);
++	if (old)
++		*old = *(unsigned long *)ptr;
++	if ((level == 1) && !pgd_none(*(pgd_t *)ptr))
++		idte_pgdp(va, ptr);
++	else if ((level == 2) && !p4d_none(*(p4d_t *)ptr))
++		idte_p4dp(va, ptr);
++	else if ((level == 3) && !pud_none(*(pud_t *)ptr))
++		idte_pudp(va, ptr);
++	else if ((level == 4) && !pmd_none(*(pmd_t *)ptr))
++		idte_pmdp(va, ptr);
++	else if (!pte_none(*(pte_t *)ptr))
++		ipte(va, ptr);
++	return ptr;
++}
++
++static void cleanup_pmd(pmd_t *pmd)
++{
++	/* was invalid or large, nothing to do */
++	if (pmd_none(*pmd) || pmd_large(*pmd))
++		return;
++	/* was not large, free the corresponding page table */
++	free_pages((void *)(pmd_val(*pmd) & PAGE_MASK));
+ }
+ 
+-static pteval_t *set_pte(pgd_t *pgtable, pteval_t val, void *vaddr)
++static void cleanup_pud(pud_t *pud)
+ {
+-	pteval_t *p_pte = get_pte(pgtable, (uintptr_t)vaddr);
++	unsigned long i;
++	pmd_t *pmd;
+ 
+-	/* first flush the old entry (if we're replacing anything) */
+-	if (!(*p_pte & PAGE_ENTRY_I))
+-		ipte((uintptr_t)vaddr, p_pte);
++	/* was invalid or large, nothing to do */
++	if (pud_none(*pud) || pud_huge(*pud))
++		return;
++	/* recursively clean up all pmds if needed */
++	pmd = (pmd_t *)(pud_val(*pud) & PAGE_MASK);
++	for (i = 0; i < SEGMENT_TABLE_ENTRIES; i++)
++		cleanup_pmd(pmd + i);
++	/* free the corresponding segment table */
++	free_pages(pmd);
++}
++
++/*
++ * Set the DAT entry for the given level of the given virtual address. If a
++ * mapping already existed, it is overwritten. If an existing mapping with
++ * smaller pages existed, all the lower tables are freed.
++ * Returns the pointer to the DAT table entry.
++ * @pgtable root of the page tables
++ * @val the new value for the DAT table entry
++ * @vaddr the virtual address
++ * @level 3 for pud (region 3), 4 for pmd (segment) and 5 for pte (pages)
++ */
++static void *set_dat_entry(pgd_t *pgtable, unsigned long val, void *vaddr, unsigned int level)
++{
++	unsigned long old, *res;
+ 
+-	*p_pte = val;
+-	return p_pte;
++	res = dat_get_and_invalidate(pgtable, vaddr, level, &old);
++	if (level == 4)
++		cleanup_pmd((pmd_t *)&old);
++	if (level == 3)
++		cleanup_pud((pud_t *)&old);
++	*res = val;
++	return res;
+ }
+ 
+ pteval_t *install_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr)
+ {
+-	return set_pte(pgtable, __pa(phys), vaddr);
++	assert(IS_ALIGNED(phys, PAGE_SIZE));
++	assert(IS_ALIGNED((uintptr_t)vaddr, PAGE_SIZE));
++	return set_dat_entry(pgtable, phys, vaddr, 5);
++}
++
++pmdval_t *install_large_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr)
++{
++	assert(IS_ALIGNED(phys, SZ_1M));
++	assert(IS_ALIGNED((uintptr_t)vaddr, SZ_1M));
++	return set_dat_entry(pgtable, phys | SEGMENT_ENTRY_FC, vaddr, 4);
++}
++
++pudval_t *install_huge_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr)
++{
++	assert(IS_ALIGNED(phys, SZ_2G));
++	assert(IS_ALIGNED((uintptr_t)vaddr, SZ_2G));
++	return set_dat_entry(pgtable, phys | REGION3_ENTRY_FC | REGION_ENTRY_TT_REGION3, vaddr, 3);
+ }
+ 
+-void protect_page(void *vaddr, unsigned long prot)
++void protect_dat_entry(void *vaddr, unsigned long prot, unsigned int level)
+ {
+-	pteval_t *p_pte = get_pte(table_root, (uintptr_t)vaddr);
+-	pteval_t n_pte = *p_pte | prot;
++	unsigned long old, *ptr;
+ 
+-	set_pte(table_root, n_pte, vaddr);
++	ptr = dat_get_and_invalidate(table_root, vaddr, level, &old);
++	*ptr = old | prot;
+ }
+ 
+-void unprotect_page(void *vaddr, unsigned long prot)
++void unprotect_dat_entry(void *vaddr, unsigned long prot, unsigned int level)
+ {
+-	pteval_t *p_pte = get_pte(table_root, (uintptr_t)vaddr);
+-	pteval_t n_pte = *p_pte & ~prot;
++	unsigned long old, *ptr;
+ 
+-	set_pte(table_root, n_pte, vaddr);
++	ptr = dat_get_and_invalidate(table_root, vaddr, level, &old);
++	*ptr = old & ~prot;
+ }
+ 
+ void protect_range(void *start, unsigned long len, unsigned long prot)
+@@ -102,7 +302,7 @@ void protect_range(void *start, unsigned long len, unsigned long prot)
+ 
+ 	len &= PAGE_MASK;
+ 	for (; len; len -= PAGE_SIZE, curr += PAGE_SIZE)
+-		protect_page((void *)curr, prot);
++		protect_dat_entry((void *)curr, prot, 5);
+ }
+ 
+ void unprotect_range(void *start, unsigned long len, unsigned long prot)
+@@ -111,7 +311,7 @@ void unprotect_range(void *start, unsigned long len, unsigned long prot)
+ 
+ 	len &= PAGE_MASK;
+ 	for (; len; len -= PAGE_SIZE, curr += PAGE_SIZE)
+-		unprotect_page((void *)curr, prot);
++		unprotect_dat_entry((void *)curr, prot, 5);
+ }
+ 
+ static void setup_identity(pgd_t *pgtable, phys_addr_t start_addr,
 -- 
-2.25.1
+2.26.2
