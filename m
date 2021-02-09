@@ -1,107 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3696 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60746 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232137AbhBIOzL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 09:55:11 -0500
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v1 2/4] s390x: lib: fix and improve pgtable.h
-Date: Tue,  9 Feb 2021 15:38:33 +0100
-Message-Id: <20210209143835.1031617-3-imbrenda@linux.ibm.com>
-In-Reply-To: <20210209143835.1031617-1-imbrenda@linux.ibm.com>
-References: <20210209143835.1031617-1-imbrenda@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S231846AbhBINve (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 08:51:34 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH 6/8] s390x: Print more information on program exceptions
+Date: Tue,  9 Feb 2021 08:49:23 -0500
+Message-Id: <20210209134925.22248-7-frankja@linux.ibm.com>
+In-Reply-To: <20210209134925.22248-1-frankja@linux.ibm.com>
+References: <20210209134925.22248-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, frankja@linux.ibm.com, cohuck@redhat.com, pmorel@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, imbrenda@linux.ibm.com
 
-Fix and improve pgtable.h:
+Currently we only get a single line of output if a test runs in a
+unexpected program exception. Let's also print the general registers
+to give soem more context.
 
-* SEGMENT_ENTRY_SFAA had one extra bit set
-* pmd entries don't have a length
-* ipte does not need to clear the lower bits
-* add macros to check whether a pmd or a pud are large / huge
-* add idte functions for pmd, pud, p4d and pgd
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- lib/s390x/asm/pgtable.h | 38 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 34 insertions(+), 4 deletions(-)
+ lib/s390x/interrupt.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/lib/s390x/asm/pgtable.h b/lib/s390x/asm/pgtable.h
-index 277f3480..4269ab62 100644
---- a/lib/s390x/asm/pgtable.h
-+++ b/lib/s390x/asm/pgtable.h
-@@ -60,7 +60,7 @@
- #define SEGMENT_SHIFT			20
- 
- #define SEGMENT_ENTRY_ORIGIN		0xfffffffffffff800UL
--#define SEGMENT_ENTRY_SFAA		0xfffffffffff80000UL
-+#define SEGMENT_ENTRY_SFAA		0xfffffffffff00000UL
- #define SEGMENT_ENTRY_AV		0x0000000000010000UL
- #define SEGMENT_ENTRY_ACC		0x000000000000f000UL
- #define SEGMENT_ENTRY_F			0x0000000000000800UL
-@@ -100,6 +100,9 @@
- #define pmd_none(entry) (pmd_val(entry) & SEGMENT_ENTRY_I)
- #define pte_none(entry) (pte_val(entry) & PAGE_ENTRY_I)
- 
-+#define pud_huge(entry)  (pud_val(entry) & REGION3_ENTRY_FC)
-+#define pmd_large(entry) (pmd_val(entry) & SEGMENT_ENTRY_FC)
-+
- #define pgd_addr(entry) __va(pgd_val(entry) & REGION_ENTRY_ORIGIN)
- #define p4d_addr(entry) __va(p4d_val(entry) & REGION_ENTRY_ORIGIN)
- #define pud_addr(entry) __va(pud_val(entry) & REGION_ENTRY_ORIGIN)
-@@ -202,21 +205,48 @@ static inline pte_t *pte_alloc(pmd_t *pmd, unsigned long addr)
- {
- 	if (pmd_none(*pmd)) {
- 		pte_t *pte = pte_alloc_one();
--		pmd_val(*pmd) = __pa(pte) | SEGMENT_ENTRY_TT_SEGMENT |
--				SEGMENT_TABLE_LENGTH;
-+		pmd_val(*pmd) = __pa(pte) | SEGMENT_ENTRY_TT_SEGMENT;
- 	}
- 	return pte_offset(pmd, addr);
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index 49f98759..1686551a 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -115,6 +115,21 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
+ 	/* suppressed/terminated/completed point already at the next address */
  }
  
- static inline void ipte(unsigned long vaddr, pteval_t *p_pte)
++static void print_int_regs(struct stack_frame_int *stack)
++{
++	printf("\n");
++	printf("GPRS:\n");
++	printf("%016lx %016lx %016lx %016lx\n",
++	       stack->grs1[0], stack->grs1[1], stack->grs0[0], stack->grs0[1]);
++	printf("%016lx %016lx %016lx %016lx\n",
++	       stack->grs0[2], stack->grs0[3], stack->grs0[4], stack->grs0[5]);
++	printf("%016lx %016lx %016lx %016lx\n",
++	       stack->grs0[6], stack->grs0[7], stack->grs0[8], stack->grs0[9]);
++	printf("%016lx %016lx %016lx %016lx\n",
++	       stack->grs0[10], stack->grs0[11], stack->grs0[12], stack->grs0[13]);
++	printf("\n");
++}
++
+ static void print_pgm_info(struct stack_frame_int *stack)
+ 
  {
--	unsigned long table_origin = (unsigned long)p_pte & PAGE_MASK;
-+	unsigned long table_origin = (unsigned long)p_pte;
- 
- 	asm volatile(
- 		"	ipte %0,%1\n"
- 		: : "a" (table_origin), "a" (vaddr) : "memory");
- }
- 
-+static inline void idte(unsigned long table_origin, unsigned long vaddr)
-+{
-+	vaddr &= SEGMENT_ENTRY_SFAA;
-+	asm volatile(
-+		"	idte %0,0,%1\n"
-+		: : "a" (table_origin), "a" (vaddr) : "memory");
-+}
-+
-+static inline void idte_pmdp(unsigned long vaddr, pmdval_t *pmdp)
-+{
-+	idte((unsigned long)(pmdp - pmd_index(vaddr)) | ASCE_DT_SEGMENT, vaddr);
-+}
-+
-+static inline void idte_pudp(unsigned long vaddr, pudval_t *pudp)
-+{
-+	idte((unsigned long)(pudp - pud_index(vaddr)) | ASCE_DT_REGION3, vaddr);
-+}
-+
-+static inline void idte_p4dp(unsigned long vaddr, p4dval_t *p4dp)
-+{
-+	idte((unsigned long)(p4dp - p4d_index(vaddr)) | ASCE_DT_REGION2, vaddr);
-+}
-+
-+static inline void idte_pgdp(unsigned long vaddr, pgdval_t *pgdp)
-+{
-+	idte((unsigned long)(pgdp - pgd_index(vaddr)) | ASCE_DT_REGION1, vaddr);
-+}
-+
- void configure_dat(int enable);
- 
- #endif /* _ASMS390X_PGTABLE_H_ */
+@@ -122,6 +137,7 @@ static void print_pgm_info(struct stack_frame_int *stack)
+ 	printf("Unexpected program interrupt: %d on cpu %d at %#lx, ilen %d\n",
+ 	       lc->pgm_int_code, stap(), lc->pgm_old_psw.addr,
+ 	       lc->pgm_int_id);
++	print_int_regs(stack);
+ 	dump_stack();
+ 	report_summary();
+ 	abort();
+@@ -132,6 +148,7 @@ void handle_pgm_int(struct stack_frame_int *stack)
+ 	if (!pgm_int_expected) {
+ 		/* Force sclp_busy to false, otherwise we will loop forever */
+ 		sclp_handle_ext();
++		print_pgm_info(stack);
+ 		report_abort("Unexpected program interrupt: %d on cpu %d at %#lx, ilen %d\n",
+ 			     lc->pgm_int_code, stap(), lc->pgm_old_psw.addr,
+ 			     lc->pgm_int_id);
 -- 
-2.26.2
+2.25.1
