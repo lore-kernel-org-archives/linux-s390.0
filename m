@@ -1,104 +1,146 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:51511 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234661AbhBBOfh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Feb 2021 09:35:37 -0500
-Received: by mail-wm1-f72.google.com with SMTP id z25so1564416wml.0
-        for <linux-s390@vger.kernel.org>; Tue, 02 Feb 2021 06:34:09 -0800 (PST)
-Date: Tue, 2 Feb 2021 09:34:00 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 0/2] System Generation ID driver and VMGENID backend
-Message-ID: <20210202093337-mutt-send-email-mst@kernel.org>
-References: <1610453760-13812-1-git-send-email-acatan@amazon.com>
- <20210112074658-mutt-send-email-mst@kernel.org>
- <9952EF0C-CD1D-4EDB-BAB8-21F72C0BF90D@amazon.com>
- <20210127074549-mutt-send-email-mst@kernel.org>
- <7bcd1cf3-d055-db46-95ea-5c023df2f184@amazon.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60430 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232317AbhBIPnu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 10:43:50 -0500
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [PATCH v3 2/2] s390/kvm: VSIE: correctly handle MVPG when in VSIE
+Date: Tue,  9 Feb 2021 16:43:02 +0100
+Message-Id: <20210209154302.1033165-3-imbrenda@linux.ibm.com>
+In-Reply-To: <20210209154302.1033165-1-imbrenda@linux.ibm.com>
+References: <20210209154302.1033165-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7bcd1cf3-d055-db46-95ea-5c023df2f184@amazon.de>
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Alexander Graf <graf@amazon.de>
-Cc: "Catangiu, Adrian Costin" <acatan@amazon.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "arnd@arndb.de" <arnd@arndb.de>, "ebiederm@xmission.com" <ebiederm@xmission.com>, "rppt@kernel.org" <rppt@kernel.org>, "0x7f454c46@gmail.com" <0x7f454c46@gmail.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "Jason@zx2c4.com" <Jason@zx2c4.com>, "jannh@google.com" <jannh@google.com>, "w@1wt.eu" <w@1wt.eu>, "MacCarthaigh, Colm" <colmmacc@amazon.com>, "luto@kernel.org" <luto@kernel.org>, "tytso@mit.edu" <tytso@mit.edu>, "ebiggers@kernel.org" <ebiggers@kernel.org>, "Woodhouse, David" <dwmw@amazon.co.uk>, "bonzini@gnu.org" <bonzini@gnu.org>, "Singh, Balbir" <sblbir@amazon.com>, "Weiss, Radu" <raduweis@amazon.com>, "corbet@lwn.net" <corbet@lwn.net>, "mhocko@kernel.org" <mhocko@kernel.org>, "rafael@kernel.org" <rafael@kernel.org>, "pavel@ucw.cz" <pavel@ucw.cz>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "areber@redhat.com" <areber@redhat.com>, "ovzxemul@gmail.com" <ovzxemul@gmail.com>, "avagin@gmail.com" <avagin@gmail.com>, "ptikhomirov@virtuozzo.com" <ptikhomirov@virtuozzo.com>, "gil@azul.com" <gil@azul.com>, "asmehra@redhat.com" <asmehra@redhat.com>, "dgunigun@redhat.com" <dgunigun@redhat.com>, "vijaysun@ca.ibm.com" <vijaysun@ca.ibm.com>, "oridgar@gmail.com" <oridgar@gmail.com>, "ghammer@redhat.com" <ghammer@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
 
-On Thu, Jan 28, 2021 at 01:58:12PM +0100, Alexander Graf wrote:
-> Hey Michael!
-> 
-> On 27.01.21 13:47, Michael S. Tsirkin wrote:
-> > 
-> > On Thu, Jan 21, 2021 at 10:28:16AM +0000, Catangiu, Adrian Costin wrote:
-> > > On 12/01/2021, 14:49, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > 
-> > >      On Tue, Jan 12, 2021 at 02:15:58PM +0200, Adrian Catangiu wrote:
-> > >      > The first patch in the set implements a device driver which exposes a
-> > >      > read-only device /dev/sysgenid to userspace, which contains a
-> > >      > monotonically increasing u32 generation counter. Libraries and
-> > >      > applications are expected to open() the device, and then call read()
-> > >      > which blocks until the SysGenId changes. Following an update, read()
-> > >      > calls no longer block until the application acknowledges the new
-> > >      > SysGenId by write()ing it back to the device. Non-blocking read() calls
-> > >      > return EAGAIN when there is no new SysGenId available. Alternatively,
-> > >      > libraries can mmap() the device to get a single shared page which
-> > >      > contains the latest SysGenId at offset 0.
-> > > 
-> > >      Looking at some specifications, the gen ID might actually be located
-> > >      at an arbitrary address. How about instead of hard-coding the offset,
-> > >      we expose it e.g. in sysfs?
-> > > 
-> > > The functionality is split between SysGenID which exposes an internal u32
-> > > counter to userspace, and an (optional) VmGenID backend which drives
-> > > SysGenID generation changes based on hw vmgenid updates.
-> > > 
-> > > The hw UUID you're referring to (vmgenid) is not mmap-ed to userspace or
-> > > otherwise exposed to userspace. It is only used internally by the vmgenid
-> > > driver to find out about VM generation changes and drive the more generic
-> > > SysGenID.
-> > > 
-> > > The SysGenID u32 monotonic increasing counter is the one that is mmaped to
-> > > userspace, but it is a software counter. I don't see any value in using a dynamic
-> > > offset in the mmaped page. Offset 0 is fast and easy and most importantly it is
-> > > static so no need to dynamically calculate or find it at runtime.
-> > 
-> > Well you are burning a whole page on it, using an offset the page
-> > can be shared with other functionality.
-> 
-> Currently, the SysGenID lives is one page owned by Linux that we share out
-> to multiple user space clients. So yes, we burn a single page of the system
-> here.
-> 
-> If we put more data in that same page, what data would you put there? Random
-> other bits from other subsystems? At that point, we'd be reinventing vdso
-> all over again, no? Probably with the same problems.
-> 
-> Which gets me to the second alternative: Reuse VDSO. The problem there is
-> that the VDSO is an extremely architecture specific mechanism. Any new
-> architecture we'd want to support would need multiple layers of changes in
-> multiple layers of both kernel and libc. I'd like to avoid that if we can
-> :).
-> 
-> So that leaves us with either wasting a page per system or not having an
-> mmap() interface in the first place.
-> 
-> The reason we have the mmap() interface is that it's be easier to consume
-> for libraries, that are not hooked into the main event loop.
-> 
-> So, uh, what are you suggesting? :)
+Correctly handle the MVPG instruction when issued by a VSIE guest.
 
-I'd drop mmap at this point. I haven't seen a way to use it
-that isn't racy.
+Fixes: a3508fbe9dc6d ("KVM: s390: vsie: initial support for nested virtualization")
+Cc: stable@vger.kernel.org
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/kvm/vsie.c | 93 +++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 88 insertions(+), 5 deletions(-)
 
-> 
-> Alex
-> 
-> 
-> 
-> Amazon Development Center Germany GmbH
-> Krausenstr. 38
-> 10117 Berlin
-> Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
-> Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
-> Sitz: Berlin
-> Ust-ID: DE 289 237 879
-> 
-> 
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 7db022141db3..7dbb0d93c25f 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -416,11 +416,6 @@ static void unshadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		memcpy((void *)((u64)scb_o + 0xc0),
+ 		       (void *)((u64)scb_s + 0xc0), 0xf0 - 0xc0);
+ 		break;
+-	case ICPT_PARTEXEC:
+-		/* MVPG only */
+-		memcpy((void *)((u64)scb_o + 0xc0),
+-		       (void *)((u64)scb_s + 0xc0), 0xd0 - 0xc0);
+-		break;
+ 	}
+ 
+ 	if (scb_s->ihcpu != 0xffffU)
+@@ -982,6 +977,90 @@ static int handle_stfle(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	return 0;
+ }
+ 
++static u64 vsie_get_register(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, u8 reg)
++{
++	reg &= 0xf;
++	switch (reg) {
++	case 15:
++		return vsie_page->scb_s.gg15;
++	case 14:
++		return vsie_page->scb_s.gg14;
++	default:
++		return vcpu->run->s.regs.gprs[reg];
++	}
++}
++
++static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
++{
++	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
++	unsigned long pei_dest, pei_src, src, dest, mask = PAGE_MASK;
++	u64 *pei_block = &vsie_page->scb_o->mcic;
++	int edat, rc_dest, rc_src;
++	union ctlreg0 cr0;
++
++	cr0.val = vcpu->arch.sie_block->gcr[0];
++	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
++	if (psw_bits(scb_s->gpsw).eaba == PSW_BITS_AMODE_24BIT)
++		mask = 0xfff000;
++	else if (psw_bits(scb_s->gpsw).eaba == PSW_BITS_AMODE_31BIT)
++		mask = 0x7ffff000;
++
++	dest = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16) & mask;
++	src = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20) & mask;
++
++	rc_dest = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, dest, &pei_dest);
++	rc_src = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, src, &pei_src);
++	/*
++	 * Either everything went well, or something non-critical went wrong
++	 * e.g. beause of a race. In either case, simply retry.
++	 */
++	if (rc_dest == -EAGAIN || rc_src == -EAGAIN || (!rc_dest && !rc_src)) {
++		retry_vsie_icpt(vsie_page);
++		return -EAGAIN;
++	}
++	/* Something more serious went wrong, propagate the error */
++	if (rc_dest < 0)
++		return rc_dest;
++	if (rc_src < 0)
++		return rc_src;
++
++	/* The only possible suppressing exception: just deliver it */
++	if (rc_dest == PGM_TRANSLATION_SPEC || rc_src == PGM_TRANSLATION_SPEC) {
++		clear_vsie_icpt(vsie_page);
++		rc_dest = kvm_s390_inject_program_int(vcpu, PGM_TRANSLATION_SPEC);
++		WARN_ON_ONCE(rc_dest);
++		return 1;
++	}
++
++	/*
++	 * Forward the PEI intercept to the guest if it was a page fault, or
++	 * also for segment and region table faults if EDAT applies.
++	 */
++	if (edat) {
++		rc_dest = rc_dest == PGM_ASCE_TYPE ? rc_dest : 0;
++		rc_src = rc_src == PGM_ASCE_TYPE ? rc_src : 0;
++	} else {
++		rc_dest = rc_dest != PGM_PAGE_TRANSLATION ? rc_dest : 0;
++		rc_src = rc_src != PGM_PAGE_TRANSLATION ? rc_src : 0;
++	}
++	if (!rc_dest && !rc_src) {
++		pei_block[0] = pei_dest;
++		pei_block[1] = pei_src;
++		return 1;
++	}
++
++	retry_vsie_icpt(vsie_page);
++
++	/*
++	 * The host has edat, and the guest does not, or it was an ASCE type
++	 * exception. The host needs to inject the appropriate DAT interrupts
++	 * into the guest.
++	 */
++	if (rc_dest)
++		return inject_fault(vcpu, rc_dest, dest, 1);
++	return inject_fault(vcpu, rc_src, src, 0);
++}
++
+ /*
+  * Run the vsie on a shadow scb and a shadow gmap, without any further
+  * sanity checks, handling SIE faults.
+@@ -1068,6 +1147,10 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		if ((scb_s->ipa & 0xf000) != 0xf000)
+ 			scb_s->ipa += 0x1000;
+ 		break;
++	case ICPT_PARTEXEC:
++		if (scb_s->ipa == 0xb254)
++			rc = vsie_handle_mvpg(vcpu, vsie_page);
++		break;
+ 	}
+ 	return rc;
+ }
+-- 
+2.26.2
