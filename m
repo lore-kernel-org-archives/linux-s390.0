@@ -1,37 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:60779 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230168AbhBBF6i (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Feb 2021 00:58:38 -0500
-From: Yang Li <yang.lee@linux.alibaba.com>
-Subject: [PATCH] s390/cpum_cf: remove unneeded semicolon
-Date: Tue,  2 Feb 2021 13:57:51 +0800
-Message-Id: <1612245471-122049-1-git-send-email-yang.lee@linux.alibaba.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30438 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232073AbhBIOjX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 09:39:23 -0500
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v1 0/4] s390: Add support for large pages
+Date: Tue,  9 Feb 2021 15:38:31 +0100
+Message-Id: <20210209143835.1031617-1-imbrenda@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: hca@linux.ibm.com
-Cc: gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Yang Li <yang.lee@linux.alibaba.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, frankja@linux.ibm.com, cohuck@redhat.com, pmorel@linux.ibm.com
 
-Eliminate the following coccicheck warning:
-./arch/s390/kernel/perf_cpum_cf.c:272:2-3: Unneeded semicolon
+Introduce support for large (1M) and huge (2G) pages.
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
----
- arch/s390/kernel/perf_cpum_cf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Add a simple testcase for EDAT1 and EDAT2.
 
-diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
-index 0eb1d1c..b3beef6 100644
---- a/arch/s390/kernel/perf_cpum_cf.c
-+++ b/arch/s390/kernel/perf_cpum_cf.c
-@@ -269,7 +269,7 @@ static int __hw_perf_event_init(struct perf_event *event, unsigned int type)
- 	case CPUMF_CTR_SET_MAX:
- 		/* The counter could not be associated to a counter set */
- 		return -EINVAL;
--	};
-+	}
- 
- 	/* Initialize for using the CPU-measurement counter facility */
- 	if (!atomic_inc_not_zero(&num_events)) {
+Claudio Imbrenda (4):
+  libcflat: add SZ_1M and SZ_2G
+  s390x: lib: fix and improve pgtable.h
+  s390x: mmu: add support for large pages
+  s390x: edat test
+
+ s390x/Makefile          |   1 +
+ lib/s390x/asm/pgtable.h |  38 ++++++-
+ lib/libcflat.h          |   2 +
+ lib/s390x/mmu.h         |  73 +++++++++++-
+ lib/s390x/mmu.c         | 246 ++++++++++++++++++++++++++++++++++++----
+ s390x/edat.c            | 238 ++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg     |   3 +
+ 7 files changed, 572 insertions(+), 29 deletions(-)
+ create mode 100644 s390x/edat.c
+
 -- 
-1.8.3.1
+2.26.2
