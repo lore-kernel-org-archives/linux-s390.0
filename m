@@ -1,55 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:59124 "EHLO
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:39670 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234618AbhBBOe3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Feb 2021 09:34:29 -0500
-Received: by mail-wm1-f71.google.com with SMTP id j204so1528964wmj.4
-        for <linux-s390@vger.kernel.org>; Tue, 02 Feb 2021 06:33:00 -0800 (PST)
-Date: Tue, 2 Feb 2021 09:32:50 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 1/2] drivers/misc: sysgenid: add system generation id
- driver
-Message-ID: <20210202092418-mutt-send-email-mst@kernel.org>
-References: <1610453760-13812-1-git-send-email-acatan@amazon.com>
- <1610453760-13812-2-git-send-email-acatan@amazon.com>
- <20210127221505.GB24799@amd>
+        by vger.kernel.org with ESMTP id S231614AbhBIOWo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 09:22:44 -0500
+Subject: Re: [kvm-unit-tests PATCH] s390x: Workaround smp stop and store
+ status race
+References: <20210209141554.22554-1-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <10fd2ab0-3a36-7739-8644-e6e6ad3607f5@redhat.com>
+Date: Tue, 9 Feb 2021 15:21:06 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210127221505.GB24799@amd>
+In-Reply-To: <20210209141554.22554-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Adrian Catangiu <acatan@amazon.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, gregkh@linuxfoundation.org, graf@amazon.com, arnd@arndb.de, ebiederm@xmission.com, rppt@kernel.org, 0x7f454c46@gmail.com, borntraeger@de.ibm.com, Jason@zx2c4.com, jannh@google.com, w@1wt.eu, colmmacc@amazon.com, luto@kernel.org, tytso@mit.edu, ebiggers@kernel.org, dwmw@amazon.co.uk, bonzini@gnu.org, sblbir@amazon.com, raduweis@amazon.com, corbet@lwn.net, mhocko@kernel.org, rafael@kernel.org, mpe@ellerman.id.au, areber@redhat.com, ovzxemul@gmail.com, avagin@gmail.com, ptikhomirov@virtuozzo.com, gil@azul.com, asmehra@redhat.com, dgunigun@redhat.com, vijaysun@ca.ibm.com, oridgar@gmail.com, ghammer@redhat.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, imbrenda@linux.ibm.com
 
-On Wed, Jan 27, 2021 at 11:15:05PM +0100, Pavel Machek wrote:
-> Hi!
+On 09/02/2021 15.15, Janosch Frank wrote:
+> KVM and QEMU handle a SIGP stop and store status in two steps:
+> 1) Stop the CPU by injecting a stop request
+> 2) Store when the CPU has left SIE because of the stop request
 > 
-> > - Solution
-> > 
-> > The System Generation ID is a simple concept meant to alleviate the
-> > issue by providing a monotonically increasing u32 counter that changes
-> > each time the VM or container is restored from a snapshot.
+> The problem is that the SIGP order is already considered completed by
+> KVM/QEMU when step 1 has been performed and not once both have
+> completed. In addition we currently don't implement the busy CC so a
+> kernel has no way of knowing that the store has finished other than
+> checking the location for the store.
 > 
-> I'd make it u64.
+> This workaround is based on the fact that for a new SIE entry (via the
+> added smp restart) a stop with the store status has to be finished
+> first.
 > 
-> But as people explained, this has race problems that may be impossible
-> to solve?
+> Correct handling of this in KVM/QEMU will need some thought and time.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>   s390x/smp.c | 5 ++++-
+>   1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/s390x/smp.c b/s390x/smp.c
+> index b0ece491..32f284a2 100644
+> --- a/s390x/smp.c
+> +++ b/s390x/smp.c
+> @@ -102,12 +102,15 @@ static void test_stop_store_status(void)
+>   	lc->grs_sa[15] = 0;
+>   	smp_cpu_stop_store_status(1);
+>   	mb();
+> +	report(smp_cpu_stopped(1), "cpu stopped");
+> +	/* For the cpu to be started it should have finished storing */
+> +	smp_cpu_restart(1);
+>   	report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
+>   	report(lc->grs_sa[15], "stack");
+> -	report(smp_cpu_stopped(1), "cpu stopped");
+>   	report_prefix_pop();
+>   
+>   	report_prefix_push("stopped");
+> +	smp_cpu_stop(1);
+>   	lc->prefix_sa = 0;
+>   	lc->grs_sa[15] = 0;
+>   	smp_cpu_stop_store_status(1);
 
-Well the read/write interface could be used in a safe way thinkably:
+Thanks, this fixes the flaky test for me!
 
-- application checks VM gen id
-- application sends a transaction e.g. to  database
-- application re-checks VM gen id
-- if id changed, application checks the database for duplicate
-  transactions
-
-not sure how can the mmap interface be used safely.
-Drop it for now?
-
-
-
-> Best regards,
-> 								Pavel
-> 								
-> -- 
-> http://www.livejournal.com/~pavelmachek
+Tested-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
