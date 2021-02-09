@@ -2,101 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0E8DC433DB
-	for <linux-s390@archiver.kernel.org>; Tue,  9 Feb 2021 16:57:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8240C433E0
+	for <linux-s390@archiver.kernel.org>; Tue,  9 Feb 2021 20:05:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 741A360230
-	for <linux-s390@archiver.kernel.org>; Tue,  9 Feb 2021 16:57:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C2CC64EC6
+	for <linux-s390@archiver.kernel.org>; Tue,  9 Feb 2021 20:05:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233142AbhBIQ5c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 9 Feb 2021 11:57:32 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:51780 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232654AbhBIQ5b (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 11:57:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1612889764;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PlOUIPdRPfOjmjs0OqT5a1Gq5CFIq35tLD8k3rj0JsE=;
-        b=JkPlmgyXZ1Ru8aSs7fsb0v54CW6YpkXvt2lCVcKL0yR4ZQ+Lec0jnLqZEnJhSJIB1rqjFp
-        SeqLqcguFYG5IsVz0TejTXRurDdumma4hpwnlHygWTZOe3d8rBpIxymy5q8DcY+4mhqn6o
-        8g0i4QfA2+GeV7d/U8wJ7d4exfmNbtI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-27-2YGAvjs9PvOSF6-tEwwPxA-1; Tue, 09 Feb 2021 11:56:02 -0500
-X-MC-Unique: 2YGAvjs9PvOSF6-tEwwPxA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 855EC80D68B;
-        Tue,  9 Feb 2021 16:55:35 +0000 (UTC)
-Received: from [10.36.113.141] (ovpn-113-141.ams2.redhat.com [10.36.113.141])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6C17C60C04;
-        Tue,  9 Feb 2021 16:55:34 +0000 (UTC)
-Subject: Re: [kvm-unit-tests PATCH] Fix the length in the stsi check for the
- VM name
-To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org,
-        Janosch Frank <frankja@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
-References: <20210209155705.67601-1-thuth@redhat.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat GmbH
-Message-ID: <0907d0fe-def2-be6f-e375-774a70f419fb@redhat.com>
-Date:   Tue, 9 Feb 2021 17:55:33 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+        id S233734AbhBIUEW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 9 Feb 2021 15:04:22 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24724 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S233450AbhBITve (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 14:51:34 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 119JXGqO091331;
+        Tue, 9 Feb 2021 14:49:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=1gsPEt1/kDSSNflaImtKJVxcfOurcbBEdIG2t/N6F+8=;
+ b=mo+TQXicVlL/ceoR6QmzmGuRiUkrHwCF1KsxgqYAJQWrKD+UkaBvCChXGlipYOdUFzAh
+ 8qkjbA2CftXI3LIIEvrwHmnLOrvMqWq+YarhtAiOYg0KccnnQFp7YRUB+UPJF7f57qlP
+ EkNi+zmDwkCJs6eeSxf3QxcFGu37CAwHs+lVfCAzUy75jzczXTJNTd7tx5TDKqNlj7q9
+ QXqUMcfnDb3LjFcvRu/3v6qJenNgZNWTkVyja1ed9raALR4QHow8UeQVBo9DoEvzpfaz
+ cHhqRBhSBz9PNqbjgCRNdy9U/bUr9F8A4bpohK1sjXG6++3PxRNVVuea0C3zKMWCuNlj sA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36kyx7t8na-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 09 Feb 2021 14:49:01 -0500
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 119JXKuf091898;
+        Tue, 9 Feb 2021 14:49:00 -0500
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36kyx7t8n6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 09 Feb 2021 14:49:00 -0500
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 119Jgdpc003984;
+        Tue, 9 Feb 2021 19:49:00 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma01dal.us.ibm.com with ESMTP id 36hjr9f50u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 09 Feb 2021 19:49:00 +0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 119JmxOf42729850
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 9 Feb 2021 19:48:59 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2E4C6B2065;
+        Tue,  9 Feb 2021 19:48:59 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8E612B205F;
+        Tue,  9 Feb 2021 19:48:58 +0000 (GMT)
+Received: from cpe-66-24-58-13.stny.res.rr.com.com (unknown [9.85.203.235])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue,  9 Feb 2021 19:48:58 +0000 (GMT)
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     stable@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com,
+        kwankhede@nvidia.com, pbonzini@redhat.com,
+        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com,
+        Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH 0/1] fix circular lockdep when staring SE guest
+Date:   Tue,  9 Feb 2021 14:48:29 -0500
+Message-Id: <20210209194830.20271-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.21.1
 MIME-Version: 1.0
-In-Reply-To: <20210209155705.67601-1-thuth@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-09_06:2021-02-09,2021-02-09 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 malwarescore=0 suspectscore=0 spamscore=0 clxscore=1011
+ bulkscore=0 mlxlogscore=999 lowpriorityscore=0 adultscore=0 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102090094
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 09.02.21 16:57, Thomas Huth wrote:
-> sizeof(somepointer) results in the size of the pointer, i.e. 8 on a
-> 64-bit system, so the
-> 
->   memcmp(data->ext_names[0], vm_name_ext, sizeof(vm_name_ext))
-> 
-> only compared the first 8 characters of the VM name here. Switch
-> to a proper array to get the sizeof() right.
-> 
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->   s390x/stsi.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/s390x/stsi.c b/s390x/stsi.c
-> index 4109b8d..87d4804 100644
-> --- a/s390x/stsi.c
-> +++ b/s390x/stsi.c
-> @@ -106,7 +106,7 @@ static void test_3_2_2(void)
->   				 0x00, 0x03 };
->   	/* EBCDIC for "KVM/" */
->   	const uint8_t cpi_kvm[] = { 0xd2, 0xe5, 0xd4, 0x61 };
-> -	const char *vm_name_ext = "kvm-unit-test";
-> +	const char vm_name_ext[] = "kvm-unit-test";
->   	struct stsi_322 *data = (void *)pagebuf;
->   
->   	report_prefix_push("3.2.2");
-> 
+Patch f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM
+pointer invalidated") introduced a change that results in a circular
+locking dependency when a Secure Execution guest that is configured with
+crypto devices is started. The problem resulted due to the fact that the
+patch moved the setting of the guest's AP masks within the protection of
+the matrix_dev->lock when the vfio_ap driver is notified that the KVM 
+pointer has been set. Since it is not critical that setting/clearing of
+the guest's AP masks when the driver is notified, the masks will not be
+updated under the matrix_dev->lock. The lock is necessary for the
+setting/unsetting of the KVM pointer, however, so that will remain in
+place. 
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+The dependency chain for the circular lockdep resolved by this patch 
+is:
+
+#2	vfio_ap_mdev_group_notifier:	kvm->lock
+					matrix_dev->lock
+
+#1:	handle_pqap:			matrix_dev->lock
+	kvm_vcpu_ioctl:			vcpu->mutex
+
+#0:	kvm_s390_cpus_to_pv:		vcpu->mutex
+	kvm_vm_ioctl:  			kvm->lock   
+
+Tony Krowiak (1):
+  s390/vfio-ap: fix circular lockdep when setting/clearing crypto masks
+
+ drivers/s390/crypto/vfio_ap_ops.c | 75 ++++++++++++++++++-------------
+ 1 file changed, 45 insertions(+), 30 deletions(-)
 
 -- 
-Thanks,
-
-David / dhildenb
+2.21.1
 
