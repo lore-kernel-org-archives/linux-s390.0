@@ -2,146 +2,198 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 738C5C433DB
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Feb 2021 13:21:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2513CC433DB
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Feb 2021 13:21:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 39F7864D92
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Feb 2021 13:21:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E00BA64DE7
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Feb 2021 13:21:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230499AbhBJNVl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 Feb 2021 08:21:41 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19696 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231569AbhBJNVN (ORCPT
+        id S231511AbhBJNVm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 Feb 2021 08:21:42 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31644 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231868AbhBJNVN (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
         Wed, 10 Feb 2021 08:21:13 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11AD3mbY036043;
-        Wed, 10 Feb 2021 08:20:21 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11AD64Xa091553;
+        Wed, 10 Feb 2021 08:20:23 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id; s=pp1;
- bh=mYikVEhh903OGim8+L+O1oJur66x4sXVBL9fgpSjVyE=;
- b=j9WB20GbqQ48KOzLeRD0SRf7F4HlgQCWFqESCh95hzc7QkgPn2Uwb/hI/mjFpwBIRbi9
- 8dXIhYdcAfdHmQWaQg2veLXFv1Za/6nf+soXfEHBcWmw1aTE5w8E6Tj8dwSpQPkYzbGN
- GMpIWOPGvg4wRz20zVP3GtfEiMTnEr0xkUzTB4bc9AZAZUfx0+oRsgHfAcZh+6oOVwa3
- hGkcAHnE/98+o6mLQsVsH/WCPswKf8U2tbitNvo972yRHZPAOCqsV0Kubyy7cIcL91I0
- TcdH47xnEofEPPr5sd1mEaG3poNFUP5mjKeHFmXzYr4330jIBfVSAGKQDbA4y36n4jul 6g== 
+ : date : message-id : in-reply-to : references; s=pp1;
+ bh=HbEBOZqdv9etvu0vZuKmz+75jYENVs/tQaaUC9wfzPI=;
+ b=f2RBu4WR8XptbuwiTjUJypKWnh7P1zrqfFNW8xYn+0IkV3Q60w2cV6WsRomjlQ9JkRk/
+ TQd746zh7SySuFAOsXbZgMOpYpkFtpsymUjoC3XoFeZQWzrbRAA0nUc8GVyW7AyFs9nu
+ G84cGLxZD3bewlO2YLpzmUJ/nF8zcQ+2cwkfvUvZjrPItCQD+ngn+Tw7cPR3lcPa0kL0
+ G6E+jP/X+mu90rok1LOEh+6G4zXKYyhn+MJZjczACZLmzyQasKjYtqucN0a5aLyXORA3
+ 1MyK0HPeFGo4Fb8AQ6nWbpaFR+5ckNtKwleQ/H50qdhmxEgoJB+d+hovvoL9VsWkShhh 8Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36mfejsqm2-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36mfuv8thw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Feb 2021 08:20:21 -0500
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11AD46LM037712;
-        Wed, 10 Feb 2021 08:20:20 -0500
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36mfejsqk0-1
+        Wed, 10 Feb 2021 08:20:22 -0500
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11ADKMue173326;
+        Wed, 10 Feb 2021 08:20:22 -0500
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36mfuv8tgw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Feb 2021 08:20:20 -0500
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11ADH7MU012089;
-        Wed, 10 Feb 2021 13:20:18 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 36j94wm1uu-1
+        Wed, 10 Feb 2021 08:20:22 -0500
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11ADGcHM025825;
+        Wed, 10 Feb 2021 13:20:20 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 36m1m2ry2x-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Feb 2021 13:20:18 +0000
+        Wed, 10 Feb 2021 13:20:20 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11ADKF5n52560354
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11ADK7lj21758282
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 10 Feb 2021 13:20:15 GMT
+        Wed, 10 Feb 2021 13:20:07 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 90E054C04E;
-        Wed, 10 Feb 2021 13:20:15 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id A087B4C044;
+        Wed, 10 Feb 2021 13:20:17 +0000 (GMT)
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 33B694C044;
-        Wed, 10 Feb 2021 13:20:15 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 3713F4C040;
+        Wed, 10 Feb 2021 13:20:17 +0000 (GMT)
 Received: from oc3016276355.ibm.com (unknown [9.145.174.85])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 10 Feb 2021 13:20:15 +0000 (GMT)
+        Wed, 10 Feb 2021 13:20:17 +0000 (GMT)
 From:   Pierre Morel <pmorel@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         david@redhat.com, thuth@redhat.com, cohuck@redhat.com,
         imbrenda@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v2 0/5] CSS Mesurement Block
-Date:   Wed, 10 Feb 2021 14:20:09 +0100
-Message-Id: <1612963214-30397-1-git-send-email-pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 4/5] s390x: css: testing measurement block format 0
+Date:   Wed, 10 Feb 2021 14:20:13 +0100
+Message-Id: <1612963214-30397-5-git-send-email-pmorel@linux.ibm.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1612963214-30397-1-git-send-email-pmorel@linux.ibm.com>
+References: <1612963214-30397-1-git-send-email-pmorel@linux.ibm.com>
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
  definitions=2021-02-10_05:2021-02-10,2021-02-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- priorityscore=1501 bulkscore=0 mlxscore=0 impostorscore=0
- lowpriorityscore=0 phishscore=0 adultscore=0 suspectscore=0
- mlxlogscore=999 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2009150000 definitions=main-2102100126
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 adultscore=0 clxscore=1015 impostorscore=0 bulkscore=0
+ spamscore=0 phishscore=0 suspectscore=0 mlxscore=0 priorityscore=1501
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102100121
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We tests the update of the Mesurement Block (MB) format 0
-and format 1 using a serie of senseid requests.
+We tests the update of the mesurement block format 0, the
+mesurement block origin is calculated from the mbo argument
+used by the SCHM instruction and the offset calculated using
+the measurement block index of the SCHIB.
 
-The MB format 1 is only provided if the Extended mesurement Block
-feature is available.
-This feature is exposed by the CSS characteristics general features
-stored by the Store Channel Subsystem Characteristics CHSC command,
-consequently, we implement the CHSC instruction call and the SCSC CHSC
-command.
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ lib/s390x/css.h | 14 +++++++++++++
+ s390x/css.c     | 55 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 69 insertions(+)
 
-In order to ease the writing of new tests using:
-- interrupt
-- enablement of a subchannel
-- multiple I/O on a subchannel
-
-We do the following simplifications:
-- we create a CSS initialization routine
-- we register the I/O interrupt handler on CSS initialization
-- we do not enable or disable a subchannel in the senseid test,
-  assuming this test is done after the enable test, this allows
-  to create traffic using the SSCH used by senseid.
-- we add a css_enabled() function to test if a subchannel is enabled.
-
-Regards,
-Pierre
-
-Pierre Morel (5):
-  s390x: css: Store CSS Characteristics
-  s390x: css: simplifications of the tests
-  s390x: css: implementing Set CHannel Monitor
-  s390x: css: testing measurement block format 0
-  s390x: css: testing measurement block format 1
-
- lib/s390x/css.h     | 117 ++++++++++++++++++++++-
- lib/s390x/css_lib.c | 223 +++++++++++++++++++++++++++++++++++++++++---
- s390x/css.c         | 186 ++++++++++++++++++++++++++++++++----
- 3 files changed, 493 insertions(+), 33 deletions(-)
-
+diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+index 0e3254a..5478f45 100644
+--- a/lib/s390x/css.h
++++ b/lib/s390x/css.h
+@@ -374,5 +374,19 @@ static inline void schm(void *mbo, unsigned int flags)
+ }
+ 
+ bool css_enable_mb(int sid, uint64_t mb, uint16_t mbi, uint16_t flg, bool fmt1);
++#define SCHM_DCTM	1 /* activate Device Connection TiMe */
++#define SCHM_MBU	2 /* activate Measurement Block Update */
++
++struct measurement_block_format0 {
++	uint16_t ssch_rsch_count;
++	uint16_t sample_count;
++	uint32_t device_connect_time;
++	uint32_t function_pending_time;
++	uint32_t device_disconnect_time;
++	uint32_t cu_queuing_time;
++	uint32_t device_active_only_time;
++	uint32_t device_busy_time;
++	uint32_t initial_cmd_resp_time;
++};
+ 
+ #endif
+diff --git a/s390x/css.c b/s390x/css.c
+index a382235..f3fdc0c 100644
+--- a/s390x/css.c
++++ b/s390x/css.c
+@@ -189,7 +189,61 @@ static void test_schm(void)
+ 	schm(NULL, SCHM_MBU);
+ 	report(1,"SCHM call without address");
+ 	report_prefix_pop();
++}
++
++#define SCHM_UPDATE_CNT 10
++static bool start_measure(uint64_t mbo, uint16_t mbi, bool fmt1)
++{
++	int i;
++
++	if (!css_enable_mb(test_device_sid, mbo, mbi, PMCW_MBUE, fmt1)) {
++		report(0, "Enabling measurement_block_format");
++		return false;
++	}
++
++	for (i = 0; i < SCHM_UPDATE_CNT; i++) {
++		if (!do_test_sense()) {
++			report(0, "Error during sense");
++			return false;
++		}
++	}
++
++	return true;
++}
++
++static void test_schm_fmt0(void)
++{
++	struct measurement_block_format0 *mb0;
++
++	report_prefix_push("Format 0");
++
++	mb0 = alloc_io_mem(sizeof(struct measurement_block_format0), 0);
++	if (!mb0) {
++		report_abort("measurement_block_format0 allocation failed");
++		goto end;
++	}
++
++	schm(NULL, 0); /* Clear previous MB address */
++	schm(mb0, SCHM_MBU);
+ 
++	/* Expect error for non aligned MB */
++	report_prefix_push("Unaligned MB index");
++	report_xfail(start_measure(0, 0x01, false), mb0->ssch_rsch_count != 0,
++		     "SSCH measured %d", mb0->ssch_rsch_count);
++	report_prefix_pop();
++
++	memset(mb0, 0, sizeof(*mb0));
++
++	/* Expect success */
++	report_prefix_push("Valid MB address and index");
++	report(start_measure(0, 0, false) &&
++	       mb0->ssch_rsch_count == SCHM_UPDATE_CNT,
++	       "SSCH measured %d", mb0->ssch_rsch_count);
++	report_prefix_pop();
++
++	free_io_mem(mb0, sizeof(struct measurement_block_format0));
++end:
++	report_prefix_pop();
+ }
+ 
+ static struct {
+@@ -202,6 +256,7 @@ static struct {
+ 	{ "enable (msch)", test_enable },
+ 	{ "sense (ssch/tsch)", test_sense },
+ 	{ "measurement block (schm)", test_schm },
++	{ "measurement block format0", test_schm_fmt0 },
+ 	{ NULL, NULL }
+ };
+ 
 -- 
 2.17.1
 
-changelog:
-
-from v1:
-
-- check the return code of CHSC
-  (Connie)
-
-- reporting in css_init
-  (Connie)
-
-- added braces when a loop contains several statement
-  (Thomas)
-
-- changed retval to success in boolean function
-  (Thomas)
-
-- suppress goto retries
-  (thomas)
-
-- rewording and use correct return types in css_enabled
-  (Janosch)
