@@ -2,249 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F08A4C433DB
-	for <linux-s390@archiver.kernel.org>; Tue,  9 Feb 2021 20:05:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B962C433DB
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Feb 2021 07:56:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A6FC864DEE
-	for <linux-s390@archiver.kernel.org>; Tue,  9 Feb 2021 20:05:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3876064DE0
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Feb 2021 07:56:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233850AbhBIUEt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 9 Feb 2021 15:04:49 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48812 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233755AbhBITvf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Feb 2021 14:51:35 -0500
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 119JgP6q079175;
-        Tue, 9 Feb 2021 14:49:01 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=z8M8GC/vnud9WhkHtY6cAALZNKFHQBkh8OeJZYNyVZg=;
- b=IbfWBSL078+8bQhD9L+d6NIzboZExUvJJip+J5YhLwCUalsdSZnsnP744plJ41AnOkON
- F5agcLQdyMssTF4GvUcMSGEqn+MNOpCbWzDb8+6iHZEE4hroeWz9GHVw5hBJbYpVhjx3
- 3XketnJPCyFQVvgpi1q5GbCud9q9QwVSWEDGvgbM6pjJF5+OYTXLulO2JUs2gUeKJbeU
- yTXdHU9Ga62bMOFlT/Cz8C9IazSxDfly333HXRNArvUw6kYmRlMlgbsSdW8vviLcrSzz
- KMnIzbJQeSyu3ZZ4aFqs0Y+zLLDcMS7FRZ+I61uZZWyBtWztXPYPxd9fEIcXPlp6Jw+c 4g== 
+        id S233278AbhBJH42 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 Feb 2021 02:56:28 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56718 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233271AbhBJH41 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 10 Feb 2021 02:56:27 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11A7hJoa108681;
+        Wed, 10 Feb 2021 02:55:47 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=12vEkleT3F+acHBxWwv7FyM5r7eOtkAGiNDLHRw2roQ=;
+ b=QUF6C3FPdPbeSWUt6vc0g6qg/cicigXQSrAwLdlSR5repN7iDURGCIRRUGDQWdIP5wRl
+ 1kY4/1SpPoi6qJWnKKkRMiNN++uVf0yvUkHE6bfXoaYrAu0c70rsk7cg/iiFlAfX80qW
+ +7L9O/jd/h6p6yi7XYdxO56kST37QZm19C7l1/COSxULsInexJhj1kZLaLxauOTF0Qrm
+ BggyFl+ZagpqfEyDgqDUTpRaiRBhiPgysKEhCjp7/CBbWvaTH7eaqNv2v+0riV4Ocm7C
+ wVa0Baq2Y8UX8hZLQzzx3VJWGbd+ex7BLZe4yu0lhCzRYw2g45I2Jlmu/ea3licefgNY kw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36m0smr4r4-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36mbbh88dw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Feb 2021 14:49:01 -0500
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 119JgYvt079419;
-        Tue, 9 Feb 2021 14:49:01 -0500
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36m0smr4qy-1
+        Wed, 10 Feb 2021 02:55:46 -0500
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11A7hvoB110403;
+        Wed, 10 Feb 2021 02:55:46 -0500
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36mbbh88cw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Feb 2021 14:49:01 -0500
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 119JhFJI031990;
-        Tue, 9 Feb 2021 19:49:00 GMT
-Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
-        by ppma03wdc.us.ibm.com with ESMTP id 36hjr98x2n-1
+        Wed, 10 Feb 2021 02:55:45 -0500
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11A7qfxL025829;
+        Wed, 10 Feb 2021 07:55:42 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03ams.nl.ibm.com with ESMTP id 36m1m2rmw2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Feb 2021 19:49:00 +0000
-Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
-        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 119Jn07A23331072
+        Wed, 10 Feb 2021 07:55:42 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11A7tUUl31457596
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 9 Feb 2021 19:49:00 GMT
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1DAB9B2067;
-        Tue,  9 Feb 2021 19:49:00 +0000 (GMT)
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4A502B205F;
-        Tue,  9 Feb 2021 19:48:59 +0000 (GMT)
-Received: from cpe-66-24-58-13.stny.res.rr.com.com (unknown [9.85.203.235])
-        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue,  9 Feb 2021 19:48:59 +0000 (GMT)
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     stable@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com,
-        kwankhede@nvidia.com, pbonzini@redhat.com,
-        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com,
-        Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH 1/1] s390/vfio-ap: fix circular lockdep when setting/clearing crypto masks
-Date:   Tue,  9 Feb 2021 14:48:30 -0500
-Message-Id: <20210209194830.20271-2-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.21.1
-In-Reply-To: <20210209194830.20271-1-akrowiak@linux.ibm.com>
-References: <20210209194830.20271-1-akrowiak@linux.ibm.com>
+        Wed, 10 Feb 2021 07:55:30 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 46EC3A4040;
+        Wed, 10 Feb 2021 07:55:40 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D0DB8A4051;
+        Wed, 10 Feb 2021 07:55:39 +0000 (GMT)
+Received: from [9.145.24.226] (unknown [9.145.24.226])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 10 Feb 2021 07:55:39 +0000 (GMT)
+Subject: Re: [kvm-unit-tests PATCH] Fix the length in the stsi check for the
+ VM name
+To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>
+References: <20210209155705.67601-1-thuth@redhat.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <b94af086-5b38-8848-d2ed-65a035380bba@linux.ibm.com>
+Date:   Wed, 10 Feb 2021 08:55:39 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210209155705.67601-1-thuth@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
- definitions=2021-02-09_06:2021-02-09,2021-02-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- suspectscore=0 phishscore=0 adultscore=0 mlxscore=0 priorityscore=1501
- malwarescore=0 mlxlogscore=999 impostorscore=0 lowpriorityscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102090090
+ definitions=2021-02-10_02:2021-02-09,2021-02-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ suspectscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
+ mlxlogscore=999 bulkscore=0 phishscore=0 clxscore=1015 impostorscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102100077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch fixes a circular locking dependency in the CI introduced by
-commit f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM
-pointer invalidated"). The lockdep only occurs when starting a Secure
-Execution guest. Crypto virtualization (vfio_ap) is not yet supported for
-SE guests; however, in order to avoid CI errors, this fix is being
-provided.
+On 2/9/21 4:57 PM, Thomas Huth wrote:
+> sizeof(somepointer) results in the size of the pointer, i.e. 8 on a
+> 64-bit system, so the
+> 
+>  memcmp(data->ext_names[0], vm_name_ext, sizeof(vm_name_ext))
+> 
+> only compared the first 8 characters of the VM name here. Switch
+> to a proper array to get the sizeof() right.
 
-The circular lockdep was introduced when the masks in the guest's APCB
-were taken under the matrix_dev->lock. While the lock is definitely
-needed to protect the setting/unsetting of the KVM pointer, it is not
-necessarily critical for setting the masks, so this will not be done under
-protection of the matrix_dev->lock.
 
-Fixes: f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 75 ++++++++++++++++++-------------
- 1 file changed, 45 insertions(+), 30 deletions(-)
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 41fc2e4135fe..f4e19aa2acb9 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -322,6 +322,20 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
- 	matrix->adm_max = info->apxa ? info->Nd : 15;
- }
- 
-+static bool vfio_ap_mdev_has_crycb(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	return (matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd);
-+}
-+
-+static void vfio_ap_mdev_commit_apcb(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	if (vfio_ap_mdev_has_crycb(matrix_mdev))
-+		kvm_arch_crypto_set_masks(matrix_mdev->kvm,
-+					  matrix_mdev->matrix.apm,
-+					  matrix_mdev->matrix.aqm,
-+					  matrix_mdev->matrix.adm);
-+}
-+
- static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- {
- 	struct ap_matrix_mdev *matrix_mdev;
-@@ -1028,7 +1042,9 @@ static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
-  * @kvm: reference to KVM instance
-  *
-  * Verifies no other mediated matrix device has @kvm and sets a reference to
-- * it in @matrix_mdev->kvm.
-+ * it in @matrix_mdev->kvm. The matrix_dev->lock must not be taken prior to
-+ * calling this function; doing so may result in a circular lock dependency
-+ * when the kvm->lock is taken to set masks in the guest's APCB.
-  *
-  * Return 0 if no other mediated matrix device has a reference to @kvm;
-  * otherwise, returns an -EPERM.
-@@ -1038,6 +1054,8 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
- {
- 	struct ap_matrix_mdev *m;
- 
-+	mutex_lock(&matrix_dev->lock);
-+
- 	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
- 		if ((m != matrix_mdev) && (m->kvm == kvm))
- 			return -EPERM;
-@@ -1046,6 +1064,8 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
- 	matrix_mdev->kvm = kvm;
- 	kvm_get_kvm(kvm);
- 	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
-+	mutex_unlock(&matrix_dev->lock);
-+	vfio_ap_mdev_commit_apcb(matrix_mdev);
- 
- 	return 0;
- }
-@@ -1079,13 +1099,27 @@ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
- 	return NOTIFY_DONE;
- }
- 
-+/**
-+ * vfio_ap_mdev_unset_kvm
-+ *
-+ * @matrix_mdev: a matrix mediated device
-+ *
-+ * Clears the masks in the guest's APCB as well as the reference to KVM from
-+ * @matrix_mdev. The matrix_dev->lock must not be taken prior to calling this
-+ * function; doing so may result in a circular lock dependency when the
-+ * kvm->lock is taken to clear the masks in the guest's APCB.
-+ */
- static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
- {
--	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
--	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
--	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
--	kvm_put_kvm(matrix_mdev->kvm);
--	matrix_mdev->kvm = NULL;
-+	if (matrix_mdev->kvm) {
-+		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-+		mutex_lock(&matrix_dev->lock);
-+		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
-+		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
-+		kvm_put_kvm(matrix_mdev->kvm);
-+		matrix_mdev->kvm = NULL;
-+		mutex_unlock(&matrix_dev->lock);
-+	}
- }
- 
- static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
-@@ -1098,32 +1132,15 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 		return NOTIFY_OK;
- 
- 	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
--	mutex_lock(&matrix_dev->lock);
--
--	if (!data) {
--		if (matrix_mdev->kvm)
--			vfio_ap_mdev_unset_kvm(matrix_mdev);
--		goto notify_done;
--	}
- 
--	ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
--	if (ret) {
--		notify_rc = NOTIFY_DONE;
--		goto notify_done;
--	}
-+	if (!data)
-+		vfio_ap_mdev_unset_kvm(matrix_mdev);
-+	else
-+		ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
- 
--	/* If there is no CRYCB pointer, then we can't copy the masks */
--	if (!matrix_mdev->kvm->arch.crypto.crycbd) {
-+	if (ret)
- 		notify_rc = NOTIFY_DONE;
--		goto notify_done;
--	}
--
--	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
--				  matrix_mdev->matrix.aqm,
--				  matrix_mdev->matrix.adm);
- 
--notify_done:
--	mutex_unlock(&matrix_dev->lock);
- 	return notify_rc;
- }
- 
-@@ -1257,10 +1274,8 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- {
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	mutex_lock(&matrix_dev->lock);
- 	if (matrix_mdev->kvm)
- 		vfio_ap_mdev_unset_kvm(matrix_mdev);
--	mutex_unlock(&matrix_dev->lock);
- 
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
- 				 &matrix_mdev->iommu_notifier);
--- 
-2.21.1
+
+> 
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  s390x/stsi.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/s390x/stsi.c b/s390x/stsi.c
+> index 4109b8d..87d4804 100644
+> --- a/s390x/stsi.c
+> +++ b/s390x/stsi.c
+> @@ -106,7 +106,7 @@ static void test_3_2_2(void)
+>  				 0x00, 0x03 };
+>  	/* EBCDIC for "KVM/" */
+>  	const uint8_t cpi_kvm[] = { 0xd2, 0xe5, 0xd4, 0x61 };
+> -	const char *vm_name_ext = "kvm-unit-test";
+> +	const char vm_name_ext[] = "kvm-unit-test";
+>  	struct stsi_322 *data = (void *)pagebuf;
+>  
+>  	report_prefix_push("3.2.2");
+> 
 
