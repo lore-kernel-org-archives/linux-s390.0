@@ -7,67 +7,67 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
 	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA68BC433DB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E589EC433DB
 	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 00:05:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A128264E2A
+	by mail.kernel.org (Postfix) with ESMTP id B5EAF64E2E
 	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 00:05:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233868AbhBKAEs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 Feb 2021 19:04:48 -0500
-Received: from userp2120.oracle.com ([156.151.31.85]:54792 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232045AbhBKAEj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 Feb 2021 19:04:39 -0500
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 11B003SH123011;
-        Thu, 11 Feb 2021 00:03:45 GMT
+        id S234080AbhBKAEt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 Feb 2021 19:04:49 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:48782 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232903AbhBKAEh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 Feb 2021 19:04:37 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 11B00Wt8101389;
+        Thu, 11 Feb 2021 00:03:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version;
- s=corp-2020-01-29; bh=xFDVWByD2oAC85jpuSE1pSb/AgKJj7UFlwVSzmEx6wE=;
- b=H0tLtdgDVbDnGHWElD+UWz1HCkMa6YNHgwdEiYal32Zj2X+q36mZ7PF+XpDtxJ7hID1k
- 4AprgG1dpjGYjmw/5Ksf7BsjCtMzqZJkFGU2RYlfKW0RzQ4Z5DAnL1t+vaFUTgzj3x2W
- WLgmuNEHtYf50BaUT0I+OuIbm7DLaf7duJv3o8mlMND31n8W9TdvXQ/g2NFX9F9CEQ0j
- 598n4vaY1G5tfMbUwTFJe0MvmTDlFq9HmRmo293mOSNeHjYGT3pnOy05ylBCDKgryNDs
- fPKD7r4Ew4g4bCr7HhD2RpDWRtj3ncxpfsQNzkDCR8fdAJ9HhnD/A3n/RJfb2pkeU+XN dw== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 36hkrn5fv8-1
+ s=corp-2020-01-29; bh=b6uhz8t6mOEare+e+GqBSxU9tnKQVAFPSxxdOxPKIsI=;
+ b=EhwJ8l2c7PWMaeToSVzq2gp361kQ0zey299RjVIMQsmJJIOUIqsS+hhx8X+Zi531ngBP
+ QnWBrFDrc5kSk+RioskWe8diXvZA4IY4qBjqscyFMPpU6S7RYOZl3NxapmIlxh7LqxZi
+ yvsa0k6T5dLXmOP8YJB+sqT/pSyDjISPf3D0OWjEQ1yGSocHoxGgA9wf9zYrzDodmM9D
+ At7CWr9hVf1iEZmwWDPZngf4BMSzPjFCkMTXxPQQPk6RbkOYqNJA04izp56h4SQKmmB2
+ /86Ml2hEp1vlFcIJFsFWjp/STgWIRhxr1PjlXiIE9lZxpuZdDf21W9j+R2Ebw1intwP4 9A== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by aserp2120.oracle.com with ESMTP id 36m4upv2bx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 11 Feb 2021 00:03:45 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 11B018pB028014;
-        Thu, 11 Feb 2021 00:03:45 GMT
-Received: from nam02-bl2-obe.outbound.protection.outlook.com (mail-bl2nam02lp2056.outbound.protection.outlook.com [104.47.38.56])
-        by userp3030.oracle.com with ESMTP id 36j51y8pj5-1
+        Thu, 11 Feb 2021 00:03:42 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 11B01UV7063108;
+        Thu, 11 Feb 2021 00:03:42 GMT
+Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2104.outbound.protection.outlook.com [104.47.70.104])
+        by aserp3020.oracle.com with ESMTP id 36j513asg2-2
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 11 Feb 2021 00:03:44 +0000
+        Thu, 11 Feb 2021 00:03:42 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ezv7eyO0MM/ugL3U2BWWpgZlGGTaPlC+50GhetSqGx7fZkhsSapbZDIp7qjC9ZRV8DjRmRX0tsL4YTvfWc/bh8ox7nxYlYPzjLHLbxJqlSk47bIh6rTIc5hSe8CkEYLACh0XSMMAWBRDAtrf2EpvBf+Ra8aNTjU5d2xIV49pW656uYI4fWOUAd0FMzuGEUZR8PZc1VJgheaqc3wAnN9B0wCH+onhUeMIITe1AdLCKzKsZBN50GOP/0HE78RgDvTACUPkM/EC6fUisiP49IfAj/XJE+Pm1vSJbAEV5ahbOtn42/WQkT0IHSru7cIjWn8QGosAvceG/Y+PQZ0dPRwIMw==
+ b=TXTGsM+BUBaPwPMgQgPy39myphRKNEhPUrJZrjIkV9MEPGJNFhC6u5ezm1DKdDhyWYL3KuGkMgzsWpBuX7KQ7BcHtSwGArMaCGMODGVJx5wJLwB675Sc5HJQWjK1ww2XQhZXzGVYCyLhCBskgNP43qlCMQdL3FmM74V7BoUp4qI4e8758Xm/zha2a+BwH7BMU45Yc8fdlF2lih5tFVe13LOc5fYxwIsPz729vb5S/U1ff8BnvvQ56b2Y+yUQcLxo2fDbKpFFDOk3z+eHnEmtfKXlA4RqS38smCImT4Nixab5rPK4/ye/cOqBlRygTVLdK7SCLjTj8Sn4jmvthN0DjQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xFDVWByD2oAC85jpuSE1pSb/AgKJj7UFlwVSzmEx6wE=;
- b=P7yUqZ1nNwFuXUDMUrjXubSdQbltl892KcpCDNxTgSqzT1Bi8xuj0HmY6+lP8L/Gr2SB1g1/WWdBOXGHxSUxp5OAJFVzEkaCTVXrWL49PvSn2kwxBV10tFYu1pRojrlagF7wMSKl+baHX4UrAyWsTR2AKMTLAnjvyNiwQ9FEDQfseVNPdr0R1fz3NMDOhaLOSqTISnoNwC7L+/rVhebI8H8DBTzf6pl1eI1r0ewLF7XFAAdy2urhqrPQvR4jp3KOc/cT9lTyNYJMWgE3ptIA8un+v2fGTs2nqXgtBkozw+LP2ffGgR0ji4/EQje0944mBMMNiYBaVrQ/tsiInuaMGQ==
+ bh=b6uhz8t6mOEare+e+GqBSxU9tnKQVAFPSxxdOxPKIsI=;
+ b=badELTo3DwQLLVCVSlNig7nVXBgyWARhlPvOnc/gDAmAX+JNu76+i4MpeRZ5HSeSReIdnkd4h3CprN3sVpjZ8jWCRh9LwF6Dl90q4GuW5+dZIk9hCVTpsuNhRz68EH1aZzw4wbA3ILP0M79jkd6rAm5jtwBsSayODF+eOk3kBgkZJ3nWoJ4tI80fybl9GZgJUJhUwWvMv1XbsA0rr6i9169mZFm1jxBHuX5SMgNTwuZjRazdee1MSBgJ6cwTrnTdZMkJncFb7WJVeC2Orlmpczi9wAtzs6OkP+m0M43aKhXHZ7f73ENVpSbeCpVP9gBdsHq1rriSVoYi6advIvMHMw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xFDVWByD2oAC85jpuSE1pSb/AgKJj7UFlwVSzmEx6wE=;
- b=V3mle0EDAPUgMBBGnFntuigWnbYwxxmCJGTzJFJ+kTPnGkyuboFIYdaHGHP06IUuCgm+dvx1JTDV5vccLsw+SBcrrMiBUXOO9qrKRi6GoaSfsahhts4PSkmBw6qYYWVK0TuWJZDfDR4KD1mvUAkIR86QkA4Uj+Q2e76tfsnCcNE=
+ bh=b6uhz8t6mOEare+e+GqBSxU9tnKQVAFPSxxdOxPKIsI=;
+ b=F57cB+s8STO5xn8VcOlukT6hve2TiiZhSopvH92ibjA/L4P01dBE+MKKl7x4YnnjDczh2a0t06ti1rstncmn0X+adhJlTSDEnbsFmceKm5fIkRXglbEyXEvE2jEX5SeeE5dGGyxc1i+TwIiZpKoZV8v9sRVj6/GfpYb2hDdT2Bk=
 Authentication-Results: kvack.org; dkim=none (message not signed)
  header.d=none;kvack.org; dmarc=none action=none header.from=oracle.com;
 Received: from MWHPR10MB1389.namprd10.prod.outlook.com (2603:10b6:300:21::22)
- by MWHPR10MB1933.namprd10.prod.outlook.com (2603:10b6:300:10b::20) with
+ by MWHPR10MB1341.namprd10.prod.outlook.com (2603:10b6:300:20::9) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3846.25; Thu, 11 Feb
- 2021 00:03:42 +0000
+ 2021 00:03:40 +0000
 Received: from MWHPR10MB1389.namprd10.prod.outlook.com
  ([fe80::897d:a360:92db:3074]) by MWHPR10MB1389.namprd10.prod.outlook.com
  ([fe80::897d:a360:92db:3074%5]) with mapi id 15.20.3846.028; Thu, 11 Feb 2021
- 00:03:42 +0000
+ 00:03:40 +0000
 From:   Mike Kravetz <mike.kravetz@oracle.com>
 To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org
@@ -81,9 +81,9 @@ Cc:     shu wang <malate_wangshu@hotmail.com>,
         Michel Lespinasse <walken@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Mike Kravetz <mike.kravetz@oracle.com>
-Subject: [RFC PATCH 5/5] mm proc/task_mmu.c: add hugetlb specific routine for clear_refs
-Date:   Wed, 10 Feb 2021 16:03:22 -0800
-Message-Id: <20210211000322.159437-6-mike.kravetz@oracle.com>
+Subject: [RFC PATCH 4/5] hugetlb: don't permit pmd sharing if soft dirty in use
+Date:   Wed, 10 Feb 2021 16:03:21 -0800
+Message-Id: <20210211000322.159437-5-mike.kravetz@oracle.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210211000322.159437-1-mike.kravetz@oracle.com>
 References: <20210211000322.159437-1-mike.kravetz@oracle.com>
@@ -94,205 +94,104 @@ X-ClientProxiedBy: MWHPR01CA0032.prod.exchangelabs.com (2603:10b6:300:101::18)
  To MWHPR10MB1389.namprd10.prod.outlook.com (2603:10b6:300:21::22)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from monkey.oracle.com (50.38.35.18) by MWHPR01CA0032.prod.exchangelabs.com (2603:10b6:300:101::18) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3846.27 via Frontend Transport; Thu, 11 Feb 2021 00:03:41 +0000
+Received: from monkey.oracle.com (50.38.35.18) by MWHPR01CA0032.prod.exchangelabs.com (2603:10b6:300:101::18) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3846.27 via Frontend Transport; Thu, 11 Feb 2021 00:03:39 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 703a04e7-6d7e-4493-b9db-08d8ce207dba
-X-MS-TrafficTypeDiagnostic: MWHPR10MB1933:
+X-MS-Office365-Filtering-Correlation-Id: 36f53ff6-f073-41a3-56c0-08d8ce207cc3
+X-MS-TrafficTypeDiagnostic: MWHPR10MB1341:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <MWHPR10MB193368824FA8B11E63D5D3EEE28C9@MWHPR10MB1933.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:5516;
+X-Microsoft-Antispam-PRVS: <MWHPR10MB134190B3F1424F292CED477CE28C9@MWHPR10MB1341.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3968;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: bS9AxGaAbmEytK+Yh5ULJxL0Siyho4mjv/w5yZvGele0SghLWkDSo4CwzVaKBtDJ5s0D03AxXPlsuDYaoFfIPTHh//CxraNE4jOV9HeBo/S+OLjMQllEK0aAl/X5xG4EpnChvIHDMZwA2b00+IiCfwEpV+SXNvur3lAKEz92IeiynCljCez4e8HSNzfhm7UGamNbjHPyAr1vMGHqx1PQrkQks8EzdhDpZqd9UTeGrIVI60+PvWaUpRi6sZ3yiXP/NyQAnRDOAMESb1PNhu8P2TVMC/DlcaRuE8AbCqRiOtB1gOpGMWB30pWwEatvKDg8qR6DxPvqi1xjWUEEsjzmk02apAPAlucpOj6+bqiu9cbNiQmavvbHGgJsFutyk5NQcL74h189YDn3+v2Lv9XkXShGVEmyoYxIlLkmjMHlrAxEpy3Mue645l0/ILIXXuDmi1ANQK4JmoBz7BmZE9FZFOdI+sMVKY0JEPQj+Lva0P056BOL7xPtxOqwp/GgHlAtxhEcKfvqJ5gyd2E/rmae7w==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR10MB1389.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(396003)(136003)(39860400002)(376002)(346002)(7696005)(5660300002)(26005)(478600001)(52116002)(86362001)(1076003)(2616005)(956004)(186003)(36756003)(16526019)(8936002)(6486002)(66946007)(316002)(44832011)(7416002)(107886003)(8676002)(2906002)(4326008)(6666004)(66556008)(66476007)(54906003)(83380400001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?Ro/dEOPiGmHiPE06hxt4NoxNurlGma6YN6sOipMkALeilkUozRjsZkUyNXi2?=
- =?us-ascii?Q?PbB2Uoe1HWS17mRz8UFoMw10t3QGcqCb13xQhOUN/yK2QA7u1lRIlJ6gp/hH?=
- =?us-ascii?Q?s4xvv3cmX6LFbU31NC8Vx0TtXDQ0Sa2CcNqrsiEzLUuwWy3Z9YV2VgHKwCuw?=
- =?us-ascii?Q?zKgmWBOZ2ubmhsAwUFyIYlUgwliY/WaubpjE2x3Dri36d+b6bnU38NfdIlsk?=
- =?us-ascii?Q?aGwwAWU5Ecfg1Atoa5GvkwlxHT6sSUouXYWhFI5fTW1U+ZFCZ/91VPwsXCMe?=
- =?us-ascii?Q?Xu/0kRw2ZmL5zY7bX140+DRcygQn35NTd/kEqCGuHjn3CwaI97iO7vYcT1B4?=
- =?us-ascii?Q?jugso+YCaDoSjZzObYsDfWAHyXzFYNmmByfB/LG1cIBxb1IFrVDqQLTrDhVh?=
- =?us-ascii?Q?3+WhmOi+FafnYIkXSUM1A7zPOOxyglvnu+S+x2pwBOsJQF97Y4rK+HJBtxKT?=
- =?us-ascii?Q?QidO0g+qX/IcEfeqozuwcOZbX6NUKXUZqnu+Q/qNhEbj72pGY8gw0nFo0s1G?=
- =?us-ascii?Q?JrWectnSbS1sa0sfcWzOoC5wT8J+rsCi/PA72uJhhi5V1FEKEvsoUiFfqfGf?=
- =?us-ascii?Q?93R4Z/y3JiWAj/t7ZvSiox1JGuvBtkgcphN923B7/5WjtPdiVbfTKZvwaHMW?=
- =?us-ascii?Q?gduJRIy9PbSXe6BcJFtSKc6D/f+wThPc/my7Qs9cZ2ewo4G4vv3ZlJRXxdlt?=
- =?us-ascii?Q?grSS1vn5T0PNc268LBIjxC3Xu5o7+YYUlIMMbT/J/7/U+FJ4h13vmZv88Lvu?=
- =?us-ascii?Q?cLZfQ/TRs0pJUG2MtibalC0uCrZ0PmwcF6df5MN45yN/qzlZRw86xLE0NcSb?=
- =?us-ascii?Q?55Yx5OmVrHda+KxW3p4SvdPlPmfhES92VcuZqG/5WpqCs3v2/BNEc1GAnYLt?=
- =?us-ascii?Q?oExcHQ5eb2+FoFDJQOGIrHbr6O4fDd/Hggd0ut0r+Q4auKlM0EbgIETeeMUm?=
- =?us-ascii?Q?9S5Nm93cn0YQrOeAnoif004KWToW4BF2WdQ2jq7Ymn5kMKsr9LcXC4GSjRBl?=
- =?us-ascii?Q?cK6rKA9BnozghKY8S1Vo2U/fFuups/CediBtoyNrs4BHl31a2qBiUeJi9GJU?=
- =?us-ascii?Q?g0SmFW7NEiVQDj7kM5Ee49byvojVmBDjkMYlxWMtDJSaS/KP7VFhzMtaYHFB?=
- =?us-ascii?Q?6l9v67XlB7BWdldRJOArK9aGmkSo92m3wjbgcg52vB1JBcf6EWRUJK2Hca3y?=
- =?us-ascii?Q?WGYnfN+TUbuLtbnzvkZar3yTasN+P0a0e/d5dUmXZgkuBt1SGAM6R69A3+bH?=
- =?us-ascii?Q?07E/rhvFzbhQRyVROEOEUKeE4ODgHqyYhAFwQpp59D2gn/l8tjXy2R3aRpZ8?=
- =?us-ascii?Q?M5vB8w0nKx5+DIoKYJ7chWrE?=
+X-Microsoft-Antispam-Message-Info: /ksQx2B7qbn6kIB+HD5OxcDnHXMRnV66FB24g168VLFlucRy1ylhQTgE4iATT18TRGCVVeT3gi0aSP4YL541sLIOVrMlOPyaFpMy2lGi9HMnoyw/h4AgJnLpznqsij3NQHr/TLSDYRHIOKmTSRC2mvsAG3O9XTqaTsC32dD6CrLmj3CbYtPFt9mjPpvlTNd3ak8+7nMh95UpVb93U6sitimeOHKfRG3TDqmGMqaSiq7qPEX4W3UZGkAyY7/FaaUlzYAJLhi8H2XexedYfKZ/iRnObYWYlfYHaMY4CfvoN8iVl20lN8doyfcgSIS1XFpCPV/7MfaGoAWfdEYS3UrgY3qxkqxgks9WKyLaxKDpeSgs7jkHTx2NQoxjODCFmEn8T+MJJQxJiEKmFG9efsx33wat8KcL42SoiCRXFr66/LgJrj378Mw5loaPev2UqGRu4B/G0mwxut6dYyISXd5yzQilATPsCNpNhfe0yZeyLahHIw2DhPTfnBibDvDioyLCyOhqqK/f2j8w+azKccn5U+Z0sh/ZKZy2lj05GsdCl7BpZacuHsY/uYe6tD6a6HW+
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR10MB1389.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(376002)(39860400002)(346002)(366004)(396003)(136003)(107886003)(4326008)(6666004)(2906002)(8676002)(44832011)(7416002)(66556008)(83380400001)(66476007)(54906003)(1076003)(2616005)(956004)(7696005)(5660300002)(26005)(478600001)(52116002)(86362001)(8936002)(6486002)(66946007)(316002)(186003)(16526019)(36756003)(14143004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?jjem+YexpO/FALGLqGAW9Z7jnn46WQJQqrpOg3g24oEIo1zxRLQs5Ax79HrA?=
+ =?us-ascii?Q?fawxZ5qhFyxWhpiCIvb5AUjVnzDKJIE04epxXVygJpjdAsKDbF+LkDBDX7jZ?=
+ =?us-ascii?Q?whRYpUokE0phz2xBjoMRltCoq7GqUI1wJMXsZNEXBM1MOO4lv+FSEb+f0rxP?=
+ =?us-ascii?Q?m/Fp2Ix3+WxNFaL5uv4T9m+3cFBzYDA1PeMZNJG7OI52ODecDpjba6CfzWo8?=
+ =?us-ascii?Q?qtzucX7P7C4IVkclpRfWcoNZ732dGiF/PtA6aaPRwXYxWmQQeH5edIk6Zv9Q?=
+ =?us-ascii?Q?yqbQgrb1d6CgfPQch0MNI67O1LXx8P/9DZ7QnIYuFxcccu7NAQVR/9mE/qoa?=
+ =?us-ascii?Q?iZ9jOxYFusy8ustp2gotc6BYpOR21lhutZsNbAL8nBLWW1wz75FIBYcPCMI/?=
+ =?us-ascii?Q?N6LvTACIzWl8i0xtfgnHa6qOyUR6QbqNGgdawhoynSBo1fkj+3bD/ZGIWQh5?=
+ =?us-ascii?Q?AebGjiQDRe7j/5VS8YLCRp1Q4PclI+5KADydUvch8P6CWHGA/p6QCwAHhf2F?=
+ =?us-ascii?Q?QNBpn8j2Nh+UACUQevyf54IVP6KEfNgp8gbcDFqZ6FFVyqzkZjv8F3oYVnVw?=
+ =?us-ascii?Q?jFYCJbBWreG/RMnfnuMg5SJaEGx8gg4aiw64koM/+4NUjRWI3mOMGbHQYgic?=
+ =?us-ascii?Q?Nq5rkmFMgWcSNOExaYeif1I+OalB4PvuKLmer0UDUDgy57iKDeGGRZWKYbUK?=
+ =?us-ascii?Q?LffabyLfthrQfoNDTQT34l7iGR3gCmjefxqEUbu0GL9EG7qYKvBhxc+71HDo?=
+ =?us-ascii?Q?e1ZR4Fj4qJVjyeJwOmsJePLoOYPPzoFRF/NpcJZ21tRVXSmGD0gd8qGxNUnB?=
+ =?us-ascii?Q?DWKSNRdhaYYKIWIBPg7wI5REQnXYpJBa6Rn11fVMsL9jN9dYgsMhNc129Q+t?=
+ =?us-ascii?Q?D57Zzv/d6YJsNnyUEztVlCahHYGJCaCgz8nl/EDx5Dtg80azU4yj1X91Gxg+?=
+ =?us-ascii?Q?tHf9HYVdjBN+6zYfWVCx/AkFgaF5RjvYXjmIINp8U8khIaI+ynu/LOeK5Za0?=
+ =?us-ascii?Q?VtzLcZdO+aWeHv0jHeTcWbqCAwRbI7DOsZreMD95jDEzW7dCSoECUDo4gIDO?=
+ =?us-ascii?Q?X0ld6obdkHcZhIxcBhazHWAGtWEH93qDgTwsXJpqmxPEbdUnv5jFvilFM+5o?=
+ =?us-ascii?Q?frsTmFUS/1mBCZhqvOJzItu91EsHzYUHXpHxyoksR1R+oUhcohqy4e23u7W4?=
+ =?us-ascii?Q?dYkfJYwdKH0JBeFYpzMBQI508kr0PRCj0Hhpff84HSGrbryPmmT84BZ4431p?=
+ =?us-ascii?Q?mmyG3llZv+1ArX3oc3mikdSu0PvZ4UcWwzAuo/WL+TPKUau9gjG7sLju/MqW?=
+ =?us-ascii?Q?zGn7RXyMHdyc2cwJqRAAm2TA?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 703a04e7-6d7e-4493-b9db-08d8ce207dba
+X-MS-Exchange-CrossTenant-Network-Message-Id: 36f53ff6-f073-41a3-56c0-08d8ce207cc3
 X-MS-Exchange-CrossTenant-AuthSource: MWHPR10MB1389.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Feb 2021 00:03:41.9818
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Feb 2021 00:03:40.2206
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: pWFocIIsVsJBvsNyjSsA5W0MF1T/CkYn8bXMI7uVODF4UBolRrnQlZx/DGDTcZrRNs67nGkUbhKt1TEeA1mnlw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR10MB1933
+X-MS-Exchange-CrossTenant-UserPrincipalName: KP1EZdlXjsMyX4ld5C/DMXQmDIibMO23yvqqhBTznPVNOYUmJLx7aqFvaK71XA55kq6locs8QfgF/mxBqv2KFw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR10MB1341
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9891 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 spamscore=0 phishscore=0
- mlxscore=0 malwarescore=0 mlxlogscore=999 bulkscore=0 adultscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 bulkscore=0 adultscore=0
+ mlxlogscore=999 phishscore=0 spamscore=0 suspectscore=0 mlxscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
  definitions=main-2102100209
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9891 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 malwarescore=0
- priorityscore=1501 bulkscore=0 spamscore=0 impostorscore=0 mlxscore=0
- suspectscore=0 mlxlogscore=999 adultscore=0 clxscore=1015
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102100209
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 mlxscore=0
+ mlxlogscore=999 spamscore=0 impostorscore=0 malwarescore=0 clxscore=1015
+ suspectscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2102100209
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There was is no hugetlb specific routine for clearing soft dirty and
-other referrences.  The 'default' routines would only clear the
-VM_SOFTDIRTY flag in the vma.
+If page modifications are being monitoried with the soft dirty mechanism,
+then this information is contained in page table entries.  Tracking is
+enabled on a 'per-process' basis.  hugetlb pmd sharing allows processes
+to share page table entries.  This makes pmd sharing incompatible with
+soft dirty monitoring.  So, pmd sharing must be disabled if soft dirty
+tracking is in use.
 
-Add new routine specifically for hugetlb vmas.
+The VM_SOFTDIRTY flag is set in all vma's by default.  When soft dirty
+monitoring is started, the flag is cleared.  We can therefore allow pmd
+sharing in vmas with the VM_SOFTDIRTY flag set.  Check this when deciding
+to perform pmd sharing.
+
+A subsequent patch will add code to allow soft dirty monitoring for hugetlb
+vmas.  Any existing pmd sharing will be undone at that time.
 
 Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
 ---
- fs/proc/task_mmu.c | 110 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 110 insertions(+)
+ mm/hugetlb.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 829b35016aaa..f06cf9b131a8 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -1116,6 +1116,115 @@ static inline void clear_soft_dirty_pmd(struct vm_area_struct *vma,
- }
- #endif
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index b561b6867ec1..cf4aa63be9b1 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5285,6 +5285,13 @@ static bool vma_shareable(struct vm_area_struct *vma, unsigned long addr)
+ 	unsigned long base = addr & PUD_MASK;
+ 	unsigned long end = base + PUD_SIZE;
  
-+#ifdef CONFIG_HUGETLB_PAGE
-+static inline bool huge_pte_is_pinned(struct vm_area_struct *vma,
-+					unsigned long addr, pte_t pte)
-+{
-+	struct page *page;
-+
-+	if (likely(!atomic_read(&vma->vm_mm->has_pinned)))
-+		return false;
-+	page = pte_page(pte);
-+	if (!page)
-+		return false;
-+	return page_maybe_dma_pinned(page);
-+}
-+
-+static int clear_refs_hugetlb_range(pte_t *ptep, unsigned long hmask,
-+				unsigned long addr, unsigned long end,
-+				struct mm_walk *walk)
-+{
-+	struct clear_refs_private *cp = walk->private;
-+	struct vm_area_struct *vma = walk->vma;
-+	struct hstate *h = hstate_vma(walk->vma);
-+	unsigned long adj_start = addr, adj_end = end;
-+	spinlock_t *ptl;
-+	pte_t old_pte, pte;
-+
 +	/*
-+	 * clear_refs should only operate on complete vmas.  Therefore,
-+	 * values passed here should be huge page aligned and huge page
-+	 * size in length.  Quick validation before taking any action in
-+	 * case upstream code is changed.
++	 * Do not allow pmd sharing if soft dirty tracking is in use.
 +	 */
-+	if ((addr & hmask) != addr || end - addr != huge_page_size(h)) {
-+		WARN_ONCE(1, "%s passed unaligned address\n", __func__);
-+		return 1;
-+	}
++	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) &&
++				!(vma->vm_flags & VM_SOFTDIRTY))
++		return false;
 +
-+	ptl = huge_pte_lock(hstate_vma(vma), walk->mm, ptep);
-+
-+	/* Soft dirty and pmd sharing do not mix */
-+
-+	pte = huge_ptep_get(ptep);
-+	if (!pte_present(pte))
-+		goto out;
-+	if (unlikely(is_hugetlb_entry_hwpoisoned(pte)))
-+		goto out;
-+
-+	if (cp->type == CLEAR_REFS_SOFT_DIRTY) {
-+		if (huge_pte_is_pinned(vma, addr, pte))
-+			goto out;
-+
-+		/*
-+		 * soft dirty and pmd sharing do not work together as
-+		 * per-process is tracked in ptes, and pmd sharing allows
-+		 * processed to share ptes.  We unshare any pmds here.
-+		 */
-+		adjust_range_if_pmd_sharing_possible(vma, &adj_start, &adj_end);
-+		flush_cache_range(vma, adj_start, adj_end);
-+		/*
-+		 * Only atttempt unshare if sharing possible.  If we unshare,
-+		 * then pte's for a PUD sized area are effectively removed for
-+		 * this process.  That clears soft dirty.
-+		 */
-+		if (adj_start != addr || adj_end != end) {
-+			struct mmu_notifier_range range;
-+			int unshared;
-+
-+			mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR,
-+					0, vma, vma->vm_mm, adj_start, adj_end);
-+			mmu_notifier_invalidate_range_start(&range);
-+			i_mmap_lock_write(vma->vm_file->f_mapping);
-+			unshared = huge_pmd_unshare(vma->vm_mm, vma,
-+								&addr, ptep);
-+			i_mmap_unlock_write(vma->vm_file->f_mapping);
-+			mmu_notifier_invalidate_range_end(&range);
-+			if (unshared)
-+				goto unshare_done;
-+		}
-+
-+		if (is_hugetlb_entry_migration(pte)) {
-+			pte = huge_pte_swp_clear_soft_dirty(pte);
-+			set_huge_pte_at(walk->mm, addr, ptep, pte);
-+		} else {
-+			old_pte = huge_ptep_modify_prot_start(vma, addr, ptep);
-+			pte = pte_mkhuge(huge_pte_wrprotect(pte));
-+			pte = arch_make_huge_pte(pte, vma, NULL, 0);
-+			pte = huge_pte_clear_soft_dirty(pte);
-+			pte = huge_pte_mkyoung(pte);
-+			huge_ptep_modify_prot_commit(vma, addr, ptep,
-+							old_pte, pte);
-+		}
-+
-+unshare_done:
-+		flush_hugetlb_tlb_range(vma, addr, end);
-+	}
-+
-+	/* reference bits in hugetlb pages are not reset/used */
-+out:
-+	spin_unlock(ptl);
-+	return 0;
-+}
-+#else /* CONFIG_HUGETLB_PAGE */
-+static int clear_refs_hugetlb_range(pte_t *ptep, unsigned long hmask,
-+				unsigned long addr, unsigned long end,
-+				struct mm_walk *walk)
-+{
-+	return 1;
-+}
-+#endif /* CONFIG_HUGETLB_PAGE */
-+
- static int clear_refs_pte_range(pmd_t *pmd, unsigned long addr,
- 				unsigned long end, struct mm_walk *walk)
- {
-@@ -1198,6 +1307,7 @@ static int clear_refs_test_walk(unsigned long start, unsigned long end,
- }
- 
- static const struct mm_walk_ops clear_refs_walk_ops = {
-+	.hugetlb_entry		= clear_refs_hugetlb_range,
- 	.pmd_entry		= clear_refs_pte_range,
- 	.test_walk		= clear_refs_test_walk,
- };
+ 	/*
+ 	 * check on proper vm_flags and page table alignment
+ 	 */
 -- 
 2.29.2
 
