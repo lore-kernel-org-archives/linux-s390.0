@@ -2,212 +2,269 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1466C433DB
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 00:09:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E326C433DB
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 08:36:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 855EA64E2E
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 00:09:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6731564DEC
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 08:36:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232204AbhBKAJe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 Feb 2021 19:09:34 -0500
-Received: from userp2120.oracle.com ([156.151.31.85]:57026 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232203AbhBKAJd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 Feb 2021 19:09:33 -0500
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 11B008Hn123030;
-        Thu, 11 Feb 2021 00:03:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : content-type : content-transfer-encoding :
- mime-version; s=corp-2020-01-29;
- bh=Bsctkq57JSaT40cpFveOgi9TJ3BanrKGCjZ8mgj40J0=;
- b=J9pxody6E5FccDKun2f4iSMl60d3pHusOrhwq3LM0iabJTvFk6B/bJ36ErrYEyH6lgtY
- ZNUk3tMgDSJWK1bj3sjYipJDQBVTc69mhL/r5zf1YTfQJuw2nRaM/M1raFXrDXJ9yyfz
- T46xXDEH37zQAM+Psii9Q65KyBdNMlgL8YdI/8f0rgpxueDpWFKxdnzisQioloQRoPNM
- 8MtnqHmfaA6SWEX8ZMsXCYntcT8tINT2D4zU3EcQiz2PxOKLNZ4VorhN2o1FSCo+mUz1
- LCMyA5GOpeo+pbhVDGZXpLOyJyPhsgmp1dsoLCzRXi8yGurvdkUwFye5RBO4WkDySti9 Sg== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by userp2120.oracle.com with ESMTP id 36hkrn5fuv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 11 Feb 2021 00:03:36 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 11B001ZG158383;
-        Thu, 11 Feb 2021 00:03:35 GMT
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2101.outbound.protection.outlook.com [104.47.70.101])
-        by aserp3030.oracle.com with ESMTP id 36j4pqtpfx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 11 Feb 2021 00:03:35 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=F3DbQEmeDESqLzh+0LEEGxa/SnYHDNHakg1nsn9vp/I/kwdI0rvRGAuoW4bFCMl2sWyfN7+peyeFjpJw5vJ2YosswHYdQYdMhk6n5JIx0FWMWmP07ik/Ns+V51LfyOhvz6FTK+WkW4hzdkVZPA4GtOOFka9zakMnVJn4/PimIsan+6UzyZxmzFdj9cso+H1Ogcci51YbkG5ANlc0qTpD8B6U6q+3oVoVLXphckaOtUdQ5UEmVTyj70AClG1bZr/llfQkzK/LziG99gn8qRNdf0DA03maJ+OYDr6deGbNqHQCy3ckImkW0Mn14gtQnZXrFM4TgYb8X07L3w5L7oB4PA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Bsctkq57JSaT40cpFveOgi9TJ3BanrKGCjZ8mgj40J0=;
- b=ZTCwokDb5z/WLnEcib+jMOcHLhmpec07IvaBoqjoUMBQI9IQZe0v6b+GPgBZjFHdMVCRvcE44tjh0+QMbvYsSTonZ1E4tXVjLayYxNMHVKvYnMpPUBQ7BFiySjhK4hniEeNP3UcrHaTMz5U1b//tp4MOnyaDlaq6yhKnmrUBkyz8SqoG+FFFzM0xROZPrXQTUxiaFDa3d8keZQUYEDyay8LKFj1GGpNhn+9vqicp3+juCvQpmWMxBjBSksMSw68iyVznb3ZtlgBy3W37NOeWo6wI0LrmpfbmdY+DamyS7d5wAMjIbglwUiSothVyMsBV5q2gHFL8aVhLb7Wp2xt6FQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Bsctkq57JSaT40cpFveOgi9TJ3BanrKGCjZ8mgj40J0=;
- b=dwMosigWhKqW6gay/wxlNBuMZtFp9k7xFmxj9x9DIbZW0/sPW/Ft7+P9WGfrB4XDDkq+DfiuhxzJ2XBAdK/+i4BTYygoVnJMEbOlMVOuntPXHv3T05rAxwtL3H5UFCXSc5E7JAF+67tVvhKmGq8lQZQbQtgFHTHLhtcsZr4d0zw=
-Authentication-Results: kvack.org; dkim=none (message not signed)
- header.d=none;kvack.org; dmarc=none action=none header.from=oracle.com;
-Received: from MWHPR10MB1389.namprd10.prod.outlook.com (2603:10b6:300:21::22)
- by MWHPR10MB1341.namprd10.prod.outlook.com (2603:10b6:300:20::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3846.25; Thu, 11 Feb
- 2021 00:03:32 +0000
-Received: from MWHPR10MB1389.namprd10.prod.outlook.com
- ([fe80::897d:a360:92db:3074]) by MWHPR10MB1389.namprd10.prod.outlook.com
- ([fe80::897d:a360:92db:3074%5]) with mapi id 15.20.3846.028; Thu, 11 Feb 2021
- 00:03:32 +0000
-From:   Mike Kravetz <mike.kravetz@oracle.com>
-To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc:     shu wang <malate_wangshu@hotmail.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Michel Lespinasse <walken@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>
-Subject: [RFC PATCH 0/5] Add hugetlb soft dirty support
-Date:   Wed, 10 Feb 2021 16:03:17 -0800
-Message-Id: <20210211000322.159437-1-mike.kravetz@oracle.com>
-X-Mailer: git-send-email 2.29.2
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [50.38.35.18]
-X-ClientProxiedBy: MWHPR01CA0032.prod.exchangelabs.com (2603:10b6:300:101::18)
- To MWHPR10MB1389.namprd10.prod.outlook.com (2603:10b6:300:21::22)
+        id S229517AbhBKIgh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 Feb 2021 03:36:37 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43008 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229478AbhBKIgh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 11 Feb 2021 03:36:37 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11B8WIJs150417;
+        Thu, 11 Feb 2021 03:35:20 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
+ from : subject : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Nlcr3nKBLvyoPjmf/rFztISMggdQUalsfPUdkRrSmHs=;
+ b=BbkpthWdeiMX2KXdxgUDyIx/Rv0ubpKmTp2c+5OidS0+bqKxJZvUSLUJ5JAkWse6obr+
+ 7DLI30AKqZAFozFHNWoOjEAULQdX/RhVdkSs8Pr7YDkjvyNK7ZCNfPJrXuVhBVw9SIrb
+ BbugEg0cKGjzIKxVjMYe2IcfN+EIVMCSZSHTLJrN8dgs5HGogURONrTMieAwIN3T6h3l
+ ogcJaKrdWKP7thqQbV3chu2YZ7Usb8TeElrju5rcTSk+d45z2bbCNeSzpBrzI1pELIGs
+ HLbm5WYKsp/yErs4OiISFqpS/tB4K9aUx3gtXx6MNgz5On0jc4okXamGO8rALFnTvfn5 TA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36n13y05nb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 03:35:20 -0500
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11B8Ws99152603;
+        Thu, 11 Feb 2021 03:35:20 -0500
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36n13y05kq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 03:35:20 -0500
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11B8RBuH026928;
+        Thu, 11 Feb 2021 08:35:18 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 36hjr8dk4x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 08:35:18 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11B8Z5b434931004
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 11 Feb 2021 08:35:05 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7758CAE055;
+        Thu, 11 Feb 2021 08:35:15 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0D26EAE04D;
+        Thu, 11 Feb 2021 08:35:15 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.64.239])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 11 Feb 2021 08:35:14 +0000 (GMT)
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210209154302.1033165-1-imbrenda@linux.ibm.com>
+ <20210209154302.1033165-2-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH v3 1/2] s390/kvm: extend kvm_s390_shadow_fault to return
+ entry pointer
+Message-ID: <f7fabdb6-e53a-1c17-92a8-3240b0c03e47@linux.ibm.com>
+Date:   Thu, 11 Feb 2021 09:35:14 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from monkey.oracle.com (50.38.35.18) by MWHPR01CA0032.prod.exchangelabs.com (2603:10b6:300:101::18) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3846.27 via Frontend Transport; Thu, 11 Feb 2021 00:03:32 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: fef043d0-fbc1-4e1c-e763-08d8ce207827
-X-MS-TrafficTypeDiagnostic: MWHPR10MB1341:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <MWHPR10MB1341B0FC19A7A4373DC5EC2AE28C9@MWHPR10MB1341.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: x7VTX64i7BoTzrAwZ/FChqJzkxIwtthgGwHYZ+G5zjG0QX/QMkjVGptSYEpyn6sYY63rKkTLaLmmAIRHZPdRPzz5uVTNThYeMJiZ+VQA6uoWJLBYwliZdPBqZY7PLAgtYXF17cULPH312imb/kq5kwiN1u0vpufIHoB0ySktzzFUE/HhOfefaEb4wSwqTnnAiJcs6pk3ATksfLsaEQjL/gvzJRzjgLhAMsWy28BNcirfYCUqa+FoTf370y+Bm5YP1FY2HTy5dhM+Zbalirpynk6cFndBnHv/lKPo/txrSDsLiT/TQPi6/w7C9bIF7KPuIlVUy12wBAlCL48umxDhZ8p2ZgZxmtqJUlj5quIpT0vjqa5v74hiosYDvIF1B4ukKZOHD9odhTMmeHiF5nbyPIE8/WuX81J1uDxngG8yVCizbAnS9hItR+qBkoYvs3RvVubYhuw38rBltF/mMKcmSDM/n/ePkfUtQKWzlOvwSsQqio/sidm239Wo1UzqlaA/o7IMvPSU+0FhhzW4fOnAjK5YLzFX+V2/SxV/p8pI8NhH5Voa0Wxn9rgAnpsQN/phfqWGyDBmWXkK8OHy8goX2BI55QLQA/bzfleHvGMXAXExK/7kVivA9SxPeDWzIOd4xLNJZ7FeK6LN6lBX1jzZzQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR10MB1389.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(376002)(39860400002)(346002)(366004)(396003)(136003)(107886003)(4326008)(6666004)(2906002)(8676002)(44832011)(7416002)(66556008)(83380400001)(66476007)(54906003)(1076003)(2616005)(956004)(7696005)(5660300002)(26005)(478600001)(52116002)(86362001)(8936002)(6486002)(66946007)(316002)(186003)(16526019)(966005)(36756003)(14143004);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?cXJ3VjlLL1NhZE5nYnNUSXM0V3I2alQ2ZGdJeUNBMTNyWjJyL3BENEFSc1B1?=
- =?utf-8?B?dm1EbzFvRG94bTJqeEtWeXlIT1FtRGJtRnFOcWR5Z05pdzBNNStPSzlHa1NE?=
- =?utf-8?B?NmJhdUVPb3dkS3hRRUVoMk0wanlVUnBtT3BlbG8rYU5SMVJTUEg5cTZvZTFO?=
- =?utf-8?B?K1JkVmRDRXI1a0J1cGgwYURPcHNvM3cwN1lXcWJNNVkycURnV0x0b0hLQWV6?=
- =?utf-8?B?WEhpZHpJeWV4bVlrVHdNb0JGdmZ1MXloYlpabEpmMExmbzgvZ1V0eEVYMWJn?=
- =?utf-8?B?OURaM1MvNjlOVXVPNHdwQ0xQcjBXdXllVG0yMmg2YzdGODVjeGhSNzIzeHds?=
- =?utf-8?B?QXQ2bEhxZlBSZzBzc0kvZlBpWGVoM2ZDa0gzejJmTVJsUm54MVNPSVk1V1Zu?=
- =?utf-8?B?UDdRdmw1UEN5T2FpcDY5aVorQmh6QStBc3h5VFZlY2tMWTA2cnFSZU9EU3Jt?=
- =?utf-8?B?U3VPUTFCQXk5TkQzc2dML3p5eDRkSXJhT0J4ajFDNjJ2a3doU2I3aFFRajdU?=
- =?utf-8?B?cmJBNEg1enFjYlM5ellWTXhXNTM2amxuT25CQnVaa1V5bFVkZUI0YStoeEI4?=
- =?utf-8?B?WkU2K2s4UXJPNnFWZUhzMC9kdDRVNitOY1VXMDBWSXlqQVViMHAySDY4L2Rl?=
- =?utf-8?B?UlpjZElKSkhQRk1jZjlCNmQ1a3ZoZy9kVWlUOHk5c2JXV2ZCL2pGdjhwMXE5?=
- =?utf-8?B?aDlIK3pheWRTTlI5UWRjNkJ6OGlpWDREVUFPREkyQTZEckhCU00xNjBHc2tx?=
- =?utf-8?B?K2RtYlIvZHFBN0x6Zm9VNWFRN2k2ZHRZaVJ2OFJXM2IrV3BMbXlVUjZFaG11?=
- =?utf-8?B?c0hLT0RVT2NuWEZTU3ZpWm5nZVJLZytmYWNSaDkxYUJiU0t0ZndLWjhGWFNm?=
- =?utf-8?B?WFFpVzFvNkN6UzJKQ2VpOU1aZHBBR3JaZmx4M25zZFlIUHI2VSs1VXdBcDZU?=
- =?utf-8?B?T2VDb1dveUFsUjZCb1ZvallJSXFlbGJ3bVYvUmVuVWp5dUFZVjlHdU5qUDRP?=
- =?utf-8?B?WGFOTFJiL01lNHZhcFdlOXJzeUxPWDk3M1ZuY0ZNOEthZkxQMmtQZkl2b0t1?=
- =?utf-8?B?THJTU1p3RHljWTR1WGpPRmlkMmlKRVhyS2RjN3NIUUU2QU83T0c2Qnhlc0t5?=
- =?utf-8?B?dkZDMHlBdHJJQUs2SmorV2tnZnJRN1Q0QndHc0dUU3lsYmdWK1hnK2tnR1lQ?=
- =?utf-8?B?WlBwTkJXK3JtVHMwQVFLcndIV0VUNktaZzNPaW1iYnBEUjMxa0tnS2k4M1Mx?=
- =?utf-8?B?MVdySkJuZWpLWkpNd1ludi9ublVoRCtQRjFST1B3N1I5T0c3aC9FNVl3Zm93?=
- =?utf-8?B?Yjl1RFFQdVhoVEc5WUZDeTl2VGRWUmpndGNWNXJ0eitZb09hdis5R2svZzUw?=
- =?utf-8?B?bFE3OHpnMFBTd255bWxUVHJJQ1l6WHlGL3pYNVAweitQUkFPYzRwWUdmZktp?=
- =?utf-8?B?Mk9qdjRGMDl4UlV2ZUFTS2xOclFFdkZwWUZ3Nmxwa25VWXFxK001SXNQZVdJ?=
- =?utf-8?B?MUxLZ1FKRkhvYmJzYWpGOGpKZjNFLy9SZTF5dlo0WEVIb0YxZnVuSGcya0dR?=
- =?utf-8?B?M0dHTTh4VWQwSCtwOGhORlJvcXB2c05YYTRpaVI3OHBZNHBqWkRaRlZqOXIy?=
- =?utf-8?B?L0twbmhuRG9VNWh3ZmJnV1prSFJiSS9KaEJ0d2pGS2JBR3ZuWC96RlpVbjQv?=
- =?utf-8?B?eW5QYjY3V3VLU2xObnJCTUtNV2ZqSnZIcndLMkNLNW9hcjlBRjBYVkFXdXZF?=
- =?utf-8?Q?mmURtsy7jOrt4GpQJbpTk4S66pHp4DwgEBxELGA?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fef043d0-fbc1-4e1c-e763-08d8ce207827
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR10MB1389.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Feb 2021 00:03:32.5370
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: vg4oZFoECFo+DFEMgfva9NbJwcEXr5w1m7hn5+IEB9ahkHhSGRhbEdExqg8Vx3mPxWy7GWo+2MU0F1DVy5kOgA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR10MB1341
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9891 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 adultscore=0
- mlxlogscore=572 malwarescore=0 bulkscore=0 phishscore=0 spamscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102100209
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9891 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 malwarescore=0
- priorityscore=1501 bulkscore=0 spamscore=0 impostorscore=0 mlxscore=0
- suspectscore=0 mlxlogscore=752 adultscore=0 clxscore=1011
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102100209
+In-Reply-To: <20210209154302.1033165-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-11_05:2021-02-10,2021-02-11 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=999 clxscore=1015 impostorscore=0 malwarescore=0 mlxscore=0
+ suspectscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102110072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Shu Wang opened bugzilla 211287 [1] saying,
-When a memory region is mapped with huge pages, the softdirty bit is set
-only right after the huge pages is mapped. After the memory mapping, if
-the softdirty bit is cleared and the memory is written again, the softdirty
-bit is not set when reading from the process's pagemap.
+On 2/9/21 4:43 PM, Claudio Imbrenda wrote:
+> Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
+> DAT table entry, or to the invalid entry.
+> 
+> Also return some flags in the lower bits of the address:
+> DAT_PROT: indicates that DAT protection applies because of the
+>           protection bit in the segment (or, if EDAT, region) tables
+> NOT_PTE: indicates that the address of the DAT table entry returned
+>          does not refer to a PTE, but to a segment or region table.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Cc: stable@vger.kernel.org
 
-Their use case for hugetlb soft dirty is,
-We maps both PMEM and hugetlb DRAM to process’s address space to provide
-large amount of memory to the application. Periodically, we clear the soft
-dirty bit by writing ‘4’ to the clear_refs. Then, we check the page’s soft
-dirty bit from pagemap and use this information to track write activity to
-memory. We migrate the data between DRAM and PMEM based the write activity
-for better performance.
+Reviewed-by: Janosch Frank <frankja@de.ibm.com>
 
-A quick check of the code revealed,
-The /proc clear_refs code handles THP pages and 'normal' pages.  There is
-no check/processing for hugetlb pages.  All the code will do is clear the
-VM_SOFTDIRTY vma flag and vma_set_page_prot.  None of the individual ptes
-or page flags are touched.
+Small nit below.
 
-The only soft dirty checking done by the /proc pagemap code is at the vma
-level.  It checks the VM_SOFTDIRTY flag.   It does not look for soft dirty
-on the individual ptes.
+> ---
+>  arch/s390/kvm/gaccess.c | 30 +++++++++++++++++++++++++-----
+>  arch/s390/kvm/gaccess.h |  5 ++++-
+>  arch/s390/kvm/vsie.c    |  8 ++++----
+>  3 files changed, 33 insertions(+), 10 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> index 6d6b57059493..e0ab83f051d2 100644
+> --- a/arch/s390/kvm/gaccess.c
+> +++ b/arch/s390/kvm/gaccess.c
+> @@ -976,7 +976,9 @@ int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra)
+>   * kvm_s390_shadow_tables - walk the guest page table and create shadow tables
+>   * @sg: pointer to the shadow guest address space structure
+>   * @saddr: faulting address in the shadow gmap
+> - * @pgt: pointer to the page table address result
+> + * @pgt: pointer to the beginning of the page table for the given address if
+> + *       successful (return value 0), or to the first invalid DAT entry in
+> + *       case of exceptions (return value > 0)
+>   * @fake: pgt references contiguous guest memory block, not a pgtable
+>   */
+>  static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+> @@ -1034,6 +1036,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>  			rfte.val = ptr;
+>  			goto shadow_r2t;
+>  		}
+> +		*pgt = ptr + vaddr.rfx * 8;
+>  		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8, &rfte.val);
+>  		if (rc)
+>  			return rc;
+> @@ -1060,6 +1063,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>  			rste.val = ptr;
+>  			goto shadow_r3t;
+>  		}
+> +		*pgt = ptr + vaddr.rsx * 8;
+>  		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8, &rste.val);
+>  		if (rc)
+>  			return rc;
+> @@ -1087,6 +1091,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>  			rtte.val = ptr;
+>  			goto shadow_sgt;
+>  		}
+> +		*pgt = ptr + vaddr.rtx * 8;
+>  		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8, &rtte.val);
+>  		if (rc)
+>  			return rc;
+> @@ -1123,6 +1128,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>  			ste.val = ptr;
+>  			goto shadow_pgt;
+>  		}
+> +		*pgt = ptr + vaddr.sx * 8;
+>  		rc = gmap_read_table(parent, ptr + vaddr.sx * 8, &ste.val);
+>  		if (rc)
+>  			return rc;
+> @@ -1157,6 +1163,8 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>   * @vcpu: virtual cpu
+>   * @sg: pointer to the shadow guest address space structure
+>   * @saddr: faulting address in the shadow gmap
+> + * @datptr: will contain the address of the faulting DAT table entry, or of
+> + *          the valid leaf, plus some flags
+>   *
+>   * Returns: - 0 if the shadow fault was successfully resolved
+>   *	    - > 0 (pgm exception code) on exceptions while faulting
+> @@ -1165,11 +1173,11 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+>   *	    - -ENOMEM if out of memory
+>   */
+>  int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+> -			  unsigned long saddr)
+> +			  unsigned long saddr, unsigned long *datptr)
+>  {
+>  	union vaddress vaddr;
+>  	union page_table_entry pte;
+> -	unsigned long pgt;
+> +	unsigned long pgt = 0;
+>  	int dat_protection, fake;
+>  	int rc;
+>  
+> @@ -1191,8 +1199,20 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+>  		pte.val = pgt + vaddr.px * PAGE_SIZE;
+>  		goto shadow_page;
+>  	}
+> -	if (!rc)
+> -		rc = gmap_read_table(sg->parent, pgt + vaddr.px * 8, &pte.val);
+> +
+> +	switch (rc) {
+> +	case PGM_SEGMENT_TRANSLATION:
+> +	case PGM_REGION_THIRD_TRANS:
+> +	case PGM_REGION_SECOND_TRANS:
+> +	case PGM_REGION_FIRST_TRANS:
+> +		pgt |= NOT_PTE;
+> +		break;
+> +	case 0:
+> +		pgt += vaddr.px * 8;
+> +		rc = gmap_read_table(sg->parent, pgt, &pte.val);
+> +	}
+> +	if (*datptr)
+> +		*datptr = pgt | dat_protection * DAT_PROT;
+>  	if (!rc && pte.i)
+>  		rc = PGM_PAGE_TRANSLATION;
+>  	if (!rc && pte.z)
+> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+> index f4c51756c462..fec26bbb17ba 100644
+> --- a/arch/s390/kvm/gaccess.h
+> +++ b/arch/s390/kvm/gaccess.h
+> @@ -359,7 +359,10 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
+>  int ipte_lock_held(struct kvm_vcpu *vcpu);
+>  int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra);
+>  
+> +#define DAT_PROT 2
+> +#define NOT_PTE 4
 
-That explains the behavior described in the bugzilla report.
+I'd like to have a PEI prefix and a short comment where this comes from,
+something like:
+"MVPG PEI indication bits"
 
-This series adds soft dirty support for hugetlb.  It has only passed
-some very basic testing and likely needs more work.  However, Axel
-Rasmussen's "userfaultfd: add minor fault handling" and Peter Xu's
-"userfaultfd-wp: Support shmem and hugetlbfs" work touch the same areas
-and have similiar issues.  Therefore, code is being sent earlier than
-normal so that efforts in common areas can be coordinated.
-
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=211287
-
-Mike Kravetz (5):
-  hugetlb: add hugetlb helpers for soft dirty support
-  hugetlb: enhance hugetlb fault processing to support soft dirty
-  mm proc/task_mmu.c: add soft dirty pte checks for hugetlb
-  hugetlb: don't permit pmd sharing if soft dirty in use
-  mm proc/task_mmu.c: add hugetlb specific routine for clear_refs
-
- arch/s390/include/asm/hugetlb.h |  30 +++++++++
- fs/proc/task_mmu.c              | 114 ++++++++++++++++++++++++++++++++
- include/asm-generic/hugetlb.h   |  30 +++++++++
- include/linux/hugetlb.h         |   1 +
- mm/hugetlb.c                    |  40 ++++++-----
- 5 files changed, 199 insertions(+), 16 deletions(-)
-
--- 
-2.29.2
+> +
+>  int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *shadow,
+> -			  unsigned long saddr);
+> +			  unsigned long saddr, unsigned long *datptr);
+>  
+>  #endif /* __KVM_S390_GACCESS_H */
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index c5d0a58b2c29..7db022141db3 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -619,10 +619,10 @@ static int map_prefix(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>  	/* with mso/msl, the prefix lies at offset *mso* */
+>  	prefix += scb_s->mso;
+>  
+> -	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix);
+> +	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix, NULL);
+>  	if (!rc && (scb_s->ecb & ECB_TE))
+>  		rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+> -					   prefix + PAGE_SIZE);
+> +					   prefix + PAGE_SIZE, NULL);
+>  	/*
+>  	 * We don't have to mprotect, we will be called for all unshadows.
+>  	 * SIE will detect if protection applies and trigger a validity.
+> @@ -913,7 +913,7 @@ static int handle_fault(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>  				    current->thread.gmap_addr, 1);
+>  
+>  	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+> -				   current->thread.gmap_addr);
+> +				   current->thread.gmap_addr, NULL);
+>  	if (rc > 0) {
+>  		rc = inject_fault(vcpu, rc,
+>  				  current->thread.gmap_addr,
+> @@ -935,7 +935,7 @@ static void handle_last_fault(struct kvm_vcpu *vcpu,
+>  {
+>  	if (vsie_page->fault_addr)
+>  		kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+> -				      vsie_page->fault_addr);
+> +				      vsie_page->fault_addr, NULL);
+>  	vsie_page->fault_addr = 0;
+>  }
+>  
+> 
 
