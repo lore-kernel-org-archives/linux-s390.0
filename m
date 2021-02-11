@@ -2,155 +2,242 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38453C433DB
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 10:35:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A76EC433DB
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 11:39:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EB43C64E6F
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 10:35:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EF27B64DB1
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 11:39:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229869AbhBKKek (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 11 Feb 2021 05:34:40 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40250 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230111AbhBKKbh (ORCPT
+        id S231635AbhBKLjb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 Feb 2021 06:39:31 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49711 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230011AbhBKLh2 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Feb 2021 05:31:37 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11BAQDni114663;
-        Thu, 11 Feb 2021 05:30:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=t2Mhjrpyu+KS/SL+ku/0ueOIwlA2bntJdrrxUBsN1ig=;
- b=kqMAIXv8FYqV7ICgI8WmWTNn8VsJeS5MXwzy5oaX9zEf3ha9FOQg85PM7U8KOhrrKZX4
- S7K/FE/OQhLYi+IPmIGv/ynwupYCQ3+4tTfGTZLXqqmiLN/IB7Mb+Fjy3QbZeKLQvv36
- hCQfZTZxFQ1kZxEbmCapwxK3lv1IMfI2BDAbgeGt3zUYW9eKHsuA5PRZC6Sj8tvfa34Q
- P+fx2Pt74bqDn6WElkLYiI12HYX9LF2ZaoqOhmLEc3jMj0VwptqwXDF6VGFEPlX9a2hD
- J+ONFcyZFGM/FRSMwwRD08N51oXDkI1WEq8FD68par/r8uSaQJQCKJ3GVFp4llV/j6RW Ew== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36n2tyg2cd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 Feb 2021 05:30:50 -0500
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11BAR0jn116482;
-        Thu, 11 Feb 2021 05:30:50 -0500
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36n2tyg2br-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 Feb 2021 05:30:50 -0500
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11BARGpp031083;
-        Thu, 11 Feb 2021 10:30:48 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04ams.nl.ibm.com with ESMTP id 36hjr8dp9x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 Feb 2021 10:30:47 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11BAUYBE34734512
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 11 Feb 2021 10:30:34 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E3E5EAE058;
-        Thu, 11 Feb 2021 10:30:44 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 89F8DAE04D;
-        Thu, 11 Feb 2021 10:30:44 +0000 (GMT)
-Received: from ibm-vm (unknown [9.145.1.216])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 11 Feb 2021 10:30:44 +0000 (GMT)
-Date:   Thu, 11 Feb 2021 11:30:42 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        Thu, 11 Feb 2021 06:37:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613043358;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zYeHJb7zbEhP3Giqp4jdT5z3cBNO8R74OTAtH7GfRWY=;
+        b=IFfham2fEkuSMk6XE/ddq0/rIuzia8JbOCbVwBRjb0f1CnLltuWH7REXik+RQ1qZmjuPKQ
+        i700uwgyFTe252rXQ/i3HFizyoci84vQAd3O0PSqdpaRkVz8L5E0aXUaKyT1M1fZdphvhX
+        gqyB9+ZPFeDRjwVZHMAxAJs+9wJOmxk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-36-5YGRQqMLO1ua_KJ-2TWwlA-1; Thu, 11 Feb 2021 06:35:56 -0500
+X-MC-Unique: 5YGRQqMLO1ua_KJ-2TWwlA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5CCAE80402C;
+        Thu, 11 Feb 2021 11:35:55 +0000 (UTC)
+Received: from thuth.remote.csb (ovpn-112-46.ams2.redhat.com [10.36.112.46])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5CB3A5D74F;
+        Thu, 11 Feb 2021 11:35:50 +0000 (UTC)
+Subject: Re: [kvm-unit-tests PATCH v1 4/4] s390x: edat test
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, david@redhat.com,
         frankja@linux.ibm.com, cohuck@redhat.com, pmorel@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH v1 3/4] s390x: mmu: add support for large
- pages
-Message-ID: <20210211113042.73553215@ibm-vm>
-In-Reply-To: <9d99a22d-5bcd-5544-a78e-4fe0e025f961@redhat.com>
 References: <20210209143835.1031617-1-imbrenda@linux.ibm.com>
-        <20210209143835.1031617-4-imbrenda@linux.ibm.com>
-        <9d99a22d-5bcd-5544-a78e-4fe0e025f961@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ <20210209143835.1031617-5-imbrenda@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <b069ad4e-b899-218b-a6a3-a371e4238f87@redhat.com>
+Date:   Thu, 11 Feb 2021 12:35:49 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20210209143835.1031617-5-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
- definitions=2021-02-11_05:2021-02-10,2021-02-11 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- malwarescore=0 impostorscore=0 suspectscore=0 phishscore=0 mlxlogscore=999
- clxscore=1015 priorityscore=1501 lowpriorityscore=0 bulkscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102110088
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 11 Feb 2021 11:06:06 +0100
-Thomas Huth <thuth@redhat.com> wrote:
-
-> On 09/02/2021 15.38, Claudio Imbrenda wrote:
-> > Add support for 1M and 2G pages.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > ---
-> >   lib/s390x/mmu.h |  73 +++++++++++++-
-> >   lib/s390x/mmu.c | 246
-> > +++++++++++++++++++++++++++++++++++++++++++----- 2 files changed,
-> > 294 insertions(+), 25 deletions(-)  
-> [...]
-> > +/*
-> > + * Get the pte (page) DAT table entry for the given address and
-> > pmd,
-> > + * allocating it if necessary.
-> > + * The pmd must not be large.
-> > + */
-> > +static inline pte_t *get_pte(pmd_t *pmd, uintptr_t vaddr)
-> > +{
-> >   	pte_t *pte = pte_alloc(pmd, vaddr);
-> >   
-> > -	return &pte_val(*pte);
-> > +	assert(!pmd_large(*pmd));
-> > +	pte = pte_alloc(pmd, vaddr);  
+On 09/02/2021 15.38, Claudio Imbrenda wrote:
+> Simple EDAT test.
 > 
-> Why is this function doing "pte = pte_alloc(pmd, vaddr)" twice now?
-
-ooops! the first pte_alloc is not supposed to be there!
-good catch - will fix
-
-> > +	return pte;
-> > +}  
-> [...]
-> > +	if ((level == 1) && !pgd_none(*(pgd_t *)ptr))
-> > +		idte_pgdp(va, ptr);
-> > +	else if ((level == 2) && !p4d_none(*(p4d_t *)ptr))
-> > +		idte_p4dp(va, ptr);
-> > +	else if ((level == 3) && !pud_none(*(pud_t *)ptr))
-> > +		idte_pudp(va, ptr);
-> > +	else if ((level == 4) && !pmd_none(*(pmd_t *)ptr))
-> > +		idte_pmdp(va, ptr);
-> > +	else if (!pte_none(*(pte_t *)ptr))
-> > +		ipte(va, ptr);  
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   s390x/Makefile      |   1 +
+>   s390x/edat.c        | 238 ++++++++++++++++++++++++++++++++++++++++++++
+>   s390x/unittests.cfg |   3 +
+>   3 files changed, 242 insertions(+)
+>   create mode 100644 s390x/edat.c
 > 
-> Meta-comment: Being someone who worked quite a bit with the page
-> tables on s390x, but never really got in touch with the way it is
-> handled in the Linux kernel, I'm always having a hard time to match
-> all these TLAs to the PoP: pmd, pud, p4d ...
-> Can we please have a proper place in the kvm-unit-tests sources
-> somewhere (maybe at the beginning of mmu.c), where the TLAs are
-> explained and how they map to the region and segment tables of the Z
-> architecture? (I personally would prefer to completely switch to the
-> Z arch naming instead, but I guess that's too much of a change right
-> now)
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index 08d85c9f..fc885150 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -20,6 +20,7 @@ tests += $(TEST_DIR)/sclp.elf
+>   tests += $(TEST_DIR)/css.elf
+>   tests += $(TEST_DIR)/uv-guest.elf
+>   tests += $(TEST_DIR)/sie.elf
+> +tests += $(TEST_DIR)/edat.elf
+>   
+>   tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>   ifneq ($(HOST_KEY_DOCUMENT),)
+> diff --git a/s390x/edat.c b/s390x/edat.c
+> new file mode 100644
+> index 00000000..504a1501
+> --- /dev/null
+> +++ b/s390x/edat.c
+> @@ -0,0 +1,238 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * EDAT test.
+> + *
+> + * Copyright (c) 2021 IBM Corp
+> + *
+> + * Authors:
+> + *	Claudio Imbrenda <imbrenda@linux.ibm.com>
+> + */
+> +#include <libcflat.h>
+> +#include <vmalloc.h>
+> +#include <asm/facility.h>
+> +#include <asm/interrupt.h>
+> +#include <mmu.h>
+> +#include <asm/pgtable.h>
+> +#include <asm-generic/barrier.h>
+> +
+> +#define TEID_ADDR	PAGE_MASK
+> +#define TEID_AI		0x003
+> +#define TEID_M		0x004
+> +#define TEID_A		0x008
+> +#define TEID_FS		0xc00
+> +
+> +#define LC_SIZE	(2 * PAGE_SIZE)
+> +#define VIRT(x)	((void *)((unsigned long)(x) + (unsigned long)mem))
+> +
+> +static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));
+> +static unsigned int tmp[1024] __attribute__((aligned(PAGE_SIZE)));
+> +static void *root, *mem, *m;
+> +static struct lowcore *lc;
+> +volatile unsigned int *p;
+> +
+> +/* Expect a program interrupt, and clear the TEID */
+> +static void expect_dat_fault(void)
+> +{
+> +	expect_pgm_int();
+> +	lc->trans_exc_id = 0;
+> +}
+> +
+> +/* Check if a protection exception happened for the given address */
+> +static bool check_pgm_prot(void *ptr)
+> +{
+> +	unsigned long teid = lc->trans_exc_id;
+> +
+> +	if (lc->pgm_int_code != PGM_INT_CODE_PROTECTION)
+> +		return 0;
 
-makes sense, I can add that
+return false.
+It's a bool return type.
 
->   Thomas
-> 
+> +	if (~teid & TEID_M)
+
+I'd maybe rather write this as:
+
+         if (!(teid & TEID_M))
+
+... but it's just a matter of taste.
+
+> +		return 1;
+
+                 return true;
+
+So this is for backward compatiblity with older Z systems that do not have 
+the corresponding facility? Should there be a corresponding facility check 
+somewhere? Or maybe add at least a comment?
+
+> +	return (~teid & TEID_A) &&
+> +		((teid & TEID_ADDR) == ((uint64_t)ptr & PAGE_MASK)) &&
+> +		!(teid & TEID_AI);
+
+So you're checking for one specific type of protection exception here only 
+... please add an appropriate comment.
+
+> +}
+> +
+> +static void test_dat(void)
+> +{
+> +	report_prefix_push("edat off");
+> +	/* disable EDAT */
+> +	ctl_clear_bit(0, 23);
+> +
+> +	/* Check some basics */
+> +	p[0] = 42;
+> +	report(p[0] == 42, "pte, r/w");
+> +	p[0] = 0;
+> +
+> +	protect_page(m, PAGE_ENTRY_P);
+> +	expect_dat_fault();
+> +	p[0] = 42;
+> +	unprotect_page(m, PAGE_ENTRY_P);
+> +	report(!p[0] && check_pgm_prot(m), "pte, ro");
+> +
+> +	/* The FC bit should be ignored because EDAT is off */
+> +	p[0] = 42;
+
+I'd suggest to set p[0] = 0 here...
+
+> +	protect_dat_entry(m, SEGMENT_ENTRY_FC, 4);
+
+... and change the value to 42 after enabling the protection ... otherwise 
+you don't really test the non-working write protection here, do you?
+
+> +	report(p[0] == 42, "pmd, fc=1, r/w");
+> +	unprotect_dat_entry(m, SEGMENT_ENTRY_FC, 4);
+> +	p[0] = 0;
+> +
+> +	/* Segment protection should work even with EDAT off */
+> +	protect_dat_entry(m, SEGMENT_ENTRY_P, 4);
+> +	expect_dat_fault();
+> +	p[0] = 42;
+> +	report(!p[0] && check_pgm_prot(m), "pmd, ro");
+> +	unprotect_dat_entry(m, SEGMENT_ENTRY_P, 4);
+> +
+> +	/* The FC bit should be ignored because EDAT is off*/
+
+Set p[0] to 0 again before enabling the protection? Or maybe use a different 
+value than 42 below...?
+
+> +	protect_dat_entry(m, REGION3_ENTRY_FC, 3);
+> +	p[0] = 42;
+> +	report(p[0] == 42, "pud, fc=1, r/w");
+> +	unprotect_dat_entry(m, REGION3_ENTRY_FC, 3);
+> +	p[0] = 0;
+> +
+> +	/* Region1/2/3 protection should not work, because EDAT is off */
+> +	protect_dat_entry(m, REGION_ENTRY_P, 3);
+> +	p[0] = 42;
+> +	report(p[0] == 42, "pud, ro");
+> +	unprotect_dat_entry(m, REGION_ENTRY_P, 3);
+> +	p[0] = 0;
+> +
+> +	protect_dat_entry(m, REGION_ENTRY_P, 2);
+> +	p[0] = 42;
+> +	report(p[0] == 42, "p4d, ro");
+> +	unprotect_dat_entry(m, REGION_ENTRY_P, 2);
+> +	p[0] = 0;
+> +
+> +	protect_dat_entry(m, REGION_ENTRY_P, 1);
+> +	p[0] = 42;
+> +	report(p[0] == 42, "pgd, ro");
+> +	unprotect_dat_entry(m, REGION_ENTRY_P, 1);
+> +	p[0] = 0;
+> +
+> +	report_prefix_pop();
+> +}
+
+  Thomas
 
