@@ -2,146 +2,271 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2815C433E0
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 12:27:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E517CC433DB
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 13:01:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7112664DBA
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 12:27:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9257F64E38
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Feb 2021 13:01:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229756AbhBKM1A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 11 Feb 2021 07:27:00 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31936 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230357AbhBKMYo (ORCPT
+        id S231484AbhBKNAz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 Feb 2021 08:00:55 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17492 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231825AbhBKM6s (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Feb 2021 07:24:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613046196;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=faRpucM8bYk3+6I7D614thA2FMfgheqmON/unvovBDw=;
-        b=gGCV/AKUKM8kYrPla3Sok/JIP0Wd79bcDLirMzZeSUVQMKn+X9Cuk2mVzNljnNN//HQ9mQ
-        MN8F4bzvJIHE5/OOImNmwqcbyJZJe1PTV9hh7r9Ufq293cMPGicfsSeuWc+ALrKBOfzOv0
-        rkZ/wm7w0yoB9qDo83pJN5jmePNtbMM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-233-aPNvSw21OQiRLgyafqWlog-1; Thu, 11 Feb 2021 07:23:15 -0500
-X-MC-Unique: aPNvSw21OQiRLgyafqWlog-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A20F81005501;
-        Thu, 11 Feb 2021 12:23:13 +0000 (UTC)
-Received: from gondolin (ovpn-112-229.ams2.redhat.com [10.36.112.229])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BA37B60936;
-        Thu, 11 Feb 2021 12:23:08 +0000 (UTC)
-Date:   Thu, 11 Feb 2021 13:23:06 +0100
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, stable@vger.kernel.org,
-        borntraeger@de.ibm.com, kwankhede@nvidia.com, pbonzini@redhat.com,
-        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com
-Subject: Re: [PATCH 1/1] s390/vfio-ap: fix circular lockdep when
- setting/clearing crypto masks
-Message-ID: <20210211132306.64249174.cohuck@redhat.com>
-In-Reply-To: <6e2842e4-334d-6592-a781-5b85ec0ed13c@linux.ibm.com>
-References: <20210209194830.20271-1-akrowiak@linux.ibm.com>
-        <20210209194830.20271-2-akrowiak@linux.ibm.com>
-        <20210210115334.46635966.cohuck@redhat.com>
-        <6e2842e4-334d-6592-a781-5b85ec0ed13c@linux.ibm.com>
-Organization: Red Hat GmbH
+        Thu, 11 Feb 2021 07:58:48 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11BCk7aW026707;
+        Thu, 11 Feb 2021 07:58:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=QdQ7sXB56S7RetRm9u1Pk6q4tdb5or50B3OrRsZxoIE=;
+ b=NL61gHzLyTPA2i0MJ88yQicYC37FU/zLMxYpjaEx2fooMdgObU+2zZpJuNS5pW4N+EzX
+ VpEmQZhxMeYBHK9NP7323hHH/Vi94qK+9859EpmgaYA40fWS1zrUE9WacRUchOj8ViOZ
+ vck4E1nnnlw34e1ZgaQqQXfKbe1sqZs3s80Dxvn2TD109h4m9YdIryuLaHlXZ6w2qRHX
+ vFSPpt0U9gk6p1q/BG16JdjUISs/HO87+9j4yEeoUC9rpRD5sxg1MpDkj2T6NIOVdvVL
+ S0NLFImO4YTqXA69oHSu5z1Fmms/YgtNA+i5BIG8rcvGvyi5X5fSCeJVr9+tGYNu7YEI eQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36n4tm0f2d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 07:58:05 -0500
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11BCw4m0088550;
+        Thu, 11 Feb 2021 07:58:04 -0500
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36n4tm0f1t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 07:58:04 -0500
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11BCgvjM014332;
+        Thu, 11 Feb 2021 12:58:03 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03fra.de.ibm.com with ESMTP id 36hskb2vup-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 11 Feb 2021 12:58:03 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11BCw0tN14483794
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 11 Feb 2021 12:58:00 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0ACBF52050;
+        Thu, 11 Feb 2021 12:58:00 +0000 (GMT)
+Received: from ibm-vm (unknown [9.145.1.216])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id A02A852057;
+        Thu, 11 Feb 2021 12:57:59 +0000 (GMT)
+Date:   Thu, 11 Feb 2021 13:57:56 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, cohuck@redhat.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v3 1/2] s390/kvm: extend kvm_s390_shadow_fault to return
+ entry pointer
+Message-ID: <20210211135756.249b535b@ibm-vm>
+In-Reply-To: <2a65f089-1728-7bc7-a2a8-a2c089a01cec@redhat.com>
+References: <20210209154302.1033165-1-imbrenda@linux.ibm.com>
+        <20210209154302.1033165-2-imbrenda@linux.ibm.com>
+        <2a65f089-1728-7bc7-a2a8-a2c089a01cec@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
+ definitions=2021-02-11_05:2021-02-10,2021-02-11 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ mlxscore=0 priorityscore=1501 suspectscore=0 mlxlogscore=999
+ lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0 impostorscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102110109
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 10 Feb 2021 15:34:24 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+On Thu, 11 Feb 2021 10:18:56 +0100
+David Hildenbrand <david@redhat.com> wrote:
 
-> On 2/10/21 5:53 AM, Cornelia Huck wrote:
-> > On Tue,  9 Feb 2021 14:48:30 -0500
-> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> >  
-> >> This patch fixes a circular locking dependency in the CI introduced by
-> >> commit f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM
-> >> pointer invalidated"). The lockdep only occurs when starting a Secure
-> >> Execution guest. Crypto virtualization (vfio_ap) is not yet supported for
-> >> SE guests; however, in order to avoid CI errors, this fix is being
-> >> provided.
-> >>
-> >> The circular lockdep was introduced when the masks in the guest's APCB
-> >> were taken under the matrix_dev->lock. While the lock is definitely
-> >> needed to protect the setting/unsetting of the KVM pointer, it is not
-> >> necessarily critical for setting the masks, so this will not be done under
-> >> protection of the matrix_dev->lock.
-> >>
-> >> Fixes: f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated")
-> >> Cc: stable@vger.kernel.org
-> >> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> >> ---
-> >>   drivers/s390/crypto/vfio_ap_ops.c | 75 ++++++++++++++++++-------------
-> >>   1 file changed, 45 insertions(+), 30 deletions(-)
-> >>
-> >>   static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
-> >>   {
-> >> -	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-> >> -	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
-> >> -	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
-> >> -	kvm_put_kvm(matrix_mdev->kvm);
-> >> -	matrix_mdev->kvm = NULL;
-> >> +	if (matrix_mdev->kvm) {  
-> > If you're doing setting/unsetting under matrix_dev->lock, is it
-> > possible that matrix_mdev->kvm gets unset between here and the next
-> > line, as you don't hold the lock?  
+> On 09.02.21 16:43, Claudio Imbrenda wrote:
+> > Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
+> > DAT table entry, or to the invalid entry.
+> > 
+> > Also return some flags in the lower bits of the address:
+> > DAT_PROT: indicates that DAT protection applies because of the
+> >            protection bit in the segment (or, if EDAT, region)
+> > tables NOT_PTE: indicates that the address of the DAT table entry
+> > returned does not refer to a PTE, but to a segment or region table.
+> >   
 > 
-> That is highly unlikely because the only place the matrix_mdev->kvm
-> pointer is cleared is in this function which is called from only two
-> places: the notifier that handles the VFIO_GROUP_NOTIFY_SET_KVM
-> notification when the KVM pointer is cleared; the vfio_ap_mdev_release()
-> function which is called when the mdev fd is closed (i.e., when the guest
-> is shut down). The fact is, with the only end-to-end implementation
-> currently available, the notifier callback is never invoked to clear
-> the KVM pointer because the vfio_ap_mdev_release callback is
-> invoked first and it unregisters the notifier callback.
+> I've been thinking about one possible issue, but I think it's not 
+> actually an issue. Just sharing so others can verify:
 > 
-> Having said that, I suppose there is no guarantee that there will not
-> be different userspace clients in the future that do things in a
-> different order. At the very least, it wouldn't hurt to protect against
-> that as you suggest below.
+> In case our guest uses huge pages / gigantic pages / ASCE R, we
+> create fake page tables (GMAP_SHADOW_FAKE_TABLE).
+> 
+> So, it could be that kvm_s390_shadow_fault()->gmap_shadow_pgt_lookup()
+> succeeds, however, we have a fake PTE in our hands. We lost the
+> actual guest STE/RTE address. (I think it could be recovered somehow
+> via page->index, thought)
+> 
+> But I guess, if there is a fake PTE, then there is not acutally
+> something that could go wrong in gmap_shadow_page() anymore that could
+> lead us in responding something wrong to the guest. We can only really
+> fail with -EINVAL, -ENOMEM or -EFAULT.
 
-Yes, if userspace is able to use the interfaces in the certain way, we
-should always make sure that nothing bad happens if it does so, even if
-known userspace applications are well-behaved.
+this was also my reasoning
 
-[Can we make an 'evil userspace' test program, maybe? The hardware
-dependency makes this hard to run, though.]
+> So if the guest changed anything in the meantime (e.g., zap a
+> segment), we would have unshadowed the whole fake page table
+> hierarchy and would simply retry.
+> 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > Cc: stable@vger.kernel.org
+> > ---
+> >   arch/s390/kvm/gaccess.c | 30 +++++++++++++++++++++++++-----
+> >   arch/s390/kvm/gaccess.h |  5 ++++-
+> >   arch/s390/kvm/vsie.c    |  8 ++++----
+> >   3 files changed, 33 insertions(+), 10 deletions(-)
+> > 
+> > diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> > index 6d6b57059493..e0ab83f051d2 100644
+> > --- a/arch/s390/kvm/gaccess.c
+> > +++ b/arch/s390/kvm/gaccess.c
+> > @@ -976,7 +976,9 @@ int kvm_s390_check_low_addr_prot_real(struct
+> > kvm_vcpu *vcpu, unsigned long gra)
+> >    * kvm_s390_shadow_tables - walk the guest page table and create
+> > shadow tables
+> >    * @sg: pointer to the shadow guest address space structure
+> >    * @saddr: faulting address in the shadow gmap
+> > - * @pgt: pointer to the page table address result
+> > + * @pgt: pointer to the beginning of the page table for the given
+> > address if
+> > + *       successful (return value 0), or to the first invalid DAT
+> > entry in
+> > + *       case of exceptions (return value > 0)
+> >    * @fake: pgt references contiguous guest memory block, not a
+> > pgtable */
+> >   static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long
+> > saddr, @@ -1034,6 +1036,7 @@ static int
+> > kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+> > rfte.val = ptr; goto shadow_r2t;
+> >   		}
+> > +		*pgt = ptr + vaddr.rfx * 8;
+> >   		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8,
+> > &rfte.val);  
+> 
+> Using
+> 
+> gmap_read_table(parent, *pgt, &rfte.val);
+> 
+> or similar with a local variable might then be even clearer. But no 
+> strong opinion.
 
+that's also something I had thought about, in the end this minimizes
+the number of lines / variables while still being readable
+
+> >   		if (rc)
+> >   			return rc;
+> > @@ -1060,6 +1063,7 @@ static int kvm_s390_shadow_tables(struct gmap
+> > *sg, unsigned long saddr, rste.val = ptr;
+> >   			goto shadow_r3t;
+> >   		}
+> > +		*pgt = ptr + vaddr.rsx * 8;
+> >   		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8,
+> > &rste.val); if (rc)
+> >   			return rc;
+> > @@ -1087,6 +1091,7 @@ static int kvm_s390_shadow_tables(struct gmap
+> > *sg, unsigned long saddr, rtte.val = ptr;
+> >   			goto shadow_sgt;
+> >   		}
+> > +		*pgt = ptr + vaddr.rtx * 8;
+> >   		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8,
+> > &rtte.val); if (rc)
+> >   			return rc;
+> > @@ -1123,6 +1128,7 @@ static int kvm_s390_shadow_tables(struct gmap
+> > *sg, unsigned long saddr, ste.val = ptr;
+> >   			goto shadow_pgt;
+> >   		}
+> > +		*pgt = ptr + vaddr.sx * 8;
+> >   		rc = gmap_read_table(parent, ptr + vaddr.sx * 8,
+> > &ste.val); if (rc)
+> >   			return rc;
+> > @@ -1157,6 +1163,8 @@ static int kvm_s390_shadow_tables(struct gmap
+> > *sg, unsigned long saddr,
+> >    * @vcpu: virtual cpu
+> >    * @sg: pointer to the shadow guest address space structure
+> >    * @saddr: faulting address in the shadow gmap
+> > + * @datptr: will contain the address of the faulting DAT table
+> > entry, or of
+> > + *          the valid leaf, plus some flags
+> >    *
+> >    * Returns: - 0 if the shadow fault was successfully resolved
+> >    *	    - > 0 (pgm exception code) on exceptions while
+> > faulting @@ -1165,11 +1173,11 @@ static int
+> > kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+> >    *	    - -ENOMEM if out of memory
+> >    */
+> >   int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+> > -			  unsigned long saddr)
+> > +			  unsigned long saddr, unsigned long
+> > *datptr) {
+> >   	union vaddress vaddr;
+> >   	union page_table_entry pte;
+> > -	unsigned long pgt;
+> > +	unsigned long pgt = 0;
+> >   	int dat_protection, fake;
+> >   	int rc;
+> >   
+> > @@ -1191,8 +1199,20 @@ int kvm_s390_shadow_fault(struct kvm_vcpu
+> > *vcpu, struct gmap *sg, pte.val = pgt + vaddr.px * PAGE_SIZE;
+> >   		goto shadow_page;
+> >   	}
+> > -	if (!rc)
+> > -		rc = gmap_read_table(sg->parent, pgt + vaddr.px *
+> > 8, &pte.val); +
+> > +	switch (rc) {
+> > +	case PGM_SEGMENT_TRANSLATION:
+> > +	case PGM_REGION_THIRD_TRANS:
+> > +	case PGM_REGION_SECOND_TRANS:
+> > +	case PGM_REGION_FIRST_TRANS:
+> > +		pgt |= NOT_PTE;
+> > +		break;
+> > +	case 0:
+> > +		pgt += vaddr.px * 8;
+> > +		rc = gmap_read_table(sg->parent, pgt, &pte.val);
+> > +	}
+> > +	if (*datptr)
+> > +		*datptr = pgt | dat_protection * DAT_PROT;
+> >   	if (!rc && pte.i)
+> >   		rc = PGM_PAGE_TRANSLATION;
+> >   	if (!rc && pte.z)
+> > diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+> > index f4c51756c462..fec26bbb17ba 100644
+> > --- a/arch/s390/kvm/gaccess.h
+> > +++ b/arch/s390/kvm/gaccess.h
+> > @@ -359,7 +359,10 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
+> >   int ipte_lock_held(struct kvm_vcpu *vcpu);
+> >   int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu,
+> > unsigned long gra); 
+> > +#define DAT_PROT 2
+> > +#define NOT_PTE 4  
 > 
-> >
-> > Maybe you could
-> > - grab a reference to kvm while holding the lock
-> > - call the mask handling functions with that kvm reference
-> > - lock again, drop the reference, and do the rest of the processing?
-> >  
-> >> +		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-> >> +		mutex_lock(&matrix_dev->lock);
-> >> +		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
-> >> +		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
-> >> +		kvm_put_kvm(matrix_mdev->kvm);
-> >> +		matrix_mdev->kvm = NULL;
-> >> +		mutex_unlock(&matrix_dev->lock);
-> >> +	}
-> >>   }  
-> 
+> What if our guest is using ASCE.R ?
+
+then we don't care.
+
+if the guest is using ASCE.R, then shadowing will always succeed, and
+the VSIE MVPG handler will retry right away.
+
+if you are worried about the the lowest order bit, it can only be set
+if a specific feature is enabled in the host, and KVM doesn't use /
+support it, so the guest can't use it for its guest.
+
+
 
