@@ -2,173 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C9FDC433DB
-	for <linux-s390@archiver.kernel.org>; Fri, 12 Feb 2021 16:05:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDBEEC433DB
+	for <linux-s390@archiver.kernel.org>; Fri, 12 Feb 2021 17:06:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F5BD64DD9
-	for <linux-s390@archiver.kernel.org>; Fri, 12 Feb 2021 16:05:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9479064E56
+	for <linux-s390@archiver.kernel.org>; Fri, 12 Feb 2021 17:06:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231249AbhBLQFy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 12 Feb 2021 11:05:54 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43432 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231725AbhBLQFt (ORCPT
+        id S231273AbhBLRFy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 12 Feb 2021 12:05:54 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:30209 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231249AbhBLRFt (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 12 Feb 2021 11:05:49 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11CFWqa9054094;
-        Fri, 12 Feb 2021 11:05:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=oZ/Or/hBnwRHsmHB6q9dDlaWqCXF5dYNjEqo2bAz9RQ=;
- b=M46BoC3IpzfWLLMXAtGntH1RuLDEy88mY1otm+ZLt8UR6f8trjRziDJtf8IoCrEvVkuH
- UUHx7VaC2UXxYQxRmOWy5BP3OpVmHsvGIN+jLDPTRgalNDEwySn8BNszQ4zKbUE2uS4C
- Yy3AbK+J1/VEujm8QET09juCWbzBtwKiYpFLVWTs2i9x1j6FYPUwnulTL8IwdneH1sjq
- tIdUwBs6+8SCKD5oOEKm418D0YMYw8cxbfOoTimoyrUgFBv4xAQuv77Xcg9WVS6odUjx
- BefxyT+K1ReWbJA9Pm5rlbU68DMcBXEP+cAIhUjwvl3671/ArWmC5i9Vz79UULHziFVb OA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36nvcc9c8q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 12 Feb 2021 11:05:06 -0500
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11CFX5Ho056573;
-        Fri, 12 Feb 2021 11:05:06 -0500
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36nvcc9c66-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 12 Feb 2021 11:05:05 -0500
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11CG3Smk011882;
-        Fri, 12 Feb 2021 16:05:03 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 36hjr8euqm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 12 Feb 2021 16:05:03 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11CG50Lf19530054
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 12 Feb 2021 16:05:01 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 822CD42045;
-        Fri, 12 Feb 2021 16:04:59 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2E0614204F;
-        Fri, 12 Feb 2021 16:04:59 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.28.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 12 Feb 2021 16:04:59 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH v2 5/5] s390x: css: testing measurement
- block format 1
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com,
-        imbrenda@linux.ibm.com
-References: <1612963214-30397-1-git-send-email-pmorel@linux.ibm.com>
- <1612963214-30397-6-git-send-email-pmorel@linux.ibm.com>
- <20210212121545.44e13bd8.cohuck@redhat.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <6e49d579-ecd7-f39c-e0d8-412c4bbacbdb@linux.ibm.com>
-Date:   Fri, 12 Feb 2021 17:04:58 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        Fri, 12 Feb 2021 12:05:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613149463;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=muci2bFECA89B0jMNuPjwDVm80b8N6IObvOF04Qj7Xg=;
+        b=hWpQlHCCFh4ogMSq10hmij7rj+fHYDBZmnfenppeHLP+pBQMkoedQj7kcnmDXpHI5m0Fli
+        PtimYCZBfvgvOizqxbF3PG2QfR4oohAbdpFFMUAvOW8OQbwEP1hfnCr9QkhrUPZlZ156z8
+        LML8Ozjv1rsAe1ZupNfBq0Dn6F6sL9A=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-105-PCm_6tleO5CUMpRycwNyYw-1; Fri, 12 Feb 2021 12:04:20 -0500
+X-MC-Unique: PCm_6tleO5CUMpRycwNyYw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 42AFA85B671;
+        Fri, 12 Feb 2021 17:04:16 +0000 (UTC)
+Received: from gondolin.redhat.com (ovpn-113-189.ams2.redhat.com [10.36.113.189])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A4F2B19D80;
+        Fri, 12 Feb 2021 17:04:14 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        Cornelia Huck <cohuck@redhat.com>
+Subject: [PATCH] virtio/s390: implement virtio-ccw revision 2 correctly
+Date:   Fri, 12 Feb 2021 18:04:11 +0100
+Message-Id: <20210212170411.992217-1-cohuck@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210212121545.44e13bd8.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
- definitions=2021-02-12_05:2021-02-12,2021-02-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
- impostorscore=0 phishscore=0 priorityscore=1501 clxscore=1015
- malwarescore=0 spamscore=0 bulkscore=0 suspectscore=0 mlxlogscore=999
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102120121
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+CCW_CMD_READ_STATUS was introduced with revision 2 of virtio-ccw,
+and drivers should only rely on it being implemented when they
+negotiated at least that revision with the device.
 
+However, virtio_ccw_get_status() issued READ_STATUS for any
+device operating at least at revision 1. If the device accepts
+READ_STATUS regardless of the negotiated revision (which it is
+free to do), everything works as intended; a device rejecting the
+command should also be handled gracefully. For correctness, we
+should really limit the command to revision 2 or higher, though.
 
-On 2/12/21 12:15 PM, Cornelia Huck wrote:
-> On Wed, 10 Feb 2021 14:20:14 +0100
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> 
->> Measurement block format 1 is made available by the extended
->> mesurement block facility and is indicated in the SCHIB by
-> 
-> s/mesurement/measurement/
+We also negotiated the revision to at most 1, as we never bumped
+the maximum revision; let's do that now.
 
-50% good and yes, 50% bad, I change it thanks.
+Fixes: 7d3ce5ab9430 ("virtio/s390: support READ_STATUS command for virtio-ccw")
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
 
-> 
->> the bit in the PMCW.
->>
->> The MBO is specified in the SCHIB of each channel and the MBO
->> defined by the SCHM instruction is ignored.
->>
->> The test of the MB format 1 is just skipped if the feature is
->> not available.
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   lib/s390x/css.h | 14 ++++++++++++++
->>   s390x/css.c     | 36 ++++++++++++++++++++++++++++++++++++
->>   2 files changed, 50 insertions(+)
-> 
-> (...)
-> 
->> +static void test_schm_fmt1(void)
->> +{
->> +	struct measurement_block_format1 *mb1;
->> +
->> +	report_prefix_push("Format 1");
->> +
->> +	mb1 = alloc_io_mem(sizeof(struct measurement_block_format1), 0);
->> +	if (!mb1) {
->> +		report_abort("measurement_block_format1 allocation failed");
->> +		goto end;
->> +	}
->> +
->> +	schm(NULL, 0); /* Clear previous MB address */
-> 
-> Same comment as for the last patch.
+QEMU does not fence off READ_STATUS for revisions < 2, which is probably
+why we never noticed this. I'm not aware of other hypervisors that do
+fence it off, nor any that cannot deal properly with an unknown command.
 
-Yes,
+Not sure whether this is stable worthy?
 
-> 
->> +	schm(0, SCHM_MBU);
->> +
->> +	/* Expect error for non aligned MB */
->> +	report_prefix_push("Unaligned MB origin");
->> +	report_xfail(start_measure((u64)mb1 + 1, 0, true), mb1->ssch_rsch_count != 0,
->> +		     "SSCH measured %d", mb1->ssch_rsch_count);
->> +	report_prefix_pop();
->> +
->> +	memset(mb1, 0, sizeof(*mb1));
->> +
->> +	/* Expect success */
->> +	report_prefix_push("Valid MB address and index");
->> +	report(start_measure((u64)mb1, 0, true) &&
->> +	       mb1->ssch_rsch_count == SCHM_UPDATE_CNT,
->> +	       "SSCH measured %d", mb1->ssch_rsch_count);
->> +	report_prefix_pop();
->> +
->> +	free_io_mem(mb1, sizeof(struct measurement_block_format1));
-> 
-> Also here, you need to stop the measurements before freeing the block.
+---
+ drivers/s390/virtio/virtio_ccw.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-yes, I will.
-
-Thanks,
-Pierre
-
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 5730572b52cd..54e686dca6de 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -117,7 +117,7 @@ struct virtio_rev_info {
+ };
+ 
+ /* the highest virtio-ccw revision we support */
+-#define VIRTIO_CCW_REV_MAX 1
++#define VIRTIO_CCW_REV_MAX 2
+ 
+ struct virtio_ccw_vq_info {
+ 	struct virtqueue *vq;
+@@ -952,7 +952,7 @@ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
+ 	u8 old_status = vcdev->dma_area->status;
+ 	struct ccw1 *ccw;
+ 
+-	if (vcdev->revision < 1)
++	if (vcdev->revision < 2)
+ 		return vcdev->dma_area->status;
+ 
+ 	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+2.26.2
+
