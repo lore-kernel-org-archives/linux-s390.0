@@ -2,111 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1438BC433E0
-	for <linux-s390@archiver.kernel.org>; Fri, 12 Feb 2021 08:41:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D953C433E0
+	for <linux-s390@archiver.kernel.org>; Fri, 12 Feb 2021 10:35:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B8E1964DEA
-	for <linux-s390@archiver.kernel.org>; Fri, 12 Feb 2021 08:41:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 36E7264E6B
+	for <linux-s390@archiver.kernel.org>; Fri, 12 Feb 2021 10:35:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230056AbhBLIkn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 12 Feb 2021 03:40:43 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45620 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S230206AbhBLIk1 (ORCPT
+        id S230166AbhBLKer (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 12 Feb 2021 05:34:47 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:42531 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230436AbhBLKeh (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 12 Feb 2021 03:40:27 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11C8W6MO156573;
-        Fri, 12 Feb 2021 03:39:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id; s=pp1;
- bh=o6cejZ8DmI8Ug6OsLBpPZ6dJclSzOwfRxwbJ2SyiGVQ=;
- b=K7s/4v2O8LIMXcLruOA3tw+fG/2btj9OHM5//tNnrwakJpgJwYYdgaY2O26iQHy0xBZM
- ZC99rTiWDPkJCSwhSYbnXvpVLIpW5QTZzDnvnqo5bFZrrMLcSxTxaVQloJBwhi64XXaG
- +TB3bzBvgxmW61WX9e665Njw4BD3+A2h4rYJBDsj0iZkOLqcavpNNAyDs7TagAhGOU7X
- SElK4kIRai1ggq9OGISh7hq2GJ5WSxPR1Oh3s9WDb7IsxfrlHY2gGswapHFF+YpeUa/3
- vLevsUWjYNSgPx7hIQuLGLvPKEfMWE5jCApKgBrh2O7S6Lnl3O8D2z/Dl1A6YcMfxE9a Dg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 36nnbq2229-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 12 Feb 2021 03:39:43 -0500
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11C8WQtZ158399;
-        Fri, 12 Feb 2021 03:39:43 -0500
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 36nnbq2212-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 12 Feb 2021 03:39:43 -0500
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11C8bYEr004263;
-        Fri, 12 Feb 2021 08:39:41 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 36j94wnr8a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 12 Feb 2021 08:39:41 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11C8dRY834275794
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 12 Feb 2021 08:39:28 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 432AF42041;
-        Fri, 12 Feb 2021 08:39:38 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C6C664203F;
-        Fri, 12 Feb 2021 08:39:37 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.28.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 12 Feb 2021 08:39:37 +0000 (GMT)
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, cohuck@redhat.com, david@redhat.com,
-        thuth@redhat.com, pmorel@linux.ibm.com
-Subject: [PATCH v2 0/1] KVM: s390: diag9c forwarding
-Date:   Fri, 12 Feb 2021 09:39:35 +0100
-Message-Id: <1613119176-20864-1-git-send-email-pmorel@linux.ibm.com>
-X-Mailer: git-send-email 1.8.3.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.737
- definitions=2021-02-12_02:2021-02-12,2021-02-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- clxscore=1015 impostorscore=0 mlxscore=0 lowpriorityscore=0 spamscore=0
- bulkscore=0 suspectscore=0 mlxlogscore=953 priorityscore=1501 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2102120060
+        Fri, 12 Feb 2021 05:34:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613125991;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qPlQOMzj03nx5JCRjigQK4RasyyRp674ycyXkROq6/0=;
+        b=RaNPu8FUlJ+cY8eRZMRe+y+rr7SeENMk8Qc/LS5ILL9HsebUY6lLvIM3XabsHxDWXba6gN
+        S3/jPv8HH6ADJ9UyNw3PNB1qKYgqIfKHtweSYw0722AXvymlB4Rbgc77+6Yqp6XMMOcgpL
+        gT9bog2fELYHCfI+5NbcIC8i0+6hJmg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-35-SsilzsLKP-eVcwmY0MU3Rw-1; Fri, 12 Feb 2021 05:33:07 -0500
+X-MC-Unique: SsilzsLKP-eVcwmY0MU3Rw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 438E7801975;
+        Fri, 12 Feb 2021 10:33:06 +0000 (UTC)
+Received: from gondolin (ovpn-113-189.ams2.redhat.com [10.36.113.189])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B934019D9F;
+        Fri, 12 Feb 2021 10:33:01 +0000 (UTC)
+Date:   Fri, 12 Feb 2021 11:32:59 +0100
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Pierre Morel <pmorel@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com,
+        imbrenda@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v2 1/5] s390x: css: Store CSS
+ Characteristics
+Message-ID: <20210212113259.32fe6906.cohuck@redhat.com>
+In-Reply-To: <1612963214-30397-2-git-send-email-pmorel@linux.ibm.com>
+References: <1612963214-30397-1-git-send-email-pmorel@linux.ibm.com>
+        <1612963214-30397-2-git-send-email-pmorel@linux.ibm.com>
+Organization: Red Hat GmbH
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch will forward the yieldto hypercall (diag9c) if in the host
-the target CPU is also not running. As we do not yet have performance
-data (and recommendations) the default is turned off, but this can
-be changed during runtime.
+On Wed, 10 Feb 2021 14:20:10 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-Pierre Morel (1):
-  s390:kvm: diag9c forwarding
+> CSS characteristics exposes the features of the Channel SubSystem.
+> Let's use Store Channel Subsystem Characteristics to retrieve
+> the features of the CSS.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>  lib/s390x/css.h     |  69 +++++++++++++++++++++++++++
+>  lib/s390x/css_lib.c | 112 +++++++++++++++++++++++++++++++++++++++++++-
+>  s390x/css.c         |  12 +++++
+>  3 files changed, 192 insertions(+), 1 deletion(-)
+> 
 
- Documentation/virt/kvm/s390-diag.rst | 33 ++++++++++++++++++++++++++++
- arch/s390/include/asm/kvm_host.h     |  1 +
- arch/s390/include/asm/smp.h          |  1 +
- arch/s390/kernel/smp.c               |  1 +
- arch/s390/kvm/diag.c                 | 31 +++++++++++++++++++++++---
- arch/s390/kvm/kvm-s390.c             |  6 +++++
- arch/s390/kvm/kvm-s390.h             |  8 +++++++
- 7 files changed, 78 insertions(+), 3 deletions(-)
+(...)
 
--- 
-2.17.1
+> +static const char *chsc_rsp_description[] = {
+> +	"CHSC unknown error",
+> +	"Command executed",
+> +	"Invalid command",
+> +	"Request-block error",
+> +	"Command not installed",
+> +	"Data not available",
+> +		"Absolute address of channel-subsystem"
+> +	"communication block exceeds 2 - 1.",
 
-Changelog:
+"2G - 1", I think?
 
-- more precise comments
-  (Connie)
+> +	"Invalid command format",
+> +	"Invalid channel-subsystem identification (CSSID)",
+> +	"The command-request block specified an invalid format"
+> +		"for the command response block.",
+> +	"Invalid subchannel-set identification (SSID)",
+> +	"A busy condition precludes execution.",
+> +};
 
-- Documentation
-  (Janosch)
+(...)
+
+This matches both the Linux implementation and my memories, so
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+
