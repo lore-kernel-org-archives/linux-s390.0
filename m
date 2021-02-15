@@ -2,126 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB449C433E0
-	for <linux-s390@archiver.kernel.org>; Mon, 15 Feb 2021 11:48:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD0DCC433DB
+	for <linux-s390@archiver.kernel.org>; Mon, 15 Feb 2021 16:14:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BA0A864E52
-	for <linux-s390@archiver.kernel.org>; Mon, 15 Feb 2021 11:48:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 95CF564E05
+	for <linux-s390@archiver.kernel.org>; Mon, 15 Feb 2021 16:14:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229933AbhBOLsk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 15 Feb 2021 06:48:40 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31824 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230117AbhBOLsi (ORCPT
+        id S231384AbhBOQNx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 Feb 2021 11:13:53 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53836 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232073AbhBOQHm (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Feb 2021 06:48:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613389631;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=D22s3OuQqHDBBIq03XJttdJ4KRGjRR6pC+JhDOVlOkU=;
-        b=Yw2CcGaOmwBuQZGs/SYdSNpcFyee3raQ44BpRzC+vIxs9ZxxqDYoT/F2hmVo4zfKOEhCMt
-        V3E4Md5+XEWGgwa+V9Tp8TjGb5HwFN33JC5e73NOwOwlzyudmwKmQVVFOhTuH7AUqN+8m8
-        chDFz3yFT8/34zUyRk4UcBN71Qs3v+M=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-167-sJoUwJx-PS2WINi8H1HfSw-1; Mon, 15 Feb 2021 06:47:07 -0500
-X-MC-Unique: sJoUwJx-PS2WINi8H1HfSw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 44288100CCC1;
-        Mon, 15 Feb 2021 11:47:06 +0000 (UTC)
-Received: from gondolin (ovpn-113-55.ams2.redhat.com [10.36.113.55])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DDBD75C3F8;
-        Mon, 15 Feb 2021 11:47:04 +0000 (UTC)
-Date:   Mon, 15 Feb 2021 12:47:02 +0100
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-Subject: Re: [PATCH] virtio/s390: implement virtio-ccw revision 2 correctly
-Message-ID: <20210215124702.23a093b8.cohuck@redhat.com>
-In-Reply-To: <20210212170411.992217-1-cohuck@redhat.com>
-References: <20210212170411.992217-1-cohuck@redhat.com>
-Organization: Red Hat GmbH
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+        Mon, 15 Feb 2021 11:07:42 -0500
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11FG3aOA013139;
+        Mon, 15 Feb 2021 11:06:57 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id; s=pp1;
+ bh=Fy/DKkEzhd8xImotol5a9TJJIiFsNRY/JVH6JyH8xXk=;
+ b=eILGckVrcgPllwPOAiTGFNle2kr1Da6rzCFCppLc6fpsv0PsXgWQqaxxEu+PpP1wyB5S
+ ipvJbeODf8RQtHOj21jI4wB3MgQVAmwDX6hKyXHllitfwQ84P2cVeUV/chIUK2OSWa6f
+ wbX5WAjfHZvXmGjzbgzO3SGCaZypUOqiUckx6MCREm8wpG/iabWicrl+3vnlVHVqIviV
+ 3KS51ShLjRltCWx/UePiWuSC42KR6M7IJ5xyg/L71qANoUM5u1NszWXIfNBPCakREGqg
+ ukZb4qTngIDOFpXIuvt20dF+LmCkHQsfpPMcU2g1bFQffTpcjsQpUfwgFwODg6NIWUbS 5g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36qutyrr7a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 Feb 2021 11:06:57 -0500
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11FG4Xd5018190;
+        Mon, 15 Feb 2021 11:06:56 -0500
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36qutyrr65-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 Feb 2021 11:06:56 -0500
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11FFrKWk008571;
+        Mon, 15 Feb 2021 16:06:55 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 36p6d8a0gb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 Feb 2021 16:06:55 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11FG6qNm20840812
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 15 Feb 2021 16:06:52 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 51D124203F;
+        Mon, 15 Feb 2021 16:06:52 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DD96842041;
+        Mon, 15 Feb 2021 16:06:51 +0000 (GMT)
+Received: from oc3016276355.ibm.com (unknown [9.145.73.68])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 15 Feb 2021 16:06:51 +0000 (GMT)
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, cohuck@redhat.com, david@redhat.com,
+        thuth@redhat.com, pmorel@linux.ibm.com
+Subject: [PATCH v3 0/1] KVM: s390: diag9c forwarding
+Date:   Mon, 15 Feb 2021 17:06:49 +0100
+Message-Id: <1613405210-16532-1-git-send-email-pmorel@linux.ibm.com>
+X-Mailer: git-send-email 1.8.3.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-02-15_11:2021-02-12,2021-02-15 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=961
+ priorityscore=1501 clxscore=1015 suspectscore=0 malwarescore=0 mlxscore=0
+ spamscore=0 phishscore=0 impostorscore=0 adultscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2102150124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 12 Feb 2021 18:04:11 +0100
-Cornelia Huck <cohuck@redhat.com> wrote:
+This patch will forward the yieldto hypercall (diag9c) if in the host
+the target CPU is also not running. As we do not yet have performance
+data (and recommendations) the default is turned off, but this can
+be changed during runtime.
 
-> CCW_CMD_READ_STATUS was introduced with revision 2 of virtio-ccw,
-> and drivers should only rely on it being implemented when they
-> negotiated at least that revision with the device.
-> 
-> However, virtio_ccw_get_status() issued READ_STATUS for any
-> device operating at least at revision 1. If the device accepts
-> READ_STATUS regardless of the negotiated revision (which it is
-> free to do),
 
-So, looking at the standard again, the device is actually required to
-reject the READ_STATUS if only rev 1 had been negotiated... regardless
-of that, I don't think we should change QEMU's behaviour, as it would
-affect existing guests (they would lose access to the status bits as
-observed by the device, including DEVICE_NEEDS_RESET.)
+Pierre Morel (1):
+  s390:kvm: diag9c forwarding
 
-> everything works as intended; a device rejecting the
-> command should also be handled gracefully. For correctness, we
-> should really limit the command to revision 2 or higher, though.
-> 
-> We also negotiated the revision to at most 1, as we never bumped
-> the maximum revision; let's do that now.
-> 
-> Fixes: 7d3ce5ab9430 ("virtio/s390: support READ_STATUS command for virtio-ccw")
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> ---
-> 
-> QEMU does not fence off READ_STATUS for revisions < 2, which is probably
-> why we never noticed this. I'm not aware of other hypervisors that do
-> fence it off, nor any that cannot deal properly with an unknown command.
-> 
-> Not sure whether this is stable worthy?
+ Documentation/virt/kvm/s390-diag.rst | 33 ++++++++++++++++++++++++++++
+ arch/s390/include/asm/kvm_host.h     |  1 +
+ arch/s390/include/asm/smp.h          |  1 +
+ arch/s390/kernel/smp.c               |  1 +
+ arch/s390/kvm/diag.c                 | 31 +++++++++++++++++++++++---
+ arch/s390/kvm/kvm-s390.c             |  6 +++++
+ arch/s390/kvm/kvm-s390.h             |  8 +++++++
+ 7 files changed, 78 insertions(+), 3 deletions(-)
 
-Maybe it is, given the MUST reject clause in the standard?
+-- 
+2.17.1
 
-> 
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 5730572b52cd..54e686dca6de 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -117,7 +117,7 @@ struct virtio_rev_info {
->  };
->  
->  /* the highest virtio-ccw revision we support */
-> -#define VIRTIO_CCW_REV_MAX 1
-> +#define VIRTIO_CCW_REV_MAX 2
->  
->  struct virtio_ccw_vq_info {
->  	struct virtqueue *vq;
-> @@ -952,7 +952,7 @@ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
->  	u8 old_status = vcdev->dma_area->status;
->  	struct ccw1 *ccw;
->  
-> -	if (vcdev->revision < 1)
-> +	if (vcdev->revision < 2)
->  		return vcdev->dma_area->status;
->  
->  	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+Changelog:
 
+From v2:
+
+- update overrun comparison, avoid comparison on unsigned
+  (Pierre)
+
+From v1:
+
+- more precise comments
+  (Connie)
+
+- Documentation
+  (Janosch)
