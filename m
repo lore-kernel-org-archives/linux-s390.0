@@ -2,113 +2,158 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39D67C433E0
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Feb 2021 11:09:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E27CEC433E0
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Feb 2021 13:41:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F01D664DDA
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Feb 2021 11:09:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8BB9A64DA1
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Feb 2021 13:41:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230121AbhBPLJD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 Feb 2021 06:09:03 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:37661 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230188AbhBPLIV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 16 Feb 2021 06:08:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613473614;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=IpPnQESKftP4YmMf+TpJQvg8smPe15Q/eS96QieNViM=;
-        b=d2duA8GUjYgHLclbFEwC+hB+E8rdlWrZ8piRfI5P50IdsBcgC+AO7HccBRogaRYeHniX0A
-        1No3OPNEMQuzStv0c1ygGtFBhrNvbyKvEo593nIQchZciaA3+KJ6z7Lsow08ek6IgG0SY6
-        wyrsMrXfRnMPPB4dIb1RMhVI1cdxRU4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-581-ib7Oj_NUMRODwPrYhZOZvA-1; Tue, 16 Feb 2021 06:06:52 -0500
-X-MC-Unique: ib7Oj_NUMRODwPrYhZOZvA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 06BF3107ACF7;
-        Tue, 16 Feb 2021 11:06:51 +0000 (UTC)
-Received: from gondolin.redhat.com (ovpn-113-145.ams2.redhat.com [10.36.113.145])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 727F45D9CC;
-        Tue, 16 Feb 2021 11:06:49 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        Cornelia Huck <cohuck@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH v2] virtio/s390: implement virtio-ccw revision 2 correctly
-Date:   Tue, 16 Feb 2021 12:06:45 +0100
-Message-Id: <20210216110645.1087321-1-cohuck@redhat.com>
+        id S229895AbhBPNlW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 Feb 2021 08:41:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41412 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229744AbhBPNlV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 Feb 2021 08:41:21 -0500
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF9A0C061574;
+        Tue, 16 Feb 2021 05:40:39 -0800 (PST)
+Received: by mail-qk1-x734.google.com with SMTP id t63so9389783qkc.1;
+        Tue, 16 Feb 2021 05:40:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:mail-followup-to:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=3JewOjQw0FtJtNgCeApdgGf7kQbjOdx2qp+PtYPRynk=;
+        b=SO+jkcapCDtBxWnZFrxewnr06ShtzsemKW6mDn+qTmYv7WV1qM4payyLSQFd3Wssbi
+         4ebKGzqCvnQWJVL7dAQY4wFscsQFWFz2VoP7XLfwbRxOcOd1+jmEu5fdcMTkwlunyR03
+         L0u22YzPQFbp37xmNwPWMWLmE0h2XdQsevJkCCB47up75o/uxfA/J/MlDquWYrEOF4GO
+         dK8kbUGrDTJX6r1UtqXVfofmSiwD9vw6vBiac/Mzk2AQSrvg9B8wCOtLLA9FZxkSqror
+         j8NqS5K7MpJJ6qxjIbBvEsNCZZGy0cbC3oXrJvHGe/54U+tJrA9pgH41+4y4+crnoY5f
+         Qkjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id
+         :mail-followup-to:references:mime-version:content-disposition
+         :in-reply-to;
+        bh=3JewOjQw0FtJtNgCeApdgGf7kQbjOdx2qp+PtYPRynk=;
+        b=Uw4N8iO2XyAoT3IWlmrbtoXLiMJUMDvVBKV2j3IQXdDEpSF1DySoIdTynvTggJycDo
+         fzk/GinnDSRP5PDW5NgZmpJ8Yfs3ifCUhTs2x/o7Lud9p07Ts0Zc6atn8g2IPbx4SAGm
+         T+Y37bDZd4KCGvvptqFkNfFAHlGukvak7edVOVpMDM3wra5nPBqx4zI193fdpB9DPe/H
+         CYstgggG1OFIJeMzrWRoWB4kUgXQOPg/RjET142+1AYhrua3XOnDljfcDkpGTrrPzpnY
+         pvs8z3zeBkRXiG93ylhA15T2J3/QyYS3egzePyhBwqrTH4sBBhOEh10+NNJ1l5ITTSXJ
+         MyAQ==
+X-Gm-Message-State: AOAM533wH+GY5SVUwmkLTofLnFitOYUQVqWWDWSggUl+/tQ6MW5tCJ13
+        q143f/zQOC0A4Gyx0UCfNWA=
+X-Google-Smtp-Source: ABdhPJwgyn6Rx0Ml7fck+ccdshjky57XCc1KnkwdqZuhTTpZLK4lPXduVr5+NncQH2D++f5vBPhpQw==
+X-Received: by 2002:a37:468e:: with SMTP id t136mr19220977qka.440.1613482838936;
+        Tue, 16 Feb 2021 05:40:38 -0800 (PST)
+Received: from OpenSuse ([143.244.44.229])
+        by smtp.gmail.com with ESMTPSA id c7sm13343484qtm.60.2021.02.16.05.40.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Feb 2021 05:40:37 -0800 (PST)
+Date:   Tue, 16 Feb 2021 19:10:29 +0530
+From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com,
+        imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, rdunlap@infradead.org
+Subject: Re: [PATCH] arch: s390: kvm: Fix oustanding to outstanding in the
+ file kvm-s390.c
+Message-ID: <YCvLTSjlChLHvygM@OpenSuse>
+Mail-Followup-To: Janosch Frank <frankja@linux.ibm.com>,
+        borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com,
+        imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, rdunlap@infradead.org
+References: <20210213153227.1640682-1-unixbhaskar@gmail.com>
+ <f90e91a5-7bc0-2489-51d4-6004eef9db7a@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="MM1/o3wLr7SJP/Ol"
+Content-Disposition: inline
+In-Reply-To: <f90e91a5-7bc0-2489-51d4-6004eef9db7a@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-CCW_CMD_READ_STATUS was introduced with revision 2 of virtio-ccw,
-and drivers should only rely on it being implemented when they
-negotiated at least that revision with the device.
 
-However, virtio_ccw_get_status() issued READ_STATUS for any
-device operating at least at revision 1. If the device accepts
-READ_STATUS regardless of the negotiated revision (which some
-implementations like QEMU do, even though the spec currently does
-not allow it), everything works as intended. While a device
-rejecting the command should also be handled gracefully, we will
-not be able to see any changes the device makes to the status,
-such as setting NEEDS_RESET or setting the status to zero after
-a completed reset.
+--MM1/o3wLr7SJP/Ol
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-We negotiated the revision to at most 1, as we never bumped the
-maximum revision; let's do that now and properly send READ_STATUS
-only if we are operating at least at revision 2.
+On 10:08 Mon 15 Feb 2021, Janosch Frank wrote:
+>On 2/13/21 4:32 PM, Bhaskar Chowdhury wrote:
+>>
+>> s/oustanding/outstanding/
+>
+>Hey Bhaskar,
+>
+>while I do encourage anyone to send in changes I'm not a big fan of
+>comment fixes if they are only a couple of characters and when the
+>meaning is still intact despite the spelling mistake.
+>
+>You're creating more work for me than you had writing this patch and the
+>improvement is close to zero.
+>
+>Be warned that I might not pick up such patches in the future.
+>
+>
+>If you're ok with it I'll fix up the subject to this and pick up the patch:
+>"kvm: s390: Fix comment spelling in kvm_s390_vcpu_start()"
+>
+Pls do.
 
-Cc: stable@vger.kernel.org
-Fixes: 7d3ce5ab9430 ("virtio/s390: support READ_STATUS command for virtio-ccw")
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
+>Cheers,
+>Janosch
+>
+>>
+>> Signed-off-by: Bhaskar Chowdhury <unixbhaskar@gmail.com>
+>> ---
+>>  arch/s390/kvm/kvm-s390.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index dbafd057ca6a..1d01afaca9fe 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -4545,7 +4545,7 @@ int kvm_s390_vcpu_start(struct kvm_vcpu *vcpu)
+>>  		/*
+>>  		 * As we are starting a second VCPU, we have to disable
+>>  		 * the IBS facility on all VCPUs to remove potentially
+>> -		 * oustanding ENABLE requests.
+>> +		 * outstanding ENABLE requests.
+>>  		 */
+>>  		__disable_ibs_on_all_vcpus(vcpu->kvm);
+>>  	}
+>> --
+>> 2.30.1
+>>
+>
+>
 
-v1->v2:
-  tweak patch description and cc:stable
 
----
- drivers/s390/virtio/virtio_ccw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 5730572b52cd..54e686dca6de 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -117,7 +117,7 @@ struct virtio_rev_info {
- };
- 
- /* the highest virtio-ccw revision we support */
--#define VIRTIO_CCW_REV_MAX 1
-+#define VIRTIO_CCW_REV_MAX 2
- 
- struct virtio_ccw_vq_info {
- 	struct virtqueue *vq;
-@@ -952,7 +952,7 @@ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
- 	u8 old_status = vcdev->dma_area->status;
- 	struct ccw1 *ccw;
- 
--	if (vcdev->revision < 1)
-+	if (vcdev->revision < 2)
- 		return vcdev->dma_area->status;
- 
- 	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
--- 
-2.26.2
 
+--MM1/o3wLr7SJP/Ol
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAmAry0kACgkQsjqdtxFL
+KRXHdwf/fQnnFjWrAG1FY7B2hDZDpGIwgQTiJwMamKsugT/y73/WNDIamMqIn0W+
+27G6ohO5mjH94Br/2o6IhEfydhyN/buFh/oyklvvlcikfHkC+UoxEHaYCnSx77S3
+C/1Uc126wgQR7YEZ5Bzua9lNbc9+gp1DgHCtL9uBCJFvH2PvQ+aR8XyRZWW52Tuc
+oDFQY4AdmLX92v30pKWiIVEUvCNFXJoeCyVPJ7la9SzDfJE9em642FztEo+vP3CX
+D6Q5y8C6CKWmvxPcPgDOh+DM5FD8C1qCDNtHOPJfBFDbiPwyCidJrLlPDx+gLYpY
+liXmDequghHB/ZqvHHBJPR16CIA7yA==
+=RGPJ
+-----END PGP SIGNATURE-----
+
+--MM1/o3wLr7SJP/Ol--
