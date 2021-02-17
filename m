@@ -7,69 +7,69 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79F6BC433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3BC1C43381
 	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 14:43:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 46F5264DFF
+	by mail.kernel.org (Postfix) with ESMTP id 85C3864E2F
 	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 14:43:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233561AbhBQOnJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Feb 2021 09:43:09 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12630 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233505AbhBQOnI (ORCPT
+        id S233563AbhBQOnK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Feb 2021 09:43:10 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35300 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S233425AbhBQOnJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Feb 2021 09:43:08 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11HEZBDn188842;
-        Wed, 17 Feb 2021 09:42:28 -0500
+        Wed, 17 Feb 2021 09:43:09 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11HEYtG6184900;
+        Wed, 17 Feb 2021 09:42:26 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=Xqc35cvasdCHclFGwPstKEi+cJfYrN17J75uqGFzP4Q=;
- b=s4o05KVW9Dl0dkHNh1DyvwULSPV6J0mQK7Kc4twrLkPpsFedchPGHLaYjSuFamV6AlIv
- +TmDIXunNuzyJIgdchIDnBAHG4eb1NtnAN4Ac4biMAEUJTkWZTSzY0VUoAH6+0JLiQAo
- BW2SExi/IbHKHjGD242VNHTk/uGLDCgY27o1hVnaQSCLYgERVbQb1fESwL9B9krFZlhc
- Z6Mi5DYgRHgQkWv7hjO2XVDlKFvSpmrAxcE+QQaTH9xI73Ploojw6yhPEeKzhjzY6eYN
- P56F2Fmr5gYN8Wdbonc3h+rIHCXhofX2Vq7AfWmUDlVPNAYLIKXy7F+Q8hp0aAaBhgzm GA== 
+ bh=vuRLhnrN0FZn6h/Va0uxgrip9AUObOGa8pIcB5cKFpY=;
+ b=qMSgP7TorMu+UzqkQsLjJnL+/9ZWGY1VjQ9RIlonHQtwusqZwe558x0fCOe+iYe7/VIF
+ fPIunl26cKw2knLnTYdEFievX7QUiSuGRjxfkQFlYhqhxv+4y0sAkMmDJizGtiFx5Ivl
+ h0C68qV4p4vLr1QylIDGWDqL6kwnmKdH8zvQSt5no6xEK/HAPeyQwblojv6CU7iWMZZ5
+ GsyIxc4uE52urNe1rAEH2CRSQDyFOQf0yZE/lNXThWj49x+gwBHDzk9wKTIw/nnYI9GN
+ 0dEZzbDJTm1uSu891wr96/CL808gUHV26bmSyRMBHv6KLHlcSSYsQsuEeel7Y/Hj6cbK tQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36s3ew3sma-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36s4v40mgb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 Feb 2021 09:42:28 -0500
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11HEafmx003292;
-        Wed, 17 Feb 2021 09:42:27 -0500
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36s3ew3sk5-1
+        Wed, 17 Feb 2021 09:42:25 -0500
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11HEZqhB189874;
+        Wed, 17 Feb 2021 09:42:25 -0500
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36s4v40mf8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 Feb 2021 09:42:27 -0500
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11HEfcY1014573;
-        Wed, 17 Feb 2021 14:42:25 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 36rw3u8d1p-1
+        Wed, 17 Feb 2021 09:42:25 -0500
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11HEgNnH030069;
+        Wed, 17 Feb 2021 14:42:23 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06fra.de.ibm.com with ESMTP id 36p61ha00g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 Feb 2021 14:42:24 +0000
+        Wed, 17 Feb 2021 14:42:23 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11HEgACp28443070
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11HEgKdk63898108
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 17 Feb 2021 14:42:10 GMT
+        Wed, 17 Feb 2021 14:42:20 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1AD3E11C054;
-        Wed, 17 Feb 2021 14:42:22 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6473311C04C;
+        Wed, 17 Feb 2021 14:42:20 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 674C211C04A;
-        Wed, 17 Feb 2021 14:42:21 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id A79D411C04A;
+        Wed, 17 Feb 2021 14:42:19 +0000 (GMT)
 Received: from linux01.pok.stglabs.ibm.com (unknown [9.114.17.81])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 17 Feb 2021 14:42:21 +0000 (GMT)
+        Wed, 17 Feb 2021 14:42:19 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         pmorel@linux.ibm.com, david@redhat.com, thuth@redhat.com
-Subject: [kvm-unit-tests PATCH v2 3/8] RFC: s390x: Define STACK_FRAME_INT_SIZE macro
-Date:   Wed, 17 Feb 2021 09:41:11 -0500
-Message-Id: <20210217144116.3368-4-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 1/8] s390x: Fix fpc store address in RESTORE_REGS_STACK
+Date:   Wed, 17 Feb 2021 09:41:09 -0500
+Message-Id: <20210217144116.3368-2-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210217144116.3368-1-frankja@linux.ibm.com>
 References: <20210217144116.3368-1-frankja@linux.ibm.com>
@@ -77,59 +77,43 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-02-17_12:2021-02-16,2021-02-17 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- mlxlogscore=999 priorityscore=1501 lowpriorityscore=0 clxscore=1015
- spamscore=0 phishscore=0 impostorscore=0 mlxscore=0 malwarescore=0
- adultscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102170113
+ definitions=2021-02-17_11:2021-02-16,2021-02-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
+ mlxlogscore=999 spamscore=0 impostorscore=0 mlxscore=0 suspectscore=0
+ clxscore=1015 priorityscore=1501 phishscore=0 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102170109
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Using sizeof is safer than using magic constants. However, it doesn't
-really fit into asm-offsets.h as it's not an offset so I'm happy to
-receive suggestions on where to put it.
+The efpc stores in bits 32-63 of a register and we store a full 8
+bytes to have the stack 8 byte aligned. This means that the fpc is
+stored at offset 4 but we load it from offset 0. Lets replace efpc
+with stfpc and get rid of the stg to store at offset 0.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- lib/s390x/asm-offsets.c | 1 +
- s390x/macros.S          | 4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ s390x/macros.S | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/lib/s390x/asm-offsets.c b/lib/s390x/asm-offsets.c
-index 96cb21cf..2658b59a 100644
---- a/lib/s390x/asm-offsets.c
-+++ b/lib/s390x/asm-offsets.c
-@@ -86,6 +86,7 @@ int main(void)
- 	OFFSET(STACK_FRAME_INT_CRS, stack_frame_int, crs);
- 	OFFSET(STACK_FRAME_INT_GRS0, stack_frame_int, grs0);
- 	OFFSET(STACK_FRAME_INT_GRS1, stack_frame_int, grs1);
-+	DEFINE(STACK_FRAME_INT_SIZE, sizeof(struct stack_frame_int));
- 
- 	return 0;
- }
 diff --git a/s390x/macros.S b/s390x/macros.S
-index d7eeeb55..a7d62c6f 100644
+index 37a6a63e..e51a557a 100644
 --- a/s390x/macros.S
 +++ b/s390x/macros.S
-@@ -43,14 +43,14 @@
- /* Save registers on the stack (r15), so we can have stacked interrupts. */
- 	.macro SAVE_REGS_STACK
- 	/* Allocate a full stack frame */
--	slgfi   %r15, 32 * 8 + 4 * 8
-+	slgfi   %r15, STACK_FRAME_INT_SIZE
- 	/* Store registers r0 to r14 on the stack */
- 	stmg    %r2, %r15, STACK_FRAME_INT_GRS0(%r15)
- 	stg     %r0, STACK_FRAME_INT_GRS1(%r15)
- 	stg     %r1, STACK_FRAME_INT_GRS1 + 8(%r15)
- 	/* Store the gr15 value before we allocated the new stack */
- 	lgr     %r0, %r15
--	algfi   %r0, 32 * 8 + 4 * 8
-+	algfi   %r0, STACK_FRAME_INT_SIZE
- 	stg     %r0, 13 * 8 + STACK_FRAME_INT_GRS0(%r15)
- 	stg     %r0, STACK_FRAME_INT_BACKCHAIN(%r15)
- 	/*
+@@ -54,8 +54,7 @@
+ 	.endr
+ 	/* Save fpc, but keep stack aligned on 64bits */
+ 	slgfi   %r15, 8
+-	efpc	%r0
+-	stg	%r0, 0(%r15)
++	stfpc	0(%r15)
+ 	.endm
+ 
+ /* Restore the register in reverse order */
 -- 
 2.25.1
 
