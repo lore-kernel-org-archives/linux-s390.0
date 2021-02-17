@@ -2,171 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F147C433DB
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 16:25:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31946C433E9
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 16:47:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1222164DE0
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 16:25:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC06C64E42
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 16:47:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233881AbhBQQZs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Feb 2021 11:25:48 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:24979 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233128AbhBQQZr (ORCPT
+        id S234240AbhBQQrG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Feb 2021 11:47:06 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60350 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233986AbhBQQrD (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Feb 2021 11:25:47 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613579060;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=fqY3aX+LcVTJX1gt4GvTFj3mpGHf8hCtl9l3H4cgEMs=;
-        b=bhhQeOko8HkD7Jo/+LpuRBUUkdsFCk1nrHPuJCYP53TQe4JeleIt2KaTwT/oo+qFMEFFb7
-        e677WRrLah8KYQWG7QlXRYF2ebreGVRhpJ3v3QwSxjCsvyxYidUTN5+apSnnrtFodbfQ/m
-        FzQbxtthX9vpiEYMebk23KRsL4vDah8=
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
- [209.85.219.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-266-bHcJG2uNN6KpoHzbKMrLiA-1; Wed, 17 Feb 2021 11:24:18 -0500
-X-MC-Unique: bHcJG2uNN6KpoHzbKMrLiA-1
-Received: by mail-qv1-f72.google.com with SMTP id z28so10293037qva.15
-        for <linux-s390@vger.kernel.org>; Wed, 17 Feb 2021 08:24:18 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=fqY3aX+LcVTJX1gt4GvTFj3mpGHf8hCtl9l3H4cgEMs=;
-        b=UWsFg2xk6qGkN4zRnJd0e4SFC/aacS1JKNQaZinoLdh0QEBkSTpf+HmmNppFugP4kY
-         jPXUzte+G/3TK2fOjtXmlMMRt4wgnaTUnlzWdVRqumtcnEIatBbd7/bjsbm851ffro+7
-         YTbO0matjlnzEA6Sls6XBut+eLUPxu17hSVfwifjGAvntpg8z7PhlKQHYJc4ONfIBss3
-         7+lpmwd7eTQD2+Q+QFDzV8iAAuHqcCxIghnHlSGO2F4iowJYwXiKYE2xtBV+fs9GtMpC
-         cYr+VW9/gI3pRj/s6UY9vYnXY/RQQscH6pDXzK+bd+jaMCHyyvrwvE+2QqLAl6RDkZTR
-         e4vA==
-X-Gm-Message-State: AOAM530TYIUrM+X/iiEB2W+pyrVTkm6ycD90At1CaFfzJzcZkg8lCwXt
-        2WjcbuAZ/U5jomVRSu2vyOyJTBVk5AAFXDniI6OpR3aAjvEGtwbOh9kUCJd9wJv7zGG34V+hDyD
-        SGR0oykGez5Ugl6Pa67nvEg==
-X-Received: by 2002:ac8:59d6:: with SMTP id f22mr61294qtf.230.1613579058313;
-        Wed, 17 Feb 2021 08:24:18 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzn9Qa0Y9o7twQrPMgLfwghwwaSijFXNhNL1AlkR44bHdaMQ3yXomUNjdjOPLlg9C3gTJHwAQ==
-X-Received: by 2002:ac8:59d6:: with SMTP id f22mr61266qtf.230.1613579058053;
-        Wed, 17 Feb 2021 08:24:18 -0800 (PST)
-Received: from xz-x1 (bras-vprn-toroon474qw-lp130-20-174-93-89-182.dsl.bell.ca. [174.93.89.182])
-        by smtp.gmail.com with ESMTPSA id k129sm1919411qkf.108.2021.02.17.08.24.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Feb 2021 08:24:17 -0800 (PST)
-Date:   Wed, 17 Feb 2021 11:24:15 -0500
-From:   Peter Xu <peterx@redhat.com>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, shu wang <malate_wangshu@hotmail.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Michel Lespinasse <walken@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [RFC PATCH 1/5] hugetlb: add hugetlb helpers for soft dirty
- support
-Message-ID: <20210217162415.GA6519@xz-x1>
-References: <20210211000322.159437-1-mike.kravetz@oracle.com>
- <20210211000322.159437-2-mike.kravetz@oracle.com>
+        Wed, 17 Feb 2021 11:47:03 -0500
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11HGXifq029905;
+        Wed, 17 Feb 2021 11:46:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
+ from : subject : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=qm4KK/xRpXnLHX8hdWM/BnjzFFuIgNTkaPz5F6Yh+Dc=;
+ b=ggv6bcdVQ++Lrls6RSr1khq8Y6MmSivo9/cSrvz6jJxFbpUXPQq9cu862q6aYHUzKpaU
+ 5tn2xzOJrZPWnerCu3IOxuBApENDriRwz3+CS8Zr8doM28k4QYej+pdkaq2nhE9sEpbB
+ mMYGWAjghqOvzGRinqI5AavgrdSueEeHO/vKYaJLeEAo6mfyoeuFUSJMPvHmbAS0LBGG
+ i2vFcOG06japlKY9R9HttB5FvpAgLJ6BqvCESzM69/ABWxLf8MLAK7zAKAttsRC5EuAF
+ APmTAGj4scqBltEaty9oE9ygSeFwJMionWHleL1x5xYh3ikPIRzDppRmbG51Qe/Yanjr aA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36s63t9m68-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Feb 2021 11:46:22 -0500
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11HGYdCI035198;
+        Wed, 17 Feb 2021 11:46:21 -0500
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36s63t9m53-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Feb 2021 11:46:21 -0500
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11HGRhAW011313;
+        Wed, 17 Feb 2021 16:46:19 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 36p61hbv2d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Feb 2021 16:46:19 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11HGk4w335914218
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 17 Feb 2021 16:46:04 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3220C52050;
+        Wed, 17 Feb 2021 16:46:16 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.1.64])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id CCEBD52054;
+        Wed, 17 Feb 2021 16:46:15 +0000 (GMT)
+To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        pmorel@linux.ibm.com, david@redhat.com
+References: <20210217144116.3368-1-frankja@linux.ibm.com>
+ <20210217144116.3368-9-frankja@linux.ibm.com>
+ <4fd224a2-1c4d-1663-6615-685eadcf81f6@redhat.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v2 8/8] s390x: Remove SAVE/RESTORE_stack
+Message-ID: <bd386faf-c635-970a-6be8-659f5f6b4ba8@linux.ibm.com>
+Date:   Wed, 17 Feb 2021 17:46:15 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
+In-Reply-To: <4fd224a2-1c4d-1663-6615-685eadcf81f6@redhat.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210211000322.159437-2-mike.kravetz@oracle.com>
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-02-17_13:2021-02-16,2021-02-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 malwarescore=0 suspectscore=0 phishscore=0 priorityscore=1501
+ clxscore=1015 mlxscore=0 impostorscore=0 bulkscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102170122
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 10, 2021 at 04:03:18PM -0800, Mike Kravetz wrote:
-> Add interfaces to set and clear soft dirty in hugetlb ptes.  Make
-> hugetlb interfaces needed for /proc clear_refs available outside
-> hugetlb.c.
+On 2/17/21 5:18 PM, Thomas Huth wrote:
+> On 17/02/2021 15.41, Janosch Frank wrote:
+>> There are no more users.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   s390x/macros.S | 29 -----------------------------
+>>   1 file changed, 29 deletions(-)
+>>
+>> diff --git a/s390x/macros.S b/s390x/macros.S
+>> index 212a3823..399a87c6 100644
+>> --- a/s390x/macros.S
+>> +++ b/s390x/macros.S
+>> @@ -28,35 +28,6 @@
+>>   	lpswe	\old_psw
+>>   	.endm
+>>   
+>> -	.macro SAVE_REGS
+>> -	/* save grs 0-15 */
+>> -	stmg	%r0, %r15, GEN_LC_SW_INT_GRS
+>> -	/* save crs 0-15 */
+>> -	stctg	%c0, %c15, GEN_LC_SW_INT_CRS
+>> -	/* load a cr0 that has the AFP control bit which enables all FPRs */
+>> -	larl	%r1, initial_cr0
+>> -	lctlg	%c0, %c0, 0(%r1)
+>> -	/* save fprs 0-15 + fpc */
+>> -	la	%r1, GEN_LC_SW_INT_FPRS
+>> -	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> -	std	\i, \i * 8(%r1)
+>> -	.endr
+>> -	stfpc	GEN_LC_SW_INT_FPC
+>> -	.endm
+>> -
+>> -	.macro RESTORE_REGS
+>> -	/* restore fprs 0-15 + fpc */
+>> -	la	%r1, GEN_LC_SW_INT_FPRS
+>> -	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> -	ld	\i, \i * 8(%r1)
+>> -	.endr
+>> -	lfpc	GEN_LC_SW_INT_FPC
 > 
-> arch/s390 has it's own version of most routines in asm-generic/hugetlb.h,
-> so add new routines there as well.
+> Could we now also remove the sw_int_fprs and sw_int_fpc from the lowcore?
 > 
-> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-> ---
->  arch/s390/include/asm/hugetlb.h | 30 ++++++++++++++++++++++++++++++
->  include/asm-generic/hugetlb.h   | 30 ++++++++++++++++++++++++++++++
->  include/linux/hugetlb.h         |  1 +
->  mm/hugetlb.c                    | 10 +---------
->  4 files changed, 62 insertions(+), 9 deletions(-)
+>   Thomas
 > 
-> diff --git a/arch/s390/include/asm/hugetlb.h b/arch/s390/include/asm/hugetlb.h
-> index 60f9241e5e4a..b7d26248fb1c 100644
-> --- a/arch/s390/include/asm/hugetlb.h
-> +++ b/arch/s390/include/asm/hugetlb.h
-> @@ -105,6 +105,11 @@ static inline pte_t huge_pte_mkdirty(pte_t pte)
->  	return pte_mkdirty(pte);
->  }
->  
-> +static inline pte_t huge_pte_mkyoung(pte_t pte)
-> +{
-> +	return pte_mkyoung(pte);
-> +}
-> +
->  static inline pte_t huge_pte_wrprotect(pte_t pte)
->  {
->  	return pte_wrprotect(pte);
-> @@ -115,9 +120,34 @@ static inline pte_t huge_pte_modify(pte_t pte, pgprot_t newprot)
->  	return pte_modify(pte, newprot);
->  }
->  
-> +static inline bool huge_pte_soft_dirty(pte_t pte)
-> +{
-> +	return pte_soft_dirty(pte);
-> +}
-> +
-> +static inline pte_t huge_pte_clear_soft_dirty(pte_t pte)
-> +{
-> +	return pte_clear_soft_dirty(pte);
-> +}
-> +
-> +static inline pte_t huge_pte_swp_clear_soft_dirty(pte_t pte)
-> +{
-> +	return pte_swp_clear_soft_dirty(pte);
-> +}
-> +
 
-Indeed asm/hugetlb.h of s390 didn't include asm-generic/hugetlb.h as what was
-normally done by asm/hugetlb.h of other archs.  Do you know why it's special?
-E.g. huge_pte_wrprotect() of s390 version is actually the same of the default
-version.
+git grep tells me that we can.
+Do you want to have both the offset macro and the struct member removed
+or only the macro?
 
-When I looked at the huge_pte_wrprotect() I also see that there seems to have
-no real user of __HAVE_ARCH_HUGE_PTE_WRPROTECT.  Not sure whether it can be
-dropped.  My gut feeling is that s390 should also include asm-generic/hugetlb.h
-but only redefine the helper only if necessary, since I see no point defining
-the same helper multiple times.
-
->  static inline bool gigantic_page_runtime_supported(void)
->  {
->  	return true;
->  }
->  
-> +#if !defined(__HAVE_ARCH_FLUSH_HUGETLB_TLB_RANGE) && !defined(MODULE)
-> +#include <asm/tlbflush.h>
-> +
-> +static inline void flush_hugetlb_tlb_range(struct vm_area_struct *vma,
-> +					unsigned long start, unsigned long end)
-> +{
-> +	flush_tlb_range(vma, start, end);
-> +}
-> +#endif
-
-Similar question here, only ppc defined __HAVE_ARCH_FLUSH_HUGETLB_TLB_RANGE, so
-IIUC it means s390 should simply use the default version, and it'll be great if
-we don't need to redefine it here.
-
-Thanks,
-
--- 
-Peter Xu
-
+We'll still need the grs and crs for the cpu setup in lib/s390x/smp.c
