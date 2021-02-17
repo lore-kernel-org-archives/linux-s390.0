@@ -2,158 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E27CEC433E0
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Feb 2021 13:41:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6277CC433E0
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 14:43:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8BB9A64DA1
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Feb 2021 13:41:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3403A64E02
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 14:43:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229895AbhBPNlW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 Feb 2021 08:41:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41412 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229744AbhBPNlV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 Feb 2021 08:41:21 -0500
-Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF9A0C061574;
-        Tue, 16 Feb 2021 05:40:39 -0800 (PST)
-Received: by mail-qk1-x734.google.com with SMTP id t63so9389783qkc.1;
-        Tue, 16 Feb 2021 05:40:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=3JewOjQw0FtJtNgCeApdgGf7kQbjOdx2qp+PtYPRynk=;
-        b=SO+jkcapCDtBxWnZFrxewnr06ShtzsemKW6mDn+qTmYv7WV1qM4payyLSQFd3Wssbi
-         4ebKGzqCvnQWJVL7dAQY4wFscsQFWFz2VoP7XLfwbRxOcOd1+jmEu5fdcMTkwlunyR03
-         L0u22YzPQFbp37xmNwPWMWLmE0h2XdQsevJkCCB47up75o/uxfA/J/MlDquWYrEOF4GO
-         dK8kbUGrDTJX6r1UtqXVfofmSiwD9vw6vBiac/Mzk2AQSrvg9B8wCOtLLA9FZxkSqror
-         j8NqS5K7MpJJ6qxjIbBvEsNCZZGy0cbC3oXrJvHGe/54U+tJrA9pgH41+4y4+crnoY5f
-         Qkjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to;
-        bh=3JewOjQw0FtJtNgCeApdgGf7kQbjOdx2qp+PtYPRynk=;
-        b=Uw4N8iO2XyAoT3IWlmrbtoXLiMJUMDvVBKV2j3IQXdDEpSF1DySoIdTynvTggJycDo
-         fzk/GinnDSRP5PDW5NgZmpJ8Yfs3ifCUhTs2x/o7Lud9p07Ts0Zc6atn8g2IPbx4SAGm
-         T+Y37bDZd4KCGvvptqFkNfFAHlGukvak7edVOVpMDM3wra5nPBqx4zI193fdpB9DPe/H
-         CYstgggG1OFIJeMzrWRoWB4kUgXQOPg/RjET142+1AYhrua3XOnDljfcDkpGTrrPzpnY
-         pvs8z3zeBkRXiG93ylhA15T2J3/QyYS3egzePyhBwqrTH4sBBhOEh10+NNJ1l5ITTSXJ
-         MyAQ==
-X-Gm-Message-State: AOAM533wH+GY5SVUwmkLTofLnFitOYUQVqWWDWSggUl+/tQ6MW5tCJ13
-        q143f/zQOC0A4Gyx0UCfNWA=
-X-Google-Smtp-Source: ABdhPJwgyn6Rx0Ml7fck+ccdshjky57XCc1KnkwdqZuhTTpZLK4lPXduVr5+NncQH2D++f5vBPhpQw==
-X-Received: by 2002:a37:468e:: with SMTP id t136mr19220977qka.440.1613482838936;
-        Tue, 16 Feb 2021 05:40:38 -0800 (PST)
-Received: from OpenSuse ([143.244.44.229])
-        by smtp.gmail.com with ESMTPSA id c7sm13343484qtm.60.2021.02.16.05.40.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Feb 2021 05:40:37 -0800 (PST)
-Date:   Tue, 16 Feb 2021 19:10:29 +0530
-From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com,
-        imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, rdunlap@infradead.org
-Subject: Re: [PATCH] arch: s390: kvm: Fix oustanding to outstanding in the
- file kvm-s390.c
-Message-ID: <YCvLTSjlChLHvygM@OpenSuse>
-Mail-Followup-To: Janosch Frank <frankja@linux.ibm.com>,
-        borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com,
-        imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, rdunlap@infradead.org
-References: <20210213153227.1640682-1-unixbhaskar@gmail.com>
- <f90e91a5-7bc0-2489-51d4-6004eef9db7a@linux.ibm.com>
+        id S233551AbhBQOnJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Feb 2021 09:43:09 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55700 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233542AbhBQOnI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 17 Feb 2021 09:43:08 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11HEZNrC189774;
+        Wed, 17 Feb 2021 09:42:26 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=a3IxyveesgxYnc4x6l6ab0vsfXg8aBqrZpXFqDRJyHI=;
+ b=QstLV2069QV9bb88iYCBwYAM/Z8QXJvPr8HcYu0Hgl0LixW+UjVFxYNnto0nF1T2jV21
+ nn5eN+Neh4T8uaJQEnSWEYrSFvk8o+W3bex9Z1RxxUMcjgPnr7s55/XTuz+T8oYvbi6J
+ k01hKotcm7N13dr7uSirCwe8n4KLZ/e6ABVuQVf63t7qCf0gpy8VO6MM+vZBV8v37T2V
+ VW/9UQZd8Y9AJx60fQ6yiq9Uw8ywN4rPO1E7U/sruQQpOjbUVM+is4cflsfZBPeNf28r
+ lxDRZ/HhCQfSHo5UfZHIr24bagDzXV+xEXg95yElv8LOsb/4wiW+j2a2cahir1u6Wlx5 rA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36s3ew3ska-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Feb 2021 09:42:25 -0500
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11HEZvda192795;
+        Wed, 17 Feb 2021 09:42:25 -0500
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36s3ew3shq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Feb 2021 09:42:25 -0500
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11HEgMHn023514;
+        Wed, 17 Feb 2021 14:42:22 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04fra.de.ibm.com with ESMTP id 36p6d89yan-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Feb 2021 14:42:22 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11HEgJSi38732092
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 17 Feb 2021 14:42:19 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8040F11C04C;
+        Wed, 17 Feb 2021 14:42:19 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CC79F11C054;
+        Wed, 17 Feb 2021 14:42:18 +0000 (GMT)
+Received: from linux01.pok.stglabs.ibm.com (unknown [9.114.17.81])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 17 Feb 2021 14:42:18 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        pmorel@linux.ibm.com, david@redhat.com, thuth@redhat.com
+Subject: [kvm-unit-tests PATCH v2 0/8] s390x: Cleanup exception register save/restore and implement backtrace
+Date:   Wed, 17 Feb 2021 09:41:08 -0500
+Message-Id: <20210217144116.3368-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="MM1/o3wLr7SJP/Ol"
-Content-Disposition: inline
-In-Reply-To: <f90e91a5-7bc0-2489-51d4-6004eef9db7a@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-02-17_12:2021-02-16,2021-02-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=999 priorityscore=1501 lowpriorityscore=0 clxscore=1015
+ spamscore=0 phishscore=0 impostorscore=0 mlxscore=0 malwarescore=0
+ adultscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102170113
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Having two sets of macros for saving and restoring registers on
+exceptions doesn't seem optimal to me. Therefore this patch set
+removes the old macros that use the lowcore as storage in favor of the
+stack using ones. At the same time we move over to generated offsets
+instead of subtracting from the stack piece by piece. Changes to the
+stack struct are easier that way.
 
---MM1/o3wLr7SJP/Ol
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Additionally let's add backtrace support and print the GRs on
+exception so we get a bit more information when something goes wrong.
 
-On 10:08 Mon 15 Feb 2021, Janosch Frank wrote:
->On 2/13/21 4:32 PM, Bhaskar Chowdhury wrote:
->>
->> s/oustanding/outstanding/
->
->Hey Bhaskar,
->
->while I do encourage anyone to send in changes I'm not a big fan of
->comment fixes if they are only a couple of characters and when the
->meaning is still intact despite the spelling mistake.
->
->You're creating more work for me than you had writing this patch and the
->improvement is close to zero.
->
->Be warned that I might not pick up such patches in the future.
->
->
->If you're ok with it I'll fix up the subject to this and pick up the patch:
->"kvm: s390: Fix comment spelling in kvm_s390_vcpu_start()"
->
-Pls do.
+v2:
+	* Added full CR saving to fix diag308 test
+	* Added rev-bys
 
->Cheers,
->Janosch
->
->>
->> Signed-off-by: Bhaskar Chowdhury <unixbhaskar@gmail.com>
->> ---
->>  arch/s390/kvm/kvm-s390.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index dbafd057ca6a..1d01afaca9fe 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -4545,7 +4545,7 @@ int kvm_s390_vcpu_start(struct kvm_vcpu *vcpu)
->>  		/*
->>  		 * As we are starting a second VCPU, we have to disable
->>  		 * the IBS facility on all VCPUs to remove potentially
->> -		 * oustanding ENABLE requests.
->> +		 * outstanding ENABLE requests.
->>  		 */
->>  		__disable_ibs_on_all_vcpus(vcpu->kvm);
->>  	}
->> --
->> 2.30.1
->>
->
->
+Janosch Frank (8):
+  s390x: Fix fpc store address in RESTORE_REGS_STACK
+  s390x: Fully commit to stack save area for exceptions
+  RFC: s390x: Define STACK_FRAME_INT_SIZE macro
+  s390x: Introduce and use CALL_INT_HANDLER macro
+  s390x: Provide preliminary backtrace support
+  s390x: Print more information on program exceptions
+  s390x: Move diag308_load_reset to stack saving
+  s390x: Remove SAVE/RESTORE_stack
 
+ lib/s390x/asm-offsets.c   | 15 +++++--
+ lib/s390x/asm/arch_def.h  | 29 ++++++++++---
+ lib/s390x/asm/interrupt.h |  4 +-
+ lib/s390x/interrupt.c     | 43 +++++++++++++++---
+ lib/s390x/stack.c         | 20 ++++++---
+ s390x/Makefile            |  1 +
+ s390x/cpu.S               |  6 ++-
+ s390x/cstart64.S          | 25 +++--------
+ s390x/macros.S            | 91 +++++++++++++++++++--------------------
+ 9 files changed, 140 insertions(+), 94 deletions(-)
 
+-- 
+2.25.1
 
-
---MM1/o3wLr7SJP/Ol
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAmAry0kACgkQsjqdtxFL
-KRXHdwf/fQnnFjWrAG1FY7B2hDZDpGIwgQTiJwMamKsugT/y73/WNDIamMqIn0W+
-27G6ohO5mjH94Br/2o6IhEfydhyN/buFh/oyklvvlcikfHkC+UoxEHaYCnSx77S3
-C/1Uc126wgQR7YEZ5Bzua9lNbc9+gp1DgHCtL9uBCJFvH2PvQ+aR8XyRZWW52Tuc
-oDFQY4AdmLX92v30pKWiIVEUvCNFXJoeCyVPJ7la9SzDfJE9em642FztEo+vP3CX
-D6Q5y8C6CKWmvxPcPgDOh+DM5FD8C1qCDNtHOPJfBFDbiPwyCidJrLlPDx+gLYpY
-liXmDequghHB/ZqvHHBJPR16CIA7yA==
-=RGPJ
------END PGP SIGNATURE-----
-
---MM1/o3wLr7SJP/Ol--
