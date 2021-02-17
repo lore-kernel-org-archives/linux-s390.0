@@ -7,58 +7,58 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46071C433E0
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 19:37:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BCB3C433DB
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 19:46:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C72264E2E
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 19:37:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F1ABF64DF0
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 19:46:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232006AbhBQThY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Feb 2021 14:37:24 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:30050 "EHLO
+        id S233881AbhBQTqb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Feb 2021 14:46:31 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:22754 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233258AbhBQThX (ORCPT
+        by vger.kernel.org with ESMTP id S233310AbhBQTqO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Feb 2021 14:37:23 -0500
+        Wed, 17 Feb 2021 14:46:14 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613590556;
+        s=mimecast20190719; t=1613591081;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=a6lkoNLwaY2kbnYVognDDNLrsSmwkL+Qv8v4auisu9Y=;
-        b=hEx9k5jzulQ4PvbsJnJgHNQXPB9sh5dndOM0E9XP8FSjmsYYEAoZXwaU8INag3pMLp/aR0
-        FgMT8jBffOaV6kMblK+YB+TXTJrWX2ypaCO7VNRQw8785UTPA2nwYdMDlvib1EznuM1NeO
-        L3mFhW9080gizMhz9d2ukDYrtv3p3eo=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-59-gCuhtTDPPS6U5pvMSj-qMw-1; Wed, 17 Feb 2021 14:35:52 -0500
-X-MC-Unique: gCuhtTDPPS6U5pvMSj-qMw-1
-Received: by mail-qv1-f69.google.com with SMTP id j6so10619301qvo.11
-        for <linux-s390@vger.kernel.org>; Wed, 17 Feb 2021 11:35:52 -0800 (PST)
+        bh=DKRCGD5cZBFDckHkhQGxjYspyMuPSVpV7imvsh15Fwg=;
+        b=iLVjX7Wd+HlriVFyBUvM2uJ/baXyjJBP9wZw1Xi/HX8v6RAMX9F6FFV6gJY4ywogzN4ax/
+        vzv03VFupsjm5aJVTUKOZFsMPTDNTmG1HX7YvLZZHZrX3cfyopaNWeLLM7ex6Q09SWWwMI
+        I/85lIgc3qNh6Xe4LBhQXwdMzRALwXU=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-187-wB4k82vEOpCS5nbuQyOEUQ-1; Wed, 17 Feb 2021 14:44:39 -0500
+X-MC-Unique: wB4k82vEOpCS5nbuQyOEUQ-1
+Received: by mail-qk1-f197.google.com with SMTP id c63so11541576qkd.1
+        for <linux-s390@vger.kernel.org>; Wed, 17 Feb 2021 11:44:39 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=a6lkoNLwaY2kbnYVognDDNLrsSmwkL+Qv8v4auisu9Y=;
-        b=S1K5LV86jDaBmETIXZqNmTLB77P8vjCcADPLda7hGn0QN3QrFPhYWyfdyytZNzjPfi
-         BLE95Ez9xbrmGV/x5X3ZjMLGZdBKgEai9fwYVxsvT69G99vWa0OfiGESL9/E4nToWnan
-         VUBIFcKFCZWL+pDw8gCxt9Fz1ltPdj3dV0xpJaP6/ueTh6lqCYkHYM3o2f5beWqGUZbI
-         DvOlo2AhvD8TL/221LRiJ/H4IOVU9+5F+40OFuaFXo+FVEKVvX16aubA9wIur06UtKb6
-         p0jpZteQsqsRhYqgFv0p8FdeSJrTjS16FDPgRHxRqike8XiaA4bkZsRhB/3AJqFvl6+T
-         wLdg==
-X-Gm-Message-State: AOAM5308VsWZ13vohoiRaUzZMbJ+zgPrVmLloBbBAvPPMi+WAcJJrGB4
-        cSqT/sMKrhMHEiQ7c6uyBhVuvcYRmKBjjVt6yagmsKHMql8sqw9GINFUh8wFiBxMCy9itNXbdAb
-        LrpP6Oa5Dz1xVy+FpSuVy2w==
-X-Received: by 2002:a37:c17:: with SMTP id 23mr815911qkm.282.1613590552398;
-        Wed, 17 Feb 2021 11:35:52 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxTYIIg5rgOnDJUJSvEaJQTHUn7YXNS0+K5gx2PYQc1TOI5PZNuWIJYe6QRYJIwljMi/RFGQw==
-X-Received: by 2002:a37:c17:: with SMTP id 23mr815897qkm.282.1613590552210;
-        Wed, 17 Feb 2021 11:35:52 -0800 (PST)
+        bh=DKRCGD5cZBFDckHkhQGxjYspyMuPSVpV7imvsh15Fwg=;
+        b=YwREElkj7aWxtpmgSCPOsDmDuwivfqh3dwtaP3azzhd2pXEgy5QHC4oxbOv9ejK7Qe
+         NFSV5GtoYaakbAa/YD40WuZF4r2GON5RR5+NggoEknHAkWJ40SlwSOo2ETFeBUwYtH57
+         QTxnxBTvxxV8gVdggtjoBYleNdMHylqVCzNTrJGkxCVy1lOrfqzd5vRDDzmCUgcE8Qem
+         tl/x5eMcrEt20WN1sbYOL0jlCdBuZ1Ikz9Qo/sT91yAiczgSZQj3aZj50jwmUk91dJ+x
+         Pb8Jizo+vai/BHW3wKkyV2lye4RNJTcSpptgTbk6kyNiUsf/JBi8gP2hBnr4R1GlMBWJ
+         Zh4A==
+X-Gm-Message-State: AOAM5333NQOR4VagKjzUoSufZ/lPjQHPRxEvya6+0bADgSw11rm5Lt+Z
+        oihZ6XIPCtXs0F1rFjt1QdaDc5WrHuSNuOJ2V3oe/wNZScf4vEL76Di2h6DG7syu6wC1YQnolWv
+        qilmqg/Y7IqEKPZvzy8j3zQ==
+X-Received: by 2002:a37:e20b:: with SMTP id g11mr832454qki.292.1613591078916;
+        Wed, 17 Feb 2021 11:44:38 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzmn0YnwZ3NDVqO0cMhaXsErwcpE5p4rLVKMLyL5IWYZzrdUFReeIRZBso5fLx1tUu0zEu6dg==
+X-Received: by 2002:a37:e20b:: with SMTP id g11mr832433qki.292.1613591078685;
+        Wed, 17 Feb 2021 11:44:38 -0800 (PST)
 Received: from xz-x1 (bras-vprn-toroon474qw-lp130-20-174-93-89-182.dsl.bell.ca. [174.93.89.182])
-        by smtp.gmail.com with ESMTPSA id 12sm1861151qtt.88.2021.02.17.11.35.50
+        by smtp.gmail.com with ESMTPSA id k187sm2318732qkc.74.2021.02.17.11.44.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Feb 2021 11:35:51 -0800 (PST)
-Date:   Wed, 17 Feb 2021 14:35:50 -0500
+        Wed, 17 Feb 2021 11:44:38 -0800 (PST)
+Date:   Wed, 17 Feb 2021 14:44:36 -0500
 From:   Peter Xu <peterx@redhat.com>
 To:     Mike Kravetz <mike.kravetz@oracle.com>
 Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
@@ -70,51 +70,63 @@ Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
         Matthew Wilcox <willy@infradead.org>,
         Michel Lespinasse <walken@google.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [RFC PATCH 3/5] mm proc/task_mmu.c: add soft dirty pte checks
- for hugetlb
-Message-ID: <20210217193550.GC6519@xz-x1>
+Subject: Re: [RFC PATCH 4/5] hugetlb: don't permit pmd sharing if soft dirty
+ in use
+Message-ID: <20210217194436.GD6519@xz-x1>
 References: <20210211000322.159437-1-mike.kravetz@oracle.com>
- <20210211000322.159437-4-mike.kravetz@oracle.com>
+ <20210211000322.159437-5-mike.kravetz@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20210211000322.159437-4-mike.kravetz@oracle.com>
+In-Reply-To: <20210211000322.159437-5-mike.kravetz@oracle.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 10, 2021 at 04:03:20PM -0800, Mike Kravetz wrote:
-> Pagemap was only using the vma flag PM_SOFT_DIRTY for hugetlb vmas.
-> This is insufficient.  Check the individual pte entries.
+On Wed, Feb 10, 2021 at 04:03:21PM -0800, Mike Kravetz wrote:
+> If page modifications are being monitoried with the soft dirty mechanism,
+> then this information is contained in page table entries.  Tracking is
+> enabled on a 'per-process' basis.  hugetlb pmd sharing allows processes
+> to share page table entries.  This makes pmd sharing incompatible with
+> soft dirty monitoring.  So, pmd sharing must be disabled if soft dirty
+> tracking is in use.
+> 
+> The VM_SOFTDIRTY flag is set in all vma's by default.  When soft dirty
+> monitoring is started, the flag is cleared.  We can therefore allow pmd
+> sharing in vmas with the VM_SOFTDIRTY flag set.  Check this when deciding
+> to perform pmd sharing.
+> 
+> A subsequent patch will add code to allow soft dirty monitoring for hugetlb
+> vmas.  Any existing pmd sharing will be undone at that time.
 > 
 > Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
 > ---
->  fs/proc/task_mmu.c | 4 ++++
->  1 file changed, 4 insertions(+)
+>  mm/hugetlb.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
 > 
-> diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-> index 602e3a52884d..829b35016aaa 100644
-> --- a/fs/proc/task_mmu.c
-> +++ b/fs/proc/task_mmu.c
-> @@ -1507,6 +1507,10 @@ static int pagemap_hugetlb_range(pte_t *ptep, unsigned long hmask,
->  		flags |= PM_SOFT_DIRTY;
+> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> index b561b6867ec1..cf4aa63be9b1 100644
+> --- a/mm/hugetlb.c
+> +++ b/mm/hugetlb.c
+> @@ -5285,6 +5285,13 @@ static bool vma_shareable(struct vm_area_struct *vma, unsigned long addr)
+>  	unsigned long base = addr & PUD_MASK;
+>  	unsigned long end = base + PUD_SIZE;
 >  
->  	pte = huge_ptep_get(ptep);
+> +	/*
+> +	 * Do not allow pmd sharing if soft dirty tracking is in use.
+> +	 */
+> +	if (IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) &&
+> +				!(vma->vm_flags & VM_SOFTDIRTY))
+> +		return false;
 > +
-> +	if (huge_pte_soft_dirty(pte))
-> +		flags |= PM_SOFT_DIRTY;
 
-Should this be put into pte_present() chunk below?  Since I feel like we'd need
-huge_pte_swp_soft_dirty() for !pte_present().  Say, _PAGE_SOFT_DIRTY and
-_PAGE_SWP_SOFT_DIRTY can be different.
+Reviewed-by: Peter Xu <peterx@redhat.com>
 
-> +
->  	if (pte_present(pte)) {
->  		struct page *page = pte_page(pte);
->  
-> -- 
-> 2.29.2
-> 
+The indent of using three tabs is a bit weird to me, though.. I do see this
+happen somewhere else in the repo too, so maybe it's a way to indent that I
+don't know.
+
+Thanks,
 
 -- 
 Peter Xu
