@@ -2,111 +2,216 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3446EC433E9
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 16:20:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D10CC433DB
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 16:23:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0573464DA1
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 16:20:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D111964DE0
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 16:23:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234106AbhBQQUU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Feb 2021 11:20:20 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:49628 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234084AbhBQQUM (ORCPT
+        id S234192AbhBQQW7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Feb 2021 11:22:59 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57852 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S234190AbhBQQWz (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Feb 2021 11:20:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613578726;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=C5pQCMnRymj0W6CfJ9HqjXjbciN4lIEx8wkXPqouyEw=;
-        b=ZhvfdqxvfNfnJ0hhFNPOrAWRLKj1mECH9KDKwAv/nR75aoNkWEPhiSPtEyi+I0l2s5XBs5
-        qO/zZkT2dDR5vc7c0bqi7sUqQ1SkY+wdoZKb07J34W0vFVg+L4kPSvB1v5yY27xWi2+y+3
-        Qcrn9275wyF1wpLZ9n+6Jj4J9BZc/Pw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-501-jrk5ETraNWCQ9hK0x_-oIg-1; Wed, 17 Feb 2021 11:18:42 -0500
-X-MC-Unique: jrk5ETraNWCQ9hK0x_-oIg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 01E67CC634;
-        Wed, 17 Feb 2021 16:18:41 +0000 (UTC)
-Received: from thuth.remote.csb (ovpn-112-116.ams2.redhat.com [10.36.112.116])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C7CF45D9E8;
-        Wed, 17 Feb 2021 16:18:34 +0000 (UTC)
-Subject: Re: [kvm-unit-tests PATCH v2 8/8] s390x: Remove SAVE/RESTORE_stack
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+        Wed, 17 Feb 2021 11:22:55 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11HGGwAT063991;
+        Wed, 17 Feb 2021 11:22:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=oRNPRivD/OEVLIFw8qAHmSf9wvUthyHLNm4q91sLcQM=;
+ b=Jk46njUQQ1PbvmRo+rzO6mr+tum3tNurxU1l6SM04c8qkT8N3ki1mJrAvZvMSVtqKUte
+ HdZdr+H9EO2T9FcROg9RHhZHDEw352NPQMPXnUwCfcN0DGnMFSJxGqWvb3uDEXLTZ7vp
+ Xhs5SgMc8JRp1yZKaUKjQpmygkTYCN2yLBqOjMgA651mSu1gYWAF9nBUoOYGQJ7NgUYQ
+ BbJLkZo+Y8TvukMvm+PuRZ/g93HLv/4vYEREzevoZV/UNO/jwmebY2U5MmOpVxcax3vT
+ iKkJGExUKwCFE4gL81kbRZ0NuG/rk9DohObes1NsdX/ReLZOfe+lzTejJkBLnwVHixBF 3w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36s6he03ek-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Feb 2021 11:22:14 -0500
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11HGHpAr069337;
+        Wed, 17 Feb 2021 11:22:13 -0500
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36s6he03dw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Feb 2021 11:22:13 -0500
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11HG41q1008945;
+        Wed, 17 Feb 2021 16:22:11 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 36p6d8a0mw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 17 Feb 2021 16:22:11 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11HGLvwA34210132
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 17 Feb 2021 16:21:57 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DE0635204E;
+        Wed, 17 Feb 2021 16:22:08 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.1.64])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 849285205A;
+        Wed, 17 Feb 2021 16:22:08 +0000 (GMT)
+Subject: Re: [kvm-unit-tests PATCH v2 4/8] s390x: Introduce and use
+ CALL_INT_HANDLER macro
+To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         pmorel@linux.ibm.com, david@redhat.com
 References: <20210217144116.3368-1-frankja@linux.ibm.com>
- <20210217144116.3368-9-frankja@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <4fd224a2-1c4d-1663-6615-685eadcf81f6@redhat.com>
-Date:   Wed, 17 Feb 2021 17:18:34 +0100
+ <20210217144116.3368-5-frankja@linux.ibm.com>
+ <313546fb-35df-22ab-79f8-d5b49286058f@redhat.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <8f95d948-a814-92ab-91f5-52424a53a28b@linux.ibm.com>
+Date:   Wed, 17 Feb 2021 17:22:08 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.7.0
 MIME-Version: 1.0
-In-Reply-To: <20210217144116.3368-9-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <313546fb-35df-22ab-79f8-d5b49286058f@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-02-17_13:2021-02-16,2021-02-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ suspectscore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0
+ mlxlogscore=964 bulkscore=0 clxscore=1015 phishscore=0 impostorscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102170119
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 17/02/2021 15.41, Janosch Frank wrote:
-> There are no more users.
+On 2/17/21 4:55 PM, Thomas Huth wrote:
+> On 17/02/2021 15.41, Janosch Frank wrote:
+>> The ELF ABI dictates that we need to allocate 160 bytes of stack space
+>> for the C functions we're calling. Since we would need to do that for
+>> every interruption handler which, combined with the new stack argument
+>> being saved in GR2, makes cstart64.S look a bit messy.
+>>
+>> So let's introduce the CALL_INT_HANDLER macro that handles all of
+>> that, calls the C interrupt handler and handles cleanup afterwards.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   s390x/cstart64.S | 28 +++++-----------------------
+>>   s390x/macros.S   | 17 +++++++++++++++++
+>>   2 files changed, 22 insertions(+), 23 deletions(-)
+>>
+>> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+>> index 35d20293..666a9567 100644
+>> --- a/s390x/cstart64.S
+>> +++ b/s390x/cstart64.S
+>> @@ -92,37 +92,19 @@ memsetxc:
+>>   
+>>   .section .text
+>>   pgm_int:
+>> -	SAVE_REGS_STACK
+>> -	lgr     %r2, %r15
+>> -	brasl	%r14, handle_pgm_int
+>> -	RESTORE_REGS_STACK
+>> -	lpswe	GEN_LC_PGM_OLD_PSW
+>> +	CALL_INT_HANDLER handle_pgm_int, GEN_LC_PGM_OLD_PSW
+>>   
+>>   ext_int:
+>> -	SAVE_REGS_STACK
+>> -	lgr     %r2, %r15
+>> -	brasl	%r14, handle_ext_int
+>> -	RESTORE_REGS_STACK
+>> -	lpswe	GEN_LC_EXT_OLD_PSW
+>> +	CALL_INT_HANDLER handle_ext_int, GEN_LC_EXT_OLD_PSW
+>>   
+>>   mcck_int:
+>> -	SAVE_REGS_STACK
+>> -	brasl	%r14, handle_mcck_int
+>> -	RESTORE_REGS_STACK
+>> -	lpswe	GEN_LC_MCCK_OLD_PSW
+>> +	CALL_INT_HANDLER handle_mcck_int, GEN_LC_MCCK_OLD_PSW
+>>   
+>>   io_int:
+>> -	SAVE_REGS_STACK
+>> -	lgr     %r2, %r15
+>> -	brasl	%r14, handle_io_int
+>> -	RESTORE_REGS_STACK
+>> -	lpswe	GEN_LC_IO_OLD_PSW
+>> +	CALL_INT_HANDLER handle_io_int, GEN_LC_IO_OLD_PSW
+>>   
+>>   svc_int:
+>> -	SAVE_REGS_STACK
+>> -	brasl	%r14, handle_svc_int
+>> -	RESTORE_REGS_STACK
+>> -	lpswe	GEN_LC_SVC_OLD_PSW
+>> +	CALL_INT_HANDLER handle_svc_int, GEN_LC_SVC_OLD_PSW
+>>   
+>>   	.align	8
+>>   initial_psw:
+>> diff --git a/s390x/macros.S b/s390x/macros.S
+>> index a7d62c6f..212a3823 100644
+>> --- a/s390x/macros.S
+>> +++ b/s390x/macros.S
+>> @@ -11,6 +11,23 @@
+>>    *  David Hildenbrand <david@redhat.com>
+>>    */
+>>   #include <asm/asm-offsets.h>
+>> +/*
+>> + * Exception handler macro that saves registers on the stack,
+>> + * allocates stack space and calls the C handler function. Afterwards
+>> + * we re-load the registers and load the old PSW.
+>> + */
+>> +	.macro CALL_INT_HANDLER c_func, old_psw
+>> +	SAVE_REGS_STACK
+>> +	/* Save the stack address in GR2 which is the first function argument */
+>> +	lgr     %r2, %r15
+>> +	/* Allocate stack pace for called C function, as specified in s390 ELF ABI */
+>> +	slgfi   %r15, 160
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->   s390x/macros.S | 29 -----------------------------
->   1 file changed, 29 deletions(-)
+> By the way, don't you have to store a back chain pointer at the bottom of 
+> that area, too, if you want to use -mbackchoin in the next patch?
+
+Don't I already do that in #2?
+
++       /* Store the gr15 value before we allocated the new stack */
+
+
+
++       lgr     %r0, %r15
+
+
+
++       algfi   %r0, 32 * 8 + 4 * 8
+
+
+
++       stg     %r0, 13 * 8 + STACK_FRAME_INT_GRS0(%r15)
+
+
+
++       stg     %r0, STACK_FRAME_INT_BACKCHAIN(%r15)
+
+I can vertainly move the hunk here and improve the comment.
+
+
 > 
-> diff --git a/s390x/macros.S b/s390x/macros.S
-> index 212a3823..399a87c6 100644
-> --- a/s390x/macros.S
-> +++ b/s390x/macros.S
-> @@ -28,35 +28,6 @@
->   	lpswe	\old_psw
->   	.endm
->   
-> -	.macro SAVE_REGS
-> -	/* save grs 0-15 */
-> -	stmg	%r0, %r15, GEN_LC_SW_INT_GRS
-> -	/* save crs 0-15 */
-> -	stctg	%c0, %c15, GEN_LC_SW_INT_CRS
-> -	/* load a cr0 that has the AFP control bit which enables all FPRs */
-> -	larl	%r1, initial_cr0
-> -	lctlg	%c0, %c0, 0(%r1)
-> -	/* save fprs 0-15 + fpc */
-> -	la	%r1, GEN_LC_SW_INT_FPRS
-> -	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-> -	std	\i, \i * 8(%r1)
-> -	.endr
-> -	stfpc	GEN_LC_SW_INT_FPC
-> -	.endm
-> -
-> -	.macro RESTORE_REGS
-> -	/* restore fprs 0-15 + fpc */
-> -	la	%r1, GEN_LC_SW_INT_FPRS
-> -	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-> -	ld	\i, \i * 8(%r1)
-> -	.endr
-> -	lfpc	GEN_LC_SW_INT_FPC
-
-Could we now also remove the sw_int_fprs and sw_int_fpc from the lowcore?
-
-  Thomas
+>   Thomas
+> 
+> 
+>> +	brasl	%r14, \c_func
+>> +	algfi   %r15, 160
+>> +	RESTORE_REGS_STACK
+>> +	lpswe	\old_psw
+>> +	.endm
+>> +
+>>   	.macro SAVE_REGS
+>>   	/* save grs 0-15 */
+>>   	stmg	%r0, %r15, GEN_LC_SW_INT_GRS
+>>
+> 
 
