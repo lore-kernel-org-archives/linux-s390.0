@@ -2,202 +2,108 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EB36C433DB
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 20:27:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D509C433DB
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Feb 2021 08:28:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E507264E68
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Feb 2021 20:27:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B84A64E68
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Feb 2021 08:28:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235023AbhBQU0x (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Feb 2021 15:26:53 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50135 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235012AbhBQU0u (ORCPT
+        id S230403AbhBRI20 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 18 Feb 2021 03:28:26 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:14226 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230414AbhBRIZq (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Feb 2021 15:26:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613593522;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=hZtRJeUML7NHUfQaoih4ryjpEijORracEaJufXohTpE=;
-        b=cc8vViWY2QCgC5YaU/p1FluPbyHCTL/18aHudvKUjuK8crgjn+n7yv8Ihod6nXmykYf3JL
-        QGS4AAkr8bHycQANPmsbIxriEC/xVF/zyxhEs5i0vts8w1oYePAIWtRX20gxV39/r20u+9
-        m751s3FzqHYnDZQJjt/oY6A72pgYl9M=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-549-yosYPlnGMIedqRNarAnLRQ-1; Wed, 17 Feb 2021 15:25:21 -0500
-X-MC-Unique: yosYPlnGMIedqRNarAnLRQ-1
-Received: by mail-qk1-f197.google.com with SMTP id h7so11563618qkf.16
-        for <linux-s390@vger.kernel.org>; Wed, 17 Feb 2021 12:25:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=hZtRJeUML7NHUfQaoih4ryjpEijORracEaJufXohTpE=;
-        b=e3sM9Q609f930voh6WxzoRpNXQod3MrFuVvhSfwMinlCBaaVnQXi3wF8QaJpsyx/HP
-         WtqpurTbI5x3m4ewcuewP/F832n6g3WjZXpkGKncxMtfDNmhbjI1sdjHZjXr0rwNxM1p
-         Vq5jTx1j5g5SKUURqxBXvs1HG+3pnBOMmoSRtt6phDjzJPlSQrP1s0FzmmdSJBn5GfPC
-         9pQM0CnygH5vdmnwqqtgliT7OYrx+2KGV2J+/yLATWFvQLk3YJZfq789LMQgAKC8EH1G
-         nK6E675V+bzyqQim351p7r/Rzo9Nw59bFKcl8BX22t1KEZjyCP6JdeA4C9H3y05hh1i9
-         sXsQ==
-X-Gm-Message-State: AOAM531jVCYTmxOBMyjwLw19CQY5L1LgfJwf7jw2WLw6ZuQtPmbkG2n5
-        S+z8HLut+PGx3rmA6ogpJKjoqCXVLuTfnNlZwGP2DQbHf7EVCnQvrnWKCr0kkSAUQl/GRddyy5c
-        kHGdMRhpy1b2LGNf1yAChpA==
-X-Received: by 2002:a37:e4d:: with SMTP id 74mr997937qko.109.1613593520571;
-        Wed, 17 Feb 2021 12:25:20 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzh1hgcn30UQ1Pzk5/L6ZLtIbXgncB61U4mq0qYkBmtccAv/ChS4Cjoj7zOPZwFtCtLxtOTeQ==
-X-Received: by 2002:a37:e4d:: with SMTP id 74mr997909qko.109.1613593520273;
-        Wed, 17 Feb 2021 12:25:20 -0800 (PST)
-Received: from xz-x1 (bras-vprn-toroon474qw-lp130-20-174-93-89-182.dsl.bell.ca. [174.93.89.182])
-        by smtp.gmail.com with ESMTPSA id r80sm2436111qke.97.2021.02.17.12.25.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Feb 2021 12:25:19 -0800 (PST)
-Date:   Wed, 17 Feb 2021 15:25:18 -0500
-From:   Peter Xu <peterx@redhat.com>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, shu wang <malate_wangshu@hotmail.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Michel Lespinasse <walken@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [RFC PATCH 5/5] mm proc/task_mmu.c: add hugetlb specific routine
- for clear_refs
-Message-ID: <20210217202518.GA19238@xz-x1>
-References: <20210211000322.159437-1-mike.kravetz@oracle.com>
- <20210211000322.159437-6-mike.kravetz@oracle.com>
+        Thu, 18 Feb 2021 03:25:46 -0500
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 11I82xs1073958;
+        Thu, 18 Feb 2021 03:25:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=pHf1GQg/rDXhUhPT7iQkQ9FeW+N/gnO3ojXYnxwBWAI=;
+ b=LMjuI39zAwHP3meDCCOH2uPUIE5N/17JlWfqy4YE04/xWRdscgrdijA++pQ2ecMOk10/
+ EqmXqhcIG/WS/fS1Wm0A58MccXkpTYFgYQ4Vf3muIIBgPr1pISbjEfuXsdS5RCSgV8I8
+ Rp+ypDnqgHI6WWOZYBxBly3QHL1l7TxE+HVvHdzPziKTZEVpkGKngrUlPLDu1S3r4TJU
+ 9cOFF+KG2KmAoEZqNbMNGXxFIsS5iyWR6wL7n0/aNmkTNwUad0XbEfX3WmFmZQhYDzw1
+ l6zlv31fFOfRAF/j7yrFpNTr7XomxNVyvIj551bCQOQAQVfBl3n5IVFLU1AY1xbrQb2u aw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36smbp8qjy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Feb 2021 03:25:01 -0500
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 11I82wcR073893;
+        Thu, 18 Feb 2021 03:25:01 -0500
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36smbp8qht-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Feb 2021 03:25:01 -0500
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11I8LvJQ008135;
+        Thu, 18 Feb 2021 08:24:59 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 36rw3u912g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Feb 2021 08:24:59 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11I8OvX933882508
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 18 Feb 2021 08:24:57 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F27244203F;
+        Thu, 18 Feb 2021 08:24:56 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5487F42042;
+        Thu, 18 Feb 2021 08:24:56 +0000 (GMT)
+Received: from linux01.pok.stglabs.ibm.com (unknown [9.114.17.81])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 18 Feb 2021 08:24:56 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, thuth@redhat.com
+Subject: [kvm-unit-tests PATCH] s390x: Remove sthyi partition number check
+Date:   Thu, 18 Feb 2021 03:24:49 -0500
+Message-Id: <20210218082449.29876-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210211000322.159437-6-mike.kravetz@oracle.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-02-18_03:2021-02-18,2021-02-18 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 mlxscore=0 bulkscore=0 clxscore=1015 spamscore=0
+ phishscore=0 malwarescore=0 adultscore=0 mlxlogscore=871 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102180066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 10, 2021 at 04:03:22PM -0800, Mike Kravetz wrote:
-> There was is no hugetlb specific routine for clearing soft dirty and
-> other referrences.  The 'default' routines would only clear the
-> VM_SOFTDIRTY flag in the vma.
-> 
-> Add new routine specifically for hugetlb vmas.
-> 
-> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-> ---
->  fs/proc/task_mmu.c | 110 +++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 110 insertions(+)
-> 
-> diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-> index 829b35016aaa..f06cf9b131a8 100644
-> --- a/fs/proc/task_mmu.c
-> +++ b/fs/proc/task_mmu.c
-> @@ -1116,6 +1116,115 @@ static inline void clear_soft_dirty_pmd(struct vm_area_struct *vma,
->  }
->  #endif
->  
-> +#ifdef CONFIG_HUGETLB_PAGE
-> +static inline bool huge_pte_is_pinned(struct vm_area_struct *vma,
-> +					unsigned long addr, pte_t pte)
-> +{
-> +	struct page *page;
-> +
-> +	if (likely(!atomic_read(&vma->vm_mm->has_pinned)))
-> +		return false;
-> +	page = pte_page(pte);
-> +	if (!page)
-> +		return false;
-> +	return page_maybe_dma_pinned(page);
-> +}
-> +
-> +static int clear_refs_hugetlb_range(pte_t *ptep, unsigned long hmask,
-> +				unsigned long addr, unsigned long end,
-> +				struct mm_walk *walk)
-> +{
-> +	struct clear_refs_private *cp = walk->private;
-> +	struct vm_area_struct *vma = walk->vma;
-> +	struct hstate *h = hstate_vma(walk->vma);
-> +	unsigned long adj_start = addr, adj_end = end;
-> +	spinlock_t *ptl;
-> +	pte_t old_pte, pte;
-> +
-> +	/*
-> +	 * clear_refs should only operate on complete vmas.  Therefore,
-> +	 * values passed here should be huge page aligned and huge page
-> +	 * size in length.  Quick validation before taking any action in
-> +	 * case upstream code is changed.
-> +	 */
-> +	if ((addr & hmask) != addr || end - addr != huge_page_size(h)) {
-> +		WARN_ONCE(1, "%s passed unaligned address\n", __func__);
-> +		return 1;
-> +	}
+Turns out that partition numbers start from 0 and not from 1 so a 0
+check doesn't make sense here.
 
-I wouldn't worry too much on the interface change - The one who will change the
-interface should guarantee all existing hooks will still work, isn't it? :)
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ s390x/sthyi.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-It's slightly confusing to me on why "clear_refs should only operate on
-complete vmas" is related to the check, though.
-
-> +
-> +	ptl = huge_pte_lock(hstate_vma(vma), walk->mm, ptep);
-> +
-> +	/* Soft dirty and pmd sharing do not mix */
-
-Right, this seems to be a placeholder for unsharing code.
-
-Though maybe we can do that earlier in pre_vma() hook?  That should be per-vma
-rather than handling one specific huge page here, hence more efficient imho.
-
-this reminded me that I should also better move hugetlb_unshare_all_pmds() of
-my other patch into hugetlb.c, so that this code can call it.  Currently it's a
-static function in userfaultfd.c.
-
-> +
-> +	pte = huge_ptep_get(ptep);
-> +	if (!pte_present(pte))
-> +		goto out;
-> +	if (unlikely(is_hugetlb_entry_hwpoisoned(pte)))
-> +		goto out;
-> +
-> +	if (cp->type == CLEAR_REFS_SOFT_DIRTY) {
-
-Maybe move this check into clear_refs_test_walk()?  We can bail out earlier if:
-
-      (is_vm_hugetlb_page(vma) && (type != CLEAR_REFS_SOFT_DIRTY))
-
-> +		if (huge_pte_is_pinned(vma, addr, pte))
-> +			goto out;
-
-Out of topic of this patchset, but it's definitely a pity that we can't track
-soft dirty for pinned pages.  Currently the assumption of the pte code path is:
-"if this page can be DMA written then we won't know whether data changed after
-all, then tracking dirty is meaningless", however that's prone to change when
-new hardwares coming, say, IOMMU could start to trap DMA writes already.
-
-But again that's another story.. and we should just follow what we do with
-non-hugetlbfs for sure here, until some day if we'd like to revive soft dirty
-tracking with pinned pages.
-
-> +
-> +		/*
-> +		 * soft dirty and pmd sharing do not work together as
-> +		 * per-process is tracked in ptes, and pmd sharing allows
-> +		 * processed to share ptes.  We unshare any pmds here.
-> +		 */
-> +		adjust_range_if_pmd_sharing_possible(vma, &adj_start, &adj_end);
-
-Ideally when reach here, huge pmd sharing won't ever exist, right?  Then do we
-still need to adjust the range at all?
-
-Thanks,
-
+diff --git a/s390x/sthyi.c b/s390x/sthyi.c
+index d8dfc854..db90b56f 100644
+--- a/s390x/sthyi.c
++++ b/s390x/sthyi.c
+@@ -128,7 +128,6 @@ static void test_fcode0_par(struct sthyi_par_sctn *par)
+ 		report(sum, "core counts");
+ 
+ 	if (par->INFPVAL1 & PART_STSI_SUC) {
+-		report(par->INFPPNUM, "number");
+ 		report(memcmp(par->INFPPNAM, null_buf, sizeof(par->INFPPNAM)),
+ 		       "name");
+ 	}
 -- 
-Peter Xu
+2.25.1
 
