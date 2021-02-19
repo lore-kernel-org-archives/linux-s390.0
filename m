@@ -7,52 +7,56 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 440A6C433E9
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Feb 2021 16:11:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70AF9C433E6
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Feb 2021 16:40:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 03EB464E22
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Feb 2021 16:11:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 49FCB64EBF
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Feb 2021 16:40:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229925AbhBSQLj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 Feb 2021 11:11:39 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:40363 "EHLO
+        id S229755AbhBSQkL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 Feb 2021 11:40:11 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:53855 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229889AbhBSQLh (ORCPT
+        by vger.kernel.org with ESMTP id S230160AbhBSQkF (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 19 Feb 2021 11:11:37 -0500
+        Fri, 19 Feb 2021 11:40:05 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613751003;
+        s=mimecast20190719; t=1613752719;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=N9P/i9bBxjxPUr0fTpSG6GTSxPWOv5nXFwFZ5OtmTGs=;
-        b=DCqH6rTkJZlZYYpHyyNOyX8Ez74tZkenr56UbkdfzXCOI5HFMvuHJvuDnR+sJtJbptiPNG
-        8eCsCjKjtHYr84QAeAYpDrNthP06qAh94ckEqR82u/51EYh0SBvSj06xIHcaj3hLAn/ipo
-        n0Mp5QDE9KZIoFNwyEIYReYYhKMtA5k=
+        bh=yLHUSgztqphVGzpy64DPiEubzzxMBP24dAWW1jTd1qU=;
+        b=F+R+ZxmpH1BikF+m3MqF6HzgHnn3rk7+07sCj/NRhmrGnI5Bo0AeYTRz1W3iaEv/0QJlMY
+        DoEhkGFQwCdYQpAswOQ2jaJJ/3N49V99+plkBn68nLLkOL+rGCzhJ+9R70PBuytq3UDqqj
+        1S9PHnDotPlj5ESukM9B8m4kDR0hC1w=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-422-woNH6Pj5M9aDhHWjQOZu9g-1; Fri, 19 Feb 2021 11:09:59 -0500
-X-MC-Unique: woNH6Pj5M9aDhHWjQOZu9g-1
+ us-mta-135-rOrCZLYtOvm5wdANcEFjzA-1; Fri, 19 Feb 2021 11:38:35 -0500
+X-MC-Unique: rOrCZLYtOvm5wdANcEFjzA-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BA4E1835E20;
-        Fri, 19 Feb 2021 16:09:56 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8F6C1107ACC7;
+        Fri, 19 Feb 2021 16:38:33 +0000 (UTC)
 Received: from gondolin (ovpn-113-92.ams2.redhat.com [10.36.113.92])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 17BC71970D;
-        Fri, 19 Feb 2021 16:09:51 +0000 (UTC)
-Date:   Fri, 19 Feb 2021 17:09:49 +0100
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A82FB1970D;
+        Fri, 19 Feb 2021 16:38:31 +0000 (UTC)
+Date:   Fri, 19 Feb 2021 17:38:28 +0100
 From:   Cornelia Huck <cohuck@redhat.com>
-To:     Pierre Morel <pmorel@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        thuth@redhat.com
-Subject: Re: [PATCH v3 1/1] s390:kvm: diag9c forwarding
-Message-ID: <20210219170949.6300c056.cohuck@redhat.com>
-In-Reply-To: <1613405210-16532-2-git-send-email-pmorel@linux.ibm.com>
-References: <1613405210-16532-1-git-send-email-pmorel@linux.ibm.com>
-        <1613405210-16532-2-git-send-email-pmorel@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] virtio/s390: implement virtio-ccw revision 2
+ correctly
+Message-ID: <20210219173828.6a2ab5d4.cohuck@redhat.com>
+In-Reply-To: <20210216110645.1087321-1-cohuck@redhat.com>
+References: <20210216110645.1087321-1-cohuck@redhat.com>
 Organization: Red Hat GmbH
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -62,141 +66,64 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 15 Feb 2021 17:06:50 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+I was thinking of queuing this, but maybe it is quicker to pick it into
+the s390 tree directly and save us the extra pull request dance?
+Especially as this is a stable-worthy bugfix.
 
-Make $SUBJECT
+On Tue, 16 Feb 2021 12:06:45 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-"KVM: s390: diag9c (directed yield) forwarding" ?
-
-> When we receive intercept a DIAG_9C from the guest we verify
-
-Either 'receive' or 'intercept', I guess :)
-
-> that the target real CPU associated with the virtual CPU
-> designated by the guest is running and if not we forward the
-> DIAG_9C to the target real CPU.
+> CCW_CMD_READ_STATUS was introduced with revision 2 of virtio-ccw,
+> and drivers should only rely on it being implemented when they
+> negotiated at least that revision with the device.
 > 
-> To avoid a diag9c storm we allow a maximal rate of diag9c forwarding.
+> However, virtio_ccw_get_status() issued READ_STATUS for any
+> device operating at least at revision 1. If the device accepts
+> READ_STATUS regardless of the negotiated revision (which some
+> implementations like QEMU do, even though the spec currently does
+> not allow it), everything works as intended. While a device
+> rejecting the command should also be handled gracefully, we will
+> not be able to see any changes the device makes to the status,
+> such as setting NEEDS_RESET or setting the status to zero after
+> a completed reset.
 > 
-> The rate is calculated as a count per second defined as a
-> new parameter of the s390 kvm module: diag9c_forwarding_hz .
+> We negotiated the revision to at most 1, as we never bumped the
+> maximum revision; let's do that now and properly send READ_STATUS
+> only if we are operating at least at revision 2.
 > 
-> The default value is to not forward diag9c.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Cc: stable@vger.kernel.org
+> Fixes: 7d3ce5ab9430 ("virtio/s390: support READ_STATUS command for virtio-ccw")
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 > ---
->  Documentation/virt/kvm/s390-diag.rst | 33 ++++++++++++++++++++++++++++
->  arch/s390/include/asm/kvm_host.h     |  1 +
->  arch/s390/include/asm/smp.h          |  1 +
->  arch/s390/kernel/smp.c               |  1 +
->  arch/s390/kvm/diag.c                 | 31 +++++++++++++++++++++++---
->  arch/s390/kvm/kvm-s390.c             |  6 +++++
->  arch/s390/kvm/kvm-s390.h             |  8 +++++++
->  7 files changed, 78 insertions(+), 3 deletions(-)
 > 
-> diff --git a/Documentation/virt/kvm/s390-diag.rst b/Documentation/virt/kvm/s390-diag.rst
-> index eaac4864d3d6..a6371bc4ea90 100644
-> --- a/Documentation/virt/kvm/s390-diag.rst
-> +++ b/Documentation/virt/kvm/s390-diag.rst
-> @@ -84,3 +84,36 @@ If the function code specifies 0x501, breakpoint functions may be performed.
->  This function code is handled by userspace.
+> v1->v2:
+>   tweak patch description and cc:stable
+> 
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 5730572b52cd..54e686dca6de 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -117,7 +117,7 @@ struct virtio_rev_info {
+>  };
 >  
->  This diagnose function code has no subfunctions and uses no parameters.
-> +
-> +
-> +DIAGNOSE function code 'X'9C - Voluntary Time Slice Yield
-> +---------------------------------------------------------
-> +
-> +General register 1 contains the target CPU address.
-> +
-> +In a guest of a hypervisor like LPAR, KVM or z/VM using shared host CPUs,
-> +DIAGNOSE with function code 'X'9C may improve system performance by
-> +yielding the host CPU on which the guest CPU is running to be assigned
-> +to another guest CPU, preferably the logical CPU containing the specified
-> +target CPU.
-> +
-> +
-> +DIAG 'X'9C forwarding
-> ++++++++++++++++++++++
-> +
-> +Under KVM, the guest operating system may send a DIAGNOSE code 'X'9C to
-> +the host when it fails to acquire a spinlock for a virtual CPU
-> +and detects that the host CPU on which the virtual guest CPU owner is
-> +assigned to is not running to try to get this host CPU running and
-> +consequently the guest virtual CPU running and freeing the lock.
-
-What about:
-
-"The guest may send a DIAGNOSE 0x9c in order to yield to a certain
-other vcpu. An example is a Linux guest that tries to yield to the vcpu
-that is currently holding a spinlock, but not running."
-
-> +
-> +However, on the logical partition the real CPU on which the previously
-> +targeted host CPU is assign may itself not be running.
-
-"However, on the host the real cpu backing the vcpu may itself not be
-running."
-
-> +By forwarding the DIAGNOSE code 'X'9C, initially sent by the guest,
-> +from the host to LPAR hypervisor, this one will hopefully schedule
-> +the host CPU which will let KVM run the target guest CPU.
-
-"Forwarding the DIAGNOSE 0x9c initially sent by the guest to yield to
-the backing cpu will hopefully cause that cpu, and thus subsequently
-the guest's vcpu, to be scheduled."
-
-[I don't think we should explicitly talk about LPAR here, as the same
-should apply if we are running second-or-deeper level, right?]
-
-> +
-> +diag9c_forwarding_hz
-> +    KVM kernel parameter allowing to specify the maximum number of DIAGNOSE
-> +    'X'9C forwarding per second in the purpose of avoiding a DIAGNOSE 'X'9C
-> +    forwarding storm.
-
-I think 0x9c is the more common way to write the hex code.
-
-Also,
-
-"A value of 0 turns the forwarding off" ?
-
-(...)
-
-> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-> index 27c763014114..15e207a671fd 100644
-> --- a/arch/s390/kernel/smp.c
-> +++ b/arch/s390/kernel/smp.c
-> @@ -422,6 +422,7 @@ void notrace smp_yield_cpu(int cpu)
->  	asm volatile("diag %0,0,0x9c"
->  		     : : "d" (pcpu_devices[cpu].address));
->  }
-> +EXPORT_SYMBOL(smp_yield_cpu);
-
-EXPORT_SYMBOL_GPL?
-
+>  /* the highest virtio-ccw revision we support */
+> -#define VIRTIO_CCW_REV_MAX 1
+> +#define VIRTIO_CCW_REV_MAX 2
 >  
->  /*
->   * Send cpus emergency shutdown signal. This gives the cpus the
-
-(...)
-
-> @@ -190,6 +191,11 @@ static bool use_gisa  = true;
->  module_param(use_gisa, bool, 0644);
->  MODULE_PARM_DESC(use_gisa, "Use the GISA if the host supports it.");
+>  struct virtio_ccw_vq_info {
+>  	struct virtqueue *vq;
+> @@ -952,7 +952,7 @@ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
+>  	u8 old_status = vcdev->dma_area->status;
+>  	struct ccw1 *ccw;
 >  
-> +/* maximum diag9c forwarding per second */
-> +unsigned int diag9c_forwarding_hz;
-> +module_param(diag9c_forwarding_hz, uint, 0644);
-> +MODULE_PARM_DESC(diag9c_forwarding_hz, "Maximum diag9c forwarding per second");
-
-Maybe also add "(0 to turn off forwarding)" here?
-
-> +
->  /*
->   * For now we handle at most 16 double words as this is what the s390 base
->   * kernel handles and stores in the prefix page. If we ever need to go beyond
-
-(...)
+> -	if (vcdev->revision < 1)
+> +	if (vcdev->revision < 2)
+>  		return vcdev->dma_area->status;
+>  
+>  	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
 
