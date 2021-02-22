@@ -2,119 +2,157 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47425C433E0
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 15:15:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FD14C433E6
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 16:10:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04CCD64ED6
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 15:15:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2244164E61
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 16:10:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231418AbhBVPP0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Feb 2021 10:15:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40104 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230008AbhBVPPC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 Feb 2021 10:15:02 -0500
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E63C0611C2;
-        Mon, 22 Feb 2021 07:12:59 -0800 (PST)
-Received: by mail-wm1-x32f.google.com with SMTP id i9so3927156wml.5;
-        Mon, 22 Feb 2021 07:12:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=7hFnLRkgd4Q0qw+7HAuuUUWLWJVPby5EiSXIS4L9oGQ=;
-        b=dT612FLTVPEz8XRs6mxabgghhhSms68v480SapGnLo7hxIioNIX+ObgFDoRQuVg5S4
-         vAVjOP6C0XlZwDHg1qPCuB3tf2Pelmamb5mfcceNfCa1UKyeyViUmHUDJLgRyS1ut308
-         d6TQwzb2cIwABwhaJE0AC9Ea3QBZmVSiWT6J9nwYqR8z6JVLP5fJE5i7M0yDxSmIXt05
-         jb6IJgXvyo1XkwSxbrpfoSdTcvnYX3nSJuSSWWDgrOrB/SDGqpZr0xz1rKH6bR7QMYGV
-         4nNuhf2kPoPdYm6w3edgiTNVx81wadjOmh2Nx8odGuQJ8uG/3NxzX2wbLm4vQfJ9UCZD
-         5FiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=7hFnLRkgd4Q0qw+7HAuuUUWLWJVPby5EiSXIS4L9oGQ=;
-        b=bpcxzSc0pr2OcEErsB7fYom43qnA5nvEr1rNXAGOEDWWf2j5nil1JJ6fV6S4PmtT5i
-         9IRSp6s1lgLuW4NTTg8a9Hw4CLwV0Do1skZ531RLPlFHYbJZRXZmh27REhgje+QJ92Ni
-         IFKua2iDkLjOApULugUtkRw+11aROfsTfoBOv23ArqxH8TixheQFqgf1D/YYdMKcLerm
-         +fr8xfW46M+PaWV223PScC3G1ZfBA6w4M4pE3gQ/xrjR77gIDnxEDXP6x8WSZ7GiejHQ
-         zod2c8HWe1Sn1HDp7I59HESMZZ9IkNBvRTHO+GAOJtVq9kfHSiBKjhoPjiEZ6eKOKu7M
-         1ctw==
-X-Gm-Message-State: AOAM531dD8E/dtlYTzxT0o+qII2FBj4w98vES4vHrNzKq/URXx9dP2g0
-        9gyDPNfumFAvUixG/Yg/FYHnkIf5sBXZFmTt18k=
-X-Google-Smtp-Source: ABdhPJzVilHCS3gxDmaUXrsQs/QpvPLFYyKQGlIV5aFkTOiZdT7NP4nfll4p9JTad+ZeVYS+ou+FOA==
-X-Received: by 2002:a05:600c:3399:: with SMTP id o25mr20222396wmp.13.1614006777981;
-        Mon, 22 Feb 2021 07:12:57 -0800 (PST)
-Received: from debby (176-141-241-253.abo.bbox.fr. [176.141.241.253])
-        by smtp.gmail.com with ESMTPSA id p17sm15671076wmq.27.2021.02.22.07.12.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Feb 2021 07:12:57 -0800 (PST)
-From:   Romain Perier <romain.perier@gmail.com>
-To:     Kees Cook <keescook@chromium.org>,
+        id S231700AbhBVQKm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Feb 2021 11:10:42 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55642 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231735AbhBVQKh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 22 Feb 2021 11:10:37 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11MG7KcC093869;
+        Mon, 22 Feb 2021 11:09:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ content-transfer-encoding : in-reply-to : sender; s=pp1;
+ bh=e10sRKXrRQP/yyKgNz/7fjY2pJYcOYdrb1QU5xWU+X8=;
+ b=AWekrGFUH8yq/xRHBanJ81XgiKOGe8NYXEaf+zqaZ1cFsDTYPqCs5S39EWaJWAdBKC9/
+ hlhcc51lsIf38Qp5rSUlQIVD1F3j43vKp7ohzX5R3kQHztAFqWEGg+kp2umlZ/WT+yeI
+ 7HDjsRvlr3Hk94AaeTH4UjCtUWcezsXNUwY7MczAz9lpcD6U/PFeUZ1mA9I4sjwm/imE
+ XFBMlqNucHdOpFk+WgR1Ughlxnue8nCrME6U7V0BCu+aTqX/Ls8QdTF9NbbUzSfQL/fq
+ GSMixXvQ95h4XWm5NlQip1ojxXgrfz6y15OrIPlToiPsMG8sOEtVrQIsSD/rsWNGCIKI CA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36vfsq89ge-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Feb 2021 11:09:29 -0500
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11MG893V113711;
+        Mon, 22 Feb 2021 11:08:42 -0500
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36vfsq87fe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Feb 2021 11:08:17 -0500
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11MG4Xo0031127;
+        Mon, 22 Feb 2021 16:04:33 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04fra.de.ibm.com with ESMTP id 36tt288xgb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Feb 2021 16:04:33 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11MG4Ike37618064
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 22 Feb 2021 16:04:18 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 788DF4C04A;
+        Mon, 22 Feb 2021 16:04:30 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 667864C046;
+        Mon, 22 Feb 2021 16:04:30 +0000 (GMT)
+Received: from t480-pf1aa2c2.fritz.box (unknown [9.145.72.151])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 22 Feb 2021 16:04:30 +0000 (GMT)
+Received: from bblock by t480-pf1aa2c2.fritz.box with local (Exim 4.94)
+        (envelope-from <bblock@linux.ibm.com>)
+        id 1lEDhF-0009vS-Qf; Mon, 22 Feb 2021 17:04:29 +0100
+Date:   Mon, 22 Feb 2021 17:04:29 +0100
+From:   Benjamin Block <bblock@linux.ibm.com>
+To:     Romain Perier <romain.perier@gmail.com>
+Cc:     Kees Cook <keescook@chromium.org>,
         kernel-hardening@lists.openwall.com,
         Steffen Maier <maier@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>
-Cc:     Romain Perier <romain.perier@gmail.com>,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 13/20] scsi: zfcp: Manual replacement of the deprecated strlcpy() with return values
-Date:   Mon, 22 Feb 2021 16:12:24 +0100
-Message-Id: <20210222151231.22572-14-romain.perier@gmail.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210222151231.22572-1-romain.perier@gmail.com>
+Subject: Re: [PATCH 13/20] scsi: zfcp: Manual replacement of the deprecated
+ strlcpy() with return values
+Message-ID: <YDPWDU7iVTY7aY2h@t480-pf1aa2c2.linux.ibm.com>
 References: <20210222151231.22572-1-romain.perier@gmail.com>
+ <20210222151231.22572-14-romain.perier@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210222151231.22572-14-romain.perier@gmail.com>
+Sender: Benjamin Block <bblock@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-02-22_03:2021-02-22,2021-02-22 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 bulkscore=0 suspectscore=0 clxscore=1011 mlxlogscore=999
+ adultscore=0 phishscore=0 impostorscore=0 mlxscore=0 spamscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102220147
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The strlcpy() reads the entire source buffer first, it is dangerous if
-the source buffer lenght is unbounded or possibility non NULL-terminated.
-It can lead to linear read overflows, crashes, etc...
+On Mon, Feb 22, 2021 at 04:12:24PM +0100, Romain Perier wrote:
+> The strlcpy() reads the entire source buffer first, it is dangerous if
+> the source buffer lenght is unbounded or possibility non NULL-terminated.
+> It can lead to linear read overflows, crashes, etc...
+> 
+> As recommended in the deprecated interfaces [1], it should be replaced
+> by strscpy.
+> 
+> This commit replaces all calls to strlcpy that handle the return values
+> by the corresponding strscpy calls with new handling of the return
+> values (as it is quite different between the two functions).
+> 
+> [1] https://www.kernel.org/doc/html/latest/process/deprecated.html#strlcpy
+> 
+> Signed-off-by: Romain Perier <romain.perier@gmail.com>
+> ---
+>  drivers/s390/scsi/zfcp_fc.c |    8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
+> index d24cafe02708..8a65241011b9 100644
+> --- a/drivers/s390/scsi/zfcp_fc.c
+> +++ b/drivers/s390/scsi/zfcp_fc.c
+> @@ -877,14 +877,16 @@ static void zfcp_fc_rspn(struct zfcp_adapter *adapter,
+>  	struct zfcp_fsf_ct_els *ct_els = &fc_req->ct_els;
+>  	struct zfcp_fc_rspn_req *rspn_req = &fc_req->u.rspn.req;
+>  	struct fc_ct_hdr *rspn_rsp = &fc_req->u.rspn.rsp;
+> -	int ret, len;
+> +	int ret;
+> +	ssize_t len;
+>  
+>  	zfcp_fc_ct_ns_init(&rspn_req->ct_hdr, FC_NS_RSPN_ID,
+>  			   FC_SYMBOLIC_NAME_SIZE);
+>  	hton24(rspn_req->rspn.fr_fid.fp_fid, fc_host_port_id(shost));
+> -	len = strlcpy(rspn_req->rspn.fr_name, fc_host_symbolic_name(shost),
+> +	len = strscpy(rspn_req->rspn.fr_name, fc_host_symbolic_name(shost),
+>  		      FC_SYMBOLIC_NAME_SIZE);
+> -	rspn_req->rspn.fr_name_len = len;
+> +	if (len != -E2BIG)
+> +		rspn_req->rspn.fr_name_len = len;
 
-As recommended in the deprecated interfaces [1], it should be replaced
-by strscpy.
+That is a bug. Leaving `rspn.fr_name_len` uninitialized defeats the
+purpose of sending a RSPN.
 
-This commit replaces all calls to strlcpy that handle the return values
-by the corresponding strscpy calls with new handling of the return
-values (as it is quite different between the two functions).
+How about:
+	if (len == -E2BIG)
+		rspn_req->rspn.fr_name_len = FC_SYMBOLIC_NAME_SIZE - 1;
+	else
+		rspn_req->rspn.fr_name_len = len;
 
-[1] https://www.kernel.org/doc/html/latest/process/deprecated.html#strlcpy
+>  
+>  	sg_init_one(&fc_req->sg_req, rspn_req, sizeof(*rspn_req));
+>  	sg_init_one(&fc_req->sg_rsp, rspn_rsp, sizeof(*rspn_rsp));
+> 
 
-Signed-off-by: Romain Perier <romain.perier@gmail.com>
----
- drivers/s390/scsi/zfcp_fc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index d24cafe02708..8a65241011b9 100644
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -877,14 +877,16 @@ static void zfcp_fc_rspn(struct zfcp_adapter *adapter,
- 	struct zfcp_fsf_ct_els *ct_els = &fc_req->ct_els;
- 	struct zfcp_fc_rspn_req *rspn_req = &fc_req->u.rspn.req;
- 	struct fc_ct_hdr *rspn_rsp = &fc_req->u.rspn.rsp;
--	int ret, len;
-+	int ret;
-+	ssize_t len;
- 
- 	zfcp_fc_ct_ns_init(&rspn_req->ct_hdr, FC_NS_RSPN_ID,
- 			   FC_SYMBOLIC_NAME_SIZE);
- 	hton24(rspn_req->rspn.fr_fid.fp_fid, fc_host_port_id(shost));
--	len = strlcpy(rspn_req->rspn.fr_name, fc_host_symbolic_name(shost),
-+	len = strscpy(rspn_req->rspn.fr_name, fc_host_symbolic_name(shost),
- 		      FC_SYMBOLIC_NAME_SIZE);
--	rspn_req->rspn.fr_name_len = len;
-+	if (len != -E2BIG)
-+		rspn_req->rspn.fr_name_len = len;
- 
- 	sg_init_one(&fc_req->sg_req, rspn_req, sizeof(*rspn_req));
- 	sg_init_one(&fc_req->sg_rsp, rspn_rsp, sizeof(*rspn_rsp));
-
+-- 
+Best Regards, Benjamin Block  / Linux on IBM Z Kernel Development / IBM Systems
+IBM Deutschland Research & Development GmbH    /    https://www.ibm.com/privacy
+Vorsitz. AufsR.: Gregor Pillen         /        Geschäftsführung: Dirk Wittkopp
+Sitz der Gesellschaft: Böblingen / Registergericht: AmtsG Stuttgart, HRB 243294
