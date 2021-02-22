@@ -2,141 +2,195 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18ABDC433DB
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 14:10:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9E16C433E0
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 15:13:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BEDAA64E24
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 14:10:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BB4B264E77
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 15:13:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230256AbhBVOK0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Feb 2021 09:10:26 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34300 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231419AbhBVOJt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 22 Feb 2021 09:09:49 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11ME589S018816;
-        Mon, 22 Feb 2021 09:09:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id; s=pp1;
- bh=srmRYY9KOXm2In6DQzRA90ulNGhW3frH5GXWf7daVz0=;
- b=gPley3eGNat4tk6BdkBqQ+Rt+G0D0WwyrDD9mTU3fLBUsbX0vc2qOdjCatwNFt0yYXtN
- iQYMxRHbxld/KRC2jXl6iF57/PXDi9SdqYb3otSbAkTGsCiA+Cbg+K3FLZQacoK3Yqfj
- bUvwoahE5Qsk66IW2MElZV2kvc8hw0Q6bCl1KZY6JyEm33CHYHNO2wyxEhfkguuoGG8b
- bRTBzSLyg6Mi85bc8fHwNCcQGuNZsrmx+NVO9kOqp2WxjQifU5D6IDCX1nR26GVKirBA
- UsMUEmcWZvctXOxle5fbhP4kvMGROC/dmmdtZWc+NQ5gTEhnS7yJFnAnmT0yuH526sMs Uw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36ve1brdcr-42
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Feb 2021 09:09:07 -0500
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11MDQbjc013935;
-        Mon, 22 Feb 2021 08:31:54 -0500
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36vdgeg67e-13
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Feb 2021 08:31:54 -0500
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11MCRww8028401;
-        Mon, 22 Feb 2021 12:41:06 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 36tt281mn5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Feb 2021 12:41:06 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11MCepMA26608126
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 22 Feb 2021 12:40:51 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 512B6AE051;
-        Mon, 22 Feb 2021 12:41:03 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DDB2FAE045;
-        Mon, 22 Feb 2021 12:41:02 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.71.218])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 22 Feb 2021 12:41:02 +0000 (GMT)
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, cohuck@redhat.com, david@redhat.com,
-        thuth@redhat.com, pmorel@linux.ibm.com
-Subject: [PATCH v4 0/1] KVM: s390: diag9c (directed yield) forwarding
-Date:   Mon, 22 Feb 2021 13:41:00 +0100
-Message-Id: <1613997661-22525-1-git-send-email-pmorel@linux.ibm.com>
-X-Mailer: git-send-email 1.8.3.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-02-22_02:2021-02-22,2021-02-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
- lowpriorityscore=0 phishscore=0 mlxlogscore=999 adultscore=0 spamscore=0
- suspectscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2102220130
+        id S231154AbhBVPNk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Feb 2021 10:13:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39936 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230202AbhBVPNZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 Feb 2021 10:13:25 -0500
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A172C061786;
+        Mon, 22 Feb 2021 07:12:43 -0800 (PST)
+Received: by mail-wm1-x333.google.com with SMTP id i9so3926085wml.5;
+        Mon, 22 Feb 2021 07:12:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=W0TOeWb9HGAVOiFV96tO3iwrSfpr1HUMq4Lyw23rID8=;
+        b=FXji/u2iaXY+XOLURddZgd2B9Komiw4Zs+cHylXgLODWE9GujYAMZXOAJt49ncgKkj
+         KXasUXoXmvp4d8wnMqKd80kcI7te+i8Ssj5jDkgEWFuHlI+B6a2sASXp0MxfAR6JnXe8
+         PMBmzH05uvtN8ixL0Xf+EQKCWEzHPeryma2B8WEKKwAVtI0pXqr1NlCyNenHmBJpSL8S
+         /+oAK7AHbhG8Bp1qrmvN2UnpdRZab4b+NfCGuGFlZhbfGdnHHN2BEQP/z7fvhdeo8a9n
+         SKJFfnaPm0+G5TFN4ZPUDwZLEAxSLZT3kXUZZdZbgYAQSBq86aQw+eD/RGBp29tx1xWa
+         GH7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=W0TOeWb9HGAVOiFV96tO3iwrSfpr1HUMq4Lyw23rID8=;
+        b=AiJa2u4ZYYG4cGGbUvDlKsPNrYsvn5sC3tbefZHBa1Fet7VYgmMduMZdM6UvoN1GPC
+         S5Z3ig8x9Qa5yh2+itwSGbSgnFMSj3sQQcJlLBHyTGB/o/sGGyxj0hyg1cJxe9jN3KTa
+         yWoiDNiT2DU/alDTIBxJBKNYfcHPbSlcUp4VBZ4obMKn1JzDiTCcKD2dp4bP6384QFVU
+         4UODJjq/Ebe8gqeo6wqkcKzxqh2Lvav9qQyC77kHNvop/ZnlBo6llZhXb7vaNPT2x+87
+         HclkeuZrk5h/tBIIsOGCOOugYCCWMjjxLP2/lbKyUO+v7iAEQMwjZb6LMpL4CZVyjw48
+         irbA==
+X-Gm-Message-State: AOAM531Y+q21hjEBnQGvbOWuWFArByIiEuZ4QoCeH6wPNcMuUr4lHDu1
+        xf9Si1zm2rbgoTrQSCoOO2eztQ63JJXBOhEpv9I=
+X-Google-Smtp-Source: ABdhPJwJjaqNTMZMEqWfwHu3GKPnp7PUpKeoIN2SSKme4SlDCBTSRJD1aRWbEX4S9qfmjT5mjltYPQ==
+X-Received: by 2002:a05:600c:26c4:: with SMTP id 4mr9157865wmv.126.1614006761746;
+        Mon, 22 Feb 2021 07:12:41 -0800 (PST)
+Received: from debby (176-141-241-253.abo.bbox.fr. [176.141.241.253])
+        by smtp.gmail.com with ESMTPSA id q25sm20952001wmq.15.2021.02.22.07.12.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Feb 2021 07:12:41 -0800 (PST)
+From:   Romain Perier <romain.perier@gmail.com>
+To:     Kees Cook <keescook@chromium.org>,
+        kernel-hardening@lists.openwall.com, Tejun Heo <tj@kernel.org>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jiri Pirko <jiri@nvidia.com>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        "J. Bruce Fields" <bfields@fieldses.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Jessica Yu <jeyu@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Felipe Balbi <balbi@kernel.org>,
+        Valentina Manea <valentina.manea.m@gmail.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc:     Romain Perier <romain.perier@gmail.com>, cgroups@vger.kernel.org,
+        linux-crypto@vger.kernel.org, netdev@vger.kernel.org,
+        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linaro-mm-sig@lists.linaro.org,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-integrity@vger.kernel.org, linux-nfs@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-hwmon@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org, alsa-devel@alsa-project.org,
+        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 00/20] Manual replacement of all strlcpy in favor of strscpy
+Date:   Mon, 22 Feb 2021 16:12:11 +0100
+Message-Id: <20210222151231.22572-1-romain.perier@gmail.com>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch will forward the yield_to hypercall (diag9c) if in the host
-the target CPU is also not running. As we do not yet have performance
-data (and recommendations) the default is turned off, but this can
-be changed during runtime.
+strlcpy() copy a C-String into a sized buffer, the result is always a
+valid NULL-terminated that fits in the buffer, howerver it has severals
+issues. It reads the source buffer first, which is dangerous if it is non
+NULL-terminated or if the corresponding buffer is unbounded. Its safe
+replacement is strscpy(), as suggested in the deprecated interface [1].
 
-The documentation notation for the titles is kept coherent with
-the other DIAGNOSE entries using the zVM notation DIAGNOSE 'X'9C,
-While in the explanation part we use the standard Linux notation
-DIAGNOSE 0x9c.
+We plan to make this contribution in two steps:
+- Firsly all cases of strlcpy's return value are manually replaced by the
+  corresponding calls of strscpy() with the new handling of the return
+  value (as the return code is different in case of error).
+- Then all other cases are automatically replaced by using coccinelle.
 
-Regards,
-Pierre
+This series covers manual replacements.
 
+[1] https://www.kernel.org/doc/html/latest/process/deprecated.html#strlcpy
 
-Pierre Morel (1):
-  KVM: s390: diag9c (directed yield) forwarding
+Romain Perier (20):
+  cgroup: Manual replacement of the deprecated strlcpy() with return
+    values
+  crypto: Manual replacement of the deprecated strlcpy() with return
+    values
+  devlink: Manual replacement of the deprecated strlcpy() with return
+    values
+  dma-buf: Manual replacement of the deprecated strlcpy() with return
+    values
+  kobject: Manual replacement of the deprecated strlcpy() with return
+    values
+  ima: Manual replacement of the deprecated strlcpy() with return values
+  SUNRPC: Manual replacement of the deprecated strlcpy() with return
+    values
+  kernfs: Manual replacement of the deprecated strlcpy() with return
+    values
+  m68k/atari: Manual replacement of the deprecated strlcpy() with return
+    values
+  module: Manual replacement of the deprecated strlcpy() with return
+    values
+  hwmon: Manual replacement of the deprecated strlcpy() with return
+    values
+  s390/hmcdrv: Manual replacement of the deprecated strlcpy() with
+    return values
+  scsi: zfcp: Manual replacement of the deprecated strlcpy() with return
+    values
+  target: Manual replacement of the deprecated strlcpy() with return
+    values
+  ALSA: usb-audio: Manual replacement of the deprecated strlcpy() with
+    return values
+  tracing/probe: Manual replacement of the deprecated strlcpy() with
+    return values
+  vt: Manual replacement of the deprecated strlcpy() with return values
+  usb: gadget: f_midi: Manual replacement of the deprecated strlcpy()
+    with return values
+  usbip: usbip_host: Manual replacement of the deprecated strlcpy() with
+    return values
+  s390/watchdog: Manual replacement of the deprecated strlcpy() with
+    return values
 
- Documentation/virt/kvm/s390-diag.rst | 33 ++++++++++++++++++++++++++++
- arch/s390/include/asm/kvm_host.h     |  1 +
- arch/s390/include/asm/smp.h          |  1 +
- arch/s390/kernel/smp.c               |  1 +
- arch/s390/kvm/diag.c                 | 31 +++++++++++++++++++++++---
- arch/s390/kvm/kvm-s390.c             |  6 +++++
- arch/s390/kvm/kvm-s390.h             |  8 +++++++
- 7 files changed, 78 insertions(+), 3 deletions(-)
+ arch/m68k/emu/natfeat.c                 |  6 +--
+ crypto/lrw.c                            |  6 +--
+ crypto/xts.c                            |  6 +--
+ drivers/dma-buf/dma-buf.c               |  4 +-
+ drivers/hwmon/pmbus/max20730.c          | 66 +++++++++++++------------
+ drivers/s390/char/diag_ftp.c            |  4 +-
+ drivers/s390/char/sclp_ftp.c            |  6 +--
+ drivers/s390/scsi/zfcp_fc.c             |  8 +--
+ drivers/target/target_core_configfs.c   | 33 ++++---------
+ drivers/tty/vt/keyboard.c               |  5 +-
+ drivers/usb/gadget/function/f_midi.c    |  4 +-
+ drivers/usb/gadget/function/f_printer.c |  8 +--
+ drivers/usb/usbip/stub_main.c           |  6 +--
+ drivers/watchdog/diag288_wdt.c          | 12 +++--
+ fs/kernfs/dir.c                         | 27 +++++-----
+ kernel/cgroup/cgroup.c                  |  2 +-
+ kernel/module.c                         |  4 +-
+ kernel/trace/trace_uprobe.c             | 11 ++---
+ lib/kobject_uevent.c                    |  6 +--
+ net/core/devlink.c                      |  6 +--
+ net/sunrpc/clnt.c                       |  6 ++-
+ security/integrity/ima/ima_policy.c     |  8 ++-
+ sound/usb/card.c                        |  4 +-
+ 23 files changed, 129 insertions(+), 119 deletions(-)
 
 -- 
-2.17.1
+2.20.1
 
-Changelog:
-
-From v3:
-
-- rewording of the commit message
-  (Connie)
-
-- great rewording of the documentation
-  (Connie)
-
-- Keep smp_yield_cpu symbol GPL
-  (Connie)
-
-- More explicit diag9c_forwarding_hz parameter description
-  (Connie)
-
-From v2:
-
-- update overrun comparison, avoid comparison on unsigned
-  (Pierre)
-
-From v1:
-
-- more precise comments
-  (Connie)
-
-- Documentation
-  (Janosch)
