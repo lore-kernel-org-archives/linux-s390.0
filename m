@@ -7,69 +7,69 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96E18C433E0
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 10:12:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30AF1C433DB
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 12:35:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4090664E20
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 10:12:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A8BD64DF0
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Feb 2021 12:35:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230316AbhBVKMD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Feb 2021 05:12:03 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39492 "EHLO
+        id S231206AbhBVMfK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Feb 2021 07:35:10 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24400 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231150AbhBVKKd (ORCPT
+        by vger.kernel.org with ESMTP id S230408AbhBVMd5 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 22 Feb 2021 05:10:33 -0500
+        Mon, 22 Feb 2021 07:33:57 -0500
 Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11MA3hTf024998;
-        Mon, 22 Feb 2021 05:09:53 -0500
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11MCQG2l028690;
+        Mon, 22 Feb 2021 07:33:15 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=T4PV5y8Jn2Wqk9Zc6NHSyw1I7XFgC4nrxdIIvhzNCxk=;
- b=fNSrcyljYGklbUMCPrnsZY+cpgnwk1rFlM1dgt+LN/SR8SbeovKQZ4kXk6nbIgJ7504E
- QJKFaistPDzEVKYz91nDq9DFnytfkFJJQD/GARwBiMAMIKcEuN32U+b3xyo+tvqAwaiT
- /AcmDoa2SY2LfsdBpuG9a5bkhrIZeMY5U0O3heWDLIPk3aXtPdKY/CXAtHv0yVUAUFPS
- ppIZNOHCV0KKjJCLS+U1yp7rJ8WQmzqT2wzzILL2kP6lHl+RC5hY61pGSYYqczSUkU1Q
- /0rIitBcagBSSIHo9yaH2mSV2Fwwi5JQsa652hBZ6VBNmoIb9LQpokOz7UBR/ZFvJIA9 RQ== 
+ bh=aBykKXx2dM2HXPOLq9a3B3RgomZLOP96UCOOtS7zGrY=;
+ b=g0BoCE737Bs+z96e2M3SpVHo/SE8ZnI8+FmOBF6vuuZ/E18/rXLxM0B50CvtuQjCGP6T
+ 5iPSmjjh7deNIsDcfGL+kDA+3jw/kY9v3rDfw/tLnybPmuRwxcZxwrF2emhGMjBrfgOp
+ J3xgtVqvzth7YQBSF5v0yx1m/msmf8YEUC0WajAkgEhhzrqUVxwSmEnKhCRYQznlzaGO
+ +N8YTUFiHE+zscFmqDt4xre4tXRVHhIfkYklckKs5CJjzKwCaXrTuCN9/WcG++aqymyl
+ t0jIjQ/rladDaf9g+6miSWHM81fLM7xZ/VvNMk6/ghhKyN574ZaV2N/hfK+eWzWxcDPN ew== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 36vah9rdbn-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36vcm3rad1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Feb 2021 05:09:52 -0500
+        Mon, 22 Feb 2021 07:33:14 -0500
 Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11MA3rBW025977;
-        Mon, 22 Feb 2021 05:07:07 -0500
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 36vah9r659-3
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11MCQGTO028704;
+        Mon, 22 Feb 2021 07:31:53 -0500
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 36vcm3r4xm-48
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Feb 2021 05:07:07 -0500
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11M8wPZ2022166;
+        Mon, 22 Feb 2021 07:31:53 -0500
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11M8w7AK016468;
         Mon, 22 Feb 2021 08:59:15 GMT
 Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 36tsph1f12-1
+        by ppma04ams.nl.ibm.com with ESMTP id 36tt289f1e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Feb 2021 08:59:15 +0000
+        Mon, 22 Feb 2021 08:59:14 +0000
 Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11M8xCSd42860868
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11M8xCLx43319562
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Mon, 22 Feb 2021 08:59:12 GMT
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C5B23AE055;
-        Mon, 22 Feb 2021 08:59:12 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id F28C1AE04D;
+        Mon, 22 Feb 2021 08:59:11 +0000 (GMT)
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 25D1FAE053;
-        Mon, 22 Feb 2021 08:59:12 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 4991BAE045;
+        Mon, 22 Feb 2021 08:59:11 +0000 (GMT)
 Received: from linux01.pok.stglabs.ibm.com (unknown [9.114.17.81])
         by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 22 Feb 2021 08:59:12 +0000 (GMT)
+        Mon, 22 Feb 2021 08:59:11 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         pmorel@linux.ibm.com, david@redhat.com, thuth@redhat.com
-Subject: [kvm-unit-tests PATCH v3 5/7] s390x: Print more information on program exceptions
-Date:   Mon, 22 Feb 2021 03:57:54 -0500
-Message-Id: <20210222085756.14396-6-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 4/7] s390x: Provide preliminary backtrace support
+Date:   Mon, 22 Feb 2021 03:57:53 -0500
+Message-Id: <20210222085756.14396-5-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210222085756.14396-1-frankja@linux.ibm.com>
 References: <20210222085756.14396-1-frankja@linux.ibm.com>
@@ -77,72 +77,97 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-02-22_02:2021-02-18,2021-02-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
- spamscore=0 suspectscore=0 bulkscore=0 phishscore=0 adultscore=0
- impostorscore=0 clxscore=1015 mlxlogscore=999 priorityscore=1501
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102220092
+ definitions=2021-02-22_02:2021-02-22,2021-02-22 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ impostorscore=0 mlxscore=0 suspectscore=0 mlxlogscore=999
+ priorityscore=1501 spamscore=0 adultscore=0 clxscore=1015 bulkscore=0
+ phishscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2009150000 definitions=main-2102220113
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Currently we only get a single line of output if a test runs in a
-unexpected program exception. Let's also print the general registers
-to give soem more context.
+After the stack changes we can finally use -mbackchain and have a
+working backtrace.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- lib/s390x/interrupt.c | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ lib/s390x/stack.c | 20 ++++++++++++++------
+ s390x/Makefile    |  1 +
+ s390x/macros.S    |  5 +++++
+ 3 files changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index a59df80e..22649d04 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -115,11 +115,40 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
- 	/* suppressed/terminated/completed point already at the next address */
+diff --git a/lib/s390x/stack.c b/lib/s390x/stack.c
+index 0fcd1afb..4cf80dae 100644
+--- a/lib/s390x/stack.c
++++ b/lib/s390x/stack.c
+@@ -3,24 +3,32 @@
+  * s390x stack implementation
+  *
+  * Copyright (c) 2017 Red Hat Inc
++ * Copyright 2021 IBM Corp
+  *
+  * Authors:
+  *  Thomas Huth <thuth@redhat.com>
+  *  David Hildenbrand <david@redhat.com>
++ *  Janosch Frank <frankja@de.ibm.com>
+  */
+ #include <libcflat.h>
+ #include <stack.h>
++#include <asm/arch_def.h>
+ 
+ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+ {
+-	printf("TODO: Implement backtrace_frame(%p, %p, %d) function!\n",
+-	       frame, return_addrs, max_depth);
+-	return 0;
++	int depth = 0;
++	struct stack_frame *stack = (struct stack_frame *)frame;
++
++	for (depth = 0; stack && depth < max_depth; depth++) {
++		return_addrs[depth] = (void *)stack->grs[8];
++		stack = stack->back_chain;
++	}
++
++	return depth;
  }
  
-+static void print_int_regs(struct stack_frame_int *stack)
-+{
-+	printf("\n");
-+	printf("GPRS:\n");
-+	printf("%016lx %016lx %016lx %016lx\n",
-+	       stack->grs1[0], stack->grs1[1], stack->grs0[0], stack->grs0[1]);
-+	printf("%016lx %016lx %016lx %016lx\n",
-+	       stack->grs0[2], stack->grs0[3], stack->grs0[4], stack->grs0[5]);
-+	printf("%016lx %016lx %016lx %016lx\n",
-+	       stack->grs0[6], stack->grs0[7], stack->grs0[8], stack->grs0[9]);
-+	printf("%016lx %016lx %016lx %016lx\n",
-+	       stack->grs0[10], stack->grs0[11], stack->grs0[12], stack->grs0[13]);
-+	printf("\n");
-+}
-+
-+static void print_pgm_info(struct stack_frame_int *stack)
-+
-+{
-+	printf("\n");
-+	printf("Unexpected program interrupt: %d on cpu %d at %#lx, ilen %d\n",
-+	       lc->pgm_int_code, stap(), lc->pgm_old_psw.addr,
-+	       lc->pgm_int_id);
-+	print_int_regs(stack);
-+	dump_stack();
-+	report_summary();
-+	abort();
-+}
-+
- void handle_pgm_int(struct stack_frame_int *stack)
+ int backtrace(const void **return_addrs, int max_depth)
  {
- 	if (!pgm_int_expected) {
- 		/* Force sclp_busy to false, otherwise we will loop forever */
- 		sclp_handle_ext();
-+		print_pgm_info(stack);
- 		report_abort("Unexpected program interrupt: %d on cpu %d at %#lx, ilen %d\n",
- 			     lc->pgm_int_code, stap(), lc->pgm_old_psw.addr,
- 			     lc->pgm_int_id);
+-	printf("TODO: Implement backtrace(%p, %d) function!\n",
+-	       return_addrs, max_depth);
+-	return 0;
++	return backtrace_frame(__builtin_frame_address(0),
++			       return_addrs, max_depth);
+ }
+diff --git a/s390x/Makefile b/s390x/Makefile
+index f3b0fccf..20bb5683 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -39,6 +39,7 @@ CFLAGS += -ffreestanding
+ CFLAGS += -I $(SRCDIR)/lib -I $(SRCDIR)/lib/s390x -I lib
+ CFLAGS += -O2
+ CFLAGS += -march=zEC12
++CFLAGS += -mbackchain
+ CFLAGS += -fno-delete-null-pointer-checks
+ LDFLAGS += -nostdlib -Wl,--build-id=none
+ 
+diff --git a/s390x/macros.S b/s390x/macros.S
+index 11f4397a..d4f41ec4 100644
+--- a/s390x/macros.S
++++ b/s390x/macros.S
+@@ -22,6 +22,11 @@
+ 	lgr     %r2, %r15
+ 	/* Allocate stack space for called C function, as specified in s390 ELF ABI */
+ 	slgfi   %r15, 160
++	/*
++	 * Save the address of the interrupt stack into the back chain
++	 * of the called function.
++	 */
++	stg     %r2, STACK_FRAME_INT_BACKCHAIN(%r15)
+ 	brasl	%r14, \c_func
+ 	algfi   %r15, 160
+ 	RESTORE_REGS_STACK
 -- 
 2.25.1
 
