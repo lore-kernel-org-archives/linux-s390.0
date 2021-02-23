@@ -2,225 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9674FC433DB
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Feb 2021 15:54:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A366AC433DB
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Feb 2021 19:14:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5EF1764E5C
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Feb 2021 15:54:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73859600EF
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Feb 2021 19:14:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233492AbhBWPy1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 Feb 2021 10:54:27 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17480 "EHLO
+        id S231626AbhBWTOk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 Feb 2021 14:14:40 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23520 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233302AbhBWPyZ (ORCPT
+        by vger.kernel.org with ESMTP id S230114AbhBWTOk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Feb 2021 10:54:25 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11NFX1dP069497;
-        Tue, 23 Feb 2021 10:53:43 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=ORXoAhGBWyKV/A/oflNlufrmWt97iR8Me/DNZjtzNvY=;
- b=H4S+zF4oQuDQRtv71IUFky83PKUsJNVEzpLNWeUYrcFpFHeNKSwlr8r0Q9Nmjp7OXrMn
- 8TX5iVqUz5AtDu27mIvpVDarUTgFNP8JPQ402JwDu3d0QieKTuYDk2s+cd/FQ3Fb2uQM
- pfWk72GLPZH1BABwwWUOH/mqz3KzInf8I93Lm7HvuMQNnK+B3tYRp0BevakLpCyTUOLw
- vOi67MTndSk6cMplRIwAH34WbNhMFlYtsC4o5ZMAJgEF3w82TY0ReTuFvnvfapL5/ng9
- riyKFYRh/gVtA5VQGPfBq8tinrT5Zny3BYw35zcNdFDKEYlsaAuuQnbt5fhmqGT5kFG8 tQ== 
+        Tue, 23 Feb 2021 14:14:40 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11NJ2h1q011765;
+        Tue, 23 Feb 2021 14:13:59 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=ykJhJz2Y/yV96Zls5vPfzXgD4YnQ1pOgma5Gqu5wE/I=;
+ b=r2cyRqBsjTf+8nNDdroxL72ER4uj2NbHkK2aZU3KOxupSI1H94vF/v+LD3LlSPCPyqTq
+ yyrbAtGmLprEKFHM4n9Qme092SfEFOVEXGPy2HxgxhCmmSonJLt6OD20JA4zLXhwLdtI
+ VOFvcwGOqqZxULbW019bgKg1L+mvC3CPZbpYl5xCqq0xpcwB82Skzcuqt0vk6nipmJu5
+ jWyuHNLgoyqeM6SarWs2oPEunNbRrEA+r6gnZMO/wClkiQB6DTk37Xyb118wDpX6hgwi
+ 66QB331VUmrmZxxxN0Sn+KX9Zv5O6SnAZI9obPG7wZJib4OnGGZF0KcFSeYasuInbLET yw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36vkg4d35h-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36vkg3csgx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Feb 2021 10:53:43 -0500
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11NFXFmC071075;
-        Tue, 23 Feb 2021 10:53:42 -0500
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36vkg4d34f-1
+        Tue, 23 Feb 2021 14:13:59 -0500
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11NJ3BGq017316;
+        Tue, 23 Feb 2021 14:13:59 -0500
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36vkg3csgc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Feb 2021 10:53:42 -0500
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11NFr7qd017933;
-        Tue, 23 Feb 2021 15:53:40 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 36tsph2ra4-1
+        Tue, 23 Feb 2021 14:13:59 -0500
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11NJC9cp014507;
+        Tue, 23 Feb 2021 19:13:56 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03ams.nl.ibm.com with ESMTP id 36tt282w2u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Feb 2021 15:53:40 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11NFrbGW42860944
+        Tue, 23 Feb 2021 19:13:56 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11NJDfkv36503892
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Feb 2021 15:53:37 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A465F52052;
-        Tue, 23 Feb 2021 15:53:37 +0000 (GMT)
-Received: from ibm-vm (unknown [9.145.5.213])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 413F55204F;
-        Tue, 23 Feb 2021 15:53:37 +0000 (GMT)
-Date:   Tue, 23 Feb 2021 16:53:35 +0100
+        Tue, 23 Feb 2021 19:13:41 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C7CE2A4040;
+        Tue, 23 Feb 2021 19:13:53 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6543FA404D;
+        Tue, 23 Feb 2021 19:13:53 +0000 (GMT)
+Received: from ibm-vm.ibmuc.com (unknown [9.145.5.213])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 23 Feb 2021 19:13:53 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
-        thuth@redhat.com, cohuck@redhat.com, pmorel@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH v2 2/5] s390x: lib: fix pgtable.h
-Message-ID: <20210223165335.749d0d88@ibm-vm>
-In-Reply-To: <acdcd652-55ef-0573-f51a-4b6a1c9434fa@linux.ibm.com>
-References: <20210223140759.255670-1-imbrenda@linux.ibm.com>
-        <20210223140759.255670-3-imbrenda@linux.ibm.com>
-        <518e0f86-bbba-bd52-3962-2816b2f8ccf6@linux.ibm.com>
-        <20210223162116.12fbd4ad@ibm-vm>
-        <acdcd652-55ef-0573-f51a-4b6a1c9434fa@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+To:     linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH v4 0/2] s390/kvm: fix MVPG when in VSIE
+Date:   Tue, 23 Feb 2021 20:13:51 +0100
+Message-Id: <20210223191353.267981-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
  definitions=2021-02-23_08:2021-02-23,2021-02-23 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- lowpriorityscore=0 clxscore=1015 priorityscore=1501 mlxscore=0
- malwarescore=0 bulkscore=0 mlxlogscore=999 spamscore=0 phishscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102230131
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ clxscore=1015 adultscore=0 priorityscore=1501 malwarescore=0
+ mlxlogscore=679 mlxscore=0 impostorscore=0 bulkscore=0 spamscore=0
+ phishscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2009150000 definitions=main-2102230158
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 23 Feb 2021 16:44:43 +0100
-Janosch Frank <frankja@linux.ibm.com> wrote:
+The current handling of the MVPG instruction when executed in a nested
+guest is wrong, and can lead to the nested guest hanging.
 
-> On 2/23/21 4:21 PM, Claudio Imbrenda wrote:
-> > On Tue, 23 Feb 2021 15:31:06 +0100
-> > Janosch Frank <frankja@linux.ibm.com> wrote:
-> >   
-> >> On 2/23/21 3:07 PM, Claudio Imbrenda wrote:  
-> >>> Fix pgtable.h:
-> >>>
-> >>> * SEGMENT_ENTRY_SFAA had one extra bit set
-> >>> * pmd entries don't have a length
-> >>> * ipte does not need to clear the lower bits
-> >>> * pud entries should use SEGMENT_TABLE_LENGTH, as they point to
-> >>> segment tables
-> >>>
-> >>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> >>> ---
-> >>>  lib/s390x/asm/pgtable.h | 9 ++++-----
-> >>>  1 file changed, 4 insertions(+), 5 deletions(-)
-> >>>
-> >>> diff --git a/lib/s390x/asm/pgtable.h b/lib/s390x/asm/pgtable.h
-> >>> index 277f3480..a2ff2d4e 100644
-> >>> --- a/lib/s390x/asm/pgtable.h
-> >>> +++ b/lib/s390x/asm/pgtable.h
-> >>> @@ -60,7 +60,7 @@
-> >>>  #define SEGMENT_SHIFT			20
-> >>>  
-> >>>  #define SEGMENT_ENTRY_ORIGIN		0xfffffffffffff800UL
-> >>> -#define SEGMENT_ENTRY_SFAA		0xfffffffffff80000UL
-> >>> +#define SEGMENT_ENTRY_SFAA		0xfffffffffff00000UL
-> >>>  #define SEGMENT_ENTRY_AV		0x0000000000010000UL
-> >>>  #define SEGMENT_ENTRY_ACC		0x000000000000f000UL
-> >>>  #define SEGMENT_ENTRY_F
-> >>> 0x0000000000000800UL @@ -183,7 +183,7 @@ static inline pmd_t
-> >>> *pmd_alloc(pud_t *pud, unsigned long addr) if (pud_none(*pud)) {
-> >>>  		pmd_t *pmd = pmd_alloc_one();
-> >>>  		pud_val(*pud) = __pa(pmd) |
-> >>> REGION_ENTRY_TT_REGION3 |
-> >>> -				REGION_TABLE_LENGTH;
-> >>> +				SEGMENT_TABLE_LENGTH;    
-> >>
-> >> @David: I'd much rather have REGION_ENTRY_LENGTH instead of
-> >> REGION_TABLE_LENGTH and SEGMENT_TABLE_LENGTH.  
-> > 
-> > I'm weakly against it
-> >   
-> >> My argument is that this is not really an attribute of the table
-> >> and  
-> > 
-> > it actually is an attribute of the table. the *_TABLE_LENGTH fields
-> > tell how long the _table pointed to_ is. we always allocate the
-> > full 4 pages, so in our case it will always be 0x3.
-> >   
-> 
-> It's part of the entry nevertheless and should not be a *_TABLE_*
-> constant. It's used in entries and has a very specific format that
-> only makes sense if it's being used in a region entry.
+This patchset fixes the behaviour to be more architecturally correct,
+and fixes the hangs observed.
 
-or in the ASCE, yes
+v3->v4
+* added PEI_ prefix to DAT_PROT and NOT_PTE macros
+* added small comment to explain what they are about
 
-> Every other thing that you or into the entry apart from the address is
-> named *_ENTRY_* so this should be too.
+v2->v3
+* improved some comments
+* improved some variable and parameter names for increased readability
+* fixed missing handling of page faults in the MVPG handler
+* small readability improvements
 
-fair enough
+v1->v2
+* complete rewrite
 
-> > segment table entries don't have a length because they point to page
-> > tables. region3 table entries point to segment tables, so they have
-> > SEGMENT_TABLE_LENGTH in their length field.  
-> 
-> Btw. I'd guess the SEGMENT_TABLE_LENGTH name is the reason that you
-> had to fix the problem in the next hunk...
+Claudio Imbrenda (2):
+  s390/kvm: extend kvm_s390_shadow_fault to return entry pointer
+  s390/kvm: VSIE: correctly handle MVPG when in VSIE
 
-yes, I am quite sure of this too :)
+ arch/s390/kvm/gaccess.c |  30 ++++++++++--
+ arch/s390/kvm/gaccess.h |   6 ++-
+ arch/s390/kvm/vsie.c    | 101 ++++++++++++++++++++++++++++++++++++----
+ 3 files changed, 122 insertions(+), 15 deletions(-)
 
-I'll figure out a better name and respin
-
-> >> very much specific to the format of the (region table) entry. We
-> >> already have the table order as a length anyway...
-> >>
-> >> Could you tell me what you had in mind when splitting this?
-> >>  
-> >>>  	}
-> >>>  	return pmd_offset(pud, addr);
-> >>>  }
-> >>> @@ -202,15 +202,14 @@ static inline pte_t *pte_alloc(pmd_t *pmd,
-> >>> unsigned long addr) {
-> >>>  	if (pmd_none(*pmd)) {
-> >>>  		pte_t *pte = pte_alloc_one();
-> >>> -		pmd_val(*pmd) = __pa(pte) |
-> >>> SEGMENT_ENTRY_TT_SEGMENT |
-> >>> -				SEGMENT_TABLE_LENGTH;
-> >>> +		pmd_val(*pmd) = __pa(pte) |
-> >>> SEGMENT_ENTRY_TT_SEGMENT;    
-> >>
-> >> Uhhhh good catch!
-> >>  
-> >>>  	}
-> >>>  	return pte_offset(pmd, addr);
-> >>>  }
-> >>>  
-> >>>  static inline void ipte(unsigned long vaddr, pteval_t *p_pte)
-> >>>  {
-> >>> -	unsigned long table_origin = (unsigned long)p_pte &
-> >>> PAGE_MASK;
-> >>> +	unsigned long table_origin = (unsigned long)p_pte;
-> >>>  
-> >>>  	asm volatile(
-> >>>  		"	ipte %0,%1\n"
-> >>>     
-> >>
-> >> IPTE ignores that data but having the page mask also doesn't hurt
-> >> so generally this is not a fix, right?  
-> > 
-> > apart from avoiding an unnecessary operation, there is a small nit:
-> > IPTE wants the address of the page table, ignoring the rightmost
-> > _11_ bits. with PAGE_MASK we ignore the rightmost _12_ bits instead.
-> > it's not an issue in practice, because we allocate one page table
-> > per page anyway, wasting the second half of the page, so in our
-> > case that stray bit will always be 0. but in case we decide to
-> > allocate the page tables more tightly, or in case some testcase
-> > wants to manually play tricks with the page tables, there might be
-> > the risk that IPTE would target the wrong page table.
-> > 
-> > by not clearing the lower 12 bits we not only save an unnecessary
-> > operation, but we are actually more architecturally correct.
-> >   
-> 
-> Right, the old 2k pgtable thing...
-> Would you mind putting that into the patch description?
-
-will do
-
+-- 
+2.26.2
 
