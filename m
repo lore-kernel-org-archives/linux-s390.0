@@ -2,110 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3931C433E6
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Feb 2021 15:13:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA108C433DB
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Feb 2021 15:24:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A76AA64E20
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Feb 2021 15:13:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9100864E4B
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Feb 2021 15:24:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233155AbhBWPNn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 Feb 2021 10:13:43 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41130 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233085AbhBWPM6 (ORCPT
+        id S233147AbhBWPXr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 Feb 2021 10:23:47 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18110 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233194AbhBWPXb (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Feb 2021 10:12:58 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11NF3Teu133435;
-        Tue, 23 Feb 2021 10:12:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
+        Tue, 23 Feb 2021 10:23:31 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11NF37ZE049882;
+        Tue, 23 Feb 2021 10:22:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=89Ya7uugwpYcKJWKJXTH/IOyPSXnV/BKdu2kPgyyv/U=;
- b=pYWxhap6a41PS0errIvI3KM60/COiheFHx9EWWiqvQyXPGJRYwSlGYJLYBRSoODs26U+
- Yog00eBHn+o41ztGebo0NLdeViMHgvnQ/QTAK1CUTOXha6p1k/9IPcF+OuwIbsW912oM
- Sj1Ezz83f0WQsRmYg4beZjzgH3p66KxzYJGYjL5I4QNhfn+nd+Gc5XjyU0nRmYyjAxRB
- ye4AAUfed3+c1f4uUH1mJ14t3LEBPMK1pMA7U9M2PJmGQ2ZrVKBx6FuxAMW3/tfCxROa
- wbRJvGvj9gwb7LtBR9Drf0KCh93LglWXV+9eWpkR/luXYmZzzze6jAhjRqsA3OTh/bSF kg== 
+ bh=AeTLRAiqELcN1vY/S+DHhmL/3ihuk9h4G3bhNKL/w10=;
+ b=YtCTJ7aBtjzOq2OrkW4IbiJIJ3GGSMRiwgcTIqAaP0BrezqojjceDzBbqQ8uYP/sVrAb
+ EvhKG473Fw8DsMbKYAmO/hW1rNXIEEal1RZWWWo9TG3GaIdI2vTx9LsxNyiWQRH08ZtX
+ OtSCIm8jaGSZXvVUvFCtO0ZxtwLiBA6QYIsAcOl4h5NdQ+8JLAz54d763UhHUqFfifH8
+ kxzQ9PXe7upeQaPGEBimRimMxSXZ8TQJr9iYjCljsh/TAEGXIIp1sakuSeKCbzsQnro3
+ /oD9lixiHR5sn918ixaWblTGJ7wSYZTd44G7X7YhWe9WkOdMi5kS4OpdleM4McCXrGTW mA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36vkfktd1m-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36vkmadwgy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Feb 2021 10:12:08 -0500
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11NF3ZqI134183;
-        Tue, 23 Feb 2021 10:12:08 -0500
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36vkfktcyc-1
+        Tue, 23 Feb 2021 10:22:44 -0500
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11NF3FlR050706;
+        Tue, 23 Feb 2021 10:22:44 -0500
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 36vkmadwg1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Feb 2021 10:12:08 -0500
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11NF8BSw008504;
-        Tue, 23 Feb 2021 15:12:05 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 36tt28aqd5-1
+        Tue, 23 Feb 2021 10:22:44 -0500
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11NF8eEh009413;
+        Tue, 23 Feb 2021 15:22:42 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma01fra.de.ibm.com with ESMTP id 36tt289dy3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Feb 2021 15:12:05 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11NFBobM25100784
+        Tue, 23 Feb 2021 15:22:42 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11NFMdbV41025852
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Feb 2021 15:11:50 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ABC7311C052;
-        Tue, 23 Feb 2021 15:12:02 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5AD5411C064;
-        Tue, 23 Feb 2021 15:12:02 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.83.55])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 23 Feb 2021 15:12:02 +0000 (GMT)
-Subject: Re: [PATCH v4 1/1] KVM: s390: diag9c (directed yield) forwarding
-To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        cohuck@redhat.com, david@redhat.com, thuth@redhat.com
-References: <1613997661-22525-1-git-send-email-pmorel@linux.ibm.com>
- <1613997661-22525-2-git-send-email-pmorel@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <ddbd3bc5-91f0-6588-6563-d5a890e210f2@de.ibm.com>
-Date:   Tue, 23 Feb 2021 16:12:02 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        Tue, 23 Feb 2021 15:22:39 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 81B12A4054;
+        Tue, 23 Feb 2021 15:22:39 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1D313A4060;
+        Tue, 23 Feb 2021 15:22:39 +0000 (GMT)
+Received: from ibm-vm (unknown [9.145.5.213])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 23 Feb 2021 15:22:39 +0000 (GMT)
+Date:   Tue, 23 Feb 2021 16:21:47 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        thuth@redhat.com, cohuck@redhat.com, pmorel@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v2 3/5] s390x: lib: improve pgtable.h
+Message-ID: <20210223162147.7042e7dc@ibm-vm>
+In-Reply-To: <3e87c3ec-2b32-05d2-aaed-d844be847bf2@linux.ibm.com>
+References: <20210223140759.255670-1-imbrenda@linux.ibm.com>
+        <20210223140759.255670-4-imbrenda@linux.ibm.com>
+        <3e87c3ec-2b32-05d2-aaed-d844be847bf2@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <1613997661-22525-2-git-send-email-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
  definitions=2021-02-23_08:2021-02-23,2021-02-23 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- priorityscore=1501 mlxlogscore=999 bulkscore=0 suspectscore=0 phishscore=0
- clxscore=1015 malwarescore=0 adultscore=0 spamscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2102230129
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 phishscore=0 priorityscore=1501 adultscore=0 malwarescore=0
+ lowpriorityscore=0 mlxscore=0 clxscore=1015 mlxlogscore=999 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102230129
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, 23 Feb 2021 15:35:28 +0100
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
+> On 2/23/21 3:07 PM, Claudio Imbrenda wrote:
+> > Improve pgtable.h:
+> > 
+> > * add macros to check whether a pmd or a pud are large / huge
+> > * add idte functions for pmd, pud, p4d and pgd
+> > 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>  
+> 
+> Could you please make the subject more specific?
+> "s390x: lib: Add idte and huge entry check functions"
 
-On 22.02.21 13:41, Pierre Morel wrote:
-> When we intercept a DIAG_9C from the guest we verify that the
-> target real CPU associated with the virtual CPU designated by
-> the guest is running and if not we forward the DIAG_9C to the
-> target real CPU.
-> 
-> To avoid a diag9c storm we allow a maximal rate of diag9c forwarding.
-> 
-> The rate is calculated as a count per second defined as a new
-> parameter of the s390 kvm module: diag9c_forwarding_hz .
-> 
-> The default value of 0 is to not forward diag9c.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+will do
 
-I will carry that via the s390kvm tree, thanks.
+> Acked-by: Janosch Frank <frankja@linux.ibm.com>
+> 
+> > ---
+> >  lib/s390x/asm/pgtable.h | 31 +++++++++++++++++++++++++++++++
+> >  1 file changed, 31 insertions(+)
+> > 
+> > diff --git a/lib/s390x/asm/pgtable.h b/lib/s390x/asm/pgtable.h
+> > index a2ff2d4e..70d4afde 100644
+> > --- a/lib/s390x/asm/pgtable.h
+> > +++ b/lib/s390x/asm/pgtable.h
+> > @@ -100,6 +100,9 @@
+> >  #define pmd_none(entry) (pmd_val(entry) & SEGMENT_ENTRY_I)
+> >  #define pte_none(entry) (pte_val(entry) & PAGE_ENTRY_I)
+> >  
+> > +#define pud_huge(entry)  (pud_val(entry) & REGION3_ENTRY_FC)
+> > +#define pmd_large(entry) (pmd_val(entry) & SEGMENT_ENTRY_FC)
+> > +
+> >  #define pgd_addr(entry) __va(pgd_val(entry) & REGION_ENTRY_ORIGIN)
+> >  #define p4d_addr(entry) __va(p4d_val(entry) & REGION_ENTRY_ORIGIN)
+> >  #define pud_addr(entry) __va(pud_val(entry) & REGION_ENTRY_ORIGIN)
+> > @@ -216,6 +219,34 @@ static inline void ipte(unsigned long vaddr,
+> > pteval_t *p_pte) : : "a" (table_origin), "a" (vaddr) : "memory");
+> >  }
+> >  
+> > +static inline void idte(unsigned long table_origin, unsigned long
+> > vaddr) +{
+> > +	vaddr &= SEGMENT_ENTRY_SFAA;
+> > +	asm volatile(
+> > +		"	idte %0,0,%1\n"
+> > +		: : "a" (table_origin), "a" (vaddr) : "memory");
+> > +}
+> > +
+> > +static inline void idte_pmdp(unsigned long vaddr, pmdval_t *pmdp)
+> > +{
+> > +	idte((unsigned long)(pmdp - pmd_index(vaddr)) |
+> > ASCE_DT_SEGMENT, vaddr); +}
+> > +
+> > +static inline void idte_pudp(unsigned long vaddr, pudval_t *pudp)
+> > +{
+> > +	idte((unsigned long)(pudp - pud_index(vaddr)) |
+> > ASCE_DT_REGION3, vaddr); +}
+> > +
+> > +static inline void idte_p4dp(unsigned long vaddr, p4dval_t *p4dp)
+> > +{
+> > +	idte((unsigned long)(p4dp - p4d_index(vaddr)) |
+> > ASCE_DT_REGION2, vaddr); +}
+> > +
+> > +static inline void idte_pgdp(unsigned long vaddr, pgdval_t *pgdp)
+> > +{
+> > +	idte((unsigned long)(pgdp - pgd_index(vaddr)) |
+> > ASCE_DT_REGION1, vaddr); +}
+> > +
+> >  void configure_dat(int enable);
+> >  
+> >  #endif /* _ASMS390X_PGTABLE_H_ */
+> >   
+> 
+
