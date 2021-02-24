@@ -2,152 +2,292 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0050C433E6
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Feb 2021 23:01:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEF6EC433DB
+	for <linux-s390@archiver.kernel.org>; Wed, 24 Feb 2021 23:23:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AFF9C64F03
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Feb 2021 23:01:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9141364F03
+	for <linux-s390@archiver.kernel.org>; Wed, 24 Feb 2021 23:23:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235418AbhBXXBl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 Feb 2021 18:01:41 -0500
-Received: from smtp-fw-4101.amazon.com ([72.21.198.25]:60220 "EHLO
-        smtp-fw-4101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234728AbhBXXBk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 Feb 2021 18:01:40 -0500
+        id S236238AbhBXXXl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 Feb 2021 18:23:41 -0500
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:10574 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236237AbhBXXXl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 Feb 2021 18:23:41 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1614207700; x=1645743700;
-  h=from:to:cc:subject:date:message-id:content-id:
-   content-transfer-encoding:mime-version;
-  bh=hVGYeWL8BzQFMK+Thejfp/GrKUl+IMBQ9zDAz5P0VSo=;
-  b=PZyg9S/f1R+PSsKCnZ6HsI0nXRdbxbdTpxYQf7E3D8xlUo5R5wOfsSy9
-   PvunFoNuu0mIQUXXFiUdaaiedmsBSF4DpBVeXqeuA+pn795U5NF0uDlS7
-   Pjduxk9GalfqCUguEK+NE29fSxW2hxeKj+5Bh1PQekNG0OYxfvAI2OrqD
-   I=;
+  t=1614209020; x=1645745020;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=ajbqqzyw00MhpTl6JbnnxX80P4gpbBT5SgRo7F/hXQg=;
+  b=V76yx5iRokjnNjF9M8sjQfHt9Wte/qzDVXnW/eejH2XDKvo2nA7Lc5nX
+   PbXpoCeC/MOLrb4AopB82Tk6bflDaMAjR6ZRK2Yfk/EE7Qm2do05iwjXo
+   bLS6MpaUaPy4+dotfu+a96owrjGEPetm5//ImDQw/wEzGEU2VonPFonvL
+   g=;
 X-IronPort-AV: E=Sophos;i="5.81,203,1610409600"; 
-   d="scan'208";a="87841545"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1a-715bee71.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-4101.iad4.amazon.com with ESMTP; 24 Feb 2021 23:00:58 +0000
-Received: from EX13MTAUWA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
-        by email-inbound-relay-1a-715bee71.us-east-1.amazon.com (Postfix) with ESMTPS id E0FA6A1F1B;
-        Wed, 24 Feb 2021 23:00:47 +0000 (UTC)
-Received: from EX13D20UWA004.ant.amazon.com (10.43.160.62) by
- EX13MTAUWA001.ant.amazon.com (10.43.160.118) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 24 Feb 2021 23:00:47 +0000
-Received: from EX13D01UWA003.ant.amazon.com (10.43.160.107) by
- EX13D20UWA004.ant.amazon.com (10.43.160.62) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 24 Feb 2021 23:00:46 +0000
-Received: from EX13D01UWA003.ant.amazon.com ([10.43.160.107]) by
- EX13d01UWA003.ant.amazon.com ([10.43.160.107]) with mapi id 15.00.1497.010;
- Wed, 24 Feb 2021 23:00:46 +0000
-From:   "MacCarthaigh, Colm" <colmmacc@amazon.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>,
-        "Graf (AWS), Alexander" <graf@amazon.de>
-CC:     "Catangiu, Adrian Costin" <acatan@amazon.com>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "rdunlap@infradead.org" <rdunlap@infradead.org>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "ebiederm@xmission.com" <ebiederm@xmission.com>,
-        "rppt@kernel.org" <rppt@kernel.org>,
-        "0x7f454c46@gmail.com" <0x7f454c46@gmail.com>,
-        "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>,
-        "Jason@zx2c4.com" <Jason@zx2c4.com>,
-        "jannh@google.com" <jannh@google.com>, "w@1wt.eu" <w@1wt.eu>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "tytso@mit.edu" <tytso@mit.edu>,
-        "ebiggers@kernel.org" <ebiggers@kernel.org>,
-        "Woodhouse, David" <dwmw@amazon.co.uk>,
-        "bonzini@gnu.org" <bonzini@gnu.org>,
-        "Singh, Balbir" <sblbir@amazon.com>,
-        "Weiss, Radu" <raduweis@amazon.com>,
-        "corbet@lwn.net" <corbet@lwn.net>,
-        "mhocko@kernel.org" <mhocko@kernel.org>,
-        "rafael@kernel.org" <rafael@kernel.org>,
-        "pavel@ucw.cz" <pavel@ucw.cz>,
-        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
-        "areber@redhat.com" <areber@redhat.com>,
-        "ovzxemul@gmail.com" <ovzxemul@gmail.com>,
-        "avagin@gmail.com" <avagin@gmail.com>,
-        "ptikhomirov@virtuozzo.com" <ptikhomirov@virtuozzo.com>,
-        "gil@azul.com" <gil@azul.com>,
-        "asmehra@redhat.com" <asmehra@redhat.com>,
-        "dgunigun@redhat.com" <dgunigun@redhat.com>,
-        "vijaysun@ca.ibm.com" <vijaysun@ca.ibm.com>,
-        "oridgar@gmail.com" <oridgar@gmail.com>,
-        "ghammer@redhat.com" <ghammer@redhat.com>
+   d="scan'208";a="87715762"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-2b-4e24fd92.us-west-2.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 24 Feb 2021 23:22:56 +0000
+Received: from EX13MTAUWC002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-2b-4e24fd92.us-west-2.amazon.com (Postfix) with ESMTPS id B4778A22EC;
+        Wed, 24 Feb 2021 23:22:53 +0000 (UTC)
+Received: from EX13D20UWC001.ant.amazon.com (10.43.162.244) by
+ EX13MTAUWC002.ant.amazon.com (10.43.162.240) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Wed, 24 Feb 2021 23:22:51 +0000
+Received: from Alexanders-MacBook-Air.local (10.43.160.146) by
+ EX13D20UWC001.ant.amazon.com (10.43.162.244) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Wed, 24 Feb 2021 23:22:43 +0000
 Subject: Re: [PATCH v7 1/2] drivers/misc: sysgenid: add system generation id
  driver
-Thread-Topic: [PATCH v7 1/2] drivers/misc: sysgenid: add system generation id
- driver
-Thread-Index: AQHXCwDjfClcwtiNEEGBvSi4FTnt7w==
-Date:   Wed, 24 Feb 2021 23:00:46 +0000
-Message-ID: <7DE31E14-D6E9-41EA-9A43-6608ACC7CD87@amazon.com>
-Accept-Language: en-IE, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Microsoft-MacOutlook/16.44.20121301
-x-ms-exchange-messagesentrepresentingtype: 1
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.43.161.244]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <D1A111C137DBAA4BB71F7D8D56D5B152@amazon.com>
-Content-Transfer-Encoding: base64
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+CC:     Adrian Catangiu <acatan@amazon.com>, <linux-doc@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <qemu-devel@nongnu.org>,
+        <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <gregkh@linuxfoundation.org>, <rdunlap@infradead.org>,
+        <arnd@arndb.de>, <ebiederm@xmission.com>, <rppt@kernel.org>,
+        <0x7f454c46@gmail.com>, <borntraeger@de.ibm.com>,
+        <Jason@zx2c4.com>, <jannh@google.com>, <w@1wt.eu>,
+        <colmmacc@amazon.com>, <luto@kernel.org>, <tytso@mit.edu>,
+        <ebiggers@kernel.org>, <dwmw@amazon.co.uk>, <bonzini@gnu.org>,
+        <sblbir@amazon.com>, <raduweis@amazon.com>, <corbet@lwn.net>,
+        <mhocko@kernel.org>, <rafael@kernel.org>, <pavel@ucw.cz>,
+        <mpe@ellerman.id.au>, <areber@redhat.com>, <ovzxemul@gmail.com>,
+        <avagin@gmail.com>, <ptikhomirov@virtuozzo.com>, <gil@azul.com>,
+        <asmehra@redhat.com>, <dgunigun@redhat.com>, <vijaysun@ca.ibm.com>,
+        <oridgar@gmail.com>, <ghammer@redhat.com>
+References: <1614156452-17311-1-git-send-email-acatan@amazon.com>
+ <1614156452-17311-2-git-send-email-acatan@amazon.com>
+ <20210224040516-mutt-send-email-mst@kernel.org>
+ <d63146a9-a3f8-14ea-2b16-cb5b3fe7aecf@amazon.com>
+ <20210224173205-mutt-send-email-mst@kernel.org>
+From:   Alexander Graf <graf@amazon.com>
+Message-ID: <e7768780-ce08-9998-8200-d3c33d34fade@amazon.com>
+Date:   Thu, 25 Feb 2021 00:22:41 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
+ Gecko/20100101 Thunderbird/78.7.1
 MIME-Version: 1.0
+In-Reply-To: <20210224173205-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+X-Originating-IP: [10.43.160.146]
+X-ClientProxiedBy: EX13D36UWB003.ant.amazon.com (10.43.161.118) To
+ EX13D20UWC001.ant.amazon.com (10.43.162.244)
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-DQoNCk9uIDIvMjQvMjEsIDI6NDQgUE0sICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0
-LmNvbT4gd3JvdGU6DQogICAgPiBUaGUgbW1hcCBtZWNoYW5pc20gYWxsb3dzIHRoZSBQUk5HIHRv
-IHJlc2VlZCBhZnRlciBhIGdlbmlkIGNoYW5nZS4gQmVjYXVzZQ0KICAgID4gd2UgZG9uJ3QgaGF2
-ZSBhbiBldmVudCBtZWNoYW5pc20gZm9yIHRoaXMgY29kZSBwYXRoLCB0aGF0IGNhbiBoYXBwZW4g
-bWludXRlcw0KICAgID4gYWZ0ZXIgdGhlIHJlc3VtZS4gQnV0IHRoYXQncyBvaywgd2UgImp1c3Qi
-IGhhdmUgdG8gZW5zdXJlIHRoYXQgbm9ib2R5IGlzDQogICAgPiBjb25zdW1pbmcgc2VjcmV0IGRh
-dGEgYXQgdGhlIHBvaW50IG9mIHRoZSBzbmFwc2hvdC4NCg0KDQogICAgU29tZXRoaW5nIEkgYW0g
-c3RpbGwgbm90IGNsZWFyIG9uIGlzIHdoZXRoZXIgaXQncyByZWFsbHkgaW1wb3J0YW50IHRvDQog
-ICAgc2tpcCB0aGUgc3lzdGVtIGNhbGwgaGVyZS4gSWYgbm90IEkgdGhpbmsgaXQncyBwcnVkZW50
-IHRvIGp1c3Qgc3RpY2sNCiAgICB0byByZWFkIGZvciBub3csIEkgdGhpbmsgdGhlcmUncyBhIHNs
-aWdodGx5IGxvd2VyIGNoYW5jZSB0aGF0DQogICAgaXQgd2lsbCBnZXQgbWlzdXNlZC4gbW1hcCB3
-aGljaCBnaXZlcyB5b3UgYSBsYWdneSBnZW4gaWQgdmFsdWUNCiAgICByZWFsbHkgc2VlbXMgbGlr
-ZSBpdCB3b3VsZCBiZSBoYXJkIHRvIHVzZSBjb3JyZWN0bHkuDQoNCkl0J3Mgbm90IHVuY29tbW9u
-IGZvciB0aGVzZSB1c2VyLXNwYWNlIFBSTkdzIHRvIHVzZWQgcXVpdGUgYSBsb3QgaW4gdmVyeSBw
-ZXJmb3JtYW5jZSBjcml0aWNhbCBwYXRocy4gSWYgeW91IG5lZ290aWF0ZSBhIFRMUyBzZXNzaW9u
-IHRoYXQgdXNlcyBhbiBleHBsaWNpdCBJViwgdGhlIFJORyBpcyBiZWluZyBjYWxsZWQgZm9yIGV2
-ZXJ5IFRMUyByZWNvcmQgc2VudC4gU2FtZSBmb3IgSVBTZWMgZGVwZW5kaW5nIG9uIHRoZSBjaXBo
-ZXItc3VpdGUuIEV2ZXJ5IFRMUyBoZWxsbyBtZXNzYWdlIGhhcyAyOC0zMiBieXRlcyBvZiBkYXRh
-IGZyb20gdGhlIFJORywgb3IgaWYgeW91J3ZlIGdvdCBFQ0RTQSBhcyB5b3VyIHNpZ25hdHVyZSBh
-bGdvcml0aG0sIGl0J3MgaW5saW5lIGFnYWluLiBVc2luZyBSU0FfUFNTPyBTYW1lIGFnYWluLiBN
-YW55IFBvc3QtUXVhbnR1bSBhbGdvcml0aG1zIGFyZSBldmVuIG1vcmUgdmVyYWNpb3VzbHkgZW50
-cm9weSBodW5ncnkuICBXZSBleGFtaW5lIHRoZSBjb21waWxlZCBpbnN0cnVjdGlvbnMgZm9yIG91
-cnMgYnkgaGFuZCB0byBjaGVjayBpdCdzIGFsbCBhcyB0aWdodCBhcyBpdCBjYW4gYmUuIA0KDQpU
-byBnaXZlIG1vcmUgb2YgYW4gaWRlYSwgc2V2ZXJhbCBjcnlwdG8gbGlicmFyaWVzIHRvb2sgb3V0
-IHRoZSBnZXRwaWQoKSBndWFyZHMgdGhleSBoYWQgZm9yIGZvcmsgZGV0ZWN0aW9uIGluIHRoZSBS
-TkdzLCB0aG91Z2ggVkRTTyBjb3VsZCBoYXZlIGhlbHBlZCB0aGVyZSBhbmQgSSdtIG5vdCBzdXJl
-IHRoZXkgd291bGQgaGF2ZSBuZWVkZWQgdG8gaWYgVkRTTyB3ZXJlIG1vcmUgd2lkZWx5IHVzZWQg
-YXQgdGhlIHRpbWUuICBJIGRvbid0IHRoaW5rIHdlJ2QgZ2V0IGEgcGF0Y2ggaW50byBPcGVuU1NM
-L2xpYmNyeXB0byB0aGF0IGludm9sdmVzIGEgZnVsbCBzeXNjYWxsLiBWRFNPIG1pZ2h0IGJlIG9r
-LCBidXQgZXZlbiB0aGF0J3Mgbm90IGdvaW5nIHRvIGhhdmUgdGhlIHNwZWVkIHRoYXQgYSBzaW5n
-bGUgbWVtb3J5IGxvb2t1cCBjYW4gZG8gd2l0aCB0aGUgbW1hcC9tYWR2aXNlIGFwcHJvYWNoIC4u
-LiBzaW5jZSB3ZSBhbHJlYWR5IGhhdmUgdG8gdXNlIFdJUEVPTkZPUksuDQoNCkluIHByYWN0aWNl
-IEkgZG9uJ3QgdGhpbmsgaXQgd2lsbCBiZSB0aGF0IGhhcmQgdG8gdXNlIGNvcnJlY3RseTsgc25h
-cHNob3RzIGFuZCByZXN0b3JlcyBvZiB0aGlzIG5hdHVyZSByZWFsbHkgaGF2ZSB0byBoYXBwZW4g
-b25seSB3aGVuIHRoZSBhY3Rpdml0eSBpcyBxdWllc2NlbnQuIElmIG9wZXJhdGlvbnMgYXJlIGlu
-LWZsaWdodCwgaXQncyBub3QgZWFzeSB0byByZWFzb24gYWJvdXQgdGhlIHBvdGVudGlhbCBtdWx0
-aS1yZXN0b3JlIHByb2JsZW1zIGF0IGFsbCBhbmQgaXQgb25seSBtYWtlcyBzZW5zZSB0byB0aGlu
-ayBhYm91dCB0cmFuc2FjdGlvbmFsIGNvcnJlY3RuZXNzIGF0IHRoZSBsZXZlbCBvZiBhbGwgdHJh
-bnNhY3Rpb25zIHRoYXQgbWF5IGhhdmUgYmVlbiBpbi1mbGlnaHQuIFRoZSBtbWFwIHNvbHV0aW9u
-IGlzIG1vcmUgYWJvdXQgaW50ZWdyYXRpbmcgd2l0aCBleGlzdGluZyBsaWJyYXJ5IEFQSXMgYW5k
-IHNlbWFudGljcyB0aGFuIGl0IGlzIGFib3V0IHNvbWVob3cgc29sdmluZyB0aGF0IGF0IHRoZSBr
-ZXJuZWwgbGV2ZWwuIFRoYXQgcGFydCBoYXMgdG8gYmUgc29sdmVkIGF0IHRoZSBzeXN0ZW0gbGV2
-ZWwuDQoNCi0gDQpDb2xtDQoNCg==
+
+
+On 24.02.21 23:41, Michael S. Tsirkin wrote:
+> =
+
+> On Wed, Feb 24, 2021 at 02:45:03PM +0100, Alexander Graf wrote:
+>>> Above should try harder to explan what are the things that need to be
+>>> scrubbed and why. For example, I personally don't really know what is
+>>> the OpenSSL session token example and what makes it vulnerable. I guess
+>>> snapshots can attack each other?
+>>>
+>>>
+>>>
+>>>
+>>> Here's a simple example of a workflow that submits transactions
+>>> to a database and wants to avoid duplicate transactions.
+>>> This does not require overseer magic. It does however require
+>>> a correct genid from hypervisor, so no mmap tricks work.
+>>>
+>>>
+>>>
+>>>           int genid, oldgenid;
+>>>           read(&genid);
+>>> start:
+>>>           oldgenid =3D genid;
+>>>           transid =3D submit transaction
+>>>           read(&genid);
+>>>           if (genid !=3D oldgenid) {
+>>>                           revert transaction (transid);
+>>>                           goto start:
+>>>           }
+>>
+>> I'm not sure I fully follow. For starters, if this is a VM local databas=
+e, I
+>> don't think you'd care about the genid. If it's a remote database, your
+>> connection would get dropped already at the point when you clone/resume,
+>> because TCP and your connection state machine will get really confused w=
+hen
+>> you suddenly have a different IP address or two consumers of the same st=
+ream
+>> :).
+>>
+>> But for the sake of the argument, let's assume you can have a connection=
+less
+>> database connection that maintains its own connection uniqueness logic.
+> =
+
+> Right. E.g. not uncommon with REST APIs. They survive disconnect easily
+> and use cookies or such.
+> =
+
+>> That
+>> database connector would need to understand how to abort the connection =
+(and
+>> thus the transaction!) when the generation changes.
+> =
+
+> the point is that instead of all that you discover transaction as
+> a duplicate and revert it.
+> =
+
+> =
+
+>> And that's logic you
+>> would do with the read/write/notify mechanism. So your main loop would c=
+heck
+>> for reads on the genid fd and after sending a connection termination, no=
+tify
+>> the overlord that it's safe to use the VM now.
+>>
+>> The OpenSSL case (with mmap) is for libraries that are stateless and can=
+ not
+>> guarantee that they receive a genid notification event timely.
+>>
+>> Since you asked, this is mainly important for the PRNG. Imagine an https
+>> server. You create a snapshot. You resume from that snapshot. OpenSSL is
+>> fully initialized with a user space PRNG randomness pool that it conside=
+rs
+>> safe to consume. However, that means your first connection after resume =
+will
+>> be 100% predictable randomness wise.
+> =
+
+> I wonder whether something similar is possible here. I.e. use the secret
+> to encrypt stuff but check the gen ID before actually sending data.
+> If it changed re-encrypt. Hmm?
+
+I don't see why you would though. Once you control the application =
+
+level, just use the event based API. That's the much easier to use one. =
+
+The mmap one is really just there to cover cases where you don't own the =
+
+main event loop, but can't spend the syscall overhead on every =
+
+invocation to check if the genid changed.
+
+> =
+
+>>
+>> The mmap mechanism allows the PRNG to reseed after a genid change. Becau=
+se
+>> we don't have an event mechanism for this code path, that can happen min=
+utes
+>> after the resume. But that's ok, we "just" have to ensure that nobody is
+>> consuming secret data at the point of the snapshot.
+> =
+
+> =
+
+> Something I am still not clear on is whether it's really important to
+> skip the system call here. If not I think it's prudent to just stick
+> to read for now, I think there's a slightly lower chance that
+> it will get misused. mmap which gives you a laggy gen id value
+> really seems like it would be hard to use correctly.
+
+The read is not any less racy than the mmap. The real "safety" of the =
+
+read interface comes from the acknowledge path. And that path requires =
+
+you to be part of the event loop.
+
+> =
+
+> =
+
+>>>
+>>>
+>>>
+>>>
+>>>
+>>>
+>>>> +Simplifyng assumption - safety prerequisite
+>>>> +-------------------------------------------
+>>>> +
+>>>> +**Control the snapshot flow**, disallow snapshots coming at arbitrary
+>>>> +moments in the workload lifetime.
+>>>> +
+>>>> +Use a system-level overseer entity that quiesces the system before
+>>>> +snapshot, and post-snapshot-resume oversees that software components
+>>>> +have readjusted to new environment, to the new generation. Only after,
+>>>> +will the overseer un-quiesce the system and allow active workloads.
+>>>> +
+>>>> +Software components can choose whether they want to be tracked and
+>>>> +waited on by the overseer by using the ``SYSGENID_SET_WATCHER_TRACKIN=
+G``
+>>>> +IOCTL.
+>>>> +
+>>>> +The sysgenid framework standardizes the API for system software to
+>>>> +find out about needing to readjust and at the same time provides a
+>>>> +mechanism for the overseer entity to wait for everyone to be done, the
+>>>> +system to have readjusted, so it can un-quiesce.
+>>>> +
+>>>> +Example snapshot-safe workflow
+>>>> +------------------------------
+>>>> +
+>>>> +1) Before taking a snapshot, quiesce the VM/container/system. Exactly
+>>>> +   how this is achieved is very workload-specific, but the general
+>>>> +   description is to get all software to an expected state where their
+>>>> +   event loops dry up and they are effectively quiesced.
+>>>
+>>> If you have ability to do this by communicating with
+>>> all processes e.g. through a unix domain socket,
+>>> why do you need the rest of the stuff in the kernel?
+>>> Quescing is a harder problem than waking up.
+>>
+>> That depends. Think of a typical VM workload. Let's take the web server
+>> example again. You can preboot the full VM and snapshot it as is. As lon=
+g as
+>> you don't allow any incoming connections, you can guarantee that the sys=
+tem
+>> is "quiesced" well enough for the snapshot.
+> =
+
+> Well you can use a firewall or such to block incoming packets,
+> but I am not at all sure that means e.g. all socket buffers
+> are empty.
+
+If it's a fresh VM that only started the web server and did nothing =
+
+else, there shouldn't be anything in its socket buffers :).
+
+I agree that it won't allow us to cover 100% of all cases automatically =
+
+and seamlessly. I can't think of any solution that does - if you can =
+
+think of something I'm all ears. But this API at least gives us a path =
+
+to slowly move the ecosystem to a point where applications and libraries =
+
+can enable themselves to become vm/container clone aware. Today we don't =
+
+even give them the opportunity to self adjust.
+
+
+Alex
+
+
+
+Amazon Development Center Germany GmbH
+Krausenstr. 38
+10117 Berlin
+Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
+Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
+Sitz: Berlin
+Ust-ID: DE 289 237 879
+
+
+
