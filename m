@@ -2,128 +2,64 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADDCEC433E0
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Feb 2021 23:45:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1751BC433DB
+	for <linux-s390@archiver.kernel.org>; Thu, 25 Feb 2021 06:16:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 69E2464F0D
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Feb 2021 23:45:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C664164EBD
+	for <linux-s390@archiver.kernel.org>; Thu, 25 Feb 2021 06:16:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233283AbhBXXpa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 Feb 2021 18:45:30 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64852 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232929AbhBXXpX (ORCPT
+        id S233365AbhBYGQ1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Feb 2021 01:16:27 -0500
+Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:39923 "EHLO
+        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233331AbhBYGQ0 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 24 Feb 2021 18:45:23 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11ONWlNE120212;
-        Wed, 24 Feb 2021 18:44:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=NN4jfYvyRSWFGnlFke7guafjERw9ajAyWEwiI3jDW1s=;
- b=HQz+1ZhpSFnjVOC+ZN2OCaQJOuJYJhtjI3XiWSfzrB8O5DEfifgsE7g77UTpEYZXz5ZZ
- zCXtqJmZybFsXFum6N/yvGoHX97DvDm8kZ6HquaxtRkqFhU1fjOxzE3DRnXkvpKJTpre
- MTaN8vlNi1+Veha0zcnW+LIORRnXU3pC4O7exC9qf8ffWvi2PE4TSKCGfHR9QS6LQUNr
- 2RQhp478Zxr5qD8E7YC01QqO1YfvBWdWu8Z0FyyRXwjNwbSwuvSFYr5uul+z4JvmahOc
- wH2dNtYFuYpN37NnnaZVxrOti78uZBmaO073UWkuuXrHdlZ3xp7r4rxJ8LMq3EH1/2nt +w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36wwv9vsqr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 24 Feb 2021 18:44:42 -0500
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 11ONZ8KG130317;
-        Wed, 24 Feb 2021 18:44:42 -0500
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36wwv9vsqd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 24 Feb 2021 18:44:42 -0500
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11ONg9gA012741;
-        Wed, 24 Feb 2021 23:44:41 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma04wdc.us.ibm.com with ESMTP id 36tt29tftc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 24 Feb 2021 23:44:41 +0000
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11ONieLl38207838
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 24 Feb 2021 23:44:40 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 81E92112063;
-        Wed, 24 Feb 2021 23:44:40 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F3714112062;
-        Wed, 24 Feb 2021 23:44:39 +0000 (GMT)
-Received: from cpe-66-24-58-13.stny.res.rr.com (unknown [9.85.150.254])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed, 24 Feb 2021 23:44:39 +0000 (GMT)
-Subject: Re: [PATCH v2 1/1] s390/vfio-ap: fix circular lockdep when
- setting/clearing crypto masks
-To:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, stable@vger.kernel.org, cohuck@redhat.com,
-        kwankhede@nvidia.com, pbonzini@redhat.com,
-        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com
-References: <20210216011547.22277-1-akrowiak@linux.ibm.com>
- <20210216011547.22277-2-akrowiak@linux.ibm.com>
- <20210223104805.6a8d1872.pasic@linux.ibm.com>
- <e07d6f8e-f29e-7c4e-4226-5a5c072e7ae6@de.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <358b4b68-1bfb-4a5c-960d-d442271c5852@linux.ibm.com>
-Date:   Wed, 24 Feb 2021 18:44:39 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
-MIME-Version: 1.0
-In-Reply-To: <e07d6f8e-f29e-7c4e-4226-5a5c072e7ae6@de.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-02-24_13:2021-02-24,2021-02-24 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 impostorscore=0 spamscore=0 bulkscore=0 clxscore=1015
- mlxscore=0 malwarescore=0 adultscore=0 mlxlogscore=999 lowpriorityscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102240184
+        Thu, 25 Feb 2021 01:16:26 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R531e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=jiapeng.chong@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UPVyCj-_1614233737;
+Received: from j63c13417.sqa.eu95.tbsite.net(mailfrom:jiapeng.chong@linux.alibaba.com fp:SMTPD_---0UPVyCj-_1614233737)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 25 Feb 2021 14:15:43 +0800
+From:   Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+To:     hca@linux.ibm.com
+Cc:     gor@linux.ibm.com, borntraeger@de.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Subject: [PATCH] s390/cpumf: remove unneeded semicolon
+Date:   Thu, 25 Feb 2021 14:15:36 +0800
+Message-Id: <1614233736-87331-1-git-send-email-jiapeng.chong@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Fix the following coccicheck warnings:
 
+./arch/s390/kernel/perf_cpum_cf.c:272:2-3: Unneeded semicolon.
 
-On 2/24/21 11:10 AM, Christian Borntraeger wrote:
->
-> On 23.02.21 10:48, Halil Pasic wrote:
->> On Mon, 15 Feb 2021 20:15:47 -0500
->> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>
->>> This patch fixes a circular locking dependency in the CI introduced by
->>> commit f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM
->>> pointer invalidated"). The lockdep only occurs when starting a Secure
->>> Execution guest. Crypto virtualization (vfio_ap) is not yet supported for
->>> SE guests; however, in order to avoid CI errors, this fix is being
->>> provided.
->>>
->>> The circular lockdep was introduced when the masks in the guest's APCB
->>> were taken under the matrix_dev->lock. While the lock is definitely
->>> needed to protect the setting/unsetting of the KVM pointer, it is not
->>> necessarily critical for setting the masks, so this will not be done under
->>> protection of the matrix_dev->lock.
->>
->>
->> With the one little thing I commented on below addressed:
->> Acked-by: Halil Pasic <pasic@linux.ibm.com>
-> Tony, can you comment on Halils comment or send a v3 right away?
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+---
+ arch/s390/kernel/perf_cpum_cf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I was locked out of email due to expiration of my w3 password.
-I am working on the response now.
-
+diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+index 0eb1d1c..b3beef6 100644
+--- a/arch/s390/kernel/perf_cpum_cf.c
++++ b/arch/s390/kernel/perf_cpum_cf.c
+@@ -269,7 +269,7 @@ static int __hw_perf_event_init(struct perf_event *event, unsigned int type)
+ 	case CPUMF_CTR_SET_MAX:
+ 		/* The counter could not be associated to a counter set */
+ 		return -EINVAL;
+-	};
++	}
+ 
+ 	/* Initialize for using the CPU-measurement counter facility */
+ 	if (!atomic_inc_not_zero(&num_events)) {
+-- 
+1.8.3.1
 
