@@ -2,164 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02A0CC433DB
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Feb 2021 16:13:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C1D1C433DB
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Feb 2021 16:22:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4E9964EF0
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Feb 2021 16:13:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6569364EE1
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Feb 2021 16:22:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229707AbhBZQNy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Feb 2021 11:13:54 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33042 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229566AbhBZQNx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 26 Feb 2021 11:13:53 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 11QG4imG095183;
-        Fri, 26 Feb 2021 11:12:53 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=zOkPsoMZ6RMzq/KFXTwBxweXFDIsf9ZjL3lIr22Id/Q=;
- b=m1ZsyrjCnrwANQ807oEzqd/ChrGy5YO7tiizEiqbqDAY414j/nLCULMmxp+pL+T5ZV1J
- NQtDvI21/gwjwsWikOchBaQAXdP3EmXoVOqUPJW0z54skgRLBOtTAt+FTRPTOp1XhE3n
- 1gziEYkNIDUXc0gSfbxLzraC1GW8Z+IvkScsH7E0g1TihdBFJSJOqGoR/rtWpuK9VsbL
- 4DTAyhEj/cW9deAzkbmTlT3nM/aCnbJXal2f7JPwZIx7CvBYER3IlobJ3ktRYwUgwqHw
- rb9/udpRUObyLzmCzor+FvQMLwy5mGj/vSwUgRJJYHVW3P7v7EhqLBZAchgqLnGt/e+O eA== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 36y02t0wb6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 26 Feb 2021 11:12:53 -0500
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 11QG4XVI017456;
-        Fri, 26 Feb 2021 16:12:51 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma02fra.de.ibm.com with ESMTP id 36y30wr13j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 26 Feb 2021 16:12:51 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 11QGCZH425297284
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 26 Feb 2021 16:12:35 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5ABEDAE051;
-        Fri, 26 Feb 2021 16:12:48 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D5570AE055;
-        Fri, 26 Feb 2021 16:12:47 +0000 (GMT)
-Received: from thinkpad (unknown [9.171.23.180])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Fri, 26 Feb 2021 16:12:47 +0000 (GMT)
-Date:   Fri, 26 Feb 2021 17:12:46 +0100
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+        id S230153AbhBZQW2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Feb 2021 11:22:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47510 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230146AbhBZQW0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Feb 2021 11:22:26 -0500
+Received: from mail-qk1-x729.google.com (mail-qk1-x729.google.com [IPv6:2607:f8b0:4864:20::729])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4C7FC06174A
+        for <linux-s390@vger.kernel.org>; Fri, 26 Feb 2021 08:21:44 -0800 (PST)
+Received: by mail-qk1-x729.google.com with SMTP id q85so9568483qke.8
+        for <linux-s390@vger.kernel.org>; Fri, 26 Feb 2021 08:21:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=wKhee+wwyY8wAQtAwhfFGxIYlymbanXy7c8d3WGe9uw=;
+        b=UbX00wvuuvMEYhRJX3nCu4zXb85v13Cqv2r7hy9O+bowY1FaIbOHtDcePeLY0/B0Da
+         SF2Rt/j2i5vqV+2nd6y/YV7vdWi7UcnYCo6GUDusZkQq2I/4QAMG5NnybLXlvhoAWc4E
+         CB07JSKy/zS1mTJuVrl1tmyNn9/lGP5fKjyqtPqmEH+ZLIUFG0B2e4C+3p28fkRswuxC
+         hFXweOu/200WMxTdg7r9jyhUcvqhegxsjllPJTsf9QRFCspOmTW4FmlmbibPyeQkxmm0
+         eTduKaFz+s5eAm4qAnHn5719bNNg6/TZ7O3TMvWSTpqPFuHHbDX0UTpRpz8DWGQYjFaf
+         L6OA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=wKhee+wwyY8wAQtAwhfFGxIYlymbanXy7c8d3WGe9uw=;
+        b=lmQvJuwOmNQbfux2mf7p3/bhN1Khub7geGJZH5Rla5lsBfE13gUjZPpFWet7paR1KB
+         jBhJ9mG+sALz7gA9G7G3EnXA1Yrv33a9wQWI2IhO8jl3RFIY1/XKp53AbV3lo4HNlIPw
+         t2gPKPS63rrvf8vm8Matuj28+BusHWk1wGflLfiA5So3i02uN3JuHo1ZQa+Tjij1MrE3
+         7FnfTpxjX3Tgd+fIEGakqEFzFM7i/DNLM8sLcSynC6vz8x2h5FGYPN7dwKTYdcjE29eh
+         b6JqOpIA2kkwCjXgEf/fKeorYSPCqY5ReY2Z/82tryce9pI9ijMUNtIHL9rPAJvxTE45
+         +/8g==
+X-Gm-Message-State: AOAM531+1ZQHNLjwznJV3p+B5zAyH9pDnU6R/bmcJAvSlLMg56J4nZ5H
+        7wf16/9h+8yEmNn4/HaPGHJ0Ww==
+X-Google-Smtp-Source: ABdhPJwJdZL4xF23yJV09qXQ0a4Ybxm3pNDa6pceKSCI9bofx7wUXwpD/kCLchRD1oPm3hWZue3Zhg==
+X-Received: by 2002:a37:dc41:: with SMTP id v62mr3158437qki.457.1614356503934;
+        Fri, 26 Feb 2021 08:21:43 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-162-115-133.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.115.133])
+        by smtp.gmail.com with ESMTPSA id x3sm6801311qkd.94.2021.02.26.08.21.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Feb 2021 08:21:43 -0800 (PST)
+Received: from jgg by mlx with local (Exim 4.94)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1lFfs7-000yvy-1U; Fri, 26 Feb 2021 12:21:43 -0400
+Date:   Fri, 26 Feb 2021 12:21:43 -0400
+From:   Jason Gunthorpe <jgg@ziepe.ca>
 To:     Matthew Wilcox <willy@infradead.org>
 Cc:     linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: Freeing page tables through RCU
-Message-ID: <20210226171246.4afba7e9@thinkpad>
-In-Reply-To: <20210225205820.GC2858050@casper.infradead.org>
+Message-ID: <20210226162143.GW2643399@ziepe.ca>
 References: <20210225205820.GC2858050@casper.infradead.org>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ <20210226144200.GV2643399@ziepe.ca>
+ <20210226160354.GE2723601@casper.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-02-26_05:2021-02-26,2021-02-26 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
- mlxscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0 suspectscore=0
- adultscore=0 mlxlogscore=999 phishscore=0 malwarescore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102260119
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210226160354.GE2723601@casper.infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 25 Feb 2021 20:58:20 +0000
-Matthew Wilcox <willy@infradead.org> wrote:
-
-> In order to walk the page tables without the mmap semaphore, it must
-> be possible to prevent them from being freed and reused (eg if munmap()
-> races with viewing /proc/$pid/smaps).
+On Fri, Feb 26, 2021 at 04:03:54PM +0000, Matthew Wilcox wrote:
+> On Fri, Feb 26, 2021 at 10:42:00AM -0400, Jason Gunthorpe wrote:
+> > On Thu, Feb 25, 2021 at 08:58:20PM +0000, Matthew Wilcox wrote:
+> > 
+> > > I'd like to hear better ideas than this.
+> > 
+> > You didn't like my suggestion to put a sleepable lock around the
+> > freeing of page tables during flushing?
+> > 
+> > I still don't see how you convert the sleepable page walkers to use
+> > rcu??
 > 
-> There is various commentary within the mm on how to prevent this.  One way
-> is to disable interrupts, relying on that to block rcu_sched or IPIs.
-> I don't think the RT people are terribly happy about reading a proc file
-> disabling interrupts, and it doesn't work for architectures that free
-> page tables directly instead of batching them into an rcu_sched (because
-> the IPI may not be sent to this CPU if the task has never run on it).
-> 
-> See "Fast GUP" in mm/gup.c
-> 
-> Ideally, I'd like rcu_read_lock() to delay page table reuse.  This is
-> close to trivial for architectures which use entire pages or multiple
-> pages for levels of their page tables as we can use the rcu_head embedded
-> in struct page to queue the page for RCU.
-> 
-> s390 and powerpc are the only two architectures I know of that have
-> levels of their page table that are smaller than their PAGE_SIZE.
-> I'd like to discuss options.  There may be a complicated scheme that
-> allows partial pages to be freed via RCU, but I have something simpler
-> in mind.  For powerpc in particular, it can have a PAGE_SIZE of 64kB
-> and then the MMU wants to see 4kB entries in the PMD.  I suggest that
-> instead of allocating each 4kB entry individually, we allocate a 64kB
-> page and fill in 16 consecutive PMDs.  This could cost a bit more memory
-> (although if you've asked for a CONFIG_PAGE_SIZE of 64kB, you presumably
-> don't care too much about it), but it'll make future page faults cheaper
-> (as the PMDs will already be present, assuming you have good locality
-> of reference).
-> 
-> I'd like to hear better ideas than this.
+> I don't want to convert the sleepable ones to use RCU ... I want to
+> convert the non-sleeping ones to use RCU.  
 
-Some background on the situation for s390: The architecture defines
-an 8 bit pagetable index, so we have 256 entries in a 2 KB pagetable,
-but PAGE_SIZE is 4 KB. pte_alloc(_one) will use alloc_page() to allocate
-a full 4 KB page, and then do some housekeeping to maintain a per-mm list
-of such 4 KB pages, which will contain either one or two 2 KB pagetable
-fragments.
+Why? Convert them to use the normal page table spinlocks?
 
-This is also the reason why pgtable_t on s390 is not pointing to the
-struct page of the (4 KB) page containing a 2 KB pagetable fragment, but
-rather to the 2 KB pagetable itself.
+It makes everything much more understandable if it is locked properly.
 
-I see at least two issues here, with using rcu_head embedded in the
-struct page (for a 4 KB page):
+The lockless walks should be reserved for special places because they
+are actually hard to do properly.
 
-1) There might be two 2 KB pagetables present in that 4 KB page,
-and the rcu_head would affect both. Not sure if this would really be
-a problem, because we already have a similar situation with the split
-ptlock embedded in struct page, which also might lock two 2 KB pagetables,
-i.e. more than necessary. It still is far less "over-locking" than
-using mm->page_table_lock, and the move_pte() code e.g. takes care
-to avoid a deadlock if src and dst ptlocks happen to be on the
-same page.
+> A page_table_free_lock might work, but it might have its own
+> problems later (eg a sleeping lock can't be acquired under RCU or
+> spinlock, and it can't be a spinlock because it'd have to be held
+> while we wait for IPIs).
 
-So, a similar "over-locking" might also be possible and acceptable
-for the rcu_head approach, but I do not really understand if that could
-have some deadlock or other unwanted side-effects.
+The mmap_sem today is serving the function of the page_table_free_lock
+idea, so I think a sleepable lock is already proven to work?
 
-2) The "housekeeping" of our 2 KB pagetable fragments uses page->lru
-to maintain the per-mm list. It also (mis)uses page->_refcount to mark
-which 2 KB half is used/free, but that should not be an issue I guess.
-Using page->lru will be an issue though. IIUC, then page->rcu_head will
-overlay with page->lru, so using page->rcu_head for pagetable pages
-on s390 would conflict with our page->lru usage for such pagetable pages.
-
-I do not really see how that could be fixed, maybe we could find and
-re-use other struct page members for our 2 KB fragment list. Also, for
-kvm, there seem to be even more users of page->lru for pagetable pages,
-in arch/s390/mm/gmap.c. Not sure though if those would actually also
-affect "regular" pagetable walks, or if they are somehow independent.
-But if we'd find some new list home for the 2 KB fragments, then that
-could probably also be used for the gmap stuff.
+Jason
