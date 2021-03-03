@@ -2,206 +2,190 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19E22C43331
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2021EC43333
 	for <linux-s390@archiver.kernel.org>; Wed,  3 Mar 2021 22:55:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DCACC64EF9
+	by mail.kernel.org (Postfix) with ESMTP id 026BF64F0B
 	for <linux-s390@archiver.kernel.org>; Wed,  3 Mar 2021 22:55:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354131AbhCCWet (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 3 Mar 2021 17:34:49 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:57794 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236077AbhCCMgI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Mar 2021 07:36:08 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 123BF8gh057868;
-        Wed, 3 Mar 2021 11:20:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=VxmJbjkZxOuabEIWqUDFawYN3xgFKhOUYeS13Npa9tw=;
- b=cAPRxwjY898jzZNcjfmeixZAH3f2viwlwRokTNfAFGzpEqc6Z9UReNILvcjEKle+mPiR
- jAOGsZLA1BYFQPqxbLas9lm1KB1gSiffgb8hCjEsaCbhwTR363bpTeKmQNTyq7baGoSX
- UPL68t5+ObCEWjKCcr9JZmbczE+QYWv5risiTgrebpGrf5ZnbfBe7rliL0l1bcJ1Nyyt
- v+Xmnw9lZdhnGCMh6YTmCQbJHUM0c7WpGrbVelSg5+4WLaUP127J/gs2wp26NBANrNTD
- WwS9Xdmx2E81PwYzaLzKhNhKKNaKBWTtXwSMoZ8A0Uw9tFaDNd2fu7nCA7KOEMYrbPlJ KA== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2120.oracle.com with ESMTP id 3726v78hdp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 03 Mar 2021 11:20:56 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 123BFCt4046900;
-        Wed, 3 Mar 2021 11:20:55 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3030.oracle.com with ESMTP id 36yynqe7p2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 03 Mar 2021 11:20:55 +0000
-Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 123BKrkK016818;
-        Wed, 3 Mar 2021 11:20:53 GMT
-Received: from kadam (/102.36.221.92)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 03 Mar 2021 03:20:53 -0800
-Date:   Wed, 3 Mar 2021 14:20:46 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Cc:     linux-s390@vger.kernel.org, smatch@vger.kernel.org
-Subject: Re: smatch and copy_{to,from}_user return values
-Message-ID: <20210303112046.GB2222@kadam>
-References: <b57b4f40-d67c-d57c-c5b2-077b623ed4ed@prevas.dk>
+        id S1391431AbhCCWfn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 3 Mar 2021 17:35:43 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64360 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1448192AbhCCPYX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Mar 2021 10:24:23 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 123F2QIK144009;
+        Wed, 3 Mar 2021 10:23:41 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=zWAJxsplEzw8/kWSmP04aU3CVx62dYTr+NwGdiCuCrI=;
+ b=Zc3DxdboLUeerw0AZ0Uz1XLhrfV/gWjqgfyBLrzAcGQ5zD3vPo80bHfHgGBDh814+GJ3
+ B8EChSLj7n6UjqCg6ibs2zEiljxjKU9PF1WRUlsui0EB3IHfEPfitK2jv0h12JNu63Gc
+ /7ZWmlmUqYkGhfBz75A1aCpfuBar6ZVLVlCQO32zchoy6Win6o+Yr/XKmhurc8ULoGRy
+ 3r3NaeWpah+ztng7+4VoEJlJludq9+e6xC5M07Eh6fdTjLhfeNaXNUXnmiFPIgRVE/oH
+ ZCibhCVItnnJBpkRl6BN7UnrlUQngkkAerPwNc6ghfMzRCahLDuzByF2mgS6Dc44Bjjx 3w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 372cp08x70-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Mar 2021 10:23:41 -0500
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 123F3PUQ151861;
+        Wed, 3 Mar 2021 10:23:40 -0500
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 372cp08x5v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Mar 2021 10:23:40 -0500
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 123FDjVd031038;
+        Wed, 3 Mar 2021 15:23:38 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3712v510tf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Mar 2021 15:23:38 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 123FNLRq22085970
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 3 Mar 2021 15:23:21 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2169B4207B;
+        Wed,  3 Mar 2021 15:23:35 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 71C9142061;
+        Wed,  3 Mar 2021 15:23:34 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.0.197])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Wed,  3 Mar 2021 15:23:34 +0000 (GMT)
+Date:   Wed, 3 Mar 2021 16:23:32 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
+        pbonzini@redhat.com, alex.williamson@redhat.com,
+        pasic@linux.vnet.ibm.com
+Subject: Re: [PATCH v3 1/1] s390/vfio-ap: fix circular lockdep when
+ setting/clearing crypto masks
+Message-ID: <20210303162332.4d227dbe.pasic@linux.ibm.com>
+In-Reply-To: <20210302204322.24441-2-akrowiak@linux.ibm.com>
+References: <20210302204322.24441-1-akrowiak@linux.ibm.com>
+        <20210302204322.24441-2-akrowiak@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="Kuk/n493crKO4rgR"
-Content-Disposition: inline
-In-Reply-To: <b57b4f40-d67c-d57c-c5b2-077b623ed4ed@prevas.dk>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-IMR: 1
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9911 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 mlxscore=0 spamscore=0
- bulkscore=0 suspectscore=0 mlxlogscore=999 phishscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2103030088
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9911 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 impostorscore=0 phishscore=0 mlxscore=0
- suspectscore=0 adultscore=0 malwarescore=0 priorityscore=1501 bulkscore=0
- lowpriorityscore=0 spamscore=0 mlxlogscore=999 clxscore=1011
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2103030088
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-03_04:2021-03-03,2021-03-03 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=999 priorityscore=1501 lowpriorityscore=0 spamscore=0
+ adultscore=0 bulkscore=0 clxscore=1011 malwarescore=0 impostorscore=0
+ mlxscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103030116
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue,  2 Mar 2021 15:43:22 -0500
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
---Kuk/n493crKO4rgR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> This patch fixes a lockdep splat introduced by commit f21916ec4826
+> ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated").
+> The lockdep splat only occurs when starting a Secure Execution guest.
+> Crypto virtualization (vfio_ap) is not yet supported for SE guests;
+> however, in order to avoid this problem when support becomes available,
+> this fix is being provided.
 
-On Wed, Mar 03, 2021 at 08:50:19AM +0100, Rasmus Villemoes wrote:
-> Hi Dan
+[..]
+
+> @@ -1038,14 +1116,28 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+>  {
+>  	struct ap_matrix_mdev *m;
 > 
-> If you look at vfio_ccw_mdev_ioctl() in drivers/s390/cio/vfio_ccw_ops.c,
-> and vfio_ap_mdev_get_device_info() in drivers/s390/crypto/vfio_ap_ops.c,
-> there are examples of functions that can both return -Esomething as well
-> as may return the return value of a copy_{to,from}_user directly (i.e.,
-> in case of error some positive number).
+> -	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
+> -		if ((m != matrix_mdev) && (m->kvm == kvm))
+> -			return -EPERM;
+> -	}
+> +	if (kvm->arch.crypto.crycbd) {
+> +		matrix_mdev->kvm_busy = true;
 > 
-> [Those "return copy_to_user();" should probably all be changed to
-> "return copy_to_user() ? -EFAULT : 0;" - cc'ing the s390 list in case
-> the maintainers want to do that.]
+> -	matrix_mdev->kvm = kvm;
+> -	kvm_get_kvm(kvm);
+> -	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+> +		list_for_each_entry(m, &matrix_dev->mdev_list, node) {
+> +			if ((m != matrix_mdev) && (m->kvm == kvm)) {
+> +				wake_up_all(&matrix_mdev->wait_for_kvm);
+
+This ain't no good. kvm_busy will remain true if we take this exit. The
+wake_up_all() is not needed, because we hold the lock, so nobody can
+observe it if we don't forget kvm_busy set.
+
+I suggest moving matrix_mdev->kvm_busy = true; after this loop, maybe right
+before the unlock, and removing the wake_up_all().
+
+> +				return -EPERM;
+> +			}
+> +		}
+> +
+> +		kvm_get_kvm(kvm);
+> +		mutex_unlock(&matrix_dev->lock);
+> +		kvm_arch_crypto_set_masks(kvm,
+> +					  matrix_mdev->matrix.apm,
+> +					  matrix_mdev->matrix.aqm,
+> +					  matrix_mdev->matrix.adm);
+> +		mutex_lock(&matrix_dev->lock);
+> +		kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+> +		matrix_mdev->kvm = kvm;
+> +		matrix_mdev->kvm_busy = false;
+> +		wake_up_all(&matrix_mdev->wait_for_kvm);
+> +	}
 > 
-> Can smatch detect such cases? I seem to recall it has some concept of
-> tagging a function as "returning -Efoo or 0", so it would also need to
-> know that copy_{to,from}_user does not return -Efoo. And it also needs
-> to follow the control flow, so
-> 
->  ret = copy_to_user();
->  if (ret)
->     return -EIO;
->  something_else;
->  return ret; /* this is 0 */
-> 
-> doesn't trigger. And there's gonna be some false positives around signal
-> frame setup, which do a lot of "err |= foo(); err |= bar()" where foo()
-> report errors as -Exxx and bar can be a copy_to_user(), but in the end
-> err is only checked against 0.
-> 
-> Rasmus
+>  	return 0;
+>  }
 
-Yeah.  There is already a check for if you propagate the return from
-copy_from_user()...  The problem is that this is s390 code and I don't
-have a cross compiler set up so this was never reported or fixed.
+[..]
 
-When I first saw your email, I didn't read it carefully and I thought
-you were complaining about code that returns -EIO where -EFAULT is
-intended.  Anyway, I wrote that check before re-reading the email.  LOL.
-Attached.
+> @@ -1300,7 +1406,21 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
+>  		ret = vfio_ap_mdev_get_device_info(arg);
+>  		break;
+>  	case VFIO_DEVICE_RESET:
+> -		ret = vfio_ap_mdev_reset_queues(mdev);
+> +		matrix_mdev = mdev_get_drvdata(mdev);
+> +
+> +		/*
+> +		 * If the KVM pointer is in the process of being set, wait until
+> +		 * the process has completed.
+> +		 */
+> +		wait_event_cmd(matrix_mdev->wait_for_kvm,
+> +			       matrix_mdev->kvm_busy == false,
+> +			       mutex_unlock(&matrix_dev->lock),
+> +			       mutex_lock(&matrix_dev->lock));
+> +
+> +		if (matrix_mdev->kvm)
+> +			ret = vfio_ap_mdev_reset_queues(mdev);
+> +		else
+> +			ret = -ENODEV;
 
-I did a quick "git grep |= copy_" and I see that's mostly used in
-signal code where the caller doesn't care about the error code, only
-whether it's zero vs non-zero.  I considered about excluding "arch/"
-from the check but then there are only two instances where this is used
-and both are correct.
+I don't think rejecting the reset is a good idea. I have you a more detailed
+explanation of the list, where we initially discussed this question.
 
-regards,
-dan carpenter
+How do you exect userspace to react to this -ENODEV?
 
+Otherwise looks good to me!
 
---Kuk/n493crKO4rgR
-Content-Type: text/x-csrc; charset=us-ascii
-Content-Disposition: attachment; filename="check_return_efault2.c"
+I've tested your branch from yesterday (which looks to me like this patch
+without the above check on ->kvm and reset) for the lockdep splat, but I
+didn't do any comprehensive testing -- which would ensure that we didn't
+break something else in the process. With the two issues fixed, and your
+word that the patch was properly tested (except for the lockdep splat
+which I tested myself), I feel comfortable with moving forward with this.
 
-/*
- * Copyright (C) 2021 Oracle.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, see http://www.gnu.org/copyleft/gpl.txt
- */
+Regards,
 
-#include "smatch.h"
-#include "smatch_extra.h"
-
-static int my_id;
-
-static const sval_t ulong_one	= { .type = &ulong_ctype, .value = 1 };
-static const sval_t ulong_INT_MAX = { .type = &ulong_ctype, .value = INT_MAX };
-
-STATE(copy_failed);
-
-static void match_copy_failed(const char *fn, struct expression *call_expr,
-			      struct expression *expr, void *_unused)
-{
-	set_state(my_id, "path", NULL, &copy_failed);
-}
-
-static void match_return(struct expression *expr)
-{
-	char *macro = NULL;
-	sval_t ret;
-
-	if (!get_value(expr, &ret))
-		return;
-	if (ret.value == -14)
-		return;
-	if (get_state(my_id, "path", NULL) != &copy_failed)
-		return;
-
-	if (expr->type == EXPR_PREOP && expr->op == '-')
-		macro = get_macro_name(expr->unop->pos);
-
-	if (macro)
-		sm_warning("return -EFAULT instead of '-%s'", macro);
-	else
-		sm_warning("return -EFAULT instead of '%s'", sval_to_str(ret));
-}
-
-void check_return_efault2(int id)
-{
-	if (option_project != PROJ_KERNEL)
-		return;
-
-	my_id = id;
-
-	return_implies_state_sval("copy_to_user", ulong_one, ulong_INT_MAX, &match_copy_failed, NULL);
-	return_implies_state_sval("copy_from_user", ulong_one, ulong_INT_MAX, &match_copy_failed, NULL);
-	return_implies_state_sval("__copy_to_user", ulong_one, ulong_INT_MAX, &match_copy_failed, NULL);
-	return_implies_state_sval("__copy_from_user", ulong_one, ulong_INT_MAX, &match_copy_failed, NULL);
-
-	add_hook(&match_return, RETURN_HOOK);
-}
-
---Kuk/n493crKO4rgR--
