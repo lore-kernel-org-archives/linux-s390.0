@@ -2,128 +2,263 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31196C433E0
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 13:29:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78DDDC433DB
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 15:58:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 043AD64F41
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 13:29:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 48C6964F3D
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 15:58:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240681AbhCDN3X (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 4 Mar 2021 08:29:23 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:45342 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238494AbhCDN24 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Mar 2021 08:28:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1614864450;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=U25hfNafb9SuM5dJFfJmewNpYbdjseyyxBquOrBCTHM=;
-        b=U9XOFaPixZ2WdhZIirGXv8lTq8BTIIE5Hv40PA6wGI3HhxJL5G393G76pzd84JN+uBUTbj
-        jOihn1OQAO5HdOAQta5NN8WgYMZCVsj1cstZ18Hb9Jis7JPvAFvlCZRj82rQ5EZj0aCUtT
-        NISWNmOVLkWry6lT84f0kTrROLpQFZk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-522-P_KvLWMVMT21oGPPTfUxxw-1; Thu, 04 Mar 2021 08:27:26 -0500
-X-MC-Unique: P_KvLWMVMT21oGPPTfUxxw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B1B4D800D53;
-        Thu,  4 Mar 2021 13:27:25 +0000 (UTC)
-Received: from gondolin.redhat.com (ovpn-114-163.ams2.redhat.com [10.36.114.163])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2D3C5175BD;
-        Thu,  4 Mar 2021 13:27:24 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Halil Pasic <pasic@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>
-Cc:     linux-s390@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH RFC 1/2] virtio/s390: add parameter for minimum revision
-Date:   Thu,  4 Mar 2021 14:27:14 +0100
-Message-Id: <20210304132715.1587211-2-cohuck@redhat.com>
-In-Reply-To: <20210304132715.1587211-1-cohuck@redhat.com>
-References: <20210304132715.1587211-1-cohuck@redhat.com>
+        id S236077AbhCDP6M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 4 Mar 2021 10:58:12 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10204 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236069AbhCDP56 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Mar 2021 10:57:58 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 124FYouP068636;
+        Thu, 4 Mar 2021 10:57:18 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
+ from : subject : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=AKqoZtsDoQGQTBosfrW0wdrcw9zm6T5fsz25Clb2/vU=;
+ b=fI8FU3LhiEMe/75HqYCySaiKO2xbUbG1MVF/0SLUN4yUHJszkxeS+ayk9KbpQakbttOZ
+ RsjFonaHAKdeR5z2FrxqvmiqtnqgxgSRB0eJ2NzhODkDVejfy2lNkHFPJdr5H3vz719P
+ 02FclyXORtNuleufx6aX4ho40HmIOjtSf2YBWjNAqO9Z7oXCQfWJhi43ZNlpoJ1YUSIR
+ Ak8+dDiKEv0F+Vjpj+of+W0kE76H8gdGamYBZUHNPjysvVfqV3Egly/18GmCmUJZ+mSi
+ +rXzXhgxgL1Lunr+ERoKmnuceJw/zhru0elAISO2akWI7lCqTldt+fve3gcSlR/L2mSP eQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37328tsn8k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Mar 2021 10:57:18 -0500
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 124FYvjq069218;
+        Thu, 4 Mar 2021 10:57:17 -0500
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37328tsn6r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Mar 2021 10:57:17 -0500
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 124Fpc40026790;
+        Thu, 4 Mar 2021 15:57:15 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3712fmjwav-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Mar 2021 15:57:15 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 124FvCXA51183950
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 4 Mar 2021 15:57:12 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4F446AE05A;
+        Thu,  4 Mar 2021 15:57:12 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F320AAE057;
+        Thu,  4 Mar 2021 15:57:11 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.34.100])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  4 Mar 2021 15:57:11 +0000 (GMT)
+To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        pmorel@linux.ibm.com, david@redhat.com
+References: <20210222085756.14396-1-frankja@linux.ibm.com>
+ <20210222085756.14396-3-frankja@linux.ibm.com>
+ <b1ecb478-e559-bb3d-b69f-3f2b4f72ddee@redhat.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 2/7] s390x: Fully commit to stack save
+ area for exceptions
+Message-ID: <d52c945c-b634-4f8b-9264-d63595eb6c5c@linux.ibm.com>
+Date:   Thu, 4 Mar 2021 16:57:11 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
 MIME-Version: 1.0
+In-Reply-To: <b1ecb478-e559-bb3d-b69f-3f2b4f72ddee@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-04_05:2021-03-03,2021-03-04 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
+ adultscore=0 mlxlogscore=999 mlxscore=0 suspectscore=0 priorityscore=1501
+ malwarescore=0 clxscore=1015 bulkscore=0 phishscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2103040075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We use transport revisions in virtio-ccw for introducing new commands
-etc.; revision 1 denotes operating according to the standard. Legacy
-devices do not understand the command to set a revision; for those, we
-presume to operate at revision 0.
+On 3/4/21 12:37 PM, Thomas Huth wrote:
+> On 22/02/2021 09.57, Janosch Frank wrote:
+>> Having two sets of macros for saving registers on exceptions makes
+>> maintaining harder. Also we have limited space in the lowcore to save
+>> stuff and by using the stack as a save area, we can stack exceptions.
+>>
+>> So let's use the SAVE/RESTORE_REGS_STACK as the default. When we also
+>> move the diag308 macro over we can remove the old SAVE/RESTORE_REGS
+>> macros.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>> ---
+> [...]
+>> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
+>> index 1a2e2cd8..31e4766d 100644
+>> --- a/lib/s390x/asm/interrupt.h
+>> +++ b/lib/s390x/asm/interrupt.h
+>> @@ -14,8 +14,8 @@
+>>   #define EXT_IRQ_SERVICE_SIG	0x2401
+>>   
+>>   void register_pgm_cleanup_func(void (*f)(void));
+>> -void handle_pgm_int(void);
+>> -void handle_ext_int(void);
+>> +void handle_pgm_int(struct stack_frame_int *stack);
+>> +void handle_ext_int(struct stack_frame_int *stack);
+>>   void handle_mcck_int(void);
+>>   void handle_io_int(void);
+> 
+> So handle_io_int() does not get a *stack parameter here...
+> 
+>>   void handle_svc_int(void);
+>> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+>> index 1ce36073..a59df80e 100644
+>> --- a/lib/s390x/interrupt.c
+>> +++ b/lib/s390x/interrupt.c
+>> @@ -56,7 +56,7 @@ void register_pgm_cleanup_func(void (*f)(void))
+>>   	pgm_cleanup_func = f;
+>>   }
+>>   
+>> -static void fixup_pgm_int(void)
+>> +static void fixup_pgm_int(struct stack_frame_int *stack)
+>>   {
+>>   	/* If we have an error on SIE we directly move to sie_exit */
+>>   	if (lc->pgm_old_psw.addr >= (uint64_t)&sie_entry &&
+>> @@ -76,7 +76,7 @@ static void fixup_pgm_int(void)
+>>   		/* Handling for iep.c test case. */
+>>   		if (lc->trans_exc_id & 0x80UL && lc->trans_exc_id & 0x04UL &&
+>>   		    !(lc->trans_exc_id & 0x08UL))
+>> -			lc->pgm_old_psw.addr = lc->sw_int_grs[14];
+>> +			lc->pgm_old_psw.addr = stack->grs0[12];
+> 
+> I'd maybe put a "/* GR14 */" comment at the end of the line, to make it more 
+> obvious which register we're aiming here at.
 
-Add a parameter min_revision to be able to actively restrict use of
-old transport revisions. In particular, setting a minimum revision
-of 1 makes our driver act as a non-transitional driver.
+Will do although I'd like to extend it a bit:
 
-With the default min_revision of 0, we continue to act as a
-transitional driver.
+/*
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/virtio/virtio_ccw.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 54e686dca6de..0d3971dbc109 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -34,6 +34,16 @@
- #include <asm/isc.h>
- #include <asm/airq.h>
- 
-+/*
-+ * Provide a knob to turn off support for older revisions. This is useful
-+ * if we want to act as a non-transitional virtio device driver: requiring
-+ * a minimum revision of 1 turns off support for legacy devices.
-+ */
-+static int min_revision;
-+
-+module_param(min_revision, int, 0444);
-+MODULE_PARM_DESC(min_revision, "minimum transport revision to accept");
-+
- /*
-  * virtio related functions
-  */
-@@ -1271,7 +1281,10 @@ static int virtio_ccw_set_transport_rev(struct virtio_ccw_device *vcdev)
- 			else
- 				vcdev->revision--;
- 		}
--	} while (ret == -EOPNOTSUPP);
-+	} while (vcdev->revision >= min_revision && ret == -EOPNOTSUPP);
-+
-+	if (ret == -EOPNOTSUPP && vcdev->revision < min_revision)
-+		ret = -EINVAL;
- 
- 	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
- 	ccw_device_dma_free(vcdev->cdev, rev, sizeof(*rev));
-@@ -1315,8 +1328,12 @@ static int virtio_ccw_online(struct ccw_device *cdev)
- 	vcdev->vdev.id.device = cdev->id.cu_model;
- 
- 	ret = virtio_ccw_set_transport_rev(vcdev);
--	if (ret)
-+	if (ret) {
-+		dev_warn(&cdev->dev,
-+			 "Could not set a supported transport revision: %d\n",
-+			 ret);
- 		goto out_free;
-+	}
- 
- 	ret = register_virtio_device(&vcdev->vdev);
- 	if (ret) {
--- 
-2.26.2
 
+* We branched to the instruction that caused
+
+
+
+* the exception so we can use the return
+
+
+
+* address in GR14 to jump back and continue
+
+
+
+* executing test code.
+
+
+
+*/
+
+> 
+>>   		break;
+>>   	case PGM_INT_CODE_SEGMENT_TRANSLATION:
+>>   	case PGM_INT_CODE_PAGE_TRANSLATION:
+>> @@ -115,7 +115,7 @@ static void fixup_pgm_int(void)
+>>   	/* suppressed/terminated/completed point already at the next address */
+>>   }
+>>   
+>> -void handle_pgm_int(void)
+>> +void handle_pgm_int(struct stack_frame_int *stack)
+>>   {
+>>   	if (!pgm_int_expected) {
+>>   		/* Force sclp_busy to false, otherwise we will loop forever */
+>> @@ -130,10 +130,10 @@ void handle_pgm_int(void)
+>>   	if (pgm_cleanup_func)
+>>   		(*pgm_cleanup_func)();
+>>   	else
+>> -		fixup_pgm_int();
+>> +		fixup_pgm_int(stack);
+>>   }
+>>   
+>> -void handle_ext_int(void)
+>> +void handle_ext_int(struct stack_frame_int *stack)
+>>   {
+>>   	if (!ext_int_expected &&
+>>   	    lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
+>> @@ -143,13 +143,13 @@ void handle_ext_int(void)
+>>   	}
+>>   
+>>   	if (lc->ext_int_code == EXT_IRQ_SERVICE_SIG) {
+>> -		lc->sw_int_crs[0] &= ~(1UL << 9);
+>> +		stack->crs[0] &= ~(1UL << 9);
+>>   		sclp_handle_ext();
+>>   	} else {
+>>   		ext_int_expected = false;
+>>   	}
+>>   
+>> -	if (!(lc->sw_int_crs[0] & CR0_EXTM_MASK))
+>> +	if (!(stack->crs[0] & CR0_EXTM_MASK))
+>>   		lc->ext_old_psw.mask &= ~PSW_MASK_EXT;
+>>   }
+>>   
+>> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+>> index ace0c0d9..35d20293 100644
+>> --- a/s390x/cstart64.S
+>> +++ b/s390x/cstart64.S
+>> @@ -92,33 +92,36 @@ memsetxc:
+>>   
+>>   .section .text
+>>   pgm_int:
+>> -	SAVE_REGS
+>> +	SAVE_REGS_STACK
+>> +	lgr     %r2, %r15
+>>   	brasl	%r14, handle_pgm_int
+>> -	RESTORE_REGS
+>> +	RESTORE_REGS_STACK
+>>   	lpswe	GEN_LC_PGM_OLD_PSW
+>>   
+>>   ext_int:
+>> -	SAVE_REGS
+>> +	SAVE_REGS_STACK
+>> +	lgr     %r2, %r15
+>>   	brasl	%r14, handle_ext_int
+>> -	RESTORE_REGS
+>> +	RESTORE_REGS_STACK
+>>   	lpswe	GEN_LC_EXT_OLD_PSW
+>>   
+>>   mcck_int:
+>> -	SAVE_REGS
+>> +	SAVE_REGS_STACK
+>>   	brasl	%r14, handle_mcck_int
+>> -	RESTORE_REGS
+>> +	RESTORE_REGS_STACK
+>>   	lpswe	GEN_LC_MCCK_OLD_PSW
+>>   
+>>   io_int:
+>>   	SAVE_REGS_STACK
+>> +	lgr     %r2, %r15
+> 
+> ... and here you're passing the stack pointer as a parameter, though 
+> handle_io_int() does not use it... well, ok, it gets reworked again in the 
+> next patch, but maybe you could still remove the above line when picking up 
+> the patch?
+
+Sure, I just fixed that up
+
+> 
+> Anyway:
+> Acked-by: Thomas Huth <thuth@redhat.com>
+> 
+Thanks!
