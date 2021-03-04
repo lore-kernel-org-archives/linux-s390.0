@@ -2,110 +2,181 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46C37C433E6
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 12:30:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 950B3C433E0
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 13:04:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 25ECE64E6C
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 12:30:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5E37764F2B
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 13:04:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240627AbhCDMaJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 4 Mar 2021 07:30:09 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:30948 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240692AbhCDM3w (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Mar 2021 07:29:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1614860906;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=LtAZyTPHai0C5szIeWiO0SDjbjKRItWma6gRleyofco=;
-        b=T022T2M379EoVQ1JZkUBCzTmVp2opr0XbyPeah5M+QKPG2TSUSGIqIDbAG4HAzzo75KhVW
-        Ox8B/LD7hoHNlWdNJXAm/eSLKZLzpUrIXwEXDO4wAJJ3O9GOxwG1O2/yCp12LrdSZaRl84
-        ULftwfA0Dkk6C27B6kgJnSO3v6ZM1IY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-425-dq38zMl-Nc-4RSXuo2S1rA-1; Thu, 04 Mar 2021 07:28:22 -0500
-X-MC-Unique: dq38zMl-Nc-4RSXuo2S1rA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 885C1E5768;
-        Thu,  4 Mar 2021 12:28:21 +0000 (UTC)
-Received: from thuth.remote.csb (ovpn-112-31.ams2.redhat.com [10.36.112.31])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D387D18A69;
-        Thu,  4 Mar 2021 12:28:16 +0000 (UTC)
-Subject: Re: [kvm-unit-tests PATCH v3 7/7] s390x: Remove SAVE/RESTORE_STACK
- and lowcore fpc and fprs save areas
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        pmorel@linux.ibm.com, david@redhat.com
+        id S241055AbhCDNDr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 4 Mar 2021 08:03:47 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11158 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241029AbhCDND3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Mar 2021 08:03:29 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 124CiBGF089450;
+        Thu, 4 Mar 2021 08:02:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=X7G/uG3aEbl9jHXVzs22+ZQ+OPpxQ3A3sFa+wT1hZtQ=;
+ b=QMn+X7NoJnEbf/QmJVe4gUdecrsAAJ+fYzXgQT0wsfj2id2gpo3hVCkdTqN89Q/S+yIL
+ umExCxdR1/p9Kgr2DpY+TYVi33L9ba1x8WqktAg3i+2WDXTF5L3otwU1WuuzZp5otqda
+ Nq96+NYicNi476KNeBXgnCC2y0r6zwyvppNmn7qabQqbf6iwNHm3nzFK3HE2Kqn8hFV9
+ kcbeoaKj00idIRJyhn0JQia+NXeLehAy+nvUG7NMkzbfxEDsXWC3jMj7fpbxmW1hYCWo
+ +hK4qiuBJUrAHGkePTSy4fdlB/fP7ZrKOhv2CBFya+YvnZZBk1SGjQfqqs90UfMH0bNV 9Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 372wmrc18m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Mar 2021 08:02:49 -0500
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 124CkbDH098912;
+        Thu, 4 Mar 2021 08:02:48 -0500
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 372wmrc16w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Mar 2021 08:02:48 -0500
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 124ClkAP013654;
+        Thu, 4 Mar 2021 13:02:45 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma02fra.de.ibm.com with ESMTP id 36yj532e91-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Mar 2021 13:02:45 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 124D2SaP38076898
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 4 Mar 2021 13:02:28 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1D40C11C04A;
+        Thu,  4 Mar 2021 13:02:43 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B755911C058;
+        Thu,  4 Mar 2021 13:02:42 +0000 (GMT)
+Received: from ibm-vm (unknown [9.145.10.194])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  4 Mar 2021 13:02:42 +0000 (GMT)
+Date:   Thu, 4 Mar 2021 14:02:14 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        pmorel@linux.ibm.com, david@redhat.com, thuth@redhat.com
+Subject: Re: [kvm-unit-tests PATCH v3 4/7] s390x: Provide preliminary
+ backtrace support
+Message-ID: <20210304140214.7ff5eae3@ibm-vm>
+In-Reply-To: <20210222085756.14396-5-frankja@linux.ibm.com>
 References: <20210222085756.14396-1-frankja@linux.ibm.com>
- <20210222085756.14396-8-frankja@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <7154a604-9b00-88f1-7fea-d52aad19edcb@redhat.com>
-Date:   Thu, 4 Mar 2021 13:28:15 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        <20210222085756.14396-5-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20210222085756.14396-8-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-04_03:2021-03-03,2021-03-04 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 impostorscore=0 lowpriorityscore=0 suspectscore=0
+ mlxlogscore=999 phishscore=0 clxscore=1015 spamscore=0 bulkscore=0
+ mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103040059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 22/02/2021 09.57, Janosch Frank wrote:
-> There are no more users. At the same time remove sw_int_fpc and
-> sw_int_frps plus their asm offsets macros since they are also unused
-> now.
+On Mon, 22 Feb 2021 03:57:53 -0500
+Janosch Frank <frankja@linux.ibm.com> wrote:
+
+> After the stack changes we can finally use -mbackchain and have a
+> working backtrace.
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
 > ---
->   lib/s390x/asm-offsets.c  |  2 --
->   lib/s390x/asm/arch_def.h |  4 +---
->   s390x/macros.S           | 29 -----------------------------
->   3 files changed, 1 insertion(+), 34 deletions(-)
+>  lib/s390x/stack.c | 20 ++++++++++++++------
+>  s390x/Makefile    |  1 +
+>  s390x/macros.S    |  5 +++++
+>  3 files changed, 20 insertions(+), 6 deletions(-)
 > 
-> diff --git a/lib/s390x/asm-offsets.c b/lib/s390x/asm-offsets.c
-> index 2658b59a..fbea3278 100644
-> --- a/lib/s390x/asm-offsets.c
-> +++ b/lib/s390x/asm-offsets.c
-> @@ -54,8 +54,6 @@ int main(void)
->   	OFFSET(GEN_LC_MCCK_NEW_PSW, lowcore, mcck_new_psw);
->   	OFFSET(GEN_LC_IO_NEW_PSW, lowcore, io_new_psw);
->   	OFFSET(GEN_LC_SW_INT_GRS, lowcore, sw_int_grs);
-> -	OFFSET(GEN_LC_SW_INT_FPRS, lowcore, sw_int_fprs);
-> -	OFFSET(GEN_LC_SW_INT_FPC, lowcore, sw_int_fpc);
->   	OFFSET(GEN_LC_SW_INT_CRS, lowcore, sw_int_crs);
->   	OFFSET(GEN_LC_SW_INT_PSW, lowcore, sw_int_psw);
->   	OFFSET(GEN_LC_MCCK_EXT_SA_ADDR, lowcore, mcck_ext_sa_addr);
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index b8e9fe40..13e19b8a 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -103,9 +103,7 @@ struct lowcore {
->   	struct psw	io_new_psw;			/* 0x01f0 */
->   	/* sw definition: save area for registers in interrupt handlers */
->   	uint64_t	sw_int_grs[16];			/* 0x0200 */
-> -	uint64_t	sw_int_fprs[16];		/* 0x0280 */
-> -	uint32_t	sw_int_fpc;			/* 0x0300 */
-> -	uint8_t		pad_0x0304[0x0308 - 0x0304];	/* 0x0304 */
-> +	uint8_t		pad_0x0304[0x0308 - 0x0280];	/* 0x0280 */
-
-Please rename to pad_0x280 now.
-
-With that fixed:
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+> diff --git a/lib/s390x/stack.c b/lib/s390x/stack.c
+> index 0fcd1afb..4cf80dae 100644
+> --- a/lib/s390x/stack.c
+> +++ b/lib/s390x/stack.c
+> @@ -3,24 +3,32 @@
+>   * s390x stack implementation
+>   *
+>   * Copyright (c) 2017 Red Hat Inc
+> + * Copyright 2021 IBM Corp
+>   *
+>   * Authors:
+>   *  Thomas Huth <thuth@redhat.com>
+>   *  David Hildenbrand <david@redhat.com>
+> + *  Janosch Frank <frankja@de.ibm.com>
+>   */
+>  #include <libcflat.h>
+>  #include <stack.h>
+> +#include <asm/arch_def.h>
+>  
+>  int backtrace_frame(const void *frame, const void **return_addrs,
+> int max_depth) {
+> -	printf("TODO: Implement backtrace_frame(%p, %p, %d)
+> function!\n",
+> -	       frame, return_addrs, max_depth);
+> -	return 0;
+> +	int depth = 0;
+> +	struct stack_frame *stack = (struct stack_frame *)frame;
+> +
+> +	for (depth = 0; stack && depth < max_depth; depth++) {
+> +		return_addrs[depth] = (void *)stack->grs[8];
+> +		stack = stack->back_chain;
+> +	}
+> +
+> +	return depth;
+>  }
+>  
+>  int backtrace(const void **return_addrs, int max_depth)
+>  {
+> -	printf("TODO: Implement backtrace(%p, %d) function!\n",
+> -	       return_addrs, max_depth);
+> -	return 0;
+> +	return backtrace_frame(__builtin_frame_address(0),
+> +			       return_addrs, max_depth);
+>  }
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index f3b0fccf..20bb5683 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -39,6 +39,7 @@ CFLAGS += -ffreestanding
+>  CFLAGS += -I $(SRCDIR)/lib -I $(SRCDIR)/lib/s390x -I lib
+>  CFLAGS += -O2
+>  CFLAGS += -march=zEC12
+> +CFLAGS += -mbackchain
+>  CFLAGS += -fno-delete-null-pointer-checks
+>  LDFLAGS += -nostdlib -Wl,--build-id=none
+>  
+> diff --git a/s390x/macros.S b/s390x/macros.S
+> index 11f4397a..d4f41ec4 100644
+> --- a/s390x/macros.S
+> +++ b/s390x/macros.S
+> @@ -22,6 +22,11 @@
+>  	lgr     %r2, %r15
+>  	/* Allocate stack space for called C function, as specified
+> in s390 ELF ABI */ slgfi   %r15, 160
+> +	/*
+> +	 * Save the address of the interrupt stack into the back
+> chain
+> +	 * of the called function.
+> +	 */
+> +	stg     %r2, STACK_FRAME_INT_BACKCHAIN(%r15)
+>  	brasl	%r14, \c_func
+>  	algfi   %r15, 160
+>  	RESTORE_REGS_STACK
 
