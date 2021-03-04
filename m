@@ -2,66 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD638C433E0
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 16:26:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0552C433E0
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 17:55:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9085564ED7
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 16:26:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 76B8364F62
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 17:55:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237037AbhCDQZ4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 4 Mar 2021 11:25:56 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24438 "EHLO
+        id S230087AbhCDRyw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 4 Mar 2021 12:54:52 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6624 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S236822AbhCDQZu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Mar 2021 11:25:50 -0500
+        by vger.kernel.org with ESMTP id S239274AbhCDRpz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Mar 2021 12:45:55 -0500
 Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 124GDuCT067189;
-        Thu, 4 Mar 2021 11:25:08 -0500
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 124HWkJk026321;
+        Thu, 4 Mar 2021 12:43:50 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
  references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=zocqs67l/MZY4ZkwtXWxHu4Wqu0Qn3ypuSqnvVRrCtQ=;
- b=ZiM0NvUXeL3/GTKLGhhXJaacdHt2gUBBFLahcQwDQqrs3pUWO7EvcrnrbYO6haPEGMn8
- F85DbgDWXxASWYrXIaDBaNuztkkUDcb++noj3PYZaX4p6D9crKxjWFFAfnPYbkEC7ZOk
- CnOzLG8EBSOUiy6BeZoNuiZGRcR2dpvkBQLjn2pIMv8+eCaF6RlrdD7naQQ6m5dbeHRC
- 11qbSGU0WfeGp3KNqiPnYqVe6yESMLjxE5heUSOkgZMR+G42aAh/z7qU7ftKLMTzUp6P
- 4mdKkImWskBM9Na/zPltZGqTBef+mig/1fVoMoMS6id7z0lZrxiTHk1xap8VgX4THw42 1A== 
+ bh=O2bpJMovIuAP9ZczXDaRB1F9vrADuLVM4xgG+5AK7CY=;
+ b=Zcxc1UYp+R7Iv9MuHrZ/gTrqZliRTRzNJ4Y70G2bO5kEiQaic4UquwJpWwLUKs+dp+LQ
+ hImDdWKuMJWgOJY8DC7A6XjkDMU0U2rr/Qw2uoFRkH0jZezJeFtdeTPG32G9D8yKPQCd
+ /yxcTfSK3E3z86NFon6j0iJM3tNR9O23KyEryikLn9TBHYzKvLi9KMYh1FJNIylMuYPS
+ ZbyshjrofgRmgLADQr12V/ytCe+lTEY3VjH0RNblNzzhQHQO4GEU9NmeBsHi4SQkG70u
+ GcIAyZ8h5myZ6yGalussM5mPoL1KwQWdxw5UNG5EIYq6kcZ6IAf3pKJn5B2Wh9RU4EWO vw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3732vs0qb0-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3733vn8ux6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 Mar 2021 11:25:05 -0500
+        Thu, 04 Mar 2021 12:43:50 -0500
 Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 124GDw4T067469;
-        Thu, 4 Mar 2021 11:23:17 -0500
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3732vs0pfc-1
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 124HWm7s026717;
+        Thu, 4 Mar 2021 12:43:50 -0500
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3733vn8uww-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 Mar 2021 11:23:17 -0500
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 124GI2RK018473;
-        Thu, 4 Mar 2021 16:22:31 GMT
-Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
-        by ppma01wdc.us.ibm.com with ESMTP id 36ydq9g0fb-1
+        Thu, 04 Mar 2021 12:43:50 -0500
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 124HclqU001274;
+        Thu, 4 Mar 2021 17:43:49 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma04dal.us.ibm.com with ESMTP id 36ydq9tssu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 Mar 2021 16:22:31 +0000
+        Thu, 04 Mar 2021 17:43:49 +0000
 Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 124GMUZP18219434
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 124HhlF523986604
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 4 Mar 2021 16:22:30 GMT
+        Thu, 4 Mar 2021 17:43:47 GMT
 Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ADE8F6E053;
-        Thu,  4 Mar 2021 16:22:30 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DBDE66E062;
+        Thu,  4 Mar 2021 17:43:46 +0000 (GMT)
 Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1AB4B6E052;
-        Thu,  4 Mar 2021 16:22:29 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6D6B66E052;
+        Thu,  4 Mar 2021 17:43:45 +0000 (GMT)
 Received: from cpe-66-24-58-13.stny.res.rr.com (unknown [9.85.150.254])
         by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu,  4 Mar 2021 16:22:28 +0000 (GMT)
+        Thu,  4 Mar 2021 17:43:45 +0000 (GMT)
 Subject: Re: [PATCH v3 1/1] s390/vfio-ap: fix circular lockdep when
  setting/clearing crypto masks
 To:     Halil Pasic <pasic@linux.ibm.com>
@@ -73,88 +73,147 @@ Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
 References: <20210302204322.24441-1-akrowiak@linux.ibm.com>
  <20210302204322.24441-2-akrowiak@linux.ibm.com>
  <20210303162332.4d227dbe.pasic@linux.ibm.com>
- <e5cc2a81-7273-2b3e-0d4c-c6c17502bdae@linux.ibm.com>
- <20210303204211.4c021c25.pasic@linux.ibm.com>
+ <14665bcf-2224-e313-43ff-357cadd177cf@linux.ibm.com>
+ <20210303204706.0538e84f.pasic@linux.ibm.com>
 From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <c623c4d6-4cda-9521-ec5e-e4d6fd978a90@linux.ibm.com>
-Date:   Thu, 4 Mar 2021 11:22:28 -0500
+Message-ID: <8f5ab6fa-8fd3-27d8-8561-d03ff457df16@linux.ibm.com>
+Date:   Thu, 4 Mar 2021 12:43:44 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.5.0
 MIME-Version: 1.0
-In-Reply-To: <20210303204211.4c021c25.pasic@linux.ibm.com>
+In-Reply-To: <20210303204706.0538e84f.pasic@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
  definitions=2021-03-04_05:2021-03-03,2021-03-04 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 mlxlogscore=999 clxscore=1015 spamscore=0 adultscore=0
- mlxscore=0 phishscore=0 malwarescore=0 impostorscore=0 suspectscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2103040076
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ malwarescore=0 clxscore=1015 impostorscore=0 mlxlogscore=999 bulkscore=0
+ phishscore=0 adultscore=0 suspectscore=0 lowpriorityscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2103040082
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 3/3/21 2:42 PM, Halil Pasic wrote:
-> On Wed, 3 Mar 2021 11:41:22 -0500
+On 3/3/21 2:47 PM, Halil Pasic wrote:
+> On Wed, 3 Mar 2021 12:10:11 -0500
 > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 >
+>> On 3/3/21 10:23 AM, Halil Pasic wrote:
+>>> On Tue,  2 Mar 2021 15:43:22 -0500
+>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>   
+>>>> This patch fixes a lockdep splat introduced by commit f21916ec4826
+>>>> ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated").
+>>>> The lockdep splat only occurs when starting a Secure Execution guest.
+>>>> Crypto virtualization (vfio_ap) is not yet supported for SE guests;
+>>>> however, in order to avoid this problem when support becomes available,
+>>>> this fix is being provided.
+>>> [..]
+>>>   
+>>>> @@ -1038,14 +1116,28 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+>>>>    {
+>>>>    	struct ap_matrix_mdev *m;
+>>>>
+>>>> -	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
+>>>> -		if ((m != matrix_mdev) && (m->kvm == kvm))
+>>>> -			return -EPERM;
+>>>> -	}
+>>>> +	if (kvm->arch.crypto.crycbd) {
+>>>> +		matrix_mdev->kvm_busy = true;
+>>>>
+>>>> -	matrix_mdev->kvm = kvm;
+>>>> -	kvm_get_kvm(kvm);
+>>>> -	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+>>>> +		list_for_each_entry(m, &matrix_dev->mdev_list, node) {
+>>>> +			if ((m != matrix_mdev) && (m->kvm == kvm)) {
+>>>> +				wake_up_all(&matrix_mdev->wait_for_kvm);
+>>> This ain't no good. kvm_busy will remain true if we take this exit. The
+>>> wake_up_all() is not needed, because we hold the lock, so nobody can
+>>> observe it if we don't forget kvm_busy set.
+>>>
+>>> I suggest moving matrix_mdev->kvm_busy = true; after this loop, maybe right
+>>> before the unlock, and removing the wake_up_all().
+>>>   
+>>>> +				return -EPERM;
+>>>> +			}
+>>>> +		}
+>>>> +
+>>>> +		kvm_get_kvm(kvm);
+>>>> +		mutex_unlock(&matrix_dev->lock);
+>>>> +		kvm_arch_crypto_set_masks(kvm,
+>>>> +					  matrix_mdev->matrix.apm,
+>>>> +					  matrix_mdev->matrix.aqm,
+>>>> +					  matrix_mdev->matrix.adm);
+>>>> +		mutex_lock(&matrix_dev->lock);
+>>>> +		kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+>>>> +		matrix_mdev->kvm = kvm;
+>>>> +		matrix_mdev->kvm_busy = false;
+>>>> +		wake_up_all(&matrix_mdev->wait_for_kvm);
+>>>> +	}
+>>>>
+>>>>    	return 0;
+>>>>    }
+>>> [..]
+>>>   
+>>>> @@ -1300,7 +1406,21 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
+>>>>    		ret = vfio_ap_mdev_get_device_info(arg);
+>>>>    		break;
+>>>>    	case VFIO_DEVICE_RESET:
+>>>> -		ret = vfio_ap_mdev_reset_queues(mdev);
+>>>> +		matrix_mdev = mdev_get_drvdata(mdev);
+>>>> +
+>>>> +		/*
+>>>> +		 * If the KVM pointer is in the process of being set, wait until
+>>>> +		 * the process has completed.
+>>>> +		 */
+>>>> +		wait_event_cmd(matrix_mdev->wait_for_kvm,
+>>>> +			       matrix_mdev->kvm_busy == false,
+>>>> +			       mutex_unlock(&matrix_dev->lock),
+>>>> +			       mutex_lock(&matrix_dev->lock));
+>>>> +
+>>>> +		if (matrix_mdev->kvm)
+>>>> +			ret = vfio_ap_mdev_reset_queues(mdev);
+>>>> +		else
+>>>> +			ret = -ENODEV;
+>>> I don't think rejecting the reset is a good idea. I have you a more detailed
+>>> explanation of the list, where we initially discussed this question.
+>>>
 >>> How do you exect userspace to react to this -ENODEV?
->> The VFIO_DEVICE_RESET ioctl expects a return code.
->> The vfio_ap_mdev_reset_queues() function can return -EIO or
->> -EBUSY, so I would expect userspace to handle -ENODEV
->> similarly to -EIO or any other non-zero return code. I also
->> looked at all of the VFIO_DEVICE_RESET calls from QEMU to see
->> how the return from the ioctl call is handled:
->>
->> * ap: reports the reset failed along with the rc
-> And carries on as if nothing happened. There is not much smart
-> userspace can do in such a situation. Therefore the reset really
-> should not fail.
+>> After reading your more detailed explanation, I have come to the
+>> conclusion that the test for matrix_mdev->kvm should not be
+>> performed here and the the vfio_ap_mdev_reset_queues() function
+>> should be called regardless. Each queue assigned to the mdev
+>> that is also bound to the vfio_ap driver will get reset and its
+>> IRQ resources cleaned up if they haven't already been and the
+>> other required conditions are met (i.e., see
+>> vfio_ap_mdev_free_irq_resources()).
+> My point is if !->kvm the other required conditions are not met. But
+> yes we can go back to unconditional vfio_ap_mdev_reset_queues(mdev),
+> and think about the necessity of performing a
+> vfio_ap_mdev_reset_queues() if !->kvm later as I proposed in the other
+> mail.
 
-Regardless of what we decide to do here, there is the
-possibility that the vfio_ap_mdev_reset_queues()
-function will return an error, so your point is moot
-and maybe should be brought up as a QEMU
-implementation issue. I don't think it is encumbent
-upon the KVM code to anticipate how userspace
-will respond to a non-zero return code. I think the
-pertinent question is what return code makes sense.
-Having said that, I have other concerns which I
-discussed below.
+The other conditions may or may not have been met depending
+upon whether ->kvm is NULL because the VFIO_DEVICE_RESET
+ioctl was invoked while the matrix_dev->lock was released
+in the vfio_ap_mdev_unset_kvm() function. If that was the case,
+then there is no need to clean up the IRQ resources because it
+will already have been done.
 
->
-> Please note that in this particular case, if the userspace would
-> opt for a retry, we would most likely end up in a retry loop.
->
->> * ccw: doesn't check the rc
->> * pci: kind of hard to follow without digging deep, but definitely
->>            handles non-zero rc.
->>
->> I think the caller should be notified whether the queues were
->> successfully reset or not, and why; in this case, the answer is
->> there are no devices to reset.
-> That is the wrong answer. The ioctl is supposed to reset the
-> ap_matrix_mdev device. The ap_matrix_mdev device still exists. Thus
-> returning -ENODEV is bugous.
+On the other hand, if we don't have ->kvm because something broke,
+then we may be out of luck anyway. There will certainly be no
+way to unregister the GISC; however, it may still be possible
+to unpin the pages if we still have q->saved_pfn.
 
-That makes sense and it begs the question, what does it mean to
-reset the mdev? Is resetting the queues an appropriate response
-to the VFIO_DEVICE_RESET ioctl call?
+The point is, if the queue is bound to vfio_ap, it can be reset. If we can't
+clean up the IRQ resources because something is broken, then there
+is nothing we can do about that.
 
-The purpose of the mdev is to supply the AP configuration to a KVM
-guest. The queues themselves belong to the guest. If the guest enables
-interrupts for a queue and vfio_ap does a reset in response to the ioctl
-call, then the guest will be sitting there waiting for interrupts which
-have been disabled by the reset. It seems that as long as a guest is
-using the mdev, then management of its queues (i.e., reset) should be
-left to the guest. Unless there is something to reset as far as the
-mdev is concerned, maybe the response to the VFIO_RESET_DEVICE
-ioctl ought to be a NOP regardless of the value of ->kvm.
 
 >
 > Regards,
