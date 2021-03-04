@@ -2,195 +2,205 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98DE6C433E0
-	for <linux-s390@archiver.kernel.org>; Wed,  3 Mar 2021 22:56:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72701C433E0
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 11:40:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6BC6564EF9
-	for <linux-s390@archiver.kernel.org>; Wed,  3 Mar 2021 22:56:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4380264EC4
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Mar 2021 11:40:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391493AbhCCWhk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 3 Mar 2021 17:37:40 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25198 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1377144AbhCCTsT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Mar 2021 14:48:19 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 123JXXDh053745;
-        Wed, 3 Mar 2021 14:47:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=5EPwSfXEH5eZew/H5I7iXDVuIbFZQOElaCxGmhznkNM=;
- b=l0Xp5yZsXEIwqoUl9uO35kudKhx5hZZlhkfTKK3uvmlxnNpJF0JHuTUMMsk2ZbNwUkdf
- UhMOTYOgtI0LekzRi3hqLzzIRbj2ylPq0JLZa/NwKHuxN+PNaquPPYY7/W4sdFeXCRWu
- +eeWF/5yZY9hebE099OwPrLW2JByHk9VztMfxX0CtNnS9IjN5ebzeSDfFGDuf1VnZDSj
- +nqu1lwpEj06g4/wbhJoL//ue4U7LM4feqjxKpUNj/Z5a7YuOENCur0JEwmyLWWycdGs
- ZAKy9jSNwuAng2jC+EyBm1bSC899fSiAN2WR6Uw4yVDlq+e6UVptBROfK7mp7daD5Lp1 6w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 372fyh1s4j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 03 Mar 2021 14:47:36 -0500
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 123JXUbJ053505;
-        Wed, 3 Mar 2021 14:47:36 -0500
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 372fyh1rsm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 03 Mar 2021 14:47:36 -0500
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 123JdGiU000502;
-        Wed, 3 Mar 2021 19:47:12 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 3712v513rd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 03 Mar 2021 19:47:12 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 123Jl9bp7864802
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 3 Mar 2021 19:47:09 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E18DE5204E;
-        Wed,  3 Mar 2021 19:47:08 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.0.197])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id 3464A5204F;
-        Wed,  3 Mar 2021 19:47:08 +0000 (GMT)
-Date:   Wed, 3 Mar 2021 20:47:06 +0100
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, stable@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
-        pbonzini@redhat.com, alex.williamson@redhat.com,
-        pasic@linux.vnet.ibm.com
-Subject: Re: [PATCH v3 1/1] s390/vfio-ap: fix circular lockdep when
- setting/clearing crypto masks
-Message-ID: <20210303204706.0538e84f.pasic@linux.ibm.com>
-In-Reply-To: <14665bcf-2224-e313-43ff-357cadd177cf@linux.ibm.com>
-References: <20210302204322.24441-1-akrowiak@linux.ibm.com>
-        <20210302204322.24441-2-akrowiak@linux.ibm.com>
-        <20210303162332.4d227dbe.pasic@linux.ibm.com>
-        <14665bcf-2224-e313-43ff-357cadd177cf@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S239591AbhCDLj7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 4 Mar 2021 06:39:59 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24618 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238873AbhCDLjb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Mar 2021 06:39:31 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1614857885;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ilLaffriMNXC11Xr0GqKWVZ28m8dE31OI/fbmpwABXc=;
+        b=d02QKMvoqtkv/D4bCy74dhnvE3rmqbRQP7V8Ga67ogR7Fj1MaTRyl3HW2rOzLFYMw8k/y1
+        HDD8vKj9lHRfGkqQpxvzJura+P94cL6b80Eu3ni/NT7BuIOz05MmvIhJYKk+7wWsH/+MAW
+        eKdKsT7pKjhZAuHAiGcuBRUhLEVdDjs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-303-R8HmeazoOqSv_wwKb1cHzA-1; Thu, 04 Mar 2021 06:38:03 -0500
+X-MC-Unique: R8HmeazoOqSv_wwKb1cHzA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8C3DD57;
+        Thu,  4 Mar 2021 11:38:02 +0000 (UTC)
+Received: from thuth.remote.csb (ovpn-112-31.ams2.redhat.com [10.36.112.31])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E0BEC1962E;
+        Thu,  4 Mar 2021 11:37:57 +0000 (UTC)
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        pmorel@linux.ibm.com, david@redhat.com
+References: <20210222085756.14396-1-frankja@linux.ibm.com>
+ <20210222085756.14396-3-frankja@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v3 2/7] s390x: Fully commit to stack save
+ area for exceptions
+Message-ID: <b1ecb478-e559-bb3d-b69f-3f2b4f72ddee@redhat.com>
+Date:   Thu, 4 Mar 2021 12:37:56 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20210222085756.14396-3-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-03_06:2021-03-03,2021-03-03 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 clxscore=1015 suspectscore=0 mlxscore=0 malwarescore=0
- bulkscore=0 lowpriorityscore=0 mlxlogscore=999 adultscore=0
- impostorscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2009150000 definitions=main-2103030137
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 3 Mar 2021 12:10:11 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-
-> On 3/3/21 10:23 AM, Halil Pasic wrote:
-> > On Tue,  2 Mar 2021 15:43:22 -0500
-> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> >  
-> >> This patch fixes a lockdep splat introduced by commit f21916ec4826
-> >> ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated").
-> >> The lockdep splat only occurs when starting a Secure Execution guest.
-> >> Crypto virtualization (vfio_ap) is not yet supported for SE guests;
-> >> however, in order to avoid this problem when support becomes available,
-> >> this fix is being provided.  
-> > [..]
-> >  
-> >> @@ -1038,14 +1116,28 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
-> >>   {
-> >>   	struct ap_matrix_mdev *m;
-> >>
-> >> -	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
-> >> -		if ((m != matrix_mdev) && (m->kvm == kvm))
-> >> -			return -EPERM;
-> >> -	}
-> >> +	if (kvm->arch.crypto.crycbd) {
-> >> +		matrix_mdev->kvm_busy = true;
-> >>
-> >> -	matrix_mdev->kvm = kvm;
-> >> -	kvm_get_kvm(kvm);
-> >> -	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
-> >> +		list_for_each_entry(m, &matrix_dev->mdev_list, node) {
-> >> +			if ((m != matrix_mdev) && (m->kvm == kvm)) {
-> >> +				wake_up_all(&matrix_mdev->wait_for_kvm);  
-> > This ain't no good. kvm_busy will remain true if we take this exit. The
-> > wake_up_all() is not needed, because we hold the lock, so nobody can
-> > observe it if we don't forget kvm_busy set.
-> >
-> > I suggest moving matrix_mdev->kvm_busy = true; after this loop, maybe right
-> > before the unlock, and removing the wake_up_all().
-> >  
-> >> +				return -EPERM;
-> >> +			}
-> >> +		}
-> >> +
-> >> +		kvm_get_kvm(kvm);
-> >> +		mutex_unlock(&matrix_dev->lock);
-> >> +		kvm_arch_crypto_set_masks(kvm,
-> >> +					  matrix_mdev->matrix.apm,
-> >> +					  matrix_mdev->matrix.aqm,
-> >> +					  matrix_mdev->matrix.adm);
-> >> +		mutex_lock(&matrix_dev->lock);
-> >> +		kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
-> >> +		matrix_mdev->kvm = kvm;
-> >> +		matrix_mdev->kvm_busy = false;
-> >> +		wake_up_all(&matrix_mdev->wait_for_kvm);
-> >> +	}
-> >>
-> >>   	return 0;
-> >>   }  
-> > [..]
-> >  
-> >> @@ -1300,7 +1406,21 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
-> >>   		ret = vfio_ap_mdev_get_device_info(arg);
-> >>   		break;
-> >>   	case VFIO_DEVICE_RESET:
-> >> -		ret = vfio_ap_mdev_reset_queues(mdev);
-> >> +		matrix_mdev = mdev_get_drvdata(mdev);
-> >> +
-> >> +		/*
-> >> +		 * If the KVM pointer is in the process of being set, wait until
-> >> +		 * the process has completed.
-> >> +		 */
-> >> +		wait_event_cmd(matrix_mdev->wait_for_kvm,
-> >> +			       matrix_mdev->kvm_busy == false,
-> >> +			       mutex_unlock(&matrix_dev->lock),
-> >> +			       mutex_lock(&matrix_dev->lock));
-> >> +
-> >> +		if (matrix_mdev->kvm)
-> >> +			ret = vfio_ap_mdev_reset_queues(mdev);
-> >> +		else
-> >> +			ret = -ENODEV;  
-> > I don't think rejecting the reset is a good idea. I have you a more detailed
-> > explanation of the list, where we initially discussed this question.
-> >
-> > How do you exect userspace to react to this -ENODEV?  
+On 22/02/2021 09.57, Janosch Frank wrote:
+> Having two sets of macros for saving registers on exceptions makes
+> maintaining harder. Also we have limited space in the lowcore to save
+> stuff and by using the stack as a save area, we can stack exceptions.
 > 
-> After reading your more detailed explanation, I have come to the
-> conclusion that the test for matrix_mdev->kvm should not be
-> performed here and the the vfio_ap_mdev_reset_queues() function
-> should be called regardless. Each queue assigned to the mdev
-> that is also bound to the vfio_ap driver will get reset and its
-> IRQ resources cleaned up if they haven't already been and the
-> other required conditions are met (i.e., see 
-> vfio_ap_mdev_free_irq_resources()).
+> So let's use the SAVE/RESTORE_REGS_STACK as the default. When we also
+> move the diag308 macro over we can remove the old SAVE/RESTORE_REGS
+> macros.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+[...]
+> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
+> index 1a2e2cd8..31e4766d 100644
+> --- a/lib/s390x/asm/interrupt.h
+> +++ b/lib/s390x/asm/interrupt.h
+> @@ -14,8 +14,8 @@
+>   #define EXT_IRQ_SERVICE_SIG	0x2401
+>   
+>   void register_pgm_cleanup_func(void (*f)(void));
+> -void handle_pgm_int(void);
+> -void handle_ext_int(void);
+> +void handle_pgm_int(struct stack_frame_int *stack);
+> +void handle_ext_int(struct stack_frame_int *stack);
+>   void handle_mcck_int(void);
+>   void handle_io_int(void);
 
-My point is if !->kvm the other required conditions are not met. But
-yes we can go back to unconditional vfio_ap_mdev_reset_queues(mdev),
-and think about the necessity of performing a
-vfio_ap_mdev_reset_queues() if !->kvm later as I proposed in the other
-mail.
+So handle_io_int() does not get a *stack parameter here...
 
-Regards,
-Halil
+>   void handle_svc_int(void);
+> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> index 1ce36073..a59df80e 100644
+> --- a/lib/s390x/interrupt.c
+> +++ b/lib/s390x/interrupt.c
+> @@ -56,7 +56,7 @@ void register_pgm_cleanup_func(void (*f)(void))
+>   	pgm_cleanup_func = f;
+>   }
+>   
+> -static void fixup_pgm_int(void)
+> +static void fixup_pgm_int(struct stack_frame_int *stack)
+>   {
+>   	/* If we have an error on SIE we directly move to sie_exit */
+>   	if (lc->pgm_old_psw.addr >= (uint64_t)&sie_entry &&
+> @@ -76,7 +76,7 @@ static void fixup_pgm_int(void)
+>   		/* Handling for iep.c test case. */
+>   		if (lc->trans_exc_id & 0x80UL && lc->trans_exc_id & 0x04UL &&
+>   		    !(lc->trans_exc_id & 0x08UL))
+> -			lc->pgm_old_psw.addr = lc->sw_int_grs[14];
+> +			lc->pgm_old_psw.addr = stack->grs0[12];
+
+I'd maybe put a "/* GR14 */" comment at the end of the line, to make it more 
+obvious which register we're aiming here at.
+
+>   		break;
+>   	case PGM_INT_CODE_SEGMENT_TRANSLATION:
+>   	case PGM_INT_CODE_PAGE_TRANSLATION:
+> @@ -115,7 +115,7 @@ static void fixup_pgm_int(void)
+>   	/* suppressed/terminated/completed point already at the next address */
+>   }
+>   
+> -void handle_pgm_int(void)
+> +void handle_pgm_int(struct stack_frame_int *stack)
+>   {
+>   	if (!pgm_int_expected) {
+>   		/* Force sclp_busy to false, otherwise we will loop forever */
+> @@ -130,10 +130,10 @@ void handle_pgm_int(void)
+>   	if (pgm_cleanup_func)
+>   		(*pgm_cleanup_func)();
+>   	else
+> -		fixup_pgm_int();
+> +		fixup_pgm_int(stack);
+>   }
+>   
+> -void handle_ext_int(void)
+> +void handle_ext_int(struct stack_frame_int *stack)
+>   {
+>   	if (!ext_int_expected &&
+>   	    lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
+> @@ -143,13 +143,13 @@ void handle_ext_int(void)
+>   	}
+>   
+>   	if (lc->ext_int_code == EXT_IRQ_SERVICE_SIG) {
+> -		lc->sw_int_crs[0] &= ~(1UL << 9);
+> +		stack->crs[0] &= ~(1UL << 9);
+>   		sclp_handle_ext();
+>   	} else {
+>   		ext_int_expected = false;
+>   	}
+>   
+> -	if (!(lc->sw_int_crs[0] & CR0_EXTM_MASK))
+> +	if (!(stack->crs[0] & CR0_EXTM_MASK))
+>   		lc->ext_old_psw.mask &= ~PSW_MASK_EXT;
+>   }
+>   
+> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+> index ace0c0d9..35d20293 100644
+> --- a/s390x/cstart64.S
+> +++ b/s390x/cstart64.S
+> @@ -92,33 +92,36 @@ memsetxc:
+>   
+>   .section .text
+>   pgm_int:
+> -	SAVE_REGS
+> +	SAVE_REGS_STACK
+> +	lgr     %r2, %r15
+>   	brasl	%r14, handle_pgm_int
+> -	RESTORE_REGS
+> +	RESTORE_REGS_STACK
+>   	lpswe	GEN_LC_PGM_OLD_PSW
+>   
+>   ext_int:
+> -	SAVE_REGS
+> +	SAVE_REGS_STACK
+> +	lgr     %r2, %r15
+>   	brasl	%r14, handle_ext_int
+> -	RESTORE_REGS
+> +	RESTORE_REGS_STACK
+>   	lpswe	GEN_LC_EXT_OLD_PSW
+>   
+>   mcck_int:
+> -	SAVE_REGS
+> +	SAVE_REGS_STACK
+>   	brasl	%r14, handle_mcck_int
+> -	RESTORE_REGS
+> +	RESTORE_REGS_STACK
+>   	lpswe	GEN_LC_MCCK_OLD_PSW
+>   
+>   io_int:
+>   	SAVE_REGS_STACK
+> +	lgr     %r2, %r15
+
+... and here you're passing the stack pointer as a parameter, though 
+handle_io_int() does not use it... well, ok, it gets reworked again in the 
+next patch, but maybe you could still remove the above line when picking up 
+the patch?
+
+Anyway:
+Acked-by: Thomas Huth <thuth@redhat.com>
+
