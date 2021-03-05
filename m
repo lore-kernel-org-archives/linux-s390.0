@@ -2,126 +2,131 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFC89C433DB
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 10:15:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B671C4332B
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 10:31:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8644465018
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 10:15:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DD3E664F5F
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 10:31:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbhCEKPO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 5 Mar 2021 05:15:14 -0500
-Received: from userp2120.oracle.com ([156.151.31.85]:57268 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229718AbhCEKOw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Mar 2021 05:14:52 -0500
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 125A8xDW069543;
-        Fri, 5 Mar 2021 10:14:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=yelKnsHpxqV3KJ4nsuvTDUoBJHixZnZ8Hw5llBdWxf0=;
- b=RkxlwgXrr1WelePW7vV8XPCFiT+9d4a4A7mp28lxk0lV7FRhM/4znJc6vQJmahnP1f32
- NcN5BjZWkeIJYwjia4gjCI87Ca2+PcBDtFJE/y2wRsOcPjTHtuPvTcjYhzIotKHnMRtc
- FIZq887myvp47exUvJE08sRUiN1oJlr41kDPjckKvP4DStbqjc1gLdRJuV7XK+6RNkIY
- CGB6HluHT/1IW/9HQWxPg8yqUXzkegfec8+9oHQTCTwFQUDTuNlu9cgqtgLLtMd8s0O2
- AwdvW7jCQtOAKWrfPrGbC3cjj4zSpzIajiPAp58h8AV/nCAJ9rqIyRDldG9e+24UeXRb BA== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2120.oracle.com with ESMTP id 36yeqn9ydx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 05 Mar 2021 10:14:47 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 125ABD6L103660;
-        Fri, 5 Mar 2021 10:14:45 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3020.oracle.com with ESMTP id 370003teys-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 05 Mar 2021 10:14:45 +0000
-Received: from abhmp0016.oracle.com (abhmp0016.oracle.com [141.146.116.22])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 125AEe2T019681;
-        Fri, 5 Mar 2021 10:14:41 GMT
-Received: from kadam (/102.36.221.92)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 05 Mar 2021 02:14:40 -0800
-Date:   Fri, 5 Mar 2021 13:14:34 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Cc:     linux-s390@vger.kernel.org, smatch@vger.kernel.org
-Subject: Re: smatch and copy_{to,from}_user return values
-Message-ID: <20210305101434.GI2222@kadam>
-References: <b57b4f40-d67c-d57c-c5b2-077b623ed4ed@prevas.dk>
- <20210303112046.GB2222@kadam>
+        id S229562AbhCEKa4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 5 Mar 2021 05:30:56 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57662 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229690AbhCEKa0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Mar 2021 05:30:26 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 125ATGfM002168;
+        Fri, 5 Mar 2021 05:30:24 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=4UbJnKh/rNouiIUUWZr3ZpULnYtu8wIcqi44QhFm7VQ=;
+ b=cIManWSHycp6SdCZ1FadOLerR/MlP2K2WmPMGZqOEPQdpBCRT4vz3I9I+BZ48RZqdqls
+ H8Tn11W9vC3fxm4ZMQgLzsMtb2G0EAlutXhwOxq51CBEF0sLuBEAqUFKTUYOU2PpXmDJ
+ zG0f0m45HbwfCDk2yOHlmV1qv3r1S/A2MxAwUMZC7dCcq+ZWpClqDJ5ZUn8as8t8GkRe
+ horv+n3OlO8e/dTrmRHxkotO9wADDUBlw1PoBPJGhn66hPW9vqKwC6qXPoSwdiG/MET+
+ HQqrwFkDzIwoA+luD+7jxK4loDdtcgL5JTyM9Qop/uQWqeJn5g24oslKGaaNrzS2jwrK 3w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 373jxdr13u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Mar 2021 05:30:24 -0500
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 125AUMqv012206;
+        Fri, 5 Mar 2021 05:30:23 -0500
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 373jxdr12e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Mar 2021 05:30:22 -0500
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 125AREnQ002959;
+        Fri, 5 Mar 2021 10:30:20 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 37293fswbt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Mar 2021 10:30:20 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 125AUIdc37683680
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 5 Mar 2021 10:30:18 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EE74CA406F;
+        Fri,  5 Mar 2021 10:30:17 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 94C70A4053;
+        Fri,  5 Mar 2021 10:30:17 +0000 (GMT)
+Received: from [9.171.51.82] (unknown [9.171.51.82])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  5 Mar 2021 10:30:17 +0000 (GMT)
+Subject: Re: [PATCH] net: smc: fix error return code of smc_diag_dump_proto()
+To:     Jia-Ju Bai <baijiaju1990@gmail.com>, davem@davemloft.net,
+        kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20210305101351.14683-1-baijiaju1990@gmail.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+Message-ID: <d1d50e39-e496-1060-2c71-2338c0572c55@linux.ibm.com>
+Date:   Fri, 5 Mar 2021 11:30:20 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210303112046.GB2222@kadam>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-IMR: 1
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9913 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 mlxlogscore=999
- phishscore=0 bulkscore=0 mlxscore=0 spamscore=0 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2103050049
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9913 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 lowpriorityscore=0 clxscore=1015
- priorityscore=1501 mlxlogscore=999 suspectscore=0 malwarescore=0
- impostorscore=0 bulkscore=0 adultscore=0 mlxscore=0 phishscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2103050049
+In-Reply-To: <20210305101351.14683-1-baijiaju1990@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-05_05:2021-03-03,2021-03-05 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ spamscore=0 clxscore=1011 bulkscore=0 mlxlogscore=999 malwarescore=0
+ lowpriorityscore=0 adultscore=0 phishscore=0 priorityscore=1501
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103050048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-It turns out that my check for returning -EIO instead of -EFAULT doesn't
-work at all...  :/  How the cross function DB works is that it tries to
-figure out groups of states which should go together.  Most of the time
-you could combine all the failure paths together and combine the success
-paths together, for example.
+On 05/03/2021 11:13, Jia-Ju Bai wrote:
+> When the list of head is empty, no error return code of
+> smc_diag_dump_proto() is assigned.
+> To fix this bug, rc is assigned with -ENOENT as error return code.
 
-But with copy_from_user() there is only one set of states recorded.
+Your change would break smc_diag_dump().
+When there are no IPv4 sockets (SMCPROTO_SMC) in the list and -ENOENT 
+is returned then smc_diag_dump() will not try to dump any IPv6 sockets
+(SMCPROTO_SMC6). Returning zero is correct here.
 
-sound/pci/rme9652/hdspm.c | copy_from_user | 1093 | 0-u32max[<=$2]|        INTERNAL | -1 |                      | ulong(*)(void*, void*, ulong) | 
-sound/pci/rme9652/hdspm.c | copy_from_user | 1093 | 0-u32max[<=$2]|     CAPPED_DATA | -1 |                    $ |                      | 
-sound/pci/rme9652/hdspm.c | copy_from_user | 1093 | 0-u32max[<=$2]| UNTRACKED_PARAM |  0 |                    $ |                      | 
-sound/pci/rme9652/hdspm.c | copy_from_user | 1093 | 0-u32max[<=$2]| UNTRACKED_PARAM |  1 |                    $ |                      | 
-sound/pci/rme9652/hdspm.c | copy_from_user | 1093 | 0-u32max[<=$2]|     PARAM_LIMIT |  2 |                    $ |             1-u64max | 
-sound/pci/rme9652/hdspm.c | copy_from_user | 1093 | 0-u32max[<=$2]| NO_OVERFLOW_SIMPLE |  0 |                    $ |                      | 
-sound/pci/rme9652/hdspm.c | copy_from_user | 1093 | 0-u32max[<=$2]|        STMT_CNT | -1 |                      |                   16 |
+> 
+> Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+> ---
+>  net/smc/smc_diag.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+> index c952986a6aca..a90889482842 100644
+> --- a/net/smc/smc_diag.c
+> +++ b/net/smc/smc_diag.c
+> @@ -201,8 +201,10 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
+>  
+>  	read_lock(&prot->h.smc_hash->lock);
+>  	head = &prot->h.smc_hash->ht;
+> -	if (hlist_empty(head))
+> +	if (hlist_empty(head)) {
+> +		rc = -ENOENT;
+>  		goto out;
+> +	}
+>  
+>  	sk_for_each(sk, head) {
+>  		if (!net_eq(sock_net(sk), net))
+> 
 
-I could modify smatch_data/db/fixup_kernel.sh to hard code the desired
-split, which is sort of awkward and also this in inlined so that makes
-even more awkward.  Or I could create a new table with a manual way of
-forcing splits in return states with entries like:
+-- 
+Karsten
 
-copy_from_user 0-u32max[<=$2] 0 1-u32max[<=$2]
-
-That's probably the way to go, actually.
-
-The check for propagating the return from copy_from_user() only looks
-at assignments.  It sets the state to &remaining intialialy and then
-if it sees a comparison with "if (ret) " it set the false path to &ok.
-Then if we "return ret;" and "ret" is in state &remaining then complain.
-
-
-static void match_copy(const char *fn, struct expression *expr, void *unused)
-{
-        if (expr->op == SPECIAL_SUB_ASSIGN)
-                return;
-        set_state_expr(my_id, expr->left, &remaining);
-}
-
-static void match_condition(struct expression *expr)
-{
-        if (!get_state_expr(my_id, expr))
-                return;
-        /* If the variable is zero that's ok */
-        set_true_false_states_expr(my_id, expr, NULL, &ok);
-}
-
-regards,
-dan carpenter
+(I'm a dude)
