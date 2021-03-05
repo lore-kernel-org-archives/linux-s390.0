@@ -3,111 +3,95 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33AA4C433E9
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 17:01:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B305FC433E0
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 18:31:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B090365094
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 17:01:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 78E1265085
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 18:31:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229813AbhCERBY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 5 Mar 2021 12:01:24 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51016 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229573AbhCERBL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Mar 2021 12:01:11 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 125GX0MG005830;
-        Fri, 5 Mar 2021 12:01:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Ja40FQIv5e2vkmFlsLDSDU8/jkakWKsrFjjZV7N+kjA=;
- b=revsDj5pHP6wnUfOYmesxOYEfzb3sxeomnhM8WrK9WEzfwb5Gtr9zkrttWkKZOEFIKJL
- plM7ZPdQbUT/8RgYtAVznPN1c/nSE+E0ZRxrzOyDL7unqME8EubpNjnT8YmjsqB3nyEN
- IaviXuHngccXQ3kHJOXH9jlUkBLlXXOoTFW6gFVE+/BkSTXA+w2EwygwaZEOPOQf165/
- RTJyTTyyEX3sshfjVgForItKYBbNxSq04kSzaGiRL3KlXAMI4hcFJUMNJAaChiVvhAPe
- +ktRHDE5yy1psqlxu5MjjOR98WM0AGPqgYci8LDujRHqGqghI4POuwUTw8P8jYzGjNuT JQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 373r17h7pq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 05 Mar 2021 12:01:08 -0500
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 125GXEJh008148;
-        Fri, 5 Mar 2021 12:01:08 -0500
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 373r17h7ns-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 05 Mar 2021 12:01:08 -0500
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 125GxHmf004479;
-        Fri, 5 Mar 2021 17:01:06 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04fra.de.ibm.com with ESMTP id 37150ct06g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 05 Mar 2021 17:01:06 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 125H0nAh30212486
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 5 Mar 2021 17:00:49 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 880DE42045;
-        Fri,  5 Mar 2021 17:01:03 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 166074204C;
-        Fri,  5 Mar 2021 17:01:03 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.57.80])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  5 Mar 2021 17:01:03 +0000 (GMT)
-Subject: Re: [PATCH v5 2/3] s390/kvm: extend kvm_s390_shadow_fault to return
- entry pointer
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        linux-kernel@vger.kernel.org
-Cc:     frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        stable@vger.kernel.org, Janosch Frank <frankja@de.ibm.com>
-References: <20210302174443.514363-1-imbrenda@linux.ibm.com>
- <20210302174443.514363-3-imbrenda@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <5b3af39c-d141-c51d-156a-a2ed0f9396ee@de.ibm.com>
-Date:   Fri, 5 Mar 2021 18:01:02 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        id S229629AbhCESaj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 5 Mar 2021 13:30:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58064 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229758AbhCESae (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Mar 2021 13:30:34 -0500
+Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80BFAC061574
+        for <linux-s390@vger.kernel.org>; Fri,  5 Mar 2021 10:30:34 -0800 (PST)
+Received: by mail-il1-x135.google.com with SMTP id g9so2887472ilc.3
+        for <linux-s390@vger.kernel.org>; Fri, 05 Mar 2021 10:30:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=3IlmUCsWY/eRND+udc8axXocUIZQxevXufT1IASQhBA=;
+        b=hMEob3ya3S4cxR/QfDGwT9WccEGdP9BTRCh6WnwMK7QRRDfkdPXEr+ondeOSRmgtI7
+         RLOLOt+sGmgtvmeNIepQCuGI8+/gaRkrh4aZbG41WZhv/z3za8Hw1B/v+G5nUF6Vx/Ks
+         I5J6udodKEabqAK6QaCmhWJLxe9/rQPBXdF+2QYfIV+EptT2T/5uNxkTsUb27GIzetbj
+         BQbO7deysM5RuIvBPYA1e8ozzIs6AQqqOf0UNQRFJHxr+5CzmXDk1Q7SEub+pVZ1qaXL
+         tROJIvwiSBl+yj39UfIKwdJ90jkBQE2sT3hMRyOmLaISP+C1HLYch8caIwwSqa8cUvbw
+         eXfA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=3IlmUCsWY/eRND+udc8axXocUIZQxevXufT1IASQhBA=;
+        b=j0iT3d8yrcErU1OxCsdOvhCojsjZkv9+BNu0BlQOyqMyt1QqGvu31DBnNj6qckSc9f
+         xe23Pi/n5/18NGwdGVx5Wte7hj8oq7ekzhlO0npxTo3hPDXHEW9KoC3dMy7KAsiWkk4w
+         +7teXN5BJZ8IC7Pc4E0cf4s+/3YUhVvDikKlT60mx7Znn/eXEjYRwFYbkD5FFCkJBH68
+         hjIX+kBV2pSWLERnYcWDdFDqvPXX27SZNyAmkP4LrvXCGK+TaqivhjyvLp4l5lY5+N4G
+         mXe+8niWo1CtEDSQ0vZ7nXMe/4iByw7Y1HkjZw6fhJBNRRJchpJH6QsJenR67jLv9QYf
+         ubaA==
+X-Gm-Message-State: AOAM531LuEaxks/8/FOtbgZe5jnpryIbNVZuV0HQ1wgZBGJe9oaa8MIh
+        HtxYJDlo8rMlNqRj6nl9LkwhPg==
+X-Google-Smtp-Source: ABdhPJxYfdOPRFbnxmUPblKztE5zYP3aqY3QXkX7EmdwzocqTcVRKt2OMMpF9LDEhsxtTzg+AgwgLA==
+X-Received: by 2002:a92:c883:: with SMTP id w3mr10852946ilo.212.1614969033933;
+        Fri, 05 Mar 2021 10:30:33 -0800 (PST)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id h193sm1669618iof.9.2021.03.05.10.30.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 05 Mar 2021 10:30:33 -0800 (PST)
+Subject: Re: [PATCH 0/2] s390/dasd: driver unbind fixes
+To:     Stefan Haberland <sth@linux.ibm.com>
+Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+References: <20210305125439.568125-1-sth@linux.ibm.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <e435321c-26b5-ff6c-5329-4a2a4918eb08@kernel.dk>
+Date:   Fri, 5 Mar 2021 11:30:32 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20210302174443.514363-3-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20210305125439.568125-1-sth@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-05_10:2021-03-03,2021-03-05 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 mlxscore=0 phishscore=0 impostorscore=0 bulkscore=0
- clxscore=1015 adultscore=0 malwarescore=0 mlxlogscore=999
- lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2009150000 definitions=main-2103050083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 02.03.21 18:44, Claudio Imbrenda wrote:
-> Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
-> DAT table entry, or to the invalid entry.
+On 3/5/21 5:54 AM, Stefan Haberland wrote:
+> Hi Jens,
 > 
-> Also return some flags in the lower bits of the address:
-> PEI_DAT_PROT: indicates that DAT protection applies because of the
->                protection bit in the segment (or, if EDAT, region) tables.
-> PEI_NOT_PTE: indicates that the address of the DAT table entry returned
->               does not refer to a PTE, but to a segment or region table.
+> please apply the following patches that fix two issues that may happen
+> during driver unbind.
 > 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Janosch Frank <frankja@de.ibm.com>
-> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Stefan Haberland (2):
+>   s390/dasd: fix hanging DASD driver unbind
+>   s390/dasd: fix hanging IO request during DASD driver unbind
+> 
+>  drivers/s390/block/dasd.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Applied, thanks.
+
+-- 
+Jens Axboe
+
