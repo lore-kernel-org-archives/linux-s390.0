@@ -1,125 +1,162 @@
-Return-Path: <linux-s390-owner@kernel.org>
+Return-Path: <SRS0=TKJS=ID=vger.kernel.org=linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C93EC433E6
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 12:55:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69589C433E9
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 15:09:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 61DE665012
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 12:55:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 43E7565016
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 15:09:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230076AbhCEMzG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 5 Mar 2021 07:55:06 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37642 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230052AbhCEMyq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Mar 2021 07:54:46 -0500
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 125CXF8P058704;
-        Fri, 5 Mar 2021 07:54:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=ZHK+e5+M6phaF+3fy7Cqjm/QvX4wZFJbJ8rZX0O6a0I=;
- b=qA9sEY/2SOaEwU88evBbq8SksXq8RM5j/NoWv1aTWA7/0Emxs4NeeGpCEbHLyTkShKdF
- 9Kf0s/7Dl3l5dy9M5b1Mrlb1RyY48WvVocKF5N+Lhaw03SraJETGGpKX0KUaXteVM5Zj
- IYdeWLdqJ/MUpFrt5UJWSJvB9LWIxSUfSG6ORA6kzaxecGOslROjPM7k9kH79RYXjy7E
- Oq7cJOmJdq/kXSArnimSPyvB2VzM8BxclUTk259cMer/x0j0K3dTiMcaHWy5fjkd5VDq
- cdSJeCHL7Q5ZV1aEZXFqMy0ti1nUc9Wf0hPO8U0ILTvmuxNN/S3XVcfU7Zw8Qufqf8TF jQ== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 373k57bgd9-1
+        id S230213AbhCEPJR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 5 Mar 2021 10:09:17 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18826 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229749AbhCEPIv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Mar 2021 10:08:51 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 125F44V3072482;
+        Fri, 5 Mar 2021 10:08:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=RWhl6t9iddsgIIGFtjbP86KDfclS79MfmIlMtxt6fYM=;
+ b=gRt2RJg3yF42E5cm+KM7lLOK+aPugoF7KYU9JA9lF5Tl6WXltLNmDGF/6bnTxTmH0BO4
+ jUETkdvyDu/1RFqQs03lDUIbZJiPSX+FGQnhYJ/ZfDFK6v/K1Ahm7InehyZxPIzCiutH
+ 5cN3TurYnHsOxRLZvYFP7/8GrziHi9DCy18anSCgL3J8IRCvUQDO+Bn4mHT/LrQrDl7F
+ 2zkLOJ2m3GMVh7Ry1D86B/588sNIm9OTnlFOEuMjaAoZRvkWNeP4Tn6edbCs50YtCFjl
+ MUjvHCNirn3eIk2nlPAIktGgw75PJ60dUf2rU+XPhC6sNILXqwu+q6W/ZroiiS7QxUtY jA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 373nsyjncn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 05 Mar 2021 07:54:45 -0500
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 125CbkPB010136;
-        Fri, 5 Mar 2021 12:54:43 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 37293ft0qs-1
+        Fri, 05 Mar 2021 10:08:50 -0500
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 125F4EFt073502;
+        Fri, 5 Mar 2021 10:08:50 -0500
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 373nsyjnbr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 05 Mar 2021 12:54:43 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 125CsPg633882578
+        Fri, 05 Mar 2021 10:08:50 -0500
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 125F28E5017121;
+        Fri, 5 Mar 2021 15:08:48 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 371162kv01-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Mar 2021 15:08:48 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 125F8jXE36307322
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 5 Mar 2021 12:54:25 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4A2F352059;
-        Fri,  5 Mar 2021 12:54:40 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 3722D52051;
-        Fri,  5 Mar 2021 12:54:40 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
-        id C09C0E0519; Fri,  5 Mar 2021 13:54:39 +0100 (CET)
-From:   Stefan Haberland <sth@linux.ibm.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 1/2] s390/dasd: fix hanging DASD driver unbind
-Date:   Fri,  5 Mar 2021 13:54:38 +0100
-Message-Id: <20210305125439.568125-2-sth@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210305125439.568125-1-sth@linux.ibm.com>
-References: <20210305125439.568125-1-sth@linux.ibm.com>
+        Fri, 5 Mar 2021 15:08:45 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6ABC642047;
+        Fri,  5 Mar 2021 15:08:45 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1C15242041;
+        Fri,  5 Mar 2021 15:08:45 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.57.80])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  5 Mar 2021 15:08:45 +0000 (GMT)
+Subject: Re: [PATCH v5 1/3] s390/kvm: split kvm_s390_logical_to_effective
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
+Cc:     frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20210302174443.514363-1-imbrenda@linux.ibm.com>
+ <20210302174443.514363-2-imbrenda@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <a2148aca-6663-4d7e-af71-e7dcac6e54ea@de.ibm.com>
+Date:   Fri, 5 Mar 2021 16:08:44 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210302174443.514363-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
  definitions=2021-03-05_08:2021-03-03,2021-03-05 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
- adultscore=0 mlxscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
- suspectscore=0 mlxlogscore=920 clxscore=1015 phishscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2103050063
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
+ phishscore=0 spamscore=0 mlxscore=0 suspectscore=0 adultscore=0
+ impostorscore=0 lowpriorityscore=0 clxscore=1015 priorityscore=1501
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103050077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In case of an unbind of the DASD device driver the function
-dasd_generic_remove() is called which shuts down the device.
-Among others this functions removes the int_handler from the cdev.
-During shutdown the device cancels all outstanding IO requests and waits
-for completion of the clear request.
-Unfortunately the clear interrupt will never be received when there is no
-interrupt handler connected.
 
-Fix by moving the int_handler removal after the call to the state machine
-where no request or interrupt is outstanding.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Tested-by: Bjoern Walk <bwalk@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
----
- drivers/s390/block/dasd.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+On 02.03.21 18:44, Claudio Imbrenda wrote:
+> Split kvm_s390_logical_to_effective to a generic function called
+> _kvm_s390_logical_to_effective. The new function takes a PSW and an address
+> and returns the address with the appropriate bits masked off. The old
+> function now calls the new function with the appropriate PSW from the vCPU.
+> 
+> This is needed to avoid code duplication for vSIE.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index 28c04a4efa66..22805115ebc2 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -3487,8 +3487,6 @@ void dasd_generic_remove(struct ccw_device *cdev)
- 	struct dasd_device *device;
- 	struct dasd_block *block;
- 
--	cdev->handler = NULL;
--
- 	device = dasd_device_from_cdev(cdev);
- 	if (IS_ERR(device)) {
- 		dasd_remove_sysfs_files(cdev);
-@@ -3507,6 +3505,7 @@ void dasd_generic_remove(struct ccw_device *cdev)
- 	 * no quite down yet.
- 	 */
- 	dasd_set_target_state(device, DASD_STATE_NEW);
-+	cdev->handler = NULL;
- 	/* dasd_delete_device destroys the device reference. */
- 	block = device->block;
- 	dasd_delete_device(device);
--- 
-2.25.1
+We might need cc stable here as well for patch 3?
 
+Otherwise this looks good.
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+> ---
+>   arch/s390/kvm/gaccess.h | 29 ++++++++++++++++++++++++-----
+>   1 file changed, 24 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+> index f4c51756c462..107fdfd2eadd 100644
+> --- a/arch/s390/kvm/gaccess.h
+> +++ b/arch/s390/kvm/gaccess.h
+> @@ -36,6 +36,29 @@ static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+>   	return gra;
+>   }
+>   
+> +/**
+> + * _kvm_s390_logical_to_effective - convert guest logical to effective address
+> + * @psw: psw of the guest
+> + * @ga: guest logical address
+> + *
+> + * Convert a guest logical address to an effective address by applying the
+> + * rules of the addressing mode defined by bits 31 and 32 of the given PSW
+> + * (extendended/basic addressing mode).
+> + *
+> + * Depending on the addressing mode, the upper 40 bits (24 bit addressing
+> + * mode), 33 bits (31 bit addressing mode) or no bits (64 bit addressing
+> + * mode) of @ga will be zeroed and the remaining bits will be returned.
+> + */
+> +static inline unsigned long _kvm_s390_logical_to_effective(psw_t *psw,
+> +							   unsigned long ga)
+> +{
+> +	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
+> +		return ga;
+> +	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
+> +		return ga & ((1UL << 31) - 1);
+> +	return ga & ((1UL << 24) - 1);
+> +}
+> +
+>   /**
+>    * kvm_s390_logical_to_effective - convert guest logical to effective address
+>    * @vcpu: guest virtual cpu
+> @@ -54,11 +77,7 @@ static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
+>   {
+>   	psw_t *psw = &vcpu->arch.sie_block->gpsw;
+>   
+> -	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
+> -		return ga;
+> -	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
+> -		return ga & ((1UL << 31) - 1);
+> -	return ga & ((1UL << 24) - 1);
+> +	return _kvm_s390_logical_to_effective(&vcpu->arch.sie_block->gpsw, ga);
+>   }
+>   
+>   /*
+> 
