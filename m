@@ -1,97 +1,88 @@
-Return-Path: <SRS0=TKJS=ID=vger.kernel.org=linux-s390-owner@kernel.org>
+Return-Path: <SRS0=+xFB=IF=vger.kernel.org=linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B305FC433E0
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 18:31:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26F82C433DB
+	for <linux-s390@archiver.kernel.org>; Sun,  7 Mar 2021 20:47:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 78E1265085
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Mar 2021 18:31:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B6DD464FEF
+	for <linux-s390@archiver.kernel.org>; Sun,  7 Mar 2021 20:47:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbhCESaj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 5 Mar 2021 13:30:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58064 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229758AbhCESae (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Mar 2021 13:30:34 -0500
-Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80BFAC061574
-        for <linux-s390@vger.kernel.org>; Fri,  5 Mar 2021 10:30:34 -0800 (PST)
-Received: by mail-il1-x135.google.com with SMTP id g9so2887472ilc.3
-        for <linux-s390@vger.kernel.org>; Fri, 05 Mar 2021 10:30:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=3IlmUCsWY/eRND+udc8axXocUIZQxevXufT1IASQhBA=;
-        b=hMEob3ya3S4cxR/QfDGwT9WccEGdP9BTRCh6WnwMK7QRRDfkdPXEr+ondeOSRmgtI7
-         RLOLOt+sGmgtvmeNIepQCuGI8+/gaRkrh4aZbG41WZhv/z3za8Hw1B/v+G5nUF6Vx/Ks
-         I5J6udodKEabqAK6QaCmhWJLxe9/rQPBXdF+2QYfIV+EptT2T/5uNxkTsUb27GIzetbj
-         BQbO7deysM5RuIvBPYA1e8ozzIs6AQqqOf0UNQRFJHxr+5CzmXDk1Q7SEub+pVZ1qaXL
-         tROJIvwiSBl+yj39UfIKwdJ90jkBQE2sT3hMRyOmLaISP+C1HLYch8caIwwSqa8cUvbw
-         eXfA==
+        id S230453AbhCGUqh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 7 Mar 2021 15:46:37 -0500
+Received: from mail-ed1-f47.google.com ([209.85.208.47]:46279 "EHLO
+        mail-ed1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230194AbhCGUqE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 7 Mar 2021 15:46:04 -0500
+Received: by mail-ed1-f47.google.com with SMTP id w9so11670171edt.13;
+        Sun, 07 Mar 2021 12:46:03 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=3IlmUCsWY/eRND+udc8axXocUIZQxevXufT1IASQhBA=;
-        b=j0iT3d8yrcErU1OxCsdOvhCojsjZkv9+BNu0BlQOyqMyt1QqGvu31DBnNj6qckSc9f
-         xe23Pi/n5/18NGwdGVx5Wte7hj8oq7ekzhlO0npxTo3hPDXHEW9KoC3dMy7KAsiWkk4w
-         +7teXN5BJZ8IC7Pc4E0cf4s+/3YUhVvDikKlT60mx7Znn/eXEjYRwFYbkD5FFCkJBH68
-         hjIX+kBV2pSWLERnYcWDdFDqvPXX27SZNyAmkP4LrvXCGK+TaqivhjyvLp4l5lY5+N4G
-         mXe+8niWo1CtEDSQ0vZ7nXMe/4iByw7Y1HkjZw6fhJBNRRJchpJH6QsJenR67jLv9QYf
-         ubaA==
-X-Gm-Message-State: AOAM531LuEaxks/8/FOtbgZe5jnpryIbNVZuV0HQ1wgZBGJe9oaa8MIh
-        HtxYJDlo8rMlNqRj6nl9LkwhPg==
-X-Google-Smtp-Source: ABdhPJxYfdOPRFbnxmUPblKztE5zYP3aqY3QXkX7EmdwzocqTcVRKt2OMMpF9LDEhsxtTzg+AgwgLA==
-X-Received: by 2002:a92:c883:: with SMTP id w3mr10852946ilo.212.1614969033933;
-        Fri, 05 Mar 2021 10:30:33 -0800 (PST)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id h193sm1669618iof.9.2021.03.05.10.30.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 05 Mar 2021 10:30:33 -0800 (PST)
-Subject: Re: [PATCH 0/2] s390/dasd: driver unbind fixes
-To:     Stefan Haberland <sth@linux.ibm.com>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-References: <20210305125439.568125-1-sth@linux.ibm.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <e435321c-26b5-ff6c-5329-4a2a4918eb08@kernel.dk>
-Date:   Fri, 5 Mar 2021 11:30:32 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Y/j6Cq0L0/qK+bPKbsMfp46b9C06hF4J+uRP7tNJ/uQ=;
+        b=pOW19Ie5sD+JbC5rh2BfSlJNI8j+7uGR5isFbWu/cFf5qDZlEW8DJcz1jPmHwjntyv
+         uLIczGsSQHrBM/tc0BKxsjpqHf4ZayicUhyeaSeV1QlYTDPcYyWKdrTGy5gwtHKNzif9
+         Oh3gB6oDYwGnSE4IpmsQfGh2pxwUrAEOYeac/XzYI9uSsR3BYB6JnoX/GBKAmPBk1Q8T
+         fEObKjwi/8TA4wwxLvDjVFAog4LPT3P6bYP5bYUxqRjqEJrFskhPS7KCaBlFcINOuXbx
+         yX/fX/pUWc+B6xjB9yVIYoscIsP+Q5Pta7mZ5GRtlJLZJJOyNbmVrY+Z91kA4OzoPYUz
+         prYA==
+X-Gm-Message-State: AOAM531CRyiOslKgUp1GHVCczXhJc78d9cK06rqD0MV4xCf9MeXfQv4q
+        e9qJAMY4UgFg0X0Gl9zgS4U=
+X-Google-Smtp-Source: ABdhPJzD0EWBZ9NQK51HxGvb39ETnp5a2NDmgKgrkl6dachAz9OfSnmgWX6A8tHqKj5AwXXFcJLNyA==
+X-Received: by 2002:a05:6402:158d:: with SMTP id c13mr18828466edv.297.1615149962785;
+        Sun, 07 Mar 2021 12:46:02 -0800 (PST)
+Received: from rocinante ([95.155.85.46])
+        by smtp.gmail.com with ESMTPSA id lu26sm5495962ejb.33.2021.03.07.12.46.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 Mar 2021 12:46:01 -0800 (PST)
+Date:   Sun, 7 Mar 2021 21:46:00 +0100
+From:   Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Bjorn Helgaas <helgaas@kernel.org>,
+        Narendra K <narendra_k@dell.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>,
+        Stefan Raspl <raspl@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [RFC 1/1] s390/pci: expose a PCI device's UID as its index
+Message-ID: <YEU7iFjxNxQK3ldc@rocinante>
+References: <20210303095250.1360007-1-schnelle@linux.ibm.com>
+ <20210303095250.1360007-2-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20210305125439.568125-1-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20210303095250.1360007-2-schnelle@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/5/21 5:54 AM, Stefan Haberland wrote:
-> Hi Jens,
-> 
-> please apply the following patches that fix two issues that may happen
-> during driver unbind.
-> 
-> Stefan Haberland (2):
->   s390/dasd: fix hanging DASD driver unbind
->   s390/dasd: fix hanging IO request during DASD driver unbind
-> 
->  drivers/s390/block/dasd.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+Hi Niklas,
 
-Applied, thanks.
+[...]
+> +static ssize_t index_show(struct device *dev,
+> +			  struct device_attribute *attr, char *buf)
+> +{
+> +	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+> +	u32 index = ~0;
+> +
+> +	if (zpci_unique_uid)
+> +		index = zdev->uid;
+> +
+> +	return sprintf(buf, "%u\n", index);
+[...]
 
--- 
-Jens Axboe
+Would it be possible to use the new sysfs_emit() rather than sprintf()
+even though the zpci_attr macro and still use mio_enabled_show() still
+would use sprintf().  What do you think?
 
+See https://www.kernel.org/doc/html/latest/filesystems/sysfs.html for
+the changes in the internal API.
+
+Krzysztof
