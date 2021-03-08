@@ -2,87 +2,136 @@ Return-Path: <SRS0=aATr=IG=vger.kernel.org=linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC8BCC433DB
-	for <linux-s390@archiver.kernel.org>; Mon,  8 Mar 2021 08:28:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEDE1C433E0
+	for <linux-s390@archiver.kernel.org>; Mon,  8 Mar 2021 08:43:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 840ED651EE
-	for <linux-s390@archiver.kernel.org>; Mon,  8 Mar 2021 08:28:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C309651BC
+	for <linux-s390@archiver.kernel.org>; Mon,  8 Mar 2021 08:43:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231657AbhCHI1g (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 8 Mar 2021 03:27:36 -0500
-Received: from mout.kundenserver.de ([212.227.126.130]:60311 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231825AbhCHI1G (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Mar 2021 03:27:06 -0500
-Received: from mail-ot1-f49.google.com ([209.85.210.49]) by
- mrelayeu.kundenserver.de (mreue012 [213.165.67.97]) with ESMTPSA (Nemesis) id
- 1N14xe-1lm92r3ngI-012ZXy; Mon, 08 Mar 2021 09:26:56 +0100
-Received: by mail-ot1-f49.google.com with SMTP id f8so3375432otp.8;
-        Mon, 08 Mar 2021 00:26:54 -0800 (PST)
-X-Gm-Message-State: AOAM531LaElb2wKXlmPxBPFispTGcWriwK2bx+4Msgh5GKbIpqkdM+pZ
-        xDzIhUbYlo+WZX3TpFepct/1/NXGTZ9y1Jzo+58=
-X-Google-Smtp-Source: ABdhPJz7WzRENGkqrJauNt4Eu43tE41OHtOy5Pi18b4rc5onlz+3B0QPZSg6kqLhqT6QwccMllOlz9JudYJqhcYI0w4=
-X-Received: by 2002:a9d:2f24:: with SMTP id h33mr8386599otb.305.1615192013989;
- Mon, 08 Mar 2021 00:26:53 -0800 (PST)
+        id S231833AbhCHInG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 8 Mar 2021 03:43:06 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:16844 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232199AbhCHImr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Mar 2021 03:42:47 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1288YITF196471;
+        Mon, 8 Mar 2021 03:42:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=zWXYuhMFZhSwUgA+a72tpYVWBXlkWy3QgwyVRBRPdss=;
+ b=TDo9jn3AT0s0Dw4B631RWwGrehUFEzXrQwSoeZxAJOEO9wDOQhCd9sBBSkXPUIC2RSYL
+ j8R63xLwRr6rEW6WHooX9zNOAoRR06mco3i5xaqJdBscSK/YTd96s21k0RMEnX/2n20p
+ 2gcY5DSNIaF5wK6yDWHngDdO41oLJu5o9cGv1yharfeRvlQFRI8QLXtTEVxlfUsjcQ+q
+ g5jllrCY3wyy3JAhtbsabxU1mkiQGkHt9hj0FKv9oIYwxv6T1G00Vyexs8wKKfQQA6/t
+ /1qWNcme8CXEDIzPg8ZfdWnFTq45cIwFAw0SSqDw7foJJIvuYJTBYqY2sYSYkLTCVI0U DQ== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37596qs9e6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Mar 2021 03:42:43 -0500
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 1288bI5C030568;
+        Mon, 8 Mar 2021 08:42:41 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03fra.de.ibm.com with ESMTP id 3741c8guka-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Mar 2021 08:42:41 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1288gcIN43974952
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 8 Mar 2021 08:42:38 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ACCDE11C052;
+        Mon,  8 Mar 2021 08:42:38 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C1DC311C04A;
+        Mon,  8 Mar 2021 08:42:37 +0000 (GMT)
+Received: from oc6604088431.ibm.com (unknown [9.145.158.35])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  8 Mar 2021 08:42:37 +0000 (GMT)
+Subject: Re: [RFC 1/1] s390/pci: expose a PCI device's UID as its index
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        =?UTF-8?Q?Krzysztof_Wilczy=c5=84ski?= <kw@linux.com>
+Cc:     Bjorn Helgaas <helgaas@kernel.org>,
+        Narendra K <narendra_k@dell.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Stefan Raspl <raspl@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20210303095250.1360007-1-schnelle@linux.ibm.com>
+ <20210303095250.1360007-2-schnelle@linux.ibm.com>
+ <YEU7iFjxNxQK3ldc@rocinante>
+ <c714ca55-7189-e196-7b8d-f02da555b399@linux.ibm.com>
+From:   Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Message-ID: <e2f45e3e-210b-0b98-c8bd-bbe6609b85f1@linux.ibm.com>
+Date:   Mon, 8 Mar 2021 09:42:37 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-References: <1615185706-24342-1-git-send-email-anshuman.khandual@arm.com> <1615185706-24342-7-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1615185706-24342-7-git-send-email-anshuman.khandual@arm.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 8 Mar 2021 09:26:37 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a3Jp6wgGWJ9UDoiN5joOYSONaoHoH=S--i=3SQpm_f4JQ@mail.gmail.com>
-Message-ID: <CAK8P3a3Jp6wgGWJ9UDoiN5joOYSONaoHoH=S--i=3SQpm_f4JQ@mail.gmail.com>
-Subject: Re: [PATCH 6/6] mm: Drop redundant HAVE_ARCH_TRANSPARENT_HUGEPAGE
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     Linux-MM <linux-mm@kvack.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-ia64@vger.kernel.org,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:ac4dihqGbl6+jEr5hvaPprARfRMzuV5tBYOBcFJxgQ6aBn/E5bB
- GXJneuWlAVcyxI+vkcYXKvB59uv/eQ/yEWQvV6WRLKsNnEdMV5MskvBED6sSsQ8qHPsIH8i
- y6VJacjLbXY0SqD78Sae+4qmfdMIGK+K98OMV41tNtw4SHA0l5PG6NwGxEv0snlgh6NxhFf
- SZxZyOLGtxotQuru+ZhsA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:TKJ0E/7wbKk=:Fdb8DFUaXWhjSNhmzGd9sT
- 2Oskqmgzab+15xMwBwvePuCPlbxv5TQSAFFU2I/KB7Yi3nUJuGSP/1HzArwwnLSDS2ouNNzxP
- AT4xNWkrH/VUqa1YSKKUWz79eAhjJeIrJ7GdIgGd6H7ko0taezSY4Q6PxHTY0uN5MsW8Uc1lS
- pNp7n7EEWFKqXbJO8ob0V466m/8bL3U8Aex43XxNtnJhkeSfU8w42bIRmIKxlMUGA9Sb5+lT7
- snIDbhue2uQNnyUZASM2Tmf4Xr8gf2SgHUH++IMIP9LVevIJRZxX87pAUkWrgKLRpeJeWtDFz
- m4kFsbkxzrCu1U6vI1+odbEHJD8fGQfyiUp7E8vqld1Ccv6hUGPYfMP4PfjCLo50NSlYqe5Ea
- 4tJO8A/es+NhTOyAw4HUh/qt4+foFDfenv9YX7FhxF21WJKcv4w6z3/lAbwnw
+In-Reply-To: <c714ca55-7189-e196-7b8d-f02da555b399@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-08_02:2021-03-08,2021-03-08 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=947
+ impostorscore=0 suspectscore=0 clxscore=1011 malwarescore=0 phishscore=0
+ spamscore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2103080045
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Mar 8, 2021 at 7:41 AM Anshuman Khandual
-<anshuman.khandual@arm.com> wrote:
->
-> HAVE_ARCH_TRANSPARENT_HUGEPAGE has duplicate definitions on platforms that
-> subscribe it. Drop these reduntant definitions and instead just select it
-> on applicable platforms.
->
-> Cc: Vineet Gupta <vgupta@synopsys.com>
-> Cc: Russell King <linux@armlinux.org.uk>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: linux-snps-arc@lists.infradead.org
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+
+On 3/8/21 8:02 AM, Niklas Schnelle wrote:
+> 
+> 
+> On 3/7/21 9:46 PM, Krzysztof Wilczyński wrote:
+>> Hi Niklas,
+>>
+>> [...]
+>>> +static ssize_t index_show(struct device *dev,
+>>> +			  struct device_attribute *attr, char *buf)
+>>> +{
+>>> +	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+>>> +	u32 index = ~0;
+>>> +
+>>> +	if (zpci_unique_uid)
+>>> +		index = zdev->uid;
+>>> +
+>>> +	return sprintf(buf, "%u\n", index);
+>> [...]
+>>
+>> Would it be possible to use the new sysfs_emit() rather than sprintf()
+>> even though the zpci_attr macro and still use mio_enabled_show() still
+>> would use sprintf().  What do you think?
+>>
+>> See https://www.kernel.org/doc/html/latest/filesystems/sysfs.html for
+>> the changes in the internal API.
+>>
+>> Krzysztof
+>>
+> 
+> Of course that makes sense and thanks for pointing me to this API!
+> @Viktor, may I carry your R-b over?
+> 
+Sure, please go ahead.
+> I'll also update the other attributes in a clean up patch.
+> 
+> Thanks,
+> Niklas
+> 
+
+-- 
+Kind Regards,
+    Viktor
