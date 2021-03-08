@@ -7,69 +7,69 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A58BC433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9A5AC433E9
 	for <linux-s390@archiver.kernel.org>; Mon,  8 Mar 2021 14:34:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3E7F9651CD
+	by mail.kernel.org (Postfix) with ESMTP id 812D5651FF
 	for <linux-s390@archiver.kernel.org>; Mon,  8 Mar 2021 14:34:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230488AbhCHOeY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 8 Mar 2021 09:34:24 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47026 "EHLO
+        id S231143AbhCHOe0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 8 Mar 2021 09:34:26 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10084 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229637AbhCHOdv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Mar 2021 09:33:51 -0500
+        by vger.kernel.org with ESMTP id S230039AbhCHOdw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Mar 2021 09:33:52 -0500
 Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 128EXlRa060024;
-        Mon, 8 Mar 2021 09:33:51 -0500
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 128EXlRb060024;
+        Mon, 8 Mar 2021 09:33:52 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=h2TDYKqF8dfjLLaJLaS6uyQrnuh7xU+pxWOgbD0IBTU=;
- b=ZU/4u4qfGkeXbg/rs69dz/u+mw04EmJVB3mgOrHU9hWWnBy35aKFmjprtdItJRFt810H
- NcvfKIjQU4V6PfcWcOia3D/BMEB9fUJu+hSlgaoNmHGDMJWZyqqrYH1DRHL09ywaMU/B
- PafOV5fSDArFXMQH9/jTweKAtjE5m8qutpt2i/T5aVaDvci7TXCYJ5B/RasfksuUXUEE
- NegbEDXbKj74hXRGnKTTRvBdDAUR4qD1VCqflNTCRm+HrSe28i/fDiOlVRn3gbyTC4Zk
- UO9K+L+klNWjYPK7r+J+5b7Sfkv/4FDDPgspVIIP8D+vnzmDH8OmwTTSfg0+conkUZrT Aw== 
+ bh=A52HV3bIqhS58uBtsO1RgpH5Y0BHs9ji2fQCIQV+Nbg=;
+ b=OomnHId9xBv8BiJkya6FvEzx0LdYt10g7lr02jIOzIE29z7KksSKgH07O6qvEKw2CNNV
+ gN+D9m72QdzkQo2uFiA6EOYXTrMIYJ4zzmBQlOu7N1NFZj7Y7AJcB4eeijvMQUUidIEs
+ dSyTOBVfph1y4s0pggMl0flyPt0Sz2oYxdlheTrYXwBJgHYI57v4imTXv5srI70c9Wg/
+ ruq9m+t5oYWkyI9hQLO9aIRDQ8KwdC9Xgtoass/M8jLKFDKpCG9E1ZOknA6xnC03JP9f
+ 3dsbqgaF4o5vkbi1kfjgPILkXCueeqMenqYivac+IK8+QBcQCQP1t/qLm+CZG3TJ4D8U FQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 375nqbg4ym-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 375nqbg50d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Mar 2021 09:33:52 -0500
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 128EXp59060478;
+        Mon, 8 Mar 2021 09:33:51 -0500
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 375nqbg4x2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 08 Mar 2021 09:33:51 -0500
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 128EXmRC060084;
-        Mon, 8 Mar 2021 09:33:50 -0500
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 375nqbg4w1-1
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 128EXFMh017709;
+        Mon, 8 Mar 2021 14:33:46 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma01fra.de.ibm.com with ESMTP id 3741c8102a-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 08 Mar 2021 09:33:50 -0500
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 128EWLrq010708;
-        Mon, 8 Mar 2021 14:33:42 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma02fra.de.ibm.com with ESMTP id 3741c8901y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 08 Mar 2021 14:33:42 +0000
+        Mon, 08 Mar 2021 14:33:46 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 128EXOHv17826166
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 128EXhpS57409838
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 8 Mar 2021 14:33:24 GMT
+        Mon, 8 Mar 2021 14:33:43 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 93EFBA4051;
-        Mon,  8 Mar 2021 14:33:39 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 4CE22A4040;
+        Mon,  8 Mar 2021 14:33:43 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1F51EA4053;
-        Mon,  8 Mar 2021 14:33:39 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id D7683A404D;
+        Mon,  8 Mar 2021 14:33:42 +0000 (GMT)
 Received: from fedora.fritz.box (unknown [9.145.7.187])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  8 Mar 2021 14:33:39 +0000 (GMT)
+        Mon,  8 Mar 2021 14:33:42 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         borntraeger@de.ibm.com, cohuck@redhat.com,
         linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
-Subject: [kvm-unit-tests GIT PULL 05/16] Fix the length in the stsi check for the VM name
-Date:   Mon,  8 Mar 2021 15:31:36 +0100
-Message-Id: <20210308143147.64755-6-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 12/16] s390x: Move diag308_load_reset to stack saving
+Date:   Mon,  8 Mar 2021 15:31:43 +0100
+Message-Id: <20210308143147.64755-13-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210308143147.64755-1-frankja@linux.ibm.com>
 References: <20210308143147.64755-1-frankja@linux.ibm.com>
@@ -87,38 +87,48 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Thomas Huth <thuth@redhat.com>
+By moving the last user of SAVE/RESTORE_REGS to the macros that use
+the stack we can finally remove these macros.
 
-sizeof(somepointer) results in the size of the pointer, i.e. 8 on a
-64-bit system, so the
-
- memcmp(data->ext_names[0], vm_name_ext, sizeof(vm_name_ext))
-
-only compared the first 8 characters of the VM name here. Switch
-to a proper array to get the sizeof() right.
-
-Signed-off-by: Thomas Huth <thuth@redhat.com>
-Message-Id: <20210209155705.67601-1-thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- s390x/stsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ s390x/cpu.S | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/s390x/stsi.c b/s390x/stsi.c
-index 4109b8d4..87d48047 100644
---- a/s390x/stsi.c
-+++ b/s390x/stsi.c
-@@ -106,7 +106,7 @@ static void test_3_2_2(void)
- 				 0x00, 0x03 };
- 	/* EBCDIC for "KVM/" */
- 	const uint8_t cpi_kvm[] = { 0xd2, 0xe5, 0xd4, 0x61 };
--	const char *vm_name_ext = "kvm-unit-test";
-+	const char vm_name_ext[] = "kvm-unit-test";
- 	struct stsi_322 *data = (void *)pagebuf;
- 
- 	report_prefix_push("3.2.2");
+diff --git a/s390x/cpu.S b/s390x/cpu.S
+index 5267f029..e2ad56c8 100644
+--- a/s390x/cpu.S
++++ b/s390x/cpu.S
+@@ -18,7 +18,7 @@
+  */
+ .globl diag308_load_reset
+ diag308_load_reset:
+-	SAVE_REGS
++	SAVE_REGS_STACK
+ 	/* Backup current PSW mask, as we have to restore it on success */
+ 	epsw	%r0, %r1
+ 	st	%r0, GEN_LC_SW_INT_PSW
+@@ -31,6 +31,7 @@ diag308_load_reset:
+ 	ogr	%r0, %r1
+ 	/* Store it at the reset PSW location (real 0x0) */
+ 	stg	%r0, 0
++	stg     %r15, GEN_LC_SW_INT_GRS + 15 * 8
+ 	/* Do the reset */
+ 	diag    %r0,%r2,0x308
+ 	/* Failure path */
+@@ -40,7 +41,8 @@ diag308_load_reset:
+ 	/* load a cr0 that has the AFP control bit which enables all FPRs */
+ 0:	larl	%r1, initial_cr0
+ 	lctlg	%c0, %c0, 0(%r1)
+-	RESTORE_REGS
++	lg      %r15, GEN_LC_SW_INT_GRS + 15 * 8
++	RESTORE_REGS_STACK
+ 	lhi	%r2, 1
+ 	larl	%r0, 1f
+ 	stg	%r0, GEN_LC_SW_INT_PSW + 8
 -- 
 2.29.2
 
