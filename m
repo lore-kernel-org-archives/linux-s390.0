@@ -2,169 +2,153 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 605EBC4332E
-	for <linux-s390@archiver.kernel.org>; Tue,  9 Mar 2021 16:53:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 148F1C433DB
+	for <linux-s390@archiver.kernel.org>; Tue,  9 Mar 2021 19:43:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4884165237
-	for <linux-s390@archiver.kernel.org>; Tue,  9 Mar 2021 16:53:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DAF2365237
+	for <linux-s390@archiver.kernel.org>; Tue,  9 Mar 2021 19:43:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229799AbhCIQw6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 9 Mar 2021 11:52:58 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15312 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230303AbhCIQwd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Mar 2021 11:52:33 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 129GYC3F032838;
-        Tue, 9 Mar 2021 11:52:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=U0BxZe3HaaKB0N0mJWh1awIP8ALcM63WmxNm2SDBBlk=;
- b=RYSkm0bnwBMGyvKacTTZW+Z122BwaVSv2jxDcTvzBfEMVj1xN2nE9Pl6FqR2Tkk1GpJG
- 100RczR+6HmhgpElPKlMbxPSxhMNcX9lAUMhNCQYXPtH5p6WhBuV4cwbnRyWryoFINon
- Z2HaZqP5eZcLykhPSvElUVesYQp+hL6YvAV+YHaRDauY1/CjSRGNFkER6Z+G5B5V0vaw
- JS79+GDbYeCIfn6hKvwD8teQGsPPOaiMNX9rZsE/5neRLaWC6OYLBptMexA4CZq5LZmZ
- OmrsewrkgDd0QipryxLh4HVLotTJGcUOZkMozWAs8MIyZzC2yYBq8zlkhP+rIVyeGRCS 8Q== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 376bkgasxx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Mar 2021 11:52:30 -0500
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 129Gg4aw014137;
-        Tue, 9 Mar 2021 16:52:28 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma05fra.de.ibm.com with ESMTP id 3768va03r8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Mar 2021 16:52:28 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 129GqP3w39584066
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 9 Mar 2021 16:52:25 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7BFA85204F;
-        Tue,  9 Mar 2021 16:52:25 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 35C5452052;
-        Tue,  9 Mar 2021 16:52:25 +0000 (GMT)
-From:   Julian Wiedmann <jwi@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     linux-netdev <netdev@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
+        id S231387AbhCITnL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 9 Mar 2021 14:43:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37266 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231243AbhCITmn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 9 Mar 2021 14:42:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE34265228;
+        Tue,  9 Mar 2021 19:42:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615318963;
+        bh=ZhUp65qT2Edv35cPfVcgVPA1Vr3DqEzB5OQkhdx4Dz0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ArJFusyN7UERXhJENyeMvV7NnlyWuWh8BovqPV29pBUzaU0ioiO103V0S7dVRRO6X
+         4mcpPaZabsPcORzLRWpfQK2dw7Pda562qM5Mx7DBbXPH4xI69Bnmzg0Uq7wm/R4EKL
+         nT0sPxNqrzh2ZwfwMQONp6Xo28t8ezPf+N7ifGWq62S5gGV/WIJtMNc7vRdvGmmtov
+         mqFXp0247nSaQnaLBzjzO4LiwIHykdpcN2+ur7yS2Ezy9rPqgIxluRdZK41a7Otibs
+         Fh5cNfGZ/nJdSPnV8qVZlfQpFTNfVHlk62TIes7fQ/fTS1GTBOs+mF/CxH164s9f02
+         B7ST17bZQTRWQ==
+From:   Mark Brown <broonie@kernel.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Mark Brown <broonie@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 3/4] s390/qeth: schedule TX NAPI on QAOB completion
-Date:   Tue,  9 Mar 2021 17:52:20 +0100
-Message-Id: <20210309165221.1735641-4-jwi@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210309165221.1735641-1-jwi@linux.ibm.com>
-References: <20210309165221.1735641-1-jwi@linux.ibm.com>
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>, x86@kernel.org,
+        linux-s390@vger.kernel.org, live-patching@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Miroslav Benes <mbenes@suse.cz>
+Subject: [PATCH] stacktrace: Move documentation for arch_stack_walk_reliable() to header
+Date:   Tue,  9 Mar 2021 19:41:25 +0000
+Message-Id: <20210309194125.652-1-broonie@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
+X-Patch-Hashes: v=1; h=sha256; i=Kh6NyXsqh0zq94gMuzBCs8afziAecd1XZurszyuxEhw=; m=/jKBVe0RfPWMav8OjafUnXErqEkBoTiYB/rI2TxCriw=; p=nPcWpKdBDbrmbYT1hqEf1yR8qtxRXTJfKeEoIt+tgd4=; g=f1dfd626035b5ec1394ca2d18e3f85690f794e7e
+X-Patch-Sig: m=pgp; i=broonie@kernel.org; s=0xC3F436CA30F5D8EB; b=iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmBHz1sACgkQJNaLcl1Uh9Au4AgAghj XD7vbxyItKIAkn2Tx0Ks3t5LR/K2p5yRT3CgHpvU4Jshp/08F7etkVHNAZSRbuzatlr6xDMecPhB8 bHfClUAz9GqGQh6IYvJhflL+fSwscO2OJTeColxwFL25VVaRANnro+vqi++RiVCIBHP3zTtT94xRp XruEbwfVqOqfXbr1ZMn4kx3nM3IL2Ht//KrBEzG2c9oBRP5uK+e+GYZ7se4FYNtPTXpWnkFpXi4Pb Fv7qHPimm9tFXsRc0yo8YLKwtsT4afjkxr6E/HmbVXLct6VHTIRQo4CW8eA2/DeZACFQvh13449MS CKc38Y/DaR0fVU6imKby4FsdYt3Y+fQ==
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-09_13:2021-03-08,2021-03-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- priorityscore=1501 impostorscore=0 mlxscore=0 mlxlogscore=999
- suspectscore=0 clxscore=1015 phishscore=0 adultscore=0 spamscore=0
- malwarescore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2009150000 definitions=main-2103090081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When a QAOB notifies us that a pending TX buffer has been delivered, the
-actual TX completion processing by qeth_tx_complete_pending_bufs()
-is done within the context of a TX NAPI instance. We shouldn't rely on
-this instance being scheduled by some other TX event, but just do it
-ourselves.
+Currently arch_stack_wallk_reliable() is documented with an identical
+comment in both x86 and S/390 implementations which is a bit redundant.
+Move this to the header and convert to kerneldoc while we're at it.
 
-qeth_qdio_handle_aob() is called from qeth_poll(), ie. our main NAPI
-instance. To avoid touching the TX queue's NAPI instance
-before/after it is (un-)registered, reorder the code in qeth_open()
-and qeth_stop() accordingly.
-
-Fixes: 0da9581ddb0f ("qeth: exploit asynchronous delivery of storage blocks")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: x86@kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: live-patching@vger.kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
 ---
- drivers/s390/net/qeth_core_main.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ arch/s390/kernel/stacktrace.c |  6 ------
+ arch/x86/kernel/stacktrace.c  |  6 ------
+ include/linux/stacktrace.h    | 19 +++++++++++++++++++
+ 3 files changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 3763cd6d14f8..d0a56afec028 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -470,6 +470,7 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
- 	struct qaob *aob;
- 	struct qeth_qdio_out_buffer *buffer;
- 	enum iucv_tx_notify notification;
-+	struct qeth_qdio_out_q *queue;
- 	unsigned int i;
- 
- 	aob = (struct qaob *) phys_to_virt(phys_aob_addr);
-@@ -512,7 +513,9 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
- 			buffer->is_header[i] = 0;
- 		}
- 
-+		queue = buffer->q;
- 		atomic_set(&buffer->state, QETH_QDIO_BUF_EMPTY);
-+		napi_schedule(&queue->napi);
- 		break;
- 	default:
- 		WARN_ON_ONCE(1);
-@@ -7235,9 +7238,7 @@ int qeth_open(struct net_device *dev)
- 	card->data.state = CH_STATE_UP;
- 	netif_tx_start_all_queues(dev);
- 
--	napi_enable(&card->napi);
- 	local_bh_disable();
--	napi_schedule(&card->napi);
- 	if (IS_IQD(card)) {
- 		struct qeth_qdio_out_q *queue;
- 		unsigned int i;
-@@ -7249,8 +7250,12 @@ int qeth_open(struct net_device *dev)
- 			napi_schedule(&queue->napi);
- 		}
+diff --git a/arch/s390/kernel/stacktrace.c b/arch/s390/kernel/stacktrace.c
+index 7f1266c24f6b..101477b3e263 100644
+--- a/arch/s390/kernel/stacktrace.c
++++ b/arch/s390/kernel/stacktrace.c
+@@ -24,12 +24,6 @@ void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
  	}
-+
-+	napi_enable(&card->napi);
-+	napi_schedule(&card->napi);
- 	/* kick-start the NAPI softirq: */
- 	local_bh_enable();
-+
- 	return 0;
  }
- EXPORT_SYMBOL_GPL(qeth_open);
-@@ -7260,6 +7265,11 @@ int qeth_stop(struct net_device *dev)
- 	struct qeth_card *card = dev->ml_priv;
  
- 	QETH_CARD_TEXT(card, 4, "qethstop");
-+
-+	napi_disable(&card->napi);
-+	cancel_delayed_work_sync(&card->buffer_reclaim_work);
-+	qdio_stop_irq(CARD_DDEV(card));
-+
- 	if (IS_IQD(card)) {
- 		struct qeth_qdio_out_q *queue;
- 		unsigned int i;
-@@ -7280,10 +7290,6 @@ int qeth_stop(struct net_device *dev)
- 		netif_tx_disable(dev);
+-/*
+- * This function returns an error if it detects any unreliable features of the
+- * stack.  Otherwise it guarantees that the stack trace is reliable.
+- *
+- * If the task is not 'current', the caller *must* ensure the task is inactive.
+- */
+ int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
+ 			     void *cookie, struct task_struct *task)
+ {
+diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
+index 8627fda8d993..15b058eefc4e 100644
+--- a/arch/x86/kernel/stacktrace.c
++++ b/arch/x86/kernel/stacktrace.c
+@@ -29,12 +29,6 @@ void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
  	}
- 
--	napi_disable(&card->napi);
--	cancel_delayed_work_sync(&card->buffer_reclaim_work);
--	qdio_stop_irq(CARD_DDEV(card));
--
- 	return 0;
  }
- EXPORT_SYMBOL_GPL(qeth_stop);
+ 
+-/*
+- * This function returns an error if it detects any unreliable features of the
+- * stack.  Otherwise it guarantees that the stack trace is reliable.
+- *
+- * If the task is not 'current', the caller *must* ensure the task is inactive.
+- */
+ int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
+ 			     void *cookie, struct task_struct *task)
+ {
+diff --git a/include/linux/stacktrace.h b/include/linux/stacktrace.h
+index 50e2df30b0aa..9edecb494e9e 100644
+--- a/include/linux/stacktrace.h
++++ b/include/linux/stacktrace.h
+@@ -52,8 +52,27 @@ typedef bool (*stack_trace_consume_fn)(void *cookie, unsigned long addr);
+  */
+ void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
+ 		     struct task_struct *task, struct pt_regs *regs);
++
++/**
++ * arch_stack_walk_reliable - Architecture specific function to walk the
++ *			      stack reliably
++ *
++ * @consume_entry:	Callback which is invoked by the architecture code for
++ *			each entry.
++ * @cookie:		Caller supplied pointer which is handed back to
++ *			@consume_entry
++ * @task:		Pointer to a task struct, can be NULL
++ *
++ * This function returns an error if it detects any unreliable
++ * features of the stack. Otherwise it guarantees that the stack
++ * trace is reliable.
++ *
++ * If the task is not 'current', the caller *must* ensure the task is
++ * inactive and its stack is pinned.
++ */
+ int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry, void *cookie,
+ 			     struct task_struct *task);
++
+ void arch_stack_walk_user(stack_trace_consume_fn consume_entry, void *cookie,
+ 			  const struct pt_regs *regs);
+ 
 -- 
-2.25.1
+2.20.1
 
