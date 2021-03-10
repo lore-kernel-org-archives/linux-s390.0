@@ -2,94 +2,221 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B3B6C433E6
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 13:28:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33FB6C433E6
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 14:19:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE6E264FEF
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 13:28:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 054D164FFA
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 14:19:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234015AbhCJN1t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 Mar 2021 08:27:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52614 "EHLO mail.kernel.org"
+        id S232747AbhCJOTR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 Mar 2021 09:19:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233157AbhCJN11 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:27:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEE5564FF7;
-        Wed, 10 Mar 2021 13:27:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615382847;
-        bh=FfYG4HSnZMF4JEobpIUzK9ujMCQ4hzxfRr0vd2iFSJI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HwLZtuAROqKQC2VQP413P8AdCSOIWB3soto3vzlcgQMo5yS/TV5vxzMb3YsNZofm3
-         1qG8aes0V4xk9WwpgTmrpkN+nGGwKF4XM4PL8Rpl4TkfrsCYgWdqAko1YN+dCb/+A0
-         +NbKvi3+lAAfrUWoasTJeinguoD40yS5QFMgmqxkwgvH90Z/AxrPost6deBGsvNiwM
-         FInkIZXNJmpFaVWA9aUT3AAYd7YSG5lSorlm3x89CUH3i36bAAxS8qkdut1UcjGrdw
-         QawaMbHm41Q7MzyRWNX0z1ACT26UcvhTxLeeQ222z4prhA25GKE2tg8rfOENm9ep75
-         uBH1WlCJ1hf+A==
-Date:   Wed, 10 Mar 2021 13:26:15 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        id S230373AbhCJOTK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 10 Mar 2021 09:19:10 -0500
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF53364FEF;
+        Wed, 10 Mar 2021 14:19:09 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94)
+        (envelope-from <maz@kernel.org>)
+        id 1lJzg3-000mQq-PG; Wed, 10 Mar 2021 14:19:07 +0000
+Date:   Wed, 10 Mar 2021 14:19:06 +0000
+Message-ID: <878s6vxfad.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Jing Zhang <jingzhangos@google.com>
+Cc:     KVM <kvm@vger.kernel.org>, KVM ARM <kvmarm@lists.cs.columbia.edu>,
+        Linux MIPS <linux-mips@vger.kernel.org>,
+        KVM PPC <kvm-ppc@vger.kernel.org>,
+        Linux S390 <linux-s390@vger.kernel.org>,
+        Linux kselftest <linux-kselftest@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>, x86@kernel.org,
-        linux-s390@vger.kernel.org, live-patching@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [PATCH] stacktrace: Move documentation for
- arch_stack_walk_reliable() to header
-Message-ID: <20210310132615.GC4746@sirena.org.uk>
-References: <20210309194125.652-1-broonie@kernel.org>
- <20210310052436.GA23521@zn.tnic>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="da4uJneut+ArUgXk"
-Content-Disposition: inline
-In-Reply-To: <20210310052436.GA23521@zn.tnic>
-X-Cookie: no maintenance:
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Subject: Re: [RFC PATCH 1/4] KVM: stats: Separate statistics name strings from debugfs code
+In-Reply-To: <20210310003024.2026253-2-jingzhangos@google.com>
+References: <20210310003024.2026253-1-jingzhangos@google.com>
+        <20210310003024.2026253-2-jingzhangos@google.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: jingzhangos@google.com, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, pbonzini@redhat.com, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, will@kernel.org, chenhuacai@kernel.org, aleksandar.qemu.devel@gmail.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, seanjc@google.com, vkuznets@redhat.com, jmattson@google.com, pshier@google.com, oupton@google.com, rientjes@google.com, eesposit@redhat.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi Jing,
 
---da4uJneut+ArUgXk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Wed, 10 Mar 2021 00:30:21 +0000,
+Jing Zhang <jingzhangos@google.com> wrote:
+> 
+> Prepare the statistics name strings for supporting binary format
+> aggregated statistics data retrieval.
+> 
+> No functional change intended.
+> 
+> Signed-off-by: Jing Zhang <jingzhangos@google.com>
+> ---
+>  arch/arm64/kvm/guest.c    |  47 ++++--
+>  arch/mips/kvm/mips.c      | 114 ++++++++++----
+>  arch/powerpc/kvm/book3s.c | 107 +++++++++----
+>  arch/powerpc/kvm/booke.c  |  84 +++++++---
+>  arch/s390/kvm/kvm-s390.c  | 320 ++++++++++++++++++++++++++------------
+>  arch/x86/kvm/x86.c        | 127 ++++++++++-----
+>  include/linux/kvm_host.h  |  31 +++-
+>  7 files changed, 589 insertions(+), 241 deletions(-)
+> 
+> diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
+> index 9bbd30e62799..fb3aafe76b52 100644
+> --- a/arch/arm64/kvm/guest.c
+> +++ b/arch/arm64/kvm/guest.c
+> @@ -28,19 +28,42 @@
+>  
+>  #include "trace.h"
+>  
+> +const char kvm_vm_stat_strings[][KVM_STATS_NAME_LEN] = {
+> +	"remote_tlb_flush",
+> +};
+> +static_assert(sizeof(kvm_vm_stat_strings) ==
+> +		VM_STAT_COUNT * KVM_STATS_NAME_LEN);
+> +
+> +const char kvm_vcpu_stat_strings[][KVM_STATS_NAME_LEN] = {
+> +	"halt_successful_poll",
+> +	"halt_attempted_poll",
+> +	"halt_poll_success_ns",
+> +	"halt_poll_fail_ns",
+> +	"halt_poll_invalid",
+> +	"halt_wakeup",
+> +	"hvc_exit_stat",
+> +	"wfe_exit_stat",
+> +	"wfi_exit_stat",
+> +	"mmio_exit_user",
+> +	"mmio_exit_kernel",
+> +	"exits",
+> +};
+> +static_assert(sizeof(kvm_vcpu_stat_strings) ==
+> +		VCPU_STAT_COUNT * KVM_STATS_NAME_LEN);
+> +
+>  struct kvm_stats_debugfs_item debugfs_entries[] = {
+> -	VCPU_STAT("halt_successful_poll", halt_successful_poll),
+> -	VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
+> -	VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
+> -	VCPU_STAT("halt_wakeup", halt_wakeup),
+> -	VCPU_STAT("hvc_exit_stat", hvc_exit_stat),
+> -	VCPU_STAT("wfe_exit_stat", wfe_exit_stat),
+> -	VCPU_STAT("wfi_exit_stat", wfi_exit_stat),
+> -	VCPU_STAT("mmio_exit_user", mmio_exit_user),
+> -	VCPU_STAT("mmio_exit_kernel", mmio_exit_kernel),
+> -	VCPU_STAT("exits", exits),
+> -	VCPU_STAT("halt_poll_success_ns", halt_poll_success_ns),
+> -	VCPU_STAT("halt_poll_fail_ns", halt_poll_fail_ns),
+> +	VCPU_STAT(halt_successful_poll),
+> +	VCPU_STAT(halt_attempted_poll),
+> +	VCPU_STAT(halt_poll_invalid),
+> +	VCPU_STAT(halt_wakeup),
+> +	VCPU_STAT(hvc_exit_stat),
+> +	VCPU_STAT(wfe_exit_stat),
+> +	VCPU_STAT(wfi_exit_stat),
+> +	VCPU_STAT(mmio_exit_user),
+> +	VCPU_STAT(mmio_exit_kernel),
+> +	VCPU_STAT(exits),
+> +	VCPU_STAT(halt_poll_success_ns),
+> +	VCPU_STAT(halt_poll_fail_ns),
 
-On Wed, Mar 10, 2021 at 06:24:36AM +0100, Borislav Petkov wrote:
-> On Tue, Mar 09, 2021 at 07:41:25PM +0000, Mark Brown wrote:
-> > Currently arch_stack_wallk_reliable() is documented with an identical
+So we now have two arrays that can easily deviate in their order,
+whilst we didn't have that risk before. What is the advantage of doing
+this? The commit message doesn't really say...
 
-> LGTM.
+[...]
 
-> Holler if I should take this through tip.
+> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+> index 1b65e7204344..1ea297458306 100644
+> --- a/include/linux/kvm_host.h
+> +++ b/include/linux/kvm_host.h
+> @@ -1162,6 +1162,18 @@ static inline bool kvm_is_error_gpa(struct kvm *kvm, gpa_t gpa)
+>  	return kvm_is_error_hva(hva);
+>  }
+>  
+> +#define VM_STAT_COUNT		(sizeof(struct kvm_vm_stat)/sizeof(ulong))
+> +#define VCPU_STAT_COUNT		(sizeof(struct kvm_vcpu_stat)/sizeof(u64))
+> +#define KVM_STATS_NAME_LEN	32
+> +
+> +/* Make sure it is synced with fields in struct kvm_vm_stat. */
+> +extern const char kvm_vm_stat_strings[][KVM_STATS_NAME_LEN];
+> +/* Make sure it is synced with fields in struct kvm_vcpu_stat. */
+> +extern const char kvm_vcpu_stat_strings[][KVM_STATS_NAME_LEN];
+> +
+> +#define VM_STAT_NAME(id)        (kvm_vm_stat_strings[id])
+> +#define VCPU_STAT_NAME(id)      (kvm_vcpu_stat_strings[id])
+> +
+>  enum kvm_stat_kind {
+>  	KVM_STAT_VM,
+>  	KVM_STAT_VCPU,
+> @@ -1182,10 +1194,21 @@ struct kvm_stats_debugfs_item {
+>  #define KVM_DBGFS_GET_MODE(dbgfs_item)                                         \
+>  	((dbgfs_item)->mode ? (dbgfs_item)->mode : 0644)
+>  
+> -#define VM_STAT(n, x, ...) 							\
+> -	{ n, offsetof(struct kvm, stat.x), KVM_STAT_VM, ## __VA_ARGS__ }
+> -#define VCPU_STAT(n, x, ...)							\
+> -	{ n, offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU, ## __VA_ARGS__ }
+> +#define VM_STAT(x, ...)                                                        \
+> +	{                                                                      \
+> +		VM_STAT_NAME(offsetof(struct kvm_vm_stat, x)/sizeof(ulong)),   \
+> +		offsetof(struct kvm, stat.x),                                  \
+> +		KVM_STAT_VM,                                                   \
+> +		## __VA_ARGS__                                                 \
+> +	}
+> +
+> +#define VCPU_STAT(x, ...)                                                      \
+> +	{                                                                      \
+> +		VCPU_STAT_NAME(offsetof(struct kvm_vcpu_stat, x)/sizeof(u64)), \
+> +		offsetof(struct kvm_vcpu, stat.x),                             \
+> +		KVM_STAT_VCPU,                                                 \
+> +		## __VA_ARGS__                                                 \
+> +	}
 
-Yes please, though there's a typo Peter pointed out in the commit log
-above - should be walk not wallk.  Let me know if you want me to resend
-for that.
+Is there any reason why we want to keep kvm_vm_stat populated with
+ulong, while kvm_vcpu_stat is populated with u64? I have the feeling
+that this is a fairly pointless difference, and that some of the
+macros could be unified.
 
---da4uJneut+ArUgXk
-Content-Type: application/pgp-signature; name="signature.asc"
+Also, using names initialisers would help with the readability of the
+macros.
 
------BEGIN PGP SIGNATURE-----
+Thanks,
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmBIyPYACgkQJNaLcl1U
-h9Bo1wf+PtmTrLqFBbY3HHo3Ufd2+iGwYOO71T6JYrqBdpCDaUGIvQj8U2fevLbj
-z97fTwzwB1CJqVAtI+2sJuXNJw1UDEBOSIEmIoe/gXP75Pu9cx2/MHUCPV6kiNF1
-kOf52dWsFCdj6WK1iHZUHZi2Xf4dBXQnJwbQ0myXMw9xqkYmoIVzwma0FeF591cF
-fAKCrrW2URKm6TCCPSFeCDuDW5y6x7wI8Y+MX9cybPJgXnS0xHHFvr4cyXDQPPb4
-3RLW4eb0yMM6CizFuz4dBEFQnwr+3u6Lnn9Tvjl9a/48YM71k/1KJ89aa3xMLb4o
-ysZVUu0vS9i911IJxVP1kkITAfmtfA==
-=QBwg
------END PGP SIGNATURE-----
+	M.
 
---da4uJneut+ArUgXk--
+-- 
+Without deviation from the norm, progress is not possible.
