@@ -2,255 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7099AC4360C
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 00:31:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7A24C433E9
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 05:21:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F4026500B
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 00:31:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BD83B64FE5
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 05:21:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230504AbhCJAbQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 9 Mar 2021 19:31:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48024 "EHLO
+        id S229825AbhCJFUy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 Mar 2021 00:20:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231402AbhCJAap (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Mar 2021 19:30:45 -0500
-Received: from mail-il1-x149.google.com (mail-il1-x149.google.com [IPv6:2607:f8b0:4864:20::149])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A53C061761
-        for <linux-s390@vger.kernel.org>; Tue,  9 Mar 2021 16:30:45 -0800 (PST)
-Received: by mail-il1-x149.google.com with SMTP id b4so11540638ilj.10
-        for <linux-s390@vger.kernel.org>; Tue, 09 Mar 2021 16:30:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=HYwIHVMurXa3R6as3OvUxWmJFUBMLjiRzzhIiiKP4ME=;
-        b=KlgzRB+CEZgxcFGOn//lNka3ixGNj1ZMzKq7WAvbwDFq3xRkgAS3kYK/JIV4nIxm/u
-         1FfbdecWvmBbdiWVheE3wUNE32IOWAGMhu8MeFMpPUxkNG6Ic6IXrOYz15juiE5W+eN/
-         UwufP8xnomHHhYJZizlFxCzJtMQMPP3AGyXKTMDhs5E9C0vskRVTcj7UvkXA1PH14ykl
-         ft27CoJWrjGy2SvqG2c1AGionh3n73Ki0G54VqY7GeECtpHBPlD1in+kzQ+UDi+3daXg
-         fS/ssqaH/09kuWnDkSliepIZRP1LHJvuV+kQD5aXzLq5vN3FattwTAMNMi+qTW2bJSmf
-         Tddw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=HYwIHVMurXa3R6as3OvUxWmJFUBMLjiRzzhIiiKP4ME=;
-        b=HNIeBCiwt5LzGZrFYspPu+WOsEK2DiMa+SrpF3eqB2DTEFwjIpp6bO0e7t7P7bUZr+
-         iRNYgvKgR6CHXFNC6fFVT1rznYjUkfQrpoVAcmAIejnIQazYFUrfMbadMQ7INu7dhTWi
-         I+oNzVJh4vB6cPr+pF9sqLY47Ijh3R86Bw55M3TSiJ0mrLppaBbmVpMK6cY/QUuTkCKl
-         uuMwLMYQPSlmnjmX9CH+wbBaoj1VZjV9F2feIk31o3bNKag3aEB9VFFEdOJMqi3IUA9W
-         Vpc33rTcJEA/1JlOkR/9WscueV1Is3W22cFgLR9jmsYlxfch5ihpM/b5SyV1JfOuy7wH
-         lNQA==
-X-Gm-Message-State: AOAM533gdWf9Jkpb5eSz7WTtxHcU7FnJAXWZtvmogClYi09A4OsmdFDq
-        b25zo7A5AL5eHn4F81wQL5gfR1U6h4RczEsB3Q==
-X-Google-Smtp-Source: ABdhPJza+jn+PY8flshTTgOAKq9hoAYgUHER9XS+P4s7skBsrShHEuKgzkWZTeYGcckPt9nBzOg82EPVRau5TPgGJA==
-X-Received: from jingzhangos.c.googlers.com ([fda3:e722:ac3:10:2b:ff92:c0a8:513])
- (user=jingzhangos job=sendgmr) by 2002:a6b:6f14:: with SMTP id
- k20mr642440ioc.52.1615336245163; Tue, 09 Mar 2021 16:30:45 -0800 (PST)
-Date:   Wed, 10 Mar 2021 00:30:23 +0000
-In-Reply-To: <20210310003024.2026253-1-jingzhangos@google.com>
-Message-Id: <20210310003024.2026253-4-jingzhangos@google.com>
-Mime-Version: 1.0
-References: <20210310003024.2026253-1-jingzhangos@google.com>
-X-Mailer: git-send-email 2.30.1.766.gb4fecdf3b7-goog
-Subject: [RFC PATCH 3/4] KVM: stats: Add ioctl commands to pull statistics in
- binary format
-From:   Jing Zhang <jingzhangos@google.com>
-To:     KVM <kvm@vger.kernel.org>, KVM ARM <kvmarm@lists.cs.columbia.edu>,
-        Linux MIPS <linux-mips@vger.kernel.org>,
-        KVM PPC <kvm-ppc@vger.kernel.org>,
-        Linux S390 <linux-s390@vger.kernel.org>,
-        Linux kselftest <linux-kselftest@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        with ESMTP id S229570AbhCJFUh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 Mar 2021 00:20:37 -0500
+Received: from ozlabs.org (bilbo.ozlabs.org [IPv6:2401:3900:2:1::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51753C06174A;
+        Tue,  9 Mar 2021 21:20:37 -0800 (PST)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4DwL4j4Sq1z9sVt;
+        Wed, 10 Mar 2021 16:20:21 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
+        s=201909; t=1615353635;
+        bh=hRcUlrx6WVs6H6bysWKFjU5tqR/J0nyX9yzAP97GJsQ=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=J7tJEgWYlgdvVYjfzFG1g90s1EOtAnSSXBRLQ734Q2HRbgzt8b5qMsfcT75CaJw/5
+         k2iXGDhutq9tOyXtkr9ZdT6+Kw3xBnr49WyYm1ThfwbSXS49oSisxLyUici9Us3TE5
+         HtEU/wSHCFC/s0gViktBCnLKaTQ6q/J6g7vI7Yf82084Vpw7jSTqhvDbOhMgyxxI9w
+         06Bw6yZRBta9uSCCaIQ2c7wKj4hZxuCWKQRB2mMVm8bhHalhKoBF9ueKaVIbelzwFf
+         39/YMJZ9zGzrte7RuLUNxyCLzwS8ZoBCqvCyhYy1dJsJ4rr7rf2eQnVXaCuVc8iu5b
+         xcUsluM3pIA9g==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org
+Cc:     Anshuman Khandual <anshuman.khandual@arm.com>, x86@kernel.org,
+        linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Cc:     Jing Zhang <jingzhangos@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH 2/6] mm: Generalize SYS_SUPPORTS_HUGETLBFS (rename as
+ ARCH_SUPPORTS_HUGETLBFS)
+In-Reply-To: <1615185706-24342-3-git-send-email-anshuman.khandual@arm.com>
+References: <1615185706-24342-1-git-send-email-anshuman.khandual@arm.com>
+ <1615185706-24342-3-git-send-email-anshuman.khandual@arm.com>
+Date:   Wed, 10 Mar 2021 16:20:19 +1100
+Message-ID: <874khjr3e4.fsf@mpe.ellerman.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Three ioctl commands are added to support binary form statistics data
-retrieval. KVM_STATS_GET_INFO, KVM_STATS_GET_NAMES, KVM_STATS_GET_DATA.
-KVM_CAP_STATS_BINARY_FORM indicates the capability.
+Anshuman Khandual <anshuman.khandual@arm.com> writes:
+> SYS_SUPPORTS_HUGETLBFS config has duplicate definitions on platforms that
+> subscribe it. Instead, just make it a generic option which can be selected
+> on applicable platforms. Also rename it as ARCH_SUPPORTS_HUGETLBFS instead.
+> This reduces code duplication and makes it cleaner.
+>
+> Cc: Russell King <linux@armlinux.org.uk>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+> Cc: Helge Deller <deller@gmx.de>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Paul Walmsley <paul.walmsley@sifive.com>
+> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+> Cc: Albert Ou <aou@eecs.berkeley.edu>
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-mips@vger.kernel.org
+> Cc: linux-parisc@vger.kernel.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-riscv@lists.infradead.org
+> Cc: linux-sh@vger.kernel.org
+> Cc: linux-fsdevel@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> ---
+>  arch/arm/Kconfig                       | 5 +----
+>  arch/arm64/Kconfig                     | 4 +---
+>  arch/mips/Kconfig                      | 6 +-----
+>  arch/parisc/Kconfig                    | 5 +----
+>  arch/powerpc/Kconfig                   | 3 ---
+>  arch/powerpc/platforms/Kconfig.cputype | 6 +++---
 
-Signed-off-by: Jing Zhang <jingzhangos@google.com>
----
- virt/kvm/kvm_main.c | 115 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 115 insertions(+)
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 383df23514b9..87dd62516c8b 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3464,6 +3464,51 @@ static long kvm_vcpu_ioctl(struct file *filp,
- 		r = kvm_arch_vcpu_ioctl_set_fpu(vcpu, fpu);
- 		break;
- 	}
-+	case KVM_STATS_GET_INFO: {
-+		struct kvm_stats_info stats_info;
-+
-+		r = -EFAULT;
-+		stats_info.num_stats = VCPU_STAT_COUNT;
-+		if (copy_to_user(argp, &stats_info, sizeof(stats_info)))
-+			goto out;
-+		r = 0;
-+		break;
-+	}
-+	case KVM_STATS_GET_NAMES: {
-+		struct kvm_stats_names stats_names;
-+
-+		r = -EFAULT;
-+		if (copy_from_user(&stats_names, argp, sizeof(stats_names)))
-+			goto out;
-+		r = -EINVAL;
-+		if (stats_names.size < VCPU_STAT_COUNT * KVM_STATS_NAME_LEN)
-+			goto out;
-+
-+		r = -EFAULT;
-+		if (copy_to_user(argp + sizeof(stats_names),
-+				kvm_vcpu_stat_strings,
-+				VCPU_STAT_COUNT * KVM_STATS_NAME_LEN))
-+			goto out;
-+		r = 0;
-+		break;
-+	}
-+	case KVM_STATS_GET_DATA: {
-+		struct kvm_stats_data stats_data;
-+
-+		r = -EFAULT;
-+		if (copy_from_user(&stats_data, argp, sizeof(stats_data)))
-+			goto out;
-+		r = -EINVAL;
-+		if (stats_data.size < sizeof(vcpu->stat))
-+			goto out;
-+
-+		r = -EFAULT;
-+		argp += sizeof(stats_data);
-+		if (copy_to_user(argp, &vcpu->stat, sizeof(vcpu->stat)))
-+			goto out;
-+		r = 0;
-+		break;
-+	}
- 	default:
- 		r = kvm_arch_vcpu_ioctl(filp, ioctl, arg);
- 	}
-@@ -3695,6 +3740,7 @@ static long kvm_vm_ioctl_check_extension_generic(struct kvm *kvm, long arg)
- 	case KVM_CAP_CHECK_EXTENSION_VM:
- 	case KVM_CAP_ENABLE_CAP_VM:
- 	case KVM_CAP_HALT_POLL:
-+	case KVM_CAP_STATS_BINARY_FORM:
- 		return 1;
- #ifdef CONFIG_KVM_MMIO
- 	case KVM_CAP_COALESCED_MMIO:
-@@ -3825,6 +3871,40 @@ static int kvm_vm_ioctl_enable_cap_generic(struct kvm *kvm,
- 	}
- }
- 
-+static long kvm_vm_ioctl_stats_get_data(struct kvm *kvm, unsigned long arg)
-+{
-+	void __user *argp = (void __user *)arg;
-+	struct kvm_vcpu *vcpu;
-+	struct kvm_stats_data stats_data;
-+	u64 *data = NULL, *pdata;
-+	int i, j, ret = 0;
-+	size_t dsize = (VM_STAT_COUNT + VCPU_STAT_COUNT) * sizeof(*data);
-+
-+
-+	if (copy_from_user(&stats_data, argp, sizeof(stats_data)))
-+		return -EFAULT;
-+	if (stats_data.size < dsize)
-+		return -EINVAL;
-+	data = kzalloc(dsize, GFP_KERNEL_ACCOUNT);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < VM_STAT_COUNT; i++)
-+		*(data + i) = *((ulong *)&kvm->stat + i);
-+
-+	kvm_for_each_vcpu(j, vcpu, kvm) {
-+		pdata = data + VM_STAT_COUNT;
-+		for (i = 0; i < VCPU_STAT_COUNT; i++, pdata++)
-+			*pdata += *((u64 *)&vcpu->stat + i);
-+	}
-+
-+	if (copy_to_user(argp + sizeof(stats_data), data, dsize))
-+		ret = -EFAULT;
-+
-+	kfree(data);
-+	return ret;
-+}
-+
- static long kvm_vm_ioctl(struct file *filp,
- 			   unsigned int ioctl, unsigned long arg)
- {
-@@ -4001,6 +4081,41 @@ static long kvm_vm_ioctl(struct file *filp,
- 		r = 0;
- 		break;
- 	}
-+	case KVM_STATS_GET_INFO: {
-+		struct kvm_stats_info stats_info;
-+
-+		r = -EFAULT;
-+		stats_info.num_stats = VM_STAT_COUNT + VCPU_STAT_COUNT;
-+		if (copy_to_user(argp, &stats_info, sizeof(stats_info)))
-+			goto out;
-+		r = 0;
-+		break;
-+	}
-+	case KVM_STATS_GET_NAMES: {
-+		struct kvm_stats_names stats_names;
-+
-+		r = -EFAULT;
-+		if (copy_from_user(&stats_names, argp, sizeof(stats_names)))
-+			goto out;
-+		r = -EINVAL;
-+		if (stats_names.size <
-+			(VM_STAT_COUNT + VCPU_STAT_COUNT) * KVM_STATS_NAME_LEN)
-+			goto out;
-+		r = -EFAULT;
-+		argp += sizeof(stats_names);
-+		if (copy_to_user(argp, kvm_vm_stat_strings,
-+				VM_STAT_COUNT * KVM_STATS_NAME_LEN))
-+			goto out;
-+		argp += VM_STAT_COUNT * KVM_STATS_NAME_LEN;
-+		if (copy_to_user(argp, kvm_vcpu_stat_strings,
-+				VCPU_STAT_COUNT * KVM_STATS_NAME_LEN))
-+			goto out;
-+		r = 0;
-+		break;
-+	}
-+	case KVM_STATS_GET_DATA:
-+		r =  kvm_vm_ioctl_stats_get_data(kvm, arg);
-+		break;
- 	case KVM_CHECK_EXTENSION:
- 		r = kvm_vm_ioctl_check_extension_generic(kvm, arg);
- 		break;
--- 
-2.30.1.766.gb4fecdf3b7-goog
-
+cheers
