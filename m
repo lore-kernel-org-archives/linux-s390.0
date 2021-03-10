@@ -2,160 +2,199 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6F4DC4332D
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 15:07:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E98DDC433E0
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 15:52:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 739D764F96
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 15:07:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAB1A64FB9
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 15:52:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232989AbhCJPGm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 Mar 2021 10:06:42 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33894 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230270AbhCJPGK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 10 Mar 2021 10:06:10 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12AF43Yh050263;
-        Wed, 10 Mar 2021 10:06:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=53H1LLl3qRqfe3nJ8hxU7IBg/TBXctguygeNieZskCk=;
- b=SNK8U9lDAk6kTkgm1N3MR17znDbI8Qk0e3nxQO+x99vuzwTBCbkKAMvqmABdHzhWBXzu
- uQ2fIs58/4V6aOs3tqGWvjhACLSSuofyQlWYdu7zWb722NJj9C3+5S9N4MZsHP79Rbnp
- Sw846sgjI7+nsQ6jx38+dJafmJISC9GQVIFxwJU62r6vYf5NkjWrNyd/WOz1dlkj0Vcp
- TRqrOuVoQy445yz8WxKv+wXNt1k2RLede/BRNnYOk4gl+3DNTioWaMbM5coSplQCoRyZ
- mbNE3AO4yBuD5Tn+ShOim+r/9NoIcVjJE8VHmBFgSTS5tOLsiSJnUCNv1Ph6PQqqqpFU 3w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 376hwdy29r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Mar 2021 10:06:06 -0500
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12AF45hi050487;
-        Wed, 10 Mar 2021 10:06:06 -0500
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 376hwdy28c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Mar 2021 10:06:05 -0500
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12AF3bFM016572;
-        Wed, 10 Mar 2021 15:06:04 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma02dal.us.ibm.com with ESMTP id 3768rbjt42-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Mar 2021 15:06:04 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12AF646s11338076
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 10 Mar 2021 15:06:04 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 135D12805A;
-        Wed, 10 Mar 2021 15:06:04 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8DE2E2805C;
-        Wed, 10 Mar 2021 15:06:03 +0000 (GMT)
-Received: from cpe-66-24-58-13.stny.res.rr.com.com (unknown [9.85.150.254])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed, 10 Mar 2021 15:06:03 +0000 (GMT)
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     stable@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com,
-        kwankhede@nvidia.com, pbonzini@redhat.com,
-        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com
-Subject: [PATCH v4 0/1] s390/vfio-ap: fix circular lockdep when starting
-Date:   Wed, 10 Mar 2021 10:05:58 -0500
-Message-Id: <20210310150559.8956-1-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.21.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-10_09:2021-03-10,2021-03-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- malwarescore=0 spamscore=0 suspectscore=0 impostorscore=0 phishscore=0
- mlxlogscore=999 clxscore=1015 priorityscore=1501 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2103100076
+        id S233113AbhCJPva (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 Mar 2021 10:51:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54620 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233096AbhCJPvK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 10 Mar 2021 10:51:10 -0500
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE1D864FB9;
+        Wed, 10 Mar 2021 15:51:09 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94)
+        (envelope-from <maz@kernel.org>)
+        id 1lK175-000nQG-Kj; Wed, 10 Mar 2021 15:51:07 +0000
+Date:   Wed, 10 Mar 2021 15:51:06 +0000
+Message-ID: <875z1zxb11.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Jing Zhang <jingzhangos@google.com>
+Cc:     KVM <kvm@vger.kernel.org>, KVM ARM <kvmarm@lists.cs.columbia.edu>,
+        Linux MIPS <linux-mips@vger.kernel.org>,
+        KVM PPC <kvm-ppc@vger.kernel.org>,
+        Linux S390 <linux-s390@vger.kernel.org>,
+        Linux kselftest <linux-kselftest@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Subject: Re: [RFC PATCH 3/4] KVM: stats: Add ioctl commands to pull statistics in binary format
+In-Reply-To: <20210310003024.2026253-4-jingzhangos@google.com>
+References: <20210310003024.2026253-1-jingzhangos@google.com>
+        <20210310003024.2026253-4-jingzhangos@google.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: jingzhangos@google.com, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, pbonzini@redhat.com, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, will@kernel.org, chenhuacai@kernel.org, aleksandar.qemu.devel@gmail.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, seanjc@google.com, vkuznets@redhat.com, jmattson@google.com, pshier@google.com, oupton@google.com, rientjes@google.com, eesposit@redhat.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-*Commit f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM
-pointer invalidated") introduced a change that results in a circular
-lockdep when a Secure Execution guest that is configured with
-crypto devices is started. The problem resulted due to the fact that the
-patch moved the setting of the guest's AP masks within the protection of
-the matrix_dev->lock when the vfio_ap driver is notified that the KVM 
-pointer has been set. Since it is not critical that setting/clearing of
-the guest's AP masks be done under the matrix_dev->lock when the driver
-is notified, the masks will not be updated under the matrix_dev->lock.
-The lock is necessary for the setting/unsetting of the KVM pointer,
-however, so that will remain in place. 
+On Wed, 10 Mar 2021 00:30:23 +0000,
+Jing Zhang <jingzhangos@google.com> wrote:
+> 
+> Three ioctl commands are added to support binary form statistics data
+> retrieval. KVM_STATS_GET_INFO, KVM_STATS_GET_NAMES, KVM_STATS_GET_DATA.
+> KVM_CAP_STATS_BINARY_FORM indicates the capability.
+> 
+> Signed-off-by: Jing Zhang <jingzhangos@google.com>
+> ---
+>  virt/kvm/kvm_main.c | 115 ++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 115 insertions(+)
+> 
+> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> index 383df23514b9..87dd62516c8b 100644
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
+> @@ -3464,6 +3464,51 @@ static long kvm_vcpu_ioctl(struct file *filp,
+>  		r = kvm_arch_vcpu_ioctl_set_fpu(vcpu, fpu);
+>  		break;
+>  	}
+> +	case KVM_STATS_GET_INFO: {
+> +		struct kvm_stats_info stats_info;
+> +
+> +		r = -EFAULT;
+> +		stats_info.num_stats = VCPU_STAT_COUNT;
+> +		if (copy_to_user(argp, &stats_info, sizeof(stats_info)))
+> +			goto out;
+> +		r = 0;
+> +		break;
+> +	}
+> +	case KVM_STATS_GET_NAMES: {
+> +		struct kvm_stats_names stats_names;
+> +
+> +		r = -EFAULT;
+> +		if (copy_from_user(&stats_names, argp, sizeof(stats_names)))
+> +			goto out;
+> +		r = -EINVAL;
+> +		if (stats_names.size < VCPU_STAT_COUNT * KVM_STATS_NAME_LEN)
+> +			goto out;
+> +
+> +		r = -EFAULT;
+> +		if (copy_to_user(argp + sizeof(stats_names),
+> +				kvm_vcpu_stat_strings,
+> +				VCPU_STAT_COUNT * KVM_STATS_NAME_LEN))
+> +			goto out;
+> +		r = 0;
+> +		break;
+> +	}
+> +	case KVM_STATS_GET_DATA: {
+> +		struct kvm_stats_data stats_data;
+> +
+> +		r = -EFAULT;
+> +		if (copy_from_user(&stats_data, argp, sizeof(stats_data)))
+> +			goto out;
+> +		r = -EINVAL;
+> +		if (stats_data.size < sizeof(vcpu->stat))
+> +			goto out;
+> +
+> +		r = -EFAULT;
+> +		argp += sizeof(stats_data);
+> +		if (copy_to_user(argp, &vcpu->stat, sizeof(vcpu->stat)))
+> +			goto out;
+> +		r = 0;
+> +		break;
+> +	}
+>  	default:
+>  		r = kvm_arch_vcpu_ioctl(filp, ioctl, arg);
+>  	}
+> @@ -3695,6 +3740,7 @@ static long kvm_vm_ioctl_check_extension_generic(struct kvm *kvm, long arg)
+>  	case KVM_CAP_CHECK_EXTENSION_VM:
+>  	case KVM_CAP_ENABLE_CAP_VM:
+>  	case KVM_CAP_HALT_POLL:
+> +	case KVM_CAP_STATS_BINARY_FORM:
+>  		return 1;
+>  #ifdef CONFIG_KVM_MMIO
+>  	case KVM_CAP_COALESCED_MMIO:
+> @@ -3825,6 +3871,40 @@ static int kvm_vm_ioctl_enable_cap_generic(struct kvm *kvm,
+>  	}
+>  }
+>  
+> +static long kvm_vm_ioctl_stats_get_data(struct kvm *kvm, unsigned long arg)
+> +{
+> +	void __user *argp = (void __user *)arg;
+> +	struct kvm_vcpu *vcpu;
+> +	struct kvm_stats_data stats_data;
+> +	u64 *data = NULL, *pdata;
+> +	int i, j, ret = 0;
+> +	size_t dsize = (VM_STAT_COUNT + VCPU_STAT_COUNT) * sizeof(*data);
+> +
+> +
+> +	if (copy_from_user(&stats_data, argp, sizeof(stats_data)))
+> +		return -EFAULT;
+> +	if (stats_data.size < dsize)
+> +		return -EINVAL;
+> +	data = kzalloc(dsize, GFP_KERNEL_ACCOUNT);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	for (i = 0; i < VM_STAT_COUNT; i++)
+> +		*(data + i) = *((ulong *)&kvm->stat + i);
 
-The dependency chain for the circular lockdep resolved by this patch 
-is (in reverse order):
+This kind of dance could be avoided if your stats were just an array,
+or a union of the current data structure and an array.
 
-2:	vfio_ap_mdev_group_notifier:	kvm->lock
-					matrix_dev->lock
+> +
+> +	kvm_for_each_vcpu(j, vcpu, kvm) {
+> +		pdata = data + VM_STAT_COUNT;
+> +		for (i = 0; i < VCPU_STAT_COUNT; i++, pdata++)
+> +			*pdata += *((u64 *)&vcpu->stat + i);
 
-1:	handle_pqap:			matrix_dev->lock
-	kvm_vcpu_ioctl:			vcpu->mutex
+Do you really need the in-kernel copy? Why not directly organise the
+data structures in a way that would allow a bulk copy using
+copy_to_user()?
 
-0:	kvm_s390_cpus_to_pv:		vcpu->mutex
-	kvm_vm_ioctl:  			kvm->lock
+Another thing is the atomicity of what you are reporting. Don't you
+care about the consistency of the counters?
 
-Please note:
------------
-* If checkpatch is run against this patch series, you may
-  get a "WARNING: Unknown commit id 'f21916ec4826', maybe rebased or not 
-  pulled?" message. The commit 'f21916ec4826', however, is definitely
-  in the master branch on top of which this patch series was built, so
-  I'm not sure why this message is being output by checkpatch.
-* All acks granted from previous review of this patch have been removed
-  due to the fact that this patch introduces non-trivial changes (see
-  change log below).
+Thanks,
 
-Change log v3=> v4:
-------------------
-* In vfio_ap_mdev_set_kvm() function, moved the setting of 
-  matrix_mdev->kvm_busy just prior to unlocking matrix_dev->lock.
-
-* Reset queues regardless of regardless of the value of matrix_mdev->kvm
-  in response to the VFIO_DEVICE_RESET ioctl.
-
-Change log v2=> v3:
------------------- 
-* Added two fields - 'bool kvm_busy' and 'wait_queue_head_t wait_for_kvm'
-  to struct ap_matrix_mdev. The former indicates that the KVM
-  pointer is in the process of being updated and the second allows a
-  function that needs access to the KVM pointer to wait until it is
-  no longer being updated. Resolves problem of synchronization between
-  the functions that change the KVM pointer value and the functions that
-  required access to it.
-
-Change log v1=> v2:
-------------------
-* No longer holding the matrix_dev->lock prior to setting/clearing the
-  masks supplying the AP configuration to a KVM guest.
-* Make all updates to the data in the matrix mdev that is used to manage
-  AP resources used by the KVM guest in the vfio_ap_mdev_set_kvm()
-  function instead of the group notifier callback.
-* Check for the matrix mdev's KVM pointer in the vfio_ap_mdev_unset_kvm()
-  function instead of the vfio_ap_mdev_release() function.
-
-Tony Krowiak (1):
-  s390/vfio-ap: fix circular lockdep when setting/clearing crypto masks
-
- drivers/s390/crypto/vfio_ap_ops.c     | 309 ++++++++++++++++++--------
- drivers/s390/crypto/vfio_ap_private.h |   2 +
- 2 files changed, 215 insertions(+), 96 deletions(-)
+	M.
 
 -- 
-2.21.3
-
+Without deviation from the norm, progress is not possible.
