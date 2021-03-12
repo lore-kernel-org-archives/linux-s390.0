@@ -2,74 +2,71 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CAD7C433E9
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 21:44:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2276EC433E9
+	for <linux-s390@archiver.kernel.org>; Fri, 12 Mar 2021 18:11:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 18F3464FCD
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Mar 2021 21:44:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F283B64F50
+	for <linux-s390@archiver.kernel.org>; Fri, 12 Mar 2021 18:11:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231964AbhCJVoY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 Mar 2021 16:44:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41128 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232136AbhCJVoG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 10 Mar 2021 16:44:06 -0500
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43BE4C061760
-        for <linux-s390@vger.kernel.org>; Wed, 10 Mar 2021 13:44:06 -0800 (PST)
-Received: by mail-lf1-x12e.google.com with SMTP id m22so36070890lfg.5
-        for <linux-s390@vger.kernel.org>; Wed, 10 Mar 2021 13:44:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=+At1OFsJvT0JOYczrtSDaeg1RlqRvgFnN9ibJip5xME=;
-        b=qkR47YAxd7W+12meJHOokTY86zM5TK5Wusnmh13Uxu6NKYuWOWiLQGc+P2AFImuiLA
-         ORloLJ5jSdrdT/bdHqp0DqklfhSIS7mEsK7M0vc6oJuwRJflhTJDhz132bRJTuHxQ+kO
-         RInZN11KZCoVG6SxxC7xs6XJmagTxp4jzMdyWhd7EKrDtUQBY/A2tTYflsQ1uYhuPyd3
-         zAAkVHP8jzsjKtNt8i07AloD2E4Y+rbcN6P6aA+VHiEEec2aQ0pLVAnU5FG2ZdTYiTPl
-         Vuh0I/S8kIlI0b/tAdley4Z5qQ9yZunB4iev6lY8EGMaF3EkJrMb2vFP3F+H3DRihlGh
-         rj2g==
+        id S232253AbhCLSLY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 12 Mar 2021 13:11:24 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:59920 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231636AbhCLSLR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 12 Mar 2021 13:11:17 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1615572676;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SQXRSD89A8xhrCuxpBydg6Y3MyKh1PtNusEjHfIcj18=;
+        b=KZ8yOtidfGUcx654m9Pe4lxyuho4yK6NSU0ZJbKsZ832NWmTMviBuXC7ZIXX9BDoh98D6i
+        1NZIJdP7mBqHMr4r+s4HUF6jJzTXwm6UOuCSZofo0inrTUZk8UyAR2zzPgKPyfIyq44ZJv
+        30HjzYMhdZbmDkjzkQaT/7RRnmXpXuM=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-4-Ta_uX-iRNdiM95IlXRBgyQ-1; Fri, 12 Mar 2021 13:11:14 -0500
+X-MC-Unique: Ta_uX-iRNdiM95IlXRBgyQ-1
+Received: by mail-wr1-f72.google.com with SMTP id r12so11529024wro.15
+        for <linux-s390@vger.kernel.org>; Fri, 12 Mar 2021 10:11:14 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=+At1OFsJvT0JOYczrtSDaeg1RlqRvgFnN9ibJip5xME=;
-        b=TXjOT4PzugE5dycjeJS6DBLpzXd8VG+2OvVUwabXXCYIJN4b2dOIj8CvWQ9Ae+gn7o
-         ArfNptS1TfoxxsF9Ccx1MTzL97pXyYqLqWJLSe47p8Bm3XFDlws+aKWcezrzgKTcNA10
-         d5Nc2ibGk10BWJvif+VwI/T8yE+DbQKpFHMZJ4zMx2aZYkYRPAzSF4rSMiTzEmNulhAJ
-         /cFy2Dvh9M3PgVh58rCmwqgC+bPqGJ7+muur14F47wK5/Jf6z32wh+72cCdz81Df6T2M
-         +kJu6M30acul5RD06BK8TNy14LFRM6xLPVHXIf9v0Op2OFR2GmKgue1Ld7SP9hGGzkur
-         LGPA==
-X-Gm-Message-State: AOAM532C6H1EjImxSv5abFuj4GHImeAD7y1R0f/Ic+QBmoEtau5gHaMv
-        GxJ47EM/l/65H9UYBKn6LlDqocQ8X4FyKPng5GfbDg==
-X-Google-Smtp-Source: ABdhPJzfPcaCkdhotikZXLd9A3857WsFY8DpxVP062dOT18HhG4a9S9hO0jkkklXHezJ/dUgXnUVkP98iZMz90iTzX0=
-X-Received: by 2002:a19:4345:: with SMTP id m5mr302440lfj.178.1615412644377;
- Wed, 10 Mar 2021 13:44:04 -0800 (PST)
-MIME-Version: 1.0
-References: <20210310003024.2026253-1-jingzhangos@google.com>
- <20210310003024.2026253-4-jingzhangos@google.com> <875z1zxb11.wl-maz@kernel.org>
- <a475d935-e404-93dd-4c6d-a5f8038d8f4d@redhat.com> <8735x3x7lu.wl-maz@kernel.org>
- <2749fe68-acbb-8f4d-dc76-4cb23edb9b35@redhat.com> <871rcmhq43.wl-maz@kernel.org>
- <fd37d21f-f3ae-d370-f8e1-cf552be3b2ee@redhat.com>
-In-Reply-To: <fd37d21f-f3ae-d370-f8e1-cf552be3b2ee@redhat.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Wed, 10 Mar 2021 15:43:53 -0600
-Message-ID: <CAAdAUtjQHh3CEedcjZ5qQ72JZiacjogPoaKBO03vNbiQo=u5+g@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/4] KVM: stats: Add ioctl commands to pull statistics
- in binary format
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Marc Zyngier <maz@kernel.org>, KVM <kvm@vger.kernel.org>,
-        KVM ARM <kvmarm@lists.cs.columbia.edu>,
+        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=SQXRSD89A8xhrCuxpBydg6Y3MyKh1PtNusEjHfIcj18=;
+        b=T+i5YfL9nFy69RXVmdK9WpgN9qwcd7Vap0BV/yJ3Pti6dJK5uQCC0QauHUH4Fw1fnF
+         AcTHGEEFVuHJwhlgzL9ocgWlKTM0yeLPJdepj9OQjR0+aOs9zQk9nKFi2apiMzaQRFAR
+         pAz8Tedv1Ty2ij0yj565Q4uaEhf3mnWqjA5qf2rB8eYIVOkTLePoMnBJ/hoomgRMDBX/
+         cr1MMJ2nHk7CfnOt4Y6LteYIYgB9TE47dVZoPALYoyGNrGyo5cRxRCiRyjhDGzsPS/MV
+         +hxih6BVBAMX3ABm6rrZB5Gy+gPMEd6sdx6H4xi0kvmlrYBGIaf9dL0IEA4bCX7BJ3Xu
+         xF0w==
+X-Gm-Message-State: AOAM533xhy/l6MbGLvorKT0+S0uafdPAlvBaTzsg5QETtjY4Q+XyogvU
+        oe5EaeIBahTs421uyl1aYAMPIyU9nD399NpCFNKMCJo4ZgpfKWn4nzFJE2093JDP0zLhqvJAnbq
+        jAM+JW3ppTOI2QUX5nxGu3Q==
+X-Received: by 2002:a1c:498b:: with SMTP id w133mr14755137wma.134.1615572673378;
+        Fri, 12 Mar 2021 10:11:13 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx2aInA1bidlltyWIjYrqBjK+SGizjJOOZcscWT2RiFNd2X/0uEYFLiJqfA7xaEL8hELymOZw==
+X-Received: by 2002:a1c:498b:: with SMTP id w133mr14755105wma.134.1615572673180;
+        Fri, 12 Mar 2021 10:11:13 -0800 (PST)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id y8sm2934326wmi.46.2021.03.12.10.11.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 12 Mar 2021 10:11:12 -0800 (PST)
+To:     Jing Zhang <jingzhangos@google.com>
+Cc:     KVM <kvm@vger.kernel.org>, KVM ARM <kvmarm@lists.cs.columbia.edu>,
         Linux MIPS <linux-mips@vger.kernel.org>,
         KVM PPC <kvm-ppc@vger.kernel.org>,
         Linux S390 <linux-s390@vger.kernel.org>,
         Linux kselftest <linux-kselftest@vger.kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
         James Morse <james.morse@arm.com>,
         Julien Thierry <julien.thierry.kdev@gmail.com>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
@@ -90,38 +87,68 @@ Cc:     Marc Zyngier <maz@kernel.org>, KVM <kvm@vger.kernel.org>,
         Oliver Upton <oupton@google.com>,
         David Rientjes <rientjes@google.com>,
         Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+References: <20210310003024.2026253-1-jingzhangos@google.com>
+ <20210310003024.2026253-4-jingzhangos@google.com>
+ <bb03107c-a413-50da-e228-d338dd471fb3@redhat.com>
+ <CAAdAUtjj52+cAhD4KUzAaqrMSJXHD0g=ecQNG-a92Mqn3BCxiQ@mail.gmail.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [RFC PATCH 3/4] KVM: stats: Add ioctl commands to pull statistics
+ in binary format
+Message-ID: <ac7462de-1531-5428-5dca-4e3dfb897000@redhat.com>
+Date:   Fri, 12 Mar 2021 19:11:10 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
+MIME-Version: 1.0
+In-Reply-To: <CAAdAUtjj52+cAhD4KUzAaqrMSJXHD0g=ecQNG-a92Mqn3BCxiQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 10, 2021 at 11:44 AM Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> On 10/03/21 18:31, Marc Zyngier wrote:
-> >> Maintaining VM-global counters would require an atomic instruction and
-> >> would suffer lots of cacheline bouncing even on architectures that
-> >> have relaxed atomic memory operations.
-> > Which is why we have per-cpu counters already. Making use of them
-> > doesn't seem that outlandish.
->
-> But you wouldn't be able to guarantee consistency anyway, would you?
-> You *could* copy N*M counters to userspace, but there's no guarantee
-> that they are consistent, neither within a single vCPU nor within a
-> single counter.
->
-> >> Speed/efficiency of retrieving statistics is important, but let's keep
-> >> in mind that the baseline for comparison is hundreds of syscalls and
-> >> filesystem lookups.
-> >
-> > Having that baseline in the cover letter would be a good start, as
-> > well as an indication of the frequency this is used at.
->
-> Can't disagree, especially on the latter which I have no idea about.
->
-> Paolo
->
-Marc, Paolo, thanks for the comments. I will add some more information
-in the cover letter.
+On 10/03/21 22:41, Jing Zhang wrote:
+>> I would prefer a completely different interface, where you have a file
+>> descriptor that can be created and associated to a vCPU or VM (or even
+>> to /dev/kvm).  Having a file descriptor is important because the fd can
+>> be passed to a less-privileged process that takes care of gathering the
+>> metrics
+> Separate file descriptor solution is very tempting. We are still considering it
+> seriously. Our biggest concern is that the metrics gathering/handling process
+> is not necessary running on the same node as the one file descriptor belongs to.
+> It scales better to pass metrics data directly than to pass file descriptors.
 
-Thanks,
-Jing
+If you want to pass metrics data directly, you can just read the file 
+descriptor from your VMM, just like you're using the ioctls now. 
+However the file descriptor also allows a privilege-separated same-host 
+interface.
+
+>> 4 bytes flags (always zero)
+>> 4 bytes number of statistics
+>> 4 bytes offset of the first stat description
+>> 4 bytes offset of the first stat value
+>> stat descriptions:
+>>    - 4 bytes for the type (for now always zero: uint64_t)
+>>    - 4 bytes for the flags (for now always zero)
+>>    - length of name
+>>    - name
+>> statistics in 64-bit format
+> 
+> The binary format presented above is very flexible. I understand why it is
+> organized this way.
+> In our situation, the metrics data could be pulled periodically as short as
+> half second. They are used by different kinds of monitors/triggers/alerts.
+> To enhance efficiency and reduce traffic caused by metrics passing, we
+> treat all metrics info/data as two kinds. One is immutable information,
+> which doesn't change in a given system boot. The other is mutable
+> data (statistics data), which is pulled/transferred periodically at a high
+> frequency.
+
+The format allows to place the values before the descriptions.  So you 
+could use pread to only read the first part of the file descriptor, and 
+the file_operations implementation would then skip the work of building 
+the immutable data.  It doesn't have to be implemented from the
+beginning like that, but the above format supports it.
+
+Paolo
+
