@@ -2,151 +2,203 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95157C433E0
-	for <linux-s390@archiver.kernel.org>; Sat, 13 Mar 2021 09:36:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 990FBC433DB
+	for <linux-s390@archiver.kernel.org>; Mon, 15 Mar 2021 15:14:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 55FCF64F1D
-	for <linux-s390@archiver.kernel.org>; Sat, 13 Mar 2021 09:36:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 640E864E69
+	for <linux-s390@archiver.kernel.org>; Mon, 15 Mar 2021 15:14:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233011AbhCMJf4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 13 Mar 2021 04:35:56 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:27700 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232431AbhCMJf3 (ORCPT
+        id S231496AbhCOPNz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 Mar 2021 11:13:55 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:63143 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232518AbhCOPNn (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 13 Mar 2021 04:35:29 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1615628129;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=GEXvJoFIMtu03gnrQoXoMyZklbH+XrN6f9pUvJEic0Q=;
-        b=IqKwB+G8k6cGJvIvuY229izFBrxVHACs5b+xyVTWxcvEKld4aw+XrRw6lk8D1z/W9Ka97n
-        ASOGyBN3lLae0zxFYjUNXPEWvPebkB/Ej4XaOk84DsMFbhmoL7JjPWV99+5C0PLmH/NlyZ
-        K9uNxCE1M7BIue1tEDUp0+AggD3fXKQ=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-200-y8Hg8QrPPDyeb-kliOaddQ-1; Sat, 13 Mar 2021 04:35:24 -0500
-X-MC-Unique: y8Hg8QrPPDyeb-kliOaddQ-1
-Received: by mail-wr1-f69.google.com with SMTP id y5so12367619wrp.2
-        for <linux-s390@vger.kernel.org>; Sat, 13 Mar 2021 01:35:24 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=GEXvJoFIMtu03gnrQoXoMyZklbH+XrN6f9pUvJEic0Q=;
-        b=lhgEK8ybiRWy1+0tgCbBa0EmlgcE1nHclZFEqJ9TEiuTerhOIEIVTGj75/Be/pt0C+
-         7GbQPyN9PaN+zspB+njDybF5BL8aROisHfWaU0oopBWGJpZjaajTISlE9BwNTI5FdSJJ
-         KDusmEgaymJNPfrgSl58sH+TzzrSNiaO6jMbCLdrAdyOnMIjazGqUUzW7L9LBdIaCj9L
-         X02PLyXmRKyufbIy9IyQY4MT5TrU//si7+ePGguagt/l/lJG9//ktbLJK9s3i4eDk7Kj
-         YvcMpU1OJh5oDfVXgKQ2pSJi5VBrIwEjzO1+BwkcdnrDckOPPvV0J0p/4jhPlYfNh0i5
-         7Uuw==
-X-Gm-Message-State: AOAM530eplebm3sq4n/8liVJpNEp530BMard7LE4qCvvtzGlc8/MSOVs
-        BzpHg+zlvxCXc8EhWpZEilVLLhfoE89rRv+t5cFRX9vKqiznCrcc9wgiUrWIFFOr0pvX0YNYWXR
-        MKiDMlbtTdrKmBTyRw0/TXg==
-X-Received: by 2002:a1c:6a05:: with SMTP id f5mr17111378wmc.184.1615628123494;
-        Sat, 13 Mar 2021 01:35:23 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxZPtEFloConQy5tT04Uy7VF5TWLNu7KM1ZAXfW/KGrUv9L+W1l/kfjlKPOTxYm+VdwnnAdmg==
-X-Received: by 2002:a1c:6a05:: with SMTP id f5mr17111339wmc.184.1615628123265;
-        Sat, 13 Mar 2021 01:35:23 -0800 (PST)
-Received: from ?IPv6:2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e? ([2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e])
-        by smtp.gmail.com with ESMTPSA id b17sm11575008wrt.17.2021.03.13.01.35.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 13 Mar 2021 01:35:22 -0800 (PST)
-To:     Jing Zhang <jingzhangos@google.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVM ARM <kvmarm@lists.cs.columbia.edu>,
-        Linux MIPS <linux-mips@vger.kernel.org>,
-        KVM PPC <kvm-ppc@vger.kernel.org>,
-        Linux S390 <linux-s390@vger.kernel.org>,
-        Linux kselftest <linux-kselftest@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>
-References: <20210310003024.2026253-1-jingzhangos@google.com>
- <20210310003024.2026253-4-jingzhangos@google.com>
- <bb03107c-a413-50da-e228-d338dd471fb3@redhat.com>
- <CAAdAUtjj52+cAhD4KUzAaqrMSJXHD0g=ecQNG-a92Mqn3BCxiQ@mail.gmail.com>
- <ac7462de-1531-5428-5dca-4e3dfb897000@redhat.com>
- <CAAdAUtjV67hx5BAd31-RG6tjgfZ6tdyu_yLhkbR0d-3qm59mMA@mail.gmail.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH 3/4] KVM: stats: Add ioctl commands to pull statistics
- in binary format
-Message-ID: <01a4619a-b36c-c08e-ff6e-7f8bc4d32771@redhat.com>
-Date:   Sat, 13 Mar 2021 10:35:19 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        Mon, 15 Mar 2021 11:13:43 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12FF4dC2170990;
+        Mon, 15 Mar 2021 11:13:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type :
+ content-transfer-encoding; s=pp1;
+ bh=B5cWiCah1WTZhvLrevuetHghTSK2P2SVWdhapXHvan0=;
+ b=cDPDZE/wkNPfg19MWshZ2QNJ1anCLR4ahqspUhAqP/8Vfay8IUdMjs2G6xaCfFvDzyzU
+ 9rmuggxR6XIEE5MImZYsDCIdZwO2Sz+MwDvnezGNn9eqd8195kWAZkyB6KTHhHCMmtRO
+ un+4oANFgPXynBR3EeC0i5wZU3D2Xuka1DieSMQyjHdp/iuqekH3IRA5+UEJEgSsYBtf
+ wS/JwEziI2lhAhE9oIIFklWqCJgC4ZE06KzBc8T8qajM1U1V8arJ4BTY8Xl7DEQ5c66P
+ Mezx+rSqL7HGZcoIN96ik1Lfi9B6VKl/DXjj9yDOhLOA9tsCethwXnx4ayi7raALqSvR qQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37a95da7uk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 Mar 2021 11:13:40 -0400
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12FF5Zui175994;
+        Mon, 15 Mar 2021 11:13:39 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37a95da7t7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 Mar 2021 11:13:39 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12FFCPNE025440;
+        Mon, 15 Mar 2021 15:13:37 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma01fra.de.ibm.com with ESMTP id 378n1891sg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 15 Mar 2021 15:13:37 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12FFDYlm38928716
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 15 Mar 2021 15:13:34 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B5EB74C04A;
+        Mon, 15 Mar 2021 15:13:34 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 66E764C04E;
+        Mon, 15 Mar 2021 15:13:34 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 15 Mar 2021 15:13:34 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Bjorn Helgaas <bhelgaas@google.com>,
+        Narendra K <narendra_k@dell.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Viktor Mihajlovski <mihajlov@linux.ibm.com>,
+        Stefan Raspl <raspl@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH] s390/pci: expose a PCI device's UID as its index
+Date:   Mon, 15 Mar 2021 16:13:34 +0100
+Message-Id: <20210315151334.174802-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <CAAdAUtjV67hx5BAd31-RG6tjgfZ6tdyu_yLhkbR0d-3qm59mMA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-15_08:2021-03-15,2021-03-15 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ suspectscore=0 bulkscore=0 priorityscore=1501 phishscore=0 impostorscore=0
+ clxscore=1015 adultscore=0 malwarescore=0 mlxscore=0 spamscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103150109
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 12/03/21 23:27, Jing Zhang wrote:
->>>> 4 bytes flags (always zero)
-> Could you give some potential use for this flag?
+On s390 each PCI device has a user-defined ID (UID) exposed under
+/sys/bus/pci/devices/<dev>/uid. This ID was designed to serve as the PCI
+device's primary index and to match the device within Linux to the
+device configured in the hypervisor. To serve as a primary identifier
+the UID must be unique within the Linux instance, this is guaranteed by
+the platform if and only if the UID Uniqueness Checking flag is set
+within the CLP List PCI Functions response.
 
-No idea, honestly.  It probably would signal the presence of more fields 
-after "offset of the first stat value".  In general it's better to leave 
-some room for extension.
+In this the UID serves an analogous function as the SMBIOS instance
+number or ACPI index exposed as the "index" respectively "acpi_index"
+device attributes and used by e.g. systemd to set interface names. As
+s390 does not use and will likely never use ACPI nor SMBIOS there is no
+conflict and we can just expose the UID under the "index" attribute
+whenever UID Uniqueness Checking is active and get systemd's interface
+naming support for free.
 
->>>> 4 bytes number of statistics
->>>> 4 bytes offset of the first stat description
->>>> 4 bytes offset of the first stat value
->>>> stat descriptions:
->>>>     - 4 bytes for the type (for now always zero: uint64_t)
-> Potential use for this type? Should we move this outside descriptor? Since
-> all stats probably have the same size.
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Acked-by: Viktor Mihajlovski <mihajlov@linux.ibm.com>
+---
+Changes from RFC patch:
+- Use sysfs_emit() instead of sprintf() (Thanks Krzysztof Wilczyński!)
 
-Yes, all stats should be 8 bytes.  But for example:
+ Documentation/ABI/testing/sysfs-bus-pci | 11 +++++---
+ arch/s390/pci/pci_sysfs.c               | 36 +++++++++++++++++++++++++
+ 2 files changed, 43 insertions(+), 4 deletions(-)
 
-- 0 = uint64_t
-
-- 1 = int64_t
-
-- 0x80000000 | n: enum with n different values, which are stored after 
-the name
-
->>>>     - 4 bytes for the flags (for now always zero)
-> Potential use for this flag?
-
-Looking back at Emanuele's statsfs, it could be:
-
-- bit 0: can be cleared (by writing eight zero bytes in the statistics' 
-offset)
-
-- bit 1: cumulative value (count of events, can only grow) vs. 
-instantaneous value (can go up or down)
-
-This is currently stored in the debugfs mode, so we can already use 
-these flags.
-
-Paolo
+diff --git a/Documentation/ABI/testing/sysfs-bus-pci b/Documentation/ABI/testing/sysfs-bus-pci
+index 25c9c39770c6..1241b6d11a52 100644
+--- a/Documentation/ABI/testing/sysfs-bus-pci
++++ b/Documentation/ABI/testing/sysfs-bus-pci
+@@ -195,10 +195,13 @@ What:		/sys/bus/pci/devices/.../index
+ Date:		July 2010
+ Contact:	Narendra K <narendra_k@dell.com>, linux-bugs@dell.com
+ Description:
+-		Reading this attribute will provide the firmware
+-		given instance (SMBIOS type 41 device type instance) of the
+-		PCI device. The attribute will be created only if the firmware
+-		has given an instance number to the PCI device.
++		Reading this attribute will provide the firmware given instance
++		number of the PCI device.  Depending on the platform this can
++		be for example the SMBIOS type 41 device type instance or the
++		user-defined ID (UID) on s390. The attribute will be created
++		only if the firmware has given an instance number to the PCI
++		device and that number is guaranteed to uniquely identify the
++		device in the system.
+ Users:
+ 		Userspace applications interested in knowing the
+ 		firmware assigned device type instance of the PCI
+diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
+index 5c028bee91b9..c7107bd9dd93 100644
+--- a/arch/s390/pci/pci_sysfs.c
++++ b/arch/s390/pci/pci_sysfs.c
+@@ -131,6 +131,38 @@ static ssize_t report_error_write(struct file *filp, struct kobject *kobj,
+ }
+ static BIN_ATTR(report_error, S_IWUSR, NULL, report_error_write, PAGE_SIZE);
+ 
++#ifndef CONFIG_DMI
++/* analogous to smbios index */
++static ssize_t index_show(struct device *dev,
++			  struct device_attribute *attr, char *buf)
++{
++	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
++	u32 index = ~0;
++
++	if (zpci_unique_uid)
++		index = zdev->uid;
++
++	return sysfs_emit(buf, "%u\n", index);
++}
++static DEVICE_ATTR_RO(index);
++
++static umode_t zpci_unique_uids(struct kobject *kobj,
++				struct attribute *attr, int n)
++{
++	return zpci_unique_uid ? attr->mode : 0;
++}
++
++static struct attribute *zpci_ident_attrs[] = {
++	&dev_attr_index.attr,
++	NULL,
++};
++
++static struct attribute_group zpci_ident_attr_group = {
++	.attrs = zpci_ident_attrs,
++	.is_visible = zpci_unique_uids,
++};
++#endif
++
+ static struct bin_attribute *zpci_bin_attrs[] = {
+ 	&bin_attr_util_string,
+ 	&bin_attr_report_error,
+@@ -150,6 +182,7 @@ static struct attribute *zpci_dev_attrs[] = {
+ 	&dev_attr_mio_enabled.attr,
+ 	NULL,
+ };
++
+ static struct attribute_group zpci_attr_group = {
+ 	.attrs = zpci_dev_attrs,
+ 	.bin_attrs = zpci_bin_attrs,
+@@ -170,5 +203,8 @@ static struct attribute_group pfip_attr_group = {
+ const struct attribute_group *zpci_attr_groups[] = {
+ 	&zpci_attr_group,
+ 	&pfip_attr_group,
++#ifndef CONFIG_DMI
++	&zpci_ident_attr_group,
++#endif
+ 	NULL,
+ };
+-- 
+2.25.1
 
