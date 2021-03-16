@@ -2,177 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0996CC43381
-	for <linux-s390@archiver.kernel.org>; Mon, 15 Mar 2021 22:32:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18088C433DB
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Mar 2021 09:20:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CF20F64F0C
-	for <linux-s390@archiver.kernel.org>; Mon, 15 Mar 2021 22:32:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BFBDB6500C
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Mar 2021 09:20:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233019AbhCOWba (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 15 Mar 2021 18:31:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43064 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232970AbhCOWb3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Mar 2021 18:31:29 -0400
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 101B9C061764
-        for <linux-s390@vger.kernel.org>; Mon, 15 Mar 2021 15:31:29 -0700 (PDT)
-Received: by mail-lj1-x233.google.com with SMTP id 184so18182842ljf.9
-        for <linux-s390@vger.kernel.org>; Mon, 15 Mar 2021 15:31:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=t48JfE/I+ydsOOfkocl4ExwOYD4Cwrny9/Xf4iuVVeE=;
-        b=YzOHwW9gU+2CCoT9hKyxcZQ9g6o779atEw1QSJLPBRAVTj7Gc0vDffISoB/Cd9mLvk
-         keJsigpwHmgy2X42PpmONt7PB65J85QkeCx9fHcaIGkNovhredA86swM4cAXZwH+PSi8
-         lRrPBaNDuKAYAs9HX13mcFnjNF4HVRXNtJQ97EfCuIjTjC3+fdoJesfZFgSy75Qsy3h5
-         3KMoc/MoTsK7c1+mpTCTSVgVngYK9wFNZHp/tgw8qVex1AQ+P9QYvrUzbu9XpmNTz0v7
-         2GyGh2j9ZBeGQ8E+jCJEwyRovr3E+WurRkyCDBICw0iCS9XJ4oKdl+9A7ZLiVshUP9R/
-         VTaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=t48JfE/I+ydsOOfkocl4ExwOYD4Cwrny9/Xf4iuVVeE=;
-        b=MHUXIXlVBsz8ks4PtTB+Yi8ajeYQNBpP7wqvGyFplh3Itq7HMzfzPdfH9TjB2o1e4B
-         CZh0zBqG4sUjSmnu1tzuc8YQ1ym9+VoqcS/upd+KeS5O0JuEujfQcQbX/R56I0yO4uf0
-         3zP43pSwC0YiYjn+8ZhnZIwz7ZgP96z+Gq6QK9M+d+rtWHpKm0Ruhjj4eGNLaeUG+hm4
-         4G/XsaNQhnP+rEYeOC8cvlvwXjD6NdQvuqtKINiw9kf/AdoftPqh/oWI5j48BfF1RURO
-         QNB3GUDTiZ+DeJ6AA/YFDxAfH8z7C07TYSFM5nudzM2DCbWj5UfCuZBsu3ex/320WSDI
-         8BHg==
-X-Gm-Message-State: AOAM530tpFRKKfIcBsftVTOS+h5VFe8StzFjjBu3UgYOXrM6UhTAQ2Ql
-        OVyiEM/nMiJ+/NnDPDjvbCdWsacarn7tm0bRiwAEtQ==
-X-Google-Smtp-Source: ABdhPJxjr/et45iqQeRMTErI0LQhEQm42DqVbpHRSpcjhEUlWFO96pLBoZaf9saYhs4q/r0gUqfHvBityBsZA51vteE=
-X-Received: by 2002:a2e:988f:: with SMTP id b15mr751964ljj.394.1615847486669;
- Mon, 15 Mar 2021 15:31:26 -0700 (PDT)
+        id S235965AbhCPJUT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 Mar 2021 05:20:19 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50716 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S235954AbhCPJUE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 16 Mar 2021 05:20:04 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12G93vjK125009;
+        Tue, 16 Mar 2021 05:20:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=eOw77kQpWiRR6YWM8to7+u1ZLsalzFpmsK4j0hjUOMg=;
+ b=iDRaq+EA7EwM5wIGhW0B1ekG4uAARneKJZQ+LCro6DslFSV2oSC2MdzfXSlu3gxvTtIS
+ FoZKK1aIbizStNi804ETjHRelIFE9fNbm3GmZuYEnY7bIhfdQ3w44ybGLpQjM6qtHpzk
+ yiATsbLLqcerNMFZNRvppcOL+KVniF9oH0GHWhqmSnEERV9h7ZxGGzjhIqGr02oDwYeM
+ wC/VmU1c9OlwWdmdSJCFk3ZUnHJPzNw9c+4NBF6qO/aZ02vJGKSZBbhcitTGbyTxTpev
+ s4AHJ1uT/EotrmFdJpWknO9KQ5lEE15gL0ixgfLvkuny1VqrGX5zIBdJo7PAL+di+8d5 iw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37arj1je5u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Mar 2021 05:20:03 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12G94O1l127260;
+        Tue, 16 Mar 2021 05:20:02 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37arj1je57-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Mar 2021 05:20:02 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12G9CGdd005543;
+        Tue, 16 Mar 2021 09:20:01 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 378mnh2pfv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Mar 2021 09:20:00 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12G9JwRh48300508
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 16 Mar 2021 09:19:58 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 90D5E4C044;
+        Tue, 16 Mar 2021 09:19:58 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 549904C052;
+        Tue, 16 Mar 2021 09:19:57 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.146.129])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 16 Mar 2021 09:19:57 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com,
+        imbrenda@linux.ibm.com
+Subject: [kvm-unit-tests PATCH 0/6] s390x: uv: Extend guest test and add host test
+Date:   Tue, 16 Mar 2021 09:16:48 +0000
+Message-Id: <20210316091654.1646-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-References: <20210310003024.2026253-1-jingzhangos@google.com>
- <20210310003024.2026253-4-jingzhangos@google.com> <bb03107c-a413-50da-e228-d338dd471fb3@redhat.com>
-In-Reply-To: <bb03107c-a413-50da-e228-d338dd471fb3@redhat.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Mon, 15 Mar 2021 17:31:15 -0500
-Message-ID: <CAAdAUth0J6z7fFpOkkmzKc83Bj+MST-jhsZ0uU0iYdRcE_-gMA@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/4] KVM: stats: Add ioctl commands to pull statistics
- in binary format
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVM ARM <kvmarm@lists.cs.columbia.edu>,
-        Linux MIPS <linux-mips@vger.kernel.org>,
-        KVM PPC <kvm-ppc@vger.kernel.org>,
-        Linux S390 <linux-s390@vger.kernel.org>,
-        Linux kselftest <linux-kselftest@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-16_03:2021-03-15,2021-03-16 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ lowpriorityscore=0 malwarescore=0 mlxlogscore=999 adultscore=0 bulkscore=0
+ mlxscore=0 spamscore=0 suspectscore=0 clxscore=1015 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103160063
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Paolo,
+My stack of patches is starting to lean, so lets try to put some of
+them upstream...
 
-On Wed, Mar 10, 2021 at 8:55 AM Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> On 10/03/21 01:30, Jing Zhang wrote:
-> > diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> > index 383df23514b9..87dd62516c8b 100644
-> > --- a/virt/kvm/kvm_main.c
-> > +++ b/virt/kvm/kvm_main.c
-> > @@ -3464,6 +3464,51 @@ static long kvm_vcpu_ioctl(struct file *filp,
-> >               r = kvm_arch_vcpu_ioctl_set_fpu(vcpu, fpu);
-> >               break;
-> >       }
-> > +     case KVM_STATS_GET_INFO: {
-> > +             struct kvm_stats_info stats_info;
-> > +
-> > +             r = -EFAULT;
-> > +             stats_info.num_stats = VCPU_STAT_COUNT;
-> > +             if (copy_to_user(argp, &stats_info, sizeof(stats_info)))
-> > +                     goto out;
-> > +             r = 0;
-> > +             break;
-> > +     }
-> > +     case KVM_STATS_GET_NAMES: {
-> > +             struct kvm_stats_names stats_names;
-> > +
-> > +             r = -EFAULT;
-> > +             if (copy_from_user(&stats_names, argp, sizeof(stats_names)))
-> > +                     goto out;
-> > +             r = -EINVAL;
-> > +             if (stats_names.size < VCPU_STAT_COUNT * KVM_STATS_NAME_LEN)
-> > +                     goto out;
-> > +
-> > +             r = -EFAULT;
-> > +             if (copy_to_user(argp + sizeof(stats_names),
-> > +                             kvm_vcpu_stat_strings,
-> > +                             VCPU_STAT_COUNT * KVM_STATS_NAME_LEN))
->
-> The only reason to separate the strings in patch 1 is to pass them here.
->   But this is a poor API because it imposes a limit on the length of the
-> statistics, and makes that length part of the binary interface.
->
-> I would prefer a completely different interface, where you have a file
-> descriptor that can be created and associated to a vCPU or VM (or even
-> to /dev/kvm).  Having a file descriptor is important because the fd can
-We are considering about how to create the file descriptor. It might be risky
-to create an extra fd for every vCPU. It will easily hit the fd limit for the
-process or the system for machines running a ton of small VMs.
-Looks like creating an extra file descriptor for every VM is a better option.
-And then we can check per vCPU stats through Ioctl of this VM fd by
-passing the vCPU index.
-What do you think?
-> be passed to a less-privileged process that takes care of gathering the
-> metrics
->
-> The result of reading the file descriptor could be either ASCII or
-> binary.  IMO the real cost lies in opening and reading a multitude of
-> files rather than in the ASCII<->binary conversion.
->
-> The format could be one of the following:
->
-> * binary:
->
-> 4 bytes flags (always zero)
-> 4 bytes number of statistics
-> 4 bytes offset of the first stat description
-> 4 bytes offset of the first stat value
-> stat descriptions:
->    - 4 bytes for the type (for now always zero: uint64_t)
->    - 4 bytes for the flags (for now always zero)
->    - length of name
->    - name
-> statistics in 64-bit format
->
-> * text:
->
-> stat1_name uint64 123
-> stat2_name uint64 456
-> ...
->
-> What do you think?
->
-> Paolo
->
+The first part is just additions to the UV guest test and a library
+that makes checking the installed UV calls easier. Additionally we now
+check for the proper UV share/unshare availability when allocating IO
+memory instead of only relying on stfle 158.
+
+The second part adds a UV host test with a large number UV of return
+code checks. This is currently a guest 1 test.
+
+Janosch Frank (6):
+  s390x: uv-guest: Add invalid share location test
+  s390x: Add more Ultravisor command structure definitions
+  s390x: uv: Add UV lib
+  s390x: Test for share/unshare call support before using them
+  s390x: uv-guest: Test invalid commands
+  s390x: Add UV host test
+
+ lib/s390x/asm/uv.h    | 152 ++++++++++++-
+ lib/s390x/io.c        |   2 +
+ lib/s390x/malloc_io.c |   5 +-
+ lib/s390x/uv.c        |  48 ++++
+ lib/s390x/uv.h        |  10 +
+ s390x/Makefile        |   2 +
+ s390x/uv-guest.c      |  57 ++++-
+ s390x/uv-host.c       | 513 ++++++++++++++++++++++++++++++++++++++++++
+ 8 files changed, 776 insertions(+), 13 deletions(-)
+ create mode 100644 lib/s390x/uv.c
+ create mode 100644 lib/s390x/uv.h
+ create mode 100644 s390x/uv-host.c
+
+-- 
+2.27.0
+
