@@ -2,90 +2,158 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8888C433E0
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Mar 2021 14:32:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57DEAC43381
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Mar 2021 14:48:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8D3346507E
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Mar 2021 14:32:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2A8AA65086
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Mar 2021 14:48:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236572AbhCPObn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 Mar 2021 10:31:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51752 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236532AbhCPObW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 Mar 2021 10:31:22 -0400
-Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27C16C06174A
-        for <linux-s390@vger.kernel.org>; Tue, 16 Mar 2021 07:31:22 -0700 (PDT)
-Received: by mail-io1-xd35.google.com with SMTP id g27so37386065iox.2
-        for <linux-s390@vger.kernel.org>; Tue, 16 Mar 2021 07:31:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=QBrTqmbWkT3m4ogzCMY8L/5RjpVs2Bwj4VfzNovCHcY=;
-        b=WZ4wdj4zQdq/AoWbRfvpsRKEyQjHIw6AZKzfcuM/wQxFzYQ4UfalEnV7KA+QdeohGD
-         h6yNwu/xq8jddKxh8DmaW2xinj7JlQPKPSRVxhXjPafMr9s5/aStzxufxfNt3YKxnumN
-         02Z8E3ecZdPMzgd2NUWYQzKJQwykg8+DfgRVbpz0UnoA81gSPQgyCI0reU4qiM6Lgen8
-         ho4OLCSzKuQDuZd2tykgvV1imXVx5+V4k6GDX8j6ITpju3by/DFoXTYX61w/IJq8vp+9
-         TBGVIgyXSmj5Mrtr8IRzsaTNupnQ1EQfhFjgBbT/EN1JOl3YN3VwPHwSMP3zMLg7PJFt
-         T1yA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QBrTqmbWkT3m4ogzCMY8L/5RjpVs2Bwj4VfzNovCHcY=;
-        b=EzucTXST6KpYOkND0mPMl1P8Fa1RBkxJqWzKzgbDh5GtTjjKxsin7naBsi++8tFNRd
-         Ix8HvtRcsD1j+/vFlKSHBugBe0YdGTTTsn8LmUUqll1OGdfTttH3+w2mBVOZ+NcZmo2z
-         nL9Oa/BmEO/15GsGoSVHj4w+RkkgiMRZs9N8tFDp6GfMMT4du2L1ZvwE5NU+H4822eGV
-         gpviqyMz1j4bpzAflRsqS9ZY8aUCFnC9MVFzl/FXwKM++r06oGhJ+01Hjr6FITo9yQxV
-         UpQJhOKBRuimxkjT0+BJ7+iMic+T+ffipFD8tpVqZGX71olVHnHFOhn8jPDQc7p3EVyx
-         SeNw==
-X-Gm-Message-State: AOAM531ZRg/rmg6m3coXiuZS+l9gvTKt2i/9Cr6z34+2XBggvWff6LME
-        kPuaBNW8E9OSJJw5LbqlAkPiUmak/4jh2g==
-X-Google-Smtp-Source: ABdhPJwJDINYIHtGv7AA1OeehO1lScr+eKoDb0C97yp6l13rjNlzdpEMTq/xFiWltriuJcdffftGTw==
-X-Received: by 2002:a5d:938e:: with SMTP id c14mr3640584iol.88.1615905081657;
-        Tue, 16 Mar 2021 07:31:21 -0700 (PDT)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id a16sm9550081ild.82.2021.03.16.07.31.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 16 Mar 2021 07:31:21 -0700 (PDT)
-Subject: Re: [PATCH 0/2] s390/dasd: cleanup patches
-To:     Stefan Haberland <sth@linux.ibm.com>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>
-References: <20210316094513.2601218-1-sth@linux.ibm.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <b19c6de8-5d97-2ce1-5e48-c73e713f69fb@kernel.dk>
-Date:   Tue, 16 Mar 2021 08:31:20 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S232536AbhCPOrc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 Mar 2021 10:47:32 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:15635 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236965AbhCPOrU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 16 Mar 2021 10:47:20 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4F0GMx4VXtz9v0Wx;
+        Tue, 16 Mar 2021 15:47:09 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id vzRrRUF_FtQC; Tue, 16 Mar 2021 15:47:09 +0100 (CET)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4F0GMx3F8vz9v0Ww;
+        Tue, 16 Mar 2021 15:47:09 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 56A228B7E3;
+        Tue, 16 Mar 2021 15:47:11 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id TZSbbu2JPpo4; Tue, 16 Mar 2021 15:47:11 +0100 (CET)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 8C1248B7E1;
+        Tue, 16 Mar 2021 15:47:09 +0100 (CET)
+Subject: Re: [PATCH] mm: Move mem_init_print_info() into mm_init()
+To:     Kefeng Wang <wangkefeng.wang@huawei.com>,
+        linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
+        Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org,
+        linux-riscv@lists.infradead.org, Jonas Bonn <jonas@southpole.se>,
+        linux-s390@vger.kernel.org,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        linux-hexagon@vger.kernel.org, Huacai Chen <chenhuacai@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-csky@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org,
+        openrisc@lists.librecores.org,
+        linux-arm-kernel@lists.infradead.org,
+        Richard Henderson <rth@twiddle.net>,
+        linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        linux-alpha@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        "David S. Miller" <davem@davemloft.net>
+References: <20210316142637.92193-1-wangkefeng.wang@huawei.com>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <26cca1c0-bd38-3d5b-5ca4-44081c444396@csgroup.eu>
+Date:   Tue, 16 Mar 2021 15:47:05 +0100
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
 MIME-Version: 1.0
-In-Reply-To: <20210316094513.2601218-1-sth@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20210316142637.92193-1-wangkefeng.wang@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/16/21 3:45 AM, Stefan Haberland wrote:
-> Hi Jens,
+
+
+Le 16/03/2021 à 15:26, Kefeng Wang a écrit :
+> mem_init_print_info() is called in mem_init() on each architecture,
+> and pass NULL argument, cleanup it by using void argument and move
+> it into mm_init().
 > 
-> please apply the following DASD cleanup patches for 5.13.
-> They apply on you for-next branch.
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> ---
+>   arch/alpha/mm/init.c             | 1 -
+>   arch/arc/mm/init.c               | 1 -
+>   arch/arm/mm/init.c               | 2 --
+>   arch/arm64/mm/init.c             | 2 --
+>   arch/csky/mm/init.c              | 1 -
+>   arch/h8300/mm/init.c             | 2 --
+>   arch/hexagon/mm/init.c           | 1 -
+>   arch/ia64/mm/init.c              | 1 -
+>   arch/m68k/mm/init.c              | 1 -
+>   arch/microblaze/mm/init.c        | 1 -
+>   arch/mips/loongson64/numa.c      | 1 -
+>   arch/mips/mm/init.c              | 1 -
+>   arch/mips/sgi-ip27/ip27-memory.c | 1 -
+>   arch/nds32/mm/init.c             | 1 -
+>   arch/nios2/mm/init.c             | 1 -
+>   arch/openrisc/mm/init.c          | 2 --
+>   arch/parisc/mm/init.c            | 2 --
+>   arch/powerpc/mm/mem.c            | 1 -
+>   arch/riscv/mm/init.c             | 1 -
+>   arch/s390/mm/init.c              | 2 --
+>   arch/sh/mm/init.c                | 1 -
+>   arch/sparc/mm/init_32.c          | 2 --
+>   arch/sparc/mm/init_64.c          | 1 -
+>   arch/um/kernel/mem.c             | 1 -
+>   arch/x86/mm/init_32.c            | 2 --
+>   arch/x86/mm/init_64.c            | 2 --
+>   arch/xtensa/mm/init.c            | 1 -
+>   include/linux/mm.h               | 2 +-
+>   init/main.c                      | 1 +
+>   mm/page_alloc.c                  | 2 +-
+>   30 files changed, 3 insertions(+), 38 deletions(-)
+> 
 
-Applied, thanks.
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 55d938297ce6..e4a6bf69c806 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -7728,7 +7728,7 @@ unsigned long free_reserved_area(void *start, void *end, int poison, const char
+>   	return pages;
+>   }
+>   
+> -void __init mem_init_print_info(const char *str)
+> +void __init mem_init_print_info(void)
+>   {
+>   	unsigned long physpages, codesize, datasize, rosize, bss_size;
+>   	unsigned long init_code_size, init_data_size;
+> 
 
--- 
-Jens Axboe
+And what about the 'str' in the last line of the function ?
 
+	pr_info("Memory: %luK/%luK available (%luK kernel code, %luK rwdata, %luK rodata, %luK init, %luK 
+bss, %luK reserved, %luK cma-reserved"
+#ifdef	CONFIG_HIGHMEM
+		", %luK highmem"
+#endif
+		"%s%s)\n",
+		nr_free_pages() << (PAGE_SHIFT - 10),
+		physpages << (PAGE_SHIFT - 10),
+		codesize >> 10, datasize >> 10, rosize >> 10,
+		(init_data_size + init_code_size) >> 10, bss_size >> 10,
+		(physpages - totalram_pages() - totalcma_pages) << (PAGE_SHIFT - 10),
+		totalcma_pages << (PAGE_SHIFT - 10),
+#ifdef	CONFIG_HIGHMEM
+		totalhigh_pages() << (PAGE_SHIFT - 10),
+#endif
+		str ? ", " : "", str ? str : "");
+
+
+Christophe
