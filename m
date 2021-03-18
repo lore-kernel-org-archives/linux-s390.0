@@ -2,124 +2,87 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35F71C433E9
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Mar 2021 23:18:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3F4EC433E9
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 01:03:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 06DEE64F33
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Mar 2021 23:18:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8687064F10
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 01:03:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229658AbhCQXRl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Mar 2021 19:17:41 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15154 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229494AbhCQXRl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Mar 2021 19:17:41 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12HN40hK113226;
-        Wed, 17 Mar 2021 19:17:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=HwTFj9YWtjFoFZ5fUL/TzRKtrvD01QdclZb5heatb5E=;
- b=DGiOz2pytOubrRitLQ75yfB0/tSjs0bmwTqkY93t201E+cL/Y9PYqx3B/fdwoCowv2dX
- zIaTyQosFjzsgt/GyNPqqfttFBBchUNP+8x8HEqeglHbXFitUrui0V6I9pQK6iYixlZb
- 4U5YryPLUo6OfTu1LoDqxt42uVtBu3TjxEmITg52YN9pi3Xws+cIkrhPNp2JQzL8avD1
- zK/7LmQwRXW4hOX312uo6NSj05zy/HsKqXIf6fQfjSEgJiM3UUWONiVM5oM50LlyYF0u
- tq1LZrPPxQ0cHiywrPg12Kid2CJTHw2J6zULOzC1dAsmiKe7KAOuQZOug0YEG5+uX6oQ hg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37bnrehtma-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 Mar 2021 19:17:38 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12HN5Hii120950;
-        Wed, 17 Mar 2021 19:17:38 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37bnrehtkj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 Mar 2021 19:17:37 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12HNDI53001296;
-        Wed, 17 Mar 2021 23:17:35 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma05fra.de.ibm.com with ESMTP id 378n18a7rb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 17 Mar 2021 23:17:35 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12HNHWpF39846396
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 17 Mar 2021 23:17:32 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A7B52A4051;
-        Wed, 17 Mar 2021 23:17:32 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C26CBA4040;
-        Wed, 17 Mar 2021 23:17:31 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.80.101])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Wed, 17 Mar 2021 23:17:31 +0000 (GMT)
-Date:   Thu, 18 Mar 2021 00:17:29 +0100
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, stable@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
-        pbonzini@redhat.com, alex.williamson@redhat.com,
-        pasic@linux.vnet.ibm.com
-Subject: Re: [PATCH v4 1/1] s390/vfio-ap: fix circular lockdep when
- setting/clearing crypto masks
-Message-ID: <20210318001729.06cdb8d6.pasic@linux.ibm.com>
-In-Reply-To: <20210310150559.8956-2-akrowiak@linux.ibm.com>
-References: <20210310150559.8956-1-akrowiak@linux.ibm.com>
-        <20210310150559.8956-2-akrowiak@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S230185AbhCRBCf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Mar 2021 21:02:35 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:13185 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229720AbhCRBCF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Mar 2021 21:02:05 -0400
+Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4F17w73LVNzmZ6G;
+        Thu, 18 Mar 2021 08:59:35 +0800 (CST)
+Received: from [10.174.177.244] (10.174.177.244) by
+ DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
+ 14.3.498.0; Thu, 18 Mar 2021 09:01:56 +0800
+Subject: Re: [PATCH v2] mm: Move mem_init_print_info() into mm_init()
+To:     Dave Hansen <dave.hansen@intel.com>,
+        <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+CC:     Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Guo Ren <guoren@kernel.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>, <linux-alpha@vger.kernel.org>,
+        <linux-snps-arc@lists.infradead.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-csky@vger.kernel.org>, <linux-hexagon@vger.kernel.org>,
+        <linux-ia64@vger.kernel.org>, <linux-m68k@lists.linux-m68k.org>,
+        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
+        <linux-parisc@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
+        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        <linux-sh@vger.kernel.org>, <sparclinux@vger.kernel.org>,
+        <linux-um@lists.infradead.org>, <linux-xtensa@linux-xtensa.org>,
+        <linux-mm@kvack.org>
+References: <4d488195-7281-9238-b30d-9f89a6100fb9@csgroup.eu>
+ <20210317015210.33641-1-wangkefeng.wang@huawei.com>
+ <2a7d6e39-b293-7422-87b0-741f1ab0c22c@intel.com>
+From:   Kefeng Wang <wangkefeng.wang@huawei.com>
+Message-ID: <190f5356-f947-d474-a9fe-bc8e622a426e@huawei.com>
+Date:   Thu, 18 Mar 2021 09:01:54 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-17_13:2021-03-17,2021-03-17 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
- lowpriorityscore=0 adultscore=0 bulkscore=0 suspectscore=0 phishscore=0
- mlxlogscore=910 clxscore=1015 spamscore=0 priorityscore=1501
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2103170163
+In-Reply-To: <2a7d6e39-b293-7422-87b0-741f1ab0c22c@intel.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Originating-IP: [10.174.177.244]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 10 Mar 2021 10:05:59 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-> -		ret = vfio_ap_mdev_reset_queues(mdev);
-> +		matrix_mdev = mdev_get_drvdata(mdev);
-
-Is it guaranteed that matrix_mdev can't be NULL here? If yes, please
-remind me of the mechanism that ensures this.
-
-> +
-> +		/*
-> +		 * If the KVM pointer is in the process of being set, wait until
-> +		 * the process has completed.
-> +		 */
-> +		wait_event_cmd(matrix_mdev->wait_for_kvm,
-> +			       matrix_mdev->kvm_busy == false,
-> +			       mutex_unlock(&matrix_dev->lock),
-> +			       mutex_lock(&matrix_dev->lock));
-> +
-> +		if (matrix_mdev->kvm)
-> +			ret = vfio_ap_mdev_reset_queues(mdev);
-> +		else
-> +			ret = -ENODEV;
-
-Didn't we agree to make the call to vfio_ap_mdev_reset_queues()
-unconditional again (for reference please take look at 
-Message-ID: <64afa72c-2d6a-2ca1-e576-34e15fa579ed@linux.ibm.com>)?
-
-Regards,
-Halil
+On 2021/3/18 2:48, Dave Hansen wrote:
+> On 3/16/21 6:52 PM, Kefeng Wang wrote:
+>> mem_init_print_info() is called in mem_init() on each architecture,
+>> and pass NULL argument, so using void argument and move it into mm_init().
+>>
+>> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+> It's not a big deal but you might want to say something like:
+>
+> Acked-by: Dave Hansen <dave.hansen@linux.intel.com> # x86 bits
+>
+> Just to make it clear that I didn't look at the alpha bits at all. :)
+Get it, will be careful, thanks.
+> .
+>
