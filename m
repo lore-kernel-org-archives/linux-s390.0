@@ -2,78 +2,144 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	TVD_SPACE_RATIO,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A215FC433DB
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 17:05:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4425C433E0
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 17:54:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6884064E05
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 17:05:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8687B64F33
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 17:54:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231853AbhCRRFK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 18 Mar 2021 13:05:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59980 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231995AbhCRRFE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Mar 2021 13:05:04 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C003C06175F
-        for <linux-s390@vger.kernel.org>; Thu, 18 Mar 2021 10:05:04 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id l83so2847235ybf.22
-        for <linux-s390@vger.kernel.org>; Thu, 18 Mar 2021 10:05:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=M96sX2ER8OUfU5ItsM/N27fVEe7WhfbzfJq6noJZvuE=;
-        b=ZptMR85CjXw01KHfTRcq2EVDLfQJLyIzsFLW4Xv6HgfrGrlFg12+R+C8zOG6HlhEB/
-         7fc8qRm5U8erwNc6doqipkpQ91OYFve38QvCDgYjVr9GPyul9GsTAhq87hnxO5UTYZ9F
-         ICob4RMgHSkZztNvxbg60nbijiHcBh/Zp+y55JtoX4Le6WXBPonFLh0m5dGw6JYZjexN
-         iP1QA1ALZx5DfK46KRR8BVflkt9Jhit7aqCtowtNkcSA+im9YzrWe5+XohD50T+vHHD5
-         5K+LkcS2Px48VpAuxfTSNGf7l9MNjthVirchi0NerDRWepN9A6M+voEF4VZ+tl215KBX
-         NOfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=M96sX2ER8OUfU5ItsM/N27fVEe7WhfbzfJq6noJZvuE=;
-        b=PGcajVrK2gcSfCJKcUMZAJ7GWLcGNWLLTyNgtylVAVkPcuJac6X3QD6hbjm/1X8e8f
-         0w5fWSya+F8k+zzO2HgjaBM8hjlfSY22Ob2kX6k3PYptmggpvCE0NTgNhWFVfApG/DPS
-         6QZxXZ97gYaOGJgyJP04TgTNZoRk2cKjVXuP4bm/83K9Utr7wVK+It6ZRisTFJTYR94t
-         bsbGj18x0dO+Y6k6ycfOt26YlDFquu1OvBSFeXgw7sXIHvM9FkML62Fd35x0BZUSfkol
-         MWFdPUeIOQHgmOipBMYBXZCzPMzKyVlFeJc9yE880XyZQ20XkZMjSFheC9YbpLQhkWrb
-         eAEQ==
-X-Gm-Message-State: AOAM530Z6UNKC5AkZza7KZnWns5eitSBMVhFVocxOmvWmh23vZPQBD0D
-        MMBLPedM5Xq4H9QAKto+ll4dkt04Pwbrwc7qWow=
-X-Google-Smtp-Source: ABdhPJxKgbPt3d9Ql9cYMZo4/Cdz/7X6qGcU8im11P5aoKSknsF2Cq+lDthgDh5Z+ThZ5mNrX8tZu/cYF0CWfwXyNPs=
-X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:840a:6dbd:4c5:5c01])
- (user=ndesaulniers job=sendgmr) by 2002:a25:25d7:: with SMTP id
- l206mr367807ybl.43.1616087103611; Thu, 18 Mar 2021 10:05:03 -0700 (PDT)
-Date:   Thu, 18 Mar 2021 10:05:01 -0700
-In-Reply-To: <CA+G9fYtBw0HAv5OOAycK2rZ_m2Sj73krXPJ0iDzT+O8qtc19SQ@mail.gmail.com>
-Message-Id: <20210318170501.2183418-1-ndesaulniers@google.com>
-Mime-Version: 1.0
-References: <CA+G9fYtBw0HAv5OOAycK2rZ_m2Sj73krXPJ0iDzT+O8qtc19SQ@mail.gmail.com>
-X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
-Subject: Re: s390: kernel/entry.o: in function `sys_call_table_emu':
- (.rodata+0x1bc0): undefined reference to `__s390_'
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     naresh.kamboju@linaro.org
-Cc:     acme@kernel.org, agordeev@linux.ibm.com, borntraeger@de.ibm.com,
-        gor@linux.ibm.com, hca@linux.ibm.com, heiko.carstens@de.ibm.com,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        lkft-triage@lists.linaro.org, nixiaoming@huawei.com,
-        svens@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
+        id S230409AbhCRRyQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 18 Mar 2021 13:54:16 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20560 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231701AbhCRRyM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 18 Mar 2021 13:54:12 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12IHYGmd110707;
+        Thu, 18 Mar 2021 13:54:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=qLCwOqi9nd43vs0sC/0uaogdbKlQGtsnrdpGyMt5BJs=;
+ b=isZDdiLBECrzDrBfVyYWnCyjmp7QYlffD7yjzpfqfI75oPT3bfQKDV3pUwIWqzSQAjeL
+ xF2H5wUrhb9TCx+bLH1FFXq+5bQEuL6iUHr4IrCU6vGiscHx6WdwHDJkZeICaqsyQKf8
+ IvmhU/r9xPdPT9Z7QhOMWDKSDswBqELWT99REn1BNy4k3UuaW80lok3cguXpmscYqCMN
+ 0/Xtg18FkFBVZV9uj8y7hCqGzu93bIzI58n62/m+FUS+j3mjBbAPt38p42KDV7uImWjx
+ omds7FNgzJqZIcSdQRhQfrU9OGa2pJL3oo/GlYhewWchBIPGUobWZ7TayC5qvKdtGjJy ww== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37by16g5us-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 13:54:10 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12IHYjXl112318;
+        Thu, 18 Mar 2021 13:54:10 -0400
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37by16g5uj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 13:54:10 -0400
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12IHq5xV006661;
+        Thu, 18 Mar 2021 17:54:09 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma04wdc.us.ibm.com with ESMTP id 378n19gekv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Mar 2021 17:54:09 +0000
+Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12IHs8tN32637184
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 18 Mar 2021 17:54:09 GMT
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E298FAE05F;
+        Thu, 18 Mar 2021 17:54:08 +0000 (GMT)
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8E19CAE05C;
+        Thu, 18 Mar 2021 17:54:07 +0000 (GMT)
+Received: from cpe-66-24-58-13.stny.res.rr.com (unknown [9.85.150.254])
+        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu, 18 Mar 2021 17:54:07 +0000 (GMT)
+Subject: Re: [PATCH v4 1/1] s390/vfio-ap: fix circular lockdep when
+ setting/clearing crypto masks
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
+        pbonzini@redhat.com, alex.williamson@redhat.com,
+        pasic@linux.vnet.ibm.com
+References: <20210310150559.8956-1-akrowiak@linux.ibm.com>
+ <20210310150559.8956-2-akrowiak@linux.ibm.com>
+ <20210318001729.06cdb8d6.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <d98ab0e1-dca3-0ea7-2478-387e3698900e@linux.ibm.com>
+Date:   Thu, 18 Mar 2021 13:54:06 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
+MIME-Version: 1.0
+In-Reply-To: <20210318001729.06cdb8d6.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-18_09:2021-03-17,2021-03-18 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ impostorscore=0 suspectscore=0 mlxlogscore=999 clxscore=1015 mlxscore=0
+ lowpriorityscore=0 bulkscore=0 spamscore=0 priorityscore=1501
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103180124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-(Replying to https://lore.kernel.org/linux-s390/CA+G9fYtBw0HAv5OOAycK2rZ_m2Sj73krXPJ0iDzT+O8qtc19SQ@mail.gmail.com/)
 
-Yeah, our CI is failing today, too with the same error on linux-next:
-https://github.com/ClangBuiltLinux/continuous-integration2/runs/2138006304?check_suite_focus=true
+
+On 3/17/21 7:17 PM, Halil Pasic wrote:
+> On Wed, 10 Mar 2021 10:05:59 -0500
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> -		ret = vfio_ap_mdev_reset_queues(mdev);
+>> +		matrix_mdev = mdev_get_drvdata(mdev);
+> Is it guaranteed that matrix_mdev can't be NULL here? If yes, please
+> remind me of the mechanism that ensures this.
+
+The matrix_mdev is set as drvdata when the mdev is created and
+is only cleared when the mdev is removed. Likewise, this function
+is a callback defined by by vfio in the vfio_ap_matrix_ops structure
+when the matrix_dev is registered and is intended to handle ioctl
+calls from userspace during the lifetime of the mdev. While I can't
+speak definitively to the guarantee, I think it is extremely unlikely
+that matrix_mdev would be NULL at this point. On the other hand,
+it wouldn't hurt to check for NULL and log an error or warning
+message (I prefer an error here) if NULL.
+
+>
+>> +
+>> +		/*
+>> +		 * If the KVM pointer is in the process of being set, wait until
+>> +		 * the process has completed.
+>> +		 */
+>> +		wait_event_cmd(matrix_mdev->wait_for_kvm,
+>> +			       matrix_mdev->kvm_busy == false,
+>> +			       mutex_unlock(&matrix_dev->lock),
+>> +			       mutex_lock(&matrix_dev->lock));
+>> +
+>> +		if (matrix_mdev->kvm)
+>> +			ret = vfio_ap_mdev_reset_queues(mdev);
+>> +		else
+>> +			ret = -ENODEV;
+> Didn't we agree to make the call to vfio_ap_mdev_reset_queues()
+> unconditional again (for reference please take look at
+> Message-ID: <64afa72c-2d6a-2ca1-e576-34e15fa579ed@linux.ibm.com>)?
+
+Yes, we did agree to that and I changed it at the time. That change
+got lost somehow; I'll reinstate it.
+
+>
+> Regards,
+> Halil
+
