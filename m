@@ -2,304 +2,188 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31C03C4332B
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 01:49:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F856C433E0
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 03:20:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC6EF64E83
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 01:49:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C2E6964EFD
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 03:20:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230132AbhCRBs2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Mar 2021 21:48:28 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34544 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230099AbhCRBsL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Mar 2021 21:48:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1616032090;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UuMfiKtlHJ9YtiMEQ803haS0RFolvE5VmV2RzbMQkXA=;
-        b=iYE6VVMnxbX31aVvneZ32lPJ9DdjxKzDqvbURocxvZLOuzkt2KYXzOg3N2+7504Exs9i0u
-        xCYjPxbimmDvJxJa7r7y4EcFHqEVttKTJgghWXvSiacIjKmcBCzyEJWjcpo4Ll1Iza36AK
-        hRBhqModtMAVoixnrT64afetosvIxsU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-387-Yg0X8aOYOhmb-aInmv1mmg-1; Wed, 17 Mar 2021 21:48:06 -0400
-X-MC-Unique: Yg0X8aOYOhmb-aInmv1mmg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 97E0D180FCA0;
-        Thu, 18 Mar 2021 01:48:04 +0000 (UTC)
-Received: from madcap2.tricolour.ca (unknown [10.10.110.12])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DCAB14C;
-        Thu, 18 Mar 2021 01:48:00 +0000 (UTC)
-From:   Richard Guy Briggs <rgb@redhat.com>
-To:     Linux-Audit Mailing List <linux-audit@redhat.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Steve Grubb <sgrubb@redhat.com>,
-        Richard Guy Briggs <rgb@redhat.com>, x86@kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Eric Paris <eparis@redhat.com>, linux-alpha@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH 1/2] audit: add support for the openat2 syscall
-Date:   Wed, 17 Mar 2021 21:47:17 -0400
-Message-Id: <49510cacfb5fbbaa312a4a389f3a6619675007ab.1616031035.git.rgb@redhat.com>
-In-Reply-To: <cover.1616031035.git.rgb@redhat.com>
-References: <cover.1616031035.git.rgb@redhat.com>
+        id S231237AbhCRDTy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Mar 2021 23:19:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51496 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230476AbhCRDTh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Mar 2021 23:19:37 -0400
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1234::107])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9630DC06174A;
+        Wed, 17 Mar 2021 20:19:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:Content-Type:
+        MIME-Version:Date:Message-ID:Cc:Subject:From:To:Sender:Reply-To:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=pKHYq1hC0taBlkjCvHKcp3eR8zexcs9SDXnvZOh+BtM=; b=JbClyA67QHU0fDZAxAEByRwKY3
+        Kjdxim4mw14IYawYSOtQRHag+7WrFWDQQNeZOkmEf7VvlUwV3bw5qMIMTMga6zGdbjC0HOczNqU7f
+        GLx/6Natu/Pl4p1tGrVLrcUamZCCrjjRhQmdgtCqGf37v1q79IWEsZQelCruis0KsHOpkLixqIzqe
+        bOx2ZidngIAJyOndMCa3113fziBPrSWW7cSADJ6+9qWbSU0uhe9yaxiJ+A9dItdWoENDDbyfqEd5f
+        N4LJhHG8jxHeusWX026tEPY+kInbicq5A6Ru0dLl3SqbCXdVavKRdnwSBdeTPNZyqRd9eEd4WMyBX
+        bWchQpBA==;
+Received: from [2601:1c0:6280:3f0::9757]
+        by merlin.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1lMjBz-001i9Q-0r; Thu, 18 Mar 2021 03:19:32 +0000
+To:     LKML <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        kbuild test robot <lkp@intel.com>
+From:   Randy Dunlap <rdunlap@infradead.org>
+Subject: S390: all HAS_IOMEM build failures in one fell swoop
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "dmaengine@vger.kernel.org" <dmaengine@vger.kernel.org>,
+        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>
+Message-ID: <5a0172d7-36b1-f18a-ec0f-eb9ee8964a1b@infradead.org>
+Date:   Wed, 17 Mar 2021 20:19:19 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The openat2(2) syscall was added in kernel v5.6 with commit fddb5d430ad9
-("open: introduce openat2(2) syscall")
 
-Add the openat2(2) syscall to the audit syscall classifier.
+On ARCH=s390:
 
-See the github issue
-https://github.com/linux-audit/audit-kernel/issues/67
+By disabling CONFIG_PCI and hence also disabling CONFIG_HAS_IOMEM
+(after having done 'make ARCH=s390 allmodconfig'),
+we can see all of the drivers that use IOMEM-related interfaces
+without mentioning that they do so (in their respective Kconfig files).
 
-Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
----
- arch/alpha/kernel/audit.c          | 2 ++
- arch/ia64/kernel/audit.c           | 2 ++
- arch/parisc/kernel/audit.c         | 2 ++
- arch/parisc/kernel/compat_audit.c  | 2 ++
- arch/powerpc/kernel/audit.c        | 2 ++
- arch/powerpc/kernel/compat_audit.c | 2 ++
- arch/s390/kernel/audit.c           | 2 ++
- arch/s390/kernel/compat_audit.c    | 2 ++
- arch/sparc/kernel/audit.c          | 2 ++
- arch/sparc/kernel/compat_audit.c   | 2 ++
- arch/x86/ia32/audit.c              | 2 ++
- arch/x86/kernel/audit_64.c         | 2 ++
- kernel/auditsc.c                   | 3 +++
- lib/audit.c                        | 4 ++++
- lib/compat_audit.c                 | 4 ++++
- 15 files changed, 35 insertions(+)
+This should catch all of them, instead of various randconfig builds
+catching a few of them at a time.
+(I'm not trying to pick on arch/s390/ here -- more on the piecemeal
+randconfig approach of some 'bot'. :)
 
-diff --git a/arch/alpha/kernel/audit.c b/arch/alpha/kernel/audit.c
-index 96a9d18ff4c4..06a911b685d1 100644
---- a/arch/alpha/kernel/audit.c
-+++ b/arch/alpha/kernel/audit.c
-@@ -42,6 +42,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
- 		return 3;
- 	case __NR_execve:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 0;
- 	}
-diff --git a/arch/ia64/kernel/audit.c b/arch/ia64/kernel/audit.c
-index 5192ca899fe6..5eaa888c8fd3 100644
---- a/arch/ia64/kernel/audit.c
-+++ b/arch/ia64/kernel/audit.c
-@@ -43,6 +43,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
- 		return 3;
- 	case __NR_execve:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 0;
- 	}
-diff --git a/arch/parisc/kernel/audit.c b/arch/parisc/kernel/audit.c
-index 9eb47b2225d2..fc721a7727ba 100644
---- a/arch/parisc/kernel/audit.c
-+++ b/arch/parisc/kernel/audit.c
-@@ -52,6 +52,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
- 		return 3;
- 	case __NR_execve:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 0;
- 	}
-diff --git a/arch/parisc/kernel/compat_audit.c b/arch/parisc/kernel/compat_audit.c
-index 20c39c9d86a9..fc6d35918c44 100644
---- a/arch/parisc/kernel/compat_audit.c
-+++ b/arch/parisc/kernel/compat_audit.c
-@@ -35,6 +35,8 @@ int parisc32_classify_syscall(unsigned syscall)
- 		return 3;
- 	case __NR_execve:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 1;
- 	}
-diff --git a/arch/powerpc/kernel/audit.c b/arch/powerpc/kernel/audit.c
-index a2dddd7f3d09..8f32700b0baa 100644
---- a/arch/powerpc/kernel/audit.c
-+++ b/arch/powerpc/kernel/audit.c
-@@ -54,6 +54,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
- 		return 4;
- 	case __NR_execve:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 0;
- 	}
-diff --git a/arch/powerpc/kernel/compat_audit.c b/arch/powerpc/kernel/compat_audit.c
-index 55c6ccda0a85..ebe45534b1c9 100644
---- a/arch/powerpc/kernel/compat_audit.c
-+++ b/arch/powerpc/kernel/compat_audit.c
-@@ -38,6 +38,8 @@ int ppc32_classify_syscall(unsigned syscall)
- 		return 4;
- 	case __NR_execve:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 1;
- 	}
-diff --git a/arch/s390/kernel/audit.c b/arch/s390/kernel/audit.c
-index d395c6c9944c..d964cb94cfaf 100644
---- a/arch/s390/kernel/audit.c
-+++ b/arch/s390/kernel/audit.c
-@@ -54,6 +54,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
- 		return 4;
- 	case __NR_execve:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 0;
- 	}
-diff --git a/arch/s390/kernel/compat_audit.c b/arch/s390/kernel/compat_audit.c
-index 444fb1f66944..f7b32933ce0e 100644
---- a/arch/s390/kernel/compat_audit.c
-+++ b/arch/s390/kernel/compat_audit.c
-@@ -39,6 +39,8 @@ int s390_classify_syscall(unsigned syscall)
- 		return 4;
- 	case __NR_execve:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 1;
- 	}
-diff --git a/arch/sparc/kernel/audit.c b/arch/sparc/kernel/audit.c
-index a6e91bf34d48..b6dcca9c6520 100644
---- a/arch/sparc/kernel/audit.c
-+++ b/arch/sparc/kernel/audit.c
-@@ -55,6 +55,8 @@ int audit_classify_syscall(int abi, unsigned int syscall)
- 		return 4;
- 	case __NR_execve:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 0;
- 	}
-diff --git a/arch/sparc/kernel/compat_audit.c b/arch/sparc/kernel/compat_audit.c
-index 10eeb4f15b20..d2652a1083ad 100644
---- a/arch/sparc/kernel/compat_audit.c
-+++ b/arch/sparc/kernel/compat_audit.c
-@@ -39,6 +39,8 @@ int sparc32_classify_syscall(unsigned int syscall)
- 		return 4;
- 	case __NR_execve:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 1;
- 	}
-diff --git a/arch/x86/ia32/audit.c b/arch/x86/ia32/audit.c
-index 6efe6cb3768a..57a02ade5503 100644
---- a/arch/x86/ia32/audit.c
-+++ b/arch/x86/ia32/audit.c
-@@ -39,6 +39,8 @@ int ia32_classify_syscall(unsigned syscall)
- 	case __NR_execve:
- 	case __NR_execveat:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 1;
- 	}
-diff --git a/arch/x86/kernel/audit_64.c b/arch/x86/kernel/audit_64.c
-index 83d9cad4e68b..39de1e021258 100644
---- a/arch/x86/kernel/audit_64.c
-+++ b/arch/x86/kernel/audit_64.c
-@@ -53,6 +53,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
- 	case __NR_execve:
- 	case __NR_execveat:
- 		return 5;
-+	case __NR_openat2:
-+		return 6;
- 	default:
- 		return 0;
- 	}
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index 8bb9ac84d2fb..f5616e70d129 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -76,6 +76,7 @@
- #include <linux/fsnotify_backend.h>
- #include <uapi/linux/limits.h>
- #include <uapi/linux/netfilter/nf_tables.h>
-+#include <uapi/linux/openat2.h>
- 
- #include "audit.h"
- 
-@@ -195,6 +196,8 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
- 		return ((mask & AUDIT_PERM_WRITE) && ctx->argv[0] == SYS_BIND);
- 	case 5: /* execve */
- 		return mask & AUDIT_PERM_EXEC;
-+	case 6: /* openat2 */
-+		return mask & ACC_MODE((u32)((struct open_how *)ctx->argv[2])->flags);
- 	default:
- 		return 0;
- 	}
-diff --git a/lib/audit.c b/lib/audit.c
-index 5004bff928a7..8f030b9a2d10 100644
---- a/lib/audit.c
-+++ b/lib/audit.c
-@@ -60,6 +60,10 @@ int audit_classify_syscall(int abi, unsigned syscall)
- #endif
- 	case __NR_execve:
- 		return 5;
-+#ifdef __NR_openat2
-+	case __NR_openat2:
-+		return 6;
-+#endif
- 	default:
- 		return 0;
- 	}
-diff --git a/lib/compat_audit.c b/lib/compat_audit.c
-index 77eabad69b4a..8aff0d0d9ba0 100644
---- a/lib/compat_audit.c
-+++ b/lib/compat_audit.c
-@@ -45,6 +45,10 @@ int audit_classify_compat_syscall(int abi, unsigned syscall)
- #endif
- 	case __NR_execve:
- 		return 5;
-+#ifdef __NR_openat2
-+	case __NR_openat2:
-+		return 6;
-+#endif
- 	default:
- 		return 1;
- 	}
+
+I have grouped them by subsystem (more or less).
+(This was done on linux-next of 2021-03-15.)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+make[1]: Entering directory 'linux-next-20210315/S390'
+
+kernel/dma:
+
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: kernel/dma/coherent.o: in function `dma_init_coherent_memory':
+coherent.c:(.text+0x39c): undefined reference to `memremap'
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: coherent.c:(.text+0x4e0): undefined reference to `memunmap'
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: kernel/dma/coherent.o: in function `dma_declare_coherent_memory':
+coherent.c:(.text+0xac6): undefined reference to `memunmap'
+
+irqchip:
+
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: drivers/irqchip/irq-al-fic.o: in function `al_fic_init_dt':
+irq-al-fic.c:(.init.text+0x6c): undefined reference to `of_iomap'
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: irq-al-fic.c:(.init.text+0x49c): undefined reference to `iounmap'
+
+clk / clocksource:
+
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: drivers/clk/clk-fixed-mmio.o: in function `fixed_mmio_clk_setup':
+clk-fixed-mmio.c:(.text+0x9a): undefined reference to `of_iomap'
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: clk-fixed-mmio.c:(.text+0xe6): undefined reference to `iounmap'
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: drivers/clocksource/timer-of.o: in function `timer_of_init':
+timer-of.c:(.init.text+0x8e): undefined reference to `of_iomap'
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: timer-of.c:(.init.text+0x6ec): undefined reference to `iounmap'
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: drivers/clocksource/timer-of.o: in function `timer_of_cleanup':
+timer-of.c:(.init.text+0x8f2): undefined reference to `iounmap'
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: drivers/clocksource/timer-microchip-pit64b.o: in function `mchp_pit64b_dt_init_timer':
+timer-microchip-pit64b.c:(.init.text+0xf2): undefined reference to `of_iomap'
+gcc-9.3.0-nolibc/s390-linux/bin/s390-linux-ld: timer-microchip-pit64b.c:(.init.text+0xa18): undefined reference to `iounmap'
+
+iio:
+
+ERROR: modpost: "devm_platform_ioremap_resource" [drivers/iio/adc/adi-axi-adc.ko] undefined!
+
+pcmcia:
+
+ERROR: modpost: "ioremap" [drivers/pcmcia/pcmcia.ko] undefined!
+ERROR: modpost: "iounmap" [drivers/pcmcia/pcmcia.ko] undefined!
+
+mtd:
+
+ERROR: modpost: "devm_ioremap_resource" [drivers/mtd/nand/raw/denali_dt.ko] undefined!
+
+nvmem:
+
+ERROR: modpost: "memunmap" [drivers/nvmem/nvmem-rmem.ko] undefined!
+ERROR: modpost: "memremap" [drivers/nvmem/nvmem-rmem.ko] undefined!
+
+crypto:
+
+ERROR: modpost: "devm_ioremap_resource" [drivers/crypto/ccree/ccree.ko] undefined!
+ERROR: modpost: "debugfs_create_regset32" [drivers/crypto/ccree/ccree.ko] undefined!
+
+media:
+
+ERROR: modpost: "devm_ioremap_resource" [drivers/media/rc/ir-hix5hd2.ko] undefined!
+
+input:
+
+ERROR: modpost: "devm_ioremap" [drivers/input/keyboard/samsung-keypad.ko] undefined!
+
+net:
+
+ERROR: modpost: "devm_platform_ioremap_resource" [drivers/net/can/grcan.ko] undefined!
+ERROR: modpost: "iounmap" [drivers/net/arcnet/arc-rimi.ko] undefined!
+ERROR: modpost: "ioremap" [drivers/net/arcnet/arc-rimi.ko] undefined!
+ERROR: modpost: "iounmap" [drivers/net/arcnet/com90xx.ko] undefined!
+ERROR: modpost: "ioremap" [drivers/net/arcnet/com90xx.ko] undefined!
+ERROR: modpost: "devm_ioremap" [drivers/net/ethernet/altera/altera_tse.ko] undefined!
+ERROR: modpost: "ioremap" [drivers/net/ethernet/xircom/xirc2ps_cs.ko] undefined!
+ERROR: modpost: "iounmap" [drivers/net/ethernet/xircom/xirc2ps_cs.ko] undefined!
+ERROR: modpost: "devm_ioremap_resource" [drivers/net/ethernet/xilinx/xilinx_emac.ko] undefined!
+ERROR: modpost: "of_address_to_resource" [drivers/net/ethernet/xilinx/xilinx_emac.ko] undefined!
+ERROR: modpost: "of_address_to_resource" [drivers/net/ethernet/xilinx/xilinx_emaclite.ko] undefined!
+ERROR: modpost: "devm_ioremap_resource" [drivers/net/ethernet/xilinx/xilinx_emaclite.ko] undefined!
+ERROR: modpost: "devm_platform_ioremap_resource_byname" [drivers/net/ethernet/xilinx/ll_temac.ko] undefined!
+ERROR: modpost: "of_address_to_resource" [drivers/net/ethernet/xilinx/ll_temac.ko] undefined!
+ERROR: modpost: "devm_platform_ioremap_resource" [drivers/net/ethernet/xilinx/ll_temac.ko] undefined!
+ERROR: modpost: "devm_of_iomap" [drivers/net/ethernet/xilinx/ll_temac.ko] undefined!
+ERROR: modpost: "ioremap" [drivers/net/ethernet/smsc/smc91c92_cs.ko] undefined!
+ERROR: modpost: "iounmap" [drivers/net/ethernet/smsc/smc91c92_cs.ko] undefined!
+ERROR: modpost: "ioremap" [drivers/net/ethernet/fujitsu/fmvj18x_cs.ko] undefined!
+ERROR: modpost: "iounmap" [drivers/net/ethernet/fujitsu/fmvj18x_cs.ko] undefined!
+ERROR: modpost: "ioremap" [drivers/net/ethernet/8390/pcnet_cs.ko] undefined!
+ERROR: modpost: "iounmap" [drivers/net/ethernet/8390/pcnet_cs.ko] undefined!
+
+char:
+
+ERROR: modpost: "devm_platform_ioremap_resource" [drivers/char/xillybus/xillybus_of.ko] undefined!
+
+tty:
+
+ERROR: modpost: "ioremap" [drivers/tty/ipwireless/ipwireless.ko] undefined!
+ERROR: modpost: "iounmap" [drivers/tty/ipwireless/ipwireless.ko] undefined!
+
+dma:
+
+ERROR: modpost: "devm_ioremap_resource" [drivers/dma/sf-pdma/sf-pdma.ko] undefined!
+ERROR: modpost: "devm_ioremap_resource" [drivers/dma/idma64.ko] undefined!
+ERROR: modpost: "devm_ioremap_resource" [drivers/dma/fsl-edma.ko] undefined!
+ERROR: modpost: "devm_platform_ioremap_resource" [drivers/dma/dw/dw_dmac.ko] undefined!
+ERROR: modpost: "devm_ioremap" [drivers/dma/altera-msgdma.ko] undefined!
+ERROR: modpost: "devm_platform_ioremap_resource" [drivers/dma/xilinx/xilinx_dpdma.ko] undefined!
+ERROR: modpost: "devm_ioremap_resource" [drivers/dma/qcom/hdma.ko] undefined!
+ERROR: modpost: "devm_ioremap_resource" [drivers/dma/qcom/hdma_mgmt.ko] undefined!
+ERROR: modpost: "of_address_to_resource" [drivers/dma/qcom/hdma_mgmt.ko] undefined!
+
+make[1]: Leaving directory 'linux-next-20210315/S390'
+
 -- 
-2.27.0
+~Randy
 
