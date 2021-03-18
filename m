@@ -2,114 +2,78 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-21.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	TVD_SPACE_RATIO,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50F97C4332B
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 12:51:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A215FC433DB
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 17:05:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2AAB664E86
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 12:51:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6884064E05
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 17:05:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230473AbhCRMuw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 18 Mar 2021 08:50:52 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49962 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230408AbhCRMud (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 18 Mar 2021 08:50:33 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12ICiAjn013582;
-        Thu, 18 Mar 2021 08:50:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=27jgHEWQsE2tGa6PgzumrpphZFRLUHhCxry1FPK3/Ts=;
- b=GHqrI+C4ThuywBeTGPZSRk3RkQJu2/Amc+Jffk5g+LwvYtUB0a0/BTgVfzq0JRX53Vj9
- 9IiQYt6gZcPXhPStMFS6GyEoHq0S39YXVFIVzqZWCXmEmEMaQRB18ULNs8u/tGqBk0FT
- VTeQMJDm9H4yZtLVG9G53nY1ufLoB3LtoVzwDKNueJ57nq9bBd6e0a2NlJPIikPyUkRf
- Dd7sNSa20PdtvbEAl6qyrW28i7hMEowz44AePrUusyLSqgN3K4O+elm0gJxqzKRvwCP0
- DZi6TdNLNeEnRMifPkkfj3Gs3dOvl4qHyNHURQcGV34oQHPICBMIY4oaHCvNOLLX77iN jQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37bnrf4v4t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Mar 2021 08:50:33 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12ICiNER014406;
-        Thu, 18 Mar 2021 08:50:33 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37bnrf4v3k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Mar 2021 08:50:33 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12ICmLUs031714;
-        Thu, 18 Mar 2021 12:50:30 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma01fra.de.ibm.com with ESMTP id 378n18ahmh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Mar 2021 12:50:30 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12ICoSj234275672
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 18 Mar 2021 12:50:28 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 89EC0A4057;
-        Thu, 18 Mar 2021 12:50:28 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8969CA4053;
-        Thu, 18 Mar 2021 12:50:27 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.24.61])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 18 Mar 2021 12:50:27 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     thuth@redhat.com, david@redhat.com, cohuck@redhat.com,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH 3/3] s390x: run: Skip PV tests when tcg is the accelerator
-Date:   Thu, 18 Mar 2021 12:50:15 +0000
-Message-Id: <20210318125015.45502-4-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210318125015.45502-1-frankja@linux.ibm.com>
-References: <20210318125015.45502-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-18_04:2021-03-17,2021-03-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
- lowpriorityscore=0 adultscore=0 bulkscore=0 suspectscore=0 phishscore=0
- mlxlogscore=999 clxscore=1015 spamscore=0 priorityscore=1501
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2103180095
+        id S231853AbhCRRFK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 18 Mar 2021 13:05:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59980 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231995AbhCRRFE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Mar 2021 13:05:04 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C003C06175F
+        for <linux-s390@vger.kernel.org>; Thu, 18 Mar 2021 10:05:04 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id l83so2847235ybf.22
+        for <linux-s390@vger.kernel.org>; Thu, 18 Mar 2021 10:05:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=M96sX2ER8OUfU5ItsM/N27fVEe7WhfbzfJq6noJZvuE=;
+        b=ZptMR85CjXw01KHfTRcq2EVDLfQJLyIzsFLW4Xv6HgfrGrlFg12+R+C8zOG6HlhEB/
+         7fc8qRm5U8erwNc6doqipkpQ91OYFve38QvCDgYjVr9GPyul9GsTAhq87hnxO5UTYZ9F
+         ICob4RMgHSkZztNvxbg60nbijiHcBh/Zp+y55JtoX4Le6WXBPonFLh0m5dGw6JYZjexN
+         iP1QA1ALZx5DfK46KRR8BVflkt9Jhit7aqCtowtNkcSA+im9YzrWe5+XohD50T+vHHD5
+         5K+LkcS2Px48VpAuxfTSNGf7l9MNjthVirchi0NerDRWepN9A6M+voEF4VZ+tl215KBX
+         NOfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=M96sX2ER8OUfU5ItsM/N27fVEe7WhfbzfJq6noJZvuE=;
+        b=PGcajVrK2gcSfCJKcUMZAJ7GWLcGNWLLTyNgtylVAVkPcuJac6X3QD6hbjm/1X8e8f
+         0w5fWSya+F8k+zzO2HgjaBM8hjlfSY22Ob2kX6k3PYptmggpvCE0NTgNhWFVfApG/DPS
+         6QZxXZ97gYaOGJgyJP04TgTNZoRk2cKjVXuP4bm/83K9Utr7wVK+It6ZRisTFJTYR94t
+         bsbGj18x0dO+Y6k6ycfOt26YlDFquu1OvBSFeXgw7sXIHvM9FkML62Fd35x0BZUSfkol
+         MWFdPUeIOQHgmOipBMYBXZCzPMzKyVlFeJc9yE880XyZQ20XkZMjSFheC9YbpLQhkWrb
+         eAEQ==
+X-Gm-Message-State: AOAM530Z6UNKC5AkZza7KZnWns5eitSBMVhFVocxOmvWmh23vZPQBD0D
+        MMBLPedM5Xq4H9QAKto+ll4dkt04Pwbrwc7qWow=
+X-Google-Smtp-Source: ABdhPJxKgbPt3d9Ql9cYMZo4/Cdz/7X6qGcU8im11P5aoKSknsF2Cq+lDthgDh5Z+ThZ5mNrX8tZu/cYF0CWfwXyNPs=
+X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:840a:6dbd:4c5:5c01])
+ (user=ndesaulniers job=sendgmr) by 2002:a25:25d7:: with SMTP id
+ l206mr367807ybl.43.1616087103611; Thu, 18 Mar 2021 10:05:03 -0700 (PDT)
+Date:   Thu, 18 Mar 2021 10:05:01 -0700
+In-Reply-To: <CA+G9fYtBw0HAv5OOAycK2rZ_m2Sj73krXPJ0iDzT+O8qtc19SQ@mail.gmail.com>
+Message-Id: <20210318170501.2183418-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+References: <CA+G9fYtBw0HAv5OOAycK2rZ_m2Sj73krXPJ0iDzT+O8qtc19SQ@mail.gmail.com>
+X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
+Subject: Re: s390: kernel/entry.o: in function `sys_call_table_emu':
+ (.rodata+0x1bc0): undefined reference to `__s390_'
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     naresh.kamboju@linaro.org
+Cc:     acme@kernel.org, agordeev@linux.ibm.com, borntraeger@de.ibm.com,
+        gor@linux.ibm.com, hca@linux.ibm.com, heiko.carstens@de.ibm.com,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        lkft-triage@lists.linaro.org, nixiaoming@huawei.com,
+        svens@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-TCG doesn't support PV.
+(Replying to https://lore.kernel.org/linux-s390/CA+G9fYtBw0HAv5OOAycK2rZ_m2Sj73krXPJ0iDzT+O8qtc19SQ@mail.gmail.com/)
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/run | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/s390x/run b/s390x/run
-index df7ef5ca..82922701 100755
---- a/s390x/run
-+++ b/s390x/run
-@@ -19,6 +19,11 @@ else
-     ACCEL=$DEF_ACCEL
- fi
- 
-+if [ "${1: -7}" == ".pv.bin" ] || [ "${TESTNAME: -3}" == "_PV" ] && [ $ACCEL == "tcg" ]; then
-+	echo "Protected Virtualization isn't supported under TCG"
-+	exit 2
-+fi
-+
- M='-machine s390-ccw-virtio'
- M+=",accel=$ACCEL"
- command="$qemu -nodefaults -nographic $M"
--- 
-2.27.0
-
+Yeah, our CI is failing today, too with the same error on linux-next:
+https://github.com/ClangBuiltLinux/continuous-integration2/runs/2138006304?check_suite_focus=true
