@@ -2,87 +2,304 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-21.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3F4EC433E9
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 01:03:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31C03C4332B
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 01:49:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8687064F10
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 01:03:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC6EF64E83
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Mar 2021 01:49:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbhCRBCf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Mar 2021 21:02:35 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:13185 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229720AbhCRBCF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Mar 2021 21:02:05 -0400
-Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4F17w73LVNzmZ6G;
-        Thu, 18 Mar 2021 08:59:35 +0800 (CST)
-Received: from [10.174.177.244] (10.174.177.244) by
- DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
- 14.3.498.0; Thu, 18 Mar 2021 09:01:56 +0800
-Subject: Re: [PATCH v2] mm: Move mem_init_print_info() into mm_init()
-To:     Dave Hansen <dave.hansen@intel.com>,
-        <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-CC:     Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Richard Henderson <rth@twiddle.net>,
-        Guo Ren <guoren@kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, <linux-alpha@vger.kernel.org>,
-        <linux-snps-arc@lists.infradead.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-csky@vger.kernel.org>, <linux-hexagon@vger.kernel.org>,
-        <linux-ia64@vger.kernel.org>, <linux-m68k@lists.linux-m68k.org>,
-        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
-        <linux-parisc@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-        <linux-sh@vger.kernel.org>, <sparclinux@vger.kernel.org>,
-        <linux-um@lists.infradead.org>, <linux-xtensa@linux-xtensa.org>,
-        <linux-mm@kvack.org>
-References: <4d488195-7281-9238-b30d-9f89a6100fb9@csgroup.eu>
- <20210317015210.33641-1-wangkefeng.wang@huawei.com>
- <2a7d6e39-b293-7422-87b0-741f1ab0c22c@intel.com>
-From:   Kefeng Wang <wangkefeng.wang@huawei.com>
-Message-ID: <190f5356-f947-d474-a9fe-bc8e622a426e@huawei.com>
-Date:   Thu, 18 Mar 2021 09:01:54 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S230132AbhCRBs2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Mar 2021 21:48:28 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34544 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230099AbhCRBsL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 17 Mar 2021 21:48:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1616032090;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=UuMfiKtlHJ9YtiMEQ803haS0RFolvE5VmV2RzbMQkXA=;
+        b=iYE6VVMnxbX31aVvneZ32lPJ9DdjxKzDqvbURocxvZLOuzkt2KYXzOg3N2+7504Exs9i0u
+        xCYjPxbimmDvJxJa7r7y4EcFHqEVttKTJgghWXvSiacIjKmcBCzyEJWjcpo4Ll1Iza36AK
+        hRBhqModtMAVoixnrT64afetosvIxsU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-387-Yg0X8aOYOhmb-aInmv1mmg-1; Wed, 17 Mar 2021 21:48:06 -0400
+X-MC-Unique: Yg0X8aOYOhmb-aInmv1mmg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 97E0D180FCA0;
+        Thu, 18 Mar 2021 01:48:04 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.10.110.12])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DCAB14C;
+        Thu, 18 Mar 2021 01:48:00 +0000 (UTC)
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Linux-Audit Mailing List <linux-audit@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Steve Grubb <sgrubb@redhat.com>,
+        Richard Guy Briggs <rgb@redhat.com>, x86@kernel.org,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Eric Paris <eparis@redhat.com>, linux-alpha@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: [PATCH 1/2] audit: add support for the openat2 syscall
+Date:   Wed, 17 Mar 2021 21:47:17 -0400
+Message-Id: <49510cacfb5fbbaa312a4a389f3a6619675007ab.1616031035.git.rgb@redhat.com>
+In-Reply-To: <cover.1616031035.git.rgb@redhat.com>
+References: <cover.1616031035.git.rgb@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <2a7d6e39-b293-7422-87b0-741f1ab0c22c@intel.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Originating-IP: [10.174.177.244]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+The openat2(2) syscall was added in kernel v5.6 with commit fddb5d430ad9
+("open: introduce openat2(2) syscall")
 
-On 2021/3/18 2:48, Dave Hansen wrote:
-> On 3/16/21 6:52 PM, Kefeng Wang wrote:
->> mem_init_print_info() is called in mem_init() on each architecture,
->> and pass NULL argument, so using void argument and move it into mm_init().
->>
->> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-> It's not a big deal but you might want to say something like:
->
-> Acked-by: Dave Hansen <dave.hansen@linux.intel.com> # x86 bits
->
-> Just to make it clear that I didn't look at the alpha bits at all. :)
-Get it, will be careful, thanks.
-> .
->
+Add the openat2(2) syscall to the audit syscall classifier.
+
+See the github issue
+https://github.com/linux-audit/audit-kernel/issues/67
+
+Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+---
+ arch/alpha/kernel/audit.c          | 2 ++
+ arch/ia64/kernel/audit.c           | 2 ++
+ arch/parisc/kernel/audit.c         | 2 ++
+ arch/parisc/kernel/compat_audit.c  | 2 ++
+ arch/powerpc/kernel/audit.c        | 2 ++
+ arch/powerpc/kernel/compat_audit.c | 2 ++
+ arch/s390/kernel/audit.c           | 2 ++
+ arch/s390/kernel/compat_audit.c    | 2 ++
+ arch/sparc/kernel/audit.c          | 2 ++
+ arch/sparc/kernel/compat_audit.c   | 2 ++
+ arch/x86/ia32/audit.c              | 2 ++
+ arch/x86/kernel/audit_64.c         | 2 ++
+ kernel/auditsc.c                   | 3 +++
+ lib/audit.c                        | 4 ++++
+ lib/compat_audit.c                 | 4 ++++
+ 15 files changed, 35 insertions(+)
+
+diff --git a/arch/alpha/kernel/audit.c b/arch/alpha/kernel/audit.c
+index 96a9d18ff4c4..06a911b685d1 100644
+--- a/arch/alpha/kernel/audit.c
++++ b/arch/alpha/kernel/audit.c
+@@ -42,6 +42,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ 		return 3;
+ 	case __NR_execve:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 0;
+ 	}
+diff --git a/arch/ia64/kernel/audit.c b/arch/ia64/kernel/audit.c
+index 5192ca899fe6..5eaa888c8fd3 100644
+--- a/arch/ia64/kernel/audit.c
++++ b/arch/ia64/kernel/audit.c
+@@ -43,6 +43,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ 		return 3;
+ 	case __NR_execve:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 0;
+ 	}
+diff --git a/arch/parisc/kernel/audit.c b/arch/parisc/kernel/audit.c
+index 9eb47b2225d2..fc721a7727ba 100644
+--- a/arch/parisc/kernel/audit.c
++++ b/arch/parisc/kernel/audit.c
+@@ -52,6 +52,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ 		return 3;
+ 	case __NR_execve:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 0;
+ 	}
+diff --git a/arch/parisc/kernel/compat_audit.c b/arch/parisc/kernel/compat_audit.c
+index 20c39c9d86a9..fc6d35918c44 100644
+--- a/arch/parisc/kernel/compat_audit.c
++++ b/arch/parisc/kernel/compat_audit.c
+@@ -35,6 +35,8 @@ int parisc32_classify_syscall(unsigned syscall)
+ 		return 3;
+ 	case __NR_execve:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 1;
+ 	}
+diff --git a/arch/powerpc/kernel/audit.c b/arch/powerpc/kernel/audit.c
+index a2dddd7f3d09..8f32700b0baa 100644
+--- a/arch/powerpc/kernel/audit.c
++++ b/arch/powerpc/kernel/audit.c
+@@ -54,6 +54,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ 		return 4;
+ 	case __NR_execve:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 0;
+ 	}
+diff --git a/arch/powerpc/kernel/compat_audit.c b/arch/powerpc/kernel/compat_audit.c
+index 55c6ccda0a85..ebe45534b1c9 100644
+--- a/arch/powerpc/kernel/compat_audit.c
++++ b/arch/powerpc/kernel/compat_audit.c
+@@ -38,6 +38,8 @@ int ppc32_classify_syscall(unsigned syscall)
+ 		return 4;
+ 	case __NR_execve:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 1;
+ 	}
+diff --git a/arch/s390/kernel/audit.c b/arch/s390/kernel/audit.c
+index d395c6c9944c..d964cb94cfaf 100644
+--- a/arch/s390/kernel/audit.c
++++ b/arch/s390/kernel/audit.c
+@@ -54,6 +54,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ 		return 4;
+ 	case __NR_execve:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 0;
+ 	}
+diff --git a/arch/s390/kernel/compat_audit.c b/arch/s390/kernel/compat_audit.c
+index 444fb1f66944..f7b32933ce0e 100644
+--- a/arch/s390/kernel/compat_audit.c
++++ b/arch/s390/kernel/compat_audit.c
+@@ -39,6 +39,8 @@ int s390_classify_syscall(unsigned syscall)
+ 		return 4;
+ 	case __NR_execve:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 1;
+ 	}
+diff --git a/arch/sparc/kernel/audit.c b/arch/sparc/kernel/audit.c
+index a6e91bf34d48..b6dcca9c6520 100644
+--- a/arch/sparc/kernel/audit.c
++++ b/arch/sparc/kernel/audit.c
+@@ -55,6 +55,8 @@ int audit_classify_syscall(int abi, unsigned int syscall)
+ 		return 4;
+ 	case __NR_execve:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 0;
+ 	}
+diff --git a/arch/sparc/kernel/compat_audit.c b/arch/sparc/kernel/compat_audit.c
+index 10eeb4f15b20..d2652a1083ad 100644
+--- a/arch/sparc/kernel/compat_audit.c
++++ b/arch/sparc/kernel/compat_audit.c
+@@ -39,6 +39,8 @@ int sparc32_classify_syscall(unsigned int syscall)
+ 		return 4;
+ 	case __NR_execve:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 1;
+ 	}
+diff --git a/arch/x86/ia32/audit.c b/arch/x86/ia32/audit.c
+index 6efe6cb3768a..57a02ade5503 100644
+--- a/arch/x86/ia32/audit.c
++++ b/arch/x86/ia32/audit.c
+@@ -39,6 +39,8 @@ int ia32_classify_syscall(unsigned syscall)
+ 	case __NR_execve:
+ 	case __NR_execveat:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 1;
+ 	}
+diff --git a/arch/x86/kernel/audit_64.c b/arch/x86/kernel/audit_64.c
+index 83d9cad4e68b..39de1e021258 100644
+--- a/arch/x86/kernel/audit_64.c
++++ b/arch/x86/kernel/audit_64.c
+@@ -53,6 +53,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ 	case __NR_execve:
+ 	case __NR_execveat:
+ 		return 5;
++	case __NR_openat2:
++		return 6;
+ 	default:
+ 		return 0;
+ 	}
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 8bb9ac84d2fb..f5616e70d129 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -76,6 +76,7 @@
+ #include <linux/fsnotify_backend.h>
+ #include <uapi/linux/limits.h>
+ #include <uapi/linux/netfilter/nf_tables.h>
++#include <uapi/linux/openat2.h>
+ 
+ #include "audit.h"
+ 
+@@ -195,6 +196,8 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
+ 		return ((mask & AUDIT_PERM_WRITE) && ctx->argv[0] == SYS_BIND);
+ 	case 5: /* execve */
+ 		return mask & AUDIT_PERM_EXEC;
++	case 6: /* openat2 */
++		return mask & ACC_MODE((u32)((struct open_how *)ctx->argv[2])->flags);
+ 	default:
+ 		return 0;
+ 	}
+diff --git a/lib/audit.c b/lib/audit.c
+index 5004bff928a7..8f030b9a2d10 100644
+--- a/lib/audit.c
++++ b/lib/audit.c
+@@ -60,6 +60,10 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ #endif
+ 	case __NR_execve:
+ 		return 5;
++#ifdef __NR_openat2
++	case __NR_openat2:
++		return 6;
++#endif
+ 	default:
+ 		return 0;
+ 	}
+diff --git a/lib/compat_audit.c b/lib/compat_audit.c
+index 77eabad69b4a..8aff0d0d9ba0 100644
+--- a/lib/compat_audit.c
++++ b/lib/compat_audit.c
+@@ -45,6 +45,10 @@ int audit_classify_compat_syscall(int abi, unsigned syscall)
+ #endif
+ 	case __NR_execve:
+ 		return 5;
++#ifdef __NR_openat2
++	case __NR_openat2:
++		return 6;
++#endif
+ 	default:
+ 		return 1;
+ 	}
+-- 
+2.27.0
+
