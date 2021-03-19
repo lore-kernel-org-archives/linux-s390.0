@@ -2,121 +2,80 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05A30C433E6
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Mar 2021 14:55:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E4FBC433E0
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Mar 2021 18:36:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C98C464ECF
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Mar 2021 14:55:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC8F661986
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Mar 2021 18:36:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230215AbhCSOzP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 Mar 2021 10:55:15 -0400
-Received: from mail-ua1-f54.google.com ([209.85.222.54]:43532 "EHLO
-        mail-ua1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230378AbhCSOym (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Mar 2021 10:54:42 -0400
-Received: by mail-ua1-f54.google.com with SMTP id c13so3103297uao.10;
-        Fri, 19 Mar 2021 07:54:41 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=t7iwM5Al+GjmpcCXrO+/PoTF1eT3fOyyCJF+hEmDRuY=;
-        b=m8K/vL4OYcPQNn1dHIlpSuz7xVfJ3sA6vuXpFu1YodJjgA9VanpL8m2yABAGlfv3gZ
-         w/bfN+o2HWE3pAH1COnRxNMiRLAlUqs4Dhl881LsPziftGAqBsCQprCqHtErzG/jDJB2
-         i2Jaqw/y0f+wNjfP5mAlEHhnDTQa4+Tu2+06o7JnsZbD4TgBJvsSu4sDFubV+5VScaRH
-         V+iAFgK/lZ6WqKuq57ZjJtCi8d5TI0xGm3LKGy3b2mAroFf1BlANqVOM/GlH7Nm25s6h
-         r+qFbR8FvarbFWiFrZhsdWPRZdYf1+RLiPk0quOa5OacozonYu6FlkAKJD1O09Rbr264
-         ithg==
-X-Gm-Message-State: AOAM530hzg1CSJJoB9I/M1IOQHDwFSdyfmh+bYHqNMiYY4wgVVMVYJTa
-        H2rhz+oKYFAF1BXf32zz5xuLZH8App7ez5b8ueKNUXPT
-X-Google-Smtp-Source: ABdhPJws2Ktj9BbIiCJ2GEgAVHw5Jy7feW23SDXRGODsXxsWn+4cet7pHOPZfquztis6cg4P7dw2c+QmSRw/42z1U4s=
-X-Received: by 2002:a9f:35a1:: with SMTP id t30mr5801449uad.106.1616165680697;
- Fri, 19 Mar 2021 07:54:40 -0700 (PDT)
+        id S230478AbhCSSgO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 Mar 2021 14:36:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58406 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230453AbhCSSfy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 19 Mar 2021 14:35:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2EE661980;
+        Fri, 19 Mar 2021 18:35:51 +0000 (UTC)
+Date:   Fri, 19 Mar 2021 18:35:49 +0000
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     Anshuman Khandual <anshuman.khandual@arm.com>
+Cc:     linux-mm@kvack.org, x86@kernel.org, linux-ia64@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-sh@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/6] mm: some config cleanups
+Message-ID: <20210319183548.GH6832@arm.com>
+References: <1615278790-18053-1-git-send-email-anshuman.khandual@arm.com>
 MIME-Version: 1.0
-References: <20210319143452.25948-1-david@redhat.com> <20210319143452.25948-3-david@redhat.com>
-In-Reply-To: <20210319143452.25948-3-david@redhat.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Fri, 19 Mar 2021 15:54:29 +0100
-Message-ID: <CAMuHMdVP433iVhyaweDd8G6p3ZCgSDq6M_ACko_BTgm+5m0qnA@mail.gmail.com>
-Subject: Re: [PATCH RFC 2/3] mm: remove xlate_dev_kmem_ptr()
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux MM <linux-mm@kvack.org>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Brian Cain <bcain@codeaurora.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Greentime Hu <green.hu@gmail.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        alpha <linux-alpha@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        Linux-Arch <linux-arch@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1615278790-18053-1-git-send-email-anshuman.khandual@arm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Mar 19, 2021 at 3:36 PM David Hildenbrand <david@redhat.com> wrote:
-> Since /dev/kmem has been removed, let's remove the xlate_dev_kmem_ptr()
-> leftovers.
+On Tue, Mar 09, 2021 at 02:03:04PM +0530, Anshuman Khandual wrote:
+> This series contains config cleanup patches which reduces code duplication
+> across platforms and also improves maintainability. There is no functional
+> change intended with this series. This has been boot tested on arm64 but
+> only build tested on some other platforms.
+> 
+> This applies on 5.12-rc2
+> 
+> Cc: x86@kernel.org
+> Cc: linux-ia64@vger.kernel.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-snps-arc@lists.infradead.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-mips@vger.kernel.org
+> Cc: linux-parisc@vger.kernel.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-riscv@lists.infradead.org
+> Cc: linux-sh@vger.kernel.org
+> Cc: linux-fsdevel@vger.kernel.org
+> Cc: linux-mm@kvack.org
+> Cc: linux-kernel@vger.kernel.org
+> 
+> Anshuman Khandual (6):
+>   mm: Generalize ARCH_HAS_CACHE_LINE_SIZE
+>   mm: Generalize SYS_SUPPORTS_HUGETLBFS (rename as ARCH_SUPPORTS_HUGETLBFS)
+>   mm: Generalize ARCH_ENABLE_MEMORY_[HOTPLUG|HOTREMOVE]
+>   mm: Drop redundant ARCH_ENABLE_[HUGEPAGE|THP]_MIGRATION
+>   mm: Drop redundant ARCH_ENABLE_SPLIT_PMD_PTLOCK
+>   mm: Drop redundant HAVE_ARCH_TRANSPARENT_HUGEPAGE
+> 
+>  arch/arc/Kconfig                       |  9 ++------
+>  arch/arm/Kconfig                       | 10 ++-------
+>  arch/arm64/Kconfig                     | 30 ++++++--------------------
 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+For arm64:
 
->  arch/m68k/include/asm/io_mm.h   |  5 -----
-
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
