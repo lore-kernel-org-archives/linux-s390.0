@@ -2,174 +2,391 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 969F1C433DB
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Mar 2021 00:00:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2D66C43619
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Mar 2021 14:36:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5DD3064EFD
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Mar 2021 00:00:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4A2F64F53
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Mar 2021 14:36:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231349AbhCSAAL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 18 Mar 2021 20:00:11 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45968 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230316AbhCSAAC (ORCPT
+        id S230286AbhCSOga (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 Mar 2021 10:36:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:55100 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230250AbhCSOgS (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 18 Mar 2021 20:00:02 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12INY35d094321;
-        Thu, 18 Mar 2021 20:00:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=ivTiJWbGDsEtE3GvdJeKaLJ5TjbJ9stwGEwR143CR7w=;
- b=RKiQrzy448vuACAHjwq4aeriwig8JXHgtaYGwc67qD+TIE22Ks2tG/F5pNM3otFCKxN2
- InzPo6mWJICPay498RXM24kqaRsCu3eJW40IPY92k6Jlu1hyINzQ1v3yahRtBx5es74+
- F8GxAnzZikBPRk/Ic/VCdjjJBUqtgDPFv4HyPb70+eADGDRSbTVzi/FA1DUM/MBqHPeR
- 74TrH9dwR8Smo2Tff54GN1egM02nsCeeL7oEGvjAXUFExTfzbDw77S61tjjyl7b9uxk5
- dbPTtFuvTwq70hLZjUdgk9caGCnEPqSu/XbCsKuXAv9bU04yiLn75HzTz9H2NWyMnHC4 rg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37c302j5p6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Mar 2021 20:00:01 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12INZKDh096838;
-        Thu, 18 Mar 2021 20:00:01 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37c302j5my-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Mar 2021 20:00:01 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12INujVx028122;
-        Thu, 18 Mar 2021 23:59:59 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 37b30p22nr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Mar 2021 23:59:59 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12INxcNO36831642
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 18 Mar 2021 23:59:39 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EBC76AE059;
-        Thu, 18 Mar 2021 23:59:55 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2DE48AE057;
-        Thu, 18 Mar 2021 23:59:55 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.84.212])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Thu, 18 Mar 2021 23:59:55 +0000 (GMT)
-Date:   Fri, 19 Mar 2021 00:59:53 +0100
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, stable@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
-        pbonzini@redhat.com, alex.williamson@redhat.com,
-        pasic@linux.vnet.ibm.com
-Subject: Re: [PATCH v4 1/1] s390/vfio-ap: fix circular lockdep when
- setting/clearing crypto masks
-Message-ID: <20210319005953.7e6425bd.pasic@linux.ibm.com>
-In-Reply-To: <ab9d54a1-afe7-caca-4e5e-99fca9ea2972@linux.ibm.com>
-References: <20210310150559.8956-1-akrowiak@linux.ibm.com>
-        <20210310150559.8956-2-akrowiak@linux.ibm.com>
-        <20210318001729.06cdb8d6.pasic@linux.ibm.com>
-        <ab9d54a1-afe7-caca-4e5e-99fca9ea2972@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        Fri, 19 Mar 2021 10:36:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1616164578;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=FXYl9hPij054vFEEXKLgQXfdpg6LLSdzf8h+kRhT++U=;
+        b=h5ZM9BOaHWki/RayXw430fq54ViKVrZ8CkgANtwQoh20Jr1aY8rZvbN5IFi4feJiJFmA69
+        +Gj0kT2zOlM7KtIezaNjdPTkWJLaExd9Af+z0QXOq3tZtZ3DppioLYt2ZlCIwBO6AxK9Oq
+        dGbTgeD39dcCIUbkPiGVu/G0SRwt5r8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-142-5pJmeDzBN1Gy0hLj-NyWUw-1; Fri, 19 Mar 2021 10:36:12 -0400
+X-MC-Unique: 5pJmeDzBN1Gy0hLj-NyWUw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C0C0A84BA42;
+        Fri, 19 Mar 2021 14:36:06 +0000 (UTC)
+Received: from t480s.redhat.com (ovpn-112-11.ams2.redhat.com [10.36.112.11])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B096F610F5;
+        Fri, 19 Mar 2021 14:35:46 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Brian Cain <bcain@codeaurora.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Greentime Hu <green.hu@gmail.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: [PATCH RFC 2/3] mm: remove xlate_dev_kmem_ptr()
+Date:   Fri, 19 Mar 2021 15:34:51 +0100
+Message-Id: <20210319143452.25948-3-david@redhat.com>
+In-Reply-To: <20210319143452.25948-1-david@redhat.com>
+References: <20210319143452.25948-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-18_18:2021-03-17,2021-03-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- clxscore=1015 mlxlogscore=999 impostorscore=0 malwarescore=0
- lowpriorityscore=0 suspectscore=0 spamscore=0 mlxscore=0 adultscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2103180169
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 18 Mar 2021 14:38:53 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+Since /dev/kmem has been removed, let's remove the xlate_dev_kmem_ptr()
+leftovers.
 
-> On 3/17/21 7:17 PM, Halil Pasic wrote:
-> > On Wed, 10 Mar 2021 10:05:59 -0500
-> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> >  
-> >> -		ret = vfio_ap_mdev_reset_queues(mdev);
-> >> +		matrix_mdev = mdev_get_drvdata(mdev);  
-> > Is it guaranteed that matrix_mdev can't be NULL here? If yes, please
-> > remind me of the mechanism that ensures this.
-> >  
-> >> +
-> >> +		/*
-> >> +		 * If the KVM pointer is in the process of being set, wait until
-> >> +		 * the process has completed.
-> >> +		 */
-> >> +		wait_event_cmd(matrix_mdev->wait_for_kvm,
-> >> +			       matrix_mdev->kvm_busy == false,
-> >> +			       mutex_unlock(&matrix_dev->lock),
-> >> +			       mutex_lock(&matrix_dev->lock));
-> >> +
-> >> +		if (matrix_mdev->kvm)
-> >> +			ret = vfio_ap_mdev_reset_queues(mdev);
-> >> +		else
-> >> +			ret = -ENODEV;  
-> > Didn't we agree to make the call to vfio_ap_mdev_reset_queues()
-> > unconditional again (for reference please take look at
-> > Message-ID: <64afa72c-2d6a-2ca1-e576-34e15fa579ed@linux.ibm.com>)?  
-> 
-> How about this:
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Palmer Dabbelt <palmerdabbelt@google.com>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Greentime Hu <green.hu@gmail.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Pierre Morel <pmorel@linux.ibm.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ arch/alpha/include/asm/io.h     |  5 -----
+ arch/arm/include/asm/io.h       |  5 -----
+ arch/hexagon/include/asm/io.h   |  1 -
+ arch/ia64/include/asm/io.h      |  1 -
+ arch/ia64/include/asm/uaccess.h | 18 ------------------
+ arch/m68k/include/asm/io_mm.h   |  5 -----
+ arch/mips/include/asm/io.h      |  5 -----
+ arch/parisc/include/asm/io.h    |  5 -----
+ arch/powerpc/include/asm/io.h   |  5 -----
+ arch/s390/include/asm/io.h      |  5 -----
+ arch/sh/include/asm/io.h        |  5 -----
+ arch/sparc/include/asm/io_64.h  |  5 -----
+ include/asm-generic/io.h        | 11 -----------
+ 13 files changed, 76 deletions(-)
 
-Looks good. I will check the mdev code if the checkeck is really
-needed. I'm curious when the sysfs files associated with a new mdev are
-created. My guess is that this one comes in via a device specific file
-(not the parent like in case of the create), and that those may be
-created after the create. But we can get rid of the check any time so I
-really don't see it as something that would preclude merging this.
-
-Regards,
-Halil
-
-> 
-> static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
->                      unsigned int cmd, unsigned long arg)
-> {
->      int ret = 0;
->      struct ap_matrix_mdev *matrix_mdev;
-> 
->      ...
->      case VFIO_DEVICE_RESET:
->          matrix_mdev = mdev_get_drvdata(mdev);
->          WARN(!matrix_mdev, "Driver data missing from mdev!!");
-> 
->          if (matrix_mdev) {
->              /*
->               * If the KVM pointer is in the process of being set, wait 
-> until
->               * the process has completed.
->               */
->              wait_event_cmd(matrix_mdev->wait_for_kvm,
->                         matrix_mdev->kvm_busy == false,
-> mutex_unlock(&matrix_dev->lock),
-> mutex_lock(&matrix_dev->lock));
-> 
->              ret = vfio_ap_mdev_reset_queues(mdev);
->          }
->          break;
->      ...
-> 
->      return ret;
-> }
-> 
-> >
-> > Regards,
-> > Halil  
-> 
+diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
+index 1f6a909d1fa5..0fab5ac90775 100644
+--- a/arch/alpha/include/asm/io.h
++++ b/arch/alpha/include/asm/io.h
+@@ -602,11 +602,6 @@ extern void outsl (unsigned long port, const void *src, unsigned long count);
+  */
+ #define xlate_dev_mem_ptr(p)	__va(p)
+ 
+-/*
+- * Convert a virtual cached pointer to an uncached pointer
+- */
+-#define xlate_dev_kmem_ptr(p)	p
+-
+ #endif /* __KERNEL__ */
+ 
+ #endif /* __ALPHA_IO_H */
+diff --git a/arch/arm/include/asm/io.h b/arch/arm/include/asm/io.h
+index fc748122f1e0..f74944c6fe8d 100644
+--- a/arch/arm/include/asm/io.h
++++ b/arch/arm/include/asm/io.h
+@@ -430,11 +430,6 @@ extern void pci_iounmap(struct pci_dev *dev, void __iomem *addr);
+  */
+ #define xlate_dev_mem_ptr(p)	__va(p)
+ 
+-/*
+- * Convert a virtual cached pointer to an uncached pointer
+- */
+-#define xlate_dev_kmem_ptr(p)	p
+-
+ #include <asm-generic/io.h>
+ 
+ #ifdef CONFIG_MMU
+diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
+index bda2a9c2df78..c33241425a5c 100644
+--- a/arch/hexagon/include/asm/io.h
++++ b/arch/hexagon/include/asm/io.h
+@@ -64,7 +64,6 @@ static inline void *phys_to_virt(unsigned long address)
+  * convert a physical pointer to a virtual kernel pointer for
+  * /dev/mem access.
+  */
+-#define xlate_dev_kmem_ptr(p)    __va(p)
+ #define xlate_dev_mem_ptr(p)    __va(p)
+ 
+ /*
+diff --git a/arch/ia64/include/asm/io.h b/arch/ia64/include/asm/io.h
+index 3d666a11a2de..6d93b923b379 100644
+--- a/arch/ia64/include/asm/io.h
++++ b/arch/ia64/include/asm/io.h
+@@ -277,7 +277,6 @@ extern void memset_io(volatile void __iomem *s, int c, long n);
+ #define memcpy_fromio memcpy_fromio
+ #define memcpy_toio memcpy_toio
+ #define memset_io memset_io
+-#define xlate_dev_kmem_ptr xlate_dev_kmem_ptr
+ #define xlate_dev_mem_ptr xlate_dev_mem_ptr
+ #include <asm-generic/io.h>
+ #undef PCI_IOBASE
+diff --git a/arch/ia64/include/asm/uaccess.h b/arch/ia64/include/asm/uaccess.h
+index 179243c3dfc7..e19d2dcc0ced 100644
+--- a/arch/ia64/include/asm/uaccess.h
++++ b/arch/ia64/include/asm/uaccess.h
+@@ -272,22 +272,4 @@ xlate_dev_mem_ptr(phys_addr_t p)
+ 	return ptr;
+ }
+ 
+-/*
+- * Convert a virtual cached kernel memory pointer to an uncached pointer
+- */
+-static __inline__ void *
+-xlate_dev_kmem_ptr(void *p)
+-{
+-	struct page *page;
+-	void *ptr;
+-
+-	page = virt_to_page((unsigned long)p);
+-	if (PageUncached(page))
+-		ptr = (void *)__pa(p) + __IA64_UNCACHED_OFFSET;
+-	else
+-		ptr = p;
+-
+-	return ptr;
+-}
+-
+ #endif /* _ASM_IA64_UACCESS_H */
+diff --git a/arch/m68k/include/asm/io_mm.h b/arch/m68k/include/asm/io_mm.h
+index 819f611dccf2..d41fa488453b 100644
+--- a/arch/m68k/include/asm/io_mm.h
++++ b/arch/m68k/include/asm/io_mm.h
+@@ -397,11 +397,6 @@ static inline void isa_delay(void)
+  */
+ #define xlate_dev_mem_ptr(p)	__va(p)
+ 
+-/*
+- * Convert a virtual cached pointer to an uncached pointer
+- */
+-#define xlate_dev_kmem_ptr(p)	p
+-
+ #define readb_relaxed(addr)	readb(addr)
+ #define readw_relaxed(addr)	readw(addr)
+ #define readl_relaxed(addr)	readl(addr)
+diff --git a/arch/mips/include/asm/io.h b/arch/mips/include/asm/io.h
+index 78537aa23500..e6373e7ac892 100644
+--- a/arch/mips/include/asm/io.h
++++ b/arch/mips/include/asm/io.h
+@@ -552,11 +552,6 @@ extern void (*_dma_cache_inv)(unsigned long start, unsigned long size);
+  */
+ #define xlate_dev_mem_ptr(p)	__va(p)
+ 
+-/*
+- * Convert a virtual cached pointer to an uncached pointer
+- */
+-#define xlate_dev_kmem_ptr(p)	p
+-
+ void __ioread64_copy(void *to, const void __iomem *from, size_t count);
+ 
+ #endif /* _ASM_IO_H */
+diff --git a/arch/parisc/include/asm/io.h b/arch/parisc/include/asm/io.h
+index 8a11b8cf4719..0b5259102319 100644
+--- a/arch/parisc/include/asm/io.h
++++ b/arch/parisc/include/asm/io.h
+@@ -316,11 +316,6 @@ extern void iowrite64be(u64 val, void __iomem *addr);
+  */
+ #define xlate_dev_mem_ptr(p)	__va(p)
+ 
+-/*
+- * Convert a virtual cached pointer to an uncached pointer
+- */
+-#define xlate_dev_kmem_ptr(p)	p
+-
+ extern int devmem_is_allowed(unsigned long pfn);
+ 
+ #endif
+diff --git a/arch/powerpc/include/asm/io.h b/arch/powerpc/include/asm/io.h
+index 273edd208ec5..f130783c8301 100644
+--- a/arch/powerpc/include/asm/io.h
++++ b/arch/powerpc/include/asm/io.h
+@@ -662,11 +662,6 @@ static inline void name at					\
+  */
+ #define xlate_dev_mem_ptr(p)	__va(p)
+ 
+-/*
+- * Convert a virtual cached pointer to an uncached pointer
+- */
+-#define xlate_dev_kmem_ptr(p)	p
+-
+ /*
+  * We don't do relaxed operations yet, at least not with this semantic
+  */
+diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
+index 28664ee0abc1..e3882b012bfa 100644
+--- a/arch/s390/include/asm/io.h
++++ b/arch/s390/include/asm/io.h
+@@ -20,11 +20,6 @@ void *xlate_dev_mem_ptr(phys_addr_t phys);
+ #define unxlate_dev_mem_ptr unxlate_dev_mem_ptr
+ void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
+ 
+-/*
+- * Convert a virtual cached pointer to an uncached pointer
+- */
+-#define xlate_dev_kmem_ptr(p)	p
+-
+ #define IO_SPACE_LIMIT 0
+ 
+ void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
+diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
+index 6d5c6463bc07..cf9a3ec32406 100644
+--- a/arch/sh/include/asm/io.h
++++ b/arch/sh/include/asm/io.h
+@@ -283,11 +283,6 @@ static inline void __iomem *ioremap_prot(phys_addr_t offset, unsigned long size,
+  */
+ #define xlate_dev_mem_ptr(p)	__va(p)
+ 
+-/*
+- * Convert a virtual cached pointer to an uncached pointer
+- */
+-#define xlate_dev_kmem_ptr(p)	p
+-
+ #define ARCH_HAS_VALID_PHYS_ADDR_RANGE
+ int valid_phys_addr_range(phys_addr_t addr, size_t size);
+ int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
+diff --git a/arch/sparc/include/asm/io_64.h b/arch/sparc/include/asm/io_64.h
+index 9bb27e5c22f1..ff6fe387d78c 100644
+--- a/arch/sparc/include/asm/io_64.h
++++ b/arch/sparc/include/asm/io_64.h
+@@ -450,11 +450,6 @@ void sbus_set_sbus64(struct device *, int);
+  */
+ #define xlate_dev_mem_ptr(p)	__va(p)
+ 
+-/*
+- * Convert a virtual cached pointer to an uncached pointer
+- */
+-#define xlate_dev_kmem_ptr(p)	p
+-
+ #endif
+ 
+ #endif /* !(__SPARC64_IO_H) */
+diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+index c6af40ce03be..33d4746b086f 100644
+--- a/include/asm-generic/io.h
++++ b/include/asm-generic/io.h
+@@ -1045,17 +1045,6 @@ static inline void pci_iounmap(struct pci_dev *dev, void __iomem *p)
+ #endif
+ #endif /* CONFIG_GENERIC_IOMAP */
+ 
+-/*
+- * Convert a virtual cached pointer to an uncached pointer
+- */
+-#ifndef xlate_dev_kmem_ptr
+-#define xlate_dev_kmem_ptr xlate_dev_kmem_ptr
+-static inline void *xlate_dev_kmem_ptr(void *addr)
+-{
+-	return addr;
+-}
+-#endif
+-
+ #ifndef xlate_dev_mem_ptr
+ #define xlate_dev_mem_ptr xlate_dev_mem_ptr
+ static inline void *xlate_dev_mem_ptr(phys_addr_t addr)
+-- 
+2.29.2
 
