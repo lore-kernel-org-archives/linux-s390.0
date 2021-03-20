@@ -2,66 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY autolearn=ham
+X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59B50C433E0
-	for <linux-s390@archiver.kernel.org>; Sat, 20 Mar 2021 00:10:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90329C433E1
+	for <linux-s390@archiver.kernel.org>; Sat, 20 Mar 2021 05:25:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1401A61986
-	for <linux-s390@archiver.kernel.org>; Sat, 20 Mar 2021 00:10:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 54A6961925
+	for <linux-s390@archiver.kernel.org>; Sat, 20 Mar 2021 05:25:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229870AbhCTAJi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 Mar 2021 20:09:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49898 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229618AbhCTAJV (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 19 Mar 2021 20:09:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id E041F6198B;
-        Sat, 20 Mar 2021 00:09:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616198960;
-        bh=kYfmnH5SjVc8fAC/BUvrGryxHOoTPkOeOjgYKsN4IWg=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=f0bg7TFEfNvg0epPib6Q0itNW6XXiFALLomLa5QzFV/TE5CruS3K2mo+qDh2OS4bw
-         +Sd4+15DZho6LI/ocgKrcHP0AKmfp77Q8T6BsRBdfMTYgYJjaYy6M6WtA96+xQN+Ju
-         4D2y7+eDozW3tl8InSzsU75lvYey/iR1KkyAlwI+N9jyImuFgQq3N1H6H9WGgHD0fq
-         MNu++nS7Kl0h61LhbThFq0nLB7JvL1SxInNR/XXEwtZbpIMhak/gnbOHol5pIMeiAo
-         kWbU+daTC0ngOdR0N7Fpwl9+mS36dDVZdihxHBnZbBuxzVGoC3LqqEIBQ175jye4Rb
-         bq5cKWOdTRF9g==
-Subject: Re: [GIT PULL] s390 updates for 5.12-rc4
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <YFTvvrxm7BxAPIP5@osiris>
-References: <YFTvvrxm7BxAPIP5@osiris>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <YFTvvrxm7BxAPIP5@osiris>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.12-4
-X-PR-Tracked-Commit-Id: 0b13525c20febcfecccf6fc1db5969727401317d
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 6bfea141b3d26898705704efd18401d91afcbb0a
-Message-Id: <161619896086.24257.10163938151058929673.pr-tracker-bot@kernel.org>
-Date:   Sat, 20 Mar 2021 00:09:20 +0000
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+        id S229903AbhCTE57 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 20 Mar 2021 00:57:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50320 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229770AbhCTE5m (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 20 Mar 2021 00:57:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1616216261;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=J3dVHYyPLLYK+/fjLt1QByORvvHqzjgGQxzlyWvSTq0=;
+        b=LrSSZtt0wVwLgb4eU1I74xQz4CVbd+GhUEIQ4S6RBBjrM6P14SWYud8szG2crHVOFGptOq
+        03Q2KdJYnZQ1pfIxjBHekRfZf9mQyROm6ojNw3e5nKFXLZYoYfKEWOrGsph6ID2I9+UxP+
+        GcczKzAWv+UAliQT6p8kS5gi+wCs3l0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-519-t7vHDpVgNUa3n5WbSuuKqA-1; Sat, 20 Mar 2021 00:57:39 -0400
+X-MC-Unique: t7vHDpVgNUa3n5WbSuuKqA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 86B041007467;
+        Sat, 20 Mar 2021 04:57:37 +0000 (UTC)
+Received: from thuth.remote.csb (ovpn-112-13.ams2.redhat.com [10.36.112.13])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4AB445C1D1;
+        Sat, 20 Mar 2021 04:57:32 +0000 (UTC)
+Subject: Re: [PATCH v1 1/2] s390/kvm: split kvm_s390_real_to_abs
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210319193354.399587-1-imbrenda@linux.ibm.com>
+ <20210319193354.399587-2-imbrenda@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <fa583ab0-36ac-47a7-7fa3-4ce88c518488@redhat.com>
+Date:   Sat, 20 Mar 2021 05:57:31 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
+MIME-Version: 1.0
+In-Reply-To: <20210319193354.399587-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Fri, 19 Mar 2021 19:38:54 +0100:
+On 19/03/2021 20.33, Claudio Imbrenda wrote:
+> A new function _kvm_s390_real_to_abs will apply prefixing to a real address
+> with a given prefix value.
+> 
+> The old kvm_s390_real_to_abs becomes now a wrapper around the new function.
+> 
+> This is needed to avoid code duplication in vSIE.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   arch/s390/kvm/gaccess.h | 23 +++++++++++++++++------
+>   1 file changed, 17 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+> index daba10f76936..7c72a5e3449f 100644
+> --- a/arch/s390/kvm/gaccess.h
+> +++ b/arch/s390/kvm/gaccess.h
+> @@ -18,17 +18,14 @@
+>   
+>   /**
+>    * kvm_s390_real_to_abs - convert guest real address to guest absolute address
+> - * @vcpu - guest virtual cpu
+> + * @prefix - guest prefix
+>    * @gra - guest real address
+>    *
+>    * Returns the guest absolute address that corresponds to the passed guest real
+> - * address @gra of a virtual guest cpu by applying its prefix.
+> + * address @gra of by applying the given prefix.
+>    */
+> -static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+> -						 unsigned long gra)
+> +static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.12-4
+<bikeshedding>
+Just a matter of taste, but maybe this could be named differently? 
+kvm_s390_real2abs_prefix() ? kvm_s390_prefix_real_to_abs()?
+</bikeshedding>
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/6bfea141b3d26898705704efd18401d91afcbb0a
+Anyway:
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
