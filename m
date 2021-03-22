@@ -2,140 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FD82C433E0
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Mar 2021 12:20:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E001C433E9
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Mar 2021 13:09:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 56C5D6198B
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Mar 2021 12:20:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 05F606157F
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Mar 2021 13:09:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229979AbhCVMTn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Mar 2021 08:19:43 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23458 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229905AbhCVMTK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 22 Mar 2021 08:19:10 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12MC4s8h114258;
-        Mon, 22 Mar 2021 08:19:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=AqHNz9M0siufI5CPHNCyB+wHvM2fdYlg0rR9v3o22x0=;
- b=GF8mvBZ/gUIyj7xX+O79zvJYmwWAO4WjHldn/dACeTw3XN59si7oH+NkWcq/2m6+DYMQ
- kEaiQq1kx1HbIJPWIRTSDLyfXcZrd210a8b3PjVDfU0amDrd+VtiadJIZdUfq8Vc8aBW
- 9gcdQfrT3+uWxIj5fln+M7Jyt+Vqi//phk/oQ2Wwt+a0p355SykKfKwfRxyk0oWOVg7t
- XvTF/WDZ+YcE1B+AWGpY7G6JSC+lJwBQv1SjsK5/VUAnGk5fHzUsdwS6YTiduBup833m
- eyXg5uU/KzGLnZxXA00+t6D6/kclXoWcMEpSULXMvxEBPkYO40O/H8ZvbQUBo2GZ+H33 1A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 37effkfjnt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Mar 2021 08:19:07 -0400
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12MC5ZWS116853;
-        Mon, 22 Mar 2021 08:19:06 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 37effkfjmn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Mar 2021 08:19:06 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12MC6hIV018959;
-        Mon, 22 Mar 2021 12:19:04 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 37d9bmjaea-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Mar 2021 12:19:04 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12MCIiPt34603492
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 22 Mar 2021 12:18:44 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DA0C2AE055;
-        Mon, 22 Mar 2021 12:19:01 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5EB4BAE051;
-        Mon, 22 Mar 2021 12:19:01 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.7.234])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 22 Mar 2021 12:19:01 +0000 (GMT)
-Subject: Re: [PATCH v1 1/2] s390/kvm: split kvm_s390_real_to_abs
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, frankja@linux.ibm.com,
-        cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20210319193354.399587-1-imbrenda@linux.ibm.com>
- <20210319193354.399587-2-imbrenda@linux.ibm.com>
- <fa583ab0-36ac-47a7-7fa3-4ce88c518488@redhat.com>
- <f76f770c-908e-4f4f-f060-15f4d30652d8@redhat.com> <YFh7nGfVZRD15Cbp@osiris>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <43e5cf87-d811-3c0c-b605-f64baa9ae006@de.ibm.com>
-Date:   Mon, 22 Mar 2021 13:19:01 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.0
+        id S231269AbhCVNJP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Mar 2021 09:09:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59278 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232845AbhCVNFr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 Mar 2021 09:05:47 -0400
+Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E0B2C061756;
+        Mon, 22 Mar 2021 06:05:47 -0700 (PDT)
+Received: by mail-qk1-x72a.google.com with SMTP id y5so8820286qkl.9;
+        Mon, 22 Mar 2021 06:05:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=801QFsuMh5/bXT7iDGLM8P3LIQI2jpvEZ62QIecOMdw=;
+        b=g7aI/jvx2znrl1EyXPcFMm56+a5ShivFYZZ9ennJJNFYkMLttLz8Vj7hCqf7nA8MIf
+         NcOoj3cd0rR8rYJYFNH2wrHub0iLAhwMp16IPriKiNqC1ohnCWyQJzC6btBsnbM0JPej
+         p4o4sMERKZVv0dJbh6m2Qk1p0OP+OmbDq/VDd6UKcsdCwhn76ypRmjNmrtFgnUlJ9vxK
+         //DULu3p9tfRRIswQxfQG9bTpGs2N4qi+yGzLYtNGrfpt/m8b2FaEqev5Q8/XwlhW4R6
+         ikoygTYVztwcUI3QDjbiT7BDZBVI5V6p2Tyz89jvbBBPSpnw4KxN7/1uU6/sm/an/F0k
+         cYWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=801QFsuMh5/bXT7iDGLM8P3LIQI2jpvEZ62QIecOMdw=;
+        b=HB2OPEx2NkJ/w61fZdCDmyTIe5IaV0iJeKk0lvZf4N8/TWQQzi0wubyup0fgXB/TdH
+         IxgQ3PAUg7mzwzaMZX2kQ98t8A+LSYcGrIHbRzmZVB7wh0NfPvECqo0h0+jNkgfX1dKg
+         MOSROBcCQTX5mz7QvThgq4NDeC5eBYQnMVg8cVJ/K1Fwns8ByDVw5mujzIdo5G8w2085
+         +f89pyqgd/PNjtFivxjWXoPPeZZS5CaO7ycWE0ILHamOXyQcCwcA4wHAXmKEu9ZqPVnE
+         3TpEVVtwNG8Z9zmqNtluqx1vuRs/3qKVl8kXvr8/MV1zAV8B1PZ2HxOwDHeO1TftavfO
+         RT0Q==
+X-Gm-Message-State: AOAM531FKLPaPH93nNtFWjcJvVrSVzuhMKlD+bNUNfEc143pGnz4APUA
+        gJeKK7jGOx7WRyppuj2jqj4=
+X-Google-Smtp-Source: ABdhPJyEEhJj8SFIQBJSsr3d4eJcQbj9s3I/grK8x+/NEg7D0hoRx+x1KVAgNoIEtF5eSZAqa3Yv3g==
+X-Received: by 2002:a05:620a:553:: with SMTP id o19mr2511279qko.491.1616418346402;
+        Mon, 22 Mar 2021 06:05:46 -0700 (PDT)
+Received: from localhost.localdomain ([143.244.44.200])
+        by smtp.gmail.com with ESMTPSA id r125sm10703324qkf.132.2021.03.22.06.05.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Mar 2021 06:05:45 -0700 (PDT)
+From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
+To:     herbert@gondor.apana.org.au, davem@davemloft.net,
+        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com,
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     rdunlap@infradead.org, Bhaskar Chowdhury <unixbhaskar@gmail.com>
+Subject: [PATCH] s390/crc32-vx: Couple of typo fixes
+Date:   Mon, 22 Mar 2021 18:35:33 +0530
+Message-Id: <20210322130533.3805976-1-unixbhaskar@gmail.com>
+X-Mailer: git-send-email 2.31.0
 MIME-Version: 1.0
-In-Reply-To: <YFh7nGfVZRD15Cbp@osiris>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-22_07:2021-03-22,2021-03-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- lowpriorityscore=0 mlxlogscore=999 spamscore=0 adultscore=0 clxscore=1011
- suspectscore=0 malwarescore=0 priorityscore=1501 impostorscore=0
- mlxscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2103220089
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
+s/defintions/definitions/
+s/intermedate/intermediate/
 
-On 22.03.21 12:12, Heiko Carstens wrote:
-> On Mon, Mar 22, 2021 at 10:53:46AM +0100, David Hildenbrand wrote:
->>>> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
->>>> index daba10f76936..7c72a5e3449f 100644
->>>> --- a/arch/s390/kvm/gaccess.h
->>>> +++ b/arch/s390/kvm/gaccess.h
->>>> @@ -18,17 +18,14 @@
->>>>     /**
->>>>      * kvm_s390_real_to_abs - convert guest real address to guest absolute address
->>>> - * @vcpu - guest virtual cpu
->>>> + * @prefix - guest prefix
->>>>      * @gra - guest real address
->>>>      *
->>>>      * Returns the guest absolute address that corresponds to the passed guest real
->>>> - * address @gra of a virtual guest cpu by applying its prefix.
->>>> + * address @gra of by applying the given prefix.
->>>>      */
->>>> -static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
->>>> -						 unsigned long gra)
->>>> +static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
->>>
->>> <bikeshedding>
->>> Just a matter of taste, but maybe this could be named differently?
->>> kvm_s390_real2abs_prefix() ? kvm_s390_prefix_real_to_abs()?
->>> </bikeshedding>
->>
->> +1, I also dislike these "_.*" style functions here.
-> 
-> Yes, let's bikeshed then :)
-> 
-> Could you then please try to rename page_to* and everything that looks
-> similar to page2* please? I'm wondering what the response will be..
+Signed-off-by: Bhaskar Chowdhury <unixbhaskar@gmail.com>
+---
+ arch/s390/crypto/crc32be-vx.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Given that this is stable material (due to patch 2), can we try to minimize
-the bikeshedding to everything that his touched by this patch?
+diff --git a/arch/s390/crypto/crc32be-vx.S b/arch/s390/crypto/crc32be-vx.S
+index 0099044e2c86..6b3d1009c392 100644
+--- a/arch/s390/crypto/crc32be-vx.S
++++ b/arch/s390/crypto/crc32be-vx.S
+@@ -32,7 +32,7 @@
+  * process particular chunks of the input data stream in parallel.
+  *
+  * For the CRC-32 variants, the constants are precomputed according to
+- * these defintions:
++ * these definitions:
+  *
+  *	R1 = x4*128+64 mod P(x)
+  *	R2 = x4*128    mod P(x)
+@@ -189,7 +189,7 @@ ENTRY(crc32_be_vgfm_16)
+ 	 * Note: To compensate the division by x^32, use the vector unpack
+ 	 * instruction to move the leftmost word into the leftmost doubleword
+ 	 * of the vector register.  The rightmost doubleword is multiplied
+-	 * with zero to not contribute to the intermedate results.
++	 * with zero to not contribute to the intermediate results.
+ 	 */
 
+ 	/* T1(x) = floor( R(x) / x^32 ) GF2MUL u */
+--
+2.31.0
 
-Claudio, can you respin the series addressing the comments?
-I will then either add this to next or fold that into the existing next patches.
-Not sure yet.
