@@ -2,132 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C642C433DB
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Mar 2021 09:43:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8210EC433DB
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Mar 2021 09:55:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DAAA16192A
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Mar 2021 09:43:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 41FE361927
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Mar 2021 09:55:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229991AbhCVJm6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Mar 2021 05:42:58 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51408 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230047AbhCVJmo (ORCPT
+        id S229574AbhCVJy3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Mar 2021 05:54:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50210 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229933AbhCVJx5 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 22 Mar 2021 05:42:44 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12M9YAuV140884;
-        Mon, 22 Mar 2021 05:42:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=sLa6Tut7wxd/kICgOds4JxcRim1BubXqJxiDGMzFMU0=;
- b=KFwvgqqa3IVkhZfXjrGTHyjDV+bkRfjxbbtkmR0uDUArUt2O+H44n8Zeo2sHtmMlI4pe
- oJsiOQ07ya1bH97rKtbpsH7WgcPRtnEtvjdJk5dxh9KUoe1CuN1tqfLR1JxXb193MPOU
- qo6uRBuXB2BsIL3UwEQDm6n5ZtvXLt/ihahUou39928diszS2z6m6cRZ9VXAdCpw7cnz
- cc0vHd/iiaYM78Fw4Qdf6q1XtBzPLoRRPRz5LYPBbGHK0Pc8hSjkf0ELoCgU7mXw7nzw
- xPPmEQbc9KprW3XjLXJqiCSqH4t0augVc4e4ysTwiC+RhED8P6vDEVamj4d57hEkApJ4 VQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37dx9xb6ct-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Mar 2021 05:42:39 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12M9YCGs141077;
-        Mon, 22 Mar 2021 05:42:38 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37dx9xb6c3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Mar 2021 05:42:38 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12M9ITvs012919;
-        Mon, 22 Mar 2021 09:42:37 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04fra.de.ibm.com with ESMTP id 37d9by949d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Mar 2021 09:42:37 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12M9gGwo25887158
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 22 Mar 2021 09:42:17 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 98C72AE04D;
-        Mon, 22 Mar 2021 09:42:34 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 44941AE056;
-        Mon, 22 Mar 2021 09:42:34 +0000 (GMT)
-Received: from [9.145.10.82] (unknown [9.145.10.82])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 22 Mar 2021 09:42:34 +0000 (GMT)
-Subject: Re: [PATCH] pci/hotplug: fix potential memory leak in disable_slot()
-To:     Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Cc:     linux-s390@vger.kernel.org, linux-pci@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linfeilong <linfeilong@huawei.com>,
-        gerald.schaefer@linux.ibm.com, bhelgaas@google.com
-References: <245c1063-f0cf-551a-b93c-1a0a5ac06eff@huawei.com>
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-Message-ID: <64ab0093-b4b6-834f-4249-d38e1e1637c0@linux.ibm.com>
-Date:   Mon, 22 Mar 2021 10:42:33 +0100
+        Mon, 22 Mar 2021 05:53:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1616406836;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=FCCQ8UUUQzYPGaH8sFXIOUR2ctThH6mgA4zrevSovz4=;
+        b=FGOGYda8FFLEVq7kdO8CcW9+IqkTVIlPWeZEikuTixHB0tgYYTxnFea4qyzDDoKHMvk6qg
+        1YYG7YmfX7sXzVWejr3w5rDh8rpZ79UQP7p4/t9GbKgj2j9b8CXLw+bkuaW6zxPLx2d33u
+        CXqk4VvFMaa5fQjkKcljkbpxF04vTNg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-389-lYlkg8qoOSmjh5qn1GBTyA-1; Mon, 22 Mar 2021 05:53:54 -0400
+X-MC-Unique: lYlkg8qoOSmjh5qn1GBTyA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 287DE8B5DC2;
+        Mon, 22 Mar 2021 09:53:53 +0000 (UTC)
+Received: from [10.36.115.54] (ovpn-115-54.ams2.redhat.com [10.36.115.54])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2311060C04;
+        Mon, 22 Mar 2021 09:53:48 +0000 (UTC)
+Subject: Re: [PATCH v1 1/2] s390/kvm: split kvm_s390_real_to_abs
+To:     Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210319193354.399587-1-imbrenda@linux.ibm.com>
+ <20210319193354.399587-2-imbrenda@linux.ibm.com>
+ <fa583ab0-36ac-47a7-7fa3-4ce88c518488@redhat.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat GmbH
+Message-ID: <f76f770c-908e-4f4f-f060-15f4d30652d8@redhat.com>
+Date:   Mon, 22 Mar 2021 10:53:46 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+ Thunderbird/78.8.0
 MIME-Version: 1.0
-In-Reply-To: <245c1063-f0cf-551a-b93c-1a0a5ac06eff@huawei.com>
+In-Reply-To: <fa583ab0-36ac-47a7-7fa3-4ce88c518488@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-22_03:2021-03-22,2021-03-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1011
- priorityscore=1501 spamscore=0 suspectscore=0 mlxlogscore=999 bulkscore=0
- adultscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2103220072
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 20.03.21 05:57, Thomas Huth wrote:
+> On 19/03/2021 20.33, Claudio Imbrenda wrote:
+>> A new function _kvm_s390_real_to_abs will apply prefixing to a real address
+>> with a given prefix value.
+>>
+>> The old kvm_s390_real_to_abs becomes now a wrapper around the new function.
+>>
+>> This is needed to avoid code duplication in vSIE.
+>>
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>> ---
+>>    arch/s390/kvm/gaccess.h | 23 +++++++++++++++++------
+>>    1 file changed, 17 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+>> index daba10f76936..7c72a5e3449f 100644
+>> --- a/arch/s390/kvm/gaccess.h
+>> +++ b/arch/s390/kvm/gaccess.h
+>> @@ -18,17 +18,14 @@
+>>    
+>>    /**
+>>     * kvm_s390_real_to_abs - convert guest real address to guest absolute address
+>> - * @vcpu - guest virtual cpu
+>> + * @prefix - guest prefix
+>>     * @gra - guest real address
+>>     *
+>>     * Returns the guest absolute address that corresponds to the passed guest real
+>> - * address @gra of a virtual guest cpu by applying its prefix.
+>> + * address @gra of by applying the given prefix.
+>>     */
+>> -static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+>> -						 unsigned long gra)
+>> +static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
+> 
+> <bikeshedding>
+> Just a matter of taste, but maybe this could be named differently?
+> kvm_s390_real2abs_prefix() ? kvm_s390_prefix_real_to_abs()?
+> </bikeshedding>
+
++1, I also dislike these "_.*" style functions here.
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+> 
+> Anyway:
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> 
 
 
-On 21/03/2021 16:51, Zhiqiang Liu wrote:
-> 
-> In disable_slot(), if we obtain desired PCI device
-> successfully by calling pci_get_slot(), we should
-> call pci_dev_put() to release its reference.
+-- 
+Thanks,
 
-Thanks for the patch! This should however be fixed independently by 
-commit 0b13525c20fe ("s390/pci: fix leak of PCI device structure")
-which was just added to v5.12-rc4 and will be backported to stable.
-There were a few similar cases that also got fixed by that commit.
+David / dhildenb
 
-> 
-> Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-> Signed-off-by: Feilong Lin <linfeilong@huawei.com>
-> ---
->   drivers/pci/hotplug/s390_pci_hpc.c | 6 ++++--
->   1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/pci/hotplug/s390_pci_hpc.c b/drivers/pci/hotplug/s390_pci_hpc.c
-> index c9e790c74051..999a34b6fd50 100644
-> --- a/drivers/pci/hotplug/s390_pci_hpc.c
-> +++ b/drivers/pci/hotplug/s390_pci_hpc.c
-> @@ -89,9 +89,11 @@ static int disable_slot(struct hotplug_slot *hotplug_slot)
->   		return -EIO;
-> 
->   	pdev = pci_get_slot(zdev->zbus->bus, zdev->devfn);
-> -	if (pdev && pci_num_vf(pdev)) {
-> +	if (pdev) {
-> +		rc = pci_num_vf(pdev);
->   		pci_dev_put(pdev);
-> -		return -EBUSY;
-> +		if (rc)
-> +			return -EBUSY;
->   	}
-> 
->   	zpci_remove_device(zdev);
-> 
