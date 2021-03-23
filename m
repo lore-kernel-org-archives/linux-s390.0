@@ -7,62 +7,62 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8890DC433C1
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 21:59:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C284FC433E0
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 21:59:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 465F2619B4
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 21:59:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C836619D7
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 21:59:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233755AbhCWV6t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 Mar 2021 17:58:49 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4396 "EHLO
+        id S233764AbhCWV6v (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 Mar 2021 17:58:51 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17522 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233740AbhCWV6m (ORCPT
+        by vger.kernel.org with ESMTP id S233721AbhCWV6m (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
         Tue, 23 Mar 2021 17:58:42 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12NLXHVD073751;
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12NLWqfw067533;
         Tue, 23 Mar 2021 17:58:26 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=EtbSF82nywAJvvjSOmKo9Y+Z6a20g9T57CWHIK7oBa4=;
- b=KanM9pBnWOq1d5/A6LtJoSEVTQ1B5aPKhBX5ozS63auMl4+N11bfuF2WVyV45+2Fbj9K
- boH3GMGLUrfYave98OB/yJq+NduV7/DMFqcFg1WqFpBA4w/IFdNGoWVb1pAotzoYR77w
- rmBHYHS6AoZi3HmnYh4fMiI8ZE2O5qqLbpugAaSAKm1uwECIi464ziFHdBwFfRn3mYhg
- df5Q2+MQgdAYMzUq0eVJUcvbByTp5aYrF541bo6PGZCFmP4gxJsYkFucQUA1fmTPZFqH
- sTrbU6Kqp+k0xgUnDpNDy/rGaSn7DZn1lDOlsTpJSocxHe2DLznM5YHzctG8Fj/sGZu7 2A== 
+ bh=K1qTK2OAnhSAf8kk7ogA9wk4wQAgNUyp5AtQIoHEIv4=;
+ b=n2jyPYNcJO89ZZ8bqtchs4h3UNf+eUEVTaJIyGMK24XsiHJvvVVDeZw8/LEGiuwQgvWk
+ xfQi1f+CtUUisrDzBEoWeGCKjG02jEFOeuwYgXazYmX7hnbl/OaY0AuzNiMxcLAXUuHW
+ lLBxwzWdIeQ6+mmwXlEdiOrB59d/tFegYCuUqZ4J/rgJ/lLJOrPIlRwp3K4MgpTBnrDl
+ a//TvK2mGYpoMoWMi0YDXddq6TSVZU6SOw56BDCQR2jO+gKof8N67fx+fib725AWA206
+ MM+KMjta7hT7xVJ9N4624vN70q3trHNVBBpDLHay7DFSqujIjxQQpT67gIbeg0+1Hl3j dA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37fkx8r9gk-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37fmaq7q7s-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 23 Mar 2021 17:58:26 -0400
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12NLZx7D083405;
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12NLY3QV070532;
         Tue, 23 Mar 2021 17:58:26 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37fkx8r9fw-1
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37fmaq7q72-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 23 Mar 2021 17:58:26 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12NLuqrn025345;
-        Tue, 23 Mar 2021 21:58:24 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 37d99rbr0h-1
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12NLwNUY024561;
+        Tue, 23 Mar 2021 21:58:23 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma02fra.de.ibm.com with ESMTP id 37d9d8sxq2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 23 Mar 2021 21:58:23 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12NLw3ST32768334
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12NLwKo635651872
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Mar 2021 21:58:03 GMT
+        Tue, 23 Mar 2021 21:58:20 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0AE3D4C044;
-        Tue, 23 Mar 2021 21:58:21 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A4AB24C04A;
+        by IMSVA (Postfix) with ESMTP id 364C34C044;
         Tue, 23 Mar 2021 21:58:20 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D267B4C04A;
+        Tue, 23 Mar 2021 21:58:19 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 23 Mar 2021 21:58:20 +0000 (GMT)
+        Tue, 23 Mar 2021 21:58:19 +0000 (GMT)
 From:   Heiko Carstens <hca@linux.ibm.com>
 To:     Li Wang <liwang@redhat.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -73,9 +73,9 @@ To:     Li Wang <liwang@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>
 Cc:     ltp@lists.linux.it, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [PATCH 3/3] lib/vdso: remove struct arch_vdso_data from vdso data struct
-Date:   Tue, 23 Mar 2021 22:58:19 +0100
-Message-Id: <20210323215819.4161164-4-hca@linux.ibm.com>
+Subject: [PATCH 1/3] s390/vdso: fix tod clock steering
+Date:   Tue, 23 Mar 2021 22:58:17 +0100
+Message-Id: <20210323215819.4161164-2-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210323215819.4161164-1-hca@linux.ibm.com>
 References: <YFmUrVOyX4q+8Dy9@osiris>
@@ -85,76 +85,50 @@ Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
  definitions=2021-03-23_11:2021-03-23,2021-03-23 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
- priorityscore=1501 impostorscore=0 mlxscore=0 lowpriorityscore=0
- phishscore=0 adultscore=0 spamscore=0 malwarescore=0 clxscore=1015
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 bulkscore=0 adultscore=0 clxscore=1015 impostorscore=0
+ mlxscore=0 suspectscore=0 phishscore=0 spamscore=0 mlxlogscore=999
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2009150000 definitions=main-2103230159
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Since commit d60d7de3e16d ("lib/vdso: Allow to add architecture-specific
-vdso data") it is possible to provide arch specific VDSO data.
+The s390 specific vdso function __arch_get_hw_counter() is supposed to
+consider tod clock steering.
 
-This was only added for s390, which doesn't make use this anymore.
-Therefore remove it again.
+If a tod clock steering event happens and the tod clock is set to a
+new value __arch_get_hw_counter() will not return the real tod clock
+value but slowly drift it from the old delta until the returned value
+finally matches the real tod clock value again.
 
+When converting the assembler code to C it was forgotten to tell user
+space in which direction the clock has to be adjusted.
+
+Worst case is now that instead of drifting the clock slowly it will
+jump into the opposite direction by a factor of two.
+
+Fix this by simply providing the missing value to user space.
+
+Fixes: 4bff8cb54502 ("s390: convert to GENERIC_VDSO")
+Cc: <stable@vger.kernel.org> # 5.10
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/Kconfig            |  3 ---
- include/vdso/datapage.h | 10 ----------
- 2 files changed, 13 deletions(-)
+ arch/s390/kernel/time.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/Kconfig b/arch/Kconfig
-index ecfd3520b676..35c7114f7ea3 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -1147,9 +1147,6 @@ config HAVE_SPARSE_SYSCALL_NR
- 	  entries at 4000, 5000 and 6000 locations. This option turns on syscall
- 	  related optimizations for a given architecture.
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index 165da961f901..e37285a5101b 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -382,6 +382,7 @@ static void clock_sync_global(unsigned long delta)
+ 		      tod_steering_delta);
+ 	tod_steering_end = now + (abs(tod_steering_delta) << 15);
+ 	vdso_data->arch_data.tod_steering_end = tod_steering_end;
++	vdso_data->arch_data.tod_steering_delta = tod_steering_delta;
  
--config ARCH_HAS_VDSO_DATA
--	bool
--
- config HAVE_STATIC_CALL
- 	bool
- 
-diff --git a/include/vdso/datapage.h b/include/vdso/datapage.h
-index 73eb622e7663..ee810cae4e1e 100644
---- a/include/vdso/datapage.h
-+++ b/include/vdso/datapage.h
-@@ -19,12 +19,6 @@
- #include <vdso/time32.h>
- #include <vdso/time64.h>
- 
--#ifdef CONFIG_ARCH_HAS_VDSO_DATA
--#include <asm/vdso/data.h>
--#else
--struct arch_vdso_data {};
--#endif
--
- #define VDSO_BASES	(CLOCK_TAI + 1)
- #define VDSO_HRES	(BIT(CLOCK_REALTIME)		| \
- 			 BIT(CLOCK_MONOTONIC)		| \
-@@ -70,8 +64,6 @@ struct vdso_timestamp {
-  * @tz_dsttime:		type of DST correction
-  * @hrtimer_res:	hrtimer resolution
-  * @__unused:		unused
-- * @arch_data:		architecture specific data (optional, defaults
-- *			to an empty struct)
-  *
-  * vdso_data will be accessed by 64 bit and compat code at the same time
-  * so we should be careful before modifying this structure.
-@@ -105,8 +97,6 @@ struct vdso_data {
- 	s32			tz_dsttime;
- 	u32			hrtimer_res;
- 	u32			__unused;
--
--	struct arch_vdso_data	arch_data;
- };
- 
- /*
+ 	/* Update LPAR offset. */
+ 	if (ptff_query(PTFF_QTO) && ptff(&qto, sizeof(qto), PTFF_QTO) == 0)
 -- 
 2.25.1
 
