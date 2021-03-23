@@ -2,137 +2,154 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACC66C433E4
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 12:56:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7976FC433DB
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 13:49:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7A2D8619B9
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 12:56:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 33C0F619B3
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 13:49:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231395AbhCWM4M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 Mar 2021 08:56:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40868 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229675AbhCWM4J (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Mar 2021 08:56:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3619619B8;
-        Tue, 23 Mar 2021 12:56:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616504168;
-        bh=7s1M3IsLZtGNlNk01+JyIT7SNm9jTdPqx5b5zByfRyM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tqiQf2egd3FRlPC2gMcFNgwmVFU3j04Mp9W/SwOUfQEhucaofggWeqoSZp0n6DqYZ
-         +LtxhrvTSCsggPocaQmVxpynR6Y7NV9YgJ0BgXkICEr8DRsmwjHwqXP09gL80dqcvY
-         eJYg+ci/qtpPxMSC/jhvbWq/4QqFr3hBu7D9VRe8=
-Date:   Tue, 23 Mar 2021 13:56:05 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alexander Graf <graf@amazon.com>
-Cc:     Adrian Catangiu <acatan@amazon.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, qemu-devel@nongnu.org,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        rdunlap@infradead.org, arnd@arndb.de, ebiederm@xmission.com,
-        rppt@kernel.org, 0x7f454c46@gmail.com, borntraeger@de.ibm.com,
-        Jason@zx2c4.com, jannh@google.com, w@1wt.eu, colmmacc@amazon.com,
-        luto@kernel.org, tytso@mit.edu, ebiggers@kernel.org,
-        dwmw@amazon.co.uk, bonzini@gnu.org, sblbir@amazon.com,
-        raduweis@amazon.com, corbet@lwn.net, mst@redhat.com,
-        mhocko@kernel.org, rafael@kernel.org, pavel@ucw.cz,
-        mpe@ellerman.id.au, areber@redhat.com, ovzxemul@gmail.com,
-        avagin@gmail.com, ptikhomirov@virtuozzo.com, gil@azul.com,
-        asmehra@redhat.com, dgunigun@redhat.com, vijaysun@ca.ibm.com,
-        oridgar@gmail.com, ghammer@redhat.com
-Subject: Re: [PATCH v8] drivers/misc: sysgenid: add system generation id
- driver
-Message-ID: <YFnlZQZOasOwxUDn@kroah.com>
-References: <1615213083-29869-1-git-send-email-acatan@amazon.com>
- <YEY2b1QU5RxozL0r@kroah.com>
- <a61c976f-b362-bb60-50a5-04073360e702@amazon.com>
+        id S231262AbhCWNtJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 Mar 2021 09:49:09 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23242 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230078AbhCWNsm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 23 Mar 2021 09:48:42 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12NDXlxp103559;
+        Tue, 23 Mar 2021 09:48:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=xGsb52ZcTBJ7qanx8S8CEfUtuLSMQ6g5bWEbVc8NDJQ=;
+ b=Q1fTnkOe2irl9Q7prTv5vz0THKPtjOdHmgQeUW9xS19dFoh8Pu65omW7G1nxXTxhq9D3
+ Msm0QiKxBXSfK+uDd8VfrQefXxOlSnfoyeZVKjHktwtk3Y0ScQ1yEi1BMX5cxBxKRp7c
+ 8y7vWqk9DObzdBdqFLo2OEsoif7K4l6WpxBMBuncWe+EZXn/oYWW97qGf9TrpawhwqG/
+ HizB+w0Tnmj2xPOfG2LxGp+tk1tnY7kqg6Vs+2dylGxAc/SNCU0O+X3NKDW4fAZHYeHt
+ 63XQRW5Et9syEp3udgy6F0EsMxtscn2tpEOQRxTHhz1vnIXIeXYK5WK/NtzrlUCng25U AQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37dx4b2ent-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 23 Mar 2021 09:48:38 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12NDY1vP104602;
+        Tue, 23 Mar 2021 09:48:38 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37dx4b2emv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 23 Mar 2021 09:48:38 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12NDlJUM019724;
+        Tue, 23 Mar 2021 13:48:35 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 37d9bmkd98-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 23 Mar 2021 13:48:35 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12NDmFbM36110830
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 23 Mar 2021 13:48:15 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EDAB9A4040;
+        Tue, 23 Mar 2021 13:48:32 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8642BA405E;
+        Tue, 23 Mar 2021 13:48:32 +0000 (GMT)
+Received: from osiris (unknown [9.171.54.53])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 23 Mar 2021 13:48:32 +0000 (GMT)
+Date:   Tue, 23 Mar 2021 14:48:31 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Li Wang <liwang@redhat.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        LTP List <ltp@lists.linux.it>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-s390@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [s390x vDSO Bug?] clock_gettime(CLOCK_MONOTONIC_RAW, ...) gets
+ abnormal ts value
+Message-ID: <YFnxr1ZlMIOIqjfq@osiris>
+References: <CAEemH2cELFSMzEYM-Gd1LxNuFzVE2PcG1chzyaVhW2YCJjjzdw@mail.gmail.com>
+ <YFmUrVOyX4q+8Dy9@osiris>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a61c976f-b362-bb60-50a5-04073360e702@amazon.com>
+In-Reply-To: <YFmUrVOyX4q+8Dy9@osiris>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-23_06:2021-03-22,2021-03-23 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
+ spamscore=0 suspectscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0
+ adultscore=0 bulkscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2103230100
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Mar 08, 2021 at 05:03:58PM +0100, Alexander Graf wrote:
-> 
-> 
-> On 08.03.21 15:36, Greg KH wrote:
+On Tue, Mar 23, 2021 at 08:11:41AM +0100, Heiko Carstens wrote:
+> On Tue, Mar 23, 2021 at 02:21:52PM +0800, Li Wang wrote:
+> > Hi linux-s390 experts,
 > > 
-> > On Mon, Mar 08, 2021 at 04:18:03PM +0200, Adrian Catangiu wrote:
-> > > +static struct miscdevice sysgenid_misc = {
-> > > +     .minor = MISC_DYNAMIC_MINOR,
-> > > +     .name = "sysgenid",
-> > > +     .fops = &fops,
-> > > +};
+> > We observed that LTP/clock_gettime04 always FAIL on s390x with
+> > kernel-v5.12-rc3.
+> > To simply show the problem, I rewrite the LTP reproducer as a simple C
+> > below.
+> > Maybe it's a new bug introduced from the kernel-5.12 series branch?
 > > 
-> > Much cleaner, but:
+> > PASS:
+> > ------------
+> > # uname -r
+> > 5.11.0-*.s390x
 > > 
-> > > +static int __init sysgenid_init(void)
-> > > +{
-> > > +     int ret;
-> > > +
-> > > +     sysgenid_data.map_buf = get_zeroed_page(GFP_KERNEL);
-> > > +     if (!sysgenid_data.map_buf)
-> > > +             return -ENOMEM;
-> > > +
-> > > +     atomic_set(&sysgenid_data.generation_counter, 0);
-> > > +     atomic_set(&sysgenid_data.outdated_watchers, 0);
-> > > +     init_waitqueue_head(&sysgenid_data.read_waitq);
-> > > +     init_waitqueue_head(&sysgenid_data.outdated_waitq);
-> > > +     spin_lock_init(&sysgenid_data.lock);
-> > > +
-> > > +     ret = misc_register(&sysgenid_misc);
-> > > +     if (ret < 0) {
-> > > +             pr_err("misc_register() failed for sysgenid\n");
-> > > +             goto err;
-> > > +     }
-> > > +
-> > > +     return 0;
-> > > +
-> > > +err:
-> > > +     free_pages(sysgenid_data.map_buf, 0);
-> > > +     sysgenid_data.map_buf = 0;
-> > > +
-> > > +     return ret;
-> > > +}
-> > > +
-> > > +static void __exit sysgenid_exit(void)
-> > > +{
-> > > +     misc_deregister(&sysgenid_misc);
-> > > +     free_pages(sysgenid_data.map_buf, 0);
-> > > +     sysgenid_data.map_buf = 0;
-> > > +}
-> > > +
-> > > +module_init(sysgenid_init);
-> > > +module_exit(sysgenid_exit);
+> > # grep TIME_NS /boot/config-5.11.0-*.s390x
+> > no TIME_NS enabled
 > > 
-> > So you do this for any bit of hardware that happens to be out there?
-> > Will that really work?  You do not have any hwid to trigger off of to
-> > know that this is a valid device you can handle?
+> > ## ./test-timer
+> > vdso_ts_nsec = 898169901815, vdso_ts.tv_sec = 898, vdso_ts.tv_nsec =
+> > 169901815
+> > sys_ts_nsec  = 898169904269, sys_ts.tv_sec  = 898, sys_ts.tv_nsec  =
+> > 169904269
+> > ===> PASS
+> > 
+> > FAIL:
+> > ----------
+> > # uname -r
+> > 5.12.0-0.rc3.*.s390x
+> > 
+> > # grep TIME_NS /boot/config-5.12.0-0.rc3.s390x
+> > CONFIG_TIME_NS=y
+> > CONFIG_GENERIC_VDSO_TIME_NS=y
+> > 
+> > # ./test-timer
+> > vdso_ts_nsec = 4484351380985507, vdso_ts.tv_sec = 4484351, vdso_ts.tv_nsec
+> > = 380985507
+> > sys_ts_nsec  = 1446923235377, sys_ts.tv_sec  = 1446, sys_ts.tv_nsec  =
+> > 923235377
+> > ===> FAIL
 > 
-> The interface is already useful in a pure container context where the
-> generation change request is triggered by software.
+> Thanks for reporting!
 > 
-> And yes, there are hardware triggers, but Michael was quite unhappy about
-> potential races between VMGenID change and SysGenID change and thus wanted
-> to ideally separate the interfaces. So we went ahead and isolated the
-> SysGenID one, as it's already useful as is.
-> 
-> Hardware drivers to inject change events into SysGenID can then follow
-> later, for all different hardware platforms. But SysGenID as in this patch
-> is a completely hardware agnostic concept.
+> I'll look later today into this. I would nearly bet that I broke it
+> with commit f8d8977a3d97 ("s390/time: convert tod_clock_base to
+> union")
 
-Ok, this is going to play havoc with fuzzers and other "automated
-testers", should be fun to watch!  :)
+So, I broke it with commit 1ba2d6c0fd4e ("s390/vdso: simplify
+__arch_get_hw_counter()"). Reverting that patch will fix it for non
+time namespace processes only.
 
-Let's queue this up and see what happens...
+The problem is that the vdso data page contains an array of struct
+vdso_data's for each clock source. However only the first member of
+that array contains a/the valid struct arch_vdso_data, which is
+required for __arch_get_hw_counter(). Which alone is a bit odd...
 
-thanks,
-
-greg k-h
+However for a process which is within a time namespace there is no
+(easy) way to access that page (the time namespace specific vdso data
+page does not contain valid arch_vdso_data). I guess the real fix is
+to simply map yet another page into the vvar mapping and put the
+arch_data there. What a mess... :/
