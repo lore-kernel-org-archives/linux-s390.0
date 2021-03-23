@@ -2,154 +2,162 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7976FC433DB
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 13:49:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E810C433DB
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 15:02:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 33C0F619B3
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 13:49:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5610B619CB
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Mar 2021 15:02:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231262AbhCWNtJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 Mar 2021 09:49:09 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23242 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230078AbhCWNsm (ORCPT
+        id S232541AbhCWPCY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 Mar 2021 11:02:24 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36256 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232547AbhCWPCD (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Mar 2021 09:48:42 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12NDXlxp103559;
-        Tue, 23 Mar 2021 09:48:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=xGsb52ZcTBJ7qanx8S8CEfUtuLSMQ6g5bWEbVc8NDJQ=;
- b=Q1fTnkOe2irl9Q7prTv5vz0THKPtjOdHmgQeUW9xS19dFoh8Pu65omW7G1nxXTxhq9D3
- Msm0QiKxBXSfK+uDd8VfrQefXxOlSnfoyeZVKjHktwtk3Y0ScQ1yEi1BMX5cxBxKRp7c
- 8y7vWqk9DObzdBdqFLo2OEsoif7K4l6WpxBMBuncWe+EZXn/oYWW97qGf9TrpawhwqG/
- HizB+w0Tnmj2xPOfG2LxGp+tk1tnY7kqg6Vs+2dylGxAc/SNCU0O+X3NKDW4fAZHYeHt
- 63XQRW5Et9syEp3udgy6F0EsMxtscn2tpEOQRxTHhz1vnIXIeXYK5WK/NtzrlUCng25U AQ== 
+        Tue, 23 Mar 2021 11:02:03 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12NF198c066224;
+        Tue, 23 Mar 2021 11:02:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=k1WO91Nv459jd5UeN2hfVomwEBZAVg0mYE2a7vxyJsw=;
+ b=gUxUE6ST303gKUKQ+vfeg3ox1CJW7RkCoTGe51pHufx1OfCvpVfQAoEGt2QmHpAPDj2X
+ LZooWZWntfSQyawXdFMvgEVgzWbStFwqT8ujWNS5Bhdv5vjc5ks591+/cMytwnIQothR
+ lFW3VCnY1SgkF0o6oflj+si6uuOAkTRuKuKX8P1fGiADAx7PiqQ+SHqwAedbgPaVc+Vn
+ a5xqAbEkwZyB8yi7Eel8D1Di61bkOWxEJtua2JWI/mRq0i3ts8dIl96IED7WpA7DdORC
+ Csw7RbeWEKkUxKxfoiv1CGE14lwzIIm76FXJyDG2bCUeweMAWMGblg4gjFhYp0ZNM53r YQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37dx4b2ent-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37fjkjg1fg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Mar 2021 09:48:38 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12NDY1vP104602;
-        Tue, 23 Mar 2021 09:48:38 -0400
+        Tue, 23 Mar 2021 11:02:01 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12NF1PgI067384;
+        Tue, 23 Mar 2021 11:02:01 -0400
 Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37dx4b2emv-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37fjkjg1dj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Mar 2021 09:48:38 -0400
+        Tue, 23 Mar 2021 11:02:00 -0400
 Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12NDlJUM019724;
-        Tue, 23 Mar 2021 13:48:35 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 37d9bmkd98-1
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12NEuwVJ023389;
+        Tue, 23 Mar 2021 15:01:58 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 37d9bmkf71-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Mar 2021 13:48:35 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12NDmFbM36110830
+        Tue, 23 Mar 2021 15:01:58 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12NF1tXj40632730
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Mar 2021 13:48:15 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EDAB9A4040;
-        Tue, 23 Mar 2021 13:48:32 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8642BA405E;
-        Tue, 23 Mar 2021 13:48:32 +0000 (GMT)
-Received: from osiris (unknown [9.171.54.53])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 23 Mar 2021 13:48:32 +0000 (GMT)
-Date:   Tue, 23 Mar 2021 14:48:31 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Li Wang <liwang@redhat.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        LTP List <ltp@lists.linux.it>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-s390@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [s390x vDSO Bug?] clock_gettime(CLOCK_MONOTONIC_RAW, ...) gets
- abnormal ts value
-Message-ID: <YFnxr1ZlMIOIqjfq@osiris>
-References: <CAEemH2cELFSMzEYM-Gd1LxNuFzVE2PcG1chzyaVhW2YCJjjzdw@mail.gmail.com>
- <YFmUrVOyX4q+8Dy9@osiris>
+        Tue, 23 Mar 2021 15:01:55 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6AA93A405C;
+        Tue, 23 Mar 2021 15:01:55 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0A345A4065;
+        Tue, 23 Mar 2021 15:01:55 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.5.141])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 23 Mar 2021 15:01:54 +0000 (GMT)
+Subject: Re: [PATCH v2 1/2] s390/kvm: split kvm_s390_real_to_abs
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
+Cc:     frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org, Thomas Huth <thuth@redhat.com>
+References: <20210322140559.500716-1-imbrenda@linux.ibm.com>
+ <20210322140559.500716-2-imbrenda@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <7965aef3-9441-6d2e-909f-a3733992425f@de.ibm.com>
+Date:   Tue, 23 Mar 2021 16:01:54 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YFmUrVOyX4q+8Dy9@osiris>
+In-Reply-To: <20210322140559.500716-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
  definitions=2021-03-23_06:2021-03-22,2021-03-23 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
- spamscore=0 suspectscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0
- adultscore=0 bulkscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2103230100
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ phishscore=0 suspectscore=0 spamscore=0 mlxscore=0 bulkscore=0
+ clxscore=1015 impostorscore=0 priorityscore=1501 malwarescore=0
+ adultscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2009150000 definitions=main-2103230107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Mar 23, 2021 at 08:11:41AM +0100, Heiko Carstens wrote:
-> On Tue, Mar 23, 2021 at 02:21:52PM +0800, Li Wang wrote:
-> > Hi linux-s390 experts,
-> > 
-> > We observed that LTP/clock_gettime04 always FAIL on s390x with
-> > kernel-v5.12-rc3.
-> > To simply show the problem, I rewrite the LTP reproducer as a simple C
-> > below.
-> > Maybe it's a new bug introduced from the kernel-5.12 series branch?
-> > 
-> > PASS:
-> > ------------
-> > # uname -r
-> > 5.11.0-*.s390x
-> > 
-> > # grep TIME_NS /boot/config-5.11.0-*.s390x
-> > no TIME_NS enabled
-> > 
-> > ## ./test-timer
-> > vdso_ts_nsec = 898169901815, vdso_ts.tv_sec = 898, vdso_ts.tv_nsec =
-> > 169901815
-> > sys_ts_nsec  = 898169904269, sys_ts.tv_sec  = 898, sys_ts.tv_nsec  =
-> > 169904269
-> > ===> PASS
-> > 
-> > FAIL:
-> > ----------
-> > # uname -r
-> > 5.12.0-0.rc3.*.s390x
-> > 
-> > # grep TIME_NS /boot/config-5.12.0-0.rc3.s390x
-> > CONFIG_TIME_NS=y
-> > CONFIG_GENERIC_VDSO_TIME_NS=y
-> > 
-> > # ./test-timer
-> > vdso_ts_nsec = 4484351380985507, vdso_ts.tv_sec = 4484351, vdso_ts.tv_nsec
-> > = 380985507
-> > sys_ts_nsec  = 1446923235377, sys_ts.tv_sec  = 1446, sys_ts.tv_nsec  =
-> > 923235377
-> > ===> FAIL
+
+
+On 22.03.21 15:05, Claudio Imbrenda wrote:
+> A new function _kvm_s390_real_to_abs will apply prefixing to a real address
+> with a given prefix value.
 > 
-> Thanks for reporting!
+> The old kvm_s390_real_to_abs becomes now a wrapper around the new function.
 > 
-> I'll look later today into this. I would nearly bet that I broke it
-> with commit f8d8977a3d97 ("s390/time: convert tod_clock_base to
-> union")
+> This is needed to avoid code duplication in vSIE.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
 
-So, I broke it with commit 1ba2d6c0fd4e ("s390/vdso: simplify
-__arch_get_hw_counter()"). Reverting that patch will fix it for non
-time namespace processes only.
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-The problem is that the vdso data page contains an array of struct
-vdso_data's for each clock source. However only the first member of
-that array contains a/the valid struct arch_vdso_data, which is
-required for __arch_get_hw_counter(). Which alone is a bit odd...
-
-However for a process which is within a time namespace there is no
-(easy) way to access that page (the time namespace specific vdso data
-page does not contain valid arch_vdso_data). I guess the real fix is
-to simply map yet another page into the vvar mapping and put the
-arch_data there. What a mess... :/
+> ---
+>   arch/s390/kvm/gaccess.h | 23 +++++++++++++++++------
+>   1 file changed, 17 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+> index daba10f76936..7c72a5e3449f 100644
+> --- a/arch/s390/kvm/gaccess.h
+> +++ b/arch/s390/kvm/gaccess.h
+> @@ -18,17 +18,14 @@
+>   
+>   /**
+>    * kvm_s390_real_to_abs - convert guest real address to guest absolute address
+> - * @vcpu - guest virtual cpu
+> + * @prefix - guest prefix
+>    * @gra - guest real address
+>    *
+>    * Returns the guest absolute address that corresponds to the passed guest real
+> - * address @gra of a virtual guest cpu by applying its prefix.
+> + * address @gra of by applying the given prefix.
+>    */
+> -static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+> -						 unsigned long gra)
+> +static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
+>   {
+> -	unsigned long prefix  = kvm_s390_get_prefix(vcpu);
+> -
+>   	if (gra < 2 * PAGE_SIZE)
+>   		gra += prefix;
+>   	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
+> @@ -36,6 +33,20 @@ static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+>   	return gra;
+>   }
+>   
+> +/**
+> + * kvm_s390_real_to_abs - convert guest real address to guest absolute address
+> + * @vcpu - guest virtual cpu
+> + * @gra - guest real address
+> + *
+> + * Returns the guest absolute address that corresponds to the passed guest real
+> + * address @gra of a virtual guest cpu by applying its prefix.
+> + */
+> +static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+> +						 unsigned long gra)
+> +{
+> +	return _kvm_s390_real_to_abs(kvm_s390_get_prefix(vcpu), gra);
+> +}
+> +
+>   /**
+>    * _kvm_s390_logical_to_effective - convert guest logical to effective address
+>    * @psw: psw of the guest
+> 
