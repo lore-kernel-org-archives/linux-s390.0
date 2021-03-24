@@ -2,106 +2,146 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85F1DC433E0
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Mar 2021 07:23:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2E27C433DB
+	for <linux-s390@archiver.kernel.org>; Wed, 24 Mar 2021 09:51:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 61FD8619FA
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Mar 2021 07:23:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FB23619B4
+	for <linux-s390@archiver.kernel.org>; Wed, 24 Mar 2021 09:51:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235852AbhCXHWp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 Mar 2021 03:22:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54236 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235833AbhCXHWo (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 24 Mar 2021 03:22:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D19BB619FA;
-        Wed, 24 Mar 2021 07:22:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1616570564;
-        bh=A0pGJbn75arVdOD9b5IBCTpV/4uLDqxrD6Da79sVFnc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R4Rq5zuB3Z/Vfseh37K/cZNtdG7CkZTTjV8tzbmwqVjNNCZREy9jMM4hL57gfji30
-         9W96veE+jEaie8zu2sgf1c44Mcp8hTlaH/wdq1HNKXnBRhWu8667lhEwcBEVM1ejAL
-         C8BNQEfeKQP0mO4Cgy2lM758ALTtzS6UPKd/vd+8=
-Date:   Wed, 24 Mar 2021 08:22:40 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Catangiu, Adrian Costin" <acatan@amazon.com>
-Cc:     "Graf (AWS), Alexander" <graf@amazon.de>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "rdunlap@infradead.org" <rdunlap@infradead.org>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "ebiederm@xmission.com" <ebiederm@xmission.com>,
-        "rppt@kernel.org" <rppt@kernel.org>,
-        "0x7f454c46@gmail.com" <0x7f454c46@gmail.com>,
-        "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>,
-        "Jason@zx2c4.com" <Jason@zx2c4.com>,
-        "jannh@google.com" <jannh@google.com>, "w@1wt.eu" <w@1wt.eu>,
-        "MacCarthaigh, Colm" <colmmacc@amazon.com>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "tytso@mit.edu" <tytso@mit.edu>,
-        "ebiggers@kernel.org" <ebiggers@kernel.org>,
-        "Woodhouse, David" <dwmw@amazon.co.uk>,
-        "bonzini@gnu.org" <bonzini@gnu.org>,
-        "Singh, Balbir" <sblbir@amazon.com>,
-        "Weiss, Radu" <raduweis@amazon.com>,
-        "corbet@lwn.net" <corbet@lwn.net>,
-        "mst@redhat.com" <mst@redhat.com>,
-        "mhocko@kernel.org" <mhocko@kernel.org>,
-        "rafael@kernel.org" <rafael@kernel.org>,
-        "pavel@ucw.cz" <pavel@ucw.cz>,
-        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
-        "areber@redhat.com" <areber@redhat.com>,
-        "ovzxemul@gmail.com" <ovzxemul@gmail.com>,
-        "avagin@gmail.com" <avagin@gmail.com>,
-        "ptikhomirov@virtuozzo.com" <ptikhomirov@virtuozzo.com>,
-        "gil@azul.com" <gil@azul.com>,
-        "asmehra@redhat.com" <asmehra@redhat.com>,
-        "dgunigun@redhat.com" <dgunigun@redhat.com>,
-        "vijaysun@ca.ibm.com" <vijaysun@ca.ibm.com>,
-        "oridgar@gmail.com" <oridgar@gmail.com>,
-        "ghammer@redhat.com" <ghammer@redhat.com>
-Subject: Re: [PATCH v8] drivers/misc: sysgenid: add system generation id
- driver
-Message-ID: <YFrowKgcnozZyxKC@kroah.com>
-References: <1615213083-29869-1-git-send-email-acatan@amazon.com>
- <YEY2b1QU5RxozL0r@kroah.com>
- <a61c976f-b362-bb60-50a5-04073360e702@amazon.com>
- <YFnlZQZOasOwxUDn@kroah.com>
- <E6E517FF-A37C-427C-B16F-066A965B8F42@amazon.com>
+        id S232790AbhCXJut (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 Mar 2021 05:50:49 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55910 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234802AbhCXJu2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 24 Mar 2021 05:50:28 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12O9YYGk087922;
+        Wed, 24 Mar 2021 05:50:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=PQUFBI17hkQKnhOZi9dMY84rHMyxdyJlb/kRrb0N7Gs=;
+ b=P1+efJBntXRx1jyrBR6iTwJwF0H6yDl/GRcI5GPirL+lYy2kvr9f34M+ZkWoObks0dTP
+ GuO5lVQFxvqjh5VsF2M3N7A9D6ToXTPatd3v5rkcWpDOGq4KgGjQI5EsukLDOi/toGIE
+ 3Gm34nmsnem2UMDjE441+fI3xZYrV4MEzwugclJOfFGg01rU3fQ2AH06Jiu+4XOojF55
+ kTPnQ2YnzCrF3pCNz81VeG+XXKwwPjuVb77pJ9NSB9LEpH6NbkV19gtffmIaUs3tf6hI
+ 5dLMP7NyNOcbruJ3f0eekuuARsP+7IeWEU0BCY0gXBj5jA4MraUqQrPuGfOAqoxrKc2y IQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37fw2u15sy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 24 Mar 2021 05:50:18 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12O9Yak6088070;
+        Wed, 24 Mar 2021 05:50:18 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37fw2u15s5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 24 Mar 2021 05:50:17 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12O9nF5j011226;
+        Wed, 24 Mar 2021 09:50:16 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 37d99rc6k1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 24 Mar 2021 09:50:15 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12O9oDWZ30409208
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 24 Mar 2021 09:50:13 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F41FBAE04D;
+        Wed, 24 Mar 2021 09:50:12 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 838DEAE058;
+        Wed, 24 Mar 2021 09:50:12 +0000 (GMT)
+Received: from osiris (unknown [9.171.50.73])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed, 24 Mar 2021 09:50:12 +0000 (GMT)
+Date:   Wed, 24 Mar 2021 10:50:11 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Li Wang <liwang@redhat.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>, ltp@lists.linux.it,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 1/3] s390/vdso: fix tod clock steering
+Message-ID: <YFsLU2k/h3WPDrJz@osiris>
+References: <YFmUrVOyX4q+8Dy9@osiris>
+ <20210323215819.4161164-1-hca@linux.ibm.com>
+ <20210323215819.4161164-2-hca@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E6E517FF-A37C-427C-B16F-066A965B8F42@amazon.com>
+In-Reply-To: <20210323215819.4161164-2-hca@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-24_05:2021-03-24,2021-03-24 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
+ suspectscore=0 adultscore=0 malwarescore=0 mlxlogscore=999 clxscore=1015
+ mlxscore=0 priorityscore=1501 phishscore=0 lowpriorityscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103240073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Mar 23, 2021 at 04:10:27PM +0000, Catangiu, Adrian Costin wrote:
-> Hi Greg,
+On Tue, Mar 23, 2021 at 10:58:17PM +0100, Heiko Carstens wrote:
+> The s390 specific vdso function __arch_get_hw_counter() is supposed to
+> consider tod clock steering.
 > 
-> After your previous reply on this thread we started considering to provide this interface and framework/functionality through a userspace service instead of a kernel interface.
-> The latest iteration on this evolving patch-set doesn’t have strong reasons for living in the kernel anymore - the only objectively strong advantage would be easier driving of ecosystem integration; but I am not sure that's a good enough reason to create a new kernel interface.
+> If a tod clock steering event happens and the tod clock is set to a
+> new value __arch_get_hw_counter() will not return the real tod clock
+> value but slowly drift it from the old delta until the returned value
+> finally matches the real tod clock value again.
 > 
-> I am now looking into adding this through Systemd. Either as a pluggable service or maybe even a systemd builtin offering.
+> When converting the assembler code to C it was forgotten to tell user
+> space in which direction the clock has to be adjusted.
 > 
-> What are your thoughts on it?
+> Worst case is now that instead of drifting the clock slowly it will
+> jump into the opposite direction by a factor of two.
+> 
+> Fix this by simply providing the missing value to user space.
+> 
+> Fixes: 4bff8cb54502 ("s390: convert to GENERIC_VDSO")
+> Cc: <stable@vger.kernel.org> # 5.10
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/kernel/time.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+> index 165da961f901..e37285a5101b 100644
+> --- a/arch/s390/kernel/time.c
+> +++ b/arch/s390/kernel/time.c
+> @@ -382,6 +382,7 @@ static void clock_sync_global(unsigned long delta)
+>  		      tod_steering_delta);
+>  	tod_steering_end = now + (abs(tod_steering_delta) << 15);
+>  	vdso_data->arch_data.tod_steering_end = tod_steering_end;
+> +	vdso_data->arch_data.tod_steering_delta = tod_steering_delta;
 
-Now dropped from my char-misc-testing branch.  If you all decide you
-want this as a kernel driver, please resubmit it.
+..and yet another bug: __arch_get_hw_counter() tests if
+tod_steering_delta is negative.
+It makes sense to give tod_steering_delta the correct type:
 
-Also next time, you might give me a heads-up that you don't want a patch
-merged...
-
-thanks,
-
-greg k-h
+diff --git a/arch/s390/include/asm/vdso/data.h b/arch/s390/include/asm/vdso/data.h
+index 7b3cdb4a5f48..73ee89142666 100644
+--- a/arch/s390/include/asm/vdso/data.h
++++ b/arch/s390/include/asm/vdso/data.h
+@@ -6,7 +6,7 @@
+ #include <vdso/datapage.h>
+ 
+ struct arch_vdso_data {
+-	__u64 tod_steering_delta;
++	__s64 tod_steering_delta;
+ 	__u64 tod_steering_end;
+ };
+ 
