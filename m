@@ -2,396 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94CE4C433E0
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Mar 2021 11:02:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 862B8C433DB
+	for <linux-s390@archiver.kernel.org>; Wed, 24 Mar 2021 16:39:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 56EF561A09
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Mar 2021 11:02:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4E2EE619F3
+	for <linux-s390@archiver.kernel.org>; Wed, 24 Mar 2021 16:39:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234575AbhCXLCI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 Mar 2021 07:02:08 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:34577 "EHLO
+        id S236420AbhCXQi7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 Mar 2021 12:38:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40742 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235697AbhCXKZF (ORCPT
+        by vger.kernel.org with ESMTP id S236399AbhCXQiv (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 24 Mar 2021 06:25:05 -0400
+        Wed, 24 Mar 2021 12:38:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1616581504;
+        s=mimecast20190719; t=1616603930;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=qHfx8vK2bJ6NiabtEYVlGbcTEXhja7jcY1TtUw9aT1c=;
-        b=bkZ/iTeP34TuiQnzwaPBIndlxPtGHUfXa0CgFCFi5wulISaLuHivawnM8YXC6vlGaDWsJa
-        Kl+vuGDwFChHot4JBZerb4l/71f7rNyqFHu2vgezKGYHUgggbDP1fCjbz9gCK+6bFn2aMj
-        zaA8VMXh48nFAZMa9Nx3AWWau4q5QqM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-502-WeC2-sRROcW_Vt2GyF9Hlw-1; Wed, 24 Mar 2021 06:25:00 -0400
-X-MC-Unique: WeC2-sRROcW_Vt2GyF9Hlw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5BA1E1013729;
-        Wed, 24 Mar 2021 10:24:56 +0000 (UTC)
-Received: from t480s.redhat.com (ovpn-115-66.ams2.redhat.com [10.36.115.66])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 33BEE10013D7;
-        Wed, 24 Mar 2021 10:24:42 +0000 (UTC)
-From:   David Hildenbrand <david@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Brian Cain <bcain@codeaurora.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Greentime Hu <green.hu@gmail.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: [PATCH v1 2/3] mm: remove xlate_dev_kmem_ptr()
-Date:   Wed, 24 Mar 2021 11:23:50 +0100
-Message-Id: <20210324102351.6932-3-david@redhat.com>
-In-Reply-To: <20210324102351.6932-1-david@redhat.com>
-References: <20210324102351.6932-1-david@redhat.com>
+        bh=ZF8HRT5IrNOvQL6Pz8F1OKHc43im4d3pUJ9N+IN8ny4=;
+        b=IRSko5ts/nOBfLmpHJfzdhK5FVjGSBVFVLB8n8cP4375quXz86tjAs5LwMXRRmKJxXpuYM
+        u3dEVjUBtcyV3fOaOkycJ1tP4zEXJjsbLP/VPll7sxA7PrQVwMjWlkRQO1A3bBtNxso2+i
+        a8Kr5kTKN5GvWIs8t65vie//yZwIUok=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-555-VVXprUV_OJyUaa6Ykkoi2A-1; Wed, 24 Mar 2021 12:38:47 -0400
+X-MC-Unique: VVXprUV_OJyUaa6Ykkoi2A-1
+Received: by mail-wr1-f69.google.com with SMTP id e9so738105wrg.6
+        for <linux-s390@vger.kernel.org>; Wed, 24 Mar 2021 09:38:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=ZF8HRT5IrNOvQL6Pz8F1OKHc43im4d3pUJ9N+IN8ny4=;
+        b=bAW95b28lg3VAd38tRhZTo4E5TcHQA0ehzoguwtOQEwzerV+LXpq9rpqCDrnBC1eAx
+         SVNlnaFYb8UVXVRjC8FhliVhCLdrRjDBpJ+fORvFfrbyrr20gluEZ4yjsphKIgFq+Pbi
+         kHZn051Uz8ikgym4OTiQEe7IfPfyqpm6ELUhJVML1gZ8oCJ2lizaxFTk89pwSdaIYGyK
+         O1z7lMCX+JMcHjIuv3+4r8ObOHcK3HyWXK5KJqlhinD2azSBOkRvoYFmTZe6WgtzJzzV
+         zxMe7v8ob0lRS/doUxygOeBdNy+8hoW3QMZay0vuP7p1kvpAGKL9Q7IKVrXNdeACbM9V
+         WPZA==
+X-Gm-Message-State: AOAM532bYzK12VtifliixL7P0SMdFWKjM0OySKbE0G8F4Fyy9eV7ayej
+        /2c3Mt1gDzjpheuCZtUf/D5aeCoAPIAwysFLzIYJiY74uLoR8xe1znmRWvfgNplBTIxdBgTh1ce
+        kzDFFfdKApjYsJPqAp+dTFg==
+X-Received: by 2002:adf:e5c4:: with SMTP id a4mr4478197wrn.174.1616603926343;
+        Wed, 24 Mar 2021 09:38:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxNX1S2tQyoRha/DwjTPN7h2LrSBGyzP5oxKR2eeHPyyIYZd4C89Eg+f14Opdl72aBTlPS3FQ==
+X-Received: by 2002:adf:e5c4:: with SMTP id a4mr4478163wrn.174.1616603926203;
+        Wed, 24 Mar 2021 09:38:46 -0700 (PDT)
+Received: from redhat.com (bzq-79-183-252-180.red.bezeqint.net. [79.183.252.180])
+        by smtp.gmail.com with ESMTPSA id c8sm4151618wrd.55.2021.03.24.09.38.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Mar 2021 09:38:45 -0700 (PDT)
+Date:   Wed, 24 Mar 2021 12:38:40 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     "Catangiu, Adrian Costin" <acatan@amazon.com>,
+        "Graf (AWS), Alexander" <graf@amazon.de>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "rdunlap@infradead.org" <rdunlap@infradead.org>,
+        "arnd@arndb.de" <arnd@arndb.de>,
+        "ebiederm@xmission.com" <ebiederm@xmission.com>,
+        "rppt@kernel.org" <rppt@kernel.org>,
+        "0x7f454c46@gmail.com" <0x7f454c46@gmail.com>,
+        "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>,
+        "Jason@zx2c4.com" <Jason@zx2c4.com>,
+        "jannh@google.com" <jannh@google.com>, "w@1wt.eu" <w@1wt.eu>,
+        "MacCarthaigh, Colm" <colmmacc@amazon.com>,
+        "luto@kernel.org" <luto@kernel.org>,
+        "tytso@mit.edu" <tytso@mit.edu>,
+        "ebiggers@kernel.org" <ebiggers@kernel.org>,
+        "Woodhouse, David" <dwmw@amazon.co.uk>,
+        "bonzini@gnu.org" <bonzini@gnu.org>,
+        "Singh, Balbir" <sblbir@amazon.com>,
+        "Weiss, Radu" <raduweis@amazon.com>,
+        "corbet@lwn.net" <corbet@lwn.net>,
+        "mhocko@kernel.org" <mhocko@kernel.org>,
+        "rafael@kernel.org" <rafael@kernel.org>,
+        "pavel@ucw.cz" <pavel@ucw.cz>,
+        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
+        "areber@redhat.com" <areber@redhat.com>,
+        "ovzxemul@gmail.com" <ovzxemul@gmail.com>,
+        "avagin@gmail.com" <avagin@gmail.com>,
+        "ptikhomirov@virtuozzo.com" <ptikhomirov@virtuozzo.com>,
+        "gil@azul.com" <gil@azul.com>,
+        "asmehra@redhat.com" <asmehra@redhat.com>,
+        "dgunigun@redhat.com" <dgunigun@redhat.com>,
+        "vijaysun@ca.ibm.com" <vijaysun@ca.ibm.com>,
+        "oridgar@gmail.com" <oridgar@gmail.com>,
+        "ghammer@redhat.com" <ghammer@redhat.com>
+Subject: Re: [PATCH v8] drivers/misc: sysgenid: add system generation id
+ driver
+Message-ID: <20210324123756-mutt-send-email-mst@kernel.org>
+References: <1615213083-29869-1-git-send-email-acatan@amazon.com>
+ <YEY2b1QU5RxozL0r@kroah.com>
+ <a61c976f-b362-bb60-50a5-04073360e702@amazon.com>
+ <YFnlZQZOasOwxUDn@kroah.com>
+ <E6E517FF-A37C-427C-B16F-066A965B8F42@amazon.com>
+ <YFoYwq/RadewiE8I@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+In-Reply-To: <YFoYwq/RadewiE8I@kroah.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Since /dev/kmem has been removed, let's remove the xlate_dev_kmem_ptr()
-leftovers.
+On Tue, Mar 23, 2021 at 05:35:14PM +0100, Greg KH wrote:
+> On Tue, Mar 23, 2021 at 04:10:27PM +0000, Catangiu, Adrian Costin wrote:
+> > Hi Greg,
+> > 
+> > After your previous reply on this thread we started considering to provide this interface and framework/functionality through a userspace service instead of a kernel interface.
+> > The latest iteration on this evolving patch-set doesn’t have strong reasons for living in the kernel anymore - the only objectively strong advantage would be easier driving of ecosystem integration; but I am not sure that's a good enough reason to create a new kernel interface.
+> > 
+> > I am now looking into adding this through Systemd. Either as a pluggable service or maybe even a systemd builtin offering.
+> > 
+> > What are your thoughts on it?
+> 
+> I'll gladly drop this patch if it's not needed in the kernel, thanks for
+> letting me know.
+> 
+> greg k-h
 
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Brian Cain <bcain@codeaurora.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Palmer Dabbelt <palmerdabbelt@google.com>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Greentime Hu <green.hu@gmail.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Pierre Morel <pmorel@linux.ibm.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-hexagon@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: linux-mips@vger.kernel.org
-Cc: linux-parisc@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/alpha/include/asm/io.h     |  5 -----
- arch/arm/include/asm/io.h       |  5 -----
- arch/hexagon/include/asm/io.h   |  1 -
- arch/ia64/include/asm/io.h      |  1 -
- arch/ia64/include/asm/uaccess.h | 18 ------------------
- arch/m68k/include/asm/io_mm.h   |  5 -----
- arch/mips/include/asm/io.h      |  5 -----
- arch/parisc/include/asm/io.h    |  5 -----
- arch/powerpc/include/asm/io.h   |  5 -----
- arch/s390/include/asm/io.h      |  5 -----
- arch/sh/include/asm/io.h        |  5 -----
- arch/sparc/include/asm/io_64.h  |  5 -----
- include/asm-generic/io.h        | 11 -----------
- 13 files changed, 76 deletions(-)
+Systemd sounds good to me too.
 
-diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
-index 1f6a909d1fa5..0fab5ac90775 100644
---- a/arch/alpha/include/asm/io.h
-+++ b/arch/alpha/include/asm/io.h
-@@ -602,11 +602,6 @@ extern void outsl (unsigned long port, const void *src, unsigned long count);
-  */
- #define xlate_dev_mem_ptr(p)	__va(p)
- 
--/*
-- * Convert a virtual cached pointer to an uncached pointer
-- */
--#define xlate_dev_kmem_ptr(p)	p
--
- #endif /* __KERNEL__ */
- 
- #endif /* __ALPHA_IO_H */
-diff --git a/arch/arm/include/asm/io.h b/arch/arm/include/asm/io.h
-index fc748122f1e0..f74944c6fe8d 100644
---- a/arch/arm/include/asm/io.h
-+++ b/arch/arm/include/asm/io.h
-@@ -430,11 +430,6 @@ extern void pci_iounmap(struct pci_dev *dev, void __iomem *addr);
-  */
- #define xlate_dev_mem_ptr(p)	__va(p)
- 
--/*
-- * Convert a virtual cached pointer to an uncached pointer
-- */
--#define xlate_dev_kmem_ptr(p)	p
--
- #include <asm-generic/io.h>
- 
- #ifdef CONFIG_MMU
-diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
-index bda2a9c2df78..c33241425a5c 100644
---- a/arch/hexagon/include/asm/io.h
-+++ b/arch/hexagon/include/asm/io.h
-@@ -64,7 +64,6 @@ static inline void *phys_to_virt(unsigned long address)
-  * convert a physical pointer to a virtual kernel pointer for
-  * /dev/mem access.
-  */
--#define xlate_dev_kmem_ptr(p)    __va(p)
- #define xlate_dev_mem_ptr(p)    __va(p)
- 
- /*
-diff --git a/arch/ia64/include/asm/io.h b/arch/ia64/include/asm/io.h
-index 3d666a11a2de..6d93b923b379 100644
---- a/arch/ia64/include/asm/io.h
-+++ b/arch/ia64/include/asm/io.h
-@@ -277,7 +277,6 @@ extern void memset_io(volatile void __iomem *s, int c, long n);
- #define memcpy_fromio memcpy_fromio
- #define memcpy_toio memcpy_toio
- #define memset_io memset_io
--#define xlate_dev_kmem_ptr xlate_dev_kmem_ptr
- #define xlate_dev_mem_ptr xlate_dev_mem_ptr
- #include <asm-generic/io.h>
- #undef PCI_IOBASE
-diff --git a/arch/ia64/include/asm/uaccess.h b/arch/ia64/include/asm/uaccess.h
-index 179243c3dfc7..e19d2dcc0ced 100644
---- a/arch/ia64/include/asm/uaccess.h
-+++ b/arch/ia64/include/asm/uaccess.h
-@@ -272,22 +272,4 @@ xlate_dev_mem_ptr(phys_addr_t p)
- 	return ptr;
- }
- 
--/*
-- * Convert a virtual cached kernel memory pointer to an uncached pointer
-- */
--static __inline__ void *
--xlate_dev_kmem_ptr(void *p)
--{
--	struct page *page;
--	void *ptr;
--
--	page = virt_to_page((unsigned long)p);
--	if (PageUncached(page))
--		ptr = (void *)__pa(p) + __IA64_UNCACHED_OFFSET;
--	else
--		ptr = p;
--
--	return ptr;
--}
--
- #endif /* _ASM_IA64_UACCESS_H */
-diff --git a/arch/m68k/include/asm/io_mm.h b/arch/m68k/include/asm/io_mm.h
-index 819f611dccf2..d41fa488453b 100644
---- a/arch/m68k/include/asm/io_mm.h
-+++ b/arch/m68k/include/asm/io_mm.h
-@@ -397,11 +397,6 @@ static inline void isa_delay(void)
-  */
- #define xlate_dev_mem_ptr(p)	__va(p)
- 
--/*
-- * Convert a virtual cached pointer to an uncached pointer
-- */
--#define xlate_dev_kmem_ptr(p)	p
--
- #define readb_relaxed(addr)	readb(addr)
- #define readw_relaxed(addr)	readw(addr)
- #define readl_relaxed(addr)	readl(addr)
-diff --git a/arch/mips/include/asm/io.h b/arch/mips/include/asm/io.h
-index 78537aa23500..e6373e7ac892 100644
---- a/arch/mips/include/asm/io.h
-+++ b/arch/mips/include/asm/io.h
-@@ -552,11 +552,6 @@ extern void (*_dma_cache_inv)(unsigned long start, unsigned long size);
-  */
- #define xlate_dev_mem_ptr(p)	__va(p)
- 
--/*
-- * Convert a virtual cached pointer to an uncached pointer
-- */
--#define xlate_dev_kmem_ptr(p)	p
--
- void __ioread64_copy(void *to, const void __iomem *from, size_t count);
- 
- #endif /* _ASM_IO_H */
-diff --git a/arch/parisc/include/asm/io.h b/arch/parisc/include/asm/io.h
-index 8a11b8cf4719..0b5259102319 100644
---- a/arch/parisc/include/asm/io.h
-+++ b/arch/parisc/include/asm/io.h
-@@ -316,11 +316,6 @@ extern void iowrite64be(u64 val, void __iomem *addr);
-  */
- #define xlate_dev_mem_ptr(p)	__va(p)
- 
--/*
-- * Convert a virtual cached pointer to an uncached pointer
-- */
--#define xlate_dev_kmem_ptr(p)	p
--
- extern int devmem_is_allowed(unsigned long pfn);
- 
- #endif
-diff --git a/arch/powerpc/include/asm/io.h b/arch/powerpc/include/asm/io.h
-index 273edd208ec5..f130783c8301 100644
---- a/arch/powerpc/include/asm/io.h
-+++ b/arch/powerpc/include/asm/io.h
-@@ -662,11 +662,6 @@ static inline void name at					\
-  */
- #define xlate_dev_mem_ptr(p)	__va(p)
- 
--/*
-- * Convert a virtual cached pointer to an uncached pointer
-- */
--#define xlate_dev_kmem_ptr(p)	p
--
- /*
-  * We don't do relaxed operations yet, at least not with this semantic
-  */
-diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
-index 28664ee0abc1..e3882b012bfa 100644
---- a/arch/s390/include/asm/io.h
-+++ b/arch/s390/include/asm/io.h
-@@ -20,11 +20,6 @@ void *xlate_dev_mem_ptr(phys_addr_t phys);
- #define unxlate_dev_mem_ptr unxlate_dev_mem_ptr
- void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
- 
--/*
-- * Convert a virtual cached pointer to an uncached pointer
-- */
--#define xlate_dev_kmem_ptr(p)	p
--
- #define IO_SPACE_LIMIT 0
- 
- void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
-diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
-index 6d5c6463bc07..cf9a3ec32406 100644
---- a/arch/sh/include/asm/io.h
-+++ b/arch/sh/include/asm/io.h
-@@ -283,11 +283,6 @@ static inline void __iomem *ioremap_prot(phys_addr_t offset, unsigned long size,
-  */
- #define xlate_dev_mem_ptr(p)	__va(p)
- 
--/*
-- * Convert a virtual cached pointer to an uncached pointer
-- */
--#define xlate_dev_kmem_ptr(p)	p
--
- #define ARCH_HAS_VALID_PHYS_ADDR_RANGE
- int valid_phys_addr_range(phys_addr_t addr, size_t size);
- int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
-diff --git a/arch/sparc/include/asm/io_64.h b/arch/sparc/include/asm/io_64.h
-index 9bb27e5c22f1..ff6fe387d78c 100644
---- a/arch/sparc/include/asm/io_64.h
-+++ b/arch/sparc/include/asm/io_64.h
-@@ -450,11 +450,6 @@ void sbus_set_sbus64(struct device *, int);
-  */
- #define xlate_dev_mem_ptr(p)	__va(p)
- 
--/*
-- * Convert a virtual cached pointer to an uncached pointer
-- */
--#define xlate_dev_kmem_ptr(p)	p
--
- #endif
- 
- #endif /* !(__SPARC64_IO_H) */
-diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index c6af40ce03be..33d4746b086f 100644
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -1045,17 +1045,6 @@ static inline void pci_iounmap(struct pci_dev *dev, void __iomem *p)
- #endif
- #endif /* CONFIG_GENERIC_IOMAP */
- 
--/*
-- * Convert a virtual cached pointer to an uncached pointer
-- */
--#ifndef xlate_dev_kmem_ptr
--#define xlate_dev_kmem_ptr xlate_dev_kmem_ptr
--static inline void *xlate_dev_kmem_ptr(void *addr)
--{
--	return addr;
--}
--#endif
--
- #ifndef xlate_dev_mem_ptr
- #define xlate_dev_mem_ptr xlate_dev_mem_ptr
- static inline void *xlate_dev_mem_ptr(phys_addr_t addr)
 -- 
-2.29.2
+MST
 
