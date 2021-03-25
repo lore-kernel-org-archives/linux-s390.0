@@ -2,103 +2,176 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A3B1C433DB
-	for <linux-s390@archiver.kernel.org>; Thu, 25 Mar 2021 14:30:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFD9EC433C1
+	for <linux-s390@archiver.kernel.org>; Thu, 25 Mar 2021 16:18:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66FDE619CB
-	for <linux-s390@archiver.kernel.org>; Thu, 25 Mar 2021 14:30:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C3ACD61A21
+	for <linux-s390@archiver.kernel.org>; Thu, 25 Mar 2021 16:18:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231278AbhCYO3m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 Mar 2021 10:29:42 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32110 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231153AbhCYO3L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 25 Mar 2021 10:29:11 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12PEN7uN066501;
-        Thu, 25 Mar 2021 10:29:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=TBwC6f2X3LnahJRm4qTMEd+GJ4sV6n4jmZnnwkyjeLA=;
- b=OKdV4+767MCbPt1f5dmXx3I2p/vC2PIsQSz/k6sORDG1cd6HUuv8jBVit3w7wZCvltTo
- 2dW1Of2bY5aKYQlTJTuokZigb0Ox0L69lk1o0NQMaGwgbeHW9wdG8kCha2t2rIdLb31Q
- Fs0SWMnJoYH0YC4bPcZE0mx6BFpWtITiesAay9YrFogiWZ4nAKFL4FynadXXEX1YHOpd
- VU1b/JUaAjn7Bxic0YkcDtVPltKHLxSwN3TI+3L+VvU4EdS+vlK3BKZ0mEwhgxmbZCHF
- Cn49krK1edNB7HBkt+UTva3vYO4vtGgMGgaeFqvBd6BlmelVgdUSwkg3HL36uhPtqc/7 Gw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37gurvs08y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 25 Mar 2021 10:29:10 -0400
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12PENLda067727;
-        Thu, 25 Mar 2021 10:29:10 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37gurvs087-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 25 Mar 2021 10:29:10 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12PEIktT013493;
-        Thu, 25 Mar 2021 14:22:13 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04fra.de.ibm.com with ESMTP id 37d9byauux-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 25 Mar 2021 14:22:13 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12PEMA3g48693622
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 25 Mar 2021 14:22:10 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4BE1842049;
-        Thu, 25 Mar 2021 14:22:10 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 64F4142042;
-        Thu, 25 Mar 2021 14:22:09 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.84.230])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Thu, 25 Mar 2021 14:22:09 +0000 (GMT)
-Date:   Thu, 25 Mar 2021 15:22:07 +0100
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        borntraeger@de.ibm.com, farman@linux.ibm.com,
-        jjherne@linux.ibm.com, akrowiak@linux.ibm.com,
-        pmorel@linux.ibm.com, cohuck@redhat.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, alex.williamson@redhat.com
-Subject: Re: [PATCH] MAINTAINERS: add backups for s390 vfio drivers
-Message-ID: <20210325152207.0ae68a21.pasic@linux.ibm.com>
-In-Reply-To: <1616679712-7139-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1616679712-7139-1-git-send-email-mjrosato@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-25_03:2021-03-24,2021-03-25 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=891
- bulkscore=0 lowpriorityscore=0 suspectscore=0 spamscore=0 adultscore=0
- clxscore=1015 impostorscore=0 mlxscore=0 malwarescore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2103250106
+        id S229574AbhCYQRf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Mar 2021 12:17:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46774 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229624AbhCYQRM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 Mar 2021 12:17:12 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C67F1C06174A;
+        Thu, 25 Mar 2021 09:17:12 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id m11so2541974pfc.11;
+        Thu, 25 Mar 2021 09:17:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=BSzjAGgCw63gBBm4851CZ2FBYt1vflt0KQxjA+y8wUo=;
+        b=lcVi/cV2vXS+/+f3hRNhK81O78ARTTqAuWrWGAMkiOCwQYEdjy+xlqmd5vuG5K/GA/
+         XpKacLB/fMoDNJphO5CchycguOUi/UNlWMhmVH8It0j7KyrxeN/EIdfZyX23JDcvgx0I
+         3kV7LHka8Ieluffj8mTZVnMixvKoPjRnfQJLf4/yrfp30LAzQWE3bZ2MfM1OZ1cMXWcI
+         vVTDwy2jWB0p3U04mTEQlAM613XnmZ+JnArZCqyPdrhy8r3yU4Yh42K0wv67z5L2UghM
+         eqdTpCRMFhoIS+5qdWwmALYz5xTchZ8e0H98XvkDb32VutJwKDQzV7bp5V9E90JKUj1m
+         /b+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=BSzjAGgCw63gBBm4851CZ2FBYt1vflt0KQxjA+y8wUo=;
+        b=jlO38IxR4Hfq5V2CnA9e2Uzy/YSsTT+y03lkIjCOuLnuvTqe0+FK8KAgrNLkw1Wn98
+         Cw0q+DibYXm6r9IKm+p+GExqXGdGA+PgJQl2f8uFePoJ9Lvl19BgRYsOnX5JCoQMa0KY
+         PuUfXGceSdeIr+Quw2/ogMdeLUFxLqmQyGfTJgWTIZ1oLc4DAdKuo6xaHLJ0M6GYb7CR
+         8I4YhBQhl8cOtllixpCn/aqm5HsqZqkbGwi68TmFE47mfJ+wKRBQOPpBNlJOiSx4y+yB
+         f4jsQegggU+v8WZ6DPQ4+gIWpe+e6Aasyt25L9n6sDQSy13OpKF/OlfSDT3vjWz43AH1
+         Z0fw==
+X-Gm-Message-State: AOAM53193JfeKzAvYGEayxK66i+L5KpOeSTUHVYc8HYIipKSekmFrL5i
+        jvjPmZYtXyVp+XvGs32Edzljp1jMmGWVLw==
+X-Google-Smtp-Source: ABdhPJxUN5QK9MbeZl03qj8GTUvsg+nKRCCQ4r8AhliZsCKa7Xp2xRICo0IQVMfx1mXyi/pqhXLMsg==
+X-Received: by 2002:a17:902:da81:b029:e5:de44:af5b with SMTP id j1-20020a170902da81b02900e5de44af5bmr10472610plx.27.1616689031898;
+        Thu, 25 Mar 2021 09:17:11 -0700 (PDT)
+Received: from localhost.localdomain ([49.173.165.50])
+        by smtp.gmail.com with ESMTPSA id s15sm6416917pgs.28.2021.03.25.09.17.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Mar 2021 09:17:11 -0700 (PDT)
+From:   Taehee Yoo <ap420073@gmail.com>
+To:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org
+Cc:     ap420073@gmail.com, jwi@linux.ibm.com, kgraul@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com,
+        mareklindner@neomailbox.ch, sw@simonwunderlich.de, a@unstable.cc,
+        sven@narfation.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        linux-s390@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org
+Subject: [PATCH net-next v3 0/7] mld: change context from atomic to sleepable
+Date:   Thu, 25 Mar 2021 16:16:50 +0000
+Message-Id: <20210325161657.10517-1-ap420073@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 25 Mar 2021 09:41:52 -0400
-Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+This patchset changes the context of MLD module.
+Before this patchset, MLD functions are atomic context so it couldn't use
+sleepable functions and flags.
 
-> Add a backup for s390 vfio-pci, an additional backup for vfio-ccw
-> and replace the backup for vfio-ap as Pierre is focusing on other
-> areas.
-> 
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+There are several reasons why MLD functions are under atomic context.
+1. It uses timer API.
+Timer expiration functions are executed in the atomic context.
+2. atomic locks
+MLD functions use rwlock and spinlock to protect their own resources.
 
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
+So, in order to switch context, this patchset converts resources to use
+RCU and removes atomic locks and timer API.
+
+1. The first patch convert from the timer API to delayed work.
+Timer API is used for delaying some works.
+MLD protocol has a delay mechanism, which is used for replying to a query.
+If a listener receives a query from a router, it should send a response
+after some delay. But because of timer expire function is executed in
+the atomic context, this patch convert from timer API to the delayed work.
+
+2. The fourth patch deletes inet6_dev->mc_lock.
+The mc_lock has protected inet6_dev->mc_tomb pointer.
+But this pointer is already protected by RTNL and it isn't be used by
+datapath. So, it isn't be needed and because of this, many atomic context
+critical sections are deleted.
+
+3. The fifth patch convert ip6_sf_socklist to RCU.
+ip6_sf_socklist has been protected by ipv6_mc_socklist->sflock(rwlock).
+But this is already protected by RTNL So if it is converted to use RCU
+in order to be used in the datapath, the sflock is no more needed.
+So, its control path context can be switched to sleepable.
+
+4. The sixth patch convert ip6_sf_list to RCU.
+The reason for this patch is the same as the previous patch.
+
+5. The seventh patch convert ifmcaddr6 to RCU.
+The reason for this patch is the same as the previous patch.
+
+6. Add new workqueues for processing query/report event.
+By this patch, query and report events are processed by workqueue
+So context is sleepable, not atomic.
+While this logic, it acquires RTNL.
+
+7. Add new mc_lock.
+The purpose of this lock is to protect per-interface mld data.
+Per-interface mld data is usually used by query/report event handler.
+So, query/report event workers need only this lock instead of RTNL.
+Therefore, it could reduce bottleneck.
+
+Changelog:
+v2 -> v3:
+1. Do not use msecs_to_jiffies().
+(by Cong Wang)
+2. Do not add unnecessary rtnl_lock() and rtnl_unlock().
+(by Cong Wang)
+3. Fix sparse warnings because of rcu annotation.
+(by kernel test robot)
+   - Remove some rcu_assign_pointer(), which was used for non-rcu pointer.
+   - Add union for rcu pointer.
+   - Use rcu API in mld_clear_zeros().
+   - Remove remained rcu_read_unlock().
+   - Use rcu API for tomb resources.
+4. withdraw prevopus 2nd and 3rd patch.
+   - "separate two flags from ifmcaddr6->mca_flags"
+   - "add a new delayed_work, mc_delrec_work"
+5. Add 6th and 7th patch.
+
+v1 -> v2:
+1. Withdraw unnecessary refactoring patches.
+(by Cong Wang, Eric Dumazet, David Ahern)
+    a) convert from array to list.
+    b) function rename.
+2. Separate big one patch into small several patches.
+3. Do not rename 'ifmcaddr6->mca_lock'.
+In the v1 patch, this variable was changed to 'ifmcaddr6->mca_work_lock'.
+But this is actually not needed.
+4. Do not use atomic_t for 'ifmcaddr6->mca_sfcount' and
+'ipv6_mc_socklist'->sf_count'.
+5. Do not add mld_check_leave_group() function.
+6. Do not add ip6_mc_del_src_bulk() function.
+7. Do not add ip6_mc_add_src_bulk() function.
+8. Do not use rcu_read_lock() in the qeth_l3_add_mcast_rtnl().
+(by Julian Wiedmann)
+
+Taehee Yoo (7):
+  mld: convert from timer to delayed work
+  mld: get rid of inet6_dev->mc_lock
+  mld: convert ipv6_mc_socklist->sflist to RCU
+  mld: convert ip6_sf_list to RCU
+  mld: convert ifmcaddr6 to RCU
+  mld: add new workqueues for process mld events
+  mld: add mc_lock for protecting per-interface mld data
+
+ drivers/s390/net/qeth_l3_main.c |    6 +-
+ include/net/if_inet6.h          |   37 +-
+ include/net/mld.h               |    3 +
+ net/batman-adv/multicast.c      |    6 +-
+ net/ipv6/addrconf.c             |    9 +-
+ net/ipv6/addrconf_core.c        |    2 +-
+ net/ipv6/af_inet6.c             |    2 +-
+ net/ipv6/icmp.c                 |    4 +-
+ net/ipv6/mcast.c                | 1080 ++++++++++++++++++-------------
+ 9 files changed, 678 insertions(+), 471 deletions(-)
+
+-- 
+2.17.1
+
