@@ -2,86 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3511DC433E1
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 16:13:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3EB9C433DB
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 16:27:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04D6861A28
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 16:13:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68C85619E5
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 16:27:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230319AbhCZQNO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Mar 2021 12:13:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45986 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230051AbhCZQMz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Mar 2021 12:12:55 -0400
-Received: from zeniv-ca.linux.org.uk (unknown [IPv6:2607:5300:60:148a::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DFF8C0613AA;
-        Fri, 26 Mar 2021 09:12:54 -0700 (PDT)
-Received: from viro by zeniv-ca.linux.org.uk with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1lPp4S-0001TY-0Z; Fri, 26 Mar 2021 16:12:24 +0000
-Date:   Fri, 26 Mar 2021 16:12:23 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Arnd Bergmann <arnd@arndb.de>, Brian Gerst <brgerst@gmail.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, x86@kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] exec: simplify the compat syscall handling
-Message-ID: <YF4H58gozyNkoCeO@zeniv-ca.linux.org.uk>
-References: <20210326143831.1550030-1-hch@lst.de>
- <20210326143831.1550030-4-hch@lst.de>
+        id S230114AbhCZQ1R (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Mar 2021 12:27:17 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30580 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S230197AbhCZQ1K (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 26 Mar 2021 12:27:10 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12QG6CtG072755;
+        Fri, 26 Mar 2021 12:27:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=reply-to : subject : to
+ : cc : references : from : message-id : date : mime-version : in-reply-to
+ : content-type : content-transfer-encoding; s=pp1;
+ bh=4TeIP5QizuRmvPem7ZurUakno+r2/IajTbHd1lyb6tE=;
+ b=WvMjMfCFtl+L8BsDNPxBrKWO2+Yy/DAXbldpynpveIP60Mv6wRy+M8/wqaG//v0xy8+0
+ 9tUH1L+ZWTrdp/99/HtlH9L3Q0qf+eFkLElGYKKR6ypbGnNqccX4IyHOvz3hWLkbgRn3
+ 09lMUMWGdL9GjOoOhKAdasTl7EhtxRfrjjuYXCbxbvPFCgSIFhiKdiUrJ0iV+96qz67u
+ xHRzOWr3gFd1CRA1FPpHLSUKODdHEo5hdwPNe+OzH1XRzfDpUE0GwcynkbVsYa5oEUpg
+ +fD1+CiNTqKDF1lTf8fLbl5u5NVyB/E9KWvbkhjlgoD46sCrQwHwt37KoahXS9/cJG/A /w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37hh6mc2ka-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Mar 2021 12:27:09 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12QG6B4O072702;
+        Fri, 26 Mar 2021 12:27:09 -0400
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37hh6mc2jw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Mar 2021 12:27:09 -0400
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12QGNs0x021761;
+        Fri, 26 Mar 2021 16:27:09 GMT
+Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
+        by ppma02wdc.us.ibm.com with ESMTP id 37h1586fjs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Mar 2021 16:27:09 +0000
+Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
+        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12QGR50L23200246
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 26 Mar 2021 16:27:06 GMT
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D2D4C6E05B;
+        Fri, 26 Mar 2021 16:27:05 +0000 (GMT)
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A8F736E058;
+        Fri, 26 Mar 2021 16:27:04 +0000 (GMT)
+Received: from [9.85.200.80] (unknown [9.85.200.80])
+        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Fri, 26 Mar 2021 16:27:04 +0000 (GMT)
+Reply-To: jjherne@linux.ibm.com
+Subject: Re: [PATCH] MAINTAINERS: add backups for s390 vfio drivers
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, farman@linux.ibm.com, pasic@linux.ibm.com,
+        akrowiak@linux.ibm.com, pmorel@linux.ibm.com, cohuck@redhat.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, alex.williamson@redhat.com
+References: <1616679712-7139-1-git-send-email-mjrosato@linux.ibm.com>
+From:   "Jason J. Herne" <jjherne@linux.ibm.com>
+Organization: IBM
+Message-ID: <18aa0202-c086-9de1-fe04-7f185f89ea07@linux.ibm.com>
+Date:   Fri, 26 Mar 2021 12:27:04 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210326143831.1550030-4-hch@lst.de>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+In-Reply-To: <1616679712-7139-1-git-send-email-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: DiP4O3ISs00xILbce3DFibjR1dNa8g4Q
+X-Proofpoint-ORIG-GUID: p5OqrxCS7YbT_tHgnfeevDEBwfZAHfl5
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-26_06:2021-03-26,2021-03-26 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ suspectscore=0 phishscore=0 lowpriorityscore=0 mlxlogscore=999 spamscore=0
+ malwarescore=0 adultscore=0 impostorscore=0 priorityscore=1501
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2103250000 definitions=main-2103260120
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Mar 26, 2021 at 03:38:30PM +0100, Christoph Hellwig wrote:
+On 3/25/21 9:41 AM, Matthew Rosato wrote:
+> Add a backup for s390 vfio-pci, an additional backup for vfio-ccw
+> and replace the backup for vfio-ap as Pierre is focusing on other
+> areas.
+> 
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>   MAINTAINERS | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 9e87692..68a5623 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -15634,8 +15634,8 @@ F:	Documentation/s390/pci.rst
+>   
+>   S390 VFIO AP DRIVER
+>   M:	Tony Krowiak <akrowiak@linux.ibm.com>
+> -M:	Pierre Morel <pmorel@linux.ibm.com>
+>   M:	Halil Pasic <pasic@linux.ibm.com>
+> +M:	Jason Herne <jjherne@linux.ibm.com>
 
-> -static const char __user *get_user_arg_ptr(struct user_arg_ptr argv, int nr)
-> +static const char __user *
-> +get_user_arg_ptr(const char __user *const __user *argv, int nr)
->  {
-> -	const char __user *native;
-> -
-> -#ifdef CONFIG_COMPAT
-> -	if (unlikely(argv.is_compat)) {
-> +	if (in_compat_syscall()) {
-> +		const compat_uptr_t __user *compat_argv =
-> +			compat_ptr((unsigned long)argv);
->  		compat_uptr_t compat;
->  
-> -		if (get_user(compat, argv.ptr.compat + nr))
-> +		if (get_user(compat, compat_argv + nr))
->  			return ERR_PTR(-EFAULT);
-> -
->  		return compat_ptr(compat);
-> -	}
-> -#endif
-> -
-> -	if (get_user(native, argv.ptr.native + nr))
-> -		return ERR_PTR(-EFAULT);
-> +	} else {
-> +		const char __user *native;
->  
-> -	return native;
-> +		if (get_user(native, argv + nr))
-> +			return ERR_PTR(-EFAULT);
-> +		return native;
-> +	}
->  }
+Acked-by: Jason J. Herne <jjherne@linux.ibm.com>
 
-Yecchhh....  So you have in_compat_syscall() called again and again, for
-each argument in the list?  I agree that current version is fucking ugly,
-but I really hate that approach ;-/
+
+-- 
+-- Jason J. Herne (jjherne@linux.ibm.com)
