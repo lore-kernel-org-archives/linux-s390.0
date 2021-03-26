@@ -2,642 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,PDS_BAD_THREAD_QP_64,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 368A4C433DB
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 07:04:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DCA7C433C1
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 08:50:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E303561A3F
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 07:04:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6BCB161A18
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 08:50:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230105AbhCZHET (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Mar 2021 03:04:19 -0400
-Received: from mga05.intel.com ([192.55.52.43]:27451 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229782AbhCZHEL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 26 Mar 2021 03:04:11 -0400
-IronPort-SDR: B5Grnmcfbk7BufmKp9NQHdSnZ49/lyvUt6LUX5/gUFBUumAuLrZDhh4IgqowK3+15HZy8l/Shu
- qNf/XDYtcoKQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9934"; a="276226972"
-X-IronPort-AV: E=Sophos;i="5.81,279,1610438400"; 
-   d="scan'208";a="276226972"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Mar 2021 00:04:11 -0700
-IronPort-SDR: +1CxLmWgD78fvB9JzzHi0/9W+VtuDs6E2qm+066+qcua1DauENqzdK20W6azCsQxXtQMkyvg4x
- AUf3zjHkLCDw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,279,1610438400"; 
-   d="scan'208";a="414452602"
-Received: from orsmsx606.amr.corp.intel.com ([10.22.229.19])
-  by orsmga007.jf.intel.com with ESMTP; 26 Mar 2021 00:04:11 -0700
-Received: from orsmsx601.amr.corp.intel.com (10.22.229.14) by
- ORSMSX606.amr.corp.intel.com (10.22.229.19) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2106.2; Fri, 26 Mar 2021 00:04:10 -0700
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- orsmsx601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2
- via Frontend Transport; Fri, 26 Mar 2021 00:04:10 -0700
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com (104.47.73.168)
- by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2106.2; Fri, 26 Mar 2021 00:04:08 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Hczo/otdpVYCJZnS8+gwKow1yX3kf6MftDMNlGzbvzO9rfBic4vpb9OfH/QMAGbe36P2blCDvztnXAOw6M4cwp6Np5OoeLRhQFNnyARQtOfXDcSaLgKZBX9QknWTYdkvhatlmUDBAtkurAqWT3epFnfK97kysuM7irg8MkHiHCltCU5j4FqTKjL4Zmwa4hZkXT2kQLgtA9Alz3BjrUM5xbRa74o3X004kD1TaGhuwkZiNx4IESQV+K2iKTIiGP1ZP0wuaeTbWekT7Ydc4cMhW6ZFxJiwBce0HtQW41oWnn3FnG4yJYM604V3mWnJliq2aGquAFxIKZak592b23cwVg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pZo9nFwwnVIcTZFzLoWHccO1OnfIgzDqq2+9TcCu758=;
- b=glM4c9wJ8sNbTO0KT/K/sBDTArHguH+j7u1Em47CGh+wJR6EriO7PIBYfhQJEbM5Nj/uSNUtG4U7vQJ2x7qR61zKoDyHzsbewYLuRE3gkOALWHBZhadBSxUlFFqMBv4/fOUjunnKqQJme40/8vrNFpc9HjcCJOhj/TMiubSE+goCeW9u2AZbupHp2pZSAeuXe7Ol8oLQuiIrIPM7scQ3qmWWVr6KO7Hxgp8aEi4Jg4SssF/wWmBh40iDkofB68VDnXrqSAq+7wNI7zf+m65y/whTmooFB40aqgEsQ+SElORmX9qBVbux+NV/lke4CKGlYQoOilEcZ83HIrVa9VwH6Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=intel.onmicrosoft.com;
- s=selector2-intel-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pZo9nFwwnVIcTZFzLoWHccO1OnfIgzDqq2+9TcCu758=;
- b=eYfVfOmYvuZ03cxJPPTgxJFTPUdmdg1a2/QmwBSdt9Qdj2i5comK77wQb8ELcxfiapaUyxmw8sJn0Fz28kLmVwwgw7REZUgYMItZbU9sA/eE3M2j+7ZlcvFAXDuxidzxw2c7MO8a3V53bJtve4N69IDZuu3mIi0j+YnMslUediE=
-Received: from MWHPR11MB1886.namprd11.prod.outlook.com (2603:10b6:300:110::9)
- by MWHPR1101MB2079.namprd11.prod.outlook.com (2603:10b6:301:50::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3977.30; Fri, 26 Mar
- 2021 07:03:36 +0000
-Received: from MWHPR11MB1886.namprd11.prod.outlook.com
- ([fe80::75b0:a8e9:60cb:7a29]) by MWHPR11MB1886.namprd11.prod.outlook.com
- ([fe80::75b0:a8e9:60cb:7a29%9]) with mapi id 15.20.3977.026; Fri, 26 Mar 2021
- 07:03:36 +0000
-From:   "Tian, Kevin" <kevin.tian@intel.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
-        "Tony Krowiak" <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "Eric Farman" <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "Peter Oberparleiter" <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        "Zhenyu Wang" <zhenyuw@linux.intel.com>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>
-CC:     "Raj, Ashok" <ashok.raj@intel.com>,
-        "Williams, Dan J" <dan.j.williams@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Tarun Gupta <targupta@nvidia.com>
-Subject: RE: [PATCH 18/18] vfio/mdev: Correct the function signatures for the
- mdev_type_attributes
-Thread-Topic: [PATCH 18/18] vfio/mdev: Correct the function signatures for the
- mdev_type_attributes
-Thread-Index: AQHXIA37YLSDA08tg0+Z4ATtZCis0aqV3AIQ
-Date:   Fri, 26 Mar 2021 07:03:36 +0000
-Message-ID: <MWHPR11MB18866F9854E5E85E7D8B804F8C619@MWHPR11MB1886.namprd11.prod.outlook.com>
-References: <0-v1-7dedf20b2b75+4f785-vfio2_jgg@nvidia.com>
- <18-v1-7dedf20b2b75+4f785-vfio2_jgg@nvidia.com>
-In-Reply-To: <18-v1-7dedf20b2b75+4f785-vfio2_jgg@nvidia.com>
-Accept-Language: en-US
+        id S229528AbhCZIt2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Mar 2021 04:49:28 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1804 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229551AbhCZIs5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 26 Mar 2021 04:48:57 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12Q8YCpH048122;
+        Fri, 26 Mar 2021 04:48:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=Y07c2TPg93sZ+XXI/Ulc2KO+qCxUkQASzIXLkjpMeJA=;
+ b=D6J04F6fiybZ6ZhCA/jbx2UZ2zNABQE9/J5DgXlkoMvkqzjkFrUuv8iag5CgQknl1JKz
+ uIybiIRCc1WXVEDJnLh2WZi/tTmYoqiNKhohp8OMvrKEI/wdcOIG2S540LeT83Rlu13l
+ x1wmwEjWhVUTTLzKWPmq9z651HnPxU/GFhdSEVreYnmX6n1Iuw6cNVHeDfWnhxBbk+ld
+ GQJNH6RpKzFeItupCt7dL3y6bzXMFsvZVR2DYgdjXoU6ywj4P1IYdBYYu795CtdBYcp8
+ +WLnnwRUszSExQvLkCi1JCVv8DtHr9TwpNPrNjRKaD+b8dDF/OPcA1oDpgbha1SJ0uNw cw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37h76vf1q1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Mar 2021 04:48:56 -0400
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12Q8YX68049868;
+        Fri, 26 Mar 2021 04:48:56 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37h76vf1pj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Mar 2021 04:48:56 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12Q8lTeR026922;
+        Fri, 26 Mar 2021 08:48:54 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 37h14ugfgq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Mar 2021 08:48:54 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12Q8mpru38928758
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 26 Mar 2021 08:48:51 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 12DA5A405D;
+        Fri, 26 Mar 2021 08:48:51 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B21B0A4055;
+        Fri, 26 Mar 2021 08:48:49 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.87.8])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 26 Mar 2021 08:48:49 +0000 (GMT)
+Subject: Re: [PATCH] MAINTAINERS: add backups for s390 vfio drivers
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc:     farman@linux.ibm.com, jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        akrowiak@linux.ibm.com, pmorel@linux.ibm.com, cohuck@redhat.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, alex.williamson@redhat.com
+References: <1616679712-7139-1-git-send-email-mjrosato@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <4a856f72-83ec-29b8-a251-b90c5f3c2049@de.ibm.com>
+Date:   Fri, 26 Mar 2021 09:48:49 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
+In-Reply-To: <1616679712-7139-1-git-send-email-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-version: 11.5.1.3
-dlp-product: dlpe-windows
-dlp-reaction: no-action
-authentication-results: nvidia.com; dkim=none (message not signed)
- header.d=none;nvidia.com; dmarc=none action=none header.from=intel.com;
-x-originating-ip: [192.198.147.214]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 5e564405-0fc1-46f2-67e4-08d8f02546e9
-x-ms-traffictypediagnostic: MWHPR1101MB2079:
-x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr,ExtFwd
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <MWHPR1101MB2079272962F7CB7F1D9DF4F88C619@MWHPR1101MB2079.namprd11.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:346;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: TpDAjXMdsZ5/JTltH2+79Gd2zC1wDm5mPlxymcsm4De8q2XMML2fkj5kyIpq0weKS3iUj/KPWMd6tltryFSIOLayw/OmIhG3mK9x2eHJtkuufgC7HNOXQJ8iKlU25cq01yofzik1g4FUxV9LgV49Wr70Ri9R9r7mXIom6ZDvvJvn7z1ehtrS2HVqiVkiK79t1raV+WRlySyseNLaPXGUxNvN2blYx+ZHVCkXiXik8XFUk3n3Ngdo2ua58+ghtVu7CwiEv7b7v2jT8evwvgS6DNCbYj62X3PkbDdXzVTFN4L4U5QeHWbj+v6DnxV8iG5CdGCqBFqGe9YCUGCLhSyTMGejVfiFGBpT2qOeycv1G9u9eT9b0/MJj06Czcf0/jUiJwT8e6V+MIy+TcsidVIghY+oQ4XUX1FOfPS/JOaXFvj6W0S56pYMSLShmcp/PIqnYLqJ1A1pSx8poXE1zv0lA3lOBFCcQHcpgEL6bqdQMA13fV6/4ohmgUDH22fYS1AAgwSvZ7OCAznAtzWhcrW7v/VQAnpb4J0uNRyH21GJcTqia9fm/cnXySF6ADPXhmrpq9cPGtVxDzJCNn1uo5NeiSCcjFt0Zjgm3bMD0XCmYFzrwsx8nxu6ThqibK2TULVQ76jKfa7t4ew9f8tVIhIYFEK76xiopfVnaVS9JE99zRc=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR11MB1886.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(376002)(396003)(346002)(136003)(39860400002)(366004)(38100700001)(110136005)(7416002)(54906003)(30864003)(316002)(52536014)(66446008)(8936002)(76116006)(5660300002)(2906002)(66946007)(66476007)(6636002)(66556008)(64756008)(71200400001)(478600001)(186003)(55016002)(8676002)(9686003)(921005)(4326008)(6506007)(83380400001)(7696005)(26005)(33656002)(86362001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: =?us-ascii?Q?3/NXymuaDwujyQcV4SN0O18Nbh3wbAIHHzpU5mdXzlHlHenAgEQNF4KEdDEW?=
- =?us-ascii?Q?Lqg5EVdLp2BBc7x4upLHSeX9oS2DUo1hj0NpQnWg+niMFe6LC69MV0qajTFE?=
- =?us-ascii?Q?OOYByE/ZrQf2VDIePwbU8QThaSmB5WOZB+7or6fVYJDj/rV9H90nEVSNRCFD?=
- =?us-ascii?Q?D2Diw+UynOU5VNVOEtBoJbRM4Qmzgo62c9sOOUY0hrI8/B9+q4iraWlfVYMG?=
- =?us-ascii?Q?n8UXD29+9vy4Tn7MGuf3vD5thfQEIhrROPSFnjbI4k21zGnKYkU30sI/ZNys?=
- =?us-ascii?Q?kStTruQ2027bSAbbKkdAc44ICq+FyxY3rRbJY6SbBdpRXza2JQJOtnQyhb0y?=
- =?us-ascii?Q?25r7bRsKghxAwF3LqUqif8WCULPj2qQXyqt0ylR/7KCv9bds1ShMpHiP4fzV?=
- =?us-ascii?Q?OY+C+izYV8LBnBn2bXpgEMSxqSPL9K+uYe17R8LSAnOS2TPhyHCd2pLg3vL4?=
- =?us-ascii?Q?8qQwRAZomwzPhBxf9znoZTFGBZyXxrS+Hwipm83Zuif8RhOhy9jSy89FYAvD?=
- =?us-ascii?Q?DaXog2GhzAHJPU8+TPHhlc1BgIWRgLSMNvIPHCSfZT5IWWtbyw+DQabvZkgE?=
- =?us-ascii?Q?LoYM0vVmzgiiWQjXfgYhEThLsJzVW/8/0QOknw+sO2pOo5dRZ7xcJ9K2HRY3?=
- =?us-ascii?Q?ROxzUP2C6HWypFVt1hatSaXd4wcjGelQJhmpCgsbKqHmf922A7STfjk8uGnH?=
- =?us-ascii?Q?leqQ6P+NyBcePUmH7pzrItudcvoLLf7M4jFzhfPAv8atnlYVoRtlH7FpFTXQ?=
- =?us-ascii?Q?4Ey66F8D8ExeK4zny6LykjejvA8jg1n8rd67FuJ2k23/wbAHp/5l/RVwarJr?=
- =?us-ascii?Q?rp4Cv2nmj1y9M4zvifofWVtoezXmHzKGF0bzmvbMJllUU8heIgai4KcJHWan?=
- =?us-ascii?Q?CgPi3IWijKO9Moc34Ib0ZPQ2+dxIGQWdbIt1NkqyMqKCKGqKJ/T/GOqz+NU7?=
- =?us-ascii?Q?C4YF04HpPiqKjL6IByrfsz8Oa9X/VBPdNOAViwxAXUxnug2vWDNlnPy/fJt+?=
- =?us-ascii?Q?CZXuDcju8v8SA3Oe3K9+7/0TfLnjw/lBN8x/FlGvcvNddw13/TZunhhBt99X?=
- =?us-ascii?Q?yuQGqkI4EY4SLbnU9XiYXoXuV6M7fDAw6mE5IuYfUbkJ4kqh2n7M4nYlePbv?=
- =?us-ascii?Q?a7AlbK9rVkFfWWSI1JWyCQGj//5CGQeKVPg167N28hjCKs7C4P+n2Ojkc8iK?=
- =?us-ascii?Q?7ym3GbsTcJCu9JULJY06sq0JjwVKXnB0tXcPwiP0w+i7ilxdyGSTjlCgEpH6?=
- =?us-ascii?Q?MvNFQT/acvh+IlobWGLVJ4xM4hdCOegStJXgxFPvuzbre+C/vqng0yX1NhxJ?=
- =?us-ascii?Q?GNpJIFGuYy6duQiwxS4JyE4p?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ykDyQMq41E8h3CHqW7wamQMHKeJG482m
+X-Proofpoint-ORIG-GUID: a_xBzTgzSVfEHqVeiboSZP3A0wMbK7nz
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR11MB1886.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5e564405-0fc1-46f2-67e4-08d8f02546e9
-X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Mar 2021 07:03:36.5243
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Z8U9LYC29bYg+XYFNF+Wfmz/YRucKIxBScpvIqPWGc5oB8CRGqK53mDAHag7FVDxJ6xkZJj8qGAWJhGTgr6D/A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR1101MB2079
-X-OriginatorOrg: intel.com
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-26_02:2021-03-25,2021-03-26 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ lowpriorityscore=0 spamscore=0 phishscore=0 malwarescore=0 suspectscore=0
+ mlxscore=0 clxscore=1015 bulkscore=0 adultscore=0 priorityscore=1501
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2103250000 definitions=main-2103260062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Wednesday, March 24, 2021 1:56 AM
->=20
-> The driver core standard is to pass in the properly typed object, the
-> properly typed attribute and the buffer data. It stems from the root
-> kobject method:
->=20
->   ssize_t (*show)(struct kobject *kobj, struct kobj_attribute *attr,..)
->=20
-> Each subclass of kobject should provide their own function with the same
-> signature but more specific types, eg struct device uses:
->=20
->   ssize_t (*show)(struct device *dev, struct device_attribute *attr,..)
->=20
-> In this case the existing signature is:
->=20
->   ssize_t (*show)(struct kobject *kobj, struct device *dev,..)
->=20
-> Where kobj is a 'struct mdev_type *' and dev is 'mdev_type->parent->dev'.
->=20
-> Change the mdev_type related sysfs attribute functions to:
->=20
->   ssize_t (*show)(struct mdev_type *mtype, struct mdev_type_attribute
-> *attr,..)
->=20
-> In order to restore type safety and match the driver core standard
->=20
-> There are no current users of 'attr', but if it is ever needed it would b=
-e
-> hard to add in retroactively, so do it now.
->=20
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+On 25.03.21 14:41, Matthew Rosato wrote:
+> Add a backup for s390 vfio-pci, an additional backup for vfio-ccw
+> and replace the backup for vfio-ap as Pierre is focusing on other
+> areas.
+> 
 
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Thanks for doing cross-backup. Queued for the s390 tree.
 
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 > ---
->  drivers/gpu/drm/i915/gvt/gvt.c    | 21 +++++++++++----------
->  drivers/s390/cio/vfio_ccw_ops.c   | 15 +++++++++------
->  drivers/s390/crypto/vfio_ap_ops.c | 12 +++++++-----
->  drivers/vfio/mdev/mdev_core.c     | 14 ++++++++++++--
->  drivers/vfio/mdev/mdev_sysfs.c    | 11 ++++++-----
->  include/linux/mdev.h              | 11 +++++++----
->  samples/vfio-mdev/mbochs.c        | 26 +++++++++++++++-----------
->  samples/vfio-mdev/mdpy.c          | 24 ++++++++++++++----------
->  samples/vfio-mdev/mtty.c          | 18 +++++++++---------
->  9 files changed, 90 insertions(+), 62 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/i915/gvt/gvt.c b/drivers/gpu/drm/i915/gvt/gv=
-t.c
-> index 4b47a18e9dfa0f..3703814a669b46 100644
-> --- a/drivers/gpu/drm/i915/gvt/gvt.c
-> +++ b/drivers/gpu/drm/i915/gvt/gvt.c
-> @@ -54,14 +54,15 @@ intel_gvt_find_vgpu_type(struct intel_gvt *gvt,
-> unsigned int type_group_id)
->  	return &gvt->types[type_group_id];
->  }
->=20
-> -static ssize_t available_instances_show(struct kobject *kobj,
-> -					struct device *dev, char *buf)
-> +static ssize_t available_instances_show(struct mdev_type *mtype,
-> +					struct mdev_type_attribute *attr,
-> +					char *buf)
->  {
->  	struct intel_vgpu_type *type;
->  	unsigned int num =3D 0;
-> -	void *gvt =3D kdev_to_i915(dev)->gvt;
-> +	void *gvt =3D kdev_to_i915(mtype_get_parent_dev(mtype))->gvt;
->=20
-> -	type =3D intel_gvt_find_vgpu_type(gvt,
-> mtype_get_type_group_id(kobj));
-> +	type =3D intel_gvt_find_vgpu_type(gvt,
-> mtype_get_type_group_id(mtype));
->  	if (!type)
->  		num =3D 0;
->  	else
-> @@ -70,19 +71,19 @@ static ssize_t available_instances_show(struct kobjec=
-t
-> *kobj,
->  	return sprintf(buf, "%u\n", num);
->  }
->=20
-> -static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
-> -		char *buf)
-> +static ssize_t device_api_show(struct mdev_type *mtype,
-> +			       struct mdev_type_attribute *attr, char *buf)
->  {
->  	return sprintf(buf, "%s\n", VFIO_DEVICE_API_PCI_STRING);
->  }
->=20
-> -static ssize_t description_show(struct kobject *kobj, struct device *dev=
-,
-> -		char *buf)
-> +static ssize_t description_show(struct mdev_type *mtype,
-> +				struct mdev_type_attribute *attr, char *buf)
->  {
->  	struct intel_vgpu_type *type;
-> -	void *gvt =3D kdev_to_i915(dev)->gvt;
-> +	void *gvt =3D kdev_to_i915(mtype_get_parent_dev(mtype))->gvt;
->=20
-> -	type =3D intel_gvt_find_vgpu_type(gvt,
-> mtype_get_type_group_id(kobj));
-> +	type =3D intel_gvt_find_vgpu_type(gvt,
-> mtype_get_type_group_id(mtype));
->  	if (!type)
->  		return 0;
->=20
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c
-> b/drivers/s390/cio/vfio_ccw_ops.c
-> index 06a82ec136080c..74fe21eceb66cc 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -71,23 +71,26 @@ static int vfio_ccw_mdev_notifier(struct
-> notifier_block *nb,
->  	return NOTIFY_DONE;
->  }
->=20
-> -static ssize_t name_show(struct kobject *kobj, struct device *dev, char =
-*buf)
-> +static ssize_t name_show(struct mdev_type *mtype,
-> +			 struct mdev_type_attribute *attr, char *buf)
->  {
->  	return sprintf(buf, "I/O subchannel (Non-QDIO)\n");
->  }
->  static MDEV_TYPE_ATTR_RO(name);
->=20
-> -static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
-> -			       char *buf)
-> +static ssize_t device_api_show(struct mdev_type *mtype,
-> +			       struct mdev_type_attribute *attr, char *buf)
->  {
->  	return sprintf(buf, "%s\n", VFIO_DEVICE_API_CCW_STRING);
->  }
->  static MDEV_TYPE_ATTR_RO(device_api);
->=20
-> -static ssize_t available_instances_show(struct kobject *kobj,
-> -					struct device *dev, char *buf)
-> +static ssize_t available_instances_show(struct mdev_type *mtype,
-> +					struct mdev_type_attribute *attr,
-> +					char *buf)
->  {
-> -	struct vfio_ccw_private *private =3D dev_get_drvdata(dev);
-> +	struct vfio_ccw_private *private =3D
-> +		dev_get_drvdata(mtype_get_parent_dev(mtype));
->=20
->  	return sprintf(buf, "%d\n", atomic_read(&private->avail));
->  }
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c
-> b/drivers/s390/crypto/vfio_ap_ops.c
-> index 6d75ed07bcd49d..cdc5edb0074690 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -366,15 +366,17 @@ static int vfio_ap_mdev_remove(struct
-> mdev_device *mdev)
->  	return 0;
->  }
->=20
-> -static ssize_t name_show(struct kobject *kobj, struct device *dev, char =
-*buf)
-> +static ssize_t name_show(struct mdev_type *mtype,
-> +			 struct mdev_type_attribute *attr, char *buf)
->  {
->  	return sprintf(buf, "%s\n", VFIO_AP_MDEV_NAME_HWVIRT);
->  }
->=20
->  static MDEV_TYPE_ATTR_RO(name);
->=20
-> -static ssize_t available_instances_show(struct kobject *kobj,
-> -					struct device *dev, char *buf)
-> +static ssize_t available_instances_show(struct mdev_type *mtype,
-> +					struct mdev_type_attribute *attr,
-> +					char *buf)
->  {
->  	return sprintf(buf, "%d\n",
->  		       atomic_read(&matrix_dev->available_instances));
-> @@ -382,8 +384,8 @@ static ssize_t available_instances_show(struct kobjec=
-t
-> *kobj,
->=20
->  static MDEV_TYPE_ATTR_RO(available_instances);
->=20
-> -static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
-> -			       char *buf)
-> +static ssize_t device_api_show(struct mdev_type *mtype,
-> +			       struct mdev_type_attribute *attr, char *buf)
->  {
->  	return sprintf(buf, "%s\n", VFIO_DEVICE_API_AP_STRING);
->  }
-> diff --git a/drivers/vfio/mdev/mdev_core.c
-> b/drivers/vfio/mdev/mdev_core.c
-> index 71455812cb84cf..9ef1d5bed8069f 100644
-> --- a/drivers/vfio/mdev/mdev_core.c
-> +++ b/drivers/vfio/mdev/mdev_core.c
-> @@ -47,12 +47,22 @@ EXPORT_SYMBOL(mdev_get_type_group_id);
->   * Used in mdev_type_attribute sysfs functions to return the index in th=
-e
->   * supported_type_groups that the sysfs is called from.
->   */
-> -unsigned int mtype_get_type_group_id(struct kobject *mtype_kobj)
-> +unsigned int mtype_get_type_group_id(struct mdev_type *mtype)
->  {
-> -	return container_of(mtype_kobj, struct mdev_type, kobj)-
-> >type_group_id;
-> +	return mtype->type_group_id;
->  }
->  EXPORT_SYMBOL(mtype_get_type_group_id);
->=20
-> +/*
-> + * Used in mdev_type_attribute sysfs functions to return the parent stru=
-ct
-> + * device
-> + */
-> +struct device *mtype_get_parent_dev(struct mdev_type *mtype)
-> +{
-> +	return mtype->parent->dev;
-> +}
-> +EXPORT_SYMBOL(mtype_get_parent_dev);
-> +
->  /* Should be called holding parent_list_lock */
->  static struct mdev_parent *__find_parent_device(struct device *dev)
->  {
-> diff --git a/drivers/vfio/mdev/mdev_sysfs.c
-> b/drivers/vfio/mdev/mdev_sysfs.c
-> index 91ecccdc2f2ec6..9b0f1a8757a0df 100644
-> --- a/drivers/vfio/mdev/mdev_sysfs.c
-> +++ b/drivers/vfio/mdev/mdev_sysfs.c
-> @@ -26,7 +26,7 @@ static ssize_t mdev_type_attr_show(struct kobject
-> *kobj,
->  	ssize_t ret =3D -EIO;
->=20
->  	if (attr->show)
-> -		ret =3D attr->show(kobj, type->parent->dev, buf);
-> +		ret =3D attr->show(type, attr, buf);
->  	return ret;
->  }
->=20
-> @@ -39,7 +39,7 @@ static ssize_t mdev_type_attr_store(struct kobject *kob=
-j,
->  	ssize_t ret =3D -EIO;
->=20
->  	if (attr->store)
-> -		ret =3D attr->store(&type->kobj, type->parent->dev, buf, count);
-> +		ret =3D attr->store(type, attr, buf, count);
->  	return ret;
->  }
->=20
-> @@ -48,8 +48,9 @@ static const struct sysfs_ops mdev_type_sysfs_ops =3D {
->  	.store =3D mdev_type_attr_store,
->  };
->=20
-> -static ssize_t create_store(struct kobject *kobj, struct device *dev,
-> -			    const char *buf, size_t count)
-> +static ssize_t create_store(struct mdev_type *mtype,
-> +			    struct mdev_type_attribute *attr, const char *buf,
-> +			    size_t count)
->  {
->  	char *str;
->  	guid_t uuid;
-> @@ -67,7 +68,7 @@ static ssize_t create_store(struct kobject *kobj, struc=
-t
-> device *dev,
->  	if (ret)
->  		return ret;
->=20
-> -	ret =3D mdev_device_create(to_mdev_type(kobj), &uuid);
-> +	ret =3D mdev_device_create(mtype, &uuid);
->  	if (ret)
->  		return ret;
->=20
-> diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-> index c3a800051d6146..1fb34ea394ad46 100644
-> --- a/include/linux/mdev.h
-> +++ b/include/linux/mdev.h
-> @@ -47,7 +47,8 @@ static inline struct device
-> *mdev_get_iommu_device(struct mdev_device *mdev)
->  }
->=20
->  unsigned int mdev_get_type_group_id(struct mdev_device *mdev);
-> -unsigned int mtype_get_type_group_id(struct kobject *mtype_kobj);
-> +unsigned int mtype_get_type_group_id(struct mdev_type *mtype);
-> +struct device *mtype_get_parent_dev(struct mdev_type *mtype);
->=20
->  /**
->   * struct mdev_parent_ops - Structure to be registered for each parent
-> device to
-> @@ -123,9 +124,11 @@ struct mdev_parent_ops {
->  /* interface for exporting mdev supported type attributes */
->  struct mdev_type_attribute {
->  	struct attribute attr;
-> -	ssize_t (*show)(struct kobject *kobj, struct device *dev, char *buf);
-> -	ssize_t (*store)(struct kobject *kobj, struct device *dev,
-> -			 const char *buf, size_t count);
-> +	ssize_t (*show)(struct mdev_type *mtype,
-> +			struct mdev_type_attribute *attr, char *buf);
-> +	ssize_t (*store)(struct mdev_type *mtype,
-> +			 struct mdev_type_attribute *attr, const char *buf,
-> +			 size_t count);
->  };
->=20
->  #define MDEV_TYPE_ATTR(_name, _mode, _show, _store)		\
-> diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-> index ac4d0dc2490705..861c76914e7639 100644
-> --- a/samples/vfio-mdev/mbochs.c
-> +++ b/samples/vfio-mdev/mbochs.c
-> @@ -1330,37 +1330,41 @@ static const struct attribute_group
-> *mdev_dev_groups[] =3D {
->  	NULL,
->  };
->=20
-> -static ssize_t
-> -name_show(struct kobject *kobj, struct device *dev, char *buf)
-> +static ssize_t name_show(struct mdev_type *mtype,
-> +			 struct mdev_type_attribute *attr, char *buf)
->  {
-> -	return sprintf(buf, "%s\n", kobj->name);
-> +	const struct mbochs_type *type =3D
-> +		&mbochs_types[mtype_get_type_group_id(mtype)];
-> +
-> +	return sprintf(buf, "%s\n", type->name);
->  }
->  static MDEV_TYPE_ATTR_RO(name);
->=20
-> -static ssize_t
-> -description_show(struct kobject *kobj, struct device *dev, char *buf)
-> +static ssize_t description_show(struct mdev_type *mtype,
-> +				struct mdev_type_attribute *attr, char *buf)
->  {
->  	const struct mbochs_type *type =3D
-> -		&mbochs_types[mtype_get_type_group_id(kobj)];
-> +		&mbochs_types[mtype_get_type_group_id(mtype)];
->=20
->  	return sprintf(buf, "virtual display, %d MB video memory\n",
->  		       type ? type->mbytes  : 0);
->  }
->  static MDEV_TYPE_ATTR_RO(description);
->=20
-> -static ssize_t
-> -available_instances_show(struct kobject *kobj, struct device *dev, char =
-*buf)
-> +static ssize_t available_instances_show(struct mdev_type *mtype,
-> +					struct mdev_type_attribute *attr,
-> +					char *buf)
->  {
->  	const struct mbochs_type *type =3D
-> -		&mbochs_types[mtype_get_type_group_id(kobj)];
-> +		&mbochs_types[mtype_get_type_group_id(mtype)];
->  	int count =3D (max_mbytes - mbochs_used_mbytes) / type->mbytes;
->=20
->  	return sprintf(buf, "%d\n", count);
->  }
->  static MDEV_TYPE_ATTR_RO(available_instances);
->=20
-> -static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
-> -			       char *buf)
-> +static ssize_t device_api_show(struct mdev_type *mtype,
-> +			       struct mdev_type_attribute *attr, char *buf)
->  {
->  	return sprintf(buf, "%s\n", VFIO_DEVICE_API_PCI_STRING);
->  }
-> diff --git a/samples/vfio-mdev/mdpy.c b/samples/vfio-mdev/mdpy.c
-> index da88fd7dd42329..885b88ea20e234 100644
-> --- a/samples/vfio-mdev/mdpy.c
-> +++ b/samples/vfio-mdev/mdpy.c
-> @@ -652,18 +652,21 @@ static const struct attribute_group
-> *mdev_dev_groups[] =3D {
->  	NULL,
->  };
->=20
-> -static ssize_t
-> -name_show(struct kobject *kobj, struct device *dev, char *buf)
-> +static ssize_t name_show(struct mdev_type *mtype,
-> +			 struct mdev_type_attribute *attr, char *buf)
->  {
-> -	return sprintf(buf, "%s\n", kobj->name);
-> +	const struct mdpy_type *type =3D
-> +		&mdpy_types[mtype_get_type_group_id(mtype)];
-> +
-> +	return sprintf(buf, "%s\n", type->name);
->  }
->  static MDEV_TYPE_ATTR_RO(name);
->=20
-> -static ssize_t
-> -description_show(struct kobject *kobj, struct device *dev, char *buf)
-> +static ssize_t description_show(struct mdev_type *mtype,
-> +				struct mdev_type_attribute *attr, char *buf)
->  {
->  	const struct mdpy_type *type =3D
-> -		&mdpy_types[mtype_get_type_group_id(kobj)];
-> +		&mdpy_types[mtype_get_type_group_id(mtype)];
->=20
->  	return sprintf(buf, "virtual display, %dx%d framebuffer\n",
->  		       type ? type->width  : 0,
-> @@ -671,15 +674,16 @@ description_show(struct kobject *kobj, struct
-> device *dev, char *buf)
->  }
->  static MDEV_TYPE_ATTR_RO(description);
->=20
-> -static ssize_t
-> -available_instances_show(struct kobject *kobj, struct device *dev, char =
-*buf)
-> +static ssize_t available_instances_show(struct mdev_type *mtype,
-> +					struct mdev_type_attribute *attr,
-> +					char *buf)
->  {
->  	return sprintf(buf, "%d\n", max_devices - mdpy_count);
->  }
->  static MDEV_TYPE_ATTR_RO(available_instances);
->=20
-> -static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
-> -			       char *buf)
-> +static ssize_t device_api_show(struct mdev_type *mtype,
-> +			       struct mdev_type_attribute *attr, char *buf)
->  {
->  	return sprintf(buf, "%s\n", VFIO_DEVICE_API_PCI_STRING);
->  }
-> diff --git a/samples/vfio-mdev/mtty.c b/samples/vfio-mdev/mtty.c
-> index f2e36c06ac6aa2..b9b24be4abdab7 100644
-> --- a/samples/vfio-mdev/mtty.c
-> +++ b/samples/vfio-mdev/mtty.c
-> @@ -1292,23 +1292,24 @@ static const struct attribute_group
-> *mdev_dev_groups[] =3D {
->  	NULL,
->  };
->=20
-> -static ssize_t
-> -name_show(struct kobject *kobj, struct device *dev, char *buf)
-> +static ssize_t name_show(struct mdev_type *mtype,
-> +			 struct mdev_type_attribute *attr, char *buf)
->  {
->  	static const char *name_str[2] =3D { "Single port serial",
->  					   "Dual port serial" };
->=20
->  	return sysfs_emit(buf, "%s\n",
-> -			  name_str[mtype_get_type_group_id(kobj)]);
-> +			  name_str[mtype_get_type_group_id(mtype)]);
->  }
->=20
->  static MDEV_TYPE_ATTR_RO(name);
->=20
-> -static ssize_t
-> -available_instances_show(struct kobject *kobj, struct device *dev, char =
-*buf)
-> +static ssize_t available_instances_show(struct mdev_type *mtype,
-> +					struct mdev_type_attribute *attr,
-> +					char *buf)
->  {
->  	struct mdev_state *mds;
-> -	unsigned int ports =3D mtype_get_type_group_id(kobj) + 1;
-> +	unsigned int ports =3D mtype_get_type_group_id(mtype) + 1;
->  	int used =3D 0;
->=20
->  	list_for_each_entry(mds, &mdev_devices_list, next)
-> @@ -1319,9 +1320,8 @@ available_instances_show(struct kobject *kobj,
-> struct device *dev, char *buf)
->=20
->  static MDEV_TYPE_ATTR_RO(available_instances);
->=20
-> -
-> -static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
-> -			       char *buf)
-> +static ssize_t device_api_show(struct mdev_type *mtype,
-> +			       struct mdev_type_attribute *attr, char *buf)
->  {
->  	return sprintf(buf, "%s\n", VFIO_DEVICE_API_PCI_STRING);
->  }
-> --
-> 2.31.0
-
+>   MAINTAINERS | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 9e87692..68a5623 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -15634,8 +15634,8 @@ F:	Documentation/s390/pci.rst
+>   
+>   S390 VFIO AP DRIVER
+>   M:	Tony Krowiak <akrowiak@linux.ibm.com>
+> -M:	Pierre Morel <pmorel@linux.ibm.com>
+>   M:	Halil Pasic <pasic@linux.ibm.com>
+> +M:	Jason Herne <jjherne@linux.ibm.com>
+>   L:	linux-s390@vger.kernel.org
+>   S:	Supported
+>   W:	http://www.ibm.com/developerworks/linux/linux390/
+> @@ -15647,6 +15647,7 @@ F:	drivers/s390/crypto/vfio_ap_private.h
+>   S390 VFIO-CCW DRIVER
+>   M:	Cornelia Huck <cohuck@redhat.com>
+>   M:	Eric Farman <farman@linux.ibm.com>
+> +M:	Matthew Rosato <mjrosato@linux.ibm.com>
+>   R:	Halil Pasic <pasic@linux.ibm.com>
+>   L:	linux-s390@vger.kernel.org
+>   L:	kvm@vger.kernel.org
+> @@ -15657,6 +15658,7 @@ F:	include/uapi/linux/vfio_ccw.h
+>   
+>   S390 VFIO-PCI DRIVER
+>   M:	Matthew Rosato <mjrosato@linux.ibm.com>
+> +M:	Eric Farman <farman@linux.ibm.com>
+>   L:	linux-s390@vger.kernel.org
+>   L:	kvm@vger.kernel.org
+>   S:	Supported
+> 
