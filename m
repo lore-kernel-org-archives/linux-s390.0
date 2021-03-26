@@ -2,157 +2,104 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F3ADC433DB
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 13:26:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E4CBC433E2
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 14:40:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D803F61A25
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 13:26:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 18AD161A45
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 14:40:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230051AbhCZNZj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Mar 2021 09:25:39 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3104 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229744AbhCZNZS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 26 Mar 2021 09:25:18 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12QD4s0u037376;
-        Fri, 26 Mar 2021 09:25:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=yTEHzE0d5rgCp5gfrs++sWR+G5T0kyGFfT/9zOOv+eY=;
- b=L8FQb0MJS+XH/1+GrR1Czz5RuaQic/+eJFEv/iENx0UqGKtmJc7CWcTPlq3jKjjkdMpv
- Sq2TmbbGMt2vWa1pLT8p6wq6ZyOExi/KnRTSh83k7us64XiVDJ0XhTGvS2GJGGSGVrvn
- sRqlM7JvsLnsdS2+8/sI16SO+aYWraDq1Xm1tBvUebikVglhe/yS3jpzVOABsg5qvZw+
- JIPwuhhU/zKWtJc8TKs5Q2d9/mPStAsfEpzP0NDNPO1yMvd/uGUrgocWjuz+1uOC1oBG
- qcMyQGJ4GXgb43hyNex0xDU+yO165BCT8xNcJeb2arOr0SfP79UjJAcAeQloXiHZLsXI pA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37h75dp1yc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 26 Mar 2021 09:25:16 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12QDJkD9115413;
-        Fri, 26 Mar 2021 09:25:16 -0400
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37h75dp1y0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 26 Mar 2021 09:25:15 -0400
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12QDGWZ2014330;
-        Fri, 26 Mar 2021 13:25:15 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma04wdc.us.ibm.com with ESMTP id 37h14h5ckp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 26 Mar 2021 13:25:15 +0000
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12QDPEec33227262
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 26 Mar 2021 13:25:15 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E204D112062;
-        Fri, 26 Mar 2021 13:25:14 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5FA78112065;
-        Fri, 26 Mar 2021 13:25:14 +0000 (GMT)
-Received: from cpe-66-24-58-13.stny.res.rr.com (unknown [9.85.149.97])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri, 26 Mar 2021 13:25:14 +0000 (GMT)
-Subject: Re: [PATCH v5 1/1] s390/vfio-ap: fix circular lockdep when
- setting/clearing crypto masks
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, stable@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
-        pbonzini@redhat.com, alex.williamson@redhat.com,
-        pasic@linux.vnet.ibm.com
-References: <20210325124640.23995-1-akrowiak@linux.ibm.com>
- <20210325124640.23995-2-akrowiak@linux.ibm.com>
- <20210325213210.62cb11b9.pasic@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <4973feca-4eee-7139-26e6-1b926c017263@linux.ibm.com>
-Date:   Fri, 26 Mar 2021 09:25:14 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S230331AbhCZOj3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Mar 2021 10:39:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53586 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230044AbhCZOjN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Mar 2021 10:39:13 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AC91C0613AA;
+        Fri, 26 Mar 2021 07:39:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=7gG07jJWdVdkveJTg0m/JRPJ+82hLCG/BeQINxDX6bU=; b=D0aRvZfUwo4S5aaCsJt561vjqM
+        xaOTDqqsYCfGC25oUmioZexS8odCWf3uARtuUQGiuIKThTV5mYEfMPFHN/0Spsff+MrDYZv8TXLQP
+        PJeY4TOdB437fk7H/dCXxvaEvdZDLk99kZt3pDcJikdEeR9gVlBl91iVG5Dr+RHOuRiG0rhSBAPpG
+        ugsSvI20mRLSN7CXP1owGVW/FBNDmzXrR+Nnzxm7LU/k17Js3TAtzxuyr7aMymvve5r5N/hUX/2Th
+        sfIPFFMKKFFVp85fcpS40i7HKn9o8s39mE8CRL/cYOw2j7B4emzTxY29I5IegFuL6rBdz15cpJqKU
+        T4zrs2PA==;
+Received: from [213.208.157.35] (helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1lPnbz-005U6v-WC; Fri, 26 Mar 2021 14:38:58 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Brian Gerst <brgerst@gmail.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, x86@kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/4] exec: remove compat_do_execve
+Date:   Fri, 26 Mar 2021 15:38:29 +0100
+Message-Id: <20210326143831.1550030-3-hch@lst.de>
+X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210326143831.1550030-1-hch@lst.de>
+References: <20210326143831.1550030-1-hch@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <20210325213210.62cb11b9.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CDWOdLx8MJgpB0FOURAFBtbTSM4jko47
-X-Proofpoint-ORIG-GUID: MANubsScoTQwJ0YObvjP5J89Ayk0dy7Q
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-26_06:2021-03-26,2021-03-26 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- suspectscore=0 adultscore=0 priorityscore=1501 malwarescore=0
- mlxlogscore=999 lowpriorityscore=0 phishscore=0 bulkscore=0 clxscore=1011
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2103250000 definitions=main-2103260098
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Just call compat_do_execve instead.
 
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ fs/exec.c | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
-On 3/25/21 4:32 PM, Halil Pasic wrote:
-> On Thu, 25 Mar 2021 08:46:40 -0400
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->> This patch fixes a lockdep splat introduced by commit f21916ec4826
->> ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated").
->> The lockdep splat only occurs when starting a Secure Execution guest.
->> Crypto virtualization (vfio_ap) is not yet supported for SE guests;
->> however, in order to avoid this problem when support becomes available,
->> this fix is being provided.
->>
->> The circular locking dependency was introduced when the setting of the
->> masks in the guest's APCB was executed while holding the matrix_dev->lock.
->> While the lock is definitely needed to protect the setting/unsetting of the
->> matrix_mdev->kvm pointer, it is not necessarily critical for setting the
->> masks; so, the matrix_dev->lock will be released while the masks are being
->> set or cleared.
->>
->> Keep in mind, however, that another process that takes the matrix_dev->lock
->> can get control while the masks in the guest's APCB are being set or
->> cleared as a result of the driver being notified that the KVM pointer
->> has been set or unset. This could result in invalid access to the
->> matrix_mdev->kvm pointer by the intervening process. To avoid this
->> scenario, two new fields are being added to the ap_matrix_mdev struct:
->>
->> struct ap_matrix_mdev {
->> 	...
->> 	bool kvm_busy;
->> 	wait_queue_head_t wait_for_kvm;
->>     ...
->> };
->>
->> The functions that handle notification that the KVM pointer value has
->> been set or cleared will set the kvm_busy flag to true until they are done
->> processing at which time they will set it to false and wake up the tasks on
->> the matrix_mdev->wait_for_kvm wait queue. Functions that require
->> access to matrix_mdev->kvm will sleep on the wait queue until they are
->> awakened at which time they can safely access the matrix_mdev->kvm
->> field.
->>
->> Fixes: f21916ec4826 ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
->
-> I intend to give a couple of work-days to others, and if nobody objects
-> merge this. (I will wait till Tuesday.)
-
-Thanks Halil.
-
->
-> I've tested it and it does silence the lockdep splat.
->
-> Regards,
-> Halil
+diff --git a/fs/exec.c b/fs/exec.c
+index b63fb020909075..06e07278b456fa 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1990,21 +1990,6 @@ static int do_execveat(int fd, struct filename *filename,
+ }
+ 
+ #ifdef CONFIG_COMPAT
+-static int compat_do_execve(struct filename *filename,
+-	const compat_uptr_t __user *__argv,
+-	const compat_uptr_t __user *__envp)
+-{
+-	struct user_arg_ptr argv = {
+-		.is_compat = true,
+-		.ptr.compat = __argv,
+-	};
+-	struct user_arg_ptr envp = {
+-		.is_compat = true,
+-		.ptr.compat = __envp,
+-	};
+-	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
+-}
+-
+ static int compat_do_execveat(int fd, struct filename *filename,
+ 			      const compat_uptr_t __user *__argv,
+ 			      const compat_uptr_t __user *__envp,
+@@ -2072,7 +2057,7 @@ COMPAT_SYSCALL_DEFINE3(execve, const char __user *, filename,
+ 	const compat_uptr_t __user *, argv,
+ 	const compat_uptr_t __user *, envp)
+ {
+-	return compat_do_execve(getname(filename), argv, envp);
++	return compat_do_execveat(AT_FDCWD, getname(filename), argv, envp, 0);
+ }
+ 
+ COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
+-- 
+2.30.1
 
