@@ -2,36 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35789C433E0
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 21:24:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F45CC433E4
+	for <linux-s390@archiver.kernel.org>; Sat, 27 Mar 2021 19:57:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 15C6B61A32
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Mar 2021 21:24:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0E5EC6198D
+	for <linux-s390@archiver.kernel.org>; Sat, 27 Mar 2021 19:57:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230138AbhCZVXz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Mar 2021 17:23:55 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:35548 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230026AbhCZVXj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Mar 2021 17:23:39 -0400
-Received: from in01.mta.xmission.com ([166.70.13.51])
-        by out03.mta.xmission.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1lPtvb-000SOd-No; Fri, 26 Mar 2021 15:23:35 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=fess.xmission.com)
-        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1lPtva-00074S-1a; Fri, 26 Mar 2021 15:23:35 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>,
-        Brian Gerst <brgerst@gmail.com>,
+        id S230471AbhC0T5Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 27 Mar 2021 15:57:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34088 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230305AbhC0T4e (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 27 Mar 2021 15:56:34 -0400
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D7A6C0613B1;
+        Sat, 27 Mar 2021 12:56:33 -0700 (PDT)
+Received: by mail-lj1-x229.google.com with SMTP id u10so11313654lju.7;
+        Sat, 27 Mar 2021 12:56:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=bQsYw1ulUIO0dY5gSmv/3K4yj4XoeNoUj5DbKPEh9Qw=;
+        b=oTcDvUNVUKy9l34jnk2Y6fGNlsSkpob0U6AudT8Jb4AZQ8OeHPq+nUwasmV8okfR2M
+         sR+8behyvuMSz9G1EzjXiQj6LC23cs5XP3Vtcv+ivzmEp+gJdLhO3WJ40Yu3TtD1au7A
+         T2jV+Uq24Bl7S6ZHZM5oSMX9h9l/f1+MOn3mPiOLuzagBTUVMcux0Bnq5Xe4bP3kjH5q
+         cOfrKoS7RFKuRrrys834C8IvbAfjTmLd3SoJ3gcxp2e3UMkXWjaDO2oyj+t/e0vR3RWH
+         GnqgmytnivfuzoKSm30v5UZFTROIHD61oXNxfqGvB1wgJHok2AYNnD/KhZd0qbUWpVgO
+         h/5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=bQsYw1ulUIO0dY5gSmv/3K4yj4XoeNoUj5DbKPEh9Qw=;
+        b=Kw6rXYjV/XEpTfvKNVr5+DJ0w+jgjiclU0+lOX3hGxQZXsljBfGc3Mzi0QE7IhTwKh
+         lEaEro8EF/rzP9F/sxGEy45eoHN4Zb/Z2oOLHax5RDk6rhYdaKwSUOOL4cAmyCr/al0i
+         pmW2yL34CFFvOyqBYqwW9UdHa41kK7JnAZCnCZFhsawA0XskiZ/gD1TiZ3EyFkIt06SG
+         2Tdno6LASVje7WPgUUarjHHN+xiCZJnB0KZVSNTBscRd8ElB8QudRgVgT/iGZz9Od69V
+         tK6YLD15LH0FFl782xFPkQD3zKtp5qMYuharyIbdWztpPkDEz4d3TTzX/jeiuCZiUwET
+         3/zw==
+X-Gm-Message-State: AOAM532ucvH+nH28Ybm/wLgEZ++eoggA+myx6vWwBoV+rbszF7iuMOvV
+        GdUzXi1KMd9yXMA7qO8ldPR55WWTTco=
+X-Google-Smtp-Source: ABdhPJxLBeDCGTGncf7vPJx9segmdfmBAwHxFr43PJcjHagfyVIArjRrzp4osMA8qrzDEZfwYnOCVQ==
+X-Received: by 2002:a2e:981a:: with SMTP id a26mr12854352ljj.204.1616874991681;
+        Sat, 27 Mar 2021 12:56:31 -0700 (PDT)
+Received: from [192.168.1.101] ([31.173.82.142])
+        by smtp.gmail.com with ESMTPSA id u14sm1345822lfl.40.2021.03.27.12.56.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 27 Mar 2021 12:56:31 -0700 (PDT)
+Subject: Re: [PATCH 2/4] exec: remove compat_do_execve
+To:     Christoph Hellwig <hch@lst.de>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Brian Gerst <brgerst@gmail.com>,
         Luis Chamberlain <mcgrof@kernel.org>,
         linux-arm-kernel@lists.infradead.org, x86@kernel.org,
         linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
@@ -39,98 +69,45 @@ Cc:     Al Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>,
         sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20210326143831.1550030-1-hch@lst.de>
-        <20210326143831.1550030-4-hch@lst.de>
-Date:   Fri, 26 Mar 2021 16:22:33 -0500
-In-Reply-To: <20210326143831.1550030-4-hch@lst.de> (Christoph Hellwig's
-        message of "Fri, 26 Mar 2021 15:38:30 +0100")
-Message-ID: <m1y2e9vcdi.fsf@fess.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+ <20210326143831.1550030-3-hch@lst.de>
+From:   Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Message-ID: <596ca191-0176-e991-7318-f9a0f3361cb3@gmail.com>
+Date:   Sat, 27 Mar 2021 22:56:29 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1lPtva-00074S-1a;;;mid=<m1y2e9vcdi.fsf@fess.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX18JI1x3OTuGSmP1SAxwgJUKnILVVDmHpGw=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH 3/4] exec: simplify the compat syscall handling
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+In-Reply-To: <20210326143831.1550030-3-hch@lst.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> writes:
+On 3/26/21 5:38 PM, Christoph Hellwig wrote:
 
+> Just call compat_do_execve instead.
 
+   compat_do_execveat(), maybe?
+
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  fs/exec.c | 17 +----------------
+>  1 file changed, 1 insertion(+), 16 deletions(-)
+> 
 > diff --git a/fs/exec.c b/fs/exec.c
-> index 06e07278b456fa..b34c1eb9e7ad8e 100644
+> index b63fb020909075..06e07278b456fa 100644
 > --- a/fs/exec.c
 > +++ b/fs/exec.c
-> @@ -391,47 +391,34 @@ static int bprm_mm_init(struct linux_binprm *bprm)
->  	return err;
->  }
->  
-> -struct user_arg_ptr {
-> -#ifdef CONFIG_COMPAT
-> -	bool is_compat;
-> -#endif
-> -	union {
-> -		const char __user *const __user *native;
-> -#ifdef CONFIG_COMPAT
-> -		const compat_uptr_t __user *compat;
-> -#endif
-> -	} ptr;
-> -};
-> -
-> -static const char __user *get_user_arg_ptr(struct user_arg_ptr argv, int nr)
-> +static const char __user *
-> +get_user_arg_ptr(const char __user *const __user *argv, int nr)
+[...]
+> @@ -2072,7 +2057,7 @@ COMPAT_SYSCALL_DEFINE3(execve, const char __user *, filename,
+>  	const compat_uptr_t __user *, argv,
+>  	const compat_uptr_t __user *, envp)
 >  {
-> -	const char __user *native;
-> -
-> -#ifdef CONFIG_COMPAT
-> -	if (unlikely(argv.is_compat)) {
-> +	if (in_compat_syscall()) {
-> +		const compat_uptr_t __user *compat_argv =
-> +			compat_ptr((unsigned long)argv);
-
-Ouch!  Passing a pointer around as the wrong type through the kernel!
-
-Perhaps we should reduce everything to do_execveat and
-do_execveat_compat.  Then there would be no need for anything
-to do anything odd with the pointer types.
-
-I think the big change would be to factor out a copy_string out
-of copy_strings, that performs all of the work once we know the proper
-pointer value.
-
-Casting pointers from one type to another scares me as one mistake means
-we are doing something wrong and probably exploitable.
-
-
-Eric
-
-
-
-
->  		compat_uptr_t compat;
->  
-> -		if (get_user(compat, argv.ptr.compat + nr))
-> +		if (get_user(compat, compat_argv + nr))
->  			return ERR_PTR(-EFAULT);
-> -
->  		return compat_ptr(compat);
-> -	}
-> -#endif
-> -
-> -	if (get_user(native, argv.ptr.native + nr))
-> -		return ERR_PTR(-EFAULT);
-> +	} else {
-> +		const char __user *native;
->  
-> -	return native;
-> +		if (get_user(native, argv + nr))
-> +			return ERR_PTR(-EFAULT);
-> +		return native;
-> +	}
+> -	return compat_do_execve(getname(filename), argv, envp);
+> +	return compat_do_execveat(AT_FDCWD, getname(filename), argv, envp, 0);
 >  }
 >  
+>  COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
+
+MBR, Sergei
