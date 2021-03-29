@@ -2,80 +2,79 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B1A4C433E2
-	for <linux-s390@archiver.kernel.org>; Mon, 29 Mar 2021 08:18:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A47B4C433C1
+	for <linux-s390@archiver.kernel.org>; Mon, 29 Mar 2021 09:41:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E4A7B61959
-	for <linux-s390@archiver.kernel.org>; Mon, 29 Mar 2021 08:18:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 716AA61964
+	for <linux-s390@archiver.kernel.org>; Mon, 29 Mar 2021 09:41:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232601AbhC2IR6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 Mar 2021 04:17:58 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40405 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233073AbhC2IPv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 29 Mar 2021 04:15:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617005750;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=vKBEmRzQzlkki0ojrnt5D9T5aBRCS3aNrNDNB7NAJJc=;
-        b=LlD1MFR5aZDKheHPOtyIDSGGV17zS52E2knBzaQRtPavYBhG+GEP+4wNBgvsbTgqPFJ/3G
-        A11WV4wRpwhE/2t4OuGucQ/mX994QhZpjw+YqvxuRqQ9OFBq0wohtnmr0yOW4VMM9NiUVV
-        6U0oEH0/BOkdmCY0XD4GJhhsguJvD/8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-15-xw2uUArlPK-FId8HXRIi5g-1; Mon, 29 Mar 2021 04:15:46 -0400
-X-MC-Unique: xw2uUArlPK-FId8HXRIi5g-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0631A1009E25;
-        Mon, 29 Mar 2021 08:15:44 +0000 (UTC)
-Received: from gondolin (ovpn-113-56.ams2.redhat.com [10.36.113.56])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5B26B53E35;
-        Mon, 29 Mar 2021 08:15:38 +0000 (UTC)
-Date:   Mon, 29 Mar 2021 10:15:35 +0200
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        borntraeger@de.ibm.com, farman@linux.ibm.com,
-        jjherne@linux.ibm.com, pasic@linux.ibm.com, akrowiak@linux.ibm.com,
-        pmorel@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        alex.williamson@redhat.com
-Subject: Re: [PATCH] MAINTAINERS: add backups for s390 vfio drivers
-Message-ID: <20210329101535.2062eecd.cohuck@redhat.com>
-In-Reply-To: <1616679712-7139-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1616679712-7139-1-git-send-email-mjrosato@linux.ibm.com>
-Organization: Red Hat GmbH
+        id S232018AbhC2Jkw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 Mar 2021 05:40:52 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:15092 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231949AbhC2Jkk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Mar 2021 05:40:40 -0400
+Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4F86vv0sqFz19Jtx;
+        Mon, 29 Mar 2021 17:38:35 +0800 (CST)
+Received: from huawei.com (10.175.113.32) by DGGEMS405-HUB.china.huawei.com
+ (10.3.19.205) with Microsoft SMTP Server id 14.3.498.0; Mon, 29 Mar 2021
+ 17:40:31 +0800
+From:   Shixin Liu <liushixin2@huawei.com>
+To:     Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+CC:     <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Shixin Liu <liushixin2@huawei.com>
+Subject: [PATCH -next 2/2] s390/cio: use DECLARE_WAIT_QUEUE_HEAD() for wait_queue
+Date:   Mon, 29 Mar 2021 17:40:19 +0800
+Message-ID: <20210329094019.67044-2-liushixin2@huawei.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210329094019.67044-1-liushixin2@huawei.com>
+References: <20210329094019.67044-1-liushixin2@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.113.32]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 25 Mar 2021 09:41:52 -0400
-Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+wait_queue_head_t can be initialized automatically with DECLARE_WAIT_QUEUE_HEAD()
+rather than explicitly calling init_waitqueue_head().
 
-> Add a backup for s390 vfio-pci, an additional backup for vfio-ccw
-> and replace the backup for vfio-ap as Pierre is focusing on other
-> areas.
-> 
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->  MAINTAINERS | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+Signed-off-by: Shixin Liu <liushixin2@huawei.com>
+---
+ drivers/s390/cio/css.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Nice :)
-
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index f01ef6325039..a974943c27da 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -652,13 +652,12 @@ static void css_sch_todo(struct work_struct *work)
+ 
+ static struct idset *slow_subchannel_set;
+ static DEFINE_SPINLOCK(slow_subchannel_lock);
+-static wait_queue_head_t css_eval_wq;
++static DECLARE_WAIT_QUEUE_HEAD(css_eval_wq);
+ static atomic_t css_eval_scheduled;
+ 
+ static int __init slow_subchannel_init(void)
+ {
+ 	atomic_set(&css_eval_scheduled, 0);
+-	init_waitqueue_head(&css_eval_wq);
+ 	slow_subchannel_set = idset_sch_new();
+ 	if (!slow_subchannel_set) {
+ 		CIO_MSG_EVENT(0, "could not allocate slow subchannel set\n");
+-- 
+2.25.1
 
