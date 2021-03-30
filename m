@@ -2,141 +2,77 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BABB0C433C1
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 03:42:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79FBEC433DB
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 10:58:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 86FFA6190A
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 03:42:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4294161983
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 10:58:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231142AbhC3DmE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 Mar 2021 23:42:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46686 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230334AbhC3Dlz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Mar 2021 23:41:55 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53D1EC061762;
-        Mon, 29 Mar 2021 20:41:48 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id nh23-20020a17090b3657b02900c0d5e235a8so6984925pjb.0;
-        Mon, 29 Mar 2021 20:41:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=H20z6a01zOabARj7KiXuuTGakHQ2bTsJGwnuUxgVOds=;
-        b=izfuPkuLj7M5nKqR3ojCclqJI8bk2PZG2t0mHF6Ov0y+4gfr24SqeZMjftG+PhUpKr
-         7D4ltGvR//clSXRIuVNP2kFu7YlhXfvgO23XwNXlHOkzlh998MZHSeU9DJu99+/BQGGz
-         BUf0LIxuit++v/yr4ch+VLR3jyvmeaCF4OH/63qABaquPLQyxiTR2duXINObW9fUjTSl
-         aNkvj2vYKFiXE+QrQCrhTsFiX6x937/pm+5A8/T1Ns6RDK4cFBpw6xR4HJVo1pi7NSic
-         K8mem/nGVfVN3vODpJncgxXLDpKrStuDBoSYnCrl5DrxbPWggqEjyqB/YjMm5BG0vpMI
-         3sGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=H20z6a01zOabARj7KiXuuTGakHQ2bTsJGwnuUxgVOds=;
-        b=NJSYopr8AGhVkl9BH97yPcbxpva1haQVRSA3BYFDLra44Q0Ajb4q5lOSf4XwM8wqug
-         I5+5m2QEWlIBbAT+bU64iAtEwJdyNNhYMvwQoATiYpZjI+KPK4IAnKqcO03CqWVG56pH
-         s7htfmVaY2Pz+03atnAcLZmIGRi3TXr9qWUxdTH1fWoXQx/QB1Q37/15bnOMEL+3t1Rz
-         FpqUJZWLrlYI22quJ+ZFPE+7HtIrl8+BuxOcQp/3AOiUl6TgeSEvZFk6qK5biEZKZ0Qa
-         sLhFRLxolOdnwK3ucYcWIoXxiGejCe4rclAnsPI90N2Xmw80UTQtNDZm0g0oeeKuFyz4
-         rf7g==
-X-Gm-Message-State: AOAM531lYsSfJC4FhUpdgqo7YCfbmRL9NK57pQjWTQYFqnIuGxeQlEYc
-        CpJlNI+Gg3ZxEMqwCuVAwwk=
-X-Google-Smtp-Source: ABdhPJzpOZewSVE8JN8OFoK2cyL25/7ric2zwhIPaplUwu3jxy1vp2OKyzRVvuPGKeiaEmfQ+s1sLQ==
-X-Received: by 2002:a17:90a:9b18:: with SMTP id f24mr2195723pjp.96.1617075707803;
-        Mon, 29 Mar 2021 20:41:47 -0700 (PDT)
-Received: from kakao-entui-MacBookPro.local ([49.173.165.50])
-        by smtp.gmail.com with ESMTPSA id s12sm17812830pgj.70.2021.03.29.20.41.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Mar 2021 20:41:47 -0700 (PDT)
-Subject: Re: [PATCH net-next v3 5/7] mld: convert ifmcaddr6 to RCU
-To:     Eric Dumazet <eric.dumazet@gmail.com>, netdev@vger.kernel.org,
-        davem@davemloft.net, kuba@kernel.org
-Cc:     jwi@linux.ibm.com, kgraul@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, borntraeger@de.ibm.com,
-        mareklindner@neomailbox.ch, sw@simonwunderlich.de, a@unstable.cc,
-        sven@narfation.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        linux-s390@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org,
-        xiyou.wangcong@gmail.com
-References: <20210325161657.10517-1-ap420073@gmail.com>
- <20210325161657.10517-6-ap420073@gmail.com>
- <6262890a-7789-e3dd-aa04-58e5e06499dc@gmail.com>
-From:   Taehee Yoo <ap420073@gmail.com>
-Message-ID: <f054971d-8be0-92ba-009b-9681e08f841c@gmail.com>
-Date:   Tue, 30 Mar 2021 12:41:40 +0900
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
- Gecko/20100101 Thunderbird/78.7.1
+        id S231825AbhC3K5f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Mar 2021 06:57:35 -0400
+Received: from mail-m17637.qiye.163.com ([59.111.176.37]:20040 "EHLO
+        mail-m17637.qiye.163.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231330AbhC3K5X (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Mar 2021 06:57:23 -0400
+Received: from wanjb-virtual-machine.localdomain (unknown [36.152.145.182])
+        by mail-m17637.qiye.163.com (Hmail) with ESMTPA id C5E9D9804A1;
+        Tue, 30 Mar 2021 18:57:19 +0800 (CST)
+From:   Wan Jiabing <wanjiabing@vivo.com>
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Wan Jiabing <wanjiabing@vivo.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     kael_w@yeah.net
+Subject: [PATCH] arch: s390: Remove duplicate struct ccw1 declaration
+Date:   Tue, 30 Mar 2021 18:56:25 +0800
+Message-Id: <20210330105638.2742356-1-wanjiabing@vivo.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <6262890a-7789-e3dd-aa04-58e5e06499dc@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: ko
 Content-Transfer-Encoding: 8bit
+X-HM-Spam-Status: e1kfGhgUHx5ZQUtXWQgYFAkeWUFZS1VLWVdZKFlBSE83V1ktWUFJV1kPCR
+        oVCBIfWUFZTBhIQ0wfHk0eH01MVkpNSkxKS0pDT0tKQ05VEwETFhoSFyQUDg9ZV1kWGg8SFR0UWU
+        FZT0tIVUpKS0hKTFVLWQY+
+X-HM-Sender-Digest: e1kMHhlZQR0aFwgeV1kSHx4VD1lBWUc6MT46PSo4Cz8KMDc6TR8cOR48
+        LkgKCxJVSlVKTUpMSktKQ09LT01IVTMWGhIXVQwaFRESGhkSFRw7DRINFFUYFBZFWVdZEgtZQVlI
+        TVVKTklVSk9OVUpDSVlXWQgBWUFJSE5CNwY+
+X-HM-Tid: 0a7882c7def3d992kuwsc5e9d9804a1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2021. 3. 30. 오전 4:56, Eric Dumazet wrote:
- >
- >
+struct ccw1 is declared twice. One has been declared
+at 21st line. Remove the duplicate.
 
-Hi Eric,
-Thank you for the review!
+Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
+---
+ arch/s390/include/asm/ccwdev.h | 3 ---
+ 1 file changed, 3 deletions(-)
 
- > On 3/25/21 5:16 PM, Taehee Yoo wrote:
- >> The ifmcaddr6 has been protected by inet6_dev->lock(rwlock) so that
- >> the critical section is atomic context. In order to switch this context,
- >> changing locking is needed. The ifmcaddr6 actually already protected by
- >> RTNL So if it's converted to use RCU, its control path context can be
- >> switched to sleepable.
- >>
- >
- > I do not really understand the changelog.
- >
- > You wanted to convert from RCU to RTNL, right ?
+diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
+index 778247bb1d61..d4e90f2ba77e 100644
+--- a/arch/s390/include/asm/ccwdev.h
++++ b/arch/s390/include/asm/ccwdev.h
+@@ -152,9 +152,6 @@ extern struct ccw_device *get_ccwdev_by_busid(struct ccw_driver *cdrv,
+  * when new devices for its type pop up */
+ extern int  ccw_driver_register   (struct ccw_driver *driver);
+ extern void ccw_driver_unregister (struct ccw_driver *driver);
+-
+-struct ccw1;
+-
+ extern int ccw_device_set_options_mask(struct ccw_device *, unsigned long);
+ extern int ccw_device_set_options(struct ccw_device *, unsigned long);
+ extern void ccw_device_clear_options(struct ccw_device *, unsigned long);
+-- 
+2.25.1
 
-The purpose of this is to use both RCU and RTNL.
-In the control path, ifmcaddr6 is protected by RTNL
-(setsockopt_needs_rtnl() in the do_ipv6_setsockopt())
-And in the data path, ifmcaddr6 will be protected by RCU.
-
-But ifmcaddr6 is already protected by RTNL in the control path.
-So, this patch is to convert ifmcaddr6 to RCU only for datapath.
-Therefore, by this patch, ifmcaddr6 will be protected by both RTNL and RCU.
-
-I'm so sorry for this strange changelog.
-
- >
- > Also :
- >
- >> @@ -571,13 +573,9 @@ int ip6_mc_msfget(struct sock *sk, struct 
-group_filter *gsf,
- >>   	if (!ipv6_addr_is_multicast(group))
- >>   		return -EINVAL;
- >>
- >> -	rcu_read_lock();
- >> -	idev = ip6_mc_find_dev_rcu(net, group, gsf->gf_interface);
- >> -
- >> -	if (!idev) {
- >> -		rcu_read_unlock();
- >> +	idev = ip6_mc_find_dev_rtnl(net, group, gsf->gf_interface);
- >> +	if (!idev)
- >>   		return -ENODEV;
- >> -	}
- >>
- >
- > I do not see RTNL being acquired before entering ip6_mc_msfget()
- >
-
-Thank you so much for catching this.
-I will send a patch to fix this problem!
-
-Thanks a lot!
-Taehee Yoo
