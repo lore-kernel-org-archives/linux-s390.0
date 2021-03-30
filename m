@@ -2,134 +2,148 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68C34C433DB
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 16:36:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BFAEC433DB
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 16:52:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 383046195D
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 16:36:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0646761994
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 16:52:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231979AbhC3Qfw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Mar 2021 12:35:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:54027 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232134AbhC3Qfh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 30 Mar 2021 12:35:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1617122137;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=sqtWosuqNKDa02gZMmemB9CDs97xM6L47pP8D8NZrVU=;
-        b=BTs3srXHJz8Z2pTfAmCZiUgmrM/D2kXoCsIshGD68/psnuPyTWwsVZBm7OA7cTHflL8wZZ
-        ZidPvmCGb/ml8Uhu7icg7hG7UIuBh3q77nOdDFvYUV0emO50NP8+D42CGMAy+pcPbv9g/J
-        fwwW29fCY4hlaBH4Q5wpOMG0hgUQMXg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-516-G-wn3Ys_OA2Fmo20TxtE-w-1; Tue, 30 Mar 2021 12:35:34 -0400
-X-MC-Unique: G-wn3Ys_OA2Fmo20TxtE-w-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E67BA18C89DD;
-        Tue, 30 Mar 2021 16:35:31 +0000 (UTC)
-Received: from gondolin (ovpn-113-155.ams2.redhat.com [10.36.113.155])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 141165D740;
-        Tue, 30 Mar 2021 16:35:22 +0000 (UTC)
-Date:   Tue, 30 Mar 2021 18:35:20 +0200
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-s390@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Tarun Gupta <targupta@nvidia.com>
-Subject: Re: [PATCH 18/18] vfio/mdev: Correct the function signatures for
- the mdev_type_attributes
-Message-ID: <20210330183520.07c8aa47.cohuck@redhat.com>
-In-Reply-To: <18-v1-7dedf20b2b75+4f785-vfio2_jgg@nvidia.com>
-References: <0-v1-7dedf20b2b75+4f785-vfio2_jgg@nvidia.com>
-        <18-v1-7dedf20b2b75+4f785-vfio2_jgg@nvidia.com>
-Organization: Red Hat GmbH
+        id S232250AbhC3QwQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Mar 2021 12:52:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48562 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232531AbhC3QwA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Mar 2021 12:52:00 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C074CC061574;
+        Tue, 30 Mar 2021 09:51:59 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id l4so25838956ejc.10;
+        Tue, 30 Mar 2021 09:51:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rHYeB0nnI6v6P0Q2VG5Mm28e6mrALqMkMyegkWOwiqk=;
+        b=kGJmMRBzcADUj4PBwV6ce2pTpWYreP0vdr0R/+o6Mk3bwh3JjUTnV1mwN+aBTDqACg
+         NjqoAQn6WyqUIAcWIbtJLQoPA4jxG/baST+8P6IplHfk3UNcnTEVamzs5uJNK+rWLAIj
+         04bNS9hxYXVaZQ1rOCdTC4OVWa5ZEAMYgy0yE2srmI9/GhDYtS8utBzwLA5oE3l0UGBy
+         Tu3ZDVizHWEgfsETi/mPfPDV93rpLDs8OjBQUi0sN2fsGAUOEQrtazjCY+ohgxPH42rI
+         2phdDmXtg81Akx9vv30xSdksoKpssSAyukxRlsNP5kV7ydTZwyQQKADSefZgI+Kzumrx
+         UfRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rHYeB0nnI6v6P0Q2VG5Mm28e6mrALqMkMyegkWOwiqk=;
+        b=US5DBgEZQCCqFX61Dz4R0dFPmONMsMfZjAN7vmVx2yAdzLW44kAaJYSJJon13HkuUK
+         4kKwPenP2NbPZZsXhLl5gbcAMCUigxG6V0hVbWw3iPhiT9liVMd+7LYj6O/hFTi09Xj8
+         qexiaZjgavh+CDwf3Q9OA9rZl+LLegvca8cdRJDj3nJuCy6rlK3CYfHw7KvIzQNBV/2v
+         W/vo+50ids5cIL7Fl9JxjCVzWWTcAbs6N+HT6HFUIdBCR7XmiDo9u6SP+0taAaZvQD4B
+         qyrcap8fDN/XjyyjESKVmd+jyt7BFU2bwEcPTWSCFtmzoqAYkiFz5sZXt26vRm9Y+OUY
+         poIQ==
+X-Gm-Message-State: AOAM531bk0rmB0KO5A6XcI8ZZQx5B1ojPxmL0jXB2qI83Me6YtYMEMpF
+        TuciHEkGgIqJK4WllJqgmnYJldcLKOifFbjAWhQ=
+X-Google-Smtp-Source: ABdhPJxEI1+v19DIodf61jZ+12dr7yL8rq3NEl9EcGbLLNAyqpcCMi7wpKL3zN7y1TecKLE/gx0b6U9qK0FSgMcZuGs=
+X-Received: by 2002:a17:906:4055:: with SMTP id y21mr33697021ejj.507.1617123118539;
+ Tue, 30 Mar 2021 09:51:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+References: <20210329183312.178266-1-shy828301@gmail.com> <20210330164200.01a4b78f@thinkpad>
+In-Reply-To: <20210330164200.01a4b78f@thinkpad>
+From:   Yang Shi <shy828301@gmail.com>
+Date:   Tue, 30 Mar 2021 09:51:46 -0700
+Message-ID: <CAHbLzkrYd+5L8Ep+b83PkkFL_QGQe_vSAk=erQ+fvC6dEOsGsw@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/6] mm: thp: use generic THP migration for NUMA
+ hinting fault
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc:     Mel Gorman <mgorman@suse.de>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Zi Yan <ziy@nvidia.com>, Michal Hocko <mhocko@suse.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Hugh Dickins <hughd@google.com>, hca@linux.ibm.com,
+        gor@linux.ibm.com, borntraeger@de.ibm.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux MM <linux-mm@kvack.org>, linux-s390@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 23 Mar 2021 14:55:35 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
+On Tue, Mar 30, 2021 at 7:42 AM Gerald Schaefer
+<gerald.schaefer@linux.ibm.com> wrote:
+>
+> On Mon, 29 Mar 2021 11:33:06 -0700
+> Yang Shi <shy828301@gmail.com> wrote:
+>
+> >
+> > When the THP NUMA fault support was added THP migration was not supported yet.
+> > So the ad hoc THP migration was implemented in NUMA fault handling.  Since v4.14
+> > THP migration has been supported so it doesn't make too much sense to still keep
+> > another THP migration implementation rather than using the generic migration
+> > code.  It is definitely a maintenance burden to keep two THP migration
+> > implementation for different code paths and it is more error prone.  Using the
+> > generic THP migration implementation allows us remove the duplicate code and
+> > some hacks needed by the old ad hoc implementation.
+> >
+> > A quick grep shows x86_64, PowerPC (book3s), ARM64 ans S390 support both THP
+> > and NUMA balancing.  The most of them support THP migration except for S390.
+> > Zi Yan tried to add THP migration support for S390 before but it was not
+> > accepted due to the design of S390 PMD.  For the discussion, please see:
+> > https://lkml.org/lkml/2018/4/27/953.
+> >
+> > I'm not expert on S390 so not sure if it is feasible to support THP migration
+> > for S390 or not.  If it is not feasible then the patchset may make THP NUMA
+> > balancing not be functional on S390.  Not sure if this is a show stopper although
+> > the patchset does simplify the code a lot.  Anyway it seems worth posting the
+> > series to the mailing list to get some feedback.
+>
+> The reason why THP migration cannot work on s390 is because the migration
+> code will establish swap ptes in a pmd. The pmd layout is very different from
+> the pte layout on s390, so you cannot simply write a swap pte into a pmd.
+> There are no separate swp primitives for swap/migration pmds, IIRC. And even
+> if there were, we'd still need to find some space for a present bit in the
+> s390 pmd, and/or possibly move around some other bits.
+>
+> A lot of things can go wrong here, even if it could be possible in theory,
+> by introducing separate swp primitives in common code for pmd entries, along
+> with separate offset, type, shift, etc. I don't see that happening in the
+> near future.
 
-> The driver core standard is to pass in the properly typed object, the
-> properly typed attribute and the buffer data. It stems from the root
-> kobject method:
-> 
->   ssize_t (*show)(struct kobject *kobj, struct kobj_attribute *attr,..)
-> 
-> Each subclass of kobject should provide their own function with the same
-> signature but more specific types, eg struct device uses:
-> 
->   ssize_t (*show)(struct device *dev, struct device_attribute *attr,..)
-> 
-> In this case the existing signature is:
-> 
->   ssize_t (*show)(struct kobject *kobj, struct device *dev,..)
-> 
-> Where kobj is a 'struct mdev_type *' and dev is 'mdev_type->parent->dev'.
-> 
-> Change the mdev_type related sysfs attribute functions to:
-> 
->   ssize_t (*show)(struct mdev_type *mtype, struct mdev_type_attribute *attr,..)
-> 
-> In order to restore type safety and match the driver core standard
-> 
-> There are no current users of 'attr', but if it is ever needed it would be
-> hard to add in retroactively, so do it now.
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/gpu/drm/i915/gvt/gvt.c    | 21 +++++++++++----------
->  drivers/s390/cio/vfio_ccw_ops.c   | 15 +++++++++------
->  drivers/s390/crypto/vfio_ap_ops.c | 12 +++++++-----
->  drivers/vfio/mdev/mdev_core.c     | 14 ++++++++++++--
->  drivers/vfio/mdev/mdev_sysfs.c    | 11 ++++++-----
->  include/linux/mdev.h              | 11 +++++++----
->  samples/vfio-mdev/mbochs.c        | 26 +++++++++++++++-----------
->  samples/vfio-mdev/mdpy.c          | 24 ++++++++++++++----------
->  samples/vfio-mdev/mtty.c          | 18 +++++++++---------
->  9 files changed, 90 insertions(+), 62 deletions(-)
+Thanks a lot for elaboration. IIUC, implementing migration PMD entry
+is *not* prevented from by hardware, it may be very tricky to
+implement it, right?
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>
+> Not sure if this is a show stopper, but I am not familiar enough with
+> NUMA and migration code to judge. E.g., I do not see any swp entry action
+> in your patches, but I assume this is implicitly triggered by the switch
+> to generic THP migration code.
 
+Yes, exactly. The migrate_pages() called by migrate_misplaced_page()
+takes care of everything.
+
+>
+> Could there be a work-around by splitting THP pages instead of marking them
+> as migrate pmds (via pte swap entries), at least when THP migration is not
+> supported? I guess it could also be acceptable if THP pages were simply not
+> migrated for NUMA balancing on s390, but then we might need some extra config
+> option to make that behavior explicit.
+
+Yes, it could be. The old behavior of migration was to return -ENOMEM
+if THP migration is not supported then split THP. That behavior was
+not very friendly to some usecases, for example, memory policy and
+migration lieu of reclaim (the upcoming). But I don't mean we restore
+the old behavior. We could split THP if it returns -ENOSYS and the
+page is THP.
+
+>
+> See also my comment on patch #5 of this series.
+>
+> Regards,
+> Gerald
