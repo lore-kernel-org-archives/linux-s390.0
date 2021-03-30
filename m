@@ -2,137 +2,232 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 378F7C433C1
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 14:44:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9C2FC433C1
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 15:02:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 011B2619CA
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 14:44:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B12B76192B
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 15:02:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231532AbhC3Onf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Mar 2021 10:43:35 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54422 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231694AbhC3Onc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 30 Mar 2021 10:43:32 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12UEYwbm088116;
-        Tue, 30 Mar 2021 10:42:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=3iqNoGVDnaPAnvYDi/Xp7QrkNPfusFwyKyE3eCYTBbo=;
- b=QcvSGFhqLLypYLzoJCYN3mhH0vD34+aZv9rcQiZ5tn9sJNZrgG51mz3QOj8c5KGthAOD
- Az3WPvR90TaR8yrqaFNFPpIJBaDD3/m3M4VZsp2wSXDkjXzkUZUvuC3KfKWjmTXTYpN4
- fZsZ2LwwrGLcbkyxp4UHIij+vUBadIhadrJKndV+negGl453Ravq4FcCrcU5M9RVmfgj
- JB7P+NdGmlhPOIkCjDoEEYSWCsF0youa2JPo1FfD3yhmQSjS4HE5jf1TdfI/8/a+bFBM
- 9ukYc7d91MIcMMkELmS6szdUKfZg1yl94Lt0idISEmNB2EbW3azhCXd0hOM9C1nRZlYL Ug== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37jhssv37d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Mar 2021 10:42:15 -0400
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12UEZH0M090959;
-        Tue, 30 Mar 2021 10:42:14 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37jhssv362-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Mar 2021 10:42:14 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12UEb1t8020052;
-        Tue, 30 Mar 2021 14:42:12 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06fra.de.ibm.com with ESMTP id 37huyh9g7f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Mar 2021 14:42:12 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12UEg9LW43909432
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 Mar 2021 14:42:09 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5FF2BA406B;
-        Tue, 30 Mar 2021 14:42:09 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AF9DEA4059;
-        Tue, 30 Mar 2021 14:42:08 +0000 (GMT)
-Received: from thinkpad (unknown [9.171.41.230])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Tue, 30 Mar 2021 14:42:08 +0000 (GMT)
-Date:   Tue, 30 Mar 2021 16:42:07 +0200
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Yang Shi <shy828301@gmail.com>
-Cc:     mgorman@suse.de, kirill.shutemov@linux.intel.com, ziy@nvidia.com,
-        mhocko@suse.com, ying.huang@intel.com, hughd@google.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com,
-        akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: [PATCH 5/6] mm: migrate: don't split THP for misplaced NUMA
- page
-Message-ID: <20210330164207.3a2826f7@thinkpad>
-In-Reply-To: <20210329183312.178266-6-shy828301@gmail.com>
-References: <20210329183312.178266-1-shy828301@gmail.com>
-        <20210329183312.178266-6-shy828301@gmail.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S231344AbhC3PBd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Mar 2021 11:01:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52406 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232108AbhC3PBT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Mar 2021 11:01:19 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC447C061574;
+        Tue, 30 Mar 2021 08:01:18 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id x26so12380967pfn.0;
+        Tue, 30 Mar 2021 08:01:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=aIIhZH7MEe4emdWSnxRXrt2i6gVhMrPoGfFDilIz73w=;
+        b=desaCWlpymXZF2C2RzEsDfZ2b7i0/DZxG1Xg8u0WwaQ7wG19wt/J3/tljLcHcFkpuC
+         Q+kh6ErgCJYsAtD+7RM9+daiMxg56uSvybIonRhORb5A37aw47qxIaacMab44wrgG5h/
+         c7mVRuMWgT46WSToNiizqAg1z9+umIqFopcZh+NUnaEJerpi7OCYU3Uc5zxZBPZFiG+A
+         GbJTTcfjOwuRY11sZkmSdczUMG9tiVBK9Lg8BE/sbBCM+WsI7lFf4fBGGCqk9BupEglw
+         wCThkRzqR3e22mIqkZUwFKKs1vtNRt+NwT08Be2FFuze3nzs6MnxYw/1GolhC1AZOYW1
+         G+vg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=aIIhZH7MEe4emdWSnxRXrt2i6gVhMrPoGfFDilIz73w=;
+        b=fZGjcfc92cQRVjEaZClQblV8v+v0A+Ml7McKF/KRmmv3LfaWcQmBfhvYxaSN3PVrtf
+         eXMIKVJgFjuitt4IiGzrNscKSaXur7HRPIGkKjmSFarH2tREjlahwtkMZMV7ZxB9RKgV
+         lrR/7fVUk8DYxi6BgQZ7ovih31dmulP3RWrffv2umKl8oy2YF9aIuUIg/JXGl0rGmW6E
+         bZlEFkjUEW5olmqjRU4Kn47l3/JbObmTTIE+y19/V6aGDdkzkj/5ZJSN/eFNV7jGZwxB
+         P8auMH1C8eLLXwnVD3HHkPb941q2pc8g87WHaJSets0YnebSYYsJukUfcnpAAQG22Jw5
+         NY3Q==
+X-Gm-Message-State: AOAM533GXqvbsL8Yn3VfgxSRoZeUQ6QvtEDBw1rYkD5jf3mGC6devUPf
+        JxsK/2rl9MijQD2I9JNzia8=
+X-Google-Smtp-Source: ABdhPJwV3sCo5WWG4iadqwdExPE23HtvV5WWaQLhxi1uqK2e1hLcxg/G93jwGe37N0QaxEy0ryL//w==
+X-Received: by 2002:a62:687:0:b029:1fb:2382:57b0 with SMTP id 129-20020a6206870000b02901fb238257b0mr1243247pfg.10.1617116478374;
+        Tue, 30 Mar 2021 08:01:18 -0700 (PDT)
+Received: from [192.168.0.4] ([49.173.165.50])
+        by smtp.gmail.com with ESMTPSA id 22sm3116399pjl.31.2021.03.30.08.01.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 30 Mar 2021 08:01:17 -0700 (PDT)
+Subject: Re: [PATCH net-next v3 7/7] mld: add mc_lock for protecting
+ per-interface mld data
+To:     Eric Dumazet <eric.dumazet@gmail.com>, netdev@vger.kernel.org,
+        davem@davemloft.net, kuba@kernel.org
+Cc:     jwi@linux.ibm.com, kgraul@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, borntraeger@de.ibm.com,
+        mareklindner@neomailbox.ch, sw@simonwunderlich.de, a@unstable.cc,
+        sven@narfation.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        linux-s390@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org
+References: <20210325161657.10517-1-ap420073@gmail.com>
+ <20210325161657.10517-8-ap420073@gmail.com>
+ <fd460c2b-b974-db00-5097-4af08f12c670@gmail.com>
+ <d3e101bb-14d2-4d91-6bc1-fbb766d69422@gmail.com>
+From:   Taehee Yoo <ap420073@gmail.com>
+Message-ID: <08f0a57c-8cad-2f62-0ba2-1bc6c6caad58@gmail.com>
+Date:   Wed, 31 Mar 2021 00:01:12 +0900
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <d3e101bb-14d2-4d91-6bc1-fbb766d69422@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: GTLsRE-t3jKQmmrgEXa1bXyawU1Xg_HM
-X-Proofpoint-ORIG-GUID: QA4EJPs-o2GZJ_Ndz7oaZ4WGu5lBPCKq
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-30_04:2021-03-30,2021-03-30 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- phishscore=0 impostorscore=0 bulkscore=0 suspectscore=0 clxscore=1015
- priorityscore=1501 mlxscore=0 mlxlogscore=999 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2103250000 definitions=main-2103300107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 29 Mar 2021 11:33:11 -0700
-Yang Shi <shy828301@gmail.com> wrote:
+On 3/30/21 9:24 PM, Eric Dumazet wrote:
+ >
+ >
+ > On 3/30/21 1:59 PM, Eric Dumazet wrote:
+ >>
+ >>
+ >> On 3/25/21 5:16 PM, Taehee Yoo wrote:
+ >>> The purpose of this lock is to avoid a bottleneck in the query/report
+ >>> event handler logic.
+ >>>
+ >>> By previous patches, almost all mld data is protected by RTNL.
+ >>> So, the query and report event handler, which is data path logic
+ >>> acquires RTNL too. Therefore if a lot of query and report events
+ >>> are received, it uses RTNL for a long time.
+ >>> So it makes the control-plane bottleneck because of using RTNL.
+ >>> In order to avoid this bottleneck, mc_lock is added.
+ >>>
+ >>> mc_lock protect only per-interface mld data and per-interface mld
+ >>> data is used in the query/report event handler logic.
+ >>> So, no longer rtnl_lock is needed in the query/report event handler 
+logic.
+ >>> Therefore bottleneck will be disappeared by mc_lock.
+ >>>
+ >>
+ >> What testsuite have you run exactly to validate this monster patch ?
+ >>
 
-> The old behavior didn't split THP if migration is failed due to lack of
-> memory on the target node.  But the THP migration does split THP, so keep
-> the old behavior for misplaced NUMA page migration.
-> 
-> Signed-off-by: Yang Shi <shy828301@gmail.com>
-> ---
->  mm/migrate.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/mm/migrate.c b/mm/migrate.c
-> index 86325c750c14..1c0c873375ab 100644
-> --- a/mm/migrate.c
-> +++ b/mm/migrate.c
-> @@ -1444,6 +1444,7 @@ int migrate_pages(struct list_head *from, new_page_t get_new_page,
->  	int swapwrite = current->flags & PF_SWAPWRITE;
->  	int rc, nr_subpages;
->  	LIST_HEAD(ret_pages);
-> +	bool nosplit = (reason == MR_NUMA_MISPLACED);
->  
->  	if (!swapwrite)
->  		current->flags |= PF_SWAPWRITE;
-> @@ -1495,7 +1496,7 @@ int migrate_pages(struct list_head *from, new_page_t get_new_page,
->  			 */
->  			case -ENOSYS:
->  				/* THP migration is unsupported */
-> -				if (is_thp) {
-> +				if (is_thp && !nosplit) {
+I've been using an application, which calls setsockopt() with the below 
+options.
+IPV6_ADD_MEMBERSHIP
+IPV6_DROP_MEMBERSHIP
+MCAST_JOIN_SOURCE_GROUP
+MCAST_LEAVE_SOURCE_GROUP
+MCAST_BLOCK_SOURCE
+MCAST_UNBLOCK_SOURCE
+MCAST_MSFILTER
+And checks out  /proc/net/mcfilter6 and /proc/net/igmp6.
 
-This is the "THP migration is unsupported" case, but according to your
-description you rather want to change the -ENOMEM case?
+ >> Have you used CONFIG_LOCKDEP=y / CONFIG_DEBUG_ATOMIC_SLEEP=y ?
+ >>
 
-Could this be the correct place to trigger THP split for NUMA balancing,
-for architectures not supporting THP migration, like s390?
+Yes, I'm using both configs.
 
-Do I understand it correctly that this change (for -ENOSYS) would
-result in always failed THP migrations during NUMA balancing, if THP
-migration was not supported?
+ >>> Suggested-by: Cong Wang <xiyou.wangcong@gmail.com>
+ >>> Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+ >>
+ >> [...]
+ >>
+ >>>   /*
+ >>> - *	device multicast group del
+ >>> + * device multicast group del
+ >>>    */
+ >>>   int __ipv6_dev_mc_dec(struct inet6_dev *idev, const struct 
+in6_addr *addr)
+ >>>   {
+ >>> @@ -943,8 +967,9 @@ int __ipv6_dev_mc_dec(struct inet6_dev *idev, 
+const struct in6_addr *addr)
+ >>>
+ >>>   	ASSERT_RTNL();
+ >>>
+ >>> +	mutex_lock(&idev->mc_lock);
+ >>>   	for (map = &idev->mc_list;
+ >>> -	     (ma = rtnl_dereference(*map));
+ >>> +	     (ma = mc_dereference(*map, idev));
+ >>>   	     map = &ma->next) {
+ >>>   		if (ipv6_addr_equal(&ma->mca_addr, addr)) {
+ >>>   			if (--ma->mca_users == 0) {
+ >>
+ >> This can be called with rcu_bh held, thus :
+ >>
+ >> BUG: sleeping function called from invalid context at 
+kernel/locking/mutex.c:928
+ >> in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 4624, name: 
+kworker/1:2
+ >> 4 locks held by kworker/1:2/4624:
+ >>   #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, 
+at: arch_atomic64_set arch/x86/include/asm/atomic64_64.h:34 [inline]
+ >>   #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, 
+at: atomic64_set include/asm-generic/atomic-instrumented.h:856 [inline]
+ >>   #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, 
+at: atomic_long_set include/asm-generic/atomic-long.h:41 [inline]
+ >>   #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, 
+at: set_work_data kernel/workqueue.c:616 [inline]
+ >>   #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, 
+at: set_work_pool_and_clear_pending kernel/workqueue.c:643 [inline]
+ >>   #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, 
+at: process_one_work+0x871/0x1600 kernel/workqueue.c:2246
+ >>   #1: ffffc90009adfda8 ((addr_chk_work).work){+.+.}-{0:0}, at: 
+process_one_work+0x8a5/0x1600 kernel/workqueue.c:2250
+ >>   #2: ffffffff8d66d328 (rtnl_mutex){+.+.}-{3:3}, at: 
+addrconf_verify_work+0xa/0x20 net/ipv6/addrconf.c:4572
+ >>   #3: ffffffff8bf74300 (rcu_read_lock_bh){....}-{1:2}, at: 
+addrconf_verify_rtnl+0x2b/0x1150 net/ipv6/addrconf.c:4459
+ >> Preemption disabled at:
+ >> [<ffffffff87b39f41>] local_bh_disable include/linux/bottom_half.h:19 
+[inline]
+ >> [<ffffffff87b39f41>] rcu_read_lock_bh include/linux/rcupdate.h:727 
+[inline]
+ >> [<ffffffff87b39f41>] addrconf_verify_rtnl+0x41/0x1150 
+net/ipv6/addrconf.c:4461
+ >> CPU: 1 PID: 4624 Comm: kworker/1:2 Not tainted 5.12.0-rc4-syzkaller #0
+ >> Hardware name: Google Google Compute Engine/Google Compute Engine, 
+BIOS Google 01/01/2011
+ >> Workqueue: ipv6_addrconf addrconf_verify_work
+ >> Call Trace:
+ >>   __dump_stack lib/dump_stack.c:79 [inline]
+ >>   dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ >>   ___might_sleep.cold+0x1f1/0x237 kernel/sched/core.c:8328
+ >>   __mutex_lock_common kernel/locking/mutex.c:928 [inline]
+ >>   __mutex_lock+0xa9/0x1120 kernel/locking/mutex.c:1096
+ >>   __ipv6_dev_mc_dec+0x5f/0x340 net/ipv6/mcast.c:970
+ >>   addrconf_leave_solict net/ipv6/addrconf.c:2182 [inline]
+ >>   addrconf_leave_solict net/ipv6/addrconf.c:2174 [inline]
+ >>   __ipv6_ifa_notify+0x5b6/0xa90 net/ipv6/addrconf.c:6077
+ >>   ipv6_ifa_notify net/ipv6/addrconf.c:6100 [inline]
+ >>   ipv6_del_addr+0x463/0xae0 net/ipv6/addrconf.c:1294
+ >>   addrconf_verify_rtnl+0xd59/0x1150 net/ipv6/addrconf.c:4488
+ >>   addrconf_verify_work+0xf/0x20 net/ipv6/addrconf.c:4573
+ >>   process_one_work+0x98d/0x1600 kernel/workqueue.c:2275
+ >>   worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
+ >>   kthread+0x3b1/0x4a0 kernel/kthread.c:292
+ >>   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+ >>
+ >
+ > I will test this fix:
+
+Thanks a lot!
+
+ >
+ > diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+ > index 
+120073ffb666b18678e3145d91dac59fa865a592..8f3883f4cb4a15a0749b8f0fe00061e483ea26ca 
+100644
+ > --- a/net/ipv6/addrconf.c
+ > +++ b/net/ipv6/addrconf.c
+ > @@ -4485,7 +4485,9 @@ static void addrconf_verify_rtnl(void)
+ >                              age >= ifp->valid_lft) {
+ >                                  spin_unlock(&ifp->lock);
+ >                                  in6_ifa_hold(ifp);
+ > +                               rcu_read_unlock_bh();
+ >                                  ipv6_del_addr(ifp);
+ > +                               rcu_read_lock_bh();
+ >                                  goto restart;
+ >                          } else if (ifp->prefered_lft == 
+INFINITY_LIFE_TIME) {
+ >                                  spin_unlock(&ifp->lock);
+ >
