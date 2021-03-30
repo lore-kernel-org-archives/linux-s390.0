@@ -2,168 +2,168 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6202EC433E0
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 11:33:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72263C433C1
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 12:00:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1470861964
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 11:33:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 48FF661996
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 12:00:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229633AbhC3Lcn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Mar 2021 07:32:43 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41446 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231701AbhC3Lc3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 30 Mar 2021 07:32:29 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12UBIxN0051726;
-        Tue, 30 Mar 2021 07:32:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=p+iO3VZ4/BiPCmooO1OLT1+0zsH+fRj9FYHHnvDjCHA=;
- b=DkveH01Dgvpwt9nFtptsc0pE3m48GJT9/R+KyJoIk8niFGwOy+6wurIMxo7vuDToTRaS
- /eBv/FtrFE8HxLvNM6Pf4Lkfyd4tC8Fy5r3qeko2+iXur1HhB4s2ccEPfJIs1SA/iMxu
- a1TCjedsQCypZ/xPdYLLofJmxG/ax7tAaCQ8K3+Y5QLSiZIaCWxKmkDvH6U3zKWgIb/n
- 6X75q02I2rOhwcVC5/Rm980/G9F8ZlEnxQ4G1SIyRjChG418CMpwFlvbPEKiZKq3avpJ
- oISPYZE/ck/8jybtHVYE2DOJm7/qYTdO5jS2bCw3Mfy4WC/NNaiQugFO/mu4NLtQiimj ZA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37jhrv5u5d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Mar 2021 07:32:22 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12UBJZ20054049;
-        Tue, 30 Mar 2021 07:32:21 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37jhrv5u3y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Mar 2021 07:32:21 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12UBRsom017053;
-        Tue, 30 Mar 2021 11:32:19 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma01fra.de.ibm.com with ESMTP id 37hvb89d8w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 30 Mar 2021 11:32:19 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12UBWH0P39453144
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 30 Mar 2021 11:32:17 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1254A11C054;
-        Tue, 30 Mar 2021 11:32:17 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 816ED11C04C;
-        Tue, 30 Mar 2021 11:32:16 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.62.62])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 30 Mar 2021 11:32:16 +0000 (GMT)
-Subject: kernel warning percpu ref in obj_cgroup_release (was: Re: linux-next:
- Tree for Mar 29)
-To:     Stephen Rothwell <sfr@canb.auug.org.au>,
-        Linux Next Mailing List <linux-next@vger.kernel.org>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Muchun Song <songmuchun@bytedance.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-References: <20210329205249.6b557510@canb.auug.org.au>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <83263d0d-1f3f-8a3c-8a95-49e0cfa15051@de.ibm.com>
-Date:   Tue, 30 Mar 2021 13:32:16 +0200
+        id S231434AbhC3L7r (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Mar 2021 07:59:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41098 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231812AbhC3L7h (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Mar 2021 07:59:37 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61965C061574;
+        Tue, 30 Mar 2021 04:59:37 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id c8so15947962wrq.11;
+        Tue, 30 Mar 2021 04:59:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=U/4TeLcM1UNsh9OCgocN0tnCoz1dv6AKljeqZVGsdkE=;
+        b=nwTyc7QEJdlUs/TfyvLtXvJqn930gAyt7rNHkJJCsr1A6x8Sgj26LWdvwSYyy0bvIW
+         t7vMfAAGkkNnq6YeV/uWjFBhdsM9/602iP5QO3QX28NtPRuc1OdMjbhm2IQMiPMdzLib
+         NkHdl7Ud2tkWmlPz4SEsHf9GOMJqVatpaTe8qV7rvxtG8uHk77xdm+wQzPkVXzkmce0y
+         sxe6JtQQe+0scCA1VxWjjyVvxdtpP7W8dW3Z4jqy+Dl7PjyG9va1zYQq0k1hjobowXUN
+         R0e8d5ICG/MnXUaMaUFyiicFl7p53aV6FebCCwWMlncuB5URZ4K8sWoelmenq3mNBoLo
+         0pVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=U/4TeLcM1UNsh9OCgocN0tnCoz1dv6AKljeqZVGsdkE=;
+        b=uFKq/+D1d3G0DBfEBpmF6OeB8Cbfvbe0hsasBjujt8QaZr+5WLUvig77PbaFK5Vhhk
+         lXcPFYxmZV4cPK5li8s0GlBH/WxDlidsE3X4SSGjJyOuB7u/Lgl+bg+pAobvzcbrPMwQ
+         nTamr/RoqsOKu3vHhvpReXL7I4RwqvVuR1cCCoOyldFLN9L3/UykJ0GJLz+3Nvy/3lQG
+         kUnz6QBpTPfAwJcpN3uFhyzfat/CMLPB5d8Vi09qajB+v0Xr0Vm0YpYsbQOgWmTYQWBd
+         +Fn6rbL3+LzY+X6y9D2sl7AWHIZ69cbvcqTz4S11fHHVESSMwyMoPbKeIBOIblCcHng2
+         wuQw==
+X-Gm-Message-State: AOAM5307Y64JdTmMBKBtMy3KX9kOnKDQPUOAXz8JYj7065yXQj2FS45D
+        ZFpy2/Shl5O5W9eTxgkTCoo=
+X-Google-Smtp-Source: ABdhPJy+WBqRR0bXmhglug/JD2jqX5Bsqg4lVGpV3HCUSVz3NdUFyAxn8IkLNCPuofhIS1/1avRGUA==
+X-Received: by 2002:adf:dd47:: with SMTP id u7mr33765469wrm.13.1617105576189;
+        Tue, 30 Mar 2021 04:59:36 -0700 (PDT)
+Received: from [192.168.1.101] ([37.167.251.74])
+        by smtp.gmail.com with ESMTPSA id x11sm4424978wme.9.2021.03.30.04.59.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 30 Mar 2021 04:59:35 -0700 (PDT)
+Subject: Re: [PATCH net-next v3 7/7] mld: add mc_lock for protecting
+ per-interface mld data
+To:     Taehee Yoo <ap420073@gmail.com>, netdev@vger.kernel.org,
+        davem@davemloft.net, kuba@kernel.org
+Cc:     jwi@linux.ibm.com, kgraul@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, borntraeger@de.ibm.com,
+        mareklindner@neomailbox.ch, sw@simonwunderlich.de, a@unstable.cc,
+        sven@narfation.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        linux-s390@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org
+References: <20210325161657.10517-1-ap420073@gmail.com>
+ <20210325161657.10517-8-ap420073@gmail.com>
+From:   Eric Dumazet <eric.dumazet@gmail.com>
+Message-ID: <fd460c2b-b974-db00-5097-4af08f12c670@gmail.com>
+Date:   Tue, 30 Mar 2021 13:59:32 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.8.0
 MIME-Version: 1.0
-In-Reply-To: <20210329205249.6b557510@canb.auug.org.au>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20210325161657.10517-8-ap420073@gmail.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: cIbXEw_jVX9rVwmTzU6Y0zbxTazyy6ZA
-X-Proofpoint-ORIG-GUID: hMJhI5vGoJ_G8s952ot8w-saOfQG5k60
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-30_03:2021-03-30,2021-03-30 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
- adultscore=0 lowpriorityscore=0 bulkscore=0 impostorscore=0 spamscore=0
- suspectscore=0 malwarescore=0 clxscore=1011 phishscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2103250000 definitions=main-2103300079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 29.03.21 11:52, Stephen Rothwell wrote:
-> Hi all,
-> 
-> News: there will be no linux-next release on Friday or the following
-> Monday.
-> 
-> Changes since 20210326:
-> 
-> The arm64 tree gained a conflict against Linus' tree.
-> 
-> I applied a supplied patch for clang brakage in the kbuild tree.
-> 
-> The net-next tree gained a conflict against the bpf tree.
-> 
-> The drm tree gained a conflict against Linus' tree.
-> 
-> The staging tree gained a conflict against the scmi tree and a semantic
-> conflict against the spi tree.
-> 
-> The rust tree gained a conflict against the kbuild tree.
-> 
-> The akpm-current tree lost its its build failure and gained a conflict
-> against the gpio-brgl tree.
-> 
-> Non-merge commits (relative to Linus' tree): 7289
->   7213 files changed, 432170 insertions(+), 147471 deletions(-)
-> 
-
-This next (328 is fine) triggers several bugs during our KVM CI run:
-
-[ 1506.494716] ------------[ cut here ]------------
-[ 1506.494730] percpu ref (obj_cgroup_release) <= 0 (-1) after switching to atomic
-[ 1506.494766] WARNING: CPU: 6 PID: 0 at lib/percpu-refcount.c:196 percpu_ref_switch_to_atomic_rcu+0x1ea/0x1f8
-[ 1506.494774] Modules linked in: kvm vhost_vsock vmw_vsock_virtio_transport_common vsock vhost vhost_iotlb xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT xt_tcpudp nft_compat nf_nat_tftp nft_objref nf_conntrack_tftp nft_counter bridge stp llc nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct dm_service_time nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables nfnetlink zfcp scsi_transport_fc rpcrdma sunrpc dm_multipath rdma_ucm scsi_dh_rdac scsi_dh_emc rdma_cm scsi_dh_alua iw_cm ib_cm mlx5_ib ib_uverbs dm_mod ib_core s390_trng vfio_ccw vfio_mdev mdev vfio_iommu_type1 zcrypt_cex4 vfio eadm_sch sch_fq_codel configfs ip_tables x_tables ghash_s390 prng aes_s390 des_s390 libdes sha3_512_s390 sha3_256_s390 mlx5_core sha512_s390 sha256_s390 sha1_s390 sha_common nvme nvme_core pkey zcrypt rng_core autofs4 [last unloaded: vfio_ap]
-[ 1506.494832] CPU: 6 PID: 0 Comm: swapper/6 Not tainted 5.12.0-20210330.rc4.git0.9d49ed9ca93b.300.fc33.s390x+next #1
-[ 1506.494834] Hardware name: IBM 8561 T01 703 (LPAR)
-[ 1506.494836] Krnl PSW : 0704c00180000000 00000002d71dd21e (percpu_ref_switch_to_atomic_rcu+0x1ee/0x1f8)
-[ 1506.494840]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
-[ 1506.494842] Krnl GPRS: c0000000fffeffff 00000002f7256818 0000000000000043 00000000fffeffff
-[ 1506.494844]            00000000ffffffea 0000038000000001 0000000000000000 000003800000017c
-[ 1506.494846]            00000002d7924988 0000000227eb97a0 000003ff5413c7e0 7fffffffffffffff
-[ 1506.494848]            0000000080360000 00000002f726b570 00000002d71dd21a 00000380000bba28
-[ 1506.494856] Krnl Code: 00000002d71dd20e: e3309fe8ff04        lg      %r3,-24(%r9)
-                           00000002d71dd214: c0e5001eb556        brasl   %r14,00000002d75b3cc0
-                          #00000002d71dd21a: af000000            mc      0,0
-                          >00000002d71dd21e: a7f4ffcc            brc     15,00000002d71dd1b6
-                           00000002d71dd222: 0707                bcr     0,%r7
-                           00000002d71dd224: 0707                bcr     0,%r7
-                           00000002d71dd226: 0707                bcr     0,%r7
-                           00000002d71dd228: eb6ff0480024        stmg    %r6,%r15,72(%r15)
-[ 1506.494928] Call Trace:
-[ 1506.494933]  [<00000002d71dd21e>] percpu_ref_switch_to_atomic_rcu+0x1ee/0x1f8
-[ 1506.494940] ([<00000002d71dd21a>] percpu_ref_switch_to_atomic_rcu+0x1ea/0x1f8)
-[ 1506.494942]  [<00000002d6b8a6c6>] rcu_do_batch+0x146/0x608
-[ 1506.494946]  [<00000002d6b8ec04>] rcu_core+0x124/0x1d0
-[ 1506.494948]  [<00000002d75d0222>] __do_softirq+0x13a/0x3c8
-[ 1506.494952]  [<00000002d6b05306>] irq_exit+0xce/0xf8
-[ 1506.494955]  [<00000002d75c1eb4>] do_ext_irq+0xdc/0x170
-[ 1506.494957]  [<00000002d75cdea4>] ext_int_handler+0xc4/0xf4
-[ 1506.494959]  [<0000000000000000>] 0x0
-[ 1506.494963]  [<00000002d75cd9c2>] default_idle_call+0x42/0x110
-[ 1506.494965]  [<00000002d6b411a0>] do_idle+0xd8/0x168
-[ 1506.494968]  [<00000002d6b413ee>] cpu_startup_entry+0x36/0x40
-[ 1506.494971]  [<00000002d6ac730a>] smp_start_secondary+0x82/0x88
-[ 1506.494974] Last Breaking-Event-Address:
-[ 1506.494975]  [<00000002d6b71898>] vprintk_emit+0xa8/0x110
-[ 1506.494978] Kernel panic - not syncing: panic_on_warn set ...
 
 
+On 3/25/21 5:16 PM, Taehee Yoo wrote:
+> The purpose of this lock is to avoid a bottleneck in the query/report
+> event handler logic.
+> 
+> By previous patches, almost all mld data is protected by RTNL.
+> So, the query and report event handler, which is data path logic
+> acquires RTNL too. Therefore if a lot of query and report events
+> are received, it uses RTNL for a long time.
+> So it makes the control-plane bottleneck because of using RTNL.
+> In order to avoid this bottleneck, mc_lock is added.
+> 
+> mc_lock protect only per-interface mld data and per-interface mld
+> data is used in the query/report event handler logic.
+> So, no longer rtnl_lock is needed in the query/report event handler logic.
+> Therefore bottleneck will be disappeared by mc_lock.
+> 
 
-I will try to bisect this, but if anyone has an idea. CC some candidates.
+What testsuite have you run exactly to validate this monster patch ?
+
+Have you used CONFIG_LOCKDEP=y / CONFIG_DEBUG_ATOMIC_SLEEP=y ?
+
+> Suggested-by: Cong Wang <xiyou.wangcong@gmail.com>
+> Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+
+[...]
+
+>  /*
+> - *	device multicast group del
+> + * device multicast group del
+>   */
+>  int __ipv6_dev_mc_dec(struct inet6_dev *idev, const struct in6_addr *addr)
+>  {
+> @@ -943,8 +967,9 @@ int __ipv6_dev_mc_dec(struct inet6_dev *idev, const struct in6_addr *addr)
+>  
+>  	ASSERT_RTNL();
+>  
+> +	mutex_lock(&idev->mc_lock);
+>  	for (map = &idev->mc_list;
+> -	     (ma = rtnl_dereference(*map));
+> +	     (ma = mc_dereference(*map, idev));
+>  	     map = &ma->next) {
+>  		if (ipv6_addr_equal(&ma->mca_addr, addr)) {
+>  			if (--ma->mca_users == 0) {
+
+This can be called with rcu_bh held, thus :
+
+BUG: sleeping function called from invalid context at kernel/locking/mutex.c:928
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 4624, name: kworker/1:2
+4 locks held by kworker/1:2/4624:
+ #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, at: arch_atomic64_set arch/x86/include/asm/atomic64_64.h:34 [inline]
+ #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, at: atomic64_set include/asm-generic/atomic-instrumented.h:856 [inline]
+ #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, at: atomic_long_set include/asm-generic/atomic-long.h:41 [inline]
+ #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, at: set_work_data kernel/workqueue.c:616 [inline]
+ #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, at: set_work_pool_and_clear_pending kernel/workqueue.c:643 [inline]
+ #0: ffff88802135d138 ((wq_completion)ipv6_addrconf){+.+.}-{0:0}, at: process_one_work+0x871/0x1600 kernel/workqueue.c:2246
+ #1: ffffc90009adfda8 ((addr_chk_work).work){+.+.}-{0:0}, at: process_one_work+0x8a5/0x1600 kernel/workqueue.c:2250
+ #2: ffffffff8d66d328 (rtnl_mutex){+.+.}-{3:3}, at: addrconf_verify_work+0xa/0x20 net/ipv6/addrconf.c:4572
+ #3: ffffffff8bf74300 (rcu_read_lock_bh){....}-{1:2}, at: addrconf_verify_rtnl+0x2b/0x1150 net/ipv6/addrconf.c:4459
+Preemption disabled at:
+[<ffffffff87b39f41>] local_bh_disable include/linux/bottom_half.h:19 [inline]
+[<ffffffff87b39f41>] rcu_read_lock_bh include/linux/rcupdate.h:727 [inline]
+[<ffffffff87b39f41>] addrconf_verify_rtnl+0x41/0x1150 net/ipv6/addrconf.c:4461
+CPU: 1 PID: 4624 Comm: kworker/1:2 Not tainted 5.12.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: ipv6_addrconf addrconf_verify_work
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ ___might_sleep.cold+0x1f1/0x237 kernel/sched/core.c:8328
+ __mutex_lock_common kernel/locking/mutex.c:928 [inline]
+ __mutex_lock+0xa9/0x1120 kernel/locking/mutex.c:1096
+ __ipv6_dev_mc_dec+0x5f/0x340 net/ipv6/mcast.c:970
+ addrconf_leave_solict net/ipv6/addrconf.c:2182 [inline]
+ addrconf_leave_solict net/ipv6/addrconf.c:2174 [inline]
+ __ipv6_ifa_notify+0x5b6/0xa90 net/ipv6/addrconf.c:6077
+ ipv6_ifa_notify net/ipv6/addrconf.c:6100 [inline]
+ ipv6_del_addr+0x463/0xae0 net/ipv6/addrconf.c:1294
+ addrconf_verify_rtnl+0xd59/0x1150 net/ipv6/addrconf.c:4488
+ addrconf_verify_work+0xf/0x20 net/ipv6/addrconf.c:4573
+ process_one_work+0x98d/0x1600 kernel/workqueue.c:2275
+ worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
+ kthread+0x3b1/0x4a0 kernel/kthread.c:292
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
