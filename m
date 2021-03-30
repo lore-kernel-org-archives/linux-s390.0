@@ -2,499 +2,225 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74785C433E2
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 13:11:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE6C3C433E0
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 13:28:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 52DD96190A
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 13:11:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CEA56619CA
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 13:28:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232105AbhC3NLL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Mar 2021 09:11:11 -0400
-Received: from szxga06-in.huawei.com ([45.249.212.32]:15404 "EHLO
-        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232079AbhC3NLE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Mar 2021 09:11:04 -0400
-Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4F8qXV2VMXznTlj;
-        Tue, 30 Mar 2021 21:09:14 +0800 (CST)
-Received: from [10.174.177.244] (10.174.177.244) by
- DGGEMS409-HUB.china.huawei.com (10.3.19.209) with Microsoft SMTP Server id
- 14.3.498.0; Tue, 30 Mar 2021 21:10:52 +0800
-Subject: Re: [PATCH v2] mm: Move mem_init_print_info() into mm_init()
-To:     <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-CC:     Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Richard Henderson <rth@twiddle.net>,
-        Guo Ren <guoren@kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, <linux-alpha@vger.kernel.org>,
-        <linux-snps-arc@lists.infradead.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-csky@vger.kernel.org>, <linux-hexagon@vger.kernel.org>,
-        <linux-ia64@vger.kernel.org>, <linux-m68k@lists.linux-m68k.org>,
-        <linux-mips@vger.kernel.org>, <openrisc@lists.librecores.org>,
-        <linux-parisc@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-        <linux-sh@vger.kernel.org>, <sparclinux@vger.kernel.org>,
-        <linux-um@lists.infradead.org>, <linux-xtensa@linux-xtensa.org>,
-        <linux-mm@kvack.org>
-References: <4d488195-7281-9238-b30d-9f89a6100fb9@csgroup.eu>
- <20210317015210.33641-1-wangkefeng.wang@huawei.com>
-From:   Kefeng Wang <wangkefeng.wang@huawei.com>
-Message-ID: <46ecb35c-4a5d-db0b-d5f8-b53ff0583d49@huawei.com>
-Date:   Tue, 30 Mar 2021 21:10:51 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
-MIME-Version: 1.0
-In-Reply-To: <20210317015210.33641-1-wangkefeng.wang@huawei.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+        id S231986AbhC3N1t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Mar 2021 09:27:49 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26298 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232062AbhC3N1n (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 30 Mar 2021 09:27:43 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12UD44Zd128879;
+        Tue, 30 Mar 2021 09:27:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : from : to : cc
+ : references : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=aOVzWBBCLhY67nrw9K3SdcWpB6lvtbluYQSCYONLLY8=;
+ b=ET+qW1DnD2kkJbeSjE330VRhTXU2jbrmRoc/phGoYF1k5YP7gZGDi+Us5N2Aji07H3lB
+ 65mnfM6mcVV0AVN0RnkjpOGVFjTgAt94fSp9aGyj5C9pdGnYPllAOMijzMacWaMVaj7m
+ puvaYex0e+4BuQJ+jYCxxwD0QgjK5PNp6XVEwLOsjWWKzDSy9Pttyr0L/JfgbZFfSiK+
+ lj9zUiLD92P0fQZATLrYeTXm0EenWk66Y3z/g73V6xRhB3V6o2PKUqFe3wXyfL+6TdNc
+ +bAvjtyfcqR/q1tM5PstUnL54El/vt74PVoO+D2Vhq0g4gQDUUTxX9ORJ3TJHVqUkbx0 MA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37jhnmgnqe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 30 Mar 2021 09:27:33 -0400
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12UD45fS128995;
+        Tue, 30 Mar 2021 09:27:33 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37jhnmgnp4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 30 Mar 2021 09:27:32 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12UDN34H006198;
+        Tue, 30 Mar 2021 13:27:30 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 37huyharmd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 30 Mar 2021 13:27:30 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12UDR8uQ37486946
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 30 Mar 2021 13:27:09 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1ECB452050;
+        Tue, 30 Mar 2021 13:27:28 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.62.62])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 6B4BA5205A;
+        Tue, 30 Mar 2021 13:27:27 +0000 (GMT)
+Subject: Re: kernel warning percpu ref in obj_cgroup_release
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+To:     Stephen Rothwell <sfr@canb.auug.org.au>,
+        Linux Next Mailing List <linux-next@vger.kernel.org>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Muchun Song <songmuchun@bytedance.com>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>, Roman Gushchin <guro@fb.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Xiongchun Duan <duanxiongchun@bytedance.com>
+References: <20210329205249.6b557510@canb.auug.org.au>
+ <83263d0d-1f3f-8a3c-8a95-49e0cfa15051@de.ibm.com>
+Message-ID: <4419611b-3282-2197-884c-332025cdada8@de.ibm.com>
+Date:   Tue, 30 Mar 2021 15:27:27 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
+In-Reply-To: <83263d0d-1f3f-8a3c-8a95-49e0cfa15051@de.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-X-Originating-IP: [10.174.177.244]
-X-CFilter-Loop: Reflected
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: HHPnpCnmtrGmQL8rAct8LAIZkcXej4eM
+X-Proofpoint-ORIG-GUID: 4Xek-2xrTJc8zZZV2QIrN8_4p3iAvWUl
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-30_03:2021-03-30,2021-03-30 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1011
+ mlxscore=0 suspectscore=0 malwarescore=0 lowpriorityscore=0
+ mlxlogscore=999 bulkscore=0 phishscore=0 spamscore=0 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2103250000 definitions=main-2103300094
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Andrew, kindly ping
+So bisect shows this for belows warning:
 
-On 2021/3/17 9:52, Kefeng Wang wrote:
-> mem_init_print_info() is called in mem_init() on each architecture,
-> and pass NULL argument, so using void argument and move it into mm_init().
->
-> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> ---
-> v2:
-> - Cleanup 'str' line suggested by Christophe and ACK
->
->   arch/alpha/mm/init.c             |  1 -
->   arch/arc/mm/init.c               |  1 -
->   arch/arm/mm/init.c               |  2 --
->   arch/arm64/mm/init.c             |  2 --
->   arch/csky/mm/init.c              |  1 -
->   arch/h8300/mm/init.c             |  2 --
->   arch/hexagon/mm/init.c           |  1 -
->   arch/ia64/mm/init.c              |  1 -
->   arch/m68k/mm/init.c              |  1 -
->   arch/microblaze/mm/init.c        |  1 -
->   arch/mips/loongson64/numa.c      |  1 -
->   arch/mips/mm/init.c              |  1 -
->   arch/mips/sgi-ip27/ip27-memory.c |  1 -
->   arch/nds32/mm/init.c             |  1 -
->   arch/nios2/mm/init.c             |  1 -
->   arch/openrisc/mm/init.c          |  2 --
->   arch/parisc/mm/init.c            |  2 --
->   arch/powerpc/mm/mem.c            |  1 -
->   arch/riscv/mm/init.c             |  1 -
->   arch/s390/mm/init.c              |  2 --
->   arch/sh/mm/init.c                |  1 -
->   arch/sparc/mm/init_32.c          |  2 --
->   arch/sparc/mm/init_64.c          |  1 -
->   arch/um/kernel/mem.c             |  1 -
->   arch/x86/mm/init_32.c            |  2 --
->   arch/x86/mm/init_64.c            |  2 --
->   arch/xtensa/mm/init.c            |  1 -
->   include/linux/mm.h               |  2 +-
->   init/main.c                      |  1 +
->   mm/page_alloc.c                  | 10 +++++-----
->   30 files changed, 7 insertions(+), 42 deletions(-)
->
-> diff --git a/arch/alpha/mm/init.c b/arch/alpha/mm/init.c
-> index 3c42b3147fd6..a97650a618f1 100644
-> --- a/arch/alpha/mm/init.c
-> +++ b/arch/alpha/mm/init.c
-> @@ -282,5 +282,4 @@ mem_init(void)
->   	set_max_mapnr(max_low_pfn);
->   	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
->   	memblock_free_all();
-> -	mem_init_print_info(NULL);
->   }
-> diff --git a/arch/arc/mm/init.c b/arch/arc/mm/init.c
-> index ce07e697916c..33832e36bdb7 100644
-> --- a/arch/arc/mm/init.c
-> +++ b/arch/arc/mm/init.c
-> @@ -194,7 +194,6 @@ void __init mem_init(void)
->   {
->   	memblock_free_all();
->   	highmem_init();
-> -	mem_init_print_info(NULL);
->   }
->   
->   #ifdef CONFIG_HIGHMEM
-> diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-> index 828a2561b229..7022b7b5c400 100644
-> --- a/arch/arm/mm/init.c
-> +++ b/arch/arm/mm/init.c
-> @@ -316,8 +316,6 @@ void __init mem_init(void)
->   
->   	free_highpages();
->   
-> -	mem_init_print_info(NULL);
-> -
->   	/*
->   	 * Check boundaries twice: Some fundamental inconsistencies can
->   	 * be detected at build time already.
-> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-> index 3685e12aba9b..e8f29a0bb2f1 100644
-> --- a/arch/arm64/mm/init.c
-> +++ b/arch/arm64/mm/init.c
-> @@ -491,8 +491,6 @@ void __init mem_init(void)
->   	/* this will put all unused low memory onto the freelists */
->   	memblock_free_all();
->   
-> -	mem_init_print_info(NULL);
-> -
->   	/*
->   	 * Check boundaries twice: Some fundamental inconsistencies can be
->   	 * detected at build time already.
-> diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
-> index 894050a8ce09..bf2004aa811a 100644
-> --- a/arch/csky/mm/init.c
-> +++ b/arch/csky/mm/init.c
-> @@ -107,7 +107,6 @@ void __init mem_init(void)
->   			free_highmem_page(page);
->   	}
->   #endif
-> -	mem_init_print_info(NULL);
->   }
->   
->   void free_initmem(void)
-> diff --git a/arch/h8300/mm/init.c b/arch/h8300/mm/init.c
-> index 1f3b345d68b9..f7bf4693e3b2 100644
-> --- a/arch/h8300/mm/init.c
-> +++ b/arch/h8300/mm/init.c
-> @@ -98,6 +98,4 @@ void __init mem_init(void)
->   
->   	/* this will put all low memory onto the freelists */
->   	memblock_free_all();
-> -
-> -	mem_init_print_info(NULL);
->   }
-> diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
-> index f2e6c868e477..f01e91e10d95 100644
-> --- a/arch/hexagon/mm/init.c
-> +++ b/arch/hexagon/mm/init.c
-> @@ -55,7 +55,6 @@ void __init mem_init(void)
->   {
->   	/*  No idea where this is actually declared.  Seems to evade LXR.  */
->   	memblock_free_all();
-> -	mem_init_print_info(NULL);
->   
->   	/*
->   	 *  To-Do:  someone somewhere should wipe out the bootmem map
-> diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-> index 16d0d7d22657..83280e2df807 100644
-> --- a/arch/ia64/mm/init.c
-> +++ b/arch/ia64/mm/init.c
-> @@ -659,7 +659,6 @@ mem_init (void)
->   	set_max_mapnr(max_low_pfn);
->   	high_memory = __va(max_low_pfn * PAGE_SIZE);
->   	memblock_free_all();
-> -	mem_init_print_info(NULL);
->   
->   	/*
->   	 * For fsyscall entrpoints with no light-weight handler, use the ordinary
-> diff --git a/arch/m68k/mm/init.c b/arch/m68k/mm/init.c
-> index 14c1e541451c..1759ab875d47 100644
-> --- a/arch/m68k/mm/init.c
-> +++ b/arch/m68k/mm/init.c
-> @@ -153,5 +153,4 @@ void __init mem_init(void)
->   	/* this will put all memory onto the freelists */
->   	memblock_free_all();
->   	init_pointer_tables();
-> -	mem_init_print_info(NULL);
->   }
-> diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
-> index 05cf1fb3f5ff..ab55c70380a5 100644
-> --- a/arch/microblaze/mm/init.c
-> +++ b/arch/microblaze/mm/init.c
-> @@ -131,7 +131,6 @@ void __init mem_init(void)
->   	highmem_setup();
->   #endif
->   
-> -	mem_init_print_info(NULL);
->   	mem_init_done = 1;
->   }
->   
-> diff --git a/arch/mips/loongson64/numa.c b/arch/mips/loongson64/numa.c
-> index 8315c871c435..fa9b4a487a47 100644
-> --- a/arch/mips/loongson64/numa.c
-> +++ b/arch/mips/loongson64/numa.c
-> @@ -178,7 +178,6 @@ void __init mem_init(void)
->   	high_memory = (void *) __va(get_num_physpages() << PAGE_SHIFT);
->   	memblock_free_all();
->   	setup_zero_pages();	/* This comes from node 0 */
-> -	mem_init_print_info(NULL);
->   }
->   
->   /* All PCI device belongs to logical Node-0 */
-> diff --git a/arch/mips/mm/init.c b/arch/mips/mm/init.c
-> index 5cb73bf74a8b..c36358758969 100644
-> --- a/arch/mips/mm/init.c
-> +++ b/arch/mips/mm/init.c
-> @@ -467,7 +467,6 @@ void __init mem_init(void)
->   	memblock_free_all();
->   	setup_zero_pages();	/* Setup zeroed pages.  */
->   	mem_init_free_highmem();
-> -	mem_init_print_info(NULL);
->   
->   #ifdef CONFIG_64BIT
->   	if ((unsigned long) &_text > (unsigned long) CKSEG0)
-> diff --git a/arch/mips/sgi-ip27/ip27-memory.c b/arch/mips/sgi-ip27/ip27-memory.c
-> index 87bb6945ec25..6173684b5aaa 100644
-> --- a/arch/mips/sgi-ip27/ip27-memory.c
-> +++ b/arch/mips/sgi-ip27/ip27-memory.c
-> @@ -420,5 +420,4 @@ void __init mem_init(void)
->   	high_memory = (void *) __va(get_num_physpages() << PAGE_SHIFT);
->   	memblock_free_all();
->   	setup_zero_pages();	/* This comes from node 0 */
-> -	mem_init_print_info(NULL);
->   }
-> diff --git a/arch/nds32/mm/init.c b/arch/nds32/mm/init.c
-> index fa86f7b2f416..f63f839738c4 100644
-> --- a/arch/nds32/mm/init.c
-> +++ b/arch/nds32/mm/init.c
-> @@ -191,7 +191,6 @@ void __init mem_init(void)
->   
->   	/* this will put all low memory onto the freelists */
->   	memblock_free_all();
-> -	mem_init_print_info(NULL);
->   
->   	pr_info("virtual kernel memory layout:\n"
->   		"    fixmap  : 0x%08lx - 0x%08lx   (%4ld kB)\n"
-> diff --git a/arch/nios2/mm/init.c b/arch/nios2/mm/init.c
-> index 61862dbb0e32..613fcaa5988a 100644
-> --- a/arch/nios2/mm/init.c
-> +++ b/arch/nios2/mm/init.c
-> @@ -71,7 +71,6 @@ void __init mem_init(void)
->   
->   	/* this will put all memory onto the freelists */
->   	memblock_free_all();
-> -	mem_init_print_info(NULL);
->   }
->   
->   void __init mmu_init(void)
-> diff --git a/arch/openrisc/mm/init.c b/arch/openrisc/mm/init.c
-> index bf9b2310fc93..d5641198b90c 100644
-> --- a/arch/openrisc/mm/init.c
-> +++ b/arch/openrisc/mm/init.c
-> @@ -211,8 +211,6 @@ void __init mem_init(void)
->   	/* this will put all low memory onto the freelists */
->   	memblock_free_all();
->   
-> -	mem_init_print_info(NULL);
-> -
->   	printk("mem_init_done ...........................................\n");
->   	mem_init_done = 1;
->   	return;
-> diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
-> index 9ca4e4ff6895..591a4e939415 100644
-> --- a/arch/parisc/mm/init.c
-> +++ b/arch/parisc/mm/init.c
-> @@ -573,8 +573,6 @@ void __init mem_init(void)
->   #endif
->   		parisc_vmalloc_start = SET_MAP_OFFSET(MAP_START);
->   
-> -	mem_init_print_info(NULL);
-> -
->   #if 0
->   	/*
->   	 * Do not expose the virtual kernel memory layout to userspace.
-> diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-> index 4e8ce6d85232..7e11c4cb08b8 100644
-> --- a/arch/powerpc/mm/mem.c
-> +++ b/arch/powerpc/mm/mem.c
-> @@ -312,7 +312,6 @@ void __init mem_init(void)
->   		(mfspr(SPRN_TLB1CFG) & TLBnCFG_N_ENTRY) - 1;
->   #endif
->   
-> -	mem_init_print_info(NULL);
->   #ifdef CONFIG_PPC32
->   	pr_info("Kernel virtual memory layout:\n");
->   #ifdef CONFIG_KASAN
-> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-> index 7f5036fbee8c..3c5ee3b7d811 100644
-> --- a/arch/riscv/mm/init.c
-> +++ b/arch/riscv/mm/init.c
-> @@ -102,7 +102,6 @@ void __init mem_init(void)
->   	high_memory = (void *)(__va(PFN_PHYS(max_low_pfn)));
->   	memblock_free_all();
->   
-> -	mem_init_print_info(NULL);
->   	print_vm_layout();
->   }
->   
-> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> index 0e76b2127dc6..8ac710de1ab1 100644
-> --- a/arch/s390/mm/init.c
-> +++ b/arch/s390/mm/init.c
-> @@ -209,8 +209,6 @@ void __init mem_init(void)
->   	setup_zero_pages();	/* Setup zeroed pages. */
->   
->   	cmma_init_nodat();
-> -
-> -	mem_init_print_info(NULL);
->   }
->   
->   void free_initmem(void)
-> diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-> index 0db6919af8d3..168d7d4dd735 100644
-> --- a/arch/sh/mm/init.c
-> +++ b/arch/sh/mm/init.c
-> @@ -359,7 +359,6 @@ void __init mem_init(void)
->   
->   	vsyscall_init();
->   
-> -	mem_init_print_info(NULL);
->   	pr_info("virtual kernel memory layout:\n"
->   		"    fixmap  : 0x%08lx - 0x%08lx   (%4ld kB)\n"
->   		"    vmalloc : 0x%08lx - 0x%08lx   (%4ld MB)\n"
-> diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
-> index 6139c5700ccc..1e9f577f084d 100644
-> --- a/arch/sparc/mm/init_32.c
-> +++ b/arch/sparc/mm/init_32.c
-> @@ -292,8 +292,6 @@ void __init mem_init(void)
->   
->   		map_high_region(start_pfn, end_pfn);
->   	}
-> -
-> -	mem_init_print_info(NULL);
->   }
->   
->   void sparc_flush_page_to_ram(struct page *page)
-> diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-> index 182bb7bdaa0a..e454f179cf5d 100644
-> --- a/arch/sparc/mm/init_64.c
-> +++ b/arch/sparc/mm/init_64.c
-> @@ -2520,7 +2520,6 @@ void __init mem_init(void)
->   	}
->   	mark_page_reserved(mem_map_zero);
->   
-> -	mem_init_print_info(NULL);
->   
->   	if (tlb_type == cheetah || tlb_type == cheetah_plus)
->   		cheetah_ecache_flush_init();
-> diff --git a/arch/um/kernel/mem.c b/arch/um/kernel/mem.c
-> index 9242dc91d751..9019ff5905b1 100644
-> --- a/arch/um/kernel/mem.c
-> +++ b/arch/um/kernel/mem.c
-> @@ -54,7 +54,6 @@ void __init mem_init(void)
->   	memblock_free_all();
->   	max_low_pfn = totalram_pages();
->   	max_pfn = max_low_pfn;
-> -	mem_init_print_info(NULL);
->   	kmalloc_ok = 1;
->   }
->   
-> diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
-> index da31c2635ee4..21ffb03f6c72 100644
-> --- a/arch/x86/mm/init_32.c
-> +++ b/arch/x86/mm/init_32.c
-> @@ -755,8 +755,6 @@ void __init mem_init(void)
->   	after_bootmem = 1;
->   	x86_init.hyper.init_after_bootmem();
->   
-> -	mem_init_print_info(NULL);
-> -
->   	/*
->   	 * Check boundaries twice: Some fundamental inconsistencies can
->   	 * be detected at build time already.
-> diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-> index 5430c81eefc9..aa8387aab9c1 100644
-> --- a/arch/x86/mm/init_64.c
-> +++ b/arch/x86/mm/init_64.c
-> @@ -1350,8 +1350,6 @@ void __init mem_init(void)
->   		kclist_add(&kcore_vsyscall, (void *)VSYSCALL_ADDR, PAGE_SIZE, KCORE_USER);
->   
->   	preallocate_vmalloc_pages();
-> -
-> -	mem_init_print_info(NULL);
->   }
->   
->   #ifdef CONFIG_DEFERRED_STRUCT_PAGE_INIT
-> diff --git a/arch/xtensa/mm/init.c b/arch/xtensa/mm/init.c
-> index 2daeba9e454e..6a32b2cf2718 100644
-> --- a/arch/xtensa/mm/init.c
-> +++ b/arch/xtensa/mm/init.c
-> @@ -119,7 +119,6 @@ void __init mem_init(void)
->   
->   	memblock_free_all();
->   
-> -	mem_init_print_info(NULL);
->   	pr_info("virtual kernel memory layout:\n"
->   #ifdef CONFIG_KASAN
->   		"    kasan   : 0x%08lx - 0x%08lx  (%5lu MB)\n"
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 89314651dd62..c2e0b3495c5a 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -2373,7 +2373,7 @@ extern unsigned long free_reserved_area(void *start, void *end,
->   					int poison, const char *s);
->   
->   extern void adjust_managed_page_count(struct page *page, long count);
-> -extern void mem_init_print_info(const char *str);
-> +extern void mem_init_print_info(void);
->   
->   extern void reserve_bootmem_region(phys_addr_t start, phys_addr_t end);
->   
-> diff --git a/init/main.c b/init/main.c
-> index 53b278845b88..5581af5b4cb7 100644
-> --- a/init/main.c
-> +++ b/init/main.c
-> @@ -830,6 +830,7 @@ static void __init mm_init(void)
->   	report_meminit();
->   	stack_depot_init();
->   	mem_init();
-> +	mem_init_print_info();
->   	/* page_owner must be initialized after buddy is ready */
->   	page_ext_init_flatmem_late();
->   	kmem_cache_init();
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 55d938297ce6..b5fe5962837c 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -7728,7 +7728,7 @@ unsigned long free_reserved_area(void *start, void *end, int poison, const char
->   	return pages;
->   }
->   
-> -void __init mem_init_print_info(const char *str)
-> +void __init mem_init_print_info(void)
->   {
->   	unsigned long physpages, codesize, datasize, rosize, bss_size;
->   	unsigned long init_code_size, init_data_size;
-> @@ -7767,17 +7767,17 @@ void __init mem_init_print_info(const char *str)
->   #ifdef	CONFIG_HIGHMEM
->   		", %luK highmem"
->   #endif
-> -		"%s%s)\n",
-> +		")\n",
->   		nr_free_pages() << (PAGE_SHIFT - 10),
->   		physpages << (PAGE_SHIFT - 10),
->   		codesize >> 10, datasize >> 10, rosize >> 10,
->   		(init_data_size + init_code_size) >> 10, bss_size >> 10,
->   		(physpages - totalram_pages() - totalcma_pages) << (PAGE_SHIFT - 10),
-> -		totalcma_pages << (PAGE_SHIFT - 10),
-> +		totalcma_pages << (PAGE_SHIFT - 10)
->   #ifdef	CONFIG_HIGHMEM
-> -		totalhigh_pages() << (PAGE_SHIFT - 10),
-> +		, totalhigh_pages() << (PAGE_SHIFT - 10)
->   #endif
-> -		str ? ", " : "", str ? str : "");
-> +		);
->   }
->   
->   /**
+636c3ef8229ecb4e7d045e86f36505d24a8f019a is the first bad commit
+commit 636c3ef8229ecb4e7d045e86f36505d24a8f019a
+Author: Muchun Song <songmuchun@bytedance.com>
+Date:   Mon Mar 29 11:12:06 2021 +1100
+
+     mm: memcontrol: use obj_cgroup APIs to charge kmem pages
+     
+     Since Roman's series "The new cgroup slab memory controller" applied.  All
+     slab objects are charged via the new APIs of obj_cgroup.  The new APIs
+     introduce a struct obj_cgroup to charge slab objects.  It prevents
+     long-living objects from pinning the original memory cgroup in the memory.
+     But there are still some corner objects (e.g.  allocations larger than
+     order-1 page on SLUB) which are not charged via the new APIs.  Those
+     objects (include the pages which are allocated from buddy allocator
+     directly) are charged as kmem pages which still hold a reference to the
+     memory cgroup.
+     
+     We want to reuse the obj_cgroup APIs to charge the kmem pages.  If we do
+     that, we should store an object cgroup pointer to page->memcg_data for the
+     kmem pages.
+     
+     Finally, page->memcg_data will have 3 different meanings.
+     
+       1) For the slab pages, page->memcg_data points to an object cgroups
+          vector.
+     
+       2) For the kmem pages (exclude the slab pages), page->memcg_data
+          points to an object cgroup.
+     
+       3) For the user pages (e.g. the LRU pages), page->memcg_data points
+          to a memory cgroup.
+     
+     We do not change the behavior of page_memcg() and page_memcg_rcu().  They
+     are also suitable for LRU pages and kmem pages.  Why?
+     
+     Because memory allocations pinning memcgs for a long time - it exists at a
+     larger scale and is causing recurring problems in the real world: page
+     cache doesn't get reclaimed for a long time, or is used by the second,
+     third, fourth, ...  instance of the same job that was restarted into a new
+     cgroup every time.  Unreclaimable dying cgroups pile up, waste memory, and
+     make page reclaim very inefficient.
+     
+     We can convert LRU pages and most other raw memcg pins to the objcg
+     direction to fix this problem, and then the page->memcg will always point
+     to an object cgroup pointer.  At that time, LRU pages and kmem pages will
+     be treated the same.  The implementation of page_memcg() will remove the
+     kmem page check.
+     
+     This patch aims to charge the kmem pages by using the new APIs of
+     obj_cgroup.  Finally, the page->memcg_data of the kmem page points to an
+     object cgroup.  We can use the __page_objcg() to get the object cgroup
+     associated with a kmem page.  Or we can use page_memcg() to get the memory
+     cgroup associated with a kmem page, but caller must ensure that the
+     returned memcg won't be released (e.g.  acquire the rcu_read_lock or
+     css_set_lock).
+     
+     Link: https://lkml.kernel.org/r/20210319163821.20704-6-songmuchun@bytedance.com
+     Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+     Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+     Cc: Michal Hocko <mhocko@kernel.org>
+     Cc: Roman Gushchin <guro@fb.com>
+     Cc: Shakeel Butt <shakeelb@google.com>
+     Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+     Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
+     Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+     Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+
+  include/linux/memcontrol.h | 116 +++++++++++++++++++++++++++++++++++----------
+  mm/memcontrol.c            | 110 +++++++++++++++++++++---------------------
+  2 files changed, 145 insertions(+), 81 deletions(-)
+
+
+
+
+
+On 30.03.21 13:32, Christian Borntraeger wrote:
+[...]
+> 
+> This next (328 is fine) triggers several bugs during our KVM CI run:
+> 
+> [ 1506.494716] ------------[ cut here ]------------
+> [ 1506.494730] percpu ref (obj_cgroup_release) <= 0 (-1) after switching to atomic
+> [ 1506.494766] WARNING: CPU: 6 PID: 0 at lib/percpu-refcount.c:196 percpu_ref_switch_to_atomic_rcu+0x1ea/0x1f8
+> [ 1506.494774] Modules linked in: kvm vhost_vsock vmw_vsock_virtio_transport_common vsock vhost vhost_iotlb xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT xt_tcpudp nft_compat nf_nat_tftp nft_objref nf_conntrack_tftp nft_counter bridge stp llc nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct dm_service_time nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables nfnetlink zfcp scsi_transport_fc rpcrdma sunrpc dm_multipath rdma_ucm scsi_dh_rdac scsi_dh_emc rdma_cm scsi_dh_alua iw_cm ib_cm mlx5_ib ib_uverbs dm_mod ib_core s390_trng vfio_ccw vfio_mdev mdev vfio_iommu_type1 zcrypt_cex4 vfio eadm_sch sch_fq_codel configfs ip_tables x_tables ghash_s390 prng aes_s390 des_s390 libdes sha3_512_s390 sha3_256_s390 mlx5_core sha512_s390 sha256_s390 sha1_s390 sha_common nvme nvme_core pkey zcrypt rng_core autofs4 [last unloaded: vfio_ap]
+> [ 1506.494832] CPU: 6 PID: 0 Comm: swapper/6 Not tainted 5.12.0-20210330.rc4.git0.9d49ed9ca93b.300.fc33.s390x+next #1
+> [ 1506.494834] Hardware name: IBM 8561 T01 703 (LPAR)
+> [ 1506.494836] Krnl PSW : 0704c00180000000 00000002d71dd21e (percpu_ref_switch_to_atomic_rcu+0x1ee/0x1f8)
+> [ 1506.494840]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
+> [ 1506.494842] Krnl GPRS: c0000000fffeffff 00000002f7256818 0000000000000043 00000000fffeffff
+> [ 1506.494844]            00000000ffffffea 0000038000000001 0000000000000000 000003800000017c
+> [ 1506.494846]            00000002d7924988 0000000227eb97a0 000003ff5413c7e0 7fffffffffffffff
+> [ 1506.494848]            0000000080360000 00000002f726b570 00000002d71dd21a 00000380000bba28
+> [ 1506.494856] Krnl Code: 00000002d71dd20e: e3309fe8ff04        lg      %r3,-24(%r9)
+>                            00000002d71dd214: c0e5001eb556        brasl   %r14,00000002d75b3cc0
+>                           #00000002d71dd21a: af000000            mc      0,0
+>                           >00000002d71dd21e: a7f4ffcc            brc     15,00000002d71dd1b6
+>                            00000002d71dd222: 0707                bcr     0,%r7
+>                            00000002d71dd224: 0707                bcr     0,%r7
+>                            00000002d71dd226: 0707                bcr     0,%r7
+>                            00000002d71dd228: eb6ff0480024        stmg    %r6,%r15,72(%r15)
+> [ 1506.494928] Call Trace:
+> [ 1506.494933]  [<00000002d71dd21e>] percpu_ref_switch_to_atomic_rcu+0x1ee/0x1f8
+> [ 1506.494940] ([<00000002d71dd21a>] percpu_ref_switch_to_atomic_rcu+0x1ea/0x1f8)
+> [ 1506.494942]  [<00000002d6b8a6c6>] rcu_do_batch+0x146/0x608
+> [ 1506.494946]  [<00000002d6b8ec04>] rcu_core+0x124/0x1d0
+> [ 1506.494948]  [<00000002d75d0222>] __do_softirq+0x13a/0x3c8
+> [ 1506.494952]  [<00000002d6b05306>] irq_exit+0xce/0xf8
+> [ 1506.494955]  [<00000002d75c1eb4>] do_ext_irq+0xdc/0x170
+> [ 1506.494957]  [<00000002d75cdea4>] ext_int_handler+0xc4/0xf4
+> [ 1506.494959]  [<0000000000000000>] 0x0
+> [ 1506.494963]  [<00000002d75cd9c2>] default_idle_call+0x42/0x110
+> [ 1506.494965]  [<00000002d6b411a0>] do_idle+0xd8/0x168
+> [ 1506.494968]  [<00000002d6b413ee>] cpu_startup_entry+0x36/0x40
+> [ 1506.494971]  [<00000002d6ac730a>] smp_start_secondary+0x82/0x88
+> [ 1506.494974] Last Breaking-Event-Address:
+> [ 1506.494975]  [<00000002d6b71898>] vprintk_emit+0xa8/0x110
+> [ 1506.494978] Kernel panic - not syncing: panic_on_warn set ...
+> 
+> 
+> 
+> I will try to bisect this, but if anyone has an idea. CC some candidates.
+
