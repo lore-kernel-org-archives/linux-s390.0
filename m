@@ -2,116 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC985C433E0
-	for <linux-s390@archiver.kernel.org>; Mon, 29 Mar 2021 19:57:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 202D6C433E0
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 00:22:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8DF1A601FC
-	for <linux-s390@archiver.kernel.org>; Mon, 29 Mar 2021 19:57:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9EAF61996
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Mar 2021 00:22:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231709AbhC2T4z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 Mar 2021 15:56:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59786 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231512AbhC2T4h (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Mar 2021 15:56:37 -0400
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6E73C061574;
-        Mon, 29 Mar 2021 12:56:36 -0700 (PDT)
-Received: by mail-wm1-x32b.google.com with SMTP id m20-20020a7bcb940000b029010cab7e5a9fso9096670wmi.3;
-        Mon, 29 Mar 2021 12:56:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=MQBrb4YVkXVVUdNQVIYjRBD1ELh8gLe+l+iTh/6ZeHE=;
-        b=apoBR01O0o2kiwhvAkciBfD7GZFv1B/yax9UQcmq8NLg7THJXp9CqywQmRY0GATMB8
-         2pN66eybFsOGXRE5+Au+grXwApxl8fjIJSMtONFCmGjAf1Nv2+ki6LLABqPWZzgiSET6
-         bTllyR8Zc81quWkKoo2E4zphFgY1NWZfD/IERlV6jNEbWU7yKf6LLxkzYYRKWM+oRmGw
-         vaalZARYxt85174gBzFKUBe0gvnQcoN+roAFMsPVbON0q6eoAie9Q//Zgr+xjLXNHadu
-         DVH7vezu4UgnyXOUQhwaJQ3r6M5xMFPrvkzIc7WTnSdpx6IshSgwMZBTmfzg24F2pwot
-         Zk9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=MQBrb4YVkXVVUdNQVIYjRBD1ELh8gLe+l+iTh/6ZeHE=;
-        b=qOSlKQMvfiMbv5mOvc9N+W0r+mSMdqYzXAQy+mTJ6c+kSUl8HVn3zN1j1dDUAunGnN
-         PHNSUp12/W60O7vhW9g1d7Q/VyJqvkg7RQZVhcrkqnploycmj9oA5qD1Nkgv/KEYQhRf
-         NU4pICGUHXLBV9HJP/Q4TdgWao2y4Id4wDx6cPOswcBM0LPDYW7CTR8IKniW2QqhpZWB
-         ZkTKzSk36FNBE0UwVw5jUDDUMfQQF2URi1cLc5PSnqc2hNzr7Iq5aGYc/0hcBv3VMuIP
-         tSiFXfxLbJ8iYPZEsxcOQzCws5zGLbBXj31oXghRunJbUYPYUKOq0s9IbGsJjj5Xa4/j
-         8bDg==
-X-Gm-Message-State: AOAM533Utk9u/8EQpYjoUPR8KFGlOTgpG+M0oMg1lls1MStT9Rcked2s
-        sDaiHVZOYw7VY2WwAOe/9Xw=
-X-Google-Smtp-Source: ABdhPJzaPyymGOXg3cichgFoBPMx6tnYRHhCJYXcLD4ZgPv84qLD+ONtlhrSVvSSIa0vQXYxzmbxjw==
-X-Received: by 2002:a1c:3d8a:: with SMTP id k132mr590836wma.71.1617047795554;
-        Mon, 29 Mar 2021 12:56:35 -0700 (PDT)
-Received: from [192.168.1.101] ([37.173.175.207])
-        by smtp.gmail.com with ESMTPSA id f2sm457550wmp.20.2021.03.29.12.56.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Mar 2021 12:56:35 -0700 (PDT)
-Subject: Re: [PATCH net-next v3 5/7] mld: convert ifmcaddr6 to RCU
-To:     Taehee Yoo <ap420073@gmail.com>, netdev@vger.kernel.org,
-        davem@davemloft.net, kuba@kernel.org
-Cc:     jwi@linux.ibm.com, kgraul@linux.ibm.com, hca@linux.ibm.com,
+        id S230322AbhC3AV7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 Mar 2021 20:21:59 -0400
+Received: from mga07.intel.com ([134.134.136.100]:39274 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229709AbhC3AVa (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 29 Mar 2021 20:21:30 -0400
+IronPort-SDR: 9mPvooaT9C45CatCby5UIdz+nzCMA51HaR2EcTq98X4zqwp7cDAFwK5Wq9U6/j4roEUBqUT5SU
+ Ibl/a1Vl65UA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9938"; a="255647126"
+X-IronPort-AV: E=Sophos;i="5.81,289,1610438400"; 
+   d="scan'208";a="255647126"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Mar 2021 17:21:28 -0700
+IronPort-SDR: i1TLOkluRkhSAVidGcNy0qg3WvjCOXr4+YtdP+Xrfvr2vBu6l5+gk/Uc+352erOpvIvup8gtEm
+ +pdrdP9Z7b2Q==
+X-IronPort-AV: E=Sophos;i="5.81,289,1610438400"; 
+   d="scan'208";a="417911010"
+Received: from yhuang6-desk1.sh.intel.com (HELO yhuang6-desk1.ccr.corp.intel.com) ([10.239.13.1])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Mar 2021 17:21:25 -0700
+From:   "Huang, Ying" <ying.huang@intel.com>
+To:     Yang Shi <shy828301@gmail.com>
+Cc:     mgorman@suse.de, kirill.shutemov@linux.intel.com, ziy@nvidia.com,
+        mhocko@suse.com, hughd@google.com, hca@linux.ibm.com,
         gor@linux.ibm.com, borntraeger@de.ibm.com,
-        mareklindner@neomailbox.ch, sw@simonwunderlich.de, a@unstable.cc,
-        sven@narfation.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        linux-s390@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org
-References: <20210325161657.10517-1-ap420073@gmail.com>
- <20210325161657.10517-6-ap420073@gmail.com>
-From:   Eric Dumazet <eric.dumazet@gmail.com>
-Message-ID: <6262890a-7789-e3dd-aa04-58e5e06499dc@gmail.com>
-Date:   Mon, 29 Mar 2021 21:56:32 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.0
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/6] mm: migrate: teach migrate_misplaced_page() about THP
+References: <20210329183312.178266-1-shy828301@gmail.com>
+        <20210329183312.178266-4-shy828301@gmail.com>
+Date:   Tue, 30 Mar 2021 08:21:23 +0800
+In-Reply-To: <20210329183312.178266-4-shy828301@gmail.com> (Yang Shi's message
+        of "Mon, 29 Mar 2021 11:33:09 -0700")
+Message-ID: <87ft0dbif0.fsf@yhuang6-desk1.ccr.corp.intel.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-In-Reply-To: <20210325161657.10517-6-ap420073@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ascii
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Yang Shi <shy828301@gmail.com> writes:
 
-
-On 3/25/21 5:16 PM, Taehee Yoo wrote:
-> The ifmcaddr6 has been protected by inet6_dev->lock(rwlock) so that
-> the critical section is atomic context. In order to switch this context,
-> changing locking is needed. The ifmcaddr6 actually already protected by
-> RTNL So if it's converted to use RCU, its control path context can be
-> switched to sleepable.
+> In the following patch the migrate_misplaced_page() will be used to migrate THP
+> for NUMA faul too.  Prepare to deal with THP.
 >
-
-I do not really understand the changelog.
-
-You wanted to convert from RCU to RTNL, right ?
-
-Also :
-
-> @@ -571,13 +573,9 @@ int ip6_mc_msfget(struct sock *sk, struct group_filter *gsf,
->  	if (!ipv6_addr_is_multicast(group))
->  		return -EINVAL;
+> Signed-off-by: Yang Shi <shy828301@gmail.com>
+> ---
+>  include/linux/migrate.h | 6 ++++--
+>  mm/memory.c             | 2 +-
+>  mm/migrate.c            | 2 +-
+>  3 files changed, 6 insertions(+), 4 deletions(-)
+>
+> diff --git a/include/linux/migrate.h b/include/linux/migrate.h
+> index 3a389633b68f..6abd34986cc5 100644
+> --- a/include/linux/migrate.h
+> +++ b/include/linux/migrate.h
+> @@ -102,14 +102,16 @@ static inline void __ClearPageMovable(struct page *page)
+>  #ifdef CONFIG_NUMA_BALANCING
+>  extern bool pmd_trans_migrating(pmd_t pmd);
+>  extern int migrate_misplaced_page(struct page *page,
+> -				  struct vm_area_struct *vma, int node);
+> +				  struct vm_area_struct *vma, int node,
+> +				  bool compound);
+>  #else
+>  static inline bool pmd_trans_migrating(pmd_t pmd)
+>  {
+>  	return false;
+>  }
+>  static inline int migrate_misplaced_page(struct page *page,
+> -					 struct vm_area_struct *vma, int node)
+> +					 struct vm_area_struct *vma, int node,
+> +					 bool compound)
+>  {
+>  	return -EAGAIN; /* can't migrate now */
+>  }
+> diff --git a/mm/memory.c b/mm/memory.c
+> index 003bbf3187d4..7fed578bdc31 100644
+> --- a/mm/memory.c
+> +++ b/mm/memory.c
+> @@ -4169,7 +4169,7 @@ static vm_fault_t do_numa_page(struct vm_fault *vmf)
+>  	}
 >  
-> -	rcu_read_lock();
-> -	idev = ip6_mc_find_dev_rcu(net, group, gsf->gf_interface);
-> -
-> -	if (!idev) {
-> -		rcu_read_unlock();
-> +	idev = ip6_mc_find_dev_rtnl(net, group, gsf->gf_interface);
-> +	if (!idev)
->  		return -ENODEV;
-> -	}
->  
+>  	/* Migrate to the requested node */
+> -	migrated = migrate_misplaced_page(page, vma, target_nid);
+> +	migrated = migrate_misplaced_page(page, vma, target_nid, false);
+>  	if (migrated) {
+>  		page_nid = target_nid;
+>  		flags |= TNF_MIGRATED;
+> diff --git a/mm/migrate.c b/mm/migrate.c
+> index 62b81d5257aa..9c4ae5132919 100644
+> --- a/mm/migrate.c
+> +++ b/mm/migrate.c
+> @@ -2127,7 +2127,7 @@ static inline bool is_shared_exec_page(struct vm_area_struct *vma,
+>   * the page that will be dropped by this function before returning.
+>   */
+>  int migrate_misplaced_page(struct page *page, struct vm_area_struct *vma,
+> -			   int node)
+> +			   int node, bool compound)
 
-I do not see RTNL being acquired before entering ip6_mc_msfget()
+Can we just use PageCompound(page) instead?
 
+Best Regards,
+Huang, Ying
 
+>  {
+>  	pg_data_t *pgdat = NODE_DATA(node);
+>  	int isolated;
