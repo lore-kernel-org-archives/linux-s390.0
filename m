@@ -2,94 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97A11C433C1
-	for <linux-s390@archiver.kernel.org>; Wed, 31 Mar 2021 09:36:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9355EC433C1
+	for <linux-s390@archiver.kernel.org>; Wed, 31 Mar 2021 11:44:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F621619DB
-	for <linux-s390@archiver.kernel.org>; Wed, 31 Mar 2021 09:36:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 39B6C61989
+	for <linux-s390@archiver.kernel.org>; Wed, 31 Mar 2021 11:44:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234804AbhCaJf2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 Mar 2021 05:35:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38426 "EHLO
+        id S235265AbhCaLn3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 Mar 2021 07:43:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234796AbhCaJe5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 Mar 2021 05:34:57 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB81C061574;
-        Wed, 31 Mar 2021 02:34:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=g5jil2A5p1wkLzsVeTmgtclSOGELktvkEXEKlZIjYVg=; b=XiJ+OxK9qQFp9pb3iCkwBlOXp
-        SMJ3LhDQZ76ImMGs1+23oQ/WioU0hWz9YYebFqQSGNvQ9UoNd6HpZZO1Sjlw6ufxhQGjsXhlyq1yL
-        Rg135ndoOTaxrliAkRSdtcBfX2vfDfUyJu5lpt9Qx1ISZiGbjOFZL9lbJbIgPizvs5nTWoRI4FLnx
-        IITtjbSu3y+aMQU0qpykWL/nQFeQEL15bN2ggOwffKUuT89Wrfg/HzYa88LdxJKrx3C6YUip0LQa6
-        pzMLGWk3w8Fc3V7dXGDMahXGdpM/gmApUuTa+Zg5+b0cW019JI5maq8g7N3s6BN2W+w/Or1ItM82H
-        Rqn3lcuqg==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:51970)
-        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1lRXFB-0001b6-Rl; Wed, 31 Mar 2021 10:34:33 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1lRXF0-0003oo-SH; Wed, 31 Mar 2021 10:34:22 +0100
-Date:   Wed, 31 Mar 2021 10:34:22 +0100
-From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Richard Henderson <rth@twiddle.net>,
-        Guo Ren <guoren@kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-xtensa@linux-xtensa.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2] mm: Move mem_init_print_info() into mm_init()
-Message-ID: <20210331093422.GU1463@shell.armlinux.org.uk>
-References: <4d488195-7281-9238-b30d-9f89a6100fb9@csgroup.eu>
- <20210317015210.33641-1-wangkefeng.wang@huawei.com>
+        with ESMTP id S235140AbhCaLn0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 Mar 2021 07:43:26 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17B8C06174A
+        for <linux-s390@vger.kernel.org>; Wed, 31 Mar 2021 04:43:25 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id x7-20020a17090a2b07b02900c0ea793940so1026026pjc.2
+        for <linux-s390@vger.kernel.org>; Wed, 31 Mar 2021 04:43:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=UGpodPHkfXLm7iN56tDwGRyDh5EuD8H1YpMxQufPMD0=;
+        b=rwKHgWGBF7LbXnXNy5oGtdkj7nZFlz59noFuMNooFY6kaShHxbzRMz2I7d5nGgL7/t
+         +ok1CQz/P9V4NcwZTV2I0zxbXSPqbmClTwg/N6NxPY284O20IoD6Z14MbEqsJBz9AdNY
+         sjAmyPj74zOc/MnKuHRJS1kkUxVPpGUyhANWVh2yPxPTsW1uNnlblhzlrnN6pCrjWjSW
+         IBe48QfLRzk3/tqGPuo0GP3N63V3cnkBIG7dd0nll8vo3JVEl7KOi6ueOuAFcw+0L71G
+         vezVPvBBidgrSFC5btdWIO8bQk8h0Rkgcb0BZKA/blokIIYpu1h8vSipqhLmUXsk96rC
+         Ibfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=UGpodPHkfXLm7iN56tDwGRyDh5EuD8H1YpMxQufPMD0=;
+        b=Gpm5FVujXDQ92pvz471hMm9YfoinRd/Z6g2VJRCVRZxO5oA5xDWbaSzTbEqSrBlr1b
+         Ipn4oAKwsyCG2/6n2BMWbSmwsI/owgkxEXLQ4EEe4TVWj+L29qbj04TdNSWEw76T8sje
+         KU5HTFJ+Uk5IFfnCYjdUVwajBKeJ9xFNyGpfZgcw+PE/t51HDQUwdCrwiCSRWHJV8rhf
+         e3OyxVroN3JbMtNKfyebwFjrQwN7klXCaXR9OICfw4l4zzrHAM6MPa4oy7VBDS0BO4KJ
+         LgCC01p8CnwyoC2nR0n74FIM+1iENWcSm9iMwkQ9Ge+1omEEMUlXIl2YF/4ch10PrPAa
+         kYEQ==
+X-Gm-Message-State: AOAM531bws0PebDkCuLCpkhi09UEniAjC3dcUkTYyLkekPt6SCOHdo27
+        wvc2zmQsNdCm484upzB2HYgD9tQ+m6M8Kl/GKZq5bw==
+X-Google-Smtp-Source: ABdhPJyQeEccOchdfuIdOfAs7vnS1u5W66NAQF5XOs+4FxaBFfEy50turP6fbzyVPqbmyOQiVacohw7vfOhJFSVtnrU=
+X-Received: by 2002:a17:902:da91:b029:e5:e7cf:d737 with SMTP id
+ j17-20020a170902da91b02900e5e7cfd737mr2747859plx.24.1617191005204; Wed, 31
+ Mar 2021 04:43:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210317015210.33641-1-wangkefeng.wang@huawei.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Sender: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+References: <20210329205249.6b557510@canb.auug.org.au> <83263d0d-1f3f-8a3c-8a95-49e0cfa15051@de.ibm.com>
+ <4419611b-3282-2197-884c-332025cdada8@de.ibm.com> <CAMZfGtUaTdmpcw1dr_rWQZTz3UTh9ZFavr0WBSa_obENPasgFw@mail.gmail.com>
+ <7c27fc2e-5cea-5a17-6e30-8ae1cb291274@de.ibm.com> <CAMZfGtV9w24cJAwYsQuhvVpdLiYssjdfwfXApNK51zacr31c3w@mail.gmail.com>
+ <179f84ad-7b98-4bc5-f895-c19faabbb311@de.ibm.com>
+In-Reply-To: <179f84ad-7b98-4bc5-f895-c19faabbb311@de.ibm.com>
+From:   Muchun Song <songmuchun@bytedance.com>
+Date:   Wed, 31 Mar 2021 19:42:48 +0800
+Message-ID: <CAMZfGtX0MvsXCE2DgBo=jsmTGWa5wcS40vaOJSBZ1U6Wnkx8Fw@mail.gmail.com>
+Subject: Re: [External] RE: kernel warning percpu ref in obj_cgroup_release
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     Stephen Rothwell <sfr@canb.auug.org.au>,
+        Linux Next Mailing List <linux-next@vger.kernel.org>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>, Roman Gushchin <guro@fb.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Xiongchun Duan <duanxiongchun@bytedance.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 17, 2021 at 09:52:10AM +0800, Kefeng Wang wrote:
-> mem_init_print_info() is called in mem_init() on each architecture,
-> and pass NULL argument, so using void argument and move it into mm_init().
-> 
-> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+On Wed, Mar 31, 2021 at 2:22 PM Christian Borntraeger
+<borntraeger@de.ibm.com> wrote:
+>
+>
+>
+> On 30.03.21 18:25, Muchun Song wrote:
+> > On Tue, Mar 30, 2021 at 11:10 PM Christian Borntraeger
+> > <borntraeger@de.ibm.com> wrote:
+> >>
+> >>
+> >> On 30.03.21 15:49, Muchun Song wrote:
+> >>> On Tue, Mar 30, 2021 at 9:27 PM Christian Borntraeger
+> >>> <borntraeger@de.ibm.com> wrote:
+> >>>>
+> >>>> So bisect shows this for belows warning:
+> >>>
+> >>> Thanks for your effort on this. Can you share your config?
+> >>
+> >> attached (but its s390x) for next-20210330
+> >
+> > Thanks. Can you apply the following patch and help me test?
+> > Very Thanks.
+> >
+> > diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+> > index 7fdc92e1983e..579408e4d46f 100644
+> > --- a/include/linux/memcontrol.h
+> > +++ b/include/linux/memcontrol.h
+> > @@ -793,6 +793,12 @@ static inline void obj_cgroup_get(struct obj_cgroup *objcg)
+> >          percpu_ref_get(&objcg->refcnt);
+> >   }
+> >
+> > +static inline void obj_cgroup_get_many(struct obj_cgroup *objcg,
+> > +                                      unsigned long nr)
+> > +{
+> > +       percpu_ref_get_many(&objcg->refcnt, nr);
+> > +}
+> > +
+> >   static inline void obj_cgroup_put(struct obj_cgroup *objcg)
+> >   {
+> >          percpu_ref_put(&objcg->refcnt);
+> > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> > index c0b83a396299..1634dba1044c 100644
+> > --- a/mm/memcontrol.c
+> > +++ b/mm/memcontrol.c
+> > @@ -3133,7 +3133,10 @@ void split_page_memcg(struct page *head, unsigned int nr)
+> >
+> >          for (i = 1; i < nr; i++)
+> >                  head[i].memcg_data = head->memcg_data;
+> > -       css_get_many(&memcg->css, nr - 1);
+> > +       if (PageMemcgKmem(head))
+> > +               obj_cgroup_get_many(__page_objcg(head), nr - 1);
+> > +       else
+> > +               css_get_many(&memcg->css, nr - 1);
+> >   }
+> >
+> >   #ifdef CONFIG_MEMCG_SWAP
+> >
+>
+> This one seems to do the trick, I can no longer see the warning.
 
-Acked-by: Russell King <rmk+kernel@armlinux.org.uk> # for arm bits
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+Thanks for your testing. I will send a fix patch.
