@@ -2,196 +2,152 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4E10C433ED
-	for <linux-s390@archiver.kernel.org>; Wed, 31 Mar 2021 14:37:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D266EC433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 31 Mar 2021 14:46:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9385460FF3
-	for <linux-s390@archiver.kernel.org>; Wed, 31 Mar 2021 14:37:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ACAE061007
+	for <linux-s390@archiver.kernel.org>; Wed, 31 Mar 2021 14:46:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235758AbhCaOgn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 31 Mar 2021 10:36:43 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34444 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235835AbhCaOge (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 31 Mar 2021 10:36:34 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 12VEWvYd149155;
-        Wed, 31 Mar 2021 10:36:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=rcCa/v/+J0NqSpgbBHqnlhizh/g5c/c8dt5640dLkIo=;
- b=VNjd6V9HaHhDmNjc8+ZYiQZXcnmFfjUaqk+A9lLhvkO7Q6qiYlTWscZrdpWYpkpEUdK/
- TLpiY8mYhtu0WoTeSi3WG5tXjOSNbEfaeWVl8TwFKO72kP9L+gr1Oe6QBPvR15ZRQT9O
- MkSBkU7GIxawBa/TeyzRtUkVThjWBPXC4FtlMjT/0yDczoo7Qw6JA2NGi6iVrqW2YShK
- ZUsHU+URUIpBdvKWowXCDFulbZIk7HAxfJTmw56tA4T1NrHXJwhlDMmI9dxUceUU4MX3
- dULbiS1x/sVLXispEImIKTNyTVUu7zvrpk0cQUNtAjgOjLcDZjOE2OWUVUIAWmbEhT7+ kQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37mt98hqf5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 Mar 2021 10:36:28 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 12VEY1jf157283;
-        Wed, 31 Mar 2021 10:36:28 -0400
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37mt98hqep-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 Mar 2021 10:36:27 -0400
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 12VELrI9015730;
-        Wed, 31 Mar 2021 14:36:26 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma03wdc.us.ibm.com with ESMTP id 37maarwkgy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 31 Mar 2021 14:36:26 +0000
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 12VEaPXD9241498
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 31 Mar 2021 14:36:25 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 090B2112065;
-        Wed, 31 Mar 2021 14:36:25 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4C392112061;
-        Wed, 31 Mar 2021 14:36:24 +0000 (GMT)
-Received: from cpe-66-24-58-13.stny.res.rr.com (unknown [9.85.146.149])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed, 31 Mar 2021 14:36:24 +0000 (GMT)
-Subject: Re: [PATCH v13 06/15] s390/vfio-ap: allow assignment of unavailable
- AP queues to mdev device
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com,
-        cohuck@redhat.com, mjrosato@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        hca@linux.ibm.com, gor@linux.ibm.com
-References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
- <20201223011606.5265-7-akrowiak@linux.ibm.com>
- <20210111214037.477f0f03.pasic@linux.ibm.com>
- <270e192b-b88d-b072-428c-6cbfc0f9a280@linux.ibm.com>
- <20210115024441.1d8f41bc.pasic@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <762bee4a-7daa-948a-2054-41b3e172fa8c@linux.ibm.com>
-Date:   Wed, 31 Mar 2021 10:36:23 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S236167AbhCaOp5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 31 Mar 2021 10:45:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49272 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236160AbhCaOpu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 Mar 2021 10:45:50 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D55BC06174A
+        for <linux-s390@vger.kernel.org>; Wed, 31 Mar 2021 07:45:50 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id t140so7031044pgb.13
+        for <linux-s390@vger.kernel.org>; Wed, 31 Mar 2021 07:45:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=tuR3Hv076e26+xlhfVy+RVU9YGaEZoZ+Lpr3C0PuPj0=;
+        b=12oUV8qvnOtZlVRKX4+66fhJzTPpAlBAdDPmqnXbelpoS1psN2NsG6+yvWAXHkdfzR
+         pGr/aIhSbJpBDAUGUxG1w0MQRo+x0yfMZkhLkP2aKwQsUcg1jwmnt5lzNtlynqTpgMsu
+         +0txxi1AVE2pR1DYjnCJ1b52jDm6rGdpckh7Wa/wbDAcUVFdOQPXXxK3CflbZoG9OLAw
+         ZEImbz7L5c7G2zIV8JCj4Z0dsmUiO3t4SiobKVzIHzXC4XWRhpMu5Mmnkq5t2TQigD33
+         JFyYiqhLKgkYTPA/+k+Es7wroXG3oMIzwdTQRajYjOuiG+ffMc0nnsYbCnuDMOrC/hmy
+         U6ng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=tuR3Hv076e26+xlhfVy+RVU9YGaEZoZ+Lpr3C0PuPj0=;
+        b=nf2/mUCWVrF337LP/O0a0eMjHIbiH0b/N2VeQyROmXot8WIVfpFdBK3JzFLuaehTwy
+         E6aBDnBatWkKR3My9BeK56sDl05beujR3BxozPYQOB+Hr7QyMYxabMAqJV6CUuVi3JXg
+         nRN85a0CLXbhlw6FmqlctrcT2652aKOLOWw/4kFkT/z37Ep1rLfTXix2ksQrti9hw0CN
+         OChAm2I5VOyHTLjXImR+h8UQJqJVQWWtUCFVG9JKC4VAHWP8cGg0DxXpUdTbnNiRhmni
+         uFiZL5MqVRP/9S8hlYdl0q9Vj04ZfllTPfnGqws266OpVlv6RfG21+miMl9W6D6FdFKe
+         PPlA==
+X-Gm-Message-State: AOAM533KT8bxpuKUpxzzXUaYJqyFrduVpT2IGHN6DAFVueW5my5rsZ5i
+        REFWLmUN/AOYemSLxghRdQRT6KWbuLNlyB8eVEtTVw==
+X-Google-Smtp-Source: ABdhPJxkhEmyeADfWNgTHDVOe1oy2q+K3PVRvPiuuzPcDmxT3WXsOIdVzQgiycPQd4b3/r0/NQfTuSY7wqkPQUDakhc=
+X-Received: by 2002:a05:6a00:8c7:b029:20f:1cf4:d02 with SMTP id
+ s7-20020a056a0008c7b029020f1cf40d02mr3352305pfu.49.1617201949962; Wed, 31 Mar
+ 2021 07:45:49 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210115024441.1d8f41bc.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ZLXsEjiyn207Jpp_SaIZ_TdQVxW0s_qI
-X-Proofpoint-ORIG-GUID: GcTU25s7Xa9-9JZAQP3tS2rzjxyjKl38
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-03-31_03:2021-03-31,2021-03-31 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- clxscore=1015 bulkscore=0 mlxlogscore=999 priorityscore=1501
- impostorscore=0 adultscore=0 suspectscore=0 lowpriorityscore=0
- phishscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2103300000 definitions=main-2103310105
+References: <20210329205249.6b557510@canb.auug.org.au> <83263d0d-1f3f-8a3c-8a95-49e0cfa15051@de.ibm.com>
+ <4419611b-3282-2197-884c-332025cdada8@de.ibm.com> <CAMZfGtUaTdmpcw1dr_rWQZTz3UTh9ZFavr0WBSa_obENPasgFw@mail.gmail.com>
+ <7c27fc2e-5cea-5a17-6e30-8ae1cb291274@de.ibm.com> <CAMZfGtV9w24cJAwYsQuhvVpdLiYssjdfwfXApNK51zacr31c3w@mail.gmail.com>
+ <179f84ad-7b98-4bc5-f895-c19faabbb311@de.ibm.com>
+In-Reply-To: <179f84ad-7b98-4bc5-f895-c19faabbb311@de.ibm.com>
+From:   Muchun Song <songmuchun@bytedance.com>
+Date:   Wed, 31 Mar 2021 22:45:12 +0800
+Message-ID: <CAMZfGtVhL14_mLKKcPA+QFbKUDBSwKRR_srrGODk0nhcVH6KoA@mail.gmail.com>
+Subject: Re: [External] RE: kernel warning percpu ref in obj_cgroup_release
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Stephen Rothwell <sfr@canb.auug.org.au>,
+        Linux Next Mailing List <linux-next@vger.kernel.org>,
+        Yang Shi <shy828301@gmail.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>, Roman Gushchin <guro@fb.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Xiongchun Duan <duanxiongchun@bytedance.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 1/14/21 8:44 PM, Halil Pasic wrote:
-> On Thu, 14 Jan 2021 12:54:39 -0500
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+On Wed, Mar 31, 2021 at 2:22 PM Christian Borntraeger
+<borntraeger@de.ibm.com> wrote:
 >
->>>>    /**
->>>>     * vfio_ap_mdev_verify_no_sharing
->>>>     *
->>>> - * Verifies that the APQNs derived from the cross product of the AP adapter IDs
->>>> - * and AP queue indexes comprising the AP matrix are not configured for another
->>>> - * mediated device. AP queue sharing is not allowed.
->>>> + * Verifies that each APQN derived from the Cartesian product of the AP adapter
->>>> + * IDs and AP queue indexes comprising the AP matrix are not configured for
->>>> + * another mediated device. AP queue sharing is not allowed.
->>>>     *
->>>> - * @matrix_mdev: the mediated matrix device
->>>> + * @matrix_mdev: the mediated matrix device to which the APQNs being verified
->>>> + *		 are assigned.
->>>> + * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
->>>> + * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
->>>>     *
->>>> - * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
->>>> + * Returns 0 if the APQNs are not shared, otherwise; returns -EBUSY.
->>>>     */
->>>> -static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
->>>> +static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
->>>> +					  unsigned long *mdev_apm,
->>>> +					  unsigned long *mdev_aqm)
->>>>    {
->>>>    	struct ap_matrix_mdev *lstdev;
->>>>    	DECLARE_BITMAP(apm, AP_DEVICES);
->>>> @@ -523,20 +426,31 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
->>>>    		 * We work on full longs, as we can only exclude the leftover
->>>>    		 * bits in non-inverse order. The leftover is all zeros.
->>>>    		 */
->>>> -		if (!bitmap_and(apm, matrix_mdev->matrix.apm,
->>>> -				lstdev->matrix.apm, AP_DEVICES))
->>>> +		if (!bitmap_and(apm, mdev_apm, lstdev->matrix.apm, AP_DEVICES))
->>>>    			continue;
->>>>    
->>>> -		if (!bitmap_and(aqm, matrix_mdev->matrix.aqm,
->>>> -				lstdev->matrix.aqm, AP_DOMAINS))
->>>> +		if (!bitmap_and(aqm, mdev_aqm, lstdev->matrix.aqm, AP_DOMAINS))
->>>>    			continue;
->>>>    
->>>> -		return -EADDRINUSE;
->>>> +		vfio_ap_mdev_log_sharing_err(dev_name(mdev_dev(lstdev->mdev)),
->>>> +					     apm, aqm);
->>>> +
->>>> +		return -EBUSY;
->>> Why do we change -EADDRINUSE to -EBUSY? This gets bubbled up to
->>> userspace, or? So a tool that checks for the other mdev has it
->>> condition by checking for -EADDRINUSE, would be confused...
->> Back in v8 of the series, Christian suggested the occurrences
->> of -EADDRINUSE should be replaced by the more appropriate
->> -EBUSY (Message ID <d7954c15-b14f-d6e5-0193-aadca61883a8@de.ibm.com>),
->> so I changed it here. It does get bubbled up to userspace, so you make a
->> valid point. I will
->> change it back. I will, however, set the value returned from the
->> __verify_card_reservations() function in ap_bus.c to -EBUSY as
->> suggested by Christian.
-> As long as the error code for an ephemeral failure due to can't take a
-> lock right now, and the error code for a failure due to a sharing
-> conflict are (which most likely requires admin action to be resolved)
-> I'm fine.
 >
-> Choosing EBUSY for sharing conflict, and something else for can't take
-> lock for the bus attributes, while choosing EADDRINUSE for sharing
-> conflict, and EBUSY for can't take lock in the case of the mdev
-> attributes (assign_*; unassign_*) sounds confusing to me, but is still
-> better than collating the two conditions. Maybe we can choose EAGAIN
-> or EWOULDBLOCK for the can't take the lock right now. I don't know.
+>
+> On 30.03.21 18:25, Muchun Song wrote:
+> > On Tue, Mar 30, 2021 at 11:10 PM Christian Borntraeger
+> > <borntraeger@de.ibm.com> wrote:
+> >>
+> >>
+> >> On 30.03.21 15:49, Muchun Song wrote:
+> >>> On Tue, Mar 30, 2021 at 9:27 PM Christian Borntraeger
+> >>> <borntraeger@de.ibm.com> wrote:
+> >>>>
+> >>>> So bisect shows this for belows warning:
+> >>>
+> >>> Thanks for your effort on this. Can you share your config?
+> >>
+> >> attached (but its s390x) for next-20210330
+> >
+> > Thanks. Can you apply the following patch and help me test?
+> > Very Thanks.
+> >
+> > diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+> > index 7fdc92e1983e..579408e4d46f 100644
+> > --- a/include/linux/memcontrol.h
+> > +++ b/include/linux/memcontrol.h
+> > @@ -793,6 +793,12 @@ static inline void obj_cgroup_get(struct obj_cgroup *objcg)
+> >          percpu_ref_get(&objcg->refcnt);
+> >   }
+> >
+> > +static inline void obj_cgroup_get_many(struct obj_cgroup *objcg,
+> > +                                      unsigned long nr)
+> > +{
+> > +       percpu_ref_get_many(&objcg->refcnt, nr);
+> > +}
+> > +
+> >   static inline void obj_cgroup_put(struct obj_cgroup *objcg)
+> >   {
+> >          percpu_ref_put(&objcg->refcnt);
+> > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> > index c0b83a396299..1634dba1044c 100644
+> > --- a/mm/memcontrol.c
+> > +++ b/mm/memcontrol.c
+> > @@ -3133,7 +3133,10 @@ void split_page_memcg(struct page *head, unsigned int nr)
+> >
+> >          for (i = 1; i < nr; i++)
+> >                  head[i].memcg_data = head->memcg_data;
+> > -       css_get_many(&memcg->css, nr - 1);
+> > +       if (PageMemcgKmem(head))
+> > +               obj_cgroup_get_many(__page_objcg(head), nr - 1);
+> > +       else
+> > +               css_get_many(&memcg->css, nr - 1);
+> >   }
+> >
+> >   #ifdef CONFIG_MEMCG_SWAP
 
-I was in the process of creating the change log for v14 of
-this patch series and realized I never addressed this.
-I think EAGAIN would be a better return code for the
-mutex_trylock failures in the mdev assign/unassign
-operations.
+Hi Andrew,
 
->
-> I'm open to suggestions. And if Christian wants to change this for
-> the already released interfaces, I will have to live with that. But it
-> has to be a conscious decision at least.
->
-> What I consider tricky about EBUSY, is that according to my intuition,
-> in pseudocode, object.operation(argument) returns -EBUSY probably tells
-> me that object is busy (i.e. is in the middle of something incompatible
-> with performing operation). In our case, it is not the object that is
-> busy, but the resource denoted by the argument.
->
-> Regards,
-> Halil
+Now we have two choices to fix this issue.
 
+1) Send a v6 patchset (Use obj_cgroup APIs to charge kmem pages)
+    to fix this issue.
+2) Send a separate fix patch (Just like above).
+
+Both ways are ok for me. But I want to know which one is more
+convenient for you.
+
+Thanks.
+
+> >
+>
+> This one seems to do the trick, I can no longer see the warning.
