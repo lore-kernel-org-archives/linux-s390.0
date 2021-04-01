@@ -2,99 +2,282 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E557EC43617
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Apr 2021 17:56:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FFACC433B4
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Apr 2021 17:58:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B781161186
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Apr 2021 17:56:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C16B61001
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Apr 2021 17:58:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234318AbhDAR4G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Apr 2021 13:56:06 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35396 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235634AbhDARtM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Apr 2021 13:49:12 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 131DY5pf076011;
-        Thu, 1 Apr 2021 09:48:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Mg2lDEAe6gklpkKFAHaPTHh7cIMcXDrfVTsmQ1dH3Ck=;
- b=DgGS7NEGDNxFLRUDeaVKVkZjWdFVD9tvCVSmFBXwT81r8CjJ8mkXvw1gG0dL1VzhQ59X
- SQMCAM54yGMUP7dMiqXmNmQNsfr6skgjWv0Z/SiJ7KOfRhuVNTUD6hK6to363P6lvK29
- 29xiOWfB4INW/mdqPRFlLR/Il29dWrzLLdJC5g4ihaMyVhQKTlrEa1B9dGqfkZWdFJ4o
- 8Zbp5ihkla2khpba9uVjUUFw76r5M/IEx3XAsObqk7uKf4hM94cdOrV1LO34GzF4n0uj
- ZAHc5FWham0Ln9DIrZIPRlQkMS2jkE7yY6HwI3q1x0pdbUu4mIkhkO3NrxA/pkiFhQup dQ== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37n8r0cbdy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Apr 2021 09:48:03 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 131DgKIC016839;
-        Thu, 1 Apr 2021 13:48:00 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma05fra.de.ibm.com with ESMTP id 37n28w89gq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Apr 2021 13:48:00 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 131DlcGv36504056
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Apr 2021 13:47:38 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 389A5A4060;
-        Thu,  1 Apr 2021 13:47:58 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CFE39A4054;
-        Thu,  1 Apr 2021 13:47:57 +0000 (GMT)
-Received: from [9.171.31.36] (unknown [9.171.31.36])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  1 Apr 2021 13:47:57 +0000 (GMT)
-Subject: Re: [PATCH] net: smc: Remove repeated struct declaration
-To:     Wan Jiabing <wanjiabing@vivo.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     kael_w@yeah.net
-References: <20210401084030.1002882-1-wanjiabing@vivo.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-Message-ID: <c46c4186-7d48-efa1-ec4f-03bcb1c7188e@linux.ibm.com>
-Date:   Thu, 1 Apr 2021 15:47:58 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S236195AbhDAR6E (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Apr 2021 13:58:04 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:14674 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236492AbhDARyk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Apr 2021 13:54:40 -0400
+Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4FB2tZ0L3Jzmcqm;
+        Thu,  1 Apr 2021 20:44:06 +0800 (CST)
+Received: from huawei.com (10.174.28.241) by DGGEMS408-HUB.china.huawei.com
+ (10.3.19.208) with Microsoft SMTP Server id 14.3.498.0; Thu, 1 Apr 2021
+ 20:46:37 +0800
+From:   Bixuan Cui <cuibixuan@huawei.com>
+To:     <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>
+CC:     <schnelle@linux.ibm.com>, <gor@linux.ibm.com>,
+        <borntraeger@de.ibm.com>, <john.wanghui@huawei.com>
+Subject: [PATCH] s390/pci: move ioremap/ioremap_prot/ioremap_wc/ioremap_wt/iounmap to arch/s390/mm/ioremap.c
+Date:   Thu, 1 Apr 2021 20:46:11 +0800
+Message-ID: <20210401124611.49917-1-cuibixuan@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-In-Reply-To: <20210401084030.1002882-1-wanjiabing@vivo.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FKexRfPIxGpEh_yaWuXYovGDO14eBo-o
-X-Proofpoint-GUID: FKexRfPIxGpEh_yaWuXYovGDO14eBo-o
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-04-01_05:2021-03-31,2021-04-01 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 bulkscore=0 priorityscore=1501 phishscore=0 suspectscore=0
- mlxlogscore=946 clxscore=1011 lowpriorityscore=0 mlxscore=0 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2103310000 definitions=main-2104010094
+Content-Type: text/plain
+X-Originating-IP: [10.174.28.241]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 01/04/2021 10:40, Wan Jiabing wrote:
-> struct smc_clc_msg_local is declared twice. One is declared at
-> 301st line. The blew one is not needed. Remove the duplicate.
-> 
-> Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
-> ---
->  net/smc/smc_core.h | 1 -
->  1 file changed, 1 deletion(-)
-> 
+The ioremap/iounmap is implemented in arch/s390/pci/pci.c.
+While CONFIG_PCI is disabled,the compilation error is reported:
+    s390x-linux-gnu-ld: drivers/pcmcia/cistpl.o: in function `set_cis_map':
+    cistpl.c:(.text+0x32a): undefined reference to `ioremap'
+    s390x-linux-gnu-ld: cistpl.c:(.text+0x360): undefined reference to `iounmap'
+    s390x-linux-gnu-ld: cistpl.c:(.text+0x384): undefined reference to `iounmap'
+    s390x-linux-gnu-ld: cistpl.c:(.text+0x396): undefined reference to `ioremap'
+    s390x-linux-gnu-ld: drivers/pcmcia/cistpl.o: in function `release_cis_mem':
+    cistpl.c:(.text+0xcb8): undefined reference to `iounmap'
 
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Add arch/s390/mm/ioremap.c file and move ioremap/ioremap_wc/ioremap_rt/iounmap
+to it to fix the error.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+---
+ arch/s390/include/asm/io.h |  8 ++---
+ arch/s390/mm/Makefile      |  2 +-
+ arch/s390/mm/ioremap.c     | 64 +++++++++++++++++++++++++++++++++
+ arch/s390/pci/pci.c        | 73 ++++++--------------------------------
+ 4 files changed, 80 insertions(+), 67 deletions(-)
+ create mode 100644 arch/s390/mm/ioremap.c
+
+diff --git a/arch/s390/include/asm/io.h b/arch/s390/include/asm/io.h
+index e3882b012bfa..48a55644c34f 100644
+--- a/arch/s390/include/asm/io.h
++++ b/arch/s390/include/asm/io.h
+@@ -22,6 +22,10 @@ void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
+ 
+ #define IO_SPACE_LIMIT 0
+ 
++#define ioremap ioremap
++#define ioremap_wt ioremap_wt
++#define ioremap_wc ioremap_wc
++
+ void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
+ void __iomem *ioremap(phys_addr_t addr, size_t size);
+ void __iomem *ioremap_wc(phys_addr_t addr, size_t size);
+@@ -51,10 +55,6 @@ static inline void ioport_unmap(void __iomem *p)
+ #define pci_iomap_wc pci_iomap_wc
+ #define pci_iomap_wc_range pci_iomap_wc_range
+ 
+-#define ioremap ioremap
+-#define ioremap_wt ioremap_wt
+-#define ioremap_wc ioremap_wc
+-
+ #define memcpy_fromio(dst, src, count)	zpci_memcpy_fromio(dst, src, count)
+ #define memcpy_toio(dst, src, count)	zpci_memcpy_toio(dst, src, count)
+ #define memset_io(dst, val, count)	zpci_memset_io(dst, val, count)
+diff --git a/arch/s390/mm/Makefile b/arch/s390/mm/Makefile
+index cd67e94c16aa..74c22dfb131b 100644
+--- a/arch/s390/mm/Makefile
++++ b/arch/s390/mm/Makefile
+@@ -4,7 +4,7 @@
+ #
+ 
+ obj-y		:= init.o fault.o extmem.o mmap.o vmem.o maccess.o
+-obj-y		+= page-states.o pageattr.o pgtable.o pgalloc.o
++obj-y		+= page-states.o pageattr.o pgtable.o pgalloc.o ioremap.o
+ 
+ obj-$(CONFIG_CMM)		+= cmm.o
+ obj-$(CONFIG_HUGETLB_PAGE)	+= hugetlbpage.o
+diff --git a/arch/s390/mm/ioremap.c b/arch/s390/mm/ioremap.c
+new file mode 100644
+index 000000000000..132e6ddff36f
+--- /dev/null
++++ b/arch/s390/mm/ioremap.c
+@@ -0,0 +1,64 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Copyright (C) 2021 Huawei Ltd.
++ * Author: Bixuan Cui <cuibixuan@huawei.com>
++ */
++#include <linux/vmalloc.h>
++#include <linux/io.h>
++#include <linux/mm.h>
++#include <linux/jump_label.h>
++
++static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
++{
++	unsigned long offset, vaddr;
++	struct vm_struct *area;
++	phys_addr_t last_addr;
++
++	last_addr = addr + size - 1;
++	if (!size || last_addr < addr)
++		return NULL;
++
++	offset = addr & ~PAGE_MASK;
++	addr &= PAGE_MASK;
++	size = PAGE_ALIGN(size + offset);
++	area = get_vm_area(size, VM_IOREMAP);
++	if (!area)
++		return NULL;
++
++	vaddr = (unsigned long) area->addr;
++	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
++		free_vm_area(area);
++		return NULL;
++	}
++	return (void __iomem *) ((unsigned long) area->addr + offset);
++}
++
++void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
++{
++	return __ioremap(addr, size, __pgprot(prot));
++}
++EXPORT_SYMBOL(ioremap_prot);
++
++void __iomem *ioremap(phys_addr_t addr, size_t size)
++{
++	return __ioremap(addr, size, PAGE_KERNEL);
++}
++EXPORT_SYMBOL(ioremap);
++
++void __iomem *ioremap_wc(phys_addr_t addr, size_t size)
++{
++	return __ioremap(addr, size, pgprot_writecombine(PAGE_KERNEL));
++}
++EXPORT_SYMBOL(ioremap_wc);
++
++void __iomem *ioremap_wt(phys_addr_t addr, size_t size)
++{
++	return __ioremap(addr, size, pgprot_writethrough(PAGE_KERNEL));
++}
++EXPORT_SYMBOL(ioremap_wt);
++
++void iounmap(volatile void __iomem *addr)
++{
++	vunmap((__force void *) ((unsigned long) addr & PAGE_MASK));
++}
++EXPORT_SYMBOL(iounmap);
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index dd14641b2d20..be300850df9c 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -227,65 +227,6 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
+        zpci_memcpy_toio(to, from, count);
+ }
+ 
+-static void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot)
+-{
+-	unsigned long offset, vaddr;
+-	struct vm_struct *area;
+-	phys_addr_t last_addr;
+-
+-	last_addr = addr + size - 1;
+-	if (!size || last_addr < addr)
+-		return NULL;
+-
+-	if (!static_branch_unlikely(&have_mio))
+-		return (void __iomem *) addr;
+-
+-	offset = addr & ~PAGE_MASK;
+-	addr &= PAGE_MASK;
+-	size = PAGE_ALIGN(size + offset);
+-	area = get_vm_area(size, VM_IOREMAP);
+-	if (!area)
+-		return NULL;
+-
+-	vaddr = (unsigned long) area->addr;
+-	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
+-		free_vm_area(area);
+-		return NULL;
+-	}
+-	return (void __iomem *) ((unsigned long) area->addr + offset);
+-}
+-
+-void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
+-{
+-	return __ioremap(addr, size, __pgprot(prot));
+-}
+-EXPORT_SYMBOL(ioremap_prot);
+-
+-void __iomem *ioremap(phys_addr_t addr, size_t size)
+-{
+-	return __ioremap(addr, size, PAGE_KERNEL);
+-}
+-EXPORT_SYMBOL(ioremap);
+-
+-void __iomem *ioremap_wc(phys_addr_t addr, size_t size)
+-{
+-	return __ioremap(addr, size, pgprot_writecombine(PAGE_KERNEL));
+-}
+-EXPORT_SYMBOL(ioremap_wc);
+-
+-void __iomem *ioremap_wt(phys_addr_t addr, size_t size)
+-{
+-	return __ioremap(addr, size, pgprot_writethrough(PAGE_KERNEL));
+-}
+-EXPORT_SYMBOL(ioremap_wt);
+-
+-void iounmap(volatile void __iomem *addr)
+-{
+-	if (static_branch_likely(&have_mio))
+-		vunmap((__force void *) ((unsigned long) addr & PAGE_MASK));
+-}
+-EXPORT_SYMBOL(iounmap);
+-
+ /* Create a virtual mapping cookie for a PCI BAR */
+ static void __iomem *pci_iomap_range_fh(struct pci_dev *pdev, int bar,
+ 					unsigned long offset, unsigned long max)
+@@ -312,7 +253,10 @@ static void __iomem *pci_iomap_range_mio(struct pci_dev *pdev, int bar,
+ 	struct zpci_dev *zdev = to_zpci(pdev);
+ 	void __iomem *iova;
+ 
+-	iova = ioremap((unsigned long) zdev->bars[bar].mio_wt, barsize);
++	if (!static_branch_unlikely(&have_mio))
++		iova = (void __iomem *) zdev->bars[bar].mio_wt;
++	else
++		iova = ioremap((unsigned long) zdev->bars[bar].mio_wt, barsize);
+ 	return iova ? iova + offset : iova;
+ }
+ 
+@@ -342,7 +286,11 @@ static void __iomem *pci_iomap_wc_range_mio(struct pci_dev *pdev, int bar,
+ 	struct zpci_dev *zdev = to_zpci(pdev);
+ 	void __iomem *iova;
+ 
+-	iova = ioremap((unsigned long) zdev->bars[bar].mio_wb, barsize);
++	if (!static_branch_unlikely(&have_mio))
++		iova = (void __iomem *) zdev->bars[bar].mio_wb;
++	else
++		iova = ioremap((unsigned long) zdev->bars[bar].mio_wb, barsize);
++
+ 	return iova ? iova + offset : iova;
+ }
+ 
+@@ -381,7 +329,8 @@ static void pci_iounmap_fh(struct pci_dev *pdev, void __iomem *addr)
+ 
+ static void pci_iounmap_mio(struct pci_dev *pdev, void __iomem *addr)
+ {
+-	iounmap(addr);
++	if (static_branch_likely(&have_mio))
++		iounmap(addr);
+ }
+ 
+ void pci_iounmap(struct pci_dev *pdev, void __iomem *addr)
+-- 
+2.17.1
+
