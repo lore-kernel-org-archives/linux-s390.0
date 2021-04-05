@@ -2,134 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2688DC433ED
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Apr 2021 05:24:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1479C433B4
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Apr 2021 05:50:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE394613AB
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Apr 2021 05:24:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9DECD61399
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Apr 2021 05:50:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232339AbhDEFYy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Apr 2021 01:24:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57808 "EHLO mail.kernel.org"
+        id S231937AbhDEFuL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 5 Apr 2021 01:50:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232296AbhDEFYt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 5 Apr 2021 01:24:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98D37613A5;
-        Mon,  5 Apr 2021 05:24:42 +0000 (UTC)
+        id S229727AbhDEFuL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 5 Apr 2021 01:50:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF4BA6138A;
+        Mon,  5 Apr 2021 05:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617600283;
-        bh=dMWjVf2aUxdb7ZrnGVveey6nby3LeCk61fbfNTM9fl4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gTxgWIVArORnsJVcmrlN8d/R5yi5c6bOrNBzElohC5vaA3tthZxAmBXekzQxLPZt1
-         znzexk81BrDTA5rsNCCVYOvwwlFDnzS86wc5yRwGWJWRt2aJNEqlhMh8X3Yin5MnUg
-         egYUxDlxiP5r1F4WaDRJYqPSPkYbHdcFvkPU39s/4JSgSFdlIFeQGgL/MD/zmAqfpV
-         quoKIMb/Ra/cj5B4Sy7YeCi7JhHJGHVrBLPV05lfGEptIVl6j3TYWFL1RzMBwdrQlr
-         KEGiPPxsxY/9/6wsL1nkOvjaFxpOYMEgu7CPBdfRPgPfo6Fuhy9FxKi4vnWqOGX83B
-         98mrg+Kp01FKw==
+        s=k20201202; t=1617601805;
+        bh=HL3XcxJnh+PpngLSQ1cW4W65/ax//mggo+MJmIHNZKE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JoWpvmHr8cbXC2wGqorO6A7gFrAKBNhaX6C0Z1rLW+CLElmWI4t7U6yocQMei8PzC
+         sPyPYTw70ck102ou4VETIuVUfmzuXvHoBcF4zlXCLrJJUV5sfsRdmuKnObGq7tu5qW
+         sNLVme//M7TPI8I85ht1jY1ADGuICcgA3JWoYQwnsBePYtiwkpnVtDp+XEdJ7TwmNx
+         Nd2S0IaIhLaOwlzWT8HjN/UJO13YPDOfdIYEKH0JI2nIHJf0ark0zVO9BG8FXQQrpt
+         /8OV+30NarBYePQino+ZNTl8eaAz3ASFhMo845QpNAN84+qtjUmrlev5KqEoOxOR8+
+         L/0IkSvtF4paQ==
 From:   Leon Romanovsky <leon@kernel.org>
 To:     Doug Ledford <dledford@redhat.com>,
         Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Avihai Horon <avihaih@nvidia.com>,
-        Adit Ranadive <aditr@vmware.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Chuck Lever <chuck.lever@oracle.com>,
+Cc:     Leon Romanovsky <leonro@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Devesh Sharma <devesh.sharma@broadcom.com>,
-        Faisal Latif <faisal.latif@intel.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Jens Axboe <axboe@fb.com>,
         Karsten Graul <kgraul@linux.ibm.com>,
-        Keith Busch <kbusch@kernel.org>, Lijun Ou <oulijun@huawei.com>,
-        linux-cifs@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-nvme@lists.infradead.org,
-        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Michael Guralnik <michaelgur@nvidia.com>,
-        Michal Kalderon <mkalderon@marvell.com>,
+        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org,
         Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>,
-        netdev@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>,
-        rds-devel@oss.oracle.com, Sagi Grimberg <sagi@grimberg.me>,
-        samba-technical@lists.samba.org,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        Selvin Xavier <selvin.xavier@broadcom.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Somnath Kotur <somnath.kotur@broadcom.com>,
-        Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>,
-        Steve French <sfrench@samba.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        VMware PV-Drivers <pv-drivers@vmware.com>,
-        Weihang Li <liweihang@huawei.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhu Yanjun <zyjzyj2000@gmail.com>
-Subject: [PATCH rdma-next 10/10] xprtrdma: Enable Relaxed Ordering
-Date:   Mon,  5 Apr 2021 08:24:04 +0300
-Message-Id: <20210405052404.213889-11-leon@kernel.org>
+        netdev@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        rds-devel@oss.oracle.com,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Subject: [PATCH rdma-next 0/8] Generalize if ULP supported check
+Date:   Mon,  5 Apr 2021 08:49:52 +0300
+Message-Id: <20210405055000.215792-1-leon@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210405052404.213889-1-leon@kernel.org>
-References: <20210405052404.213889-1-leon@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Avihai Horon <avihaih@nvidia.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-Enable Relaxed Ordering for xprtrdma.
+Hi,
 
-Relaxed Ordering is an optional access flag and as such, it is ignored
-by vendors that don't support it.
+This series adds new callback to check if ib client is supported/not_supported.
+Such general callback allows us to save memory footprint by not starting
+on devices that not going to work on them anyway.
 
-Signed-off-by: Avihai Horon <avihaih@nvidia.com>
-Reviewed-by: Michael Guralnik <michaelgur@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
----
- net/sunrpc/xprtrdma/frwr_ops.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+Thanks
 
-diff --git a/net/sunrpc/xprtrdma/frwr_ops.c b/net/sunrpc/xprtrdma/frwr_ops.c
-index cfbdd197cdfe..f9334c0a1a13 100644
---- a/net/sunrpc/xprtrdma/frwr_ops.c
-+++ b/net/sunrpc/xprtrdma/frwr_ops.c
-@@ -135,7 +135,8 @@ int frwr_mr_init(struct rpcrdma_xprt *r_xprt, struct rpcrdma_mr *mr)
- 	struct ib_mr *frmr;
- 	int rc;
- 
--	frmr = ib_alloc_mr(ep->re_pd, ep->re_mrtype, depth, 0);
-+	frmr = ib_alloc_mr(ep->re_pd, ep->re_mrtype, depth,
-+			   IB_ACCESS_RELAXED_ORDERING);
- 	if (IS_ERR(frmr))
- 		goto out_mr_err;
- 
-@@ -339,9 +340,10 @@ struct rpcrdma_mr_seg *frwr_map(struct rpcrdma_xprt *r_xprt,
- 	reg_wr = &mr->frwr.fr_regwr;
- 	reg_wr->mr = ibmr;
- 	reg_wr->key = ibmr->rkey;
--	reg_wr->access = writing ?
--			 IB_ACCESS_REMOTE_WRITE | IB_ACCESS_LOCAL_WRITE :
--			 IB_ACCESS_REMOTE_READ;
-+	reg_wr->access =
-+		(writing ? IB_ACCESS_REMOTE_WRITE | IB_ACCESS_LOCAL_WRITE :
-+			   IB_ACCESS_REMOTE_READ) |
-+		IB_ACCESS_RELAXED_ORDERING;
- 
- 	mr->mr_handle = ibmr->rkey;
- 	mr->mr_length = ibmr->length;
+Parav Pandit (8):
+  RDMA/core: Check if client supports IB device or not
+  RDMA/cma: Skip device which doesn't support CM
+  IB/cm: Skip device which doesn't support IB CM
+  IB/core: Skip device which doesn't have necessary capabilities
+  IB/IPoIB: Skip device which doesn't have InfiniBand port
+  IB/opa_vnic: Move to client_supported callback
+  net/smc: Move to client_supported callback
+  net/rds: Move to client_supported callback
+
+ drivers/infiniband/core/cm.c                  | 15 +++++++++++++-
+ drivers/infiniband/core/cma.c                 | 15 +++++++++++++-
+ drivers/infiniband/core/device.c              |  3 +++
+ drivers/infiniband/core/multicast.c           | 15 +++++++++++++-
+ drivers/infiniband/core/sa_query.c            | 15 +++++++++++++-
+ drivers/infiniband/ulp/ipoib/ipoib_main.c     | 13 ++++++++++++
+ .../infiniband/ulp/opa_vnic/opa_vnic_vema.c   |  4 +---
+ include/rdma/ib_verbs.h                       |  9 +++++++++
+ net/rds/ib.c                                  | 20 ++++++++++++-------
+ net/smc/smc_ib.c                              |  9 ++++++---
+ 10 files changed, 101 insertions(+), 17 deletions(-)
+
 -- 
 2.30.2
 
