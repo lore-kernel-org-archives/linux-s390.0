@@ -2,636 +2,160 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECC33C43461
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 15:32:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86B1EC433ED
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 15:46:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CBCCF6139C
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 15:32:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4CD95613BD
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 15:46:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345707AbhDFPcY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Apr 2021 11:32:24 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28252 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1345798AbhDFPcK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Apr 2021 11:32:10 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 136FU31Z022824;
-        Tue, 6 Apr 2021 11:31:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=VYzRwafwAWPeNoGYtgY+K2uTrycffqn5jevuN+4pIko=;
- b=pLncsV5PrdoRFMRBMoGslOZJvRBjnL1Lz8Fp5slEd1PPo1bsf01vNaKcPDH0wPMmadH9
- 1l9+KLZyJXs9FOVIIutIMsT5LPJlRZaMsKG83fQx2eAKvMlLhuIFMANq3F5hTVSjmoeL
- 6LfNHOl70nck5BOoXnN+wb2n7aOsNF6NOB0uyLjuwBGlBDycF0DpqB62RGnptnGn2EzD
- N8FrRIzBPHSLTRvgjRAxGaaaG5kQeR3PGK4nZKBRaI3w+iJYKRl4ZDNHa5UfCPKTS8xH
- vAHnMSLWT/389GI7U/ZtDex0c/AvRPXtBAhzGu+RG1fA9zd+XqcMcCra0cxBx2shjxLY Rg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37q5c074g0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Apr 2021 11:31:59 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 136FU5YJ023312;
-        Tue, 6 Apr 2021 11:31:59 -0400
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37q5c074f9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Apr 2021 11:31:58 -0400
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 136FNie9017719;
-        Tue, 6 Apr 2021 15:31:57 GMT
-Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
-        by ppma05wdc.us.ibm.com with ESMTP id 37q2yhrp3c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Apr 2021 15:31:57 +0000
-Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
-        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 136FVrio23265732
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 6 Apr 2021 15:31:53 GMT
-Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BDD85BE054;
-        Tue,  6 Apr 2021 15:31:53 +0000 (GMT)
-Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1D7B2BE053;
-        Tue,  6 Apr 2021 15:31:52 +0000 (GMT)
-Received: from cpe-172-100-182-241.stny.res.rr.com.com (unknown [9.85.175.110])
-        by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue,  6 Apr 2021 15:31:51 +0000 (GMT)
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com,
-        david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v15 12/13] s390/zcrypt: notify drivers on config changed and scan complete callbacks
-Date:   Tue,  6 Apr 2021 11:31:21 -0400
-Message-Id: <20210406153122.22874-13-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.21.3
-In-Reply-To: <20210406153122.22874-1-akrowiak@linux.ibm.com>
-References: <20210406153122.22874-1-akrowiak@linux.ibm.com>
+        id S1345949AbhDFPq5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Apr 2021 11:46:57 -0400
+Received: from mail-eopbgr760083.outbound.protection.outlook.com ([40.107.76.83]:22144
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1345793AbhDFPq5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 6 Apr 2021 11:46:57 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=nsJnAkZGFMXfUeivGsWHPMcQBA40lyXfVI94B2QSHz/fQt5jN6qupvH10/mSsCVWJLDpMIzdmfekwa46A3Y4/8eiUpVKnMFNw9/jvglU5L4iCAUKA7Q/6zrDC77iItGYUd0rshSAiFsC/oyKbRCJnSSh4QBzZsu7D2gSa+xlo1FaHRhUJP0NW/J7WQhXPHyjSJFxPxMsjRt56VYRDwPkPy2rlltaXXzYSQLj31WEiSEqvFY9n+T9yqmZa3VW/Bzphq9aBvo9tJ6fLEfTvMZzQVF1HR/OVaHh8J20Pi+HUzxucaq6wOSOKNSaAFsp7luRpT0eBvONjwoWGG5N3V50yA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=UvUzj81PZ8RsUedaUK6YLPhw4bDDNSX0T0PEIsIYBew=;
+ b=EgDAMLsXkl6jcltSKvf5ONUpcX7Q5exi9VD6ySN/iTTSvoC/YO5uHiyEQ/q89MXZxKN3OV8fHNxWL7LsZ64E/XagRpuUefI1in3J9l3WfIYwSTBevhLLM//lvWD8nZkMtGE5KdLbWM5iIQmKJqqDkUz+H4OncKYZBQHC5AkxSotTuB71EXZ6YMNE58R7UUzzTQTYGZoqzYNhRtLeCxH59q4gVjzV7Pr46V0tPZW0S6xV+Zs7OL2JLrjXLk46GqFJ7rzCy3hCJNueL/e/bzEsw8x8mXP3BAJ8Qxkkht8HTwPFvMvNgRnWzof6zyRut8/KI4w7qkeehPqczeLmc239kQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=UvUzj81PZ8RsUedaUK6YLPhw4bDDNSX0T0PEIsIYBew=;
+ b=rLl+2Q481DXUzt8hglponmqI8YRDFgeA9on3sn0Dmmcys5wUvi32i+0JnSMfAZSvew60+Ev5UJxy3+hJhYU3ngPE+5jvGXW/UBrcTiFKZAu0oeUNBw/R+VmcOjpXpId+/fbXvPHmFJI5vP0SCrsjxgknNWV7WpjaTTCKLsHUJQdT8YO3/NodSLLoRfAetb/mat+kZS4lVh6BrygNiptH9QpefPcriCeJS0lBJlqMPjeGWMoD/t92TGos1lpTwCRedQzFKjyRPgfcHf/i7im4mts/424xuYVMXNHO46mPBXwWAMjshw0gMqhjanvvS1f9fR2cnJSBiLb2GH6rs0N+9g==
+Authentication-Results: kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=none action=none header.from=nvidia.com;
+Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
+ by DM5PR12MB1548.namprd12.prod.outlook.com (2603:10b6:4:a::23) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3999.29; Tue, 6 Apr 2021 15:46:47 +0000
+Received: from DM6PR12MB3834.namprd12.prod.outlook.com
+ ([fe80::1c62:7fa3:617b:ab87]) by DM6PR12MB3834.namprd12.prod.outlook.com
+ ([fe80::1c62:7fa3:617b:ab87%6]) with mapi id 15.20.3999.032; Tue, 6 Apr 2021
+ 15:46:47 +0000
+Date:   Tue, 6 Apr 2021 12:46:46 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Leon Romanovsky <leon@kernel.org>
+Cc:     Doug Ledford <dledford@redhat.com>,
+        Parav Pandit <parav@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        netdev@vger.kernel.org, rds-devel@oss.oracle.com,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Subject: Re: [PATCH rdma-next 4/8] IB/core: Skip device which doesn't have
+ necessary capabilities
+Message-ID: <20210406154646.GW7405@nvidia.com>
+References: <20210405055000.215792-1-leon@kernel.org>
+ <20210405055000.215792-5-leon@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210405055000.215792-5-leon@kernel.org>
+X-Originating-IP: [142.162.115.133]
+X-ClientProxiedBy: MN2PR20CA0011.namprd20.prod.outlook.com
+ (2603:10b6:208:e8::24) To DM6PR12MB3834.namprd12.prod.outlook.com
+ (2603:10b6:5:14a::12)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -Qznp7zwhhVgWdr7xEgRYeaUFrNLd4ov
-X-Proofpoint-ORIG-GUID: QiNYLh7ItaQ8WX2jw5klxdAhasuR2HLt
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-04-06_04:2021-04-01,2021-04-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- mlxlogscore=999 priorityscore=1501 mlxscore=0 malwarescore=0
- lowpriorityscore=0 adultscore=0 phishscore=0 bulkscore=0 suspectscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104030000 definitions=main-2104060104
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (142.162.115.133) by MN2PR20CA0011.namprd20.prod.outlook.com (2603:10b6:208:e8::24) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4020.16 via Frontend Transport; Tue, 6 Apr 2021 15:46:47 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lTnug-001AqL-63; Tue, 06 Apr 2021 12:46:46 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 6682a506-1af6-4af6-9d2f-08d8f9132fb8
+X-MS-TrafficTypeDiagnostic: DM5PR12MB1548:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <DM5PR12MB15484D421DC43802517F7D7AC2769@DM5PR12MB1548.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3044;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: vcSyhKyQuArsMaGtyMqkQpYRfSD93rmrBe0xuyov/5OsWKto2w/Rz02Hw2jZMmY///n2vIv8AqsZNkULopmTILaqNRYCWGMvzMRDxKp/x+791NERuBxMcVSUwLfrL07FJfWPRyxsXNiFttQD4onBOzpXrai+Wv0iD90Waa5qL8RuPzdSDEyHmHYjiN/XcC5ZP7KoEIBz4e+NIKe6wkX8laLQtJaz/LTD/eBUZjPEZLT4AK3jwP+XtAbM+e1+31OvCpqdgXrLwM3luYPC3t8lJNdg7BF7YnIqkjlgO8IMGpCmDKF/A+5B+ul2wA/BP3FMgembixzSou/N0c4KHQ/cF8WllTv6NXYQ6ZICo01Ucow9+Q6A7KyIWzvTY2Y6MQlSE+Y7/QxcM8k0WslfsnyIZmlNzuSbJ5mpsX4Stta7p2/79C1PfYa5Fy/NGfOdOpiRcjhC4jvEki2/hx2/gT2VDVA67l9umB2+JSEijkyCsF6CcbXF3Zu93QdcdEu2S/KCA4EYQQH7MQBAu7ug1+TaNUYSfkIXeZuYJlaN0rY8FiU8zK3KZZBNyiiECfzTDX1wLdqa4qzOAOJqUzuQ4WnKeW6OUIvB0Q6byNJ8YBv8RPATHK80jJUy0evc6X9XyGobyF/N6XKx+ym3XuH7OdylEMcMQ2yXNz2sw4e4OtHIBDE=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(366004)(376002)(346002)(396003)(39860400002)(36756003)(5660300002)(6916009)(478600001)(1076003)(2616005)(426003)(186003)(26005)(7416002)(4744005)(86362001)(9746002)(316002)(54906003)(2906002)(33656002)(66556008)(9786002)(66946007)(83380400001)(4326008)(38100700001)(66476007)(8936002)(8676002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?jnnDyGAahI/mufcMT/ASY5rgsw8U+oLHt9mTHGRU7otGfZNlYvbbqLh2TKZU?=
+ =?us-ascii?Q?L2ETouLMqrF/ejchyDt+N27ijkgXtoW98Rc0qXf0sQcw3TciapDYzU47AROo?=
+ =?us-ascii?Q?N+U94FPZpJZYNRi6JFI4f0rjF/tHF5rEKatfg+2uOeLVHudgS6r4D+rxB1jp?=
+ =?us-ascii?Q?DAVlXzaSEid3MfN0RFCe1n3UzjH3OI9//A30Rn9m+QOwkeDN8R5tpztWJQux?=
+ =?us-ascii?Q?fXawgtUk5Z0keOUpThDXvXi04JPdf2UsmanDmM9TKA+k5DaGQ/nqc10GC/tz?=
+ =?us-ascii?Q?QjyK3KA57haX873FrlJ0fH2KyTLx99o0X+uC3bWkRacrllGKfisfJNEkjIzo?=
+ =?us-ascii?Q?qoEvbBo6UmP+qHLu4vfyBw+NCAabHR2bb7um0z/jpL8eKjYe9tLoJYMZVroC?=
+ =?us-ascii?Q?gIe8txEwzdiGivvyhwgPIg/8FSmzYkSfKZu5TSEOnzBmTLIgxrywmsmA4Pyz?=
+ =?us-ascii?Q?JtFSGHrKgdLzLCtV/8EEEX8bDbm7/EfPpMEbmC0XE/IDn84nKpX0+CJX5hNx?=
+ =?us-ascii?Q?TVaW6OnsmajQoRK6HA60s/9HOMoD8j8eveZTq6gY4WHPwqMIkRg5bDc8++cY?=
+ =?us-ascii?Q?wY8q5YNxyl576SSm1RsaYYblIrrraof4Xi/UWjikl2h8NmTeX6Wqvr48Ue+a?=
+ =?us-ascii?Q?GqdATc0OgvIbk8sDqQoeo2wCwylfPV9JdidZ8lJsytZplRmyGQScQjDq9tVt?=
+ =?us-ascii?Q?jA2yriVNbxFRla2PcEUT/CS403bnwoQbzouPrKwZED9dEhU91n3TM95LfmOl?=
+ =?us-ascii?Q?NHfucy/J1dmZjTmuMrMVmzbAlxOYUEdANu8AnDJVPRkK51439NFs+1tNf4wQ?=
+ =?us-ascii?Q?U6ZvRcvM+lr9EAtzpc0WOCcTql28yo5Evh1Gkfdya15FrrEc7mjfmzbEO1Py?=
+ =?us-ascii?Q?DTiqTOeS25XqDMRcif9+9c3rBtybpxsgeAxgWIEeqJ/g/qgC1ogTS3uX84Ss?=
+ =?us-ascii?Q?R7nlxZAJCYuXgSmrwdJpU7f3R1u/pbM7EQ2u3ZRHuaIWnSbHU/uwqAFtjnSI?=
+ =?us-ascii?Q?9iQlO0Dv+ydOistSrMTL8yA/ldIUBdnycMfA7TDdGLVfEfMU5brEaYCMpC1W?=
+ =?us-ascii?Q?a8uxKxTt0LX0Ne/68bPqgpdej2Wx1HSgoMFZmJavk7PFTf0mDy3DBMKr6n17?=
+ =?us-ascii?Q?5gO+Z/1OrfNmJyuFvl4tZQ1xEEb6h4zFrx9fg8EcZ431L2BVcihn3lCL5K6j?=
+ =?us-ascii?Q?RAXSzzu96tBEhh8VAIQ+gRpUAb8bpXEXeGgAcZ3Ir8nnrxF2C0O3esGMfwhf?=
+ =?us-ascii?Q?S8DGpdrIok5NYMivVN7jJwr/Z4uiBvfz4Sds9mBqGDmRcnVge4uYc60pK7eY?=
+ =?us-ascii?Q?8WWRgjH6d2z8KZ4d8ndaJtgyxXsaSTqerMGkt2iGYNeToA=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6682a506-1af6-4af6-9d2f-08d8f9132fb8
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Apr 2021 15:46:47.6786
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 29vIhU3BODF7CXbJCjMzqZmpBRr++ETdlURodfhejgqs1xKRrh+vcI4jnflI9pfN
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1548
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch intruduces an extension to the ap bus to notify device drivers
-when the host AP configuration changes - i.e., adapters, domains or
-control domains are added or removed. To that end, two new callbacks are
-introduced for AP device drivers:
+On Mon, Apr 05, 2021 at 08:49:56AM +0300, Leon Romanovsky wrote:
+> @@ -2293,6 +2295,17 @@ static void ib_sa_event(struct ib_event_handler *handler,
+>  	}
+>  }
+>  
+> +static bool ib_sa_client_supported(struct ib_device *device)
+> +{
+> +	unsigned int i;
+> +
+> +	rdma_for_each_port(device, i) {
+> +		if (rdma_cap_ib_sa(device, i))
+> +			return true;
+> +	}
+> +	return false;
+> +}
 
-  void (*on_config_changed)(struct ap_config_info *new_config_info,
-                            struct ap_config_info *old_config_info);
+This is already done though:
 
-     This callback is invoked at the start of the AP bus scan
-     function when it determines that the host AP configuration information
-     has changed since the previous scan. This is done by storing
-     an old and current QCI info struct and comparing them. If there is any
-     difference, the callback is invoked.
+	for (i = 0; i <= e - s; ++i) {
+		spin_lock_init(&sa_dev->port[i].ah_lock);
+		if (!rdma_cap_ib_sa(device, i + 1))
+			continue;
+[..]
 
-     Note that when the AP bus scan detects that AP adapters, domains or
-     control domains have been removed from the host's AP configuration, it
-     will remove the associated devices from the AP bus subsystem's device
-     model. This callback gives the device driver a chance to respond to
-     the removal of the AP devices from the host configuration prior to
-     calling the device driver's remove callback. The primary purpose of
-     this callback is to allow the vfio_ap driver to do a bulk unplug of
-     all affected adapters, domains and control domains from affected
-     guests rather than unplugging them one at a time when the remove
-     callback is invoked.
+	if (!count) {
+		ret = -EOPNOTSUPP;
+		goto free;
 
-  void (*on_scan_complete)(struct ap_config_info *new_config_info,
-                           struct ap_config_info *old_config_info);
+Why does it need to be duplicated? The other patches are all basically
+like that too.
 
-     The on_scan_complete callback is invoked after the ap bus scan is
-     complete if the host AP configuration data has changed.
+The add_one function should return -EOPNOTSUPP if it doesn't want to
+run on this device and any supported checks should just be at the
+front - this is how things work right now
 
-     Note that when the AP bus scan detects that adapters, domains or
-     control domains have been added to the host's configuration, it will
-     create new devices in the AP bus subsystem's device model. The primary
-     purpose of this callback is to allow the vfio_ap driver to do a bulk
-     plug of all affected adapters, domains and control domains into
-     affected guests rather than plugging them one at a time when the
-     probe callback is invoked.
-
-Please note that changes to the apmask and aqmask do not trigger
-these two callbacks since the bus scan function is not invoked by changes
-to those masks.
-
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/ap_bus.c          |  89 ++++++++++-
- drivers/s390/crypto/ap_bus.h          |  12 ++
- drivers/s390/crypto/vfio_ap_drv.c     |   4 +-
- drivers/s390/crypto/vfio_ap_ops.c     | 215 +++++++++++++++++++++++---
- drivers/s390/crypto/vfio_ap_private.h |  15 +-
- 5 files changed, 306 insertions(+), 29 deletions(-)
-
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index b7653cec81ac..ccc87fb84c6d 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -82,6 +82,7 @@ static atomic64_t ap_scan_bus_count;
- static DECLARE_COMPLETION(ap_init_apqn_bindings_complete);
- 
- static struct ap_config_info *ap_qci_info;
-+static struct ap_config_info *ap_qci_info_old;
- 
- /*
-  * AP bus related debug feature things.
-@@ -1579,6 +1580,50 @@ static int __match_queue_device_with_queue_id(struct device *dev, const void *da
- 		&& AP_QID_QUEUE(to_ap_queue(dev)->qid) == (int)(long) data;
- }
- 
-+/* Helper function for notify_config_changed */
-+static int __drv_notify_config_changed(struct device_driver *drv, void *data)
-+{
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+
-+	if (try_module_get(drv->owner)) {
-+		if (ap_drv->on_config_changed)
-+			ap_drv->on_config_changed(ap_qci_info,
-+						  ap_qci_info_old);
-+		module_put(drv->owner);
-+	}
-+
-+	return 0;
-+}
-+
-+/* Notify all drivers about an qci config change */
-+static inline void notify_config_changed(void)
-+{
-+	bus_for_each_drv(&ap_bus_type, NULL, NULL,
-+			 __drv_notify_config_changed);
-+}
-+
-+/* Helper function for notify_scan_complete */
-+static int __drv_notify_scan_complete(struct device_driver *drv, void *data)
-+{
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+
-+	if (try_module_get(drv->owner)) {
-+		if (ap_drv->on_scan_complete)
-+			ap_drv->on_scan_complete(ap_qci_info,
-+						 ap_qci_info_old);
-+		module_put(drv->owner);
-+	}
-+
-+	return 0;
-+}
-+
-+/* Notify all drivers about bus scan complete */
-+static inline void notify_scan_complete(void)
-+{
-+	bus_for_each_drv(&ap_bus_type, NULL, NULL,
-+			 __drv_notify_scan_complete);
-+}
-+
- /*
-  * Helper function for ap_scan_bus().
-  * Remove card device and associated queue devices.
-@@ -1857,15 +1902,51 @@ static inline void ap_scan_adapter(int ap)
- 	put_device(&ac->ap_dev.device);
- }
- 
-+/*
-+ * ap_get_configuration
-+ *
-+ * Stores the host AP configuration information returned from the previous call
-+ * to Query Configuration Information (QCI), then retrieves and stores the
-+ * current AP configuration returned from QCI.
-+ *
-+ * Returns true if the host AP configuration changed between calls to QCI;
-+ * otherwise, returns false.
-+ */
-+static bool ap_get_configuration(void)
-+{
-+	bool cfg_chg = false;
-+
-+	if (ap_qci_info) {
-+		if (!ap_qci_info_old) {
-+			ap_qci_info_old = kzalloc(sizeof(*ap_qci_info_old),
-+						  GFP_KERNEL);
-+			if (!ap_qci_info_old)
-+				return false;
-+		} else {
-+			memcpy(ap_qci_info_old, ap_qci_info,
-+			       sizeof(struct ap_config_info));
-+		}
-+		ap_fetch_qci_info(ap_qci_info);
-+		cfg_chg = memcmp(ap_qci_info,
-+				 ap_qci_info_old,
-+				 sizeof(struct ap_config_info)) != 0;
-+	}
-+
-+	return cfg_chg;
-+}
-+
- /**
-  * ap_scan_bus(): Scan the AP bus for new devices
-  * Runs periodically, workqueue timer (ap_config_time)
-  */
- static void ap_scan_bus(struct work_struct *unused)
- {
--	int ap;
-+	int ap, config_changed = 0;
- 
--	ap_fetch_qci_info(ap_qci_info);
-+	/* config change notify */
-+	config_changed = ap_get_configuration();
-+	if (config_changed)
-+		notify_config_changed();
- 	ap_select_domain();
- 
- 	AP_DBF_DBG("%s running\n", __func__);
-@@ -1874,6 +1955,10 @@ static void ap_scan_bus(struct work_struct *unused)
- 	for (ap = 0; ap <= ap_max_adapter_id; ap++)
- 		ap_scan_adapter(ap);
- 
-+	/* scan complete notify */
-+	if (config_changed)
-+		notify_scan_complete();
-+
- 	/* check if there is at least one queue available with default domain */
- 	if (ap_domain_index >= 0) {
- 		struct device *dev =
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 95c9da072f81..e91082bd159c 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -146,6 +146,18 @@ struct ap_driver {
- 	int (*probe)(struct ap_device *);
- 	void (*remove)(struct ap_device *);
- 	int (*in_use)(unsigned long *apm, unsigned long *aqm);
-+	/*
-+	 * Called at the start of the ap bus scan function when
-+	 * the crypto config information (qci) has changed.
-+	 */
-+	void (*on_config_changed)(struct ap_config_info *new_config_info,
-+				  struct ap_config_info *old_config_info);
-+	/*
-+	 * Called at the end of the ap bus scan function when
-+	 * the crypto config information (qci) has changed.
-+	 */
-+	void (*on_scan_complete)(struct ap_config_info *new_config_info,
-+				 struct ap_config_info *old_config_info);
- };
- 
- #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 8934471b7944..075495fc44c0 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -87,7 +87,7 @@ static int vfio_ap_matrix_dev_create(void)
- 
- 	/* Fill in config info via PQAP(QCI), if available */
- 	if (test_facility(12)) {
--		ret = ap_qci(&matrix_dev->info);
-+		ret = ap_qci(&matrix_dev->config_info);
- 		if (ret)
- 			goto matrix_alloc_err;
- 	}
-@@ -148,6 +148,8 @@ static int __init vfio_ap_init(void)
- 	vfio_ap_drv.probe = vfio_ap_mdev_probe_queue;
- 	vfio_ap_drv.remove = vfio_ap_mdev_remove_queue;
- 	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
-+	vfio_ap_drv.on_config_changed = vfio_ap_on_cfg_changed;
-+	vfio_ap_drv.on_scan_complete = vfio_ap_on_scan_complete;
- 	vfio_ap_drv.ids = ap_queue_ids;
- 
- 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 618d9e37e82b..664d54b05509 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -335,24 +335,14 @@ static void vfio_ap_mdev_commit_apcb(struct ap_matrix_mdev *matrix_mdev)
- static void vfio_ap_mdev_filter_apcb(struct ap_matrix_mdev *matrix_mdev,
- 				     struct ap_matrix *shadow_apcb)
- {
--	int ret;
- 	unsigned long apid, apqi, apqn;
- 
--	ret = ap_qci(&matrix_dev->info);
--	if (ret)
--		return;
--
--	/*
--	 * Copy the adapters, domains and control domains to the shadow_apcb
--	 * from the matrix mdev, but only those that are assigned to the host's
--	 * AP configuration.
--	 */
- 	bitmap_and(shadow_apcb->apm, matrix_mdev->matrix.apm,
--		   (unsigned long *)matrix_dev->info.apm, AP_DEVICES);
-+		   (unsigned long *)matrix_dev->config_info.apm, AP_DEVICES);
- 	bitmap_and(shadow_apcb->aqm, matrix_mdev->matrix.aqm,
--		   (unsigned long *)matrix_dev->info.aqm, AP_DOMAINS);
-+		   (unsigned long *)matrix_dev->config_info.aqm, AP_DOMAINS);
- 	bitmap_and(shadow_apcb->adm, matrix_mdev->matrix.adm,
--		   (unsigned long *)matrix_dev->info.adm, AP_DOMAINS);
-+		   (unsigned long *)matrix_dev->config_info.adm, AP_DOMAINS);
- 
- 	for_each_set_bit_inv(apid, shadow_apcb->apm, AP_DEVICES) {
- 		for_each_set_bit_inv(apqi, shadow_apcb->aqm, AP_DOMAINS) {
-@@ -385,7 +375,7 @@ static void vfio_ap_mdev_refresh_apcb(struct ap_matrix_mdev *matrix_mdev)
- {
- 	struct ap_matrix shadow_apcb;
- 
--	vfio_ap_matrix_init(&matrix_dev->info, &shadow_apcb);
-+	vfio_ap_matrix_init(&matrix_dev->config_info, &shadow_apcb);
- 	vfio_ap_mdev_filter_apcb(matrix_mdev, &shadow_apcb);
- 
- 	if (memcmp(&shadow_apcb, &matrix_mdev->shadow_apcb,
-@@ -410,9 +400,9 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- 	}
- 
- 	matrix_mdev->mdev = mdev;
--	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
-+	vfio_ap_matrix_init(&matrix_dev->config_info, &matrix_mdev->matrix);
- 	init_waitqueue_head(&matrix_mdev->wait_for_kvm);
--	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
-+	vfio_ap_matrix_init(&matrix_dev->config_info, &matrix_mdev->shadow_apcb);
- 	hash_init(matrix_mdev->qtable);
- 	mdev_set_drvdata(mdev, matrix_mdev);
- 	matrix_mdev->pqap_hook.hook = handle_pqap;
-@@ -952,7 +942,8 @@ static void vfio_ap_mdev_hot_plug_cdom(struct ap_matrix_mdev *matrix_mdev,
- 				       unsigned long domid)
- {
- 	if (!test_bit_inv(domid, matrix_mdev->shadow_apcb.adm) &&
--	    test_bit_inv(domid, (unsigned long *)matrix_dev->info.adm)) {
-+	    test_bit_inv(domid,
-+			 (unsigned long *)matrix_dev->config_info.adm)) {
- 		set_bit_inv(domid, matrix_mdev->shadow_apcb.adm);
- 		vfio_ap_mdev_commit_apcb(matrix_mdev);
- 	}
-@@ -1596,15 +1587,27 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
- 	vfio_ap_queue_link_mdev(q);
- 	if (q->matrix_mdev) {
- 		/*
--		 * If the KVM pointer is in the process of being set, wait until the
--		 * process has completed.
-+		 * If we are in the process of adding adapters and/or domains
-+		 * due to a change to the host's AP configuration, it is more
-+		 * efficient to refresh the guest's APCB in a single operation
-+		 * after the AP bus scan is complete (see the
-+		 * vfio_ap_on_scan_complete function) rather than to do the
-+		 * refresh for each queue added, so if that is not the case,
-+		 * let's go ahead and refresh the guest's APCB here.
- 		 */
--		wait_event_cmd(q->matrix_mdev->wait_for_kvm,
--			       !q->matrix_mdev->kvm_busy,
--			       mutex_unlock(&matrix_dev->lock),
--			       mutex_lock(&matrix_dev->lock));
-+		if (bitmap_empty(matrix_dev->ap_add, AP_DEVICES) &&
-+		    bitmap_empty(matrix_dev->aq_add, AP_DOMAINS)) {
-+			/*
-+			 * If the KVM pointer is in the process of being set, wait until the
-+			 * process has completed.
-+			 */
-+			wait_event_cmd(q->matrix_mdev->wait_for_kvm,
-+				       !q->matrix_mdev->kvm_busy,
-+				       mutex_unlock(&matrix_dev->lock),
-+				       mutex_lock(&matrix_dev->lock));
- 
--		vfio_ap_mdev_refresh_apcb(q->matrix_mdev);
-+			vfio_ap_mdev_refresh_apcb(q->matrix_mdev);
-+		}
- 	}
- 	dev_set_drvdata(&apdev->device, q);
- 	mutex_unlock(&matrix_dev->lock);
-@@ -1646,8 +1649,172 @@ int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
- 
- 	if (!mutex_trylock(&matrix_dev->lock))
- 		return -EBUSY;
-+
- 	ret = vfio_ap_mdev_verify_no_sharing(apm, aqm);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return ret;
- }
-+
-+/*
-+ * vfio_ap_mdev_unlink_apids
-+ *
-+ * @matrix_mdev: The matrix mediated device
-+ *
-+ * @apid_rem: The bitmap specifying the APIDs of the adapters removed from
-+ *	      the host's AP configuration
-+ *
-+ * Unlinks @matrix_mdev from each queue assigned to @matrix_mdev whose APQN
-+ * contains an APID specified in @apid_rem.
-+ *
-+ * Returns true if one or more AP queue devices were unlinked; otherwise,
-+ * returns false.
-+ */
-+static bool vfio_ap_mdev_unlink_apids(struct ap_matrix_mdev *matrix_mdev,
-+				      unsigned long *apid_rem)
-+{
-+	int bkt, apid;
-+	bool q_unlinked = false;
-+	struct vfio_ap_queue *q;
-+
-+	hash_for_each(matrix_mdev->qtable, bkt, q, mdev_qnode) {
-+		apid = AP_QID_CARD(q->apqn);
-+		if (test_bit_inv(apid, apid_rem)) {
-+			vfio_ap_mdev_reset_queue(q, 1);
-+			vfio_ap_mdev_unlink_queue(q);
-+			q_unlinked = true;
-+		}
-+	}
-+
-+	return q_unlinked;
-+}
-+
-+/*
-+ * vfio_ap_mdev_unlink_apqis
-+ *
-+ * @matrix_mdev: The matrix mediated device
-+ *
-+ * @apqi_rem: The bitmap specifying the APQIs of the domains removed from
-+ *	      the host's AP configuration
-+ *
-+ * Unlinks @matrix_mdev from each queue assigned to @matrix_mdev whose APQN
-+ * contains an APQI specified in @apqi_rem.
-+ *
-+ * Returns true if one or more AP queue devices were unlinked; otherwise,
-+ * returns false.
-+ */
-+static bool vfio_ap_mdev_unlink_apqis(struct ap_matrix_mdev *matrix_mdev,
-+				      unsigned long *apqi_rem)
-+{
-+	int bkt, apqi;
-+	bool q_unlinked = false;
-+	struct vfio_ap_queue *q;
-+
-+	hash_for_each(matrix_mdev->qtable, bkt, q, mdev_qnode) {
-+		apqi = AP_QID_QUEUE(q->apqn);
-+		if (test_bit_inv(apqi, apqi_rem)) {
-+			vfio_ap_mdev_reset_queue(q, 1);
-+			vfio_ap_mdev_unlink_queue(q);
-+			q_unlinked = true;
-+		}
-+	}
-+
-+	return q_unlinked;
-+}
-+
-+static void vfio_ap_mdev_on_cfg_remove(void)
-+{
-+	bool refresh_apcb = false;
-+	int ap_remove, aq_remove;
-+	struct ap_matrix_mdev *matrix_mdev;
-+	DECLARE_BITMAP(aprem, AP_DEVICES);
-+	DECLARE_BITMAP(aqrem, AP_DOMAINS);
-+	unsigned long *cur_apm, *cur_aqm, *prev_apm, *prev_aqm;
-+
-+	cur_apm = (unsigned long *)matrix_dev->config_info.apm;
-+	cur_aqm = (unsigned long *)matrix_dev->config_info.aqm;
-+	prev_apm = (unsigned long *)matrix_dev->config_info_prev.apm;
-+	prev_aqm = (unsigned long *)matrix_dev->config_info_prev.aqm;
-+
-+	ap_remove = bitmap_andnot(aprem, prev_apm, cur_apm, AP_DEVICES);
-+	aq_remove = bitmap_andnot(aqrem, prev_aqm, cur_aqm, AP_DOMAINS);
-+
-+	if (!ap_remove && !aq_remove)
-+		return;
-+
-+	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-+		if (ap_remove)
-+			refresh_apcb = vfio_ap_mdev_unlink_apids(matrix_mdev,
-+								 aprem);
-+
-+		if (aq_remove)
-+			refresh_apcb = vfio_ap_mdev_unlink_apqis(matrix_mdev,
-+								 aqrem);
-+
-+		if (refresh_apcb)
-+			vfio_ap_mdev_refresh_apcb(matrix_mdev);
-+	}
-+}
-+
-+static void vfio_ap_mdev_on_cfg_add(void)
-+{
-+	unsigned long *cur_apm, *cur_aqm, *cur_adm;
-+	unsigned long *prev_apm, *prev_aqm, *prev_adm;
-+
-+	cur_apm = (unsigned long *)matrix_dev->config_info.apm;
-+	cur_aqm = (unsigned long *)matrix_dev->config_info.aqm;
-+	cur_adm = (unsigned long *)matrix_dev->config_info.adm;
-+
-+	prev_apm = (unsigned long *)matrix_dev->config_info_prev.apm;
-+	prev_aqm = (unsigned long *)matrix_dev->config_info_prev.aqm;
-+	prev_adm = (unsigned long *)matrix_dev->config_info_prev.adm;
-+
-+	bitmap_andnot(matrix_dev->ap_add, cur_apm, prev_apm, AP_DEVICES);
-+	bitmap_andnot(matrix_dev->aq_add, cur_aqm, prev_aqm, AP_DOMAINS);
-+	bitmap_andnot(matrix_dev->ad_add, cur_adm, prev_adm, AP_DOMAINS);
-+}
-+
-+void vfio_ap_init_mdev_matrixes(struct ap_config_info *config_info)
-+{
-+	struct ap_matrix_mdev *matrix_mdev;
-+
-+	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-+		vfio_ap_matrix_init(config_info, &matrix_mdev->matrix);
-+		vfio_ap_matrix_init(config_info, &matrix_mdev->shadow_apcb);
-+	}
-+}
-+
-+void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
-+			    struct ap_config_info *old_config_info)
-+{
-+	mutex_lock(&matrix_dev->lock);
-+	memcpy(&matrix_dev->config_info, new_config_info,
-+	       sizeof(struct ap_config_info));
-+	memcpy(&matrix_dev->config_info_prev, old_config_info,
-+	       sizeof(struct ap_config_info));
-+	vfio_ap_init_mdev_matrixes(new_config_info);
-+	vfio_ap_mdev_on_cfg_remove();
-+	vfio_ap_mdev_on_cfg_add();
-+	mutex_unlock(&matrix_dev->lock);
-+}
-+
-+void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
-+			      struct ap_config_info *old_config_info)
-+{
-+	struct ap_matrix_mdev *matrix_mdev;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-+		if (bitmap_intersects(matrix_mdev->matrix.apm,
-+				      matrix_dev->ap_add, AP_DEVICES) ||
-+		    bitmap_intersects(matrix_mdev->matrix.aqm,
-+				      matrix_dev->aq_add, AP_DOMAINS) ||
-+		    bitmap_intersects(matrix_mdev->matrix.adm,
-+				      matrix_dev->ad_add, AP_DOMAINS))
-+			vfio_ap_mdev_refresh_apcb(matrix_mdev);
-+	}
-+
-+	bitmap_clear(matrix_dev->ap_add, 0, AP_DEVICES);
-+	bitmap_clear(matrix_dev->aq_add, 0, AP_DOMAINS);
-+	mutex_unlock(&matrix_dev->lock);
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 601012751a4a..a1e0ee395e95 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -29,7 +29,9 @@
-  * ap_matrix_dev - the AP matrix device structure
-  * @device:	generic device structure associated with the AP matrix device
-  * @available_instances: number of mediated matrix devices that can be created
-- * @info:	the struct containing the output from the PQAP(QCI) instruction
-+ * @config_info: the current host AP configuration information
-+ * @config_info_prev: the host AP configuration information from the previous
-+ *		      configuration changed notification
-  * mdev_list:	the list of mediated matrix devices created
-  * lock:	mutex for locking the AP matrix device. This lock will be
-  *		taken every time we fiddle with state managed by the vfio_ap
-@@ -40,10 +42,14 @@
- struct ap_matrix_dev {
- 	struct device device;
- 	atomic_t available_instances;
--	struct ap_config_info info;
-+	struct ap_config_info config_info;
-+	struct ap_config_info config_info_prev;
- 	struct list_head mdev_list;
- 	struct mutex lock;
- 	struct ap_driver  *vfio_ap_drv;
-+	DECLARE_BITMAP(ap_add, AP_DEVICES);
-+	DECLARE_BITMAP(aq_add, AP_DOMAINS);
-+	DECLARE_BITMAP(ad_add, AP_DOMAINS);
- };
- 
- extern struct ap_matrix_dev *matrix_dev;
-@@ -111,4 +117,9 @@ void vfio_ap_mdev_remove_queue(struct ap_device *queue);
- 
- int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
- 
-+void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
-+			    struct ap_config_info *old_config_info);
-+void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
-+			      struct ap_config_info *old_config_info);
-+
- #endif /* _VFIO_AP_PRIVATE_H_ */
--- 
-2.21.3
-
+Jason
