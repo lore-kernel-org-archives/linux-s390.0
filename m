@@ -2,114 +2,163 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC9E1C433ED
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 16:42:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 273A2C433ED
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 18:34:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 972D0613DF
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 16:42:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EA942613B3
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 18:34:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233286AbhDFQm3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Apr 2021 12:42:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44564 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229539AbhDFQm3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Apr 2021 12:42:29 -0400
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9BD6C06174A;
-        Tue,  6 Apr 2021 09:42:20 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id qo10so12622790ejb.6;
-        Tue, 06 Apr 2021 09:42:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=5FhGpD+W2qCTNTtz8r16NI+eTTgYQsJqj2294KSTYfg=;
-        b=O4mar5EJsHEnN3WGZVxrUQ0F0XF3kFlnGht20zddufgJZ7os++IvA0hgydkU4xbSDQ
-         +XOriaf9ISSqRf2vVB6revLl0hdy3av+65Kpxdkm41s2St9tXkPlSkBFkXx9bD1szhiU
-         wAspPAqPqAJsB9yRyIdy2/wZiflyFFxX0hzQPBIYIeGygO1XSMRBIJgwswmMKiS+sWFG
-         yF4ii2tYVlWWmwTVszEJK+vomRUD+tgLYq/KTzKtdalo8kPxU43JfVp4wmAfvaAddN+C
-         sP1K3RjL47NtXKKgky14aXscPq4mLN4XpNnLldlxuVStWnpAAoFPreeXMyNLUzYcz+6T
-         ntYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=5FhGpD+W2qCTNTtz8r16NI+eTTgYQsJqj2294KSTYfg=;
-        b=X20lmT+QpMpBh04RFGTxQkVcfNb2gildPq2H9WhXkdyai50MEJM30MW67EJY/6fN89
-         HgLP16EnTczfzGsKjv0roD+pPrVIhL7iWjNI5uAHoHRnMJRGM+hRsBNtdW/qERM2JKKj
-         xddP4gJDRqpQZGBbATYQU7J4sUQBMd6YUUrHdPCWq/2X+2XjkZRFuA2PoD0k971SMahb
-         3U74rf5NVUWzYnSAycbi4urSxMo8vsoZGJvKbXd7/bqPLSXz4NEVTy19ZbeXduHn6+df
-         sQfB5VuGbuuKL7hzZtskywYuuTnP4y8y1wknhUEpApaaQiB/OOg3LghGdqaW7+GQDS5x
-         iMeQ==
-X-Gm-Message-State: AOAM532adqM6Km7Dp0bsJKc2iIQcRSBZkG55ZAnBLwJdVJtg81tvsb7U
-        3XkkiwUR5uMPLtfcn+OhI/79YWL+SlTILoffdok=
-X-Google-Smtp-Source: ABdhPJzGmpH9vtOSzDZ4/Y4obgIO+geB2MftQxr3dsbqxdiL5KplV4MIvAmDjQLurBc4ZwCpMsr6uQPYr8rBQRgCd0g=
-X-Received: by 2002:a17:906:b296:: with SMTP id q22mr13134681ejz.161.1617727339539;
- Tue, 06 Apr 2021 09:42:19 -0700 (PDT)
+        id S239391AbhDFSeV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Apr 2021 14:34:21 -0400
+Received: from mail-dm6nam11on2063.outbound.protection.outlook.com ([40.107.223.63]:9088
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229681AbhDFSeU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 6 Apr 2021 14:34:20 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=maD4wPhgG2I4ybW6em+KRbur4Czeq/WDHW7BeMO6hf9k3tCln3bsmpGGAXAqWRVuH2r2hsBKBVrMO3Dz9F5PkYrrq9Itk64EvSDiWtllSNZ6n8KTtu5N3SQ24PKSfLoWDJwY296mfRLQOIqwoC4L/cBA7Yo4AlXaAUFmTY53yh6QMWbzKJJ9PQkyKYZoTmvz52WtQg54HHQFbQgZzTabpKxcMuuI6Q9zT6lB0LCmHSmockbgyWjtBFYOS24seBr0Cugf10SQhQLzep5h3WjYdaaBx0B+7Iud3pPmzDTskfXjQGH01CtQenIeYD/6CQjNFedAYuEgsYPitUAvgOd19w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=H1WJNdqcmk8xV6AuYskzlJWYEHsBmH4h3DyXS4ku0dM=;
+ b=Ml2w0GFv4tjoJiCnvzY5qdLwWiZEmPmNHV21LSMp/h6wth1WyA6/01uV+RTl+GE5PSlbQ5sC9J0Q3XBzVQlsVc4Mjf0F/fjc3HDHxa4ohFsCEISAI0sw0E2/cCpWrsnhZ3xofwm3Bz+l8Eq6+y+UoMS6I10ohus7GP4nBYlUFNIJI9OQrEVNUUaGR0x9oaIK5+ER7Xu/TeTD23escXVmTMXAfJpPfptvE1EV09gw/OkGfGJCy0aSuEWa/ffbUW9PG56nXsGEzBamrKx/EhasO2MqszW45tTp+fQymzico8S9PsoYxIb9EtqesnCIDrfvYWZDUA8P+JnR7fWix/w/OQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=H1WJNdqcmk8xV6AuYskzlJWYEHsBmH4h3DyXS4ku0dM=;
+ b=SJmlAJ/y0Gtpnp5OfNEhOo0ufTi7AbuBi+eYMRpEq/vkLsBOTmjIJIJF9SmnW38Wcd26TVqHphBJj6R71+oYf3UgdazsTeYjsClp7N+RVkFLN6IUbdEVPuHgLgK2pQfu8SlfpkegpdDXnuEEzH3F94nj/C3ncA/vyvZFgt1haezaAnPaeNXj3MPYCNK2NBD7Qm5vcli8j+X2eOoqr517ai81yDcBw6SOQiyLemZE1++B+soVGNCR48hyaLYY79Y/0LOHZ1/GW2uUk1b8H/YjbfJAf57A9VUdB9Gy4bfZX61xmKS3iHSmUgkEzgRo8f4Og3zRZ4ooqI38CKeJPhDdKg==
+Authentication-Results: lst.de; dkim=none (message not signed)
+ header.d=none;lst.de; dmarc=none action=none header.from=nvidia.com;
+Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
+ by DM6PR12MB3515.namprd12.prod.outlook.com (2603:10b6:5:15f::30) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3999.28; Tue, 6 Apr
+ 2021 18:34:09 +0000
+Received: from DM6PR12MB3834.namprd12.prod.outlook.com
+ ([fe80::1c62:7fa3:617b:ab87]) by DM6PR12MB3834.namprd12.prod.outlook.com
+ ([fe80::1c62:7fa3:617b:ab87%6]) with mapi id 15.20.3999.032; Tue, 6 Apr 2021
+ 18:34:09 +0000
+Date:   Tue, 6 Apr 2021 15:34:06 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-s390@vger.kernel.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Tarun Gupta <targupta@nvidia.com>
+Subject: Re: [PATCH 18/18] vfio/mdev: Correct the function signatures for the
+ mdev_type_attributes
+Message-ID: <20210406183406.GC282464@nvidia.com>
+References: <0-v1-7dedf20b2b75+4f785-vfio2_jgg@nvidia.com>
+ <18-v1-7dedf20b2b75+4f785-vfio2_jgg@nvidia.com>
+ <20210323193103.GP17735@lst.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210323193103.GP17735@lst.de>
+X-Originating-IP: [142.162.115.133]
+X-ClientProxiedBy: BL1PR13CA0342.namprd13.prod.outlook.com
+ (2603:10b6:208:2c6::17) To DM6PR12MB3834.namprd12.prod.outlook.com
+ (2603:10b6:5:14a::12)
 MIME-Version: 1.0
-References: <20210329183312.178266-1-shy828301@gmail.com> <20210330164200.01a4b78f@thinkpad>
- <CAHbLzkrYd+5L8Ep+b83PkkFL_QGQe_vSAk=erQ+fvC6dEOsGsw@mail.gmail.com>
- <20210331134727.47bc1e6d@thinkpad> <CAHbLzkquYxq_eXoVhUCib9qu_aMS9U2XXjb5pop9JtJ8uco_vg@mail.gmail.com>
- <20210406140251.2779c400@thinkpad>
-In-Reply-To: <20210406140251.2779c400@thinkpad>
-From:   Yang Shi <shy828301@gmail.com>
-Date:   Tue, 6 Apr 2021 09:42:07 -0700
-Message-ID: <CAHbLzkr2+CnY8+ENB_Hvt7kJPKNq3H2aG=RsOBmBE_dYciqstw@mail.gmail.com>
-Subject: Re: [RFC PATCH 0/6] mm: thp: use generic THP migration for NUMA
- hinting fault
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     Mel Gorman <mgorman@suse.de>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Zi Yan <ziy@nvidia.com>, Michal Hocko <mhocko@suse.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Hugh Dickins <hughd@google.com>, hca@linux.ibm.com,
-        gor@linux.ibm.com, borntraeger@de.ibm.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux MM <linux-mm@kvack.org>, linux-s390@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (142.162.115.133) by BL1PR13CA0342.namprd13.prod.outlook.com (2603:10b6:208:2c6::17) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4020.8 via Frontend Transport; Tue, 6 Apr 2021 18:34:07 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lTqWc-001Q7i-2e; Tue, 06 Apr 2021 15:34:06 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: d7a45eba-3dc7-441f-d15a-08d8f92a9029
+X-MS-TrafficTypeDiagnostic: DM6PR12MB3515:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <DM6PR12MB35156989CBDD272A26F0989CC2769@DM6PR12MB3515.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: bw8oQsAu3cIAymesVfh0fVxl0b1MYj7xxFs8fB97lV+kt6qO4y40lk4kp2tJc5P4nfYZHJlMhnLhOx5jqiE+OemaTB1wdRvn6+NA8sPE2TQvQCdvH6qFuRcgpRhoY6YGMR542sHmW0NGVo9DWmi4Pyrx4VNLER9ePnGDe7cGdQoTjAUbuk8JinpsMcnOsL9OOEhV+GUf3d8U0HZN57atOfB7ryg/FNr3V3/UNP19C8RLY5obDekOiUdXAc79sLhMo0qMrP1RLvs8aU7Ng24Xs76j6uXZJqfmz5yi170vh0y4MmDlwixGMJb8Pe6LyJE3Uc6Fxiv2682sqWEgFAK5h97nGZW5wts/BsSqLfPpYSX4klWoWlwUq/+VHEvGHzXTgGrb+4qdnmUDg0a1yp6a7RSi3KdeOYTXDblqMvYSHiMZrt7TDy9xb26uAfCw+cTQp65mAtHynAm3yx5rCam8T/rO/PFXzmtqqVqrBpM4H9/KVKBZcALzRjv0uFJGGVW9e2s1OhxsKK2qgIMOa5m4fIVaCCE/xA7weEiAdv40mwqgi8bDHRpo2E47ulYSHjtsvxgrw6Oduga4aQygiITYAevODHWOPamV3HlE9Rkh+ZLqYieiNf3TwHVkC1KA5vx8F4cpNKJaoAxMzuR36WWTr6rXvC0k8cAKM9aWClEqRD99BBdkZY04o3Tnl+grVLWI
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(376002)(136003)(366004)(346002)(39860400002)(107886003)(2906002)(4326008)(5660300002)(9746002)(4744005)(1076003)(186003)(66476007)(66946007)(7416002)(38100700001)(66556008)(2616005)(36756003)(478600001)(8936002)(33656002)(316002)(6916009)(54906003)(9786002)(86362001)(426003)(8676002)(26005)(27376004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?1kCB9e7exdS6pbGS2qU5RRbKTWM1pO4spZwuKGRUgMLEW/hN+W9RxHOTybyM?=
+ =?us-ascii?Q?SF1B0akEKkEc+iQmue8LosJDEZ/0rm+Of+LfxSJ63cL/679iluQYZsaq1cS1?=
+ =?us-ascii?Q?F/UKZJnmkAZXw1dtRSfjxv0X949WNQEZE++BPzChFMy6VcFlDS8v1zktyBX+?=
+ =?us-ascii?Q?15st/MuF11B1dhNrdbgEhFgWNW/iHLaHFi7iXqwPt03pRBr2Y3veE7fUqX2w?=
+ =?us-ascii?Q?cwtPw9SekdlVLpP6oMif6jg9v25t7Ifyn6xlwVMQ9yTgzoneZIs+rClQwl0W?=
+ =?us-ascii?Q?yn30UVLVdJyCeNjA0IAojMkHOHbNzXUPEw33S6vliG7QVBpdu1GuQMC2w784?=
+ =?us-ascii?Q?B2nEINZUZ/ZgkZW0cXBeSRxmzjRB5CqcfWwn0R1mDEgDAWHdDg/LHC2xGxev?=
+ =?us-ascii?Q?TVdVRyr8DNgTJnf89d96UzfBNGdZjiDen0ivre5pLrXztlcVw/ynDXGNWuj6?=
+ =?us-ascii?Q?UjgSdp8cgqwyBjaI29XzULpCk/st2HTnvG8gz2Ju/0GfmkB4nlonomuB/LcG?=
+ =?us-ascii?Q?GhhncOKsBTHJ+EtUnZr5JY3ruWVVAbW8XI0ifQj79ICmtlPo9KOG4I8aWn7R?=
+ =?us-ascii?Q?NWFtX+SbIkIlmze0q08pZHIA5o2KwawqWdvILWHzX8DLtrDw1h6nWDuPA/dV?=
+ =?us-ascii?Q?/dBKBKzPCmLsHwvLL7Wehz8bqeilUP/7EIrsLWesjHtHl1DVIlcjKIdQorhT?=
+ =?us-ascii?Q?6AWxVLix/BlmJCGH3qQ8txexUVQYfOFXSAawDYgoDmN9S7GpiQZtSyp/JF/R?=
+ =?us-ascii?Q?x+Wsa2SQFXUaKUu69ReUzdgBccg7uiD7iP23fC0bVxkYIRuc8i1/1ftb3UU+?=
+ =?us-ascii?Q?VxYtKi/9iIEeaubijYDUBPJtN0ah4s5/bI8HQKG9FKvfnvIzxIiKjTPWvLCD?=
+ =?us-ascii?Q?Cj3nGqn9PJlL82/B4Y66eN5hACiGlkqfzADUpohoqs3QqoJbcnMcux1Yb2eQ?=
+ =?us-ascii?Q?LEioG7zvurdRM5Nb7HwMnXPlMToJVqFszsu2wS2cEizpvenKaduxWY1Wm8NA?=
+ =?us-ascii?Q?3y6XSU7/9QdkSzMOiVArKD96sX8S7yikhWeU9QCuV+MyTYXHAw2aZQ7TUp65?=
+ =?us-ascii?Q?Hpb0pKscT/Rx9BIWmN3eDs1ruMTLDlN4t6/wogHfs9PCaBbA/WZdt2xepzF7?=
+ =?us-ascii?Q?OKlcu3rv8FT4oHpbndHYeBC7uTNCF+GG3sApOfglnczYfYDAacwqxEhCX7vR?=
+ =?us-ascii?Q?k8oSJoCGM4B2H7Vfr4FLsgf85Clo9VMG/jsTzlnC73s4MDbK8Ms/0QLBnVL5?=
+ =?us-ascii?Q?k85hvhfPMM+DkGifCxPFvFenQX5V+ntwfrE4U6rG3MgA+7GoYGoTv3T/RBmR?=
+ =?us-ascii?Q?kPIkHY5HN71ngfz8WfkTPjT1AiyB+gD9/ZXjzeCVTpOWCw=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d7a45eba-3dc7-441f-d15a-08d8f92a9029
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Apr 2021 18:34:08.5202
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: AninLrsYlWFOslVrVa7MPX49jfH3Tsjuk+azS49vAMYPg8bKoUzlhizzR3k9rUe1
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3515
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Apr 6, 2021 at 5:03 AM Gerald Schaefer
-<gerald.schaefer@linux.ibm.com> wrote:
->
-> On Thu, 1 Apr 2021 13:10:49 -0700
-> Yang Shi <shy828301@gmail.com> wrote:
->
-> [...]
-> > > >
-> > > > Yes, it could be. The old behavior of migration was to return -ENOMEM
-> > > > if THP migration is not supported then split THP. That behavior was
-> > > > not very friendly to some usecases, for example, memory policy and
-> > > > migration lieu of reclaim (the upcoming). But I don't mean we restore
-> > > > the old behavior. We could split THP if it returns -ENOSYS and the
-> > > > page is THP.
-> > >
-> > > OK, as long as we don't get any broken PMD migration entries established
-> > > for s390, some extra THP splitting would be acceptable I guess.
-> >
-> > There will be no migration PMD installed. The current behavior is a
-> > no-op if THP migration is not supported.
->
-> Ok, just for completeness, since Mel also replied that the split
-> was not done on other architectures "because the loss from splitting
-> exceeded the gain of improved locality":
->
-> I did not mean to request extra splitting functionality for s390,
-> simply skipping / ignoring large PMDs would also be fine for s390,
-> no need to add extra complexity.
+On Tue, Mar 23, 2021 at 08:31:03PM +0100, Christoph Hellwig wrote:
 
-Thank you. It could make life easier. The current code still converts
-huge PMD to RPOTNONE even though THP migration is not supported. It is
-easy to skip such PMDs hence cycles are saved for pointless NUMA
-hinting page faults.
+> > -	type = intel_gvt_find_vgpu_type(gvt, mtype_get_type_group_id(kobj));
+> > +	type = intel_gvt_find_vgpu_type(gvt, mtype_get_type_group_id(mtype));
+> 
+> Somewhere in this series you should probably switch
+> intel_gvt_find_vgpu_type to only get the mtype, as it can trivially
+> deduct the gvt from it (which also seems to have lost its type
+> somewhere..)
 
-Will do so in v2 if no objection from Mel as well.
+I look at just this minor change for a bit and it just is a mess.
+
+This only exists like this because the gvt_type_attrs[] are in the
+wrong file and I already tried to fix that and gave up.
+
+Deleting the intel_gvt_ops looks like precondition to do any big
+improvement in here :\
+
+Jason
