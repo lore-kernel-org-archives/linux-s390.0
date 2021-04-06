@@ -2,208 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B18FC433B4
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:23:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A6C8C43461
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:28:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 27F8061205
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:23:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 40B8961399
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:28:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243973AbhDFGXm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Apr 2021 02:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49456 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237578AbhDFGXm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Apr 2021 02:23:42 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94249C06174A;
-        Mon,  5 Apr 2021 23:23:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-        :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=RAajxzsZbgFDmz+U6PJWPSdLyTtFePXrDy8oE97nt8o=; b=0PpefCbAlrTSKJo37dbov/xpCt
-        rIbaB6DTZOceRat2zfw6q8LzwL1TTnpU1vmCNkCbRqQi/vHj+/xNbgFGEm/9ICPy/Z964QTo59L3f
-        4L6ppfBLmhJ0pfldT7Df3/qDEIvM4bzJvMhJotq/MDuN1IfWg2uRaph9HRAChTslzpVtm1iFZXiq4
-        ALYcNw8ZTica6a6ewnpFwJScEH9bc6HI9+lTfkwHqeorjg0iNnnwIYxrv3ubfFa4qvtBLpW7vQy9R
-        XT5uBpglGy4TsEkLNqzr8jM0VZ4AqDPgW9aE0OE/c5Qi2fQo5bYW5AjO43+MfsRBIJj7jDxJuCO99
-        YoH7itfw==;
-Received: from [2001:4bb8:188:4907:c664:b479:e725:f367] (helo=localhost)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1lTf7d-007oA2-5E; Tue, 06 Apr 2021 06:23:33 +0000
-From:   Christoph Hellwig <hch@lst.de>
-To:     Jens Axboe <axboe@kernel.dk>, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>
-Cc:     Tejun Heo <tj@kernel.org>, linux-block@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH 11/11] block: remove disk_part_iter
-Date:   Tue,  6 Apr 2021 08:23:02 +0200
-Message-Id: <20210406062303.811835-12-hch@lst.de>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210406062303.811835-1-hch@lst.de>
-References: <20210406062303.811835-1-hch@lst.de>
+        id S243998AbhDFG27 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Apr 2021 02:28:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44028 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237859AbhDFG26 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 6 Apr 2021 02:28:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE35D61165;
+        Tue,  6 Apr 2021 06:28:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1617690530;
+        bh=6qxictHF+/YqQWcR0awtfiLtRYlib8mn/Dx9axjfKg4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=i+8SC5R9QYYvQwgkzuDT4QnqR/LHddWxuZum0T0C3kxd6raLjcbfF1cvFl2Cec8Xm
+         KhScYX6h4r8XG5j8aUB+B2/jprzuuPXY9FqnyK2nKPB+vdLVfp9goj46Wy4uHK+0Ra
+         PZddOiDso6XZJeBYLq1uIw9rM48AGuy05sSGnzMZFNrnyCjZMGJCv51xn7hMBg++CF
+         +dca19jOJJKcipn2OWRYvnKC9ngkedpdr+ZBuojGR6Bu10dtubDRP/koLNLtLoA/lF
+         akfcfAruTov/1lG+Q+agKfPbZvwxlR1hCjO5x/uMyewyKscMUk4082lcCbzP0vJ/16
+         lfXW6Ibhc0a6A==
+Date:   Tue, 6 Apr 2021 09:28:46 +0300
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Tom Talpey <tom@talpey.com>
+Cc:     Doug Ledford <dledford@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Avihai Horon <avihaih@nvidia.com>,
+        Adit Ranadive <aditr@vmware.com>,
+        Anna Schumaker <anna.schumaker@netapp.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Devesh Sharma <devesh.sharma@broadcom.com>,
+        Faisal Latif <faisal.latif@intel.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "J. Bruce Fields" <bfields@fieldses.org>,
+        Jens Axboe <axboe@fb.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Keith Busch <kbusch@kernel.org>, Lijun Ou <oulijun@huawei.com>,
+        linux-cifs@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Michael Guralnik <michaelgur@nvidia.com>,
+        Michal Kalderon <mkalderon@marvell.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>,
+        netdev@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>,
+        rds-devel@oss.oracle.com, Sagi Grimberg <sagi@grimberg.me>,
+        samba-technical@lists.samba.org,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        Selvin Xavier <selvin.xavier@broadcom.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Somnath Kotur <somnath.kotur@broadcom.com>,
+        Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>,
+        Steve French <sfrench@samba.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        VMware PV-Drivers <pv-drivers@vmware.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhu Yanjun <zyjzyj2000@gmail.com>
+Subject: Re: [PATCH rdma-next 02/10] RDMA/core: Enable Relaxed Ordering in
+ __ib_alloc_pd()
+Message-ID: <YGv/nne+E5xXHsME@unreal>
+References: <20210405052404.213889-1-leon@kernel.org>
+ <20210405052404.213889-3-leon@kernel.org>
+ <befc60f3-d28a-5420-b381-0f408bd7cca9@talpey.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <befc60f3-d28a-5420-b381-0f408bd7cca9@talpey.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Just open code the xa_for_each in the remaining user.
+On Mon, Apr 05, 2021 at 02:01:16PM -0400, Tom Talpey wrote:
+> On 4/5/2021 1:23 AM, Leon Romanovsky wrote:
+> > From: Avihai Horon <avihaih@nvidia.com>
+> > 
+> > Enable Relaxed Ordering in __ib_alloc_pd() allocation of the
+> > local_dma_lkey.
+> > 
+> > This will take effect only for devices that don't pre-allocate the lkey
+> > but allocate it per PD allocation.
+> > 
+> > Signed-off-by: Avihai Horon <avihaih@nvidia.com>
+> > Reviewed-by: Michael Guralnik <michaelgur@nvidia.com>
+> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> > ---
+> >   drivers/infiniband/core/verbs.c              | 3 ++-
+> >   drivers/infiniband/hw/vmw_pvrdma/pvrdma_mr.c | 1 +
+> >   2 files changed, 3 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
+> > index a1782f8a6ca0..9b719f7d6fd5 100644
+> > --- a/drivers/infiniband/core/verbs.c
+> > +++ b/drivers/infiniband/core/verbs.c
+> > @@ -287,7 +287,8 @@ struct ib_pd *__ib_alloc_pd(struct ib_device *device, unsigned int flags,
+> >   	if (device->attrs.device_cap_flags & IB_DEVICE_LOCAL_DMA_LKEY)
+> >   		pd->local_dma_lkey = device->local_dma_lkey;
+> >   	else
+> > -		mr_access_flags |= IB_ACCESS_LOCAL_WRITE;
+> > +		mr_access_flags |=
+> > +			IB_ACCESS_LOCAL_WRITE | IB_ACCESS_RELAXED_ORDERING;
+> 
+> So, do local_dma_lkey's get relaxed ordering unconditionally?
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/genhd.c         | 92 ++++++-------------------------------------
- include/linux/genhd.h | 19 ---------
- 2 files changed, 13 insertions(+), 98 deletions(-)
+Yes, in mlx5, this lkey is created on the fly.
 
-diff --git a/block/genhd.c b/block/genhd.c
-index cbfe1ff19360b3..39ca97b0edc612 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -161,81 +161,6 @@ static void part_in_flight_rw(struct block_device *part,
- 		inflight[1] = 0;
- }
- 
--/**
-- * disk_part_iter_init - initialize partition iterator
-- * @piter: iterator to initialize
-- * @disk: disk to iterate over
-- * @flags: DISK_PITER_* flags
-- *
-- * Initialize @piter so that it iterates over partitions of @disk.
-- *
-- * CONTEXT:
-- * Don't care.
-- */
--void disk_part_iter_init(struct disk_part_iter *piter, struct gendisk *disk,
--			  unsigned int flags)
--{
--	piter->disk = disk;
--	piter->part = NULL;
--	if (flags & (DISK_PITER_INCL_PART0 | DISK_PITER_INCL_EMPTY_PART0))
--		piter->idx = 0;
--	else
--		piter->idx = 1;
--	piter->flags = flags;
--}
--
--/**
-- * disk_part_iter_next - proceed iterator to the next partition and return it
-- * @piter: iterator of interest
-- *
-- * Proceed @piter to the next partition and return it.
-- *
-- * CONTEXT:
-- * Don't care.
-- */
--struct block_device *disk_part_iter_next(struct disk_part_iter *piter)
--{
--	struct block_device *part;
--	unsigned long idx;
--
--	/* put the last partition */
--	disk_part_iter_exit(piter);
--
--	rcu_read_lock();
--	xa_for_each_start(&piter->disk->part_tbl, idx, part, piter->idx) {
--		if (!bdev_nr_sectors(part) &&
--		    !(piter->flags & DISK_PITER_INCL_EMPTY) &&
--		    !(piter->flags & DISK_PITER_INCL_EMPTY_PART0 &&
--		      piter->idx == 0))
--			continue;
--
--		piter->part = bdgrab(part);
--		if (!piter->part)
--			continue;
--		piter->idx = idx + 1;
--		break;
--	}
--	rcu_read_unlock();
--
--	return piter->part;
--}
--
--/**
-- * disk_part_iter_exit - finish up partition iteration
-- * @piter: iter of interest
-- *
-- * Called when iteration is over.  Cleans up @piter.
-- *
-- * CONTEXT:
-- * Don't care.
-- */
--void disk_part_iter_exit(struct disk_part_iter *piter)
--{
--	if (piter->part)
--		bdput(piter->part);
--	piter->part = NULL;
--}
--
- /*
-  * Can be deleted altogether. Later.
-  *
-@@ -472,13 +397,22 @@ static char *bdevt_str(dev_t devt, char *buf)
- 
- void disk_uevent(struct gendisk *disk, enum kobject_action action)
- {
--	struct disk_part_iter piter;
- 	struct block_device *part;
-+	unsigned long idx;
-+
-+	rcu_read_lock();
-+	xa_for_each(&disk->part_tbl, idx, part) {
-+		if (bdev_is_partition(part) && !bdev_nr_sectors(part))
-+			continue;
-+		if (!bdgrab(part))
-+			continue;
- 
--	disk_part_iter_init(&piter, disk, DISK_PITER_INCL_EMPTY_PART0);
--	while ((part = disk_part_iter_next(&piter)))
-+		rcu_read_unlock();
- 		kobject_uevent(bdev_kobj(part), action);
--	disk_part_iter_exit(&piter);
-+		bdput(part);
-+		rcu_read_lock();
-+	}
-+	rcu_read_unlock();
- }
- EXPORT_SYMBOL_GPL(disk_uevent);
- 
-diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-index 16178a935c4041..7e9660ea967d59 100644
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -204,25 +204,6 @@ static inline dev_t disk_devt(struct gendisk *disk)
- 
- void disk_uevent(struct gendisk *disk, enum kobject_action action);
- 
--/*
-- * Smarter partition iterator without context limits.
-- */
--#define DISK_PITER_INCL_EMPTY	(1 << 1) /* include 0-sized parts */
--#define DISK_PITER_INCL_PART0	(1 << 2) /* include partition 0 */
--#define DISK_PITER_INCL_EMPTY_PART0 (1 << 3) /* include empty partition 0 */
--
--struct disk_part_iter {
--	struct gendisk		*disk;
--	struct block_device	*part;
--	unsigned long		idx;
--	unsigned int		flags;
--};
--
--extern void disk_part_iter_init(struct disk_part_iter *piter,
--				 struct gendisk *disk, unsigned int flags);
--struct block_device *disk_part_iter_next(struct disk_part_iter *piter);
--extern void disk_part_iter_exit(struct disk_part_iter *piter);
--
- /* block/genhd.c */
- extern void device_add_disk(struct device *parent, struct gendisk *disk,
- 			    const struct attribute_group **groups);
--- 
-2.30.1
-
+Thanks
