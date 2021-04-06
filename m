@@ -4,45 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B6A0C43460
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:23:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05D7FC433B4
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:23:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C681610CC
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:23:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B33EE61158
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:23:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243957AbhDFGXT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Apr 2021 02:23:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49324 "EHLO
+        id S243959AbhDFGXY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Apr 2021 02:23:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234402AbhDFGXT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Apr 2021 02:23:19 -0400
+        with ESMTP id S243960AbhDFGXW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Apr 2021 02:23:22 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1F08C061756;
-        Mon,  5 Apr 2021 23:23:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE6A1C061756;
+        Mon,  5 Apr 2021 23:23:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=ZxjdBIJx6yQo+qKhL3VUdZ6oPF/3/o8xHTNwsshG60g=; b=fVgtC5wOcOe5iFSGFVq7dDDbCP
-        kbfq4I4byAvPictYLamZDXZL5iiK16gm/woV9mnpUUsIDaFiSev3gTiYpHwHsVQH1bUm6n60NAGbL
-        50o8WAp8vr/2VL+CvpuerbPY1phdxyqi0kwALsGGrob+0Bq2YcE5xGbzDDi4vsXQklfuNHvAFhDf7
-        bNs3C6IT05URTxWe+l4bVsT7Do+UlT03LJtCzjYjo42VLeKvNBpwy/JNApEHGPHIwt0ksUg6NKjCo
-        iUPoAF20y50rPuQJQWs89Fm1j/0YLDN1EiwChnhqDfVBa1s/L3CKyLOWm6UkmvccSWxc7fti19Rme
-        hNBLnGKA==;
+        bh=5KuPL7QFdB1G9qDrNyRxDo5HHyZo1MJRGQGSY9fZDyg=; b=w/nKgZKh1VgX1MP9qE1gsJlNRB
+        tUO+5d7VPbbm1grZmyuP1WxDz7Fud9Fn5FaHPPqmQFR4htKuPwaTqethapAXqaEZWZSfG+cMvaOQm
+        FN1/GIcO711XL++ZoE8hhX3SXlh6z5myT53uBijZHZkEyh03YMyXnJUJHLQ9LMxPsd7SkLxbXbDid
+        5zx4rKseTXFdfD8UWcJQSeqIg5jKA+cI0REKrUGESRIoDomPUTrMmELSEGWFNcONC8JEQFA9EFazs
+        NEzJN1Ia+IVBe0Wyv3hSWxmxI755nuN27czMnNp+6BNWcp9pLS88aH4c2dIo8ge8QCHarVrAMvjIF
+        WA6gtMoA==;
 Received: from [2001:4bb8:188:4907:c664:b479:e725:f367] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1lTf7G-007o8Q-2v; Tue, 06 Apr 2021 06:23:10 +0000
+        id 1lTf7I-007o8Y-Kg; Tue, 06 Apr 2021 06:23:13 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>, Stefan Haberland <sth@linux.ibm.com>,
         Jan Hoeppner <hoeppner@linux.ibm.com>
 Cc:     Tejun Heo <tj@kernel.org>, linux-block@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [PATCH 02/11] block: remove invalidate_partition
-Date:   Tue,  6 Apr 2021 08:22:53 +0200
-Message-Id: <20210406062303.811835-3-hch@lst.de>
+Subject: [PATCH 03/11] block: move more syncing and invalidation to delete_partition
+Date:   Tue,  6 Apr 2021 08:22:54 +0200
+Message-Id: <20210406062303.811835-4-hch@lst.de>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210406062303.811835-1-hch@lst.de>
 References: <20210406062303.811835-1-hch@lst.de>
@@ -53,62 +53,59 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-invalidate_partition has two callers, one of which already performs
-the remove_inode_hash just after the call.  Just open code the
-function in the two callsites.
+Move the calls to fsync_bdev and __invalidate_device from del_gendisk to
+delete_partition.  For the other two callers that check that there are
+no openers for the delete partitions(s) the callouts are a no-op as no
+file system can be mounted, but this keeps all the cleanup in one
+place.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- block/genhd.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ block/genhd.c           | 5 +----
+ block/partitions/core.c | 6 +++---
+ 2 files changed, 4 insertions(+), 7 deletions(-)
 
 diff --git a/block/genhd.c b/block/genhd.c
-index 8c8f543572e64e..9b121b1f79982f 100644
+index 9b121b1f79982f..15f99da4543f6d 100644
 --- a/block/genhd.c
 +++ b/block/genhd.c
-@@ -646,18 +646,6 @@ void device_add_disk_no_queue_reg(struct device *parent, struct gendisk *disk)
- }
- EXPORT_SYMBOL(device_add_disk_no_queue_reg);
+@@ -686,11 +686,8 @@ void del_gendisk(struct gendisk *disk)
  
--static void invalidate_partition(struct block_device *bdev)
--{
--	fsync_bdev(bdev);
--	__invalidate_device(bdev, true);
--
--	/*
--	 * Unhash the bdev inode for this device so that it can't be looked
--	 * up any more even if openers still hold references to it.
--	 */
--	remove_inode_hash(bdev->bd_inode);
--}
--
- /**
-  * del_gendisk - remove the gendisk
-  * @disk: the struct gendisk to remove
-@@ -699,12 +687,21 @@ void del_gendisk(struct gendisk *disk)
  	/* invalidate stuff */
  	disk_part_iter_init(&piter, disk, DISK_PITER_INCL_EMPTY);
- 	while ((part = disk_part_iter_next(&piter))) {
--		invalidate_partition(part);
-+		fsync_bdev(part);
-+		__invalidate_device(part, true);
+-	while ((part = disk_part_iter_next(&piter))) {
+-		fsync_bdev(part);
+-		__invalidate_device(part, true);
++	while ((part = disk_part_iter_next(&piter)))
  		delete_partition(part);
- 	}
+-	}
  	disk_part_iter_exit(&piter);
  
--	invalidate_partition(disk->part0);
-+	fsync_bdev(disk->part0);
-+	__invalidate_device(disk->part0, true);
+ 	fsync_bdev(disk->part0);
+diff --git a/block/partitions/core.c b/block/partitions/core.c
+index 22a0dab17ed343..8c173529294081 100644
+--- a/block/partitions/core.c
++++ b/block/partitions/core.c
+@@ -287,6 +287,9 @@ struct device_type part_type = {
+  */
+ void delete_partition(struct block_device *part)
+ {
++	fsync_bdev(part);
++	__invalidate_device(part, true);
 +
-+	/*
-+	 * Unhash the bdev inode for this device so that it can't be looked
-+	 * up any more even if openers still hold references to it.
-+	 */
-+	remove_inode_hash(disk->part0->bd_inode);
-+
- 	set_capacity(disk, 0);
- 	disk->flags &= ~GENHD_FL_UP;
- 	up_write(&bdev_lookup_sem);
+ 	xa_erase(&part->bd_disk->part_tbl, part->bd_partno);
+ 	kobject_put(part->bd_holder_dir);
+ 	device_del(&part->bd_device);
+@@ -468,9 +471,6 @@ int bdev_del_partition(struct block_device *bdev, int partno)
+ 	if (part->bd_openers)
+ 		goto out_unlock;
+ 
+-	sync_blockdev(part);
+-	invalidate_bdev(part);
+-
+ 	delete_partition(part);
+ 	ret = 0;
+ out_unlock:
 -- 
 2.30.1
 
