@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14F46C43460
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:23:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1488C433B4
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:23:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E009361158
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:23:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A6CB9610CC
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Apr 2021 06:23:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243971AbhDFGXh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Apr 2021 02:23:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49428 "EHLO
+        id S243972AbhDFGXk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Apr 2021 02:23:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243963AbhDFGXh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Apr 2021 02:23:37 -0400
+        with ESMTP id S237744AbhDFGXj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Apr 2021 02:23:39 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6BEC06174A;
-        Mon,  5 Apr 2021 23:23:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6708DC06174A;
+        Mon,  5 Apr 2021 23:23:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=92EneDdE4OcoLq6A6aZkefr59JiGrN5mEu5hC8tv4p0=; b=3cYqbfRaY/bIQsnltvjslzb4u+
-        abATXRpPqLoN1slrZnICyD6YPD7DT+gpWsCs6oGKs0FpSKod8/nGNBxrHzAa55+49qqAQ1XbY9eMI
-        fqnpv7KriOkdNeQcw2PM/kvclifi0cn9SxOd7u0epGprjBa/Rfa7CLWicgE+ZMKL/U7ugVy4vA/Ua
-        qe3HFtZCn57HeTmTfUEtrhE1zqbr3U7Qm7R9/WY+YnJTGymjfiahMPbqfzqN+ssztnITpBxi3X5rN
-        qqrohr6y4ItIn+Z2Xuo7ueA6+JWCKrIzbs1XxRXcxMhgRa0QGG06/fTmYlfB6OuYzwlIW8QoUI4bE
-        csEmU7Hg==;
+        bh=DEl5LfCFZqEVWzPW5v0ME6GD6QWnwSH1wHQj1zl2214=; b=n2DYlHRnisx7Dw7jc2IbzecNq5
+        +961Ef+lMTju7wQr+/GFzmreETAltPRNRthdhY34VGUWOTebljBhaAMNMPOvjv2dYMkMO79RduHk9
+        M0t9Uee3ZYkmsh3m8h9W56OWTryvPeIh6D+neaqf6mY9CCj2Qcbse6EeoB7K6tcb6Ik8fBSbymVQ0
+        p+G4SBp0mTj4bhEP7MqZVUKKL741dZSR7TWwjzRTl5V2D16QFrBN17FUrAl6tW9oVz+hQv2wGnV0x
+        dddQ9T+8A62PgTRqzgwoiYP4p+kjU/wjiTsa0W34ojKYoJ+tR3aUfcu9FET/8yp7QU9Xs+i8HAT/0
+        liuBHXlA==;
 Received: from [2001:4bb8:188:4907:c664:b479:e725:f367] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1lTf7X-007o9h-Tw; Tue, 06 Apr 2021 06:23:28 +0000
+        id 1lTf7a-007o9q-GU; Tue, 06 Apr 2021 06:23:30 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>, Stefan Haberland <sth@linux.ibm.com>,
         Jan Hoeppner <hoeppner@linux.ibm.com>
 Cc:     Tejun Heo <tj@kernel.org>, linux-block@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [PATCH 09/11] block: simplify show_partition
-Date:   Tue,  6 Apr 2021 08:23:00 +0200
-Message-Id: <20210406062303.811835-10-hch@lst.de>
+Subject: [PATCH 10/11] block: simplify diskstats_show
+Date:   Tue,  6 Apr 2021 08:23:01 +0200
+Message-Id: <20210406062303.811835-11-hch@lst.de>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210406062303.811835-1-hch@lst.de>
 References: <20210406062303.811835-1-hch@lst.de>
@@ -58,45 +58,48 @@ to grab a reference to each partition.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- block/genhd.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ block/genhd.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/block/genhd.c b/block/genhd.c
-index 409ff4710f9215..5726714ef82fcf 100644
+index 5726714ef82fcf..cbfe1ff19360b3 100644
 --- a/block/genhd.c
 +++ b/block/genhd.c
-@@ -907,8 +907,8 @@ static void *show_partition_start(struct seq_file *seqf, loff_t *pos)
- static int show_partition(struct seq_file *seqf, void *v)
+@@ -1236,11 +1236,11 @@ const struct device_type disk_type = {
+ static int diskstats_show(struct seq_file *seqf, void *v)
  {
- 	struct gendisk *sgp = v;
+ 	struct gendisk *gp = v;
 -	struct disk_part_iter piter;
- 	struct block_device *part;
-+	unsigned long idx;
+ 	struct block_device *hd;
  	char buf[BDEVNAME_SIZE];
+ 	unsigned int inflight;
+ 	struct disk_stats stat;
++	unsigned long idx;
  
- 	/* Don't show non-partitionable removeable devices or empty devices */
-@@ -918,15 +918,16 @@ static int show_partition(struct seq_file *seqf, void *v)
- 	if (sgp->flags & GENHD_FL_SUPPRESS_PARTITION_INFO)
- 		return 0;
+ 	/*
+ 	if (&disk_to_dev(gp)->kobj.entry == block_class.devices.next)
+@@ -1250,8 +1250,10 @@ static int diskstats_show(struct seq_file *seqf, void *v)
+ 				"\n\n");
+ 	*/
  
--	/* show the full disk and all non-0 size partitions of it */
--	disk_part_iter_init(&piter, sgp, DISK_PITER_INCL_PART0);
--	while ((part = disk_part_iter_next(&piter)))
+-	disk_part_iter_init(&piter, gp, DISK_PITER_INCL_EMPTY_PART0);
+-	while ((hd = disk_part_iter_next(&piter))) {
 +	rcu_read_lock();
-+	xa_for_each(&sgp->part_tbl, idx, part) {
-+		if (!bdev_nr_sectors(part))
++	xa_for_each(&gp->part_tbl, idx, hd) {
++		if (bdev_is_partition(hd) && !bdev_nr_sectors(hd))
 +			continue;
- 		seq_printf(seqf, "%4d  %7d %10llu %s\n",
- 			   MAJOR(part->bd_dev), MINOR(part->bd_dev),
- 			   bdev_nr_sectors(part) >> 1,
- 			   disk_name(sgp, part->bd_partno, buf));
+ 		part_stat_read_all(hd, &stat);
+ 		if (queue_is_mq(gp->queue))
+ 			inflight = blk_mq_in_flight(gp->queue, hd);
+@@ -1294,7 +1296,7 @@ static int diskstats_show(struct seq_file *seqf, void *v)
+ 						 NSEC_PER_MSEC)
+ 			);
+ 	}
 -	disk_part_iter_exit(&piter);
--
-+	}
 +	rcu_read_unlock();
+ 
  	return 0;
  }
- 
 -- 
 2.30.1
 
