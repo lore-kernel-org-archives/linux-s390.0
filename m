@@ -2,141 +2,149 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E360C433B4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCF50C43462
 	for <linux-s390@archiver.kernel.org>; Wed,  7 Apr 2021 12:42:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D55936128A
-	for <linux-s390@archiver.kernel.org>; Wed,  7 Apr 2021 12:42:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9F94661363
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Apr 2021 12:42:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239014AbhDGMm1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 7 Apr 2021 08:42:27 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39246 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229615AbhDGMm0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Apr 2021 08:42:26 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 137CXUlZ083278;
-        Wed, 7 Apr 2021 08:42:16 -0400
+        id S235075AbhDGMm2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 7 Apr 2021 08:42:28 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47156 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S235440AbhDGMm1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Apr 2021 08:42:27 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 137CYYJ4056634;
+        Wed, 7 Apr 2021 08:42:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=qiPZxDT5xpw5aEMhdIKhnmtraJWLLkMe/zzUUNH+roE=;
- b=nj6rRNmTXEHVM/40LZZpkqMIQgh/3ee8DNo1SyAO/bjSXASrVOuasgO70KPUYhdbfv3r
- Q6Zus/5lp9ptn15Y24dwjN68TdIZ+vWlIclmEfBoWOSMlG8otb0AD1ScU9EbUdA6MejX
- 9G+gzYr6z8ldJH3xImzrVLRpZUC9V0UwfIWZRu5c9oUwxFXLBXV8wR2KKFPsaDPqd/62
- gewZk+lcrutcGLzec1XVwg4KpaJ74O0hVlLMzuEF+gK90MdNEfO2jF63TvfJdFYpinGI
- ot0z/HZcPodeFhUNyedzPn7U8vk/cwAdgIFU/cb84lZpRWo3VMZQDatmWHcNj1mtOfUE ug== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=Gd41gENkxHAaZ8oztdNdXzHrnicaigC19RAcl2IQgjM=;
+ b=AsbEU4N5ky+uZHuqUlx79oAxCEsMnW30gNoyEGuQlzkFYTCemIvALqkRM51pAcPSWWYa
+ 6O422VGKbX4Ri0hHltrfeSwHftFyDA/u7pxrIcGeiqY8RyNSiQDUBLKwzBGvrg6mJugf
+ X8ZjM6tkPmX9OtcvFqHvakbrViNyOln8I8csDSRHxWqJxh5AOoLcIujmHzJL7NEeN+NU
+ hGqCBdBYUeBWMQHieqooPF3BVlvc7H4G+sURupUmpQGPzbJLSIHC/bGBPHzJeUczujAn
+ QoH3xCOfGoxp9OQiBCddNKBpDK8IgfU87U0RbHEiOBJ1UjNj+9sRrsnZTMh0VnDJQoeK og== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37rvn0g75r-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37rvy77x7v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 07 Apr 2021 08:42:17 -0400
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 137CYbkv057350;
+        Wed, 7 Apr 2021 08:42:16 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37rvy77x7d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 07 Apr 2021 08:42:16 -0400
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 137CY4bB084987;
-        Wed, 7 Apr 2021 08:42:15 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37rvn0g74j-1
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 137CXEMB009135;
+        Wed, 7 Apr 2021 12:42:15 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 37rvbw8q74-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Apr 2021 08:42:15 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 137CXqKh012941;
-        Wed, 7 Apr 2021 12:42:13 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06fra.de.ibm.com with ESMTP id 37rvbw0cpx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Apr 2021 12:42:13 +0000
+        Wed, 07 Apr 2021 12:42:15 +0000
 Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 137CgAIR46203146
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 137CgCv739977426
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 7 Apr 2021 12:42:10 GMT
+        Wed, 7 Apr 2021 12:42:12 GMT
 Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 951B65204E;
-        Wed,  7 Apr 2021 12:42:10 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 2F4FF5204F;
+        Wed,  7 Apr 2021 12:42:12 +0000 (GMT)
 Received: from ibm-vm.ibmuc.com (unknown [9.145.2.56])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 3C5975204F;
-        Wed,  7 Apr 2021 12:42:10 +0000 (GMT)
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id CF4A35204E;
+        Wed,  7 Apr 2021 12:42:11 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com,
         frankja@linux.ibm.com, cohuck@redhat.com, pmorel@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v3 0/7] s390: Add support for large pages
-Date:   Wed,  7 Apr 2021 14:42:02 +0200
-Message-Id: <20210407124209.828540-1-imbrenda@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 4/7] s390x: lib: Add idte and other huge pages functions/macros
+Date:   Wed,  7 Apr 2021 14:42:06 +0200
+Message-Id: <20210407124209.828540-5-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210407124209.828540-1-imbrenda@linux.ibm.com>
+References: <20210407124209.828540-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _INqaYQC7DlcsZij8mxTyGRTsqQyqp8D
-X-Proofpoint-ORIG-GUID: ZjK8AdcJiE9Qi0nxHaZ0jKwtKaPtBW6v
+X-Proofpoint-GUID: jIIaJ4OOKXMO7T-lw92ZHfFsdP29Rfvt
+X-Proofpoint-ORIG-GUID: gtXaGqnLtfghSCfsj4N9CeIfI8Fd9ubI
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
- definitions=2021-04-07_07:2021-04-07,2021-04-07 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
- mlxlogscore=999 bulkscore=0 lowpriorityscore=0 suspectscore=0 adultscore=0
- spamscore=0 mlxscore=0 malwarescore=0 impostorscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104060000
- definitions=main-2104070087
+ definitions=2021-04-07_08:2021-04-07,2021-04-07 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ lowpriorityscore=0 clxscore=1015 adultscore=0 phishscore=0 spamscore=0
+ priorityscore=1501 mlxscore=0 impostorscore=0 mlxlogscore=999
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104070087
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Introduce support for large (1M) and huge (2G) pages.
+Improve pgtable.h:
 
-Add a simple testcase for EDAT1 and EDAT2.
+* add macros to check whether a pmd or a pud are large / huge
+* add idte functions for pmd, pud, p4d and pgd
 
-v2->v3
-* Add proper macros for control register bits
-* Improved patch titles and descriptions
-* Moved definition of TEID bits to library
-* Rebased on the lastest upstream branch
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ lib/s390x/asm/pgtable.h | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
-v1->v2
-
-* split patch 2 -> new patch 2 and new patch 3
-* patch 2: fixes pgtable.h, also fixes wrong usage of REGION_TABLE_LENGTH
-  instead of SEGMENT_TABLE_LENGTH
-* patch 3: introduces new macros and functions for large pages
-* patch 4: remove erroneous double call to pte_alloc in get_pte
-* patch 4: added comment in mmu.c to bridge the s390x architecural names
-  with the Linux ones used in the kvm-unit-tests
-* patch 5: added and fixed lots of comments to explain what's going on
-* patch 5: set FC for region 3 after writing the canary, like for segments
-* patch 5: use uintptr_t instead of intptr_t for set_prefix
-* patch 5: introduce new macro PGD_PAGE_SHIFT instead of using magic value 41
-* patch 5: use VIRT(0) instead of mem to make it more clear what we are
-  doing, even though VIRT(0) expands to mem
-
-Claudio Imbrenda (7):
-  s390x: lib: add and use macros for control register bits
-  libcflat: add SZ_1M and SZ_2G
-  s390x: lib: fix pgtable.h
-  s390x: lib: Add idte and other huge pages functions/macros
-  s390x: lib: add PGM_TEID_* macros
-  s390x: mmu: add support for large pages
-  s390x: edat test
-
- s390x/Makefile            |   1 +
- lib/s390x/asm/arch_def.h  |  12 ++
- lib/s390x/asm/float.h     |   4 +-
- lib/s390x/asm/interrupt.h |  10 +-
- lib/s390x/asm/pgtable.h   |  44 +++++-
- lib/libcflat.h            |   2 +
- lib/s390x/mmu.h           |  73 +++++++++-
- lib/s390x/mmu.c           | 260 +++++++++++++++++++++++++++++++----
- lib/s390x/sclp.c          |   4 +-
- s390x/diag288.c           |   2 +-
- s390x/edat.c              | 279 ++++++++++++++++++++++++++++++++++++++
- s390x/gs.c                |   2 +-
- s390x/iep.c               |   4 +-
- s390x/skrf.c              |   2 +-
- s390x/smp.c               |   8 +-
- s390x/vector.c            |   2 +-
- s390x/unittests.cfg       |   3 +
- 17 files changed, 663 insertions(+), 49 deletions(-)
- create mode 100644 s390x/edat.c
-
+diff --git a/lib/s390x/asm/pgtable.h b/lib/s390x/asm/pgtable.h
+index 1a21f175..f166dcc6 100644
+--- a/lib/s390x/asm/pgtable.h
++++ b/lib/s390x/asm/pgtable.h
+@@ -100,6 +100,9 @@
+ #define pmd_none(entry) (pmd_val(entry) & SEGMENT_ENTRY_I)
+ #define pte_none(entry) (pte_val(entry) & PAGE_ENTRY_I)
+ 
++#define pud_huge(entry)  (pud_val(entry) & REGION3_ENTRY_FC)
++#define pmd_large(entry) (pmd_val(entry) & SEGMENT_ENTRY_FC)
++
+ #define pgd_addr(entry) __va(pgd_val(entry) & REGION_ENTRY_ORIGIN)
+ #define p4d_addr(entry) __va(p4d_val(entry) & REGION_ENTRY_ORIGIN)
+ #define pud_addr(entry) __va(pud_val(entry) & REGION_ENTRY_ORIGIN)
+@@ -216,6 +219,34 @@ static inline void ipte(unsigned long vaddr, pteval_t *p_pte)
+ 		: : "a" (table_origin), "a" (vaddr) : "memory");
+ }
+ 
++static inline void idte(unsigned long table_origin, unsigned long vaddr)
++{
++	vaddr &= SEGMENT_ENTRY_SFAA;
++	asm volatile(
++		"	idte %0,0,%1\n"
++		: : "a" (table_origin), "a" (vaddr) : "memory");
++}
++
++static inline void idte_pmdp(unsigned long vaddr, pmdval_t *pmdp)
++{
++	idte((unsigned long)(pmdp - pmd_index(vaddr)) | ASCE_DT_SEGMENT, vaddr);
++}
++
++static inline void idte_pudp(unsigned long vaddr, pudval_t *pudp)
++{
++	idte((unsigned long)(pudp - pud_index(vaddr)) | ASCE_DT_REGION3, vaddr);
++}
++
++static inline void idte_p4dp(unsigned long vaddr, p4dval_t *p4dp)
++{
++	idte((unsigned long)(p4dp - p4d_index(vaddr)) | ASCE_DT_REGION2, vaddr);
++}
++
++static inline void idte_pgdp(unsigned long vaddr, pgdval_t *pgdp)
++{
++	idte((unsigned long)(pgdp - pgd_index(vaddr)) | ASCE_DT_REGION1, vaddr);
++}
++
+ void configure_dat(int enable);
+ 
+ #endif /* _ASMS390X_PGTABLE_H_ */
 -- 
 2.26.2
 
