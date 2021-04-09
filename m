@@ -2,217 +2,163 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-20.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 268E4C43460
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 15:32:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE588C433B4
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 15:46:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE0CF61002
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 15:32:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9CF4F61042
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 15:46:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233712AbhDIPdG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Apr 2021 11:33:06 -0400
-Received: from p3plsmtpa06-04.prod.phx3.secureserver.net ([173.201.192.105]:49494
-        "EHLO p3plsmtpa06-04.prod.phx3.secureserver.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233395AbhDIPdG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Apr 2021 11:33:06 -0400
-Received: from [192.168.0.116] ([71.184.94.153])
-        by :SMTPAUTH: with ESMTPSA
-        id Ut7hlRPfQe8QFUt7ilij9S; Fri, 09 Apr 2021 08:32:51 -0700
-X-CMAE-Analysis: v=2.4 cv=JLz+D+Gb c=1 sm=1 tr=0 ts=607073a3
- a=vbvdVb1zh1xTTaY8rfQfKQ==:117 a=vbvdVb1zh1xTTaY8rfQfKQ==:17
- a=IkcTkHD0fZMA:10 a=SEc3moZ4AAAA:8 a=oSsZz9J6dYZdRk27ncsA:9 a=QEXdDO2ut3YA:10
- a=5oRCH6oROnRZc2VpWJZ3:22
-X-SECURESERVER-ACCT: tom@talpey.com
-Subject: Re: [PATCH rdma-next 00/10] Enable relaxed ordering for ULPs
-To:     Chuck Lever III <chuck.lever@oracle.com>
-Cc:     Jason Gunthorpe <jgg@nvidia.com>, Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leon@kernel.org>,
-        Doug Ledford <dledford@redhat.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Adit Ranadive <aditr@vmware.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Avihai Horon <avihaih@nvidia.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Devesh Sharma <devesh.sharma@broadcom.com>,
-        Faisal Latif <faisal.latif@intel.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Bruce Fields <bfields@fieldses.org>, Jens Axboe <axboe@fb.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Keith Busch <kbusch@kernel.org>, Lijun Ou <oulijun@huawei.com>,
-        CIFS <linux-cifs@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
-        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
-        linux-rdma <linux-rdma@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Michael Guralnik <michaelgur@nvidia.com>,
-        Michal Kalderon <mkalderon@marvell.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>,
-        Linux-Net <netdev@vger.kernel.org>,
-        Potnuri Bharat Teja <bharat@chelsio.com>,
-        "rds-devel@oss.oracle.com" <rds-devel@oss.oracle.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        "samba-technical@lists.samba.org" <samba-technical@lists.samba.org>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        Selvin Xavier <selvin.xavier@broadcom.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Somnath Kotur <somnath.kotur@broadcom.com>,
-        Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>,
-        Steve French <sfrench@samba.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        VMware PV-Drivers <pv-drivers@vmware.com>,
-        Weihang Li <liweihang@huawei.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhu Yanjun <zyjzyj2000@gmail.com>
-References: <20210405052404.213889-1-leon@kernel.org>
- <20210405134115.GA22346@lst.de> <20210405200739.GB7405@nvidia.com>
- <C2924F03-11C5-4839-A4F3-36872194EEA8@oracle.com>
- <20210406114952.GH7405@nvidia.com>
- <aeb7334b-edc0-78c2-4adb-92d4a994210d@talpey.com>
- <8A5E83DF-5C08-49CE-8EE3-08DC63135735@oracle.com>
-From:   Tom Talpey <tom@talpey.com>
-Message-ID: <4b02d1b2-be0e-0d1d-7ac3-38d32e44e77e@talpey.com>
-Date:   Fri, 9 Apr 2021 11:32:41 -0400
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.1
-MIME-Version: 1.0
-In-Reply-To: <8A5E83DF-5C08-49CE-8EE3-08DC63135735@oracle.com>
+        id S232395AbhDIPrL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 9 Apr 2021 11:47:11 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34406 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229665AbhDIPrL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Apr 2021 11:47:11 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 139FYO6X123737;
+        Fri, 9 Apr 2021 11:46:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=WzEOdB6LK30+9mQnToo/4s8yrhr6BPLAUVhvMJLpM/w=;
+ b=MCwCzCVY4dRusUYIckrRR7NYPkqWXFhrXsteuhzlmBxQPw3yzSIe7yKeuIxD50S4nTSa
+ D7mahGT+lpMoP8ssZs9c1F2OwZLSEAHy0abKoPRFVwT7obnwwbQKt3jN2cbo1wCvzm8p
+ W29avHG5vVmSrCOzfZVfH/LQMw9JjRUXMyu3xVHEflrpXa8OoiZIVhdxVNyfz+vRboHb
+ v/ox/z6AuZHWjxDdyPHDhadptw0vg6rNBvUL3sFtg5tzdSwK4gFprf+WvkADbJTkkTrq
+ SbY9LEm0UEYEKdGfgEfuR6jedz9pkaYcPkaj+g2Z3osFghXDaLdIvJq6EF0fvPiI7lDQ 4g== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37t4dywayy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 09 Apr 2021 11:46:15 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 139FXgg8018937;
+        Fri, 9 Apr 2021 15:46:13 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 37rvbwaju7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 09 Apr 2021 15:46:13 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 139FkACu10158364
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 9 Apr 2021 15:46:10 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BAD41A405C;
+        Fri,  9 Apr 2021 15:46:10 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 128C6A4054;
+        Fri,  9 Apr 2021 15:46:10 +0000 (GMT)
+Received: from li-c43276cc-23ad-11b2-a85c-bda00957cb67.ibm.com (unknown [9.171.81.182])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  9 Apr 2021 15:46:09 +0000 (GMT)
+Subject: Re: [PATCH 5/8] scsi: remove the unchecked_isa_dma flag
+To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Khalid Aziz <khalid@gonehiking.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Hannes Reinecke <hare@suse.com>,
+        Ondrej Zary <linux@rainbow-software.org>
+Cc:     linux-block@vger.kernel.org, linux-scsi@vger.kernel.org,
+        Hannes Reinecke <hare@suse.de>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>
+References: <20210331073001.46776-1-hch@lst.de>
+ <20210331073001.46776-6-hch@lst.de>
+From:   Steffen Maier <maier@linux.ibm.com>
+Message-ID: <2fa7fad0-2689-24c9-d356-50f98ca3535d@linux.ibm.com>
+Date:   Fri, 9 Apr 2021 17:46:09 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.0
+In-Reply-To: <20210331073001.46776-6-hch@lst.de>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: k2FTgDviRgsp5uWqV7yH6vzIgwqPR7Hj
+X-Proofpoint-ORIG-GUID: k2FTgDviRgsp5uWqV7yH6vzIgwqPR7Hj
 Content-Transfer-Encoding: 7bit
-X-CMAE-Envelope: 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
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-09_06:2021-04-09,2021-04-09 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
+ mlxscore=0 suspectscore=0 lowpriorityscore=0 mlxlogscore=999 phishscore=0
+ clxscore=1011 impostorscore=0 priorityscore=1501 spamscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104090113
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/9/2021 10:45 AM, Chuck Lever III wrote:
+On 3/31/21 9:29 AM, Christoph Hellwig wrote:
+> Remove the unchecked_isa_dma now that all users are gone.
 > 
-> 
->> On Apr 9, 2021, at 10:26 AM, Tom Talpey <tom@talpey.com> wrote:
->>
->> On 4/6/2021 7:49 AM, Jason Gunthorpe wrote:
->>> On Mon, Apr 05, 2021 at 11:42:31PM +0000, Chuck Lever III wrote:
->>>   
->>>> We need to get a better idea what correctness testing has been done,
->>>> and whether positive correctness testing results can be replicated
->>>> on a variety of platforms.
->>> RO has been rolling out slowly on mlx5 over a few years and storage
->>> ULPs are the last to change. eg the mlx5 ethernet driver has had RO
->>> turned on for a long time, userspace HPC applications have been using
->>> it for a while now too.
->>
->> I'd love to see RO be used more, it was always something the RDMA
->> specs supported and carefully architected for. My only concern is
->> that it's difficult to get right, especially when the platforms
->> have been running strictly-ordered for so long. The ULPs need
->> testing, and a lot of it.
->>
->>> We know there are platforms with broken RO implementations (like
->>> Haswell) but the kernel is supposed to globally turn off RO on all
->>> those cases. I'd be a bit surprised if we discover any more from this
->>> series.
->>> On the other hand there are platforms that get huge speed ups from
->>> turning this on, AMD is one example, there are a bunch in the ARM
->>> world too.
->>
->> My belief is that the biggest risk is from situations where completions
->> are batched, and therefore polling is used to detect them without
->> interrupts (which explicitly). The RO pipeline will completely reorder
->> DMA writes, and consumers which infer ordering from memory contents may
->> break. This can even apply within the provider code, which may attempt
->> to poll WR and CQ structures, and be tripped up.
-> 
-> You are referring specifically to RPC/RDMA depending on Receive
-> completions to guarantee that previous RDMA Writes have been
-> retired? Or is there a particular implementation practice in
-> the Linux RPC/RDMA code that worries you?
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Acked-by: Martin K. Petersen <martin.petersen@oracle.com>
+> Reviewed-by: Hannes Reinecke <hare@suse.de>
+> ---
+>   Documentation/scsi/scsi_mid_low_api.rst |  4 --
+>   drivers/scsi/esas2r/esas2r_main.c       |  1 -
+>   drivers/scsi/hosts.c                    |  7 +---
+>   drivers/scsi/scsi_debugfs.c             |  1 -
+>   drivers/scsi/scsi_lib.c                 | 52 +++----------------------
+>   drivers/scsi/scsi_scan.c                |  6 +--
+>   drivers/scsi/scsi_sysfs.c               |  2 -
+>   drivers/scsi/sg.c                       | 10 +----
+>   drivers/scsi/sr_ioctl.c                 | 12 ++----
+>   drivers/scsi/st.c                       | 20 ++++------
+>   drivers/scsi/st.h                       |  2 -
+>   include/scsi/scsi_cmnd.h                |  7 ++--
+>   include/scsi/scsi_host.h                |  6 ---
+>   13 files changed, 25 insertions(+), 105 deletions(-)
 
-Nothing in the RPC/RDMA code, which is IMO correct. The worry, which
-is hopefully unfounded, is that the RO pipeline might not have flushed
-when a completion is posted *after* posting an interrupt.
 
-Something like this...
+> diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+> index b6378c8ca783ea..b71ea1a69c8b60 100644
+> --- a/drivers/scsi/scsi_sysfs.c
+> +++ b/drivers/scsi/scsi_sysfs.c
+> @@ -373,7 +373,6 @@ shost_rd_attr(cmd_per_lun, "%hd\n");
+>   shost_rd_attr(can_queue, "%d\n");
+>   shost_rd_attr(sg_tablesize, "%hu\n");
+>   shost_rd_attr(sg_prot_tablesize, "%hu\n");
+> -shost_rd_attr(unchecked_isa_dma, "%d\n");
+>   shost_rd_attr(prot_capabilities, "%u\n");
+>   shost_rd_attr(prot_guard_type, "%hd\n");
+>   shost_rd_attr2(proc_name, hostt->proc_name, "%s\n");
+> @@ -411,7 +410,6 @@ static struct attribute *scsi_sysfs_shost_attrs[] = {
+>   	&dev_attr_can_queue.attr,
+>   	&dev_attr_sg_tablesize.attr,
+>   	&dev_attr_sg_prot_tablesize.attr,
+> -	&dev_attr_unchecked_isa_dma.attr,
+>   	&dev_attr_proc_name.attr,
+>   	&dev_attr_scan.attr,
+>   	&dev_attr_hstate.attr,
 
-RDMA Write arrives
-	PCIe RO Write for data
-	PCIe RO Write for data
-	...
-RDMA Write arrives
-	PCIe RO Write for data
-	...
-RDMA Send arrives
-	PCIe RO Write for receive data
-	PCIe RO Write for receive descriptor
-	PCIe interrupt (flushes RO pipeline for all three ops above)
+Is it OK to remove a long standing sysfs attribute?
+Was there any deprecation phase?
 
-RPC/RDMA polls CQ
-	Reaps receive completion
+I just noticed it in our CI reporting fails due to this change since at least 
+linux-next 20210409. Suppose it came via 
+https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git/commit/?h=for-5.13/block&id=aaff5ebaa2694f283b7d07fdd55fb287ffc4f1e9
 
-RDMA Send arrives
-	PCIe RO Write for receive data
-	PCIe RO write for receive descriptor
-	Does *not* interrupt, since CQ not armed
+Wanted to ask before I adapt the test cases.
 
-RPC/RDMA continues to poll CQ
-	Reaps receive completion
-	PCIe RO writes not yet flushed
-	Processes incomplete in-memory data
-	Bzzzt
+Cf. 
+https://lore.kernel.org/linux-scsi/20080224233529.456981B4183@basil.firstfloor.org/T/#u
+"An alternative would be to always make it report 0 now."
 
-Hopefully, the adapter performs a PCIe flushing read, or something
-to avoid this when an interrupt is not generated. Alternatively, I'm
-overly paranoid.
+-- 
+Mit freundlichen Gruessen / Kind regards
+Steffen Maier
 
-Tom.
+Linux on IBM Z Development
 
->> The Mellanox adapter, itself, historically has strict in-order DMA
->> semantics, and while it's great to relax that, changing it by default
->> for all consumers is something to consider very cautiously.
->>
->>> Still, obviously people should test on the platforms they have.
->>
->> Yes, and "test" be taken seriously with focus on ULP data integrity.
->> Speedups will mean nothing if the data is ever damaged.
-> 
-> I agree that data integrity comes first.
-> 
-> Since I currently don't have facilities to test RO in my lab, the
-> community will have to agree on a set of tests and expected results
-> that specifically exercise the corner cases you are concerned about.
-> 
-> 
-> --
-> Chuck Lever
-> 
-> 
-> 
-> 
+https://www.ibm.com/privacy/us/en/
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Matthias Hartmann
+Geschaeftsfuehrung: Dirk Wittkopp
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
