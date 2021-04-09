@@ -2,166 +2,263 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,PDS_BAD_THREAD_QP_64,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57F91C433B4
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 12:31:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 327F8C433ED
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 13:27:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C8CC61177
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 12:31:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C03C610A4
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 13:27:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233038AbhDIMbe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Apr 2021 08:31:34 -0400
-Received: from mail-mw2nam10on2087.outbound.protection.outlook.com ([40.107.94.87]:48864
-        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232395AbhDIMbe (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 9 Apr 2021 08:31:34 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cTHdPZWQlKXB/sEQmoNeQassjP04YmL1hWKcksiJqJdviKFzClQTMu8CsPEMGgMkU74aQB7xaqjDcxFt3Cem7aOtW/VHbwtHVeo6e1H/AfVsWHGcu3012JgeKw1BqxapGe78FjLcbdXzuKrB3G6fEdHzYFxS6ZcATDDDmuvF1i6CDLdgcEaOs/WTzhqw5mA4mvR3cDMCW3ObweYzkW4avu8YVYKYlcVRzVfk+nwLrbHIs6yBKy5AFAVHBWjdjF9MP7hRUuYx7XDaute6mp6TwZ1+dQ+wE1CNHNc3ZqNwb+GRWvdpFeaGUz/0Bydf704ZXC73ljv0tNT9Kmi4HaMsMg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=md7cRVzfg0w7/L0NV8wICTgcfG94qd+CbBkpIUrMVyE=;
- b=Hn69rITgNUsIdSr49p/l6bqIWkw58ZAFLILfbvJn6UTY+aMWxPfDCUL4Zf3/FiEAm9DRwsM2GYNHeKYmsJycyJIe7PROr2giz12gaNpJduJvB3d5Hd/EK1z/tYixrZO03sSRA3kRfYBs6xcj86L8Bah5uuQE0fLVppjLR2Cs9NURRn/9jyD4K7JmQDW55UavsQnyMkWsIo06oN6Gg5e+RcgZAskRoNzc+MjDFMBqnsc4oHsqjEyFFSUyLJYcZIWvrs2iIg5BdoySRTFAc9cnVg8ZvvwyATD+6xJAFR4FfzJ67QhPziKCrNvz5AYQP1hD+7nC1UpqxUn8pv/vIQccbA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=md7cRVzfg0w7/L0NV8wICTgcfG94qd+CbBkpIUrMVyE=;
- b=hY+ApfIs6vYwDa2Hs4ujc5bgltN6VY8ZjOIfKcHQTbUAwhitQuKj16z8f4XixOXtRHeaSWIy0G61IdRmiX6cY6RTChndE7B2WUfzh1mcSIMqg0Wjiy7y0pHUUByvrh1FeNVO1jyjSkDc3DH4WDoeBYFlLKY7qv+gVQ5zFhgjIp0zBbme7QysXhA2AKtnF5209c3MrFN0v+0hL/rXHRbpkPl/EwXTPkdDWkZeakPNSapsPJttqJmBP30RnMgJtazzG2Ier3kueRWsvKvoJ5yEKyxhavCla8ghEWnWf1NxbJYKcpHxW6cIEEbq6ZHbuNrWDD454hrskHjAuTD9r/J8BA==
-Received: from BY5PR12MB4322.namprd12.prod.outlook.com (2603:10b6:a03:20a::20)
- by BY5PR12MB4081.namprd12.prod.outlook.com (2603:10b6:a03:20e::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4020.18; Fri, 9 Apr
- 2021 12:31:20 +0000
-Received: from BY5PR12MB4322.namprd12.prod.outlook.com
- ([fe80::7cec:a7fa:db2e:3073]) by BY5PR12MB4322.namprd12.prod.outlook.com
- ([fe80::7cec:a7fa:db2e:3073%9]) with mapi id 15.20.4020.019; Fri, 9 Apr 2021
- 12:31:19 +0000
-From:   Parav Pandit <parav@nvidia.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-CC:     Leon Romanovsky <leon@kernel.org>,
-        Doug Ledford <dledford@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "rds-devel@oss.oracle.com" <rds-devel@oss.oracle.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Subject: RE: [PATCH rdma-next 4/8] IB/core: Skip device which doesn't have
- necessary capabilities
-Thread-Topic: [PATCH rdma-next 4/8] IB/core: Skip device which doesn't have
- necessary capabilities
-Thread-Index: AQHXKd+XJ6WIY5+vZk6+h+s0LuIetKqnpFkAgAGBvmCAAAdugIAABvxwgAFZoICAAZZSAA==
-Date:   Fri, 9 Apr 2021 12:31:19 +0000
-Message-ID: <BY5PR12MB43227C478E381EAFADD3FB44DC739@BY5PR12MB4322.namprd12.prod.outlook.com>
-References: <20210405055000.215792-1-leon@kernel.org>
- <20210405055000.215792-5-leon@kernel.org> <20210406154646.GW7405@nvidia.com>
- <BY5PR12MB4322E477DA2334233EAD5173DC759@BY5PR12MB4322.namprd12.prod.outlook.com>
- <20210407151359.GI7405@nvidia.com>
- <BY5PR12MB4322B39A132397E661680A4BDC759@BY5PR12MB4322.namprd12.prod.outlook.com>
- <20210408121601.GR7405@nvidia.com>
-In-Reply-To: <20210408121601.GR7405@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: nvidia.com; dkim=none (message not signed)
- header.d=none;nvidia.com; dmarc=none action=none header.from=nvidia.com;
-x-originating-ip: [136.185.184.152]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 4071f901-d4b2-4a88-5b10-08d8fb5360db
-x-ms-traffictypediagnostic: BY5PR12MB4081:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <BY5PR12MB4081ED0B8B8DABB13ACDCAF2DC739@BY5PR12MB4081.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:1051;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: VA7FU0BbaXfKzMrTiz/5O6K0F83SCNzdOkklCtwVV7tyur9o5+t8tCFt0vABLrjezUW2xYF87IKyJcAm58CYsTdT3VEeohj6pkR/z9YztMb0NiOVhkCPTkM7lftgwaRxWvdNiHOOO93+NLsyhkk8nkscqx2AEQsMgZ7SGTsYuuWthgI3cHyWN862A5zaiJaMKbaPLuSdjcEvBhC2vDoLRRKSgDAukkN4yhTv30CblZ7fH/irEHaF7S5h9ImcIf8faGJc9V0yW+AtjYQeWzVzcHV/gmjwptcCT1mRQKDUm+hbH1ciHZuYK6dEPgeXlS1rvGF4Vf9lrmwA5DHPpLgcqwJnqVcYo3yeNjt41ck3zOdnucfxaQcfWmi9UXD/LJhs5DLa0f+uYU3eulSHe9yg4ti4e3tx0bKFe68QYE4gbvWNlrSxPQfCP01bttpUM/NJMSjqrTVWAhW9EwXu5L2QW1vPEYK7BpIcKWaaAA0ePE0y5YpvyAAoHfA9cUT1quoAPH5DWtKFaDdeVZJpZM14jhPTsXCrCCmoHtPjvYcq7cXyBTgXh59g5lApSAWvm/UmsH1KlEhgNj/dE7TURbAhyE2Y2J+/bYgepDoBPP/11/ECgsJayG+/n7FH3biYd95lLfWKWPj8rBYcircegssZd8DXDxYWP+RODYYLHsSsycs=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR12MB4322.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(39860400002)(136003)(346002)(376002)(366004)(4326008)(7416002)(8676002)(6862004)(6506007)(7696005)(71200400001)(64756008)(38100700001)(54906003)(8936002)(186003)(5660300002)(66556008)(26005)(66476007)(66946007)(66446008)(76116006)(86362001)(6636002)(478600001)(316002)(2906002)(52536014)(9686003)(55016002)(33656002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: =?us-ascii?Q?eciJqHI1d1b+KIvsms6EtOaZySVVO4CpIY6RrOP4YtR6Kq8mfCL9wi8YXAEo?=
- =?us-ascii?Q?eN/embWRlyOPQ6de5q2rM58ZCkbZSUb82goUz/GOtgpHLqRSY4V0XO2J59SZ?=
- =?us-ascii?Q?VVFgwMcFH/IYJ6FpugSzAOVdZPV34xNg1dlTcB4P09/reVOocduw4JvBDjX6?=
- =?us-ascii?Q?4aBxWluHrVOPW8pKca3LEkfET8lLQ1PxHIPvXQty2wVIN5MhdPzjDnY1ykrr?=
- =?us-ascii?Q?T2XBW92+Orzlfix6HkNk8rifR5nxPpBJN5vSmisCRfYePfWOlUR+/3ZPtQPU?=
- =?us-ascii?Q?J15wb0cv4R7QfmUtanEcmW4kenpZKTys6gz5hA65FWu/BI4CRrFBNrMZhlzw?=
- =?us-ascii?Q?njEfxl3p/YrOCPsO9PyQIqwX/E2RKyGTwj4fD4j4NRPnnHzuzlG5KcrDGvV3?=
- =?us-ascii?Q?iTE6GFxf4SdomW0RcKX3wW+An0gfrZH7SHqDQWz1wdIe8BjoDM7+8i+g+1Aw?=
- =?us-ascii?Q?yWxnoWoQ+tli8OJye1pjbstVH6+UtjB0t5PXYXsd3SqA1YJ/lCJiPfM5ByzQ?=
- =?us-ascii?Q?ZR8n4o9i5QTR/14grhyc3FXscAiGZw0dH5U9Bfm4N5lQWZ58o6S4c89tQvTp?=
- =?us-ascii?Q?J7h9S6snHhDQynIJ80DBrCYNQLWnhA0uxheH9dmOO1/mlBUPhwqzn8lFlozv?=
- =?us-ascii?Q?Vsa/fg+fvlDYjIskMUAB7nhgeHrVysw7LXoujCT158ItuuvUggOj4trAt7he?=
- =?us-ascii?Q?Ba/Hf3nHflfe5A/mCEN6ShZ/WLJDFp8LcO5/FZoG1C0eCELgF03xvus+zRQP?=
- =?us-ascii?Q?wn5m+d6sNb630CDpc6IgCngE0EjH2cq0pdVtMQ+/NwGyz9k6gb7EUDyf2gQj?=
- =?us-ascii?Q?nmpaMK1HX9eHCD1hgOCg724tpexMQ2xieP2vCn8UQ5o8zlqav21ac0kd01M3?=
- =?us-ascii?Q?z1ttOMH7mvX/PgMlmefwx8cWkaExi+dcNt/2oNZXR/gfF0CS6ebGkcuw9BzU?=
- =?us-ascii?Q?HmY0Nniampb5q+1aYwMkkaXCx/1U9BcMjAiXlgDC9nVz01YI9r1N5BOcRhH0?=
- =?us-ascii?Q?M8blzfa4fGmr8LBNk1mrVHCjc/hGGXZGuBscm/krC4y0NJK10UE/vi/ESJjG?=
- =?us-ascii?Q?xMiS3z4gknf33kcOLnr6ZIECbCx8nK2QDJ7bTRIMOFjDXZLiyI8OUFB7ivb+?=
- =?us-ascii?Q?rVtRU0cEksIcFdhoztGohhC/GyQ2/YAHNpgCbTlVdYRblv/gwKi+e10mEA8S?=
- =?us-ascii?Q?LW8vDZwBYHgY+3EFNdYGfoFelJBPY05a4lomts91l6ADa7sZGYDyOpebxFoc?=
- =?us-ascii?Q?+KOtSKKsbuDzKMbfvm+FDwztYr1XHHiCm/bBNYgEsosRL3PysZFiHPb9nu2Y?=
- =?us-ascii?Q?uCDoi6Xq4oy2Yn6Cj/E4QioM?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S231599AbhDIN1V (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 9 Apr 2021 09:27:21 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39354 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231127AbhDIN1S (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Apr 2021 09:27:18 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 139D2qk0146781;
+        Fri, 9 Apr 2021 09:27:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=XzuS5as5IWaueUcn3ofnkt2I+738FWP6ZUWEz2NtDkQ=;
+ b=tmJdmyHrn/LMuNYmiyOZaEQVe+rik34dC1Dda1/atF/GEcgfiXzc/V61NBF661hecK20
+ hVG3jq2zc2oZejmfYU/+HCuLTHUM9hN2pPvU0h1MkEVSFTsYkg/4jX8XlCBCnrHgbQuu
+ aRnce4N9SFxdgRw/EVsLc9lTJKxgUV8WxmZCQV5rD9p0tXNzr43qUft01sLndj/LsLbB
+ mTWDSrCV1XocX5vqtOhfm870WWcbHaWhS9FDkPcTpSeEH/uqMi+6ElSJF7qwpW9JXywV
+ v1cZEcUenDEH8BeECHDKr2lWMCFLrITVd2MgvryNb4E+gJmf5qFh+Crap2fPdPjHFU89 5Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37tpvwhu4n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 09 Apr 2021 09:27:04 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 139D3KJN001972;
+        Fri, 9 Apr 2021 09:27:04 -0400
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37tpvwhu47-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 09 Apr 2021 09:27:03 -0400
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 139DLnJR030812;
+        Fri, 9 Apr 2021 13:27:03 GMT
+Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
+        by ppma04dal.us.ibm.com with ESMTP id 37rvc4hq0x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 09 Apr 2021 13:27:03 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 139DQxhK29032940
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 9 Apr 2021 13:26:59 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 76E6BC6061;
+        Fri,  9 Apr 2021 13:26:59 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 54801C6057;
+        Fri,  9 Apr 2021 13:26:57 +0000 (GMT)
+Received: from cpe-172-100-162-199.stny.res.rr.com (unknown [9.85.201.195])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Fri,  9 Apr 2021 13:26:57 +0000 (GMT)
+Subject: Re: [PATCH v15 00/13] s390/vfio-ap: dynamic configuration support
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, freude@linux.ibm.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        "Jason J . Herne" <jjherne@linux.ibm.com>
+References: <20210406153122.22874-1-akrowiak@linux.ibm.com>
+ <20210408223804.0ca5ba36.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <4c083431-bdba-15f8-bcbc-f80192cb02c8@linux.ibm.com>
+Date:   Fri, 9 Apr 2021 09:26:56 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BY5PR12MB4322.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4071f901-d4b2-4a88-5b10-08d8fb5360db
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Apr 2021 12:31:19.6222
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: CWm8dj+N9hpAN0IwRER78TQNIfn88AC830gzdm5RbQ6qnuPPTXBCmwApmGUcJjrYl07/nZlp8VlTESAiDC1kFw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4081
+In-Reply-To: <20210408223804.0ca5ba36.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: aL5dvifMWPhZQPeYaM8gu8t1dYwPY1as
+X-Proofpoint-ORIG-GUID: WGZW_BFRV22fYKWcat4rtAc1OpeCB_CP
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-09_05:2021-04-09,2021-04-09 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ suspectscore=0 impostorscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0
+ priorityscore=1501 phishscore=0 clxscore=1015 mlxlogscore=999
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104090096
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Thursday, April 8, 2021 5:46 PM
-> On Wed, Apr 07, 2021 at 03:44:35PM +0000, Parav Pandit wrote:
->=20
-> > > If it returns EOPNOTUPP then the remove is never called so if it
-> > > allocated memory and left it allocated then it is leaking memory.
-> > >
-> > I probably confused you. There is no leak today because add_one
-> > allocates memory, and later on when SA/CM etc per port cap is not
-> > present, it is unused left there which is freed on remove_one().
-> > Returning EOPNOTUPP is fine at start of add_one() before allocation.
->=20
-> Most of ULPs are OK, eg umad does:
->=20
-> 	umad_dev =3D kzalloc(struct_size(umad_dev, ports, e - s + 1),
-> GFP_KERNEL);
-> 	if (!umad_dev)
-> 		return -ENOMEM;
-> 	for (i =3D s; i <=3D e; ++i) {
-> 		if (!rdma_cap_ib_mad(device, i))
-> 			continue;
->=20
-> 	if (!count) {
-> 		ret =3D -EOPNOTSUPP;
-> 		goto free;
-> free:
-> 	/* balances kref_init */
-> 	ib_umad_dev_put(umad_dev);
->=20
-> It looks like only cm.c and cma.c need fixing, just fix those two.
-Only cma.c needs a fixing. cm.c also reports EOPNOTSUPP.
-I will send the simplified fix through Leon.
+On 4/8/21 4:38 PM, Halil Pasic wrote:
+> On Tue,  6 Apr 2021 11:31:09 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> Tony Krowiak (13):
+>>    s390/vfio-ap: fix circular lockdep when setting/clearing crypto masks
+> The subsequent patches, re introduce this circular locking dependency
+> problem. See my kernel messages for the details. The link we severe
+> in the above patch is re-introduced at several places. One of them is
+> assign_adapter_store().
+
+Like in the patch referenced above, the lockdep splat occurs when
+the APCB masks are set which requires acquisition of the kvm lock.
+Patch 08/13, allow hot plug/unplug of AP resources using mdev,
+introduces code that updates the APCB masks whenever an
+adapter, domain or control domain is assigned or unassigned
+as well as when a queue device is probed or removed.
+I think the solution from the patch above can be implemented
+here to resolve this problem.
+
+>
+> Regards,
+> Halil
+>
+> [  +0.000236] vfio_ap matrix: MDEV: Registered
+> [  +0.037919] vfio_mdev 4f77ad87-1e62-4959-8b7a-c677c98d2194: Adding to iommu group 1
+> [  +0.000092] vfio_mdev 4f77ad87-1e62-4959-8b7a-c677c98d2194: MDEV: group_id = 1
+>
+> [Apr 8 22:31] ======================================================
+> [  +0.000002] WARNING: possible circular locking dependency detected
+> [  +0.000002] 5.12.0-rc6-00016-g5bea90816c56 #57 Not tainted
+> [  +0.000002] ------------------------------------------------------
+> [  +0.000002] CPU 1/KVM/6651 is trying to acquire lock:
+> [  +0.000002] 00000000cef9d508 (&matrix_dev->lock){+.+.}-{3:3}, at: handle_pqap+0x56/0x1c8 [vfio_ap]
+> [  +0.000011]
+>                but task is already holding lock:
+> [  +0.000001] 00000000d41f4308 (&vcpu->mutex){+.+.}-{3:3}, at: kvm_vcpu_ioctl+0x90/0x898 [kvm]
+> [  +0.000038]
+>                which lock already depends on the new lock.
+>
+> [  +0.000002]
+>                the existing dependency chain (in reverse order) is:
+> [  +0.000001]
+>                -> #2 (&vcpu->mutex){+.+.}-{3:3}:
+> [  +0.000004]        validate_chain+0x796/0xa20
+> [  +0.000006]        __lock_acquire+0x420/0x7c8
+> [  +0.000003]        lock_acquire.part.0+0xec/0x1e8
+> [  +0.000002]        lock_acquire+0xb8/0x208
+> [  +0.000002]        __mutex_lock+0xa2/0x928
+> [  +0.000005]        mutex_lock_nested+0x32/0x40
+> [  +0.000002]        kvm_s390_cpus_to_pv+0x4e/0xf8 [kvm]
+> [  +0.000019]        kvm_s390_handle_pv+0x1ce/0x6b0 [kvm]
+> [  +0.000018]        kvm_arch_vm_ioctl+0x3ec/0x550 [kvm]
+> [  +0.000019]        kvm_vm_ioctl+0x40e/0x4a8 [kvm]
+> [  +0.000018]        __s390x_sys_ioctl+0xc0/0x100
+> [  +0.000004]        do_syscall+0x7e/0xd0
+> [  +0.000043]        __do_syscall+0xc0/0xd8
+> [  +0.000004]        system_call+0x72/0x98
+> [  +0.000004]
+>                -> #1 (&kvm->lock){+.+.}-{3:3}:
+> [  +0.000004]        validate_chain+0x796/0xa20
+> [  +0.000002]        __lock_acquire+0x420/0x7c8
+> [  +0.000002]        lock_acquire.part.0+0xec/0x1e8
+> [  +0.000002]        lock_acquire+0xb8/0x208
+> [  +0.000003]        __mutex_lock+0xa2/0x928
+> [  +0.000002]        mutex_lock_nested+0x32/0x40
+> [  +0.000002]        kvm_arch_crypto_set_masks+0x4a/0x2b8 [kvm]
+> [  +0.000018]        vfio_ap_mdev_refresh_apcb+0xd0/0xe0 [vfio_ap]
+> [  +0.000003]        assign_adapter_store+0x1f2/0x240 [vfio_ap]
+> [  +0.000003]        kernfs_fop_write_iter+0x13e/0x1e0
+> [  +0.000003]        new_sync_write+0x10a/0x198
+> [  +0.000003]        vfs_write.part.0+0x196/0x290
+> [  +0.000002]        ksys_write+0x6c/0xf8
+> [  +0.000003]        do_syscall+0x7e/0xd0
+> [  +0.000002]        __do_syscall+0xc0/0xd8
+> [  +0.000003]        system_call+0x72/0x98
+> [  +0.000002]
+>                -> #0 (&matrix_dev->lock){+.+.}-{3:3}:
+> [  +0.000004]        check_noncircular+0x16e/0x190
+> [  +0.000002]        check_prev_add+0xec/0xf38
+> [  +0.000002]        validate_chain+0x796/0xa20
+> [  +0.000002]        __lock_acquire+0x420/0x7c8
+> [  +0.000002]        lock_acquire.part.0+0xec/0x1e8
+> [  +0.000002]        lock_acquire+0xb8/0x208
+> [  +0.000002]        __mutex_lock+0xa2/0x928
+> [  +0.000002]        mutex_lock_nested+0x32/0x40
+> [  +0.000003]        handle_pqap+0x56/0x1c8 [vfio_ap]
+> [  +0.000002]        handle_pqap+0xe2/0x1d8 [kvm]
+> [  +0.000019]        kvm_handle_sie_intercept+0x134/0x248 [kvm]
+> [  +0.000019]        vcpu_post_run+0x2b6/0x580 [kvm]
+> [  +0.000018]        __vcpu_run+0x27e/0x388 [kvm]
+> [  +0.000019]        kvm_arch_vcpu_ioctl_run+0x10a/0x278 [kvm]
+> [  +0.000018]        kvm_vcpu_ioctl+0x2cc/0x898 [kvm]
+> [  +0.000018]        __s390x_sys_ioctl+0xc0/0x100
+> [  +0.000003]        do_syscall+0x7e/0xd0
+> [  +0.000002]        __do_syscall+0xc0/0xd8
+> [  +0.000002]        system_call+0x72/0x98
+> [  +0.000003]
+>                other info that might help us debug this:
+>
+> [  +0.000001] Chain exists of:
+>                  &matrix_dev->lock --> &kvm->lock --> &vcpu->mutex
+>
+> [  +0.000005]  Possible unsafe locking scenario:
+>
+> [  +0.000001]        CPU0                    CPU1
+> [  +0.000001]        ----                    ----
+> [  +0.000002]   lock(&vcpu->mutex);
+> [  +0.000002]                                lock(&kvm->lock);
+> [  +0.000002]                                lock(&vcpu->mutex);
+> [  +0.000002]   lock(&matrix_dev->lock);
+> [  +0.000002]
+>                 *** DEADLOCK ***
+>
+> [  +0.000002] 2 locks held by CPU 1/KVM/6651:
+> [  +0.000002]  #0: 00000000d41f4308 (&vcpu->mutex){+.+.}-{3:3}, at: kvm_vcpu_ioctl+0x90/0x898 [kvm]
+> [  +0.000023]  #1: 00000000da2fc508 (&kvm->srcu){....}-{0:0}, at: __vcpu_run+0x1ec/0x388 [kvm]
+> [  +0.000021]
+>                stack backtrace:
+> [  +0.000002] CPU: 6 PID: 6651 Comm: CPU 1/KVM Not tainted 5.12.0-rc6-00016-g5bea90816c56 #57
+> [  +0.000004] Hardware name: IBM 8561 T01 701 (LPAR)
+> [  +0.000001] Call Trace:
+> [  +0.000002]  [<00000002010e7ef0>] show_stack+0x90/0xf8
+> [  +0.000007]  [<00000002010fb5b2>] dump_stack+0xba/0x108
+> [  +0.000002]  [<000000020053feb6>] check_noncircular+0x16e/0x190
+> [  +0.000003]  [<0000000200541424>] check_prev_add+0xec/0xf38
+> [  +0.000002]  [<0000000200542a06>] validate_chain+0x796/0xa20
+> [  +0.000003]  [<0000000200545430>] __lock_acquire+0x420/0x7c8
+> [  +0.000002]  [<00000002005441a4>] lock_acquire.part.0+0xec/0x1e8
+> [  +0.000002]  [<0000000200544358>] lock_acquire+0xb8/0x208
+> [  +0.000003]  [<000000020110aeea>] __mutex_lock+0xa2/0x928
+> [  +0.000002]  [<000000020110b7a2>] mutex_lock_nested+0x32/0x40
+> [  +0.000003]  [<000003ff8060fb5e>] handle_pqap+0x56/0x1c8 [vfio_ap]
+> [  +0.000003]  [<000003ff80597412>] handle_pqap+0xe2/0x1d8 [kvm]
+> [  +0.000018]  [<000003ff8058c924>] kvm_handle_sie_intercept+0x134/0x248 [kvm]
+> [  +0.000020]  [<000003ff80588e96>] vcpu_post_run+0x2b6/0x580 [kvm]
+> [  +0.000019]  [<000003ff805893de>] __vcpu_run+0x27e/0x388 [kvm]
+> [  +0.000018]  [<000003ff80589d0a>] kvm_arch_vcpu_ioctl_run+0x10a/0x278 [kvm]
+> [  +0.000019]  [<000003ff805704d4>] kvm_vcpu_ioctl+0x2cc/0x898 [kvm]
+> [  +0.000019]  [<0000000200801ee8>] __s390x_sys_ioctl+0xc0/0x100
+> [  +0.000003]  [<000000020046e7ae>] do_syscall+0x7e/0xd0
+> [  +0.000003]  [<00000002010ffc20>] __do_syscall+0xc0/0xd8
+> [  +0.000002]  [<0000000201110c42>] system_call+0x72/0x98
+> [  +0.000003] INFO: lockdep is turned off.
+> [  +6.846296] vfio_mdev 4f77ad87-1e62-4959-8b7a-c677c98d2194: Removing from iommu group 1
+> [  +0.000028] vfio_mdev 4f77ad87-1e62-4959-8b7a-c677c98d2194: MDEV: detaching iommu
+> [  +0.007677] vfio_ap matrix: MDEV: Unregistering
+>
+>
+>>    s390/vfio-ap: use new AP bus interface to search for queue devices
+>>    s390/vfio-ap: move probe and remove callbacks to vfio_ap_ops.c
+>>    s390/vfio-ap: manage link between queue struct and matrix mdev
+>>    s390/vfio-ap: introduce shadow APCB
+>>    s390/vfio-ap: refresh guest's APCB by filtering APQNs assigned to mdev
+>>    s390/vfio-ap: allow assignment of unavailable AP queues to mdev device
+>>    s390/vfio-ap: allow hot plug/unplug of AP resources using mdev device
+>>    s390/zcrypt: driver callback to indicate resource in use
+>>    s390/vfio-ap: implement in-use callback for vfio_ap driver
+>>    s390/vfio-ap: sysfs attribute to display the guest's matrix
+>>    s390/zcrypt: notify drivers on config changed and scan complete
+>>      callbacks
+>>    s390/vfio-ap: update docs to include dynamic config support
+
