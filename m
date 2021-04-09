@@ -2,186 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C7D7C43611
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 16:59:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEEB3C433B4
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 17:44:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6814C60FF0
-	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 16:59:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 90FE06113A
+	for <linux-s390@archiver.kernel.org>; Fri,  9 Apr 2021 17:44:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234137AbhDIQ7h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Apr 2021 12:59:37 -0400
-Received: from mail-pl1-f172.google.com ([209.85.214.172]:33766 "EHLO
-        mail-pl1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233038AbhDIQ7e (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Apr 2021 12:59:34 -0400
-Received: by mail-pl1-f172.google.com with SMTP id p10so3070587pld.0;
-        Fri, 09 Apr 2021 09:59:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=+9xha/pXNeFBGiuagKWknyCqPbUKuPA8GXpvrC9Jx0I=;
-        b=BxoSKw8xD3QUltwN7gsMzZ89xAodvTc81Ucn20t1I1o7Y+bOpFUbxjg4eKdu6F+2Nn
-         2fWjNzGRaRW+I+Ptq6VbQMGZBPxK8efxYaqZI5y+5VLBDxM84vy/eKNmYobLUyvgNVxg
-         MCOUPGybbTtvFRWiuo6R670DigT1q6XlgQmiMDXLv+TILPESw2gvcCaRm9KjT1ppqT8a
-         3/MktU3k7KoE+qiNJj6eCwHrwqx7b2shYmdwO/Nk9bGuKnMrmX5MMMYt26SQKc1sSbZ1
-         RKmLamiYfdrJpNh5JD7/g0dsy8gJ3fXYzRCnBM+MZxx6yAv9AWxVJH/scmFmICdf4Stv
-         966w==
-X-Gm-Message-State: AOAM5305g4CkeQT1F9gmV4rNZwwr8Vv4+4S20W54eUB70KSj82WxNzYp
-        iVhFaYawaj9NArMskz9q66EB0t3i3nvsYCbl
-X-Google-Smtp-Source: ABdhPJyt31k6gfvx2YDw8pTeEF+IvcLsHKSfe6iHcUQ8SO6kPgNHHt27ciTzVzsJlbESXuH5ZVRF6Q==
-X-Received: by 2002:a17:90a:6b08:: with SMTP id v8mr14057598pjj.131.1617987559528;
-        Fri, 09 Apr 2021 09:59:19 -0700 (PDT)
-Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
-        by smtp.gmail.com with ESMTPSA id z23sm2795483pjh.45.2021.04.09.09.59.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Apr 2021 09:59:18 -0700 (PDT)
-Received: by 42.do-not-panic.com (Postfix, from userid 1000)
-        id 6D85340256; Fri,  9 Apr 2021 16:59:17 +0000 (UTC)
-Date:   Fri, 9 Apr 2021 16:59:17 +0000
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Alexander Lobakin <alobakin@pm.me>,
-        Wei Liu <wei.liu@kernel.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Corey Minyard <cminyard@mvista.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        "Jason J. Herne" <jjherne@linux.ibm.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Joe Perches <joe@perches.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Olof Johansson <olof@lixom.net>,
-        Mihai Carabas <mihai.carabas@oracle.com>,
-        Wang Wenhu <wenhu.wang@vivo.com>,
-        Marek Czerski <ma.czerski@gmail.com>,
-        Hongbo Yao <yaohongbo@huawei.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        xen-devel@lists.xenproject.org, linux-xtensa@linux-xtensa.org,
-        openipmi-developer@lists.sourceforge.net,
-        linux-clk@vger.kernel.org, linux-edac@vger.kernel.org,
-        coresight@lists.linaro.org, linux-leds@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-staging@lists.linux.dev, dri-devel@lists.freedesktop.org,
-        linux-fbdev@vger.kernel.org, linux-arch@vger.kernel.org,
-        kexec@lists.infradead.org, rcu@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
+        id S234334AbhDIRor (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 9 Apr 2021 13:44:47 -0400
+Received: from p3plsmtpa06-09.prod.phx3.secureserver.net ([173.201.192.110]:44627
+        "EHLO p3plsmtpa06-09.prod.phx3.secureserver.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234133AbhDIRoq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Apr 2021 13:44:46 -0400
+Received: from [192.168.0.116] ([71.184.94.153])
+        by :SMTPAUTH: with ESMTPSA
+        id UvB9l8sywJpwyUvB9lb2JW; Fri, 09 Apr 2021 10:44:32 -0700
+X-CMAE-Analysis: v=2.4 cv=O+T8ADxW c=1 sm=1 tr=0 ts=60709280
+ a=vbvdVb1zh1xTTaY8rfQfKQ==:117 a=vbvdVb1zh1xTTaY8rfQfKQ==:17
+ a=IkcTkHD0fZMA:10 a=V14C-qhuNTb9CArrVYEA:9 a=QEXdDO2ut3YA:10
+X-SECURESERVER-ACCT: tom@talpey.com
+Subject: Re: [PATCH rdma-next 00/10] Enable relaxed ordering for ULPs
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Chuck Lever III <chuck.lever@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leon@kernel.org>,
+        Doug Ledford <dledford@redhat.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Adit Ranadive <aditr@vmware.com>,
+        Anna Schumaker <anna.schumaker@netapp.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Avihai Horon <avihaih@nvidia.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Corey Minyard <minyard@acm.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
-        James Morse <james.morse@arm.com>,
-        Robert Richter <rric@kernel.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Pavel Machek <pavel@ucw.cz>, Alex Elder <elder@kernel.org>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Devesh Sharma <devesh.sharma@broadcom.com>,
+        Faisal Latif <faisal.latif@intel.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Jens Frederich <jfrederich@gmail.com>,
-        Daniel Drake <dsd@laptop.org>,
-        Jon Nettleton <jon.nettleton@gmail.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Mike Rapoport <rppt@linux.ibm.com>
-Subject: Re: [PATCH v2 1/1] kernel.h: Split out panic and oops helpers
-Message-ID: <20210409165917.GH4332@42.do-not-panic.com>
-References: <20210409100250.25922-1-andriy.shevchenko@linux.intel.com>
+        Bruce Fields <bfields@fieldses.org>, Jens Axboe <axboe@fb.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Keith Busch <kbusch@kernel.org>, Lijun Ou <oulijun@huawei.com>,
+        CIFS <linux-cifs@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
+        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
+        linux-rdma <linux-rdma@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Michael Guralnik <michaelgur@nvidia.com>,
+        Michal Kalderon <mkalderon@marvell.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>,
+        Linux-Net <netdev@vger.kernel.org>,
+        Potnuri Bharat Teja <bharat@chelsio.com>,
+        "rds-devel@oss.oracle.com" <rds-devel@oss.oracle.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        "samba-technical@lists.samba.org" <samba-technical@lists.samba.org>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        Selvin Xavier <selvin.xavier@broadcom.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Somnath Kotur <somnath.kotur@broadcom.com>,
+        Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>,
+        Steve French <sfrench@samba.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        VMware PV-Drivers <pv-drivers@vmware.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhu Yanjun <zyjzyj2000@gmail.com>
+References: <20210405052404.213889-1-leon@kernel.org>
+ <20210405134115.GA22346@lst.de> <20210405200739.GB7405@nvidia.com>
+ <C2924F03-11C5-4839-A4F3-36872194EEA8@oracle.com>
+ <20210406114952.GH7405@nvidia.com>
+ <aeb7334b-edc0-78c2-4adb-92d4a994210d@talpey.com>
+ <20210409164046.GY7405@nvidia.com>
+From:   Tom Talpey <tom@talpey.com>
+Message-ID: <70909c83-5e3a-6cb5-a8c0-6bd2a6688fb4@talpey.com>
+Date:   Fri, 9 Apr 2021 13:44:23 -0400
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210409100250.25922-1-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20210409164046.GY7405@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-CMAE-Envelope: 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
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Apr 09, 2021 at 01:02:50PM +0300, Andy Shevchenko wrote:
-> kernel.h is being used as a dump for all kinds of stuff for a long time.
-> Here is the attempt to start cleaning it up by splitting out panic and
-> oops helpers.
+On 4/9/2021 12:40 PM, Jason Gunthorpe wrote:
+> On Fri, Apr 09, 2021 at 10:26:21AM -0400, Tom Talpey wrote:
 > 
-> There are several purposes of doing this:
-> - dropping dependency in bug.h
-> - dropping a loop by moving out panic_notifier.h
-> - unload kernel.h from something which has its own domain
+>> My belief is that the biggest risk is from situations where completions
+>> are batched, and therefore polling is used to detect them without
+>> interrupts (which explicitly).
 > 
-> At the same time convert users tree-wide to use new headers, although
-> for the time being include new header back to kernel.h to avoid twisted
-> indirected includes for existing users.
+> We don't do this in the kernel.
 > 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-> Acked-by: Corey Minyard <cminyard@mvista.com>
-> Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-> Acked-by: Kees Cook <keescook@chromium.org>
-> Acked-by: Wei Liu <wei.liu@kernel.org>
-> Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> All kernel ULPs only read data after they observe the CQE. We do not
+> have "last data polling" and our interrupt model does not support some
+> hacky "interrupt means go and use the data" approach.
+> 
+> ULPs have to be designed this way to use the DMA API properly.
 
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Yep. Totally agree.
 
-  Luis
+My concern was about the data being written as relaxed, and the CQE
+racing it. I'll reply in the other fork.
+
+
+> Fencing a DMA before it is completed by the HW will cause IOMMU
+> errors.
+> 
+> Userspace is a different story, but that will remain as-is with
+> optional relaxed ordering.
+> 
+> Jason
+> 
