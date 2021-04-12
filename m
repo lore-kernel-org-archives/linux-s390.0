@@ -2,143 +2,162 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 110D0C433B4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0A8DC43460
 	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 16:05:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DFC216121F
-	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 16:05:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CA7896121F
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 16:05:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243030AbhDLQGN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S240732AbhDLQGN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Mon, 12 Apr 2021 12:06:13 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20686 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44598 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240732AbhDLQGK (ORCPT
+        by vger.kernel.org with ESMTP id S241405AbhDLQGM (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 12 Apr 2021 12:06:10 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13CG4SUt096045;
-        Mon, 12 Apr 2021 12:05:52 -0400
+        Mon, 12 Apr 2021 12:06:12 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13CG48Rj078561;
+        Mon, 12 Apr 2021 12:05:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=GV4FlGfQXJpJ7BggiAQ7ShtsLJvuaLMzOPcWEaPWkVc=;
- b=tp4rbRMddBJiMMFqpm9oV8l+ZJwrE74nrULhr5tzJ36VxCkL3n2EvIyiC6ZoHqlIFmor
- 8NandfbQz4ByVW8v6LztEvRz1NbCXDHfnDvGt2EVx/NyRKSi7vwKrfNsXw2DKwUNuxjp
- ERAqUhHbj3rdDDXC5gsVEeybkRldMql0TkgQa9VMd3fQqKqWxSqY6Ty6pwdcERLAh/cu
- MSi+GtrI3Lzjwd3d80R6jZCRvIG59JBpjb/MbT5L9sYQyySGeD3ywhZF3NShQrrVd4UI
- X+ivWwPYziIfG7R/L+QgMTXTQyh9k3zI1eu/nqi1gz6ITLC3+uTlFxQHvPjdG2e6BsHY iQ== 
+ : date : message-id : in-reply-to : references : content-transfer-encoding
+ : mime-version; s=pp1; bh=xHJny+Jx7mTvgYtd9S473cDQZW0nMP7VIW4DoPZhF3Q=;
+ b=hY+1s6x7XAh4cVjjxhaeXFJkClV027d4iqoFTgKsJy89U4jRu6dmsV1grGwycoBQ73Qh
+ cA4Bm/TfDRdu1udNSFslUx64r4Hz1Avb3eqioTdm79JIK9ckhq2KsjPyxQq5IGGzgg/F
+ m+W/aQa6ajr7dKFvJsVDvSDisuMJK3FjSuJmcOH+PZbxyHdbjlFyxj9T84wCycT+uLda
+ dc0BgyA0VB2ZgnceEYn884T0/VBrV5zSjE7ayDMsPKsUBp/1rpJFoBnn5/4+Qywwc0K4
+ 7KTdKfv/dw+mEUZmNqy4Gm7JX0IeJbcsU3gXaMEO8SJAB6i06hHxqK0CCNWgTcFnb697 Tw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37vkde6tn9-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37ushw2h96-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 12 Apr 2021 12:05:52 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13CG5NcT103142;
-        Mon, 12 Apr 2021 12:05:51 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37vkde6tk8-1
+        Mon, 12 Apr 2021 12:05:54 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13CG4FDs079232;
+        Mon, 12 Apr 2021 12:05:54 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37ushw2h77-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 12 Apr 2021 12:05:51 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13CFqCdI029750;
-        Mon, 12 Apr 2021 16:05:49 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 37u3n89y1s-1
+        Mon, 12 Apr 2021 12:05:54 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13CFq9sw000898;
+        Mon, 12 Apr 2021 16:05:51 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma05fra.de.ibm.com with ESMTP id 37u3n8919c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 12 Apr 2021 16:05:49 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13CG5kZc30867920
+        Mon, 12 Apr 2021 16:05:51 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13CG5Q1g30802342
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 12 Apr 2021 16:05:46 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 276F511C050;
-        Mon, 12 Apr 2021 16:05:46 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 15AB911C054;
-        Mon, 12 Apr 2021 16:05:46 +0000 (GMT)
+        Mon, 12 Apr 2021 16:05:26 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4B601A4040;
+        Mon, 12 Apr 2021 16:05:48 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 31D81A404D;
+        Mon, 12 Apr 2021 16:05:48 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 12 Apr 2021 16:05:46 +0000 (GMT)
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 12 Apr 2021 16:05:48 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id C9AC1E02A6; Mon, 12 Apr 2021 18:05:45 +0200 (CEST)
+        id E1CDDE0393; Mon, 12 Apr 2021 18:05:47 +0200 (CEST)
 From:   Christian Borntraeger <borntraeger@de.ibm.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>
 Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>,
         Cornelia Huck <cohuck@redhat.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/7] KVM: s390: Updates for 5.13
-Date:   Mon, 12 Apr 2021 18:05:38 +0200
-Message-Id: <20210412160545.231194-1-borntraeger@de.ibm.com>
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+Subject: [GIT PULL 6/7] KVM: s390: split kvm_s390_real_to_abs
+Date:   Mon, 12 Apr 2021 18:05:44 +0200
+Message-Id: <20210412160545.231194-7-borntraeger@de.ibm.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210412160545.231194-1-borntraeger@de.ibm.com>
+References: <20210412160545.231194-1-borntraeger@de.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KV8HIJTj25eAiOhQqv-vqhYhU6rXRScC
-X-Proofpoint-ORIG-GUID: dSMjm8eYpxk2xS6lPYu4Iud-hIwW5V5h
+X-Proofpoint-GUID: plUg-BG49-op1BXsHJHdY22intqwM624
+X-Proofpoint-ORIG-GUID: m4siZJdG-ExosK02X7ktsVmgjcRQTS2s
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-04-12_11:2021-04-12,2021-04-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
- suspectscore=0 adultscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 spamscore=0 clxscore=1015 bulkscore=0 mlxlogscore=999
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 clxscore=1015 mlxscore=0 malwarescore=0 suspectscore=0
+ phishscore=0 adultscore=0 priorityscore=1501 impostorscore=0 spamscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2104060000 definitions=main-2104120102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Paolo,
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-only small things for 5.13, one is a fix (with cc stable) consisting of
-multiple patches. I had it running in next for a while since this is
-a pretty complicated area of the architecture but its now good to go.
+A new function _kvm_s390_real_to_abs will apply prefixing to a real address
+with a given prefix value.
 
-The following changes since commit a38fd8748464831584a19438cbb3082b5a2dab15:
+The old kvm_s390_real_to_abs becomes now a wrapper around the new function.
 
-  Linux 5.12-rc2 (2021-03-05 17:33:41 -0800)
+This is needed to avoid code duplication in vSIE.
 
-are available in the Git repository at:
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210322140559.500716-2-imbrenda@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/gaccess.h | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.13-1
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index daba10f76936..7c72a5e3449f 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -16,6 +16,23 @@
+ #include <linux/ptrace.h>
+ #include "kvm-s390.h"
+ 
++/**
++ * kvm_s390_real_to_abs - convert guest real address to guest absolute address
++ * @prefix - guest prefix
++ * @gra - guest real address
++ *
++ * Returns the guest absolute address that corresponds to the passed guest real
++ * address @gra of by applying the given prefix.
++ */
++static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
++{
++	if (gra < 2 * PAGE_SIZE)
++		gra += prefix;
++	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
++		gra -= prefix;
++	return gra;
++}
++
+ /**
+  * kvm_s390_real_to_abs - convert guest real address to guest absolute address
+  * @vcpu - guest virtual cpu
+@@ -27,13 +44,7 @@
+ static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+ 						 unsigned long gra)
+ {
+-	unsigned long prefix  = kvm_s390_get_prefix(vcpu);
+-
+-	if (gra < 2 * PAGE_SIZE)
+-		gra += prefix;
+-	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
+-		gra -= prefix;
+-	return gra;
++	return _kvm_s390_real_to_abs(kvm_s390_get_prefix(vcpu), gra);
+ }
+ 
+ /**
+-- 
+2.30.2
 
-for you to fetch changes up to c3171e94cc1cdcc3229565244112e869f052b8d9:
-
-  KVM: s390: VSIE: fix MVPG handling for prefixing and MSO (2021-03-24 10:31:55 +0100)
-
-----------------------------------------------------------------
-KVM: s390: Updates for 5.13
-
-- properly handle MVPG in nesting KVM (vsie)
-- allow to forward the yield_to hypercall (diagnose 9c)
-- fixes
-
-----------------------------------------------------------------
-Bhaskar Chowdhury (1):
-      KVM: s390: Fix comment spelling in kvm_s390_vcpu_start()
-
-Claudio Imbrenda (5):
-      KVM: s390: split kvm_s390_logical_to_effective
-      KVM: s390: extend kvm_s390_shadow_fault to return entry pointer
-      KVM: s390: VSIE: correctly handle MVPG when in VSIE
-      KVM: s390: split kvm_s390_real_to_abs
-      KVM: s390: VSIE: fix MVPG handling for prefixing and MSO
-
-Pierre Morel (1):
-      KVM: s390: diag9c (directed yield) forwarding
-
- Documentation/virt/kvm/s390-diag.rst |  33 +++++++++++
- arch/s390/include/asm/kvm_host.h     |   1 +
- arch/s390/include/asm/smp.h          |   1 +
- arch/s390/kernel/smp.c               |   1 +
- arch/s390/kvm/diag.c                 |  31 +++++++++-
- arch/s390/kvm/gaccess.c              |  30 ++++++++--
- arch/s390/kvm/gaccess.h              |  60 ++++++++++++++-----
- arch/s390/kvm/kvm-s390.c             |   8 ++-
- arch/s390/kvm/kvm-s390.h             |   8 +++
- arch/s390/kvm/vsie.c                 | 109 ++++++++++++++++++++++++++++++++---
- 10 files changed, 250 insertions(+), 32 deletions(-)
