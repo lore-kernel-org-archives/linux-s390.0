@@ -2,145 +2,155 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E55D7C433ED
-	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 06:52:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B142C43460
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 09:02:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C1FDC6120B
-	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 06:52:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 762226135F
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 09:02:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236593AbhDLGwZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 12 Apr 2021 02:52:25 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4340 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236591AbhDLGwZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 12 Apr 2021 02:52:25 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13C6YL3D029524;
-        Mon, 12 Apr 2021 02:52:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=hs+80Rrx3QSwoANWmAh8yIGN+d1ZBv6+ntO6ZN7RfjU=;
- b=enEnTn3+0L8hyjcGuA7syQTVcgbozH8763hhRRmB+otj/yPH+mcImdr0OllwqUkpfVzI
- MoZNuFykiN6IWyez5jSmR3eBUGUskjok5TJF9IeX/Zah9Oq16tzWkB9/lsXpKHQC6FCq
- /5BjaUtFPEpgHQQHVYHbP9D/m0jNECkEu99GTSZL8nHn+jQHKpFeeqH4G911F1CtSk9d
- jqVK8sQawLpBeFQLSeCmapglTrtk/RTraeYgk6+H1gqYM6UZAYCqB/9OLlPfl97bsv+u
- xy+chRlvQjm3Bb/1jGJj7/Bh5GLF1SIH28DpDy4yNQM0XCWu/zAJM1lxU78gmcVAwEkz PA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37ushvf3k4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 12 Apr 2021 02:52:05 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13C6ZKH7032850;
-        Mon, 12 Apr 2021 02:52:05 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37ushvf3jb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 12 Apr 2021 02:52:05 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13C6m8Ld006970;
-        Mon, 12 Apr 2021 06:52:03 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma01fra.de.ibm.com with ESMTP id 37u3n88td7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 12 Apr 2021 06:52:02 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13C6q02j43647368
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 12 Apr 2021 06:52:00 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2CA1BAE053;
-        Mon, 12 Apr 2021 06:52:00 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C900AAE045;
-        Mon, 12 Apr 2021 06:51:59 +0000 (GMT)
-Received: from [9.171.87.9] (unknown [9.171.87.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 12 Apr 2021 06:51:59 +0000 (GMT)
-Subject: Re: [Patch net] smc: disallow TCP_ULP in smc_setsockopt()
-To:     Cong Wang <xiyou.wangcong@gmail.com>, netdev@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
-        syzbot+b54a1ce86ba4a623b7f0@syzkaller.appspotmail.com,
-        John Fastabend <john.fastabend@gmail.com>
-References: <20210410181732.25995-1-xiyou.wangcong@gmail.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-Message-ID: <f273fcd6-05e2-68d4-56e3-31cd228fab23@linux.ibm.com>
-Date:   Mon, 12 Apr 2021 08:52:05 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S239217AbhDLJCh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 12 Apr 2021 05:02:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38294 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238799AbhDLI7A (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 12 Apr 2021 04:59:00 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C107C061357;
+        Mon, 12 Apr 2021 01:56:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=2i9k3XnPRqvmbHX7dvelQqL0adEzvQYNCM38u+lMXro=; b=RS/E5cUeXPW58MpDtNE/QxGjun
+        IlLHXJ5FINhY8bwvOHzpCY/lZPTxBNnPotxjtFD5UtSX5qtfJ2IkT5EN4cWxNKNS80SuvLGHS8Wrt
+        XUEatITql0aChxpiGvL4a39jU9XOPZJEL687v5P6Xzxtb47r46fd8xqcOy23mlcmAOK0GIQUjDPXL
+        Suy9otxF9ewgxNYkzyyrHYpXdtgc4lu95Yi9zyOGnSEhLCa2LV51x4ycZ+WixvreJwaa12LgPKocp
+        0W/6FKcEqL4idUEu89STvrmRIbtMe2l3MKRKHyBaptpL2EoINsT3RbOqPkiCbvi3s2W6tmHHQvfXN
+        G/uqREwQ==;
+Received: from [2001:4bb8:199:e2bd:3218:1918:85d1:2852] (helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1lVsMK-0060Dt-T7; Mon, 12 Apr 2021 08:55:53 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>, x86@kernel.org,
+        Arnd Bergmann <arnd@arndb.de>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: [PATCH 2/5] uapi: simplify __ARCH_FLOCK{,64}_PAD a little
+Date:   Mon, 12 Apr 2021 10:55:42 +0200
+Message-Id: <20210412085545.2595431-3-hch@lst.de>
+X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210412085545.2595431-1-hch@lst.de>
+References: <20210412085545.2595431-1-hch@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <20210410181732.25995-1-xiyou.wangcong@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ZucfamJoAzpgreVHHi3vYlmH8iBdrjeM
-X-Proofpoint-ORIG-GUID: OS5lB1eGu93IlAT-q6hQ3LKfqDl524-m
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-12_04:2021-04-12,2021-04-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 clxscore=1011 mlxscore=0 malwarescore=0 suspectscore=0
- phishscore=0 adultscore=0 priorityscore=1501 impostorscore=0 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104120042
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Don't bother to define emtpty versions of the macros if the architecture
+doesn't define them.
 
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ include/uapi/asm-generic/fcntl.h       | 12 ++++--------
+ tools/include/uapi/asm-generic/fcntl.h | 12 ++++--------
+ 2 files changed, 8 insertions(+), 16 deletions(-)
 
-On 10/04/2021 20:17, Cong Wang wrote:
-> From: Cong Wang <cong.wang@bytedance.com>
-> 
-> syzbot is able to setup kTLS on an SMC socket, which coincidentally
-> uses sk_user_data too, later, kTLS treats it as psock so triggers a
-> refcnt warning. The cause is that smc_setsockopt() simply calls
-> TCP setsockopt(). I do not think it makes sense to setup kTLS on
-> top of SMC, so we can just disallow this.
-> 
-> Reported-and-tested-by: syzbot+b54a1ce86ba4a623b7f0@syzkaller.appspotmail.com
-> Cc: John Fastabend <john.fastabend@gmail.com>
-> Cc: Karsten Graul <kgraul@linux.ibm.com>
-> Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-> ---
->  net/smc/af_smc.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 47340b3b514f..0d4d6d28f20c 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -2162,6 +2162,9 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
->  	struct smc_sock *smc;
->  	int val, rc;
->  
-> +	if (optname == TCP_ULP)
-> +		return -EOPNOTSUPP;
-> +
->  	smc = smc_sk(sk);
->  
->  	/* generic setsockopts reaching us here always apply to the
-> @@ -2186,7 +2189,6 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
->  	if (rc || smc->use_fallback)
->  		goto out;
->  	switch (optname) {
-> -	case TCP_ULP:
-
-Should'nt it return -EOPNOTSUPP in that case, too?
-
->  	case TCP_FASTOPEN:
->  	case TCP_FASTOPEN_CONNECT:
->  	case TCP_FASTOPEN_KEY:
-> 
-
+diff --git a/include/uapi/asm-generic/fcntl.h b/include/uapi/asm-generic/fcntl.h
+index fb454bb629d114..df7ad6962dff71 100644
+--- a/include/uapi/asm-generic/fcntl.h
++++ b/include/uapi/asm-generic/fcntl.h
+@@ -189,22 +189,16 @@ struct f_owner_ex {
+ #define F_LINUX_SPECIFIC_BASE	1024
+ 
+ #ifndef HAVE_ARCH_STRUCT_FLOCK
+-#ifndef __ARCH_FLOCK_PAD
+-#define __ARCH_FLOCK_PAD
+-#endif
+-
+ struct flock {
+ 	short	l_type;
+ 	short	l_whence;
+ 	__kernel_off_t	l_start;
+ 	__kernel_off_t	l_len;
+ 	__kernel_pid_t	l_pid;
++#ifdef __ARCH_FLOCK_PAD
+ 	__ARCH_FLOCK_PAD
+-};
+ #endif
+-
+-#ifndef __ARCH_FLOCK64_PAD
+-#define __ARCH_FLOCK64_PAD
++};
+ #endif
+ 
+ struct flock64 {
+@@ -213,7 +207,9 @@ struct flock64 {
+ 	__kernel_loff_t l_start;
+ 	__kernel_loff_t l_len;
+ 	__kernel_pid_t  l_pid;
++#ifdef __ARCH_FLOCK64_PAD
+ 	__ARCH_FLOCK64_PAD
++#endif
+ };
+ 
+ #endif /* _ASM_GENERIC_FCNTL_H */
+diff --git a/tools/include/uapi/asm-generic/fcntl.h b/tools/include/uapi/asm-generic/fcntl.h
+index 4a49d33ca4d55d..82054502b9748d 100644
+--- a/tools/include/uapi/asm-generic/fcntl.h
++++ b/tools/include/uapi/asm-generic/fcntl.h
+@@ -188,22 +188,16 @@ struct f_owner_ex {
+ #define F_LINUX_SPECIFIC_BASE	1024
+ 
+ #ifndef HAVE_ARCH_STRUCT_FLOCK
+-#ifndef __ARCH_FLOCK_PAD
+-#define __ARCH_FLOCK_PAD
+-#endif
+-
+ struct flock {
+ 	short	l_type;
+ 	short	l_whence;
+ 	__kernel_off_t	l_start;
+ 	__kernel_off_t	l_len;
+ 	__kernel_pid_t	l_pid;
++#ifdef __ARCH_FLOCK_PAD
+ 	__ARCH_FLOCK_PAD
+-};
+ #endif
+-
+-#ifndef __ARCH_FLOCK64_PAD
+-#define __ARCH_FLOCK64_PAD
++};
+ #endif
+ 
+ struct flock64 {
+@@ -212,7 +206,9 @@ struct flock64 {
+ 	__kernel_loff_t l_start;
+ 	__kernel_loff_t l_len;
+ 	__kernel_pid_t  l_pid;
++#ifdef __ARCH_FLOCK64_PAD
+ 	__ARCH_FLOCK64_PAD
++#endif
+ };
+ 
+ #endif /* _ASM_GENERIC_FCNTL_H */
 -- 
-Karsten
+2.30.1
 
-(I'm a dude)
