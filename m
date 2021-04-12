@@ -2,186 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8399EC43461
-	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 13:59:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA7ADC433B4
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 14:04:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5E2B86128B
-	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 13:59:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE0736121E
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 14:04:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242054AbhDLN7c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 12 Apr 2021 09:59:32 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37940 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240036AbhDLN7b (ORCPT
+        id S242100AbhDLOE6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 12 Apr 2021 10:04:58 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17488 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S241422AbhDLOE5 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 12 Apr 2021 09:59:31 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13CDXHfA046813;
-        Mon, 12 Apr 2021 09:59:12 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=O4baydVhQPQYaGDwD8nWIjnD2KePthLqJGujPlUrD9c=;
- b=s1kUDYAjB8seMopz/6M+M8ayC2vZF3NIb97/D1SDOIGtuBWVoKEfTt1kMN24FewXvFnt
- Kp20dJHM/kYGjBWl4nKr3bQWDwMBlAmevAHP8JKxYRUHV/cKoQ8PrxEpXK9tcbl3m1h0
- /Ge5XLYdP2Y+KAmu2zL4saJtEgWaDjSIVJGOsVJaBaXP0oNxdeMu2NJGGS9+ggC6q+AH
- QE/gq6DetYs56AVJAbk6XEMrbRlWLjVMD9VGwIA0I7nrROyTr87KQj95EywUPw2sUj5C
- YYuenboZ+xQkg/OPZyHrEm6eJDjSTREXA8+KR6N2eqIEYppxD712JTaPwjTolEliZSc3 mQ== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37vpwehr97-1
+        Mon, 12 Apr 2021 10:04:57 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13CE2mTi146236;
+        Mon, 12 Apr 2021 10:04:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=D+Pr044Sc37k2/xacVMJIRTA9aojRfwKHjljGaysKTM=;
+ b=BOQHsE68Vk+Kk5ONmvB4O1ZN99VkPSjrYhm6HbryT/dnb/SEyRCSf5082pIXZDNLeVOZ
+ xbzMQe8pnwCtXSvmv/MsD2e1GI2bNLS9Taf8hzk79MlVp+d45U0fwbs1XZQW0OH/IRIj
+ BAUvxNVbyY2zAaos2y0JXILHa7kqpRoDjdOW3D2rO1p8b/Ae/Y+8nA/2kj4xmanLEX5d
+ R0RM1kf7idRUlSa0BJ8Asqhgh5EVBN+ik0IRVJaVwHkk9fEuspFqWxyuESwfF1RS1Rla
+ O9uyKFiiZXvgw2XuaQDSky5xaUwTIi776q1CFcQLn3hHGWHV6rBxKElrOe/uiuziVAxT fw== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37vk4hauxa-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 12 Apr 2021 09:59:12 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13CDvkxM015885;
-        Mon, 12 Apr 2021 13:59:09 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 37u39hhvdx-1
+        Mon, 12 Apr 2021 10:04:12 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13CDwLND012027;
+        Mon, 12 Apr 2021 14:04:10 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 37u3n89vcw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 12 Apr 2021 13:59:09 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13CDx6dH48169302
+        Mon, 12 Apr 2021 14:04:10 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13CE48t646137724
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 12 Apr 2021 13:59:06 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6523C4204B;
-        Mon, 12 Apr 2021 13:59:06 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 15C6E4203F;
-        Mon, 12 Apr 2021 13:59:06 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 12 Apr 2021 13:59:06 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Narendra K <narendra_k@dell.com>
-Cc:     Viktor Mihajlovski <mihajlov@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-netdev@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH 1/1] s390/pci: expose a PCI device's UID as its index
-Date:   Mon, 12 Apr 2021 15:59:05 +0200
-Message-Id: <20210412135905.1434249-2-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210412135905.1434249-1-schnelle@linux.ibm.com>
-References: <20210412135905.1434249-1-schnelle@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Mon, 12 Apr 2021 14:04:08 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 74890AE04D;
+        Mon, 12 Apr 2021 14:04:08 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BCBE5AE059;
+        Mon, 12 Apr 2021 14:04:07 +0000 (GMT)
+Received: from li-c43276cc-23ad-11b2-a85c-bda00957cb67.ibm.com (unknown [9.171.61.4])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 12 Apr 2021 14:04:07 +0000 (GMT)
+Subject: Re: [PATCH 5/8] scsi: remove the unchecked_isa_dma flag
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Jens Axboe <axboe@kernel.dk>, Khalid Aziz <khalid@gonehiking.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Hannes Reinecke <hare@suse.com>,
+        Ondrej Zary <linux@rainbow-software.org>,
+        linux-block@vger.kernel.org, linux-scsi@vger.kernel.org,
+        Hannes Reinecke <hare@suse.de>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>
+References: <20210331073001.46776-1-hch@lst.de>
+ <20210331073001.46776-6-hch@lst.de>
+ <2fa7fad0-2689-24c9-d356-50f98ca3535d@linux.ibm.com>
+ <20210410065231.GA16173@lst.de>
+From:   Steffen Maier <maier@linux.ibm.com>
+Message-ID: <ad37abab-6a23-bd44-f2d7-47dde4a21ac3@linux.ibm.com>
+Date:   Mon, 12 Apr 2021 16:04:07 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.0
+In-Reply-To: <20210410065231.GA16173@lst.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: C_coBcyeucwDOldjP8Fxn4HAQYCuBkSF
-X-Proofpoint-ORIG-GUID: C_coBcyeucwDOldjP8Fxn4HAQYCuBkSF
+X-Proofpoint-ORIG-GUID: xQM5eLtUSXFNfB5O3WkIogvWQMCctilV
+X-Proofpoint-GUID: xQM5eLtUSXFNfB5O3WkIogvWQMCctilV
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-04-12_10:2021-04-12,2021-04-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- adultscore=0 bulkscore=0 priorityscore=1501 phishscore=0 spamscore=0
- lowpriorityscore=0 malwarescore=0 impostorscore=0 mlxlogscore=999
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104120091
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
+ lowpriorityscore=0 priorityscore=1501 spamscore=0 suspectscore=0
+ bulkscore=0 mlxlogscore=999 impostorscore=0 phishscore=0 clxscore=1015
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104120096
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On s390 each PCI device has a user-defined ID (UID) exposed under
-/sys/bus/pci/devices/<dev>/uid. This ID was designed to serve as the PCI
-device's primary index and to match the device within Linux to the
-device configured in the hypervisor. To serve as a primary identifier
-the UID must be unique within the Linux instance, this is guaranteed by
-the platform if and only if the UID Uniqueness Checking flag is set
-within the CLP List PCI Functions response.
+On 4/10/21 8:52 AM, Christoph Hellwig wrote:
+> On Fri, Apr 09, 2021 at 05:46:09PM +0200, Steffen Maier wrote:
+>> Is it OK to remove a long standing sysfs attribute?
+>> Was there any deprecation phase?
+>>
+>> I just noticed it in our CI reporting fails due to this change since at
+>> least linux-next 20210409. Suppose it came via
+>> https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git/commit/?h=for-5.13/block&id=aaff5ebaa2694f283b7d07fdd55fb287ffc4f1e9
+>>
+>> Wanted to ask before I adapt the test cases.
+> 
+> What does your CI do with it?
 
-In this sense the UID serves an analogous function as the SMBIOS
-instance number or ACPI index exposed as the "index" respectively
-"acpi_index" device attributes and used by e.g. systemd to set interface
-names. As s390 does not use and will likely never use ACPI nor SMBIOS
-there is no conflict and we can just expose the UID under the "index"
-attribute whenever UID Uniqueness Checking is active and get systemd's
-interface naming support for free.
+We check almost all zfcp-related sysfs attributes for returning expected values 
+(depending on possible error inject state transitions as well as steady state).
+The Scsi_Host's unchecked_isa_dma is just checked to return '0'.
 
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Acked-by: Viktor Mihajlovski <mihajlov@linux.ibm.com>
----
- Documentation/ABI/testing/sysfs-bus-pci | 11 +++++---
- arch/s390/pci/pci_sysfs.c               | 35 +++++++++++++++++++++++++
- 2 files changed, 42 insertions(+), 4 deletions(-)
+> It would be kinda of sad to carry around this baggage, but if real
+> userspace is broken by the chance we'll have to do it.  I'm just not
+> entirely sure testcases qualify as real userspace yet.
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-pci b/Documentation/ABI/testing/sysfs-bus-pci
-index 25c9c39770c6..1241b6d11a52 100644
---- a/Documentation/ABI/testing/sysfs-bus-pci
-+++ b/Documentation/ABI/testing/sysfs-bus-pci
-@@ -195,10 +195,13 @@ What:		/sys/bus/pci/devices/.../index
- Date:		July 2010
- Contact:	Narendra K <narendra_k@dell.com>, linux-bugs@dell.com
- Description:
--		Reading this attribute will provide the firmware
--		given instance (SMBIOS type 41 device type instance) of the
--		PCI device. The attribute will be created only if the firmware
--		has given an instance number to the PCI device.
-+		Reading this attribute will provide the firmware given instance
-+		number of the PCI device.  Depending on the platform this can
-+		be for example the SMBIOS type 41 device type instance or the
-+		user-defined ID (UID) on s390. The attribute will be created
-+		only if the firmware has given an instance number to the PCI
-+		device and that number is guaranteed to uniquely identify the
-+		device in the system.
- Users:
- 		Userspace applications interested in knowing the
- 		firmware assigned device type instance of the PCI
-diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
-index e14d346dafd6..20dbb2058d51 100644
---- a/arch/s390/pci/pci_sysfs.c
-+++ b/arch/s390/pci/pci_sysfs.c
-@@ -138,6 +138,38 @@ static ssize_t uid_is_unique_show(struct device *dev,
- }
- static DEVICE_ATTR_RO(uid_is_unique);
- 
-+#ifndef CONFIG_DMI
-+/* analogous to smbios index */
-+static ssize_t index_show(struct device *dev,
-+			  struct device_attribute *attr, char *buf)
-+{
-+	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
-+	u32 index = ~0;
-+
-+	if (zpci_unique_uid)
-+		index = zdev->uid;
-+
-+	return sysfs_emit(buf, "%u\n", index);
-+}
-+static DEVICE_ATTR_RO(index);
-+
-+static umode_t zpci_unique_uids(struct kobject *kobj,
-+				struct attribute *attr, int n)
-+{
-+	return zpci_unique_uid ? attr->mode : 0;
-+}
-+
-+static struct attribute *zpci_ident_attrs[] = {
-+	&dev_attr_index.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group zpci_ident_attr_group = {
-+	.attrs = zpci_ident_attrs,
-+	.is_visible = zpci_unique_uids,
-+};
-+#endif
-+
- static struct bin_attribute *zpci_bin_attrs[] = {
- 	&bin_attr_util_string,
- 	&bin_attr_report_error,
-@@ -179,5 +211,8 @@ static struct attribute_group pfip_attr_group = {
- const struct attribute_group *zpci_attr_groups[] = {
- 	&zpci_attr_group,
- 	&pfip_attr_group,
-+#ifndef CONFIG_DMI
-+	&zpci_ident_attr_group,
-+#endif
- 	NULL,
- };
+I was more pondering whether sysfs is considered stable API.
+
+I'm not aware of any issues with real userspace if unchecked_isa_dma is absent.
+Have adapted our test case to accept a missing unchecked_isa_dma sysfs attribute.
+
 -- 
-2.25.1
+Mit freundlichen Gruessen / Kind regards
+Steffen Maier
 
+Linux on IBM Z Development
+
+https://www.ibm.com/privacy/us/en/
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Matthias Hartmann
+Geschaeftsfuehrung: Dirk Wittkopp
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
