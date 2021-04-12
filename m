@@ -4,66 +4,66 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0A8DC43460
-	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 16:05:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FE3AC43462
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 16:05:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CA7896121F
-	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 16:05:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 26F2F61026
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 16:05:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240732AbhDLQGN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 12 Apr 2021 12:06:13 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44598 "EHLO
+        id S243240AbhDLQGO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 12 Apr 2021 12:06:14 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15660 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241405AbhDLQGM (ORCPT
+        by vger.kernel.org with ESMTP id S241344AbhDLQGM (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
         Mon, 12 Apr 2021 12:06:12 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13CG48Rj078561;
-        Mon, 12 Apr 2021 12:05:54 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13CG5LqL018633;
+        Mon, 12 Apr 2021 12:05:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=xHJny+Jx7mTvgYtd9S473cDQZW0nMP7VIW4DoPZhF3Q=;
- b=hY+1s6x7XAh4cVjjxhaeXFJkClV027d4iqoFTgKsJy89U4jRu6dmsV1grGwycoBQ73Qh
- cA4Bm/TfDRdu1udNSFslUx64r4Hz1Avb3eqioTdm79JIK9ckhq2KsjPyxQq5IGGzgg/F
- m+W/aQa6ajr7dKFvJsVDvSDisuMJK3FjSuJmcOH+PZbxyHdbjlFyxj9T84wCycT+uLda
- dc0BgyA0VB2ZgnceEYn884T0/VBrV5zSjE7ayDMsPKsUBp/1rpJFoBnn5/4+Qywwc0K4
- 7KTdKfv/dw+mEUZmNqy4Gm7JX0IeJbcsU3gXaMEO8SJAB6i06hHxqK0CCNWgTcFnb697 Tw== 
+ : mime-version; s=pp1; bh=zetLCw32oob2Q6AX76uN+QiVRJ77a/6XsUYrC1/Aw/Y=;
+ b=IFbno07Wu8lJjqczwYhguEzuuqALogIa049QrozCahPKO5LmBw/sVEm3cbRxmvACdL7U
+ f3Q2RjXiVRqKvkzZ9j5Ux2SB8ug+jX/w8ExQd6mPxdsnDVGqPm8EF0sukAZjD5a4JRQ+
+ vjewMiw/kBLnxTn2TAHcOpDRxzuWUOoVR97ghpikepNlfNaRnSSzJngYT5Rqc2qUKVFp
+ WYWj7a03g+NriKYpCkS801Hzz0cBFUgGwrxtsUeaP0/38TcVIzSJe5zWaL1WCtjihk7D
+ 3dkaP4pRTHD5nt/QNjFN4MWcKM+KtW2/WbF+BrcCfce+LWhMhVrNnKjCecOjcUdBNGbQ Yg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37ushw2h96-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37vkdjxme5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 12 Apr 2021 12:05:54 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13CG4FDs079232;
-        Mon, 12 Apr 2021 12:05:54 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37ushw2h77-1
+        Mon, 12 Apr 2021 12:05:53 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13CG5YrU019896;
+        Mon, 12 Apr 2021 12:05:52 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37vkdjxmcj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 12 Apr 2021 12:05:54 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13CFq9sw000898;
-        Mon, 12 Apr 2021 16:05:51 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma05fra.de.ibm.com with ESMTP id 37u3n8919c-1
+        Mon, 12 Apr 2021 12:05:52 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13CFrIEg009950;
+        Mon, 12 Apr 2021 16:05:50 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04fra.de.ibm.com with ESMTP id 37u3n891ae-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 12 Apr 2021 16:05:51 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13CG5Q1g30802342
+        Mon, 12 Apr 2021 16:05:50 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13CG5lt516974232
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 12 Apr 2021 16:05:26 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4B601A4040;
-        Mon, 12 Apr 2021 16:05:48 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 31D81A404D;
-        Mon, 12 Apr 2021 16:05:48 +0000 (GMT)
+        Mon, 12 Apr 2021 16:05:47 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6FE4AA4060;
+        Mon, 12 Apr 2021 16:05:47 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5A446A405B;
+        Mon, 12 Apr 2021 16:05:47 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 12 Apr 2021 16:05:48 +0000 (GMT)
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 12 Apr 2021 16:05:47 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id E1CDDE0393; Mon, 12 Apr 2021 18:05:47 +0200 (CEST)
+        id 15AF5E02A6; Mon, 12 Apr 2021 18:05:47 +0200 (CEST)
 From:   Christian Borntraeger <borntraeger@de.ibm.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>
 Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
@@ -71,93 +71,97 @@ Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
         Cornelia Huck <cohuck@redhat.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Subject: [GIT PULL 6/7] KVM: s390: split kvm_s390_real_to_abs
-Date:   Mon, 12 Apr 2021 18:05:44 +0200
-Message-Id: <20210412160545.231194-7-borntraeger@de.ibm.com>
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [GIT PULL 3/7] KVM: s390: split kvm_s390_logical_to_effective
+Date:   Mon, 12 Apr 2021 18:05:41 +0200
+Message-Id: <20210412160545.231194-4-borntraeger@de.ibm.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210412160545.231194-1-borntraeger@de.ibm.com>
 References: <20210412160545.231194-1-borntraeger@de.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: plUg-BG49-op1BXsHJHdY22intqwM624
-X-Proofpoint-ORIG-GUID: m4siZJdG-ExosK02X7ktsVmgjcRQTS2s
+X-Proofpoint-ORIG-GUID: _FrUTYHDLzb5Z8JsU-CJDI1fvNXmFNYG
+X-Proofpoint-GUID: AHcOAmIRLspyemkHyjE_O5lg_Ed1Q4L_
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-04-12_11:2021-04-12,2021-04-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 clxscore=1015 mlxscore=0 malwarescore=0 suspectscore=0
- phishscore=0 adultscore=0 priorityscore=1501 impostorscore=0 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104120102
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ phishscore=0 lowpriorityscore=0 adultscore=0 clxscore=1015 spamscore=0
+ malwarescore=0 bulkscore=0 impostorscore=0 mlxlogscore=907 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104060000
+ definitions=main-2104120102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-A new function _kvm_s390_real_to_abs will apply prefixing to a real address
-with a given prefix value.
+Split kvm_s390_logical_to_effective to a generic function called
+_kvm_s390_logical_to_effective. The new function takes a PSW and an address
+and returns the address with the appropriate bits masked off. The old
+function now calls the new function with the appropriate PSW from the vCPU.
 
-The old kvm_s390_real_to_abs becomes now a wrapper around the new function.
-
-This is needed to avoid code duplication in vSIE.
+This is needed to avoid code duplication for vSIE.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210322140559.500716-2-imbrenda@linux.ibm.com
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: stable@vger.kernel.org # for VSIE: correctly handle MVPG when in VSIE
+Link: https://lore.kernel.org/r/20210302174443.514363-2-imbrenda@linux.ibm.com
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/gaccess.h | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ arch/s390/kvm/gaccess.h | 31 ++++++++++++++++++++++++-------
+ 1 file changed, 24 insertions(+), 7 deletions(-)
 
 diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index daba10f76936..7c72a5e3449f 100644
+index f4c51756c462..2d8631a1f23e 100644
 --- a/arch/s390/kvm/gaccess.h
 +++ b/arch/s390/kvm/gaccess.h
-@@ -16,6 +16,23 @@
- #include <linux/ptrace.h>
- #include "kvm-s390.h"
+@@ -36,6 +36,29 @@ static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+ 	return gra;
+ }
  
 +/**
-+ * kvm_s390_real_to_abs - convert guest real address to guest absolute address
-+ * @prefix - guest prefix
-+ * @gra - guest real address
++ * _kvm_s390_logical_to_effective - convert guest logical to effective address
++ * @psw: psw of the guest
++ * @ga: guest logical address
 + *
-+ * Returns the guest absolute address that corresponds to the passed guest real
-+ * address @gra of by applying the given prefix.
++ * Convert a guest logical address to an effective address by applying the
++ * rules of the addressing mode defined by bits 31 and 32 of the given PSW
++ * (extendended/basic addressing mode).
++ *
++ * Depending on the addressing mode, the upper 40 bits (24 bit addressing
++ * mode), 33 bits (31 bit addressing mode) or no bits (64 bit addressing
++ * mode) of @ga will be zeroed and the remaining bits will be returned.
 + */
-+static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
++static inline unsigned long _kvm_s390_logical_to_effective(psw_t *psw,
++							   unsigned long ga)
 +{
-+	if (gra < 2 * PAGE_SIZE)
-+		gra += prefix;
-+	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
-+		gra -= prefix;
-+	return gra;
++	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
++		return ga;
++	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
++		return ga & ((1UL << 31) - 1);
++	return ga & ((1UL << 24) - 1);
 +}
 +
  /**
-  * kvm_s390_real_to_abs - convert guest real address to guest absolute address
-  * @vcpu - guest virtual cpu
-@@ -27,13 +44,7 @@
- static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
- 						 unsigned long gra)
+  * kvm_s390_logical_to_effective - convert guest logical to effective address
+  * @vcpu: guest virtual cpu
+@@ -52,13 +75,7 @@ static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+ static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
+ 							  unsigned long ga)
  {
--	unsigned long prefix  = kvm_s390_get_prefix(vcpu);
+-	psw_t *psw = &vcpu->arch.sie_block->gpsw;
 -
--	if (gra < 2 * PAGE_SIZE)
--		gra += prefix;
--	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
--		gra -= prefix;
--	return gra;
-+	return _kvm_s390_real_to_abs(kvm_s390_get_prefix(vcpu), gra);
+-	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
+-		return ga;
+-	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
+-		return ga & ((1UL << 31) - 1);
+-	return ga & ((1UL << 24) - 1);
++	return _kvm_s390_logical_to_effective(&vcpu->arch.sie_block->gpsw, ga);
  }
  
- /**
+ /*
 -- 
 2.30.2
 
