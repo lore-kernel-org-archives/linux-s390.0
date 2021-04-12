@@ -2,110 +2,161 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B264BC433B4
-	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 11:26:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB24EC43461
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 12:18:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 862B061241
-	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 11:26:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B563261278
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Apr 2021 12:18:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239439AbhDLL0g (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 12 Apr 2021 07:26:36 -0400
-Received: from mout.kundenserver.de ([212.227.126.187]:35015 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237626AbhDLL0g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 12 Apr 2021 07:26:36 -0400
-Received: from mail-wr1-f45.google.com ([209.85.221.45]) by
- mrelayeu.kundenserver.de (mreue012 [213.165.67.97]) with ESMTPSA (Nemesis) id
- 1Movrq-1ltfTa2lXK-00qUJw; Mon, 12 Apr 2021 13:26:16 +0200
-Received: by mail-wr1-f45.google.com with SMTP id s7so12420841wru.6;
-        Mon, 12 Apr 2021 04:26:16 -0700 (PDT)
-X-Gm-Message-State: AOAM5323SZB/5C97kuwT92PB6TfwI9kQSSxviIBzSwo/OBKlNl/Zd+bz
-        TOrvQMXSUKuceqA2ASb3AYksfeR6qRF3vqSCovY=
-X-Google-Smtp-Source: ABdhPJy46sI91TDF91SxINRlLS3vYTwc1YeMRJCymXnpPG5ap8cTdjbAP71XB76ODq1s/TL2YmK09N0XG1Vr80EDjdY=
-X-Received: by 2002:adf:c70b:: with SMTP id k11mr31632710wrg.165.1618226776291;
- Mon, 12 Apr 2021 04:26:16 -0700 (PDT)
+        id S238443AbhDLMSx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 12 Apr 2021 08:18:53 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58152 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238378AbhDLMSv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 12 Apr 2021 08:18:51 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13CC4D8B037379;
+        Mon, 12 Apr 2021 08:18:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=ABwWBexBJyV8j58hgND3E1g4f7pGvXfOcmLNOf4iOq0=;
+ b=dqnmH4TOHLJjKyRtYNh+yFlAsqOURct+uwirvsoTe74xoWEDOxpwmJ00ur4PzGDAZhzs
+ 386KM0Tcx2sD4pZy1HO19bWbNBrOrGfeDaIQASwl1B0V8LRYw8Zq+xBDN2GzzplriqVE
+ wIMTeYS4QXbUTtyMs3Mp95pQwlRDY5i28iA6j59qnqszEV8YxcK20l3QKxaqqtVG+Spl
+ zHOWQhRBmruQKDzdCUv/UN0W5UOtsRSGO5Og1vUyG52Uue0CNhL0u5zHKEGbyNaku7Hy
+ 1Q1lEgRVnjvD9qZREM36F1BqqQapjO5kj0inbH8hH3RNKRZmGGbr/FAlDrovn8ToMM0V WQ== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37vkddx838-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 12 Apr 2021 08:18:16 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13CCI77d011290;
+        Mon, 12 Apr 2021 12:18:14 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 37u39hhswp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 12 Apr 2021 12:18:14 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13CCIBlP46137786
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 12 Apr 2021 12:18:11 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7EE95AE045;
+        Mon, 12 Apr 2021 12:18:11 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 470B5AE053;
+        Mon, 12 Apr 2021 12:18:11 +0000 (GMT)
+Received: from ibm-vm (unknown [9.145.2.56])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 12 Apr 2021 12:18:11 +0000 (GMT)
+Date:   Mon, 12 Apr 2021 14:18:09 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     linux-mm@kvack.org, linux-s390@vger.kernel.org
+Subject: Re: Inaccessible pages & folios
+Message-ID: <20210412141809.36c349d6@ibm-vm>
+In-Reply-To: <20210409194059.GW2531743@casper.infradead.org>
+References: <20210409194059.GW2531743@casper.infradead.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: dQPiHhALfHWzcL4npjuxoyQdiGNFh8MQ
+X-Proofpoint-ORIG-GUID: dQPiHhALfHWzcL4npjuxoyQdiGNFh8MQ
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-References: <20210412085545.2595431-1-hch@lst.de> <20210412085545.2595431-6-hch@lst.de>
- <15be19af19174c7692dd795297884096@AcuMS.aculab.com> <5c3635a2b44a496b88d665e8686d9436@AcuMS.aculab.com>
-In-Reply-To: <5c3635a2b44a496b88d665e8686d9436@AcuMS.aculab.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 12 Apr 2021 13:26:00 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a1JZ=JerasdkntzX_ApaCF7C29ZS1E31aPQATOts0ZiLw@mail.gmail.com>
-Message-ID: <CAK8P3a1JZ=JerasdkntzX_ApaCF7C29ZS1E31aPQATOts0ZiLw@mail.gmail.com>
-Subject: Re: [PATCH 5/5] compat: consolidate the compat_flock{,64} definition
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:ry5qE36iTjjdSwzAcL8h8BXii7Lhlh98QV8EyNEqwW+LuSKlGh4
- 8NBpO+ZKGIKdQ6RR1HuFLLQggTJPjETQbl0Rt0gsezdbZs/2uY1hZmO25GbYsJOVCwi4MG0
- c+FdeGvY6HY6K4phyVjGP15zuM514kYs4+j448yQXSg2kYBIqo3YphmyjFVflKaW49pbLEi
- Jyz4TnRH0bzl7LDE7JPAQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:FHKdfwr0Mls=:H46YUUEUGTT9Qoa9VQtGun
- RuMFYLKVnW8xBofB+zmI0u56rIjfmCyL30LMEE2Fd6UzlCyJ4oBnBVGdVz+wQ9DDNk2yMxz+i
- /Gdshu4u0ewFe5o+i8GzjWPKK2sfIgIiq2afIuvL+SQzfpgLcD9ILbFi5AAuobdu/9ySvpoGv
- 04kcB2mwbfYu9yiwPK6tPtcaGEoax7pa/LfRLVIMv2xhQryRT7VZVE4bt8HpACEYKruO3hbXe
- bnQg6eNaHWgrKDp8nW1ixIyN3gQBPGq/QibUWg/9uwGtNiJBRtEQJ+VsGboPAcWYt8bGTuozb
- +uaafmgm5GfuSMh8YuRUyWZM34lMwjLSPEPRRSrxe0beVFTfJK7yHsb4H/H48BsKa/qxbpn/4
- rqMaj6WJU3rQSYwd766LtLoveS2Tjlue2aA6QeyLOid3HGt1p6iMNZ8Lh4YvUvIYGklumxGXd
- T9iZYLVuFIBbotcZ/lMEwEe48u8DHCBxO2tVP/9VZLRGk6LX5BkeeSpZG5a5hl97qwAXgl/FH
- wv2PjUEuyUj4ulnlvJ+WTmWmgCGo1XoOcAnvAOD1N8JBHueEyh924AaiOIloaHWVcHpK+Bp6A
- yKxwEO3ykjARw9Hv/iUAWjW/yBqj8nzTV7
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-12_09:2021-04-12,2021-04-12 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ suspectscore=0 adultscore=0 impostorscore=0 priorityscore=1501
+ malwarescore=0 spamscore=0 clxscore=1011 bulkscore=0 mlxlogscore=999
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104120083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Apr 12, 2021 at 12:54 PM David Laight <David.Laight@aculab.com> wrote:
-> From: David Laight > Sent: 12 April 2021 10:37
-> ...
-> > I'm guessing that compat_pid_t is 16 bits?
-> > So the native 32bit version has an unnamed 2 byte structure pad.
-> > The 'packed' removes this pad from the compat structure.
-> >
-> > AFAICT (apart from mips) the __ARCH_COMPAT_FLOCK_PAD is just
-> > adding an explicit pad for the implicit pad the compiler
-> > would generate because compat_pid_t is 16 bits.
->
-> I've just looked at the header.
-> compat_pid_t is 32 bits.
-> So Linux must have gained 32bit pids at some earlier time.
-> (Historically Unix pids were 16 bit - even on 32bit systems.)
->
-> Which makes the explicit pad in 'sparc' rather 'interesting'.
+On Fri, 9 Apr 2021 20:40:59 +0100
+Matthew Wilcox <willy@infradead.org> wrote:
 
-I saw it was there since the sparc kernel support got merged in
-linux-1.3, possibly copied from an older sunos version.
+> Hi Claudio,
+>=20
+> I'm working on making the page cache manage memory in larger chunks
+> than PAGE_SIZE [1] [2].  In doing so, I came across this call that
 
-> oh - compat_loff_t is only used in a couple of other places.
-> neither care in any way about the alignment.
-> (Provided get_user() doesn't fault on a 8n+4 aligned address.)
+yes, I had read the LWN article with great interest
 
-Ah right, I also see that after this series it's only used in to other
-places:  compat_resume_swap_area, which could also lose the
-__packed annotation, and in the declaration of
-compat_sys_sendfile64, where it makes no difference.
+> you added:
+>=20
+> @@ -2807,6 +2807,13 @@ int __test_set_page_writeback(struct page
+> *page, bool keep_write) inc_zone_page_state(page,
+> NR_ZONE_WRITE_PENDING); }
+>         unlock_page_memcg(page);
+> +       access_ret =3D arch_make_page_accessible(page);
+>=20
+> I'm going to change __test_set_page_writeback() to take a folio [3]
+> and now I'm wondering what interface you'd like to use.  My
+> preference would be to rename arch_make_page_accessible() to
+> arch_make_folio_accessible() and pass a folio, at which time you
+> would make the entire folio (however many pages might be in it)
+> accessible.  If you would rather, we can leave the interface as
+> arch_make_page_accessible(), in which case we'll just call it N times
+> in __test_set_page_writeback() (and I won't need to touch gup.c).
 
-      Arnd
+For the rename case, how would you handle gup.c?
+
+Consider that arch_make_page_accessible deals (typically) with KVM
+guest pages. Once you bundle up the pages in folios, you can have
+different pages in the same folio with different properties.
+
+In case of failure, you could end up with a folio with some pages
+processed and some not processed. Would you stop at the first error?
+What would the state of the folio be? On s390x we use the PG_arch_1 bit
+to mark secure pages, how would that work with folios?
+
+and how are fault handlers affected by this folio conversion? would
+they still work on pages, or would that also work on folios? on s390x
+we use the arch_make_page_accessible function in some fault handlers.
+
+a possible approach maybe would be to keep the _page variant, and add a
+_folio wrapper around it
+
+for s390x the PG_arch_1 is very important to prevent protected pages
+from being fed to I/O, as in that case Very Bad Things=E2=84=A2 would happe=
+n.
+
+sorry for the wall of questions, but I actually like your folio
+approach and I want to understand it better, so we can find a way to
+make everything work well together
+
+> Let me know what you want.
+>=20
+> [1] https://lwn.net/Articles/849538/
+> [2]
+> https://lore.kernel.org/linux-mm/20210409185105.188284-1-willy@infradead.=
+org/
+> [3]
+> https://git.infradead.org/users/willy/pagecache.git/commitdiff/85297eb08f=
+1b034b9652ea63dd053e3be4d7de7f
+>=20
+> PS: The prototype is in gfp.h.  That's not really appropriate; gfp.h
+> is about allocating memory, and this call really has nothing to do
+> with memory allocation.  I think mm.h is a better place for it, if
+> you can't find a better header file than that.
+
+I had put it there because arch_alloc_page and arch_free_page are also
+there, and the behaviour, from a kernel point of view, is similar
+(unaccessible/unallocated pages will trigger a fault).=20
+
+I actually do not have a preference regarding where the prototype
+lives, as long as everything works. If you think mm.h is more
+appropriate, go for it :)
+
