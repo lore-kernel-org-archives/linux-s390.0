@@ -8,54 +8,54 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBBB7C43461
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 21:24:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46D07C43460
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 21:24:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CD82D6135C
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 21:24:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2BEFA61246
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 21:24:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348423AbhDMVY6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Apr 2021 17:24:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36922 "EHLO
+        id S1348436AbhDMVZC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Apr 2021 17:25:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348416AbhDMVY5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Apr 2021 17:24:57 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E47DFC061574;
-        Tue, 13 Apr 2021 14:24:37 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id kk2-20020a17090b4a02b02900c777aa746fso9673881pjb.3;
-        Tue, 13 Apr 2021 14:24:37 -0700 (PDT)
+        with ESMTP id S1348427AbhDMVZA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Apr 2021 17:25:00 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCF87C061574;
+        Tue, 13 Apr 2021 14:24:39 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id h20so8948414plr.4;
+        Tue, 13 Apr 2021 14:24:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=AmtfeB5twZZ4rQ0Q6SWlOUiWCuvN4QYBszoXlhLmsSk=;
-        b=iVr3rN5OZs9UQnNoWS5iJxIk8vfUyYrz+b1F8GvRCkC0gTKt40QJl9BcrF0UdZKSl0
-         6COTC0Pktx90r15Zy7koDF9/Dn7U6cIvBLPkygAFyAoUOnOlVvGowkPqgG6oP2fcL0Cj
-         gvvEr2nlre03l6pvwggVW7Gvl3x1WE7ykWutoyWLJArbqlXjj7GHYQ55j4IEJFm5bwOG
-         GtyBoUfYkwuuchv88jJ3xQBaWx/v7PgWe18UVhrAv1Pxx8EatORoi6ZI5VS3UE/QHg6F
-         40fda+SU9So2hGVDJTPjRvdF/ZmqsYs9hZqB16HIJvfQ6B264VAwUzsAqDtzE9tH7iau
-         R0Bw==
+        bh=w6LlC7e6qPBv/DFANfawt2CvXuDZCeYDosf1+Pz2+ts=;
+        b=iE9WM8EBKV5aqe7bVrS2wJeFBV1IT4YtJyiImW0a6iK5SLKlcjpXJyB4HbZU6uTNAh
+         +Zg1V+1OsAruwtxi3bUb7wvRNYJkSSu0K3Fe2/D+D6SX09BPrsZxu1y3gmQwWmiaqRZo
+         rpEEtoNIHZEbDUTv2KOSim2R4Hbe3c2sGbr/7ArtBmWf2ePJPu4za1U7JXB0muQ+ZXaV
+         NEpSPouCHt6XY1qNmzMYD0Kny3niGAKCoDqG2F2VGGIKTQG9nSjZl9xgkWWLT8xg/Fds
+         htFwiTIvNWesTRIHp/BEPmyg1a9DmRR3jR9+En280LgLIjCHUQDeX8Y6ASS45SuON+4N
+         Zybg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=AmtfeB5twZZ4rQ0Q6SWlOUiWCuvN4QYBszoXlhLmsSk=;
-        b=eiNBy4O7vpUAQx1hpja2gtFkj3Ff3rhAVdlDtd1JhmjgrN/1GvCqEjHLm/nrhuP4xh
-         pOykG1NRwbAeYG+5c1RUM93k4bfQguDq67HzaR8LILesM+Ev+Q91swCdOJDjWs1D0kXg
-         P7FR0VA+htiZLD3KrRFBCjz7HfciM3tjiqU3Qe36FN5shLEGTIEZ6XxFBTSLPh0sUjHv
-         BK2dqSA9ZTzOQEH0u2tgVdo4rSNxKRjCBjWUS2amgF/zTralMBI2j54DOiSSJhv6/N4g
-         URChSphRC5iU2vcRKAVxAypmQ8YrQcL+ItLD2fQqPyL6tHrNkVGl2WJe/o/pMuQ4fmrX
-         o6Ig==
-X-Gm-Message-State: AOAM531EhC+aX1rw+b0Se8jnfiOdcRKf1PV0aToMCIn7qf6MXgrNTCLM
-        EoSGdLfriFM3O47B+g06xRsBNuEsVS3cAoa/
-X-Google-Smtp-Source: ABdhPJwYiPy8wHeDk26h6rj5vIUXFbUQ74snf6AFlp+1DmZ150lwhBeMHSj2yODGu2UXHK9FslfXkA==
-X-Received: by 2002:a17:90a:ce0a:: with SMTP id f10mr2001141pju.98.1618349077593;
-        Tue, 13 Apr 2021 14:24:37 -0700 (PDT)
+        bh=w6LlC7e6qPBv/DFANfawt2CvXuDZCeYDosf1+Pz2+ts=;
+        b=gTF7txc2yIOMwiWg8vMLOMWeOB0gWDOuwLz6ryQWpgoD+i8vJmqUs6DGl9Vz/uZ2V0
+         qOzvuZD5S6UjEXxYR7NujQjGlgSUZrKzG7fph+XA7bsA3X8HtAjz7+U/OOX4GqB0js5U
+         jGh78yGk7MH0TcPQEgRXPjyj5vC5Y8dCK1CuuFz9luZSPr14WqQrpq/vNEq9aVKuD8B0
+         wyuoDn8teznzqNld9ep52plSHMTElgcEbEbDmGvPw/jBQnwRudHoUTNk2DlZFyCMDEzc
+         Xu8UiDOOmBZ4CNnXcwxOetSfMO+7hXox+0WAN6DeKniwwWoaoXrz/d0I9PqjtoKJAXn0
+         fBow==
+X-Gm-Message-State: AOAM531LHwMEUEcOng4G3PPlvMYwsJeRjkgZCrypxWkDH7kNmWxyr6nI
+        XZjdH8VI+b/xJB5uQgWpFxc=
+X-Google-Smtp-Source: ABdhPJxo7MBByycqzfC3pAyOVupxOhelSDT7jOQ4KiIdzVmez62LtHArR8gJdQ7X0jtuHVX3vGl75Q==
+X-Received: by 2002:a17:90a:5418:: with SMTP id z24mr2117305pjh.189.1618349079422;
+        Tue, 13 Apr 2021 14:24:39 -0700 (PDT)
 Received: from localhost.localdomain (c-73-93-239-127.hsd1.ca.comcast.net. [73.93.239.127])
-        by smtp.gmail.com with ESMTPSA id fw24sm3069345pjb.21.2021.04.13.14.24.35
+        by smtp.gmail.com with ESMTPSA id fw24sm3069345pjb.21.2021.04.13.14.24.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Apr 2021 14:24:36 -0700 (PDT)
+        Tue, 13 Apr 2021 14:24:38 -0700 (PDT)
 From:   Yang Shi <shy828301@gmail.com>
 To:     mgorman@suse.de, kirill.shutemov@linux.intel.com, ziy@nvidia.com,
         mhocko@suse.com, ying.huang@intel.com, hughd@google.com,
@@ -64,9 +64,9 @@ To:     mgorman@suse.de, kirill.shutemov@linux.intel.com, ziy@nvidia.com,
         akpm@linux-foundation.org
 Cc:     shy828301@gmail.com, linux-mm@kvack.org,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [v2 PATCH 4/7] mm: migrate: account THP NUMA migration counters correctly
-Date:   Tue, 13 Apr 2021 14:24:13 -0700
-Message-Id: <20210413212416.3273-5-shy828301@gmail.com>
+Subject: [v2 PATCH 5/7] mm: migrate: don't split THP for misplaced NUMA page
+Date:   Tue, 13 Apr 2021 14:24:14 -0700
+Message-Id: <20210413212416.3273-6-shy828301@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210413212416.3273-1-shy828301@gmail.com>
 References: <20210413212416.3273-1-shy828301@gmail.com>
@@ -76,43 +76,38 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Now both base page and THP NUMA migration is done via migrate_misplaced_page(),
-keep the counters correctly for THP.
+The old behavior didn't split THP if migration is failed due to lack of
+memory on the target node.  But the THP migration does split THP, so keep
+the old behavior for misplaced NUMA page migration.
 
 Signed-off-by: Yang Shi <shy828301@gmail.com>
 ---
- mm/migrate.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ mm/migrate.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/mm/migrate.c b/mm/migrate.c
-index 333448aa53f1..a473f25fbd01 100644
+index a473f25fbd01..a72994c68ec6 100644
 --- a/mm/migrate.c
 +++ b/mm/migrate.c
-@@ -2111,6 +2111,7 @@ int migrate_misplaced_page(struct page *page, struct vm_area_struct *vma,
- 	LIST_HEAD(migratepages);
- 	new_page_t *new;
- 	bool compound;
-+	unsigned int nr_pages = thp_nr_pages(page);
+@@ -1417,6 +1417,7 @@ int migrate_pages(struct list_head *from, new_page_t get_new_page,
+ 	int swapwrite = current->flags & PF_SWAPWRITE;
+ 	int rc, nr_subpages;
+ 	LIST_HEAD(ret_pages);
++	bool nosplit = (reason == MR_NUMA_MISPLACED);
  
- 	/*
- 	 * PTE mapped THP or HugeTLB page can't reach here so the page could
-@@ -2149,13 +2150,13 @@ int migrate_misplaced_page(struct page *page, struct vm_area_struct *vma,
- 	if (nr_remaining) {
- 		if (!list_empty(&migratepages)) {
- 			list_del(&page->lru);
--			dec_node_page_state(page, NR_ISOLATED_ANON +
--					page_is_file_lru(page));
-+			mod_node_page_state(page_pgdat(page), NR_ISOLATED_ANON +
-+					page_is_file_lru(page), -nr_pages);
- 			putback_lru_page(page);
- 		}
- 		isolated = 0;
- 	} else
--		count_vm_numa_event(NUMA_PAGE_MIGRATE);
-+		count_vm_numa_events(NUMA_PAGE_MIGRATE, nr_pages);
- 	BUG_ON(!list_empty(&migratepages));
- 	return isolated;
+ 	trace_mm_migrate_pages_start(mode, reason);
  
+@@ -1488,8 +1489,9 @@ int migrate_pages(struct list_head *from, new_page_t get_new_page,
+ 				/*
+ 				 * When memory is low, don't bother to try to migrate
+ 				 * other pages, just exit.
++				 * THP NUMA faulting doesn't split THP to retry.
+ 				 */
+-				if (is_thp) {
++				if (is_thp && !nosplit) {
+ 					if (!try_split_thp(page, &page2, from)) {
+ 						nr_thp_split++;
+ 						goto retry;
 -- 
 2.26.2
 
