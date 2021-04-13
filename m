@@ -2,165 +2,154 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40DF8C43470
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 18:24:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A77D6C43462
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 18:24:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 26026613C1
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 18:24:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D27B613BD
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 18:24:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347645AbhDMSYk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Apr 2021 14:24:40 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53216 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1347644AbhDMSYj (ORCPT
+        id S1347652AbhDMSYj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Apr 2021 14:24:39 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25954 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1347641AbhDMSYj (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
         Tue, 13 Apr 2021 14:24:39 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13DI3LJD174939;
-        Tue, 13 Apr 2021 14:24:18 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13DI3MUR027164;
+        Tue, 13 Apr 2021 14:24:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=Mcj9KNyb1VQD9tj3wCqDsBlIU/svScL3oqGgdcN5QYs=;
- b=FV0T1FHiogE4wPvFv6aB9jN/7LfHl280jSWtYGm8rJ4bOo4i1yBkRFNWM3UqcIyqoUZZ
- XDDnUjCtSAR8lNpldUeD77fBXOLzAbv+J0pJyF/FbeFQ2SVmFRpoYU4C3aDlnRG+7lfQ
- BRDb6LUQs6/ClHBBrJdRg9uiLWmHSRIOdRdbywyc/WwZCLzPgKTxcNHWYSDcI+1REYXk
- YeUc4FQUXtghADv0cfawrPNn5jpuDjM6rimGLOPfADQXsWqNxBznKZTe52h8o85j+0nW
- sgmrYszWrEEBF3NrMo/0AGmF1TQlPz3EjSYP5p465Oa+xVEmSQMLibG6LiCeKvhCAre1 vA== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=JknBCAuHiEO/f4AcObmnnjS/47X+qsGrgkJ/mGxwTF8=;
+ b=go4s8ipcUgsOpjFfV2tth5dT8L3fZxT08Wb6PIxUc+gJLQqu2KlrvJKeM4QfmKP4mkH5
+ SEl6fwN13CeC0XKEN4HcZAEcZoV4GZnpXxiNbg5mbwyFtvtFM2RHAwZQOJ6HUb0cL9Tj
+ WD5ZtzRmxhJPi4z3JptJMSDLyp/Ob7RWznx3JLFAFnnQv3OTdUKYpCUonJ4MKHw3QwK2
+ Gam5aQrUoCr/+cebQIVCiYyKOjd3JZ5LNbc6xHkgvH635rlrwGb+J3hV4NOo75TV6KjL
+ wYoj8jwUVq9g5SLCq5u0Y42SEk1cpbw6iAW7VPMVQukAzP42+/5wjfVYFC4KvqZ/uXRP pg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37webguqq9-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37w9gycv7v-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 13 Apr 2021 14:24:18 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13DI3NZB175114;
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13DI4SQj031294;
         Tue, 13 Apr 2021 14:24:18 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37webguqpm-1
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37w9gycv6t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Apr 2021 14:24:17 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13DIOGTg005743;
+        Tue, 13 Apr 2021 14:24:18 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13DIMqou006039;
         Tue, 13 Apr 2021 18:24:16 GMT
 Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma01fra.de.ibm.com with ESMTP id 37u3n89gq3-1
+        by ppma06ams.nl.ibm.com with ESMTP id 37u39hjuj2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 13 Apr 2021 18:24:16 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13DIODPN28180832
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13DIODVQ41877780
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Tue, 13 Apr 2021 18:24:13 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DCDCE52052;
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EB5894204B;
+        Tue, 13 Apr 2021 18:24:12 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D640542047;
         Tue, 13 Apr 2021 18:24:12 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id C922452054;
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
         Tue, 13 Apr 2021 18:24:12 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id 7A553E045F; Tue, 13 Apr 2021 20:24:12 +0200 (CEST)
+        id 82637E0519; Tue, 13 Apr 2021 20:24:12 +0200 (CEST)
 From:   Eric Farman <farman@linux.ibm.com>
 To:     Cornelia Huck <cohuck@redhat.com>,
         Halil Pasic <pasic@linux.ibm.com>
 Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
         Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [RFC PATCH v4 0/4] vfio-ccw: Fix interrupt handling for HALT/CLEAR
-Date:   Tue, 13 Apr 2021 20:24:06 +0200
-Message-Id: <20210413182410.1396170-1-farman@linux.ibm.com>
+Subject: [RFC PATCH v4 4/4] vfio-ccw: Reset FSM state to IDLE before io_mutex
+Date:   Tue, 13 Apr 2021 20:24:10 +0200
+Message-Id: <20210413182410.1396170-5-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: aXEvu7h_WgfUNsKDSpLfdw-30kt-u1g-
-X-Proofpoint-ORIG-GUID: fTwHtlTHMYvLtGaSkZ7V6KtnAsjAzqI2
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+In-Reply-To: <20210413182410.1396170-1-farman@linux.ibm.com>
+References: <20210413182410.1396170-1-farman@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: YlwmDeBo9gQmTXRNlofM271f2TK-V-xw
+X-Proofpoint-ORIG-GUID: 2OE1hblWcxXqnE8M0ncBUCLeI8frrHrZ
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-04-13_12:2021-04-13,2021-04-13 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 bulkscore=0 phishscore=0 adultscore=0 mlxlogscore=999
- spamscore=0 priorityscore=1501 mlxscore=0 suspectscore=0 impostorscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 impostorscore=0 mlxscore=0 spamscore=0 lowpriorityscore=0
+ suspectscore=0 clxscore=1015 bulkscore=0 adultscore=0 mlxlogscore=859
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2104060000 definitions=main-2104130122
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Conny, Halil,
+Today, the stacked call to vfio_ccw_sch_io_todo() does three things:
 
-Let's restart our discussion about the collision between interrupts for
-START SUBCHANNEL and HALT/CLEAR SUBCHANNEL. It's been a quarter million
-minutes (give or take), so here is the problematic scenario again:
+1) Update a solicited IRB with CP information, and release the CP
+if the interrupt was the end of a START operation.
+2) Copy the IRB data into the io_region, under the protection of
+the io_mutex
+3) Reset the vfio-ccw FSM state to IDLE to acknowledge that
+vfio-ccw can accept more work.
 
-	CPU 1			CPU 2
- 1	CLEAR SUBCHANNEL
- 2	fsm_irq()
- 3				START SUBCHANNEL
- 4	vfio_ccw_sch_io_todo()
- 5				fsm_irq()
- 6				vfio_ccw_sch_io_todo()
+The trouble is that step 3 is (A) invoked for both solicited and
+unsolicited interrupts, and (B) sitting after the mutex for step 2.
+This second piece becomes a problem if it processes an interrupt
+for a CLEAR SUBCHANNEL while another thread initiates a START,
+thus allowing the CP and FSM states to get out of sync. That is:
 
-From the channel subsystem's point of view the CLEAR SUBCHANNEL (step 1)
-is complete once step 2 is called, as the Interrupt Response Block (IRB)
-has been presented and the TEST SUBCHANNEL was driven by the cio layer.
-Thus, the START SUBCHANNEL (step 3) is submitted [1] and gets a cc=0 to
-indicate the I/O was accepted. However, step 2 stacks the bulk of the
-actual work onto a workqueue for when the subchannel lock is NOT held,
-and is unqueued at step 4. That code misidentifies the data in the IRB
-as being associated with the newly active I/O, and may release memory
-that is actively in use by the channel subsystem and/or device. Eww.
+	CPU 1				CPU 2
+	fsm_do_clear()
+	fsm_irq()
+					fsm_io_request()
+					fsm_io_helper()
+	vfio_ccw_sch_io_todo()
+					fsm_irq()
+					vfio_ccw_sch_io_todo()
 
-In this version...
+Let's move the reset of the FSM state to the point where the
+channel_program struct is cleaned up, which is only done for
+solicited interrupts anyway.
 
-Patch 1 and 2 are defensive checks. Patch 2 was part of v3 [2], but I
-would love a better option here to guard between steps 2 and 4.
-
-Patch 3 is a subset of the removal of the CP_PENDING FSM state in v3.
-I've obviously gone away from this idea, but I thought this piece is
-still valuable.
-
-Patch 4 collapses the code on the interrupt path so that changes to
-the FSM state and the channel_program struct are handled at the same
-point, rather than separated by a mutex boundary. Because of the
-possibility of a START and HALT/CLEAR running concurrently, it does
-not make sense to split them here.
-
-With the above patches, maybe it then makes sense to hold the io_mutex
-across the entirety of vfio_ccw_sch_io_todo(). But I'm not completely
-sure that would be acceptable.
-
-So... Thoughts?
-
-Thanks,
-Eric
-
-Previous versions:
-v3: https://lore.kernel.org/kvm/20200616195053.99253-1-farman@linux.ibm.com/
-v2: https://lore.kernel.org/kvm/20200513142934.28788-1-farman@linux.ibm.com/
-v1: https://lore.kernel.org/kvm/20200124145455.51181-1-farman@linux.ibm.com/
-
-Footnotes:
-[1] Halil correctly asserts that today's QEMU should prohibit this, but I
-    still have not looked into why. The above is the sequence that is
-    occurring in the kernel, and we shouldn't rely on a well-behaved
-    userspace to enforce things for us. It is still on my list for further
-    investigation, but it's lower in priority.
-[2] https://lore.kernel.org/kvm/20200619134005.512fc54f.cohuck@redhat.com/
-
-Eric Farman (4):
-  vfio-ccw: Check initialized flag in cp_init()
-  vfio-ccw: Check workqueue before doing START
-  vfio-ccw: Reset FSM state to IDLE inside FSM
-  vfio-ccw: Reset FSM state to IDLE before io_mutex
-
- drivers/s390/cio/vfio_ccw_cp.c  | 4 ++++
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
  drivers/s390/cio/vfio_ccw_drv.c | 7 +++----
- drivers/s390/cio/vfio_ccw_fsm.c | 6 ++++++
- drivers/s390/cio/vfio_ccw_ops.c | 2 --
- 4 files changed, 13 insertions(+), 6 deletions(-)
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 8c625b530035..e51318f23ca8 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -94,16 +94,15 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
+ 	if (scsw_is_solicited(&irb->scsw)) {
+ 		cp_update_scsw(&private->cp, &irb->scsw);
+-		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING)
++		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING) {
+ 			cp_free(&private->cp);
++			private->state = VFIO_CCW_STATE_IDLE;
++		}
+ 	}
+ 	mutex_lock(&private->io_mutex);
+ 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+ 	mutex_unlock(&private->io_mutex);
+ 
+-	if (private->mdev && is_final)
+-		private->state = VFIO_CCW_STATE_IDLE;
+-
+ 	if (private->io_trigger)
+ 		eventfd_signal(private->io_trigger, 1);
+ }
 -- 
 2.25.1
 
