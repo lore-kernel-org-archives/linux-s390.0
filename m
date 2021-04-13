@@ -2,104 +2,94 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,PDS_TONAME_EQ_TOLOCAL_SHORT,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AB4EC43461
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 14:12:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBA19C433ED
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 14:15:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E491D610CA
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 14:12:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A3B3B6128C
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Apr 2021 14:15:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245036AbhDMOM2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Apr 2021 10:12:28 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:47729 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S244765AbhDMOM1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 13 Apr 2021 10:12:27 -0400
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-278-AvhJ3iXtMyqzl2W9G4PAMw-1; Tue, 13 Apr 2021 15:12:05 +0100
-X-MC-Unique: AvhJ3iXtMyqzl2W9G4PAMw-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.2; Tue, 13 Apr 2021 15:12:04 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.012; Tue, 13 Apr 2021 15:12:03 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Arnd Bergmann' <arnd@arndb.de>
-CC:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        "Guo Ren" <guoren@kernel.org>
-Subject: RE: [PATCH] asm-generic/io.h: Silence -Wnull-pointer-arithmetic
- warning on PCI_IOBASE
-Thread-Topic: [PATCH] asm-generic/io.h: Silence -Wnull-pointer-arithmetic
- warning on PCI_IOBASE
-Thread-Index: AQHXMGSVFmL3q8InjEiRDqC8qAyY5Kqyacdg///5xgCAABWwYA==
-Date:   Tue, 13 Apr 2021 14:12:03 +0000
-Message-ID: <40d4114fa34043d0841b81d09457c415@AcuMS.aculab.com>
-References: <20210413115439.1011560-1-schnelle@linux.ibm.com>
- <CAK8P3a1WTZOYpJ2TSjnbytQJWgtfwkQ8bXXdnqCnOn6ugJqN_w@mail.gmail.com>
- <84ab737edbe13d390373850bf317920b3a486b87.camel@linux.ibm.com>
- <CAK8P3a2NR2nhEffFQJdMq2Do_g2ji-7p3+iWyzw+aXD6gov05w@mail.gmail.com>
- <11ead5c2c73c42cbbeef32966bc7e5c2@AcuMS.aculab.com>
- <CAK8P3a3PK9zyeP4ymELtc2ZYnymECoACiigw9Za+pvSJpCk5=g@mail.gmail.com>
-In-Reply-To: <CAK8P3a3PK9zyeP4ymELtc2ZYnymECoACiigw9Za+pvSJpCk5=g@mail.gmail.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S230337AbhDMOQH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Apr 2021 10:16:07 -0400
+Received: from userp2120.oracle.com ([156.151.31.85]:57558 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231135AbhDMOQF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 13 Apr 2021 10:16:05 -0400
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 13DEFHKH095853;
+        Tue, 13 Apr 2021 14:15:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=NIh49Dj/kn2fUpzyeA1h47utONydvPDU+amfrcRk324=;
+ b=oRCCvh47ioUXRgzXsA9xrctMTseAnO5DP0QYsewGhvhn8IpPyu6fduafTSg/9yUjwyCH
+ 4C0d4SBKtMoVU5R+qTA5iXsDz/D0sshciiqxethhc5YfFZV1f6QlLy5/LZxOHAPUU7BM
+ euGiFQjJF1VTlyAMuo6P5zV00WN6xoToQGXs+dSktcDlw+8en0X5PMTvpGFH7cv6Bl0E
+ Z7WEMjtY292tgEY2SGGhJuB6vVmneEmEtG7HbDVykfvQstKtrUDIDIQvIqNq+vUEek9x
+ lMBt3nm3rLEqh3h9mJCxYGrJCBJa6FG3HB8/uG98t7ptaYVVbik9PmdMO1kGvu67lmKI bA== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by userp2120.oracle.com with ESMTP id 37u4nnf6rc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Apr 2021 14:15:34 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 13DEFUYr009554;
+        Tue, 13 Apr 2021 14:15:32 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by userp3020.oracle.com with ESMTP id 37unsse9e5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Apr 2021 14:15:32 +0000
+Received: from abhmp0007.oracle.com (abhmp0007.oracle.com [141.146.116.13])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 13DEFHEa017895;
+        Tue, 13 Apr 2021 14:15:17 GMT
+Received: from kadam (/102.36.221.92)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 13 Apr 2021 07:15:17 -0700
+Date:   Tue, 13 Apr 2021 17:15:09 +0300
+From:   Dan Carpenter <dan.carpenter@oracle.com>
+To:     zhongbaisong <zhongbaisong@huawei.com>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: Re: [PATCH -next] s390/protvirt: fix error return code in
+ uv_info_init()
+Message-ID: <20210413141509.GF6021@kadam>
+References: <2f7d62a4-3e75-b2b4-951b-75ef8ef59d16@huawei.com>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2f7d62a4-3e75-b2b4-951b-75ef8ef59d16@huawei.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-IMR: 1
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9953 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 adultscore=0
+ malwarescore=0 suspectscore=0 bulkscore=0 mlxscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104130101
+X-Proofpoint-ORIG-GUID: 6xX0RmcbNbMtEUbJpzbBOznee1VVVXc2
+X-Proofpoint-GUID: 6xX0RmcbNbMtEUbJpzbBOznee1VVVXc2
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9953 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 malwarescore=0
+ phishscore=0 suspectscore=0 mlxlogscore=999 priorityscore=1501
+ clxscore=1011 lowpriorityscore=0 spamscore=0 impostorscore=0 bulkscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104130101
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-RnJvbTogQXJuZCBCZXJnbWFubg0KPiBTZW50OiAxMyBBcHJpbCAyMDIxIDE0OjQwDQo+IA0KPiBP
-biBUdWUsIEFwciAxMywgMjAyMSBhdCAzOjA2IFBNIERhdmlkIExhaWdodCA8RGF2aWQuTGFpZ2h0
-QGFjdWxhYi5jb20+IHdyb3RlOg0KPiA+DQo+ID4gRnJvbTogQXJuZCBCZXJnbWFubg0KPiA+ID4g
-U2VudDogMTMgQXByaWwgMjAyMSAxMzo1OA0KPiA+IC4uLg0KPiA+ID4gVGhlIHJlbWFpbmluZyBv
-bmVzIChjc2t5LCBtNjhrLCBzcGFyYzMyKSBuZWVkIHRvIGJlIGluc3BlY3RlZA0KPiA+ID4gbWFu
-dWFsbHkgdG8gc2VlIGlmIHRoZXkgY3VycmVudGx5IHN1cHBvcnQgUENJIEkvTyBzcGFjZSBidXQg
-aW4NCj4gPiA+IGZhY3QgdXNlIGFkZHJlc3MgemVybyBhcyB0aGUgYmFzZSAod2l0aCBsYXJnZSBy
-ZXNvdXJjZXMpIG9yIHRoZXkNCj4gPiA+IHNob3VsZCBhbHNvIHR1cm4gdGhlIG9wZXJhdGlvbnMg
-aW50byBhIE5PUC4NCj4gPg0KPiA+IEknZCBleHBlY3Qgc3BhcmMzMiB0byB1c2UgYW4gQVNJIHRv
-IGFjY2VzcyBQQ0kgSU8gc3BhY2UuDQo+ID4gSSBjYW4ndCBxdWl0ZSByZW1lbWJlciB3aGV0aGVy
-IElPIHNwYWNlIHdhcyBzdXBwb3J0ZWQgYXQgYWxsLg0KPiANCj4gSSBzZWUgdGhpcyBiaXQgaW4g
-YXJjaC9zcGFyYy9rZXJuZWwvbGVvbl9wY2kuYw0KPiANCj4gICogUENJIE1lbW9yeSBhbmQgUHJl
-ZmV0Y2hhYmxlIE1lbW9yeSBpcyBkaXJlY3QtbWFwcGVkLiBIb3dldmVyIEkvTyBTcGFjZSBpcw0K
-PiAgKiBhY2Nlc3NlZCB0aHJvdWdoIGEgV2luZG93IHdoaWNoIGlzIHRyYW5zbGF0ZWQgdG8gbG93
-IDY0S0IgaW4gUENJIHNwYWNlLCB0aGUNCj4gICogZmlyc3QgNEtCIGlzIG5vdCB1c2VkIHNvIDYw
-S0IgaXMgYXZhaWxhYmxlLg0KPiAuLi4NCj4gICAgICAgICBwY2lfYWRkX3Jlc291cmNlX29mZnNl
-dCgmcmVzb3VyY2VzLCAmaW5mby0+aW9fc3BhY2UsDQo+ICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgaW5mby0+aW9fc3BhY2Uuc3RhcnQgLSAweDEwMDApOw0KPiANCj4gd2hpY2ggbWVh
-bnMgdGhhdCB0aGVyZSBpcyBJL08gc3BhY2UsIHdoaWNoIGdldHMgYWNjZXNzZWQgdGhyb3VnaCB3
-aGljaGV2ZXINCj4gbWV0aG9kIHJlYWRiKCkgdXNlcy4gSGF2aW5nIHRoZSBvZmZzZXQgZXF1YWwg
-dG8gdGhlIHJlc291cmNlIG1lYW5zIHRoYXQNCj4gdGhlICcodm9pZCAqKTAnIHN0YXJ0IGlzIGNv
-cnJlY3QuDQoNCkl0IG11c3QgaGF2ZSBiZWVuIHRoZSBWTUVidXMgKGFuZCBtYXliZSBzQnVzKSBz
-cGFyYyB0aGF0IHVzZWQgYW4gQVNJLg0KDQpJIGRvIHJlbWVtYmVyIGlzc3VlcyB3aXRoIFNvbGFy
-aXMgb2Ygc29tZSBQQ0kgY2FyZHMgbm90IGxpa2luZw0KYmVpbmcgYXNzaWduZWQgYSBCQVIgYWRk
-cmVzcyBvZiB6ZXJvLg0KVGhhdCBtYXkgYmUgd2h5IHRoZSBsb3cgNGsgSU8gc3BhY2UgaXNuJ3Qg
-YXNzaWduZWQgaGVyZS4NCihJJ3ZlIG5ldmVyIHJ1biBMaW51eCBvbiBzcGFyYywganVzdCBTVlI0
-IGFuZCBTb2xhcmlzLikNCg0KSSBndWVzcyBzZXR0aW5nIFBDSV9JT0JBU0UgdG8gemVybyBpcyBz
-YWZlciB3aGVuIHlvdSBjYW4ndCB0cnVzdA0KZHJpdmVycyBub3QgdG8gdXNlIGluYigpIGluc3Rl
-YWQgb2YgcmVhZGIoKS4NCk9yIHdoYXRldmVyIGlvX3JlYWQoKSBlbmRzIHVwIGJlaW5nLg0KDQoJ
-RGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1v
-dW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEz
-OTczODYgKFdhbGVzKQ0K
+On Wed, Apr 07, 2021 at 08:38:55PM +0800, zhongbaisong wrote:
+                                          ^^^^^^^^^^^^
+
+Heiko Carstens already fixed and applied the patch but it's best to fix
+this From line so it says "Baisong Zhong" like your Signed-off-by line.
+
+regards,
+dan carpenter
 
