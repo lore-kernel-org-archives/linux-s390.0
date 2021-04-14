@@ -2,65 +2,169 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 072FEC433B4
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 18:02:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55078C43461
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 18:17:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D17C861177
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 18:02:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2E30D61177
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 18:17:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233932AbhDNSDQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Apr 2021 14:03:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35826 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351583AbhDNSDP (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 14 Apr 2021 14:03:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 86CC4611AD;
-        Wed, 14 Apr 2021 18:02:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618423373;
-        bh=0OlxgQVSDGLAteBBlhl3RlD+CtQRDgqTdupMnzskHBo=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=IWz9f23u0rwUxH9Zim5zY527eiJI0/Yzqs5BD+k7CxyGs2aK/0U/VwPFXUlu2JKJ0
-         gORXNWbqMb724AG1AEUYbEc5S0UCCkMQJFxY98zIKq5A4N2ekWYQ7aVS1UTTpPEwFC
-         9OtwCQBQDHSDmdrOOVMihMCbu/RdoDPvUIk7ktBK01JUVYNjEDY/8F57qFnZTKxgHI
-         wvJY6fbwC5WMIgWXv+Lp+kh1kNCO3aCMk4O4lWszTa2DhhqCMP2OCUwKLfPoQbQGVd
-         12guLc+Y841VeYUilM77uZteSV5eutMWruPfYL/XY2WjybQXnWwgMHyhVwW+M2ERta
-         QsySPPnqDsgPg==
-Subject: Re: [GIT PULL] s390 updates for 5.12-rc8 / 5.12
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <YHcrf6Z0BkFU/F7j@osiris>
-References: <YHcrf6Z0BkFU/F7j@osiris>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <YHcrf6Z0BkFU/F7j@osiris>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.12-7
-X-PR-Tracked-Commit-Id: a994eddb947ea9ebb7b14d9a1267001699f0a136
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 8e2e0104ef78d49a51db9acfd24eaf6d52dc779e
-Message-Id: <161842337351.19533.16097841828499283174.pr-tracker-bot@kernel.org>
-Date:   Wed, 14 Apr 2021 18:02:53 +0000
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S234179AbhDNSSC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Apr 2021 14:18:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:48770 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231288AbhDNSSB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 14 Apr 2021 14:18:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1618424259;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/OYqddHlJXne+BFhqnkmv4/g/hMbPLBDi1f2Aw0G4WA=;
+        b=E/doeZDjJDNER7RXS4N53vtOQjDpMbG4vJhpPHqm3offPRmsBFkGAaUP48j5Wwtj477sQ2
+        DpUKTArHwrupndEfyNxrvOsr+EmFCbFGFiCq7KIML+ZZsBpiTkqedNuzUbrj04DoVngjtQ
+        2XQfZns2EmuD6nZO09hdZLEbOdtnWbU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-239-eHNIH7HTPv-2GGaEQKhsNQ-1; Wed, 14 Apr 2021 14:17:35 -0400
+X-MC-Unique: eHNIH7HTPv-2GGaEQKhsNQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 801148030A0;
+        Wed, 14 Apr 2021 18:17:30 +0000 (UTC)
+Received: from omen (ovpn-117-254.rdu2.redhat.com [10.10.117.254])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DBA3A5D6D7;
+        Wed, 14 Apr 2021 18:17:20 +0000 (UTC)
+Date:   Wed, 14 Apr 2021 12:17:19 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>,
+        Neo Jia <cjia@nvidia.com>, Cornelia Huck <cohuck@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Jike Song <jike.song@intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Tarun Gupta <targupta@nvidia.com>
+Subject: Re: [PATCH v2 00/18] Make vfio_mdev type safe
+Message-ID: <20210414121719.7bdb6867@omen>
+In-Reply-To: <0-v2-d36939638fc6+d54-vfio2_jgg@nvidia.com>
+References: <0-v2-d36939638fc6+d54-vfio2_jgg@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Wed, 14 Apr 2021 19:50:55 +0200:
+On Tue,  6 Apr 2021 16:40:23 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.12-7
+> vfio_mdev has a number of different objects: mdev_parent, mdev_type and
+> mdev_device.
+> 
+> Unfortunately the types of these have been erased in various places
+> throughout the API, and this makes it very hard to understand this code or
+> maintain it by the time it reaches all of the drivers.
+> 
+> This series puts in all the types and aligns some of the design with the
+> driver core standard for a driver core bus driver:
+> 
+>  - Replace 'struct device *' with 'struct mdev_device *
+>  - Replace 'struct device *' with 'struct mdev_type *' and
+>    mtype_get_parent_dev()
+>  - Replace 'struct kobject *' with 'struct mdev_type *'
+> 
+> Now that types are clear it is easy to spot a few places that have
+> duplicated information.
+> 
+> More significantly we can now understand how to directly fix the
+> obfuscated 'kobj->name' matching by realizing the the kobj is a mdev_type,
+> which is linked to the supported_types_list provided by the driver, and
+> thus the core code can directly return the array indexes all the drivers
+> actually want.
+> 
+> v2:
+>  - Use a mdev_type local in mdev_create_sysfs_files
+>  - Rename the goto unwind labels in mdev_device_free()
+>  - Reorder patches, annotate reviewed-by's thanks all
+> v1: https://lore.kernel.org/r/0-v1-7dedf20b2b75+4f785-vfio2_jgg@nvidia.com
+> 
+> Jason Gunthorpe (18):
+>   vfio/mdev: Fix missing static's on MDEV_TYPE_ATTR's
+>   vfio/mdev: Do not allow a mdev_type to have a NULL parent pointer
+>   vfio/mdev: Add missing typesafety around mdev_device
+>   vfio/mdev: Simplify driver registration
+>   vfio/mdev: Use struct mdev_type in struct mdev_device
+>   vfio/mdev: Expose mdev_get/put_parent to mdev_private.h
+>   vfio/mdev: Add missing reference counting to mdev_type
+>   vfio/mdev: Reorganize mdev_device_create()
+>   vfio/mdev: Add missing error handling to dev_set_name()
+>   vfio/mdev: Remove duplicate storage of parent in mdev_device
+>   vfio/mdev: Add mdev/mtype_get_type_group_id()
+>   vfio/mtty: Use mdev_get_type_group_id()
+>   vfio/mdpy: Use mdev_get_type_group_id()
+>   vfio/mbochs: Use mdev_get_type_group_id()
+>   vfio/gvt: Make DRM_I915_GVT depend on VFIO_MDEV
+>   vfio/gvt: Use mdev_get_type_group_id()
+>   vfio/mdev: Remove kobj from mdev_parent_ops->create()
+>   vfio/mdev: Correct the function signatures for the
+>     mdev_type_attributes
+> 
+>  .../driver-api/vfio-mediated-device.rst       |   9 +-
+>  drivers/gpu/drm/i915/Kconfig                  |   1 +
+>  drivers/gpu/drm/i915/gvt/gvt.c                |  41 ++---
+>  drivers/gpu/drm/i915/gvt/gvt.h                |   4 +-
+>  drivers/gpu/drm/i915/gvt/kvmgt.c              |   7 +-
+>  drivers/s390/cio/vfio_ccw_ops.c               |  17 +-
+>  drivers/s390/crypto/vfio_ap_ops.c             |  14 +-
+>  drivers/vfio/mdev/mdev_core.c                 | 174 +++++++-----------
+>  drivers/vfio/mdev/mdev_driver.c               |  19 +-
+>  drivers/vfio/mdev/mdev_private.h              |  40 ++--
+>  drivers/vfio/mdev/mdev_sysfs.c                |  59 +++---
+>  drivers/vfio/mdev/vfio_mdev.c                 |  29 +--
+>  drivers/vfio/vfio_iommu_type1.c               |  25 +--
+>  include/linux/mdev.h                          |  80 +++++---
+>  samples/vfio-mdev/mbochs.c                    |  55 +++---
+>  samples/vfio-mdev/mdpy.c                      |  56 +++---
+>  samples/vfio-mdev/mtty.c                      |  66 ++-----
+>  17 files changed, 313 insertions(+), 383 deletions(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/8e2e0104ef78d49a51db9acfd24eaf6d52dc779e
+Applied to vfio next branch for v5.13.  Thanks!
 
-Thank you!
+Alex
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
