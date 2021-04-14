@@ -2,117 +2,164 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A91FC433B4
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 06:45:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7324C433B4
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 12:34:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 67FDE613C7
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 06:45:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 66FBD6113D
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 12:34:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232342AbhDNGpr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Apr 2021 02:45:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44708 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229899AbhDNGpq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 14 Apr 2021 02:45:46 -0400
-Received: from ozlabs.org (bilbo.ozlabs.org [IPv6:2401:3900:2:1::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6DA2C061574;
-        Tue, 13 Apr 2021 23:45:24 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4FKtJY5rm7z9sVb;
-        Wed, 14 Apr 2021 16:45:17 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=canb.auug.org.au;
-        s=201702; t=1618382721;
-        bh=/jodwSXgSQIoA9PKAVNuVIZztq5p2I1zYdAcnFOt/QI=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=nviLuOh6vv6t0otwNWX8zUg4K7TpYLIfF2mKXNz4miCmYGBKYPii8JbbMGE50K389
-         /7gLpYYMyg8jf0tZMsL4WFsIoWGRC+VevBVJ7FoFLE9BeL9xdYWjBWs1jxxkf5wB9U
-         BdD2uV49k4hNwvFJ8ckGLENvxVWo34hc9mhVkNTtvkyCnDIE2hcoqGNJ3Z1CpQHuFR
-         WkIWVSg+uhV3LzZL47CHSmq/bnSPHp3RnaSFyarITSDS6Iey9YXTCG9e9F1PY5tY61
-         xiBKcf/NoOetBTlhz5BzDAFqr0YjKsYU6bE43A7pK++5PbMej109F3sMRxyE9m/ybS
-         Mv0hOdc6mGxFQ==
-Date:   Wed, 14 Apr 2021 16:45:15 +1000
-From:   Stephen Rothwell <sfr@canb.auug.org.au>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        id S229875AbhDNMfM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Apr 2021 08:35:12 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28006 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229765AbhDNMfL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 14 Apr 2021 08:35:11 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13ECXLjs082105;
+        Wed, 14 Apr 2021 08:34:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=t08pgRARfONYID5oKmw0vTX25J07bAbAivjLULLeJlI=;
+ b=OBv9mqk8OQSiONC9E+wYDo1FXHt4dM3rdsn/IuJ84PSLffEAlbm5N7JCOofjkvPeaadQ
+ Uf9X0yQBTF6FTpHYq1QLbyJYsASUSxhAk8kV/0OCopur3k3UbKAdK8cP2vZlPeiuTgni
+ nsOBxNUL16Gm6n4mH8X43/fRQkqPURvE8EGQoM4YQdWknGNA9YNBKYlsg8idwDDa3Ep8
+ 3w0HMqtd7ZhsMkV+65U5aX6FXjnmHTJh0AImneJrzWPzRLESbZL30E8mArZlXUik6gNk
+ eSMY/BKHk41R2TOVihjo0uG2MovJkxDuRn3VPQczFrZORFxw/hphjKLLxpFpZkjpSpWW ow== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37vjtv8vx4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Apr 2021 08:34:42 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13ECYJmi088812;
+        Wed, 14 Apr 2021 08:34:41 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37vjtv8vwj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Apr 2021 08:34:41 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13ECRL8P008697;
+        Wed, 14 Apr 2021 12:34:39 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04fra.de.ibm.com with ESMTP id 37u3n89rcr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Apr 2021 12:34:39 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13ECYFmI13107558
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 14 Apr 2021 12:34:15 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4C380A4051;
+        Wed, 14 Apr 2021 12:34:37 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BFFA6A4055;
+        Wed, 14 Apr 2021 12:34:36 +0000 (GMT)
+Received: from sig-9-145-163-27.de.ibm.com (unknown [9.145.163.27])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 14 Apr 2021 12:34:36 +0000 (GMT)
+Message-ID: <c6f3c9a70e054e9087f657bf4f142732fd43784c.camel@linux.ibm.com>
+Subject: Re: [PATCH] asm-generic/io.h: Silence -Wnull-pointer-arithmetic
+ warning on PCI_IOBASE
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     David Laight <David.Laight@ACULAB.COM>,
+        "'Arnd Bergmann'" <arnd@arndb.de>
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        linux-arch <linux-arch@vger.kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
         linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>
-Subject: Re: [PATCH 1/5] uapi: remove the unused HAVE_ARCH_STRUCT_FLOCK64
- define
-Message-ID: <20210414164515.7358054a@canb.auug.org.au>
-In-Reply-To: <CAK8P3a2MSJarPMfJ8RrSKDMXte3KQec=+GQ-LzV6HB7-Nm1FcQ@mail.gmail.com>
-References: <20210412085545.2595431-1-hch@lst.de>
-        <20210412085545.2595431-2-hch@lst.de>
-        <CAK8P3a2MSJarPMfJ8RrSKDMXte3KQec=+GQ-LzV6HB7-Nm1FcQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/OE1o8UymrAeVhdVEl6xjBsl";
- protocol="application/pgp-signature"; micalg=pgp-sha256
+        Guo Ren <guoren@kernel.org>
+Date:   Wed, 14 Apr 2021 14:34:36 +0200
+In-Reply-To: <40d4114fa34043d0841b81d09457c415@AcuMS.aculab.com>
+References: <20210413115439.1011560-1-schnelle@linux.ibm.com>
+         <CAK8P3a1WTZOYpJ2TSjnbytQJWgtfwkQ8bXXdnqCnOn6ugJqN_w@mail.gmail.com>
+         <84ab737edbe13d390373850bf317920b3a486b87.camel@linux.ibm.com>
+         <CAK8P3a2NR2nhEffFQJdMq2Do_g2ji-7p3+iWyzw+aXD6gov05w@mail.gmail.com>
+         <11ead5c2c73c42cbbeef32966bc7e5c2@AcuMS.aculab.com>
+         <CAK8P3a3PK9zyeP4ymELtc2ZYnymECoACiigw9Za+pvSJpCk5=g@mail.gmail.com>
+         <40d4114fa34043d0841b81d09457c415@AcuMS.aculab.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: cXeDngAzJk4G47j_fUM_9aNOG6XcQ9XV
+X-Proofpoint-ORIG-GUID: XfhqNwJhoXUPrB125TwaEW8uHjp9E7Ad
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-14_06:2021-04-14,2021-04-14 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ priorityscore=1501 impostorscore=0 suspectscore=0 bulkscore=0 adultscore=0
+ mlxscore=0 mlxlogscore=999 clxscore=1011 phishscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104060000
+ definitions=main-2104140086
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---Sig_/OE1o8UymrAeVhdVEl6xjBsl
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Tue, 2021-04-13 at 14:12 +0000, David Laight wrote:
+> From: Arnd Bergmann
+> > Sent: 13 April 2021 14:40
+> > 
+> > On Tue, Apr 13, 2021 at 3:06 PM David Laight <David.Laight@aculab.com> wrote:
+> > > From: Arnd Bergmann
+> > > > Sent: 13 April 2021 13:58
+> > > ...
+> > > > The remaining ones (csky, m68k, sparc32) need to be inspected
+> > > > manually to see if they currently support PCI I/O space but in
+> > > > fact use address zero as the base (with large resources) or they
+> > > > should also turn the operations into a NOP.
+> > > 
+> > > I'd expect sparc32 to use an ASI to access PCI IO space.
+> > > I can't quite remember whether IO space was supported at all.
+> > 
+> > I see this bit in arch/sparc/kernel/leon_pci.c
+> > 
+> >  * PCI Memory and Prefetchable Memory is direct-mapped. However I/O Space is
+> >  * accessed through a Window which is translated to low 64KB in PCI space, the
+> >  * first 4KB is not used so 60KB is available.
+> > ...
+> >         pci_add_resource_offset(&resources, &info->io_space,
+> >                                 info->io_space.start - 0x1000);
+> > 
+> > which means that there is I/O space, which gets accessed through whichever
+> > method readb() uses. Having the offset equal to the resource means that
+> > the '(void *)0' start is correct.
+> 
+> It must have been the VMEbus (and maybe sBus) sparc that used an ASI.
+> 
+> I do remember issues with Solaris of some PCI cards not liking
+> being assigned a BAR address of zero.
+> That may be why the low 4k IO space isn't assigned here.
+> (I've never run Linux on sparc, just SVR4 and Solaris.)
+> 
+> I guess setting PCI_IOBASE to zero is safer when you can't trust
+> drivers not to use inb() instead of readb().
+> Or whatever io_read() ends up being.
+> 
+> 	David
 
-Hi Arnd,
+So "I guess setting PCI_IOBASE to zero is safer when you can't trust
+drivers not to use inb()…" in principle is true on other architectures
+than sparc too, right? So do you think this means we shouldn't go with
+Arnd's idea of making inb() just WARN_ONCE() if PCI_IOBASE is not
+defined or just that for sparc defining it as 0 would be preferred?
 
-On Mon, 12 Apr 2021 11:55:41 +0200 Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Mon, Apr 12, 2021 at 10:55 AM Christoph Hellwig <hch@lst.de> wrote:
-> >
-> > Signed-off-by: Christoph Hellwig <hch@lst.de> =20
->=20
-> The patch looks good, but I'd like to see a description for each one.
-> How about:
->=20
-> | The check was added when Stephen Rothwell created the file, but
-> | no architecture ever defined it.
+As for s390 since we only support a limited number of drivers I think
+for us such a WARN_ONCE() for inb() would be preferable.
 
-Actually it was used by the xtensa architecture until Dec, 2006.
+I guess one option would be to let each architecture opt in to leaving
+PCI_IOBASE undefined but in the first patch push PCI_IOBASE 0 into all
+drivers that currently don't define it at all _and_ do not define their
+own inb() etc.
 
---=20
-Cheers,
-Stephen Rothwell
+> 
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
 
---Sig_/OE1o8UymrAeVhdVEl6xjBsl
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAmB2j3sACgkQAVBC80lX
-0Gx4pggAkNW0y0/RLSwNvx8cwugIMwm76PePVHws/DSpK21w82ztk8XPzmrlHYlo
-MP4xnpeval236Udlgam+Jc+7defed018uxwQyX1zKt+a0seZO9HrNSBZk8FwT1ck
-rq+/vwVxpRmpXxh4wrHNZ9kEEB8siALYt1IhhjOMuPDEFZQhhRv+1GM11ZEb4TNm
-QXiVEOPdln45S2tKu+icyaVERYFY/6j5minprLhTWeY7Rg/+eoZwC6KtkvXpRqfl
-WsUS0axrNP124+5bOizsZyTaCeeLFwTQR18nvDu703iKPre8y4K3CEiM3YQddALr
-8OeaCYAcDp1LKDXR1UZZmal4VJxxdg==
-=76mG
------END PGP SIGNATURE-----
-
---Sig_/OE1o8UymrAeVhdVEl6xjBsl--
