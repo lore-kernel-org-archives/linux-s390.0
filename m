@@ -2,194 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22999C433B4
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 14:03:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9486FC433B4
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 14:24:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 905476124B
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 14:03:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 634DC60E09
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 14:24:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349280AbhDNODt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Apr 2021 10:03:49 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22113 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1347931AbhDNODr (ORCPT
+        id S233638AbhDNOYV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Apr 2021 10:24:21 -0400
+Received: from p3plsmtpa12-07.prod.phx3.secureserver.net ([68.178.252.236]:41326
+        "EHLO p3plsmtpa12-07.prod.phx3.secureserver.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231770AbhDNOYS (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 14 Apr 2021 10:03:47 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13EE2rvZ172241;
-        Wed, 14 Apr 2021 10:03:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=UuYTtjiOghyjalpQ0VaVzpDijY3LboOM0WowrtBxbRU=;
- b=krausk2m7mCMYMWrvGFYWvEoulxqWrl+4iTgEcsNJyfkh3zrp+/EHPQuJAmUWx68pm0d
- eQ1LDUHbHvQZnfmx9L2gGDTcIpUdbr7hzMugF3yEB6pCcIF92V/aiJh9gEYDi7jBQl/Z
- k184Iy8yARJhlthTxJrg3mKl7pao6m6lc9hUuguvXDwMfOBz2nBn2LND6X77HhjQ91dM
- MmDsaBOEHzM9/y4lzvl7wVRRp9ZKYxnI6x3hpkdwpjyfRFGI0qQHwBN7KwxSjvpYhg2U
- 7fL47hX05lTVtxx5EBT2hUCPhxfenWaHBx0X9zdeo4dxivpiGP6mmxdBfGqVhfljz7L7 /g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 37x093k4gu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 14 Apr 2021 10:03:14 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13EE39Y5174425;
-        Wed, 14 Apr 2021 10:03:12 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 37x093k4cy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 14 Apr 2021 10:03:11 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13EDvTiI011743;
-        Wed, 14 Apr 2021 14:03:02 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 37u3n8bbbf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 14 Apr 2021 14:03:01 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13EE2bnu32506180
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 14 Apr 2021 14:02:37 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A47EB52054;
-        Wed, 14 Apr 2021 14:02:59 +0000 (GMT)
-Received: from sig-9-145-163-27.de.ibm.com (unknown [9.145.163.27])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 2318B52051;
-        Wed, 14 Apr 2021 14:02:59 +0000 (GMT)
-Message-ID: <3ed30ec5a241c50689fc954103214ce5ed36c463.camel@linux.ibm.com>
-Subject: Re: [PATCH] asm-generic/io.h: Silence -Wnull-pointer-arithmetic
- warning on PCI_IOBASE
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     David Laight <David.Laight@ACULAB.COM>,
-        "'Arnd Bergmann'" <arnd@arndb.de>
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Guo Ren <guoren@kernel.org>
-Date:   Wed, 14 Apr 2021 16:02:58 +0200
-In-Reply-To: <ac3447d8db2146798b86135e9f49891d@AcuMS.aculab.com>
-References: <20210413115439.1011560-1-schnelle@linux.ibm.com>
-         <CAK8P3a1WTZOYpJ2TSjnbytQJWgtfwkQ8bXXdnqCnOn6ugJqN_w@mail.gmail.com>
-         <84ab737edbe13d390373850bf317920b3a486b87.camel@linux.ibm.com>
-         <CAK8P3a2NR2nhEffFQJdMq2Do_g2ji-7p3+iWyzw+aXD6gov05w@mail.gmail.com>
-         <11ead5c2c73c42cbbeef32966bc7e5c2@AcuMS.aculab.com>
-         <CAK8P3a3PK9zyeP4ymELtc2ZYnymECoACiigw9Za+pvSJpCk5=g@mail.gmail.com>
-         <40d4114fa34043d0841b81d09457c415@AcuMS.aculab.com>
-         <c6f3c9a70e054e9087f657bf4f142732fd43784c.camel@linux.ibm.com>
-         <ac3447d8db2146798b86135e9f49891d@AcuMS.aculab.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 9yPIgPn0VkFBidXyLmxozlYX3xZAJTVD
-X-Proofpoint-GUID: 6N4qSzjHCicifyAYz62M8ZbSLz8WIomL
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-14_07:2021-04-14,2021-04-14 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- adultscore=0 malwarescore=0 mlxlogscore=999 suspectscore=0 phishscore=0
- priorityscore=1501 clxscore=1015 lowpriorityscore=0 impostorscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104140098
+        Wed, 14 Apr 2021 10:24:18 -0400
+X-Greylist: delayed 440 seconds by postgrey-1.27 at vger.kernel.org; Wed, 14 Apr 2021 10:24:17 EDT
+Received: from [192.168.0.116] ([71.184.94.153])
+        by :SMTPAUTH: with ESMTPSA
+        id WgJgl1TYe83tOWgJgl6gLC; Wed, 14 Apr 2021 07:16:32 -0700
+X-CMAE-Analysis: v=2.4 cv=ONniYQWB c=1 sm=1 tr=0 ts=6076f940
+ a=vbvdVb1zh1xTTaY8rfQfKQ==:117 a=vbvdVb1zh1xTTaY8rfQfKQ==:17
+ a=IkcTkHD0fZMA:10 a=mjHj8f7IP-_Ssy1yzXMA:9 a=QEXdDO2ut3YA:10
+X-SECURESERVER-ACCT: tom@talpey.com
+Subject: Re: [PATCH rdma-next 00/10] Enable relaxed ordering for ULPs
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Haakon Bugge <haakon.bugge@oracle.com>,
+        David Laight <David.Laight@aculab.com>,
+        Chuck Lever III <chuck.lever@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leon@kernel.org>,
+        Doug Ledford <dledford@redhat.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Adit Ranadive <aditr@vmware.com>,
+        Anna Schumaker <anna.schumaker@netapp.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Avihai Horon <avihaih@nvidia.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Devesh Sharma <devesh.sharma@broadcom.com>,
+        Faisal Latif <faisal.latif@intel.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Bruce Fields <bfields@fieldses.org>, Jens Axboe <axboe@fb.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Keith Busch <kbusch@kernel.org>, Lijun Ou <oulijun@huawei.com>,
+        CIFS <linux-cifs@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
+        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
+        OFED mailing list <linux-rdma@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Michael Guralnik <michaelgur@nvidia.com>,
+        Michal Kalderon <mkalderon@marvell.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>,
+        Linux-Net <netdev@vger.kernel.org>,
+        Potnuri Bharat Teja <bharat@chelsio.com>,
+        "rds-devel@oss.oracle.com" <rds-devel@oss.oracle.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        "samba-technical@lists.samba.org" <samba-technical@lists.samba.org>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        Selvin Xavier <selvin.xavier@broadcom.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Somnath Kotur <somnath.kotur@broadcom.com>,
+        Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>,
+        Steve French <sfrench@samba.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        VMware PV-Drivers <pv-drivers@vmware.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhu Yanjun <zyjzyj2000@gmail.com>
+References: <C2924F03-11C5-4839-A4F3-36872194EEA8@oracle.com>
+ <20210406114952.GH7405@nvidia.com>
+ <aeb7334b-edc0-78c2-4adb-92d4a994210d@talpey.com>
+ <8A5E83DF-5C08-49CE-8EE3-08DC63135735@oracle.com>
+ <4b02d1b2-be0e-0d1d-7ac3-38d32e44e77e@talpey.com>
+ <1FA38618-E245-4C53-BF49-6688CA93C660@oracle.com>
+ <7b9e7d9c-13d7-0d18-23b4-0d94409c7741@talpey.com>
+ <f71b24433f4540f0a13133111a59dab8@AcuMS.aculab.com>
+ <880A23A2-F078-42CF-BEE2-30666BCB9B5D@oracle.com>
+ <7deadc67-650c-ea15-722b-a1d77d38faba@talpey.com>
+ <20210412224843.GQ7405@nvidia.com>
+From:   Tom Talpey <tom@talpey.com>
+Message-ID: <02593083-056e-cc62-22cf-d6bd6c9b18a8@talpey.com>
+Date:   Wed, 14 Apr 2021 10:16:28 -0400
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.1
+MIME-Version: 1.0
+In-Reply-To: <20210412224843.GQ7405@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-CMAE-Envelope: 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
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2021-04-14 at 13:50 +0000, David Laight wrote:
-> From: Niklas Schnelle
-> > Sent: 14 April 2021 13:35
-> > 
-> > On Tue, 2021-04-13 at 14:12 +0000, David Laight wrote:
-> > > From: Arnd Bergmann
-> > > > Sent: 13 April 2021 14:40
-> > > > 
-> > > > On Tue, Apr 13, 2021 at 3:06 PM David Laight <David.Laight@aculab.com> wrote:
-> > > > > From: Arnd Bergmann
-> > > > > > Sent: 13 April 2021 13:58
-> > > > > ...
-> > > > > > The remaining ones (csky, m68k, sparc32) need to be inspected
-> > > > > > manually to see if they currently support PCI I/O space but in
-> > > > > > fact use address zero as the base (with large resources) or they
-> > > > > > should also turn the operations into a NOP.
-> > > > > 
-> > > > > I'd expect sparc32 to use an ASI to access PCI IO space.
-> > > > > I can't quite remember whether IO space was supported at all.
-> > > > 
-> > > > I see this bit in arch/sparc/kernel/leon_pci.c
-> > > > 
-> > > >  * PCI Memory and Prefetchable Memory is direct-mapped. However I/O Space is
-> > > >  * accessed through a Window which is translated to low 64KB in PCI space, the
-> > > >  * first 4KB is not used so 60KB is available.
-> > > > ...
-> > > >         pci_add_resource_offset(&resources, &info->io_space,
-> > > >                                 info->io_space.start - 0x1000);
-> > > > 
-> > > > which means that there is I/O space, which gets accessed through whichever
-> > > > method readb() uses. Having the offset equal to the resource means that
-> > > > the '(void *)0' start is correct.
-> > > 
-> > > It must have been the VMEbus (and maybe sBus) sparc that used an ASI.
-> > > 
-> > > I do remember issues with Solaris of some PCI cards not liking
-> > > being assigned a BAR address of zero.
-> > > That may be why the low 4k IO space isn't assigned here.
-> > > (I've never run Linux on sparc, just SVR4 and Solaris.)
-> > > 
-> > > I guess setting PCI_IOBASE to zero is safer when you can't trust
-> > > drivers not to use inb() instead of readb().
-> > > Or whatever io_read() ends up being.
-> > > 
-> > > 	David
-> > 
-> > So "I guess setting PCI_IOBASE to zero is safer when you can't trust
-> > drivers not to use inb()…" in principle is true on other architectures
-> > than sparc too, right? So do you think this means we shouldn't go with
-> > Arnd's idea of making inb() just WARN_ONCE() if PCI_IOBASE is not
-> > defined or just that for sparc defining it as 0 would be preferred?
-> > 
-> > As for s390 since we only support a limited number of drivers I think
-> > for us such a WARN_ONCE() for inb() would be preferable.
-> > 
-> > I guess one option would be to let each architecture opt in to leaving
-> > PCI_IOBASE undefined but in the first patch push PCI_IOBASE 0 into all
-> > drivers that currently don't define it at all _and_ do not define their
-> > own inb() etc.
+On 4/12/2021 6:48 PM, Jason Gunthorpe wrote:
+> On Mon, Apr 12, 2021 at 04:20:47PM -0400, Tom Talpey wrote:
 > 
-> How much code outside of legacy x86 drivers should be using inb() etc?
-> I'm not sure any other (modern) cpu have separate IO instructions.
+>> So the issue is only in testing all the providers and platforms,
+>> to be sure this new behavior isn't tickling anything that went
+>> unnoticed all along, because no RDMA provider ever issued RO.
 > 
-> Because some PCI(e) resources might be available on memory or IO BARs
-> (possible duplicate BAR on some cards) aren't there also ioreadb()
-> functions (with addresses as parameters)?
-> IIRC on x86 they treat small values as IO ports and large ones
-> as memory mapped addresses.
-> If PCI IO space is memory mapped then these would be directly equivalent
-> to readb() (etc).
+> The mlx5 ethernet driver has run in RO mode for a long time, and it
+> operates in basically the same way as RDMA. The issues with Haswell
+> have been worked out there already.
 > 
-> So perhaps inb() should just not be defined at all except on x86?
-> (Perhaps except for COMPILE_TEST).
-> If it is defined, then maybe it should never be called?
-> So a WARN_ONCE() returning ~0 for reads might even be best.
+> The only open question is if the ULPs have errors in their
+> implementation, which I don't think we can find out until we apply
+> this series and people start running their tests aggressively.
 
-Ok yeah I think that's also what I'd like best.
+I agree that the core RO support should go in. But turning it on
+by default for a ULP should be the decision of each ULP maintainer.
+It's a huge risk to shift all the storage drivers overnight. How
+do you propose to ensure the aggressive testing happens?
 
-> 
-> Of course, there will be some obscure fallout - there always is.
+One thing that worries me is the patch02 on-by-default for the dma_lkey.
+There's no way for a ULP to prevent IB_ACCESS_RELAXED_ORDERING
+from being set in __ib_alloc_pd().
 
-Let me come up with a patch, then if this decision is wrong it's at
-least one of us s390 people breaking someone else's architecture
-instead of the usual other way around ;-D
+Tom.
 
-> 
-> 	David
-> 
-> -
-> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-> Registration No: 1397386 (Wales)
 
