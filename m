@@ -2,84 +2,169 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E730C433ED
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 19:10:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8458CC433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 20:17:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F2406611F0
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 19:10:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6644561158
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 20:17:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234853AbhDNTKZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Apr 2021 15:10:25 -0400
-Received: from mail-vs1-f48.google.com ([209.85.217.48]:42773 "EHLO
-        mail-vs1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234613AbhDNTKY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 14 Apr 2021 15:10:24 -0400
-Received: by mail-vs1-f48.google.com with SMTP id 66so10870653vsk.9;
-        Wed, 14 Apr 2021 12:10:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Z3hnQcI7xgmsUuxItoue27NrG4aaS9+tEraOADPkosg=;
-        b=KrGxujkCDokuUGN/ReAyrgbtaaoF9OgSrdt+vXPM/hS99xNPWr3L7skUAi7532xC9t
-         +54QuzHCnClLvsC5eIibRDW0j7Jip3PwShxKmQaJHbP1E3HbCpMWl8sHQK6P2KWDROgB
-         15j6Acm8gx1mZhVIr6gUXqyZu1peUYkEBVvv16JeqkcUCV+RvkC60O5xZK2zYqGTZsJy
-         ldxOTewIc4kzSf9GiaHgRRb7WLyGzHAj2O47NihiTDaew5kHXlHGonnGJU4CdHlECKIz
-         +ZuW5mEyxUkQHC1aXYcCrbsrJ5VW/dA+ANz4aqtCtwVkoSWCGs6DVhbFctxzVRyNQpTP
-         xd5w==
-X-Gm-Message-State: AOAM533VJzrRMsHdgPyTFM3FpFAv3/p0D158UKF0ohgXmgIM9AKYZZon
-        w/ERdMbp6TnO+H/UJLyqHDps6L5Y9HKA6ZIYUZw=
-X-Google-Smtp-Source: ABdhPJxJbGWB0l+pI+e+zsAVHVBLwrtdJbfPrWC2SKJve8ijlw7H6jw/dP0+aFP/QglhH1BBHAHmIOlyMsd9AxB04yU=
-X-Received: by 2002:a67:80c4:: with SMTP id b187mr29948111vsd.42.1618427401975;
- Wed, 14 Apr 2021 12:10:01 -0700 (PDT)
+        id S233973AbhDNUST (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Apr 2021 16:18:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48346 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232735AbhDNUSS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 14 Apr 2021 16:18:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5156B608FC;
+        Wed, 14 Apr 2021 20:17:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1618431476;
+        bh=yFk2cx4HrXNqOm2e36DgIZtP17/Q9M1Lfp4gu+Ir38U=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=XRF4vv6yLAaH6SxWfUzh4NaKkN7a9JAum1Tfn1vJ8UegP7s4GPMCgm1u2VreSfiBT
+         Npzm0PSKq3Aq8z6UAfv86m46XNiQ6N6En2aZC6Cqia/3aMoclI4x1FS8bNMB9ZlG6I
+         Q40prXp18K7YDqWUlUDTFwvh99YpFA1qRyUEqPq9CUr6cPrU9D69Eehj25apsoBZst
+         uOMQN2Wawhm4q8eqwWUvwD7LLHwNfud5+9+ErFUAfT1BAealvjWkQHzB0KkSlm1KIv
+         kBlO6tkPex7HbtgvQA54S5P8QPxKqyCESkftYx6TaCci+jJOTMld7ir6zZp7QX+BTl
+         XKfluHrlirYEg==
+Date:   Wed, 14 Apr 2021 15:17:55 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Narendra K <narendra_k@dell.com>,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>,
+        Stefan Raspl <raspl@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-netdev@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 1/1] s390/pci: expose a PCI device's UID as its index
+Message-ID: <20210414201755.GA2532433@bjorn-Precision-5520>
 MIME-Version: 1.0
-References: <20210414134409.1266357-1-maz@kernel.org> <20210414134409.1266357-5-maz@kernel.org>
-In-Reply-To: <20210414134409.1266357-5-maz@kernel.org>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 14 Apr 2021 21:09:50 +0200
-Message-ID: <CAMuHMdVfwRv_66mMz79rvszdgXnovrS_FZzPRK9fqOMH5Npu5A@mail.gmail.com>
-Subject: Re: [PATCH 4/5] sh: Get rid of oprofile leftovers
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     KVM list <kvm@vger.kernel.org>, kvmarm@lists.cs.columbia.edu,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>, Rich Felker <dalias@libc.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, nathan@kernel.org,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        James Morse <james.morse@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Android Kernel Team <kernel-team@android.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210412135905.1434249-2-schnelle@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Apr 14, 2021 at 3:53 PM Marc Zyngier <maz@kernel.org> wrote:
-> perf_pmu_name() and perf_num_counters() are unused. Drop them.
->
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
+On Mon, Apr 12, 2021 at 03:59:05PM +0200, Niklas Schnelle wrote:
+> On s390 each PCI device has a user-defined ID (UID) exposed under
+> /sys/bus/pci/devices/<dev>/uid. This ID was designed to serve as the PCI
+> device's primary index and to match the device within Linux to the
+> device configured in the hypervisor. To serve as a primary identifier
+> the UID must be unique within the Linux instance, this is guaranteed by
+> the platform if and only if the UID Uniqueness Checking flag is set
+> within the CLP List PCI Functions response.
+> 
+> In this sense the UID serves an analogous function as the SMBIOS
+> instance number or ACPI index exposed as the "index" respectively
+> "acpi_index" device attributes and used by e.g. systemd to set interface
+> names. As s390 does not use and will likely never use ACPI nor SMBIOS
+> there is no conflict and we can just expose the UID under the "index"
+> attribute whenever UID Uniqueness Checking is active and get systemd's
+> interface naming support for free.
+> 
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Acked-by: Viktor Mihajlovski <mihajlov@linux.ibm.com>
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+This seems like a nice solution to me.
 
-Gr{oetje,eeting}s,
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 
-                        Geert
+> ---
+>  Documentation/ABI/testing/sysfs-bus-pci | 11 +++++---
+>  arch/s390/pci/pci_sysfs.c               | 35 +++++++++++++++++++++++++
+>  2 files changed, 42 insertions(+), 4 deletions(-)
+> 
+> diff --git a/Documentation/ABI/testing/sysfs-bus-pci b/Documentation/ABI/testing/sysfs-bus-pci
+> index 25c9c39770c6..1241b6d11a52 100644
+> --- a/Documentation/ABI/testing/sysfs-bus-pci
+> +++ b/Documentation/ABI/testing/sysfs-bus-pci
+> @@ -195,10 +195,13 @@ What:		/sys/bus/pci/devices/.../index
+>  Date:		July 2010
+>  Contact:	Narendra K <narendra_k@dell.com>, linux-bugs@dell.com
+>  Description:
+> -		Reading this attribute will provide the firmware
+> -		given instance (SMBIOS type 41 device type instance) of the
+> -		PCI device. The attribute will be created only if the firmware
+> -		has given an instance number to the PCI device.
+> +		Reading this attribute will provide the firmware given instance
+> +		number of the PCI device.  Depending on the platform this can
+> +		be for example the SMBIOS type 41 device type instance or the
+> +		user-defined ID (UID) on s390. The attribute will be created
+> +		only if the firmware has given an instance number to the PCI
+> +		device and that number is guaranteed to uniquely identify the
+> +		device in the system.
+>  Users:
+>  		Userspace applications interested in knowing the
+>  		firmware assigned device type instance of the PCI
+> diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
+> index e14d346dafd6..20dbb2058d51 100644
+> --- a/arch/s390/pci/pci_sysfs.c
+> +++ b/arch/s390/pci/pci_sysfs.c
+> @@ -138,6 +138,38 @@ static ssize_t uid_is_unique_show(struct device *dev,
+>  }
+>  static DEVICE_ATTR_RO(uid_is_unique);
+>  
+> +#ifndef CONFIG_DMI
+> +/* analogous to smbios index */
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+I think this is smbios_attr_instance, right?  Maybe mention that
+specifically to make it easier to match these up.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Looks like smbios_attr_instance and the similar ACPI stuff could use
+some updating to use the current attribute group infrastructure.
+
+> +static ssize_t index_show(struct device *dev,
+> +			  struct device_attribute *attr, char *buf)
+> +{
+> +	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
+> +	u32 index = ~0;
+> +
+> +	if (zpci_unique_uid)
+> +		index = zdev->uid;
+> +
+> +	return sysfs_emit(buf, "%u\n", index);
+> +}
+> +static DEVICE_ATTR_RO(index);
+> +
+> +static umode_t zpci_unique_uids(struct kobject *kobj,
+> +				struct attribute *attr, int n)
+> +{
+> +	return zpci_unique_uid ? attr->mode : 0;
+> +}
+> +
+> +static struct attribute *zpci_ident_attrs[] = {
+> +	&dev_attr_index.attr,
+> +	NULL,
+> +};
+> +
+> +static struct attribute_group zpci_ident_attr_group = {
+> +	.attrs = zpci_ident_attrs,
+> +	.is_visible = zpci_unique_uids,
+
+It's conventional to name these functions *_is_visible() (another
+convention that smbios_attr_instance and acpi_attr_index probably
+predate).
+
+> +};
+> +#endif
+> +
+>  static struct bin_attribute *zpci_bin_attrs[] = {
+>  	&bin_attr_util_string,
+>  	&bin_attr_report_error,
+> @@ -179,5 +211,8 @@ static struct attribute_group pfip_attr_group = {
+>  const struct attribute_group *zpci_attr_groups[] = {
+>  	&zpci_attr_group,
+>  	&pfip_attr_group,
+> +#ifndef CONFIG_DMI
+> +	&zpci_ident_attr_group,
+> +#endif
+>  	NULL,
+>  };
+> -- 
+> 2.25.1
+> 
