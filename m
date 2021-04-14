@@ -3,31 +3,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CC18C43616
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 13:44:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98C3BC001EC
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 13:44:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B91E611EE
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 13:44:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 81212611B0
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Apr 2021 13:44:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351635AbhDNNot (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Apr 2021 09:44:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52418 "EHLO mail.kernel.org"
+        id S1351626AbhDNNos (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Apr 2021 09:44:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351615AbhDNNor (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 14 Apr 2021 09:44:47 -0400
+        id S1351602AbhDNNoq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 14 Apr 2021 09:44:46 -0400
 Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BC26611B0;
-        Wed, 14 Apr 2021 13:44:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E341A6120E;
+        Wed, 14 Apr 2021 13:44:24 +0000 (UTC)
 Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
         by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94)
         (envelope-from <maz@kernel.org>)
-        id 1lWfoe-007RSZ-OI; Wed, 14 Apr 2021 14:44:24 +0100
+        id 1lWfod-007RSZ-5a; Wed, 14 Apr 2021 14:44:23 +0100
 From:   Marc Zyngier <maz@kernel.org>
 To:     kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -44,9 +44,9 @@ Cc:     Mark Rutland <mark.rutland@arm.com>, Will Deacon <will@kernel.org>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
         Alexandru Elisei <alexandru.elisei@arm.com>,
         kernel-team@android.com
-Subject: [PATCH 4/5] sh: Get rid of oprofile leftovers
-Date:   Wed, 14 Apr 2021 14:44:08 +0100
-Message-Id: <20210414134409.1266357-5-maz@kernel.org>
+Subject: [PATCH 2/5] arm64: Get rid of oprofile leftovers
+Date:   Wed, 14 Apr 2021 14:44:06 +0100
+Message-Id: <20210414134409.1266357-3-maz@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210414134409.1266357-1-maz@kernel.org>
 References: <20210414134409.1266357-1-maz@kernel.org>
@@ -60,42 +60,61 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-perf_pmu_name() and perf_num_counters() are unused. Drop them.
+perf_pmu_name() and perf_num_counters() are now unused. Drop them.
 
 Signed-off-by: Marc Zyngier <maz@kernel.org>
 ---
- arch/sh/kernel/perf_event.c | 18 ------------------
- 1 file changed, 18 deletions(-)
+ drivers/perf/arm_pmu.c | 30 ------------------------------
+ 1 file changed, 30 deletions(-)
 
-diff --git a/arch/sh/kernel/perf_event.c b/arch/sh/kernel/perf_event.c
-index 445e3ece4c23..1d2507f22437 100644
---- a/arch/sh/kernel/perf_event.c
-+++ b/arch/sh/kernel/perf_event.c
-@@ -57,24 +57,6 @@ static inline int sh_pmu_initialized(void)
- 	return !!sh_pmu;
- }
+diff --git a/drivers/perf/arm_pmu.c b/drivers/perf/arm_pmu.c
+index 2d10d84fb79c..d4f7f1f9cc77 100644
+--- a/drivers/perf/arm_pmu.c
++++ b/drivers/perf/arm_pmu.c
+@@ -581,33 +581,6 @@ static const struct attribute_group armpmu_common_attr_group = {
+ 	.attrs = armpmu_common_attrs,
+ };
  
+-/* Set at runtime when we know what CPU type we are. */
+-static struct arm_pmu *__oprofile_cpu_pmu;
+-
+-/*
+- * Despite the names, these two functions are CPU-specific and are used
+- * by the OProfile/perf code.
+- */
 -const char *perf_pmu_name(void)
 -{
--	if (!sh_pmu)
+-	if (!__oprofile_cpu_pmu)
 -		return NULL;
 -
--	return sh_pmu->name;
+-	return __oprofile_cpu_pmu->name;
 -}
 -EXPORT_SYMBOL_GPL(perf_pmu_name);
 -
 -int perf_num_counters(void)
 -{
--	if (!sh_pmu)
--		return 0;
+-	int max_events = 0;
 -
--	return sh_pmu->num_events;
+-	if (__oprofile_cpu_pmu != NULL)
+-		max_events = __oprofile_cpu_pmu->num_events;
+-
+-	return max_events;
 -}
 -EXPORT_SYMBOL_GPL(perf_num_counters);
 -
- /*
-  * Release the PMU if this is the last perf_event.
-  */
+ static int armpmu_count_irq_users(const int irq)
+ {
+ 	int cpu, count = 0;
+@@ -979,9 +952,6 @@ int armpmu_register(struct arm_pmu *pmu)
+ 	if (ret)
+ 		goto out_destroy;
+ 
+-	if (!__oprofile_cpu_pmu)
+-		__oprofile_cpu_pmu = pmu;
+-
+ 	pr_info("enabled with %s PMU driver, %d counters available%s\n",
+ 		pmu->name, pmu->num_events,
+ 		has_nmi ? ", using NMIs" : "");
 -- 
 2.29.2
 
