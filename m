@@ -2,86 +2,93 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7ED23C433ED
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 06:46:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6192CC433ED
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 06:59:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 562B261139
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 06:46:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2A75E6117A
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 06:59:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229731AbhDOGq2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Apr 2021 02:46:28 -0400
-Received: from mga11.intel.com ([192.55.52.93]:21856 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229503AbhDOGq2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 15 Apr 2021 02:46:28 -0400
-IronPort-SDR: qXA0Cy5Sxat0HlfJSXHh9gid2sfZE9wDO326BmQtwTQB+2Q+8CbzsinEgj5BrSrTPUQg8OT5b6
- N9jAMKFK1F9g==
-X-IronPort-AV: E=McAfee;i="6200,9189,9954"; a="191609700"
-X-IronPort-AV: E=Sophos;i="5.82,223,1613462400"; 
-   d="scan'208";a="191609700"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2021 23:46:02 -0700
-IronPort-SDR: 1pfPbXhjlYYReGkPxq6HfP4+S3mzqWZg9G55ESeGOM9vhqkGCJ7BYRc35RiXXmWynnugSAJ6uM
- atnC5MlIfazg==
-X-IronPort-AV: E=Sophos;i="5.82,223,1613462400"; 
-   d="scan'208";a="425061751"
-Received: from yhuang6-desk1.sh.intel.com (HELO yhuang6-desk1.ccr.corp.intel.com) ([10.239.13.1])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Apr 2021 23:45:58 -0700
-From:   "Huang, Ying" <ying.huang@intel.com>
-To:     "Zi Yan" <ziy@nvidia.com>
-Cc:     Yang Shi <shy828301@gmail.com>, <mgorman@suse.de>,
-        <kirill.shutemov@linux.intel.com>, <mhocko@suse.com>,
-        <hughd@google.com>, <gerald.schaefer@linux.ibm.com>,
-        <hca@linux.ibm.com>, <gor@linux.ibm.com>, <borntraeger@de.ibm.com>,
-        <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
-        <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [v2 PATCH 6/7] mm: migrate: check mapcount for THP instead of
- ref count
-References: <20210413212416.3273-1-shy828301@gmail.com>
-        <20210413212416.3273-7-shy828301@gmail.com>
-        <87k0p5sh7h.fsf@yhuang6-desk1.ccr.corp.intel.com>
-        <6297AD92-8D0E-4BEC-8E1F-5C5AC32FA128@nvidia.com>
-Date:   Thu, 15 Apr 2021 14:45:54 +0800
-In-Reply-To: <6297AD92-8D0E-4BEC-8E1F-5C5AC32FA128@nvidia.com> (Zi Yan's
-        message of "Wed, 14 Apr 2021 11:02:58 -0400")
-Message-ID: <87fszsoxjx.fsf@yhuang6-desk1.ccr.corp.intel.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        id S229793AbhDOG7y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Apr 2021 02:59:54 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:16921 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229503AbhDOG7y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Apr 2021 02:59:54 -0400
+Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4FLVXK11HGzjYhv;
+        Thu, 15 Apr 2021 14:57:37 +0800 (CST)
+Received: from [10.174.187.224] (10.174.187.224) by
+ DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
+ 14.3.498.0; Thu, 15 Apr 2021 14:59:26 +0800
+Subject: Re: [PATCH 1/5] KVM: arm64: Divorce the perf code from oprofile
+ helpers
+To:     Marc Zyngier <maz@kernel.org>, <kvm@vger.kernel.org>,
+        <kvmarm@lists.cs.columbia.edu>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <linux-sh@vger.kernel.org>
+References: <20210414134409.1266357-1-maz@kernel.org>
+ <20210414134409.1266357-2-maz@kernel.org>
+CC:     Rich Felker <dalias@libc.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Viresh Kumar" <viresh.kumar@linaro.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "Arnaldo Carvalho de Melo" <acme@kernel.org>, <nathan@kernel.org>,
+        "Christian Borntraeger" <borntraeger@de.ibm.com>,
+        <kernel-team@android.com>, Will Deacon <will@kernel.org>
+From:   Keqian Zhu <zhukeqian1@huawei.com>
+Message-ID: <baa268cf-c92d-6b97-da4c-e7da2a9ccb7a@huawei.com>
+Date:   Thu, 15 Apr 2021 14:59:26 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101
+ Thunderbird/45.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
+In-Reply-To: <20210414134409.1266357-2-maz@kernel.org>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.187.224]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-"Zi Yan" <ziy@nvidia.com> writes:
+Hi Marc,
 
-> On 13 Apr 2021, at 23:00, Huang, Ying wrote:
->
->> Yang Shi <shy828301@gmail.com> writes:
->>
->>> The generic migration path will check refcount, so no need check refcount here.
->>> But the old code actually prevents from migrating shared THP (mapped by multiple
->>> processes), so bail out early if mapcount is > 1 to keep the behavior.
->>
->> What prevents us from migrating shared THP?  If no, why not just remove
->> the old refcount checking?
->
-> If two or more processes are in different NUMA nodes, a THP shared by them can be
-> migrated back and forth between NUMA nodes, which is quite costly. Unless we have
-> a better way of figuring out a good location for such pages to reduce the number
-> of migration, it might be better not to move them, right?
->
+On 2021/4/14 21:44, Marc Zyngier wrote:
+> KVM/arm64 is the sole user of perf_num_counters(), and really
+> could do without it. Stop using the obsolete API by relying on
+> the existing probing code.
+> 
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> ---
+>  arch/arm64/kvm/perf.c     | 7 +------
+>  arch/arm64/kvm/pmu-emul.c | 2 +-
+>  include/kvm/arm_pmu.h     | 4 ++++
+>  3 files changed, 6 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/arm64/kvm/perf.c b/arch/arm64/kvm/perf.c
+> index 739164324afe..b8b398670ef2 100644
+> --- a/arch/arm64/kvm/perf.c
+> +++ b/arch/arm64/kvm/perf.c
+> @@ -50,12 +50,7 @@ static struct perf_guest_info_callbacks kvm_guest_cbs = {
+>  
+>  int kvm_perf_init(void)
+>  {
+> -	/*
+> -	 * Check if HW_PERF_EVENTS are supported by checking the number of
+> -	 * hardware performance counters. This could ensure the presence of
+> -	 * a physical PMU and CONFIG_PERF_EVENT is selected.
+> -	 */
+> -	if (IS_ENABLED(CONFIG_ARM_PMU) && perf_num_counters() > 0)
+> +	if (kvm_pmu_probe_pmuver() != 0xf)
+The probe() function may be called many times (kvm_arm_pmu_v3_set_attr also calls it).
+I don't know whether the first calling is enough. If so, can we use a static variable
+in it, so the following calling can return the result right away?
 
-Some mechanism has been provided in should_numa_migrate_memory() to
-identify the shared pages from the private pages.  Do you find it
-doesn't work well in some situations?
-
-The multiple threads in one process which run on different NUMA nodes
-may share pages too.  So it isn't a good solution to exclude pages
-shared by multiple processes.
-
-Best Regards,
-Huang, Ying
+Thanks,
+Keqian
