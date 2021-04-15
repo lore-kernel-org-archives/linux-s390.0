@@ -2,117 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1191C433B4
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 11:34:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82256C433B4
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 12:12:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B7A9B61027
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 11:34:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3B92661153
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 12:12:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbhDOLfN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Apr 2021 07:35:13 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:17001 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230056AbhDOLfL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Apr 2021 07:35:11 -0400
-Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4FLcck3HcWzPpxD;
-        Thu, 15 Apr 2021 19:31:50 +0800 (CST)
-Received: from [10.174.187.224] (10.174.187.224) by
- DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
- 14.3.498.0; Thu, 15 Apr 2021 19:34:40 +0800
-Subject: Re: [PATCH 1/5] KVM: arm64: Divorce the perf code from oprofile
- helpers
+        id S232650AbhDOMMy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Apr 2021 08:12:54 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1868 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231590AbhDOMMy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 15 Apr 2021 08:12:54 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13FC4982064386;
+        Thu, 15 Apr 2021 08:12:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=0qmyfG6khRpUOKcXpSEaC/J9TizHeX8zVO1F8w3sqWk=;
+ b=joVs24R/42uPu6TAZl2eclklMxA31xdJPYE3bnVojAVNlLlmuCn/T+gxGAbCj1xALnMD
+ BnGRroXfmU7QqX4j6AOj2BlraPJ0PxJz5Hy3Lee9ltHLDfvttJuFhTjMukZNU2DIsjtj
+ MBJq25gtWdgS5GrCuFRwdO3ESuwnrIh+a4z8P1+WsncktYlGaYnSLU36c/EFay/thW/3
+ sSs3/Jb1eJH0+AQUASbvpBKHIPHv2LoWRyRobQI1WCghg9uJGid4K5+0j8qIFhUfF5I5
+ +gbHiv85aRMdgwb5GhAAHF7fzMRv4UtRYUIfR1IdLAiR2DWKyTev1sSR8qtWloR23zCq CA== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37xbqb6dv5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Apr 2021 08:12:16 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13FC7YAO007426;
+        Thu, 15 Apr 2021 12:12:15 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 37u3n8bv3s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Apr 2021 12:12:14 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13FCCCQV26018220
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 15 Apr 2021 12:12:12 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 86AB042041;
+        Thu, 15 Apr 2021 12:12:12 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AC84E4203F;
+        Thu, 15 Apr 2021 12:12:11 +0000 (GMT)
+Received: from osiris (unknown [9.171.3.254])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Thu, 15 Apr 2021 12:12:11 +0000 (GMT)
+Date:   Thu, 15 Apr 2021 14:12:10 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
 To:     Marc Zyngier <maz@kernel.org>
-References: <20210414134409.1266357-1-maz@kernel.org>
- <20210414134409.1266357-2-maz@kernel.org>
- <baa268cf-c92d-6b97-da4c-e7da2a9ccb7a@huawei.com>
- <87h7k7n81z.wl-maz@kernel.org>
-CC:     <kvm@vger.kernel.org>, <kvmarm@lists.cs.columbia.edu>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <linux-sh@vger.kernel.org>, Rich Felker <dalias@libc.org>,
+Cc:     kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>, Rich Felker <dalias@libc.org>,
         Yoshinori Sato <ysato@users.sourceforge.jp>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
         Arnaldo Carvalho de Melo <acme@kernel.org>,
-        <nathan@kernel.org>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        <kernel-team@android.com>, Will Deacon <will@kernel.org>
-From:   Keqian Zhu <zhukeqian1@huawei.com>
-Message-ID: <da73e0c7-4dd7-ce69-3304-3da8f1521127@huawei.com>
-Date:   Thu, 15 Apr 2021 19:34:40 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101
- Thunderbird/45.7.1
+        nathan@kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        kernel-team@android.com
+Subject: Re: [PATCH 3/5] s390: Get rid of oprofile leftovers
+Message-ID: <YHgtmjjtk9dDa7/R@osiris>
+References: <20210414134409.1266357-1-maz@kernel.org>
+ <20210414134409.1266357-4-maz@kernel.org>
+ <YHgXvFCLh0Ls0b9t@osiris>
+ <87fszrn7sx.wl-maz@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <87h7k7n81z.wl-maz@kernel.org>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.187.224]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87fszrn7sx.wl-maz@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: vARCqOoco7d3n4Ke2RUPNWmaue1niUQS
+X-Proofpoint-ORIG-GUID: vARCqOoco7d3n4Ke2RUPNWmaue1niUQS
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-15_04:2021-04-15,2021-04-15 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=714
+ suspectscore=0 phishscore=0 mlxscore=0 clxscore=1015 spamscore=0
+ impostorscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104150081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Marc,
-
-On 2021/4/15 18:42, Marc Zyngier wrote:
-> On Thu, 15 Apr 2021 07:59:26 +0100,
-> Keqian Zhu <zhukeqian1@huawei.com> wrote:
->>
->> Hi Marc,
->>
->> On 2021/4/14 21:44, Marc Zyngier wrote:
->>> KVM/arm64 is the sole user of perf_num_counters(), and really
->>> could do without it. Stop using the obsolete API by relying on
->>> the existing probing code.
->>>
->>> Signed-off-by: Marc Zyngier <maz@kernel.org>
->>> ---
->>>  arch/arm64/kvm/perf.c     | 7 +------
->>>  arch/arm64/kvm/pmu-emul.c | 2 +-
->>>  include/kvm/arm_pmu.h     | 4 ++++
->>>  3 files changed, 6 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/arch/arm64/kvm/perf.c b/arch/arm64/kvm/perf.c
->>> index 739164324afe..b8b398670ef2 100644
->>> --- a/arch/arm64/kvm/perf.c
->>> +++ b/arch/arm64/kvm/perf.c
->>> @@ -50,12 +50,7 @@ static struct perf_guest_info_callbacks kvm_guest_cbs = {
->>>  
->>>  int kvm_perf_init(void)
->>>  {
->>> -	/*
->>> -	 * Check if HW_PERF_EVENTS are supported by checking the number of
->>> -	 * hardware performance counters. This could ensure the presence of
->>> -	 * a physical PMU and CONFIG_PERF_EVENT is selected.
->>> -	 */
->>> -	if (IS_ENABLED(CONFIG_ARM_PMU) && perf_num_counters() > 0)
->>> +	if (kvm_pmu_probe_pmuver() != 0xf)
->> The probe() function may be called many times
->> (kvm_arm_pmu_v3_set_attr also calls it).  I don't know whether the
->> first calling is enough. If so, can we use a static variable in it,
->> so the following calling can return the result right away?
+On Thu, Apr 15, 2021 at 11:47:26AM +0100, Marc Zyngier wrote:
+> On Thu, 15 Apr 2021 11:38:52 +0100,
+> Heiko Carstens <hca@linux.ibm.com> wrote:
+> > 
+> > On Wed, Apr 14, 2021 at 02:44:07PM +0100, Marc Zyngier wrote:
+> > > perf_pmu_name() and perf_num_counters() are unused. Drop them.
+> > > 
+> > > Signed-off-by: Marc Zyngier <maz@kernel.org>
+> > > ---
+> > >  arch/s390/kernel/perf_event.c | 21 ---------------------
+> > >  1 file changed, 21 deletions(-)
+> > 
+> > Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> > 
+> > ...or do you want me to pick this up and route via the s390 tree(?).
 > 
-> No, because that wouldn't help with crappy big-little implementations
-> that could have PMUs with different versions. We want to find the
-> version at the point where the virtual PMU is created, which is why we
-> call the probe function once per vcpu.
-I see.
+> Either way work for me, but I just want to make sure the last patch
+> doesn't get applied before the previous ones.
 
-But AFAICS the pmuver is placed in kvm->arch, and the probe function is called
-once per VM. Maybe I miss something.
-
-> 
-> This of course is broken in other ways (BL+KVM is a total disaster
-> when it comes to PMU), but making this static would just make it
-> worse.
-OK.
-
-Thanks,
-Keqian
+Ok, I applied this one to the s390 tree. Thanks!
