@@ -2,114 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0329DC433B4
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 16:10:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FD3CC433B4
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 16:20:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C9CDE6117A
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 16:10:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B6CD61073
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 16:20:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233583AbhDOQLB convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Apr 2021 12:11:01 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:51063 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233914AbhDOQLA (ORCPT
+        id S231726AbhDOQUa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Apr 2021 12:20:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58701 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231137AbhDOQUa (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 15 Apr 2021 12:11:00 -0400
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-51-HfpTzEDNMauzyMEgPNRP_g-1; Thu, 15 Apr 2021 17:10:34 +0100
-X-MC-Unique: HfpTzEDNMauzyMEgPNRP_g-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.2; Thu, 15 Apr 2021 17:10:33 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.012; Thu, 15 Apr 2021 17:10:33 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Niklas Schnelle' <schnelle@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>
-CC:     Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "clang-built-linux@googlegroups.com" 
-        <clang-built-linux@googlegroups.com>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
-Subject: RE: [PATCH v2 1/2] sparc: explicitly set PCI_IOBASE to 0
-Thread-Topic: [PATCH v2 1/2] sparc: explicitly set PCI_IOBASE to 0
-Thread-Index: AQHXMfQU/v+fCAtEaUGryS2VPWnQoKq1vegA
-Date:   Thu, 15 Apr 2021 16:10:33 +0000
-Message-ID: <af5f3d8390654abda295860c756cb687@AcuMS.aculab.com>
-References: <20210415123700.3030728-1-schnelle@linux.ibm.com>
- <20210415123700.3030728-2-schnelle@linux.ibm.com>
-In-Reply-To: <20210415123700.3030728-2-schnelle@linux.ibm.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        Thu, 15 Apr 2021 12:20:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1618503606;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=81EDjnbmWofuicsm+f7F7vx8N+7EXRYt+1pDhkg203I=;
+        b=al0gUcxVYZnRRgwU2420gRh3cFa99GPPEqF9bhBSj06t7/JvNx7u9vbiJ4b8xQBeQMVWEo
+        BLb0Fg2NgPlEb+L1HOErR1qaBgE6rTwgvw7AhHnVDnWBtyDn/dddaVWHQqshE+kVqBr1ut
+        43Ie2/hl5PduTlJVyWKhG5NFmpGVg6k=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-209-BP-Df-7-Pr-2f9s9MEwu9g-1; Thu, 15 Apr 2021 12:19:57 -0400
+X-MC-Unique: BP-Df-7-Pr-2f9s9MEwu9g-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 40D03802B5B;
+        Thu, 15 Apr 2021 16:19:55 +0000 (UTC)
+Received: from gondolin (ovpn-112-220.ams2.redhat.com [10.36.112.220])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E3C506086F;
+        Thu, 15 Apr 2021 16:19:53 +0000 (UTC)
+Date:   Thu, 15 Apr 2021 18:19:51 +0200
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [RFC PATCH v4 2/4] vfio-ccw: Check workqueue before doing START
+Message-ID: <20210415181951.2f13fdcc.cohuck@redhat.com>
+In-Reply-To: <ac08eb1143b5d354b8bcaf9117178fbd91bc2af2.camel@linux.ibm.com>
+References: <20210413182410.1396170-1-farman@linux.ibm.com>
+        <20210413182410.1396170-3-farman@linux.ibm.com>
+        <20210415125131.33065221.cohuck@redhat.com>
+        <ac08eb1143b5d354b8bcaf9117178fbd91bc2af2.camel@linux.ibm.com>
+Organization: Red Hat GmbH
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Niklas Schnelle
-> Sent: 15 April 2021 13:37
+On Thu, 15 Apr 2021 09:48:37 -0400
+Eric Farman <farman@linux.ibm.com> wrote:
+
+> On Thu, 2021-04-15 at 12:51 +0200, Cornelia Huck wrote:
+
+> > I'm wondering what we should do for hsch. We probably want to return
+> > -EBUSY for a pending condition as well, if I read the PoP
+> > correctly...  
 > 
-> Instead of relying on the fallback in asm-generic/io.h which sets
-> PCI_IOBASE 0 if it is not defined set it explicitly.
+> Ah, yes...  I agree that to maintain parity with ssch and pops, the
+> same cc1/-EBUSY would be applicable here. Will make that change in next
+> version.
+
+Yes, just to handle things in the same fashion consistently.
+
 > 
-> Link: https://lore.kernel.org/lkml/CAK8P3a3PK9zyeP4ymELtc2ZYnymECoACiigw9Za+pvSJpCk5=g@mail.gmail.com/
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
->  arch/sparc/include/asm/io.h | 4 ++++
->  1 file changed, 4 insertions(+)
+> > the only problem is that QEMU seems to match everything to 0; but
+> > that
+> > is arguably not the kernel's problem.
+> > 
+> > For clear, we obviously don't have busy conditions. Should we clean
+> > up
+> > any pending conditions?  
 > 
-> diff --git a/arch/sparc/include/asm/io.h b/arch/sparc/include/asm/io.h
-> index 2eefa526b38f..100992ba1317 100644
-> --- a/arch/sparc/include/asm/io.h
-> +++ b/arch/sparc/include/asm/io.h
-> @@ -1,6 +1,10 @@
->  /* SPDX-License-Identifier: GPL-2.0 */
->  #ifndef ___ASM_SPARC_IO_H
->  #define ___ASM_SPARC_IO_H
-> +
-> +/* On LEON I/O Space is accessed through low iomem */
-> +#define PCI_IOBASE ((void __iomem *)0)
-> +
->  #if defined(__sparc__) && defined(__arch64__)
->  #include <asm/io_64.h>
->  #else
-> --
-> 2.25.1
+> By doing anything other than issuing the csch to the subchannel?  I
+> don't think so, that should be more than enough to get the css and
+> vfio-ccw in sync with each other.
 
-Not sure the comment is informative enough.
-Maybe something like:
-
-/*
- * On LEON PCI addresses below 64k are converted to IO accesses.
- * io_remap_xxx() (whatever is it called) returns a kernel virtual
- * address in the PCI window so inb() doesn't need to add an offset.
- */
-
-That'll save the next person doing a lot of digging.
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+Hm, doesn't a successful csch clear any status pending? That would mean
+that invoking our csch backend implies that we won't deliver the status
+pending that is already pending via the workqueue, which therefore
+needs to be flushed out in some way? I remember we did some special
+csch handling, but I don't immediately see where; might have been only
+in QEMU.
 
