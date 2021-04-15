@@ -2,216 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60CD1C433ED
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 07:24:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81638C433B4
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 08:01:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 252AC611CD
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 07:24:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 53BDE611F1
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 08:01:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231286AbhDOHZL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Apr 2021 03:25:11 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14566 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231280AbhDOHZK (ORCPT
+        id S231215AbhDOIB5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Apr 2021 04:01:57 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13852 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230190AbhDOIB4 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 15 Apr 2021 03:25:10 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13F73hkK136923;
-        Thu, 15 Apr 2021 03:24:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=q9T8SahEZUqDVixHepan04p7Sk4pDUeFxzkOwHaURFg=;
- b=dlZeaupqjVIc5GSpHSE+gdpu7tsZANMiW38zVzpg/8NUEJlCT3oNl6I7OzXruGdYDGjT
- CSoFTle7AsQznYRJca4p19MS3Fh3BxxIR0uQ09eU7KGRObWJZjBCkeweVE1LrnGGKbTj
- 5DFcuLBiN3BZf8e16o4vSgZxrszn+TpidTpU9ZZR/fDXblsitHN5WSWUrvS4fRCJQHhN
- E3UgU1oKzCu4mpIQMb+02qkfYXgSj5Ns+H4SyrV8yUdPXRmR1rE0eDR97yL73ZurSkpI
- VNH3yTuxYnLnK1CUPqaw/CMqgy1uNBEijPZF+W/lGs4OTBdqjed227c4c07qHpGN115Q YA== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37x88hu7df-1
+        Thu, 15 Apr 2021 04:01:56 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13F7XvQ5152102;
+        Thu, 15 Apr 2021 04:01:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=Iy+4HEBSF+6Bj1MzBbaPvov+Xtf3UDKQhBpPJ8i7LDw=;
+ b=re0aowbxXwZsu8Y6GwmjiH+iLQxFENxjcoYfAuplBPNLiaWDQDxy2EzikGqbeYtOqMsw
+ zdshtgZPPiyXjHygi+VG2tRBAQEHWvxDcKcV8ZDs7hufE0EmciNA5TnUBmk17YmN7i45
+ yb7hLkwOAcCgIvVafsRwfURLXEDBsZFbNyw1a4Jm6hZy+A31XEFWK8v9RJ2ct+WycGrx
+ AlOqZRMkBWUkw8PMH1ar6d9eBtcxaTNKsoXxLsOqrQ4Pv82GlCCYSWpsEuL7M0v8aUl4
+ qdH7b8440+wqy1x/Q7R2chaO7brmYyKmwAstLDjx3XI5sfVYa11762mFBxF7RcdkS8v5 EQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37x13v8w1g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Apr 2021 03:24:42 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13F77RnN023783;
-        Thu, 15 Apr 2021 07:24:37 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 37u3n8bq4p-1
+        Thu, 15 Apr 2021 04:01:33 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13F7YPS0153929;
+        Thu, 15 Apr 2021 04:01:33 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37x13v8w0j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Apr 2021 07:24:36 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13F7OXWh66060664
+        Thu, 15 Apr 2021 04:01:33 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13F7qMaL030873;
+        Thu, 15 Apr 2021 08:01:30 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 37u3n8uqum-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Apr 2021 08:01:30 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13F815wT22479228
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 15 Apr 2021 07:24:34 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D397AAE055;
-        Thu, 15 Apr 2021 07:24:33 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 58A46AE045;
-        Thu, 15 Apr 2021 07:24:33 +0000 (GMT)
-Received: from sig-9-145-170-145.de.ibm.com (unknown [9.145.170.145])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 15 Apr 2021 07:24:33 +0000 (GMT)
-Message-ID: <bd95605ed435ad3978535d865b883f58c1d542d6.camel@linux.ibm.com>
-Subject: Re: [PATCH 1/1] s390/pci: expose a PCI device's UID as its index
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Narendra K <narendra_k@dell.com>,
-        Viktor Mihajlovski <mihajlov@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-netdev@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Date:   Thu, 15 Apr 2021 09:24:33 +0200
-In-Reply-To: <20210414201755.GA2532433@bjorn-Precision-5520>
-References: <20210414201755.GA2532433@bjorn-Precision-5520>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        Thu, 15 Apr 2021 08:01:05 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 60FD111C06E;
+        Thu, 15 Apr 2021 08:01:27 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2C91011C064;
+        Thu, 15 Apr 2021 08:01:27 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 15 Apr 2021 08:01:27 +0000 (GMT)
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH] KVM: s390: fix guarded storage control register handling
+Date:   Thu, 15 Apr 2021 10:01:27 +0200
+Message-Id: <20210415080127.1061275-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bRJFPuNoMNuWoQLkOpRZm60i16bhhTiI
-X-Proofpoint-ORIG-GUID: bRJFPuNoMNuWoQLkOpRZm60i16bhhTiI
+X-Proofpoint-GUID: oW4X9HK-9CKK23m1Mb8WhFHrZfpUPmTT
+X-Proofpoint-ORIG-GUID: hLD123nSDLfmqXYS4Ky0LkkimoaxWHCY
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-04-15_03:2021-04-15,2021-04-15 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1011
- mlxscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
- priorityscore=1501 impostorscore=0 phishscore=0 malwarescore=0 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104150046
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
+ suspectscore=0 phishscore=0 malwarescore=0 lowpriorityscore=0 adultscore=0
+ mlxscore=0 spamscore=0 priorityscore=1501 clxscore=1015 mlxlogscore=624
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104060000
+ definitions=main-2104150049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2021-04-14 at 15:17 -0500, Bjorn Helgaas wrote:
-> On Mon, Apr 12, 2021 at 03:59:05PM +0200, Niklas Schnelle wrote:
-> > On s390 each PCI device has a user-defined ID (UID) exposed under
-> > /sys/bus/pci/devices/<dev>/uid. This ID was designed to serve as the PCI
-> > device's primary index and to match the device within Linux to the
-> > device configured in the hypervisor. To serve as a primary identifier
-> > the UID must be unique within the Linux instance, this is guaranteed by
-> > the platform if and only if the UID Uniqueness Checking flag is set
-> > within the CLP List PCI Functions response.
-> > 
-> > In this sense the UID serves an analogous function as the SMBIOS
-> > instance number or ACPI index exposed as the "index" respectively
-> > "acpi_index" device attributes and used by e.g. systemd to set interface
-> > names. As s390 does not use and will likely never use ACPI nor SMBIOS
-> > there is no conflict and we can just expose the UID under the "index"
-> > attribute whenever UID Uniqueness Checking is active and get systemd's
-> > interface naming support for free.
-> > 
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > Acked-by: Viktor Mihajlovski <mihajlov@linux.ibm.com>
-> 
-> This seems like a nice solution to me.
-> 
-> Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+store_regs_fmt2() has an ordering problem: first the guarded storage
+facility is enabled on the local cpu, then preemption disabled, and
+then the STGSC (store guarded storage controls) instruction is
+executed.
 
-Thanks! Yes I agree it's a simple solution that also makes sense from a
-design point. I'll wait for Narendra's opinion of course.
+If the process gets scheduled away between enabling the guarded
+storage facility and before preemption is disabled, this might lead to
+a special operation exception and therefore kernel crash as soon as
+the process is scheduled back and the STGSC instruction is executed.
 
-> 
-> > ---
-> >  Documentation/ABI/testing/sysfs-bus-pci | 11 +++++---
-> >  arch/s390/pci/pci_sysfs.c               | 35 +++++++++++++++++++++++++
-> >  2 files changed, 42 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/Documentation/ABI/testing/sysfs-bus-pci b/Documentation/ABI/testing/sysfs-bus-pci
-> > index 25c9c39770c6..1241b6d11a52 100644
-> > --- a/Documentation/ABI/testing/sysfs-bus-pci
-> > +++ b/Documentation/ABI/testing/sysfs-bus-pci
-> > @@ -195,10 +195,13 @@ What:		/sys/bus/pci/devices/.../index
-> >  Date:		July 2010
-> >  Contact:	Narendra K <narendra_k@dell.com>, linux-bugs@dell.com
-> >  Description:
-> > -		Reading this attribute will provide the firmware
-> > -		given instance (SMBIOS type 41 device type instance) of the
-> > -		PCI device. The attribute will be created only if the firmware
-> > -		has given an instance number to the PCI device.
-> > +		Reading this attribute will provide the firmware given instance
-> > +		number of the PCI device.  Depending on the platform this can
-> > +		be for example the SMBIOS type 41 device type instance or the
-> > +		user-defined ID (UID) on s390. The attribute will be created
-> > +		only if the firmware has given an instance number to the PCI
-> > +		device and that number is guaranteed to uniquely identify the
-> > +		device in the system.
-> >  Users:
-> >  		Userspace applications interested in knowing the
-> >  		firmware assigned device type instance of the PCI
-> > diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
-> > index e14d346dafd6..20dbb2058d51 100644
-> > --- a/arch/s390/pci/pci_sysfs.c
-> > +++ b/arch/s390/pci/pci_sysfs.c
-> > @@ -138,6 +138,38 @@ static ssize_t uid_is_unique_show(struct device *dev,
-> >  }
-> >  static DEVICE_ATTR_RO(uid_is_unique);
-> >  
-> > +#ifndef CONFIG_DMI
-> > +/* analogous to smbios index */
-> 
-> I think this is smbios_attr_instance, right?  Maybe mention that
-> specifically to make it easier to match these up.
-> 
-> Looks like smbios_attr_instance and the similar ACPI stuff could use
-> some updating to use the current attribute group infrastructure.
-> 
-> > +static ssize_t index_show(struct device *dev,
-> > +			  struct device_attribute *attr, char *buf)
-> > +{
-> > +	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
-> > +	u32 index = ~0;
-> > +
-> > +	if (zpci_unique_uid)
-> > +		index = zdev->uid;
-> > +
-> > +	return sysfs_emit(buf, "%u\n", index);
-> > +}
-> > +static DEVICE_ATTR_RO(index);
-> > +
-> > +static umode_t zpci_unique_uids(struct kobject *kobj,
-> > +				struct attribute *attr, int n)
-> > +{
-> > +	return zpci_unique_uid ? attr->mode : 0;
-> > +}
-> > +
-> > +static struct attribute *zpci_ident_attrs[] = {
-> > +	&dev_attr_index.attr,
-> > +	NULL,
-> > +};
-> > +
-> > +static struct attribute_group zpci_ident_attr_group = {
-> > +	.attrs = zpci_ident_attrs,
-> > +	.is_visible = zpci_unique_uids,
-> 
-> It's conventional to name these functions *_is_visible() (another
-> convention that smbios_attr_instance and acpi_attr_index probably
-> predate).
+Fixes: 4e0b1ab72b8a ("KVM: s390: gs support for kvm guests")
+Cc: <stable@vger.kernel.org> # 4.12
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks, will change. Since he function then references the attribtue
-instead of the condition, I'll go with zpci_index_is_visible().
-
-> 
-> > +};
-> > +#endif
-> > +
-> >  static struct bin_attribute *zpci_bin_attrs[] = {
-> >  	&bin_attr_util_string,
-> >  	&bin_attr_report_error,
-> > @@ -179,5 +211,8 @@ static struct attribute_group pfip_attr_group = {
-> >  const struct attribute_group *zpci_attr_groups[] = {
-> >  	&zpci_attr_group,
-> >  	&pfip_attr_group,
-> > +#ifndef CONFIG_DMI
-> > +	&zpci_ident_attr_group,
-> > +#endif
-> >  	NULL,
-> >  };
-> > -- 
-> > 2.25.1
-> > 
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 2f09e9d7dc95..24ad447e648c 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4307,16 +4307,16 @@ static void store_regs_fmt2(struct kvm_vcpu *vcpu)
+ 	kvm_run->s.regs.bpbc = (vcpu->arch.sie_block->fpf & FPF_BPBC) == FPF_BPBC;
+ 	kvm_run->s.regs.diag318 = vcpu->arch.diag318_info.val;
+ 	if (MACHINE_HAS_GS) {
++		preempt_disable();
+ 		__ctl_set_bit(2, 4);
+ 		if (vcpu->arch.gs_enabled)
+ 			save_gs_cb(current->thread.gs_cb);
+-		preempt_disable();
+ 		current->thread.gs_cb = vcpu->arch.host_gscb;
+ 		restore_gs_cb(vcpu->arch.host_gscb);
+-		preempt_enable();
+ 		if (!vcpu->arch.host_gscb)
+ 			__ctl_clear_bit(2, 4);
+ 		vcpu->arch.host_gscb = NULL;
++		preempt_enable();
+ 	}
+ 	/* SIE will save etoken directly into SDNX and therefore kvm_run */
+ }
+-- 
+2.25.1
 
