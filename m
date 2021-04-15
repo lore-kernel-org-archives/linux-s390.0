@@ -2,186 +2,359 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB878C433ED
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 09:28:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3D3EC43461
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 09:33:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B1A1F61222
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 09:28:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B95EE6113B
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 09:33:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232018AbhDOJ3O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Apr 2021 05:29:14 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31434 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230474AbhDOJ3H (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 15 Apr 2021 05:29:07 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13F93oM7018448;
-        Thu, 15 Apr 2021 05:28:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=fYYSiSybJCyjBG7cY1xtclD406julvU110dchFTKCOw=;
- b=oANYrB/riK5Glq1ifnANe5hCeS4d6mWZRtnyv7Z4n7EmoSmUVtsmZJrv8Sd0BSsoNCYR
- jiipNKa6NCWw188Wq44DEhDRcqbvPRod69hxJ10yPI6yNTDGUgIjhVMggiDpfZGMDZBL
- Mf730753jgQaYEw7xeDK0ZbK/pNc4/ZxQIVlpcuuT8AFGPZMJmWFbBish3z/A4WkhUrr
- RIvjKrINNc+ff9HZuvbTH+eEaZetgGOLi8jrtVeg4R8WvUP5160hZp6OmyYgjO2fwl1E
- y4S8dv634MpULitqEm/61gz24DYwTUxAHLxzJ0DM2jCrWvi0WRgr6y44NcHvfPhxO/Qo Gw== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 37xfrnnbug-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Apr 2021 05:28:21 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13F9SJKB023776;
-        Thu, 15 Apr 2021 09:28:19 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma02fra.de.ibm.com with ESMTP id 37u3n8j10k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Apr 2021 09:28:19 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13F9SHil24445406
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 15 Apr 2021 09:28:17 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E9F8AA405B;
-        Thu, 15 Apr 2021 09:28:16 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A8128A4054;
-        Thu, 15 Apr 2021 09:28:16 +0000 (GMT)
-Received: from ibm-vm (unknown [9.145.0.91])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 15 Apr 2021 09:28:16 +0000 (GMT)
-Date:   Thu, 15 Apr 2021 11:28:14 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     linux-mm@kvack.org, linux-s390@vger.kernel.org
-Subject: Re: Inaccessible pages & folios
-Message-ID: <20210415112814.303f7f02@ibm-vm>
-In-Reply-To: <20210412135514.GK2531743@casper.infradead.org>
-References: <20210409194059.GW2531743@casper.infradead.org>
-        <20210412141809.36c349d6@ibm-vm>
-        <20210412124341.GJ2531743@casper.infradead.org>
-        <20210412153718.06e30c9c@ibm-vm>
-        <20210412135514.GK2531743@casper.infradead.org>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
-Content-Type: text/plain; charset=US-ASCII
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: gXFqvqi7oycuidFou8Eb73-IE3GgCf53
-X-Proofpoint-GUID: gXFqvqi7oycuidFou8Eb73-IE3GgCf53
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S231791AbhDOJdn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Apr 2021 05:33:43 -0400
+Received: from foss.arm.com ([217.140.110.172]:41198 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230260AbhDOJdm (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 15 Apr 2021 05:33:42 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6837612FC;
+        Thu, 15 Apr 2021 02:33:19 -0700 (PDT)
+Received: from net-arm-thunderx2-02.shanghai.arm.com (net-arm-thunderx2-02.shanghai.arm.com [10.169.208.215])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 2ACE53F694;
+        Thu, 15 Apr 2021 02:33:01 -0700 (PDT)
+From:   Jianlin Lv <Jianlin.Lv@arm.com>
+To:     bpf@vger.kernel.org
+Cc:     corbet@lwn.net, ast@kernel.org, daniel@iogearbox.net,
+        andrii@kernel.org, kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
+        john.fastabend@gmail.com, kpsingh@kernel.org, davem@davemloft.net,
+        kuba@kernel.org, illusionist.neo@gmail.com, linux@armlinux.org.uk,
+        zlim.lnx@gmail.com, catalin.marinas@arm.com, will@kernel.org,
+        paulburton@kernel.org, tsbogend@alpha.franken.de,
+        naveen.n.rao@linux.ibm.com, sandipan@linux.ibm.com,
+        mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org,
+        luke.r.nels@gmail.com, xi.wang@gmail.com, bjorn@kernel.org,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, iii@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, borntraeger@de.ibm.com, yoshfuji@linux-ipv6.org,
+        dsahern@kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, x86@kernel.org, hpa@zytor.com, udknight@gmail.com,
+        mchehab+huawei@kernel.org, dvyukov@google.com, maheshb@google.com,
+        horms@verge.net.au, nicolas.dichtel@6wind.com,
+        viro@zeniv.linux.org.uk, masahiroy@kernel.org,
+        keescook@chromium.org, quentin@isovalent.com, tklauser@distanz.ch,
+        grantseltzer@gmail.com, irogers@google.com,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, Jianlin.Lv@arm.com, iecedge@gmail.com
+Subject: [PATCH bpf-next 1/2] bpf: Remove bpf_jit_enable=2 debugging mode
+Date:   Thu, 15 Apr 2021 17:32:49 +0800
+Message-Id: <20210415093250.3391257-1-Jianlin.Lv@arm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-15_03:2021-04-15,2021-04-15 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
- clxscore=1015 mlxlogscore=999 priorityscore=1501 malwarescore=0
- spamscore=0 adultscore=0 bulkscore=0 phishscore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104150060
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 12 Apr 2021 14:55:14 +0100
-Matthew Wilcox <willy@infradead.org> wrote:
+For debugging JITs, dumping the JITed image to kernel log is discouraged,
+"bpftool prog dump jited" is much better way to examine JITed dumps.
+This patch get rid of the code related to bpf_jit_enable=2 mode and
+update the proc handler of bpf_jit_enable, also added auxiliary
+information to explain how to use bpf_jit_disasm tool after this change.
 
-[...]
+Signed-off-by: Jianlin Lv <Jianlin.Lv@arm.com>
+---
+ arch/arm/net/bpf_jit_32.c         |  4 ----
+ arch/arm64/net/bpf_jit_comp.c     |  4 ----
+ arch/mips/net/bpf_jit.c           |  4 ----
+ arch/mips/net/ebpf_jit.c          |  4 ----
+ arch/powerpc/net/bpf_jit_comp.c   | 10 ----------
+ arch/powerpc/net/bpf_jit_comp64.c | 11 -----------
+ arch/riscv/net/bpf_jit_core.c     |  3 ---
+ arch/s390/net/bpf_jit_comp.c      |  4 ----
+ arch/sparc/net/bpf_jit_comp_32.c  |  3 ---
+ arch/sparc/net/bpf_jit_comp_64.c  | 13 -------------
+ arch/x86/net/bpf_jit_comp.c       |  3 ---
+ arch/x86/net/bpf_jit_comp32.c     |  3 ---
+ net/core/sysctl_net_core.c        | 14 +++-----------
+ tools/bpf/bpf_jit_disasm.c        |  2 +-
+ tools/bpf/bpftool/feature.c       |  3 ---
+ 15 files changed, 4 insertions(+), 81 deletions(-)
 
-> 
-> I was only thinking about the page cache case ...
-> 
->         access_ret = arch_make_page_accessible(page);
->         /*
->          * If writeback has been triggered on a page that cannot be
-> made
->          * accessible, it is too late to recover here.
->          */
->         VM_BUG_ON_PAGE(access_ret != 0, page);
-> 
-> ... where it seems all pages _can_ be made accessible.
-
-yes, for that case it is straightforward
-
-> > also, I assume you keep the semantic difference between get_page and
-> > pin_page? that's also very important for us  
-> 
-> I haven't changed anything in gup.c yet.  Just trying to get the page
-> cache to suck less right now.
-
-fair enough :)
+diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
+index 897634d0a67c..92d669c0b2d3 100644
+--- a/arch/arm/net/bpf_jit_32.c
++++ b/arch/arm/net/bpf_jit_32.c
+@@ -1997,10 +1997,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 	}
+ 	flush_icache_range((u32)header, (u32)(ctx.target + ctx.idx));
  
-> > > So what you're saying is that the host might allocate, eg a 1GB
-> > > folio for a guest, then the guest splits that up into smaller
-> > > chunks (eg 1MB), and would only want one of those small chunks
-> > > accessible to the hypervisor?  
-> > 
-> > qemu will allocate a big chunk of memory, and I/O would happen only
-> > on small chunks (depending on what the guest does). I don't know
-> > how swap and pagecache would behave in the folio scenario.
-> > 
-> > Also consider that currently we need 4k hardware pages for protected
-> > guests (so folios would be ok, as long as they are backed by small
-> > pages)
-> > 
-> > How and when are folios created actually?
-> > 
-> > is there a way to prevent creation of multi-page folios?  
-> 
-> Today there's no way to create multi-page folios because I haven't
-> submitted the patch to add alloc_folio() and friends:
-> 
-> https://git.infradead.org/users/willy/pagecache.git/commitdiff/4fe26f7a28ffdc850cd016cdaaa74974c59c5f53
-> 
-> We do have a way to allocate compound pages and add them to the page
-> cache, but that's only in use by tmpfs/shmem.
-> 
-> What will happen is that (for filesystems which support multipage
-> folios), they'll be allocated by the page cache.  I expect other
-> places will start to use folios after that (eg anonymous memory), but
-> I don't know where all those places will be.  I hope not to be
-> involved in that!
-> 
-> The general principle, though, is that the overhead of tracking
-> memory in page-sized units is too high, and we need to use larger
-> units by default. There are occasions when we need to do things to
-> memory in smaller units, and for those, we can choose to either
-> handle sub-folio things, or we can split a folio apart into smaller
-> folios.
-> 
-> > > > a possible approach maybe would be to keep the _page variant,
-> > > > and add a _folio wrapper around it    
-> > > 
-> > > Yes, we can do that.  It's what I'm currently doing for
-> > > flush_dcache_folio().  
-> > 
-> > where would the page flags be stored? as I said, we really depend on
-> > that bit to be set correctly to prevent potentially disruptive I/O
-> > errors. It's ok if the bit overindicates protection (non-protected
-> > pages can be marked as protected), but protected pages must at all
-> > times have the bit set.
-> > 
-> > the reason why this hook exists at all, is to prevent secure pages
-> > from being accidentally (or maliciously) fed into I/O  
-> 
-> You can still use PG_arch_1 on the sub-pages of a folio.  It's one of
-> the things you'll have to decide, actually.  Does setting PG_arch_1 on
-> the head page of the folio indicate that the entire page is
-> accessible, or just that the head page is accessible?  Different page
-> flags have made different decisions here.
-
-ok then, I think the simplest and safest thing to do right now is to
-keep the flag on each page
-
-
-in short:
-* pagecache -> you can put a loop or introduce a _folio wrapper for
-  arch_make_page_accessible
-* gup.c -> won't be touched for now, but when the time comes, the
-  PG_arch_1 bit should be set for each page
+-	if (bpf_jit_enable > 1)
+-		/* there are 2 passes here */
+-		bpf_jit_dump(prog->len, image_size, 2, ctx.target);
+-
+ 	bpf_jit_binary_lock_ro(header);
+ 	prog->bpf_func = (void *)ctx.target;
+ 	prog->jited = 1;
+diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
+index f7b194878a99..a13b83ac4ca8 100644
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -1090,10 +1090,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 		goto out_off;
+ 	}
+ 
+-	/* And we're done. */
+-	if (bpf_jit_enable > 1)
+-		bpf_jit_dump(prog->len, prog_size, 2, ctx.image);
+-
+ 	bpf_flush_icache(header, ctx.image + ctx.idx);
+ 
+ 	if (!prog->is_func || extra_pass) {
+diff --git a/arch/mips/net/bpf_jit.c b/arch/mips/net/bpf_jit.c
+index 0af88622c619..b5221282dd88 100644
+--- a/arch/mips/net/bpf_jit.c
++++ b/arch/mips/net/bpf_jit.c
+@@ -1250,10 +1250,6 @@ void bpf_jit_compile(struct bpf_prog *fp)
+ 	/* Update the icache */
+ 	flush_icache_range((ptr)ctx.target, (ptr)(ctx.target + ctx.idx));
+ 
+-	if (bpf_jit_enable > 1)
+-		/* Dump JIT code */
+-		bpf_jit_dump(fp->len, alloc_size, 2, ctx.target);
+-
+ 	fp->bpf_func = (void *)ctx.target;
+ 	fp->jited = 1;
+ 
+diff --git a/arch/mips/net/ebpf_jit.c b/arch/mips/net/ebpf_jit.c
+index 939dd06764bc..dac5a1fc2462 100644
+--- a/arch/mips/net/ebpf_jit.c
++++ b/arch/mips/net/ebpf_jit.c
+@@ -1910,10 +1910,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 	flush_icache_range((unsigned long)ctx.target,
+ 			   (unsigned long)&ctx.target[ctx.idx]);
+ 
+-	if (bpf_jit_enable > 1)
+-		/* Dump JIT code */
+-		bpf_jit_dump(prog->len, image_size, 2, ctx.target);
+-
+ 	bpf_jit_binary_lock_ro(header);
+ 	prog->bpf_func = (void *)ctx.target;
+ 	prog->jited = 1;
+diff --git a/arch/powerpc/net/bpf_jit_comp.c b/arch/powerpc/net/bpf_jit_comp.c
+index e809cb5a1631..ebca629de2d1 100644
+--- a/arch/powerpc/net/bpf_jit_comp.c
++++ b/arch/powerpc/net/bpf_jit_comp.c
+@@ -646,18 +646,8 @@ void bpf_jit_compile(struct bpf_prog *fp)
+ 		bpf_jit_build_prologue(fp, code_base, &cgctx);
+ 		bpf_jit_build_body(fp, code_base, &cgctx, addrs);
+ 		bpf_jit_build_epilogue(code_base, &cgctx);
+-
+-		if (bpf_jit_enable > 1)
+-			pr_info("Pass %d: shrink = %d, seen = 0x%x\n", pass,
+-				proglen - (cgctx.idx * 4), cgctx.seen);
+ 	}
+ 
+-	if (bpf_jit_enable > 1)
+-		/* Note that we output the base address of the code_base
+-		 * rather than image, since opcodes are in code_base.
+-		 */
+-		bpf_jit_dump(flen, proglen, pass, code_base);
+-
+ 	bpf_flush_icache(code_base, code_base + (proglen/4));
+ 
+ #ifdef CONFIG_PPC64
+diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
+index aaf1a887f653..26243399ef2e 100644
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -1215,20 +1215,9 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
+ 		bpf_jit_build_prologue(code_base, &cgctx);
+ 		bpf_jit_build_body(fp, code_base, &cgctx, addrs, extra_pass);
+ 		bpf_jit_build_epilogue(code_base, &cgctx);
+-
+-		if (bpf_jit_enable > 1)
+-			pr_info("Pass %d: shrink = %d, seen = 0x%x\n", pass,
+-				proglen - (cgctx.idx * 4), cgctx.seen);
+ 	}
+ 
+ skip_codegen_passes:
+-	if (bpf_jit_enable > 1)
+-		/*
+-		 * Note that we output the base address of the code_base
+-		 * rather than image, since opcodes are in code_base.
+-		 */
+-		bpf_jit_dump(flen, proglen, pass, code_base);
+-
+ #ifdef PPC64_ELF_ABI_v1
+ 	/* Function descriptor nastiness: Address + TOC */
+ 	((u64 *)image)[0] = (u64)code_base;
+diff --git a/arch/riscv/net/bpf_jit_core.c b/arch/riscv/net/bpf_jit_core.c
+index 3630d447352c..856b84fb3947 100644
+--- a/arch/riscv/net/bpf_jit_core.c
++++ b/arch/riscv/net/bpf_jit_core.c
+@@ -142,9 +142,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 	}
+ 	bpf_jit_build_epilogue(ctx);
+ 
+-	if (bpf_jit_enable > 1)
+-		bpf_jit_dump(prog->len, image_size, pass, ctx->insns);
+-
+ 	prog->bpf_func = (void *)ctx->insns;
+ 	prog->jited = 1;
+ 	prog->jited_len = image_size;
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index 63cae0476bb4..aa8b94ba694f 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -1842,10 +1842,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
+ 		fp = orig_fp;
+ 		goto free_addrs;
+ 	}
+-	if (bpf_jit_enable > 1) {
+-		bpf_jit_dump(fp->len, jit.size, pass, jit.prg_buf);
+-		print_fn_code(jit.prg_buf, jit.size_prg);
+-	}
+ 	if (!fp->is_func || extra_pass) {
+ 		bpf_jit_binary_lock_ro(header);
+ 	} else {
+diff --git a/arch/sparc/net/bpf_jit_comp_32.c b/arch/sparc/net/bpf_jit_comp_32.c
+index b1dbf2fa8c0a..cb4c55422730 100644
+--- a/arch/sparc/net/bpf_jit_comp_32.c
++++ b/arch/sparc/net/bpf_jit_comp_32.c
+@@ -743,9 +743,6 @@ cond_branch:			f_offset = addrs[i + filter[i].jf];
+ 		oldproglen = proglen;
+ 	}
+ 
+-	if (bpf_jit_enable > 1)
+-		bpf_jit_dump(flen, proglen, pass + 1, image);
+-
+ 	if (image) {
+ 		fp->bpf_func = (void *)image;
+ 		fp->jited = 1;
+diff --git a/arch/sparc/net/bpf_jit_comp_64.c b/arch/sparc/net/bpf_jit_comp_64.c
+index 4b8d3c65d266..09ebd48c4f1b 100644
+--- a/arch/sparc/net/bpf_jit_comp_64.c
++++ b/arch/sparc/net/bpf_jit_comp_64.c
+@@ -1546,16 +1546,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 		}
+ 		build_epilogue(&ctx);
+ 
+-		if (bpf_jit_enable > 1)
+-			pr_info("Pass %d: size = %u, seen = [%c%c%c%c%c%c]\n", pass,
+-				ctx.idx * 4,
+-				ctx.tmp_1_used ? '1' : ' ',
+-				ctx.tmp_2_used ? '2' : ' ',
+-				ctx.tmp_3_used ? '3' : ' ',
+-				ctx.saw_frame_pointer ? 'F' : ' ',
+-				ctx.saw_call ? 'C' : ' ',
+-				ctx.saw_tail_call ? 'T' : ' ');
+-
+ 		if (ctx.idx * 4 == prev_image_size)
+ 			break;
+ 		prev_image_size = ctx.idx * 4;
+@@ -1593,9 +1583,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 		goto out_off;
+ 	}
+ 
+-	if (bpf_jit_enable > 1)
+-		bpf_jit_dump(prog->len, image_size, pass, ctx.image);
+-
+ 	bpf_flush_icache(header, (u8 *)header + (header->pages * PAGE_SIZE));
+ 
+ 	if (!prog->is_func || extra_pass) {
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index 9eead60f0301..0a511f42a2a7 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -2311,9 +2311,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 		cond_resched();
+ 	}
+ 
+-	if (bpf_jit_enable > 1)
+-		bpf_jit_dump(prog->len, proglen, pass + 1, image);
+-
+ 	if (image) {
+ 		if (!prog->is_func || extra_pass) {
+ 			bpf_tail_call_direct_fixup(prog);
+diff --git a/arch/x86/net/bpf_jit_comp32.c b/arch/x86/net/bpf_jit_comp32.c
+index 0a7a2870f111..8d36b4658076 100644
+--- a/arch/x86/net/bpf_jit_comp32.c
++++ b/arch/x86/net/bpf_jit_comp32.c
+@@ -2566,9 +2566,6 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 		cond_resched();
+ 	}
+ 
+-	if (bpf_jit_enable > 1)
+-		bpf_jit_dump(prog->len, proglen, pass + 1, image);
+-
+ 	if (image) {
+ 		bpf_jit_binary_lock_ro(header);
+ 		prog->bpf_func = (void *)image;
+diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+index c8496c1142c9..990b1720c7a4 100644
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -273,16 +273,8 @@ static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
+ 
+ 	tmp.data = &jit_enable;
+ 	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
+-	if (write && !ret) {
+-		if (jit_enable < 2 ||
+-		    (jit_enable == 2 && bpf_dump_raw_ok(current_cred()))) {
+-			*(int *)table->data = jit_enable;
+-			if (jit_enable == 2)
+-				pr_warn("bpf_jit_enable = 2 was set! NEVER use this in production, only for JIT debugging!\n");
+-		} else {
+-			ret = -EPERM;
+-		}
+-	}
++	if (write && !ret)
++		*(int *)table->data = jit_enable;
+ 	return ret;
+ }
+ 
+@@ -389,7 +381,7 @@ static struct ctl_table net_core_table[] = {
+ 		.extra2		= SYSCTL_ONE,
+ # else
+ 		.extra1		= SYSCTL_ZERO,
+-		.extra2		= &two,
++		.extra2		= SYSCTL_ONE,
+ # endif
+ 	},
+ # ifdef CONFIG_HAVE_EBPF_JIT
+diff --git a/tools/bpf/bpf_jit_disasm.c b/tools/bpf/bpf_jit_disasm.c
+index c8ae95804728..efa4b17ae016 100644
+--- a/tools/bpf/bpf_jit_disasm.c
++++ b/tools/bpf/bpf_jit_disasm.c
+@@ -7,7 +7,7 @@
+  *
+  * To get the disassembly of the JIT code, do the following:
+  *
+- *  1) `echo 2 > /proc/sys/net/core/bpf_jit_enable`
++ *  1) Insert bpf_jit_dump() and recompile the kernel to output JITed image into log
+  *  2) Load a BPF filter (e.g. `tcpdump -p -n -s 0 -i eth1 host 192.168.20.0/24`)
+  *  3) Run e.g. `bpf_jit_disasm -o` to read out the last JIT code
+  *
+diff --git a/tools/bpf/bpftool/feature.c b/tools/bpf/bpftool/feature.c
+index 40a88df275f9..98c7eec2923f 100644
+--- a/tools/bpf/bpftool/feature.c
++++ b/tools/bpf/bpftool/feature.c
+@@ -203,9 +203,6 @@ static void probe_jit_enable(void)
+ 		case 1:
+ 			printf("JIT compiler is enabled\n");
+ 			break;
+-		case 2:
+-			printf("JIT compiler is enabled with debugging traces in kernel logs\n");
+-			break;
+ 		case -1:
+ 			printf("Unable to retrieve JIT-compiler status\n");
+ 			break;
+-- 
+2.25.1
 
