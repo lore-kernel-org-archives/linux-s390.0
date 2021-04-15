@@ -7,112 +7,117 @@ X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82256C433B4
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 12:12:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8533C433ED
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 12:21:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3B92661153
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 12:12:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ABDC86124B
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 12:21:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232650AbhDOMMy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Apr 2021 08:12:54 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1868 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231590AbhDOMMy (ORCPT
+        id S232675AbhDOMVn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Apr 2021 08:21:43 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55386 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230202AbhDOMVn (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 15 Apr 2021 08:12:54 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13FC4982064386;
-        Thu, 15 Apr 2021 08:12:17 -0400
+        Thu, 15 Apr 2021 08:21:43 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13FC3NUN037904;
+        Thu, 15 Apr 2021 08:20:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=0qmyfG6khRpUOKcXpSEaC/J9TizHeX8zVO1F8w3sqWk=;
- b=joVs24R/42uPu6TAZl2eclklMxA31xdJPYE3bnVojAVNlLlmuCn/T+gxGAbCj1xALnMD
- BnGRroXfmU7QqX4j6AOj2BlraPJ0PxJz5Hy3Lee9ltHLDfvttJuFhTjMukZNU2DIsjtj
- MBJq25gtWdgS5GrCuFRwdO3ESuwnrIh+a4z8P1+WsncktYlGaYnSLU36c/EFay/thW/3
- sSs3/Jb1eJH0+AQUASbvpBKHIPHv2LoWRyRobQI1WCghg9uJGid4K5+0j8qIFhUfF5I5
- +gbHiv85aRMdgwb5GhAAHF7fzMRv4UtRYUIfR1IdLAiR2DWKyTev1sSR8qtWloR23zCq CA== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 37xbqb6dv5-1
+ in-reply-to; s=pp1; bh=BJ8vT+zdtijIJ63F5bRpUZcIpEAXyB7xSiiu0EiR3AE=;
+ b=lqnNjMkDdKOIVL9emzvdhra3fldjBHU/IOeopSt1uinqa1JfIVINDUkhZWf3dUdXLgXP
+ 5Cd6+opDn4W14eIXi+4RSA4lZ5lG/Hgm0myxACaCn9zTl4IBvaEZy6SawVvOsYN2McOZ
+ y3v7ks+qYtAC2WI3Iw33EKRu7KLiIMFvb2r+F9gZVdCIj3b6szJfmeeDjc9bCew+pryD
+ TVDPhVsS9q+bI0y9zNpLLvC8ZQ8Lcdy/WXGWjA0mUFjXprGZMClHofcNrwqSGEGZUsMz
+ 3EufkW6Zf/xnbygvhgrUBSbNDBu6xDoX8Xxp87yhHHzvn/KVh6CCXQIkYYv0sYXjZa/+ vg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37x88j2vgd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Apr 2021 08:12:16 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13FC7YAO007426;
-        Thu, 15 Apr 2021 12:12:15 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 37u3n8bv3s-1
+        Thu, 15 Apr 2021 08:20:55 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13FC5j7G060273;
+        Thu, 15 Apr 2021 08:20:55 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 37x88j2vf7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Apr 2021 12:12:14 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13FCCCQV26018220
+        Thu, 15 Apr 2021 08:20:55 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13FCCeu1011734;
+        Thu, 15 Apr 2021 12:20:53 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma05fra.de.ibm.com with ESMTP id 37u3n8a33e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Apr 2021 12:20:53 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13FCKoQB39911756
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 15 Apr 2021 12:12:12 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 86AB042041;
-        Thu, 15 Apr 2021 12:12:12 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AC84E4203F;
-        Thu, 15 Apr 2021 12:12:11 +0000 (GMT)
+        Thu, 15 Apr 2021 12:20:50 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F12A052050;
+        Thu, 15 Apr 2021 12:20:49 +0000 (GMT)
 Received: from osiris (unknown [9.171.3.254])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu, 15 Apr 2021 12:12:11 +0000 (GMT)
-Date:   Thu, 15 Apr 2021 14:12:10 +0200
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 37F265204E;
+        Thu, 15 Apr 2021 12:20:49 +0000 (GMT)
+Date:   Thu, 15 Apr 2021 14:20:48 +0200
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>, Rich Felker <dalias@libc.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        nathan@kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
-        James Morse <james.morse@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        kernel-team@android.com
-Subject: Re: [PATCH 3/5] s390: Get rid of oprofile leftovers
-Message-ID: <YHgtmjjtk9dDa7/R@osiris>
-References: <20210414134409.1266357-1-maz@kernel.org>
- <20210414134409.1266357-4-maz@kernel.org>
- <YHgXvFCLh0Ls0b9t@osiris>
- <87fszrn7sx.wl-maz@kernel.org>
+        "David S. Miller" <davem@davemloft.net>, x86@kernel.org,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: consolidate the flock uapi definitions
+Message-ID: <YHgvoCpqLrcbQETJ@osiris>
+References: <20210412085545.2595431-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87fszrn7sx.wl-maz@kernel.org>
+In-Reply-To: <20210412085545.2595431-1-hch@lst.de>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vARCqOoco7d3n4Ke2RUPNWmaue1niUQS
-X-Proofpoint-ORIG-GUID: vARCqOoco7d3n4Ke2RUPNWmaue1niUQS
+X-Proofpoint-GUID: GYiuXa6MwPoYPHEW5dNs6OA4IVhEE-Qd
+X-Proofpoint-ORIG-GUID: WIGbMGvshmA6lDf2tv4RGrRtJ4XbrxTC
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-04-15_04:2021-04-15,2021-04-15 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=714
- suspectscore=0 phishscore=0 mlxscore=0 clxscore=1015 spamscore=0
- impostorscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=762 clxscore=1011
+ mlxscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0
+ priorityscore=1501 impostorscore=0 phishscore=0 malwarescore=0 spamscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2104060000 definitions=main-2104150081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Apr 15, 2021 at 11:47:26AM +0100, Marc Zyngier wrote:
-> On Thu, 15 Apr 2021 11:38:52 +0100,
-> Heiko Carstens <hca@linux.ibm.com> wrote:
-> > 
-> > On Wed, Apr 14, 2021 at 02:44:07PM +0100, Marc Zyngier wrote:
-> > > perf_pmu_name() and perf_num_counters() are unused. Drop them.
-> > > 
-> > > Signed-off-by: Marc Zyngier <maz@kernel.org>
-> > > ---
-> > >  arch/s390/kernel/perf_event.c | 21 ---------------------
-> > >  1 file changed, 21 deletions(-)
-> > 
-> > Acked-by: Heiko Carstens <hca@linux.ibm.com>
-> > 
-> > ...or do you want me to pick this up and route via the s390 tree(?).
+On Mon, Apr 12, 2021 at 10:55:40AM +0200, Christoph Hellwig wrote:
+> Hi all,
 > 
-> Either way work for me, but I just want to make sure the last patch
-> doesn't get applied before the previous ones.
+> currently we deal with the slight differents in the various architecture
+> variants of the flock and flock64 stuctures in a very cruft way.  This
+> series switches to just use small arch hooks and define the rest in
+> asm-generic and linux/compat.h instead.
+> 
+> Diffstat:
+>  arch/arm64/include/asm/compat.h        |   20 --------------------
+>  arch/mips/include/asm/compat.h         |   23 ++---------------------
+>  arch/mips/include/uapi/asm/fcntl.h     |   28 +++-------------------------
+>  arch/parisc/include/asm/compat.h       |   16 ----------------
+>  arch/powerpc/include/asm/compat.h      |   20 --------------------
+>  arch/s390/include/asm/compat.h         |   20 --------------------
+>  arch/sparc/include/asm/compat.h        |   22 +---------------------
+>  arch/x86/include/asm/compat.h          |   24 +++---------------------
+>  include/linux/compat.h                 |   31 +++++++++++++++++++++++++++++++
+>  include/uapi/asm-generic/fcntl.h       |   21 +++++++--------------
+>  tools/include/uapi/asm-generic/fcntl.h |   21 +++++++--------------
+>  11 files changed, 54 insertions(+), 192 deletions(-)
 
-Ok, I applied this one to the s390 tree. Thanks!
+for the s390 bits:
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
