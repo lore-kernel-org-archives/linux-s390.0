@@ -2,124 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE635C43462
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 09:33:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 380A8C433ED
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 10:39:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C160A6113B
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 09:33:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A226613A9
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 10:39:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232142AbhDOJeE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Apr 2021 05:34:04 -0400
-Received: from foss.arm.com ([217.140.110.172]:41266 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231960AbhDOJeD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 15 Apr 2021 05:34:03 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 58113106F;
-        Thu, 15 Apr 2021 02:33:40 -0700 (PDT)
-Received: from net-arm-thunderx2-02.shanghai.arm.com (net-arm-thunderx2-02.shanghai.arm.com [10.169.208.215])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 225E33F694;
-        Thu, 15 Apr 2021 02:33:22 -0700 (PDT)
-From:   Jianlin Lv <Jianlin.Lv@arm.com>
-To:     bpf@vger.kernel.org
-Cc:     corbet@lwn.net, ast@kernel.org, daniel@iogearbox.net,
-        andrii@kernel.org, kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
-        john.fastabend@gmail.com, kpsingh@kernel.org, davem@davemloft.net,
-        kuba@kernel.org, illusionist.neo@gmail.com, linux@armlinux.org.uk,
-        zlim.lnx@gmail.com, catalin.marinas@arm.com, will@kernel.org,
-        paulburton@kernel.org, tsbogend@alpha.franken.de,
-        naveen.n.rao@linux.ibm.com, sandipan@linux.ibm.com,
-        mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org,
-        luke.r.nels@gmail.com, xi.wang@gmail.com, bjorn@kernel.org,
-        paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, iii@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, borntraeger@de.ibm.com, yoshfuji@linux-ipv6.org,
-        dsahern@kernel.org, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, x86@kernel.org, hpa@zytor.com, udknight@gmail.com,
-        mchehab+huawei@kernel.org, dvyukov@google.com, maheshb@google.com,
-        horms@verge.net.au, nicolas.dichtel@6wind.com,
-        viro@zeniv.linux.org.uk, masahiroy@kernel.org,
-        keescook@chromium.org, quentin@isovalent.com, tklauser@distanz.ch,
-        grantseltzer@gmail.com, irogers@google.com,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, Jianlin.Lv@arm.com, iecedge@gmail.com
-Subject: [PATCH bpf-next 2/2] docs: bpf: bpf_jit_enable mode changed
-Date:   Thu, 15 Apr 2021 17:32:50 +0800
-Message-Id: <20210415093250.3391257-2-Jianlin.Lv@arm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210415093250.3391257-1-Jianlin.Lv@arm.com>
-References: <20210415093250.3391257-1-Jianlin.Lv@arm.com>
+        id S231590AbhDOKjl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Apr 2021 06:39:41 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16392 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229481AbhDOKjl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 15 Apr 2021 06:39:41 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13FAXmM5008654;
+        Thu, 15 Apr 2021 06:38:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=psn3DZgaprlJLV0BRJ/BAVGKz59VmYfg2eUMYc2+zS4=;
+ b=jCHrO7la0kfaud/8GLiCl3bYA0PeNVY5T4wUo8iFVA0wkJh5EMq1mOwpyFzNbHnoXuZ4
+ 71UHRqy3RhRHVV0gEKj6NkivCvxLQsIQ7LtSq1jIbMiXfk6UQYeQ75S4AB6tk0UbgDOc
+ p0+9Dx7kfKLlDpMnTppC7saA9uP0P04ry2Dk7QiE8gbVrshbWRuR643Rins+PssnhvWE
+ miOmsYkcnYwnjSXJzD2Be6IhqS2jTgzdy4SQmakLu3fOQTsLPz7yTZvXf4JbMRhBAkjd
+ XVn4g7yC0HO3wSzn5sslRzDr0H2esBUAboxlUPok35Hbqcnaq7ba6apn5zUTjRcj71xz 5Q== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 37xbqk3rdm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Apr 2021 06:38:58 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13FAXt48018949;
+        Thu, 15 Apr 2021 10:38:56 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06fra.de.ibm.com with ESMTP id 37u39ha245-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Apr 2021 10:38:56 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13FAcsQR9830768
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 15 Apr 2021 10:38:54 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E81F611C054;
+        Thu, 15 Apr 2021 10:38:53 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 22E6B11C04A;
+        Thu, 15 Apr 2021 10:38:53 +0000 (GMT)
+Received: from osiris (unknown [9.171.3.254])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Thu, 15 Apr 2021 10:38:53 +0000 (GMT)
+Date:   Thu, 15 Apr 2021 12:38:52 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>, Rich Felker <dalias@libc.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        nathan@kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        kernel-team@android.com
+Subject: Re: [PATCH 3/5] s390: Get rid of oprofile leftovers
+Message-ID: <YHgXvFCLh0Ls0b9t@osiris>
+References: <20210414134409.1266357-1-maz@kernel.org>
+ <20210414134409.1266357-4-maz@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210414134409.1266357-4-maz@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 0anE4PGcxBYlU4oJrE2IcbTp6vUyz4kt
+X-Proofpoint-ORIG-GUID: 0anE4PGcxBYlU4oJrE2IcbTp6vUyz4kt
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-15_03:2021-04-15,2021-04-15 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ priorityscore=1501 spamscore=0 suspectscore=0 phishscore=0
+ lowpriorityscore=0 adultscore=0 mlxlogscore=721 bulkscore=0 malwarescore=0
+ impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104150064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Remove information about bpf_jit_enable=2 mode and added description for
-how to use the bpf_jit_disasm tool after get rid of =2 mode.
+On Wed, Apr 14, 2021 at 02:44:07PM +0100, Marc Zyngier wrote:
+> perf_pmu_name() and perf_num_counters() are unused. Drop them.
+> 
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> ---
+>  arch/s390/kernel/perf_event.c | 21 ---------------------
+>  1 file changed, 21 deletions(-)
 
-Signed-off-by: Jianlin Lv <Jianlin.Lv@arm.com>
----
- Documentation/admin-guide/sysctl/net.rst |  1 -
- Documentation/networking/filter.rst      | 25 ++++++------------------
- 2 files changed, 6 insertions(+), 20 deletions(-)
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
 
-diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
-index c941b214e0b7..a39f99deac38 100644
---- a/Documentation/admin-guide/sysctl/net.rst
-+++ b/Documentation/admin-guide/sysctl/net.rst
-@@ -86,7 +86,6 @@ Values:
- 
- 	- 0 - disable the JIT (default value)
- 	- 1 - enable the JIT
--	- 2 - enable the JIT and ask the compiler to emit traces on kernel log.
- 
- bpf_jit_harden
- --------------
-diff --git a/Documentation/networking/filter.rst b/Documentation/networking/filter.rst
-index 251c6bd73d15..86954f922168 100644
---- a/Documentation/networking/filter.rst
-+++ b/Documentation/networking/filter.rst
-@@ -504,25 +504,12 @@ been previously enabled by root::
- 
-   echo 1 > /proc/sys/net/core/bpf_jit_enable
- 
--For JIT developers, doing audits etc, each compile run can output the generated
--opcode image into the kernel log via::
--
--  echo 2 > /proc/sys/net/core/bpf_jit_enable
--
--Example output from dmesg::
--
--    [ 3389.935842] flen=6 proglen=70 pass=3 image=ffffffffa0069c8f
--    [ 3389.935847] JIT code: 00000000: 55 48 89 e5 48 83 ec 60 48 89 5d f8 44 8b 4f 68
--    [ 3389.935849] JIT code: 00000010: 44 2b 4f 6c 4c 8b 87 d8 00 00 00 be 0c 00 00 00
--    [ 3389.935850] JIT code: 00000020: e8 1d 94 ff e0 3d 00 08 00 00 75 16 be 17 00 00
--    [ 3389.935851] JIT code: 00000030: 00 e8 28 94 ff e0 83 f8 01 75 07 b8 ff ff 00 00
--    [ 3389.935852] JIT code: 00000040: eb 02 31 c0 c9 c3
--
--When CONFIG_BPF_JIT_ALWAYS_ON is enabled, bpf_jit_enable is permanently set to 1 and
--setting any other value than that will return in failure. This is even the case for
--setting bpf_jit_enable to 2, since dumping the final JIT image into the kernel log
--is discouraged and introspection through bpftool (under tools/bpf/bpftool/) is the
--generally recommended approach instead.
-+When CONFIG_BPF_JIT_ALWAYS_ON is enabled, bpf_jit_enable is permanently set
-+to 1 and setting any other value than that will return in failure.
-+For debugging JITs, the introspection through bpftool (tools/bpf/bpftool/)
-+is the generally recommended approach instead. For JIT developers, doing
-+audits etc, you can insert bpf_jit_dump() and recompile the kernel to
-+output the generated opcode image into the kernel log.
- 
- In the kernel source tree under tools/bpf/, there's bpf_jit_disasm for
- generating disassembly out of the kernel log's hexdump::
--- 
-2.25.1
-
+...or do you want me to pick this up and route via the s390 tree(?).
