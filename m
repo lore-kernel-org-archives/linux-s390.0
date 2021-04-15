@@ -2,84 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43095C433B4
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 10:54:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1191C433B4
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 11:34:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1E31661222
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 10:54:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B7A9B61027
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Apr 2021 11:34:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232450AbhDOKzB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Apr 2021 06:55:01 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:44857 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232399AbhDOKzB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 15 Apr 2021 06:55:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1618484078;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=DjPUmx4ZuT82ngfXJ12wBBUr3RMNilWkR0ojCFc0jqk=;
-        b=Slq9BfPb1bO2ADg0VBjJP7czGTNGrAdRUK7zdU4Gno3d7gzQj7eq0Dvl5qW3yojcm2xCxL
-        cKQJ0C2ZZhXLRtTlpmXlq7pCX4hZ1Qk4I2cNtc6N5k4Ve2aGHiQMt3l7iKWIXaBIYDWIQI
-        H6cf7MUz1XmK3e15dnU5PU44HDnZENM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-574-BrY5UVa4OqOLcklPML1K6Q-1; Thu, 15 Apr 2021 06:54:36 -0400
-X-MC-Unique: BrY5UVa4OqOLcklPML1K6Q-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3554A10054F6;
-        Thu, 15 Apr 2021 10:54:35 +0000 (UTC)
-Received: from gondolin (ovpn-113-158.ams2.redhat.com [10.36.113.158])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D510D19D9F;
-        Thu, 15 Apr 2021 10:54:33 +0000 (UTC)
-Date:   Thu, 15 Apr 2021 12:54:31 +0200
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Eric Farman <farman@linux.ibm.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [RFC PATCH v4 3/4] vfio-ccw: Reset FSM state to IDLE inside FSM
-Message-ID: <20210415125431.0260b4e8.cohuck@redhat.com>
-In-Reply-To: <20210413182410.1396170-4-farman@linux.ibm.com>
-References: <20210413182410.1396170-1-farman@linux.ibm.com>
-        <20210413182410.1396170-4-farman@linux.ibm.com>
-Organization: Red Hat GmbH
+        id S232302AbhDOLfN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Apr 2021 07:35:13 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:17001 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230056AbhDOLfL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Apr 2021 07:35:11 -0400
+Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4FLcck3HcWzPpxD;
+        Thu, 15 Apr 2021 19:31:50 +0800 (CST)
+Received: from [10.174.187.224] (10.174.187.224) by
+ DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
+ 14.3.498.0; Thu, 15 Apr 2021 19:34:40 +0800
+Subject: Re: [PATCH 1/5] KVM: arm64: Divorce the perf code from oprofile
+ helpers
+To:     Marc Zyngier <maz@kernel.org>
+References: <20210414134409.1266357-1-maz@kernel.org>
+ <20210414134409.1266357-2-maz@kernel.org>
+ <baa268cf-c92d-6b97-da4c-e7da2a9ccb7a@huawei.com>
+ <87h7k7n81z.wl-maz@kernel.org>
+CC:     <kvm@vger.kernel.org>, <kvmarm@lists.cs.columbia.edu>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <linux-sh@vger.kernel.org>, Rich Felker <dalias@libc.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        <nathan@kernel.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        <kernel-team@android.com>, Will Deacon <will@kernel.org>
+From:   Keqian Zhu <zhukeqian1@huawei.com>
+Message-ID: <da73e0c7-4dd7-ce69-3304-3da8f1521127@huawei.com>
+Date:   Thu, 15 Apr 2021 19:34:40 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101
+ Thunderbird/45.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <87h7k7n81z.wl-maz@kernel.org>
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Originating-IP: [10.174.187.224]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 13 Apr 2021 20:24:09 +0200
-Eric Farman <farman@linux.ibm.com> wrote:
+Hi Marc,
 
-> When an I/O request is made, the fsm_io_request() routine
-> moves the FSM state from IDLE to CP_PROCESSING, and then
-> fsm_io_helper() moves it to CP_PENDING if the START SUBCHANNEL
-> received a cc0. Yet, the error case to go from CP_PROCESSING
-> back to IDLE is done after the FSM call returns.
+On 2021/4/15 18:42, Marc Zyngier wrote:
+> On Thu, 15 Apr 2021 07:59:26 +0100,
+> Keqian Zhu <zhukeqian1@huawei.com> wrote:
+>>
+>> Hi Marc,
+>>
+>> On 2021/4/14 21:44, Marc Zyngier wrote:
+>>> KVM/arm64 is the sole user of perf_num_counters(), and really
+>>> could do without it. Stop using the obsolete API by relying on
+>>> the existing probing code.
+>>>
+>>> Signed-off-by: Marc Zyngier <maz@kernel.org>
+>>> ---
+>>>  arch/arm64/kvm/perf.c     | 7 +------
+>>>  arch/arm64/kvm/pmu-emul.c | 2 +-
+>>>  include/kvm/arm_pmu.h     | 4 ++++
+>>>  3 files changed, 6 insertions(+), 7 deletions(-)
+>>>
+>>> diff --git a/arch/arm64/kvm/perf.c b/arch/arm64/kvm/perf.c
+>>> index 739164324afe..b8b398670ef2 100644
+>>> --- a/arch/arm64/kvm/perf.c
+>>> +++ b/arch/arm64/kvm/perf.c
+>>> @@ -50,12 +50,7 @@ static struct perf_guest_info_callbacks kvm_guest_cbs = {
+>>>  
+>>>  int kvm_perf_init(void)
+>>>  {
+>>> -	/*
+>>> -	 * Check if HW_PERF_EVENTS are supported by checking the number of
+>>> -	 * hardware performance counters. This could ensure the presence of
+>>> -	 * a physical PMU and CONFIG_PERF_EVENT is selected.
+>>> -	 */
+>>> -	if (IS_ENABLED(CONFIG_ARM_PMU) && perf_num_counters() > 0)
+>>> +	if (kvm_pmu_probe_pmuver() != 0xf)
+>> The probe() function may be called many times
+>> (kvm_arm_pmu_v3_set_attr also calls it).  I don't know whether the
+>> first calling is enough. If so, can we use a static variable in it,
+>> so the following calling can return the result right away?
 > 
-> Let's move this up into the FSM proper, to provide some
-> better symmetry when unwinding in this case.
+> No, because that wouldn't help with crappy big-little implementations
+> that could have PMUs with different versions. We want to find the
+> version at the point where the virtual PMU is created, which is why we
+> call the probe function once per vcpu.
+I see.
+
+But AFAICS the pmuver is placed in kvm->arch, and the probe function is called
+once per VM. Maybe I miss something.
+
 > 
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->  drivers/s390/cio/vfio_ccw_fsm.c | 1 +
->  drivers/s390/cio/vfio_ccw_ops.c | 2 --
->  2 files changed, 1 insertion(+), 2 deletions(-)
+> This of course is broken in other ways (BL+KVM is a total disaster
+> when it comes to PMU), but making this static would just make it
+> worse.
+OK.
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-
+Thanks,
+Keqian
