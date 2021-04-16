@@ -2,128 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 483B2C433B4
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Apr 2021 10:51:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A45EC43460
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Apr 2021 11:06:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2718F6115B
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Apr 2021 10:51:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EEF126113B
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Apr 2021 11:06:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240672AbhDPKvq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Apr 2021 06:51:46 -0400
-Received: from foss.arm.com ([217.140.110.172]:38604 "EHLO foss.arm.com"
+        id S235252AbhDPLHP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Apr 2021 07:07:15 -0400
+Received: from mx2.suse.de ([195.135.220.15]:56748 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239598AbhDPKvq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 16 Apr 2021 06:51:46 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 31375106F;
-        Fri, 16 Apr 2021 03:51:21 -0700 (PDT)
-Received: from [192.168.1.179] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6D9123F85F;
-        Fri, 16 Apr 2021 03:51:19 -0700 (PDT)
-Subject: Re: [PATCH v1 3/5] mm: ptdump: Provide page size to notepage()
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        akpm@linux-foundation.org
-Cc:     linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-riscv@lists.infradead.org, x86@kernel.org, linux-mm@kvack.org
-References: <cover.1618506910.git.christophe.leroy@csgroup.eu>
- <1ef6b954fb7b0f4dfc78820f1e612d2166c13227.1618506910.git.christophe.leroy@csgroup.eu>
- <41819925-3ee5-4771-e98b-0073e8f095cf@arm.com>
- <da53d2f2-b472-0c38-bdd5-99c5a098675d@csgroup.eu>
-From:   Steven Price <steven.price@arm.com>
-Message-ID: <1102cda1-b00f-b6ef-6bf3-22068cc11510@arm.com>
-Date:   Fri, 16 Apr 2021 11:51:14 +0100
+        id S235011AbhDPLHP (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 16 Apr 2021 07:07:15 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 0C080ADE2;
+        Fri, 16 Apr 2021 11:06:50 +0000 (UTC)
+To:     lipeifeng@oppo.com, peifengl55@gmail.com, schwidefsky@de.ibm.com,
+        heiko.carstens@de.ibm.com
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+References: <20210414023803.937-1-lipeifeng@oppo.com>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [RFC] mm: support multi_freearea to the reduction of external
+ fragmentation
+Message-ID: <a7bb16c0-31b2-6aa5-2186-8c957955649e@suse.cz>
+Date:   Fri, 16 Apr 2021 13:06:49 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+ Thunderbird/78.9.0
 MIME-Version: 1.0
-In-Reply-To: <da53d2f2-b472-0c38-bdd5-99c5a098675d@csgroup.eu>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
+In-Reply-To: <20210414023803.937-1-lipeifeng@oppo.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 16/04/2021 11:38, Christophe Leroy wrote:
+On 4/14/21 4:38 AM, lipeifeng@oppo.com wrote:
+> From: lipeifeng <lipeifeng@oppo.com>
 > 
+> This patch would "sort" the free-pages in buddy by pages-PFN to concentrate
+> low-order-pages allocation in the front area of memory and high-order-pages
+> allcation on the contrary so that few memory-pollution in the back area of
+> memory and the probablity of high-order-pages allocation would be increased
+> significantly.
+> -----------------------------------------------------------------------
 > 
-> Le 16/04/2021 à 11:28, Steven Price a écrit :
->> On 15/04/2021 18:18, Christophe Leroy wrote:
->>> In order to support large pages on powerpc, notepage()
->>> needs to know the page size of the page.
->>>
->>> Add a page_size argument to notepage().
->>>
->>> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
->>> ---
->>>   arch/arm64/mm/ptdump.c         |  2 +-
->>>   arch/riscv/mm/ptdump.c         |  2 +-
->>>   arch/s390/mm/dump_pagetables.c |  3 ++-
->>>   arch/x86/mm/dump_pagetables.c  |  2 +-
->>>   include/linux/ptdump.h         |  2 +-
->>>   mm/ptdump.c                    | 16 ++++++++--------
->>>   6 files changed, 14 insertions(+), 13 deletions(-)
->>>
->> [...]
->>> diff --git a/mm/ptdump.c b/mm/ptdump.c
->>> index da751448d0e4..61cd16afb1c8 100644
->>> --- a/mm/ptdump.c
->>> +++ b/mm/ptdump.c
->>> @@ -17,7 +17,7 @@ static inline int note_kasan_page_table(struct 
->>> mm_walk *walk,
->>>   {
->>>       struct ptdump_state *st = walk->private;
->>> -    st->note_page(st, addr, 4, pte_val(kasan_early_shadow_pte[0]));
->>> +    st->note_page(st, addr, 4, pte_val(kasan_early_shadow_pte[0]), 
->>> PAGE_SIZE);
->>
->> I'm not completely sure what the page_size is going to be used for, 
->> but note that KASAN presents an interesting case here. We short-cut by 
->> detecting it's a KASAN region at a high level (PGD/P4D/PUD/PMD) and 
->> instead of walking the tree down just call note_page() *once* but with 
->> level==4 because we know KASAN sets up the page table like that.
->>
->> However the one call actually covers a much larger region - so while 
->> PAGE_SIZE matches the level it doesn't match the region covered. 
->> AFAICT this will lead to odd results if you enable KASAN on powerpc.
+>   1) Divide memory into several segments by pages-PFN
+>      "Multi_freearea" would divide memory into FREE_AREA_COUNTS segments
+>      by pages-PFN,each memory-segment corresponds to a free_area.
 > 
-> Hum .... I successfully tested it with KASAN, I now realise that I 
-> tested it with CONFIG_KASAN_VMALLOC selected. In this situation, since 
-> https://github.com/torvalds/linux/commit/af3d0a686 we don't have any 
-> common shadow page table anymore.
+>      Example: machine(4G of physical memery) and FREE_AREA_COUNTS(4):
+>         page-PFN:0x0     0x40000(1G)   0x80000(2G)  0xc0000(3G) 0xFFFFF(4G)
+>                  |------------|--------------|--------------|-------------|
+>         free_area:  [0][]           [1][]           [2][]        [3][]
 > 
-> I'll test again without CONFIG_KASAN_VMALLOC.
+>      NOTE: Selecting the corresponding freearea when pages are freed back
+> 	       to buddy:
+>         - pages-PFN[0, free_area_segment[0].max_pfn] -> free_area[0][]
+>         - pages-PFN[free_area_segment[flc - 1].max_pfn,
+> 	            free_area_segment[flc].max_pfn] -> free_area[flc][]
+>                    (flc > 0)
 > 
->>
->> To be honest I don't fully understand why powerpc requires the 
->> page_size - it appears to be using it purely to find "holes" in the 
->> calls to note_page(), but I haven't worked out why such holes would 
->> occur.
+>      By this way, all pages in the same segment/free_area is within a
+>      certain range of pages-PFN.
 > 
-> I was indeed introduced for KASAN. We have a first commit 
-> https://github.com/torvalds/linux/commit/cabe8138 which uses page size 
-> to detect whether it is a KASAN like stuff.
+>   2) Select the corresponding freearea to alloc-pages
+>      "Multi_freearea" would select the corresponding free_area by the
+>      allocation-order when alloc-pages.
+>         - order <  HIGH_ORDER_TO_FLC:
+> 	        free_area[0] -> ... -> free_area[FREE_AREA_COUNTS - 1]
+>         - order >= HIGH_ORDER_TO_FLC:
+> 	        free_area[FREE_AREA_COUNTS - 1] -> ... -> free_area[0]
 > 
-> Then came https://github.com/torvalds/linux/commit/b00ff6d8c as a fix. I 
-> can't remember what the problem was exactly, something around the use of 
-> hugepages for kernel memory, came as part of the series 
-> https://patchwork.ozlabs.org/project/linuxppc-dev/cover/cover.1589866984.git.christophe.leroy@csgroup.eu/ 
+>      Example:
+>         The machine(4G of physical memery) and FREE_AREA_COUNTS(4)
+>         and HIGH_ORDER_TO_FLC(3).
+> 	If user allocs page(order = 0),it would take page from
+> 	free_area[0][] first, if that fails,try free_area[1][] and so on.
+> 	If user allocs page(order = 4),it would take page from
+> 	free_area[3][] first, if that fails,try free_area[2][] and so on.
+> 
+>      By this way,low-order pages will be concentrated in the front area
+>      of memory.Because of few memory-pollution in the back area of memory,
+>      the sussessful probablity of high-order allocation would be improved.
+> 
+>   3) Adjust the location of free-pages in the free_list
+>      "Multi_freearea" would place free-pages in the head of free_list if
+>      pages-PFN is smaller than free_area_segment[flc]->median_pfn and in
+>      the tail of free_list on the contrary.
+> 
+>      Example:
+>         page-PFN:        free_area_segment[flc]->median_pfn
+>                                         |
+>         free_list: page->page->page->...|...page->page->page
+>         pages-PFN:|   < median_pfn      |  >= median_pfn    |
+> 
+>      Because it would take pages from the head of the freelist first in
+>      buddy system,the free-pages in the tail are more likely to keep in the
+>      buddy system.The closer the PFN of pages kept in buddy system, the
+>      greater the probablity of merging that into high-order pages.
 
-Ah, that's useful context. So it looks like powerpc took a different 
-route to reducing the KASAN output to x86.
-
-Given the generic ptdump code has handling for KASAN already it should 
-be possible to drop that from the powerpc arch code, which I think means 
-we don't actually need to provide page size to notepage(). Hopefully 
-that means more code to delete ;)
-
-Steve
+I think this part 3) would be worth to be tried separately first, as it's not a
+big change compared to the other ones.
