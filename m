@@ -2,147 +2,157 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDC12C433B4
-	for <linux-s390@archiver.kernel.org>; Sat, 17 Apr 2021 07:28:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83A5FC433B4
+	for <linux-s390@archiver.kernel.org>; Sat, 17 Apr 2021 08:16:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C9231610FA
-	for <linux-s390@archiver.kernel.org>; Sat, 17 Apr 2021 07:28:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5CDCC61208
+	for <linux-s390@archiver.kernel.org>; Sat, 17 Apr 2021 08:16:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232190AbhDQH2j (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 17 Apr 2021 03:28:39 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51916 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231307AbhDQH2j (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 17 Apr 2021 03:28:39 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13H74J35051471;
-        Sat, 17 Apr 2021 03:28:12 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=h54VN17EHOvfXnD94JUkdReWXzy9t9r1CNOmd7GYj6A=;
- b=poIab2Ph1X8ThAClVx2zcvNIcz51vHHTqLwYZMhCx+b2VH63XGqDLfBWKx+CNLfmMTMW
- 8k5HcyjXKxMYB11SO7vEiQFNbjODSs7EA0ibNNjZUvjV/R/X/mDLskMerVwLf5jh7uIQ
- cF9nYNa9VkdV9ceXfgtVqjQxfP7xd1TikC9PIEk9Nq91FN3ADMHb5MnLVnwktrbyNvD2
- fzRVHcbkhfCSTyusXWAfuEE0Wp6bhGV5LTvmLNhVImyVTaa4u5E5T7bM2uiGFJbM7UUt
- Krbhj+QKwn5emJwClLcBNMoOn+gDH1BdFBRpellLbvt9biEMgbqQGkF4EeR2rtNmwNxi iQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 37ystp1gmc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 17 Apr 2021 03:28:12 -0400
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13H7SCqe122993;
-        Sat, 17 Apr 2021 03:28:12 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 37ystp1gky-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 17 Apr 2021 03:28:12 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13H7N76r003677;
-        Sat, 17 Apr 2021 07:28:10 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma05fra.de.ibm.com with ESMTP id 37yqa881kc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 17 Apr 2021 07:28:10 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13H7Riwc31785340
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 17 Apr 2021 07:27:44 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 07E18A4060;
-        Sat, 17 Apr 2021 07:28:07 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E7A62A405B;
-        Sat, 17 Apr 2021 07:28:06 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Sat, 17 Apr 2021 07:28:06 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id A0A49E07C6; Sat, 17 Apr 2021 09:28:06 +0200 (CEST)
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
+        id S229972AbhDQIQ4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 17 Apr 2021 04:16:56 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:1364 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229631AbhDQIQ4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 17 Apr 2021 04:16:56 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4FMmBL3B3mz9vBnD;
+        Sat, 17 Apr 2021 10:16:26 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id KdXChgWPk-BP; Sat, 17 Apr 2021 10:16:26 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4FMmBL21vRz9vBnC;
+        Sat, 17 Apr 2021 10:16:26 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 312848B777;
+        Sat, 17 Apr 2021 10:16:27 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id efFKgaQ79CvE; Sat, 17 Apr 2021 10:16:27 +0200 (CEST)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 3BFFF8B75B;
+        Sat, 17 Apr 2021 10:16:24 +0200 (CEST)
+Subject: Re: [PATCH bpf-next 1/2] bpf: Remove bpf_jit_enable=2 debugging mode
+To:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Quentin Monnet <quentin@isovalent.com>
+Cc:     Ian Rogers <irogers@google.com>, Song Liu <songliubraving@fb.com>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Zi Shen Lim <zlim.lnx@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
+        Shubham Bansal <illusionist.neo@gmail.com>,
+        Mahesh Bandewar <maheshb@google.com>,
+        Will Deacon <will@kernel.org>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
+        Ilya Leoshkevich <iii@linux.ibm.com>, paulburton@kernel.org,
+        Jonathan Corbet <corbet@lwn.net>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        X86 ML <x86@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [GIT PULL 1/1] KVM: s390: fix guarded storage control register handling
-Date:   Sat, 17 Apr 2021 09:28:05 +0200
-Message-Id: <20210417072806.82517-2-borntraeger@de.ibm.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210417072806.82517-1-borntraeger@de.ibm.com>
-References: <20210417072806.82517-1-borntraeger@de.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QYqFsye8pIx1dynmJbLH0seX4qMvxSk3
-X-Proofpoint-ORIG-GUID: TEfuTJiXn1pLOjGJQ4d2NWPP1NID4p-k
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Ingo Molnar <mingo@redhat.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Tobias Klauser <tklauser@distanz.ch>,
+        linux-mips@vger.kernel.org, grantseltzer@gmail.com,
+        Xi Wang <xi.wang@gmail.com>, Albert Ou <aou@eecs.berkeley.edu>,
+        Kees Cook <keescook@chromium.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Luke Nelson <luke.r.nels@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        ppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        KP Singh <kpsingh@kernel.org>, iecedge@gmail.com,
+        Simon Horman <horms@verge.net.au>,
+        Borislav Petkov <bp@alien8.de>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Yonghong Song <yhs@fb.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dmitry Vyukov <dvyukov@google.com>, tsbogend@alpha.franken.de,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Network Development <netdev@vger.kernel.org>,
+        David Ahern <dsahern@kernel.org>,
+        Wang YanQing <udknight@gmail.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>, bpf <bpf@vger.kernel.org>,
+        Jianlin Lv <Jianlin.Lv@arm.com>,
+        "David S. Miller" <davem@davemloft.net>
+References: <20210415093250.3391257-1-Jianlin.Lv@arm.com>
+ <9c4a78d2-f73c-832a-e6e2-4b4daa729e07@iogearbox.net>
+ <d3949501-8f7d-57c4-b3fe-bcc3b24c09d8@isovalent.com>
+ <CAADnVQJ2oHbYfgY9jqM_JMxUsoZxaNrxKSVFYfgCXuHVpDehpQ@mail.gmail.com>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <0dea05ba-9467-0d84-4515-b8766f60318e@csgroup.eu>
+Date:   Sat, 17 Apr 2021 10:16:22 +0200
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.1
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-17_06:2021-04-16,2021-04-17 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 spamscore=0 malwarescore=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 phishscore=0 mlxlogscore=667 impostorscore=0 mlxscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104170046
+In-Reply-To: <CAADnVQJ2oHbYfgY9jqM_JMxUsoZxaNrxKSVFYfgCXuHVpDehpQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
 
-store_regs_fmt2() has an ordering problem: first the guarded storage
-facility is enabled on the local cpu, then preemption disabled, and
-then the STGSC (store guarded storage controls) instruction is
-executed.
 
-If the process gets scheduled away between enabling the guarded
-storage facility and before preemption is disabled, this might lead to
-a special operation exception and therefore kernel crash as soon as
-the process is scheduled back and the STGSC instruction is executed.
+Le 16/04/2021 à 01:49, Alexei Starovoitov a écrit :
+> On Thu, Apr 15, 2021 at 8:41 AM Quentin Monnet <quentin@isovalent.com> wrote:
+>>
+>> 2021-04-15 16:37 UTC+0200 ~ Daniel Borkmann <daniel@iogearbox.net>
+>>> On 4/15/21 11:32 AM, Jianlin Lv wrote:
+>>>> For debugging JITs, dumping the JITed image to kernel log is discouraged,
+>>>> "bpftool prog dump jited" is much better way to examine JITed dumps.
+>>>> This patch get rid of the code related to bpf_jit_enable=2 mode and
+>>>> update the proc handler of bpf_jit_enable, also added auxiliary
+>>>> information to explain how to use bpf_jit_disasm tool after this change.
+>>>>
+>>>> Signed-off-by: Jianlin Lv <Jianlin.Lv@arm.com>
+>>
+>> Hello,
+>>
+>> For what it's worth, I have already seen people dump the JIT image in
+>> kernel logs in Qemu VMs running with just a busybox, not for kernel
+>> development, but in a context where buiding/using bpftool was not
+>> possible.
+> 
+> If building/using bpftool is not possible then majority of selftests won't
+> be exercised. I don't think such environment is suitable for any kind
+> of bpf development. Much so for JIT debugging.
+> While bpf_jit_enable=2 is nothing but the debugging tool for JIT developers.
+> I'd rather nuke that code instead of carrying it from kernel to kernel.
+> 
 
-Fixes: 4e0b1ab72b8a ("KVM: s390: gs support for kvm guests")
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Cc: <stable@vger.kernel.org> # 4.12
-Link: https://lore.kernel.org/r/20210415080127.1061275-1-hca@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+When I implemented JIT for PPC32, it was extremely helpfull.
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index cfe720d16a6a..95ef9193f12e 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4313,16 +4313,16 @@ static void store_regs_fmt2(struct kvm_vcpu *vcpu)
- 	kvm_run->s.regs.bpbc = (vcpu->arch.sie_block->fpf & FPF_BPBC) == FPF_BPBC;
- 	kvm_run->s.regs.diag318 = vcpu->arch.diag318_info.val;
- 	if (MACHINE_HAS_GS) {
-+		preempt_disable();
- 		__ctl_set_bit(2, 4);
- 		if (vcpu->arch.gs_enabled)
- 			save_gs_cb(current->thread.gs_cb);
--		preempt_disable();
- 		current->thread.gs_cb = vcpu->arch.host_gscb;
- 		restore_gs_cb(vcpu->arch.host_gscb);
--		preempt_enable();
- 		if (!vcpu->arch.host_gscb)
- 			__ctl_clear_bit(2, 4);
- 		vcpu->arch.host_gscb = NULL;
-+		preempt_enable();
- 	}
- 	/* SIE will save etoken directly into SDNX and therefore kvm_run */
- }
--- 
-2.30.2
+As far as I understand, for the time being bpftool is not usable in my environment because it 
+doesn't support cross compilation when the target's endianess differs from the building host 
+endianess, see discussion at 
+https://lore.kernel.org/bpf/21e66a09-514f-f426-b9e2-13baab0b938b@csgroup.eu/
+
+That's right that selftests can't be exercised because they don't build.
+
+The question might be candid as I didn't investigate much about the replacement of "bpf_jit_enable=2 
+debugging mode" by bpftool, how do we use bpftool exactly for that ? Especially when using the BPF 
+test module ?
 
