@@ -2,136 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C12AEC433B4
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 16:41:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E732FC43460
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 20:44:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 85EF56100B
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 16:41:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C08FA613C3
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 20:44:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233466AbhDSQlt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Apr 2021 12:41:49 -0400
-Received: from pegase1.c-s.fr ([93.17.236.30]:10096 "EHLO pegase1.c-s.fr"
+        id S242410AbhDSUof (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Apr 2021 16:44:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232125AbhDSQlt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 19 Apr 2021 12:41:49 -0400
-Received: from localhost (mailhub1-int [192.168.12.234])
-        by localhost (Postfix) with ESMTP id 4FPCHr05Bbz9vBmZ;
-        Mon, 19 Apr 2021 18:41:12 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at c-s.fr
-Received: from pegase1.c-s.fr ([192.168.12.234])
-        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
-        with ESMTP id ByG0UeFaG4_7; Mon, 19 Apr 2021 18:41:11 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase1.c-s.fr (Postfix) with ESMTP id 4FPCHq6Dlmz9vBmY;
-        Mon, 19 Apr 2021 18:41:11 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 3D43E8B7C9;
-        Mon, 19 Apr 2021 18:41:17 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id nDGl7TOpMiLz; Mon, 19 Apr 2021 18:41:17 +0200 (CEST)
-Received: from [192.168.4.90] (unknown [192.168.4.90])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 56BD68B7C6;
-        Mon, 19 Apr 2021 18:41:16 +0200 (CEST)
-Subject: Re: [PATCH v1 3/5] mm: ptdump: Provide page size to notepage()
-To:     Steven Price <steven.price@arm.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        akpm@linux-foundation.org
-Cc:     linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-riscv@lists.infradead.org, x86@kernel.org, linux-mm@kvack.org
-References: <cover.1618506910.git.christophe.leroy@csgroup.eu>
- <1ef6b954fb7b0f4dfc78820f1e612d2166c13227.1618506910.git.christophe.leroy@csgroup.eu>
- <41819925-3ee5-4771-e98b-0073e8f095cf@arm.com>
- <da53d2f2-b472-0c38-bdd5-99c5a098675d@csgroup.eu>
- <1102cda1-b00f-b6ef-6bf3-22068cc11510@arm.com>
- <627ee414-2f78-94e3-b77b-1013f52e77e3@csgroup.eu>
- <4a76fbda-aa9d-867b-e2eb-a1951780aeec@arm.com>
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-Message-ID: <4cdd8dc0-34d6-11a3-f3b2-d6eb58c435c7@csgroup.eu>
-Date:   Mon, 19 Apr 2021 18:41:16 +0200
-User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
+        id S242392AbhDSUod (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:44:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BA8961104;
+        Mon, 19 Apr 2021 20:44:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1618865042;
+        bh=YlKAKyKIsnMUVvz5L53H8DTYTlwH5RuaUg2xCn3wFPw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=NnZq8bVvBfjMO7c1fxYtX6eS56lRfRlUAH6/TEmqYM3awiyZmlE2G4H86/qilchKh
+         rnMoLHCY33fxgMR2f2I0gCHPhAmAmGo1kiypTHDkz7+0o4SFmJRw01R2IInRflKoYz
+         HwCFvNlZjt3/cPl5+JF9oBZaYZuu7KC9Ao6y83tiVtZxf8CEjeaKhZdgEZoqokDaaL
+         9Mry1JhSG9FgqsdlBv8VuLSOBI1VoPf4/vYk05pfd90g4EbgfRli0f9Q8AQs4cTx40
+         EvcCkVilxNTZaXKMVsJE4YAsHFN2nvIRom8Bjdg9+Yv4yZpTwalHQatd8AQPhTmF+H
+         gzTJaHTYTFcpw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 13/23] s390/entry: save the caller of psw_idle
+Date:   Mon, 19 Apr 2021 16:43:32 -0400
+Message-Id: <20210419204343.6134-13-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210419204343.6134-1-sashal@kernel.org>
+References: <20210419204343.6134-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <4a76fbda-aa9d-867b-e2eb-a1951780aeec@arm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: fr
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+From: Vasily Gorbik <gor@linux.ibm.com>
 
+[ Upstream commit a994eddb947ea9ebb7b14d9a1267001699f0a136 ]
 
-Le 19/04/2021 à 16:00, Steven Price a écrit :
-> On 19/04/2021 14:14, Christophe Leroy wrote:
->>
->>
->> Le 16/04/2021 à 12:51, Steven Price a écrit :
->>> On 16/04/2021 11:38, Christophe Leroy wrote:
->>>>
->>>>
->>>> Le 16/04/2021 à 11:28, Steven Price a écrit :
->>>>> On 15/04/2021 18:18, Christophe Leroy wrote:
->>>>>
->>>>> To be honest I don't fully understand why powerpc requires the page_size - it appears to be 
->>>>> using it purely to find "holes" in the calls to note_page(), but I haven't worked out why such 
->>>>> holes would occur.
->>>>
->>>> I was indeed introduced for KASAN. We have a first commit 
->>>> https://github.com/torvalds/linux/commit/cabe8138 which uses page size to detect whether it is a 
->>>> KASAN like stuff.
->>>>
->>>> Then came https://github.com/torvalds/linux/commit/b00ff6d8c as a fix. I can't remember what the 
->>>> problem was exactly, something around the use of hugepages for kernel memory, came as part of 
->>>> the series 
->>>> https://patchwork.ozlabs.org/project/linuxppc-dev/cover/cover.1589866984.git.christophe.leroy@csgroup.eu/ 
->>>
->>>
->>>
->>>
->>> Ah, that's useful context. So it looks like powerpc took a different route to reducing the KASAN 
->>> output to x86.
->>>
->>> Given the generic ptdump code has handling for KASAN already it should be possible to drop that 
->>> from the powerpc arch code, which I think means we don't actually need to provide page size to 
->>> notepage(). Hopefully that means more code to delete ;)
->>>
->>
->> Looking at how the generic ptdump code handles KASAN, I'm a bit sceptic.
->>
->> IIUC, it is checking that kasan_early_shadow_pte is in the same page as the pgtable referred by 
->> the PMD entry. But what happens if that PMD entry is referring another pgtable which is inside the 
->> same page as kasan_early_shadow_pte ?
->>
->> Shouldn't the test be
->>
->>      if (pmd_page_vaddr(val) == lm_alias(kasan_early_shadow_pte))
->>          return note_kasan_page_table(walk, addr);
-> 
-> Now I come to look at this code again, I think you're right. On arm64 this doesn't cause a problem - 
-> page tables are page sized and page aligned, so there couldn't be any non-KASAN pgtables sharing the 
-> page. Obviously that's not necessarily true of other architectures.
-> 
-> Feel free to add a patch to your series ;)
-> 
+Currently psw_idle does not allocate a stack frame and does not
+save its r14 and r15 into the save area. Even though this is valid from
+call ABI point of view, because psw_idle does not make any calls
+explicitly, in reality psw_idle is an entry point for controlled
+transition into serving interrupts. So, in practice, psw_idle stack
+frame is analyzed during stack unwinding. Depending on build options
+that r14 slot in the save area of psw_idle might either contain a value
+saved by previous sibling call or complete garbage.
 
-Ok.
+  [task    0000038000003c28] do_ext_irq+0xd6/0x160
+  [task    0000038000003c78] ext_int_handler+0xba/0xe8
+  [task   *0000038000003dd8] psw_idle_exit+0x0/0x8 <-- pt_regs
+ ([task    0000038000003dd8] 0x0)
+  [task    0000038000003e10] default_idle_call+0x42/0x148
+  [task    0000038000003e30] do_idle+0xce/0x160
+  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
+  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
 
-I'll leave that outside of the series, it is not a show stopper because early shadow page 
-directories are all tagged __bss_page_aligned so we can't have two of them in the same page and it 
-is really unlikely that we'll have any other statically defined page directory in the same pages either.
+So, to make a stacktrace nicer and actually point for the real caller of
+psw_idle in this frequently occurring case, make psw_idle save its r14.
 
-And for the special case of powerpc 8xx which is the only one for which we have both KASAN and 
-HUGEPD at the time being, there are only two levels of page directories so no issue.
+  [task    0000038000003c28] do_ext_irq+0xd6/0x160
+  [task    0000038000003c78] ext_int_handler+0xba/0xe8
+  [task   *0000038000003dd8] psw_idle_exit+0x0/0x6 <-- pt_regs
+ ([task    0000038000003dd8] arch_cpu_idle+0x3c/0xd0)
+  [task    0000038000003e10] default_idle_call+0x42/0x148
+  [task    0000038000003e30] do_idle+0xce/0x160
+  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
+  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
 
-Christophe
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/kernel/entry.S | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index f1ba197b10c0..f0a215cf010c 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -976,6 +976,7 @@ ENDPROC(ext_int_handler)
+  * Load idle PSW.
+  */
+ ENTRY(psw_idle)
++	stg	%r14,(__SF_GPRS+8*8)(%r15)
+ 	stg	%r3,__SF_EMPTY(%r15)
+ 	larl	%r1,.Lpsw_idle_exit
+ 	stg	%r1,__SF_EMPTY+8(%r15)
+-- 
+2.30.2
+
