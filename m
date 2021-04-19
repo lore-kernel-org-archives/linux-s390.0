@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98C21C43461
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 20:47:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 338C9C43460
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66E596135F
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 20:47:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F3E4A613D0
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242725AbhDSUro (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Apr 2021 16:47:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54408 "EHLO mail.kernel.org"
+        id S242916AbhDSUss (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Apr 2021 16:48:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242627AbhDSUp5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:45:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A02D613C3;
-        Mon, 19 Apr 2021 20:45:03 +0000 (UTC)
+        id S242948AbhDSUqw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:46:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 357C0613C2;
+        Mon, 19 Apr 2021 20:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865104;
-        bh=C5hji4FUmPrWScW47HD+P0j3mRsXZ4Sl6LrAKw74j8Q=;
+        s=k20201202; t=1618865127;
+        bh=Fouv3NN5oEBL/d/ydlB7DSZrNlu0Mmi8aw+PNHYn5uI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSEUxKRJ4GAZI0tDCfQPLmNtbhyt27BMeILkAzLmOM6K4Q4HFnu4fa18x8ycniX2K
-         wIE6u3ldIYp0I37IOaBAAAUFnG8v+smmZUxhnhNg5wktQTOK3oZBeDPJ9ApMm0z5Io
-         XJ9pjqf6LmMvqNXPDFIssjkXW409BPDjZIzsi8rfnd4ZEr4Py/Y54kcMuJ2gSSw6+F
-         P1D4TR6zMYP6SuLdndJB8LiuN8bBD6tPEzpYCLL5LrR5Zidlh/mrW3uUlSI6RAUVqT
-         fRaDPFwYDRyeJFnsQkcwKEsZDJ4oEHqK7EkmjMxFIiM5dG5rKHex/GvxWihJqj3Umv
-         woTNN9AZAYhWw==
+        b=qhUwy3g2TgeRMee0tm+RxOU0dBzlZqszEXQLswEjkAqU8GBZosMHs0G6Sey05DIAj
+         r+KGW02Tv7fmZSnO+i8RqmKwtysgso65rdNEHU/Nw9vmHh+JM8E94MGvGUlC6NlpP6
+         /HeIq03DZiHIP+sZ/pzWuKwD4iVl/vAQCwTMSHEBHKGs9PrZOCiexca0PO7tNSjVvy
+         qQPmk/uGYCYORnh9FvjUTn9lSIAmCOJRv2U1di2BPAp8MT/2m2aPnJ4lFo9RYCOJbH
+         FrKcy9w+TZe0zmAD4tFoeq00+UjnVIji0Z3nZZkggzmdZwjQaQEvBF6deJyyUV5NFp
+         hf/ljx6sLPXww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vasily Gorbik <gor@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 06/14] s390/entry: save the caller of psw_idle
-Date:   Mon, 19 Apr 2021 16:44:46 -0400
-Message-Id: <20210419204454.6601-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 06/12] s390/entry: save the caller of psw_idle
+Date:   Mon, 19 Apr 2021 16:45:11 -0400
+Message-Id: <20210419204517.6770-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210419204454.6601-1-sashal@kernel.org>
-References: <20210419204454.6601-1-sashal@kernel.org>
+In-Reply-To: <20210419204517.6770-1-sashal@kernel.org>
+References: <20210419204517.6770-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -94,10 +94,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index c544b7a11ebb..5cba1815b8f8 100644
+index 150130c897c3..7e6a9cf863c7 100644
 --- a/arch/s390/kernel/entry.S
 +++ b/arch/s390/kernel/entry.S
-@@ -993,6 +993,7 @@ ENDPROC(ext_int_handler)
+@@ -949,6 +949,7 @@ ENTRY(ext_int_handler)
   * Load idle PSW. The second "half" of this function is in .Lcleanup_idle.
   */
  ENTRY(psw_idle)
