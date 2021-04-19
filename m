@@ -2,136 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DEFDC433ED
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 11:45:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10CA7C433ED
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 13:16:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F140761166
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 11:45:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DB62D613EB
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 13:16:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238229AbhDSLpk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Apr 2021 07:45:40 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53430 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232530AbhDSLpj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 19 Apr 2021 07:45:39 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13JBXVvC166021;
-        Mon, 19 Apr 2021 07:45:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=4B0J9EGvrsk40z4rg+aKFTRAUUGzXi4Vc7CcLJFoo0k=;
- b=ARrGLmJaFQj1My7/I1uVeZ6ATkROfEhGaOLCHLJiKP3vHaFKbVwMH/3vrMY4UedZeKiS
- t70V9Z1RF2pmA0XxBwHiOSEvBBYAwKPgWX44r2OnficsirhN00kF3SY3uoCDL4dyyFpQ
- Zhn2KN7QTMWpwaUGEcY6eOqpOIxSgQGSAMJ0MfJJxnAhuI73oXt+gEUnfZDY3vssmCpb
- 9CXkvSBcvia4BuCbD4LXW7pqtQESFPmFVd7aJl5jYybGmG8Mwo+kzodYFhJJOzzxbTs5
- ziw4I6IdMf9/tEPuYr4f/9/8rHFVyn0Z37N9BwECltaUuPxBdW3Y0PV7eiBf0sRIGMHB Ig== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 380cybp00w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Apr 2021 07:45:09 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13JBXeKA166554;
-        Mon, 19 Apr 2021 07:45:09 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 380cybp008-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Apr 2021 07:45:08 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13JBcRuC011017;
-        Mon, 19 Apr 2021 11:45:07 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma01fra.de.ibm.com with ESMTP id 37yqa88jsc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Apr 2021 11:45:07 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13JBj4SF10486254
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 19 Apr 2021 11:45:04 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 92EAAA4072;
-        Mon, 19 Apr 2021 11:45:04 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 474E9A405B;
-        Mon, 19 Apr 2021 11:45:04 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.181.252])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 19 Apr 2021 11:45:04 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH 1/6] s390x: uv-guest: Add invalid share
- location test
-To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, david@redhat.com,
-        imbrenda@linux.ibm.com
-References: <20210316091654.1646-1-frankja@linux.ibm.com>
- <20210316091654.1646-2-frankja@linux.ibm.com>
- <2c178a2c-d207-e4b8-f159-ecd9e18a2d28@redhat.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <92c5e657-a483-eeb4-5902-651be2cd5356@linux.ibm.com>
-Date:   Mon, 19 Apr 2021 13:45:03 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S240250AbhDSNQ5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Apr 2021 09:16:57 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:1813 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240144AbhDSNOy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:14:54 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4FP6j54THDz9txv8;
+        Mon, 19 Apr 2021 15:14:17 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id yKDNb47P5hGT; Mon, 19 Apr 2021 15:14:17 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4FP6j53cN4z9txv7;
+        Mon, 19 Apr 2021 15:14:17 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 866238B7B4;
+        Mon, 19 Apr 2021 15:14:22 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id CgC9R0HVBL9q; Mon, 19 Apr 2021 15:14:22 +0200 (CEST)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id AB4DA8B7BD;
+        Mon, 19 Apr 2021 15:14:21 +0200 (CEST)
+Subject: Re: [PATCH v1 3/5] mm: ptdump: Provide page size to notepage()
+To:     Steven Price <steven.price@arm.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        akpm@linux-foundation.org
+Cc:     linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-riscv@lists.infradead.org, x86@kernel.org, linux-mm@kvack.org
+References: <cover.1618506910.git.christophe.leroy@csgroup.eu>
+ <1ef6b954fb7b0f4dfc78820f1e612d2166c13227.1618506910.git.christophe.leroy@csgroup.eu>
+ <41819925-3ee5-4771-e98b-0073e8f095cf@arm.com>
+ <da53d2f2-b472-0c38-bdd5-99c5a098675d@csgroup.eu>
+ <1102cda1-b00f-b6ef-6bf3-22068cc11510@arm.com>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <627ee414-2f78-94e3-b77b-1013f52e77e3@csgroup.eu>
+Date:   Mon, 19 Apr 2021 15:14:21 +0200
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.1
 MIME-Version: 1.0
-In-Reply-To: <2c178a2c-d207-e4b8-f159-ecd9e18a2d28@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: yMMxYqXzH2lf4MCFMBA53g2kP99zbwTf
-X-Proofpoint-ORIG-GUID: cK5TGJErSFpNv6_S9Dj3db_63lURwAem
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-19_07:2021-04-16,2021-04-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- spamscore=0 bulkscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=999
- impostorscore=0 mlxscore=0 suspectscore=0 clxscore=1015 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104060000
- definitions=main-2104190081
+In-Reply-To: <1102cda1-b00f-b6ef-6bf3-22068cc11510@arm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/19/21 1:24 PM, Thomas Huth wrote:
-> On 16/03/2021 10.16, Janosch Frank wrote:
->> Let's also test sharing unavailable memory.
+
+
+Le 16/04/2021 à 12:51, Steven Price a écrit :
+> On 16/04/2021 11:38, Christophe Leroy wrote:
 >>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>   s390x/uv-guest.c | 5 +++++
->>   1 file changed, 5 insertions(+)
 >>
->> diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
->> index 99544442..a13669ab 100644
->> --- a/s390x/uv-guest.c
->> +++ b/s390x/uv-guest.c
->> @@ -15,6 +15,7 @@
->>   #include <asm/interrupt.h>
->>   #include <asm/facility.h>
->>   #include <asm/uv.h>
->> +#include <sclp.h>
->>   
->>   static unsigned long page;
->>   
->> @@ -99,6 +100,10 @@ static void test_sharing(void)
->>   	uvcb.header.len = sizeof(uvcb);
->>   	cc = uv_call(0, (u64)&uvcb);
->>   	report(cc == 0 && uvcb.header.rc == UVC_RC_EXECUTED, "share");
->> +	uvcb.paddr = get_ram_size() + PAGE_SIZE;
->> +	cc = uv_call(0, (u64)&uvcb);
->> +	report(cc == 1 && uvcb.header.rc == 0x101, "invalid memory");
+>> Le 16/04/2021 à 11:28, Steven Price a écrit :
+>>> On 15/04/2021 18:18, Christophe Leroy wrote:
+>>>
+>>> To be honest I don't fully understand why powerpc requires the page_size - it appears to be using 
+>>> it purely to find "holes" in the calls to note_page(), but I haven't worked out why such holes 
+>>> would occur.
+>>
+>> I was indeed introduced for KASAN. We have a first commit 
+>> https://github.com/torvalds/linux/commit/cabe8138 which uses page size to detect whether it is a 
+>> KASAN like stuff.
+>>
+>> Then came https://github.com/torvalds/linux/commit/b00ff6d8c as a fix. I can't remember what the 
+>> problem was exactly, something around the use of hugepages for kernel memory, came as part of the 
+>> series 
+>> https://patchwork.ozlabs.org/project/linuxppc-dev/cover/cover.1589866984.git.christophe.leroy@csgroup.eu/ 
 > 
-> Would it make sense to add a #define for 0x101 ?
+> 
+> Ah, that's useful context. So it looks like powerpc took a different route to reducing the KASAN 
+> output to x86.
+> 
+> Given the generic ptdump code has handling for KASAN already it should be possible to drop that from 
+> the powerpc arch code, which I think means we don't actually need to provide page size to 
+> notepage(). Hopefully that means more code to delete ;)
 > 
 
-The RCs change meaning with each UV call so we can only re-use a small
-number of constants which wouldn't gain us a lot.
+Looking at how the generic ptdump code handles KASAN, I'm a bit sceptic.
 
-> Anyway:
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
+IIUC, it is checking that kasan_early_shadow_pte is in the same page as the pgtable referred by the 
+PMD entry. But what happens if that PMD entry is referring another pgtable which is inside the same 
+page as kasan_early_shadow_pte ?
 
-Thanks!
+Shouldn't the test be
 
+	if (pmd_page_vaddr(val) == lm_alias(kasan_early_shadow_pte))
+		return note_kasan_page_table(walk, addr);
+
+
+Christophe
