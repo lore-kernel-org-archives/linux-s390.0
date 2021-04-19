@@ -2,119 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B2D7C43600
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 13:30:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36F6DC433B4
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 14:00:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3BB13613C0
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 13:30:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EF19D6127C
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Apr 2021 14:00:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241107AbhDSNap (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Apr 2021 09:30:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59762 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242400AbhDSN2B (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Apr 2021 09:28:01 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF42DC06135E
-        for <linux-s390@vger.kernel.org>; Mon, 19 Apr 2021 06:26:23 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id x20so25628133lfu.6
-        for <linux-s390@vger.kernel.org>; Mon, 19 Apr 2021 06:26:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=NqBtQukzUcKGvmZ1aJArxdkZjllZ69uT8+WTmwdJ6G4=;
-        b=em/J+S9hHzBCCI9MSW7xxROUGoj1ECCpWbKbkDd7uZveF8DcpPGfSfeXe7udqDYAGS
-         Jj37aD7VWJOTXi/3DhMCYdi9pJNW7jm5Sf4PAqzlM+s1im59ujQ9g0r3tX6QKiCnqI8I
-         oO5sYxp5JVgxN3n4uVwCg7nst4zKPgyNiqk71xh9fzEU1SJZSiHV0spwlLta2FppoNXt
-         4Sn69HhmbhTj4I1GZVCwzi8/H+Q2tBi5gcCNkX4caIusJ3tMJ1W1hCmiVohKi/6R3p1P
-         P4SE3XIUdcjPLBQZiKpeMRryN/1muaULpqJ4vS3LQj+EtgGFUJ9LyQpWIyR+n0cbkMPO
-         AGIw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=NqBtQukzUcKGvmZ1aJArxdkZjllZ69uT8+WTmwdJ6G4=;
-        b=RvlcqjGKdbw04QVtJ9AvZ7YZieNGyXdF+U2Lmzs9hjVyJZF0NEyxd3hJuC7iBndQzu
-         o8ukKnxAFyktM0h0Z6m5Nx48UTpAeyhiw+rmYTQqcFfQ8szgU48ZARK+Da4jyIf/eABI
-         qMWof9uFQrAM64bj4AsGoihXUIGNJXsSNgFbaUtYlIC/qpAwh4USFEUBntD5bRmKBruA
-         vLnJaKtlt8vBJVC5l/pPOJZL8BYSST1OfD2vuPY0qPf+jYZaB5J4obBB56273MM4A5Sf
-         Ail5Y2YF3kpD0vK9lOfeXueRWbFQZtW9bg+ZO/lzeEoeFw/NWodTT30q3gCsc2wM3C3G
-         1QZg==
-X-Gm-Message-State: AOAM532pvvMGTW0HLAG79SvUaBz7beHboaORtwuK/S8ow1QCqtifOrwZ
-        4WBcr6jMdddMxBSSFXRzEqVrkEAMS6sLwu3yMFc/UA==
-X-Google-Smtp-Source: ABdhPJzC7C637Xaczt8wN5cywlsLikI7xQQerJcl2++bY+AQeL59litpEy9MDacIxAURgyTiZJG8O4odjR7fc14+zi0=
-X-Received: by 2002:a19:3813:: with SMTP id f19mr5725327lfa.473.1618838781799;
- Mon, 19 Apr 2021 06:26:21 -0700 (PDT)
+        id S238921AbhDSOAs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Apr 2021 10:00:48 -0400
+Received: from foss.arm.com ([217.140.110.172]:43492 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230021AbhDSOAs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 19 Apr 2021 10:00:48 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0FCD231B;
+        Mon, 19 Apr 2021 07:00:18 -0700 (PDT)
+Received: from [192.168.1.179] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3FBAA3F7D7;
+        Mon, 19 Apr 2021 07:00:16 -0700 (PDT)
+Subject: Re: [PATCH v1 3/5] mm: ptdump: Provide page size to notepage()
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        akpm@linux-foundation.org
+Cc:     linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-riscv@lists.infradead.org, x86@kernel.org, linux-mm@kvack.org
+References: <cover.1618506910.git.christophe.leroy@csgroup.eu>
+ <1ef6b954fb7b0f4dfc78820f1e612d2166c13227.1618506910.git.christophe.leroy@csgroup.eu>
+ <41819925-3ee5-4771-e98b-0073e8f095cf@arm.com>
+ <da53d2f2-b472-0c38-bdd5-99c5a098675d@csgroup.eu>
+ <1102cda1-b00f-b6ef-6bf3-22068cc11510@arm.com>
+ <627ee414-2f78-94e3-b77b-1013f52e77e3@csgroup.eu>
+From:   Steven Price <steven.price@arm.com>
+Message-ID: <4a76fbda-aa9d-867b-e2eb-a1951780aeec@arm.com>
+Date:   Mon, 19 Apr 2021 15:00:14 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-References: <20210415151741.1607806-1-jingzhangos@google.com>
- <20210415151741.1607806-5-jingzhangos@google.com> <9f2a8873-c2c2-ec84-58b4-7c90c59d1d25@redhat.com>
-In-Reply-To: <9f2a8873-c2c2-ec84-58b4-7c90c59d1d25@redhat.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Mon, 19 Apr 2021 08:26:09 -0500
-Message-ID: <CAAdAUtinT2+kqV7ia+gVFpy=Mf5TiNJU2QNSbGGC0Ybj3PPuzw@mail.gmail.com>
-Subject: Re: [PATCH v2 4/4] KVM: selftests: Add selftest for KVM statistics
- data binary interface
-To:     Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <627ee414-2f78-94e3-b77b-1013f52e77e3@csgroup.eu>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Emanuele,
+On 19/04/2021 14:14, Christophe Leroy wrote:
+> 
+> 
+> Le 16/04/2021 à 12:51, Steven Price a écrit :
+>> On 16/04/2021 11:38, Christophe Leroy wrote:
+>>>
+>>>
+>>> Le 16/04/2021 à 11:28, Steven Price a écrit :
+>>>> On 15/04/2021 18:18, Christophe Leroy wrote:
+>>>>
+>>>> To be honest I don't fully understand why powerpc requires the 
+>>>> page_size - it appears to be using it purely to find "holes" in the 
+>>>> calls to note_page(), but I haven't worked out why such holes would 
+>>>> occur.
+>>>
+>>> I was indeed introduced for KASAN. We have a first commit 
+>>> https://github.com/torvalds/linux/commit/cabe8138 which uses page 
+>>> size to detect whether it is a KASAN like stuff.
+>>>
+>>> Then came https://github.com/torvalds/linux/commit/b00ff6d8c as a 
+>>> fix. I can't remember what the problem was exactly, something around 
+>>> the use of hugepages for kernel memory, came as part of the series 
+>>> https://patchwork.ozlabs.org/project/linuxppc-dev/cover/cover.1589866984.git.christophe.leroy@csgroup.eu/ 
+>>
+>>
+>>
+>> Ah, that's useful context. So it looks like powerpc took a different 
+>> route to reducing the KASAN output to x86.
+>>
+>> Given the generic ptdump code has handling for KASAN already it should 
+>> be possible to drop that from the powerpc arch code, which I think 
+>> means we don't actually need to provide page size to notepage(). 
+>> Hopefully that means more code to delete ;)
+>>
+> 
+> Looking at how the generic ptdump code handles KASAN, I'm a bit sceptic.
+> 
+> IIUC, it is checking that kasan_early_shadow_pte is in the same page as 
+> the pgtable referred by the PMD entry. But what happens if that PMD 
+> entry is referring another pgtable which is inside the same page as 
+> kasan_early_shadow_pte ?
+> 
+> Shouldn't the test be
+> 
+>      if (pmd_page_vaddr(val) == lm_alias(kasan_early_shadow_pte))
+>          return note_kasan_page_table(walk, addr);
 
-On Mon, Apr 19, 2021 at 6:18 AM Emanuele Giuseppe Esposito
-<eesposit@redhat.com> wrote:
->
-> Hi Jing,
->
-> > +int vm_stats_test(struct kvm_vm *vm)
-> > +{
-> > +     ssize_t ret;
-> > +     int i, stats_fd, err = -1;
-> > +     size_t size_desc, size_data = 0;
-> > +     struct kvm_stats_header header;
-> > +     struct kvm_stats_desc *stats_desc, *pdesc;
-> > +     struct kvm_vm_stats_data *stats_data;
-> > +
-> > +     // Get fd for VM stats
->
-> Another small nitpick: comments should go in /* */ format
-Thanks. Will fix all comments.
->
-> Thank you,
-> Emanuele
->
+Now I come to look at this code again, I think you're right. On arm64 
+this doesn't cause a problem - page tables are page sized and page 
+aligned, so there couldn't be any non-KASAN pgtables sharing the page. 
+Obviously that's not necessarily true of other architectures.
 
-Jing
+Feel free to add a patch to your series ;)
+
+Steve
