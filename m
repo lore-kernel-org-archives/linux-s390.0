@@ -2,132 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2213C433ED
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Apr 2021 15:48:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B953C433B4
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Apr 2021 10:26:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8B6CF61354
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Apr 2021 15:48:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 349A16140F
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Apr 2021 10:26:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233016AbhDTPsv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Apr 2021 11:48:51 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53222 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232997AbhDTPsu (ORCPT
+        id S238390AbhDUK1K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Apr 2021 06:27:10 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:55906 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238301AbhDUK1J (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 20 Apr 2021 11:48:50 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13KFiIad006282;
-        Tue, 20 Apr 2021 11:48:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=gqw2NnKwGeTXoIR47561+cS/58nFNhbksZGSmlUSIYI=;
- b=kj/I1ihfnZcf033J2FcT91hWJyfgTLKjoL3Ghq5sxerMkd5ZRvD48tgYuAnmU1hVrB7d
- RHbo3BNj1/zINmREaWLa2cx1J+gwy06c4e7d0lHh7+5Ym/4yCXtWtaYSi7JqBpGTnK2n
- Apx9YHqN6MpHM1331o96KW2QdnF94mHMZ45a5X0Y2ds3h3z0cADh06jAg1K11Ob7ED8h
- JO2C14WqXDNQbsUMTH4eZ7Bow8Yf/45Hol3Puo3CdJj3lbjRe1jlDD8mgM9r2BZhRL9F
- Kx69zfydMsXtxgHezUSy/JR3QOeTpHqD1WBm/Vc6E1dpvBgWAAyMzZzbHN4Ww+OVRs1S 4A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3821v08404-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Apr 2021 11:48:18 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13KFjfrR015092;
-        Tue, 20 Apr 2021 11:48:18 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3821v083yc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Apr 2021 11:48:18 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13KFmGYp004439;
-        Tue, 20 Apr 2021 15:48:16 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 37yqa8htuu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Apr 2021 15:48:16 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13KFmEGn58917326
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 20 Apr 2021 15:48:14 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3CCF24C044;
-        Tue, 20 Apr 2021 15:48:14 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E2EFC4C040;
-        Tue, 20 Apr 2021 15:48:13 +0000 (GMT)
-Received: from ibm-vm (unknown [9.145.0.91])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 20 Apr 2021 15:48:13 +0000 (GMT)
-Date:   Tue, 20 Apr 2021 15:40:06 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com,
-        david@redhat.com
-Subject: Re: [kvm-unit-tests PATCH 1/6] s390x: uv-guest: Add invalid share
- location test
-Message-ID: <20210420154006.6ef10fb0@ibm-vm>
-In-Reply-To: <20210316091654.1646-2-frankja@linux.ibm.com>
-References: <20210316091654.1646-1-frankja@linux.ibm.com>
-        <20210316091654.1646-2-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        Wed, 21 Apr 2021 06:27:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619000796;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=bjglrOe7R8vsi2nemsozqNa/o3uknpFaJaifsKU0JIc=;
+        b=TxUrpOCF3AZ72YfIYfvVoUXlrW8kg8Engk8fPft7zIEm+qp0o3kLuGqVhfQnmq7x3XtGLw
+        usgRCCqa53FUMw0hvK/HPMuygVsIJgCmCOT5I/YFsHUGP2ehLHLoXcoHEXtN5L7g5dN/av
+        +JexAm3FNLrcb5OiSLblBj+aHWM5cPo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-402-Yqu4U4LhNAu4XZj8RLpP3Q-1; Wed, 21 Apr 2021 06:25:34 -0400
+X-MC-Unique: Yqu4U4LhNAu4XZj8RLpP3Q-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 58CB3107ACE4;
+        Wed, 21 Apr 2021 10:25:33 +0000 (UTC)
+Received: from gondolin.fritz.box (ovpn-112-160.ams2.redhat.com [10.36.112.160])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F0A7D10016FE;
+        Wed, 21 Apr 2021 10:25:31 +0000 (UTC)
+Date:   Wed, 21 Apr 2021 12:25:29 +0200
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [RFC PATCH v4 4/4] vfio-ccw: Reset FSM state to IDLE before
+ io_mutex
+Message-ID: <20210421122529.6e373a39.cohuck@redhat.com>
+In-Reply-To: <20210413182410.1396170-5-farman@linux.ibm.com>
+References: <20210413182410.1396170-1-farman@linux.ibm.com>
+        <20210413182410.1396170-5-farman@linux.ibm.com>
+Organization: Red Hat GmbH
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ZLSu3Y7M2Sd-6ErWoM2GnYpoZVb95okf
-X-Proofpoint-ORIG-GUID: 1j0yr35ngx4JuAaYMDPCKeDR4gkcuSnI
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-20_07:2021-04-20,2021-04-20 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 mlxscore=0 lowpriorityscore=0 malwarescore=0
- impostorscore=0 suspectscore=0 clxscore=1015 mlxlogscore=999 adultscore=0
- phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104200114
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 16 Mar 2021 09:16:49 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On Tue, 13 Apr 2021 20:24:10 +0200
+Eric Farman <farman@linux.ibm.com> wrote:
 
-> Let's also test sharing unavailable memory.
+> Today, the stacked call to vfio_ccw_sch_io_todo() does three things:
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
+> 1) Update a solicited IRB with CP information, and release the CP
+> if the interrupt was the end of a START operation.
+> 2) Copy the IRB data into the io_region, under the protection of
+> the io_mutex
+> 3) Reset the vfio-ccw FSM state to IDLE to acknowledge that
+> vfio-ccw can accept more work.
+> 
+> The trouble is that step 3 is (A) invoked for both solicited and
+> unsolicited interrupts, and (B) sitting after the mutex for step 2.
+> This second piece becomes a problem if it processes an interrupt
+> for a CLEAR SUBCHANNEL while another thread initiates a START,
+> thus allowing the CP and FSM states to get out of sync. That is:
+> 
+> 	CPU 1				CPU 2
+> 	fsm_do_clear()
+> 	fsm_irq()
+> 					fsm_io_request()
+> 					fsm_io_helper()
+> 	vfio_ccw_sch_io_todo()
+> 					fsm_irq()
+> 					vfio_ccw_sch_io_todo()
+> 
+> Let's move the reset of the FSM state to the point where the
+> channel_program struct is cleaned up, which is only done for
+> solicited interrupts anyway.
+> 
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
 > ---
->  s390x/uv-guest.c | 5 +++++
->  1 file changed, 5 insertions(+)
+>  drivers/s390/cio/vfio_ccw_drv.c | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
 > 
-> diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
-> index 99544442..a13669ab 100644
-> --- a/s390x/uv-guest.c
-> +++ b/s390x/uv-guest.c
-> @@ -15,6 +15,7 @@
->  #include <asm/interrupt.h>
->  #include <asm/facility.h>
->  #include <asm/uv.h>
-> +#include <sclp.h>
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index 8c625b530035..e51318f23ca8 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -94,16 +94,15 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+>  		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
+>  	if (scsw_is_solicited(&irb->scsw)) {
+>  		cp_update_scsw(&private->cp, &irb->scsw);
+> -		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING)
+> +		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING) {
+>  			cp_free(&private->cp);
+> +			private->state = VFIO_CCW_STATE_IDLE;
+> +		}
+>  	}
+>  	mutex_lock(&private->io_mutex);
+>  	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+>  	mutex_unlock(&private->io_mutex);
 >  
->  static unsigned long page;
->  
-> @@ -99,6 +100,10 @@ static void test_sharing(void)
->  	uvcb.header.len = sizeof(uvcb);
->  	cc = uv_call(0, (u64)&uvcb);
->  	report(cc == 0 && uvcb.header.rc == UVC_RC_EXECUTED,
-> "share");
-> +	uvcb.paddr = get_ram_size() + PAGE_SIZE;
-> +	cc = uv_call(0, (u64)&uvcb);
-> +	report(cc == 1 && uvcb.header.rc == 0x101, "invalid memory");
-> +	uvcb.paddr = page;
->  	report_prefix_pop();
->  
->  	report_prefix_push("unshare");
+> -	if (private->mdev && is_final)
+> -		private->state = VFIO_CCW_STATE_IDLE;
+
+Isn't that re-allowing new I/O requests a bit too early? Maybe remember
+that we had a final I/O interrupt for an I/O request and only change
+the state in this case?
+
+
+> -
+>  	if (private->io_trigger)
+>  		eventfd_signal(private->io_trigger, 1);
+>  }
 
