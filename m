@@ -2,169 +2,184 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09347C433ED
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Apr 2021 18:54:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7EA7C433ED
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Apr 2021 00:53:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3BDD61264
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Apr 2021 18:54:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A77C660FE5
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Apr 2021 00:53:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235913AbhDUSzU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Apr 2021 14:55:20 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23942 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235329AbhDUSzU (ORCPT
+        id S238350AbhDVAxl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Apr 2021 20:53:41 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37758 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235168AbhDVAxl (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 21 Apr 2021 14:55:20 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13LIYXGG166471;
-        Wed, 21 Apr 2021 14:54:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=hoIIvLijVUEh0RcJjWarSwu+MSlAeJILzJQySf4NFpQ=;
- b=l8N6g/BUJT2vNi3BI2Zyyk3NlS3c7MWPwXgQ1WktcaI/1ip+T9VHinP0oS3duZwNv1zL
- 2sWyX4WHH7PCvE6EvTLONG9SPrTVUHVIdULA3/78hmNvgFTcYuveqwbZ1h/T2luX4h0v
- M5Q2n7Y71EvabfIBoqYtZW1qB53BwzinkwrZReo/0uKmD/bBdixUC17Z4L1pJXtm56qx
- xCiQZuGvhFgmTDrYyq4GKNMSFmAr5oD3mfrtQsZOp1+Wbjmq14A8LZVT7BO/97HOpjWO
- CDA52Af0RCbfwGvlsp0K+bs0phacX6gGClAhx87B3tcG/M1yQKcdeNzXr0rkj+WZzYY+ mA== 
+        Wed, 21 Apr 2021 20:53:41 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13M0Wm4T119475;
+        Wed, 21 Apr 2021 20:53:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=+gGUx1sNshe+I44p8sIGmfmHRCxtWareHWcSohlwfVA=;
+ b=p/AVgeSkiQBGeUovP4pUrLt4id5LOAIW4GKWIVEYqkEsnGRM5ogZDcSNZasHmXzNuVrM
+ s1V34Q626wDdmqc9mQxGsysfHm6MPdf57VftCpr729QtAhxVKSpDOslTiEm31Nfc89zw
+ zJxuLI2ibokYsPpHGJ5hWTRRj0tRgdSpAAnPynopfKYMEjNCAQCxMb16iKMq+dFp4du4
+ YjFvxcply2QvlstqSeSb+Xc8C0v+ZSVsReDOqTxWvWXYhDwlVuW9gb31eVjEQ9fJ/usx
+ Kx+wkJX0YlMLbXU0HdLn95Cl5QkPd66PbRCTQn0M1BQV4l88JJeVrRarCua++M2RHtGv QA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 382pmm6nsy-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 382xh08kv5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Apr 2021 14:54:35 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13LIYcC8167078;
-        Wed, 21 Apr 2021 14:54:35 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 382pmm6nsk-1
+        Wed, 21 Apr 2021 20:53:07 -0400
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13M0YOvH125903;
+        Wed, 21 Apr 2021 20:53:07 -0400
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 382xh08kuj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Apr 2021 14:54:35 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13LIhbqP010245;
-        Wed, 21 Apr 2021 18:54:33 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 37yqa8jfjy-1
+        Wed, 21 Apr 2021 20:53:06 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13M0laQg015086;
+        Thu, 22 Apr 2021 00:53:04 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06fra.de.ibm.com with ESMTP id 37ypxh9dr7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Apr 2021 18:54:33 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13LIsV6f37814718
+        Thu, 22 Apr 2021 00:53:04 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13M0r0dJ31785304
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 21 Apr 2021 18:54:31 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E15965204E;
-        Wed, 21 Apr 2021 18:54:30 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.22.74])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 11AD852050;
-        Wed, 21 Apr 2021 18:54:30 +0000 (GMT)
-Subject: Re: net: bridge: propagate error code and extack from
- br_mc_disabled_update
-To:     Vladimir Oltean <olteanv@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Cc:     andrew@lunn.ch, davem@davemloft.net, idosch@idosch.org,
-        jiri@resnulli.us, kuba@kernel.org, netdev@vger.kernel.org,
-        nikolay@nvidia.com, roopa@nvidia.com, vladimir.oltean@nxp.com,
-        linux-next@vger.kernel.org, kvm list <kvm@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-References: <20210414192257.1954575-1-olteanv@gmail.com>
- <20210421181808.5210-1-borntraeger@de.ibm.com>
- <cfc19833-01ec-08ea-881d-4101780d1d86@de.ibm.com>
- <3993fbf8-b409-f88f-c573-bf5b8f418a88@gmail.com>
- <20210421184600.qzsx6obwifcfsshq@skbuf>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <5a55f3f3-4861-6871-3b74-05361015297a@de.ibm.com>
-Date:   Wed, 21 Apr 2021 20:54:29 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
-In-Reply-To: <20210421184600.qzsx6obwifcfsshq@skbuf>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: meZk1lVbO41N9oedT5XFUsDV-F5fD8ki
-X-Proofpoint-ORIG-GUID: BMX2wi3EmDEm_8l5YKvhKSRRXsW-xwAP
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Thu, 22 Apr 2021 00:53:01 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E11CAAE051;
+        Thu, 22 Apr 2021 00:53:00 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6C2F9AE045;
+        Thu, 22 Apr 2021 00:53:00 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.31.18])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Thu, 22 Apr 2021 00:53:00 +0000 (GMT)
+Date:   Thu, 22 Apr 2021 02:52:58 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [RFC PATCH v4 0/4] vfio-ccw: Fix interrupt handling for
+ HALT/CLEAR
+Message-ID: <20210422025258.6ed7619d.pasic@linux.ibm.com>
+In-Reply-To: <20210413182410.1396170-1-farman@linux.ibm.com>
+References: <20210413182410.1396170-1-farman@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: -tn7Dq0vjRQVrJu2iUUvQnQBCSMVUaFa
+X-Proofpoint-ORIG-GUID: qD3C3reA9tJhAPzsvP5tNF2bkiRCPTE7
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-21_05:2021-04-21,2021-04-21 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- lowpriorityscore=0 adultscore=0 clxscore=1015 priorityscore=1501
- mlxlogscore=999 mlxscore=0 phishscore=0 impostorscore=0 spamscore=0
- suspectscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104210128
+ definitions=2021-04-21_08:2021-04-21,2021-04-21 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ adultscore=0 lowpriorityscore=0 malwarescore=0 suspectscore=0 spamscore=0
+ impostorscore=0 clxscore=1015 priorityscore=1501 mlxlogscore=999
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104220003
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, 13 Apr 2021 20:24:06 +0200
+Eric Farman <farman@linux.ibm.com> wrote:
 
-
-On 21.04.21 20:46, Vladimir Oltean wrote:
-> On Wed, Apr 21, 2021 at 11:37:25AM -0700, Florian Fainelli wrote:
->> On 4/21/2021 11:35 AM, Christian Borntraeger wrote:
->>> On 21.04.21 20:18, Christian Borntraeger wrote:
->>>> Whatever version landed in next, according to bisect this broke
->>>> libvirt/kvms use of bridges:
->>>>
->>>>
->>>> # virsh start s31128001
->>>> error: Failed to start domain 's31128001'
->>>> error: Unable to add bridge virbr1 port vnet0: Operation not supported
->>>>
->>>> # grep vnet0 /var/log/libvirt/libvirtd.log
->>>>
->>>> 2021-04-21 07:43:09.453+0000: 2460: info : virNetDevTapCreate:240 :
->>>> created device: 'vnet0'
->>>> 2021-04-21 07:43:09.453+0000: 2460: debug :
->>>> virNetDevSetMACInternal:287 : SIOCSIFHWADDR vnet0
->>>> MAC=fe:bb:83:28:01:02 - Success
->>>> 2021-04-21 07:43:09.453+0000: 2460: error : virNetDevBridgeAddPort:633
->>>> : Unable to add bridge virbr1 port vnet0: Operation not supported
->>>> 2021-04-21 07:43:09.466+0000: 2543: debug : udevHandleOneDevice:1695 :
->>>> udev action: 'add': /sys/devices/virtual/net/vnet0
->>>>
->>>> Christian
->>>>
->>>
->>> For reference:
->>>
->>> ae1ea84b33dab45c7b6c1754231ebda5959b504c is the first bad commit
->>> commit ae1ea84b33dab45c7b6c1754231ebda5959b504c
->>> Author: Florian Fainelli <f.fainelli@gmail.com>
->>> Date:   Wed Apr 14 22:22:57 2021 +0300
->>>
->>>     net: bridge: propagate error code and extack from br_mc_disabled_update
->>>        Some Ethernet switches might only be able to support disabling
->>> multicast
->>>     snooping globally, which is an issue for example when several bridges
->>>     span the same physical device and request contradictory settings.
->>>        Propagate the return value of br_mc_disabled_update() such that this
->>>     limitation is transmitted correctly to user-space.
->>>        Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
->>>     Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
->>>     Signed-off-by: David S. Miller <davem@davemloft.net>
->>>
->>> net/bridge/br_multicast.c | 28 +++++++++++++++++++++-------
->>> net/bridge/br_netlink.c   |  4 +++-
->>> net/bridge/br_private.h   |  3 ++-
->>> net/bridge/br_sysfs_br.c  |  8 +-------
->>> 4 files changed, 27 insertions(+), 16 deletions(-)
->>>
->>> not sure if it matters this is on s390.
->>> A simple reproducer is virt-install, e.g.
->>> virt-install --name test --disk size=12 --memory=2048 --vcpus=2
->>> --location
->>> http://ports.ubuntu.com/ubuntu-ports/dists/bionic/main/installer-s390x/
->>
->> Thanks, I will kick off a reproducer and let you know.
->> -- 
->> Florian
+> Hi Conny, Halil,
 > 
-> Hey, you guys are moving fast, faster than it took me to open my email client...
+> Let's restart our discussion about the collision between interrupts for
+> START SUBCHANNEL and HALT/CLEAR SUBCHANNEL. It's been a quarter million
+> minutes (give or take), so here is the problematic scenario again:
 > 
-> Sorry for the breakage, Christian, I've just sent a patch with what I
-> think is wrong, could you give it a try?
+> 	CPU 1			CPU 2
+>  1	CLEAR SUBCHANNEL
+>  2	fsm_irq()
+>  3				START SUBCHANNEL
+>  4	vfio_ccw_sch_io_todo()
+>  5				fsm_irq()
+>  6				vfio_ccw_sch_io_todo()
+> 
+> From the channel subsystem's point of view the CLEAR SUBCHANNEL (step 1)
+> is complete once step 2 is called, as the Interrupt Response Block (IRB)
+> has been presented and the TEST SUBCHANNEL was driven by the cio layer.
+> Thus, the START SUBCHANNEL (step 3) is submitted [1] and gets a cc=0 to
+> indicate the I/O was accepted. However, step 2 stacks the bulk of the
+> actual work onto a workqueue for when the subchannel lock is NOT held,
+> and is unqueued at step 4. That code misidentifies the data in the IRB
+> as being associated with the newly active I/O, and may release memory
+> that is actively in use by the channel subsystem and/or device. Eww.
+> 
+> In this version...
+> 
+> Patch 1 and 2 are defensive checks. Patch 2 was part of v3 [2], but I
+> would love a better option here to guard between steps 2 and 4.
+> 
+> Patch 3 is a subset of the removal of the CP_PENDING FSM state in v3.
+> I've obviously gone away from this idea, but I thought this piece is
+> still valuable.
+> 
+> Patch 4 collapses the code on the interrupt path so that changes to
+> the FSM state and the channel_program struct are handled at the same
+> point, rather than separated by a mutex boundary. Because of the
+> possibility of a START and HALT/CLEAR running concurrently, it does
+> not make sense to split them here.
+> 
+> With the above patches, maybe it then makes sense to hold the io_mutex
+> across the entirety of vfio_ccw_sch_io_todo(). But I'm not completely
+> sure that would be acceptable.
+> 
+> So... Thoughts?
 
-Yes, this fixes the issue. I answered on the patch.
+I believe we should address the concurrency, encapsulation and layering
+issues in the subchannel/ccw pass-through code (vfio-ccw) by taking a
+holistic approach as soon as possible.
+
+I find the current state of art very hard to reason about, and that
+adversely  affects my ability to reason about attempts at partial
+improvements.
+
+I understand that such a holistic approach needs a lot of work, and we
+may have to stop some bleeding first. In the stop the bleeding phase we
+can take a pragmatic approach and accept changes that empirically seem to
+work towards stopping the bleeding. I.e. if your tests say it's better,
+I'm willing to accept that it is better.
+
+I have to admit, I don't understand how synchronization is done in the
+vfio-ccw kernel module (in the sense of avoiding data races).
+
+Regarding your patches, I have to admit, I have a hard time figuring out
+which one of these (or what combination of them) is supposed to solve
+the problem you described above. If I had to guess, I would guess it is
+either patch 4, because it has a similar scenario diagram in the
+commit message like the one in the problem statement. Is my guess right?
+
+If it is right I don't quite understand the mechanics of the fix,
+because what the patch seems to do is changing the content of step 4 in
+the above diagram. And I don't see how is change that code
+so that it does not "misidentifies the data in the IRB as being
+associated with the newly active I/O". Moreover patch 4 seems to rely on
+private->state which, AFAIR is still used in a racy fashion.
+
+But if strong empirical evidence shows that it performs better (stops
+the bleeding), I think we can go ahead with it.
+
+Regards,
+Halil
+
+
+
+
+
+
+
