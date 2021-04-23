@@ -2,231 +2,156 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D056EC433B4
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 11:06:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 433ADC43461
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 11:30:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 97A4761468
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 11:06:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 085A6600CC
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 11:30:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242154AbhDWLHC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Apr 2021 07:07:02 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:50621 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229809AbhDWLHB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Apr 2021 07:07:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1619175985;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=HfQWnWr9CmKRH9tH+Uz4v87/VFtM98wfsHwZN4zPllQ=;
-        b=JzdTtXFAjeQAVYzQ+xVEDe3d9cuE32/RjxvPMJuZ+mXasB1QRtVn9FANTLi2OoeK2yxY+Y
-        vpdllJUDb89xHr2tzKifZnQbAx9P8w/JHwA14l+XepMuKkyTPYlYaApYvUDmJ7ZKyxistC
-        8bOawkYa0O1rtOoNHe+YSzpW3rUfWo0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-604-6LDfLT8ENvesyIOO4EVDsA-1; Fri, 23 Apr 2021 07:06:21 -0400
-X-MC-Unique: 6LDfLT8ENvesyIOO4EVDsA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9524A107ACCA;
-        Fri, 23 Apr 2021 11:06:20 +0000 (UTC)
-Received: from gondolin.fritz.box (ovpn-113-167.ams2.redhat.com [10.36.113.167])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2393E5D9E3;
-        Fri, 23 Apr 2021 11:06:18 +0000 (UTC)
-Date:   Fri, 23 Apr 2021 13:06:16 +0200
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Eric Farman <farman@linux.ibm.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [RFC PATCH v4 0/4] vfio-ccw: Fix interrupt handling for
- HALT/CLEAR
-Message-ID: <20210423130616.6dcbf4e4.cohuck@redhat.com>
-In-Reply-To: <1eb9cbdfe43a42a62f6afb0315bb1e3a103dac9a.camel@linux.ibm.com>
-References: <20210413182410.1396170-1-farman@linux.ibm.com>
-        <20210422025258.6ed7619d.pasic@linux.ibm.com>
-        <1eb9cbdfe43a42a62f6afb0315bb1e3a103dac9a.camel@linux.ibm.com>
-Organization: Red Hat GmbH
+        id S230026AbhDWLam (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Apr 2021 07:30:42 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:21264 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229479AbhDWLal (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 23 Apr 2021 07:30:41 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4FRXBx1czYz9ttBT;
+        Fri, 23 Apr 2021 13:30:01 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id VRzNkODV-j7U; Fri, 23 Apr 2021 13:30:01 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4FRXBx07wyz9ttBK;
+        Fri, 23 Apr 2021 13:30:01 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id B72208B849;
+        Fri, 23 Apr 2021 13:30:02 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id b6jQpDb8KpiG; Fri, 23 Apr 2021 13:30:02 +0200 (CEST)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 9748F8B765;
+        Fri, 23 Apr 2021 13:29:59 +0200 (CEST)
+Subject: Re: [PATCH bpf-next 1/2] bpf: Remove bpf_jit_enable=2 debugging mode
+To:     Quentin Monnet <quentin@isovalent.com>,
+        Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc:     Ian Rogers <irogers@google.com>, Song Liu <songliubraving@fb.com>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Zi Shen Lim <zlim.lnx@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
+        Shubham Bansal <illusionist.neo@gmail.com>,
+        Mahesh Bandewar <maheshb@google.com>,
+        Will Deacon <will@kernel.org>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Ilya Leoshkevich <iii@linux.ibm.com>, paulburton@kernel.org,
+        Jonathan Corbet <corbet@lwn.net>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        X86 ML <x86@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Tobias Klauser <tklauser@distanz.ch>,
+        linux-mips@vger.kernel.org, grantseltzer@gmail.com,
+        Xi Wang <xi.wang@gmail.com>, Albert Ou <aou@eecs.berkeley.edu>,
+        Kees Cook <keescook@chromium.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Luke Nelson <luke.r.nels@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        ppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        KP Singh <kpsingh@kernel.org>, iecedge@gmail.com,
+        Simon Horman <horms@verge.net.au>,
+        Borislav Petkov <bp@alien8.de>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Yonghong Song <yhs@fb.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dmitry Vyukov <dvyukov@google.com>, tsbogend@alpha.franken.de,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Network Development <netdev@vger.kernel.org>,
+        David Ahern <dsahern@kernel.org>,
+        Wang YanQing <udknight@gmail.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>, bpf <bpf@vger.kernel.org>,
+        Jianlin Lv <Jianlin.Lv@arm.com>,
+        "David S. Miller" <davem@davemloft.net>
+References: <20210415093250.3391257-1-Jianlin.Lv@arm.com>
+ <9c4a78d2-f73c-832a-e6e2-4b4daa729e07@iogearbox.net>
+ <d3949501-8f7d-57c4-b3fe-bcc3b24c09d8@isovalent.com>
+ <CAADnVQJ2oHbYfgY9jqM_JMxUsoZxaNrxKSVFYfgCXuHVpDehpQ@mail.gmail.com>
+ <0dea05ba-9467-0d84-4515-b8766f60318e@csgroup.eu>
+ <CAADnVQ+oQT6C7Qv7P5TV-x7im54omKoCYYKtYhcnhb1Uv3LPMQ@mail.gmail.com>
+ <be132117-f267-5817-136d-e1aeb8409c2a@csgroup.eu>
+ <58296f87-ad00-a0f5-954b-2150aa84efc4@isovalent.com>
+ <6a809d3f-c9e3-0eb7-9c1d-a202ad848424@csgroup.eu>
+ <ab1c3803-179c-7882-2bba-9eeda5211ad1@isovalent.com>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <90e2da42-6924-4246-f2f6-cfb2778cd804@csgroup.eu>
+Date:   Fri, 23 Apr 2021 13:29:59 +0200
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+In-Reply-To: <ab1c3803-179c-7882-2bba-9eeda5211ad1@isovalent.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 22 Apr 2021 16:49:21 -0400
-Eric Farman <farman@linux.ibm.com> wrote:
 
-> On Thu, 2021-04-22 at 02:52 +0200, Halil Pasic wrote:
-> > On Tue, 13 Apr 2021 20:24:06 +0200
-> > Eric Farman <farman@linux.ibm.com> wrote:
-> >   
-> > > Hi Conny, Halil,
-> > > 
-> > > Let's restart our discussion about the collision between interrupts
-> > > for
-> > > START SUBCHANNEL and HALT/CLEAR SUBCHANNEL. It's been a quarter
-> > > million
-> > > minutes (give or take), so here is the problematic scenario again:
-> > > 
-> > > 	CPU 1			CPU 2
-> > >  1	CLEAR SUBCHANNEL
-> > >  2	fsm_irq()
-> > >  3				START SUBCHANNEL
-> > >  4	vfio_ccw_sch_io_todo()
-> > >  5				fsm_irq()
-> > >  6				vfio_ccw_sch_io_todo()
-> > > 
-> > > From the channel subsystem's point of view the CLEAR SUBCHANNEL
-> > > (step 1)
-> > > is complete once step 2 is called, as the Interrupt Response Block
-> > > (IRB)
-> > > has been presented and the TEST SUBCHANNEL was driven by the cio
-> > > layer.
-> > > Thus, the START SUBCHANNEL (step 3) is submitted [1] and gets a
-> > > cc=0 to
-> > > indicate the I/O was accepted. However, step 2 stacks the bulk of
-> > > the
-> > > actual work onto a workqueue for when the subchannel lock is NOT
-> > > held,
-> > > and is unqueued at step 4. That code misidentifies the data in the
-> > > IRB
-> > > as being associated with the newly active I/O, and may release
-> > > memory
-> > > that is actively in use by the channel subsystem and/or device.
-> > > Eww.
-> > > 
-> > > In this version...
-> > > 
-> > > Patch 1 and 2 are defensive checks. Patch 2 was part of v3 [2], but
-> > > I
-> > > would love a better option here to guard between steps 2 and 4.
-> > > 
-> > > Patch 3 is a subset of the removal of the CP_PENDING FSM state in
-> > > v3.
-> > > I've obviously gone away from this idea, but I thought this piece
-> > > is
-> > > still valuable.
-> > > 
-> > > Patch 4 collapses the code on the interrupt path so that changes to
-> > > the FSM state and the channel_program struct are handled at the
-> > > same
-> > > point, rather than separated by a mutex boundary. Because of the
-> > > possibility of a START and HALT/CLEAR running concurrently, it does
-> > > not make sense to split them here.
-> > > 
-> > > With the above patches, maybe it then makes sense to hold the
-> > > io_mutex
-> > > across the entirety of vfio_ccw_sch_io_todo(). But I'm not
-> > > completely
-> > > sure that would be acceptable.
-> > > 
-> > > So... Thoughts?  
-> > 
-> > I believe we should address  
-> 
-> Who is the "we" here?
-> 
-> >  the concurrency, encapsulation and layering
-> > issues in the subchannel/ccw pass-through code (vfio-ccw) by taking a
-> > holistic approach as soon as possible.
 
-Let me also ask: what is "holistic"? If that's a complete rewrite, I
-definitely don't have the capacity for that; if others want to take
-over the code, feel free.
+Le 23/04/2021 à 12:59, Quentin Monnet a écrit :
+> 2021-04-23 12:46 UTC+0200 ~ Christophe Leroy <christophe.leroy@csgroup.eu>
+>>
+>>
+>> Le 23/04/2021 à 12:26, Quentin Monnet a écrit :
+>>> 2021-04-23 09:19 UTC+0200 ~ Christophe Leroy
+>>> <christophe.leroy@csgroup.eu>
+>>>
+>>> [...]
+>>>
+>>>> I finally managed to cross compile bpftool with libbpf, libopcodes,
+>>>> readline, ncurses, libcap, libz and all needed stuff. Was not easy but I
+>>>> made it.
+>>>
+>>> Libcap is optional and bpftool does not use readline or ncurses. May I
+>>> ask how you tried to build it?
+>>
+>> cd tools/bpf/
+>>
+>> make ARCH=powerpc CROSS_COMPILE=ppc-linux-
+> 
+> Ok, you could try running directly from tools/bpf/bpftool/ next time
+> instead.
+> 
+> Readline at least is for a different tool under tools/bpf/, bpf_dbg (But
+> I'm still not sure where that ncurses requirement was pulled from). The
+> requirements for specific kernel options probably came from yet another
+> tool (runqslower, I think).
+> 
 
-> > 
-> > I find the current state of art very hard to reason about, and that
-> > adversely  affects my ability to reason about attempts at partial
-> > improvements.
-> > 
-> > I understand that such a holistic approach needs a lot of work, and
-> > we
-> > may have to stop some bleeding first. In the stop the bleeding phase
-> > we
-> > can take a pragmatic approach and accept changes that empirically
-> > seem to
-> > work towards stopping the bleeding. I.e. if your tests say it's
-> > better,
-> > I'm willing to accept that it is better.  
-> 
-> So much bleeding!
-> 
-> RE: my tests... I have only been seeing the described problem in
-> pathological tests, and this series lets those tests run without issue.
+ncurses (or termcap) is required by readline
 
-FWIW, I haven't been able to reproduce the problem myself, and I don't
-remember seeing other reports. It's still a problem, and if we can get
-rid of the issue, good. The reasoning about what is happening makes
-sense to me.
-
-> 
-> > 
-> > I have to admit, I don't understand how synchronization is done in
-> > the
-> > vfio-ccw kernel module (in the sense of avoiding data races).
-> > 
-> > Regarding your patches, I have to admit, I have a hard time figuring
-> > out
-> > which one of these (or what combination of them) is supposed to solve
-> > the problem you described above. If I had to guess, I would guess it
-> > is
-> > either patch 4, because it has a similar scenario diagram in the
-> > commit message like the one in the problem statement. Is my guess
-> > right?  
-> 
-> Sort of. It is true that Patch 4 is the last piece of the puzzle, and
-> the diagram is included in that commit message so it is kept with the
-> change, instead of being lost with the cover letter.
-> 
-> As I said in the cover letter, "Patch 1 and 2 are defensive checks"
-> which are simply included to provide a more robust solution. You could
-> argue that Patch 3 should be held out separately, but as it came from
-> the previous version of this series it made sense to include here.
-> 
-> > 
-> > If it is right I don't quite understand the mechanics of the fix,
-> > because what the patch seems to do is changing the content of step 4
-> > in
-> > the above diagram. And I don't see how is change that code
-> > so that it does not "misidentifies the data in the IRB as being
-> > associated with the newly active I/O".   
-> 
-> Consider that the cp_update_scsw() and cp_free() routines that get
-> called here are looking at the cp->initialized flag to determine
-> whether to perform any work. For a system that is otherwise idle, the
-> cp->initialized flag will be false when processing an IRB related to a
-> CSCH, meaning the bulk of this routine will be a NOP.
-> 
-> In the failing scenario, as I describe in the commit message for patch
-> 4, we could be processing an interrupt that is unaffiliated with the CP
-> that was (or is being) built. It need not even be a solicited
-> interrupt; it just happened that the CSCH interrupt is what got me
-> looking at this path. The whole situation boils down to the FSM state
-> and cp->initialized flag being out of sync from one another after
-> coming through this function.
-
-Nod, that's also my understanding.
-
-> 
-> > Moreover patch 4 seems to rely on
-> > private->state which, AFAIR is still used in a racy fashion.
-> > 
-> > But if strong empirical evidence shows that it performs better (stops
-> > the bleeding), I think we can go ahead with it.  
-> 
-> Again with the bleeding. Is there a Doctor in the house? :)
-
-No idea, seen any blue boxes around? :)
-
+Christophe
