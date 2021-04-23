@@ -2,136 +2,162 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-21.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46927C433ED
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 17:09:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61EEEC433ED
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 18:17:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D1B16113B
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 17:09:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F25A61261
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 18:17:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229957AbhDWRJi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Apr 2021 13:09:38 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57836 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229691AbhDWRJi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Apr 2021 13:09:38 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13NH4EtP057432;
-        Fri, 23 Apr 2021 13:09:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=XT3MF+QXeyK101zF2vqFzprhuAOyIadpctZ0fT0Cajc=;
- b=JCjaWC71m9rpvapqta86gzk40RU70Y+TJgiIJsmXec7VaCJJc2pDo90hggXlUlx/e+pk
- fy98MH6+FIyupI6kk4/mZx4FSUksd0lqyaKZ5LK64sMNLJ2pcsHt9EpVaNzXCgpGWbeM
- 18TAWGpNI1u4tWylasARmqynGV9RjF/Y5st9KqKOIcUEv6t+zGaMsnALXri50E6lRD/Z
- PcqhoA1wl0CY2K6zxL+L23aiT2O+pWMpt1nuIBmrIkNKCYTQGO69XhaZsL7+8GrlzWMy
- VXshc0iypIzt0aJhFuxLWQz8xd0OPQqRvy9gy9S34iKnWVSPfDQZCcX24QhmR0+cHGUT KA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3841but20y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Apr 2021 13:09:01 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13NH54Ed060673;
-        Fri, 23 Apr 2021 13:09:01 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3841but1yb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Apr 2021 13:09:01 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13NH85vZ014519;
-        Fri, 23 Apr 2021 17:08:58 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 37yt2rue3h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Apr 2021 17:08:58 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13NH8tcX36307354
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 23 Apr 2021 17:08:55 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4853511C04A;
-        Fri, 23 Apr 2021 17:08:55 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CE8DE11C04C;
-        Fri, 23 Apr 2021 17:08:54 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.88.237])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Fri, 23 Apr 2021 17:08:54 +0000 (GMT)
-Date:   Fri, 23 Apr 2021 19:08:53 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Eric Farman <farman@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [RFC PATCH v4 0/4] vfio-ccw: Fix interrupt handling for
- HALT/CLEAR
-Message-ID: <20210423190853.6b159871.pasic@linux.ibm.com>
-In-Reply-To: <c23691d7e4d0456dffbbeb1cea80fe3395f92c86.camel@linux.ibm.com>
-References: <20210413182410.1396170-1-farman@linux.ibm.com>
- <20210422025258.6ed7619d.pasic@linux.ibm.com>
- <1eb9cbdfe43a42a62f6afb0315bb1e3a103dac9a.camel@linux.ibm.com>
- <20210423135015.5283edde.pasic@linux.ibm.com>
- <c23691d7e4d0456dffbbeb1cea80fe3395f92c86.camel@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: fI_-r-MRO54pOgx6fNGf6pWV39jlraS0
-X-Proofpoint-ORIG-GUID: 9A8xrKHIfqQiD1lpAs9xulM2dG-jSEAS
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-23_07:2021-04-23,2021-04-23 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
- adultscore=0 bulkscore=0 suspectscore=0 mlxlogscore=862 impostorscore=0
- mlxscore=0 lowpriorityscore=0 spamscore=0 priorityscore=1501 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104060000
- definitions=main-2104230109
+        id S243633AbhDWSSL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Apr 2021 14:18:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36604 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243639AbhDWSSI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Apr 2021 14:18:08 -0400
+Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53AEFC06138D
+        for <linux-s390@vger.kernel.org>; Fri, 23 Apr 2021 11:17:31 -0700 (PDT)
+Received: by mail-pj1-x1049.google.com with SMTP id cu23-20020a17090afa97b0290152471ab665so4370963pjb.8
+        for <linux-s390@vger.kernel.org>; Fri, 23 Apr 2021 11:17:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=jZ9aELeTtebSkfbpomfAFciujOueU+/1u2IVpj9kO9Q=;
+        b=RyBxs7miM4jdCQ3yugSc8OvrTlv5u+dF3p+Ra7seVMrj1RVtjB+pFXakJoRIl1jsLS
+         4JBtMKLiNnj9NnUNB9BsPmg2GgDdmytyBuu/qlKens774np+kb3bnNCuXir7AcEhlc1/
+         MMqfYw4RQYaFjE94XkSwKSrhOxKcqkWzlvWkJUaoPIQajn3YTSQmT7PSjqoq+mzFElwD
+         Nmi2pZp5/s1xwbLuQYIu7SednNnDgqlgHAbjSb3Ng+chogeOuRdzvwODmr0TjSFEqRbh
+         /2xlGDh8qLD5AOsfQQHMcbZvPA7WcxPJHgBTYDJjHZfxvE6utLgsp5D6rJBK8yPps95G
+         xQ1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=jZ9aELeTtebSkfbpomfAFciujOueU+/1u2IVpj9kO9Q=;
+        b=h0wbra842uZaJ9648fZSmiX3AhcfcgU2AodH/RZjd1/cGjuyrzAbqSvqtpiBe7MatJ
+         ceUPql59OTV+3pa7HE1FzrZA4f/e0IqpiVg9iM/ncj2lvEUeq9rJA+UxBEdRIbAZ0XgW
+         Ki/d1iSr0LLnGP9VyvmUwfIRNPWSkINBEnuSQ2QAQPLnRTcf2TVblw4AGhv/Jud192yU
+         Cgl+1o3VtYR4S6CeiRhh5UaIhQ607Zr8rlAe2AQJQvVlEV5UsBTlxXasvBRRuzI484hI
+         I7AeGDtNfciCtpp9nGQL/y1NzQRMheODn9yYhaRwg0lvoYUQfBf9SxDHhP2lsqmhUQWc
+         RnXA==
+X-Gm-Message-State: AOAM533vxVeVTdYnR/fMcAckU/A3gqwf6mL0/jNV0OSHHa7EOg+VJD2Z
+        3lGueVRxRYOii4EQnSfpexMLVsOh/XfQ/pL1Rw==
+X-Google-Smtp-Source: ABdhPJybLPMWN/SpAe3p+WeheeiGCmvt6zlmflTWrm4w6vD8liP2VaphrDYff46dFN5dJ0IrExvz0uL99CbVXXMV7Q==
+X-Received: from jgzg.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1acf])
+ (user=jingzhangos job=sendgmr) by 2002:a17:90b:e98:: with SMTP id
+ fv24mr1049588pjb.1.1619201850403; Fri, 23 Apr 2021 11:17:30 -0700 (PDT)
+Date:   Fri, 23 Apr 2021 18:17:23 +0000
+Message-Id: <20210423181727.596466-1-jingzhangos@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.31.1.498.g6c1eba8ee3d-goog
+Subject: [PATCH v3 0/4] KVM statistics data fd-based binary interface
+From:   Jing Zhang <jingzhangos@google.com>
+To:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
+        LinuxMIPS <linux-mips@vger.kernel.org>,
+        KVMPPC <kvm-ppc@vger.kernel.org>,
+        LinuxS390 <linux-s390@vger.kernel.org>,
+        Linuxkselftest <linux-kselftest@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Cc:     Jing Zhang <jingzhangos@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 23 Apr 2021 11:53:06 -0400
-Eric Farman <farman@linux.ibm.com> wrote:
+This patchset provides a file descriptor for every VM and VCPU to read
+KVM statistics data in binary format.
+It is meant to provide a lightweight, flexible, scalable and efficient
+lock-free solution for user space telemetry applications to pull the
+statistics data periodically for large scale systems. The pulling
+frequency could be as high as a few times per second.
+In this patchset, every statistics data are treated to have some
+attributes as below:
+  * architecture dependent or common
+  * VM statistics data or VCPU statistics data
+  * type: cumulative, instantaneous,
+  * unit: none for simple counter, nanosecond, microsecond,
+    millisecond, second, Byte, KiByte, MiByte, GiByte. Clock Cycles
+Since no lock/synchronization is used, the consistency between all
+the statistics data is not guaranteed. That means not all statistics
+data are read out at the exact same time, since the statistics date
+are still being updated by KVM subsystems while they are read out.
 
-> > 
-> > Is in your opinion the vfio-ccw kernel module data race free with
-> > this
-> > series applied?  
-> 
-> I have no further concerns.
+---
 
-I take this for a "yes, in my opinion it is data race free".
+* v2 -> v3
+  - Rebase to kvm/queue, commit edf408f5257b ("KVM: avoid "deadlock" between
+    install_new_memslots and MMU notifier")
+  - Resolve some nitpicks about format
 
-Please explain me, how do we synchronize access to
-a) private->state
-b) cp->initialized?
+* v1 -> v2
+  - Use ARRAY_SIZE to count the number of stats descriptors
+  - Fix missing `size` field initialization in macro STATS_DESC
 
-Asuming we both use the definition from the C standard, the multiple
-threads potentially concurrently accessing private->state or
-cp->initialized are not hard to find.
+[1] https://lore.kernel.org/kvm/20210402224359.2297157-1-jingzhangos@google.com
+[2] https://lore.kernel.org/kvm/20210415151741.1607806-1-jingzhangos@google.com
 
-For the former you can take vfio_ccw_sch_io_todo() (has both a read
-and a write, and runs from the workqueue) and fsm_io_request() (has
-both read and write). I guess the accesses from fsm_io_request() are
-all with the io_mutex held, but the accesses form vfio_ccw_sch_io_todo()
-are not with the io_mutex held AFAICT.
+---
 
-And the same is true for the latter with the difference that 
-vfio_ccw_sch_io_todo() manipulates cp->initialized via cp_update_scsw()
-and cp_free().
+Jing Zhang (4):
+  KVM: stats: Separate common stats from architecture specific ones
+  KVM: stats: Add fd-based API to read binary stats data
+  KVM: stats: Add documentation for statistics data binary interface
+  KVM: selftests: Add selftest for KVM statistics data binary interface
 
-These are either data races, or I'm missing something. Let me also
-note that C programs data races are bad news, because of undefined
-behavior.
+ Documentation/virt/kvm/api.rst                | 171 ++++++++
+ arch/arm64/include/asm/kvm_host.h             |   9 +-
+ arch/arm64/kvm/guest.c                        |  42 +-
+ arch/mips/include/asm/kvm_host.h              |   9 +-
+ arch/mips/kvm/mips.c                          |  67 +++-
+ arch/powerpc/include/asm/kvm_host.h           |   9 +-
+ arch/powerpc/kvm/book3s.c                     |  68 +++-
+ arch/powerpc/kvm/book3s_hv.c                  |  12 +-
+ arch/powerpc/kvm/book3s_pr.c                  |   2 +-
+ arch/powerpc/kvm/book3s_pr_papr.c             |   2 +-
+ arch/powerpc/kvm/booke.c                      |  63 ++-
+ arch/s390/include/asm/kvm_host.h              |   9 +-
+ arch/s390/kvm/kvm-s390.c                      | 133 ++++++-
+ arch/x86/include/asm/kvm_host.h               |   9 +-
+ arch/x86/kvm/x86.c                            |  71 +++-
+ include/linux/kvm_host.h                      | 132 ++++++-
+ include/linux/kvm_types.h                     |  12 +
+ include/uapi/linux/kvm.h                      |  50 +++
+ tools/testing/selftests/kvm/.gitignore        |   1 +
+ tools/testing/selftests/kvm/Makefile          |   3 +
+ .../testing/selftests/kvm/include/kvm_util.h  |   3 +
+ .../selftests/kvm/kvm_bin_form_stats.c        | 370 ++++++++++++++++++
+ tools/testing/selftests/kvm/lib/kvm_util.c    |  11 +
+ virt/kvm/kvm_main.c                           | 237 ++++++++++-
+ 24 files changed, 1405 insertions(+), 90 deletions(-)
+ create mode 100644 tools/testing/selftests/kvm/kvm_bin_form_stats.c
 
-Regards,
-Halil
 
+base-commit: edf408f5257ba39e63781b820528e1ce1ec0f543
+-- 
+2.31.1.498.g6c1eba8ee3d-goog
 
