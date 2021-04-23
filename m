@@ -2,253 +2,376 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-22.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 801ACC433B4
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Apr 2021 20:49:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB17BC433ED
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 02:34:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4B0F361409
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Apr 2021 20:49:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A73376141C
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 02:34:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236974AbhDVUuA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Apr 2021 16:50:00 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:24608 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236851AbhDVUuA (ORCPT
+        id S236601AbhDWCfE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Apr 2021 22:35:04 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59577 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236800AbhDWCfD (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Apr 2021 16:50:00 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13MKXlOD152576;
-        Thu, 22 Apr 2021 16:49:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=BbwCB/8MjB6byr7m4mjFYrmXLfkxNyZa/delVaGQsjA=;
- b=pkpOXmDblBh6veMsYDt873fZLum+PkjCNDyGOl9fcj6hFGljico2T7MQQrj7i2HuaQyF
- vy5wcrEWmrHKrFi6bZvMRmWLPbm0+yYNLTYdjcweKg93JyHPXyW6eWFigkEBzq82kWrD
- bGtJLy1T19uUyYLJQrym2/P14aXQw/7ZM8XoxCO4vPyUkB3aD1IP2i7mOzpiltx2Vkyj
- jcC2LuKlgucfYpQGJzRqFf6sHVa9Tp/nwcMzrYlDtj1enZ5DfH3tjR3ogWHYeVZCB+bJ
- DqnBl7F26HsjQdaxq+beDmfYPHr4dWx7qDxPxNnUlexhVTFvx4U7g7q4Lp5iow476HEA rg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3838hkpucy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Apr 2021 16:49:24 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13MKXlqm152652;
-        Thu, 22 Apr 2021 16:49:24 -0400
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3838hkpucs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Apr 2021 16:49:24 -0400
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13MKguKc010267;
-        Thu, 22 Apr 2021 20:49:23 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma02dal.us.ibm.com with ESMTP id 37yqaay8j6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Apr 2021 20:49:23 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13MKnMcV29622648
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 22 Apr 2021 20:49:22 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AD023124055;
-        Thu, 22 Apr 2021 20:49:22 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3178B124052;
-        Thu, 22 Apr 2021 20:49:22 +0000 (GMT)
-Received: from farman-thinkpad-t470p (unknown [9.160.17.178])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Thu, 22 Apr 2021 20:49:22 +0000 (GMT)
-Message-ID: <1eb9cbdfe43a42a62f6afb0315bb1e3a103dac9a.camel@linux.ibm.com>
-Subject: Re: [RFC PATCH v4 0/4] vfio-ccw: Fix interrupt handling for
- HALT/CLEAR
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Date:   Thu, 22 Apr 2021 16:49:21 -0400
-In-Reply-To: <20210422025258.6ed7619d.pasic@linux.ibm.com>
-References: <20210413182410.1396170-1-farman@linux.ibm.com>
-         <20210422025258.6ed7619d.pasic@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: TBrSFBYFlBNHdA14wW4XiGvy9OkPsgAp
-X-Proofpoint-GUID: KTnLqzCbSckwAk9zKAy1XnQfTsb4nPq7
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-22_14:2021-04-22,2021-04-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
- mlxscore=0 malwarescore=0 priorityscore=1501 spamscore=0 bulkscore=0
- suspectscore=0 phishscore=0 clxscore=1015 mlxlogscore=999
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104220153
+        Thu, 22 Apr 2021 22:35:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619145266;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ZQNY+2dK0F2J25PQHKOH4E0JeQgPhZv8sqXjSjM4ajs=;
+        b=iPxRYj4zeTjavxcBVvkNSs8i8zgfO0e6LVzkhrGvbjGrDB2/RLqnKJhZ8SGpQVtT8nCLs/
+        iRTBBUpNwkXyRRujDvvkNtpv2DH57O+T/Ix9fdrnxPh1TkonyXdRj9rA+HIU+AXyID2mot
+        J/af6zzcqIB3x/W0yvowykyAEPTdKPo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-505-3icZjueBOtWDe9XSTnYHtg-1; Thu, 22 Apr 2021 22:34:23 -0400
+X-MC-Unique: 3icZjueBOtWDe9XSTnYHtg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A7C4E1922036;
+        Fri, 23 Apr 2021 02:34:20 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.10.110.24])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 26D305C3E6;
+        Fri, 23 Apr 2021 02:34:10 +0000 (UTC)
+Date:   Thu, 22 Apr 2021 22:34:08 -0400
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-parisc@vger.kernel.org, x86@kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>,
+        Linux-Audit Mailing List <linux-audit@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org,
+        Eric Paris <eparis@parisplace.org>,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH 1/2] audit: add support for the openat2 syscall
+Message-ID: <20210423023408.GB2174828@madcap2.tricolour.ca>
+References: <cover.1616031035.git.rgb@redhat.com>
+ <49510cacfb5fbbaa312a4a389f3a6619675007ab.1616031035.git.rgb@redhat.com>
+ <20210318104843.uiga6tmmhn5wfhbs@wittgenstein>
+ <20210318120801.GK3141668@madcap2.tricolour.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210318120801.GK3141668@madcap2.tricolour.ca>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2021-04-22 at 02:52 +0200, Halil Pasic wrote:
-> On Tue, 13 Apr 2021 20:24:06 +0200
-> Eric Farman <farman@linux.ibm.com> wrote:
+On 2021-03-18 08:08, Richard Guy Briggs wrote:
+> On 2021-03-18 11:48, Christian Brauner wrote:
+> > [+Cc Aleksa, the author of openat2()]
 > 
-> > Hi Conny, Halil,
+> Ah!  Thanks for pulling in Aleksa.  I thought I caught everyone...
+> 
+> > and a comment below. :)
+> 
+> Same...
+> 
+> > On Wed, Mar 17, 2021 at 09:47:17PM -0400, Richard Guy Briggs wrote:
+> > > The openat2(2) syscall was added in kernel v5.6 with commit fddb5d430ad9
+> > > ("open: introduce openat2(2) syscall")
+> > > 
+> > > Add the openat2(2) syscall to the audit syscall classifier.
+> > > 
+> > > See the github issue
+> > > https://github.com/linux-audit/audit-kernel/issues/67
+> > > 
+> > > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+> > > ---
+> > >  arch/alpha/kernel/audit.c          | 2 ++
+> > >  arch/ia64/kernel/audit.c           | 2 ++
+> > >  arch/parisc/kernel/audit.c         | 2 ++
+> > >  arch/parisc/kernel/compat_audit.c  | 2 ++
+> > >  arch/powerpc/kernel/audit.c        | 2 ++
+> > >  arch/powerpc/kernel/compat_audit.c | 2 ++
+> > >  arch/s390/kernel/audit.c           | 2 ++
+> > >  arch/s390/kernel/compat_audit.c    | 2 ++
+> > >  arch/sparc/kernel/audit.c          | 2 ++
+> > >  arch/sparc/kernel/compat_audit.c   | 2 ++
+> > >  arch/x86/ia32/audit.c              | 2 ++
+> > >  arch/x86/kernel/audit_64.c         | 2 ++
+> > >  kernel/auditsc.c                   | 3 +++
+> > >  lib/audit.c                        | 4 ++++
+> > >  lib/compat_audit.c                 | 4 ++++
+> > >  15 files changed, 35 insertions(+)
+> > > 
+> > > diff --git a/arch/alpha/kernel/audit.c b/arch/alpha/kernel/audit.c
+> > > index 96a9d18ff4c4..06a911b685d1 100644
+> > > --- a/arch/alpha/kernel/audit.c
+> > > +++ b/arch/alpha/kernel/audit.c
+> > > @@ -42,6 +42,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+> > >  		return 3;
+> > >  	case __NR_execve:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 0;
+> > >  	}
+> > > diff --git a/arch/ia64/kernel/audit.c b/arch/ia64/kernel/audit.c
+> > > index 5192ca899fe6..5eaa888c8fd3 100644
+> > > --- a/arch/ia64/kernel/audit.c
+> > > +++ b/arch/ia64/kernel/audit.c
+> > > @@ -43,6 +43,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+> > >  		return 3;
+> > >  	case __NR_execve:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 0;
+> > >  	}
+> > > diff --git a/arch/parisc/kernel/audit.c b/arch/parisc/kernel/audit.c
+> > > index 9eb47b2225d2..fc721a7727ba 100644
+> > > --- a/arch/parisc/kernel/audit.c
+> > > +++ b/arch/parisc/kernel/audit.c
+> > > @@ -52,6 +52,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+> > >  		return 3;
+> > >  	case __NR_execve:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 0;
+> > >  	}
+> > > diff --git a/arch/parisc/kernel/compat_audit.c b/arch/parisc/kernel/compat_audit.c
+> > > index 20c39c9d86a9..fc6d35918c44 100644
+> > > --- a/arch/parisc/kernel/compat_audit.c
+> > > +++ b/arch/parisc/kernel/compat_audit.c
+> > > @@ -35,6 +35,8 @@ int parisc32_classify_syscall(unsigned syscall)
+> > >  		return 3;
+> > >  	case __NR_execve:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 1;
+> > >  	}
+> > > diff --git a/arch/powerpc/kernel/audit.c b/arch/powerpc/kernel/audit.c
+> > > index a2dddd7f3d09..8f32700b0baa 100644
+> > > --- a/arch/powerpc/kernel/audit.c
+> > > +++ b/arch/powerpc/kernel/audit.c
+> > > @@ -54,6 +54,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+> > >  		return 4;
+> > >  	case __NR_execve:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 0;
+> > >  	}
+> > > diff --git a/arch/powerpc/kernel/compat_audit.c b/arch/powerpc/kernel/compat_audit.c
+> > > index 55c6ccda0a85..ebe45534b1c9 100644
+> > > --- a/arch/powerpc/kernel/compat_audit.c
+> > > +++ b/arch/powerpc/kernel/compat_audit.c
+> > > @@ -38,6 +38,8 @@ int ppc32_classify_syscall(unsigned syscall)
+> > >  		return 4;
+> > >  	case __NR_execve:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 1;
+> > >  	}
+> > > diff --git a/arch/s390/kernel/audit.c b/arch/s390/kernel/audit.c
+> > > index d395c6c9944c..d964cb94cfaf 100644
+> > > --- a/arch/s390/kernel/audit.c
+> > > +++ b/arch/s390/kernel/audit.c
+> > > @@ -54,6 +54,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+> > >  		return 4;
+> > >  	case __NR_execve:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 0;
+> > >  	}
+> > > diff --git a/arch/s390/kernel/compat_audit.c b/arch/s390/kernel/compat_audit.c
+> > > index 444fb1f66944..f7b32933ce0e 100644
+> > > --- a/arch/s390/kernel/compat_audit.c
+> > > +++ b/arch/s390/kernel/compat_audit.c
+> > > @@ -39,6 +39,8 @@ int s390_classify_syscall(unsigned syscall)
+> > >  		return 4;
+> > >  	case __NR_execve:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 1;
+> > >  	}
+> > > diff --git a/arch/sparc/kernel/audit.c b/arch/sparc/kernel/audit.c
+> > > index a6e91bf34d48..b6dcca9c6520 100644
+> > > --- a/arch/sparc/kernel/audit.c
+> > > +++ b/arch/sparc/kernel/audit.c
+> > > @@ -55,6 +55,8 @@ int audit_classify_syscall(int abi, unsigned int syscall)
+> > >  		return 4;
+> > >  	case __NR_execve:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 0;
+> > >  	}
+> > > diff --git a/arch/sparc/kernel/compat_audit.c b/arch/sparc/kernel/compat_audit.c
+> > > index 10eeb4f15b20..d2652a1083ad 100644
+> > > --- a/arch/sparc/kernel/compat_audit.c
+> > > +++ b/arch/sparc/kernel/compat_audit.c
+> > > @@ -39,6 +39,8 @@ int sparc32_classify_syscall(unsigned int syscall)
+> > >  		return 4;
+> > >  	case __NR_execve:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 1;
+> > >  	}
+> > > diff --git a/arch/x86/ia32/audit.c b/arch/x86/ia32/audit.c
+> > > index 6efe6cb3768a..57a02ade5503 100644
+> > > --- a/arch/x86/ia32/audit.c
+> > > +++ b/arch/x86/ia32/audit.c
+> > > @@ -39,6 +39,8 @@ int ia32_classify_syscall(unsigned syscall)
+> > >  	case __NR_execve:
+> > >  	case __NR_execveat:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 1;
+> > >  	}
+> > > diff --git a/arch/x86/kernel/audit_64.c b/arch/x86/kernel/audit_64.c
+> > > index 83d9cad4e68b..39de1e021258 100644
+> > > --- a/arch/x86/kernel/audit_64.c
+> > > +++ b/arch/x86/kernel/audit_64.c
+> > > @@ -53,6 +53,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
+> > >  	case __NR_execve:
+> > >  	case __NR_execveat:
+> > >  		return 5;
+> > > +	case __NR_openat2:
+> > > +		return 6;
+> > >  	default:
+> > >  		return 0;
+> > >  	}
+> > > diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+> > > index 8bb9ac84d2fb..f5616e70d129 100644
+> > > --- a/kernel/auditsc.c
+> > > +++ b/kernel/auditsc.c
+> > > @@ -76,6 +76,7 @@
+> > >  #include <linux/fsnotify_backend.h>
+> > >  #include <uapi/linux/limits.h>
+> > >  #include <uapi/linux/netfilter/nf_tables.h>
+> > > +#include <uapi/linux/openat2.h>
+> > >  
+> > >  #include "audit.h"
+> > >  
+> > > @@ -195,6 +196,8 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
+> > >  		return ((mask & AUDIT_PERM_WRITE) && ctx->argv[0] == SYS_BIND);
+> > >  	case 5: /* execve */
+> > >  		return mask & AUDIT_PERM_EXEC;
+> > > +	case 6: /* openat2 */
+> > > +		return mask & ACC_MODE((u32)((struct open_how *)ctx->argv[2])->flags);
 > > 
-> > Let's restart our discussion about the collision between interrupts
-> > for
-> > START SUBCHANNEL and HALT/CLEAR SUBCHANNEL. It's been a quarter
-> > million
-> > minutes (give or take), so here is the problematic scenario again:
+> > That looks a bit dodgy. Maybe sm like the below would be a bit better?
+> 
+> Ah, ok, fair enough, since original flags use a u32 and this was picked
+> as u64 for alignment.  It was just occurring to me last night that I
+> might have the dubious honour of being the first usage of 0%llo format
+> specifier in the kernel...  ;-)
+
+> > diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+> > index 47fb48f42c93..531e882a5096 100644
+> > --- a/kernel/auditsc.c
+> > +++ b/kernel/auditsc.c
+> > @@ -159,6 +159,7 @@ static const struct audit_nfcfgop_tab audit_nfcfgs[] = {
 > > 
-> > 	CPU 1			CPU 2
-> >  1	CLEAR SUBCHANNEL
-> >  2	fsm_irq()
-> >  3				START SUBCHANNEL
-> >  4	vfio_ccw_sch_io_todo()
-> >  5				fsm_irq()
-> >  6				vfio_ccw_sch_io_todo()
+> >  static int audit_match_perm(struct audit_context *ctx, int mask)
+> >  {
+> > +       struct open_how *openat2;
+> >         unsigned n;
+> >         if (unlikely(!ctx))
+> >                 return 0;
+> > @@ -195,6 +196,12 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
+> >                 return ((mask & AUDIT_PERM_WRITE) && ctx->argv[0] == SYS_BIND);
+> >         case 5: /* execve */
+> >                 return mask & AUDIT_PERM_EXEC;
+> > +       case 6: /* openat2 */
+> > +               openat2 = ctx->argv[2];
+> > +               if (upper_32_bits(openat2->flags))
+> > +                       pr_warn("Some sensible warning about unknown flags");
+> > +
+> > +               return mask & ACC_MODE(lower_32_bits(openat2->flags));
+> >         default:
+> >                 return 0;
+> >         }
 > > 
-> > From the channel subsystem's point of view the CLEAR SUBCHANNEL
-> > (step 1)
-> > is complete once step 2 is called, as the Interrupt Response Block
-> > (IRB)
-> > has been presented and the TEST SUBCHANNEL was driven by the cio
-> > layer.
-> > Thus, the START SUBCHANNEL (step 3) is submitted [1] and gets a
-> > cc=0 to
-> > indicate the I/O was accepted. However, step 2 stacks the bulk of
-> > the
-> > actual work onto a workqueue for when the subchannel lock is NOT
-> > held,
-> > and is unqueued at step 4. That code misidentifies the data in the
-> > IRB
-> > as being associated with the newly active I/O, and may release
-> > memory
-> > that is actively in use by the channel subsystem and/or device.
-> > Eww.
-> > 
-> > In this version...
-> > 
-> > Patch 1 and 2 are defensive checks. Patch 2 was part of v3 [2], but
-> > I
-> > would love a better option here to guard between steps 2 and 4.
-> > 
-> > Patch 3 is a subset of the removal of the CP_PENDING FSM state in
-> > v3.
-> > I've obviously gone away from this idea, but I thought this piece
-> > is
-> > still valuable.
-> > 
-> > Patch 4 collapses the code on the interrupt path so that changes to
-> > the FSM state and the channel_program struct are handled at the
-> > same
-> > point, rather than separated by a mutex boundary. Because of the
-> > possibility of a START and HALT/CLEAR running concurrently, it does
-> > not make sense to split them here.
-> > 
-> > With the above patches, maybe it then makes sense to hold the
-> > io_mutex
-> > across the entirety of vfio_ccw_sch_io_todo(). But I'm not
-> > completely
-> > sure that would be acceptable.
-> > 
-> > So... Thoughts?
-> 
-> I believe we should address
+> > (Ideally we'd probably notice at build-time that we've got flags
+> > exceeding 32bits. Could probably easily been done by exposing an all
+> > flags macro somewhere and then we can place a BUILD_BUG_ON() or sm into
+> > such places.)
 
-Who is the "we" here?
+open_how arguments are translated to open_flags which is limited to 32 bits.
 
->  the concurrency, encapsulation and layering
-> issues in the subchannel/ccw pass-through code (vfio-ccw) by taking a
-> holistic approach as soon as possible.
-> 
-> I find the current state of art very hard to reason about, and that
-> adversely  affects my ability to reason about attempts at partial
-> improvements.
-> 
-> I understand that such a holistic approach needs a lot of work, and
-> we
-> may have to stop some bleeding first. In the stop the bleeding phase
-> we
-> can take a pragmatic approach and accept changes that empirically
-> seem to
-> work towards stopping the bleeding. I.e. if your tests say it's
-> better,
-> I'm willing to accept that it is better.
+This code is shared with the other open functions that are limited to 32 bits
+in open_flags.  openat2 was created to avoid the limitations of openat, so at
+some point it isn't unreasonable that flags exceed 32 bits, but open_flags
+would have to be modified at that point to accommodate.
 
-So much bleeding!
+This value is handed in from userspace, and could be handed in without being
+defined in the kernel, so those values need to be properly checked regardless
+of the flags defined in the kernel.
 
-RE: my tests... I have only been seeing the described problem in
-pathological tests, and this series lets those tests run without issue.
+The openat2 syscall claims to check all flags but no check is done on the top
+32 bits.
 
-> 
-> I have to admit, I don't understand how synchronization is done in
-> the
-> vfio-ccw kernel module (in the sense of avoiding data races).
-> 
-> Regarding your patches, I have to admit, I have a hard time figuring
-> out
-> which one of these (or what combination of them) is supposed to solve
-> the problem you described above. If I had to guess, I would guess it
-> is
-> either patch 4, because it has a similar scenario diagram in the
-> commit message like the one in the problem statement. Is my guess
-> right?
+build_open_flags() assigns how->flags to an int, effectively dropping the top
+32 bits, before being checked against ~VALID_OPEN_FLAGS.  This happens after
+audit mode filtering, but has the same result.
 
-Sort of. It is true that Patch 4 is the last piece of the puzzle, and
-the diagram is included in that commit message so it is kept with the
-change, instead of being lost with the cover letter.
+Audit mode filtering using ACC_MODE() already masks out all but the lowest two
+bits with O_ACCMODE, so there is no danger of overflowing a u32.
 
-As I said in the cover letter, "Patch 1 and 2 are defensive checks"
-which are simply included to provide a more robust solution. You could
-argue that Patch 3 should be held out separately, but as it came from
-the previous version of this series it made sense to include here.
+tomoyo_check_open_permission() assigns ACC_MODE() to u8 without a check.
 
-> 
-> If it is right I don't quite understand the mechanics of the fix,
-> because what the patch seems to do is changing the content of step 4
-> in
-> the above diagram. And I don't see how is change that code
-> so that it does not "misidentifies the data in the IRB as being
-> associated with the newly active I/O". 
+All FMODE_* flags are clamped at u32.
 
-Consider that the cp_update_scsw() and cp_free() routines that get
-called here are looking at the cp->initialized flag to determine
-whether to perform any work. For a system that is otherwise idle, the
-cp->initialized flag will be false when processing an IRB related to a
-CSCH, meaning the bulk of this routine will be a NOP.
+6 bits remain at top and 4 bits just above O_ACCMODE, so there is no immediate
+danger of overflow and if any additional mode bits are needed they are
+available.
+000377777703 used
+037777777777 available
+10 bits remaining
 
-In the failing scenario, as I describe in the commit message for patch
-4, we could be processing an interrupt that is unaffiliated with the CP
-that was (or is being) built. It need not even be a solicited
-interrupt; it just happened that the CSCH interrupt is what got me
-looking at this path. The whole situation boils down to the FSM state
-and cp->initialized flag being out of sync from one another after
-coming through this function.
+So, I don't think a check at this point in the code is useful, but do agree
+that there should be some changes and checks added in sys_openat2 and
+build_open_flags().
 
-> Moreover patch 4 seems to rely on
-> private->state which, AFAIR is still used in a racy fashion.
-> 
-> But if strong empirical evidence shows that it performs better (stops
-> the bleeding), I think we can go ahead with it.
 
-Again with the bleeding. Is there a Doctor in the house? :)
+Also noticed: It looks like fddb5d430ad9f left in VALID_UPGRADE_FLAGS for
+how->upgrade_mask that was removed.  This may be used at a later date, but at
+this point is dead code.
 
-Eric
+> > Christian
+> 
+> - RGB
 
-> 
-> Regards,
-> Halil
-> 
-> 
-> 
-> 
-> 
-> 
-> 
+- RGB
+
+--
+Richard Guy Briggs <rgb@redhat.com>
+Sr. S/W Engineer, Kernel Security, Base Operating Systems
+Remote, Ottawa, Red Hat Canada
+IRC: rgb, SunRaycer
+Voice: +1.647.777.2635, Internal: (81) 32635
 
