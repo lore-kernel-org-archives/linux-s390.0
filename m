@@ -2,111 +2,191 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8295EC433ED
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 10:08:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7836C433B4
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 10:26:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 405C2613C4
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 10:08:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 94D226113D
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 10:26:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241890AbhDWKJ1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Apr 2021 06:09:27 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38688 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229961AbhDWKJ1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Apr 2021 06:09:27 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13NA44Rg063707;
-        Fri, 23 Apr 2021 06:08:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : subject :
- date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=hOVQIrh11RfnIEGXfJicBYPU7nTaTqr9grqTJ0gaRos=;
- b=JHZxL4Pz4dbPUt29pp6gnlS5Uhk6SITK7b2ai/54FBUNaiPRUg9xLJYTz7HFyDrgVgQc
- U8BHpI4WRc/HtTNELN8jzOg6uzVV8pdgBo3R0Jy1pYuUHmH2mFWUvo9qkxuvmJRzunCU
- 2aX2RWVJQsertsMSO4XENOxzEIsmxzjOQofvsA8n94ykOAouv0UE3+JCdkZYiqlGAUlP
- lWQTuwLcxaVUT7FmYnr06Or+xCUcmVa691v+fg2Z2xxM5dMqmdfT/jJ07js2eNBofBUX
- XJDu9hCXko1TjEn+gNGwC4uiCadoW5eRMsyBic/5MNvR9ZKI//h/AX4KOvmNhPlOMvhd ng== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 383av9u01f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Apr 2021 06:08:48 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13NA8gxK000825;
-        Fri, 23 Apr 2021 10:08:47 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06fra.de.ibm.com with ESMTP id 37ypxh9uc3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Apr 2021 10:08:47 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13NA8KA034669004
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 23 Apr 2021 10:08:20 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 007F64C04A;
-        Fri, 23 Apr 2021 10:08:44 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B9C164C046;
-        Fri, 23 Apr 2021 10:08:43 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 23 Apr 2021 10:08:43 +0000 (GMT)
-From:   Vineeth Vijayan <vneethv@linux.ibm.com>
-To:     oberpar@linux.ibm.com, christian.ehrhardt@canonical.com,
-        borntraeger@de.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH] s390/cio: Remove the invalid condition on IO_SCH_UNREG
-Date:   Fri, 23 Apr 2021 12:08:43 +0200
-Message-Id: <20210423100843.2230969-1-vneethv@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
+        id S242026AbhDWK1C (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Apr 2021 06:27:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45078 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241927AbhDWK06 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Apr 2021 06:26:58 -0400
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCA54C06138D
+        for <linux-s390@vger.kernel.org>; Fri, 23 Apr 2021 03:26:20 -0700 (PDT)
+Received: by mail-wm1-x334.google.com with SMTP id o9-20020a1c41090000b029012c8dac9d47so928779wma.1
+        for <linux-s390@vger.kernel.org>; Fri, 23 Apr 2021 03:26:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=isovalent-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=pZC3bOQbN5+fqyuA7H9ye81q8uOWfqddKhA+GXdAbe0=;
+        b=aSb/o1mV8h0CcE9ai+0+GIlXRSGlsJTPumKNmGEJ88Z4i3bGRbY+GZu4y+9bXJ2Ej0
+         Gnr1pQPVFxw/OkuLgXzy8PcFfaYDEZW1fihUNP/VtK/ltQ5OgS+ABY7Byb2o9rvuH3w9
+         aiiyIdPgdOTZ+hKQKeseFBSIHuPOG3wEViDcm9o+RO0YnIbhhMqz+iQQf7AY04+ybwHf
+         2nC4MhrVKh/73RRSCeoHklo+CLEPmhYLF8BmrTl+dusVmM5VfEfslHL7IoEnP1IXaaeU
+         +VlpWeuLfKHGTov0axRspP5fwSgIZ4r+kUdG1PRmBmRYDbmUFoGKlyjNhDcKQj1tRsaO
+         5EEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=pZC3bOQbN5+fqyuA7H9ye81q8uOWfqddKhA+GXdAbe0=;
+        b=XRJVoAEfE5Ua5tpDkMlGHGXX5D2KAu2GNDyzRK2gZdEFTRk9ssOSYsRNXpnOdG+ss4
+         yLR3Rf904lFcx3bUrXpcLAQfDGBf8n62jAW/b8nNfvzavN3BVNM7ylXAQ76I5MlQASwg
+         uWAcWt0yXOf43Cy7rWk/wMU7FFZDK3pCqmzC1IuAXmbhxkpu/pfLEzzdTtodpaJ23aUn
+         F0RIzADFIp5fpU7pQ8mn23IRbsUrQsa44wAfg+vInEolzP4UDERrXRlKYPopPbUgXC/F
+         5ZkIbILYQcsRxr0FZA7SLKTqD3io5niNBpoa6KDfWjWRrMDWEDnIp9lJO1v15qLZg2WH
+         B+uw==
+X-Gm-Message-State: AOAM532leMGs0v8Ym49MGBDpHNRUCp717f+7BYA9yxhuBKwuUGY61TtJ
+        XITloDkenrV3eBIWrlzOOXdqiw==
+X-Google-Smtp-Source: ABdhPJwzRkVz3Ofbfxh8n0buCkcX7vCmdhQBvEZ1KP3t4/FvoWzwFRVeYSa0K9So4C2Yfv4k3szanw==
+X-Received: by 2002:a1c:b743:: with SMTP id h64mr3431829wmf.35.1619173579445;
+        Fri, 23 Apr 2021 03:26:19 -0700 (PDT)
+Received: from [192.168.1.8] ([149.86.88.56])
+        by smtp.gmail.com with ESMTPSA id b15sm8464544wrt.57.2021.04.23.03.26.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 23 Apr 2021 03:26:18 -0700 (PDT)
+Subject: Re: [PATCH bpf-next 1/2] bpf: Remove bpf_jit_enable=2 debugging mode
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc:     Ian Rogers <irogers@google.com>, Song Liu <songliubraving@fb.com>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Zi Shen Lim <zlim.lnx@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
+        Shubham Bansal <illusionist.neo@gmail.com>,
+        Mahesh Bandewar <maheshb@google.com>,
+        Will Deacon <will@kernel.org>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Ilya Leoshkevich <iii@linux.ibm.com>, paulburton@kernel.org,
+        Jonathan Corbet <corbet@lwn.net>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        X86 ML <x86@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Tobias Klauser <tklauser@distanz.ch>,
+        linux-mips@vger.kernel.org, grantseltzer@gmail.com,
+        Xi Wang <xi.wang@gmail.com>, Albert Ou <aou@eecs.berkeley.edu>,
+        Kees Cook <keescook@chromium.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Luke Nelson <luke.r.nels@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        ppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        KP Singh <kpsingh@kernel.org>, iecedge@gmail.com,
+        Simon Horman <horms@verge.net.au>,
+        Borislav Petkov <bp@alien8.de>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Yonghong Song <yhs@fb.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dmitry Vyukov <dvyukov@google.com>, tsbogend@alpha.franken.de,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Network Development <netdev@vger.kernel.org>,
+        David Ahern <dsahern@kernel.org>,
+        Wang YanQing <udknight@gmail.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>, bpf <bpf@vger.kernel.org>,
+        Jianlin Lv <Jianlin.Lv@arm.com>,
+        "David S. Miller" <davem@davemloft.net>
+References: <20210415093250.3391257-1-Jianlin.Lv@arm.com>
+ <9c4a78d2-f73c-832a-e6e2-4b4daa729e07@iogearbox.net>
+ <d3949501-8f7d-57c4-b3fe-bcc3b24c09d8@isovalent.com>
+ <CAADnVQJ2oHbYfgY9jqM_JMxUsoZxaNrxKSVFYfgCXuHVpDehpQ@mail.gmail.com>
+ <0dea05ba-9467-0d84-4515-b8766f60318e@csgroup.eu>
+ <CAADnVQ+oQT6C7Qv7P5TV-x7im54omKoCYYKtYhcnhb1Uv3LPMQ@mail.gmail.com>
+ <be132117-f267-5817-136d-e1aeb8409c2a@csgroup.eu>
+From:   Quentin Monnet <quentin@isovalent.com>
+Message-ID: <58296f87-ad00-a0f5-954b-2150aa84efc4@isovalent.com>
+Date:   Fri, 23 Apr 2021 11:26:16 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: XAFudhO29ZXB0GNIj27AqvofmevTc78w
-X-Proofpoint-GUID: XAFudhO29ZXB0GNIj27AqvofmevTc78w
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-23_03:2021-04-23,2021-04-23 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 spamscore=0
- priorityscore=1501 mlxlogscore=999 adultscore=0 lowpriorityscore=0
- bulkscore=0 phishscore=0 mlxscore=0 malwarescore=0 suspectscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104230062
+In-Reply-To: <be132117-f267-5817-136d-e1aeb8409c2a@csgroup.eu>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The condition to check the cdev pointer validity on
-css_sch_device_unregister() is a leftover from the 'commit c97cd8c81d4a
-("s390/cio: Remove pm support from ccw bus driver")'. This could lead to a
-situation, where detaching the disk is not happening completely. Remove
-this invalid condition in the IO_SCH_UNREG case.
+2021-04-23 09:19 UTC+0200 ~ Christophe Leroy <christophe.leroy@csgroup.eu>
 
-Fixes: 8cc0dcfdc1c0 ("s390/cio: remove pm support from ccw bus driver")
-Reported-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
-Suggested-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
----
- drivers/s390/cio/device.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+[...]
 
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 3f026021e95e..84f659cafe76 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -1532,8 +1532,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
- 	switch (action) {
- 	case IO_SCH_ORPH_UNREG:
- 	case IO_SCH_UNREG:
--		if (!cdev)
--			css_sch_device_unregister(sch);
-+		css_sch_device_unregister(sch);
- 		break;
- 	case IO_SCH_ORPH_ATTACH:
- 	case IO_SCH_UNREG_ATTACH:
--- 
-2.25.1
+> I finally managed to cross compile bpftool with libbpf, libopcodes,
+> readline, ncurses, libcap, libz and all needed stuff. Was not easy but I
+> made it.
 
+Libcap is optional and bpftool does not use readline or ncurses. May I
+ask how you tried to build it?
+
+> 
+> Now, how do I use it ?
+> 
+> Let say I want to dump the jitted code generated from a call to
+> 'tcpdump'. How do I do that with 'bpftool prog dump jited' ?
+> 
+> I thought by calling this line I would then get programs dumped in a way
+> or another just like when setting 'bpf_jit_enable=2', but calling that
+> line just provides me some bpftool help text.
+
+Well the purpose of this text is to help you find the way to call
+bpftool to do what you want :). For dumping your programs' instructions,
+you need to tell bpftool what program to dump: Bpftool isn't waiting
+until you load a program to dump it, instead you need to load your
+program first and then tell bpftool to retrieve the instructions from
+the kernel. To reference your program you could use a pinned path, or
+first list the programs on your system with "bpftool prog show":
+
+
+    # bpftool prog show
+    138: tracing  name foo  tag e54c922dfa54f65f  gpl
+            loaded_at 2021-02-25T01:32:30+0000  uid 0
+            xlated 256B  jited 154B  memlock 4096B  map_ids 64
+            btf_id 235
+
+Then you can use for example the program id displayed on the first line
+to reference and dump your program:
+
+    # bpftool prog dump jited id 138
+
+You should find additional documentation under
+tools/bpf/bpftool/Documentation.
+
+> 
+> By the way, I would be nice to have a kernel OPTION that selects all
+> OPTIONS required for building bpftool. Because you discover them one by
+> one at every build failure. I had to had CONFIG_IPV6, CONFIG_DEBUG_BTF,
+> CONFIG_CGROUPS, ... If there could be an option like "Build a 'bpftool'
+> ready kernel" that selected all those, it would be great.
+> 
+> Christophe
+
+I do not believe any of these are required to build bpftool.
+
+Quentin
