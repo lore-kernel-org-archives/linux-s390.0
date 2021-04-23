@@ -2,361 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91DEDC433ED
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 07:48:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8295EC433ED
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 10:08:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5769A61404
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 07:48:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 405C2613C4
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 10:08:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241199AbhDWHtP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Apr 2021 03:49:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50972 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229456AbhDWHtO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Apr 2021 03:49:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57E79611C2;
-        Fri, 23 Apr 2021 07:48:34 +0000 (UTC)
-Date:   Fri, 23 Apr 2021 09:48:31 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Richard Guy Briggs <rgb@redhat.com>
-Cc:     linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-parisc@vger.kernel.org, x86@kernel.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>,
-        Linux-Audit Mailing List <linux-audit@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org,
-        Eric Paris <eparis@parisplace.org>,
-        linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH 1/2] audit: add support for the openat2 syscall
-Message-ID: <20210423074831.lc4jqqtyuun2fnws@wittgenstein>
-References: <cover.1616031035.git.rgb@redhat.com>
- <49510cacfb5fbbaa312a4a389f3a6619675007ab.1616031035.git.rgb@redhat.com>
- <20210318104843.uiga6tmmhn5wfhbs@wittgenstein>
- <20210318120801.GK3141668@madcap2.tricolour.ca>
- <20210423023408.GB2174828@madcap2.tricolour.ca>
+        id S241890AbhDWKJ1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Apr 2021 06:09:27 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38688 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229961AbhDWKJ1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 23 Apr 2021 06:09:27 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13NA44Rg063707;
+        Fri, 23 Apr 2021 06:08:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : subject :
+ date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=hOVQIrh11RfnIEGXfJicBYPU7nTaTqr9grqTJ0gaRos=;
+ b=JHZxL4Pz4dbPUt29pp6gnlS5Uhk6SITK7b2ai/54FBUNaiPRUg9xLJYTz7HFyDrgVgQc
+ U8BHpI4WRc/HtTNELN8jzOg6uzVV8pdgBo3R0Jy1pYuUHmH2mFWUvo9qkxuvmJRzunCU
+ 2aX2RWVJQsertsMSO4XENOxzEIsmxzjOQofvsA8n94ykOAouv0UE3+JCdkZYiqlGAUlP
+ lWQTuwLcxaVUT7FmYnr06Or+xCUcmVa691v+fg2Z2xxM5dMqmdfT/jJ07js2eNBofBUX
+ XJDu9hCXko1TjEn+gNGwC4uiCadoW5eRMsyBic/5MNvR9ZKI//h/AX4KOvmNhPlOMvhd ng== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 383av9u01f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Apr 2021 06:08:48 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13NA8gxK000825;
+        Fri, 23 Apr 2021 10:08:47 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06fra.de.ibm.com with ESMTP id 37ypxh9uc3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Apr 2021 10:08:47 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13NA8KA034669004
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 23 Apr 2021 10:08:20 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 007F64C04A;
+        Fri, 23 Apr 2021 10:08:44 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B9C164C046;
+        Fri, 23 Apr 2021 10:08:43 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 23 Apr 2021 10:08:43 +0000 (GMT)
+From:   Vineeth Vijayan <vneethv@linux.ibm.com>
+To:     oberpar@linux.ibm.com, christian.ehrhardt@canonical.com,
+        borntraeger@de.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH] s390/cio: Remove the invalid condition on IO_SCH_UNREG
+Date:   Fri, 23 Apr 2021 12:08:43 +0200
+Message-Id: <20210423100843.2230969-1-vneethv@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210423023408.GB2174828@madcap2.tricolour.ca>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XAFudhO29ZXB0GNIj27AqvofmevTc78w
+X-Proofpoint-GUID: XAFudhO29ZXB0GNIj27AqvofmevTc78w
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-23_03:2021-04-23,2021-04-23 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 spamscore=0
+ priorityscore=1501 mlxlogscore=999 adultscore=0 lowpriorityscore=0
+ bulkscore=0 phishscore=0 mlxscore=0 malwarescore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104230062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Apr 22, 2021 at 10:34:08PM -0400, Richard Guy Briggs wrote:
-> On 2021-03-18 08:08, Richard Guy Briggs wrote:
-> > On 2021-03-18 11:48, Christian Brauner wrote:
-> > > [+Cc Aleksa, the author of openat2()]
-> > 
-> > Ah!  Thanks for pulling in Aleksa.  I thought I caught everyone...
-> > 
-> > > and a comment below. :)
-> > 
-> > Same...
-> > 
-> > > On Wed, Mar 17, 2021 at 09:47:17PM -0400, Richard Guy Briggs wrote:
-> > > > The openat2(2) syscall was added in kernel v5.6 with commit fddb5d430ad9
-> > > > ("open: introduce openat2(2) syscall")
-> > > > 
-> > > > Add the openat2(2) syscall to the audit syscall classifier.
-> > > > 
-> > > > See the github issue
-> > > > https://github.com/linux-audit/audit-kernel/issues/67
-> > > > 
-> > > > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-> > > > ---
-> > > >  arch/alpha/kernel/audit.c          | 2 ++
-> > > >  arch/ia64/kernel/audit.c           | 2 ++
-> > > >  arch/parisc/kernel/audit.c         | 2 ++
-> > > >  arch/parisc/kernel/compat_audit.c  | 2 ++
-> > > >  arch/powerpc/kernel/audit.c        | 2 ++
-> > > >  arch/powerpc/kernel/compat_audit.c | 2 ++
-> > > >  arch/s390/kernel/audit.c           | 2 ++
-> > > >  arch/s390/kernel/compat_audit.c    | 2 ++
-> > > >  arch/sparc/kernel/audit.c          | 2 ++
-> > > >  arch/sparc/kernel/compat_audit.c   | 2 ++
-> > > >  arch/x86/ia32/audit.c              | 2 ++
-> > > >  arch/x86/kernel/audit_64.c         | 2 ++
-> > > >  kernel/auditsc.c                   | 3 +++
-> > > >  lib/audit.c                        | 4 ++++
-> > > >  lib/compat_audit.c                 | 4 ++++
-> > > >  15 files changed, 35 insertions(+)
-> > > > 
-> > > > diff --git a/arch/alpha/kernel/audit.c b/arch/alpha/kernel/audit.c
-> > > > index 96a9d18ff4c4..06a911b685d1 100644
-> > > > --- a/arch/alpha/kernel/audit.c
-> > > > +++ b/arch/alpha/kernel/audit.c
-> > > > @@ -42,6 +42,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > > >  		return 3;
-> > > >  	case __NR_execve:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 0;
-> > > >  	}
-> > > > diff --git a/arch/ia64/kernel/audit.c b/arch/ia64/kernel/audit.c
-> > > > index 5192ca899fe6..5eaa888c8fd3 100644
-> > > > --- a/arch/ia64/kernel/audit.c
-> > > > +++ b/arch/ia64/kernel/audit.c
-> > > > @@ -43,6 +43,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > > >  		return 3;
-> > > >  	case __NR_execve:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 0;
-> > > >  	}
-> > > > diff --git a/arch/parisc/kernel/audit.c b/arch/parisc/kernel/audit.c
-> > > > index 9eb47b2225d2..fc721a7727ba 100644
-> > > > --- a/arch/parisc/kernel/audit.c
-> > > > +++ b/arch/parisc/kernel/audit.c
-> > > > @@ -52,6 +52,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > > >  		return 3;
-> > > >  	case __NR_execve:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 0;
-> > > >  	}
-> > > > diff --git a/arch/parisc/kernel/compat_audit.c b/arch/parisc/kernel/compat_audit.c
-> > > > index 20c39c9d86a9..fc6d35918c44 100644
-> > > > --- a/arch/parisc/kernel/compat_audit.c
-> > > > +++ b/arch/parisc/kernel/compat_audit.c
-> > > > @@ -35,6 +35,8 @@ int parisc32_classify_syscall(unsigned syscall)
-> > > >  		return 3;
-> > > >  	case __NR_execve:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 1;
-> > > >  	}
-> > > > diff --git a/arch/powerpc/kernel/audit.c b/arch/powerpc/kernel/audit.c
-> > > > index a2dddd7f3d09..8f32700b0baa 100644
-> > > > --- a/arch/powerpc/kernel/audit.c
-> > > > +++ b/arch/powerpc/kernel/audit.c
-> > > > @@ -54,6 +54,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > > >  		return 4;
-> > > >  	case __NR_execve:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 0;
-> > > >  	}
-> > > > diff --git a/arch/powerpc/kernel/compat_audit.c b/arch/powerpc/kernel/compat_audit.c
-> > > > index 55c6ccda0a85..ebe45534b1c9 100644
-> > > > --- a/arch/powerpc/kernel/compat_audit.c
-> > > > +++ b/arch/powerpc/kernel/compat_audit.c
-> > > > @@ -38,6 +38,8 @@ int ppc32_classify_syscall(unsigned syscall)
-> > > >  		return 4;
-> > > >  	case __NR_execve:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 1;
-> > > >  	}
-> > > > diff --git a/arch/s390/kernel/audit.c b/arch/s390/kernel/audit.c
-> > > > index d395c6c9944c..d964cb94cfaf 100644
-> > > > --- a/arch/s390/kernel/audit.c
-> > > > +++ b/arch/s390/kernel/audit.c
-> > > > @@ -54,6 +54,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > > >  		return 4;
-> > > >  	case __NR_execve:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 0;
-> > > >  	}
-> > > > diff --git a/arch/s390/kernel/compat_audit.c b/arch/s390/kernel/compat_audit.c
-> > > > index 444fb1f66944..f7b32933ce0e 100644
-> > > > --- a/arch/s390/kernel/compat_audit.c
-> > > > +++ b/arch/s390/kernel/compat_audit.c
-> > > > @@ -39,6 +39,8 @@ int s390_classify_syscall(unsigned syscall)
-> > > >  		return 4;
-> > > >  	case __NR_execve:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 1;
-> > > >  	}
-> > > > diff --git a/arch/sparc/kernel/audit.c b/arch/sparc/kernel/audit.c
-> > > > index a6e91bf34d48..b6dcca9c6520 100644
-> > > > --- a/arch/sparc/kernel/audit.c
-> > > > +++ b/arch/sparc/kernel/audit.c
-> > > > @@ -55,6 +55,8 @@ int audit_classify_syscall(int abi, unsigned int syscall)
-> > > >  		return 4;
-> > > >  	case __NR_execve:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 0;
-> > > >  	}
-> > > > diff --git a/arch/sparc/kernel/compat_audit.c b/arch/sparc/kernel/compat_audit.c
-> > > > index 10eeb4f15b20..d2652a1083ad 100644
-> > > > --- a/arch/sparc/kernel/compat_audit.c
-> > > > +++ b/arch/sparc/kernel/compat_audit.c
-> > > > @@ -39,6 +39,8 @@ int sparc32_classify_syscall(unsigned int syscall)
-> > > >  		return 4;
-> > > >  	case __NR_execve:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 1;
-> > > >  	}
-> > > > diff --git a/arch/x86/ia32/audit.c b/arch/x86/ia32/audit.c
-> > > > index 6efe6cb3768a..57a02ade5503 100644
-> > > > --- a/arch/x86/ia32/audit.c
-> > > > +++ b/arch/x86/ia32/audit.c
-> > > > @@ -39,6 +39,8 @@ int ia32_classify_syscall(unsigned syscall)
-> > > >  	case __NR_execve:
-> > > >  	case __NR_execveat:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 1;
-> > > >  	}
-> > > > diff --git a/arch/x86/kernel/audit_64.c b/arch/x86/kernel/audit_64.c
-> > > > index 83d9cad4e68b..39de1e021258 100644
-> > > > --- a/arch/x86/kernel/audit_64.c
-> > > > +++ b/arch/x86/kernel/audit_64.c
-> > > > @@ -53,6 +53,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > > >  	case __NR_execve:
-> > > >  	case __NR_execveat:
-> > > >  		return 5;
-> > > > +	case __NR_openat2:
-> > > > +		return 6;
-> > > >  	default:
-> > > >  		return 0;
-> > > >  	}
-> > > > diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> > > > index 8bb9ac84d2fb..f5616e70d129 100644
-> > > > --- a/kernel/auditsc.c
-> > > > +++ b/kernel/auditsc.c
-> > > > @@ -76,6 +76,7 @@
-> > > >  #include <linux/fsnotify_backend.h>
-> > > >  #include <uapi/linux/limits.h>
-> > > >  #include <uapi/linux/netfilter/nf_tables.h>
-> > > > +#include <uapi/linux/openat2.h>
-> > > >  
-> > > >  #include "audit.h"
-> > > >  
-> > > > @@ -195,6 +196,8 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
-> > > >  		return ((mask & AUDIT_PERM_WRITE) && ctx->argv[0] == SYS_BIND);
-> > > >  	case 5: /* execve */
-> > > >  		return mask & AUDIT_PERM_EXEC;
-> > > > +	case 6: /* openat2 */
-> > > > +		return mask & ACC_MODE((u32)((struct open_how *)ctx->argv[2])->flags);
-> > > 
-> > > That looks a bit dodgy. Maybe sm like the below would be a bit better?
-> > 
-> > Ah, ok, fair enough, since original flags use a u32 and this was picked
-> > as u64 for alignment.  It was just occurring to me last night that I
-> > might have the dubious honour of being the first usage of 0%llo format
-> > specifier in the kernel...  ;-)
-> 
-> > > diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> > > index 47fb48f42c93..531e882a5096 100644
-> > > --- a/kernel/auditsc.c
-> > > +++ b/kernel/auditsc.c
-> > > @@ -159,6 +159,7 @@ static const struct audit_nfcfgop_tab audit_nfcfgs[] = {
-> > > 
-> > >  static int audit_match_perm(struct audit_context *ctx, int mask)
-> > >  {
-> > > +       struct open_how *openat2;
-> > >         unsigned n;
-> > >         if (unlikely(!ctx))
-> > >                 return 0;
-> > > @@ -195,6 +196,12 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
-> > >                 return ((mask & AUDIT_PERM_WRITE) && ctx->argv[0] == SYS_BIND);
-> > >         case 5: /* execve */
-> > >                 return mask & AUDIT_PERM_EXEC;
-> > > +       case 6: /* openat2 */
-> > > +               openat2 = ctx->argv[2];
-> > > +               if (upper_32_bits(openat2->flags))
-> > > +                       pr_warn("Some sensible warning about unknown flags");
-> > > +
-> > > +               return mask & ACC_MODE(lower_32_bits(openat2->flags));
-> > >         default:
-> > >                 return 0;
-> > >         }
-> > > 
-> > > (Ideally we'd probably notice at build-time that we've got flags
-> > > exceeding 32bits. Could probably easily been done by exposing an all
-> > > flags macro somewhere and then we can place a BUILD_BUG_ON() or sm into
-> > > such places.)
-> 
-> open_how arguments are translated to open_flags which is limited to 32 bits.
-> 
-> This code is shared with the other open functions that are limited to 32 bits
-> in open_flags.  openat2 was created to avoid the limitations of openat, so at
-> some point it isn't unreasonable that flags exceed 32 bits, but open_flags
-> would have to be modified at that point to accommodate.
-> 
-> This value is handed in from userspace, and could be handed in without being
-> defined in the kernel, so those values need to be properly checked regardless
-> of the flags defined in the kernel.
-> 
-> The openat2 syscall claims to check all flags but no check is done on the top
-> 32 bits.
+The condition to check the cdev pointer validity on
+css_sch_device_unregister() is a leftover from the 'commit c97cd8c81d4a
+("s390/cio: Remove pm support from ccw bus driver")'. This could lead to a
+situation, where detaching the disk is not happening completely. Remove
+this invalid condition in the IO_SCH_UNREG case.
 
-Hm, I think this is an oversight because of the different semantics for
-openat() and openat2(). We should check that no upper 32 bits are set
-for openat2(). That's the intended semantics. For old openat()
-we can't error on unknown flags because it has traditionally ignored
-unknown flags.
+Fixes: 8cc0dcfdc1c0 ("s390/cio: remove pm support from ccw bus driver")
+Reported-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Suggested-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+---
+ drivers/s390/cio/device.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-> 
-> build_open_flags() assigns how->flags to an int, effectively dropping the top
-> 32 bits, before being checked against ~VALID_OPEN_FLAGS.  This happens after
-> audit mode filtering, but has the same result.
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index 3f026021e95e..84f659cafe76 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -1532,8 +1532,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
+ 	switch (action) {
+ 	case IO_SCH_ORPH_UNREG:
+ 	case IO_SCH_UNREG:
+-		if (!cdev)
+-			css_sch_device_unregister(sch);
++		css_sch_device_unregister(sch);
+ 		break;
+ 	case IO_SCH_ORPH_ATTACH:
+ 	case IO_SCH_UNREG_ATTACH:
+-- 
+2.25.1
 
-Right. That's at bug we should return an error to userspace. We do for
-any unkown values that fall within the lower 32 bit range so it's silly
-to ignore unknown values in the upper 32 bit range.
-
-> 
-> Audit mode filtering using ACC_MODE() already masks out all but the lowest two
-> bits with O_ACCMODE, so there is no danger of overflowing a u32.
-> 
-> tomoyo_check_open_permission() assigns ACC_MODE() to u8 without a check.
-> 
-> All FMODE_* flags are clamped at u32.
-> 
-> 6 bits remain at top and 4 bits just above O_ACCMODE, so there is no immediate
-> danger of overflow and if any additional mode bits are needed they are
-> available.
-> 000377777703 used
-> 037777777777 available
-> 10 bits remaining
-> 
-> So, I don't think a check at this point in the code is useful, but do agree
-
-Maybe but note that a defensive posture here might be a good thing
-instead of tripping over the issue later.
-
-> that there should be some changes and checks added in sys_openat2 and
-> build_open_flags().
-> 
-> 
-> Also noticed: It looks like fddb5d430ad9f left in VALID_UPGRADE_FLAGS for
-> how->upgrade_mask that was removed.  This may be used at a later date, but at
-> this point is dead code.
-
-I'll take a look now.
-
-Christian
