@@ -2,376 +2,193 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-22.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB17BC433ED
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 02:34:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A78CFC433B4
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 07:19:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A73376141C
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 02:34:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8565D61042
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Apr 2021 07:19:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236601AbhDWCfE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Apr 2021 22:35:04 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59577 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236800AbhDWCfD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Apr 2021 22:35:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1619145266;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZQNY+2dK0F2J25PQHKOH4E0JeQgPhZv8sqXjSjM4ajs=;
-        b=iPxRYj4zeTjavxcBVvkNSs8i8zgfO0e6LVzkhrGvbjGrDB2/RLqnKJhZ8SGpQVtT8nCLs/
-        iRTBBUpNwkXyRRujDvvkNtpv2DH57O+T/Ix9fdrnxPh1TkonyXdRj9rA+HIU+AXyID2mot
-        J/af6zzcqIB3x/W0yvowykyAEPTdKPo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-505-3icZjueBOtWDe9XSTnYHtg-1; Thu, 22 Apr 2021 22:34:23 -0400
-X-MC-Unique: 3icZjueBOtWDe9XSTnYHtg-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A7C4E1922036;
-        Fri, 23 Apr 2021 02:34:20 +0000 (UTC)
-Received: from madcap2.tricolour.ca (unknown [10.10.110.24])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 26D305C3E6;
-        Fri, 23 Apr 2021 02:34:10 +0000 (UTC)
-Date:   Thu, 22 Apr 2021 22:34:08 -0400
-From:   Richard Guy Briggs <rgb@redhat.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-parisc@vger.kernel.org, x86@kernel.org,
+        id S240393AbhDWHTt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Apr 2021 03:19:49 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:18001 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229935AbhDWHTs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 23 Apr 2021 03:19:48 -0400
+Received: from localhost (mailhub1-int [192.168.12.234])
+        by localhost (Postfix) with ESMTP id 4FRQdS46lvz9tynk;
+        Fri, 23 Apr 2021 09:19:08 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id 0oQPQKgd4ski; Fri, 23 Apr 2021 09:19:08 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4FRQdS3HSvz9tynf;
+        Fri, 23 Apr 2021 09:19:08 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id C25808B798;
+        Fri, 23 Apr 2021 09:19:09 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id QeOANgzeLlXn; Fri, 23 Apr 2021 09:19:09 +0200 (CEST)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id D2C2E8B765;
+        Fri, 23 Apr 2021 09:19:06 +0200 (CEST)
+Subject: Re: [PATCH bpf-next 1/2] bpf: Remove bpf_jit_enable=2 debugging mode
+To:     Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc:     Quentin Monnet <quentin@isovalent.com>,
+        Ian Rogers <irogers@google.com>,
+        Song Liu <songliubraving@fb.com>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Zi Shen Lim <zlim.lnx@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
+        Shubham Bansal <illusionist.neo@gmail.com>,
+        Mahesh Bandewar <maheshb@google.com>,
+        Will Deacon <will@kernel.org>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Ilya Leoshkevich <iii@linux.ibm.com>, paulburton@kernel.org,
+        Jonathan Corbet <corbet@lwn.net>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        X86 ML <x86@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Tobias Klauser <tklauser@distanz.ch>,
+        linux-mips@vger.kernel.org, grantseltzer@gmail.com,
+        Xi Wang <xi.wang@gmail.com>, Albert Ou <aou@eecs.berkeley.edu>,
+        Kees Cook <keescook@chromium.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Luke Nelson <luke.r.nels@gmail.com>,
         LKML <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>,
-        Linux-Audit Mailing List <linux-audit@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        ppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        KP Singh <kpsingh@kernel.org>, iecedge@gmail.com,
+        Simon Horman <horms@verge.net.au>,
+        Borislav Petkov <bp@alien8.de>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org,
-        Eric Paris <eparis@parisplace.org>,
-        linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH 1/2] audit: add support for the openat2 syscall
-Message-ID: <20210423023408.GB2174828@madcap2.tricolour.ca>
-References: <cover.1616031035.git.rgb@redhat.com>
- <49510cacfb5fbbaa312a4a389f3a6619675007ab.1616031035.git.rgb@redhat.com>
- <20210318104843.uiga6tmmhn5wfhbs@wittgenstein>
- <20210318120801.GK3141668@madcap2.tricolour.ca>
+        Yonghong Song <yhs@fb.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dmitry Vyukov <dvyukov@google.com>, tsbogend@alpha.franken.de,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Network Development <netdev@vger.kernel.org>,
+        David Ahern <dsahern@kernel.org>,
+        Wang YanQing <udknight@gmail.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>, bpf <bpf@vger.kernel.org>,
+        Jianlin Lv <Jianlin.Lv@arm.com>,
+        "David S. Miller" <davem@davemloft.net>
+References: <20210415093250.3391257-1-Jianlin.Lv@arm.com>
+ <9c4a78d2-f73c-832a-e6e2-4b4daa729e07@iogearbox.net>
+ <d3949501-8f7d-57c4-b3fe-bcc3b24c09d8@isovalent.com>
+ <CAADnVQJ2oHbYfgY9jqM_JMxUsoZxaNrxKSVFYfgCXuHVpDehpQ@mail.gmail.com>
+ <0dea05ba-9467-0d84-4515-b8766f60318e@csgroup.eu>
+ <CAADnVQ+oQT6C7Qv7P5TV-x7im54omKoCYYKtYhcnhb1Uv3LPMQ@mail.gmail.com>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <be132117-f267-5817-136d-e1aeb8409c2a@csgroup.eu>
+Date:   Fri, 23 Apr 2021 09:19:06 +0200
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210318120801.GK3141668@madcap2.tricolour.ca>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+In-Reply-To: <CAADnVQ+oQT6C7Qv7P5TV-x7im54omKoCYYKtYhcnhb1Uv3LPMQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2021-03-18 08:08, Richard Guy Briggs wrote:
-> On 2021-03-18 11:48, Christian Brauner wrote:
-> > [+Cc Aleksa, the author of openat2()]
+
+
+Le 20/04/2021 à 05:28, Alexei Starovoitov a écrit :
+> On Sat, Apr 17, 2021 at 1:16 AM Christophe Leroy
+> <christophe.leroy@csgroup.eu> wrote:
+>>
+>>
+>>
+>> Le 16/04/2021 à 01:49, Alexei Starovoitov a écrit :
+>>> On Thu, Apr 15, 2021 at 8:41 AM Quentin Monnet <quentin@isovalent.com> wrote:
+>>>>
+>>>> 2021-04-15 16:37 UTC+0200 ~ Daniel Borkmann <daniel@iogearbox.net>
+>>>>> On 4/15/21 11:32 AM, Jianlin Lv wrote:
+>>>>>> For debugging JITs, dumping the JITed image to kernel log is discouraged,
+>>>>>> "bpftool prog dump jited" is much better way to examine JITed dumps.
+>>>>>> This patch get rid of the code related to bpf_jit_enable=2 mode and
+>>>>>> update the proc handler of bpf_jit_enable, also added auxiliary
+>>>>>> information to explain how to use bpf_jit_disasm tool after this change.
+>>>>>>
+>>>>>> Signed-off-by: Jianlin Lv <Jianlin.Lv@arm.com>
+>>>>
+>>>> Hello,
+>>>>
+>>>> For what it's worth, I have already seen people dump the JIT image in
+>>>> kernel logs in Qemu VMs running with just a busybox, not for kernel
+>>>> development, but in a context where buiding/using bpftool was not
+>>>> possible.
+>>>
+>>> If building/using bpftool is not possible then majority of selftests won't
+>>> be exercised. I don't think such environment is suitable for any kind
+>>> of bpf development. Much so for JIT debugging.
+>>> While bpf_jit_enable=2 is nothing but the debugging tool for JIT developers.
+>>> I'd rather nuke that code instead of carrying it from kernel to kernel.
+>>>
+>>
+>> When I implemented JIT for PPC32, it was extremely helpfull.
+>>
+>> As far as I understand, for the time being bpftool is not usable in my environment because it
+>> doesn't support cross compilation when the target's endianess differs from the building host
+>> endianess, see discussion at
+>> https://lore.kernel.org/bpf/21e66a09-514f-f426-b9e2-13baab0b938b@csgroup.eu/
+>>
+>> That's right that selftests can't be exercised because they don't build.
+>>
+>> The question might be candid as I didn't investigate much about the replacement of "bpf_jit_enable=2
+>> debugging mode" by bpftool, how do we use bpftool exactly for that ? Especially when using the BPF
+>> test module ?
 > 
-> Ah!  Thanks for pulling in Aleksa.  I thought I caught everyone...
+> the kernel developers can add any amount of printk and dumps to debug
+> their code,
+> but such debugging aid should not be part of the production kernel.
+> That sysctl was two things at once: debugging tool for kernel devs and
+> introspection for users.
+> bpftool jit dump solves the 2nd part. It provides JIT introspection to users.
+> Debugging of the kernel can be done with any amount of auxiliary code
+> including calling print_hex_dump() during jiting.
 > 
-> > and a comment below. :)
-> 
-> Same...
-> 
-> > On Wed, Mar 17, 2021 at 09:47:17PM -0400, Richard Guy Briggs wrote:
-> > > The openat2(2) syscall was added in kernel v5.6 with commit fddb5d430ad9
-> > > ("open: introduce openat2(2) syscall")
-> > > 
-> > > Add the openat2(2) syscall to the audit syscall classifier.
-> > > 
-> > > See the github issue
-> > > https://github.com/linux-audit/audit-kernel/issues/67
-> > > 
-> > > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-> > > ---
-> > >  arch/alpha/kernel/audit.c          | 2 ++
-> > >  arch/ia64/kernel/audit.c           | 2 ++
-> > >  arch/parisc/kernel/audit.c         | 2 ++
-> > >  arch/parisc/kernel/compat_audit.c  | 2 ++
-> > >  arch/powerpc/kernel/audit.c        | 2 ++
-> > >  arch/powerpc/kernel/compat_audit.c | 2 ++
-> > >  arch/s390/kernel/audit.c           | 2 ++
-> > >  arch/s390/kernel/compat_audit.c    | 2 ++
-> > >  arch/sparc/kernel/audit.c          | 2 ++
-> > >  arch/sparc/kernel/compat_audit.c   | 2 ++
-> > >  arch/x86/ia32/audit.c              | 2 ++
-> > >  arch/x86/kernel/audit_64.c         | 2 ++
-> > >  kernel/auditsc.c                   | 3 +++
-> > >  lib/audit.c                        | 4 ++++
-> > >  lib/compat_audit.c                 | 4 ++++
-> > >  15 files changed, 35 insertions(+)
-> > > 
-> > > diff --git a/arch/alpha/kernel/audit.c b/arch/alpha/kernel/audit.c
-> > > index 96a9d18ff4c4..06a911b685d1 100644
-> > > --- a/arch/alpha/kernel/audit.c
-> > > +++ b/arch/alpha/kernel/audit.c
-> > > @@ -42,6 +42,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > >  		return 3;
-> > >  	case __NR_execve:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 0;
-> > >  	}
-> > > diff --git a/arch/ia64/kernel/audit.c b/arch/ia64/kernel/audit.c
-> > > index 5192ca899fe6..5eaa888c8fd3 100644
-> > > --- a/arch/ia64/kernel/audit.c
-> > > +++ b/arch/ia64/kernel/audit.c
-> > > @@ -43,6 +43,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > >  		return 3;
-> > >  	case __NR_execve:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 0;
-> > >  	}
-> > > diff --git a/arch/parisc/kernel/audit.c b/arch/parisc/kernel/audit.c
-> > > index 9eb47b2225d2..fc721a7727ba 100644
-> > > --- a/arch/parisc/kernel/audit.c
-> > > +++ b/arch/parisc/kernel/audit.c
-> > > @@ -52,6 +52,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > >  		return 3;
-> > >  	case __NR_execve:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 0;
-> > >  	}
-> > > diff --git a/arch/parisc/kernel/compat_audit.c b/arch/parisc/kernel/compat_audit.c
-> > > index 20c39c9d86a9..fc6d35918c44 100644
-> > > --- a/arch/parisc/kernel/compat_audit.c
-> > > +++ b/arch/parisc/kernel/compat_audit.c
-> > > @@ -35,6 +35,8 @@ int parisc32_classify_syscall(unsigned syscall)
-> > >  		return 3;
-> > >  	case __NR_execve:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 1;
-> > >  	}
-> > > diff --git a/arch/powerpc/kernel/audit.c b/arch/powerpc/kernel/audit.c
-> > > index a2dddd7f3d09..8f32700b0baa 100644
-> > > --- a/arch/powerpc/kernel/audit.c
-> > > +++ b/arch/powerpc/kernel/audit.c
-> > > @@ -54,6 +54,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > >  		return 4;
-> > >  	case __NR_execve:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 0;
-> > >  	}
-> > > diff --git a/arch/powerpc/kernel/compat_audit.c b/arch/powerpc/kernel/compat_audit.c
-> > > index 55c6ccda0a85..ebe45534b1c9 100644
-> > > --- a/arch/powerpc/kernel/compat_audit.c
-> > > +++ b/arch/powerpc/kernel/compat_audit.c
-> > > @@ -38,6 +38,8 @@ int ppc32_classify_syscall(unsigned syscall)
-> > >  		return 4;
-> > >  	case __NR_execve:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 1;
-> > >  	}
-> > > diff --git a/arch/s390/kernel/audit.c b/arch/s390/kernel/audit.c
-> > > index d395c6c9944c..d964cb94cfaf 100644
-> > > --- a/arch/s390/kernel/audit.c
-> > > +++ b/arch/s390/kernel/audit.c
-> > > @@ -54,6 +54,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > >  		return 4;
-> > >  	case __NR_execve:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 0;
-> > >  	}
-> > > diff --git a/arch/s390/kernel/compat_audit.c b/arch/s390/kernel/compat_audit.c
-> > > index 444fb1f66944..f7b32933ce0e 100644
-> > > --- a/arch/s390/kernel/compat_audit.c
-> > > +++ b/arch/s390/kernel/compat_audit.c
-> > > @@ -39,6 +39,8 @@ int s390_classify_syscall(unsigned syscall)
-> > >  		return 4;
-> > >  	case __NR_execve:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 1;
-> > >  	}
-> > > diff --git a/arch/sparc/kernel/audit.c b/arch/sparc/kernel/audit.c
-> > > index a6e91bf34d48..b6dcca9c6520 100644
-> > > --- a/arch/sparc/kernel/audit.c
-> > > +++ b/arch/sparc/kernel/audit.c
-> > > @@ -55,6 +55,8 @@ int audit_classify_syscall(int abi, unsigned int syscall)
-> > >  		return 4;
-> > >  	case __NR_execve:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 0;
-> > >  	}
-> > > diff --git a/arch/sparc/kernel/compat_audit.c b/arch/sparc/kernel/compat_audit.c
-> > > index 10eeb4f15b20..d2652a1083ad 100644
-> > > --- a/arch/sparc/kernel/compat_audit.c
-> > > +++ b/arch/sparc/kernel/compat_audit.c
-> > > @@ -39,6 +39,8 @@ int sparc32_classify_syscall(unsigned int syscall)
-> > >  		return 4;
-> > >  	case __NR_execve:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 1;
-> > >  	}
-> > > diff --git a/arch/x86/ia32/audit.c b/arch/x86/ia32/audit.c
-> > > index 6efe6cb3768a..57a02ade5503 100644
-> > > --- a/arch/x86/ia32/audit.c
-> > > +++ b/arch/x86/ia32/audit.c
-> > > @@ -39,6 +39,8 @@ int ia32_classify_syscall(unsigned syscall)
-> > >  	case __NR_execve:
-> > >  	case __NR_execveat:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 1;
-> > >  	}
-> > > diff --git a/arch/x86/kernel/audit_64.c b/arch/x86/kernel/audit_64.c
-> > > index 83d9cad4e68b..39de1e021258 100644
-> > > --- a/arch/x86/kernel/audit_64.c
-> > > +++ b/arch/x86/kernel/audit_64.c
-> > > @@ -53,6 +53,8 @@ int audit_classify_syscall(int abi, unsigned syscall)
-> > >  	case __NR_execve:
-> > >  	case __NR_execveat:
-> > >  		return 5;
-> > > +	case __NR_openat2:
-> > > +		return 6;
-> > >  	default:
-> > >  		return 0;
-> > >  	}
-> > > diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> > > index 8bb9ac84d2fb..f5616e70d129 100644
-> > > --- a/kernel/auditsc.c
-> > > +++ b/kernel/auditsc.c
-> > > @@ -76,6 +76,7 @@
-> > >  #include <linux/fsnotify_backend.h>
-> > >  #include <uapi/linux/limits.h>
-> > >  #include <uapi/linux/netfilter/nf_tables.h>
-> > > +#include <uapi/linux/openat2.h>
-> > >  
-> > >  #include "audit.h"
-> > >  
-> > > @@ -195,6 +196,8 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
-> > >  		return ((mask & AUDIT_PERM_WRITE) && ctx->argv[0] == SYS_BIND);
-> > >  	case 5: /* execve */
-> > >  		return mask & AUDIT_PERM_EXEC;
-> > > +	case 6: /* openat2 */
-> > > +		return mask & ACC_MODE((u32)((struct open_how *)ctx->argv[2])->flags);
-> > 
-> > That looks a bit dodgy. Maybe sm like the below would be a bit better?
-> 
-> Ah, ok, fair enough, since original flags use a u32 and this was picked
-> as u64 for alignment.  It was just occurring to me last night that I
-> might have the dubious honour of being the first usage of 0%llo format
-> specifier in the kernel...  ;-)
 
-> > diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> > index 47fb48f42c93..531e882a5096 100644
-> > --- a/kernel/auditsc.c
-> > +++ b/kernel/auditsc.c
-> > @@ -159,6 +159,7 @@ static const struct audit_nfcfgop_tab audit_nfcfgs[] = {
-> > 
-> >  static int audit_match_perm(struct audit_context *ctx, int mask)
-> >  {
-> > +       struct open_how *openat2;
-> >         unsigned n;
-> >         if (unlikely(!ctx))
-> >                 return 0;
-> > @@ -195,6 +196,12 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
-> >                 return ((mask & AUDIT_PERM_WRITE) && ctx->argv[0] == SYS_BIND);
-> >         case 5: /* execve */
-> >                 return mask & AUDIT_PERM_EXEC;
-> > +       case 6: /* openat2 */
-> > +               openat2 = ctx->argv[2];
-> > +               if (upper_32_bits(openat2->flags))
-> > +                       pr_warn("Some sensible warning about unknown flags");
-> > +
-> > +               return mask & ACC_MODE(lower_32_bits(openat2->flags));
-> >         default:
-> >                 return 0;
-> >         }
-> > 
-> > (Ideally we'd probably notice at build-time that we've got flags
-> > exceeding 32bits. Could probably easily been done by exposing an all
-> > flags macro somewhere and then we can place a BUILD_BUG_ON() or sm into
-> > such places.)
+I finally managed to cross compile bpftool with libbpf, libopcodes, readline, ncurses, libcap, libz 
+and all needed stuff. Was not easy but I made it.
 
-open_how arguments are translated to open_flags which is limited to 32 bits.
+Now, how do I use it ?
 
-This code is shared with the other open functions that are limited to 32 bits
-in open_flags.  openat2 was created to avoid the limitations of openat, so at
-some point it isn't unreasonable that flags exceed 32 bits, but open_flags
-would have to be modified at that point to accommodate.
+Let say I want to dump the jitted code generated from a call to 'tcpdump'. How do I do that with 
+'bpftool prog dump jited' ?
 
-This value is handed in from userspace, and could be handed in without being
-defined in the kernel, so those values need to be properly checked regardless
-of the flags defined in the kernel.
+I thought by calling this line I would then get programs dumped in a way or another just like when 
+setting 'bpf_jit_enable=2', but calling that line just provides me some bpftool help text.
 
-The openat2 syscall claims to check all flags but no check is done on the top
-32 bits.
+By the way, I would be nice to have a kernel OPTION that selects all OPTIONS required for building 
+bpftool. Because you discover them one by one at every build failure. I had to had CONFIG_IPV6, 
+CONFIG_DEBUG_BTF, CONFIG_CGROUPS, ... If there could be an option like "Build a 'bpftool' ready 
+kernel" that selected all those, it would be great.
 
-build_open_flags() assigns how->flags to an int, effectively dropping the top
-32 bits, before being checked against ~VALID_OPEN_FLAGS.  This happens after
-audit mode filtering, but has the same result.
-
-Audit mode filtering using ACC_MODE() already masks out all but the lowest two
-bits with O_ACCMODE, so there is no danger of overflowing a u32.
-
-tomoyo_check_open_permission() assigns ACC_MODE() to u8 without a check.
-
-All FMODE_* flags are clamped at u32.
-
-6 bits remain at top and 4 bits just above O_ACCMODE, so there is no immediate
-danger of overflow and if any additional mode bits are needed they are
-available.
-000377777703 used
-037777777777 available
-10 bits remaining
-
-So, I don't think a check at this point in the code is useful, but do agree
-that there should be some changes and checks added in sys_openat2 and
-build_open_flags().
-
-
-Also noticed: It looks like fddb5d430ad9f left in VALID_UPGRADE_FLAGS for
-how->upgrade_mask that was removed.  This may be used at a later date, but at
-this point is dead code.
-
-> > Christian
-> 
-> - RGB
-
-- RGB
-
---
-Richard Guy Briggs <rgb@redhat.com>
-Sr. S/W Engineer, Kernel Security, Base Operating Systems
-Remote, Ottawa, Red Hat Canada
-IRC: rgb, SunRaycer
-Voice: +1.647.777.2635, Internal: (81) 32635
-
+Christophe
