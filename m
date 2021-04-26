@@ -2,157 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED0E5C433ED
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Apr 2021 14:33:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C36CC433B4
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Apr 2021 16:25:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B7BF96101B
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Apr 2021 14:33:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0D4A460C3D
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Apr 2021 16:25:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233799AbhDZOeh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Apr 2021 10:34:37 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49016 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231862AbhDZOeh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 26 Apr 2021 10:34:37 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13QEWfup155246;
-        Mon, 26 Apr 2021 10:33:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=XeYqaKeaXScgxu/SeXV/Suyol2R7Pny2Z2VXEkdISc0=;
- b=A7R3AiqPbiehpihZ+6aGyGis5C+ih2uzd7TRosHa2GDZ1bFWx45hZW9+7VAiaswGUxSx
- IRdwHdUp0f7apLNRQUclrBBSf4bR3CACmFIm7LUTz4PrvhNXINUc0cY7/DYSSO24Eujs
- MuI/vQ5sHuELsd9iT0TRr5l18Y8FFzGzdQv2EtttBEBgu9OFly+Cg/JsVNk3qofg4vk5
- qDZRkLfeiAxYYtr22mC9gHRT++3on6mWjm74B8Bpq2mSHHYVEIOuzCFg6a9DwlBcULsC
- 4meImVc7059jaKuYOj++RYP3j9W//2Y2Kdgahc1kdPdxGrWjQqR0fJcPrZgxTaLewkEW iQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 385xg128e5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 26 Apr 2021 10:33:55 -0400
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13QEXLr3160103;
-        Mon, 26 Apr 2021 10:33:55 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 385xg128dc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 26 Apr 2021 10:33:54 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13QEX1tV022658;
-        Mon, 26 Apr 2021 14:33:53 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 384ay8gv3g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 26 Apr 2021 14:33:53 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13QEXo2Q45351354
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 26 Apr 2021 14:33:50 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3183152054;
-        Mon, 26 Apr 2021 14:33:50 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.12.8])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id C88DB5204F;
-        Mon, 26 Apr 2021 14:33:49 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH 2/6] s390x: Add more Ultravisor command
- structure definitions
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com,
-        david@redhat.com, imbrenda@linux.ibm.com
-References: <20210316091654.1646-1-frankja@linux.ibm.com>
- <20210316091654.1646-3-frankja@linux.ibm.com>
- <20210421131335.31a2bf47.cohuck@redhat.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <d3f47425-213e-a3b2-f120-da6c2cb01dd1@linux.ibm.com>
-Date:   Mon, 26 Apr 2021 16:33:49 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S234245AbhDZQ0J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Apr 2021 12:26:09 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:58036 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233736AbhDZQ0J (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Apr 2021 12:26:09 -0400
+Received: from mail-oo1-f72.google.com ([209.85.161.72])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.ehrhardt@canonical.com>)
+        id 1lb434-0003QR-I7
+        for linux-s390@vger.kernel.org; Mon, 26 Apr 2021 16:25:26 +0000
+Received: by mail-oo1-f72.google.com with SMTP id g12-20020a4ae88c0000b02901f8995df46dso1639443ooe.4
+        for <linux-s390@vger.kernel.org>; Mon, 26 Apr 2021 09:25:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=2mqrL8WPMdNcuWjnjVuPNloD30djsAyHRsSfo1f63cI=;
+        b=TE7Jp4HiVnx1EHFpMm75cRq30Or0XtTyLr1wmGoEXIj1Ppr1pevqBGlf4+rz2uQQmf
+         4BICj9vk+ed0vv5J5w/uylQGeE9JtemV0yjI8jtXWzrMC9HPaqF3OoDGHlgHtfrUjWvo
+         9wonS+jal2UzTClHkJZC4wAH9T4xeVnIAgi86Hjt+vD2I7fRgU3Rla7vNwVpQXMJnFgT
+         chpVuAxi45DzOVH5Ohan2NRP7nxeGAdTc6SB3dSfVU2eKSxoe4m/N/XnAuGR8WFoFSbg
+         JI2y+9MTuLsrT7upDNvjjv5T/IDZH90AsJAwB+HJTC5R6W+b+r1fzNgNM5HEtbJHIT0U
+         ewDg==
+X-Gm-Message-State: AOAM531icX7JJN32IjXtsMjxdkjzxA6vf7oAImnrNDLDhzrpQwVOwDjA
+        RDRDFNbuPX9GkIbNb29wTb7TUbmUZlngr4LT82lM9u1e1A6cSNB/UWeBt7uAUmVqFLYwooJNe1f
+        7D70l1B0SDVNby5j6sDsSTdGiQhMZMWNpel9WXY9FB0R/JhXIG3qTNo0=
+X-Received: by 2002:aca:f4cd:: with SMTP id s196mr13989144oih.165.1619454325250;
+        Mon, 26 Apr 2021 09:25:25 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJziCCx0K0Tq2DBKooSdWGFDhdlp53bW682lCQ0SI8TfmiPGTJtrN/XSO872jNbeESqKDAdMX5HJbYBukj/PSR0=
+X-Received: by 2002:aca:f4cd:: with SMTP id s196mr13989130oih.165.1619454325005;
+ Mon, 26 Apr 2021 09:25:25 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210421131335.31a2bf47.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: qvmPcoDZKj8VEsme1ah2NjPDyTIUJcR4
-X-Proofpoint-ORIG-GUID: kgzXRoshGs0U4j01squGGKQyeAH3EEBH
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-26_07:2021-04-26,2021-04-26 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
- phishscore=0 clxscore=1015 priorityscore=1501 impostorscore=0
- malwarescore=0 mlxscore=0 suspectscore=0 lowpriorityscore=0 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104260114
+References: <20210423100843.2230969-1-vneethv@linux.ibm.com>
+In-Reply-To: <20210423100843.2230969-1-vneethv@linux.ibm.com>
+From:   Christian Ehrhardt <christian.ehrhardt@canonical.com>
+Date:   Mon, 26 Apr 2021 18:24:59 +0200
+Message-ID: <CAATJJ0JRorRRG=jBPb9FKZohUa1v_hWyL52dRN3uHo70xj0Z6A@mail.gmail.com>
+Subject: Re: [PATCH] s390/cio: Remove the invalid condition on IO_SCH_UNREG
+To:     Vineeth Vijayan <vneethv@linux.ibm.com>
+Cc:     oberpar@linux.ibm.com,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/21/21 1:13 PM, Cornelia Huck wrote:
-> On Tue, 16 Mar 2021 09:16:50 +0000
-> Janosch Frank <frankja@linux.ibm.com> wrote:
-> 
->> They are needed in the new UV tests.
->>
->> As we now extend the size of the query struct, we need to set the
->> length in the UV guest query test to a constant instead of using
->> sizeof.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>  lib/s390x/asm/uv.h | 148 ++++++++++++++++++++++++++++++++++++++++++++-
->>  s390x/uv-guest.c   |   2 +-
->>  2 files changed, 148 insertions(+), 2 deletions(-)
->>
-> 
-> (...)
-> 
->>  struct uv_cb_qui {
->>  	struct uv_cb_header header;
->>  	u64 reserved08;
->>  	u64 inst_calls_list[4];
->> -	u64 reserved30[15];
->> +	u64 reserved30[2];
->> +	u64 uv_base_stor_len;
->> +	u64 reserved48;
->> +	u64 conf_base_phys_stor_len;
->> +	u64 conf_base_virt_stor_len;
->> +	u64 conf_virt_var_stor_len;
->> +	u64 cpu_stor_len;
->> +	u32 reserved70[3];
->> +	u32 max_num_sec_conf;
->> +	u64 max_guest_stor_addr;
->> +	u8  reserved88[158 - 136];
->> +	u16 max_guest_cpus;
->> +	u8  reserveda0[200 - 160];
->> +}  __attribute__((packed))  __attribute__((aligned(8)));
-> 
-> (...)
-> 
->> diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
->> index a13669ab..95a968c5 100644
->> --- a/s390x/uv-guest.c
->> +++ b/s390x/uv-guest.c
->> @@ -59,7 +59,7 @@ static void test_query(void)
->>  {
->>  	struct uv_cb_qui uvcb = {
->>  		.header.cmd = UVC_CMD_QUI,
->> -		.header.len = sizeof(uvcb) - 8,
->> +		.header.len = 0xa0,
-> 
-> This is a magic constant coming out of nowhere. Could you please at
-> least add a comment to make clear what you are testing?
+On Fri, Apr 23, 2021 at 12:08 PM Vineeth Vijayan <vneethv@linux.ibm.com> wrote:
+>
+> The condition to check the cdev pointer validity on
+> css_sch_device_unregister() is a leftover from the 'commit c97cd8c81d4a
+> ("s390/cio: Remove pm support from ccw bus driver")'. This could lead to a
+> situation, where detaching the disk is not happening completely. Remove
+> this invalid condition in the IO_SCH_UNREG case.
+>
+> Fixes: 8cc0dcfdc1c0 ("s390/cio: remove pm support from ccw bus driver")
+> Reported-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
+> Suggested-by: Christian Ehrhardt <christian.ehrhardt@canonical.com>
 
-Added:
-/* A dword below the minimum length */
+Thanks, and if you want for a hattrick now also
+  Tested-by Christian Ehrhardt <christian.ehrhardt@canonical.com>
 
-> 
->>  	};
->>  	int cc;
->>  
-> 
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+> ---
+>  drivers/s390/cio/device.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>
+> diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+> index 3f026021e95e..84f659cafe76 100644
+> --- a/drivers/s390/cio/device.c
+> +++ b/drivers/s390/cio/device.c
+> @@ -1532,8 +1532,7 @@ static int io_subchannel_sch_event(struct subchannel *sch, int process)
+>         switch (action) {
+>         case IO_SCH_ORPH_UNREG:
+>         case IO_SCH_UNREG:
+> -               if (!cdev)
+> -                       css_sch_device_unregister(sch);
+> +               css_sch_device_unregister(sch);
+>                 break;
+>         case IO_SCH_ORPH_ATTACH:
+>         case IO_SCH_UNREG_ATTACH:
+> --
+> 2.25.1
+>
 
+
+-- 
+Christian Ehrhardt
+Staff Engineer, Ubuntu Server
+Canonical Ltd
