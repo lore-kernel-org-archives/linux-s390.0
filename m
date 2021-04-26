@@ -2,167 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B152C433ED
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Apr 2021 17:42:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C06ADC433B4
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Apr 2021 17:49:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1AA2B600D1
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Apr 2021 17:42:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8844E61007
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Apr 2021 17:49:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237113AbhDZRng (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Apr 2021 13:43:36 -0400
-Received: from mail-co1nam11on2044.outbound.protection.outlook.com ([40.107.220.44]:38544
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S234754AbhDZRnf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 26 Apr 2021 13:43:35 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ilL7Y6lPylBc3kxRn95zn//FoYefklZA3XEBziVvVQd7oANTIkcBQZcz+nU2owq57SM6lWqnYQPYzRDrzz9R+lQ4jmKcLgQcOYzqFRmiOappmBasrw5fRGhPfPIwkv4hb84CXRHz/RiOKUT4j+KxEPO6x0HZkyxqMnsnBUC6mhk6QutwEg36EA5sDlbvPcJwD0eYHMtD8fgwjnpqZu7nZtwBrKenhYvTMStzf5oe3tbgV3yGAocWTrzq3QmCDmSXNaBlK/ell9ft6gukcRzOXeUKly1ctLBryidPSJ+saJZTKsCcX1r3xofMBOxTkEKB1DtS/GRCX/LxgiWdZYGenQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mfpZ7eQbr6s/a0Nv6wJmSq/ur7J8d4GrDbRoNx25kvw=;
- b=TfvSEOtOwfLzGkjjux7XZdQYJIR3qIP0y1owKVeOk/gjXKbjpJpEOIiOIm0WXR87WGxkNvBVcpyfCaigoYYZ6TY9O2XpLG7Y86aSqGVdBx7gPJ/hmXJO2aVu6M8fZVGPf7hZCVEXM5TznzM6GoWTq8s9VbDSqolaLL2YvggroGpjVfPzXW+S+JuNqq7RyZ0JttfDkZB+fzBa8kxCaRCIpnHzFfbjFgpNeWpF4lz3OA7jnY6Dy5R/qlFbPOmxldyEolWP4KfKew6EnJAz57aBmWWDS1ISJUPLaHacyv0N/43DgAVXYST57jWx1lO3cq/Qt+iUKuHagGNvB4ZJKpmQpQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mfpZ7eQbr6s/a0Nv6wJmSq/ur7J8d4GrDbRoNx25kvw=;
- b=bpP9+enzgTzU7YNIswMtoWRenJPPFrZ1wSvd41f5FPyDbMsSCqV8Xt3MVI4sAbg4y4ovkftX7c0a1UBJ/XS/v3dUlZapQD12ohVAhF9DSfht3FjD9JI1l2h9aE0BZeYL9CJXV2vBWY6DZTUee2f3kNfnEdNLe29Qv1Bd3fd4y1j5AV0iI7qbFW5RVw7yTk2MHay9aqd2iUBJ6Xelv+41M4fp0H+tEOc6rEyA/Dj23zpl1AE0DyGXDLa0oc1jRJ+b8HbU6FA5Inc5qXanqVL7y8yUxYIY0T7mBSLcpIt6/a+tvKQSdNhRWiFR3zvFE0YzLgJYAifWbKqXl0JYybRmmg==
-Authentication-Results: de.ibm.com; dkim=none (message not signed)
- header.d=none;de.ibm.com; dmarc=none action=none header.from=nvidia.com;
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
- by DM6PR12MB4356.namprd12.prod.outlook.com (2603:10b6:5:2aa::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.23; Mon, 26 Apr
- 2021 17:42:52 +0000
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::1c62:7fa3:617b:ab87]) by DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::1c62:7fa3:617b:ab87%6]) with mapi id 15.20.4065.026; Mon, 26 Apr 2021
- 17:42:52 +0000
-Date:   Mon, 26 Apr 2021 14:42:50 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org,
-        Eric Farman <farman@linux.ibm.com>,
+        id S237628AbhDZRtz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Apr 2021 13:49:55 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:30531 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236170AbhDZRty (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 26 Apr 2021 13:49:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619459352;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2Crmi0DUyxYtIVOImM/xNxjHPY8pNvq03psOEn3ymWc=;
+        b=KP8XmiWF3BXDi2eI1mJ7bEkKvHwGAOKMkma+LeU1XHnLpio2/NQwNJJbvIwqFaeLorUcNf
+        enuXZmr4F5uX/pxHh5Fa8PC/yZ9JdCZLqPm1bdm5nf2F9fKo1Po22Ll7nopAGfDoMZwhd4
+        JsPFtOPQmdraThWP6SiZoV68uGIItuQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-159-3LDSUsIaOeG-61I0BythoQ-1; Mon, 26 Apr 2021 13:49:08 -0400
+X-MC-Unique: 3LDSUsIaOeG-61I0BythoQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D40AB1006C81;
+        Mon, 26 Apr 2021 17:49:05 +0000 (UTC)
+Received: from gondolin.fritz.box (ovpn-113-150.ams2.redhat.com [10.36.113.150])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5A90560C4A;
+        Mon, 26 Apr 2021 17:49:02 +0000 (UTC)
+Date:   Mon, 26 Apr 2021 19:48:59 +0200
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         Harald Freudenberger <freude@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
         Halil Pasic <pasic@linux.ibm.com>,
         Pierre Morel <pmorel@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
         "Raj, Ashok" <ashok.raj@intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
         Christoph Hellwig <hch@lst.de>,
         Leon Romanovsky <leonro@nvidia.com>,
         Max Gurtovoy <mgurtovoy@nvidia.com>,
         Tarun Gupta <targupta@nvidia.com>
-Subject: Re: [PATCH 00/12] Remove vfio_mdev.c, mdev_parent_ops and more
-Message-ID: <20210426174250.GW1370958@nvidia.com>
+Subject: Re: [PATCH 06/12] vfio/ap_ops: Convert to use
+ vfio_register_group_dev()
+Message-ID: <20210426194859.1665730d.cohuck@redhat.com>
+In-Reply-To: <6-v1-d88406ed308e+418-vfio3_jgg@nvidia.com>
 References: <0-v1-d88406ed308e+418-vfio3_jgg@nvidia.com>
- <5def83bb-599c-27fa-9daa-efa27b5ac1d4@de.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5def83bb-599c-27fa-9daa-efa27b5ac1d4@de.ibm.com>
-X-Originating-IP: [47.55.113.94]
-X-ClientProxiedBy: MN2PR20CA0015.namprd20.prod.outlook.com
- (2603:10b6:208:e8::28) To DM6PR12MB3834.namprd12.prod.outlook.com
- (2603:10b6:5:14a::12)
+        <6-v1-d88406ed308e+418-vfio3_jgg@nvidia.com>
+Organization: Red Hat GmbH
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (47.55.113.94) by MN2PR20CA0015.namprd20.prod.outlook.com (2603:10b6:208:e8::28) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.20 via Frontend Transport; Mon, 26 Apr 2021 17:42:52 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lb5Fy-00D7oo-Vr; Mon, 26 Apr 2021 14:42:51 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 643223fd-6ee4-43d7-d910-08d908dab76b
-X-MS-TrafficTypeDiagnostic: DM6PR12MB4356:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM6PR12MB4356D8355283BA84164444D2C2429@DM6PR12MB4356.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:7691;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: eiDcZiYW/aYhMHV4ec1O5Ttx02fbwt6BLHtiyG7OG6noN5Y5C9DBEy+K/Eq5OZYIylWR75tRoWf5FkkYc9zf0EV81NPlR6fSw0YAVZDtPOxhcWH3YhiAbZXqg/yUBzieVsEo3ZS6EUlT5vtkJzLUdlFNVltKAtYA6gBEXOGjrBG7w2+cws+xfq+Ndp+sRG4UtGc4qFIVxRKj0hHoQfXdqE6g+AikDXB7fKaSSHXW0lOSj/td94x1t2Y9YgExr7+mC1dXLSjDBwYAmffkE2RTOxxgIq0XM83cYBuIKjH2vPBa06xcLgTlnw0RjjlR+UxFcRoQcmYGhEG2NfINHZ/SUKYruW9URNzOQl4DirhBNBrlKbqP+NMNpoFV2Utl7ieldwU1DDuOe4SlNTpZ4LKSBHomXUJLZiuQI96SJ39I1VYu7Smpz6tJdup1bnTlNFx5Lg5v3M/KqZMj2somkHMIW3j61raoIktYD0XzajKE7dJaS1SqTvKNPzslfKKdh2j7NP8jGTX/Czxml/A347BzdfrIVGVrRQX0jg1C8Bsd/a2H+pTmNUcddweIUl+UjqMLfOoyUUs2efo7aGVweQescoAatTedqNFFsoZqNGIMz54Oa5r1zxClLxwMwwuVIUGQYPuYmMSBkYsE402SFWBQBeT2SWotN9qWl8O1ghPXt8iKE4YB0ucrZegqILSceah1
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(396003)(366004)(39860400002)(376002)(136003)(9786002)(9746002)(6916009)(2906002)(54906003)(83380400001)(316002)(4744005)(478600001)(53546011)(1076003)(966005)(86362001)(4326008)(5660300002)(33656002)(8936002)(38100700002)(26005)(186003)(8676002)(426003)(2616005)(66946007)(66476007)(66556008)(7416002)(107886003)(36756003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?K+c1gTZirpRKGFz17iZUNlD4+0te1eYpAFBi+DkjMugS5g//t7GlH7bl3iZh?=
- =?us-ascii?Q?0GLufaQnZdDMMhqLsdyQ4SQUfc2//5/bMoSXS0y99vptQKKPJy6wOEBHdBxX?=
- =?us-ascii?Q?tRzaN0PxwgAlEcvO2I8rPfDDQkCLCvOsl2hmgZO/MaWa4TB51HLRx3r7sE32?=
- =?us-ascii?Q?oVYJhKm3NHJlg+Fe0vup6yb30u+KVcZp6ug7UF7X3XQAw2AkSaEWgmFfiSV5?=
- =?us-ascii?Q?KiuS8RlNTbAbzsJUWtzSyuGToejyVyny51DXgQT5NkgfWCPnoA6Xk+M38OKL?=
- =?us-ascii?Q?P6oIdFIlPOfVxzlDRxoZZKz9ykOH6KPtizmmEUzhcsoMOB+TZuPKRufl3PXZ?=
- =?us-ascii?Q?LqaxuYXTfVkL7j5hD7KbxcfSXiU3i1vB23IESsWS1yg858435lN/1KAyEZdy?=
- =?us-ascii?Q?n3Retc0fyaN0F1bgvLPLuiLpCqDBh2gEvd7/FBh4P96rJ//SC0WVnP7XJKpo?=
- =?us-ascii?Q?wAw7Wu3niHi5Pd3D2rIf15jpX5lIqMrM5MwL56ryzfrETuw/3WxYO58DLJQt?=
- =?us-ascii?Q?zRR0ktVAXfpkNzV9cr4s1fD1h6AGDJ1/Yn2m0yJKMRErgoMKExBH1VB8F6YV?=
- =?us-ascii?Q?TAUFJgcd4ClroSGIR5buY1AoNCbM9aUvjNZucqBECXMDvCrcilvFgYo/jV+G?=
- =?us-ascii?Q?4vPgwGhmeRNkHGq1mbG1cnh95bS5DwcVwUQ6MP1kUYtKakOyqSQC0+713Qay?=
- =?us-ascii?Q?AaOvhrsyk/R+Y50KIEC33pFfFiSUvX/EkgTIgG71S9nlh6gxTdktzcdU9qLt?=
- =?us-ascii?Q?sFa3ojvQI8jHihH+SVY/bd7LHmOORD53Us/KTvdP6JDY91idicmqCsWrdQwd?=
- =?us-ascii?Q?lfHzRk1VLVROTBzZnPFDLCL/9vTdf/asUVjh9aLkSYJUjXRabYf/SLWqrWPN?=
- =?us-ascii?Q?+UjEoTs7SjhB1F8C3rqbHFbjoKkk92kOY3L30FV8aQHPeBB8jfF+MkbOt0PL?=
- =?us-ascii?Q?SaKuCY1crXYXjUqFsNErpLBP4J6p1h8PMXfL4NRwS/B9WLL73iuWZAGtOby2?=
- =?us-ascii?Q?hzebacFywAyxpBKy9WmFsEEqJhEkfRhnv3AAqPbHGehHYJrWtFBJkxIbnlbd?=
- =?us-ascii?Q?4YkkqdsUuKx78MvRFkfp7L/eMGJcQzdabDO1+KkLwI2I7B+sOqVTSdStXaNi?=
- =?us-ascii?Q?Vj1W0bkMGh51+RW0eLA5HmupVu0TkNPpLvoA5wSc2C+11rArUqoHyx1lDmg6?=
- =?us-ascii?Q?b8LVxXic2Z2P8pMiQLukI+UWoT+4zpyJ+jmwboGjxQEgtGFiZeBx3whFmiGV?=
- =?us-ascii?Q?abKX1DQXAM8JLjIK/6YkcdC0JgsdJyMx7IR1D64kGRHKmmY2eyovaAL9kONC?=
- =?us-ascii?Q?NHqJ2F/X5PowcCbFzx/olzZ0?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 643223fd-6ee4-43d7-d910-08d908dab76b
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Apr 2021 17:42:52.6335
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: g1UJ6d9ED5d/4ypkDciRvbkjWOPba1/Dnx2Vu+ZZZcuU6gjaqkJnce1rcWPRgGek
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4356
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Apr 26, 2021 at 06:43:14PM +0200, Christian Borntraeger wrote:
-> On 24.04.21 01:02, Jason Gunthorpe wrote:
-> > Prologue
-> > ========
-> > 
-> > This is series #3 in part of a larger work that arose from the minor
-> > remark that the mdev_parent_ops indirection shim is useless and
-> > complicates things.
-> > 
-> > It applies on top of Alex's current tree and requires the prior two
-> > series.
+On Fri, 23 Apr 2021 20:03:03 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
+
+> This is straightforward conversion, the ap_matrix_mdev is actually serving
+> as the vfio_device and we can replace all the mdev_get_drvdata()'s with a
+> simple container_of().
 > 
-> Do you have a tree somewhere?
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c     | 137 ++++++++++++++++----------
+>  drivers/s390/crypto/vfio_ap_private.h |   2 +
+>  2 files changed, 89 insertions(+), 50 deletions(-)
+> 
 
-[..]
-> > A preview of the future series's is here:
-> >    https://github.com/jgunthorpe/linux/pull/3/commits
+(...)
 
-Has everything, you'll want to go to:
-  cover-letter: Remove vfio_mdev.c, mdev_parent_ops and more
+> -static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+> +static void vfio_ap_mdev_remove(struct mdev_device *mdev)
+>  {
+> -	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> +	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(&mdev->dev);
+>  
+> -	if (matrix_mdev->kvm)
+> -		return -EBUSY;
+> +	/* FIXME: Remove isn't allowed to fail */
+> +	if (WARN_ON(matrix_mdev->kvm))
+> +		return;
 
-As there are additional WIPs in that tree.
+This is a pre-existing problem, but the rework now makes it more
+obvious.
 
-Jason
+Previously, the mdev code would only print a warning and then continue
+with device removal, even if a ->remove() callback returned an error.
+Now, it's quite clear that we'll end up in a weird half-dead state.
+
+IIRC, the check for matrix_mdev->kvm is intended to protect against
+ripping out the device under a running guest (I think it needs to
+manipulate some crypto control blocks?)
+
+So my question for the vfio-ap maintainers is: Can we actually end up
+in this case? If yes, is there any way to gracefully shut down the
+device?
+
+> +
+> +	vfio_unregister_group_dev(&matrix_mdev->vdev);
+>  
+>  	mutex_lock(&matrix_dev->lock);
+> -	vfio_ap_mdev_reset_queues(mdev);
+> +	vfio_ap_mdev_reset_queues(matrix_mdev);
+>  	list_del(&matrix_mdev->node);
+>  	mutex_unlock(&matrix_dev->lock);
+>  
+>  	kfree(matrix_mdev);
+> -	mdev_set_drvdata(mdev, NULL);
+>  	atomic_inc(&matrix_dev->available_instances);
+> -
+> -	return 0;
+>  }
+
+(...)
+
