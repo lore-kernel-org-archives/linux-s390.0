@@ -2,115 +2,565 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BE9EC433B4
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 19:46:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7EFEC433ED
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 20:06:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4ABFF6023B
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 19:46:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A321660D07
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 20:06:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238990AbhD0Tq4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Apr 2021 15:46:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40574 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235661AbhD0Tqz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Apr 2021 15:46:55 -0400
-X-Greylist: delayed 331 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 27 Apr 2021 12:46:12 PDT
-Received: from valentin-vidic.from.hr (valentin-vidic.from.hr [IPv6:2001:470:1f0b:3b7::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D936C061574;
-        Tue, 27 Apr 2021 12:46:12 -0700 (PDT)
-X-Virus-Scanned: Debian amavisd-new at valentin-vidic.from.hr
-Received: by valentin-vidic.from.hr (Postfix, from userid 1000)
-        id 5AD575726; Tue, 27 Apr 2021 21:40:30 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=valentin-vidic.from.hr; s=2020; t=1619552430;
-        bh=l0jf3je7Taq6bjLlRaBk8R2JjLc/aoQA0pAo1/ZWMFg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JWI/hwNGbVtZ9vXHXZUDL94f3QGd/JcWsUyJxn/0M5uR6KyCiQaToVR9t+NnZxvR8
-         aLcGJleyCchUcdVdMi1JFgseJ9hJMvCFFQZZmZiN+mavJJi2jmVL7XkBbGNPm+xY3a
-         UnFbbAxu3SsDpHgHTUz7Xfqz+YZ339UG4CxDnyzKM21UD6k6+dNzH18l5CaHKhIcIJ
-         nuxyLgTBLXJi2N8gcLHlvjEkTCTLlpl84Ma3xjP16vRvABx4sa17F5zPmG1u94fIYL
-         RsVwZx66sBv8eKAiiHFMTVGDoLb0c8unXyBwCchQYFrVVIIklTM+riJ8fCNCKsc4Hz
-         1PohB0Bp65yHCTnS0bYzmfx9YO0n84ToEiZyzYgzfnpU2s5rUdfypKH5sKn6Otz/mN
-         ZwF4OdJ9nq7WoqlaPid828qgrEK0D7vtLAv2mrNtVtS826zSRop99d5K+koRT2FLWO
-         MCYVMaOhBfHFTeWBTG1KysEwCr9LMrkqVASnwv6FdM7jwhtGtY6/Zod5lT4lHtRntq
-         nFbpvV4XrLMkN7EZTaVMSR5FCJRUpu5P6n1BGgw6wDXEF+Y2rIP4yLigb3pP0LV4tv
-         h4Y2dxaf0Bcc4HajUeTTpZgj5lnuXD21t3KsWtRtX1AnBTHxG/OpA3ZyRvAEtJXKi4
-         DCiJ2eoFZie7cA1IKsaMG254=
-From:   Valentin Vidic <vvidic@valentin-vidic.from.hr>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Philipp Kern <pkern@debian.org>,
-        Benjamin Zimmermann <dave@oss.volkswagen.com>,
-        debian-s390@lists.debian.org,
+        id S235576AbhD0UHB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Apr 2021 16:07:01 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44828 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235514AbhD0UHA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 27 Apr 2021 16:07:00 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13RK4RQ7182399;
+        Tue, 27 Apr 2021 16:06:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=PZf3s/DbWLkTNVvKLoYM029m1PrWGtb6BskLemWYVJA=;
+ b=iKcawfGEYG2C4UirW4PqZ29ZcJExlKWOU0dnS63A49UMF3EhaZpBnUUe2umDz+24i+bq
+ 0Aarbqfh39lMoojDwzcAJkTLuEItpFDQDZs3PInP44rRAoUnxHK4Cz/Fx+7tfxZvevll
+ MyNuUo7B9t5n5/9oGbERGCH5MDoHJxKheqw4sbXUd1e6Enk+isyc97jYS66q3GUK0JX7
+ GJ/uKqwmLPB0PL7UejMyiKxB/XXWuDmzaT3MUcmMd+n99j2EnOtbYgDJbXXM+SQW/TAX
+ OEWQuPYNIks3N6MTLqFxf/pANjkaFgnkPseSiwYoix6dqVLjBhHgImrQWVnenuegSm+S Dw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 386s1vggxb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Apr 2021 16:06:10 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13RK4SZX182437;
+        Tue, 27 Apr 2021 16:06:10 -0400
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 386s1vggx2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Apr 2021 16:06:10 -0400
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13RJvHrc002497;
+        Tue, 27 Apr 2021 20:06:09 GMT
+Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
+        by ppma01dal.us.ibm.com with ESMTP id 384ay95ru3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Apr 2021 20:06:09 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13RK68a830015820
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 27 Apr 2021 20:06:08 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2647A6A057;
+        Tue, 27 Apr 2021 20:06:08 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0A9676A054;
+        Tue, 27 Apr 2021 20:06:04 +0000 (GMT)
+Received: from farman-thinkpad-t470p (unknown [9.160.111.105])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 27 Apr 2021 20:06:04 +0000 (GMT)
+Message-ID: <5325cd47bf170b66591bc1e64bf9fa3aa9c365b5.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 07/13] vfio/ccw: Convert to use
+ vfio_register_group_dev()
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Subject: [PATCH v2] s390/sclp_vt220: Fix console name to match device
-Date:   Tue, 27 Apr 2021 21:40:10 +0200
-Message-Id: <20210427194010.9330-1-vvidic@valentin-vidic.from.hr>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200519181654.16765-1-vvidic@valentin-vidic.from.hr>
-References: <20200519181654.16765-1-vvidic@valentin-vidic.from.hr>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>
+Cc:     "Raj, Ashok" <ashok.raj@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Tarun Gupta <targupta@nvidia.com>
+Date:   Tue, 27 Apr 2021 16:06:04 -0400
+In-Reply-To: <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
+References: <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Dcbi-HSp6CWG786t-C6SQXwFnmOBhSiU
+X-Proofpoint-GUID: uKNJ0wwAipm3PltDWQjWhomuu2b2dyim
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-27_11:2021-04-27,2021-04-27 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 bulkscore=0
+ malwarescore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ adultscore=0 spamscore=0 impostorscore=0 clxscore=1011 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104270134
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Console name reported in /proc/consoles:
+On Mon, 2021-04-26 at 17:00 -0300, Jason Gunthorpe wrote:
+> This is more complicated because vfio_ccw is sharing the vfio_device
+> between both the mdev_device and its vfio_device and the css_driver.
+> 
+> The mdev is a singleton, and the reason for this sharing appears to
+> be to
+> allow the extra css_driver function callbacks to be delivered to the
+> vfio_device.
+> 
+> This keeps things as they were, with the css_driver allocating the
+> singleton, not the mdev_driver, this is pretty confusing. I'm also
+> uncertain how the lifetime model for the mdev works in the css_driver
+> callbacks.
+> 
+> At this point embed the vfio_device in the vfio_ccw_private and
+> instantiate it as a vfio_device when the mdev probes. The drvdata of
+> both
+> the css_device and the mdev_device point at the private, and
+> container_of
+> is used to get it back from the vfio_device.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_drv.c     |  21 +++--
+>  drivers/s390/cio/vfio_ccw_ops.c     | 135 +++++++++++++++-----------
+> --
+>  drivers/s390/cio/vfio_ccw_private.h |   5 ++
+>  3 files changed, 94 insertions(+), 67 deletions(-)
+> 
+> 
 
-  ttyS1                -W- (EC p  )    4:65
+...snip...
 
-does not match the char device name:
+> diff --git a/drivers/s390/cio/vfio_ccw_ops.c
+> b/drivers/s390/cio/vfio_ccw_ops.c
+> index 491a64c61fff1a..0fcf46031d3821 100644
+> --- a/drivers/s390/cio/vfio_ccw_ops.c
+> +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> @@ -17,13 +17,13 @@
+>  
+>  #include "vfio_ccw_private.h"
+>  
+> -static int vfio_ccw_mdev_reset(struct mdev_device *mdev)
+> +static const struct vfio_device_ops vfio_ccw_dev_ops;
+> +
+> +static int vfio_ccw_mdev_reset(struct vfio_ccw_private *private)
+>  {
+> -	struct vfio_ccw_private *private;
+>  	struct subchannel *sch;
+>  	int ret;
+>  
+> -	private = dev_get_drvdata(mdev_parent_dev(mdev));
+>  	sch = private->sch;
+>  	/*
+>  	 * TODO:
+> @@ -61,7 +61,7 @@ static int vfio_ccw_mdev_notifier(struct
+> notifier_block *nb,
+>  		if (!cp_iova_pinned(&private->cp, unmap->iova))
+>  			return NOTIFY_OK;
+>  
+> -		if (vfio_ccw_mdev_reset(private->mdev))
+> +		if (vfio_ccw_mdev_reset(private))
+>  			return NOTIFY_BAD;
+>  
+>  		cp_free(&private->cp);
+> @@ -113,10 +113,11 @@ static struct attribute_group
+> *mdev_type_groups[] = {
+>  	NULL,
+>  };
+>  
+> -static int vfio_ccw_mdev_create(struct mdev_device *mdev)
+> +static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+>  {
+>  	struct vfio_ccw_private *private =
+>  		dev_get_drvdata(mdev_parent_dev(mdev));
+> +	int ret;
+>  
+>  	if (private->state == VFIO_CCW_STATE_NOT_OPER)
+>  		return -ENODEV;
+> @@ -124,6 +125,10 @@ static int vfio_ccw_mdev_create(struct
+> mdev_device *mdev)
+>  	if (atomic_dec_if_positive(&private->avail) < 0)
+>  		return -EPERM;
+>  
+> +	memset(&private->vdev, 0, sizeof(private->vdev));
+> +	vfio_init_group_dev(&private->vdev, &mdev->dev,
+> +			    &vfio_ccw_dev_ops);
+> +
+>  	private->mdev = mdev;
+>  	private->state = VFIO_CCW_STATE_IDLE;
+>  
+> @@ -132,19 +137,28 @@ static int vfio_ccw_mdev_create(struct
+> mdev_device *mdev)
+>  			   private->sch->schid.ssid,
+>  			   private->sch->schid.sch_no);
+>  
+> +	ret = vfio_register_group_dev(&private->vdev);
+> +	if (ret)
+> +		goto err_atomic;
+> +	dev_set_drvdata(&mdev->dev, private);
+>  	return 0;
+> +
+> +err_atomic:
+> +	atomic_inc(&private->avail);
 
-  crw--w----    1 root     root        4,  65 May 17 12:18 /dev/ttysclp0
+Since we're unwinding, should also do
 
-so debian-installer inside a QEMU s390x instance gets confused and fails
-to start with the following error:
+private->mdev = NULL
+private->state = VFIO_CCW_STATE_STANDBY
 
-  steal-ctty: No such file or directory
+> +	return ret;
+>  }
+>  
+> -static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
+> +static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
+>  {
+> -	struct vfio_ccw_private *private =
+> -		dev_get_drvdata(mdev_parent_dev(mdev));
+> +	struct vfio_ccw_private *private = dev_get_drvdata(&mdev->dev);
+>  
+>  	VFIO_CCW_MSG_EVENT(2, "mdev %pUl, sch %x.%x.%04x: remove\n",
+>  			   mdev_uuid(mdev), private->sch->schid.cssid,
+>  			   private->sch->schid.ssid,
+>  			   private->sch->schid.sch_no);
+>  
+> +	vfio_unregister_group_dev(&private->vdev);
+> +
+>  	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
+>  	    (private->state != VFIO_CCW_STATE_STANDBY)) {
+>  		if (!vfio_ccw_sch_quiesce(private->sch))
+> @@ -155,20 +169,18 @@ static int vfio_ccw_mdev_remove(struct
+> mdev_device *mdev)
+>  	cp_free(&private->cp);
+>  	private->mdev = NULL;
+>  	atomic_inc(&private->avail);
+> -
+> -	return 0;
+>  }
+>  
+> -static int vfio_ccw_mdev_open(struct mdev_device *mdev)
+> +static int vfio_ccw_mdev_open(struct vfio_device *vdev)
+>  {
+>  	struct vfio_ccw_private *private =
+> -		dev_get_drvdata(mdev_parent_dev(mdev));
+> +		container_of(vdev, struct vfio_ccw_private, vdev);
+>  	unsigned long events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
+>  	int ret;
+>  
+>  	private->nb.notifier_call = vfio_ccw_mdev_notifier;
+>  
+> -	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> +	ret = vfio_register_notifier(vdev->dev, VFIO_IOMMU_NOTIFY,
+>  				     &events, &private->nb);
+>  	if (ret)
+>  		return ret;
+> @@ -189,27 +201,26 @@ static int vfio_ccw_mdev_open(struct
+> mdev_device *mdev)
+>  
+>  out_unregister:
+>  	vfio_ccw_unregister_dev_regions(private);
+> -	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> +	vfio_unregister_notifier(vdev->dev, VFIO_IOMMU_NOTIFY,
+>  				 &private->nb);
+>  	return ret;
+>  }
+>  
+> -static void vfio_ccw_mdev_release(struct mdev_device *mdev)
+> +static void vfio_ccw_mdev_release(struct vfio_device *vdev)
+>  {
+>  	struct vfio_ccw_private *private =
+> -		dev_get_drvdata(mdev_parent_dev(mdev));
+> +		container_of(vdev, struct vfio_ccw_private, vdev);
+>  
+>  	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
+>  	    (private->state != VFIO_CCW_STATE_STANDBY)) {
+> -		if (!vfio_ccw_mdev_reset(mdev))
+> +		if (!vfio_ccw_mdev_reset(private))
+>  			private->state = VFIO_CCW_STATE_STANDBY;
+>  		/* The state will be NOT_OPER on error. */
+>  	}
+>  
+>  	cp_free(&private->cp);
+>  	vfio_ccw_unregister_dev_regions(private);
+> -	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> -				 &private->nb);
+> +	vfio_unregister_notifier(vdev->dev, VFIO_IOMMU_NOTIFY,
+> &private->nb);
+>  }
+>  
+>  static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private
+> *private,
+> @@ -233,15 +244,14 @@ static ssize_t
+> vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
+>  	return ret;
+>  }
+>  
+> -static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
+> +static ssize_t vfio_ccw_mdev_read(struct vfio_device *vdev,
+>  				  char __user *buf,
+>  				  size_t count,
+>  				  loff_t *ppos)
+>  {
+> +	struct vfio_ccw_private *private =
+> +		container_of(vdev, struct vfio_ccw_private, vdev);
+>  	unsigned int index = VFIO_CCW_OFFSET_TO_INDEX(*ppos);
+> -	struct vfio_ccw_private *private;
+> -
+> -	private = dev_get_drvdata(mdev_parent_dev(mdev));
+>  
+>  	if (index >= VFIO_CCW_NUM_REGIONS + private->num_regions)
+>  		return -EINVAL;
+> @@ -288,15 +298,14 @@ static ssize_t
+> vfio_ccw_mdev_write_io_region(struct vfio_ccw_private *private,
+>  	return ret;
+>  }
+>  
+> -static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+> +static ssize_t vfio_ccw_mdev_write(struct vfio_device *vdev,
+>  				   const char __user *buf,
+>  				   size_t count,
+>  				   loff_t *ppos)
+>  {
+> +	struct vfio_ccw_private *private =
+> +		container_of(vdev, struct vfio_ccw_private, vdev);
+>  	unsigned int index = VFIO_CCW_OFFSET_TO_INDEX(*ppos);
+> -	struct vfio_ccw_private *private;
+> -
+> -	private = dev_get_drvdata(mdev_parent_dev(mdev));
+>  
+>  	if (index >= VFIO_CCW_NUM_REGIONS + private->num_regions)
+>  		return -EINVAL;
+> @@ -313,12 +322,9 @@ static ssize_t vfio_ccw_mdev_write(struct
+> mdev_device *mdev,
+>  	return -EINVAL;
+>  }
+>  
+> -static int vfio_ccw_mdev_get_device_info(struct vfio_device_info
+> *info,
+> -					 struct mdev_device *mdev)
+> +static int vfio_ccw_mdev_get_device_info(struct vfio_ccw_private
+> *private,
+> +					 struct vfio_device_info *info)
+>  {
+> -	struct vfio_ccw_private *private;
+> -
+> -	private = dev_get_drvdata(mdev_parent_dev(mdev));
+>  	info->flags = VFIO_DEVICE_FLAGS_CCW | VFIO_DEVICE_FLAGS_RESET;
+>  	info->num_regions = VFIO_CCW_NUM_REGIONS + private-
+> >num_regions;
+>  	info->num_irqs = VFIO_CCW_NUM_IRQS;
+> @@ -326,14 +332,12 @@ static int vfio_ccw_mdev_get_device_info(struct
+> vfio_device_info *info,
+>  	return 0;
+>  }
+>  
+> -static int vfio_ccw_mdev_get_region_info(struct vfio_region_info
+> *info,
+> -					 struct mdev_device *mdev,
+> +static int vfio_ccw_mdev_get_region_info(struct vfio_ccw_private
+> *private,
+> +					 struct vfio_region_info *info,
+>  					 unsigned long arg)
+>  {
+> -	struct vfio_ccw_private *private;
+>  	int i;
+>  
+> -	private = dev_get_drvdata(mdev_parent_dev(mdev));
+>  	switch (info->index) {
+>  	case VFIO_CCW_CONFIG_REGION_INDEX:
+>  		info->offset = 0;
+> @@ -408,19 +412,16 @@ static int vfio_ccw_mdev_get_irq_info(struct
+> vfio_irq_info *info)
+>  	return 0;
+>  }
+>  
+> -static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
+> +static int vfio_ccw_mdev_set_irqs(struct vfio_ccw_private *private,
+>  				  uint32_t flags,
+>  				  uint32_t index,
+>  				  void __user *data)
+>  {
+> -	struct vfio_ccw_private *private;
+>  	struct eventfd_ctx **ctx;
+>  
+>  	if (!(flags & VFIO_IRQ_SET_ACTION_TRIGGER))
+>  		return -EINVAL;
+>  
+> -	private = dev_get_drvdata(mdev_parent_dev(mdev));
+> -
+>  	switch (index) {
+>  	case VFIO_CCW_IO_IRQ_INDEX:
+>  		ctx = &private->io_trigger;
+> @@ -522,10 +523,12 @@ void vfio_ccw_unregister_dev_regions(struct
+> vfio_ccw_private *private)
+>  	private->region = NULL;
+>  }
+>  
+> -static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+> +static ssize_t vfio_ccw_mdev_ioctl(struct vfio_device *vdev,
+>  				   unsigned int cmd,
+>  				   unsigned long arg)
+>  {
+> +	struct vfio_ccw_private *private =
+> +		container_of(vdev, struct vfio_ccw_private, vdev);
+>  	int ret = 0;
+>  	unsigned long minsz;
+>  
+> @@ -542,7 +545,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct
+> mdev_device *mdev,
+>  		if (info.argsz < minsz)
+>  			return -EINVAL;
+>  
+> -		ret = vfio_ccw_mdev_get_device_info(&info, mdev);
+> +		ret = vfio_ccw_mdev_get_device_info(private, &info);
+>  		if (ret)
+>  			return ret;
+>  
+> @@ -560,7 +563,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct
+> mdev_device *mdev,
+>  		if (info.argsz < minsz)
+>  			return -EINVAL;
+>  
+> -		ret = vfio_ccw_mdev_get_region_info(&info, mdev, arg);
+> +		ret = vfio_ccw_mdev_get_region_info(private, &info,
+> arg);
+>  		if (ret)
+>  			return ret;
+>  
+> @@ -605,47 +608,59 @@ static ssize_t vfio_ccw_mdev_ioctl(struct
+> mdev_device *mdev,
+>  			return ret;
+>  
+>  		data = (void __user *)(arg + minsz);
+> -		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags,
+> hdr.index, data);
+> +		return vfio_ccw_mdev_set_irqs(private, hdr.flags,
+> hdr.index,
+> +					      data);
+>  	}
+>  	case VFIO_DEVICE_RESET:
+> -		return vfio_ccw_mdev_reset(mdev);
+> +		return vfio_ccw_mdev_reset(private);
+>  	default:
+>  		return -ENOTTY;
+>  	}
+>  }
+>  
+>  /* Request removal of the device*/
+> -static void vfio_ccw_mdev_request(struct mdev_device *mdev, unsigned
+> int count)
+> +static void vfio_ccw_mdev_request(struct vfio_device *vdev, unsigned
+> int count)
+>  {
+> -	struct vfio_ccw_private *private =
+> dev_get_drvdata(mdev_parent_dev(mdev));
+> -
+> -	if (!private)
+> -		return;
+> +	struct vfio_ccw_private *private =
+> +		container_of(vdev, struct vfio_ccw_private, vdev);
+> +	struct device *dev = private->vdev.dev;
 
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
----
- v2: also update preferred console for VT220 case
+This could be simply vdev->dev.
+The rest seems okay.
 
- arch/s390/kernel/setup.c       | 2 +-
- drivers/s390/char/sclp_vt220.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+Thanks,
+Eric
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 72134f9f6ff5..3ec6ca9c26c0 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -165,7 +165,7 @@ static void __init set_preferred_console(void)
- 	else if (CONSOLE_IS_3270)
- 		add_preferred_console("tty3270", 0, NULL);
- 	else if (CONSOLE_IS_VT220)
--		add_preferred_console("ttyS", 1, NULL);
-+		add_preferred_console("ttysclp", 0, NULL);
- 	else if (CONSOLE_IS_HVC)
- 		add_preferred_console("hvc", 0, NULL);
- }
-diff --git a/drivers/s390/char/sclp_vt220.c b/drivers/s390/char/sclp_vt220.c
-index 047f812d1a1c..71ed1bf15598 100644
---- a/drivers/s390/char/sclp_vt220.c
-+++ b/drivers/s390/char/sclp_vt220.c
-@@ -35,8 +35,8 @@
- #define SCLP_VT220_MINOR		65
- #define SCLP_VT220_DRIVER_NAME		"sclp_vt220"
- #define SCLP_VT220_DEVICE_NAME		"ttysclp"
--#define SCLP_VT220_CONSOLE_NAME		"ttyS"
--#define SCLP_VT220_CONSOLE_INDEX	1	/* console=ttyS1 */
-+#define SCLP_VT220_CONSOLE_NAME		"ttysclp"
-+#define SCLP_VT220_CONSOLE_INDEX	0	/* console=ttysclp0 */
- 
- /* Representation of a single write request */
- struct sclp_vt220_request {
--- 
-2.20.1
+>  
+>  	if (private->req_trigger) {
+>  		if (!(count % 10))
+> -			dev_notice_ratelimited(mdev_dev(private->mdev),
+> +			dev_notice_ratelimited(dev,
+>  					       "Relaying device request
+> to user (#%u)\n",
+>  					       count);
+>  
+>  		eventfd_signal(private->req_trigger, 1);
+>  	} else if (count == 0) {
+> -		dev_notice(mdev_dev(private->mdev),
+> +		dev_notice(dev,
+>  			   "No device request channel registered,
+> blocked until released by user\n");
+>  	}
+>  }
+>  
+> +static const struct vfio_device_ops vfio_ccw_dev_ops = {
+> +	.open = vfio_ccw_mdev_open,
+> +	.release = vfio_ccw_mdev_release,
+> +	.read = vfio_ccw_mdev_read,
+> +	.write = vfio_ccw_mdev_write,
+> +	.ioctl = vfio_ccw_mdev_ioctl,
+> +	.request = vfio_ccw_mdev_request,
+> +};
+> +
+> +struct mdev_driver vfio_ccw_mdev_driver = {
+> +	.driver = {
+> +		.name = "vfio_ccw_mdev",
+> +		.owner = THIS_MODULE,
+> +		.mod_name = KBUILD_MODNAME,
+> +	},
+> +	.probe = vfio_ccw_mdev_probe,
+> +	.remove = vfio_ccw_mdev_remove,
+> +};
+> +
+>  static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
+>  	.owner			= THIS_MODULE,
+> +	.device_driver		= &vfio_ccw_mdev_driver,
+>  	.supported_type_groups  = mdev_type_groups,
+> -	.create			= vfio_ccw_mdev_create,
+> -	.remove			= vfio_ccw_mdev_remove,
+> -	.open			= vfio_ccw_mdev_open,
+> -	.release		= vfio_ccw_mdev_release,
+> -	.read			= vfio_ccw_mdev_read,
+> -	.write			= vfio_ccw_mdev_write,
+> -	.ioctl			= vfio_ccw_mdev_ioctl,
+> -	.request		= vfio_ccw_mdev_request,
+>  };
+>  
+>  int vfio_ccw_mdev_reg(struct subchannel *sch)
+> diff --git a/drivers/s390/cio/vfio_ccw_private.h
+> b/drivers/s390/cio/vfio_ccw_private.h
+> index b2c762eb42b9bb..7272eb78861244 100644
+> --- a/drivers/s390/cio/vfio_ccw_private.h
+> +++ b/drivers/s390/cio/vfio_ccw_private.h
+> @@ -17,6 +17,7 @@
+>  #include <linux/eventfd.h>
+>  #include <linux/workqueue.h>
+>  #include <linux/vfio_ccw.h>
+> +#include <linux/vfio.h>
+>  #include <asm/crw.h>
+>  #include <asm/debug.h>
+>  
+> @@ -67,6 +68,7 @@ struct vfio_ccw_crw {
+>  
+>  /**
+>   * struct vfio_ccw_private
+> + * @vdev: Embedded VFIO device
+>   * @sch: pointer to the subchannel
+>   * @state: internal state of the device
+>   * @completion: synchronization helper of the I/O completion
+> @@ -90,6 +92,7 @@ struct vfio_ccw_crw {
+>   * @crw_work: work for deferral process of CRW handling
+>   */
+>  struct vfio_ccw_private {
+> +	struct vfio_device vdev;
+>  	struct subchannel	*sch;
+>  	int			state;
+>  	struct completion	*completion;
+> @@ -121,6 +124,8 @@ extern void vfio_ccw_mdev_unreg(struct subchannel
+> *sch);
+>  
+>  extern int vfio_ccw_sch_quiesce(struct subchannel *sch);
+>  
+> +extern struct mdev_driver vfio_ccw_mdev_driver;
+> +
+>  /*
+>   * States of the device statemachine.
+>   */
 
