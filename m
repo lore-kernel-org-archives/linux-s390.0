@@ -2,109 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D107C433B4
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 11:06:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85332C433B4
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 11:38:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CDE4B613B3
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 11:06:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 605D3613C5
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 11:38:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235097AbhD0LGn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Apr 2021 07:06:43 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:30737 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235334AbhD0LGZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 27 Apr 2021 07:06:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1619521541;
+        id S235975AbhD0Lja (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Apr 2021 07:39:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45076 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235705AbhD0Lja (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Apr 2021 07:39:30 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 036D6C061574;
+        Tue, 27 Apr 2021 04:38:47 -0700 (PDT)
+Received: from zn.tnic (p200300ec2f0c5e008a7c4c8941e22261.dip0.t-ipconnect.de [IPv6:2003:ec:2f0c:5e00:8a7c:4c89:41e2:2261])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 5A0041EC047E;
+        Tue, 27 Apr 2021 13:38:45 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1619523525;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=uo5IubiUgaEAcCKINk4U2wSN84Tzj30VgFH40sgQJoA=;
-        b=gDJov7I9T/4S1E4JAKitVFjoGXeEK2yJdxjbUojbqKbHBldOoP2K3YRTf+f86s+YF9nuli
-        R9EqlJWSlYV/1cj80j/lTaxw3Dvm7SbAteyxHzmubTFnnwbW1yWJu0TE3A50jXuW0MqoUa
-        BiSAukZiwXhPzBySQ3y1mXKW6sb1cBk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-360-ZMaLEpRyNYaooxcSGpQ_2Q-1; Tue, 27 Apr 2021 07:05:38 -0400
-X-MC-Unique: ZMaLEpRyNYaooxcSGpQ_2Q-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9A602107ACE4;
-        Tue, 27 Apr 2021 11:05:35 +0000 (UTC)
-Received: from gondolin.fritz.box (ovpn-113-176.ams2.redhat.com [10.36.113.176])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DE31D60CC6;
-        Tue, 27 Apr 2021 11:05:26 +0000 (UTC)
-Date:   Tue, 27 Apr 2021 13:05:23 +0200
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=IAUQH8ckRL8RHgSocw7BeJrBQn+eUtnbT2dDn+igxMs=;
+        b=JVTU+70sWvRTU+SopM0YlyyGOmgJ6g6s0pfWanKmCpWILaUWfjQC0nNpvbpkUqfQ2RRum2
+        FEuSSKX1W3ssLIne23n7/XG++M6Vrmnc4wwpffOGYr4mLk1KAEn2IFh+WRvL4uHH763Ts1
+        j21Ra3QsjV66hv690SzIZHGqkUij9BY=
+Date:   Tue, 27 Apr 2021 13:38:40 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Maxim Levitsky <mlevitsk@redhat.com>
+Cc:     kvm@vger.kernel.org,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sean Christopherson <seanjc@google.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Jonathan Corbet <corbet@lwn.net>, Jessica Yu <jeyu@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Will Deacon <will@kernel.org>,
+        "open list:KERNEL VIRTUAL MACHINE FOR ARM64 (KVM/arm64)" 
+        <kvmarm@lists.cs.columbia.edu>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Jim Mattson <jmattson@google.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, Vasily Gorbik <gor@linux.ibm.com>,
+        "open list:S390" <linux-s390@vger.kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Tarun Gupta <targupta@nvidia.com>
-Subject: Re: [PATCH v2 01/13] vfio/mdev: Remove CONFIG_VFIO_MDEV_DEVICE
-Message-ID: <20210427130523.3345913d.cohuck@redhat.com>
-In-Reply-To: <1-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
-References: <0-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
-        <1-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
-Organization: Red Hat GmbH
+        Kieran Bingham <kbingham@kernel.org>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        "moderated list:KERNEL VIRTUAL MACHINE FOR ARM64 (KVM/arm64)" 
+        <linux-arm-kernel@lists.infradead.org>,
+        James Morse <james.morse@arm.com>
+Subject: Re: [PATCH v2 8/9] KVM: x86: add force_intercept_exceptions_mask
+Message-ID: <YIf3wM1+enU1U/gn@zn.tnic>
+References: <20210401135451.1004564-1-mlevitsk@redhat.com>
+ <20210401135451.1004564-9-mlevitsk@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210401135451.1004564-9-mlevitsk@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 26 Apr 2021 17:00:03 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
-
-> For some reason the vfio_mdev shim mdev_driver has its own module and
-> kconfig. As the next patch requires access to it from mdev.ko merge the
-> two modules together and remove VFIO_MDEV_DEVICE.
+On Thu, Apr 01, 2021 at 04:54:50PM +0300, Maxim Levitsky wrote:
+> This parameter will be used by VMX and SVM code to force
+> interception of a set of exceptions, given by a bitmask
+> for guest debug and/or kvm debug.
 > 
-> A later patch deletes this driver entirely.
+> This option is not intended for production.
 > 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> This is based on an idea first shown here:
+> https://patchwork.kernel.org/project/kvm/patch/20160301192822.GD22677@pd.tnic/
+> 
+> CC: Borislav Petkov <bp@suse.de>
+> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
 > ---
->  Documentation/s390/vfio-ap.rst   |  1 -
->  arch/s390/Kconfig                |  2 +-
->  drivers/gpu/drm/i915/Kconfig     |  2 +-
->  drivers/vfio/mdev/Kconfig        |  7 -------
->  drivers/vfio/mdev/Makefile       |  3 +--
->  drivers/vfio/mdev/mdev_core.c    | 16 ++++++++++++++--
->  drivers/vfio/mdev/mdev_private.h |  2 ++
->  drivers/vfio/mdev/vfio_mdev.c    | 24 +-----------------------
->  samples/Kconfig                  |  6 +++---
->  9 files changed, 23 insertions(+), 40 deletions(-)
+>  arch/x86/kvm/x86.c | 3 +++
+>  arch/x86/kvm/x86.h | 2 ++
+>  2 files changed, 5 insertions(+)
+> 
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 3627ce8fe5bb..1a51031d64d8 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -176,6 +176,9 @@ module_param(force_emulation_prefix, bool, S_IRUGO);
+>  int __read_mostly pi_inject_timer = -1;
+>  module_param(pi_inject_timer, bint, S_IRUGO | S_IWUSR);
+>  
+> +uint force_intercept_exceptions_mask;
+> +module_param(force_intercept_exceptions_mask, uint, S_IRUGO | S_IWUSR);
+> +EXPORT_SYMBOL_GPL(force_intercept_exceptions_mask);
 
-This also fixes the dependencies for vfio-ccw, which never depended on
-VFIO_MDEV_DEVICE directly...
+That's nice.
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+I could use some text explaning the usage though, i.e. that thing takes
+a bitfield of exception vectors, so that I don't have to look at the
+code each time. :-)
 
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
