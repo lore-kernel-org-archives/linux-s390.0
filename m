@@ -2,113 +2,78 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0B19C433ED
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 15:00:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D917CC433ED
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 15:09:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8633761040
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 15:00:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9FB3461178
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Apr 2021 15:09:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236567AbhD0PBP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Apr 2021 11:01:15 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22686 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236710AbhD0PBO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 27 Apr 2021 11:01:14 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13REX77C150032;
-        Tue, 27 Apr 2021 10:59:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=+QlamBl19HO/Z+/EikQ6Mdam0domaFKqNPPFu7gdiHg=;
- b=Fla/1GQ052qfVp80lcNJgB52juyMtdxf7DoNbSbDGYfCt9Mg9l/a/Z9B+a4cY7Sul7CA
- ywlQZ9nrkkSAK+XSb8tbw/p7RnOL6sUgeyr1DBD1Y6SnfzTrjsv7vEa0URi3DNpAGc/p
- NltUxHwIBw/LICmCEBs2aEuQ5XG6/Iz0UoHooNpQOGkTarbLq6E8jmOwzilJBBVi+oCG
- YS4cmxFmMf89tVLL/RjjK+Ec98cudUkRrRbMmK0/42WJzNraGW5G6jQgr+zZt6rRK888
- +SRzzep2ZpNQY0TQ8F8xO3r2V1vBUChMLj0COjjpczYI0cZA3aq+RYa8cQKf4td13BdJ SA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 386cf38bj5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Apr 2021 10:59:32 -0400
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13REYJGJ154559;
-        Tue, 27 Apr 2021 10:59:32 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 386cf38bh7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Apr 2021 10:59:32 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13REw7Od006549;
-        Tue, 27 Apr 2021 14:59:29 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma05fra.de.ibm.com with ESMTP id 384gjxrr9n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Apr 2021 14:59:29 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13REx1YU34668996
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 27 Apr 2021 14:59:02 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 21F1A11C050;
-        Tue, 27 Apr 2021 14:59:26 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0DEC711C04C;
-        Tue, 27 Apr 2021 14:59:26 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 27 Apr 2021 14:59:26 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id C0F6CE028D; Tue, 27 Apr 2021 16:59:25 +0200 (CEST)
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-To:     peterz@infradead.org
-Cc:     bristot@redhat.com, bsegall@google.com, dietmar.eggemann@arm.com,
-        greg@kroah.com, gregkh@linuxfoundation.org, joshdon@google.com,
+        id S236534AbhD0PKO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Apr 2021 11:10:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40856 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235466AbhD0PKN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 27 Apr 2021 11:10:13 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 796A9613E2;
+        Tue, 27 Apr 2021 15:09:28 +0000 (UTC)
+Date:   Tue, 27 Apr 2021 11:09:26 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     peterz@infradead.org, bristot@redhat.com, bsegall@google.com,
+        dietmar.eggemann@arm.com, greg@kroah.com,
+        gregkh@linuxfoundation.org, joshdon@google.com,
         juri.lelli@redhat.com, linux-kernel@vger.kernel.org,
         linux@rasmusvillemoes.dk, mgorman@suse.de, mingo@kernel.org,
-        rostedt@goodmis.org, valentin.schneider@arm.com,
-        vincent.guittot@linaro.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, borntraeger@de.ibm.com
+        valentin.schneider@arm.com, vincent.guittot@linaro.org,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
 Subject: Re: sched: Move SCHED_DEBUG sysctl to debugfs
-Date:   Tue, 27 Apr 2021 16:59:25 +0200
-Message-Id: <20210427145925.5246-1-borntraeger@de.ibm.com>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210412102001.287610138@infradead.org>
+Message-ID: <20210427110926.24f41fbb@gandalf.local.home>
+In-Reply-To: <20210427145925.5246-1-borntraeger@de.ibm.com>
 References: <20210412102001.287610138@infradead.org>
+        <20210427145925.5246-1-borntraeger@de.ibm.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: eKX2-Ma5Wve74Wy6SnaoNJ_DMaO9FzIX
-X-Proofpoint-ORIG-GUID: oKwvlBcQkWFx-YEwG_gOPg9dEDJ3vNAT
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-27_08:2021-04-27,2021-04-27 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- mlxlogscore=823 bulkscore=0 spamscore=0 mlxscore=0 adultscore=0
- phishscore=0 lowpriorityscore=0 priorityscore=1501 clxscore=1011
- malwarescore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2104060000 definitions=main-2104270105
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Peter,
+On Tue, 27 Apr 2021 16:59:25 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-I just realized that we moved away sysctl tunabled to debugfs in next.
-We have seen several cases where it was benefitial to set
-sched_migration_cost_ns to a lower value. For example with KVM I can
-easily get 50% more transactions with 50000 instead of 500000. 
-Until now it was possible to use tuned or /etc/sysctl.conf to set
-these things permanently. 
+> Peter,
+> 
+> I just realized that we moved away sysctl tunabled to debugfs in next.
+> We have seen several cases where it was benefitial to set
+> sched_migration_cost_ns to a lower value. For example with KVM I can
+> easily get 50% more transactions with 50000 instead of 500000. 
+> Until now it was possible to use tuned or /etc/sysctl.conf to set
+> these things permanently. 
+> 
+> Given that some people do not want to have debugfs mounted all the time
+> I would consider this a regression. The sysctl tunable was always 
+> available.
+> 
+> I am ok with the "informational" things being in debugfs, but not
+> the tunables. So how do we proceed here?
 
-Given that some people do not want to have debugfs mounted all the time
-I would consider this a regression. The sysctl tunable was always 
-available.
+Should there be a schedfs created?
 
-I am ok with the "informational" things being in debugfs, but not
-the tunables. So how do we proceed here?
+This is the reason I created the tracefs file system, was to get the
+tracing code out of debugfs, as debugfs is a catch all for everything and
+can lead to poor and insecure interfaces that people do not want to add on
+systems that they still want tracing on.
 
-Christian
+Or perhaps we should add a "tunefs" for tunables that are stable interfaces
+that should not be in /proc but also not in debugfs.
+
+-- Steve
+
