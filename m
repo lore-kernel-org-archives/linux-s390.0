@@ -2,101 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 558C6C433ED
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 16:13:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8F83C433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 17:10:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 16D1061420
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 16:13:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 65A37613B4
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 17:10:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240121AbhD1QOV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Apr 2021 12:14:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57158 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240442AbhD1QOP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Apr 2021 12:14:15 -0400
-Received: from valentin-vidic.from.hr (valentin-vidic.from.hr [IPv6:2001:470:1f0b:3b7::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03CE5C061573;
-        Wed, 28 Apr 2021 09:13:29 -0700 (PDT)
-X-Virus-Scanned: Debian amavisd-new at valentin-vidic.from.hr
-Received: by valentin-vidic.from.hr (Postfix, from userid 1000)
-        id 517E85C15; Wed, 28 Apr 2021 18:13:18 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=valentin-vidic.from.hr; s=2020; t=1619626398;
-        bh=/lA99jJWibpe5bvPiHlWkky33Jv0Kq+2qr2RiYH1/Ys=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2CL4fRBsjojjoP9FfYt0RHIW5vde/X/hiDSzq2Haax14TiKhzqhafCu2UKWIH8qbk
-         Mu7Etn6zix1oDvT1QztIkSrRJbHpBN+VQ7hMvXWuGMMm82cWRdVlAcSVIxJobi/Fkx
-         J4oiT6ll/RSCspkvg4VaMOb9qgKzze4zDQTy0lhyI/flyTnCBHMzMrXeOQBzchAT7h
-         vn4uJat08ACxoBInk4uoL698HydQkI/DDD4byUfHf6UlbUtz47zEaQ4lLnb/t7ymBa
-         6NsJ4VDBgurd7F7LNmfdedoAn6AFX223pUDQ7aMmVkFAKJW8MhEtH+DdwddLCa/7ea
-         8kXPG130Xm6fCrPRAkfa86ERczcdMit5vVnNOYb7LwkyYFdu++LIssCiKzsw2iyaTQ
-         Kcq6Q+tpCKFo82p30V5cZBVXaDcMS6nvjeJpl7qYmRzz71hSYB2GfsJqsAH7/3cVZt
-         Bcxtr6siyjPepIYw7uQCkioDC7wTuswMhvMd0YDhCASNsJtOEygXcNqG9b/8Xeo82T
-         eiEcHPu79egTQEH+92HgWVd3ka10/5KWTkmHTGFkA8l92W3Apm2IWxyY5iS0dfieO+
-         qDo9HJ7CfQy55JNHimu5BjaNmTkgQynE3WTSgZCEVt2CuK9l8aaA5JiReoosyGc+J+
-         0Fm/GpKUjqRrTXcDZEebTJdc=
-Date:   Wed, 28 Apr 2021 18:13:18 +0200
-From:   Valentin =?utf-8?B?VmlkacSH?= <vvidic@valentin-vidic.from.hr>
-To:     Hendrik Brueckner <brueckner@linux.ibm.com>
+        id S241483AbhD1RKr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Apr 2021 13:10:47 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:27070 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230515AbhD1RKr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Apr 2021 13:10:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619629802;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=iYnNI+8n8SSBVkSqmVJf6WDEsPwRyUVXwFwjsGwmDKc=;
+        b=WmP8hRGiJPgy7sivLkRrEZS0/nIfsX/rv53Smve3g+KW7U9oE42Ma7um8qTW+ZKnzyUB4c
+        lc1rPFVDE5FAGWv10H/I7p3LZZcKnh6zXN8+3nzwgc7hwiAbgshzS+6dhFqthUvxujOKEn
+        xWqYQuARwHCFh+bBF4ONjle/QuZNREE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-223-wXs0JlgqMC2Z6rj0Cn2nhA-1; Wed, 28 Apr 2021 13:09:58 -0400
+X-MC-Unique: wXs0JlgqMC2Z6rj0Cn2nhA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E10AC1966338;
+        Wed, 28 Apr 2021 17:09:55 +0000 (UTC)
+Received: from gondolin.fritz.box (ovpn-113-113.ams2.redhat.com [10.36.113.113])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7173B6B8D4;
+        Wed, 28 Apr 2021 17:09:52 +0000 (UTC)
+Date:   Wed, 28 Apr 2021 19:09:49 +0200
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
 Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Philipp Kern <pkern@debian.org>,
-        Benjamin Zimmermann <dave@oss.volkswagen.com>,
-        debian-s390@lists.debian.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>
-Subject: Re: [PATCH v2] s390/sclp_vt220: Fix console name to match device
-Message-ID: <20210428161318.GX4672@valentin-vidic.from.hr>
-References: <20200519181654.16765-1-vvidic@valentin-vidic.from.hr>
- <20210427194010.9330-1-vvidic@valentin-vidic.from.hr>
- <20210428133836.GD21939@linux.ibm.com>
+        Eric Farman <farman@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Tarun Gupta <targupta@nvidia.com>
+Subject: Re: [PATCH v2 07/13] vfio/ccw: Convert to use
+ vfio_register_group_dev()
+Message-ID: <20210428190949.4360afb7.cohuck@redhat.com>
+In-Reply-To: <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
+References: <0-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
+        <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
+Organization: Red Hat GmbH
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210428133836.GD21939@linux.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Apr 28, 2021 at 03:38:36PM +0200, Hendrik Brueckner wrote:
-> It is been a while ago when working on consoles. However, consoles are
-> typically devices without having a device node associated. There is special
-> handling for /dev/console wrt. to the preferred console in the tty layer.
+On Mon, 26 Apr 2021 17:00:09 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
+
+> This is more complicated because vfio_ccw is sharing the vfio_device
+> between both the mdev_device and its vfio_device and the css_driver.
 > 
-> A console device might be associated with a tty device but this is not a
-> requirement. For example, consider the net console that streams console
-> messages thru UDP and is not associated with a tty.
+> The mdev is a singleton, and the reason for this sharing appears to be to
+> allow the extra css_driver function callbacks to be delivered to the
+> vfio_device.
 > 
-> Because console and tty are different devices, names can also be different
-> which is, unfortunately, the case on s390.
+> This keeps things as they were, with the css_driver allocating the
+> singleton, not the mdev_driver, this is pretty confusing. I'm also
+> uncertain how the lifetime model for the mdev works in the css_driver
+> callbacks.
 > 
-> Therefore my suggestion here is not derive the tty device from the name
-> of the console, but rather looking at the associated tty being reported
-> as major minor number in /proc/console.
+> At this point embed the vfio_device in the vfio_ccw_private and
+> instantiate it as a vfio_device when the mdev probes. The drvdata of both
+> the css_device and the mdev_device point at the private, and container_of
+> is used to get it back from the vfio_device.
 
-Yes, I see what you mean. Loading netconsole produces a line in
-/proc/consoles without the major:minor numbers:
+I've been staring at this for some time, and I'm not sure whether this
+is a good approach.
 
-  tty0                 -WU (EC p  )    4:7
-  netcon0              -W- (E  p  )
+We allow at most one mdev per subchannel (slicing it up does not make
+sense), so we can be sure that there's a 1:1 relationship between mdev
+and parent device, and we can track it via a single pointer.
 
-On the other hand /proc/consoles documentation seems to suggest these
-are character device names:
-https://www.kernel.org/doc/html/latest/filesystems/proc.html#proc-consoles
+The vfio_ccw_private driver data is allocated during probe (same as for
+other css_drivers.) Embedding a vfio_device here means that we have a
+structure tied into it that is operating with different lifetime rules.
 
-Since sclp_vt220 seems to be the only know exception we are trying
-to solve in that direction now.
+What about creating a second structure instead that can embed the
+vfio_device, is allocated during mdev probing, and is linked up with
+the vfio_ccw_private structure? That would follow the pattern of other
+drivers more closely.
 
-If this does not work out, the alternative is as you suggested to take
-the major:minor numbers and read the char device name from the symlink:
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_drv.c     |  21 +++--
+>  drivers/s390/cio/vfio_ccw_ops.c     | 135 +++++++++++++++-------------
+>  drivers/s390/cio/vfio_ccw_private.h |   5 ++
+>  3 files changed, 94 insertions(+), 67 deletions(-)
 
-lrwxrwxrwx 1 root root 0 Apr 28 17:00 /sys/dev/char/4:7 -> ../../devices/virtual/tty/tty7
-
--- 
-Valentin
