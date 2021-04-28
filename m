@@ -2,189 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAFBDC433ED
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 17:20:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C9FCC433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 21:03:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 900D66143B
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 17:20:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C7A4461447
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 21:03:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241488AbhD1RU4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Apr 2021 13:20:56 -0400
-Received: from mail-dm6nam12on2086.outbound.protection.outlook.com ([40.107.243.86]:2400
-        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S239409AbhD1RU4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Apr 2021 13:20:56 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Wx+KVxbRU14ymPm6exlwzZbdeITkMRxaHggsRke+X/5iFDkC5lbQyXpYiKogBJn2n6TEjhc4sR8AIFCe3j47JY4R1qA+FZ3TOfUO4pF3O+6EmhWukgk8wpd7Suoi8Lw3l+OrYCEsTjwkbD8XSfnY8l6GY4ZlJJ5PuOgHeijA30I1cj5BnMZG7zCsMOutaLGLQ9cc/F4/h64ZqGT5u+HBKahMPjD+MtPwH6DO60tJ6zsA+lmazo9vTQRqIte1fKVUdRu3p5jLQcGaakJd/aFBUac3egUXSJH3+F94q+MIfyC9TiisoGdqhYMb7RRg9LpcnLZiwflDKP2cKcVyHkdw0g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1jSpzMpbREvtnvpTigMdEiuJGcQeI4H+LI55tTzgpPU=;
- b=kZxzB0QU9bHXfBc3TV1mYFYNUEVgmCOltIreNxqPyoCMnpr/PIx8t4RjHk1i4RQTflBr52NdCv9+i6WbkuozwDNzL7HNczufUwmR+XjOd+Ue7OSX9+9fgNkQ+oOMQsf6i3N8pTJJAHww8UTwANzO/wIie9Q/Y+URoBCfk1ucSMRtzzBXNMvq8eWsxqxhJMVQA3nUlgqliwSnFz+iEq13SaRimGbjT4DMHi7dSuLooYYn0byZ3oI8WiQaXyoAA8MDxyrwrQBCKNDFPCeFJeCKEbSgqb9W1mYhs0DZtw77cZbK65dI1od2bqzSwwhfB3C50CUiCJNESyl2G3MMckQfHw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1jSpzMpbREvtnvpTigMdEiuJGcQeI4H+LI55tTzgpPU=;
- b=dVM+1RxC76JObY1tsc0iCMhPw3XGcL4JohNig9mTjqTJGvfsnUTUEBUc3Yp5BcLpm+wV0irEK5DHcKJkrr7bzYOnV904UaNO8O/NnIbgvB1NfmoQmZMj0qv6Y4PomD2Nk3KwPgrSFMCf8U4kdKPcAbFQZ9whi4fxZ5p/D48ABN3WugrbANJx6KATc8y6vo9QUaM5aPbn+3+UntHarI/4o3oKxMy8ev7Uu9sXcpJXkhJIPzCHZltP75YL4vusCmfYw4hVYi0Ay1/9/CwkgowqhCxpnASdb04VbPlfmkfOscNV66hM18bP/AGAA6sGJDOAQOpaum6wsJHshF2SrT8I5g==
-Authentication-Results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
- by DM5PR12MB1514.namprd12.prod.outlook.com (2603:10b6:4:f::18) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4065.22; Wed, 28 Apr 2021 17:20:09 +0000
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::1c62:7fa3:617b:ab87]) by DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::1c62:7fa3:617b:ab87%6]) with mapi id 15.20.4065.027; Wed, 28 Apr 2021
- 17:20:09 +0000
-Date:   Wed, 28 Apr 2021 14:20:08 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Tarun Gupta <targupta@nvidia.com>
-Subject: Re: [PATCH v2 07/13] vfio/ccw: Convert to use
- vfio_register_group_dev()
-Message-ID: <20210428172008.GV1370958@nvidia.com>
-References: <0-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
- <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
- <20210428190949.4360afb7.cohuck@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210428190949.4360afb7.cohuck@redhat.com>
-X-Originating-IP: [206.223.160.26]
-X-ClientProxiedBy: CH2PR02CA0018.namprd02.prod.outlook.com
- (2603:10b6:610:4e::28) To DM6PR12MB3834.namprd12.prod.outlook.com
- (2603:10b6:5:14a::12)
+        id S230122AbhD1VES (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Apr 2021 17:04:18 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15666 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231218AbhD1VEQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Apr 2021 17:04:16 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13SL25L3153792;
+        Wed, 28 Apr 2021 17:03:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=LFvpvudi6cDDlcXBX0V6icMIFr+fBvs03XaEAwnJV7o=;
+ b=ppNbP1aP0yLbvbiJYNv5UaOgvXip5nFwsslq04kQulGTbj3y5zvwM9Gy4HRpenM8BHqf
+ dVbQSRx2Dlj69tUdQq0cVQhUxihE7PSUR62RJkk2UHKsD6dYJRzWQ1dvEUzSdd9VX/PO
+ Wb2mf0XinmQSjM0Daql1+AGrXm2vVJixB5Yyyp3CDH3jJInCuLOQ5w/r73fbBdPrdCnw
+ niLjT889ev/HK5x8jlRwpWGR4t3vTlPk+FE3HNvjPrw5IZM3uggXl5r1TZNmhalbLko7
+ XaJcbDl3TBiOJqswHvAETDVSKKIQ0C3BC9szKHLIYU30HSJHWi1w6okcczxsnhzlhO5H ng== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 387f92g0jf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Apr 2021 17:03:29 -0400
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13SL2HNa154082;
+        Wed, 28 Apr 2021 17:03:29 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 387f92g0j1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Apr 2021 17:03:29 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13SL3RVb007431;
+        Wed, 28 Apr 2021 21:03:27 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 384ay8j2kq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Apr 2021 21:03:27 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13SL2x6j34472426
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 28 Apr 2021 21:02:59 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6B1DCAE04D;
+        Wed, 28 Apr 2021 21:03:23 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0EE1BAE045;
+        Wed, 28 Apr 2021 21:03:23 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.77.184])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 28 Apr 2021 21:03:22 +0000 (GMT)
+Subject: Re: [PATCH] arch/s390/configs: Change CONFIG_VIRTIO_CONSOLE to "m"
+To:     Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Marc Hartmayer <mhartmay@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>, cohuck@redhat.com
+References: <20210428082442.321327-1-thuth@redhat.com>
+ <c015ef3f-ff88-113b-a089-e2af9202399a@de.ibm.com>
+ <6e44cc81-fe19-f75b-972f-5c4707f2410f@redhat.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <b75f0447-55d4-09b8-8f3e-d0d54471cac1@de.ibm.com>
+Date:   Wed, 28 Apr 2021 23:03:22 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.1
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (206.223.160.26) by CH2PR02CA0018.namprd02.prod.outlook.com (2603:10b6:610:4e::28) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4087.27 via Frontend Transport; Wed, 28 Apr 2021 17:20:09 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lbnr6-00E4uV-6B; Wed, 28 Apr 2021 14:20:08 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: e3db2377-3c2c-46f0-430d-08d90a69dff4
-X-MS-TrafficTypeDiagnostic: DM5PR12MB1514:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM5PR12MB1514399E56175D16D137A7C2C2409@DM5PR12MB1514.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: A6x2Qt8ouJ11/NBypgz0iyXRBb8jOXZYYAdHzQs5bp8L5tbiiAo34UWWxuewMxEQk/5OHZvVa07PofolVzsZ/weqEtGlLqAAV0dbxJrwgdW8KYqN+Ijb9M6r4ECjq188PdFSBI0Df9wYXPnFHZc+ZkKcRMJIzmhFye6/QPI0JWvdOz6wYV33IKIWv3bSJfgSvW7C3eSwnei2b6hL9EYYLAWmg+TaR1jVb78WvwsGKR+meX91fmqKfQiL2PhexcAYfvsT14BxHKajk7RrbFiReKO9scMTIHDKfSo4eLzBpfuKclf6CS8qlf0BWQyhNTJ+04dmJs0MMCz3FyBFUmgSEtZpwpywmhctqmDVbHjEnEZicuXzUqyvEcuTsWA6VMz17BFqONBPnzTz2NeD5VgNSJyilIsBIKdiilRLFMQopyCH71LYtdAfuMWYUjnS1VgURSIMXjmMBHfChfDOhPlQKJyg8D4ENZykq0mrq0DuYskTLviK1disHYxfd1yo7W1raAsP3m1nOaHeR4skXUHpdH/6acbdgO0Ui6plqw5HBnYJ1HICvdCwFHCouy6HNafw0Ds5LLhg+HuziC2DFdAFszjU/IqYQ9I8n1lrIMGk+NA=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(136003)(376002)(366004)(346002)(39860400002)(86362001)(33656002)(6916009)(54906003)(36756003)(2616005)(7416002)(316002)(66556008)(8676002)(83380400001)(426003)(66476007)(186003)(8936002)(2906002)(26005)(1076003)(107886003)(478600001)(5660300002)(38100700002)(9786002)(4326008)(9746002)(66946007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?gg07LOIdIEbFMAWtZT6Akuw/gQMcuDjMS71mhJlfoVach8tE6IxCii0XHspi?=
- =?us-ascii?Q?4XfZH/vOzMNZYISJ4Opno3IiAb8G+icQDh5I8wGAPot292Sc090xelByfgxg?=
- =?us-ascii?Q?4ZVIBWPTZeJbFZ+628CbFJv1pbgSRofXZIGgwvr1EereSb2dOVW/84S7j28T?=
- =?us-ascii?Q?oBGarln3HeiIKip1n0GNdU8KcFmQV1F3t1e3reBxMW9uMWatnckEv+mb2mu7?=
- =?us-ascii?Q?A749y1OFFMpV1v1g/Fsikd874w7CMpW0G4JBkHUwbLmdqmgQoEveWR4iZtIF?=
- =?us-ascii?Q?6VDQv+ucwWqhtN0Nu3JIXINTlfNf8ixgulZr4rLZcfbnrsPndwAQb+JShoFh?=
- =?us-ascii?Q?0Y6AXKOseXnW9g02eGBILVnsWrm+T24f7SPa6GVGar2/DZJUueIdUqXme4os?=
- =?us-ascii?Q?b8FDUlxT89D5vXfhQZjBQXHThRFo2qFi4WpnaccRxHos406kFSosz6ZVjVv1?=
- =?us-ascii?Q?Cgltd8s3s7j3qx/u1SE2p+0h3GHH158UsuS0LljRJLlRfmeOmy84vUc2KHRL?=
- =?us-ascii?Q?OZXVu0YmGWjpzQHo8UbY+nUWEnqXDT5bn6g74kWX5Uqs7T5VYTN1/Hvlu4fA?=
- =?us-ascii?Q?usfCv+Z1l/fA1IVmZFm/7npKN6xVHebtnja0pKDtc/TK7Ofhm6oW69F57lUv?=
- =?us-ascii?Q?Uc44Kvp9K1JubFXjdDYuUeezUJV07y9847NAKZhMeqrI6vDhynWvU3+hjhNH?=
- =?us-ascii?Q?YqJPQz19m3Uyq+3ngQhDTDcsx/zbXn76L3mM2Llm5e/R0Gy5gG1ckV9an/Hr?=
- =?us-ascii?Q?PiwPePosnvkwmi0/Mrhb+yQYxK7oDXRAXIe6blK5wkRStuQHl26fbaeQZHUN?=
- =?us-ascii?Q?5kxTbeSwpGNl/7SE13pjpPqfmVpZ4ed5xiqOMeh84bv9OSM9RPnBhKT9TzZl?=
- =?us-ascii?Q?jHtXD+vlPi/ebT8+R0gHTNeW2MfEtocs3o0EtCZnpt1ReNW09sTOAhwwcHfX?=
- =?us-ascii?Q?dpF8Ltkipsg4LbVN9k2UdaN/xJFybkBvOu74p/e3TpPx1hnCiSXqdwFYJUXW?=
- =?us-ascii?Q?7+d5uGVmu8Uu052MnVZkIKf1396nembxmNUp5EoD91ANrJH+11LuTGrpcIc3?=
- =?us-ascii?Q?ru5ecBrx2x652Z9V824Xe8+HGF8780OnbWuTRzbC/JmcnFIvow7oHl13iohO?=
- =?us-ascii?Q?AH4VnToxUlLHC1mvp89jLqTE3O7pChMYsuCyVYJnoflPP2TKM6rUQB7cecFz?=
- =?us-ascii?Q?2kDJSJK9JYTgv2xRqjkbNKNxwn/kAQ6e/6npjy40d3qKwhbew/klah57joA5?=
- =?us-ascii?Q?0DN9I1pYQbf6v/tsB62PrXhfcUT3tXQpP7XEQKxSBK0T0y9AhX4wbBg5Ymdm?=
- =?us-ascii?Q?o3+cY+iuzlyTd1caHWd+6T1K?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e3db2377-3c2c-46f0-430d-08d90a69dff4
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Apr 2021 17:20:09.7645
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: sS4sNKX9UQBd+Jym3mEIhG74rwLcFMB31huLyASvQjHYoxOJOSwyelzdpInsxCU2
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1514
+In-Reply-To: <6e44cc81-fe19-f75b-972f-5c4707f2410f@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: QNP59KlRt9igWLM2dHCx1bg1I6Dp0_d8
+X-Proofpoint-ORIG-GUID: kV9X_M9nncp7xe9HpMK5wN6i2wB46icx
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-28_16:2021-04-28,2021-04-28 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ clxscore=1015 impostorscore=0 mlxscore=0 priorityscore=1501
+ lowpriorityscore=0 spamscore=0 suspectscore=0 mlxlogscore=999 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104280133
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Apr 28, 2021 at 07:09:49PM +0200, Cornelia Huck wrote:
-> On Mon, 26 Apr 2021 17:00:09 -0300
-> Jason Gunthorpe <jgg@nvidia.com> wrote:
+
+
+On 28.04.21 11:30, Thomas Huth wrote:
+> On 28/04/2021 10.31, Christian Borntraeger wrote:
+>> On 28.04.21 10:24, Thomas Huth wrote:
+>>> In former times, the virtio-console code had to be compiled into
+>>> the kernel since the old guest virtio transport had some hard de-
+>>> pendencies. But since the old virtio transport has been removed in
+>>> commit 7fb2b2d51244 ("s390/virtio: remove the old KVM virtio transport"),
+>>> we do not have this limitation anymore.
+>>> Commit bb533ec8bacd ("s390/config: do not select VIRTIO_CONSOLE via
+>>> Kconfig") then also lifted the hard setting in the Kconfig system, so
+>>> we can finally switch the CONFIG_VIRTIO_CONSOLE knob to compile this
+>>> driver as a module now, making it more flexible for the user to only
+>>> load it if it is really required.
+>>
+>> Isnt that a distro specific decision? I would be perfectly fine to have
+>> this change in Fedora, Redhat and co.
 > 
-> > This is more complicated because vfio_ccw is sharing the vfio_device
-> > between both the mdev_device and its vfio_device and the css_driver.
-> > 
-> > The mdev is a singleton, and the reason for this sharing appears to be to
-> > allow the extra css_driver function callbacks to be delivered to the
-> > vfio_device.
-> > 
-> > This keeps things as they were, with the css_driver allocating the
-> > singleton, not the mdev_driver, this is pretty confusing. I'm also
-> > uncertain how the lifetime model for the mdev works in the css_driver
-> > callbacks.
-> > 
-> > At this point embed the vfio_device in the vfio_ccw_private and
-> > instantiate it as a vfio_device when the mdev probes. The drvdata of both
-> > the css_device and the mdev_device point at the private, and container_of
-> > is used to get it back from the vfio_device.
+> Sure, I'll try to get it changed there, too.
 > 
-> I've been staring at this for some time, and I'm not sure whether this
-> is a good approach.
+>> Not so sure about defconfig.
+>> We often use the defconfig in our CI and development things to have a
+>> kernel config that boots up fine, even without a ramdisk. I agree that
+>> virtio console is no longer really the most important console but does
+>> it really hurt?
 > 
-> We allow at most one mdev per subchannel (slicing it up does not make
-> sense), so we can be sure that there's a 1:1 relationship between mdev
-> and parent device, and we can track it via a single pointer.
+> Well, it's about a default configuration that should be fine for most users. I don't think that anybody really uses virtio-console in a ramdisk already ... or are you really doing that in your CI? If so, then please disregard my patch.
 
-This seems like one of these cases where using the mdev GUID API was not a
-great fit. The ccs_driver should have just directly created a
-vfio_device and not gone into the mdev guid lifecycle world.
-
-> The vfio_ccw_private driver data is allocated during probe (same as for
-> other css_drivers.) Embedding a vfio_device here means that we have a
-> structure tied into it that is operating with different lifetime rules.
-> 
-> What about creating a second structure instead that can embed the
-> vfio_device, is allocated during mdev probing, and is linked up with
-> the vfio_ccw_private structure? That would follow the pattern of other
-> drivers more closely.
-
-IIRC we still end up with pointers crossing between the two
-structs. If you can't convince yourself that is correct (and I could
-not) then it is already buggy today.
-
-It is as I said to Eric, either there is no concurrency when there is
-no mdev and everything is correct today, or there is concurrency and
-it seems buggy today too.
-
-The right answer it to move the allocations out of the css_driver
-probe and put them only in the mdev driver probe because they can only
-make sense when the mdev driver is instantiated. Then everything is
-clear and very understandable how it should work.
-
-I almost did this, but couldn't figure out how the lifetime of the
-ccs_driver callbacks are working relative to the lifetime of the mdev
-device since they also reach into these structs. Maybe they can't be
-called for some css related reason?
-
-Jason
+I think anybody uses the sclp console nowadays. The only question is, do
+we care about manual configs with virtio-console?
