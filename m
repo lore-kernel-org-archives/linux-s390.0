@@ -2,152 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE225C433ED
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 08:59:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9788C433B4
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 09:04:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BD07760FE8
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 08:59:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 934A66141F
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 09:04:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237400AbhD1I7t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Apr 2021 04:59:49 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15922 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236343AbhD1I7s (ORCPT
+        id S237533AbhD1JFY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Apr 2021 05:05:24 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:22573 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237400AbhD1JFX (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Apr 2021 04:59:48 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13S8WgX0004375;
-        Wed, 28 Apr 2021 04:58:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : from : to : cc
- : references : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=qKJo56W40shQp00TJMUiLJPvrl8LOCI1UuUyYNkoafM=;
- b=EVG4msQyy0oMQRklyqyCGrAGcEhmVxLDyfLEwdhVayc2zhWc6SEs/AqfUs1Ww2Pljyii
- Ycys05Ni8MdD+LI2d0NJRx8Nr1x+X9XaX1wz8trKfN7sQCiR9RNWPlIkYjuIiGSkhMk+
- +9ob08yD8iPdgthEdNTUr78usNcaTssA0Do+0QKo9bF8b/jISGfIjDQSc/82Z9c1s7Vo
- nzrQMmAag/XmwSxG9KgmMoDquzrF9g48JcvrCT/R2QRIKfkMXVv+OdYyI2pmOsYkQWhr
- dPFNMudKkkfN0InXpMyrG6PZ5pOhivKw/IEvZxPcs3M3KhcnN78VueyehYdmm6EsDHBR nw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3871tc4u3d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Apr 2021 04:58:37 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13S8XucJ014303;
-        Wed, 28 Apr 2021 04:58:36 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3871tc4u24-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Apr 2021 04:58:36 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13S8vbsg022593;
-        Wed, 28 Apr 2021 08:58:34 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 384akh9s0r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Apr 2021 08:58:33 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13S8wVOo31785460
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Apr 2021 08:58:31 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0794DA405B;
-        Wed, 28 Apr 2021 08:58:31 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 258EAA4054;
-        Wed, 28 Apr 2021 08:58:30 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.77.184])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 28 Apr 2021 08:58:30 +0000 (GMT)
-Subject: Re: sched: Move SCHED_DEBUG sysctl to debugfs
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     bristot@redhat.com, bsegall@google.com, dietmar.eggemann@arm.com,
-        greg@kroah.com, gregkh@linuxfoundation.org, joshdon@google.com,
-        juri.lelli@redhat.com, linux-kernel@vger.kernel.org,
-        linux@rasmusvillemoes.dk, mgorman@suse.de, mingo@kernel.org,
-        rostedt@goodmis.org, valentin.schneider@arm.com,
-        vincent.guittot@linaro.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-References: <20210412102001.287610138@infradead.org>
- <20210427145925.5246-1-borntraeger@de.ibm.com>
- <YIkgzUWEPaXQTCOv@hirez.programming.kicks-ass.net>
- <cf2a6c6c-21ea-df7b-94d1-940a344b8d26@de.ibm.com>
-Message-ID: <49af1ed4-26b1-071e-365e-f701edb0eaa7@de.ibm.com>
-Date:   Wed, 28 Apr 2021 10:58:24 +0200
+        Wed, 28 Apr 2021 05:05:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619600678;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Zy/Tt/0rdk34PfJBg6ggCnjTL4icF91iTv6QpcHj3wY=;
+        b=FTTP1+tDphGRKReR7h7duMj6r6aBJ5qhooEoWGwz0PzgzKEkBQtwHW5KZgdaVUlZ4IONvJ
+        i+qQ8Rr1F74T66KQlB9ifk5tuDvfXYpxOSurVIp2I6Q8TqkdF8e4ghrMZtX/SOZ4TaQbNn
+        vIdo1p/vYztw20g1CavFQ59ameO2iCo=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-311-EJgBZe_VOMWaPBWzcZl9ag-1; Wed, 28 Apr 2021 05:04:36 -0400
+X-MC-Unique: EJgBZe_VOMWaPBWzcZl9ag-1
+Received: by mail-wm1-f69.google.com with SMTP id n9-20020a1c40090000b02901401bf40f9dso3561330wma.0
+        for <linux-s390@vger.kernel.org>; Wed, 28 Apr 2021 02:04:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:references:from:organization:subject
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=Zy/Tt/0rdk34PfJBg6ggCnjTL4icF91iTv6QpcHj3wY=;
+        b=BMFGneAPlSjWT8zdrzG3Ckz+b6UZDBYUiVWdfxBLt/tEkXovt09wDST4ZY25Hx8ZfQ
+         4m7o6+f3Q8AJpjbxamjs3CPuNncJA7Jlb64Z7VpDZY1yEdie57p1Erfz0EDKx/Nnjh9Y
+         jxo5YBQxJszeUSzhaI3HXyPbZXEawsaDRw2Hv2F1rIRK9JEOkpr7VAJb2bDUvmf4vKRR
+         Iu1YYsBtuylHKnnje0c0ImMagSgbHmGJvvcLFrAslsdjzvYNPjwITPiy7t+8oYb38QnG
+         oVq0AAUOzfHM2yl+7CPm6V9S8VNcgr7qAYTsD1HJa6xRRGr0S/yySpkC97mSli0jb5qG
+         zWHg==
+X-Gm-Message-State: AOAM533u9i0o0L0n3gZE6hNA8qLPtOYBmwzx6RbRm85AHKOjw9rAFWNv
+        RyfUovYf6cdMHh6TeGr2CTiDE+pnZ8u1T2v7XZ3DkkWPWC/CcsTcUOyATsYnl3xBFMZRWvPk4Y3
+        k0FNvFM1a41esMnZ0uMUnFA==
+X-Received: by 2002:a05:600c:20c:: with SMTP id 12mr3192326wmi.138.1619600675594;
+        Wed, 28 Apr 2021 02:04:35 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxyHQN1kXxwPITyG57p5yBf6PwQPqB7SzwurYnctESLQPRWN6ybBTj8o2+iODN0NtgGzZQI8g==
+X-Received: by 2002:a05:600c:20c:: with SMTP id 12mr3192278wmi.138.1619600675202;
+        Wed, 28 Apr 2021 02:04:35 -0700 (PDT)
+Received: from ?IPv6:2003:d8:2f38:2400:62f4:c5fa:ba13:ac32? (p200300d82f38240062f4c5faba13ac32.dip0.t-ipconnect.de. [2003:d8:2f38:2400:62f4:c5fa:ba13:ac32])
+        by smtp.gmail.com with ESMTPSA id f24sm5734617wmb.32.2021.04.28.02.04.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 28 Apr 2021 02:04:34 -0700 (PDT)
+To:     "lipeifeng@oppo.com" <lipeifeng@oppo.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        peifengl55 <peifengl55@gmail.com>,
+        schwidefsky <schwidefsky@de.ibm.com>,
+        "heiko.carstens" <heiko.carstens@de.ibm.com>,
+        zhangshiming <zhangshiming@oppo.com>,
+        zhouhuacai <zhouhuacai@oppo.com>,
+        guoweichao <guoweichao@oppo.com>, guojian <guojian@oppo.com>
+Cc:     linux-s390 <linux-s390@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>
+References: <20210414023803.937-1-lipeifeng@oppo.com>
+ <a7bb16c0-31b2-6aa5-2186-8c957955649e@suse.cz>
+ <c289b9dc-1259-c829-8ee4-1bee94d7d73d@redhat.com>
+ <2021042611194631963076@oppo.com>
+ <7dcc87f5-9ae5-613a-0cf4-820334592b90@redhat.com>
+ <20210426181947189100132@oppo.com>
+ <9808e36a-9e4e-d1e2-da49-beb567681a8b@redhat.com>
+ <2021042812031720737751@oppo.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [RFC] mm: support multi_freearea to the reduction of external
+ fragmentation
+Message-ID: <ebc8310e-05ea-0a2a-bcdd-9072e5bf0f86@redhat.com>
+Date:   Wed, 28 Apr 2021 11:04:34 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <cf2a6c6c-21ea-df7b-94d1-940a344b8d26@de.ibm.com>
+In-Reply-To: <2021042812031720737751@oppo.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: E0iWOp_TzVfk6sbhp_bBZP4Aub___Fe8
-X-Proofpoint-ORIG-GUID: pfPkjigkQPyf-rjhr3fzYERBEs9-9qHU
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-28_03:2021-04-27,2021-04-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
- clxscore=1015 suspectscore=0 spamscore=0 impostorscore=0 phishscore=0
- mlxlogscore=999 malwarescore=0 lowpriorityscore=0 priorityscore=1501
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2104280057
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+>  >> Essentially CONFIG_SPARSEMEM, whereby we can have huge holes in physical
+>  >> memory layout and memory areas coming/going with memory hot(un)plug.
+>  >> Usually we manage all metadata per section. For example, pageblocks are
+>  >> allocated per section. We avoid arrays that depend on the
+>  >> initial/maximum physical memory size.
+> 
+> CONFIG_SPRSEMEM has been opened in some of our product with 
+> Qcom-platform and
+> MTK platform. AFAIK, multi_freearea would not bring problem to 
+> it？because the patch
+> just manage the physical memory of zone to serveral section(free_area) 
+> and adjust the
+> the range of pages-PFN for buddy-alloc-pages by the alloction-order. 
+> With memory
+> hot(un)plug, we would initialize the members of "multi_freearea" in zone.
 
+ From your description only I cannot tell how that would really work. 
+Your description of 1) indicated that we are dealing with an array to 
+manage memory segments, and arrays are a bad data structure when it 
+comes to sparsity.
 
-On 28.04.21 10:54, Christian Borntraeger wrote:
 > 
-> 
-> On 28.04.21 10:46, Peter Zijlstra wrote:
->> On Tue, Apr 27, 2021 at 04:59:25PM +0200, Christian Borntraeger wrote:
->>> Peter,
->>>
->>> I just realized that we moved away sysctl tunabled to debugfs in next.
->>> We have seen several cases where it was benefitial to set
->>> sched_migration_cost_ns to a lower value. For example with KVM I can
->>> easily get 50% more transactions with 50000 instead of 500000.
->>> Until now it was possible to use tuned or /etc/sysctl.conf to set
->>> these things permanently.
->>>
->>> Given that some people do not want to have debugfs mounted all the time
->>> I would consider this a regression. The sysctl tunable was always
->>> available.
->>>
->>> I am ok with the "informational" things being in debugfs, but not
->>> the tunables. So how do we proceed here?
->>
->> It's all SCHED_DEBUG; IOW you're relying on DEBUG infrastructure for
->> production performance, and that's your fail.
-> 
-> No its not. sched_migration_cost_ns was NEVER protected by CONFIG_SCHED_DEBUG.
-> It was available on all kernels with CONFIG_SMP.
+> The patch has been merged in the baseline of our product that has been 
+> sold all over the
+> world with Linux-4.4/4.9/4.19 so that i don't think there will be too 
+> much risk. Of course,
+> i might be wrong.
 
-Have to correct myself, it was SCHED_DEBUG in 3.0.
-> 
->>
->> I very explicitly do not care to support people that poke random values
->> into those 'tunables'. If people wants to do that, they get to keep any
->> and all pieces.
->>
->> The right thing to do here is to analyze the situation and determine why
->> migration_cost needs changing; is that an architectural thing, does s390
->> benefit from less sticky tasks due to its cache setup (the book caches
->> could be absorbing some of the penalties here for example). Or is it
->> something that's workload related, does KVM intrinsically not care about
->> migrating so much, or is it something else.
->>
->> Basically, you get to figure out what the actual performance issue is,
->> and then we can look at what to do about it so that everyone benefits,
->> and not grow some random tweaks on the interweb that might or might not
->> actually work for someone else.
-> 
-> Yes, I agree. We have seen the effect of this value recently and we want
-> look into that. Still that does not change the fact that you are removing
-> an interface that was there for ages.
+Just always keep in mind that upstream Linux has a very broad community. 
+What might be "good enough" for smartphones might not be well suited for 
+servers, VMs, embedded devices, other archs ... just imagine the RAM 
+size differences, sparse layout, dynamic memory changes, ...
+
+Adding additional complexity to the buddy has to have a compelling 
+benefit; keep in mind that any complexity we introduce has to be 
+maintained in the long term.
+
+Having that said, starting with small steps is IMHO the right approach.
+
+-- 
+Thanks,
+
+David / dhildenb
+
