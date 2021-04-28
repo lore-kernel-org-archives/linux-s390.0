@@ -2,90 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E32DC433ED
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 15:49:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 558C6C433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 16:13:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E5EB6610FA
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 15:49:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 16D1061420
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Apr 2021 16:13:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236041AbhD1Pt6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Apr 2021 11:49:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51646 "EHLO
+        id S240121AbhD1QOV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Apr 2021 12:14:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241243AbhD1Ptk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Apr 2021 11:49:40 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 642E6C061573
-        for <linux-s390@vger.kernel.org>; Wed, 28 Apr 2021 08:48:53 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id y32so45012148pga.11
-        for <linux-s390@vger.kernel.org>; Wed, 28 Apr 2021 08:48:53 -0700 (PDT)
+        with ESMTP id S240442AbhD1QOP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Apr 2021 12:14:15 -0400
+Received: from valentin-vidic.from.hr (valentin-vidic.from.hr [IPv6:2001:470:1f0b:3b7::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03CE5C061573;
+        Wed, 28 Apr 2021 09:13:29 -0700 (PDT)
+X-Virus-Scanned: Debian amavisd-new at valentin-vidic.from.hr
+Received: by valentin-vidic.from.hr (Postfix, from userid 1000)
+        id 517E85C15; Wed, 28 Apr 2021 18:13:18 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=tORliflyGiTlxpgw1Xju92EFVYS+y5dZFyWLyquG+EM=;
-        b=PAlsmS21gCUe34ubxq/kYTGGg8YPYXdQ1HUnOaCiH+axMpr6gi+sk+JGiXGVtJdrGT
-         JnMijmrnJipN2jKTSMhLdsfhZ0JnkgnBuicN7UrCK1F+s2czuifgdyuQM1C74qZum1uG
-         XXWYqTg4yn5lg9wCujgMoU2YreLpiV+QzhyOxsxEhMZyPjIF3gE/7qtmpzGz49gXmmtl
-         6bGT553GXKyP7oqUMQEJTOMEFoVjcMntQtYP2dBujyfw550Df2b1xvfzbRAf31wZoBNM
-         S3HLP3bJgy6QE0eHN1KiPdwz24VWsm0mO0pv2d0k54J5GqbQvKhHh6gd+Gp4l3xtnd72
-         zzOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=tORliflyGiTlxpgw1Xju92EFVYS+y5dZFyWLyquG+EM=;
-        b=RDYeMFZRXyM2RPUP1HOUB+NTAONqnKbgfL1cz54gESQxLfDGnDsXQ7GKRxmDMhWpae
-         zSoYrdDRsViSNM6Id1+vUWxFbSBAGmuC5zn/Bcq1z5BUrG8Eh7+fgGyLfVANTtejVBfi
-         R+sOKFPLLpNiTZODUwWZt3/fviswRF9gPxTywflrcweU79/NhT08skLFjw/mHnddR+Jc
-         DmTCUJ1TxQUpdUdP6QRNf7CWlHBeGxoQXX4Y4dyojLmLQak6JG9aZzRnsFYXkQX83ARo
-         cR8/0VjMgqH0JTQ6LcFCQs7C4/7sXo/6jgy8+UhnWrLHzUiIk2sYD5q9atCCKxCR+5sA
-         mpag==
-X-Gm-Message-State: AOAM533S0mgl0KzI1oUxKEk2lJC8aDabM5qg4/XSpWTlYyyNB3I+Ja3n
-        skKiHDw5f1xR6GrtDNXEmzLVVg==
-X-Google-Smtp-Source: ABdhPJzEJ4Y/U6MqAkTlFXMn+B7exGAdQyHi3xVmOJ3pNV+7kxqLyP+Upr/X5mcNM4PQ/tfoWuShZQ==
-X-Received: by 2002:a63:b515:: with SMTP id y21mr28034069pge.253.1619624932865;
-        Wed, 28 Apr 2021 08:48:52 -0700 (PDT)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id t19sm113326pgv.75.2021.04.28.08.48.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 28 Apr 2021 08:48:52 -0700 (PDT)
-Subject: Re: [PATCH 0/1] spelling fixes
-To:     Stefan Haberland <sth@linux.ibm.com>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Bhaskar Chowdhury <unixbhaskar@gmail.com>
-References: <20210428153521.2050899-1-sth@linux.ibm.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <b11397f8-b1d2-f525-e6ac-de9826bd0c63@kernel.dk>
-Date:   Wed, 28 Apr 2021 09:48:51 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        d=valentin-vidic.from.hr; s=2020; t=1619626398;
+        bh=/lA99jJWibpe5bvPiHlWkky33Jv0Kq+2qr2RiYH1/Ys=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2CL4fRBsjojjoP9FfYt0RHIW5vde/X/hiDSzq2Haax14TiKhzqhafCu2UKWIH8qbk
+         Mu7Etn6zix1oDvT1QztIkSrRJbHpBN+VQ7hMvXWuGMMm82cWRdVlAcSVIxJobi/Fkx
+         J4oiT6ll/RSCspkvg4VaMOb9qgKzze4zDQTy0lhyI/flyTnCBHMzMrXeOQBzchAT7h
+         vn4uJat08ACxoBInk4uoL698HydQkI/DDD4byUfHf6UlbUtz47zEaQ4lLnb/t7ymBa
+         6NsJ4VDBgurd7F7LNmfdedoAn6AFX223pUDQ7aMmVkFAKJW8MhEtH+DdwddLCa/7ea
+         8kXPG130Xm6fCrPRAkfa86ERczcdMit5vVnNOYb7LwkyYFdu++LIssCiKzsw2iyaTQ
+         Kcq6Q+tpCKFo82p30V5cZBVXaDcMS6nvjeJpl7qYmRzz71hSYB2GfsJqsAH7/3cVZt
+         Bcxtr6siyjPepIYw7uQCkioDC7wTuswMhvMd0YDhCASNsJtOEygXcNqG9b/8Xeo82T
+         eiEcHPu79egTQEH+92HgWVd3ka10/5KWTkmHTGFkA8l92W3Apm2IWxyY5iS0dfieO+
+         qDo9HJ7CfQy55JNHimu5BjaNmTkgQynE3WTSgZCEVt2CuK9l8aaA5JiReoosyGc+J+
+         0Fm/GpKUjqRrTXcDZEebTJdc=
+Date:   Wed, 28 Apr 2021 18:13:18 +0200
+From:   Valentin =?utf-8?B?VmlkacSH?= <vvidic@valentin-vidic.from.hr>
+To:     Hendrik Brueckner <brueckner@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Philipp Kern <pkern@debian.org>,
+        Benjamin Zimmermann <dave@oss.volkswagen.com>,
+        debian-s390@lists.debian.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>
+Subject: Re: [PATCH v2] s390/sclp_vt220: Fix console name to match device
+Message-ID: <20210428161318.GX4672@valentin-vidic.from.hr>
+References: <20200519181654.16765-1-vvidic@valentin-vidic.from.hr>
+ <20210427194010.9330-1-vvidic@valentin-vidic.from.hr>
+ <20210428133836.GD21939@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20210428153521.2050899-1-sth@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210428133836.GD21939@linux.ibm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/28/21 9:35 AM, Stefan Haberland wrote:
-> Hi Jens,
+On Wed, Apr 28, 2021 at 03:38:36PM +0200, Hendrik Brueckner wrote:
+> It is been a while ago when working on consoles. However, consoles are
+> typically devices without having a device node associated. There is special
+> handling for /dev/console wrt. to the preferred console in the tty layer.
 > 
-> please apply the following patch that fixes the spelling of some comments.
-> Thanks!
+> A console device might be associated with a tty device but this is not a
+> requirement. For example, consider the net console that streams console
+> messages thru UDP and is not associated with a tty.
+> 
+> Because console and tty are different devices, names can also be different
+> which is, unfortunately, the case on s390.
+> 
+> Therefore my suggestion here is not derive the tty device from the name
+> of the console, but rather looking at the associated tty being reported
+> as major minor number in /proc/console.
 
-Applied, thanks.
+Yes, I see what you mean. Loading netconsole produces a line in
+/proc/consoles without the major:minor numbers:
+
+  tty0                 -WU (EC p  )    4:7
+  netcon0              -W- (E  p  )
+
+On the other hand /proc/consoles documentation seems to suggest these
+are character device names:
+https://www.kernel.org/doc/html/latest/filesystems/proc.html#proc-consoles
+
+Since sclp_vt220 seems to be the only know exception we are trying
+to solve in that direction now.
+
+If this does not work out, the alternative is as you suggested to take
+the major:minor numbers and read the char device name from the symlink:
+
+lrwxrwxrwx 1 root root 0 Apr 28 17:00 /sys/dev/char/4:7 -> ../../devices/virtual/tty/tty7
 
 -- 
-Jens Axboe
-
+Valentin
