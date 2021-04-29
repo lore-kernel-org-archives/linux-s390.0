@@ -2,193 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-21.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5C1DC433B4
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Apr 2021 18:13:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 493FFC43460
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Apr 2021 20:37:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6750061441
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Apr 2021 18:13:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2296161423
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Apr 2021 20:37:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233684AbhD2SOi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Apr 2021 14:14:38 -0400
-Received: from mail-dm6nam11on2054.outbound.protection.outlook.com ([40.107.223.54]:43585
-        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S233578AbhD2SOh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 29 Apr 2021 14:14:37 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WRSXR/kn7tA2WIb943VoDxigToX40CtMWwKJ8FlZBIeL4y2BUCVH3vzUA5vi3zQiK44k0mE4pVxoJl0Y/AbFLJEiLXBpW/hqS6aFQf1qDRv43kJBBMaEJFcSnwRQehUs33i3INBG2ZAplnRVQolm//nmp51Ws4YOKKQqqgdLDaUu37+wZkudDhsHULfK60tFx84V16X9jpn26cyReTtQAcAFH8MofCJnU/KY/sl52tQ+OtszUxNOh3mkqBkmddQt+L2WW/fFUjzEBZizAU3a3Cit3ulc77kNgI6jXQYT8BY4jTrRGe6OEgzcP6BmDU94h+pglTqqgTZenI7+FzB5Qw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3KCVSmacbaaA18cA3e0+XaUK5mPAxV0znstcPBPIdPs=;
- b=U3eQI+YCZ5lB+nM0JtoZUp79lHihn5R+TD3jJMFd9ACbzimFe+1+RQrc1nS5xpD5+rLP1dFOITM8g0xZxVYCMWSET+Hl+z8wo2823kpPoDFLQ1SWzFwdNYYqXJCuX4/dsaN2LFLXQZbE9P9C7Vp7CPeZW58dZZwHkPe+2YEQTd/+tEFSqQ0xw1Dr6IE0XL3UQm+nRoXbJRpsWUNxdJlAYyEDsxydJS/0C8KtYvForXIMq0wy3TggSp010SOR1QuS1a4N4AskPxV9Iw7Xywhuc1PpR0umrEZ7Fi1qPk9XgyqrXrwMgobFq7Maivo+psOb40acYS69oDhDuu3Lc0Svsw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3KCVSmacbaaA18cA3e0+XaUK5mPAxV0znstcPBPIdPs=;
- b=EFP4EzTJxdTPx4LUfuxZFmEriUrrc1KfiIVVrKm5s2DZes+bOhcKF52TbMFGzN/uIeTmc+PmvQ+6wCMrAbBRFT0Ekl9YLsogCOpTOW2QdzCB0g63LjeuT7wBgkNta6/3yZneT3r65Ay3tVxayFTie6gA2NSCRDrfaTU6PkM6IYIsbqdNMNvzzpYiE3m+VFHXtjh03267NrLZYJqPh4Jol6uXvs7jxvk4CMzBMMP6u/QLG09BYwnRha7V0jHmakV54y6SP7ouBXrCRvJbyHOMhYGDZ88gIcxe2L7ksjeeW2t782PO1u3gKZKbqVVrTSt9XkJ0eCL/JovNxNSyDxifVw==
-Authentication-Results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
- by DM5PR12MB1241.namprd12.prod.outlook.com (2603:10b6:3:72::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.25; Thu, 29 Apr
- 2021 18:13:49 +0000
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::1c62:7fa3:617b:ab87]) by DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::1c62:7fa3:617b:ab87%6]) with mapi id 15.20.4065.027; Thu, 29 Apr 2021
- 18:13:49 +0000
-Date:   Thu, 29 Apr 2021 15:13:47 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     Eric Farman <farman@linux.ibm.com>,
+        id S233989AbhD2Uid (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Apr 2021 16:38:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37158 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232532AbhD2Uic (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Apr 2021 16:38:32 -0400
+Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D769C06138B
+        for <linux-s390@vger.kernel.org>; Thu, 29 Apr 2021 13:37:44 -0700 (PDT)
+Received: by mail-pj1-x104a.google.com with SMTP id g11-20020a17090a578bb029015564873bf4so494306pji.7
+        for <linux-s390@vger.kernel.org>; Thu, 29 Apr 2021 13:37:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=AGPbcGDitssQwR2vRkOkuDZa9dX2kbuG1ibqn3VGykk=;
+        b=vKUaHf8Js7ssAthsBYE69zLm1fhKC668a4XSogrAS2/Dj/o0DGFMmmsqCnsDdBK3r8
+         fU72HhuLV+N91HbI4pSgh5Tv0i1PzUEBWXj5fFX67L+XU+lVL8pWWznsP0NVQAQ5lUN8
+         tnGqagWLjEKhm+kdYP0z5D1VFGd6D7c5iZaQMTCVsEY02BoS0mnuzX3PxsSzTzAH96TW
+         tg88Vd5GmUxj49R4qFOrP19khvrv7Uk7Z12xOA/41VGF6xIzWWzGX5Ujhfw/yE2w/sDo
+         5qe4eKKz4NBm3zmwuvIwm9mkX7c0VkNxwjlxlY2NlKl+E9wZZUof0MbYVFwoGUhzfAhm
+         LpEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=AGPbcGDitssQwR2vRkOkuDZa9dX2kbuG1ibqn3VGykk=;
+        b=LSqm7s7625YabyRfBVi9IEglLOFU5A9LcwuONzAmC79W9ZmxeaDWb4eyT+4Fhn2WHK
+         8lIsG9qyF+ND5ahEQol1VZVX0EDWe4K/uWmuJluiV+FIoLmbc1FG/mQhXn2o3j1oMLWX
+         JmjcVuVzj38xMCDkgCBcDL7J5gOf9jD97J4slSiJonPZ4RV9dZCdhc018tw9p030ECno
+         PUcuGxe+MO+9TWjL09Hd7BvVJuBEmsaFYMHtUjNFVJpyOEMwPkLhwxf5RzMbcxl3GV2s
+         mWEvHE51CXu2Q05PpKvaPVtGfdrRNZxn1GtOqO5X9/rvgViaZAl3vyDpxPWR9bGb1BTZ
+         D4YA==
+X-Gm-Message-State: AOAM533iY+JYoy3Ldu/Ejnzj1c4bKo/QUWQz6MioMqrxJR8Y5nJoKmQG
+        125C9LOZ6iIXZwoCH57GdROCmmiwR5CF2A7z9w==
+X-Google-Smtp-Source: ABdhPJxa1nzLFdFJjcOVu7fh1Y6W8Fs7WxRv4NSYd6yoIxBYT8+4qmIZrtv36CAWNU9/OaCLxfjmfxSFKptxvj1z1A==
+X-Received: from jgzg.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1acf])
+ (user=jingzhangos job=sendgmr) by 2002:aa7:8e0d:0:b029:214:a511:d88b with
+ SMTP id c13-20020aa78e0d0000b0290214a511d88bmr1651129pfr.2.1619728663762;
+ Thu, 29 Apr 2021 13:37:43 -0700 (PDT)
+Date:   Thu, 29 Apr 2021 20:37:36 +0000
+Message-Id: <20210429203740.1935629-1-jingzhangos@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.31.1.527.g47e6f16901-goog
+Subject: [PATCH v4 0/4] KVM statistics data fd-based binary interface
+From:   Jing Zhang <jingzhangos@google.com>
+To:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
+        LinuxMIPS <linux-mips@vger.kernel.org>,
+        KVMPPC <kvm-ppc@vger.kernel.org>,
+        LinuxS390 <linux-s390@vger.kernel.org>,
+        Linuxkselftest <linux-kselftest@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Tarun Gupta <targupta@nvidia.com>
-Subject: Re: [PATCH v2 07/13] vfio/ccw: Convert to use
- vfio_register_group_dev()
-Message-ID: <20210429181347.GA3414759@nvidia.com>
-References: <0-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
- <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
- <20210428190949.4360afb7.cohuck@redhat.com>
- <20210428172008.GV1370958@nvidia.com>
- <20210429135855.443b7a1b.cohuck@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210429135855.443b7a1b.cohuck@redhat.com>
-X-Originating-IP: [206.223.160.26]
-X-ClientProxiedBy: CH0PR03CA0266.namprd03.prod.outlook.com
- (2603:10b6:610:e5::31) To DM6PR12MB3834.namprd12.prod.outlook.com
- (2603:10b6:5:14a::12)
-MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (206.223.160.26) by CH0PR03CA0266.namprd03.prod.outlook.com (2603:10b6:610:e5::31) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4087.27 via Frontend Transport; Thu, 29 Apr 2021 18:13:48 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lcBAZ-00EQ7i-Oi; Thu, 29 Apr 2021 15:13:47 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b8db6699-962e-4422-58b2-08d90b3a8953
-X-MS-TrafficTypeDiagnostic: DM5PR12MB1241:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM5PR12MB12419B220879607F4CCAF4C8C25F9@DM5PR12MB1241.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: JSm8sKgnUxzvYerOpiaEbAadvjjGZUmNJu09tC3XIyaZE/O82wwRKG+3HVWH51RKawrW7wn3CgMeWBPQZmCfGhHan84asyjQeCcDRgNpHDvvutiD6mk8CuCqK1rEuR2owFb71nBAJ1d+IXPdOg779PAdhFitTwz+Ntu2UWnAw6OU1nI3+pyW+lg+c9h4FIBQIjlGsKWrz0gSFNfMLTJLMtad+lDIwnjssvf27Pc8o5hvDayPwRPVteifWOOOcXQCQVFUuBCsXttHXmR5d0lNcGpaDq9Y1eZ1O4nCkvIeiGKgZb2fCklky7MC342oAI5ATZVenu/NdA+/KOoZD3qsaBCOaOW/h/3u/LIPCNUeZW1TSY/f4pb/1xOcwZKRjxYbDX+goddysXDlwtMzmkgRScq6qNRknwfh1u8KbjRjz2EbfBHWbRcLKOVuaC2ylCsM5oNh5tmwUX/2J/Z4k34ZMPGuHic9buDlCX/n7hp2LzTvwAdvpLGqIuXknTarSF01PrCcI6RvN7sLdSAJMLHlfowitzQ9V4/msXALEcNkj3KQSFoh9j2yxme51DOpf78Cm5PXfE1DRSyaynvQ6XZXXJW2mBEbJeEuOulC77cAzDw=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(376002)(39840400004)(346002)(136003)(396003)(1076003)(38100700002)(36756003)(9746002)(8936002)(33656002)(316002)(66946007)(7416002)(107886003)(4326008)(66556008)(2616005)(54906003)(426003)(5660300002)(6916009)(26005)(86362001)(66476007)(478600001)(9786002)(83380400001)(2906002)(186003)(8676002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?ZS2JKK13uuqB4szSJO0R9DMI09LSNj3Qin3Hn2emba0XyaY4t5S59LNHAnp+?=
- =?us-ascii?Q?m09lkrzuKihzbPUi6icFZngqbKCb9a2OR6bTZcWw91ZBX7dTVldUJVMmPbGl?=
- =?us-ascii?Q?nf5M82wY+0ejwT6cnZoG6bndCMgJCEXAUDtoBjMgfvZWGCjlEoPosl62/KhU?=
- =?us-ascii?Q?lxQu2Np6miIoFXm1fK/vloXpbOml8YJBWpul6Zn5ScIyFg/TmpyPgIH9ldvB?=
- =?us-ascii?Q?n4jZSbEwMq14xGJrxpKL+25txQGUbk5Zpl44eDdmuXgOe9ozrTyZSEFh6TOt?=
- =?us-ascii?Q?Rr/gtOxzIPQWd9fgSLjeXVsCtfgErzbArLH3yIC4GLnuwwAlZ7lm2azfBYkc?=
- =?us-ascii?Q?WPDLwROh6KnAoqTnX4vplO2Qr10h56BL3H7Xonjc4b3nBuvMqiT3JGb4btM/?=
- =?us-ascii?Q?xFlmKmF7U2JY0euiEStek0Wnn/0go4uS6dUjFTKIkjnzL4geP7FTxOIagBBA?=
- =?us-ascii?Q?WhxyPFiJHkm2HZpL3WaWIFgFVBFfleThbBv1zd3x7HctiDEtYtRajzPDd6c5?=
- =?us-ascii?Q?koh6rSQP2W/v9sM0aPI/j8mRuHyjHR2WhJ98wrrt8gj1LsltiOe3SvGVskS+?=
- =?us-ascii?Q?cMNW4ny7cejDwMBxaOSvH1QxtrrOijOR2/bmg6BWsFfwuQxmGdqRSaKiQcIs?=
- =?us-ascii?Q?lKLGqZnG3FH4Q4pelAeJ8jmsvio/qxg9BKO10v5Dg+8rguZ5lu8wPTRrlWL4?=
- =?us-ascii?Q?gFsWHzBx28I/t3xX7yrkA8a1sQrffUHK5w3KRVcy3xCH2Bemd1RTSUhucDBX?=
- =?us-ascii?Q?Tnv8+ryoiK5sSNRh+/J2EMWbQi7k3FQ4CstkFAaLBa+wqrnsxT5CxMnbEPG4?=
- =?us-ascii?Q?4Dapu9uMoa8+KpJf8NWX8+kcN+6G8n5X9c1QvKirkx5on+q6N7D9DPGJFT8n?=
- =?us-ascii?Q?BZaslmR4kMO35t6w8VLw6BLEQmwRo+RgluQ/H0PUWW08QJY8eTp3EOhAju15?=
- =?us-ascii?Q?ikEP1sSh0UZCFQ26Jiq62LdlbKkmLrf1mFDYNQfxwN5rn0RYoyOQhjMGcCmA?=
- =?us-ascii?Q?KV6+jqZEJlyPPHh3n8ziXdf3VnBoB2Je59i99JVgB2arOkJd0UVTHL07pZtr?=
- =?us-ascii?Q?VymiLXhuCM0zOQCfRiFdMN2YTDw5AjCe7VhRE5fTCLeKnXfnMYDgWUTV3NjQ?=
- =?us-ascii?Q?19wZo/IGQwNZ6mjG4/Q/bliKO4A4mv/4zbWJ53b/T8cuB2x4ru2N83zQmcxe?=
- =?us-ascii?Q?+cQ/OkNL52ZOk8EiFj3hriL3kYZDoL+ptekFccaDNrAReZQs4WxR4yb1H4+U?=
- =?us-ascii?Q?kgp5C1+SQhpT2+g7LeIsMjiQz2qZUnWM8iREGNukUNnyUCP+t29rtuyznGQP?=
- =?us-ascii?Q?xnqnNXESe7jxjMNJEcL8rUyX?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b8db6699-962e-4422-58b2-08d90b3a8953
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Apr 2021 18:13:49.3083
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: bqYfxNjn/hzhPx8ep+lX2DBDdQeE2MfevmWlRjgWL0YYSD8EI5w3JErVtc/GU2wG
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1241
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Cc:     Jing Zhang <jingzhangos@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Apr 29, 2021 at 01:58:55PM +0200, Cornelia Huck wrote:
+This patchset provides a file descriptor for every VM and VCPU to read
+KVM statistics data in binary format.
+It is meant to provide a lightweight, flexible, scalable and efficient
+lock-free solution for user space telemetry applications to pull the
+statistics data periodically for large scale systems. The pulling
+frequency could be as high as a few times per second.
+In this patchset, every statistics data are treated to have some
+attributes as below:
+  * architecture dependent or common
+  * VM statistics data or VCPU statistics data
+  * type: cumulative, instantaneous,
+  * unit: none for simple counter, nanosecond, microsecond,
+    millisecond, second, Byte, KiByte, MiByte, GiByte. Clock Cycles
+Since no lock/synchronization is used, the consistency between all
+the statistics data is not guaranteed. That means not all statistics
+data are read out at the exact same time, since the statistics date
+are still being updated by KVM subsystems while they are read out.
 
-> > This seems like one of these cases where using the mdev GUID API
-> > was not a great fit. The ccs_driver should have just directly
-> > created a vfio_device and not gone into the mdev guid lifecycle
-> > world.
-> 
-> I don't remember much of the discussion back then, but I don't think
-> the explicit generation of devices was the part we needed, but rather
-> some other kind of mediation -- probably iommu related, as subchannels
-> don't have that concept on their own. Anyway, too late to change now.
+---
 
-The mdev part does three significant things:
- - Provide a lifecycle model based on sysfs and the GUIDs
- - Hackily inject itself into the VFIO IOMMU code as a special case
- - Force the creation of a unique iommu group as the group FD is
-   mandatory to get the device FD.
+* v3 -> v4
+  - Rebase to kvm/queue, commit 9f242010c3b4 ("KVM: avoid "deadlock"
+    between install_new_memslots and MMU notifier")
+  - Use C-stype comments in the whole patch
+  - Fix wrong count for x86 VCPU stats descriptors
+  - Fix KVM stats data size counting and validity check in selftest
 
-This is why PASID is such a mess for mdev because it requires even
-more special hacky stuff to link up the dummy IOMMU but still operate
-within the iommu group of the parent device.
+* v2 -> v3
+  - Rebase to kvm/queue, commit edf408f5257b ("KVM: avoid "deadlock"
+    between install_new_memslots and MMU notifier")
+  - Resolve some nitpicks about format
 
-I can see an alternative arrangement using the /dev/ioasid idea that
-is a lot less hacky and does not force the mdev guid lifecycle on
-everyone that wants to create vfio_device.
+* v1 -> v2
+  - Use ARRAY_SIZE to count the number of stats descriptors
+  - Fix missing `size` field initialization in macro STATS_DESC
 
-> > I almost did this, but couldn't figure out how the lifetime of the
-> > ccs_driver callbacks are working relative to the lifetime of the mdev
-> > device since they also reach into these structs. Maybe they can't be
-> > called for some css related reason?
-> 
-> Moving allocations to the mdev driver probe makes sense, I guess. We
-> should also move enabling the subchannel to that point in time (I don't
-> remember why we enable it in the css probe function, and can't think of
-> a good reason for that; obviously needs to be paired with quiescing and
-> disabling the subchannel in the mdev driver remove function); that
-> leaves the uevent dance (which can hopefully also be removed, if some
-> discussed changes are implemented in the common I/O layer) and fencing
-> QDIO.
-> 
-> Regarding the other callbacks,
-> - vfio_ccw_sch_irq should not be invoked if the subchannel is not
->   enabled; maybe log a message before returning for !private.
-> - vfio_ccw_sch_remove should be able to return 0 for !private (nothing
->   to quiesce, if the subchannel is not enabled).
-> - vfio_ccw_sch_shutdown has nothing to do for !private (same reason.)
-> - In vfio_ccw_sch_event, we should either skip the fsm_event and the
->   state change for !private, or return 0 in that case.
-> - vfio_ccw_chp_event already checks for !private. Not sure whether we
->   should try to update some control blocks and return -ENODEV if the
->   subchannel is not operational, but it's probably not needed.
+[1] https://lore.kernel.org/kvm/20210402224359.2297157-1-jingzhangos@google.com
+[2] https://lore.kernel.org/kvm/20210415151741.1607806-1-jingzhangos@google.com
+[3] https://lore.kernel.org/kvm/20210423181727.596466-1-jingzhangos@google.com
 
-All the checks for !private need some kind of locking. The driver core
-model is that the 'struct device_driver' callbacks are all called
-under the device_lock (this prevents the driver unbinding during the
-callback). I didn't check if ccs does this or not..
+---
 
-So if we NULL drvdata under the device_lock everything can be
-quite simple here.
+Jing Zhang (4):
+  KVM: stats: Separate common stats from architecture specific ones
+  KVM: stats: Add fd-based API to read binary stats data
+  KVM: stats: Add documentation for statistics data binary interface
+  KVM: selftests: Add selftest for KVM statistics data binary interface
 
-Jason
+ Documentation/virt/kvm/api.rst                | 171 ++++++++
+ arch/arm64/include/asm/kvm_host.h             |   9 +-
+ arch/arm64/kvm/guest.c                        |  42 +-
+ arch/mips/include/asm/kvm_host.h              |   9 +-
+ arch/mips/kvm/mips.c                          |  67 ++-
+ arch/powerpc/include/asm/kvm_host.h           |   9 +-
+ arch/powerpc/kvm/book3s.c                     |  68 +++-
+ arch/powerpc/kvm/book3s_hv.c                  |  12 +-
+ arch/powerpc/kvm/book3s_pr.c                  |   2 +-
+ arch/powerpc/kvm/book3s_pr_papr.c             |   2 +-
+ arch/powerpc/kvm/booke.c                      |  63 ++-
+ arch/s390/include/asm/kvm_host.h              |   9 +-
+ arch/s390/kvm/kvm-s390.c                      | 133 +++++-
+ arch/x86/include/asm/kvm_host.h               |   9 +-
+ arch/x86/kvm/x86.c                            |  71 +++-
+ include/linux/kvm_host.h                      | 132 +++++-
+ include/linux/kvm_types.h                     |  12 +
+ include/uapi/linux/kvm.h                      |  50 +++
+ tools/testing/selftests/kvm/.gitignore        |   1 +
+ tools/testing/selftests/kvm/Makefile          |   3 +
+ .../testing/selftests/kvm/include/kvm_util.h  |   3 +
+ .../selftests/kvm/kvm_bin_form_stats.c        | 380 ++++++++++++++++++
+ tools/testing/selftests/kvm/lib/kvm_util.c    |  11 +
+ virt/kvm/kvm_main.c                           | 237 ++++++++++-
+ 24 files changed, 1415 insertions(+), 90 deletions(-)
+ create mode 100644 tools/testing/selftests/kvm/kvm_bin_form_stats.c
+
+
+base-commit: 9f242010c3b46e63bc62f08fff42cef992d3801b
+-- 
+2.31.1.527.g47e6f16901-goog
+
