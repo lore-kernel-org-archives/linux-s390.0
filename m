@@ -2,99 +2,155 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9D03C433ED
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 12:07:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 658B5C433ED
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 12:31:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 760D86147D
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 12:07:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 320F16142A
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 12:31:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230394AbhD3MIL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Apr 2021 08:08:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36930 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229911AbhD3MIL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 30 Apr 2021 08:08:11 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S232014AbhD3Mck (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Apr 2021 08:32:40 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:54022 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231984AbhD3Mck (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 30 Apr 2021 08:32:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619785911;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=yvMuorDlscxiG4i5zcw7FhUWWnKbz+SwE2UUQvhUPv0=;
+        b=RgFa77UdEAGQ6/NduN3K4wqpNfYZLFzx3mZI48Or5voGvFlJVIwYoqIpi/ECBSbn/nwwsc
+        is8sD6MDLa83oDj5MuTmd6QswR/+7Nb4R5wXfSAuJFONGwKMLc43vrnrSjWwWdVpw0MEzj
+        0qvo12rbj1qnfVT21TGoPPD4ZuWb5gk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-413-k6qVaeEHOEyiK_-rRS7uBw-1; Fri, 30 Apr 2021 08:31:49 -0400
+X-MC-Unique: k6qVaeEHOEyiK_-rRS7uBw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B66D361059;
-        Fri, 30 Apr 2021 12:07:22 +0000 (UTC)
-Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94)
-        (envelope-from <maz@kernel.org>)
-        id 1lcRvU-00ABa7-Gh; Fri, 30 Apr 2021 13:07:20 +0100
-Date:   Fri, 30 Apr 2021 13:07:19 +0100
-Message-ID: <87bl9wnfgo.wl-maz@kernel.org>
-From:   Marc Zyngier <maz@kernel.org>
-To:     Jing Zhang <jingzhangos@google.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CD4E51008060;
+        Fri, 30 Apr 2021 12:31:46 +0000 (UTC)
+Received: from gondolin.fritz.box (ovpn-113-220.ams2.redhat.com [10.36.113.220])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 538C370580;
+        Fri, 30 Apr 2021 12:31:43 +0000 (UTC)
+Date:   Fri, 30 Apr 2021 14:31:40 +0200
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Eric Farman <farman@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Subject: Re: [PATCH v4 1/4] KVM: stats: Separate common stats from architecture specific ones
-In-Reply-To: <20210429203740.1935629-2-jingzhangos@google.com>
-References: <20210429203740.1935629-1-jingzhangos@google.com>
-        <20210429203740.1935629-2-jingzhangos@google.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
- (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Tarun Gupta <targupta@nvidia.com>
+Subject: Re: [PATCH v2 07/13] vfio/ccw: Convert to use
+ vfio_register_group_dev()
+Message-ID: <20210430143140.378904bf.cohuck@redhat.com>
+In-Reply-To: <20210429181347.GA3414759@nvidia.com>
+References: <0-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
+        <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
+        <20210428190949.4360afb7.cohuck@redhat.com>
+        <20210428172008.GV1370958@nvidia.com>
+        <20210429135855.443b7a1b.cohuck@redhat.com>
+        <20210429181347.GA3414759@nvidia.com>
+Organization: Red Hat GmbH
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 62.31.163.78
-X-SA-Exim-Rcpt-To: jingzhangos@google.com, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, pbonzini@redhat.com, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, will@kernel.org, chenhuacai@kernel.org, aleksandar.qemu.devel@gmail.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, seanjc@google.com, vkuznets@redhat.com, jmattson@google.com, pshier@google.com, oupton@google.com, rientjes@google.com, eesposit@redhat.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 29 Apr 2021 21:37:37 +0100,
-Jing Zhang <jingzhangos@google.com> wrote:
+On Thu, 29 Apr 2021 15:13:47 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-> +struct kvm_vm_stat_common {
-> +	ulong remote_tlb_flush;
-> +};
-> +
-> +struct kvm_vcpu_stat_common {
-> +	u64 halt_successful_poll;
-> +	u64 halt_attempted_poll;
-> +	u64 halt_poll_invalid;
-> +	u64 halt_wakeup;
-> +	u64 halt_poll_success_ns;
-> +	u64 halt_poll_fail_ns;
-> +};
+> On Thu, Apr 29, 2021 at 01:58:55PM +0200, Cornelia Huck wrote:
+> 
+> > > This seems like one of these cases where using the mdev GUID API
+> > > was not a great fit. The ccs_driver should have just directly
+> > > created a vfio_device and not gone into the mdev guid lifecycle
+> > > world.  
+> > 
+> > I don't remember much of the discussion back then, but I don't think
+> > the explicit generation of devices was the part we needed, but rather
+> > some other kind of mediation -- probably iommu related, as subchannels
+> > don't have that concept on their own. Anyway, too late to change now.  
+> 
+> The mdev part does three significant things:
+>  - Provide a lifecycle model based on sysfs and the GUIDs
+>  - Hackily inject itself into the VFIO IOMMU code as a special case
+>  - Force the creation of a unique iommu group as the group FD is
+>    mandatory to get the device FD.
+> 
+> This is why PASID is such a mess for mdev because it requires even
+> more special hacky stuff to link up the dummy IOMMU but still operate
+> within the iommu group of the parent device.
+> 
+> I can see an alternative arrangement using the /dev/ioasid idea that
+> is a lot less hacky and does not force the mdev guid lifecycle on
+> everyone that wants to create vfio_device.
 
-Why can't we make everything a u64? Is there anything that really
-needs to be a ulong? On most architectures, they are the same anyway,
-so we might as well bite the bullet.
+I have not followed that discussion -- do you have a summary or a
+pointer?
 
-	M.
+> 
+> > > I almost did this, but couldn't figure out how the lifetime of the
+> > > ccs_driver callbacks are working relative to the lifetime of the mdev
+> > > device since they also reach into these structs. Maybe they can't be
+> > > called for some css related reason?  
+> > 
+> > Moving allocations to the mdev driver probe makes sense, I guess. We
+> > should also move enabling the subchannel to that point in time (I don't
+> > remember why we enable it in the css probe function, and can't think of
+> > a good reason for that; obviously needs to be paired with quiescing and
+> > disabling the subchannel in the mdev driver remove function); that
+> > leaves the uevent dance (which can hopefully also be removed, if some
+> > discussed changes are implemented in the common I/O layer) and fencing
+> > QDIO.
+> > 
+> > Regarding the other callbacks,
+> > - vfio_ccw_sch_irq should not be invoked if the subchannel is not
+> >   enabled; maybe log a message before returning for !private.
+> > - vfio_ccw_sch_remove should be able to return 0 for !private (nothing
+> >   to quiesce, if the subchannel is not enabled).
+> > - vfio_ccw_sch_shutdown has nothing to do for !private (same reason.)
+> > - In vfio_ccw_sch_event, we should either skip the fsm_event and the
+> >   state change for !private, or return 0 in that case.
+> > - vfio_ccw_chp_event already checks for !private. Not sure whether we
+> >   should try to update some control blocks and return -ENODEV if the
+> >   subchannel is not operational, but it's probably not needed.  
+> 
+> All the checks for !private need some kind of locking. The driver core
+> model is that the 'struct device_driver' callbacks are all called
+> under the device_lock (this prevents the driver unbinding during the
+> callback). I didn't check if ccs does this or not..
 
--- 
-Without deviation from the norm, progress is not possible.
+probe/remove/shutdown are basically a forward of the callbacks at the
+bus level. The css bus should make sure that we serialize
+irq/sch_event/chp_event with probe/remove.
+
+> 
+> So if we NULL drvdata under the device_lock everything can be
+> quite simple here.
+> 
+> Jason
+> 
+
