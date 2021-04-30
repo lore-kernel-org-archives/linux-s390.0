@@ -2,211 +2,562 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C166C433ED
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 17:19:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B054C433B4
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 17:35:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 56DBA613F7
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 17:19:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D251161462
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 17:35:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230093AbhD3RUA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Apr 2021 13:20:00 -0400
-Received: from mail-mw2nam12on2077.outbound.protection.outlook.com ([40.107.244.77]:49504
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229990AbhD3RT7 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 30 Apr 2021 13:19:59 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=F4JEcp1QpuljSC8cm9f/Hbd6Ucesa7BLGFvh7NS+XXY6uw8tyz6WtCs1eNrxMaJfI5j/1CjEZ0NmcTPOt2ZRP9p2VggsCQEbndK/WluAriktLz6+zL1tlBTadkvwucoKkXgEUUhNR12rtLq1EA9AkNzBGvaw7iRYB0fXZIEgPmVgsy+wDuXXdTJ+53BhIixVN51wwD7pJSwW9uiw3c9QfzYgcx517gFIcGr+/ZyzSm55fEbQSwWchku17WDLbudPalynlum2lHfcGnj/+SNng6mAzPj2W0ssnVQ0yr2CZuVwpRvGjvOD0NkCEXsMhs+jlBhxe78Q0UbgVPf2bEWqnA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Lfwm/swUR44PMw1uX9MaPu2Q19UWNQycB2g8tznkQ80=;
- b=n/820dLKCGcj79iaOKcDBqMzRQB78W1TYzibTdY/Fh02OV9YnEFDoo3Rqig7riFktxlY+T8TKL02UL/xjX8dI/cdXAviSKZd/r9sVsiPTb1SuYioBWVRLXETNCrYq+IgItWJtTQocr80l6LvYA3QknyY9fGNqbV/KlLUie2E/SvEWgWPOrqZL2dn53Ct4H8DUOZejU/RqyfgaeYsqYeKOXR7jDdkvZEuM3TI7RR+b/fxjV/SN3iPFGGMXbcPWFATzK04sWXGPDg6tSIRNERuBKdDIHkX7IsQA9ccMfl7oNA4trXB+1/zRvlABsRL28NQP47gIidEKBVJ7D/NLLDBLQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Lfwm/swUR44PMw1uX9MaPu2Q19UWNQycB2g8tznkQ80=;
- b=fouJOIGh2XiGn8dE7YhUIHu022pTP+NQ+//oGmTdw/yV4aPS9sxWMD4ytjjmma4TGviSOyGTWwtPDJO/g1Td2F37tFmfplW+VW8ZmDzcVlm72SB4uYc0tfynlXXrLOL0tW0t9lwrDSwy4Z2XxFuu4L3+npQMsRjYdH1LvhZ055BPdXioGW2l0LqQvmbwPNWB2L9VUY8mDbEH6NRi+lGlYETuqxSAw05dGO5BgP8r4WEQhBigWW8x16G30x+6yriixzkDXSE1XWRdJ2fzn5IN3ivyhr5qiG+dIolTdMnon7jlhGlgwYA/+JBxTKmOif06DvsMAY9lAg01pm6R6pPNfg==
-Authentication-Results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
- by DM6PR12MB3929.namprd12.prod.outlook.com (2603:10b6:5:148::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.25; Fri, 30 Apr
- 2021 17:19:10 +0000
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::1c62:7fa3:617b:ab87]) by DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::1c62:7fa3:617b:ab87%6]) with mapi id 15.20.4065.027; Fri, 30 Apr 2021
- 17:19:09 +0000
-Date:   Fri, 30 Apr 2021 14:19:08 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     Eric Farman <farman@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Tarun Gupta <targupta@nvidia.com>
-Subject: Re: [PATCH v2 07/13] vfio/ccw: Convert to use
- vfio_register_group_dev()
-Message-ID: <20210430171908.GD1370958@nvidia.com>
-References: <0-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
- <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
- <20210428190949.4360afb7.cohuck@redhat.com>
- <20210428172008.GV1370958@nvidia.com>
- <20210429135855.443b7a1b.cohuck@redhat.com>
- <20210429181347.GA3414759@nvidia.com>
- <20210430143140.378904bf.cohuck@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210430143140.378904bf.cohuck@redhat.com>
-X-Originating-IP: [206.223.160.26]
-X-ClientProxiedBy: CH0PR03CA0155.namprd03.prod.outlook.com
- (2603:10b6:610:ce::10) To DM6PR12MB3834.namprd12.prod.outlook.com
- (2603:10b6:5:14a::12)
+        id S231267AbhD3Rf4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Apr 2021 13:35:56 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:27759 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230475AbhD3Rfz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 30 Apr 2021 13:35:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619804106;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=080ZRzmQyMdpqhn7xyF9MpAEP0q2TUhJoOlSaWmhCKc=;
+        b=Kth0z+4Sng2+7Ob69yvK/4lL5RM5aaWyHaSNHBeYNLhB+D17gXW6d0dlF1gHSAWWYEkfoq
+        KNSGIvsMeBaz4LXW7vRXBUJVQJd1+QINA0Bsqouw8M+o9Y9ailGBTXfAexLgELOUr3eAi4
+        48e76Xp8lKiJxH7bDhfwdbl4rNeo92s=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-324-Kfe2qdBeMi-XtxnaRif7sg-1; Fri, 30 Apr 2021 13:35:04 -0400
+X-MC-Unique: Kfe2qdBeMi-XtxnaRif7sg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 48F53107ACE4;
+        Fri, 30 Apr 2021 17:35:02 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.3.128.45])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 61F3D36DE;
+        Fri, 30 Apr 2021 17:34:58 +0000 (UTC)
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Linux-Audit Mailing List <linux-audit@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Steve Grubb <sgrubb@redhat.com>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Eric Paris <eparis@redhat.com>, x86@kernel.org,
+        linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+        Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v2 1/3] audit: replace magic audit syscall class numbers with macros
+Date:   Fri, 30 Apr 2021 13:29:35 -0400
+Message-Id: <7d2bafdc928676cd6c3023cfce924b97715e8559.1619729297.git.rgb@redhat.com>
+In-Reply-To: <cover.1619729297.git.rgb@redhat.com>
+References: <cover.1619729297.git.rgb@redhat.com>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (206.223.160.26) by CH0PR03CA0155.namprd03.prod.outlook.com (2603:10b6:610:ce::10) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4087.27 via Frontend Transport; Fri, 30 Apr 2021 17:19:09 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lcWnE-00F0Lk-0q; Fri, 30 Apr 2021 14:19:08 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b7f6f839-292f-4ead-05be-08d90bfc10fb
-X-MS-TrafficTypeDiagnostic: DM6PR12MB3929:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM6PR12MB39292EA0B79E5F92A63AE8BEC25E9@DM6PR12MB3929.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: v6YewbGWB9NfLAd/70yH23ZO4xpZDFibL+d9/NAuOVr4OhJVhwAzB0pkMJK3tfmaAMe+Fjh7AYiZd7aEVw7vp9RZ05f5CHoG/xQvjaGit7LOi/GYlw1No9Whc4uIPpT0nPrU1lCgiymYAYpEnMsPrR+ijPoyagMDZxJvC6TCpuEgbnXx59bmGQCYzSA6exKkZLcKCTetvMye5hY7KdVksvmRSpjDxsgEC1B0wANKTmDbSrZDtt5PLsxK0uSaVR//xBAiIg/DR1u9k7w/IpvH4DwL8h0AcYH49KkybhfRFZ5NhBL47INM+8ubA/RI4+h3G1K7wWLRZpS9JoeKh3lsHN9LyDrbTMI2p9Esa1hTPzVnlpCr+N0Ij30PTBrNlh4a9GpT2t/eHavfWyvksr+A+2DHCSD85+eOo9Bb809owlMi25QFmC6rRCnOW9FkeNI5rm25wJaq97hhNzYVT5qtjkeFE1o31SsrMqeklBM/k4O1+DBKDdENfOtzycVgfRRnmDwIFzHmANKwsTY8h+Q1u4QnDTxQ0KivT3KtO4wOO0e0UKFdohUWkYBDK3wgMSZb96GIKEEh8qvCmY89cWGxY+n8fsFpzCGkx+V3gX13hfE=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(346002)(39860400002)(136003)(396003)(366004)(9786002)(7416002)(107886003)(316002)(9746002)(83380400001)(478600001)(54906003)(86362001)(36756003)(5660300002)(8676002)(66556008)(6916009)(4326008)(2906002)(26005)(66476007)(33656002)(1076003)(8936002)(2616005)(426003)(186003)(38100700002)(66946007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?6HEAcfpBqJ1Pd/b17Mij5hlMiS2V0fl9IT9yQoZ91U2HL6Gk54J1hYhtTCIm?=
- =?us-ascii?Q?dWbGPXRQgkjeVV+0EyNeCUxIj7dXZ//y9vSpydK5OfjfifczThwGxwHLEimO?=
- =?us-ascii?Q?RSetg93LW82sRm75u3HAjdskskIHqqRJP4MIZ7OrXYM7NRCu/KvqXPKv/pyP?=
- =?us-ascii?Q?NoWMF4/DNrTdYefz+VAkhveGo8TLsXKTy8Cj/1DEk56sTRHte4OzqkayqYvB?=
- =?us-ascii?Q?h0LQpu7opYdulViKh2eEVJSJQFHnDN5y4CT0Vh58s3KN3D7ywDYUQZ+oo1h9?=
- =?us-ascii?Q?znou57FibDjKyyxhphZhuiMgE4IF+j+6VpFZ8R4NiQDlCs57H6DwX/WtBqv2?=
- =?us-ascii?Q?NGCzXnDitkFc/HplPS8mh7gzNTTEK7eB/EZGiMOd/BNMulo3AtB91YWsHQSN?=
- =?us-ascii?Q?dgOnFCuSQ77hrpjqmVzQvNP/N+OHIoDpUFm0SO0gDAFGLmhXxCOLWYaOqAmd?=
- =?us-ascii?Q?AsXz4WP7wI8dguHjIXbKNHxTbFDad6dd9E3KVtXjlkhMSFzjBQn/ZQjP4gPm?=
- =?us-ascii?Q?Pb/BCcmLzQ7ClVuvAtNmtl7N+TekFq53JoxWDkrQHfYvM5p5HoIAbITmIhKA?=
- =?us-ascii?Q?aS69807PjKM43Ygh9kCcJKsEIWRBt6kPp2UlJkctoApWlLHqR9SNKyBjvJhU?=
- =?us-ascii?Q?DdvnCv0MN8OsAZl5vgZmxbbAO+mnO7T14Lo+3ikQbJOf2mF0VPkdoIzKndb0?=
- =?us-ascii?Q?ibE0u1LMfbcE7tXT0KQz9kW7lvM/yEDws06wAu7igG+ttHoWaXYuUBEBP87O?=
- =?us-ascii?Q?tlVMAPZ1aGgU4VxiP4I5T40mWeebecW2kX6ZtyINWjktnVXCkWwIS6vwEoJ0?=
- =?us-ascii?Q?Tg3ps7Gj1G2M8Zbxckb02UCoYGFj+5TfyoOofcOzvo/kxel1m4YYyjzlR16P?=
- =?us-ascii?Q?cMGQU06KIBi2bu5eHXwLXHaZPVP733db4a4615+933tf8+ahPxAeBMc/YsDV?=
- =?us-ascii?Q?P4rlgiRpvMkpTfy3KArtHciUg8ICFdrwBopjdEQ62S/SrGwbKxzSQjGCrsmc?=
- =?us-ascii?Q?jJsSfEyxMI3+JUEkziPtbSzxdV6Lfe8FgtEddnFdgADne2ir3Zl0RxH7Ujrz?=
- =?us-ascii?Q?SHtx0Lxlfqzz/SmRXXuQI219w/zZTorwIAqfqu4d7LpElH9WoYBxrzGxZwdS?=
- =?us-ascii?Q?TAEWVMPVMvPl2f6TmaTY0OcjfsZH/8IWERA+xIYUfCtRQBS1eLBOjhWIjVy9?=
- =?us-ascii?Q?MBRCAety561m+cwEqdlOiFx85i7LhuxS++l4q/fTu3jdgoQs4QNEllZobi+P?=
- =?us-ascii?Q?tIOiNvoG7vJCiyVv+Y/v3OXI7uPApzaCrBvcMrDr1JxCKr242dBo0YggGojV?=
- =?us-ascii?Q?2HvJICZ2HLdBwgzbSbEUO3y+?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b7f6f839-292f-4ead-05be-08d90bfc10fb
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Apr 2021 17:19:09.7034
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: xxps9Fuo1N7uDP1/fWi7g1r6ZU6iowtA00U6a+k/1wYFFvjJIasjyUMAgkElJuRG
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3929
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Apr 30, 2021 at 02:31:40PM +0200, Cornelia Huck wrote:
-> On Thu, 29 Apr 2021 15:13:47 -0300
-> Jason Gunthorpe <jgg@nvidia.com> wrote:
-> 
-> > On Thu, Apr 29, 2021 at 01:58:55PM +0200, Cornelia Huck wrote:
-> > 
-> > > > This seems like one of these cases where using the mdev GUID API
-> > > > was not a great fit. The ccs_driver should have just directly
-> > > > created a vfio_device and not gone into the mdev guid lifecycle
-> > > > world.  
-> > > 
-> > > I don't remember much of the discussion back then, but I don't think
-> > > the explicit generation of devices was the part we needed, but rather
-> > > some other kind of mediation -- probably iommu related, as subchannels
-> > > don't have that concept on their own. Anyway, too late to change now.  
-> > 
-> > The mdev part does three significant things:
-> >  - Provide a lifecycle model based on sysfs and the GUIDs
-> >  - Hackily inject itself into the VFIO IOMMU code as a special case
-> >  - Force the creation of a unique iommu group as the group FD is
-> >    mandatory to get the device FD.
-> > 
-> > This is why PASID is such a mess for mdev because it requires even
-> > more special hacky stuff to link up the dummy IOMMU but still operate
-> > within the iommu group of the parent device.
-> > 
-> > I can see an alternative arrangement using the /dev/ioasid idea that
-> > is a lot less hacky and does not force the mdev guid lifecycle on
-> > everyone that wants to create vfio_device.
-> 
-> I have not followed that discussion -- do you have a summary or a
-> pointer?
+Replace the magic numbers used to indicate audit syscall classes with macros.
 
-I think it is still evolving, I'm hoping Intel can draft some RFC
-soonish
+Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+---
+ arch/alpha/kernel/audit.c          |  8 ++++----
+ arch/ia64/kernel/audit.c           |  8 ++++----
+ arch/parisc/kernel/audit.c         |  8 ++++----
+ arch/parisc/kernel/compat_audit.c  |  9 +++++----
+ arch/powerpc/kernel/audit.c        | 10 +++++-----
+ arch/powerpc/kernel/compat_audit.c | 11 ++++++-----
+ arch/s390/kernel/audit.c           | 10 +++++-----
+ arch/s390/kernel/compat_audit.c    | 11 ++++++-----
+ arch/sparc/kernel/audit.c          | 10 +++++-----
+ arch/sparc/kernel/compat_audit.c   | 11 ++++++-----
+ arch/x86/ia32/audit.c              | 11 ++++++-----
+ arch/x86/kernel/audit_64.c         |  8 ++++----
+ include/linux/audit.h              |  1 +
+ include/linux/auditscm.h           | 23 +++++++++++++++++++++++
+ kernel/auditsc.c                   | 12 ++++++------
+ lib/audit.c                        | 10 +++++-----
+ lib/compat_audit.c                 | 11 ++++++-----
+ 17 files changed, 101 insertions(+), 71 deletions(-)
+ create mode 100644 include/linux/auditscm.h
 
-Basically, I'd imagine to put the mdev driver itself directly in
-charge of how the iommu is operated. When the driver is commanded to
-connect to an ioasid (which is sort of like a VFIO container) it can
-tell drivers/iommu exactly what it wants, be it a PASID in a physical
-iommu device or a simple SW "page table" like the current mdevs use.
+diff --git a/arch/alpha/kernel/audit.c b/arch/alpha/kernel/audit.c
+index 96a9d18ff4c4..81cbd804e375 100644
+--- a/arch/alpha/kernel/audit.c
++++ b/arch/alpha/kernel/audit.c
+@@ -37,13 +37,13 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ {
+ 	switch(syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 0;
++		return AUDITSC_NATIVE;
+ 	}
+ }
+ 
+diff --git a/arch/ia64/kernel/audit.c b/arch/ia64/kernel/audit.c
+index 5192ca899fe6..dba6a74c9ab3 100644
+--- a/arch/ia64/kernel/audit.c
++++ b/arch/ia64/kernel/audit.c
+@@ -38,13 +38,13 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ {
+ 	switch(syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 0;
++		return AUDITSC_NATIVE;
+ 	}
+ }
+ 
+diff --git a/arch/parisc/kernel/audit.c b/arch/parisc/kernel/audit.c
+index 9eb47b2225d2..14244e83db75 100644
+--- a/arch/parisc/kernel/audit.c
++++ b/arch/parisc/kernel/audit.c
+@@ -47,13 +47,13 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ #endif
+ 	switch (syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 0;
++		return AUDITSC_NATIVE;
+ 	}
+ }
+ 
+diff --git a/arch/parisc/kernel/compat_audit.c b/arch/parisc/kernel/compat_audit.c
+index 20c39c9d86a9..0c181bb39f34 100644
+--- a/arch/parisc/kernel/compat_audit.c
++++ b/arch/parisc/kernel/compat_audit.c
+@@ -1,4 +1,5 @@
+ // SPDX-License-Identifier: GPL-2.0
++#include <linux/auditscm.h>
+ #include <asm/unistd.h>
+ 
+ unsigned int parisc32_dir_class[] = {
+@@ -30,12 +31,12 @@ int parisc32_classify_syscall(unsigned syscall)
+ {
+ 	switch (syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 1;
++		return AUDITSC_COMPAT;
+ 	}
+ }
+diff --git a/arch/powerpc/kernel/audit.c b/arch/powerpc/kernel/audit.c
+index a2dddd7f3d09..6eb18ef77dff 100644
+--- a/arch/powerpc/kernel/audit.c
++++ b/arch/powerpc/kernel/audit.c
+@@ -47,15 +47,15 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ #endif
+ 	switch(syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_socketcall:
+-		return 4;
++		return AUDITSC_SOCKETCALL;
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 0;
++		return AUDITSC_NATIVE;
+ 	}
+ }
+ 
+diff --git a/arch/powerpc/kernel/compat_audit.c b/arch/powerpc/kernel/compat_audit.c
+index 55c6ccda0a85..f250777f6365 100644
+--- a/arch/powerpc/kernel/compat_audit.c
++++ b/arch/powerpc/kernel/compat_audit.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #undef __powerpc64__
++#include <linux/auditscm.h>
+ #include <asm/unistd.h>
+ 
+ unsigned ppc32_dir_class[] = {
+@@ -31,14 +32,14 @@ int ppc32_classify_syscall(unsigned syscall)
+ {
+ 	switch(syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_socketcall:
+-		return 4;
++		return AUDITSC_SOCKETCALL;
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 1;
++		return AUDITSC_COMPAT;
+ 	}
+ }
+diff --git a/arch/s390/kernel/audit.c b/arch/s390/kernel/audit.c
+index d395c6c9944c..7e331e1831d4 100644
+--- a/arch/s390/kernel/audit.c
++++ b/arch/s390/kernel/audit.c
+@@ -47,15 +47,15 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ #endif
+ 	switch(syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_socketcall:
+-		return 4;
++		return AUDITSC_SOCKETCALL;
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 0;
++		return AUDITSC_NATIVE;
+ 	}
+ }
+ 
+diff --git a/arch/s390/kernel/compat_audit.c b/arch/s390/kernel/compat_audit.c
+index 444fb1f66944..b2a2ed5d605a 100644
+--- a/arch/s390/kernel/compat_audit.c
++++ b/arch/s390/kernel/compat_audit.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #undef __s390x__
++#include <linux/auditscm.h>
+ #include <asm/unistd.h>
+ #include "audit.h"
+ 
+@@ -32,14 +33,14 @@ int s390_classify_syscall(unsigned syscall)
+ {
+ 	switch(syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_socketcall:
+-		return 4;
++		return AUDITSC_SOCKETCALL;
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 1;
++		return AUDITSC_COMPAT;
+ 	}
+ }
+diff --git a/arch/sparc/kernel/audit.c b/arch/sparc/kernel/audit.c
+index a6e91bf34d48..50fab35bdaba 100644
+--- a/arch/sparc/kernel/audit.c
++++ b/arch/sparc/kernel/audit.c
+@@ -48,15 +48,15 @@ int audit_classify_syscall(int abi, unsigned int syscall)
+ #endif
+ 	switch(syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_socketcall:
+-		return 4;
++		return AUDITSC_SOCKETCALL;
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 0;
++		return AUDITSC_NATIVE;
+ 	}
+ }
+ 
+diff --git a/arch/sparc/kernel/compat_audit.c b/arch/sparc/kernel/compat_audit.c
+index 10eeb4f15b20..fdf0d70b569b 100644
+--- a/arch/sparc/kernel/compat_audit.c
++++ b/arch/sparc/kernel/compat_audit.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #define __32bit_syscall_numbers__
++#include <linux/auditscm.h>
+ #include <asm/unistd.h>
+ #include "kernel.h"
+ 
+@@ -32,14 +33,14 @@ int sparc32_classify_syscall(unsigned int syscall)
+ {
+ 	switch(syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_socketcall:
+-		return 4;
++		return AUDITSC_SOCKETCALL;
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 1;
++		return AUDITSC_COMPAT;
+ 	}
+ }
+diff --git a/arch/x86/ia32/audit.c b/arch/x86/ia32/audit.c
+index 6efe6cb3768a..d3dc8b57df81 100644
+--- a/arch/x86/ia32/audit.c
++++ b/arch/x86/ia32/audit.c
+@@ -1,4 +1,5 @@
+ // SPDX-License-Identifier: GPL-2.0
++#include <linux/auditscm.h>
+ #include <asm/unistd_32.h>
+ #include <asm/audit.h>
+ 
+@@ -31,15 +32,15 @@ int ia32_classify_syscall(unsigned syscall)
+ {
+ 	switch (syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_socketcall:
+-		return 4;
++		return AUDITSC_SOCKETCALL;
+ 	case __NR_execve:
+ 	case __NR_execveat:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 1;
++		return AUDITSC_COMPAT;
+ 	}
+ }
+diff --git a/arch/x86/kernel/audit_64.c b/arch/x86/kernel/audit_64.c
+index 83d9cad4e68b..2a6cc9c9c881 100644
+--- a/arch/x86/kernel/audit_64.c
++++ b/arch/x86/kernel/audit_64.c
+@@ -47,14 +47,14 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ #endif
+ 	switch(syscall) {
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ 	case __NR_execve:
+ 	case __NR_execveat:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 0;
++		return AUDITSC_NATIVE;
+ 	}
+ }
+ 
+diff --git a/include/linux/audit.h b/include/linux/audit.h
+index 82b7c1116a85..1137df4d4171 100644
+--- a/include/linux/audit.h
++++ b/include/linux/audit.h
+@@ -11,6 +11,7 @@
+ 
+ #include <linux/sched.h>
+ #include <linux/ptrace.h>
++#include <linux/auditscm.h> /* syscall class macros */
+ #include <uapi/linux/audit.h>
+ #include <uapi/linux/netfilter/nf_tables.h>
+ 
+diff --git a/include/linux/auditscm.h b/include/linux/auditscm.h
+new file mode 100644
+index 000000000000..1c4f0ead5931
+--- /dev/null
++++ b/include/linux/auditscm.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/* auditscm.h -- Auditing support syscall macros
++ *
++ * Copyright 2021 Red Hat Inc., Durham, North Carolina.
++ * All Rights Reserved.
++ *
++ * Author: Richard Guy Briggs <rgb@redhat.com>
++ */
++#ifndef _LINUX_AUDITSCM_H_
++#define _LINUX_AUDITSCM_H_
++
++enum auditsc_class_t {
++	AUDITSC_NATIVE = 0,
++	AUDITSC_COMPAT,
++	AUDITSC_OPEN,
++	AUDITSC_OPENAT,
++	AUDITSC_SOCKETCALL,
++	AUDITSC_EXECVE,
++
++	AUDITSC_NVALS /* count */
++};
++
++#endif
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 8bb9ac84d2fb..8807afa6e237 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -165,7 +165,7 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
+ 	n = ctx->major;
+ 
+ 	switch (audit_classify_syscall(ctx->arch, n)) {
+-	case 0:	/* native */
++	case AUDITSC_NATIVE:
+ 		if ((mask & AUDIT_PERM_WRITE) &&
+ 		     audit_match_class(AUDIT_CLASS_WRITE, n))
+ 			return 1;
+@@ -176,7 +176,7 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
+ 		     audit_match_class(AUDIT_CLASS_CHATTR, n))
+ 			return 1;
+ 		return 0;
+-	case 1: /* 32bit on biarch */
++	case AUDITSC_COMPAT: /* 32bit on biarch */
+ 		if ((mask & AUDIT_PERM_WRITE) &&
+ 		     audit_match_class(AUDIT_CLASS_WRITE_32, n))
+ 			return 1;
+@@ -187,13 +187,13 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
+ 		     audit_match_class(AUDIT_CLASS_CHATTR_32, n))
+ 			return 1;
+ 		return 0;
+-	case 2: /* open */
++	case AUDITSC_OPEN:
+ 		return mask & ACC_MODE(ctx->argv[1]);
+-	case 3: /* openat */
++	case AUDITSC_OPENAT:
+ 		return mask & ACC_MODE(ctx->argv[2]);
+-	case 4: /* socketcall */
++	case AUDITSC_SOCKETCALL:
+ 		return ((mask & AUDIT_PERM_WRITE) && ctx->argv[0] == SYS_BIND);
+-	case 5: /* execve */
++	case AUDITSC_EXECVE:
+ 		return mask & AUDIT_PERM_EXEC;
+ 	default:
+ 		return 0;
+diff --git a/lib/audit.c b/lib/audit.c
+index 5004bff928a7..3ec1a94d8d64 100644
+--- a/lib/audit.c
++++ b/lib/audit.c
+@@ -45,23 +45,23 @@ int audit_classify_syscall(int abi, unsigned syscall)
+ 	switch(syscall) {
+ #ifdef __NR_open
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ #endif
+ #ifdef __NR_openat
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ #endif
+ #ifdef __NR_socketcall
+ 	case __NR_socketcall:
+-		return 4;
++		return AUDITSC_SOCKETCALL;
+ #endif
+ #ifdef __NR_execveat
+ 	case __NR_execveat:
+ #endif
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 0;
++		return AUDITSC_NATIVE;
+ 	}
+ }
+ 
+diff --git a/lib/compat_audit.c b/lib/compat_audit.c
+index 77eabad69b4a..63125ad2edc0 100644
+--- a/lib/compat_audit.c
++++ b/lib/compat_audit.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <linux/init.h>
+ #include <linux/types.h>
++#include <linux/auditscm.h>
+ #include <asm/unistd32.h>
+ 
+ unsigned compat_dir_class[] = {
+@@ -33,19 +34,19 @@ int audit_classify_compat_syscall(int abi, unsigned syscall)
+ 	switch (syscall) {
+ #ifdef __NR_open
+ 	case __NR_open:
+-		return 2;
++		return AUDITSC_OPEN;
+ #endif
+ #ifdef __NR_openat
+ 	case __NR_openat:
+-		return 3;
++		return AUDITSC_OPENAT;
+ #endif
+ #ifdef __NR_socketcall
+ 	case __NR_socketcall:
+-		return 4;
++		return AUDITSC_SOCKETCALL;
+ #endif
+ 	case __NR_execve:
+-		return 5;
++		return AUDITSC_EXECVE;
+ 	default:
+-		return 1;
++		return AUDITSC_COMPAT;
+ 	}
+ }
+-- 
+2.27.0
 
-This would replace all the round about stuff to try and get other
-components to setup things the way they hope the mdev driver needs.
-
-> > All the checks for !private need some kind of locking. The driver core
-> > model is that the 'struct device_driver' callbacks are all called
-> > under the device_lock (this prevents the driver unbinding during the
-> > callback). I didn't check if ccs does this or not..
-> 
-> probe/remove/shutdown are basically a forward of the callbacks at the
-> bus level.
-
-These are all covered by device_lock
-
-> The css bus should make sure that we serialize
-> irq/sch_event/chp_event with probe/remove.
-
-Hum it doesn't look OK, like here:
-
-css_process_crw()
-  css_evaluate_subchannel()
-   sch = bus_find_device()
-      -- So we have a refcount on the struct device
-   css_evaluate_known_subchannel() {
-	if (sch->driver) {
-		if (sch->driver->sch_event)
-			ret = sch->driver->sch_event(sch, slow);
-   }
-
-But the above call and touches to sch->driver (which is really just
-sch->dev.driver) are unlocked and racy.
-
-I would hold the device_lock() over all touches to sch->driver outside
-of a driver core callback.
-
-Jason
