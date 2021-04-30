@@ -2,66 +2,67 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B489C43462
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 11:16:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8A1AC43470
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 11:17:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1B3B661261
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 11:16:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B2DBF6145D
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Apr 2021 11:17:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231484AbhD3LRp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Apr 2021 07:17:45 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:1336 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229849AbhD3LRo (ORCPT
+        id S231694AbhD3LRs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Apr 2021 07:17:48 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19602 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231496AbhD3LRq (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 30 Apr 2021 07:17:44 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13UB3H4M016527;
+        Fri, 30 Apr 2021 07:17:46 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13UB6Jvj157413;
         Fri, 30 Apr 2021 07:16:47 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=X7H6Thm5vVvEdOzIMF99WmtzE3yIxl5XgPZmIRQQpSM=;
- b=BNfwknSmGRvxLT33wsoOPyxeWMipoQHfo4/O8XDyHNyLU3gvh8qbW034jnOI7FEaMKx8
- w/E94NrQRqe3rrMpZldpxGgH/oq3dFrBlmhhvWULuXv5BAEUnkJumCPxyzLdeY5ed9Qy
- dkxAY+ckatHVlhtbFO+Bzr9l7DjrmzSRgWP3TeHcum2SAMJ9K/Acv1oFwc+KT0OPTfZ3
- TeDUYe7FcNbOzkZHs4jW7WR/LcqXLfIcKCUD90/+sep4DpRYIZ3nmZ6TxW6E6txtyaAy
- zrXh7kCoawUz7cjYZss189Gkqxa4tx5iDpAgngnWmpito7it3tKJRzPC0BeTaKeNUFBA 0g== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=5SsglWhGmMPmJXCcuqG+7DJk2fX9LwEDn2iiu26ZJ7o=;
+ b=XMk73+vjYvIX0cpgNDVcr20snXAORgz71V5jvR3JPGqdQUA9dKIJL/5fg2mszOyh2zwF
+ 81UJWTTTbaKCuczKlUNgWjgSif8Q5Pv16oa8fwhX0ft0LxHTw6Q8rVnD12B47vckQn6a
+ 5liT9C/knfKypSsMqqW0tRvP32cvZoJmviTftpxPm78ydwkO8ULwsKdmiXHfmBk0fts8
+ 6NNipnIvnFjkn544D3HfbUXsOZg4thFC9hQvle1ai8ZCGUZdlK1upoetpNn/8XCbhHRY
+ d91sMN/HVhUqNQAzuG+AXAE2y/CVEveFMUuDN1AwpxvU1ds2ZtjICdS/JzFWT/LJidgB 8w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 388drswy1k-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 388fyhsma6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 30 Apr 2021 07:16:47 -0400
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13UBDd8B052160;
-        Fri, 30 Apr 2021 07:16:46 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 388drswy0h-1
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 13UB6Ygb158289;
+        Fri, 30 Apr 2021 07:16:47 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 388fyhsm9m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Apr 2021 07:16:46 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13UBCsJJ010967;
-        Fri, 30 Apr 2021 11:16:44 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma01fra.de.ibm.com with ESMTP id 384ay81q8s-1
+        Fri, 30 Apr 2021 07:16:47 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 13UBETis016792;
+        Fri, 30 Apr 2021 11:16:45 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03fra.de.ibm.com with ESMTP id 384ay8sq3m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Apr 2021 11:16:44 +0000
+        Fri, 30 Apr 2021 11:16:45 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13UBGf4C45809994
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 13UBGg6444040536
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Fri, 30 Apr 2021 11:16:42 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D2843A4057;
-        Fri, 30 Apr 2021 11:16:41 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id A5267A4040;
+        Fri, 30 Apr 2021 11:16:42 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7DF82A4040;
-        Fri, 30 Apr 2021 11:16:41 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 522C9A404D;
+        Fri, 30 Apr 2021 11:16:42 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 30 Apr 2021 11:16:41 +0000 (GMT)
+        Fri, 30 Apr 2021 11:16:42 +0000 (GMT)
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
 To:     Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@synopsys.com>,
         "David S. Miller" <davem@davemloft.net>
@@ -70,82 +71,72 @@ Cc:     Nathan Chancellor <nathan@kernel.org>,
         clang-built-linux@googlegroups.com, linux-arch@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         linux-snps-arc@lists.infradead.org, sparclinux@vger.kernel.org
-Subject: [PATCH v4 0/3] asm-generic/io.h: Silence -Wnull-pointer-arithmetic warning on PCI_IOBASE
-Date:   Fri, 30 Apr 2021 13:16:38 +0200
-Message-Id: <20210430111641.1911207-1-schnelle@linux.ibm.com>
+Subject: [PATCH v4 2/3] risc-v: Use generic io.h helpers for nommu
+Date:   Fri, 30 Apr 2021 13:16:40 +0200
+Message-Id: <20210430111641.1911207-3-schnelle@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210430111641.1911207-1-schnelle@linux.ibm.com>
+References: <20210430111641.1911207-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: xRR3TU8l-97YDHOxFoi3RsZeyFN6kn-G
-X-Proofpoint-GUID: RZlDyf6cM3uzqma3gwaEolsaHKGd2vpX
+X-Proofpoint-GUID: t5jSEkAyzQg9YbKLNibhxJHyuOSn6PuM
+X-Proofpoint-ORIG-GUID: pMjuzfh22pq1b2J_gzy8Gn17zt6yrdo1
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-04-30_06:2021-04-30,2021-04-30 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- impostorscore=0 mlxscore=0 bulkscore=0 spamscore=0 malwarescore=0
- clxscore=1015 suspectscore=0 adultscore=0 priorityscore=1501
- mlxlogscore=729 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2104060000 definitions=main-2104300080
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ suspectscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0
+ phishscore=0 mlxlogscore=795 malwarescore=0 priorityscore=1501
+ adultscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104300080
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Niklas Schnelle <niklas@komani.de>
 
-Hi,
+Without MMU support PCI_IOBASE is left undefined because PCI_IO_END is
+VMEMMAP_START. Nevertheless the in*()/out*() helper macros are left
+defined with uses of PCI_IOBASE. At the moment this only compiles
+because asm-generic/io.h defines PCI_IOBASE as 0 if it is undefined and
+so at macro expansion the macro is defined. This is suprising at the
+least and leads to compilation errors when asm-generic/io.h is changed
+to leave PCI_IOBASE undefined. Instead only define the in*()/out*()
+helper macros with MMU support and fall back to the asm-generic/io.h
+helper stubs otherwise.
 
-This is version 4 of my attempt to get rid of a clang
--Wnull-pointer-arithmetic warning for the use of PCI_IOBASE in
-asm-generic/io.h. This was originally found on s390 but should apply to
-all platforms leaving PCI_IOBASE undefined while making use of the inb()
-and friends helpers from asm-generic/io.h.
+Signed-off-by: Niklas Schnelle <niklas@komani.de>
+---
+ arch/riscv/include/asm/io.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-This applies cleanly and was compile tested on top of v5.12 for the
-previously broken ARC, nds32, h8300 and risc-v architecture
-
-I did boot test this only on x86_64 and s390x the former implements
-inb() itself while the latter would emit a WARN_ONCE() but no drivers
-use inb().
-
-Thanks,
-Niklas
-
-Changes since v3:
-- Changed the subject of the last patch to better reflect the actual
-  change i.e. the addition of WARN_ONCE() to the helpers not the
-  silencing of the clang warning
-- Added asm/bug.h to asm-generic/io.h so it doesn't have to be included
-  previously by all arches to be available for the WARN_ONCE()
-- Added patch for risc-v which defines PCI_IOBASE except when compiled
-  for nommu
-
-Changes since v2:
-- Improved comment for SPARC PCI_IOBASE definition as suggested
-  by David Laight
-- Added a patch for ARC which is missing the asm/bug.h include for
-  WARN_ONCE() (kernel test robot)
-- Added ifdefs to ioport_map() and __pci_ioport_map() since apparently
-  at least test configs enable CONFIG_HAS_IOPORT_MAP even on
-  architectures which leave PCI_IOBASE unset (kernel test robot for
-  nds32 and ARC).
-
-Changes since v1:
-- Added patch to explicitly set PCI_IOBASE to 0 on sparc as suggested by
-  Arnd Bergmann
-- Instead of working around the warning with a uintptr_t PCI_IOBASE make
-  inb() and friends explicitly WARN_ONCE() and return 0xff... (Arnd
-  Bergmann)
-
-Niklas Schnelle (3):
-  sparc: explicitly set PCI_IOBASE to 0
-  risc-v: Use generic io.h helpers for nommu
-  asm-generic/io.h: warn in inb() and friends with undefined PCI_IOBASE
-
- arch/riscv/include/asm/io.h |  5 +--
- arch/sparc/include/asm/io.h |  8 +++++
- include/asm-generic/io.h    | 65 ++++++++++++++++++++++++++++++++++---
- 3 files changed, 72 insertions(+), 6 deletions(-)
-
+diff --git a/arch/riscv/include/asm/io.h b/arch/riscv/include/asm/io.h
+index c025a746a148..31a8b98c0f13 100644
+--- a/arch/riscv/include/asm/io.h
++++ b/arch/riscv/include/asm/io.h
+@@ -23,12 +23,12 @@
+ #include <asm/mmio.h>
+ 
+ /*
+- *  I/O port access constants.
++ *  I/O port access constants. Without MMU support leave PCI_IOBASE undefined
++ *  and fall back to generic stubs for I/O access routines.
+  */
+ #ifdef CONFIG_MMU
+ #define IO_SPACE_LIMIT		(PCI_IO_SIZE - 1)
+ #define PCI_IOBASE		((void __iomem *)PCI_IO_START)
+-#endif /* CONFIG_MMU */
+ 
+ /*
+  * Emulation routines for the port-mapped IO space used by some PCI drivers.
+@@ -145,6 +145,7 @@ __io_writes_outs(writes, u64, q, __io_bw(), __io_aw())
+ __io_writes_outs(outs, u64, q, __io_pbr(), __io_paw())
+ #define outsq(addr, buffer, count) __outsq((void __iomem *)addr, buffer, count)
+ #endif
++#endif /* CONFIG_MMU */
+ 
+ #include <asm-generic/io.h>
+ 
 -- 
 2.31.1
 
