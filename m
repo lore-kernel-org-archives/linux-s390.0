@@ -2,125 +2,256 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22E88C433B4
-	for <linux-s390@archiver.kernel.org>; Mon,  3 May 2021 20:38:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F27CBC433B4
+	for <linux-s390@archiver.kernel.org>; Mon,  3 May 2021 21:58:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EF38D611C9
-	for <linux-s390@archiver.kernel.org>; Mon,  3 May 2021 20:38:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB259611CD
+	for <linux-s390@archiver.kernel.org>; Mon,  3 May 2021 21:58:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229590AbhECUjo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 3 May 2021 16:39:44 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36016 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229499AbhECUjn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 May 2021 16:39:43 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 143KXKHa111462;
-        Mon, 3 May 2021 16:38:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=hrwndlR1o2NbTPjOjHlcK6hFRrHnfogOe/wIFv8415Y=;
- b=RyQRmAqEDu0B7B1ZTbQkwJUo8wbZV/DGMu4aMXN1Dh1W7LcoIhnY0/hBsALGd65FemKq
- 35UyY6nDsyZLDMgs/YXpOdiEiic90VoViZ+26+jymY+fiRm12TLkrD/msAVzfc1gnXxv
- qfy1fcjL1vbVODgAaNUfK8W4OuZlZTTsdoAStR3nzgcC1FSfK/Ay1l06hZNJUtEvI/Er
- YknVRI/WjndkqSI6jBv5+r3ghhxa5kDCPcsyrMnf+LOEsxRSOQNEvD+O8n9Ny67rEU9S
- ZJaRDZ8Ytv4Im9MTZYOK5/x4zCTOkIZo/Wos+qDXmRQDtOXjpurZJCQ2MIwqbSsJUu7I Tw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38apb6b9fq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 03 May 2021 16:38:49 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 143KXN4q111730;
-        Mon, 3 May 2021 16:38:49 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38apb6b9f5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 03 May 2021 16:38:49 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 143KYSEA005164;
-        Mon, 3 May 2021 20:38:47 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 388xm8rv5r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 03 May 2021 20:38:47 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 143KcikJ45744436
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 3 May 2021 20:38:44 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F2E46A405B;
-        Mon,  3 May 2021 20:38:43 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 88DA6A405F;
-        Mon,  3 May 2021 20:38:43 +0000 (GMT)
-Received: from osiris.fritz.box (unknown [9.171.82.165])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon,  3 May 2021 20:38:43 +0000 (GMT)
-Date:   Mon, 3 May 2021 22:38:42 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390: fix detection of vector enhancements facility 1
- vs. vector packed decimal facility
-Message-ID: <YJBfUn8ZXJw780ro@osiris.fritz.box>
-References: <20210503121244.25232-1-david@redhat.com>
+        id S229721AbhECV7P (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 3 May 2021 17:59:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37888 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229665AbhECV7P (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 May 2021 17:59:15 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1D2DC061573;
+        Mon,  3 May 2021 14:58:20 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id n25so8139664edr.5;
+        Mon, 03 May 2021 14:58:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=LLMKm/ZQSm5fL9y/P+Fadbw94OoQzyxeONFs/WIU4Ug=;
+        b=kyYD8cE5UO2LmEpD13MO9Bhs//1GxGUvwlPGPIMSNNPbV8vzgnoVCpb03Ns+9UOKJc
+         P07WaocCOk4SWFIVIw16+N35lQqcDB+0+D/FPZy72/vomdP0KfoLxixVgAh/UohamQe8
+         HCrNJWar/bkwxyTC4cT+NGT7G37zL5FnYL+WjZK/m9jPTuo9PjGH6hxth8BFM5SDPK3j
+         MJZI6tS/uSbOPv6wwPalfZFqDd4+qHQiBQNxSWGkQEDdKVBJ64s8+FZhxGuz2RMwOUzh
+         +3pqNc1GDQOXkiKdOCRYLAitTmIB6t8Xsq9VXDIGG8WMKgU/rG9iakNefsfnU8iBCDJe
+         JiGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=LLMKm/ZQSm5fL9y/P+Fadbw94OoQzyxeONFs/WIU4Ug=;
+        b=F+cvpdDA0FT9S+U3aIxbOFGf8xVRTF5Acgzd2FV+W1li02yjBS/oGMSL/4mgUvF53f
+         AHPBtKpBtcizJuR5FmEzClLKH14hcxm6eE1pDulkQN/V9m/Sa5MZmJHtgfa62mhARf55
+         PJL+UqQTl8b975urt13u35c8dPAtc58R6cJxaLaGr/Ko/9XrCBndPw7ehWZUsS2W/3dr
+         R7DWkcDW+nZHH+/69Xi5czaEAM6G/5KTIcVQiBH3SrosQ3gm9S1YVR6q5Y2iwJpff9D0
+         zSrCF0S4vP/uFbPUCdw3IGBQpXMPTUSqTtN4ngdeWER0ICy/pABZVt0mN0OS/Macqpkb
+         8PLA==
+X-Gm-Message-State: AOAM5321E/WvCF+tynU73Z++AD/QpvFoT9IH+J+4d1vI8mnOudXM/aYN
+        xbBbepIxjLQZ+I8RZ1CT20Dp0NgOgTGBKZ1R5vc=
+X-Google-Smtp-Source: ABdhPJy+5zCvRdE1afqItdM+szbgQoyqG8qSWXEah2nDsB+2CYd56f2ZtI1UoT3/5WRR2zdGcykKPiiVCI6dVCXUu+o=
+X-Received: by 2002:aa7:cc03:: with SMTP id q3mr22960892edt.366.1620079099524;
+ Mon, 03 May 2021 14:58:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210503121244.25232-1-david@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: pl7DuD7WPbILdM0XVNxzmA4cMVvGJyqo
-X-Proofpoint-GUID: hgroUldZqC8jvXrSqJhDJbKgaD1iDpde
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-03_19:2021-05-03,2021-05-03 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 spamscore=0 mlxlogscore=999 malwarescore=0 suspectscore=0
- bulkscore=0 priorityscore=1501 clxscore=1015 mlxscore=0 impostorscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2105030141
+References: <20210413212416.3273-1-shy828301@gmail.com>
+In-Reply-To: <20210413212416.3273-1-shy828301@gmail.com>
+From:   Yang Shi <shy828301@gmail.com>
+Date:   Mon, 3 May 2021 14:58:07 -0700
+Message-ID: <CAHbLzkoARSnVpi4Ty7zj6znyqpS2YdvZ6VY2CXUDuGt7-iBY+g@mail.gmail.com>
+Subject: Re: [v2 RFC PATCH 0/7] mm: thp: use generic THP migration for NUMA
+ hinting fault
+To:     Mel Gorman <mgorman@suse.de>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Zi Yan <ziy@nvidia.com>, Michal Hocko <mhocko@suse.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Hugh Dickins <hughd@google.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Linux MM <linux-mm@kvack.org>, linux-s390@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 03, 2021 at 02:12:44PM +0200, David Hildenbrand wrote:
-> The PoP documents:
-> 	134: The vector packed decimal facility is installed in the
-> 	     z/Architecture architectural mode. When bit 134 is
-> 	     one, bit 129 is also one.
-> 	135: The vector enhancements facility 1 is installed in
-> 	     the z/Architecture architectural mode. When bit 135
-> 	     is one, bit 129 is also one.
-> 
-> Looks like we confuse the vector enhancements facility 1 ("EXT") with the
-> Vector packed decimal facility ("BCD"). Let's fix the facility checks.
-> 
-> Detected while working on QEMU/tcg z14 support and only unlocking
-> the vector enhancements facility 1, but not the vector packed decimal
-> facility.
-> 
-> Fixes: 2583b848cad0 ("s390: report new vector facilities")
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Alexander Egorenkov <egorenar@linux.ibm.com>
-> Cc: Niklas Schnelle <schnelle@linux.ibm.com>
-> Cc: Janosch Frank <frankja@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  arch/s390/kernel/setup.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+Gently ping.
 
-Applied, thanks!
+I also did some tests to measure the latency of do_huge_pmd_numa_page.
+The test VM has 80 vcpus and 64G memory. The test would create 2
+processes to consume 128G memory together which would incur memory
+pressure to cause THP splits. And it also creates 80 processes to hog
+cpu, and the memory consumer processes are bound to different nodes
+periodically in order to increase NUMA faults.
+
+The below test script is used:
+
+echo 3 > /proc/sys/vm/drop_caches
+
+# Run stress-ng for 24 hours
+./stress-ng/stress-ng --vm 2 --vm-bytes 64G --timeout 24h &
+PID=$!
+
+./stress-ng/stress-ng --cpu $NR_CPUS --timeout 24h &
+
+# Wait for vm stressors forked
+sleep 5
+
+PID_1=`pgrep -P $PID | awk 'NR == 1'`
+PID_2=`pgrep -P $PID | awk 'NR == 2'`
+
+JOB1=`pgrep -P $PID_1`
+JOB2=`pgrep -P $PID_2`
+
+# Bind load jobs to different nodes periodically to force generate
+# cross node memory access
+while [ -d "/proc/$PID" ]
+do
+        taskset -apc 8 $JOB1
+        taskset -apc 8 $JOB2
+        sleep 300
+        taskset -apc 58 $JOB1
+        taskset -apc 58 $JOB2
+        sleep 300
+done
+
+With the above test the histogram of latency of do_huge_pmd_numa_page
+is as shown below. Since the number of do_huge_pmd_numa_page varies
+drastically for each run (should be due to scheduler), so I converted
+the raw number to percentage.
+
+                                     patched                        base
+@us[stress-ng]:
+[0]                                  3.57%                         0.16%
+[1]                                  55.68%                       18.36%
+[2, 4)                             10.46%                        40.44%
+[4, 8)                              7.26%                         17.82%
+[8, 16)                            21.12%                       13.41%
+[16, 32)                         1.06%                           4.27%
+[32, 64)                         0.56%                           4.07%
+[64, 128)                       0.16%                            0.35%
+[128, 256)                     < 0.1%                          < 0.1%
+[256, 512)                     < 0.1%                          < 0.1%
+[512, 1K)                       < 0.1%                          < 0.1%
+[1K, 2K)                         < 0.1%                          < 0.1%
+[2K, 4K)                         < 0.1%                          < 0.1%
+[4K, 8K)                         < 0.1%                          < 0.1%
+[8K, 16K)                       < 0.1%                          < 0.1%
+[16K, 32K)                     < 0.1%                          < 0.1%
+[32K, 64K)                     < 0.1%                          < 0.1%
+
+Per the result, patched kernel is even slightly better than the base
+kernel. I think this is because the lock contention against THP split
+is less than base kernel due to the refactor.
+
+
+To exclude the affect from THP split, I also did test w/o memory
+pressure. No obvious regression is spotted. The below is the test
+result *w/o* memory pressure.
+                                       patched
+          base
+@us[stress-ng]:
+[0]                                      7.97%
+        18.4%
+[1]                                      69.63%
+        58.24%
+[2, 4)                                  4.18%
+        2.63%
+[4, 8)                                  0.22%
+        0.17%
+[8, 16)                                1.03%
+       0.92%
+[16, 32)                              0.14%
+      < 0.1%
+[32, 64)                              < 0.1%
+      < 0.1%
+[64, 128)                            < 0.1%
+     < 0.1%
+[128, 256)                          < 0.1%
+     < 0.1%
+[256, 512)                           0.45%
+     1.19%
+[512, 1K)                            15.45%
+     17.27%
+[1K, 2K)                               < 0.1%
+       < 0.1%
+[2K, 4K)                              < 0.1%
+       < 0.1%
+[4K, 8K)                              < 0.1%
+       < 0.1%
+[8K, 16K)                             0.86%
+      0.88%
+[16K, 32K)                           < 0.1%
+     0.15%
+[32K, 64K)                           < 0.1%
+     < 0.1%
+[64K, 128K)                         < 0.1%
+    < 0.1%
+[128K, 256K)                       < 0.1%                                 < 0.1%
+
+
+On Tue, Apr 13, 2021 at 2:24 PM Yang Shi <shy828301@gmail.com> wrote:
+>
+>
+> Changelog:
+> v1 --> v2:
+>     * Adopted the suggestion from Gerald Schaefer to skip huge PMD for S390
+>       for now.
+>     * Used PageTransHuge to distinguish base page or THP instead of a new
+>       parameter for migrate_misplaced_page() per Huang Ying.
+>     * Restored PMD lazily to avoid unnecessary TLB shootdown per Huang Ying.
+>     * Skipped shared THP.
+>     * Updated counters correctly.
+>     * Rebased to linux-next (next-20210412).
+>
+> When the THP NUMA fault support was added THP migration was not supported yet.
+> So the ad hoc THP migration was implemented in NUMA fault handling.  Since v4.14
+> THP migration has been supported so it doesn't make too much sense to still keep
+> another THP migration implementation rather than using the generic migration
+> code.  It is definitely a maintenance burden to keep two THP migration
+> implementation for different code paths and it is more error prone.  Using the
+> generic THP migration implementation allows us remove the duplicate code and
+> some hacks needed by the old ad hoc implementation.
+>
+> A quick grep shows x86_64, PowerPC (book3s), ARM64 ans S390 support both THP
+> and NUMA balancing.  The most of them support THP migration except for S390.
+> Zi Yan tried to add THP migration support for S390 before but it was not
+> accepted due to the design of S390 PMD.  For the discussion, please see:
+> https://lkml.org/lkml/2018/4/27/953.
+>
+> Per the discussion with Gerald Schaefer in v1 it is acceptible to skip huge
+> PMD for S390 for now.
+>
+> I saw there were some hacks about gup from git history, but I didn't figure out
+> if they have been removed or not since I just found FOLL_NUMA code in the current
+> gup implementation and they seems useful.
+>
+> I'm trying to keep the behavior as consistent as possible between before and after.
+> But there is still some minor disparity.  For example, file THP won't
+> get migrated at all in old implementation due to the anon_vma check, but
+> the new implementation doesn't need acquire anon_vma lock anymore, so
+> file THP might get migrated.  Not sure if this behavior needs to be
+> kept.
+>
+> Patch #1 ~ #2 are preparation patches.
+> Patch #3 is the real meat.
+> Patch #4 ~ #6 keep consistent counters and behaviors with before.
+> Patch #7 skips change huge PMD to prot_none if thp migration is not supported.
+>
+> Yang Shi (7):
+>       mm: memory: add orig_pmd to struct vm_fault
+>       mm: memory: make numa_migrate_prep() non-static
+>       mm: thp: refactor NUMA fault handling
+>       mm: migrate: account THP NUMA migration counters correctly
+>       mm: migrate: don't split THP for misplaced NUMA page
+>       mm: migrate: check mapcount for THP instead of ref count
+>       mm: thp: skip make PMD PROT_NONE if THP migration is not supported
+>
+>  include/linux/huge_mm.h |   9 ++---
+>  include/linux/migrate.h |  23 -----------
+>  include/linux/mm.h      |   3 ++
+>  mm/huge_memory.c        | 156 +++++++++++++++++++++++++-----------------------------------------------
+>  mm/internal.h           |  21 ++--------
+>  mm/memory.c             |  31 +++++++--------
+>  mm/migrate.c            | 204 +++++++++++++++++++++--------------------------------------------------------------------------
+>  7 files changed, 123 insertions(+), 324 deletions(-)
+>
