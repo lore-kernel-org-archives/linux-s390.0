@@ -2,143 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7874C433ED
-	for <linux-s390@archiver.kernel.org>; Mon,  3 May 2021 20:33:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22E88C433B4
+	for <linux-s390@archiver.kernel.org>; Mon,  3 May 2021 20:38:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 775B1611C9
-	for <linux-s390@archiver.kernel.org>; Mon,  3 May 2021 20:33:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EF38D611C9
+	for <linux-s390@archiver.kernel.org>; Mon,  3 May 2021 20:38:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229594AbhECUeR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 3 May 2021 16:34:17 -0400
-Received: from mail-bn7nam10on2089.outbound.protection.outlook.com ([40.107.92.89]:27617
-        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229472AbhECUeR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 3 May 2021 16:34:17 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bHbh1eeSHM7yGp2TfS2feHKA8kduXtoE5r2OEKINdW7KI+6W77pRfuK4BZ9GcbP0W34rIYNzMYnuK3X0FDwRWF6PwqoiPSNXtmUO/WAZgQMYJf9cFNS+V4x458/r337nH77LEaYpQxM427G4OH0g7LwS5kgM906oQLbuzZCn1CrEtGFtaVFf6UcV3R5cceoaV2uRowwl48xle1G7pgrJtI2EW74gdMgehmyBI4edKTYAQvkbrqP2fhmQntzPDLlHK66XxxV+9tmQ5vgwVEorue4Eghe/XJePOOEsuGhjT3bHpdwDa2tM4WXLu+nP1Nmt4pzzhenyCN9klG189AG/pQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ehsQSA1pNBGIWVvQuf7NspQbmRUYDK9WNjY0Gfv6MqE=;
- b=BwEhMzr00Q9KgdbBDdZ02EQhI4cRNQ/gVgauUAS7Wuz2Z3n0Qm/yF2lqAJB9nkA2XKN6PmHSmYKh+ZYC3hnN4G8EB9cXOaOFRpJz2Oxc8mbLldFL7HEhCmpHeGfOYgr7phE4UwJs+m1qBgFlE+xI6ruN4a8wAuPMt/wXglL1vqg4r3mLwlMBzCL0zVRiGzWLddrNI1bEcfHmdcK8OVE5eAfo5r4GCUCkrAQ/L88eArx9aE1ohFvy77StdV2X7sOvQYYQL2o8sL82JSRM+iaEqt/zeKVLs5mK+YY5iK5NfL2rgOOhpHCA0EEa/pztyVcObTcS+DkdjPwCI8yKHVkmbw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ehsQSA1pNBGIWVvQuf7NspQbmRUYDK9WNjY0Gfv6MqE=;
- b=HvGUsJbJGtxlRCL68yaqB869PeVhqodw+pJH5APKQS18/dXbVggeDmGNSTTkCi++8wPMIYxx5dPRHV9ngUwgtuQq/IM97TKLqCfZ6Ci7s11dPzTt0IDGozdLOCA7bAPRfQrVFmQWD54L4GWJL46ZDyWnTY4UaVhl0uK8JzN63Ahpj6cYd4SAlEDVOOfTTotR/Gq24UKOMjauL3xbvgIC2ul/CZv0wDallWiCdsx1hNnqDPRt8b51v1tXygYNRe1teLzwApoD1HD4RgfOFCeDBY7jLDzAEGVR+Ekg35wmhAFDx5ZKyL1oJOu3cJIuPqjqse6MpRAkQFAtWLxPyijMbw==
-Authentication-Results: linux.ibm.com; dkim=none (message not signed)
- header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
- by DM5PR12MB1515.namprd12.prod.outlook.com (2603:10b6:4:6::9) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4087.40; Mon, 3 May 2021 20:33:21 +0000
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::ddb4:2cbb:4589:f039]) by DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::ddb4:2cbb:4589:f039%4]) with mapi id 15.20.4087.043; Mon, 3 May 2021
- 20:33:21 +0000
-Date:   Mon, 3 May 2021 17:33:19 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
+        id S229590AbhECUjo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 3 May 2021 16:39:44 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36016 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229499AbhECUjn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 May 2021 16:39:43 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 143KXKHa111462;
+        Mon, 3 May 2021 16:38:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=hrwndlR1o2NbTPjOjHlcK6hFRrHnfogOe/wIFv8415Y=;
+ b=RyQRmAqEDu0B7B1ZTbQkwJUo8wbZV/DGMu4aMXN1Dh1W7LcoIhnY0/hBsALGd65FemKq
+ 35UyY6nDsyZLDMgs/YXpOdiEiic90VoViZ+26+jymY+fiRm12TLkrD/msAVzfc1gnXxv
+ qfy1fcjL1vbVODgAaNUfK8W4OuZlZTTsdoAStR3nzgcC1FSfK/Ay1l06hZNJUtEvI/Er
+ YknVRI/WjndkqSI6jBv5+r3ghhxa5kDCPcsyrMnf+LOEsxRSOQNEvD+O8n9Ny67rEU9S
+ ZJaRDZ8Ytv4Im9MTZYOK5/x4zCTOkIZo/Wos+qDXmRQDtOXjpurZJCQ2MIwqbSsJUu7I Tw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38apb6b9fq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 03 May 2021 16:38:49 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 143KXN4q111730;
+        Mon, 3 May 2021 16:38:49 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38apb6b9f5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 03 May 2021 16:38:49 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 143KYSEA005164;
+        Mon, 3 May 2021 20:38:47 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 388xm8rv5r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 03 May 2021 20:38:47 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 143KcikJ45744436
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 3 May 2021 20:38:44 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F2E46A405B;
+        Mon,  3 May 2021 20:38:43 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 88DA6A405F;
+        Mon,  3 May 2021 20:38:43 +0000 (GMT)
+Received: from osiris.fritz.box (unknown [9.171.82.165])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon,  3 May 2021 20:38:43 +0000 (GMT)
+Date:   Mon, 3 May 2021 22:38:42 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Tarun Gupta <targupta@nvidia.com>,
-        "Jason J . Herne" <jjherne@linux.ibm.com>
-Subject: Re: [PATCH 06/12] vfio/ap_ops: Convert to use
- vfio_register_group_dev()
-Message-ID: <20210503203319.GP1370958@nvidia.com>
-References: <0-v1-d88406ed308e+418-vfio3_jgg@nvidia.com>
- <6-v1-d88406ed308e+418-vfio3_jgg@nvidia.com>
- <20210426194859.1665730d.cohuck@redhat.com>
- <597b470b-6f19-4818-7cdd-92ca3683faae@linux.ibm.com>
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH] s390: fix detection of vector enhancements facility 1
+ vs. vector packed decimal facility
+Message-ID: <YJBfUn8ZXJw780ro@osiris.fritz.box>
+References: <20210503121244.25232-1-david@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <597b470b-6f19-4818-7cdd-92ca3683faae@linux.ibm.com>
-X-Originating-IP: [206.223.160.26]
-X-ClientProxiedBy: YT1PR01CA0110.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:2c::19) To DM6PR12MB3834.namprd12.prod.outlook.com
- (2603:10b6:5:14a::12)
-MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (206.223.160.26) by YT1PR01CA0110.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:2c::19) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4087.39 via Frontend Transport; Mon, 3 May 2021 20:33:20 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1ldfFn-00H1OM-Cd; Mon, 03 May 2021 17:33:19 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 3c43a382-efb3-47b1-1301-08d90e72b10f
-X-MS-TrafficTypeDiagnostic: DM5PR12MB1515:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM5PR12MB1515C841DD70EB7BAC62D016C25B9@DM5PR12MB1515.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: D3h7sHaorFnU0nPKaYrAFAgFE23pwChuGaTXIk6JWK9ydEwq9FUAS65FgMRaXNB1ouQx9LlF3IG3U4yt5FIb3BCQfN20TcMRWGsbzum350NRc/u9zJebiXIRMq5wsAY0rF8x6CN4bTkpkYlByE8E6mmyfEuU/IEMuz0VzwOAx8qWXBuW1IKiWuEMQnvj9Zq2+xYTBl21JNkdNVLX9IKAVm1kSfnHurFrGHWli7vjA/2lphL7gYr3ypbTEc+iQLN3uhwKs8TE2goKe9R3KnM9Fj878XFuk+Qa/BxY6weUzbA0uOBoFvTBvHBiodoUnJo0P6vePp82yYVPwgO467n1y51INGJSe47mJQakJKgGus8mizqjjkhrI9s6IERTFPNSsvDwalnlNBWXEJyfPu5NOuLQqpez5USe2AyA6unFwbwgPAYSBL9G6Ok0Vj3gk/9Nc9CNl4q6VEs4erV98eZra8rrBJtmcpVkb+1EChMiPMywG4QM1MixoyyctTwXSqbmvEU6Da09cSs7NNy+vk/zH4TcSfJrsyNdk+OgIMyo6teiqpk0VwDdU4tPolc19kdO4flREiUsC5Kf+Ep7WmqLAg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(396003)(366004)(136003)(39860400002)(376002)(2906002)(186003)(7416002)(8936002)(26005)(8676002)(33656002)(478600001)(66556008)(66476007)(426003)(38100700002)(4744005)(9746002)(86362001)(9786002)(4326008)(1076003)(2616005)(54906003)(6916009)(5660300002)(36756003)(316002)(66946007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?LUPy3/f5rvT116lTpiV06MmF5EAXa03maXvfmtTEppS4oKMRF74tU7wM2WBd?=
- =?us-ascii?Q?U9JmMvBapHKdSkvi14cx48fNVnaEWXXObrIuPNCH74KL6dNyMYu6XwifGKdw?=
- =?us-ascii?Q?ygkR6wWrI8v+MGmFeMCoBrBzJgdzDcRXzGSr8/TSUfwmRJjO1xzfg8k6/W1e?=
- =?us-ascii?Q?DhDOzk5p/Y7uEh+qgNdawkO+KKYnd7fk97xOYYU0wlD0QB1XG+Cxli/s3h+/?=
- =?us-ascii?Q?qogH/Df7Wqf7EVWabH6sjEM3ZfcoQeSgxVsxagruvJqQpCNxOtiHPlkd/4FS?=
- =?us-ascii?Q?Hm22J4ex1k+W5NlnvqudySLxEy2xVLLXAPn/XX2Esv/VIl3T1MRxKSHMMFDk?=
- =?us-ascii?Q?lT67F2fMWcgqlJ+Pf6AlWeGNdDVGrXztyUTF+xSO97SUm6HxAKNdi/dJKsTS?=
- =?us-ascii?Q?569rNc+FadS3icGxj+rWRUIKaCsB8Qx8Ykq8RYYfhpl50KaXlNZwkYvomG7H?=
- =?us-ascii?Q?ckyEp/9J6tyqDgUkvIbrwJ9KZ9aYI3/7TFQ+TjEH77kaXkPSmuckn+NSUtHG?=
- =?us-ascii?Q?aHGF7w596UQAGGYI2+QwUV2CLJ2yVO/jyNvSnNbG6ctXGsmjFj36vjS/NB2R?=
- =?us-ascii?Q?SMYiYpTMfuFZjMLzLq5dfRMwVBK5Q2oyNvb2WvAw2/eDwOixNLwtzsUD+Gxs?=
- =?us-ascii?Q?lVEUyS+tEvuXiKbG6IxeUt4O8lKBPqq79NvBrOdPjaoFOfsIllq1nS0/KnQP?=
- =?us-ascii?Q?Qv12afyR5OxFvrO/ptXyOIiR6UNb4i2XBwGH2ufzDCAsNIMPE9TELRpy7sPT?=
- =?us-ascii?Q?4/56paLTuYjjZJ7u+WfF2kKCtgOQR3P1iysgTfpP/2LheZyJyoVHYG2oT9b5?=
- =?us-ascii?Q?QxhUdTJ+aoYp7iF1zmINRccEbcndQWmLTyxubWIBCvX5ZzjTcL/P87YJBPeu?=
- =?us-ascii?Q?S0PstBfC4x+EsOad1N7rcMMJmaOfY8hit5jk/D0duQ+B37NyhvlnpOf4Akh2?=
- =?us-ascii?Q?iae7ExEL3BP+qrHrJmPPvpxSGADn/ZAZfwONsOzWeCwB8YWCX4g8mxF4zXbJ?=
- =?us-ascii?Q?LcCRacsnrvBN3bApz7n5NTz4cAptQZu4G0batbDt3KK0lhJFwXeB/9iaVW5v?=
- =?us-ascii?Q?4RvPBWZPPe6wARF7XsHl7GHQPfaucSCVlxKW0KS17EGfGu5z4P8Ru7p+x+1W?=
- =?us-ascii?Q?6/Os+SGPbMq3naGQbdWG+JjqLPGj/hb+i4Mtw/0K2BGqZPVNZ8ODBqQk8mPT?=
- =?us-ascii?Q?QJcoAS26CqsGFxk0wexCvR+/etm4qPRFIoUz0DsGg0nxB09eFiY327JByzdM?=
- =?us-ascii?Q?7kKu6ZLqU/vSVVPlk0hU9l766MOJST9INH91atqisWXY8SZ8zrK+bbJ/4I6Y?=
- =?us-ascii?Q?1bfmUaOaEv6eW7YwmG1OChc5?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3c43a382-efb3-47b1-1301-08d90e72b10f
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2021 20:33:21.4808
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: uyhFG+dm9QIShaZu6CMc4jQNSgCuxrZLBhTQqBanur/cuwyI34Ifp+I5YTtZ+DvZ
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1515
+In-Reply-To: <20210503121244.25232-1-david@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: pl7DuD7WPbILdM0XVNxzmA4cMVvGJyqo
+X-Proofpoint-GUID: hgroUldZqC8jvXrSqJhDJbKgaD1iDpde
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-03_19:2021-05-03,2021-05-03 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ phishscore=0 spamscore=0 mlxlogscore=999 malwarescore=0 suspectscore=0
+ bulkscore=0 priorityscore=1501 clxscore=1015 mlxscore=0 impostorscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2105030141
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 03, 2021 at 04:14:43PM -0400, Tony Krowiak wrote:
+On Mon, May 03, 2021 at 02:12:44PM +0200, David Hildenbrand wrote:
+> The PoP documents:
+> 	134: The vector packed decimal facility is installed in the
+> 	     z/Architecture architectural mode. When bit 134 is
+> 	     one, bit 129 is also one.
+> 	135: The vector enhancements facility 1 is installed in
+> 	     the z/Architecture architectural mode. When bit 135
+> 	     is one, bit 129 is also one.
+> 
+> Looks like we confuse the vector enhancements facility 1 ("EXT") with the
+> Vector packed decimal facility ("BCD"). Let's fix the facility checks.
+> 
+> Detected while working on QEMU/tcg z14 support and only unlocking
+> the vector enhancements facility 1, but not the vector packed decimal
+> facility.
+> 
+> Fixes: 2583b848cad0 ("s390: report new vector facilities")
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: Alexander Egorenkov <egorenar@linux.ibm.com>
+> Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+> Cc: Janosch Frank <frankja@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/s390/kernel/setup.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-> This case will occur whenever a user removes the mdev
-> by echoing a '1' into the mdev's sysfs 'remove' attribute
-> file. I'm not sure it can be considered graceful to take away
-> all of the crypto devices from a guest while it is running,
-> but there is a way to process the remove callback without
-> leaving things in a "weird, half-dead state".
-
-It is acceptable to just sleep here until whatever user controlled
-condition is resolved.
-
-Jason
+Applied, thanks!
