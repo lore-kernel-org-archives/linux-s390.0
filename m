@@ -2,97 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5889AC43461
-	for <linux-s390@archiver.kernel.org>; Tue,  4 May 2021 07:43:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBBA7C433ED
+	for <linux-s390@archiver.kernel.org>; Tue,  4 May 2021 13:58:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3729E6139A
-	for <linux-s390@archiver.kernel.org>; Tue,  4 May 2021 07:43:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A1F9E610FB
+	for <linux-s390@archiver.kernel.org>; Tue,  4 May 2021 13:58:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229956AbhEDHoT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 May 2021 03:44:19 -0400
-Received: from mout.kundenserver.de ([212.227.126.130]:40559 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229914AbhEDHoS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 May 2021 03:44:18 -0400
-Received: from mail-wr1-f45.google.com ([209.85.221.45]) by
- mrelayeu.kundenserver.de (mreue011 [213.165.67.97]) with ESMTPSA (Nemesis) id
- 1MJmX3-1lxpR53rVB-00K506; Tue, 04 May 2021 09:43:22 +0200
-Received: by mail-wr1-f45.google.com with SMTP id n2so8256935wrm.0;
-        Tue, 04 May 2021 00:43:22 -0700 (PDT)
-X-Gm-Message-State: AOAM531N6vsLZpdYM4kEppDMA7Ki9dsuT0FG7NtAOq/2TctwEaByMpLO
-        AoVoZZ6KMcgrqZ0XU202lYNN3YA8iaYn0zrN5/M=
-X-Google-Smtp-Source: ABdhPJwmQ0TWMpLbjB8m36FPm0+mFnFt1RjNALmJYjdOwkjE12j3BzFHniwAOiE13u6QZ6b9BCL1HxKmH7RGeYuBGWg=
-X-Received: by 2002:a5d:6a52:: with SMTP id t18mr12372887wrw.361.1620114202631;
- Tue, 04 May 2021 00:43:22 -0700 (PDT)
+        id S231309AbhEDN7w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 May 2021 09:59:52 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48394 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231216AbhEDN7w (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 May 2021 09:59:52 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 144DvupW018600;
+        Tue, 4 May 2021 09:58:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=YUpU52uA3C2l5HPMrcWWHn13LoFv0s1a7Shgm9Is8RU=;
+ b=YqnwLPqATw4NJIMR6Gg5AGbdPkqDvk8RewcG4z/7+I8qJmq6upWul5XTfDOtsVjlL3lx
+ T3KiGVODRSxhz6rn0gS2C0EYMrcRllX1CkF8Q+fLesB99J1a75wxAmhAjdNz5cwi4I4S
+ fzBtUwFp1o5HApif5CpgqiFjVWLmR+sUqANW7TgVE31NZshJBh2AOX+4HmJal8/TlM2d
+ VJRveZzVtfHGFXCKRxwbLYbsD432zTvPP4md5gMOUGduDQcRnL2qz0oQi+WT/j3xWSbd
+ /dhQToImGtQTuG7sYtq8dVXYiC3silH10raGguHOWNbTqc6gmb5pqe0S9oMQ52PYIC3a oA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38b7fd87yy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 May 2021 09:58:50 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 144DnDTD188266;
+        Tue, 4 May 2021 09:58:50 -0400
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38b7fd87y9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 May 2021 09:58:50 -0400
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 144DvkUd012507;
+        Tue, 4 May 2021 13:58:49 GMT
+Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
+        by ppma05wdc.us.ibm.com with ESMTP id 38a9xfsy90-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 May 2021 13:58:49 +0000
+Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
+        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 144DwlaI37224904
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 4 May 2021 13:58:48 GMT
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DE7C613605D;
+        Tue,  4 May 2021 13:58:47 +0000 (GMT)
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6235313604F;
+        Tue,  4 May 2021 13:58:46 +0000 (GMT)
+Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.140.234])
+        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue,  4 May 2021 13:58:46 +0000 (GMT)
+Subject: Re: [PATCH 06/12] vfio/ap_ops: Convert to use
+ vfio_register_group_dev()
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Tarun Gupta <targupta@nvidia.com>,
+        "Jason J . Herne" <jjherne@linux.ibm.com>
+References: <0-v1-d88406ed308e+418-vfio3_jgg@nvidia.com>
+ <6-v1-d88406ed308e+418-vfio3_jgg@nvidia.com>
+ <20210426194859.1665730d.cohuck@redhat.com>
+ <597b470b-6f19-4818-7cdd-92ca3683faae@linux.ibm.com>
+ <20210503203319.GP1370958@nvidia.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <01ada05b-ecfb-491f-9a34-6d6de54262a0@linux.ibm.com>
+Date:   Tue, 4 May 2021 09:58:45 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-References: <20210430111641.1911207-1-schnelle@linux.ibm.com>
- <CAK8P3a3mCujxC0=_cL6Z88Xh2cb=OY_Ct7DVpJNvRn1v9=FhkQ@mail.gmail.com> <9e52895227515143bf3cd9197876ff1ed596682b.camel@linux.ibm.com>
-In-Reply-To: <9e52895227515143bf3cd9197876ff1ed596682b.camel@linux.ibm.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Tue, 4 May 2021 09:42:42 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a1F1X2SUZLLxK8_QriRZjYyV2AYJFNQt=sGZcWP8yovaw@mail.gmail.com>
-Message-ID: <CAK8P3a1F1X2SUZLLxK8_QriRZjYyV2AYJFNQt=sGZcWP8yovaw@mail.gmail.com>
-Subject: Re: [PATCH v4 0/3] asm-generic/io.h: Silence -Wnull-pointer-arithmetic
- warning on PCI_IOBASE
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Vineet Gupta <vgupta@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        sparclinux <sparclinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:PM8N81IVkqWP0jQZee0H2Kf7n5kTuYYDTuPYQ2Fxj2M2biu4sFy
- BVPNYNmBF+OA1OgO9hmCUg29cpwOkBgCFqk7hvLMCEb9TqOcuAitSOhmiJsmkD3D/IeKQ4+
- XIz8dkouyYUSfbr9ijiwIxomw106OPS7cIrW1HXfMPv9rgEW6rtEzI93uG0NRQomPYqPfPv
- HR6kbV8fya83cSCPdoQBw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:zq+SEaKWvlY=:Rz+YkKRTkZJEoRf0QhGzDT
- B+P6zACEbRyfR2XpXcRmzp9r1cA63MTv31wkm13KU4iJIqQuaWyxnTY0N0NiMllOH2VmHhYn1
- VDJCAWqIVLMPKQQGF1CX9clLtRnAMv7zFdAKcJEQ5BVqhsVzBurQyt08rNrT6IADxkAfkaiJN
- FBi1k5bj4NBR2P5C4sprnyMWKONnyC0ArMuc/BL8wWkLajX3EdZvJxmBHchcDjO+ax+h31e2i
- RRddPYtDdc15Tnbelpwct9pjSyZo77giResNPncqiTv0fwBzWl+2QvYKl/TAneEznG34v+X9s
- FmCdbniYpQFRsIQ9m7Aw2GMPcKQIcdx83ro+rtrqb15/FQ6Xj19yQgyPwyDtJg1hYsFKle/Tz
- jOoySf6C0vdp6NBV+ZbdocT8fIVzBZohuKLQw0gPgIOBkqIz26fb7VD0gj7jYfhwX5WpdoJlU
- MIrAoBWWSz3vo76ywjYzj54BumgRKfyJ+GfUM7K/+f96i3kxKwQfz42uqJhK2pF9xERot4dUb
- 7SJnobLAJzvhBw16LPMueqJ4VMp7DMPxYCiGYuCXC0G/ijXSIMA3ngEEiLBgb8qFTmM9vQxq/
- fYxJ+fdTrSp4dexPstY5gGb2ZZFy0YLgyK4FfJEW8VRrKosfpRcCfjFT3QS7xm32CyoBvu5gO
- ZXBg=
+In-Reply-To: <20210503203319.GP1370958@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: OCNAhVIIPUCv6gngRHyFCqin2HEuPiKr
+X-Proofpoint-GUID: VAfIVAZWiS3_f371H2yTUy9vA6en7EUF
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-04_07:2021-05-04,2021-05-04 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
+ impostorscore=0 mlxscore=0 bulkscore=0 adultscore=0 priorityscore=1501
+ clxscore=1015 mlxlogscore=999 phishscore=0 lowpriorityscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2105040101
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 4, 2021 at 9:40 AM Niklas Schnelle <schnelle@linux.ibm.com> wrote:
-> On Mon, 2021-05-03 at 18:07 +0200, Arnd Bergmann wrote:
-> > - for the risc-v patch, I would suggest explaining that this fixes
-> >   an existing runtime bug, not just a compiler error:
-> >   | This is already broken, as accessing a fixed I/O port number of
-> >   | an ISA device on NOMMU RISC-V would turn into a NULL pointer
-> >   | dereference.
-> >   Feel free to either copy this, or use your own explanation.
->
-> I mixed the above in with the current commit message:
->
->     Without MMU support PCI_IOBASE is left undefined because PCI_IO_END is
->     VMEMMAP_START. Nevertheless the in*()/out*() helper macros are left
->     defined with uses of PCI_IOBASE. At the moment this only compiles
->     because asm-generic/io.h defines PCI_IOBASE as 0 if it is undefined and
->     so at macro expansion PCI_IOBASE is defined. This leads to compilation
->     errors when asm-generic/io.h is changed to leave PCI_IOBASE undefined.
->     More importantly it is currently broken at runtime, as accessing a fixed
->     I/O port number of an ISA device on NOMMU RISC-V would turn into a NULL
->     pointer dereference. Instead only define the in*()/out*() helper macros
->     with MMU support and fall back to the asm-generic/io.h helper stubs
->     otherwise.
 
-Looks good, thanks. Maybe split into two or three paragraphs for readability.
 
-     Arnd
+On 5/3/21 4:33 PM, Jason Gunthorpe wrote:
+> On Mon, May 03, 2021 at 04:14:43PM -0400, Tony Krowiak wrote:
+>
+>> This case will occur whenever a user removes the mdev
+>> by echoing a '1' into the mdev's sysfs 'remove' attribute
+>> file. I'm not sure it can be considered graceful to take away
+>> all of the crypto devices from a guest while it is running,
+>> but there is a way to process the remove callback without
+>> leaving things in a "weird, half-dead state".
+> It is acceptable to just sleep here until whatever user controlled
+> condition is resolved.
+>
+> Jason
+
+I suppose we could do that, but the user that tried to remove
+the mdev via its sysfs 'remove' attribute will be left sitting
+there wondering why the operation didn't complete. That
+could result in leaving the user hanging in perpetuity.
+
+IMHO, the callback should continue to return an int and
+the caller should display the error if a non-zero rc is
+returned.
+
+
