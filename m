@@ -2,76 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53BDCC433B4
-	for <linux-s390@archiver.kernel.org>; Wed,  5 May 2021 20:00:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26A5AC433ED
+	for <linux-s390@archiver.kernel.org>; Thu,  6 May 2021 10:23:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0FBCB613CB
-	for <linux-s390@archiver.kernel.org>; Wed,  5 May 2021 20:00:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC89F611AC
+	for <linux-s390@archiver.kernel.org>; Thu,  6 May 2021 10:23:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233705AbhEEUBH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 May 2021 16:01:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36658 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230437AbhEEUBH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 5 May 2021 16:01:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id DDF18610A7;
-        Wed,  5 May 2021 20:00:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620244809;
-        bh=pRllSkb6uSl77UvIi38OoXYnTNu0vihf10ORAfWEcXE=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=eGrS1yICrE+Dyixbaq7djYDRGfqCS4VE33NWNgwmayPcfmZvEm/YwIl2/oV047LU9
-         Gur2e7VxtZTWTQ+zCSq0dnldvdaVjZNPg+G8+QRdyy4fNQCiy17Xx8iPrEijdUj4FK
-         tkj8qYlbkQcmRD2nvi+1Ww6H1pTBCSDLua9KGB2iEiTyzNSLTIYgXlJF//sDkSzobA
-         /+36nGaiTGi0qg6YeCMx7/qqm+8mWHvDmalAfcrV+FYze9NzTPgvM5FVoJ2T1iGXba
-         NakDm7qPIPKGCPhUpCm8s0e4HqVtpZru6CmL8iwZS3VPBqQgQKDAJm//HlMOpgBHWU
-         lC9q1c06LftWw==
-Content-Type: text/plain; charset="utf-8"
+        id S234371AbhEFKX6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 May 2021 06:23:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:42703 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232936AbhEFKX6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 May 2021 06:23:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1620296579;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=5iD+tjKV6hDgGKw77PGTUybnlAkb873omzNjbbs3y68=;
+        b=R5GgiQiBnUC0tgE2EPdJRaTgvIXN3mT6Z4IMMH2SSdtjuYld5WjpXnecCqPYd6SGeiVRLl
+        j+fx143BtAe332xWUfCyXk+EaBTCb0U94aAkH977sIrHSq425i1J3/G6hsg/L8SFUtbEYn
+        wahFqYCJWG68a+b1QKHODN97zz4Ocr8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-171-TUsZUqhPOAiG_fqF_bC7qg-1; Thu, 06 May 2021 06:22:56 -0400
+X-MC-Unique: TUsZUqhPOAiG_fqF_bC7qg-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9948A64167;
+        Thu,  6 May 2021 10:22:54 +0000 (UTC)
+Received: from gondolin.fritz.box (ovpn-113-111.ams2.redhat.com [10.36.113.111])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 624331064146;
+        Thu,  6 May 2021 10:22:48 +0000 (UTC)
+Date:   Thu, 6 May 2021 12:22:45 +0200
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, pasic@linux.vnet.ibm.com,
+        jjherne@linux.ibm.com, jgg@nvidia.com, alex.williamson@redhat.com,
+        kwankhede@nvidia.com, stable@vger.kernel.org,
+        Tony Krowiak <akrowiak@stny.rr.com>
+Subject: Re: [PATCH] s390/vfio-ap: fix memory leak in mdev remove callback
+Message-ID: <20210506122245.20f4ba21.cohuck@redhat.com>
+In-Reply-To: <20210505172826.105304-1-akrowiak@linux.ibm.com>
+References: <20210505172826.105304-1-akrowiak@linux.ibm.com>
+Organization: Red Hat GmbH
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Patch net v2] smc: disallow TCP_ULP in smc_setsockopt()
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162024480983.22987.1651655428886909235.git-patchwork-notify@kernel.org>
-Date:   Wed, 05 May 2021 20:00:09 +0000
-References: <20210505194048.8377-1-xiyou.wangcong@gmail.com>
-In-Reply-To: <20210505194048.8377-1-xiyou.wangcong@gmail.com>
-To:     Cong Wang <xiyou.wangcong@gmail.com>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        cong.wang@bytedance.com,
-        syzbot+b54a1ce86ba4a623b7f0@syzkaller.appspotmail.com,
-        john.fastabend@gmail.com, kgraul@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+On Wed,  5 May 2021 13:28:26 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-This patch was applied to netdev/net.git (refs/heads/master):
-
-On Wed,  5 May 2021 12:40:48 -0700 you wrote:
-> From: Cong Wang <cong.wang@bytedance.com>
+> The mdev remove callback for the vfio_ap device driver bails out with
+> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
+> to prevent the mdev from being removed while in use; however, returning a
+> non-zero rc does not prevent removal. This could result in a memory leak
+> of the resources allocated when the mdev was created. In addition, the
+> KVM guest will still have access to the AP devices assigned to the mdev
+> even though the mdev no longer exists.
 > 
-> syzbot is able to setup kTLS on an SMC socket which coincidentally
-> uses sk_user_data too. Later, kTLS treats it as psock so triggers a
-> refcnt warning. The root cause is that smc_setsockopt() simply calls
-> TCP setsockopt() which includes TCP_ULP. I do not think it makes
-> sense to setup kTLS on top of SMC sockets, so we should just disallow
-> this setup.
+> To prevent this scenario, cleanup will be done - including unplugging the
+> AP adapters, domains and control domains - regardless of whether the mdev
+> is in use by a KVM guest or not.
 > 
-> [...]
+> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c | 39 +++++++++++++++++++++++--------
+>  1 file changed, 29 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index b2c7e10dfdcd..757166da947e 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -335,6 +335,32 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
+>  	matrix->adm_max = info->apxa ? info->Nd : 15;
+>  }
+>  
+> +static bool vfio_ap_mdev_has_crycb(struct ap_matrix_mdev *matrix_mdev)
+> +{
+> +	return (matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd);
+> +}
+> +
+> +static void vfio_ap_mdev_clear_apcb(struct ap_matrix_mdev *matrix_mdev)
+> +{
+> +	/*
+> +	 * If the KVM pointer is in the process of being set, wait until the
+> +	 * process has completed.
+> +	 */
+> +	wait_event_cmd(matrix_mdev->wait_for_kvm,
+> +		       !matrix_mdev->kvm_busy,
+> +		       mutex_unlock(&matrix_dev->lock),
+> +		       mutex_lock(&matrix_dev->lock));
+> +
+> +	if (vfio_ap_mdev_has_crycb(matrix_mdev)) {
+> +		matrix_mdev->kvm_busy = true;
+> +		mutex_unlock(&matrix_dev->lock);
+> +		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+> +		mutex_lock(&matrix_dev->lock);
+> +		matrix_mdev->kvm_busy = false;
+> +		wake_up_all(&matrix_mdev->wait_for_kvm);
+> +	}
+> +}
 
-Here is the summary with links:
-  - [net,v2] smc: disallow TCP_ULP in smc_setsockopt()
-    https://git.kernel.org/netdev/net/c/8621436671f3
+Looking at vfio_ap_mdev_unset_kvm(), do you need to unhook the kvm here
+as well?
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+(Or can you maybe even combine the two functions into one?)
 
+> +
+>  static int vfio_ap_mdev_create(struct mdev_device *mdev)
+>  {
+>  	struct ap_matrix_mdev *matrix_mdev;
+> @@ -366,16 +392,9 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+>  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>  
+>  	mutex_lock(&matrix_dev->lock);
+> -
+> -	/*
+> -	 * If the KVM pointer is in flux or the guest is running, disallow
+> -	 * un-assignment of control domain.
+> -	 */
+> -	if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
+> -		mutex_unlock(&matrix_dev->lock);
+> -		return -EBUSY;
+> -	}
+> -
+> +	WARN(vfio_ap_mdev_has_crycb(matrix_mdev),
+> +	     "Removing mdev leaves KVM guest without any crypto devices");
+> +	vfio_ap_mdev_clear_apcb(matrix_mdev);
+>  	vfio_ap_mdev_reset_queues(mdev);
+>  	list_del(&matrix_mdev->node);
+>  	kfree(matrix_mdev);
 
