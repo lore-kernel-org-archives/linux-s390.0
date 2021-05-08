@@ -2,65 +2,94 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B510C433ED
-	for <linux-s390@archiver.kernel.org>; Thu,  6 May 2021 21:41:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B2B4C43460
+	for <linux-s390@archiver.kernel.org>; Sat,  8 May 2021 12:29:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3EFED601FE
-	for <linux-s390@archiver.kernel.org>; Thu,  6 May 2021 21:41:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0331C61414
+	for <linux-s390@archiver.kernel.org>; Sat,  8 May 2021 12:29:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230149AbhEFVmd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 May 2021 17:42:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43904 "EHLO mail.kernel.org"
+        id S230468AbhEHMaO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 8 May 2021 08:30:14 -0400
+Received: from foss.arm.com ([217.140.110.172]:53538 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229610AbhEFVmb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 6 May 2021 17:42:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id CE5C66121F;
-        Thu,  6 May 2021 21:41:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620337290;
-        bh=aon5tyciRmnhlrPwOR4xGGYVPi+d1ZywjVgHtx+qSt8=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=chqFsth23oSpPpYMpIqOkcV/5/XiXwVyPQpz/jixUOYXTHOS/P6u7ytDU2tKx68jK
-         aU4bFL3MBjjXAveeKtr5lIpjD/Xl7sWWcWeQ1eqkL8/wJWpbi0fqubi4RzIhpDCNOC
-         AzZ+B8MfhgFMlUH0ampHT/4zHmI7hkoR62tlR4kE7rMFDuw/Rv8i8HyayaUFSUWjOV
-         E50yaVvyc+IwuAay6vCHZrFV6/Dx5+A4RNU7CJGswDrDIX4NJhQw78r+8q3Jmdroe8
-         OR1QLZvsTl+024jI7b7FXkNTNDNmlYhcuUG0FHe2jbn3gRuQ1yY8WIm9pQ81BzXXRe
-         qdOyFnOjob3HA==
-Subject: Re: [GIT PULL] more s390 updates for 5.13-rc1
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <YJRNygc8ryOitlmO@osiris>
-References: <YJRNygc8ryOitlmO@osiris>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <YJRNygc8ryOitlmO@osiris>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.13-2
-X-PR-Tracked-Commit-Id: b208108638c4bd3215792415944467c36f5dfd97
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: e48661230cc35b3d0f4367eddfc19f86463ab917
-Message-Id: <162033729070.2467.16681464767107026046.pr-tracker-bot@kernel.org>
-Date:   Thu, 06 May 2021 21:41:30 +0000
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        id S230419AbhEHMaN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 8 May 2021 08:30:13 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B4244ED1;
+        Sat,  8 May 2021 05:29:11 -0700 (PDT)
+Received: from entos-ampere-02.shanghai.arm.com (entos-ampere-02.shanghai.arm.com [10.169.214.110])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 3FAA43F73B;
+        Sat,  8 May 2021 05:29:05 -0700 (PDT)
+From:   Jia He <justin.he@arm.com>
+To:     Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Al Viro <viro@ftp.linux.org.uk>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Eric Biggers <ebiggers@google.com>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Jia He <justin.he@arm.com>
+Subject: [PATCH RFC 0/3] make '%pD' print full path for file
+Date:   Sat,  8 May 2021 20:25:27 +0800
+Message-Id: <20210508122530.1971-1-justin.he@arm.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Thu, 6 May 2021 22:12:58 +0200:
+At [1], Linux suggested printing full path for file instead of printing
+the components as '%pd'.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.13-2
+Typically, there is no need for printk specifiers to take any real locks
+(ie mount_lock or rename_lock). So I introduce a new helper d_path_fast
+which is similar to d_path except not taking any seqlock/spinlock.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/e48661230cc35b3d0f4367eddfc19f86463ab917
+The cases I tested:
+1. print %pD with full path when opening a ext4 file
+2. mount a ext4 filesystem upon a ext4 filesystem, and print the file
+   with %pD
+3. print the file full path which has more than 128 chars
+4. all test_print selftests
 
-Thank you!
+After this set, I noticed there are many lines which contained "%pD[234]"
+that should be changed to "%pD". I don't want to involve those
+subsystems in this patch series before the helper is satisfied with
+everyone.
+
+You can get the lines by 
+$find fs/ -name \*.[ch] | xargs grep -rn "\%pD[234]"
+	 
+[1] https://lore.kernel.org/lkml/CAHk-=wimsMqGdzik187YWLb-ru+iktb4MYbMQG1rnZ81dXYFVg@mail.gmail.com/
+
+Jia He (3):
+  fs: introduce helper d_path_fast()
+  lib/vsprintf.c: make %pD print full path for file
+  s390/hmcdrv: remove the redundant directory path in debug message
+
+ Documentation/core-api/printk-formats.rst |  5 ++-
+ drivers/s390/char/hmcdrv_dev.c            | 10 ++---
+ fs/d_path.c                               | 51 +++++++++++++++++------
+ include/linux/dcache.h                    |  1 +
+ lib/vsprintf.c                            | 12 +++++-
+ 5 files changed, 58 insertions(+), 21 deletions(-)
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.17.1
+
