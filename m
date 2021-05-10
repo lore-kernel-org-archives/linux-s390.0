@@ -2,103 +2,224 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3595BC433B4
-	for <linux-s390@archiver.kernel.org>; Mon, 10 May 2021 13:51:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCD90C433B4
+	for <linux-s390@archiver.kernel.org>; Mon, 10 May 2021 13:56:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0A2A961007
-	for <linux-s390@archiver.kernel.org>; Mon, 10 May 2021 13:51:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8A7A561041
+	for <linux-s390@archiver.kernel.org>; Mon, 10 May 2021 13:56:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237922AbhEJNwi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 May 2021 09:52:38 -0400
-Received: from mout.kundenserver.de ([212.227.17.24]:46087 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238389AbhEJNtd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 May 2021 09:49:33 -0400
-Received: from mail-wr1-f49.google.com ([209.85.221.49]) by
- mrelayeu.kundenserver.de (mreue109 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1N0G5h-1lLfdo1ZDj-00xKRt; Mon, 10 May 2021 15:48:23 +0200
-Received: by mail-wr1-f49.google.com with SMTP id l14so16713460wrx.5;
-        Mon, 10 May 2021 06:48:23 -0700 (PDT)
-X-Gm-Message-State: AOAM530HjJR00e1D1SpHe/YGpeWfpMUddaFkeSILCIxC4QNMvt2j7lf4
-        6784kgs1/9oRhaN6Uius+lDni6dUuuv4JWqMdLo=
-X-Google-Smtp-Source: ABdhPJzhdQBDlhT58nLl3h+XLT/UqmHJplz9FuYPvm+qQhsgtun8Lu+7pwAmSvZbZqpU0vPp87OqpWOs4lalxUp57AM=
-X-Received: by 2002:a5d:4452:: with SMTP id x18mr31726656wrr.286.1620654503046;
- Mon, 10 May 2021 06:48:23 -0700 (PDT)
+        id S232147AbhEJN5U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 May 2021 09:57:20 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15428 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241661AbhEJNxQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 10 May 2021 09:53:16 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14ADXcVi132906;
+        Mon, 10 May 2021 09:52:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=zkymOyA0jfRHKVd7RkkaYs9OflSBK6cjO13D2Qe+tjg=;
+ b=ng8qSybJxvXRj3nrl6gFSeWDaicVTKg9EbVpcXxEhSPd568Alcxgsysq2SOhxZbzoTla
+ rx2wux64Uvt8I8hVAp+zWuLCFD9JqH6ebjJNl5QurNSV59TND8QzaoW8CVtLZyKytPR0
+ vxoTnOtnooL7wCkKF//MmLFjVfhU7q5KbZFam9Tb87PSEBgnlT+Qd9xROsHF+oiZ4uLn
+ zpRkhmKdbofrQjs6L43rMZNpAr1TMkGZoi+egmhiffdGMaK4xCV0svkGEtjcSiTrBoel
+ 15txGVU9XdA3wZXGA42+Dws2nE/3b62phBaeZLAAHxR7oD31anUPLDAo2HnigTPCkD+H qA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38f5hnhbpa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 May 2021 09:52:10 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14ADZ0Mr140667;
+        Mon, 10 May 2021 09:52:10 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38f5hnhbnm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 May 2021 09:52:09 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14ADprL2011440;
+        Mon, 10 May 2021 13:52:07 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 38dj9890c4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 May 2021 13:52:07 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14ADq40d33161522
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 10 May 2021 13:52:04 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 76753A404D;
+        Mon, 10 May 2021 13:52:04 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B42DAA4040;
+        Mon, 10 May 2021 13:52:03 +0000 (GMT)
+Received: from linux01.pok.stglabs.ibm.com (unknown [9.114.17.81])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 10 May 2021 13:52:03 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com,
+        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com
+Subject: [kvm-unit-tests PATCH v2 3/6] s390x: uv: Add UV lib
+Date:   Mon, 10 May 2021 13:51:45 +0000
+Message-Id: <20210510135148.1904-4-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210510135148.1904-1-frankja@linux.ibm.com>
+References: <20210510135148.1904-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-References: <20210510085339.1857696-4-schnelle@linux.ibm.com> <202105102014.AoEdJzot-lkp@intel.com>
-In-Reply-To: <202105102014.AoEdJzot-lkp@intel.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 10 May 2021 15:47:29 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a1uTgFyPL+m2Ts3vigVc1V=BNLhMpF5UtJdnd+-FQy2_g@mail.gmail.com>
-Message-ID: <CAK8P3a1uTgFyPL+m2Ts3vigVc1V=BNLhMpF5UtJdnd+-FQy2_g@mail.gmail.com>
-Subject: Re: [PATCH v5 3/3] asm-generic/io.h: warn in inb() and friends with
- undefined PCI_IOBASE
-To:     kernel test robot <lkp@intel.com>
-Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>, kbuild-all@lists.01.org,
-        Networking <netdev@vger.kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:uHVF2moNEazkR1sM7C0E7phB6weUmPvi/AeYEAsVfrztihAOvxf
- uLyrkn5T/nohnVaJBHtFPBjnSA7WeT5AFIPw8sDspbp4NbDqHsxmJTPGmedJgqNkE0mWExD
- Ofi0oXIl9j7AtpPtyXf8O0Hu42FkAmsn+K/gKhgU+LFiLzzuPn9fmUEnLVFQRZwhCdMp/aG
- fcbSctRaEziImPEy9gXpw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:CHE0vqSUXy4=:U5G1QWDa28vF8mW1Sbd1Z6
- bhHCN5AitegTOT6kQIE66VIil3MNb/MkqMaGFSjt9I/oPITqCIZbxlC+Jn+s5uDvWtBKaWnOi
- 7XTuWen/1g/yFjpzQesimo4vthb6ekipZ/7a8ULePkd8TTDRi4932Bi7GpdVEIyeP9kKI762x
- eCuQbqM3Zs8xsS92VM9+xntvwHZzkBH7WKWBqyucWSbqmqfUnJ+1+yY7AJjTiWENQIBbW1iVA
- haxBdalKsTlGFlc/kTP1GcVEijSF0DKX5FAOvg/pWMB3ptWHyK4tgvR9lgRc/giaq4MWq/amQ
- DfHjgHWLnueJWJtPf/vXpHgqwleziaRArLZW67eovxYaQaIGtMZfPrY2b71jUM4kHKW3IDDa8
- 2dGTgUxg2mh4VDhAa4QyKRLmUbjf0Yk9CpSi6CztviEpFES8butW+BKbVcGaOSJIG7CNBPnJ4
- GMLlQIw5AR4bEW176NyRgh5fO2R8Ts+W6PBY3wkonr6tDK5oQZo8Hvz6i8WOjn9+dW0q3/8AM
- AdPhGSWF+q7XUJr5HtWqvaYA9RYFnUatlm3OYqD+HBQF43Y10lf1iFftmHHLMoyejpGbKhKw5
- gOW8TeqL67bbqKecRNJanq5nianY40HEDswqBVyFpH00IPjzuiUvcZ+sDOBz2gQWJfSsU47CA
- vhKY=
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: aYnYarHjIlcaIHsYES1o-u5q0ullMGJ9
+X-Proofpoint-GUID: 809ri5lnyJL5LctTYNyCCPT3EDfvR8Aj
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-10_07:2021-05-10,2021-05-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
+ mlxlogscore=999 spamscore=0 clxscore=1015 lowpriorityscore=0
+ impostorscore=0 suspectscore=0 adultscore=0 phishscore=0
+ priorityscore=1501 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2104190000 definitions=main-2105100096
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 10, 2021 at 3:08 PM kernel test robot <lkp@intel.com> wrote:
->
->    In file included from include/linux/kernel.h:10,
->                     from drivers/media/rc/nuvoton-cir.c:25:
->    include/linux/scatterlist.h: In function 'sg_set_buf':
->    include/asm-generic/page.h:89:50: warning: ordered comparison of pointer with null pointer [-Wextra]
->       89 | #define virt_addr_valid(kaddr) (((void *)(kaddr) >= (void *)PAGE_OFFSET) && \
->          |                                                  ^~
->    include/linux/compiler.h:78:42: note: in definition of macro 'unlikely'
->       78 | # define unlikely(x) __builtin_expect(!!(x), 0)
->          |                                          ^
->    include/linux/scatterlist.h:137:2: note: in expansion of macro 'BUG_ON'
->      137 |  BUG_ON(!virt_addr_valid(buf));
->          |  ^~~~~~
->    include/linux/scatterlist.h:137:10: note: in expansion of macro 'virt_addr_valid'
->      137 |  BUG_ON(!virt_addr_valid(buf));
->          |          ^~~~~~~~~~~~~~~
->    drivers/media/rc/nuvoton-cir.c: In function 'nvt_get_rx_ir_data':
-> >> drivers/media/rc/nuvoton-cir.c:761:15: warning: iteration 32 invokes undefined behavior [-Waggressive-loop-optimizations]
->      761 |   nvt->buf[i] = nvt_cir_reg_read(nvt, CIR_SRXFIFO);
+Let's add a UV library to make checking the UV feature bit easier.
+In the future this library file can take care of handling UV
+initialization and UV guest creation.
 
-I think you can ignore this one, it's a preexisting issue with this
-driver that gets uncovered by your patch: if "fifocount" is read from
-a broken device as 0xff, the loop causes a buffer overflow.
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ lib/s390x/asm/uv.h |  4 ++--
+ lib/s390x/io.c     |  2 ++
+ lib/s390x/uv.c     | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ lib/s390x/uv.h     | 10 ++++++++++
+ s390x/Makefile     |  1 +
+ 5 files changed, 60 insertions(+), 2 deletions(-)
+ create mode 100644 lib/s390x/uv.c
+ create mode 100644 lib/s390x/uv.h
 
-The code is already unreachable because the interrupt handler
-will have aborted already, so the compiler's dead code elimination
-should have shut up that warning, but adding a range check
-before the loop would address this as well.
+diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
+index 11f70a9f..b22cbaa8 100644
+--- a/lib/s390x/asm/uv.h
++++ b/lib/s390x/asm/uv.h
+@@ -9,8 +9,8 @@
+  * This code is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 2.
+  */
+-#ifndef UV_H
+-#define UV_H
++#ifndef ASM_S390X_UV_H
++#define ASM_S390X_UV_H
+ 
+ #define UVC_RC_EXECUTED		0x0001
+ #define UVC_RC_INV_CMD		0x0002
+diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+index ef9f59e3..a4f1b113 100644
+--- a/lib/s390x/io.c
++++ b/lib/s390x/io.c
+@@ -14,6 +14,7 @@
+ #include <asm/facility.h>
+ #include <asm/sigp.h>
+ #include "sclp.h"
++#include "uv.h"
+ #include "smp.h"
+ 
+ extern char ipl_args[];
+@@ -38,6 +39,7 @@ void setup(void)
+ 	sclp_facilities_setup();
+ 	sclp_console_setup();
+ 	sclp_memory_setup();
++	uv_setup();
+ 	smp_setup();
+ }
+ 
+diff --git a/lib/s390x/uv.c b/lib/s390x/uv.c
+new file mode 100644
+index 00000000..0d8c141c
+--- /dev/null
++++ b/lib/s390x/uv.c
+@@ -0,0 +1,45 @@
++#include <libcflat.h>
++#include <bitops.h>
++#include <alloc.h>
++#include <alloc_page.h>
++#include <asm/page.h>
++#include <asm/arch_def.h>
++
++#include <asm/facility.h>
++#include <asm/uv.h>
++#include <uv.h>
++
++static struct uv_cb_qui uvcb_qui = {
++	.header.cmd = UVC_CMD_QUI,
++	.header.len = sizeof(uvcb_qui),
++};
++
++bool uv_os_is_guest(void)
++{
++	return test_facility(158) &&
++		uv_query_test_call(BIT_UVC_CMD_SET_SHARED_ACCESS) &&
++		uv_query_test_call(BIT_UVC_CMD_REMOVE_SHARED_ACCESS);
++}
++
++bool uv_os_is_host(void)
++{
++	return test_facility(158) && uv_query_test_call(BIT_UVC_CMD_INIT_UV);
++}
++
++bool uv_query_test_call(unsigned int nr)
++{
++	/* Query needs to be called first */
++	assert(uvcb_qui.header.rc);
++	assert(nr < BITS_PER_LONG * ARRAY_SIZE(uvcb_qui.inst_calls_list));
++
++	return test_bit_inv(nr, uvcb_qui.inst_calls_list);
++}
++
++int uv_setup(void)
++{
++	if (!test_facility(158))
++		return 0;
++
++	assert(!uv_call(0, (u64)&uvcb_qui));
++	return 1;
++}
+diff --git a/lib/s390x/uv.h b/lib/s390x/uv.h
+new file mode 100644
+index 00000000..42608a96
+--- /dev/null
++++ b/lib/s390x/uv.h
+@@ -0,0 +1,10 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++#ifndef UV_H
++#define UV_H
++
++bool uv_os_is_guest(void);
++bool uv_os_is_host(void);
++bool uv_query_test_call(unsigned int nr);
++int uv_setup(void);
++
++#endif /* UV_H */
+diff --git a/s390x/Makefile b/s390x/Makefile
+index b92de9c5..bbf177fa 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -67,6 +67,7 @@ cflatobjs += lib/s390x/vm.o
+ cflatobjs += lib/s390x/css_dump.o
+ cflatobjs += lib/s390x/css_lib.o
+ cflatobjs += lib/s390x/malloc_io.o
++cflatobjs += lib/s390x/uv.o
+ 
+ OBJDIRS += lib/s390x
+ 
+-- 
+2.30.2
 
-As far as I can tell, this warning only shows up when building with
-"make W=1".
-
-       Arnd
