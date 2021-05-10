@@ -2,106 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F46FC433B4
-	for <linux-s390@archiver.kernel.org>; Mon, 10 May 2021 12:41:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BD03C433ED
+	for <linux-s390@archiver.kernel.org>; Mon, 10 May 2021 13:40:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC7A161184
-	for <linux-s390@archiver.kernel.org>; Mon, 10 May 2021 12:41:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 391F161421
+	for <linux-s390@archiver.kernel.org>; Mon, 10 May 2021 13:40:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233269AbhEJMme (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 May 2021 08:42:34 -0400
-Received: from foss.arm.com ([217.140.110.172]:55812 "EHLO foss.arm.com"
+        id S234013AbhEJNlq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 May 2021 09:41:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236712AbhEJLwH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 10 May 2021 07:52:07 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3280B15BE;
-        Mon, 10 May 2021 04:50:59 -0700 (PDT)
-Received: from [10.163.77.48] (unknown [10.163.77.48])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D00153F73B;
-        Mon, 10 May 2021 04:50:55 -0700 (PDT)
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: Re: [PATCH] mm/thp: Make ARCH_ENABLE_SPLIT_PMD_PTLOCK dependent on
- PGTABLE_LEVELS > 2
-To:     Oscar Salvador <osalvador@suse.de>
-Cc:     Peter Zijlstra <peterz@infradead.org>, linux-mm@kvack.org,
-        akpm@linux-foundation.org, Heiko Carstens <hca@linux.ibm.com>,
+        id S240116AbhEJMxD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 10 May 2021 08:53:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2040611BD;
+        Mon, 10 May 2021 12:51:50 +0000 (UTC)
+Date:   Mon, 10 May 2021 14:51:47 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jia He <justin.he@arm.com>, Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Al Viro <viro@ftp.linux.org.uk>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1620621345-29176-1-git-send-email-anshuman.khandual@arm.com>
- <20210510085313.GB5618@worktop.programming.kicks-ass.net>
- <843e545a-ca0c-6a1e-2ab0-28ccca182400@arm.com> <20210510101006.GB22664@linux>
- <a6ebcb5b-1fd6-d03f-cfb5-52e32b60899a@arm.com>
-Message-ID: <f13b3394-cd16-dc20-4069-083c86f5b706@arm.com>
-Date:   Mon, 10 May 2021 17:21:40 +0530
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Eric Biggers <ebiggers@google.com>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: Re: [PATCH RFC 1/3] fs: introduce helper d_path_fast()
+Message-ID: <20210510125147.tkgeurcindldiwxg@wittgenstein>
+References: <20210508122530.1971-1-justin.he@arm.com>
+ <20210508122530.1971-2-justin.he@arm.com>
+ <CAHk-=wgSFUUWJKW1DXa67A0DXVzQ+OATwnC3FCwhqfTJZsvj1A@mail.gmail.com>
+ <YJbivrA4Awp4FXo8@zeniv-ca.linux.org.uk>
+ <CAHk-=whZhNXiOGgw8mXG+PTpGvxnRG1v5_GjtjHpoYXd2Fn_Ow@mail.gmail.com>
+ <YJb9KFBO7MwJeDHz@zeniv-ca.linux.org.uk>
+ <CAHk-=wjgXvy9EoE1_8KpxE9P3J_a-NF7xRKaUzi9MPSCmYnq+Q@mail.gmail.com>
+ <YJcUvwo2pn0JEs27@zeniv-ca.linux.org.uk>
+ <YJcbkJxrFAheQ5yO@zeniv-ca.linux.org.uk>
+ <m1r1ifzf8x.fsf@fess.ebiederm.org>
 MIME-Version: 1.0
-In-Reply-To: <a6ebcb5b-1fd6-d03f-cfb5-52e32b60899a@arm.com>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <m1r1ifzf8x.fsf@fess.ebiederm.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 5/10/21 3:46 PM, Anshuman Khandual wrote:
+On Sun, May 09, 2021 at 05:58:22PM -0500, Eric W. Biederman wrote:
+> Al Viro <viro@zeniv.linux.org.uk> writes:
 > 
+> > On Sat, May 08, 2021 at 10:46:23PM +0000, Al Viro wrote:
+> >> On Sat, May 08, 2021 at 03:17:44PM -0700, Linus Torvalds wrote:
+> >> > On Sat, May 8, 2021 at 2:06 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
+> >> > >
+> >> > > On Sat, May 08, 2021 at 01:39:45PM -0700, Linus Torvalds wrote:
+> >> > >
+> >> > > > +static inline int prepend_entries(struct prepend_buffer *b, const struct path *path, const struct path *root, struct mount *mnt)
+> >> > >
+> >> > > If anything, s/path/dentry/, since vfsmnt here will be equal to &mnt->mnt all along.
+> >> > 
+> >> > Too subtle for me.
+> >> > 
+> >> > And is it? Because mnt is from
+> >> > 
+> >> >      mnt = real_mount(path->mnt);
+> >> > 
+> >> > earlier, while vfsmount is plain "path->mnt".
+> >> 
+> >> static inline struct mount *real_mount(struct vfsmount *mnt)
+> >> {
+> >>         return container_of(mnt, struct mount, mnt);
+> >> }
+> >
+> > Basically, struct vfsmount instances are always embedded into struct mount ones.
+> > All information about the mount tree is in the latter (and is visible only if
+> > you manage to include fs/mount.h); here we want to walk towards root, so...
+> >
+> > Rationale: a lot places use struct vfsmount pointers, but they've no need to
+> > access all that stuff.  So struct vfsmount got trimmed down, with most of the
+> > things that used to be there migrating into the containing structure.
+> >
+> > [Christian Browner Cc'd]
+> > BTW, WTF do we have struct mount.user_ns and struct vfsmount.mnt_userns?
+> > Can they ever be different?  Christian?
 > 
-> On 5/10/21 3:40 PM, Oscar Salvador wrote:
->> On Mon, May 10, 2021 at 03:36:29PM +0530, Anshuman Khandual wrote:
->>>
->>>
->>> On 5/10/21 2:23 PM, Peter Zijlstra wrote:
->>>> On Mon, May 10, 2021 at 10:05:45AM +0530, Anshuman Khandual wrote:
->>>>> -	select ARCH_ENABLE_SPLIT_PMD_PTLOCK if X86_64 || X86_PAE
->>>>> +	select ARCH_ENABLE_SPLIT_PMD_PTLOCK if (PGTABLE_LEVELS > 2) && (X86_64 || X86_PAE)
->>>>
->>>> It's still very early on a Monday, but IIRC this new condition is
->>>> identical to the pre-existing one.
->>>
->>> Did not get it, could you please elaborate ?
->>
->> When using x86_PAE, you must have more than two pgtable levels, right?
->> And not speaking of x86_64.
+> I presume you are asking about struct mnt_namespace.user_ns and
+> struct vfsmount.mnt_userns.
 > 
-> arch/x86/Kconfig..
+> That must the idmapped mounts work.
 > 
-> config PGTABLE_LEVELS
->         int
->         default 5 if X86_5LEVEL
->         default 4 if X86_64
->         default 3 if X86_PAE
->         default 2
+> In short mnt_namespace.user_ns is the user namespace that owns
+> the mount namespace.
 > 
-> Both X86_PAE and X86_64 will always have page table levels > 2 ? But
-> regardless, it might be still useful to assert (PGTABLE_LEVELS > 2)
-> before selecting ARCH_ENABLE_SPLIT_PMD_PTLOCK.
+> vfsmount.mnt_userns functionally could be reduced to just some struct
+> uid_gid_map structures hanging off the vfsmount.  It's purpose is
 
-PGTABLE_LEVELS > 2 is a necessary condition for this PMD split lock
-config. The problem is that for arch selectable configs like this,
-conditional statements would not work properly when defined along
-with the config. Otherwise the following change would have been
-sufficient.
+No. The userns can in the future be used for permission checking when
+delegating features per mount.
 
-diff --git a/mm/Kconfig b/mm/Kconfig
-index 02d44e3420f5..5830ea7746b3 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -214,6 +214,7 @@ config SPLIT_PTLOCK_CPUS
- 
- config ARCH_ENABLE_SPLIT_PMD_PTLOCK
-        bool
-+       depends on PGTABLE_LEVELS > 2
+> to add a generic translation of uids and gids on from the filesystem
+> view to the what we want to show userspace.
+> 
+> That code could probably benefit from some refactoring so it is clearer,
+> and some serious fixes.  I reported it earlier but it looks like there
+> is some real breakage in chown if you use idmapped mounts.
 
-Hence this just moves the condition to all subscribing platforms
-while making the selection for ARCH_ENABLE_SPLIT_PMD_PTLOCK.
+You mentioned something about chown already some weeks ago here [1] and
+never provided any details or reproducer for it. This code is
+extensively covered by xfstests and systemd and others are already using
+it so far without any issues reported by users. If there is an issue,
+it'd be good to fix them and see the tests changed to cover that
+particular case.
+
+[1]: https://lore.kernel.org/lkml/20210213130042.828076-1-christian.brauner@ubuntu.com/T/#m3a9df31aa183e8797c70bc193040adfd601399ad
