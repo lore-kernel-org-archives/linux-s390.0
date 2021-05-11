@@ -2,197 +2,162 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC9ADC433ED
-	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 17:12:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6077C433ED
+	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 17:14:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8ED3361352
-	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 17:12:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 76AB461176
+	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 17:14:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231793AbhEKRNS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 May 2021 13:13:18 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10768 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231230AbhEKRNR (ORCPT
+        id S231867AbhEKRP1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 May 2021 13:15:27 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38521 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231868AbhEKRPX (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 11 May 2021 13:13:17 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14BH3jJ7122889;
-        Tue, 11 May 2021 13:12:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=f6cE/r5SIT0mTzPM7k0IeWzsRyiE8OtV/7Z553FS4x8=;
- b=L/I4NMHWAG0WK9Cn3A4eFro/49+co5G1AGI12sQBQ5qmKfjP/ONuYUZ2l2hKrb8pnPAi
- tudc613jufmewmn8hW0eaAyCyWDlJRk8Yuqmr2ynUytqwcMQ2oCP9lXPLliqE4nKCF6w
- aqb5IC+0UKtvhTAyMSmUSyIvqEqD0oQEb7XysyKSqBloTM20g75k5xy1EJRc2YUI+Mep
- C3DlNnI2/YNFmNDrmFv1rjOcG3vHAf7hd7tSvSGG0nDgEYnytaMMOIALxs7ud2RyMhKZ
- t3Kq11LduNlWk3pBaDpUNrvbm947pbJIFDX4mNvoWUNTW6YR3SWOwo5ezxzxfXS6r2sV ng== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38fvu2ajna-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 May 2021 13:12:11 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14BH4G4D129200;
-        Tue, 11 May 2021 13:12:10 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38fvu2ajmk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 May 2021 13:12:10 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14BGveHA022106;
-        Tue, 11 May 2021 17:12:08 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 38dj989skk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 May 2021 17:12:08 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14BHBduk38076764
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 11 May 2021 17:11:39 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C3037A4054;
-        Tue, 11 May 2021 17:12:05 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6AB11A4060;
-        Tue, 11 May 2021 17:12:05 +0000 (GMT)
-Received: from ibm-vm (unknown [9.145.13.244])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 11 May 2021 17:12:05 +0000 (GMT)
-Date:   Tue, 11 May 2021 19:12:03 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, david@redhat.com, cohuck@redhat.com,
-        linux-s390@vger.kernel.org, thuth@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v2 5/6] s390x: uv-guest: Test invalid
- commands
-Message-ID: <20210511191203.79a08cbf@ibm-vm>
-In-Reply-To: <20210510135148.1904-6-frankja@linux.ibm.com>
-References: <20210510135148.1904-1-frankja@linux.ibm.com>
-        <20210510135148.1904-6-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        Tue, 11 May 2021 13:15:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1620753256;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=8AaaXxsESTBnzMWVw6jgpxF3Zkg6NquN/G3+2kSw2A0=;
+        b=D4r+GGUGCqG8YJR4VRWKfJsvU1hFSnWa4SFjIhdJIN0LSCudgq2WkVbiw74YaC42eHffZQ
+        yuMDeSqL+WZfgxy1AqnTONLmHwhBuYeEnLEj0M9vcAaU1gZ3Cg5QlKa+Y/I5+jwkrLKBQa
+        uiBLCl3YSD7vTmb/v5+x3FUqfo+PS0M=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-519-7k1Z6Js6OtyIa3jJRem1QQ-1; Tue, 11 May 2021 13:14:12 -0400
+X-MC-Unique: 7k1Z6Js6OtyIa3jJRem1QQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0F3AC800D55;
+        Tue, 11 May 2021 17:14:10 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.3.128.45])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7244261094;
+        Tue, 11 May 2021 17:13:59 +0000 (UTC)
+Date:   Tue, 11 May 2021 13:13:56 -0400
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Linux-Audit Mailing List <linux-audit@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org, Eric Paris <eparis@parisplace.org>,
+        Steve Grubb <sgrubb@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Eric Paris <eparis@redhat.com>, x86@kernel.org,
+        linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Arnd Bergmann <arnd@kernel.org>
+Subject: Re: [PATCH v3 1/3] audit: replace magic audit syscall class numbers
+ with macros
+Message-ID: <20210511171356.GN3141668@madcap2.tricolour.ca>
+References: <cover.1619811762.git.rgb@redhat.com>
+ <bda073f2a8b11000ef40cf8b965305409ee88f44.1619811762.git.rgb@redhat.com>
+ <CAHC9VhShi4u26h5OsahveQDNxO_uZ+KgzGOYEp5W7w6foA-uKg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2H_RJ0QGmZt8HphTlA_Kq3Nou4T2g91e
-X-Proofpoint-GUID: BKKTPps-wFo57TbfF_zyUVzFszfPLxgN
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-11_04:2021-05-11,2021-05-11 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
- impostorscore=0 spamscore=0 bulkscore=0 malwarescore=0 mlxlogscore=999
- phishscore=0 clxscore=1015 adultscore=0 priorityscore=1501 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2105110118
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhShi4u26h5OsahveQDNxO_uZ+KgzGOYEp5W7w6foA-uKg@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 10 May 2021 13:51:47 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> Let's check if the UV calls that should not be available in a
-> protected guest 2 are actually not available. Also let's check if they
-> are falsely indicated to be available.
+On 2021-05-10 21:23, Paul Moore wrote:
+> On Fri, Apr 30, 2021 at 4:36 PM Richard Guy Briggs <rgb@redhat.com> wrote:
+> >
+> > Replace audit syscall class magic numbers with macros.
+> >
+> > This required putting the macros into new header file
+> > include/linux/auditscm.h since the syscall macros were included for both 64
+> > bit and 32 bit in any compat code, causing redefinition warnings.
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-but see below for a nit
-
-> ---
->  s390x/uv-guest.c | 46 +++++++++++++++++++++++++++++++++++++++-------
->  1 file changed, 39 insertions(+), 7 deletions(-)
+> The ifndef/define didn't protect against redeclaration?  Huh.  Maybe
+> I'm not thinking about this correctly, or the arch specific code is
+> doing something wonky ...
 > 
-> diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
-> index e99029a7..ce2ef79b 100644
-> --- a/s390x/uv-guest.c
-> +++ b/s390x/uv-guest.c
-> @@ -121,16 +121,48 @@ static void test_sharing(void)
->  	report_prefix_pop();
->  }
->  
-> +static struct {
-> +	const char *name;
-> +	uint16_t cmd;
-> +	uint16_t len;
-> +	int call_bit;
-> +} invalid_cmds[] = {
-> +	{ "bogus", 0x4242, sizeof(struct uv_cb_header), -1 },
-> +	{ "init", UVC_CMD_INIT_UV, sizeof(struct uv_cb_init),
-> BIT_UVC_CMD_INIT_UV },
-> +	{ "create conf", UVC_CMD_CREATE_SEC_CONF, sizeof(struct
-> uv_cb_cgc), BIT_UVC_CMD_CREATE_SEC_CONF },
-> +	{ "destroy conf", UVC_CMD_DESTROY_SEC_CONF, sizeof(struct
-> uv_cb_nodata), BIT_UVC_CMD_DESTROY_SEC_CONF },
-> +	{ "create cpu", UVC_CMD_CREATE_SEC_CPU, sizeof(struct
-> uv_cb_csc), BIT_UVC_CMD_CREATE_SEC_CPU },
-> +	{ "destroy cpu", UVC_CMD_DESTROY_SEC_CPU, sizeof(struct
-> uv_cb_nodata), BIT_UVC_CMD_DESTROY_SEC_CPU },
-> +	{ "conv to", UVC_CMD_CONV_TO_SEC_STOR, sizeof(struct
-> uv_cb_cts), BIT_UVC_CMD_CONV_TO_SEC_STOR },
-> +	{ "conv from", UVC_CMD_CONV_FROM_SEC_STOR, sizeof(struct
-> uv_cb_cfs), BIT_UVC_CMD_CONV_FROM_SEC_STOR },
-> +	{ "set sec conf", UVC_CMD_SET_SEC_CONF_PARAMS, sizeof(struct
-> uv_cb_ssc), BIT_UVC_CMD_SET_SEC_PARMS },
-> +	{ "unpack", UVC_CMD_UNPACK_IMG, sizeof(struct uv_cb_unp),
-> BIT_UVC_CMD_UNPACK_IMG },
-> +	{ "verify", UVC_CMD_VERIFY_IMG, sizeof(struct uv_cb_nodata),
-> BIT_UVC_CMD_VERIFY_IMG },
-> +	{ "cpu reset", UVC_CMD_CPU_RESET, sizeof(struct
-> uv_cb_nodata), BIT_UVC_CMD_CPU_RESET },
-> +	{ "cpu initial reset", UVC_CMD_CPU_RESET_INITIAL,
-> sizeof(struct uv_cb_nodata), BIT_UVC_CMD_CPU_RESET_INITIAL },
-> +	{ "conf clear reset", UVC_CMD_PERF_CONF_CLEAR_RESET,
-> sizeof(struct uv_cb_nodata), BIT_UVC_CMD_PREPARE_CLEAR_RESET },
-> +	{ "cpu clear reset", UVC_CMD_CPU_RESET_CLEAR, sizeof(struct
-> uv_cb_nodata), BIT_UVC_CMD_CPU_PERFORM_CLEAR_RESET },
-> +	{ "cpu set state", UVC_CMD_CPU_SET_STATE, sizeof(struct
-> uv_cb_cpu_set_state), BIT_UVC_CMD_CPU_SET_STATE },
-> +	{ "pin shared", UVC_CMD_PIN_PAGE_SHARED, sizeof(struct
-> uv_cb_cfs), BIT_UVC_CMD_PIN_PAGE_SHARED },
-> +	{ "unpin shared", UVC_CMD_UNPIN_PAGE_SHARED, sizeof(struct
-> uv_cb_cts), BIT_UVC_CMD_UNPIN_PAGE_SHARED },
-> +	{ NULL, 0, 0 },
-> +};
-> +
->  static void test_invalid(void)
->  {
-> -	struct uv_cb_header uvcb = {
-> -		.len = 16,
-> -		.cmd = 0x4242,
-> -	};
-> -	int cc;
-> +	struct uv_cb_header *hdr = (void *)page;
-> +	int cc, i;
->  
-> -	cc = uv_call(0, (u64)&uvcb);
-> -	report(cc == 1 && uvcb.rc == UVC_RC_INV_CMD, "invalid
-> command");
-> +	report_prefix_push("invalid");
-> +	for (i = 0; invalid_cmds[i].name; i++) {
-> +		hdr->cmd = invalid_cmds[i].cmd;
-> +		hdr->len = invalid_cmds[i].len;
-> +		cc = uv_call(0, (u64)hdr);
-> +		report(cc == 1 && hdr->rc == UVC_RC_INV_CMD &&
-> +		       invalid_cmds[i].call_bit == -1 ? true :
-> !uv_query_test_call(invalid_cmds[i].call_bit),
+> Regardless, assuming that it is necessary, I would prefer if we called
+> it auditsc.h instead of auditscm.h; the latter makes me think of
+> sockets and not syscalls.
 
-maybe this is more readable:
+The "m" was for "macros", since there are auditsc bits in audit.h as
+well, but I have no significant objection.
 
-(invalid_cmds[i].call_bit == -1 ||
- !uv_query_test_call(invalid_cmds[i].call_bit))
+> > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+> > ---
+> >  MAINTAINERS                        |  1 +
+> >  arch/alpha/kernel/audit.c          |  8 ++++----
+> >  arch/ia64/kernel/audit.c           |  8 ++++----
+> >  arch/parisc/kernel/audit.c         |  8 ++++----
+> >  arch/parisc/kernel/compat_audit.c  |  9 +++++----
+> >  arch/powerpc/kernel/audit.c        | 10 +++++-----
+> >  arch/powerpc/kernel/compat_audit.c | 11 ++++++-----
+> >  arch/s390/kernel/audit.c           | 10 +++++-----
+> >  arch/s390/kernel/compat_audit.c    | 11 ++++++-----
+> >  arch/sparc/kernel/audit.c          | 10 +++++-----
+> >  arch/sparc/kernel/compat_audit.c   | 11 ++++++-----
+> >  arch/x86/ia32/audit.c              | 11 ++++++-----
+> >  arch/x86/kernel/audit_64.c         |  8 ++++----
+> >  include/linux/audit.h              |  1 +
+> >  include/linux/auditscm.h           | 23 +++++++++++++++++++++++
+> >  kernel/auditsc.c                   | 12 ++++++------
+> >  lib/audit.c                        | 10 +++++-----
+> >  lib/compat_audit.c                 | 11 ++++++-----
+> >  18 files changed, 102 insertions(+), 71 deletions(-)
+> >  create mode 100644 include/linux/auditscm.h
+> 
+> ...
+> 
+> > diff --git a/include/linux/auditscm.h b/include/linux/auditscm.h
+> > new file mode 100644
+> > index 000000000000..1c4f0ead5931
+> > --- /dev/null
+> > +++ b/include/linux/auditscm.h
+> > @@ -0,0 +1,23 @@
+> > +/* SPDX-License-Identifier: GPL-2.0-or-later */
+> > +/* auditscm.h -- Auditing support syscall macros
+> > + *
+> > + * Copyright 2021 Red Hat Inc., Durham, North Carolina.
+> > + * All Rights Reserved.
+> > + *
+> > + * Author: Richard Guy Briggs <rgb@redhat.com>
+> > + */
+> > +#ifndef _LINUX_AUDITSCM_H_
+> > +#define _LINUX_AUDITSCM_H_
+> > +
+> > +enum auditsc_class_t {
+> > +       AUDITSC_NATIVE = 0,
+> > +       AUDITSC_COMPAT,
+> > +       AUDITSC_OPEN,
+> > +       AUDITSC_OPENAT,
+> > +       AUDITSC_SOCKETCALL,
+> > +       AUDITSC_EXECVE,
+> > +
+> > +       AUDITSC_NVALS /* count */
+> > +};
+> > +
+> > +#endif
+> 
+> -- 
+> paul moore
+> www.paul-moore.com
+> 
 
-> +		       "%s", invalid_cmds[i].name);
-> +	}
-> +	report_prefix_pop();
->  }
->  
->  int main(void)
+- RGB
+
+--
+Richard Guy Briggs <rgb@redhat.com>
+Sr. S/W Engineer, Kernel Security, Base Operating Systems
+Remote, Ottawa, Red Hat Canada
+IRC: rgb, SunRaycer
+Voice: +1.647.777.2635, Internal: (81) 32635
 
