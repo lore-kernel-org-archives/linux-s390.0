@@ -2,143 +2,194 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57249C433B4
-	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 14:36:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F258C433B4
+	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 14:42:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 25050611F1
-	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 14:36:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 62A9861288
+	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 14:42:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231907AbhEKOhF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 May 2021 10:37:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50342 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231154AbhEKOhE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 May 2021 10:37:04 -0400
-Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2C4AC061574
-        for <linux-s390@vger.kernel.org>; Tue, 11 May 2021 07:35:57 -0700 (PDT)
-Received: by mail-oi1-x22e.google.com with SMTP id z3so17980409oib.5
-        for <linux-s390@vger.kernel.org>; Tue, 11 May 2021 07:35:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google;
-        h=subject:to:references:from:cc:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ETXAFKWQdH8/eG9YgJ2MyXQqUI4w0G+a8+7kidOetNw=;
-        b=D+8UcMkB2GUwjj2F27jdDoxAVAL9rdC9MdMoJFlDBNeHzfe67XWP/sw3xSweHhjvu0
-         L7zFyh43n9/fy4cUZSlUsyNvNqDkT2TqDuEFXFN77WQ7UwdcaxgaJydbt2h0Tqt9neqT
-         2ljICDLxSDdscBg19eDiJRfFGl65YBejwUIvU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:cc:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ETXAFKWQdH8/eG9YgJ2MyXQqUI4w0G+a8+7kidOetNw=;
-        b=L50LcloVwNtdL9BEN53Mn30VLQC6ucw/jaN3eSy3PTocYX4YzkOKx/AML5OFQnK849
-         Zm1J4IqoFHS9emfHoz+WSmuyG7N+RIDdrTWH/0AYfXOCJARRiCQQUN3zYBZ0tfSFakd7
-         LwgW2LSmo1V+uKRJTfG/AjVcPXMatF+qnS84xdGLwBbqIoGiC8HgkJKmqpX7l2HXkfy6
-         Ei9tONPM2n6xbduKyvP09XSdONUYDyoxO3QryycUrDMX14tTlUpDobEZNB4ieBFVkMoA
-         EOdWjFp5kIl7TZzlQqYwGW7bpvESWgVyMo2ZK8Eio6LW0yCe3+rlTf2RegzcukMAfEZJ
-         P7DQ==
-X-Gm-Message-State: AOAM532/AOuXLCp58qN2XWuAW+m39ACPmGDdCaA5yH7nJpGJXPOb0fEX
-        zjtRWqcZvNxkH+Fzw4XCwUbKtg==
-X-Google-Smtp-Source: ABdhPJyvp7T0CdewBKkqMXtDA5ThSmqkKCGgPnZJ05uagz+Vq5z9FBuvh4nrA0ZkdxuooO6UIklVPg==
-X-Received: by 2002:aca:53d8:: with SMTP id h207mr3883260oib.177.1620743757147;
-        Tue, 11 May 2021 07:35:57 -0700 (PDT)
-Received: from [172.22.22.4] (c-73-185-129-58.hsd1.mn.comcast.net. [73.185.129.58])
-        by smtp.googlemail.com with ESMTPSA id 2sm3341540ota.67.2021.05.11.07.35.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 May 2021 07:35:56 -0700 (PDT)
-Subject: Re: [PATCH v3 1/1] kernel.h: Split out panic and oops helpers
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-References: <20210511074137.33666-1-andriy.shevchenko@linux.intel.com>
-From:   Alex Elder <elder@ieee.org>
-Cc:     linux-xtensa@linux-xtensa.org,
-        openipmi-developer@lists.sourceforge.net,
-        linux-clk@vger.kernel.org, linux-edac@vger.kernel.org,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        coresight@lists.linaro.org, linux-leds@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-staging@lists.linux.dev, dri-devel@lists.freedesktop.org,
-        linux-fbdev@vger.kernel.org, linux-arch@vger.kernel.org,
-        kexec@lists.infradead.org, rcu@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, xen-devel@lists.xenproject.org
-Message-ID: <c6fa5d2c-84e2-2046-19f0-66cf5dd72077@ieee.org>
-Date:   Tue, 11 May 2021 09:35:54 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S231841AbhEKOnc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 May 2021 10:43:32 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:65252 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231681AbhEKOnb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 11 May 2021 10:43:31 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14BEZLKM181915;
+        Tue, 11 May 2021 10:42:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Pyje8jRIZ5YwHttqBQnmXopZr3LgujmVgjPacEuTfVo=;
+ b=TnGz6gB/zu0r/b/b2q1loFEaB4hWAJNPXZ9h+JRjtsY3rx+tYTqJ44eycNpagvZnPcTy
+ dPTqn7A6Bi0RWFKpEBifqqFk1EeuqqpMcK9ATkrg3qRHg7VVlUNn3ZJZJQV5iDESbdoO
+ GTddLZycZUhwm0b1/7aoak2O7TXp14RG/cfWprsz1LSmKNCkbr1JZ8aq0crHGnQJJsd7
+ y+6k1phlriFGnfdnhTWK87RBbCgOv/LO5uK+MmwKEEwcpvyGSNpnVQvY5hAZ53Phvz/f
+ GWs7fmRzL132NVv7L3Bww05xHuuEpJ8oCPopARUGL6Iz6DiJZFhtrfIkgsNvZuBPw6bF vw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38ftarbqp1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 11 May 2021 10:42:24 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14BEaAsH186008;
+        Tue, 11 May 2021 10:42:24 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38ftarbqmc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 11 May 2021 10:42:24 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14BEduHg016600;
+        Tue, 11 May 2021 14:42:21 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 38dj989qud-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 11 May 2021 14:42:21 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14BEfq7o19333504
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 11 May 2021 14:41:52 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B2E7C11C04A;
+        Tue, 11 May 2021 14:42:18 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1ADF911C04C;
+        Tue, 11 May 2021 14:42:18 +0000 (GMT)
+Received: from ibm-vm (unknown [9.145.13.244])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 11 May 2021 14:42:18 +0000 (GMT)
+Date:   Tue, 11 May 2021 16:42:02 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, david@redhat.com, cohuck@redhat.com,
+        linux-s390@vger.kernel.org, thuth@redhat.com
+Subject: Re: [kvm-unit-tests PATCH 3/4] s390x: cpumodel: FMT4 SCLP test
+Message-ID: <20210511164202.0049c1a0@ibm-vm>
+In-Reply-To: <20210510150015.11119-4-frankja@linux.ibm.com>
+References: <20210510150015.11119-1-frankja@linux.ibm.com>
+        <20210510150015.11119-4-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20210511074137.33666-1-andriy.shevchenko@linux.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: T-7PZLuejSLZWEmt-m4WXRb9InlRnRF_
+X-Proofpoint-ORIG-GUID: 98pXpknhH_fPZ9mIf-5S2OWt9MYpqb51
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-11_02:2021-05-11,2021-05-11 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
+ impostorscore=0 bulkscore=0 lowpriorityscore=0 phishscore=0 malwarescore=0
+ suspectscore=0 spamscore=0 mlxscore=0 priorityscore=1501 clxscore=1011
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2105110110
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/11/21 2:41 AM, Andy Shevchenko wrote:
-> kernel.h is being used as a dump for all kinds of stuff for a long time.
-> Here is the attempt to start cleaning it up by splitting out panic and
-> oops helpers.
+On Mon, 10 May 2021 15:00:14 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
+
+> SCLP is also part of the cpumodel, so we need to make sure that the
+> features indicated via read info / read cpu info are correct.
 > 
-> There are several purposes of doing this:
-> - dropping dependency in bug.h
-> - dropping a loop by moving out panic_notifier.h
-> - unload kernel.h from something which has its own domain
-> 
-> At the same time convert users tree-wide to use new headers, although
-> for the time being include new header back to kernel.h to avoid twisted
-> indirected includes for existing users.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-> Acked-by: Corey Minyard <cminyard@mvista.com>
-> Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-> Acked-by: Kees Cook <keescook@chromium.org>
-> Acked-by: Wei Liu <wei.liu@kernel.org>
-> Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-> Co-developed-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Acked-by: Sebastian Reichel <sre@kernel.org>
-> Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-> Acked-by: Stephen Boyd <sboyd@kernel.org>
-> Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Acked-by: Helge Deller <deller@gmx.de> # parisc
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
 > ---
-> v3: rebased on top of v5.13-rc1, collected a few more tags
+>  s390x/cpumodel.c | 59
+> +++++++++++++++++++++++++++++++++++++++++++++++- 1 file changed, 58
+> insertions(+), 1 deletion(-)
 > 
-> Note WRT Andrew's SoB tag above: I have added it since part of the cases
-> I took from him. Andrew, feel free to amend or tell me how you want me
-> to do.
-> 
+> diff --git a/s390x/cpumodel.c b/s390x/cpumodel.c
+> index 4dd8b96f..619c3dc7 100644
+> --- a/s390x/cpumodel.c
+> +++ b/s390x/cpumodel.c
+> @@ -2,14 +2,69 @@
+>  /*
+>   * Test the known dependencies for facilities
+>   *
+> - * Copyright 2019 IBM Corp.
+> + * Copyright 2019, 2021 IBM Corp.
+>   *
+>   * Authors:
+>   *    Christian Borntraeger <borntraeger@de.ibm.com>
+> + *    Janosch Frank <frankja@linux.ibm.com>
+>   */
+>  
+>  #include <asm/facility.h>
+>  #include <vm.h>
+> +#include <sclp.h>
+> +#include <uv.h>
+> +#include <asm/uv.h>
+> +
+> +static void test_sclp_missing_sief2_implications(void)
+> +{
+> +	/* Virtualization related facilities */
+> +	report(!sclp_facilities.has_64bscao, "!64bscao");
+> +	report(!sclp_facilities.has_pfmfi, "!pfmfi");
+> +	report(!sclp_facilities.has_gsls, "!gsls");
+> +	report(!sclp_facilities.has_cmma, "!cmma");
+> +	report(!sclp_facilities.has_esca, "!esca");
+> +	report(!sclp_facilities.has_kss, "!kss");
+> +	report(!sclp_facilities.has_ibs, "!ibs");
+> +
+> +	/* Virtualization related facilities reported via CPU
+> entries */
+> +	report(!sclp_facilities.has_sigpif, "!sigpif");
+> +	report(!sclp_facilities.has_sief2, "!sief2");
+> +	report(!sclp_facilities.has_skeyi, "!skeyi");
+> +	report(!sclp_facilities.has_siif, "!siif");
+> +	report(!sclp_facilities.has_cei, "!cei");
+> +	report(!sclp_facilities.has_ib, "!ib");
+> +}
+> +
+> +static void test_sclp_features_fmt4(void)
+> +{
+> +	/*
+> +	 * STFLE facilities are handled by the Ultravisor but SCLP
+> +	 * facilities are advertised by the hypervisor.
+> +	 */
+> +	report_prefix_push("PV guest implies");
+> +
+> +	/* General facilities */
+> +	report(!sclp_facilities.has_diag318, "!diag318");
+> +
+> +	/*
+> +	 * Virtualization related facilities, all of which are
+> +	 * unavailable because there's no virtualization support in a
+> +	 * protected guest.
+> +	 */
+> +	test_sclp_missing_sief2_implications();
+> +
+> +	report_prefix_pop();
+> +}
+> +
+> +static void test_sclp_features(void)
+> +{
+> +	report_prefix_push("sclp");
+> +
+> +	if (uv_os_is_guest())
+> +		test_sclp_features_fmt4();
+> +
+> +	report_prefix_pop();
+> +}
+>  
+>  static struct {
+>  	int facility;
+> @@ -60,6 +115,8 @@ int main(void)
+>  	}
+>  	report_prefix_pop();
+>  
+> +	test_sclp_features();
+> +
+>  	report_prefix_pop();
+>  	return report_summary();
+>  }
 
-Acked-by: Alex Elder <elder@kernel.org>
-
-. . .
-
-> diff --git a/drivers/net/ipa/ipa_smp2p.c b/drivers/net/ipa/ipa_smp2p.c
-> index a5f7a79a1923..34b68dc43886 100644
-> --- a/drivers/net/ipa/ipa_smp2p.c
-> +++ b/drivers/net/ipa/ipa_smp2p.c
-> @@ -8,6 +8,7 @@
->   #include <linux/device.h>
->   #include <linux/interrupt.h>
->   #include <linux/notifier.h>
-> +#include <linux/panic_notifier.h>
->   #include <linux/soc/qcom/smem.h>
->   #include <linux/soc/qcom/smem_state.h>
->   
-
-. . .
