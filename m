@@ -8,74 +8,73 @@ X-Spam-Status: No, score=-18.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECB3AC433B4
-	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 11:43:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BD56C433B4
+	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 11:45:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C380B61155
-	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 11:43:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3972B61155
+	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 11:45:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231472AbhEKLor (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 May 2021 07:44:47 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:39696 "EHLO
+        id S231392AbhEKLqQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 May 2021 07:46:16 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24265 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231422AbhEKLoq (ORCPT
+        by vger.kernel.org with ESMTP id S230400AbhEKLqO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 11 May 2021 07:44:46 -0400
+        Tue, 11 May 2021 07:46:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1620733420;
+        s=mimecast20190719; t=1620733508;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=R61d3xwdyDD7x6c1LP7evU2g3D1imnjYhld/TmvsON0=;
-        b=XFjgUPNxvWF2030fKjYYJYBrnotjao9nvLKtspOPCsEfpcZc1kTPRGSwW2ce7Wi5SPhH0z
-        ysB3ne45w5w9NY1mnXTfzqJcYAdgFIHORPUQ30bKmheD8ilHz8QJ7mgTHTBdYVGq1vNw/D
-        37yJO9EE3NQ81KdirYUDQoqIFnS0ptE=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-72-r-gIWFcIMXap_HB08NbxnQ-1; Tue, 11 May 2021 07:43:38 -0400
-X-MC-Unique: r-gIWFcIMXap_HB08NbxnQ-1
-Received: by mail-wm1-f69.google.com with SMTP id d199-20020a1c1dd00000b02901492c14476eso623279wmd.2
-        for <linux-s390@vger.kernel.org>; Tue, 11 May 2021 04:43:38 -0700 (PDT)
+        bh=0otTSj3OsAISXi/QZvZvvC7OfoKZIM9PUw7jqrFrVd8=;
+        b=FMcOup1ah/qj8qSmCET0A1Nb5KFS16NoOSgFIxK2RZ1ummMxVwIn155GFmn+EL60XLzjpi
+        8LBePzjzD6oN2GA2dDk2qebyN6vciwdVao2VXh/GFkN9ECm+hnLbvwCqUz8kmHnGrSSBUU
+        oylMXZCSbH3DQZVte/efKrhK5SvLCwY=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-470-BUtNKAITPhG8kPaTXEIxjg-1; Tue, 11 May 2021 07:45:06 -0400
+X-MC-Unique: BUtNKAITPhG8kPaTXEIxjg-1
+Received: by mail-wm1-f71.google.com with SMTP id y193-20020a1c32ca0000b029014cbf30c3f2so954466wmy.1
+        for <linux-s390@vger.kernel.org>; Tue, 11 May 2021 04:45:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:organization
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=R61d3xwdyDD7x6c1LP7evU2g3D1imnjYhld/TmvsON0=;
-        b=EAm0nCgsDRe84/fS7ZA/pZiAWP+NdBa6P60KK7DHoeIKrMQW5T588v/KU+C8dv2pDm
-         koxIW4JrBXaSvLP9+cZieqNofMtW6sw9HfARIt/XzC+iPvh9J14haqn/eYj3XJJZQHBW
-         rpO57yYoGsk6iAD3c9sjOrTO3yMqe1g5Z2bHGeiYSbGnWAsJX4oCCjUpSLP3I5DA1yQv
-         0hPwFzAjbBiHWfJIcMeAHAlKSRH6RNJuXP7A7e3fXYiF3udsSjuZphB/5NBLO8hc9oII
-         oeFQwVqtJ2ntNQYdhqtqpw4ewkZq4ZHWY9fbfmn+k50GG3x69tT8Ewt4AsxgkSgJyq47
-         qmZg==
-X-Gm-Message-State: AOAM530pCgnIK3yCgA+91kXulJoPiQ6bFafXwt5DCifyDgYDnSDCrS1i
-        X6dFIyzWzs95nwUCHLUi22lJVwlXFxZ7zkLdc241+1c+ubZqnWMlXgAHzSRdwZReuM7hHX0qSYt
-        hlgNda2lcuv1y5q8dleCzDw==
-X-Received: by 2002:a05:6000:1286:: with SMTP id f6mr734418wrx.226.1620733417405;
-        Tue, 11 May 2021 04:43:37 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwaFJoiMBvy0DznXdcNHkbHPAkZjMIyDw0VJ4Zof2iz9Vz6sy3hBLp7VRZ/8RXV5oH4v/pBYg==
-X-Received: by 2002:a05:6000:1286:: with SMTP id f6mr734402wrx.226.1620733417244;
-        Tue, 11 May 2021 04:43:37 -0700 (PDT)
+        bh=0otTSj3OsAISXi/QZvZvvC7OfoKZIM9PUw7jqrFrVd8=;
+        b=ENkCYXY+YMmNMGj9oi/3CYZQYHb6g7pnIGRH4DdyVhrG5qfBjrXg2hf7Wf9C/k5mw8
+         gA2dIdaFC7TZWn82+cfXfaHZg4EAe5n3aYd1kjYjAAvUX7OIndj9q5h8ivVlptWfYzWe
+         IqQKrtIKVachTGu7afSgEvjW8rPrcS86zATw4Q2jmgYBF7tbZydIUWp0XXggVoKSzygF
+         MDEZJmunP05YWZ5NgraFGX/0rYqWZgtBfDj1NZ2CObRSyagC7hUC//+ZJj6qnEHXD94s
+         P1R9pTiJCYaW6NLKfv/wVzNBMuo133QTQkW5s1/QtoTb7HxxtKX+9MowkqxxdIWTwb+q
+         Ewkg==
+X-Gm-Message-State: AOAM531w1qwyimpEhHNTdsbEbr3ldg5op9lk98HZD9UAypErEJ7q4KoP
+        U0u2XG/Tz6YfeQs4AB0ML+2/S5QC0H7ddtlpjT/liLdcBYdqPvMQkgg1bImXgWlxhxrxdBXo1SY
+        Jzf9kwkytekSuRVYVZ8Vrfg==
+X-Received: by 2002:a7b:c7d0:: with SMTP id z16mr31843670wmk.22.1620733505081;
+        Tue, 11 May 2021 04:45:05 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxeoG0qMkWvIW/Vmsi2YQP64+0h62W/3xn4fsB9Rj2MA+kkAHHPP/2nY55iSlh5Wwgi0nCLYw==
+X-Received: by 2002:a7b:c7d0:: with SMTP id z16mr31843653wmk.22.1620733504892;
+        Tue, 11 May 2021 04:45:04 -0700 (PDT)
 Received: from [192.168.3.132] (p5b0c6329.dip0.t-ipconnect.de. [91.12.99.41])
-        by smtp.gmail.com with ESMTPSA id k10sm4640820wmf.0.2021.05.11.04.43.36
+        by smtp.gmail.com with ESMTPSA id f11sm3243694wmq.41.2021.05.11.04.45.04
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 May 2021 04:43:37 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH 2/4] lib: s390x: sclp: Extend feature
- probing
+        Tue, 11 May 2021 04:45:04 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH 3/4] s390x: cpumodel: FMT4 SCLP test
 To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     cohuck@redhat.com, linux-s390@vger.kernel.org,
         imbrenda@linux.ibm.com, thuth@redhat.com
 References: <20210510150015.11119-1-frankja@linux.ibm.com>
- <20210510150015.11119-3-frankja@linux.ibm.com>
+ <20210510150015.11119-4-frankja@linux.ibm.com>
 From:   David Hildenbrand <david@redhat.com>
 Organization: Red Hat
-Message-ID: <b0db681f-bfe3-5cf3-53f8-651bba04a5c5@redhat.com>
-Date:   Tue, 11 May 2021 13:43:36 +0200
+Message-ID: <10c758a5-9347-37ad-dc37-f4cde5af066c@redhat.com>
+Date:   Tue, 11 May 2021 13:45:04 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <20210510150015.11119-3-frankja@linux.ibm.com>
+In-Reply-To: <20210510150015.11119-4-frankja@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -84,39 +83,101 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 10.05.21 17:00, Janosch Frank wrote:
-> Lets grab more of the feature bits from SCLP read info so we can use
-> them in the cpumodel tests.
+> SCLP is also part of the cpumodel, so we need to make sure that the
+> features indicated via read info / read cpu info are correct.
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > ---
->   lib/s390x/sclp.c | 20 ++++++++++++++++++++
->   lib/s390x/sclp.h | 38 +++++++++++++++++++++++++++++++++++---
->   2 files changed, 55 insertions(+), 3 deletions(-)
+>   s390x/cpumodel.c | 59 +++++++++++++++++++++++++++++++++++++++++++++++-
+>   1 file changed, 58 insertions(+), 1 deletion(-)
 > 
-> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-> index f11c2035..f25cfdb2 100644
-> --- a/lib/s390x/sclp.c
-> +++ b/lib/s390x/sclp.c
-> @@ -129,6 +129,13 @@ CPUEntry *sclp_get_cpu_entries(void)
->   	return (CPUEntry *)(_read_info + read_info->offset_cpu);
->   }
+> diff --git a/s390x/cpumodel.c b/s390x/cpumodel.c
+> index 4dd8b96f..619c3dc7 100644
+> --- a/s390x/cpumodel.c
+> +++ b/s390x/cpumodel.c
+> @@ -2,14 +2,69 @@
+>   /*
+>    * Test the known dependencies for facilities
+>    *
+> - * Copyright 2019 IBM Corp.
+> + * Copyright 2019, 2021 IBM Corp.
+>    *
+>    * Authors:
+>    *    Christian Borntraeger <borntraeger@de.ibm.com>
+> + *    Janosch Frank <frankja@linux.ibm.com>
+>    */
 >   
-> +static bool sclp_feat_check(int byte, int mask)
-> +{
-> +	uint8_t *rib = (uint8_t *)read_info;
+>   #include <asm/facility.h>
+>   #include <vm.h>
+> +#include <sclp.h>
+> +#include <uv.h>
+> +#include <asm/uv.h>
 > +
-> +	return !!(rib[byte] & mask);
+> +static void test_sclp_missing_sief2_implications(void)
+> +{
+> +	/* Virtualization related facilities */
+> +	report(!sclp_facilities.has_64bscao, "!64bscao");
+> +	report(!sclp_facilities.has_pfmfi, "!pfmfi");
+> +	report(!sclp_facilities.has_gsls, "!gsls");
+> +	report(!sclp_facilities.has_cmma, "!cmma");
+> +	report(!sclp_facilities.has_esca, "!esca");
+> +	report(!sclp_facilities.has_kss, "!kss");
+> +	report(!sclp_facilities.has_ibs, "!ibs");
+> +
+> +	/* Virtualization related facilities reported via CPU entries */
+> +	report(!sclp_facilities.has_sigpif, "!sigpif");
+> +	report(!sclp_facilities.has_sief2, "!sief2");
+> +	report(!sclp_facilities.has_skeyi, "!skeyi");
+> +	report(!sclp_facilities.has_siif, "!siif");
+> +	report(!sclp_facilities.has_cei, "!cei");
+> +	report(!sclp_facilities.has_ib, "!ib");
 > +}
+> +
+> +static void test_sclp_features_fmt4(void)
+> +{
+> +	/*
+> +	 * STFLE facilities are handled by the Ultravisor but SCLP
+> +	 * facilities are advertised by the hypervisor.
+> +	 */
+> +	report_prefix_push("PV guest implies");
+> +
+> +	/* General facilities */
+> +	report(!sclp_facilities.has_diag318, "!diag318");
+> +
+> +	/*
+> +	 * Virtualization related facilities, all of which are
+> +	 * unavailable because there's no virtualization support in a
+> +	 * protected guest.
+> +	 */
+> +	test_sclp_missing_sief2_implications();
+> +
+> +	report_prefix_pop();
+> +}
+> +
+> +static void test_sclp_features(void)
+> +{
+> +	report_prefix_push("sclp");
+> +
+> +	if (uv_os_is_guest())
+> +		test_sclp_features_fmt4();
+> +
+> +	report_prefix_pop();
+> +}
+>   
+>   static struct {
+>   	int facility;
+> @@ -60,6 +115,8 @@ int main(void)
+>   	}
+>   	report_prefix_pop();
+>   
+> +	test_sclp_features();
+> +
+>   	report_prefix_pop();
+>   	return report_summary();
+>   }
+> 
 
-Instead of a mask, I'd just check for bit (offset) numbers within the byte.
-
-static bool sclp_feat_check(int byte, int bit)
-{
-	uint8_t *rib = (uint8_t *)read_info;
-
-	return !!(rib[byte] & (0x80 >> bit));
-}
+Acked-by: David Hildenbrand <david@redhat.com>
 
 -- 
 Thanks,
