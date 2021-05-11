@@ -2,198 +2,153 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA2ADC433B4
-	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 08:38:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B7B7C433ED
+	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 11:32:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6E64861624
-	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 08:38:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D318961207
+	for <linux-s390@archiver.kernel.org>; Tue, 11 May 2021 11:32:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230453AbhEKIkD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 May 2021 04:40:03 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:41330 "EHLO
+        id S230501AbhEKLdK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 May 2021 07:33:10 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24572 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230126AbhEKIkB (ORCPT
+        by vger.kernel.org with ESMTP id S231273AbhEKLdJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 11 May 2021 04:40:01 -0400
+        Tue, 11 May 2021 07:33:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1620722335;
+        s=mimecast20190719; t=1620732723;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=oAopTEbdD9SUh6PQTXI2MykT2T2jIRp0VGhtGVWodjg=;
-        b=I9C6OlbcmXOMZOkN0/jLrZOqQ1B+Rf890chd7w6VaAKWOoI0nKTlHCPThla8IthEZMj6iz
-        zNYnKvTpfrSjh6/22ZHLmF2RiHJhn1BfxxjIrSXRuczEcDjQRfPbToETKhFVxpsZZeKhGK
-        Qo33zxiA30ezsYMg6ffxUj9vYPfG2pk=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-453-gNtaEiOMNiCa909xykLz0g-1; Tue, 11 May 2021 04:38:54 -0400
-X-MC-Unique: gNtaEiOMNiCa909xykLz0g-1
-Received: by mail-ed1-f69.google.com with SMTP id c21-20020a0564021015b029038c3f08ce5aso5036396edu.18
-        for <linux-s390@vger.kernel.org>; Tue, 11 May 2021 01:38:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=oAopTEbdD9SUh6PQTXI2MykT2T2jIRp0VGhtGVWodjg=;
-        b=ROqKo8mqphSvW2G3GizgDMtgDHjdr/hFrdTDebB2SJ48/OIhTG398EFzl35xe7GPFi
-         +mrJ6QjOnVI/5Y507Zb84zolYGldi3VNRIcrSKJtPzaMEIJN8TZJlY1LjMCJ8Rihb5pt
-         KCPjRW3RmZY6wDseJkT0RJ+HLn8vlVuZxgEo6pTcRV+rOKTDS8ipUlrbxpLvgb5L/zjN
-         yYfTiiIvENguRJ2WCAwcGtZwnOKRyz3bnuO7woSkJzdRr+fT4LworyAmq9Nyc1hjn4dX
-         7fPvyc7OFFasLFtXhvmgywVIYssaVivKwm8rtjQla4Fj0EXujvwu5b2f5edS+TTTEuI2
-         XYwA==
-X-Gm-Message-State: AOAM53307uolPxXFWoAbki5XTCN7lw967Rs4aVUpR4yTOOymgdVgNG3w
-        rkntvKqs7xdsm7c6cCVRuyyyMmSNseSAzLGYk2VpRV7pfx2KFTzQN8b9hJhZBuI8onNNT25irBN
-        vs5zSqhW5J9BlvJwYlqetCA==
-X-Received: by 2002:a17:906:9718:: with SMTP id k24mr1941018ejx.23.1620722332729;
-        Tue, 11 May 2021 01:38:52 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyT75fua4+WgIi/rgmXTzVvo4K8REfXZdDbFxcG2kK4Dqn2ZsdkeL1pgt+qT2yOLrXO7W/tLA==
-X-Received: by 2002:a17:906:9718:: with SMTP id k24mr1940987ejx.23.1620722332520;
-        Tue, 11 May 2021 01:38:52 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id b21sm11083756ejg.80.2021.05.11.01.38.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 May 2021 01:38:51 -0700 (PDT)
-Subject: Re: [PATCH v4 0/4] KVM statistics data fd-based binary interface
-To:     Jing Zhang <jingzhangos@google.com>, KVM <kvm@vger.kernel.org>,
-        KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>
-References: <20210429203740.1935629-1-jingzhangos@google.com>
- <CAAdAUtgW0vYmr5rqiMJKbZSjgEtLQqxfHd8H0fxrTbE0o4zmWw@mail.gmail.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <cdf0a42f-c52b-bf79-5237-5f3b31077db7@redhat.com>
-Date:   Tue, 11 May 2021 10:38:50 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        bh=noaKl91GZtjSUFV6u8sREF0taPucQNZsvq/1PFe3aI8=;
+        b=grEqDoXBIf4gvWBKhnnSiGcD9XirCQjATlmhR+EXFjssR8Rgu9SAQFU73UuOJ673CxX060
+        v2QfOQ01NhdqnC/EomXwRx9UtQLcmDBqocgOVpnS82zmaxQfxKm8dOO6M7OSzXRrcJm7mI
+        PmAhBTbC2ZEq8UxRbrQ8QnFHhHQTFDY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-212-QStnA6OgOfGIT25KW3zosw-1; Tue, 11 May 2021 07:31:59 -0400
+X-MC-Unique: QStnA6OgOfGIT25KW3zosw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C473410066E8;
+        Tue, 11 May 2021 11:31:58 +0000 (UTC)
+Received: from gondolin.fritz.box (ovpn-113-172.ams2.redhat.com [10.36.113.172])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7447362499;
+        Tue, 11 May 2021 11:31:57 +0000 (UTC)
+Date:   Tue, 11 May 2021 13:31:54 +0200
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [RFC PATCH v5 3/3] vfio-ccw: Serialize FSM IDLE state with I/O
+ completion
+Message-ID: <20210511133154.66440087.cohuck@redhat.com>
+In-Reply-To: <20210510205646.1845844-4-farman@linux.ibm.com>
+References: <20210510205646.1845844-1-farman@linux.ibm.com>
+        <20210510205646.1845844-4-farman@linux.ibm.com>
+Organization: Red Hat GmbH
 MIME-Version: 1.0
-In-Reply-To: <CAAdAUtgW0vYmr5rqiMJKbZSjgEtLQqxfHd8H0fxrTbE0o4zmWw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/05/21 20:57, Jing Zhang wrote:
-> Hi Paolo,
-> 
-> On Thu, Apr 29, 2021 at 3:37 PM Jing Zhang <jingzhangos@google.com> wrote:
->>
->> This patchset provides a file descriptor for every VM and VCPU to read
->> KVM statistics data in binary format.
->> It is meant to provide a lightweight, flexible, scalable and efficient
->> lock-free solution for user space telemetry applications to pull the
->> statistics data periodically for large scale systems. The pulling
->> frequency could be as high as a few times per second.
->> In this patchset, every statistics data are treated to have some
->> attributes as below:
->>    * architecture dependent or common
->>    * VM statistics data or VCPU statistics data
->>    * type: cumulative, instantaneous,
->>    * unit: none for simple counter, nanosecond, microsecond,
->>      millisecond, second, Byte, KiByte, MiByte, GiByte. Clock Cycles
->> Since no lock/synchronization is used, the consistency between all
->> the statistics data is not guaranteed. That means not all statistics
->> data are read out at the exact same time, since the statistics date
->> are still being updated by KVM subsystems while they are read out.
->>
->> ---
->>
->> * v3 -> v4
->>    - Rebase to kvm/queue, commit 9f242010c3b4 ("KVM: avoid "deadlock"
->>      between install_new_memslots and MMU notifier")
->>    - Use C-stype comments in the whole patch
->>    - Fix wrong count for x86 VCPU stats descriptors
->>    - Fix KVM stats data size counting and validity check in selftest
->>
->> * v2 -> v3
->>    - Rebase to kvm/queue, commit edf408f5257b ("KVM: avoid "deadlock"
->>      between install_new_memslots and MMU notifier")
->>    - Resolve some nitpicks about format
->>
->> * v1 -> v2
->>    - Use ARRAY_SIZE to count the number of stats descriptors
->>    - Fix missing `size` field initialization in macro STATS_DESC
->>
->> [1] https://lore.kernel.org/kvm/20210402224359.2297157-1-jingzhangos@google.com
->> [2] https://lore.kernel.org/kvm/20210415151741.1607806-1-jingzhangos@google.com
->> [3] https://lore.kernel.org/kvm/20210423181727.596466-1-jingzhangos@google.com
->>
->> ---
->>
->> Jing Zhang (4):
->>    KVM: stats: Separate common stats from architecture specific ones
->>    KVM: stats: Add fd-based API to read binary stats data
->>    KVM: stats: Add documentation for statistics data binary interface
->>    KVM: selftests: Add selftest for KVM statistics data binary interface
->>
->>   Documentation/virt/kvm/api.rst                | 171 ++++++++
->>   arch/arm64/include/asm/kvm_host.h             |   9 +-
->>   arch/arm64/kvm/guest.c                        |  42 +-
->>   arch/mips/include/asm/kvm_host.h              |   9 +-
->>   arch/mips/kvm/mips.c                          |  67 ++-
->>   arch/powerpc/include/asm/kvm_host.h           |   9 +-
->>   arch/powerpc/kvm/book3s.c                     |  68 +++-
->>   arch/powerpc/kvm/book3s_hv.c                  |  12 +-
->>   arch/powerpc/kvm/book3s_pr.c                  |   2 +-
->>   arch/powerpc/kvm/book3s_pr_papr.c             |   2 +-
->>   arch/powerpc/kvm/booke.c                      |  63 ++-
->>   arch/s390/include/asm/kvm_host.h              |   9 +-
->>   arch/s390/kvm/kvm-s390.c                      | 133 +++++-
->>   arch/x86/include/asm/kvm_host.h               |   9 +-
->>   arch/x86/kvm/x86.c                            |  71 +++-
->>   include/linux/kvm_host.h                      | 132 +++++-
->>   include/linux/kvm_types.h                     |  12 +
->>   include/uapi/linux/kvm.h                      |  50 +++
->>   tools/testing/selftests/kvm/.gitignore        |   1 +
->>   tools/testing/selftests/kvm/Makefile          |   3 +
->>   .../testing/selftests/kvm/include/kvm_util.h  |   3 +
->>   .../selftests/kvm/kvm_bin_form_stats.c        | 380 ++++++++++++++++++
->>   tools/testing/selftests/kvm/lib/kvm_util.c    |  11 +
->>   virt/kvm/kvm_main.c                           | 237 ++++++++++-
->>   24 files changed, 1415 insertions(+), 90 deletions(-)
->>   create mode 100644 tools/testing/selftests/kvm/kvm_bin_form_stats.c
->>
->>
->> base-commit: 9f242010c3b46e63bc62f08fff42cef992d3801b
->> --
->> 2.31.1.527.g47e6f16901-goog
->>
-> 
-> Do I need to send another version for this?
+On Mon, 10 May 2021 22:56:46 +0200
+Eric Farman <farman@linux.ibm.com> wrote:
 
-No, the merge window has just finished and I wanted to flush the dozens 
-of bugfix patches that I had.  I'll get to it shortly.
+> Today, the stacked call to vfio_ccw_sch_io_todo() does three things:
+> 
+>   1) Update a solicited IRB with CP information, and release the CP
+>      if the interrupt was the end of a START operation.
+>   2) Copy the IRB data into the io_region, under the protection of
+>      the io_mutex
+>   3) Reset the vfio-ccw FSM state to IDLE to acknowledge that
+>      vfio-ccw can accept more work.
+> 
+> The trouble is that step 3 is (A) invoked for both solicited and
+> unsolicited interrupts, and (B) sitting after the mutex for step 2.
+> This second piece becomes a problem if it processes an interrupt
+> for a CLEAR SUBCHANNEL while another thread initiates a START,
+> thus allowing the CP and FSM states to get out of sync. That is:
+> 
+>     CPU 1                           CPU 2
+>     fsm_do_clear()
+>     fsm_irq()
+>                                     fsm_io_request()
+>     vfio_ccw_sch_io_todo()
+>                                     fsm_io_helper()
+> 
+> Since the FSM state and CP should be kept in sync, let's make a
+> note when the CP is released, and rely on that as an indication
+> that the FSM should also be reset at the end of this routine and
+> open up the device for more work.
+> 
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_drv.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index 8c625b530035..ef39182edab5 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -85,7 +85,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+>  {
+>  	struct vfio_ccw_private *private;
+>  	struct irb *irb;
+> -	bool is_final;
+> +	bool is_final, is_finished = false;
 
-Paolo
+<bikeshed>
+"is_finished" does not really say what is finished; maybe call it
+"cp_is_finished"?
+</bikeshed>
+
+>  
+>  	private = container_of(work, struct vfio_ccw_private, io_work);
+>  	irb = &private->irb;
+> @@ -94,14 +94,16 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+>  		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
+>  	if (scsw_is_solicited(&irb->scsw)) {
+>  		cp_update_scsw(&private->cp, &irb->scsw);
+> -		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING)
+> +		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING) {
+>  			cp_free(&private->cp);
+> +			is_finished = true;
+> +		}
+>  	}
+>  	mutex_lock(&private->io_mutex);
+>  	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+>  	mutex_unlock(&private->io_mutex);
+>  
+> -	if (private->mdev && is_final)
+> +	if (private->mdev && is_finished)
+
+Maybe add a comment?
+
+/*
+ * Reset to idle if processing of a channel program
+ * has finished; but do not overwrite a possible
+ * processing state if we got a final interrupt for hsch
+ * or csch.
+ */
+
+Otherwise, I see us scratching our heads again in a few months :)
+
+>  		private->state = VFIO_CCW_STATE_IDLE;
+>  
+>  	if (private->io_trigger)
+
+Patch looks good to me.
 
