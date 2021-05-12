@@ -7,120 +7,149 @@ X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FC4DC43460
-	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 15:51:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B6CEC2B9FE
+	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 17:41:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1137561606
-	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 15:51:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC26861469
+	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 17:41:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232815AbhELPwM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 May 2021 11:52:12 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50331 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234668AbhELPeJ (ORCPT
+        id S234080AbhELRkb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 May 2021 13:40:31 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44644 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S244523AbhELQup (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 May 2021 11:34:09 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14CF3fAt007735;
-        Wed, 12 May 2021 11:32:59 -0400
+        Wed, 12 May 2021 12:50:45 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14CGYg9a113720;
+        Wed, 12 May 2021 12:49:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
  references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=ng1J+lMiJe3sOK3DH3Ib75MLLnnHvxDE15y37rc9h1s=;
- b=Fb5XJI9Gft6YvCG6QTwydRVQsab6EtTl7MI24vbliFLtR2lutBTGuLNkdaf5mOpKy4wf
- XA1tpcj4ggbtUIIcKLaI/2r0skH0UG6owURg3eFhyDO/p+1nikqbGjLold6cabLghkGP
- UVKaQfhq/hRD9+8osXjx8QxbpiiCChirCQcpfYkuXImX11o4NLvMqCOJzvlGuz3Rhi12
- 8aJmJ+G2vV6XG94tIQfCzh7feigxmq4JLyv9Sn1nxdo2cCxF/53gx7HU3USqr03c8U6N
- /1IgfxLA6m8Ny8a+Iq6m1seikfKtKPN/HMoRnr17+YobI7lK82zfCt381Z+sF6/ZzCL1 Iw== 
+ bh=KSAPkTFz0r19hIytJwB2GjWjANMg1ISP7wajH462VWA=;
+ b=SCnvg4TzkmQ+6uonPhlUCMX2jlUBfaJtwZmlYzwC2wX0p+U0Z2OLbEu2MUHoyOYFLUr+
+ M4csxtkb+tVO/Bg0+w949USefX/9XoEivq0kRt5zruhT2n2ASi9AUumg9kAHHJrrX6PA
+ wT/MnSGbh8HLl3Y5hASke3Z30ezwGmt4KyLeVZZiL+jG9AjgiTqEthXrfovbjB6L0w+E
+ m7WW/HvK5TzWrM5RO/PLGCI4PwK+DRPZMV3gCPyaN2qBZwF4ljpKV00M6T+6M7gLZzMS
+ +xXCm4y7S55ewRUKBUwAjhiIrEVX/F8wgXfkiX8D2FQmaHF8tKKu9Jvn8tD+J1VkwjWp fQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38gg8rjuy6-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38ghy2hrfg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 May 2021 11:32:58 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14CF5Hkk024665;
-        Wed, 12 May 2021 11:32:58 -0400
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38gg8rjuxe-1
+        Wed, 12 May 2021 12:49:29 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14CGZ9MI115877;
+        Wed, 12 May 2021 12:49:29 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38ghy2hret-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 May 2021 11:32:58 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14CFNFrc003904;
-        Wed, 12 May 2021 15:32:56 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03fra.de.ibm.com with ESMTP id 38fxx008dx-1
+        Wed, 12 May 2021 12:49:29 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14CGnJ4F021355;
+        Wed, 12 May 2021 16:49:27 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 38dj98aade-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 May 2021 15:32:56 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14CFWrRS35848478
+        Wed, 12 May 2021 16:49:27 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14CGnO4D45023548
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 12 May 2021 15:32:53 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EC02BAE051;
-        Wed, 12 May 2021 15:32:52 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5FED0AE058;
-        Wed, 12 May 2021 15:32:52 +0000 (GMT)
+        Wed, 12 May 2021 16:49:24 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 86AFC42372;
+        Wed, 12 May 2021 16:49:24 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EB68842373;
+        Wed, 12 May 2021 16:49:23 +0000 (GMT)
 Received: from oc7455500831.ibm.com (unknown [9.171.73.206])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 12 May 2021 15:32:52 +0000 (GMT)
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 12 May 2021 16:49:23 +0000 (GMT)
 Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        jgg@nvidia.com, alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>
 References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
- <20210512124120.GV1002214@nvidia.com>
 From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <41f48d58-687f-289c-3eb0-ef4001d16ff6@de.ibm.com>
-Date:   Wed, 12 May 2021 17:32:52 +0200
+Message-ID: <834f95f8-c1ca-17da-b709-69d5c55e8fcd@de.ibm.com>
+Date:   Wed, 12 May 2021 18:49:23 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.10.0
 MIME-Version: 1.0
-In-Reply-To: <20210512124120.GV1002214@nvidia.com>
+In-Reply-To: <20210510214837.359717-1-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2zq0uZ4ZVjT7G47tykzawZZgk9_-hYmM
-X-Proofpoint-GUID: T5FtJ3Dnm-3uZuBVXE6V5LZAuF2tzKXZ
+X-Proofpoint-GUID: XmYRU7UqZaQFb980xrp-qzfwD8aYDKXH
+X-Proofpoint-ORIG-GUID: bort9dkKKEBHY1AtuudoK0dv5_liwnku
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-12_07:2021-05-12,2021-05-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 spamscore=0 bulkscore=0 adultscore=0 suspectscore=0
- mlxscore=0 clxscore=1015 malwarescore=0 lowpriorityscore=0 impostorscore=0
+ definitions=2021-05-12_09:2021-05-12,2021-05-12 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
+ priorityscore=1501 impostorscore=0 suspectscore=0 mlxscore=0
+ malwarescore=0 bulkscore=0 lowpriorityscore=0 spamscore=0 adultscore=0
  phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105120098
+ engine=8.12.0-2104190000 definitions=main-2105120105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 12.05.21 14:41, Jason Gunthorpe wrote:
-> On Mon, May 10, 2021 at 05:48:37PM -0400, Tony Krowiak wrote:
->> The mdev remove callback for the vfio_ap device driver bails out with
->> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
->> to prevent the mdev from being removed while in use; however, returning a
->> non-zero rc does not prevent removal. This could result in a memory leak
->> of the resources allocated when the mdev was created. In addition, the
->> KVM guest will still have access to the AP devices assigned to the mdev
->> even though the mdev no longer exists.
->>
->> To prevent this scenario, cleanup will be done - including unplugging the
->> AP adapters, domains and control domains - regardless of whether the mdev
->> is in use by a KVM guest or not.
->>
->> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
->>   1 file changed, 2 insertions(+), 11 deletions(-)
+On 10.05.21 23:48, Tony Krowiak wrote:
+> The mdev remove callback for the vfio_ap device driver bails out with
+> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
+> to prevent the mdev from being removed while in use; however, returning a
+> non-zero rc does not prevent removal. This could result in a memory leak
+> of the resources allocated when the mdev was created. In addition, the
+> KVM guest will still have access to the AP devices assigned to the mdev
+> even though the mdev no longer exists.
 > 
-> Can you please ensure this goes to a -rc branch or through Alex's
-> tree?
+> To prevent this scenario, cleanup will be done - including unplugging the
+> AP adapters, domains and control domains - regardless of whether the mdev
+> is in use by a KVM guest or not.
+> 
+> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
 
-So you want this is 5.13-rc?
-I can apply this to the s390 tree if that is ok.
+applied to the internal s390 tree. Lets give it some days of testing coverage of
+CI and others.
+
+Vasily, can you add this for the s390/fixes branch early next week if nothing
+goes wrong?
+
+> ---
+>   drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
+>   1 file changed, 2 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index b2c7e10dfdcd..f90c9103dac2 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -26,6 +26,7 @@
+>   
+>   static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+>   static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
+> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev);
+>   
+>   static int match_apqn(struct device *dev, const void *data)
+>   {
+> @@ -366,17 +367,7 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+>   	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>   
+>   	mutex_lock(&matrix_dev->lock);
+> -
+> -	/*
+> -	 * If the KVM pointer is in flux or the guest is running, disallow
+> -	 * un-assignment of control domain.
+> -	 */
+> -	if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
+> -		mutex_unlock(&matrix_dev->lock);
+> -		return -EBUSY;
+> -	}
+> -
+> -	vfio_ap_mdev_reset_queues(mdev);
+> +	vfio_ap_mdev_unset_kvm(matrix_mdev);
+>   	list_del(&matrix_mdev->node);
+>   	kfree(matrix_mdev);
+>   	mdev_set_drvdata(mdev, NULL);
+> 
