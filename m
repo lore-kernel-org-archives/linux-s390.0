@@ -2,151 +2,184 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,
-	SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73C74C43461
-	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 17:41:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 428AEC433B4
+	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 20:57:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 451FE6142D
-	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 17:41:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1290D613C0
+	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 20:57:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235435AbhELRmu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 May 2021 13:42:50 -0400
-Received: from mail-dm6nam11on2048.outbound.protection.outlook.com ([40.107.223.48]:61665
-        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S244922AbhELQvj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 May 2021 12:51:39 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=i8nQWcAz3p2C+mwaXv7RyMNa1y2XjnyGW2HuMbcj/lbPxSI13A954M8LxvurmeKrb3wdwp4eH5osFAgNg8EW6BohT1TdDaZChErpATrqDVq3eouts0gbQruqInVVeYhnkDDxV6CR0zF80Y/s77Bd9UMjqMuUIaAGL+nEX/bxOtgKpmbMhfpTNQEBb5JCPW0jKO92/AT+vdNQFAfA0Y0kMMPVpTv+pCM9X51t2+TVQw5VpWJN6yabSj9IhP0A6tCTqh81SjllQtylGadCYiKzv9JQ8/U/ylaXROlUYBM2Rhi1RqezD7R3t05y2Q6rrWlU6BcbISmSBKpg0VjzwOFNUQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vjo7WrkxyR4VluWP/TI+J1L6gnPN9SBiF1Yrl61ljTs=;
- b=Rff3vN6UKAuxLtE2sB0wDBnOgsKkK2WWNicO+iSb5rlpZpsAo0hmUwEP/JRw0iADB7lJ6XEV78o/GcAWkvxj9VoAH1r8K/VG7Uhlvm4obnhafU/WNyOktu3LDRwpn5q+GCR55o2bvf6J20YtqPeR8qVHioSA4Us29dbyty/0VqULXDjX5P9PR0Re0hZvV97G7cqvyDidMmSIDQP6T6fpyUBuO74/zHw74QALHIFQlPw3AcAzTL7Vni1y8zRzG3CTdd4g/u5PUBfOnU9HOw+qhVa6u/8MCnb6rxPJHh2/AXowG5thiTQGKSjIkg0vQZPzzRwSzL8v2TVZ60feHeVe6A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vjo7WrkxyR4VluWP/TI+J1L6gnPN9SBiF1Yrl61ljTs=;
- b=LhhmKHSeT7mqJsUrQOBlVuGFgxYautosBEA/+eIwd5MM4Fdjs1OE6dJ0XG0yWuGTsy9a30SVsIMLT2EzRrxdHuYYalyeNXzmVzx9AcAi1SVolqQksJcCG79brFXVcO5RvRWSBYoOVVJSFbwHMDUr31dcyWIRvVZ4g3ddD9waIsBrA3r+Ur0tNAJ/XA1LK2gCznWipGgV6GalDknWyF4CHAQ9hy1z/v3lNdKT+9xFTTiP/Fzf2pw7dA1ooi5uToWnGEM9ZY/mwQmXSCoQbVWF/WyqMmKVCA+RNhQnJqFmxlsvrD+lUJIhjljUrCWZmJGkP/q8uzEkV3cMe7BrFo42OQ==
-Authentication-Results: de.ibm.com; dkim=none (message not signed)
- header.d=none;de.ibm.com; dmarc=none action=none header.from=nvidia.com;
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
- by DM5PR12MB2487.namprd12.prod.outlook.com (2603:10b6:4:af::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4129.26; Wed, 12 May
- 2021 16:50:24 +0000
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::ddb4:2cbb:4589:f039]) by DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::ddb4:2cbb:4589:f039%4]) with mapi id 15.20.4129.026; Wed, 12 May 2021
- 16:50:24 +0000
-Date:   Wed, 12 May 2021 13:50:22 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        id S241745AbhELU6h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 May 2021 16:58:37 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36960 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1356720AbhELSg4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 May 2021 14:36:56 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14CIYWnH125672;
+        Wed, 12 May 2021 14:35:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=qiIPM4jFYVlQa2wBPzrk+yQsKPL4bBQC7RNPW3MJnVg=;
+ b=Ccn2Q+R+Eo5Hiuilhdbg1De7n0YWCZfEJUOhfXXjKUBmMR4u950309IU6B3b0iS5uLlO
+ kS7cIhB9Fa42PdnYR0kpsWenMCVtDhXzXOWgR2Rcl2KcjGTiAsfJaNKdwGWx99u8WdIm
+ 6uuJgffhgJN3bbhgvOvZ4qexfDFcATKkIAg1ORsd55z49E1GRrfvC3ronkJz7+/0IW+O
+ gNEhskMA1hUF17zYNpbgpuWOujptFLwk5/1II9cAHQd80LW8IruJtjz+Li/CoEdlkW4S
+ BmoFBacCFoFnndLLXHVyKnrK+BPbmwr+u/Ajv/vi7PB490R8M57OBUI3DIMWsU9udOst iA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38gkcn1scb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 May 2021 14:35:45 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14CIYXfr125804;
+        Wed, 12 May 2021 14:35:44 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38gkcn1sbr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 May 2021 14:35:44 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14CIT6GN027359;
+        Wed, 12 May 2021 18:35:42 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04fra.de.ibm.com with ESMTP id 38ef37h33p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 May 2021 18:35:42 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14CIZdOi2753178
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 12 May 2021 18:35:39 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 64C37A4040;
+        Wed, 12 May 2021 18:35:39 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 89752A4051;
+        Wed, 12 May 2021 18:35:38 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.63.111])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Wed, 12 May 2021 18:35:38 +0000 (GMT)
+Date:   Wed, 12 May 2021 20:35:36 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
         alex.williamson@redhat.com, kwankhede@nvidia.com,
         stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
-Message-ID: <20210512165022.GW1002214@nvidia.com>
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove
+ callback
+Message-ID: <20210512203536.4209c29c.pasic@linux.ibm.com>
+In-Reply-To: <20210510214837.359717-1-akrowiak@linux.ibm.com>
 References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
- <20210512124120.GV1002214@nvidia.com>
- <41f48d58-687f-289c-3eb0-ef4001d16ff6@de.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41f48d58-687f-289c-3eb0-ef4001d16ff6@de.ibm.com>
-X-Originating-IP: [47.55.113.94]
-X-ClientProxiedBy: BL1PR13CA0108.namprd13.prod.outlook.com
- (2603:10b6:208:2b9::23) To DM6PR12MB3834.namprd12.prod.outlook.com
- (2603:10b6:5:14a::12)
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (47.55.113.94) by BL1PR13CA0108.namprd13.prod.outlook.com (2603:10b6:208:2b9::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.11 via Frontend Transport; Wed, 12 May 2021 16:50:23 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lgs3y-005uVB-EH; Wed, 12 May 2021 13:50:22 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: cb368267-6e16-41b2-30b5-08d915660968
-X-MS-TrafficTypeDiagnostic: DM5PR12MB2487:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM5PR12MB2487FF60E5E75B6DA390CE53C2529@DM5PR12MB2487.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: nHcxftJJST1URZGcjNWQ2efP9kcOnObJOQnRxy2TnLIjwckiJ0JBMeG3uN1mqAAM9K9vu8DgoI1xaZHKPlpJo9EKtl2PiYG54rdLAl8gO4UmjzoFpHfs2fpqvralQVD8qUFFkX7dB56I13gMDl3Gw0hImmoSR9lrzomge9jh3NGS8glOEWeNBDIzSFMUaoUH7Ly19DVoWMZiYKPzz+eGPQ2odmcbiERJz9NC8YhUIHgmDYt1h39aLIsINBSwY6SPeHiw24BtrNWswiL8NMG+RBrMwHOI/+HRiO3NQ9Q9tW3D9UjrGgvggooVY+i3EsrczYsBjgItXJ+AYzy46/RCvBSNOX1GAyCLQV/Q/H2Sj3bIGsTsFSemX4WLmaEuWLBmAfhVTRfekZIqlVXg4cTHFGkTOMzysGOd/LxW89ASCW4t/LXee7egzGOHeTbEClFATK+Fo3HCpFNv8/6HRpafs5HrEdaq2gX0l4muKwJyeXNtcmgtLdnwsczUudg6081iWh8qghlQPKK1zBC+9mK0X78brr5qHUHBAV2wNFfOH6neBNDyJObKR8eOU5ecBBxg4/q5UwM6o6Bu3Ek74PjOMtijrLKIafIwubzDp57C1T8=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(346002)(136003)(376002)(396003)(366004)(8676002)(86362001)(66556008)(9786002)(7416002)(6916009)(66476007)(426003)(33656002)(38100700002)(9746002)(186003)(478600001)(8936002)(316002)(54906003)(83380400001)(36756003)(2906002)(26005)(53546011)(4326008)(5660300002)(1076003)(2616005)(66946007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?pvFZWqX/mGQoXtI+BsceT7Xih6Cmwv3cUTXbGMNdHDxqP0lnjV810yVB8HYj?=
- =?us-ascii?Q?GFkDbfzOlF8zaPMsqkpqqzyNi29etrqclM1J4yrWuX4s5Z2Gj1p8gwOrHWCz?=
- =?us-ascii?Q?JY+R69RMRYNQeuy37WcVBjVSyZ5PYWwY7POX1XkiujxrDqLuMzOO1BFOiOwH?=
- =?us-ascii?Q?iuITwo63cK3eWfnXXCVf9aGtT85C/U2+pzWcaBPArh8MNOdleIFRJk0Lx0FI?=
- =?us-ascii?Q?Ut7WCzxtEslBMpc4FGHZITdMbhDQlWxX5oH6ut/MxPJP7R3b6hGrT7/TZg+B?=
- =?us-ascii?Q?ErbX6WNEc206KHxMLG9L48kQAEfLFw8Mcu2Re0/8K80LjjVisD45iFRTZwDX?=
- =?us-ascii?Q?zUn89miKaYrYxXEbnGAy6hlGxEGZ5AQcM7GXtV+rH5onDfdPKtCIpUfBmGIw?=
- =?us-ascii?Q?3LKWCFYtK82q/qKwKyQ+2teMfRBFSYgt3ySd0GbqHNtMyN1hDgE35RDmbFKG?=
- =?us-ascii?Q?t6IT7U09vf7IbLE08gLS0laTQafkqgB4CzV0eEsQaRfYXNMvQMHNmwgrehno?=
- =?us-ascii?Q?04rXY6D896Vq7IaZcaVKAU66wjQFlNoSXUncROvn6VeA8NnxqN+mhtD1oCXX?=
- =?us-ascii?Q?6DwMTW0Mk+ES8eQYG0ABFKOPErvOM3BKBubzIG52tIcG7AoOBZ9XcsWGVilU?=
- =?us-ascii?Q?BQXquurArAV51UJ0Cde0U+zHAy8S3fX0qOoKJam3AbYZzKDCsQcw5lx/Wpi7?=
- =?us-ascii?Q?brYyayRRymL7lSBOB0nMS0rzlGHXLAKXAtgrdcUVEfuVmVm4i4RXEsJBufKZ?=
- =?us-ascii?Q?ty/3tkoJegKgG1lPfIQ+yY6YZsSPmHAdBazyK50SzeESpsHPUzVY5RjrG1kc?=
- =?us-ascii?Q?1Lqyc9gDUhJ1j4ZYMh9uNhQW2s4lsgkLctMfCTgIxztVmRQyP4sZyLQdMESb?=
- =?us-ascii?Q?yviCyQfPrJObLOHeNdhSQV86+8Z2dhGTxkOUi61Mv9DWlnsZeodD5i8V+xcz?=
- =?us-ascii?Q?3l+eSZgkHxoifIMlZBLFSqxlJyWUXKw3n0oBsEKEWBUe+0v1nO00DcfoVtvk?=
- =?us-ascii?Q?RfF3g0oqBe+qEzuOXbi9n5A2U2s37jXGFNfC5w2BVodtkz3BvdRyPu+cpGft?=
- =?us-ascii?Q?sZTY/q+q4khyz8Mmz9rrvyrEByUlubPd44h9ijjlJsqFqtEh/bngW9A6lfPx?=
- =?us-ascii?Q?q9p3kNDETJ+WxH+1ffsQX68ufhUKzm4NI1Ew74QwpIRebk9QQ2nk9fSAn1HL?=
- =?us-ascii?Q?IkrZRecq7AugthefMEM9dR/Lcj/w7wa0+ZBu+NxQr00EbVEoHdnMnz2DF42f?=
- =?us-ascii?Q?oV1zCftmnk01fnsbJKE+pLI4DwP/XFqT2ijrLK7exbGslU1JsUYi5hU1FSEv?=
- =?us-ascii?Q?aZanq2PhyVtTTFbjQnW6gEuF?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cb368267-6e16-41b2-30b5-08d915660968
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 May 2021 16:50:23.9635
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: V9NwWEhNKCCfpYyBcGZ8iVXet0GXfw2ZE7iFa0AdnGKq5ZW19ox/kFfmW3MI5Hfm
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB2487
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: aoiz9GkGwDh40YfM0LFgbl2fYmQg0rU4
+X-Proofpoint-ORIG-GUID: 4B3MDJ4aV-8tuyS6Gt7ZsQGH332RzLe_
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-12_09:2021-05-12,2021-05-12 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
+ malwarescore=0 impostorscore=0 priorityscore=1501 adultscore=0
+ phishscore=0 bulkscore=0 mlxlogscore=999 spamscore=0 lowpriorityscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105120120
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 12, 2021 at 05:32:52PM +0200, Christian Borntraeger wrote:
-> 
-> 
-> On 12.05.21 14:41, Jason Gunthorpe wrote:
-> > On Mon, May 10, 2021 at 05:48:37PM -0400, Tony Krowiak wrote:
-> > > The mdev remove callback for the vfio_ap device driver bails out with
-> > > -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
-> > > to prevent the mdev from being removed while in use; however, returning a
-> > > non-zero rc does not prevent removal. This could result in a memory leak
-> > > of the resources allocated when the mdev was created. In addition, the
-> > > KVM guest will still have access to the AP devices assigned to the mdev
-> > > even though the mdev no longer exists.
-> > > 
-> > > To prevent this scenario, cleanup will be done - including unplugging the
-> > > AP adapters, domains and control domains - regardless of whether the mdev
-> > > is in use by a KVM guest or not.
-> > > 
-> > > Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
-> > >   drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
-> > >   1 file changed, 2 insertions(+), 11 deletions(-)
-> > 
-> > Can you please ensure this goes to a -rc branch or through Alex's
-> > tree?
-> 
-> So you want this is 5.13-rc?
-> I can apply this to the s390 tree if that is ok.
+On Mon, 10 May 2021 17:48:37 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-Yes please
+> The mdev remove callback for the vfio_ap device driver bails out with
+> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
+> to prevent the mdev from being removed while in use; however, returning a
+> non-zero rc does not prevent removal. This could result in a memory leak
+> of the resources allocated when the mdev was created. In addition, the
+> KVM guest will still have access to the AP devices assigned to the mdev
+> even though the mdev no longer exists.
+> 
+> To prevent this scenario, cleanup will be done - including unplugging the
+> AP adapters, domains and control domains - regardless of whether the mdev
+> is in use by a KVM guest or not.
+> 
+> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
+>  1 file changed, 2 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index b2c7e10dfdcd..f90c9103dac2 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -26,6 +26,7 @@
+> 
+>  static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+>  static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
+> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev);
+> 
+>  static int match_apqn(struct device *dev, const void *data)
+>  {
+> @@ -366,17 +367,7 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+>  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> 
+>  	mutex_lock(&matrix_dev->lock);
+> -
+> -	/*
+> -	 * If the KVM pointer is in flux or the guest is running, disallow
+> -	 * un-assignment of control domain.
+> -	 */
+> -	if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
+> -		mutex_unlock(&matrix_dev->lock);
+> -		return -EBUSY;
+> -	}
+> -
+> -	vfio_ap_mdev_reset_queues(mdev);
+> +	vfio_ap_mdev_unset_kvm(matrix_mdev);
 
-Jason
+>  	list_del(&matrix_mdev->node);
+>  	kfree(matrix_mdev);
+
+Are we at risk of handle_pqap() in arch/s390/kvm/priv.c using an
+already freed pqap_hook (which is a member of the matrix_mdev pointee
+that is freed just above my comment).
+
+I'm aware of the fact that vfio_ap_mdev_unset_kvm() does a
+matrix_mdev->kvm->arch.crypto.pqap_hook = NULL but that is
+AFRICT not done under any lock relevant for handle_pqap(). I guess
+the idea is, I guess, the check cited below 
+
+static int handle_pqap(struct kvm_vcpu *vcpu)
+[..]
+        /*                                                                      
+         * Verify that the hook callback is registered, lock the owner          
+         * and call the hook.                                                   
+         */                                                                     
+        if (vcpu->kvm->arch.crypto.pqap_hook) {                                 
+                if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))   
+                        return -EOPNOTSUPP;                                     
+                ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);             
+                module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);            
+                if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)             
+                        kvm_s390_set_psw_cc(vcpu, 3);                           
+                return ret;                                                     
+        }
+
+is going to catch it, but I'm not sure it is guaranteed to catch it.
+Opinions?
+
+Regards,
+Halil
+
+
+>  	mdev_set_drvdata(mdev, NULL);
+
