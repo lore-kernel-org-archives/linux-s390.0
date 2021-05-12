@@ -2,142 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B98E4C433ED
-	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 12:41:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FC4DC43460
+	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 15:51:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 846F3613EE
-	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 12:41:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1137561606
+	for <linux-s390@archiver.kernel.org>; Wed, 12 May 2021 15:51:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233022AbhELMmw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 May 2021 08:42:52 -0400
-Received: from mail-dm6nam11on2060.outbound.protection.outlook.com ([40.107.223.60]:51040
-        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232854AbhELMmc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 May 2021 08:42:32 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bImzQQWJKg8fuSkam3uwIrirHc+q3qAnzWUrKUH/e2gdDGYabCbJambRnTcftElpEmzYgMVh2Rlks7Ec7pZKYS2fjGKd+uAC76n8hqh5SYIabvRE7R2uF/+rBx9VCdhVkZnidCPzo/tGwrYyQlY7+iy8WzgDhpBbJaEBp/fnepsBB4c2WxjefO1PBwSAelXQOFRWMhNOnaoY04gHhrFnvI8S58HA2tUENswqoWcIQ4Xf4Q1wlPLn5nC5fALcsRLkQNzUJmyGcHIjuvwMnCtGweBQsWHrWY/Aw+CbkacEgXae4EAQpx17TY1YHVAjWfndynOs8j6ZlZqNI/lX52bdHg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4Us1s3Snv0o5Y5bXHJDkGXcrCTOdKWws6PSmPL0Lirc=;
- b=HCp3ZPTqNshWp0jLrfCdaBPbY/ClRj7eK/ed9JU+6GXVe8VmyKlKe1ibMMBU8XlhngxYpiToDI5cxiD6n6m3d23ac7OQcYXHnwE5rwdvcuON0eTa11dtdDINK/ZeLsRLgiGKq7XFj2V9r4CmDwEksvq+0TkjWaxtgyuH9T6U+2i5lVW1Gh/H7qsGwoHcrVgjKTq4XSWKqO2hhwpmUmPk6tTX45QzeKYDSz+/yLva2a2sq6SEDilouM46elpG4pwK/MY7BHD8K2O/6FB7UanrzfSLv2XL0JqvB1JjbD1HKhXpZnpbzhCxpG30Czv9FxSfFn02baaIHQOwdrwx/JsDDA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4Us1s3Snv0o5Y5bXHJDkGXcrCTOdKWws6PSmPL0Lirc=;
- b=XX1+IJIMXGiSeOsckgKCqLjRsu0dOdwNiTccPxKburh2cQE6vdm2K5QVlZKK0cRAMzHQ2dEEQkp5QPoOC8zdZF+Im06Buj6Y+6ZBKxlSKK/ugrqVIh4oOQrB4li0v8bQMe7pBGAi0l4f+p5K3JL7klOU1Ti1xTSD64oXFmxH83YiPhrdiO8wSWjRp0X49JtMg0CzU9kq0x9j0RQuaENsFf9MROcbETyv4EtCEcMB47a+Dn1S/tC3dY2erKx7LwkwzH9mZ2Ne0p//TDCHoS6YFFhkNcK9tRl5o8h/tOQDHSlV3PPEywzyh/jmjtJMTUAy9lQ6Xki9R1l55DkRSM5B+g==
-Authentication-Results: linux.ibm.com; dkim=none (message not signed)
- header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
- by DM5PR12MB1337.namprd12.prod.outlook.com (2603:10b6:3:6e::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.30; Wed, 12 May
- 2021 12:41:22 +0000
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::ddb4:2cbb:4589:f039]) by DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::ddb4:2cbb:4589:f039%4]) with mapi id 15.20.4129.026; Wed, 12 May 2021
- 12:41:22 +0000
-Date:   Wed, 12 May 2021 09:41:20 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
+        id S232815AbhELPwM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 May 2021 11:52:12 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50331 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234668AbhELPeJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 May 2021 11:34:09 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14CF3fAt007735;
+        Wed, 12 May 2021 11:32:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ng1J+lMiJe3sOK3DH3Ib75MLLnnHvxDE15y37rc9h1s=;
+ b=Fb5XJI9Gft6YvCG6QTwydRVQsab6EtTl7MI24vbliFLtR2lutBTGuLNkdaf5mOpKy4wf
+ XA1tpcj4ggbtUIIcKLaI/2r0skH0UG6owURg3eFhyDO/p+1nikqbGjLold6cabLghkGP
+ UVKaQfhq/hRD9+8osXjx8QxbpiiCChirCQcpfYkuXImX11o4NLvMqCOJzvlGuz3Rhi12
+ 8aJmJ+G2vV6XG94tIQfCzh7feigxmq4JLyv9Sn1nxdo2cCxF/53gx7HU3USqr03c8U6N
+ /1IgfxLA6m8Ny8a+Iq6m1seikfKtKPN/HMoRnr17+YobI7lK82zfCt381Z+sF6/ZzCL1 Iw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38gg8rjuy6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 May 2021 11:32:58 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14CF5Hkk024665;
+        Wed, 12 May 2021 11:32:58 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38gg8rjuxe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 May 2021 11:32:58 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14CFNFrc003904;
+        Wed, 12 May 2021 15:32:56 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03fra.de.ibm.com with ESMTP id 38fxx008dx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 May 2021 15:32:56 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14CFWrRS35848478
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 12 May 2021 15:32:53 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EC02BAE051;
+        Wed, 12 May 2021 15:32:52 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5FED0AE058;
+        Wed, 12 May 2021 15:32:52 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.73.206])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 12 May 2021 15:32:52 +0000 (GMT)
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>
 Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
         alex.williamson@redhat.com, kwankhede@nvidia.com,
         stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
-Message-ID: <20210512124120.GV1002214@nvidia.com>
 References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210510214837.359717-1-akrowiak@linux.ibm.com>
-X-Originating-IP: [47.55.113.94]
-X-ClientProxiedBy: BLAPR03CA0134.namprd03.prod.outlook.com
- (2603:10b6:208:32e::19) To DM6PR12MB3834.namprd12.prod.outlook.com
- (2603:10b6:5:14a::12)
+ <20210512124120.GV1002214@nvidia.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <41f48d58-687f-289c-3eb0-ef4001d16ff6@de.ibm.com>
+Date:   Wed, 12 May 2021 17:32:52 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (47.55.113.94) by BLAPR03CA0134.namprd03.prod.outlook.com (2603:10b6:208:32e::19) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.25 via Frontend Transport; Wed, 12 May 2021 12:41:21 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lgoAy-005pQA-F0; Wed, 12 May 2021 09:41:20 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d61d14e1-70e2-4569-7049-08d915433f46
-X-MS-TrafficTypeDiagnostic: DM5PR12MB1337:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM5PR12MB13377548AF929AC9E62819DAC2529@DM5PR12MB1337.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: hUbTCtYt/4qrIXzseIsecSk/mf15Xxu+BbFf1fUXJVmghpNwl9Pg9KqJpP4Rz3JWE//iUPnPlqr5/7Ab/PnE0tiQ9IcsD1FseWgCHIcNZbzlqaXPH5fy5wcoXZ0geu/vGs5AB0MOmQMWqSD69/ek2FTpaL2cmJjn6CGm8BmUJ3d6K2mUm/ZIYdQwOwhAdiVDbcnLySoFFptAaTmbybZaHvgYx0a2EuXHVIrK49KPdBFksSaonlQienmQ6pOyq4cpNouJlofYJyy+a93/+dUtynGHntSkuWQ8poR69lVQ4zErFUEV97Nk9GWjaKSTgPLNtIqpbTb2dK/AEuSJ9cbkI0Sc5dQecZg5yG1sDRs92STETXj8d+fkZR4Y4HcNFMk0hUfDLU6KKk7mrO27CjTtSyChwupn8Vp+hRb4Hjvrz18xyo+kkeIvMeRgCAzauX3ugr1EjeHssbPUhr/ottFaVkSngBjEKKSuRdZcLfgEMvHF21kMeNG/M5sSwvKl0DaloiLoFmh7BMTQSQM4ed/6Vp7S1QSCXtVEMsF1pZOKuvPHUfVGQz1WqIcxa435MFuuX9nTFEs+vlimQ5h8fR1S4c/3CULOuEYAhCrJLcThpQo=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(376002)(366004)(346002)(136003)(39860400002)(426003)(7416002)(9746002)(66476007)(66556008)(83380400001)(2616005)(26005)(66946007)(5660300002)(4326008)(478600001)(36756003)(6916009)(186003)(38100700002)(9786002)(33656002)(86362001)(2906002)(8936002)(8676002)(1076003)(316002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?kwhU6m07z88eFJptwyKY7jZaIctk9Gg1tLSwqCNa087tx4r6iW9gJhHkALCb?=
- =?us-ascii?Q?Md28b7lrMyAspk3XdHt6qIIqwyZgygrfgXQfy3N27o+N935OZSwC9NSXgfZX?=
- =?us-ascii?Q?CajOUCGZAHKFGlZ65xHei3IeGBFE+VGF5OudaKDZhXHQqsD4kQL/7dV+8bhb?=
- =?us-ascii?Q?bF9U3EGadohELpSZh25MvDPSpIGhWF9+1cidbTSd2jjEWuz7T+smwip+1ztx?=
- =?us-ascii?Q?h3O7vu2GOhUENQEjV9T44jnaXRQ5IljNPY8HGDmVewxsLDWkC/XcfJtWq9T3?=
- =?us-ascii?Q?92uglzTCUL5gRQGce4b2qLhx6gpEvSoAdURdls76XfOLfUS4+4h7PgANyhiZ?=
- =?us-ascii?Q?cJ7R+KlLYrLKwb1eDDKQQ+KPXGtRX5EZeVsJH7ULL0gRXYPQM3mR1mc8/c7R?=
- =?us-ascii?Q?IdH4G13eDLChQHWJ8YTr2SYfyWK5lpr47O/rwCIvp5DH5qt07PYQ3zJySl5x?=
- =?us-ascii?Q?Ick+vQoIRfZyhroZbZBElEq6xGpLEHIl/rtQFXA9FYrq/y09l8IDNElGD1xl?=
- =?us-ascii?Q?XWwzqIrxOfWfsWtuUlkv73D398xLTgHc/2AdXRLV0c6PJLYN6+sPh7IPssDD?=
- =?us-ascii?Q?a08k/CK7oFy4pc19cDqyk7K2LLn+9r5QbJBINwKqAcw3f8+8LlnZN28LdvWF?=
- =?us-ascii?Q?GFuj8/GMepYobR7TKXbVOVLcC9ggP/q5E5sd6zjlVWdko1z2JYF329Cc3iyJ?=
- =?us-ascii?Q?epXzpQl6Oi2j4gSh0VY5t2ftn22FhCvPonimr/7SgHBie6um/6jdylhz/zvU?=
- =?us-ascii?Q?7kUoYl7xkUuc6nEWIKxxWgMnoJXYESEh+TrWWZ7PWidfg3a6cScYBsos57FI?=
- =?us-ascii?Q?Qw+DInY9RbC7GOBBj7BSXVNi5armUtv48VK111QaoWQc4ipoW59iz/lkMa7d?=
- =?us-ascii?Q?kb5FqHVWzD6fLd3DTlppCG62YAb++oYzrZ3DHJTNgFwTPuA5ZHldnGzCmq5t?=
- =?us-ascii?Q?2Nt1UXBe5QTEBcpN8BuMde+X2vRxJvNagTnFz12a6L8T8Gg1izOLr7YbaUZZ?=
- =?us-ascii?Q?FiU9jUWndYTu9KH0SMl/gI8cL/AQOwJ/xyoCARc81Ns8LHyP3LiyaBsPxAOg?=
- =?us-ascii?Q?HlK7+kykkA6Ekc4GLSz+tKpFf4/Fpdbr78vkdsyB0JtnD58AVOgLTnngZoxJ?=
- =?us-ascii?Q?xysI177+cbt97b2e5YQXujLT1MpBGWGSsdOvpJUawSxjtFlOTHZFbK8MNJl0?=
- =?us-ascii?Q?lFETB+paXc1BXu0g4g37UQn+iYKUEC9ftD0Us/qkqlcNNtZbAvDi0WYaQTbu?=
- =?us-ascii?Q?QSnne8a+ihQmUX9clfDs4K6Z0DgkWQCOimeqym4n0GSP6VJF4eiNMUOkLWVp?=
- =?us-ascii?Q?yR9LvSIGCfnOD78hrmskzo/G?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d61d14e1-70e2-4569-7049-08d915433f46
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 May 2021 12:41:21.9608
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: PAg8QDvzjMvSLm94ydqH+LTJt1CIpMwZ6iRegsT88GGLmD+WXmKmWt9rBHE/bBIx
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1337
+In-Reply-To: <20210512124120.GV1002214@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 2zq0uZ4ZVjT7G47tykzawZZgk9_-hYmM
+X-Proofpoint-GUID: T5FtJ3Dnm-3uZuBVXE6V5LZAuF2tzKXZ
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-12_07:2021-05-12,2021-05-12 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=999 spamscore=0 bulkscore=0 adultscore=0 suspectscore=0
+ mlxscore=0 clxscore=1015 malwarescore=0 lowpriorityscore=0 impostorscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105120098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 10, 2021 at 05:48:37PM -0400, Tony Krowiak wrote:
-> The mdev remove callback for the vfio_ap device driver bails out with
-> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
-> to prevent the mdev from being removed while in use; however, returning a
-> non-zero rc does not prevent removal. This could result in a memory leak
-> of the resources allocated when the mdev was created. In addition, the
-> KVM guest will still have access to the AP devices assigned to the mdev
-> even though the mdev no longer exists.
-> 
-> To prevent this scenario, cleanup will be done - including unplugging the
-> AP adapters, domains and control domains - regardless of whether the mdev
-> is in use by a KVM guest or not.
-> 
-> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
->  1 file changed, 2 insertions(+), 11 deletions(-)
 
-Can you please ensure this goes to a -rc branch or through Alex's
-tree?
 
-Thanks,
-Jason
+On 12.05.21 14:41, Jason Gunthorpe wrote:
+> On Mon, May 10, 2021 at 05:48:37PM -0400, Tony Krowiak wrote:
+>> The mdev remove callback for the vfio_ap device driver bails out with
+>> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
+>> to prevent the mdev from being removed while in use; however, returning a
+>> non-zero rc does not prevent removal. This could result in a memory leak
+>> of the resources allocated when the mdev was created. In addition, the
+>> KVM guest will still have access to the AP devices assigned to the mdev
+>> even though the mdev no longer exists.
+>>
+>> To prevent this scenario, cleanup will be done - including unplugging the
+>> AP adapters, domains and control domains - regardless of whether the mdev
+>> is in use by a KVM guest or not.
+>>
+>> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
+>>   1 file changed, 2 insertions(+), 11 deletions(-)
+> 
+> Can you please ensure this goes to a -rc branch or through Alex's
+> tree?
+
+So you want this is 5.13-rc?
+I can apply this to the s390 tree if that is ok.
