@@ -2,228 +2,289 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFC7CC433ED
-	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 19:23:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10499C43460
+	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 20:55:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D1CDB60232
-	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 19:23:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C924061370
+	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 20:55:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232259AbhEMTYp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 May 2021 15:24:45 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33934 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230104AbhEMTYn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 May 2021 15:24:43 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14DJ560m101841;
-        Thu, 13 May 2021 15:23:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=b8mKTnFqpv7SilKKm2gG5pFFlAz9lOrBb+xsgVQXuhc=;
- b=lMj/nVyJyOjB9KhkXfXvVSkFE2NVDHY1w4Ygbl66OlX7zmaWQu9nRd0Y8//5G2vo+zIn
- uGrN3kg1HKq5qlPr/Syedg9kJgaQ3wjBk+epZ7WrTrPRpPTeleYvOTH+99heiZhuH57V
- BiC4Z/ubd69oqjGxPBeNBn0FZRGNMW0xUdbvycHNOj40xNLaLoy53kaa71Cx5WMZsOvW
- 6KAs3BuPrDnjkNtLVYZX7tCGKp4QTMKPMv87f6R+h/2nd+CiyGHGZRJ4qekX4jE2FLNS
- zJQueE4l71t0KL/yFpiK1zm4TE4YfYJWN3jVjYTjEdNMIJ61rlURvJFSVTEdaSLPqJ0M vg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38h9vp0gjf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 May 2021 15:23:31 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14DJ590Y102341;
-        Thu, 13 May 2021 15:23:31 -0400
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38h9vp0gj1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 May 2021 15:23:31 -0400
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14DJI7fG010535;
-        Thu, 13 May 2021 19:23:30 GMT
-Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
-        by ppma03wdc.us.ibm.com with ESMTP id 38dj99f738-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 May 2021 19:23:30 +0000
-Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14DJNTrY41288092
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 13 May 2021 19:23:29 GMT
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 35BE5AC05B;
-        Thu, 13 May 2021 19:23:29 +0000 (GMT)
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 388CBAC05E;
-        Thu, 13 May 2021 19:23:28 +0000 (GMT)
-Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.177.219])
-        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
-        Thu, 13 May 2021 19:23:27 +0000 (GMT)
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
- <20210512203536.4209c29c.pasic@linux.ibm.com>
- <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
- <20210513194541.58d1628a.pasic@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
-Date:   Thu, 13 May 2021 15:23:27 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S233202AbhEMU4W (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 May 2021 16:56:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44984 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233186AbhEMU4V (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 May 2021 16:56:21 -0400
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 335F9C06174A
+        for <linux-s390@vger.kernel.org>; Thu, 13 May 2021 13:55:11 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id m11so23873141lfg.3
+        for <linux-s390@vger.kernel.org>; Thu, 13 May 2021 13:55:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=M44SO0uoSJzYJ9SKzXZE5cFr5EetjPFOZBrp4CQPL5w=;
+        b=PhSHGSOBlih6yPBEhHUaleoS71804WhKJeBbmw/azmuVp7qr5wIHjWJQdDNoTYP6ES
+         jVMwzSz0lIVr6qH+VTlu0rCsoO/lSEzLEc7prCOBAZBLvPYE+b5eIvPs6axElwH7wwdz
+         KznZq5JE5fQCqCwkWToJWj67kJz9k/pprOznw2UpmZ0VTB1RWGmmjJyDc7MLzhuKZo3b
+         n6GhpFNoVpDyMESqR/DU4AV/FTzfGsLNkq22i2T7Kd3EAGVQcNnyabhFQfNrR+qfGBLI
+         XHUkSWzpwbmIqOXiWzMQWGSbv8S4rLmVMPnnZWpFWaJpjM1WjWQZI+xjkYchuDrmterL
+         KngQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=M44SO0uoSJzYJ9SKzXZE5cFr5EetjPFOZBrp4CQPL5w=;
+        b=Nzj4Wl8SFDFn8YlRP4ALUh7IOBiZ2yJGIxqSBcL0m+C+uFKjk+0AuHhhrnWGvFdfWI
+         WvixZCaQo4LyvoQURw7fDlFrcMA8sp9wAvb/rlsEfnYwMdwrKPORXP+0P6NLzcJVgCq7
+         R9pl8/K4VYPSB8L50HmN5r9ubj7qTU8G/jnvXRQf927bhp2GT5m/ruvNVbwiyG2X/+Hi
+         h4hG/9S5/HD8wZmSLRLxqE9lE/OqgHIPtPgM7DxGz1WcayUa4RQMtAH16gf2rS1cNf2l
+         HH5/qfTRRj0pZbOHyS339gRxypLX6a8UtoHF0iJ5Et69PLJjO0en1O7fsJJY/gaCK/ZA
+         GGxw==
+X-Gm-Message-State: AOAM532qhJ6Pj0YbDP5AExaagMCGkqMf9oT4ktI2BMMWzIHWI/LXI+Ex
+        Ktp/C+s9fUBXSmhPMW2Dxs4+8oozjI+Rq9UkFEc7OQ==
+X-Google-Smtp-Source: ABdhPJyX5A/VpufagSakFYoUDLT0y4b4CvhLDrQ3z6CCbpAwFCgSpn5i0qXkWkmj3c4f4asiDH02UQ1NeFZxRX3mF+w=
+X-Received: by 2002:a05:6512:1116:: with SMTP id l22mr30043183lfg.473.1620939309295;
+ Thu, 13 May 2021 13:55:09 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210513194541.58d1628a.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: O9wNLxUst5TIJGsb7h6L37k4cpWe43nh
-X-Proofpoint-ORIG-GUID: HRlaSfjJmSrnuG9ElxDs8xF0IYqU6skB
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-13_12:2021-05-12,2021-05-13 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- mlxlogscore=999 suspectscore=0 mlxscore=0 adultscore=0 phishscore=0
- clxscore=1015 bulkscore=0 priorityscore=1501 lowpriorityscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105130132
+References: <20210423181727.596466-1-jingzhangos@google.com> <20210423181727.596466-4-jingzhangos@google.com>
+In-Reply-To: <20210423181727.596466-4-jingzhangos@google.com>
+From:   Jing Zhang <jingzhangos@google.com>
+Date:   Thu, 13 May 2021 15:54:57 -0500
+Message-ID: <CAAdAUth3LyNH2OJG7sKyWieB80WPUXsMe=uskxYG_jPyxM8GrA@mail.gmail.com>
+Subject: Re: [PATCH v3 3/4] KVM: stats: Add documentation for statistics data
+ binary interface
+To:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
+        LinuxMIPS <linux-mips@vger.kernel.org>,
+        KVMPPC <kvm-ppc@vger.kernel.org>,
+        LinuxS390 <linux-s390@vger.kernel.org>,
+        Linuxkselftest <linux-kselftest@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 5/13/21 1:45 PM, Halil Pasic wrote:
-> On Thu, 13 May 2021 10:35:05 -0400
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+On Fri, Apr 23, 2021 at 1:17 PM Jing Zhang <jingzhangos@google.com> wrote:
 >
->> On 5/12/21 2:35 PM, Halil Pasic wrote:
->>> On Mon, 10 May 2021 17:48:37 -0400
->>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>>   
->>>> The mdev remove callback for the vfio_ap device driver bails out with
->>>> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
->>>> to prevent the mdev from being removed while in use; however, returning a
->>>> non-zero rc does not prevent removal. This could result in a memory leak
->>>> of the resources allocated when the mdev was created. In addition, the
->>>> KVM guest will still have access to the AP devices assigned to the mdev
->>>> even though the mdev no longer exists.
->>>>
->>>> To prevent this scenario, cleanup will be done - including unplugging the
->>>> AP adapters, domains and control domains - regardless of whether the mdev
->>>> is in use by a KVM guest or not.
->>>>
->>>> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
->>>> Cc: stable@vger.kernel.org
->>>> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
->>>> ---
->>>>    drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
->>>>    1 file changed, 2 insertions(+), 11 deletions(-)
->>>>
->>>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->>>> index b2c7e10dfdcd..f90c9103dac2 100644
->>>> --- a/drivers/s390/crypto/vfio_ap_ops.c
->>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->>>> @@ -26,6 +26,7 @@
->>>>
->>>>    static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
->>>>    static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
->>>> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev);
->>>>
->>>>    static int match_apqn(struct device *dev, const void *data)
->>>>    {
->>>> @@ -366,17 +367,7 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
->>>>    	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->>>>
->>>>    	mutex_lock(&matrix_dev->lock);
->>>> -
->>>> -	/*
->>>> -	 * If the KVM pointer is in flux or the guest is running, disallow
->>>> -	 * un-assignment of control domain.
->>>> -	 */
->>>> -	if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
->>>> -		mutex_unlock(&matrix_dev->lock);
->>>> -		return -EBUSY;
->>>> -	}
->>>> -
->>>> -	vfio_ap_mdev_reset_queues(mdev);
->>>> +	vfio_ap_mdev_unset_kvm(matrix_mdev);
->>>>    	list_del(&matrix_mdev->node);
->>>>    	kfree(matrix_mdev);
->>> Are we at risk of handle_pqap() in arch/s390/kvm/priv.c using an
->>> already freed pqap_hook (which is a member of the matrix_mdev pointee
->>> that is freed just above my comment).
->>>
->>> I'm aware of the fact that vfio_ap_mdev_unset_kvm() does a
->>> matrix_mdev->kvm->arch.crypto.pqap_hook = NULL but that is
->>> AFRICT not done under any lock relevant for handle_pqap(). I guess
->>> the idea is, I guess, the check cited below
->>>
->>> static int handle_pqap(struct kvm_vcpu *vcpu)
->>> [..]
->>>           /*
->>>            * Verify that the hook callback is registered, lock the owner
->>>            * and call the hook.
->>>            */
->>>           if (vcpu->kvm->arch.crypto.pqap_hook) {
->>>                   if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))
->>>                           return -EOPNOTSUPP;
->>>                   ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);
->>>                   module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);
->>>                   if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)
->>>                           kvm_s390_set_psw_cc(vcpu, 3);
->>>                   return ret;
->>>           }
->>>
->>> is going to catch it, but I'm not sure it is guaranteed to catch it.
->>> Opinions?
->> The hook itself - handle_pqap() function in vfio_ap_ops.c - also checks
->> to see if the reference to the hook is set and terminates with an error
->> if it
->> is not. If the hook is invoked subsequent to the remove callback above,
->> all should be fine since the check is also done under the matrix_dev->lock.
->>
-> I don't quite understand your logic. Let us assume matrix_mdev was freed,
-> but vcpu->kvm->arch.crypto.pqap_hook still points to what used to be
-> (*matrix_mdev).pqap_hook. In that case the function pointer
-> vcpu->kvm->arch.crypto.pqap_hook->hook is used after it was freed, and
-> may not point to the handle_pqap() function in vfio_ap_ops.c, thus the
-> check you are referring to ain't necessarily relevant. Than is
-> if you mean the check in the  handle_pqap() function in vfio_ap_ops.c; if
-> you mean the check in handle_pqap() in arch/s390/kvm/priv.c, that one is
-> not done under the matrix_dev->lock. Or do I have a hole somewhere in my
-> reasoning?
-
-What I am saying is the vcpu->kvm->arch.crypto.pqap_hook
-will either be NULL or point to the handle_pqap() function in the
-vfio_ap driver. In the latter case, the handler in the driver will get
-called and try to acquire the matrix_dev->lock. The function that
-sets the vcpu->kvm->arch.crypto.pqap_hook to NULL also takes that
-lock. If the pointer is still active, then the handler will do its thing.
-If not, then the handler will return without enabling or disabling
-IRQs. That should not be a problem since the unset_kvm function
-resets the queues which will disable the IRQs.
-
-I don't see how
-the vcpu->kvm->arch.crypto.pqap_hook can point to anything
-other than the handler or be NULL unless KVM is gone. Based on
-my observations of the behavior, unless there is some
-other way for the remove callback to be invoked other than in
-response to a request from userspace via the sysfs remove
-attribute, it will not get called until the file descriptor is
-closed in which case the release callback will also unset_kvm.
-I think you are worrying about something that will likely never
-happen.
-
+> Signed-off-by: Jing Zhang <jingzhangos@google.com>
+> ---
+>  Documentation/virt/kvm/api.rst | 171 +++++++++++++++++++++++++++++++++
+>  1 file changed, 171 insertions(+)
 >
-> Regards,
-> Halil
+> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+> index 8d614a577e43..faceadc2bd66 100644
+> --- a/Documentation/virt/kvm/api.rst
+> +++ b/Documentation/virt/kvm/api.rst
+> @@ -5021,6 +5021,169 @@ see KVM_XEN_VCPU_SET_ATTR above.
+>  The KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADJUST type may not be used
+>  with the KVM_XEN_VCPU_GET_ATTR ioctl.
 >
+> +4.130 KVM_STATS_GETFD
+> +---------------------
+> +
+> +:Capability: KVM_CAP_STATS_BINARY_FD
+> +:Architectures: all
+> +:Type: vm ioctl, vcpu ioctl
+> +:Parameters: none
+> +:Returns: statistics file descriptor on success, < 0 on error
+> +
+> +Errors:
+> +
+> +  ======     ======================================================
+> +  ENOMEM     if the fd could not be created due to lack of memory
+> +  EMFILE     if the number of opened files exceeds the limit
+> +  ======     ======================================================
+> +
+> +The file descriptor can be used to read VM/vCPU statistics data in binary
+> +format. The file data is organized into three blocks as below:
+> ++-------------+
+> +|   Header    |
+> ++-------------+
+> +| Descriptors |
+> ++-------------+
+> +| Stats Data  |
+> ++-------------+
+> +
+> +The Header block is always at the start of the file. It is only needed to be
+> +read one time after a system boot.
+> +It is in the form of ``struct kvm_stats_header`` as below::
+> +
+> +       #define KVM_STATS_ID_MAXLEN             64
+> +
+> +       struct kvm_stats_header {
+> +               char id[KVM_STATS_ID_MAXLEN];
+> +               __u32 name_size;
+> +               __u32 count;
+> +               __u32 desc_offset;
+> +               __u32 data_offset;
+> +       };
+> +
+> +The ``id`` field is identification for the corresponding KVM statistics. For
+> +KVM statistics, it is in the form of "kvm-{kvm pid}", like "kvm-12345". For
+> +VCPU statistics, it is in the form of "kvm-{kvm pid}/vcpu-{vcpu id}", like
+> +"kvm-12345/vcpu-12".
+> +
+> +The ``name_size`` field is the size (byte) of the statistics name string
+> +(including trailing '\0') appended to the end of every statistics descriptor.
+> +
+> +The ``count`` field is the number of statistics.
+> +
+> +The ``desc_offset`` field is the offset of the Descriptors block from the start
+> +of the file indicated by the file descriptor.
+> +
+> +The ``data_offset`` field is the offset of the Stats Data block from the start
+> +of the file indicated by the file descriptor.
+> +
+> +The Descriptors block is only needed to be read once after a system boot. It is
+> +an array of ``struct kvm_stats_desc`` as below::
+> +
+> +       #define KVM_STATS_TYPE_SHIFT            0
+> +       #define KVM_STATS_TYPE_MASK             (0xF << KVM_STATS_TYPE_SHIFT)
+> +       #define KVM_STATS_TYPE_CUMULATIVE       (0x0 << KVM_STATS_TYPE_SHIFT)
+> +       #define KVM_STATS_TYPE_INSTANT          (0x1 << KVM_STATS_TYPE_SHIFT)
+> +       #define KVM_STATS_TYPE_MAX              KVM_STATS_TYPE_INSTANT
+> +
+> +       #define KVM_STATS_UNIT_SHIFT            4
+> +       #define KVM_STATS_UNIT_MASK             (0xF << KVM_STATS_UNIT_SHIFT)
+> +       #define KVM_STATS_UNIT_NONE             (0x0 << KVM_STATS_UNIT_SHIFT)
+> +       #define KVM_STATS_UNIT_BYTES            (0x1 << KVM_STATS_UNIT_SHIFT)
+> +       #define KVM_STATS_UNIT_SECONDS          (0x2 << KVM_STATS_UNIT_SHIFT)
+> +       #define KVM_STATS_UNIT_CYCLES           (0x3 << KVM_STATS_UNIT_SHIFT)
+> +       #define KVM_STATS_UNIT_MAX              KVM_STATS_UNIT_CYCLES
+> +
+> +       #define KVM_STATS_SCALE_SHIFT           8
+> +       #define KVM_STATS_SCALE_MASK            (0xF << KVM_STATS_SCALE_SHIFT)
+> +       #define KVM_STATS_SCALE_POW10           (0x0 << KVM_STATS_SCALE_SHIFT)
+> +       #define KVM_STATS_SCALE_POW2            (0x1 << KVM_STATS_SCALE_SHIFT)
+> +       #define KVM_STATS_SCALE_MAX             KVM_STATS_SCALE_POW2
+> +
 
+> +       struct kvm_stats_desc {
+> +               __u32 flags;
+> +               __s16 exponent;
+> +               __u16 size;
+> +               __u32 unused1;
+> +               __u32 unused2;
+> +               __u8 name[0];
+Should be "char name[0]" as defined in include/uapi/linux/kvm.h.
+> +       };
+> +
+> +The ``flags`` field contains the type and unit of the statistics data described
+> +by this descriptor. The following flags are supported:
+> +  * ``KVM_STATS_TYPE_CUMULATIVE``
+> +    The statistics data is cumulative. The value of data can only be increased.
+> +    Most of the counters used in KVM are of this type.
+> +    The corresponding ``count`` filed for this type is always 1.
+> +  * ``KVM_STATS_TYPE_INSTANT``
+> +    The statistics data is instantaneous. Its value can be increased or
+> +    decreased. This type is usually used as a measurement of some resources,
+> +    like the number of dirty pages, the number of large pages, etc.
+> +    The corresponding ``count`` field for this type is always 1.
+> +  * ``KVM_STATS_UNIT_NONE``
+> +    There is no unit for the value of statistics data. This usually means that
+> +    the value is a simple counter of an event.
+> +  * ``KVM_STATS_UNIT_BYTES``
+> +    It indicates that the statistics data is used to measure memory size, in the
+> +    unit of Byte, KiByte, MiByte, GiByte, etc. The unit of the data is
+> +    determined by the ``exponent`` field in the descriptor. The
+> +    ``KVM_STATS_SCALE_POW2`` flag is valid in this case. The unit of the data is
+> +    determined by ``pow(2, exponent)``. For example, if value is 10,
+> +    ``exponent`` is 20, which means the unit of statistics data is MiByte, we
+> +    can get the statistics data in the unit of Byte by
+> +    ``value * pow(2, exponent) = 10 * pow(2, 20) = 10 MiByte`` which is
+> +    10 * 1024 * 1024 Bytes.
+> +  * ``KVM_STATS_UNIT_SECONDS``
+> +    It indicates that the statistics data is used to measure time/latency, in
+> +    the unit of nanosecond, microsecond, millisecond and second. The unit of the
+> +    data is determined by the ``exponent`` field in the descriptor. The
+> +    ``KVM_STATS_SCALE_POW10`` flag is valid in this case. The unit of the data
+> +    is determined by ``pow(10, exponent)``. For example, if value is 2000000,
+> +    ``exponent`` is -6, which means the unit of statistics data is microsecond,
+> +    we can get the statistics data in the unit of second by
+> +    ``value * pow(10, exponent) = 2000000 * pow(10, -6) = 2 seconds``.
+> +  * ``KVM_STATS_UNIT_CYCLES``
+> +    It indicates that the statistics data is used to measure CPU clock cycles.
+> +    The ``KVM_STATS_SCALE_POW10`` flag is valid in this case. For example, if
+> +    value is 200, ``exponent`` is 4, we can get the number of CPU clock cycles
+> +    by ``value * pow(10, exponent) = 200 * pow(10, 4) = 2000000``.
+> +
+> +The ``exponent`` field is the scale of corresponding statistics data. It has two
+> +values as follows:
+> +  * ``KVM_STATS_SCALE_POW10``
+> +    The scale is based on power of 10. It is used for measurement of time and
+> +    CPU clock cycles.
+> +  * ``KVM_STATS_SCALE_POW2``
+> +    The scale is based on power of 2. It is used for measurement of memory size.
+> +
+> +The ``size`` field is the number of values of this statistics data. It is in the
+> +unit of ``unsigned long`` for VCPU or ``__u64`` for VM.
+> +
+> +The ``unused1`` and ``unused2`` fields are reserved for future
+> +support for other types of statistics data, like log/linear histogram.
+> +
+> +The ``name`` field points to the name string of the statistics data. The name
+> +string starts at the end of ``struct kvm_stats_desc``.
+> +The maximum length (including trailing '\0') is indicated by ``name_size``
+> +in ``struct kvm_stats_header``.
+> +
+> +The Stats Data block contains an array of data values of type ``struct
+> +kvm_vm_stats_data`` or ``struct kvm_vcpu_stats_data``. It would be read by
+> +user space periodically to pull statistics data.
+> +The order of data value in Stats Data block is the same as the order of
+> +descriptors in Descriptors block.
+> +  * Statistics data for VM::
+> +
+> +       struct kvm_vm_stats_data {
+> +               unsigned long value[0];
+> +       };
+> +
+> +  * Statistics data for VCPU::
+> +
+> +       struct kvm_vcpu_stats_data {
+> +               __u64 value[0];
+> +       };
+> +
+>  5. The kvm_run structure
+>  ========================
+>
+> @@ -6888,3 +7051,11 @@ depends on the individual hypercall.
+>  Right now, the only bit that can be set is bit 12, corresponding to
+>  KVM_HC_PAGE_ENC_STATUS.  The hypercall returns ENOSYS if bit 12 is not
+>  set or KVM_CAP_EXIT_HYPERCALL is not enabled.
+> +
+> +8.33 KVM_CAP_STATS_BINARY_FD
+> +----------------------------
+> +
+> +:Architectures: all
+> +
+> +This capability indicates the feature that user space can create get a file
+> +descriptor for every VM and VCPU to read statistics data in binary format.
+> --
+> 2.31.1.498.g6c1eba8ee3d-goog
+>
