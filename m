@@ -2,200 +2,223 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E6E6C433ED
-	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 17:45:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DAB4C433B4
+	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 18:33:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B65D613CB
-	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 17:45:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 649F7613C7
+	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 18:33:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230362AbhEMRrC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 May 2021 13:47:02 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19828 "EHLO
+        id S230144AbhEMSee (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 May 2021 14:34:34 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4852 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230204AbhEMRrB (ORCPT
+        by vger.kernel.org with ESMTP id S230125AbhEMSee (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 May 2021 13:47:01 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14DHXZT8030752;
-        Thu, 13 May 2021 13:45:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=sAOZwolAoy/drwR0caZU8MVPGvjvq28I4PUecHlZgbk=;
- b=YXBWS+zbh2EYRIK3c+qpRhk7qJkx5cZAVsX1L0/ixI4ma10G1wIeIsYzF6bqfcgd3uy+
- IwMXRU2gviW6qDNig6Fw6jbJE9arpXRovc3v4upju2NXdZ13LUUu6S59jTH+QFQ6U/6f
- c5YOYSuciwesjKjHhU1beMEaJRw6p2AuowIyLa0ELREKwiog8cULl1Qacw9p1dwspUqs
- 0M58nolviNM9DRuw2yAnEgwFygPtpQ/oeDmQItzpMyppD+udNS1foD/k16liMNdc3TjB
- n7TT01xxzYHV2yPZW2y/JT7tFk9yLGvYOuYFhCBJXPoKKHwexJfIlDovzi32UeVvjOv9 sw== 
+        Thu, 13 May 2021 14:34:34 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14DIXMg2077401;
+        Thu, 13 May 2021 14:33:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=RlzVUst0B2TXfJg48V/QH3bAxOQakqti0qe45OWkjdQ=;
+ b=XBo1+mBe0ousiOSzFA4xU5qNhB56l61moQp0AoIRXV6ECtxTqXcWxh+swZkjCEktykgx
+ mlsjW/bifC7+4DErm07yMT/3GSmQTgB7YDS/X8cGMVOgYIml9y2TGUP9DO5lEGclLwTl
+ 1fZIaViEGhrO/WOLKjLSqaVrYGUTFmC0LK/oatYYLuqoJ+R5XYZLi90teH0jp/pVZitl
+ o8Sd7vsxiVrVxcDUsQBbsgOZIl852rQKYC3pVjh4m3lSRZt6VmdeAKlSR6VwVbnx4bjW
+ yl+Gx0b3UioSeQVVjN4dxwJn1rggYDcJMEG/UKf2vpX9LDmUwTa2fcY4UZgL/dT2FaX6 Bg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38h7kxt3cf-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38h8wbgwe7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 May 2021 13:45:49 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14DHXjaW031694;
-        Thu, 13 May 2021 13:45:49 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38h7kxt3bn-1
+        Thu, 13 May 2021 14:33:23 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14DIXNmH077548;
+        Thu, 13 May 2021 14:33:23 -0400
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38h8wbgwdu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 May 2021 13:45:48 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14DHd6Sd019211;
-        Thu, 13 May 2021 17:45:46 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 38dj98au5t-1
+        Thu, 13 May 2021 14:33:23 -0400
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14DIDFLP013152;
+        Thu, 13 May 2021 18:33:22 GMT
+Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
+        by ppma03dal.us.ibm.com with ESMTP id 38dj9a0jeg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 May 2021 17:45:46 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14DHjhLR39518532
+        Thu, 13 May 2021 18:33:22 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14DIXLqf35324202
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 13 May 2021 17:45:43 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7BAE55204E;
-        Thu, 13 May 2021 17:45:43 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.9.250])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id A43025204F;
-        Thu, 13 May 2021 17:45:42 +0000 (GMT)
-Date:   Thu, 13 May 2021 19:45:41 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove
- callback
-Message-ID: <20210513194541.58d1628a.pasic@linux.ibm.com>
-In-Reply-To: <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
-References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
-        <20210512203536.4209c29c.pasic@linux.ibm.com>
-        <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+        Thu, 13 May 2021 18:33:21 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9895728059;
+        Thu, 13 May 2021 18:33:21 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E7A6028060;
+        Thu, 13 May 2021 18:33:20 +0000 (GMT)
+Received: from farman-thinkpad-t470p (unknown [9.160.49.189])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu, 13 May 2021 18:33:20 +0000 (GMT)
+Message-ID: <8224aa872f243610583aab327c7e0b813ddaf0dd.camel@linux.ibm.com>
+Subject: Re: [PATCH v6 0/3] vfio-ccw: Fix interrupt handling for HALT/CLEAR
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Date:   Thu, 13 May 2021 14:33:20 -0400
+In-Reply-To: <20210513030543.67601a8c.pasic@linux.ibm.com>
+References: <20210511195631.3995081-1-farman@linux.ibm.com>
+         <20210513030543.67601a8c.pasic@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: j_0LaH2wvlKTfj4XQdZHKt381UN5yZzI
-X-Proofpoint-ORIG-GUID: 1HhEbFaLPJXS6RgbGNzZM_nx8gTz-rif
+X-Proofpoint-GUID: Vh7pZw2v3cGEsOLwlRwAHA7Y3yLbAvg-
+X-Proofpoint-ORIG-GUID: N9CKE4j6qfuG9i-ysitPxyxtZow_9eMT
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-13_10:2021-05-12,2021-05-13 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
- phishscore=0 mlxscore=0 suspectscore=0 impostorscore=0 priorityscore=1501
- spamscore=0 bulkscore=0 adultscore=0 mlxlogscore=999 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2105130122
+ definitions=2021-05-13_12:2021-05-12,2021-05-13 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
+ phishscore=0 clxscore=1015 mlxscore=0 suspectscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105130129
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 13 May 2021 10:35:05 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-
-> On 5/12/21 2:35 PM, Halil Pasic wrote:
-> > On Mon, 10 May 2021 17:48:37 -0400
-> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> >  
-> >> The mdev remove callback for the vfio_ap device driver bails out with
-> >> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
-> >> to prevent the mdev from being removed while in use; however, returning a
-> >> non-zero rc does not prevent removal. This could result in a memory leak
-> >> of the resources allocated when the mdev was created. In addition, the
-> >> KVM guest will still have access to the AP devices assigned to the mdev
-> >> even though the mdev no longer exists.
-> >>
-> >> To prevent this scenario, cleanup will be done - including unplugging the
-> >> AP adapters, domains and control domains - regardless of whether the mdev
-> >> is in use by a KVM guest or not.
-> >>
-> >> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
-> >> Cc: stable@vger.kernel.org
-> >> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
-> >> ---
-> >>   drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
-> >>   1 file changed, 2 insertions(+), 11 deletions(-)
-> >>
-> >> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> >> index b2c7e10dfdcd..f90c9103dac2 100644
-> >> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> >> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> >> @@ -26,6 +26,7 @@
-> >>
-> >>   static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
-> >>   static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
-> >> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev);
-> >>
-> >>   static int match_apqn(struct device *dev, const void *data)
-> >>   {
-> >> @@ -366,17 +367,7 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
-> >>   	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> >>
-> >>   	mutex_lock(&matrix_dev->lock);
-> >> -
-> >> -	/*
-> >> -	 * If the KVM pointer is in flux or the guest is running, disallow
-> >> -	 * un-assignment of control domain.
-> >> -	 */
-> >> -	if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
-> >> -		mutex_unlock(&matrix_dev->lock);
-> >> -		return -EBUSY;
-> >> -	}
-> >> -
-> >> -	vfio_ap_mdev_reset_queues(mdev);
-> >> +	vfio_ap_mdev_unset_kvm(matrix_mdev);
-> >>   	list_del(&matrix_mdev->node);
-> >>   	kfree(matrix_mdev);  
-> > Are we at risk of handle_pqap() in arch/s390/kvm/priv.c using an
-> > already freed pqap_hook (which is a member of the matrix_mdev pointee
-> > that is freed just above my comment).
-> >
-> > I'm aware of the fact that vfio_ap_mdev_unset_kvm() does a
-> > matrix_mdev->kvm->arch.crypto.pqap_hook = NULL but that is
-> > AFRICT not done under any lock relevant for handle_pqap(). I guess
-> > the idea is, I guess, the check cited below
-> >
-> > static int handle_pqap(struct kvm_vcpu *vcpu)
-> > [..]
-> >          /*
-> >           * Verify that the hook callback is registered, lock the owner
-> >           * and call the hook.
-> >           */
-> >          if (vcpu->kvm->arch.crypto.pqap_hook) {
-> >                  if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))
-> >                          return -EOPNOTSUPP;
-> >                  ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);
-> >                  module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);
-> >                  if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)
-> >                          kvm_s390_set_psw_cc(vcpu, 3);
-> >                  return ret;
-> >          }
-> >
-> > is going to catch it, but I'm not sure it is guaranteed to catch it.
-> > Opinions?  
+On Thu, 2021-05-13 at 03:05 +0200, Halil Pasic wrote:
+> On Tue, 11 May 2021 21:56:28 +0200
+> Eric Farman <farman@linux.ibm.com> wrote:
 > 
-> The hook itself - handle_pqap() function in vfio_ap_ops.c - also checks
-> to see if the reference to the hook is set and terminates with an error 
-> if it
-> is not. If the hook is invoked subsequent to the remove callback above,
-> all should be fine since the check is also done under the matrix_dev->lock.
+> > Hi Conny, Matt, Halil,
+> > 
+> > Here's one (last?) update to my proposal for handling the collision
+> > between interrupts for START SUBCHANNEL and HALT/CLEAR SUBCHANNEL.
+> > 
+> > Only change here is to include Conny's suggestions on patch 3.
+> > 
+> > Thanks,
+> 
+> I believe these changes are beneficial, although I don't understand
+> everything about them. In that sense I'm happy with the these getting
+> merged.
+> 
+> Let me also spend some words answering the unasked question, what I'm
+> not understanding about these.
+> 
+> Not understanding how the problem stated in the cover letter of v4 is
+> actually resolved is certainly the most important one. 
+
+Per our phone call last week, one of Conny's suggestions from that
+particular version was related to vfio_ccw_sch_io_todo() and was giving
+me some difficulties. We all agreed that I should send what I had, and
+leave the other corner case(s) to be addressed later along with the
+broader serialization topic throughout the driver. That is still my
+intention, but I suspect that's where you are going here...
+
+(I realize I said "last?" at the top here. Poor decision on my part.)
+
+> Let me cite
+> the relevant part of it (your cover letter already contains a link to
+> the full version).
+> 
+> """
+> 
+> 	CPU 1			CPU 2
+>  1	CLEAR SUBCHANNEL
+>  2	fsm_irq()
+>  3				START SUBCHANNEL
+>  4	vfio_ccw_sch_io_todo()
+>  5				fsm_irq()
+>  6				vfio_ccw_sch_io_todo()
+> 
+> From the channel subsystem's point of view the CLEAR SUBCHANNEL (step
+> 1)
+> is complete once step 2 is called, as the Interrupt Response Block
+> (IRB)
+> has been presented and the TEST SUBCHANNEL was driven by the cio
+> layer.
+> Thus, the START SUBCHANNEL (step 3) is submitted [1] and gets a cc=0
+> to
+> indicate the I/O was accepted. However, step 2 stacks the bulk of the
+> actual work onto a workqueue for when the subchannel lock is NOT
+> held,
+> and is unqueued at step 4. That code misidentifies the data in the
+> IRB
+> as being associated with the newly active I/O, and may release memory
+> that is actively in use by the channel subsystem and/or device. Eww.
+> """
+> 
+> The last sentence clearly states "may release memory that is actively
+> used by ... the device", and I understood it refers to the invocation
+> of cp_free() from vfio_ccw_sch_io_todo(). Patch 3 of this series does
+> not change the conditions under which cp_free() is called.
+
+Correct.
+
+> 
+> Looking at the cited diagram, since patch 3 changes things in
+> vfio_ccw_sch_io_todo() it probably ain't affecting steps 1-3 and
+> I understood the description so that bad free happens in step 4.
+
+You are correct that patch 3 touches vfio_ccw_sch_io_todo(), but it is
+not addressing the possibility of a bad free described in the old cover
+letter. The commit message for patch 3 describes pretty clearly the
+scenario in question.
+
+> 
+> My guess is that your change from patch 3 somehow via the fsm
+> prevents
+> the SSCH on CPU 2 (using the diagram) from being executed  if it
+> actually
+> happens to be after vfio_ccw_sch_io_todo(). 
+
+That's an incorrect guess. The code in vfio_ccw_sch_io_todo() today
+says "If another CPU is building an I/O (FSM is CP_PROCESSING), or
+there is no CPU building an I/O (FSM is IDLE), then skip the cp_free()
+call." The change in patch 3 says that in that situation, it should
+also not adjust the FSM state because the interrupt being handled on
+CPU1 was unrelated (maybe it was for a HALT/CLEAR, maybe it was an
+unsolicited interrupt). The SSCH on CPU2 will still go on as expected.
+
+> And patch 1 is supposed to
+> prevent the SSCH on CPU2 from being executed in the depicted case
+> because
+> if there is a cp to free, then we would bail out form if we see it
+> while processing the new IO request.
+
+Not really. It's the FSM's job to prevent a second SSCH, and route to
+fsm_io_retry() or fsm_io_busy() as appropriate. But the scenario
+described by patch 3 in this series would leave the cp initialized,
+while also resetting the FSM back to IDLE. As such, the FSM was free to
+allow another SSCH in, which would then re-initialize the cp and orphan
+the existing (active) cp resources.
+
+With the application of patch 3, that concern isn't present, so the
+change in patch 1 is really a NOP. But it allows for consistency in how
+the cp_*() functions are working, and a safety valve should this
+situation show up another way. (We'll get trace data that says
+cp_init() bailed out, rather than going on as if nothing were wrong.)
+
+> 
+> In any case, I don't want to hold this up any further.
 > 
 
-I don't quite understand your logic. Let us assume matrix_mdev was freed,
-but vcpu->kvm->arch.crypto.pqap_hook still points to what used to be
-(*matrix_mdev).pqap_hook. In that case the function pointer
-vcpu->kvm->arch.crypto.pqap_hook->hook is used after it was freed, and
-may not point to the handle_pqap() function in vfio_ap_ops.c, thus the
-check you are referring to ain't necessarily relevant. Than is
-if you mean the check in the  handle_pqap() function in vfio_ap_ops.c; if
-you mean the check in handle_pqap() in arch/s390/kvm/priv.c, that one is
-not done under the matrix_dev->lock. Or do I have a hole somewhere in my
-reasoning?
+Thanks for that. You are correct that there's still a potential issue
+here, in the handoff between fsm_irq() and vfio_ccw_sch_io_todo(), and
+another fsm_io_request() that would arrive between those points. But
+it's not anything that we haven't already discussed, and will hopefully
+begin discussing in the next couple of weeks.
 
-Regards,
-Halil
+Thanks,
+Eric
+
+> Regards,
+> Halil
 
