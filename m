@@ -2,158 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E7E4C433B4
-	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 01:05:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 415A4C433ED
+	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 14:18:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5991761264
-	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 01:05:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2129361433
+	for <linux-s390@archiver.kernel.org>; Thu, 13 May 2021 14:18:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231396AbhEMBHD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 May 2021 21:07:03 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21882 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231185AbhEMBHB (ORCPT
+        id S234419AbhEMOUF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 May 2021 10:20:05 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62354 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S234416AbhEMOT7 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 May 2021 21:07:01 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14D150C7087267;
-        Wed, 12 May 2021 21:05:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        Thu, 13 May 2021 10:19:59 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14DE8IpG085410;
+        Thu, 13 May 2021 10:18:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=LBtSkqQLQFso9TmdaoND0DnKEsuHjYlHgN/IrGvt/NY=;
- b=bHB8KlxJlTBq9kM3fZ29Cj8ouyPW54/1gii7I7RhIR9N+nwyCEqPcGjwaBrwTz9V+8rV
- HCR1uwQkgt7rCYxZA6878CJXdVewV+0bJ9e+LqNvYnGuqDC8n4/rWWp56SwOFZ2y8aRE
- QXtCRaGDKdvfTlER80ytESPUtSKxki7ro04ES5GCTqcEbxrSv+a+4O3QnHae4xcMQGku
- B7nFIe72gnW3vnPEC6HDb0vB/WihjH9eZebYWBGBDV3CyeVBhpm/AVsY1zHLvcjVt28l
- /Cq5co/4ay9j+S0K1Ahpw2wKZmQY+Jh5PDPsCOj7eWhaslnD0bNkC+erdUBa+ft6FMPr mA== 
+ bh=D8GubXgvk3a14jGGH9ZcrPGCEvPl+rpj3xHeKnJoe40=;
+ b=pvUXLAgvibUu99FhfGNttVA7b1lvaOX+UIWgy8seeMZ4RRkdqyPl746sX9mXrb1Ow12G
+ 9vcxyR9UBvadHFQosJQNuTASu1wnqW0JXY3Jt/1I6sHSGFaFScoLralWnLlNDFVfdd1/
+ F1y3RnU76L8uU4WhtCwJNk6FBESes7AuY675UpW0whUEd3s3B58HXQWiNFDxrjb6Dr4x
+ OurTXlDntEqPaNkw7FPh+KAdghRGHbcICZrobry3Z0C8Ju+QAzT/kFd6R6zWVdayTh40
+ 9px3kGZN6myDee71ZohohjX3QGeKMyifKzQh2wQjgEgaeykGA8uYMFdC0f3BdWZeke6d 0g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38grxmhkpr-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38gv83xmds-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 May 2021 21:05:51 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14D15pwk094199;
-        Wed, 12 May 2021 21:05:51 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38grxmhknt-1
+        Thu, 13 May 2021 10:18:47 -0400
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14DE9wBt087999;
+        Thu, 13 May 2021 10:18:46 -0400
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38gv83xmd3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 May 2021 21:05:51 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14D12FlS032528;
-        Thu, 13 May 2021 01:05:49 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04fra.de.ibm.com with ESMTP id 38ef37h559-1
+        Thu, 13 May 2021 10:18:46 -0400
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14DEIPmP007221;
+        Thu, 13 May 2021 14:18:46 GMT
+Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
+        by ppma05wdc.us.ibm.com with ESMTP id 38fu1y7a1e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 May 2021 01:05:49 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14D15kNM14024986
+        Thu, 13 May 2021 14:18:46 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14DEIjis39387560
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 13 May 2021 01:05:46 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 055E842045;
-        Thu, 13 May 2021 01:05:46 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 80DB94203F;
-        Thu, 13 May 2021 01:05:45 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.63.111])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Thu, 13 May 2021 01:05:45 +0000 (GMT)
-Date:   Thu, 13 May 2021 03:05:43 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Eric Farman <farman@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [PATCH v6 0/3] vfio-ccw: Fix interrupt handling for HALT/CLEAR
-Message-ID: <20210513030543.67601a8c.pasic@linux.ibm.com>
-In-Reply-To: <20210511195631.3995081-1-farman@linux.ibm.com>
-References: <20210511195631.3995081-1-farman@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        Thu, 13 May 2021 14:18:45 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6DAD4AC05B;
+        Thu, 13 May 2021 14:18:45 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0DAEBAC062;
+        Thu, 13 May 2021 14:18:45 +0000 (GMT)
+Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.177.219])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu, 13 May 2021 14:18:44 +0000 (GMT)
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
+References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
+ <20210512124120.GV1002214@nvidia.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <759f8840-671a-446c-875b-798dceb10d0f@linux.ibm.com>
+Date:   Thu, 13 May 2021 10:18:44 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210512124120.GV1002214@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: D-gxEDFciGC1-ajuw9Jlr1KCSQHQA1t8
-X-Proofpoint-ORIG-GUID: ZTUDcHIp6Hdmj_hzrBzfUIGr84wIQV2k
+X-Proofpoint-GUID: 3yiF0KWnIyI0fAnZuL05koT2Otxrbpng
+X-Proofpoint-ORIG-GUID: sraGRDogNU8hh1HU-EFJbx-KLQxDWAbd
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-12_13:2021-05-12,2021-05-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- adultscore=0 impostorscore=0 phishscore=0 malwarescore=0 mlxscore=0
- suspectscore=0 priorityscore=1501 lowpriorityscore=0 mlxlogscore=999
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105130004
+ definitions=2021-05-13_08:2021-05-12,2021-05-13 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ priorityscore=1501 impostorscore=0 suspectscore=0 bulkscore=0
+ lowpriorityscore=0 phishscore=0 mlxlogscore=999 spamscore=0 malwarescore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105130105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 11 May 2021 21:56:28 +0200
-Eric Farman <farman@linux.ibm.com> wrote:
 
-> Hi Conny, Matt, Halil,
->=20
-> Here's one (last?) update to my proposal for handling the collision
-> between interrupts for START SUBCHANNEL and HALT/CLEAR SUBCHANNEL.
->=20
-> Only change here is to include Conny's suggestions on patch 3.
->=20
+
+On 5/12/21 8:41 AM, Jason Gunthorpe wrote:
+> On Mon, May 10, 2021 at 05:48:37PM -0400, Tony Krowiak wrote:
+>> The mdev remove callback for the vfio_ap device driver bails out with
+>> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
+>> to prevent the mdev from being removed while in use; however, returning a
+>> non-zero rc does not prevent removal. This could result in a memory leak
+>> of the resources allocated when the mdev was created. In addition, the
+>> KVM guest will still have access to the AP devices assigned to the mdev
+>> even though the mdev no longer exists.
+>>
+>> To prevent this scenario, cleanup will be done - including unplugging the
+>> AP adapters, domains and control domains - regardless of whether the mdev
+>> is in use by a KVM guest or not.
+>>
+>> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
+>>   1 file changed, 2 insertions(+), 11 deletions(-)
+> Can you please ensure this goes to a -rc branch or through Alex's
+> tree?
+
+I'm sorry, I don't know what a -rc branch is nor how to push this
+to Alex's tree, but I'd be happy to do so if you tell me now:)
+
+>
 > Thanks,
+> Jason
 
-I believe these changes are beneficial, although I don't understand
-everything about them. In that sense I'm happy with the these getting
-merged.
-
-Let me also spend some words answering the unasked question, what I'm
-not understanding about these.
-
-Not understanding how the problem stated in the cover letter of v4 is
-actually resolved is certainly the most important one. Let me cite
-the relevant part of it (your cover letter already contains a link to
-the full version).
-
-"""
-
-	CPU 1			CPU 2
- 1	CLEAR SUBCHANNEL
- 2	fsm_irq()
- 3				START SUBCHANNEL
- 4	vfio_ccw_sch_io_todo()
- 5				fsm_irq()
- 6				vfio_ccw_sch_io_todo()
-
-=46rom the channel subsystem's point of view the CLEAR SUBCHANNEL (step 1)
-is complete once step 2 is called, as the Interrupt Response Block (IRB)
-has been presented and the TEST SUBCHANNEL was driven by the cio layer.
-Thus, the START SUBCHANNEL (step 3) is submitted [1] and gets a cc=3D0 to
-indicate the I/O was accepted. However, step 2 stacks the bulk of the
-actual work onto a workqueue for when the subchannel lock is NOT held,
-and is unqueued at step 4. That code misidentifies the data in the IRB
-as being associated with the newly active I/O, and may release memory
-that is actively in use by the channel subsystem and/or device. Eww.
-"""
-
-The last sentence clearly states "may release memory that is actively
-used by ... the device", and I understood it refers to the invocation
-of cp_free() from vfio_ccw_sch_io_todo(). Patch 3 of this series does
-not change the conditions under which cp_free() is called.
-
-Looking at the cited diagram, since patch 3 changes things in
-vfio_ccw_sch_io_todo() it probably ain't affecting steps 1-3 and
-I understood the description so that bad free happens in step 4.
-
-My guess is that your change from patch 3 somehow via the fsm prevents
-the SSCH on CPU 2 (using the diagram) from being executed  if it actually
-happens to be after vfio_ccw_sch_io_todo(). And patch 1 is supposed to
-prevent the SSCH on CPU2 from being executed in the depicted case because
-if there is a cp to free, then we would bail out form if we see it
-while processing the new IO request.
-
-In any case, I don't want to hold this up any further.
-
-Regards,
-Halil
