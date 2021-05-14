@@ -2,166 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7BD8C433ED
-	for <linux-s390@archiver.kernel.org>; Fri, 14 May 2021 06:34:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B248C433B4
+	for <linux-s390@archiver.kernel.org>; Fri, 14 May 2021 13:12:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 94BD36144B
-	for <linux-s390@archiver.kernel.org>; Fri, 14 May 2021 06:34:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E157A61406
+	for <linux-s390@archiver.kernel.org>; Fri, 14 May 2021 13:12:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232316AbhENGfZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 14 May 2021 02:35:25 -0400
-Received: from pegase2.c-s.fr ([93.17.235.10]:37459 "EHLO pegase2.c-s.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230329AbhENGfY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 May 2021 02:35:24 -0400
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-        by localhost (Postfix) with ESMTP id 4FhJdv1Shwz9sZK;
-        Fri, 14 May 2021 08:34:11 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id T1_jWZQjZv-c; Fri, 14 May 2021 08:34:11 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase2.c-s.fr (Postfix) with ESMTP id 4FhJdv0Rs5z9sZJ;
-        Fri, 14 May 2021 08:34:11 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id E2D018B7F7;
-        Fri, 14 May 2021 08:34:10 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id mVreRObY4o1i; Fri, 14 May 2021 08:34:10 +0200 (CEST)
-Received: from [192.168.4.90] (unknown [192.168.4.90])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id D62098B7F6;
-        Fri, 14 May 2021 08:34:07 +0200 (CEST)
-Subject: Re: [PATCH bpf-next 1/2] bpf: Remove bpf_jit_enable=2 debugging mode
-To:     Quentin Monnet <quentin@isovalent.com>,
-        Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc:     Ian Rogers <irogers@google.com>, Song Liu <songliubraving@fb.com>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        Zi Shen Lim <zlim.lnx@gmail.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Sandipan Das <sandipan@linux.ibm.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
-        Shubham Bansal <illusionist.neo@gmail.com>,
-        Mahesh Bandewar <maheshb@google.com>,
-        Will Deacon <will@kernel.org>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Ilya Leoshkevich <iii@linux.ibm.com>, paulburton@kernel.org,
-        Jonathan Corbet <corbet@lwn.net>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        X86 ML <x86@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Tobias Klauser <tklauser@distanz.ch>,
-        linux-mips@vger.kernel.org, grantseltzer@gmail.com,
-        Xi Wang <xi.wang@gmail.com>, Albert Ou <aou@eecs.berkeley.edu>,
-        Kees Cook <keescook@chromium.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Luke Nelson <luke.r.nels@gmail.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        ppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        KP Singh <kpsingh@kernel.org>, iecedge@gmail.com,
-        Simon Horman <horms@verge.net.au>,
-        Borislav Petkov <bp@alien8.de>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Yonghong Song <yhs@fb.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Dmitry Vyukov <dvyukov@google.com>, tsbogend@alpha.franken.de,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-        Network Development <netdev@vger.kernel.org>,
-        David Ahern <dsahern@kernel.org>,
-        Wang YanQing <udknight@gmail.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>, bpf <bpf@vger.kernel.org>,
-        Jianlin Lv <Jianlin.Lv@arm.com>,
-        "David S. Miller" <davem@davemloft.net>
-References: <20210415093250.3391257-1-Jianlin.Lv@arm.com>
- <9c4a78d2-f73c-832a-e6e2-4b4daa729e07@iogearbox.net>
- <d3949501-8f7d-57c4-b3fe-bcc3b24c09d8@isovalent.com>
- <CAADnVQJ2oHbYfgY9jqM_JMxUsoZxaNrxKSVFYfgCXuHVpDehpQ@mail.gmail.com>
- <0dea05ba-9467-0d84-4515-b8766f60318e@csgroup.eu>
- <CAADnVQ+oQT6C7Qv7P5TV-x7im54omKoCYYKtYhcnhb1Uv3LPMQ@mail.gmail.com>
- <be132117-f267-5817-136d-e1aeb8409c2a@csgroup.eu>
- <58296f87-ad00-a0f5-954b-2150aa84efc4@isovalent.com>
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-Message-ID: <52171382-1eca-58e2-b3d1-b2cc6b431e27@csgroup.eu>
-Date:   Fri, 14 May 2021 08:34:07 +0200
-User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S231267AbhENNNz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 14 May 2021 09:13:55 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38140 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229469AbhENNNz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 14 May 2021 09:13:55 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14ED3KiF078671
+        for <linux-s390@vger.kernel.org>; Fri, 14 May 2021 09:12:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=DKyxiXsUL+WhDZfY8skG5Q5bqnPcJQ8LxNyfrRWYAKs=;
+ b=X6pw7SdJM6I9zWAu1VFriu0He5DyLAuBMmSkQ7wUOa+u8xwqg23YjxEFXArb5/zVQvji
+ HDlaDsjs4cdApRFs6mFsHQrM/4ztUgZh53JNL+0uCafjvfPykdP4+OuTcbvOs/qXX0AB
+ 0Qbf79/hhbf2vzJa4WA3o6FTVNvR6q073k7/5cNdw7TookTwYAmSCl2gySga7oeCIQp3
+ KiFEMb8ZeXLD9amMI9OXk8yWvHyDnTSQbFo1SefJH2tqUpDKwxAHGzAuNMnONMFdied4
+ 6UoPMtbhOrfzYz2ddQcOwHmcaZOFGmto4B7nOyVVy8AzwXaND4VofR8BGhDmlJztmNzQ eg== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38hs3t15h1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 14 May 2021 09:12:43 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14EDCc7q032119
+        for <linux-s390@vger.kernel.org>; Fri, 14 May 2021 13:12:41 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 38hc6cr9sd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 14 May 2021 13:12:41 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14EDCc6441746850
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 14 May 2021 13:12:38 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AD8E352052;
+        Fri, 14 May 2021 13:12:38 +0000 (GMT)
+Received: from thinkpad (unknown [9.171.95.107])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id 6FBB85204F;
+        Fri, 14 May 2021 13:12:38 +0000 (GMT)
+Date:   Fri, 14 May 2021 15:12:37 +0200
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     Mike Rapoport <rppt@linux.ibm.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: s390 and crashk_res
+Message-ID: <20210514151237.3639a67a@thinkpad>
+In-Reply-To: <YJk8mrW7DdwwhLuE@linux.ibm.com>
+References: <YJk8mrW7DdwwhLuE@linux.ibm.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <58296f87-ad00-a0f5-954b-2150aa84efc4@isovalent.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: fr
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: utSzGjOb7nQpXoWfSwZNx3CBElRs6IaD
+X-Proofpoint-GUID: utSzGjOb7nQpXoWfSwZNx3CBElRs6IaD
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-14_04:2021-05-12,2021-05-14 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ adultscore=0 mlxlogscore=999 phishscore=0 mlxscore=0 bulkscore=0
+ priorityscore=1501 lowpriorityscore=0 suspectscore=0 clxscore=1011
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105140104
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 10 May 2021 17:00:58 +0300
+Mike Rapoport <rppt@linux.ibm.com> wrote:
 
+> Hello,
+> 
+> I'm trying to consolidate setup of iomem_resource as it is very similar
+> across several architectures.  
+> 
+> Among the differences I've encountered is that s390 keeps crashk_resource
+> is not a child of "System RAM" and commit 4e042af463f8 ("s390/kexec: fix
+> crash on resize of reserved memory") added a comment that explicitly says
+> that "... crash kernel resource should not be part of the System RAM
+> resource".
+> 
+> I could not find what is the reason for this neither in the kernel nor in
+> kexec sources.
+> 
+> Any help will be greatly appreciated!
+> 
 
-Le 23/04/2021 à 12:26, Quentin Monnet a écrit :
-> 2021-04-23 09:19 UTC+0200 ~ Christophe Leroy <christophe.leroy@csgroup.eu>
-> 
-> [...]
-> 
->> I finally managed to cross compile bpftool with libbpf, libopcodes,
->> readline, ncurses, libcap, libz and all needed stuff. Was not easy but I
->> made it.
-> 
-> Libcap is optional and bpftool does not use readline or ncurses. May I
-> ask how you tried to build it?
-> 
->>
->> Now, how do I use it ?
->>
->> Let say I want to dump the jitted code generated from a call to
->> 'tcpdump'. How do I do that with 'bpftool prog dump jited' ?
->>
->> I thought by calling this line I would then get programs dumped in a way
->> or another just like when setting 'bpf_jit_enable=2', but calling that
->> line just provides me some bpftool help text.
-> 
-> Well the purpose of this text is to help you find the way to call
-> bpftool to do what you want :). For dumping your programs' instructions,
-> you need to tell bpftool what program to dump: Bpftool isn't waiting
-> until you load a program to dump it, instead you need to load your
-> program first and then tell bpftool to retrieve the instructions from
-> the kernel. To reference your program you could use a pinned path, or
-> first list the programs on your system with "bpftool prog show":
-> 
-> 
->      # bpftool prog show
->      138: tracing  name foo  tag e54c922dfa54f65f  gpl
->              loaded_at 2021-02-25T01:32:30+0000  uid 0
->              xlated 256B  jited 154B  memlock 4096B  map_ids 64
->              btf_id 235
+Hello Mike,
 
-Got the following error:
+Heiko is out of the office for a couple of weeks, but I think chances
+are good that this is just some historic or cosmetic artifact.
 
-root@vgoip:~# ./bpftool prog show
-libbpf: elf: endianness mismatch in pid_iter_bpf.
-libbpf: failed to initialize skeleton BPF object 'pid_iter_bpf': -4003
-Error: failed to open PID iterator skeleton
+We apparently wanted to make extra sure that the crashkernel memory
+is as invisible to the kernel as possible, e.g. by not even having
+in it in the kernel 1:1 mapping and also w/o struct pages. This was
+changed by Heikos patch, as it did not work well with the crashkernel
+resizing. The patch did not change the "System RAM" hierarchy, IIUC,
+it just added the comment. I assume that both the 1:1 mapping and also
+the "System RAM" exclusion were just some overly cautious measures,
+just because it was possible.
 
+Since commit 1a085d0727af ("kexec: Set IORESOURCE_SYSTEM_RAM for System
+RAM") and bd7e6cb30ced ("resource: Change walk_system_ram() to use System
+RAM type"), it should actually not really matter which hierarchy we use
+for /proc/iomem, because crashk_res will be flagged as System RAM anyway,
+and thus also be visible for any System RAM resource walkers, IIUC.
 
-Christophe
+Those commits went upstream just a bit before Heikos commit, and it might
+just not have been noticed (until now) that we do not really hide the
+crashk_res from System RAM anymore. I also see no technical impact, other
+than cosmetic reasons, i.e. it will not show up as child in /proc/iomem,
+but for all other purposes it would still be treated as System RAM, at
+least after the two commits mentioned above.
+
+So I would assume that the comment is just misleading, but I cannot
+really say for sure. Maybe Heiko can add some more insight when he
+returns.
+
+Regards,
+Gerald
