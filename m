@@ -2,116 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69EA1C433ED
-	for <linux-s390@archiver.kernel.org>; Fri, 14 May 2021 00:29:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7BD8C433ED
+	for <linux-s390@archiver.kernel.org>; Fri, 14 May 2021 06:34:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2966F613BC
-	for <linux-s390@archiver.kernel.org>; Fri, 14 May 2021 00:29:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 94BD36144B
+	for <linux-s390@archiver.kernel.org>; Fri, 14 May 2021 06:34:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231414AbhENAbG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 May 2021 20:31:06 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34508 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229956AbhENAbF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 May 2021 20:31:05 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14E02tvR086166;
-        Thu, 13 May 2021 20:29:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=+3q1+f/7W9aLY/875YVSaLqc+FFnACbfBN12gTUyGGQ=;
- b=gxnOMmTuM6ae4s/+793sMmHkyosb2aOnMKnDXsuWtdFlep5JBfoRki/WKwakfpJtx3UU
- ucsAj02kWr84gvt9L5RsM+xyisXxl8emvH6GrgJAua57rCKNKhdSb/KknYAbsyrbmNgL
- oDITQ2WYVwjzKmp00DFoGMpI4sEa/PcISaYEXaEh/cvb11XVrnS334fQhKG1o7u3rOk1
- XaOdhj5jqDsQGSfm6BpY9uM1SCGXZrX4xwqR2YdS0oi4TQJg9KjdFwedrXPPDYkZIGWw
- dgtamfmubn0rs6DDjuWQys1A5bUUwN6CvKR70ItpyiKrB3venZoSdnCVavKMeI+k//dT FA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38hchcjrgn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 May 2021 20:29:55 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14E04qLm094903;
-        Thu, 13 May 2021 20:29:54 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38hchcjrg3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 May 2021 20:29:54 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14E0TO75013738;
-        Fri, 14 May 2021 00:29:52 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 38hc77g19u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 14 May 2021 00:29:52 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14E0TM8V27001156
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 May 2021 00:29:22 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7795A11C04C;
-        Fri, 14 May 2021 00:29:49 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 06C6C11C054;
-        Fri, 14 May 2021 00:29:49 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.9.250])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Fri, 14 May 2021 00:29:48 +0000 (GMT)
-Date:   Fri, 14 May 2021 02:29:46 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Eric Farman <farman@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [PATCH v6 0/3] vfio-ccw: Fix interrupt handling for HALT/CLEAR
-Message-ID: <20210514022946.693936fc.pasic@linux.ibm.com>
-In-Reply-To: <8224aa872f243610583aab327c7e0b813ddaf0dd.camel@linux.ibm.com>
-References: <20210511195631.3995081-1-farman@linux.ibm.com>
-        <20210513030543.67601a8c.pasic@linux.ibm.com>
-        <8224aa872f243610583aab327c7e0b813ddaf0dd.camel@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S232316AbhENGfZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 14 May 2021 02:35:25 -0400
+Received: from pegase2.c-s.fr ([93.17.235.10]:37459 "EHLO pegase2.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230329AbhENGfY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 14 May 2021 02:35:24 -0400
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4FhJdv1Shwz9sZK;
+        Fri, 14 May 2021 08:34:11 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id T1_jWZQjZv-c; Fri, 14 May 2021 08:34:11 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4FhJdv0Rs5z9sZJ;
+        Fri, 14 May 2021 08:34:11 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id E2D018B7F7;
+        Fri, 14 May 2021 08:34:10 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id mVreRObY4o1i; Fri, 14 May 2021 08:34:10 +0200 (CEST)
+Received: from [192.168.4.90] (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id D62098B7F6;
+        Fri, 14 May 2021 08:34:07 +0200 (CEST)
+Subject: Re: [PATCH bpf-next 1/2] bpf: Remove bpf_jit_enable=2 debugging mode
+To:     Quentin Monnet <quentin@isovalent.com>,
+        Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc:     Ian Rogers <irogers@google.com>, Song Liu <songliubraving@fb.com>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Zi Shen Lim <zlim.lnx@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
+        Shubham Bansal <illusionist.neo@gmail.com>,
+        Mahesh Bandewar <maheshb@google.com>,
+        Will Deacon <will@kernel.org>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Ilya Leoshkevich <iii@linux.ibm.com>, paulburton@kernel.org,
+        Jonathan Corbet <corbet@lwn.net>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        X86 ML <x86@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Tobias Klauser <tklauser@distanz.ch>,
+        linux-mips@vger.kernel.org, grantseltzer@gmail.com,
+        Xi Wang <xi.wang@gmail.com>, Albert Ou <aou@eecs.berkeley.edu>,
+        Kees Cook <keescook@chromium.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Luke Nelson <luke.r.nels@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        ppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        KP Singh <kpsingh@kernel.org>, iecedge@gmail.com,
+        Simon Horman <horms@verge.net.au>,
+        Borislav Petkov <bp@alien8.de>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Yonghong Song <yhs@fb.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dmitry Vyukov <dvyukov@google.com>, tsbogend@alpha.franken.de,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Network Development <netdev@vger.kernel.org>,
+        David Ahern <dsahern@kernel.org>,
+        Wang YanQing <udknight@gmail.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>, bpf <bpf@vger.kernel.org>,
+        Jianlin Lv <Jianlin.Lv@arm.com>,
+        "David S. Miller" <davem@davemloft.net>
+References: <20210415093250.3391257-1-Jianlin.Lv@arm.com>
+ <9c4a78d2-f73c-832a-e6e2-4b4daa729e07@iogearbox.net>
+ <d3949501-8f7d-57c4-b3fe-bcc3b24c09d8@isovalent.com>
+ <CAADnVQJ2oHbYfgY9jqM_JMxUsoZxaNrxKSVFYfgCXuHVpDehpQ@mail.gmail.com>
+ <0dea05ba-9467-0d84-4515-b8766f60318e@csgroup.eu>
+ <CAADnVQ+oQT6C7Qv7P5TV-x7im54omKoCYYKtYhcnhb1Uv3LPMQ@mail.gmail.com>
+ <be132117-f267-5817-136d-e1aeb8409c2a@csgroup.eu>
+ <58296f87-ad00-a0f5-954b-2150aa84efc4@isovalent.com>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <52171382-1eca-58e2-b3d1-b2cc6b431e27@csgroup.eu>
+Date:   Fri, 14 May 2021 08:34:07 +0200
+User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <58296f87-ad00-a0f5-954b-2150aa84efc4@isovalent.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Qa2SlGelqLl_dM4JdRTBlQgqqpCaAyjb
-X-Proofpoint-ORIG-GUID: EEe7NS9MGLESw9Nr45bMJzWmni2b9NmC
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-13_16:2021-05-12,2021-05-13 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
- lowpriorityscore=0 clxscore=1015 mlxlogscore=999 suspectscore=0
- spamscore=0 malwarescore=0 priorityscore=1501 bulkscore=0 adultscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105130171
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 13 May 2021 14:33:20 -0400
-Eric Farman <farman@linux.ibm.com> wrote:
 
-> > 
-> > In any case, I don't want to hold this up any further.
-> >   
+
+Le 23/04/2021 à 12:26, Quentin Monnet a écrit :
+> 2021-04-23 09:19 UTC+0200 ~ Christophe Leroy <christophe.leroy@csgroup.eu>
 > 
-> Thanks for that. You are correct that there's still a potential issue
-> here, in the handoff between fsm_irq() and vfio_ccw_sch_io_todo(), and
-> another fsm_io_request() that would arrive between those points. But
-> it's not anything that we haven't already discussed, and will hopefully
-> begin discussing in the next couple of weeks.
+> [...]
+> 
+>> I finally managed to cross compile bpftool with libbpf, libopcodes,
+>> readline, ncurses, libcap, libz and all needed stuff. Was not easy but I
+>> made it.
+> 
+> Libcap is optional and bpftool does not use readline or ncurses. May I
+> ask how you tried to build it?
+> 
+>>
+>> Now, how do I use it ?
+>>
+>> Let say I want to dump the jitted code generated from a call to
+>> 'tcpdump'. How do I do that with 'bpftool prog dump jited' ?
+>>
+>> I thought by calling this line I would then get programs dumped in a way
+>> or another just like when setting 'bpf_jit_enable=2', but calling that
+>> line just provides me some bpftool help text.
+> 
+> Well the purpose of this text is to help you find the way to call
+> bpftool to do what you want :). For dumping your programs' instructions,
+> you need to tell bpftool what program to dump: Bpftool isn't waiting
+> until you load a program to dump it, instead you need to load your
+> program first and then tell bpftool to retrieve the instructions from
+> the kernel. To reference your program you could use a pinned path, or
+> first list the programs on your system with "bpftool prog show":
+> 
+> 
+>      # bpftool prog show
+>      138: tracing  name foo  tag e54c922dfa54f65f  gpl
+>              loaded_at 2021-02-25T01:32:30+0000  uid 0
+>              xlated 256B  jited 154B  memlock 4096B  map_ids 64
+>              btf_id 235
 
-Thanks for all the explanations and your patience. I know, I can be
-difficult when I'm at discomfort due to dissonances in my mental model
-of a certain problem or a certain solution. Will try to carve out some
-time to at least have a look at those as well.
+Got the following error:
 
-Have a nice weekend!
+root@vgoip:~# ./bpftool prog show
+libbpf: elf: endianness mismatch in pid_iter_bpf.
+libbpf: failed to initialize skeleton BPF object 'pid_iter_bpf': -4003
+Error: failed to open PID iterator skeleton
 
-Halil 
+
+Christophe
