@@ -2,104 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FABCC433B4
-	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 04:14:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFD10C433B4
+	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 08:47:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 056DD6120D
-	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 04:14:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CD14C61166
+	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 08:47:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229826AbhEQEQE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 May 2021 00:16:04 -0400
-Received: from foss.arm.com ([217.140.110.172]:41128 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229452AbhEQEQE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 May 2021 00:16:04 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 38BB31042;
-        Sun, 16 May 2021 21:14:48 -0700 (PDT)
-Received: from [192.168.0.130] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2D2313F73B;
-        Sun, 16 May 2021 21:14:44 -0700 (PDT)
-Subject: Re: [PATCH] mm/thp: Make ARCH_ENABLE_SPLIT_PMD_PTLOCK dependent on
- PGTABLE_LEVELS > 2
-To:     linux-mm@kvack.org, akpm@linux-foundation.org
+        id S235718AbhEQIsl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 May 2021 04:48:41 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32254 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232924AbhEQIsj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 17 May 2021 04:48:39 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14H8XRvK098409;
+        Mon, 17 May 2021 04:47:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=3LGj5znCbrPn7CpI4SB4k3ul7Bsu0XXOYPTsudaEzHo=;
+ b=ZVipDKlefd21tgYww4DJ2TpMOm8Ba5tNVoVfUUpm0KQm60NTanfD7MygCL6Lx1GEWo8L
+ ztDpcErAn05FEBZfxXJaUpvBAn15ibVgqhaXWs7QpTJERO1FVZKsnhHIqIk2jOqKPtQT
+ MjPSSGh6QdhhfJAN1Lw/JCv4afd8d9qql4YWVzvGFD2kZ5a8CghBGi6e64TYiEG6ti+u
+ XrOnru4Ihis6p2gSUUbJuOwMGAV4qiAEfNqwY0skJPrTkfitJNuwvldp0QPS2AjeAfks
+ 1+HdJshTIEQkyJzVIjsXr8xr6zmsUFW7pez6qwbttiLP24pUat1LcfjcUKDUSB88DQQJ hA== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38kmbw9ge7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 May 2021 04:47:20 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14H8iNfs014548;
+        Mon, 17 May 2021 08:47:18 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06fra.de.ibm.com with ESMTP id 38j5jh0cgw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 May 2021 08:47:18 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14H8kl2c33882516
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 17 May 2021 08:46:47 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4BEABA4059;
+        Mon, 17 May 2021 08:47:15 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 12065A404D;
+        Mon, 17 May 2021 08:47:15 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 17 May 2021 08:47:15 +0000 (GMT)
+From:   Karsten Graul <kgraul@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1620621345-29176-1-git-send-email-anshuman.khandual@arm.com>
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-Message-ID: <a4403be6-5b74-2c86-bc4c-42ae4f0764dc@arm.com>
-Date:   Mon, 17 May 2021 09:45:31 +0530
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH net] net/smc: remove device from smcd_dev_list after failed device_add()
+Date:   Mon, 17 May 2021 10:47:06 +0200
+Message-Id: <20210517084706.1620399-1-kgraul@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <1620621345-29176-1-git-send-email-anshuman.khandual@arm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: WGpD02X9b3W4BW2Z2XkzhGEnm5FDMVxo
+X-Proofpoint-ORIG-GUID: WGpD02X9b3W4BW2Z2XkzhGEnm5FDMVxo
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-17_03:2021-05-12,2021-05-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 phishscore=0
+ impostorscore=0 priorityscore=1501 suspectscore=0 mlxscore=0 spamscore=0
+ bulkscore=0 malwarescore=0 lowpriorityscore=0 adultscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2105170061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
+If the device_add() for a smcd_dev fails, there's no cleanup step that
+rolls back the earlier list_add(). The device subsequently gets freed,
+and we end up with a corrupted list.
 
-On 5/10/21 10:05 AM, Anshuman Khandual wrote:
-> ARCH_ENABLE_SPLIT_PMD_PTLOCK is irrelevant unless there are two page table
-> levels including PMD (also per Documentation/vm/split_page_table_lock.rst).
-> Make this dependency explicit on remaining platforms i.e x86 and s390 where
-> ARCH_ENABLE_SPLIT_PMD_PTLOCK is subscribed.
-> 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: x86@kernel.org
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-mm@kvack.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> ---
->  arch/s390/Kconfig | 2 +-
->  arch/x86/Kconfig  | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index b4c7c34069f8..fcc1ea339a9d 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -62,7 +62,7 @@ config S390
->  	select ARCH_BINFMT_ELF_STATE
->  	select ARCH_ENABLE_MEMORY_HOTPLUG if SPARSEMEM
->  	select ARCH_ENABLE_MEMORY_HOTREMOVE
-> -	select ARCH_ENABLE_SPLIT_PMD_PTLOCK
-> +	select ARCH_ENABLE_SPLIT_PMD_PTLOCK if PGTABLE_LEVELS > 2
->  	select ARCH_HAS_DEBUG_VM_PGTABLE
->  	select ARCH_HAS_DEBUG_WX
->  	select ARCH_HAS_DEVMEM_IS_ALLOWED
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index 0045e1b44190..ec9e9d3d7e3f 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -63,7 +63,7 @@ config X86
->  	select ARCH_ENABLE_HUGEPAGE_MIGRATION if X86_64 && HUGETLB_PAGE && MIGRATION
->  	select ARCH_ENABLE_MEMORY_HOTPLUG if X86_64 || (X86_32 && HIGHMEM)
->  	select ARCH_ENABLE_MEMORY_HOTREMOVE if MEMORY_HOTPLUG
-> -	select ARCH_ENABLE_SPLIT_PMD_PTLOCK if X86_64 || X86_PAE
-> +	select ARCH_ENABLE_SPLIT_PMD_PTLOCK if (PGTABLE_LEVELS > 2) && (X86_64 || X86_PAE)
->  	select ARCH_ENABLE_THP_MIGRATION if X86_64 && TRANSPARENT_HUGEPAGE
->  	select ARCH_HAS_ACPI_TABLE_UPGRADE	if ACPI
->  	select ARCH_HAS_CACHE_LINE_SIZE
-> 
+Add some error handling that removes the device from the list.
 
+Fixes: c6ba7c9ba43d ("net/smc: add base infrastructure for SMC-D and ISM")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/smc_ism.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-Gentle ping.
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 9c6e95882553..d24b96ea0eb5 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -428,6 +428,8 @@ EXPORT_SYMBOL_GPL(smcd_alloc_dev);
+ 
+ int smcd_register_dev(struct smcd_dev *smcd)
+ {
++	int rc;
++
+ 	mutex_lock(&smcd_dev_list.mutex);
+ 	if (list_empty(&smcd_dev_list.list)) {
+ 		u8 *system_eid = NULL;
+@@ -447,7 +449,14 @@ int smcd_register_dev(struct smcd_dev *smcd)
+ 			    dev_name(&smcd->dev), smcd->pnetid,
+ 			    smcd->pnetid_by_user ? " (user defined)" : "");
+ 
+-	return device_add(&smcd->dev);
++	rc = device_add(&smcd->dev);
++	if (rc) {
++		mutex_lock(&smcd_dev_list.mutex);
++		list_del(&smcd->list);
++		mutex_unlock(&smcd_dev_list.mutex);
++	}
++
++	return rc;
+ }
+ EXPORT_SYMBOL_GPL(smcd_register_dev);
+ 
+-- 
+2.25.1
 
-Any updates or objections ?
