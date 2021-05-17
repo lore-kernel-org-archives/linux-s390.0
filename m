@@ -2,187 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B448C433B4
-	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 16:24:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A35EEC433ED
+	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 19:10:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 49ED861019
-	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 16:24:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7F0FD6109E
+	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 19:10:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242550AbhEQQZx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 May 2021 12:25:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38060 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344346AbhEQQZq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 May 2021 12:25:46 -0400
-Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82662C030CFD
-        for <linux-s390@vger.kernel.org>; Mon, 17 May 2021 07:55:38 -0700 (PDT)
-Received: by mail-lj1-x231.google.com with SMTP id o8so7678796ljp.0
-        for <linux-s390@vger.kernel.org>; Mon, 17 May 2021 07:55:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=QUe8DOeGFSdZ193LBrJppmyu5E2kuzgS0SpFBXrhdow=;
-        b=U7wtNIdm28GJ8gwv7rj2npD297B+CJPksgybK+hTA7W8lHEhapKJxMIG5HQ3HNjXTg
-         rWb17bnmwUibfb6rDGPoRpsUcTBKgheHmdEsYQPVx7KYwyYWUJ/UNRkKfjb9d5ibFSFt
-         v0Ow6tYwRBxOkRkqYu/DG4+zFO+zy6inj96rgHrhP8QNsj4HQXzBUbFw/rjoY9+IIM+C
-         OhujAr86N4O2dvGqUDJI0zXBe8E1N459vTzNZ6MB6PKR1p/o3iIaEdbHCI2e1Ze+ICqd
-         +af/XXK+6g5EVl721j8io2s5td6Cu6Uh4DS/OUMJSH13vFDYn9PvexXNAac5d0rx2akL
-         Bijg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=QUe8DOeGFSdZ193LBrJppmyu5E2kuzgS0SpFBXrhdow=;
-        b=JozKtXDWDh9VIftkD3HCN33tUYMlHE+YGIxvr0FoGHNOQOw3ZPqgY7XiGcDCzojyle
-         ZTDSvS/mY6150/Oh0AcTpKG/CQ0UO9YydJ5YGZPC610gsx8uJF3+OlElxp//WS/J29uH
-         owuDjIE4aa7v77MHmv0qGmOJvjrDxbwqtNvI+2WZMLPWMXx1AvLfaJ2jwB5Ts9jj0QZn
-         OTNojmmRjBOTzF4+0i+q5qe1BMixY+GxaHXBZHvRkGoiDW2MmiBrU4LaJMW3vfrumWms
-         3dwSvJ3K5x6MfU0zOyC7BSlIS2bzW/M6bYLInTf14KL4Jx3SWQ7XyaRdXUfEanUR5jO5
-         p0Wg==
-X-Gm-Message-State: AOAM530EdNmxBAntOZEaUsbykYslGFzA3dbhQQUzWL5xUS2csJ2IUMn7
-        OAXu0eq/CtKb0hfHav4iwzCcN4Y2QixM21XkrWVG4g==
-X-Google-Smtp-Source: ABdhPJyyt3vMBNkKRAxRLZE9D6Z3kkpMMjxSYVr0MStibqeH5eOvyHWZ8uTTaM8cQ8iiN2h4w0DZq9BBNo0X0WVeHiI=
-X-Received: by 2002:a05:651c:1251:: with SMTP id h17mr50489673ljh.215.1621263336866;
- Mon, 17 May 2021 07:55:36 -0700 (PDT)
+        id S231649AbhEQTL6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 May 2021 15:11:58 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3832 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231379AbhEQTL5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 17 May 2021 15:11:57 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14HJ4EUF140018;
+        Mon, 17 May 2021 15:10:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=6hsvjsITPUCnrFWqTahbJoJfWrEF44ZPGCdggVB0zeM=;
+ b=AUvO04ReJBgvqkGfesc/EDb0CbFAdG5ReqwdkDYW/SAKdjaEX/yKsJXSt2Iv9bBK99ku
+ YM//N9YR0Q0C/ofwBVAJKcHrCwvTSGfWN3hOsu5v6mw/HHODuLvR/uViLGezqEhyJ/ra
+ xAo5OCgAs/QKFrmcSY+A7m8sSpCsRrbRQIK4p+0AwNpo/oExq+NyR7Gz1HTU19utlGIt
+ n28yUFjrWCByUAPtcC5xlMYxBMD2oouxo2TUuG1XptC31e5rOypVePfAXgKX7RRqnirl
+ hoh6jBMh10gYqUywpykoT9/IZvF6/GTqtGVbwulQUy+kaRbrqaj0JF2otqyVEwz37V/o Uw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38kw8020wc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 May 2021 15:10:39 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14HJ4moc144594;
+        Mon, 17 May 2021 15:10:39 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38kw8020v3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 May 2021 15:10:38 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14HJ7DjI018412;
+        Mon, 17 May 2021 19:10:36 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 38j5x8925t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 May 2021 19:10:36 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14HJAXWr44958092
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 17 May 2021 19:10:33 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2F0B14C044;
+        Mon, 17 May 2021 19:10:33 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4B6DC4C046;
+        Mon, 17 May 2021 19:10:32 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.52.118])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Mon, 17 May 2021 19:10:32 +0000 (GMT)
+Date:   Mon, 17 May 2021 21:10:30 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove
+ callback
+Message-ID: <20210517211030.368ca64b.pasic@linux.ibm.com>
+In-Reply-To: <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
+References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
+ <20210512203536.4209c29c.pasic@linux.ibm.com>
+ <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
+ <20210513194541.58d1628a.pasic@linux.ibm.com>
+ <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
+ <20210514021500.60ad2a22.pasic@linux.ibm.com>
+ <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <20210517145314.157626-1-jingzhangos@google.com>
-In-Reply-To: <20210517145314.157626-1-jingzhangos@google.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Mon, 17 May 2021 09:55:25 -0500
-Message-ID: <CAAdAUtixWdpFvY1Vq5e+VqoFjZ9xoTyb0gi4MD9=u8rMj4NEJQ@mail.gmail.com>
-Subject: Re: [PATCH v5 0/4] KVM statistics data fd-based binary interface
-To:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ogxqyuyO29QcstH-3LxOv6LJZsUHq7Il
+X-Proofpoint-GUID: AqVjBD1le3CgxS63pCX2SHd9lt62aNha
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-17_08:2021-05-17,2021-05-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 impostorscore=0 bulkscore=0 phishscore=0 mlxlogscore=999
+ suspectscore=0 clxscore=1015 mlxscore=0 priorityscore=1501 malwarescore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105170130
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Paolo,
+On Mon, 17 May 2021 09:37:42 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-On Mon, May 17, 2021 at 9:53 AM Jing Zhang <jingzhangos@google.com> wrote:
->
-> This patchset provides a file descriptor for every VM and VCPU to read
-> KVM statistics data in binary format.
-> It is meant to provide a lightweight, flexible, scalable and efficient
-> lock-free solution for user space telemetry applications to pull the
-> statistics data periodically for large scale systems. The pulling
-> frequency could be as high as a few times per second.
-> In this patchset, every statistics data are treated to have some
-> attributes as below:
->   * architecture dependent or common
->   * VM statistics data or VCPU statistics data
->   * type: cumulative, instantaneous,
->   * unit: none for simple counter, nanosecond, microsecond,
->     millisecond, second, Byte, KiByte, MiByte, GiByte. Clock Cycles
-> Since no lock/synchronization is used, the consistency between all
-> the statistics data is not guaranteed. That means not all statistics
-> data are read out at the exact same time, since the statistics date
-> are still being updated by KVM subsystems while they are read out.
->
-> ---
->
-> * v4 -> v5
->   - Rebase to kvm/queue, commit a4345a7cecfb ("Merge tag
->     'kvmarm-fixes-5.13-1'")
->   - Change maximum stats name length to 48
->   - Replace VM_STATS_COMMON/VCPU_STATS_COMMON macros with stats
->     descriptor definition macros.
->   - Fixed some errors/warnings reported by checkpatch.pl
->
-> * v3 -> v4
->   - Rebase to kvm/queue, commit 9f242010c3b4 ("KVM: avoid "deadlock"
->     between install_new_memslots and MMU notifier")
->   - Use C-stype comments in the whole patch
->   - Fix wrong count for x86 VCPU stats descriptors
->   - Fix KVM stats data size counting and validity check in selftest
->
-> * v2 -> v3
->   - Rebase to kvm/queue, commit edf408f5257b ("KVM: avoid "deadlock"
->     between install_new_memslots and MMU notifier")
->   - Resolve some nitpicks about format
->
-> * v1 -> v2
->   - Use ARRAY_SIZE to count the number of stats descriptors
->   - Fix missing `size` field initialization in macro STATS_DESC
->
-> [1] https://lore.kernel.org/kvm/20210402224359.2297157-1-jingzhangos@google.com
-> [2] https://lore.kernel.org/kvm/20210415151741.1607806-1-jingzhangos@google.com
-> [3] https://lore.kernel.org/kvm/20210423181727.596466-1-jingzhangos@google.com
-> [4] https://lore.kernel.org/kvm/20210429203740.1935629-1-jingzhangos@google.com
->
-> ---
->
-> Jing Zhang (4):
->   KVM: stats: Separate common stats from architecture specific ones
->   KVM: stats: Add fd-based API to read binary stats data
->   KVM: stats: Add documentation for statistics data binary interface
->   KVM: selftests: Add selftest for KVM statistics data binary interface
->
->  Documentation/virt/kvm/api.rst                | 171 ++++++++
->  arch/arm64/include/asm/kvm_host.h             |   9 +-
->  arch/arm64/kvm/guest.c                        |  38 +-
->  arch/mips/include/asm/kvm_host.h              |   9 +-
->  arch/mips/kvm/mips.c                          |  64 ++-
->  arch/powerpc/include/asm/kvm_host.h           |   9 +-
->  arch/powerpc/kvm/book3s.c                     |  64 ++-
->  arch/powerpc/kvm/book3s_hv.c                  |  12 +-
->  arch/powerpc/kvm/book3s_pr.c                  |   2 +-
->  arch/powerpc/kvm/book3s_pr_papr.c             |   2 +-
->  arch/powerpc/kvm/booke.c                      |  59 ++-
->  arch/s390/include/asm/kvm_host.h              |   9 +-
->  arch/s390/kvm/kvm-s390.c                      | 129 +++++-
->  arch/x86/include/asm/kvm_host.h               |   9 +-
->  arch/x86/kvm/x86.c                            |  67 +++-
->  include/linux/kvm_host.h                      | 136 ++++++-
->  include/linux/kvm_types.h                     |  12 +
->  include/uapi/linux/kvm.h                      |  50 +++
->  tools/testing/selftests/kvm/.gitignore        |   1 +
->  tools/testing/selftests/kvm/Makefile          |   3 +
->  .../testing/selftests/kvm/include/kvm_util.h  |   3 +
->  .../selftests/kvm/kvm_bin_form_stats.c        | 379 ++++++++++++++++++
->  tools/testing/selftests/kvm/lib/kvm_util.c    |  12 +
->  virt/kvm/kvm_main.c                           | 237 ++++++++++-
->  24 files changed, 1396 insertions(+), 90 deletions(-)
->  create mode 100644 tools/testing/selftests/kvm/kvm_bin_form_stats.c
->
->
-> base-commit: a4345a7cecfb91ae78cd43d26b0c6a956420761a
-> --
-> 2.31.1.751.gd2f1c929bd-goog
->
-Please use this patchset which has some nontrivial changes and improvements.
+> >
+> > Because of this, I don't think the rest of your argument is valid.  
+> 
+> Okay, so your concern is that between the point in time the
+> vcpu->kvm->arch.crypto.pqap_hook pointer is checked in
+> priv.c and the point in time the handle_pqap() function
+> in vfio_ap_ops.c is called, the memory allocated for the
+> matrix_mdev containing the struct kvm_s390_module_hook
+> may get freed, thus rendering the function pointer invalid.
+> While not impossible, that seems extremely unlikely to
+> happen. Can you articulate a scenario where that could
+> even occur?
 
-Thanks,
-Jing
+Malicious userspace. We tend to do the pqap aqic just once
+in the guest right after the queue is detected. I do agree
+it ain't very likely to happen during normal operation. But why are
+you asking?
+
+I'm not sure I understood correctly what kind of a scenario are
+you asking for. PQAP AQIC and mdev remove are independent
+events originated in userspace, so AFAIK we may not assume
+that the execution of two won't overlap, nor are we allowed
+to make assumptions on how does the execution of these two
+overlap (except for the things we explicitly ensure -- e.g.
+some parts are made mutually exclusive using the matrix_dev->lock
+lock).
+
+Regards,
+Halil
+
