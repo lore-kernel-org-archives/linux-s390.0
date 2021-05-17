@@ -2,134 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A35EEC433ED
-	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 19:10:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46E82C43461
+	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 19:40:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F0FD6109E
-	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 19:10:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 26A3E61285
+	for <linux-s390@archiver.kernel.org>; Mon, 17 May 2021 19:40:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231649AbhEQTL6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 May 2021 15:11:58 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3832 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231379AbhEQTL5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 May 2021 15:11:57 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14HJ4EUF140018;
-        Mon, 17 May 2021 15:10:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=6hsvjsITPUCnrFWqTahbJoJfWrEF44ZPGCdggVB0zeM=;
- b=AUvO04ReJBgvqkGfesc/EDb0CbFAdG5ReqwdkDYW/SAKdjaEX/yKsJXSt2Iv9bBK99ku
- YM//N9YR0Q0C/ofwBVAJKcHrCwvTSGfWN3hOsu5v6mw/HHODuLvR/uViLGezqEhyJ/ra
- xAo5OCgAs/QKFrmcSY+A7m8sSpCsRrbRQIK4p+0AwNpo/oExq+NyR7Gz1HTU19utlGIt
- n28yUFjrWCByUAPtcC5xlMYxBMD2oouxo2TUuG1XptC31e5rOypVePfAXgKX7RRqnirl
- hoh6jBMh10gYqUywpykoT9/IZvF6/GTqtGVbwulQUy+kaRbrqaj0JF2otqyVEwz37V/o Uw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38kw8020wc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 May 2021 15:10:39 -0400
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14HJ4moc144594;
-        Mon, 17 May 2021 15:10:39 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38kw8020v3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 May 2021 15:10:38 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14HJ7DjI018412;
-        Mon, 17 May 2021 19:10:36 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 38j5x8925t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 May 2021 19:10:36 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14HJAXWr44958092
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 17 May 2021 19:10:33 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2F0B14C044;
-        Mon, 17 May 2021 19:10:33 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4B6DC4C046;
-        Mon, 17 May 2021 19:10:32 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.52.118])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Mon, 17 May 2021 19:10:32 +0000 (GMT)
-Date:   Mon, 17 May 2021 21:10:30 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove
- callback
-Message-ID: <20210517211030.368ca64b.pasic@linux.ibm.com>
-In-Reply-To: <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
-References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
- <20210512203536.4209c29c.pasic@linux.ibm.com>
- <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
- <20210513194541.58d1628a.pasic@linux.ibm.com>
- <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
- <20210514021500.60ad2a22.pasic@linux.ibm.com>
- <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S234917AbhEQTlb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 May 2021 15:41:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54468 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234925AbhEQTlT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 May 2021 15:41:19 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55952C061573;
+        Mon, 17 May 2021 12:40:02 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id k10so10900722ejj.8;
+        Mon, 17 May 2021 12:40:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=PULfJfJ5qOKU+8g4uSUAsIkjuQOIRxgWrBAdTdPI+Uk=;
+        b=EhQR8/b83ck5P+6wYArlBXOyeYwBcawOfYl3SE4koUo01Qv3x6aD3I8dfoh6E5wNqE
+         VT1EFIuhzab49ldRdl+//elcb/j1fZ4RlFZf3Fn7dPiq6JAnuKK4brdgHlFpNDiR+ltz
+         W1uI9nqHSdF0CT2sdXz9P8hYHVNFEPrJPnlNh/SE6S9Ysk3CXQMQy4J3OIYrAfkWlXSW
+         tl84LyfrfgNTvo9Ws7lyGKaqKEHOc/PIWgKIGWLgkUp+EGPpbTRJ9PGot5HuojNqSn+j
+         cEdQOWOi3iZMbULIx9AgmU8RYMx+GnEpR2EbQORUaHaQjlWX0jx+CdOjKC8eVSrrmO+h
+         ivNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PULfJfJ5qOKU+8g4uSUAsIkjuQOIRxgWrBAdTdPI+Uk=;
+        b=DsgDVBh/wAiJ9HciW3Zeldidk5tEK9U+EdepIDFpustn6D4Nxy9LPL4Vyr3qjeiOfx
+         TlEUJijIrTxDlrq+ySAigvAO6QwBlQhucdeUU7uLasl+OsjhvIP+f0BY3Sma3gnzzcNN
+         n+1aSk2K/rEgzF8Dl/Q6qJLpyLFxh8AtGzzPNiXQDjysbz0HZrl+ZOqc4zwdA0k8PljO
+         bF7r6D1wB/m+2+UtvdJc6B4XSLzqwj6pEZbPOKULJnJjK47eVy6QOFuSjJj7KWVdM/0w
+         tCVpeP2mu0gY9dGinpqIKNLefkbh5YIcMoxGbFqaR+hsPrdbcIcgDenMr3GVWpiNdrME
+         GA7A==
+X-Gm-Message-State: AOAM532o0qf76NyNKOs349sM3DdTNngUlfsQj56oaBVLKIsGI4DjVwpD
+        H7oiMDam40YxwzONY0JzsSkpQecw+5ZtiE/QqA0=
+X-Google-Smtp-Source: ABdhPJzaAbYrt1TFzLdEhuKWdbzFAAdK50AJVifrk1nYLfYsCxp64s3Jz5HRDhIUivg/vdrL69hneDrJ557W4A68GaM=
+X-Received: by 2002:a17:906:11c8:: with SMTP id o8mr1542940eja.499.1621280401126;
+ Mon, 17 May 2021 12:40:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ogxqyuyO29QcstH-3LxOv6LJZsUHq7Il
-X-Proofpoint-GUID: AqVjBD1le3CgxS63pCX2SHd9lt62aNha
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-17_08:2021-05-17,2021-05-17 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- adultscore=0 impostorscore=0 bulkscore=0 phishscore=0 mlxlogscore=999
- suspectscore=0 clxscore=1015 mlxscore=0 priorityscore=1501 malwarescore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105170130
+References: <20210413212416.3273-1-shy828301@gmail.com> <20210413212416.3273-2-shy828301@gmail.com>
+ <20210517150922.GU3672@suse.de>
+In-Reply-To: <20210517150922.GU3672@suse.de>
+From:   Yang Shi <shy828301@gmail.com>
+Date:   Mon, 17 May 2021 12:39:49 -0700
+Message-ID: <CAHbLzkoj6Vn_jjWrn99oio1Oi+D4CHw9Z+6Wy4Squz-jCh2DKw@mail.gmail.com>
+Subject: Re: [v2 PATCH 1/7] mm: memory: add orig_pmd to struct vm_fault
+To:     Mel Gorman <mgorman@suse.de>
+Cc:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Zi Yan <ziy@nvidia.com>, Michal Hocko <mhocko@suse.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Hugh Dickins <hughd@google.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux MM <linux-mm@kvack.org>, linux-s390@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 17 May 2021 09:37:42 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-
+On Mon, May 17, 2021 at 8:09 AM Mel Gorman <mgorman@suse.de> wrote:
+>
+> On Tue, Apr 13, 2021 at 02:24:10PM -0700, Yang Shi wrote:
+> > Add orig_pmd to struct vm_fault so the "orig_pmd" parameter used by huge page
+> > fault could be removed, just like its PTE counterpart does.
 > >
-> > Because of this, I don't think the rest of your argument is valid.  
-> 
-> Okay, so your concern is that between the point in time the
-> vcpu->kvm->arch.crypto.pqap_hook pointer is checked in
-> priv.c and the point in time the handle_pqap() function
-> in vfio_ap_ops.c is called, the memory allocated for the
-> matrix_mdev containing the struct kvm_s390_module_hook
-> may get freed, thus rendering the function pointer invalid.
-> While not impossible, that seems extremely unlikely to
-> happen. Can you articulate a scenario where that could
-> even occur?
+> > Signed-off-by: Yang Shi <shy828301@gmail.com>
+> >
+> > <SNIP>
+> >
+> > diff --git a/include/linux/mm.h b/include/linux/mm.h
+> > index 25b9041f9925..9c5856f8cc81 100644
+> > --- a/include/linux/mm.h
+> > +++ b/include/linux/mm.h
+> > @@ -547,6 +547,9 @@ struct vm_fault {
+> >                                        * the 'address'
+> >                                        */
+> >       pte_t orig_pte;                 /* Value of PTE at the time of fault */
+> > +     pmd_t orig_pmd;                 /* Value of PMD at the time of fault,
+> > +                                      * used by PMD fault only.
+> > +                                      */
+> >
+> >       struct page *cow_page;          /* Page handler may use for COW fault */
+> >       struct page *page;              /* ->fault handlers should return a
+>
+> Could this be a union?
 
-Malicious userspace. We tend to do the pqap aqic just once
-in the guest right after the queue is detected. I do agree
-it ain't very likely to happen during normal operation. But why are
-you asking?
+Do you mean orig_pte and orig_pmd, or cow_page and page? I think
+orig_pte and orig_pmd could be union, I don't see that they are used
+at the same time from vm_fault.
 
-I'm not sure I understood correctly what kind of a scenario are
-you asking for. PQAP AQIC and mdev remove are independent
-events originated in userspace, so AFAIK we may not assume
-that the execution of two won't overlap, nor are we allowed
-to make assumptions on how does the execution of these two
-overlap (except for the things we explicitly ensure -- e.g.
-some parts are made mutually exclusive using the matrix_dev->lock
-lock).
+But cow_page and page can't since do_cow_fault() needs copy data from
+page to cow_page.
 
-Regards,
-Halil
-
+>
+> --
+> Mel Gorman
+> SUSE Labs
