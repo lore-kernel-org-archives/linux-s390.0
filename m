@@ -8,54 +8,54 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 803FAC43461
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 20:08:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FD83C43460
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 20:08:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 642D06108D
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 20:08:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5062C61074
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 20:08:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352057AbhERUJp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 May 2021 16:09:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47522 "EHLO
+        id S1352060AbhERUJq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 May 2021 16:09:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352047AbhERUJk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 16:09:40 -0400
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E34DFC061760;
-        Tue, 18 May 2021 13:08:21 -0700 (PDT)
-Received: by mail-pf1-x42c.google.com with SMTP id w1so5587790pfu.0;
-        Tue, 18 May 2021 13:08:21 -0700 (PDT)
+        with ESMTP id S1352053AbhERUJn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 16:09:43 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69F0DC061763;
+        Tue, 18 May 2021 13:08:24 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id d16so8231630pfn.12;
+        Tue, 18 May 2021 13:08:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=/SAb4GmBYcE1RUtznSnoMs9bVmPh+Fmyxo0FfvNKkrs=;
-        b=qTXntNfCiZwDGQEMfk2x4vS/wIHq7eq4cub1djq6BDGbwCBDouuYnFDUTkEFw3sFa/
-         zXWj8Nzwt0d0vegm5TRX283djZ5lKzUQjPLS0U63PhhBUsHvuJ8Z79joQnd2+wXFpAns
-         JmojxPXqAm+C6/6DgPjRJi0A2Sth57/vRHGakaHuw6l2qEBDclnVpk8tQXA3eQeMSxHy
-         Y/tpdSguaArIG6gQtegc9JdHB3DAWLvaY5cKnmMxkJtKy/Fg9Y8Zyj/OjuauGSTkT48M
-         +AaZmb86n3/I2wGP7wDfP7ikDmqCiHxKmGvCRdRNA1fxGVW0rDjnKBgFnJ/95hefATz4
-         yIEQ==
+        bh=C45PnyOdAKKdP0uikZzFqWjcMiIEbofP6QQMFTRkh6w=;
+        b=CL5nPnvoI5mOaaaHiLyHZEkQf8fXrv1vtkCvFBFuJJWCGuizVhnpjdxPXTgG8jc5aj
+         7WBfc1oKuABFJRwsoT2TuDRlLiozNYNenpcDGSAc5C/u782mJiRI0LvXiAQ7fA3zlVl8
+         HqqhnRzd9a0d7rSUmWEw0U8nBQSMDxjxMGcGsgihitU7kbItmgZ6KLEdiSzoLhrG4v/B
+         UV3Q4wY7WOfK4EWNLngwfFClgW3bqz0hf7f4iaWQLb9Xl42tqHJAODRB/kKw9fCvBWig
+         cBVB/CL7bgWKQ0Zlq7R3rxlXCmaet0OPGhyFSw6FGvAhACPA4D0R67PLdngekij7Awmi
+         yF3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=/SAb4GmBYcE1RUtznSnoMs9bVmPh+Fmyxo0FfvNKkrs=;
-        b=hWVlZjNSOHHC9wbj46IkR1ATJsCRiZNMINkjzvjOeQaHbSVp2rkzDHAcLgGxitNYfu
-         2VlunDfjhERTuef48scQCBmq8zxGEZePydP4pUHaIToK89Ea17woCqPGVnA9mnz1r2gC
-         XudkkhuEN8rR8fLS2EbpWQ5kYn4eq0eBl9veDwNkI9Ey/ksUNo+x/iL+mlcr2HJCBbk5
-         4u+N6TKXO/Nupgxeif6+pgjZgpmV5bRo4/CS41gYRUnvGljyDcLBpwkH66UMUXw9+dJ1
-         /gz6YhZN5Wob1SboTCt+cwc2xdhJqw9MkqlJJFsONs9OrToApUM3aTO76oQ4pTzKicOU
-         KOkA==
-X-Gm-Message-State: AOAM531S6yhsKRgp+oH7oOxABAAiegUrXEqizG4RwZfT4QatJaLsJxsj
-        TcbtXXd5XYVm5Pn4cJEGCNk=
-X-Google-Smtp-Source: ABdhPJzE79+gi8tH257NdQjO8LFM/9zlnlCFxksOY0avdvvvpts3EqA18TbkrxA3iV9ASa/7lH41oA==
-X-Received: by 2002:a65:50c5:: with SMTP id s5mr6792668pgp.138.1621368501491;
-        Tue, 18 May 2021 13:08:21 -0700 (PDT)
+        bh=C45PnyOdAKKdP0uikZzFqWjcMiIEbofP6QQMFTRkh6w=;
+        b=ZMjXyDjREpi3DZe5mQ7PHt48c4uG4p2KfwSaCKY7wxf96eoVIknTNRaDiqccSrMJbn
+         32BiazKAPEQkthIFKxepHzlpgaKPBMGO+Xc0VcwP7tv7gh/UkqZvHWENjneWFust1wYg
+         oInGxWpMtqwaq959rp4E0tayUEgefHEbuwKDfxWFcrPw/+ElZeu4scYlBZYboqygC5ab
+         FkJfQkKIspZ3mLRmhoXVK26wvDgpOsCoILSPuiQcMv9hhK8ZAOrWz+EyvMCYAsjkYzFN
+         B6c7ybIgzWHjHVOlUMViSDn58aPFNTgKYd2ILyO60yv2LVcUGnzk+Hc4j+Mr8OSOVyou
+         yfbA==
+X-Gm-Message-State: AOAM531IAtEfmsg9m5xr7dShqGxBSrpk3zKl/NbGZjI8FXSd0Y2OEElj
+        FnIYwUxRwdTmWu63hSTJaAU=
+X-Google-Smtp-Source: ABdhPJzXfSSTZQ+PAcYbUE/rxP6sZZ3uYNwuAXI65lO98OQt0sI9gQGMWwN+U6wdxl7ad9jFCUvCPQ==
+X-Received: by 2002:a63:416:: with SMTP id 22mr6870972pge.363.1621368503764;
+        Tue, 18 May 2021 13:08:23 -0700 (PDT)
 Received: from localhost.localdomain (c-73-93-239-127.hsd1.ca.comcast.net. [73.93.239.127])
-        by smtp.gmail.com with ESMTPSA id r11sm13456600pgl.34.2021.05.18.13.08.19
+        by smtp.gmail.com with ESMTPSA id r11sm13456600pgl.34.2021.05.18.13.08.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 May 2021 13:08:20 -0700 (PDT)
+        Tue, 18 May 2021 13:08:22 -0700 (PDT)
 From:   Yang Shi <shy828301@gmail.com>
 To:     mgorman@suse.de, kirill.shutemov@linux.intel.com, ziy@nvidia.com,
         ying.huang@intel.com, mhocko@suse.com, hughd@google.com,
@@ -64,9 +64,9 @@ To:     mgorman@suse.de, kirill.shutemov@linux.intel.com, ziy@nvidia.com,
         akpm@linux-foundation.org
 Cc:     shy828301@gmail.com, linux-mm@kvack.org,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [v3 PATCH 2/7] mm: memory: make numa_migrate_prep() non-static
-Date:   Tue, 18 May 2021 13:07:56 -0700
-Message-Id: <20210518200801.7413-3-shy828301@gmail.com>
+Subject: [v3 PATCH 3/7] mm: thp: refactor NUMA fault handling
+Date:   Tue, 18 May 2021 13:07:57 -0700
+Message-Id: <20210518200801.7413-4-shy828301@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210518200801.7413-1-shy828301@gmail.com>
 References: <20210518200801.7413-1-shy828301@gmail.com>
@@ -76,44 +76,529 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The numa_migrate_prep() will be used by huge NUMA fault as well in the following
-patch, make it non-static.
+When the THP NUMA fault support was added THP migration was not supported yet.
+So the ad hoc THP migration was implemented in NUMA fault handling.  Since v4.14
+THP migration has been supported so it doesn't make too much sense to still keep
+another THP migration implementation rather than using the generic migration
+code.
+
+This patch reworked the NUMA fault handling to use generic migration implementation
+to migrate misplaced page.  There is no functional change.
+
+After the refactor the flow of NUMA fault handling looks just like its
+PTE counterpart:
+  Acquire ptl
+  Prepare for migration (elevate page refcount)
+  Release ptl
+  Isolate page from lru and elevate page refcount
+  Migrate the misplaced THP
+
+If migration is failed just restore the old normal PMD.
+
+In the old code anon_vma lock was needed to serialize THP migration
+against THP split, but since then the THP code has been reworked a lot,
+it seems anon_vma lock is not required anymore to avoid the race.
+
+The page refcount elevation when holding ptl should prevent from THP
+split.
+
+Use migrate_misplaced_page() for both base page and THP NUMA hinting
+fault and remove all the dead and duplicate code.
 
 Acked-by: Mel Gorman <mgorman@suse.de>
 Signed-off-by: Yang Shi <shy828301@gmail.com>
 ---
- mm/internal.h | 3 +++
- mm/memory.c   | 5 ++---
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ include/linux/migrate.h |  23 ------
+ mm/huge_memory.c        | 147 +++++++++++----------------------
+ mm/internal.h           |  18 ----
+ mm/migrate.c            | 177 ++++++++--------------------------------
+ 4 files changed, 79 insertions(+), 286 deletions(-)
 
-diff --git a/mm/internal.h b/mm/internal.h
-index 8a176d1d0176..28fc471b4669 100644
---- a/mm/internal.h
-+++ b/mm/internal.h
-@@ -653,4 +653,7 @@ int vmap_pages_range_noflush(unsigned long addr, unsigned long end,
+diff --git a/include/linux/migrate.h b/include/linux/migrate.h
+index 4bb4e519e3f5..163d6f2b03d1 100644
+--- a/include/linux/migrate.h
++++ b/include/linux/migrate.h
+@@ -95,14 +95,9 @@ static inline void __ClearPageMovable(struct page *page)
+ #endif
  
- void vunmap_range_noflush(unsigned long start, unsigned long end);
+ #ifdef CONFIG_NUMA_BALANCING
+-extern bool pmd_trans_migrating(pmd_t pmd);
+ extern int migrate_misplaced_page(struct page *page,
+ 				  struct vm_area_struct *vma, int node);
+ #else
+-static inline bool pmd_trans_migrating(pmd_t pmd)
+-{
+-	return false;
+-}
+ static inline int migrate_misplaced_page(struct page *page,
+ 					 struct vm_area_struct *vma, int node)
+ {
+@@ -110,24 +105,6 @@ static inline int migrate_misplaced_page(struct page *page,
+ }
+ #endif /* CONFIG_NUMA_BALANCING */
  
-+int numa_migrate_prep(struct page *page, struct vm_area_struct *vma,
-+		      unsigned long addr, int page_nid, int *flags);
+-#if defined(CONFIG_NUMA_BALANCING) && defined(CONFIG_TRANSPARENT_HUGEPAGE)
+-extern int migrate_misplaced_transhuge_page(struct mm_struct *mm,
+-			struct vm_area_struct *vma,
+-			pmd_t *pmd, pmd_t entry,
+-			unsigned long address,
+-			struct page *page, int node);
+-#else
+-static inline int migrate_misplaced_transhuge_page(struct mm_struct *mm,
+-			struct vm_area_struct *vma,
+-			pmd_t *pmd, pmd_t entry,
+-			unsigned long address,
+-			struct page *page, int node)
+-{
+-	return -EAGAIN;
+-}
+-#endif /* CONFIG_NUMA_BALANCING && CONFIG_TRANSPARENT_HUGEPAGE*/
+-
+-
+ #ifdef CONFIG_MIGRATION
+ 
+ /*
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 692788988530..b8526b9b041a 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1411,94 +1411,22 @@ struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
+ vm_fault_t do_huge_pmd_numa_page(struct vm_fault *vmf)
+ {
+ 	struct vm_area_struct *vma = vmf->vma;
+-	pmd_t pmd = vmf->orig_pmd;
+-	struct anon_vma *anon_vma = NULL;
++	pmd_t oldpmd = vmf->orig_pmd;
++	pmd_t pmd;
+ 	struct page *page;
+ 	unsigned long haddr = vmf->address & HPAGE_PMD_MASK;
+-	int page_nid = NUMA_NO_NODE, this_nid = numa_node_id();
++	int page_nid = NUMA_NO_NODE;
+ 	int target_nid, last_cpupid = -1;
+-	bool page_locked;
+ 	bool migrated = false;
+-	bool was_writable;
++	bool was_writable = pmd_savedwrite(oldpmd);
+ 	int flags = 0;
+ 
+ 	vmf->ptl = pmd_lock(vma->vm_mm, vmf->pmd);
+-	if (unlikely(!pmd_same(pmd, *vmf->pmd)))
+-		goto out_unlock;
+-
+-	/*
+-	 * If there are potential migrations, wait for completion and retry
+-	 * without disrupting NUMA hinting information. Do not relock and
+-	 * check_same as the page may no longer be mapped.
+-	 */
+-	if (unlikely(pmd_trans_migrating(*vmf->pmd))) {
+-		page = pmd_page(*vmf->pmd);
+-		if (!get_page_unless_zero(page))
+-			goto out_unlock;
++	if (unlikely(!pmd_same(oldpmd, *vmf->pmd))) {
+ 		spin_unlock(vmf->ptl);
+-		put_and_wait_on_page_locked(page, TASK_UNINTERRUPTIBLE);
+ 		goto out;
+ 	}
+ 
+-	page = pmd_page(pmd);
+-	BUG_ON(is_huge_zero_page(page));
+-	page_nid = page_to_nid(page);
+-	last_cpupid = page_cpupid_last(page);
+-	count_vm_numa_event(NUMA_HINT_FAULTS);
+-	if (page_nid == this_nid) {
+-		count_vm_numa_event(NUMA_HINT_FAULTS_LOCAL);
+-		flags |= TNF_FAULT_LOCAL;
+-	}
+-
+-	/* See similar comment in do_numa_page for explanation */
+-	if (!pmd_savedwrite(pmd))
+-		flags |= TNF_NO_GROUP;
+-
+-	/*
+-	 * Acquire the page lock to serialise THP migrations but avoid dropping
+-	 * page_table_lock if at all possible
+-	 */
+-	page_locked = trylock_page(page);
+-	target_nid = mpol_misplaced(page, vma, haddr);
+-	/* Migration could have started since the pmd_trans_migrating check */
+-	if (!page_locked) {
+-		page_nid = NUMA_NO_NODE;
+-		if (!get_page_unless_zero(page))
+-			goto out_unlock;
+-		spin_unlock(vmf->ptl);
+-		put_and_wait_on_page_locked(page, TASK_UNINTERRUPTIBLE);
+-		goto out;
+-	} else if (target_nid == NUMA_NO_NODE) {
+-		/* There are no parallel migrations and page is in the right
+-		 * node. Clear the numa hinting info in this pmd.
+-		 */
+-		goto clear_pmdnuma;
+-	}
+-
+-	/*
+-	 * Page is misplaced. Page lock serialises migrations. Acquire anon_vma
+-	 * to serialises splits
+-	 */
+-	get_page(page);
+-	spin_unlock(vmf->ptl);
+-	anon_vma = page_lock_anon_vma_read(page);
+-
+-	/* Confirm the PMD did not change while page_table_lock was released */
+-	spin_lock(vmf->ptl);
+-	if (unlikely(!pmd_same(pmd, *vmf->pmd))) {
+-		unlock_page(page);
+-		put_page(page);
+-		page_nid = NUMA_NO_NODE;
+-		goto out_unlock;
+-	}
+-
+-	/* Bail if we fail to protect against THP splits for any reason */
+-	if (unlikely(!anon_vma)) {
+-		put_page(page);
+-		page_nid = NUMA_NO_NODE;
+-		goto clear_pmdnuma;
+-	}
+-
+ 	/*
+ 	 * Since we took the NUMA fault, we must have observed the !accessible
+ 	 * bit. Make sure all other CPUs agree with that, to avoid them
+@@ -1525,43 +1453,60 @@ vm_fault_t do_huge_pmd_numa_page(struct vm_fault *vmf)
+ 					      haddr + HPAGE_PMD_SIZE);
+ 	}
+ 
+-	/*
+-	 * Migrate the THP to the requested node, returns with page unlocked
+-	 * and access rights restored.
+-	 */
++	pmd = pmd_modify(oldpmd, vma->vm_page_prot);
++	page = vm_normal_page_pmd(vma, haddr, pmd);
++	if (!page) {
++		spin_unlock(vmf->ptl);
++		goto out_map;
++	}
 +
- #endif	/* __MM_INTERNAL_H */
-diff --git a/mm/memory.c b/mm/memory.c
-index f9df3ab12813..a2f2c2a8d28e 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4129,9 +4129,8 @@ static vm_fault_t do_fault(struct vm_fault *vmf)
- 	return ret;
++	/* See similar comment in do_numa_page for explanation */
++	if (!was_writable)
++		flags |= TNF_NO_GROUP;
++
++	page_nid = page_to_nid(page);
++	last_cpupid = page_cpupid_last(page);
++	target_nid = numa_migrate_prep(page, vma, haddr, page_nid,
++				       &flags);
++
++	if (target_nid == NUMA_NO_NODE) {
++		put_page(page);
++		goto out_map;
++	}
++
+ 	spin_unlock(vmf->ptl);
+ 
+-	migrated = migrate_misplaced_transhuge_page(vma->vm_mm, vma,
+-				vmf->pmd, pmd, vmf->address, page, target_nid);
++	migrated = migrate_misplaced_page(page, vma, target_nid);
+ 	if (migrated) {
+ 		flags |= TNF_MIGRATED;
+ 		page_nid = target_nid;
+-	} else
++	} else {
+ 		flags |= TNF_MIGRATE_FAIL;
+-
+-	goto out;
+-clear_pmdnuma:
+-	BUG_ON(!PageLocked(page));
+-	was_writable = pmd_savedwrite(pmd);
+-	pmd = pmd_modify(pmd, vma->vm_page_prot);
+-	pmd = pmd_mkyoung(pmd);
+-	if (was_writable)
+-		pmd = pmd_mkwrite(pmd);
+-	set_pmd_at(vma->vm_mm, haddr, vmf->pmd, pmd);
+-	update_mmu_cache_pmd(vma, vmf->address, vmf->pmd);
+-	unlock_page(page);
+-out_unlock:
+-	spin_unlock(vmf->ptl);
++		vmf->ptl = pmd_lock(vma->vm_mm, vmf->pmd);
++		if (unlikely(!pmd_same(oldpmd, *vmf->pmd))) {
++			spin_unlock(vmf->ptl);
++			goto out;
++		}
++		goto out_map;
++	}
+ 
+ out:
+-	if (anon_vma)
+-		page_unlock_anon_vma_read(anon_vma);
+-
+ 	if (page_nid != NUMA_NO_NODE)
+ 		task_numa_fault(last_cpupid, page_nid, HPAGE_PMD_NR,
+ 				flags);
+ 
+ 	return 0;
++
++out_map:
++	/* Restore the PMD */
++	pmd = pmd_modify(oldpmd, vma->vm_page_prot);
++	pmd = pmd_mkyoung(pmd);
++	if (was_writable)
++		pmd = pmd_mkwrite(pmd);
++	set_pmd_at(vma->vm_mm, haddr, vmf->pmd, pmd);
++	update_mmu_cache_pmd(vma, vmf->address, vmf->pmd);
++	spin_unlock(vmf->ptl);
++	goto out;
  }
  
--static int numa_migrate_prep(struct page *page, struct vm_area_struct *vma,
--				unsigned long addr, int page_nid,
--				int *flags)
-+int numa_migrate_prep(struct page *page, struct vm_area_struct *vma,
-+		      unsigned long addr, int page_nid, int *flags)
- {
- 	get_page(page);
+ /*
+diff --git a/mm/internal.h b/mm/internal.h
+index 28fc471b4669..d9a5d00bee1a 100644
+--- a/mm/internal.h
++++ b/mm/internal.h
+@@ -375,23 +375,6 @@ extern int mlock_future_check(struct mm_struct *mm, unsigned long flags,
+  */
+ extern void clear_page_mlock(struct page *page);
  
+-/*
+- * mlock_migrate_page - called only from migrate_misplaced_transhuge_page()
+- * (because that does not go through the full procedure of migration ptes):
+- * to migrate the Mlocked page flag; update statistics.
+- */
+-static inline void mlock_migrate_page(struct page *newpage, struct page *page)
+-{
+-	if (TestClearPageMlocked(page)) {
+-		int nr_pages = thp_nr_pages(page);
+-
+-		/* Holding pmd lock, no change in irq context: __mod is safe */
+-		__mod_zone_page_state(page_zone(page), NR_MLOCK, -nr_pages);
+-		SetPageMlocked(newpage);
+-		__mod_zone_page_state(page_zone(newpage), NR_MLOCK, nr_pages);
+-	}
+-}
+-
+ extern pmd_t maybe_pmd_mkwrite(pmd_t pmd, struct vm_area_struct *vma);
+ 
+ /*
+@@ -442,7 +425,6 @@ static inline struct file *maybe_unlock_mmap_for_io(struct vm_fault *vmf,
+ #else /* !CONFIG_MMU */
+ static inline void clear_page_mlock(struct page *page) { }
+ static inline void mlock_vma_page(struct page *page) { }
+-static inline void mlock_migrate_page(struct page *new, struct page *old) { }
+ static inline void vunmap_range_noflush(unsigned long start, unsigned long end)
+ {
+ }
+diff --git a/mm/migrate.c b/mm/migrate.c
+index e7a173da74ec..4e0c2644256a 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -2045,6 +2045,23 @@ static struct page *alloc_misplaced_dst_page(struct page *page,
+ 	return newpage;
+ }
+ 
++static struct page *alloc_misplaced_dst_page_thp(struct page *page,
++						 unsigned long data)
++{
++	int nid = (int) data;
++	struct page *newpage;
++
++	newpage = alloc_pages_node(nid, (GFP_TRANSHUGE_LIGHT | __GFP_THISNODE),
++				   HPAGE_PMD_ORDER);
++	if (!newpage)
++		goto out;
++
++	prep_transhuge_page(newpage);
++
++out:
++	return newpage;
++}
++
+ static int numamigrate_isolate_page(pg_data_t *pgdat, struct page *page)
+ {
+ 	int page_lru;
+@@ -2083,12 +2100,6 @@ static int numamigrate_isolate_page(pg_data_t *pgdat, struct page *page)
+ 	return 1;
+ }
+ 
+-bool pmd_trans_migrating(pmd_t pmd)
+-{
+-	struct page *page = pmd_page(pmd);
+-	return PageLocked(page);
+-}
+-
+ /*
+  * Attempt to migrate a misplaced page to the specified destination
+  * node. Caller is expected to have an elevated reference count on
+@@ -2101,6 +2112,20 @@ int migrate_misplaced_page(struct page *page, struct vm_area_struct *vma,
+ 	int isolated;
+ 	int nr_remaining;
+ 	LIST_HEAD(migratepages);
++	new_page_t *new;
++	bool compound;
++
++	/*
++	 * PTE mapped THP or HugeTLB page can't reach here so the page could
++	 * be either base page or THP.  And it must be head page if it is
++	 * THP.
++	 */
++	compound = PageTransHuge(page);
++
++	if (compound)
++		new = alloc_misplaced_dst_page_thp;
++	else
++		new = alloc_misplaced_dst_page;
+ 
+ 	/*
+ 	 * Don't migrate file pages that are mapped in multiple processes
+@@ -2122,9 +2147,8 @@ int migrate_misplaced_page(struct page *page, struct vm_area_struct *vma,
+ 		goto out;
+ 
+ 	list_add(&page->lru, &migratepages);
+-	nr_remaining = migrate_pages(&migratepages, alloc_misplaced_dst_page,
+-				     NULL, node, MIGRATE_ASYNC,
+-				     MR_NUMA_MISPLACED);
++	nr_remaining = migrate_pages(&migratepages, *new, NULL, node,
++				     MIGRATE_ASYNC, MR_NUMA_MISPLACED);
+ 	if (nr_remaining) {
+ 		if (!list_empty(&migratepages)) {
+ 			list_del(&page->lru);
+@@ -2143,141 +2167,6 @@ int migrate_misplaced_page(struct page *page, struct vm_area_struct *vma,
+ 	return 0;
+ }
+ #endif /* CONFIG_NUMA_BALANCING */
+-
+-#if defined(CONFIG_NUMA_BALANCING) && defined(CONFIG_TRANSPARENT_HUGEPAGE)
+-/*
+- * Migrates a THP to a given target node. page must be locked and is unlocked
+- * before returning.
+- */
+-int migrate_misplaced_transhuge_page(struct mm_struct *mm,
+-				struct vm_area_struct *vma,
+-				pmd_t *pmd, pmd_t entry,
+-				unsigned long address,
+-				struct page *page, int node)
+-{
+-	spinlock_t *ptl;
+-	pg_data_t *pgdat = NODE_DATA(node);
+-	int isolated = 0;
+-	struct page *new_page = NULL;
+-	int page_lru = page_is_file_lru(page);
+-	unsigned long start = address & HPAGE_PMD_MASK;
+-
+-	new_page = alloc_pages_node(node,
+-		(GFP_TRANSHUGE_LIGHT | __GFP_THISNODE),
+-		HPAGE_PMD_ORDER);
+-	if (!new_page)
+-		goto out_fail;
+-	prep_transhuge_page(new_page);
+-
+-	isolated = numamigrate_isolate_page(pgdat, page);
+-	if (!isolated) {
+-		put_page(new_page);
+-		goto out_fail;
+-	}
+-
+-	/* Prepare a page as a migration target */
+-	__SetPageLocked(new_page);
+-	if (PageSwapBacked(page))
+-		__SetPageSwapBacked(new_page);
+-
+-	/* anon mapping, we can simply copy page->mapping to the new page: */
+-	new_page->mapping = page->mapping;
+-	new_page->index = page->index;
+-	/* flush the cache before copying using the kernel virtual address */
+-	flush_cache_range(vma, start, start + HPAGE_PMD_SIZE);
+-	migrate_page_copy(new_page, page);
+-	WARN_ON(PageLRU(new_page));
+-
+-	/* Recheck the target PMD */
+-	ptl = pmd_lock(mm, pmd);
+-	if (unlikely(!pmd_same(*pmd, entry) || !page_ref_freeze(page, 2))) {
+-		spin_unlock(ptl);
+-
+-		/* Reverse changes made by migrate_page_copy() */
+-		if (TestClearPageActive(new_page))
+-			SetPageActive(page);
+-		if (TestClearPageUnevictable(new_page))
+-			SetPageUnevictable(page);
+-
+-		unlock_page(new_page);
+-		put_page(new_page);		/* Free it */
+-
+-		/* Retake the callers reference and putback on LRU */
+-		get_page(page);
+-		putback_lru_page(page);
+-		mod_node_page_state(page_pgdat(page),
+-			 NR_ISOLATED_ANON + page_lru, -HPAGE_PMD_NR);
+-
+-		goto out_unlock;
+-	}
+-
+-	entry = mk_huge_pmd(new_page, vma->vm_page_prot);
+-	entry = maybe_pmd_mkwrite(pmd_mkdirty(entry), vma);
+-
+-	/*
+-	 * Overwrite the old entry under pagetable lock and establish
+-	 * the new PTE. Any parallel GUP will either observe the old
+-	 * page blocking on the page lock, block on the page table
+-	 * lock or observe the new page. The SetPageUptodate on the
+-	 * new page and page_add_new_anon_rmap guarantee the copy is
+-	 * visible before the pagetable update.
+-	 */
+-	page_add_anon_rmap(new_page, vma, start, true);
+-	/*
+-	 * At this point the pmd is numa/protnone (i.e. non present) and the TLB
+-	 * has already been flushed globally.  So no TLB can be currently
+-	 * caching this non present pmd mapping.  There's no need to clear the
+-	 * pmd before doing set_pmd_at(), nor to flush the TLB after
+-	 * set_pmd_at().  Clearing the pmd here would introduce a race
+-	 * condition against MADV_DONTNEED, because MADV_DONTNEED only holds the
+-	 * mmap_lock for reading.  If the pmd is set to NULL at any given time,
+-	 * MADV_DONTNEED won't wait on the pmd lock and it'll skip clearing this
+-	 * pmd.
+-	 */
+-	set_pmd_at(mm, start, pmd, entry);
+-	update_mmu_cache_pmd(vma, address, &entry);
+-
+-	page_ref_unfreeze(page, 2);
+-	mlock_migrate_page(new_page, page);
+-	page_remove_rmap(page, true);
+-	set_page_owner_migrate_reason(new_page, MR_NUMA_MISPLACED);
+-
+-	spin_unlock(ptl);
+-
+-	/* Take an "isolate" reference and put new page on the LRU. */
+-	get_page(new_page);
+-	putback_lru_page(new_page);
+-
+-	unlock_page(new_page);
+-	unlock_page(page);
+-	put_page(page);			/* Drop the rmap reference */
+-	put_page(page);			/* Drop the LRU isolation reference */
+-
+-	count_vm_events(PGMIGRATE_SUCCESS, HPAGE_PMD_NR);
+-	count_vm_numa_events(NUMA_PAGE_MIGRATE, HPAGE_PMD_NR);
+-
+-	mod_node_page_state(page_pgdat(page),
+-			NR_ISOLATED_ANON + page_lru,
+-			-HPAGE_PMD_NR);
+-	return isolated;
+-
+-out_fail:
+-	count_vm_events(PGMIGRATE_FAIL, HPAGE_PMD_NR);
+-	ptl = pmd_lock(mm, pmd);
+-	if (pmd_same(*pmd, entry)) {
+-		entry = pmd_modify(entry, vma->vm_page_prot);
+-		set_pmd_at(mm, start, pmd, entry);
+-		update_mmu_cache_pmd(vma, address, &entry);
+-	}
+-	spin_unlock(ptl);
+-
+-out_unlock:
+-	unlock_page(page);
+-	put_page(page);
+-	return 0;
+-}
+-#endif /* CONFIG_NUMA_BALANCING */
+-
+ #endif /* CONFIG_NUMA */
+ 
+ #ifdef CONFIG_DEVICE_PRIVATE
 -- 
 2.26.2
 
