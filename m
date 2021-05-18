@@ -2,155 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61202C433B4
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 17:25:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0101C433B4
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 18:14:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 285FA610CD
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 17:25:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9A40861006
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 18:14:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351109AbhERR05 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 May 2021 13:26:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39046 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238824AbhERR05 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 13:26:57 -0400
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A01CFC061760
-        for <linux-s390@vger.kernel.org>; Tue, 18 May 2021 10:25:38 -0700 (PDT)
-Received: by mail-lj1-x22d.google.com with SMTP id s25so12472000ljo.11
-        for <linux-s390@vger.kernel.org>; Tue, 18 May 2021 10:25:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=mSnQ4LBK1uIXV07PEAq0LLHlwweU24rztLmKUUxmtEw=;
-        b=cVzaFjUacrAERsYDIZbRfiVBm3UJe9PfiIi7VMEBI4+mneYhTfREF32Ug/H7xsKLXF
-         xipKw744Y+OPokHmPOwiIilZlVMYtdOjIl5i+xzJy7TSKI5AdyAp62xAFFvkz5aGK7IR
-         rcFwa6FW0Zd3WOBHc48RIIAD4Evo4cCVo4dzA/EBc5YwUsnO0+ec80kxrOAFwBSHfz24
-         4e/5s/iwhO092+JJCHv/Mly7vK5p7eUvyheKOSI7fXe24zmHVEHwIeyudrmdfiXjw4AW
-         BgKIuFcumclXiaD/TAOYs9fp/I9XvbqU76xLXdbQq1MXVo7j4RToAD81UGguuU1ez9aX
-         XYDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mSnQ4LBK1uIXV07PEAq0LLHlwweU24rztLmKUUxmtEw=;
-        b=omUZ03KApeAHby8jjBhqOguadAT32YpQAcxN6LzSIgszlEhxK6uJykCTc8PIv17aKD
-         dRdDwX/52ecYhWiJ4+LbnDXo614kReqSwE0qbXXkblbkLU/aQjmfBMaA7f0JEF3jtoNZ
-         SQLnD2xfs9G76kPqYqCii2xb1DjN8VWr+gBP4ryDNpSW480FX/n+u/OvtVxsNQRRLrJA
-         z3x7LQyYN7OqQeoPUXCkeww7/1RSbxFhUosav8yZPh5HtvInwDg3Z0ZcEgtHwQ6nN02+
-         foQGoHfgVq7+4WzDP2fxdNYbIR4fSZE2gfTzfkvMD7P9/ukJ5rgMjhrxVsBjbUjillUs
-         HDxg==
-X-Gm-Message-State: AOAM530EbYXoUmirYIixXzXbe6Yt5kR7e5ym0aq2QvYVOI2eQIx3HTQn
-        uU/WNlXN6BIXRMrN92QKnwlLqr36fVzRPpClb758vg==
-X-Google-Smtp-Source: ABdhPJwmvfrKFgUyKP/HRH4nFuJ9B6kEhZAEG5g+dr6hELyJdzM7GIR8aVIZG1uUChl8DfU1otU2kJaVQc2bMkV5kGM=
-X-Received: by 2002:a2e:87ce:: with SMTP id v14mr4952952ljj.28.1621358736766;
- Tue, 18 May 2021 10:25:36 -0700 (PDT)
+        id S230153AbhERSP1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 May 2021 14:15:27 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58084 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229652AbhERSP0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 18 May 2021 14:15:26 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14II4IfL119167;
+        Tue, 18 May 2021 14:14:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Hb1S33DB4cwbzzdrXp1MdMWeQN6Uj465PyTHwToqkAM=;
+ b=keLbMtE4ph8SU/x9Q6DPWtfunqRS03zOd9isfVibTDqij8e09uvBqfL4vv+7vToEBASt
+ aNrfDt7jDvUurhOAUvkB0rKDu6O2r1+3HXPlGUFN2NRh3F4cHXR+/YBWbuwPwSbJ2rWQ
+ ITgt/7Sd0DqWkQ7NK2L/1UfLJGZS9pA3RfvBSxikv+R2bZCGHdpwQvsXIBriKE4dM/ci
+ wdF3mu0JS1j7jz/myWCBdkU0SWloqiIuTVTDYHxHZDLxRYw33lopKZgBtQmwgc/e6X+d
+ yDFD94PzGj2MSryOfjPVsD7vdmiQ5Hcm5g1tEk2x57DfdJwX5Bsy897m2a1kUEn+K55P DA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38mjfg0bwt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 18 May 2021 14:14:07 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14II4PX5119805;
+        Tue, 18 May 2021 14:14:06 -0400
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38mjfg0bw5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 18 May 2021 14:14:06 -0400
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14IIBV75021734;
+        Tue, 18 May 2021 18:14:05 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma03dal.us.ibm.com with ESMTP id 38j5x9fbvc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 18 May 2021 18:14:05 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14IIE4E517367318
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 18 May 2021 18:14:04 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 65E8AAC073;
+        Tue, 18 May 2021 18:14:04 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E363FAC06C;
+        Tue, 18 May 2021 18:14:03 +0000 (GMT)
+Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.177.219])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 18 May 2021 18:14:03 +0000 (GMT)
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        jgg@nvidia.com, alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
+References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
+ <20210512203536.4209c29c.pasic@linux.ibm.com>
+ <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
+ <20210513194541.58d1628a.pasic@linux.ibm.com>
+ <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
+ <20210514021500.60ad2a22.pasic@linux.ibm.com>
+ <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
+ <20210517211030.368ca64b.pasic@linux.ibm.com>
+ <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
+ <9ebd5fd8-b093-e5bc-e680-88fa7a9b085c@linux.ibm.com>
+ <494af62b-dc9a-ef2c-1869-d8f5ed239504@de.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <00c86767-ce8b-7050-f665-75f33fabe118@linux.ibm.com>
+Date:   Tue, 18 May 2021 14:14:03 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-References: <20210517145314.157626-1-jingzhangos@google.com>
- <20210517145314.157626-2-jingzhangos@google.com> <CALzav=dGT7B7FWw_d5v3QaJxgfp6TZv7E4fdchG_7LKh+C17gg@mail.gmail.com>
- <CAAdAUtjyFhuh4iFJJOkkO20XXKqbcRO-S0ziFfUW1rHL-bkeZw@mail.gmail.com> <CALzav=dHjy8wnLckxifrjVDfVNBmqHcJgeS7PK6BnAp6UCyO5A@mail.gmail.com>
-In-Reply-To: <CALzav=dHjy8wnLckxifrjVDfVNBmqHcJgeS7PK6BnAp6UCyO5A@mail.gmail.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Tue, 18 May 2021 12:25:24 -0500
-Message-ID: <CAAdAUtiXE=CXU_LWG9SpnHsnqUBMC327jC2AvXAFX7-vwwoBog@mail.gmail.com>
-Subject: Re: [PATCH v5 1/4] KVM: stats: Separate common stats from
- architecture specific ones
-To:     David Matlack <dmatlack@google.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <494af62b-dc9a-ef2c-1869-d8f5ed239504@de.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: w89M7WGTal8YvIqrvKylruOjxFeDkIpH
+X-Proofpoint-ORIG-GUID: -WN6utSFq3HBY8dU3IVSml2EZwoBiaFz
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-18_09:2021-05-18,2021-05-18 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
+ bulkscore=0 phishscore=0 adultscore=0 malwarescore=0 impostorscore=0
+ suspectscore=0 mlxscore=0 priorityscore=1501 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105180126
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi David,
 
-On Tue, May 18, 2021 at 11:27 AM David Matlack <dmatlack@google.com> wrote:
->
-> On Mon, May 17, 2021 at 5:10 PM Jing Zhang <jingzhangos@google.com> wrote:
-> <snip>
-> > Actually the definition of kvm_{vcpu,vm}_stat are arch specific. There is
-> > no real structure for arch agnostic stats. Most of the stats in common
-> > structures are arch agnostic, but not all of them.
-> > There are some benefits to put all common stats in a separate structure.
-> > e.g. if we want to add a stat in kvm_main.c, we only need to add this stat
-> > in the common structure, don't have to update all kvm_{vcpu,vm}_stat
-> > definition for all architectures.
->
-> I meant rename the existing arch-specific struct kvm_{vcpu,vm}_stat to
-> kvm_{vcpu,vm}_stat_arch and rename struct kvm_{vcpu,vm}_stat_common to
-> kvm_{vcpu,vm}_stat.
->
-> So in  include/linux/kvm_types.h you'd have:
->
-> struct kvm_vm_stat {
->   ulong remote_tlb_flush;
->   struct kvm_vm_stat_arch arch;
-> };
->
-> struct kvm_vcpu_stat {
->   u64 halt_successful_poll;
->   u64 halt_attempted_poll;
->   u64 halt_poll_invalid;
->   u64 halt_wakeup;
->   u64 halt_poll_success_ns;
->   u64 halt_poll_fail_ns;
->   struct kvm_vcpu_stat_arch arch;
-> };
->
-> And in arch/x86/include/asm/kvm_host.h you'd have:
->
-> struct kvm_vm_stat_arch {
->   ulong mmu_shadow_zapped;
->   ...
-> };
->
-> struct kvm_vcpu_stat_arch {
->   u64 pf_fixed;
->   u64 pf_guest;
->   u64 tlb_flush;
->   ...
-> };
->
-> You still have the same benefits of having an arch-neutral place to
-> store stats but the struct layout more closely resembles struct
-> kvm_vcpu and struct kvm.
-You are right. This is a more reasonable way to layout the structures.
-I remember that I didn't choose this way is only because that it needs
-touching every arch specific stats in all architectures (stat.name ->
-stat.arch.name) instead of only touching arch neutral stats.
-Let's see if there is any vote from others about this.
 
-Thanks,
-Jing
+On 5/18/21 9:59 AM, Christian Borntraeger wrote:
+>
+>
+> On 18.05.21 15:42, Tony Krowiak wrote:
+>>
+>>
+>> On 5/18/21 5:30 AM, Christian Borntraeger wrote:
+>>>
+>>>
+>>> On 17.05.21 21:10, Halil Pasic wrote:
+>>>> On Mon, 17 May 2021 09:37:42 -0400
+>>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>>
+>>>>>>
+>>>>>> Because of this, I don't think the rest of your argument is valid.
+>>>>>
+>>>>> Okay, so your concern is that between the point in time the
+>>>>> vcpu->kvm->arch.crypto.pqap_hook pointer is checked in
+>>>>> priv.c and the point in time the handle_pqap() function
+>>>>> in vfio_ap_ops.c is called, the memory allocated for the
+>>>>> matrix_mdev containing the struct kvm_s390_module_hook
+>>>>> may get freed, thus rendering the function pointer invalid.
+>>>>> While not impossible, that seems extremely unlikely to
+>>>>> happen. Can you articulate a scenario where that could
+>>>>> even occur?
+>>>>
+>>>> Malicious userspace. We tend to do the pqap aqic just once
+>>>> in the guest right after the queue is detected. I do agree
+>>>> it ain't very likely to happen during normal operation. But why are
+>>>> you asking?
+>>>
+>>> Would it help, if the code in priv.c would read the hook once
+>>> and then only work on the copy? We could protect that with rcu
+>>> and do a synchronize rcu in vfio_ap_mdev_unset_kvm after
+>>> unsetting the pointer?
+>>
+>> I'll look into this.
+>
+> I think it could work. in priv.c use rcu_readlock, save the
+> pointer, do the check and call, call rcu_read_unlock.
+> In vfio_ap use rcu_assign_pointer to set the pointer and
+> after setting it to zero call sychronize_rcu.
+>
+> Halil, I think we can do this as an addon patch as it makes
+> sense to have this callback pointer protected independent of
+> this patch. Agree?
+
+I agree that this is a viable option; however, this does not
+guarantee that the matrix_mdev is not freed thus rendering
+the function pointer to the interception handler invalid unless
+that is also included within the rcu_readlock/rcu_read_unlock.
+That is not possible given the matrix_mdev is freed within
+the remove callback and the pointer to the structure that
+contains the interception handler function pointer is cleared
+in the vfio_ap_mdev_unset_kvm() function. I am working on
+a patch and should be able to post it before EOD or first thing
+tomorrow.
+
