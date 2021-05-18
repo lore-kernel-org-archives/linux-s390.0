@@ -7,226 +7,138 @@ X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE8DDC433B4
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 12:00:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D32CBC433B4
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 13:10:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A2ABD61042
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 12:00:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4C46611B0
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 13:10:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233035AbhERMBf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 May 2021 08:01:35 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13248 "EHLO
+        id S242695AbhERNL4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 May 2021 09:11:56 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:14314 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1348925AbhERMBf (ORCPT
+        by vger.kernel.org with ESMTP id S240133AbhERNL4 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 May 2021 08:01:35 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14IBlY8m058093;
-        Tue, 18 May 2021 08:00:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
+        Tue, 18 May 2021 09:11:56 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14ID3WQ2192128;
+        Tue, 18 May 2021 09:10:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
+ from : subject : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=fDqI/9Bf4nbAzLJhSZmnuMVCjOZ+SR/1c4d5fB4+Kgw=;
- b=L/3EKFH7Dd2mJQ4vxiQX/fJaE1NCtB/pby1J1B0tylVMrvjDCTwlNNSjJHC4dxnp3L3a
- 7cjNkOzLI2A7Luo1trHdnIMrnAmwfZLD3v/RVhVlqTv634S+KnCzQw9qBCxdnLqPPue7
- fzV1QPGeRQPkSKdHDnKXfgjHgKEuAnXHbRN6FTlLMGpMJjaxwuM+bAl6E0/GhI6JAWks
- FoHiMmj6of2Cf1X8RLhWXoJv/31fxFeXxz0gqzrhanLZJuAzxv1yF1VJ8hW660oxHt59
- q9uFDq7rN7m9x3qaTLE0aAGdoCMqSv9MVOIiW4LLYztFoAlOJZ8ZxaN9OyMhW/0kM8CF bA== 
+ bh=mF3P/VeetkKAwNEGpUgid4e65MpPaM5gg4t58kodHQs=;
+ b=NOcMCHwz+KpsCeWZUNpox/SWq1IpfY752AEkBVFWOTnQtpwwp6ckGeI1oIFYiWIQd6UV
+ i/FtNEF7hSWy3ssFLys3HCwzESk4JS3oFqSS5objAgz0pF/9rg7nmkJJtIMP8mUVbTP1
+ 9NzX3Sol+9kJ2O4KLwBcgOWgbf+zY/J71ldD3ZCGTeRV+EwoSRekvNggur5RPGv0DBTm
+ wfUoJxdbPmPWyqL1zqReLBQcZmxaOaRnW9j/Dmk+MZ623Q40kaLiew1TWVFiNydLKbDy
+ Z8GzzwPxw+YLAYoOlEtBAMJCOnpawWrFxg9Uwfi44W12QmUrxtTajyDyihYz97FF3ADb 7g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38md14g8h2-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38mc9vbsjw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 08:00:16 -0400
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14IBr4Ws095044;
-        Tue, 18 May 2021 08:00:15 -0400
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38md14g8ej-1
+        Tue, 18 May 2021 09:10:37 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14ID4H1n195274;
+        Tue, 18 May 2021 09:10:37 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38mc9vbsh5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 08:00:15 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14IBwH4J000902;
-        Tue, 18 May 2021 12:00:13 GMT
+        Tue, 18 May 2021 09:10:36 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14ID8F5F014937;
+        Tue, 18 May 2021 13:10:34 GMT
 Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma02fra.de.ibm.com with ESMTP id 38mceh80f2-1
+        by ppma05fra.de.ibm.com with ESMTP id 38m19sr643-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 12:00:13 +0000
+        Tue, 18 May 2021 13:10:34 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14IC0Aew39518640
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14IDAVAP38076872
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 May 2021 12:00:10 GMT
+        Tue, 18 May 2021 13:10:31 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 20873A4040;
-        Tue, 18 May 2021 12:00:10 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id D0FD1A4059;
+        Tue, 18 May 2021 13:10:31 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C98AA4081;
-        Tue, 18 May 2021 12:00:09 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7DE80A4057;
+        Tue, 18 May 2021 13:10:31 +0000 (GMT)
 Received: from localhost.localdomain (unknown [9.145.37.27])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 18 May 2021 12:00:09 +0000 (GMT)
-Subject: Re: [PATCH v1 01/11] KVM: s390: pv: leak the ASCE page when destroy
- fails
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20210517200758.22593-1-imbrenda@linux.ibm.com>
- <20210517200758.22593-2-imbrenda@linux.ibm.com>
- <13cb02d1-df3b-7994-8a31-99aacfd15566@linux.ibm.com>
- <20210518124027.48f36caa@ibm-vm>
+        Tue, 18 May 2021 13:10:31 +0000 (GMT)
+To:     Cornelia Huck <cohuck@redhat.com>
+Cc:     kvm@vger.kernel.org, david@redhat.com, linux-s390@vger.kernel.org,
+        imbrenda@linux.ibm.com, thuth@redhat.com
+References: <20210510135148.1904-1-frankja@linux.ibm.com>
+ <20210510135148.1904-4-frankja@linux.ibm.com>
+ <20210511181333.56e25c31.cohuck@redhat.com>
 From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <62e16545-d078-6d91-2370-e4e5677306c7@linux.ibm.com>
-Date:   Tue, 18 May 2021 14:00:09 +0200
+Subject: Re: [kvm-unit-tests PATCH v2 3/6] s390x: uv: Add UV lib
+Message-ID: <7a574791-f7c9-d8b4-fd5c-b4e941b199d1@linux.ibm.com>
+Date:   Tue, 18 May 2021 15:10:31 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.10.1
 MIME-Version: 1.0
-In-Reply-To: <20210518124027.48f36caa@ibm-vm>
+In-Reply-To: <20210511181333.56e25c31.cohuck@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: VWvI3ObC1yZIO9X-rdR8eWOQirAD2PrH
-X-Proofpoint-ORIG-GUID: wD2Tqk0huFotGSIbvIukuAjMqMMKGU6f
+X-Proofpoint-ORIG-GUID: 8vYnHxCrkUQVmftXiItNY3Hk5TDnl61m
+X-Proofpoint-GUID: 8mQ0SU-du_4rUsxyJ8l3FzVDtuA4OH86
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-05-18_04:2021-05-18,2021-05-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
- suspectscore=0 mlxlogscore=999 spamscore=0 bulkscore=0 priorityscore=1501
- lowpriorityscore=0 phishscore=0 clxscore=1015 impostorscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2105180082
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ priorityscore=1501 mlxscore=0 lowpriorityscore=0 adultscore=0
+ clxscore=1015 impostorscore=0 spamscore=0 malwarescore=0 bulkscore=0
+ suspectscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2104190000 definitions=main-2105180091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/18/21 12:40 PM, Claudio Imbrenda wrote:
-> On Tue, 18 May 2021 12:26:51 +0200
+On 5/11/21 6:13 PM, Cornelia Huck wrote:
+> On Mon, 10 May 2021 13:51:45 +0000
 > Janosch Frank <frankja@linux.ibm.com> wrote:
 > 
->> On 5/17/21 10:07 PM, Claudio Imbrenda wrote:
->>> When the destroy configuration UVC fails, the page pointed to by the
->>> ASCE of the VM becomes poisoned, and, to avoid issues it must not be
->>> used again.
->>>
->>> Since the page becomes in practice unusable, we set it aside and
->>> leak it.  
+>> Let's add a UV library to make checking the UV feature bit easier.
+>> In the future this library file can take care of handling UV
+>> initialization and UV guest creation.
 >>
->> I think we need something a bit more specific.
->>
->> On creation of a protected guest the top most level of page tables are
->> marked by the Ultravisor and can only be used as top level page tables
->> for the protected guest that was created. If another protected guest
->> would re-use those pages for its top level page tables the UV would
->> throw errors.
->>
->> When a destroy fails the UV will not remove the markings so these
->> pages are basically unusable since we can't guarantee that they won't
->> be used for a guest ASCE in the future.
->>
->> Hence we choose to leak those pages in the very unlikely event that a
->> destroy fails.
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>> ---
+>>  lib/s390x/asm/uv.h |  4 ++--
+>>  lib/s390x/io.c     |  2 ++
+>>  lib/s390x/uv.c     | 45 +++++++++++++++++++++++++++++++++++++++++++++
+>>  lib/s390x/uv.h     | 10 ++++++++++
+>>  s390x/Makefile     |  1 +
+>>  5 files changed, 60 insertions(+), 2 deletions(-)
+>>  create mode 100644 lib/s390x/uv.c
+>>  create mode 100644 lib/s390x/uv.h
 > 
-> it's more than that. the top level page, once marked, also cannot be
-> used as backing for the virtual and real memory areas donated with the
-> create secure configuration and create secure cpu UVCs.
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 > 
-> and there might also other circumstances in which that page cannot be
-> used that I am not aware of
+>>
+>> diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
+>> index 11f70a9f..b22cbaa8 100644
+>> --- a/lib/s390x/asm/uv.h
+>> +++ b/lib/s390x/asm/uv.h
+>> @@ -9,8 +9,8 @@
+>>   * This code is free software; you can redistribute it and/or modify it
+>>   * under the terms of the GNU General Public License version 2.
+>>   */
+>> -#ifndef UV_H
+>> -#define UV_H
+>> +#ifndef ASM_S390X_UV_H
+>> +#define ASM_S390X_UV_H
 > 
-
-Even more reason to document it :)
-
->>
->> LGTM
->>
->>>
->>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
->>> ---
->>>  arch/s390/kvm/pv.c | 53
->>> +++++++++++++++++++++++++++++++++++++++++++++- 1 file changed, 52
->>> insertions(+), 1 deletion(-)
->>>
->>> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
->>> index 813b6e93dc83..e0532ab725bf 100644
->>> --- a/arch/s390/kvm/pv.c
->>> +++ b/arch/s390/kvm/pv.c
->>> @@ -150,6 +150,55 @@ static int kvm_s390_pv_alloc_vm(struct kvm
->>> *kvm) return -ENOMEM;
->>>  }
->>>  
->>> +/*
->>> + * Remove the topmost level of page tables from the list of page
->>> tables of
->>> + * the gmap.
->>> + * This means that it will not be freed when the VM is torn down,
->>> and needs
->>> + * to be handled separately by the caller, unless an intentional
->>> leak is
->>> + * intended.
->>> + */
->>> +static void kvm_s390_pv_remove_old_asce(struct kvm *kvm)
->>> +{
->>> +	struct page *old;
->>> +
->>> +	old = virt_to_page(kvm->arch.gmap->table);
->>> +	list_del(&old->lru);
->>> +	/* in case the ASCE needs to be "removed" multiple times */
->>> +	INIT_LIST_HEAD(&old->lru);  
->>
->> ?
->>
->>> +}
->>> +
->>> +/*
->>> + * Try to replace the current ASCE with another equivalent one.
->>> + * If the allocation of the new top level page table fails, the
->>> ASCE is not
->>> + * replaced.
->>> + * In any case, the old ASCE is removed from the list, therefore
->>> the caller
->>> + * has to make sure to save a pointer to it beforehands, unless an
->>> + * intentional leak is intended.
->>> + */
->>> +static int kvm_s390_pv_replace_asce(struct kvm *kvm)
->>> +{
->>> +	unsigned long asce;
->>> +	struct page *page;
->>> +	void *table;
->>> +
->>> +	kvm_s390_pv_remove_old_asce(kvm);
->>> +
->>> +	page = alloc_pages(GFP_KERNEL_ACCOUNT, CRST_ALLOC_ORDER);
->>> +	if (!page)
->>> +		return -ENOMEM;
->>> +	list_add(&page->lru, &kvm->arch.gmap->crst_list);
->>> +
->>> +	table = page_to_virt(page);
->>> +	memcpy(table, kvm->arch.gmap->table, 1UL <<
->>> (CRST_ALLOC_ORDER + PAGE_SHIFT)); +
->>> +	asce = (kvm->arch.gmap->asce & ~PAGE_MASK) | __pa(table);
->>> +	WRITE_ONCE(kvm->arch.gmap->asce, asce);
->>> +	WRITE_ONCE(kvm->mm->context.gmap_asce, asce);
->>> +	WRITE_ONCE(kvm->arch.gmap->table, table);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>>  /* this should not fail, but if it does, we must not free the
->>> donated memory */ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16
->>> *rc, u16 *rrc) {
->>> @@ -164,9 +213,11 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16
->>> *rc, u16 *rrc) atomic_set(&kvm->mm->context.is_protected, 0);
->>>  	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x",
->>> *rc, *rrc); WARN_ONCE(cc, "protvirt destroy vm failed rc %x rrc
->>> %x", *rc, *rrc);
->>> -	/* Inteded memory leak on "impossible" error */
->>> +	/* Intended memory leak on "impossible" error */
->>>  	if (!cc)
->>>  		kvm_s390_pv_dealloc_vm(kvm);
->>> +	else
->>> +		kvm_s390_pv_replace_asce(kvm);
->>>  	return cc ? -EIO : 0;
->>>  }
->>>  
->>>   
->>
+> Completely unrelated, but this made me look at the various header
+> guards, and they seem to be a bit all over the place.
+> 
+> E.g. in lib/s390x/asm/, I see no prefix, ASM_S390X, _ASMS390X,
+> __ASMS390X, ...
+> 
+> Would consolidating this be worthwhile, or just busywork?
 > 
 
+Good catch
+Having a consolidated naming scheme would be good so new devs don't get
+confused.
