@@ -2,674 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43C57C433B4
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 00:10:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66182C433B4
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 04:30:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1D5B361359
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 00:10:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 46B7A60E08
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 04:30:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240604AbhERAMK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 May 2021 20:12:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59092 "EHLO
+        id S1345098AbhEREcB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 May 2021 00:32:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344809AbhERAMJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 May 2021 20:12:09 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECC7AC06175F
-        for <linux-s390@vger.kernel.org>; Mon, 17 May 2021 17:10:51 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id a2so11335603lfc.9
-        for <linux-s390@vger.kernel.org>; Mon, 17 May 2021 17:10:51 -0700 (PDT)
+        with ESMTP id S240168AbhEREcB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 00:32:01 -0400
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70291C061573
+        for <linux-s390@vger.kernel.org>; Mon, 17 May 2021 21:30:43 -0700 (PDT)
+Received: by mail-oi1-x22c.google.com with SMTP id b25so8646634oic.0
+        for <linux-s390@vger.kernel.org>; Mon, 17 May 2021 21:30:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Vrm1Y8CN80EejLFafAJo6iXsdUuJulhk+XbzzE5vIyc=;
-        b=bfSjrb9oMwsZMCBBFrWmZOp0eNBHhlw3AEMMyvYHVkeUlOf195U/VRuCs8DwoLZQdR
-         KYJnGMsd9Oru0kkj/MZ+tQ+hRxQOHIyxn4Hj2H6wLBsX45sSRXHOZWEq3+I1Z0v2DJsb
-         fRu8ZikLWSoXQ7MJqNZTWBJi8YMc1BiOzIX5HC7hMP/129M3228ufK1TJ5pADocH5PNY
-         MNU0/s2MVK5+Kqu+DHVnOBTPivCFDTSReKRPzp7rkKRgp9ZtTt6Rq4oKV8enpjEyTSmr
-         Qs3UGMQTSAR8A1B7xjB7Ox1nFixsxE/Zt1Y76pb8sTVRoALJGWnQsCeld2kUQF0vZYDG
-         nnng==
+        d=landley-net.20150623.gappssmtp.com; s=20150623;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=edTAC+VberfNzmpERBE9GVjs5mtrV8JaHhvqsq7uIFU=;
+        b=dLuJJej8/uEvpBeGhA1/Y5GsGsMFYUb/0EpYi6VrxMEsPJDrwau71hC9S9lRuH1IOk
+         dFhwzmE9tIkNpO72l4uL612FG4Zug54KwbTPgz1iX5iwvzU0aaPwt8xo8yuvf8IlA+pi
+         tk1mxusnY/enJDT9/0PutctBU475awvAap+Q8hW6ondtgnBnBc/mVEwnGersCBtZUol7
+         Bo9od8yNmsNzVmQka6iDvM8tXqB+RdmSMgiUBloAzxZyj3ccCXO7tLny+Hxb07+7Cjuc
+         iH8rOphOk6OhoEoeRCXqHtiQndHa9BEtelnN/ZUinVzuJZ7P3hF9mEY7zXteIQ6OqUnu
+         RnLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Vrm1Y8CN80EejLFafAJo6iXsdUuJulhk+XbzzE5vIyc=;
-        b=tc15KgpnMF7JTLSoG3DJPOECjD5gl1GhGWY3feKw/ONpzUAedfZMksc33fJsryQk6P
-         xnuqD8lx3oz9RAXQTL4XOx3VyA4YoBG/GNTZGQ3263E8r4+G2tIsugWd03Bd3xfVaepg
-         5FnCVWDeppi1wV850970ROls9E/HAjp5bkShBYFTDrqcy8xVhyfXy9rh5bJBWJebPOc3
-         ljDP21ZjCRXrqldrPDZUq7MgqgzTpCVAwZ+C1F1b17nGnKb3KZwOCHZVWtSGZQoz5pDj
-         M102hvgA4Je51jsY/bPjIaF4rtKx/7ZZydC18hROelBQRWQt6LxbgL9eOBYY0Kh1yTQD
-         wYsw==
-X-Gm-Message-State: AOAM5304S5nFRaBRvyFuZvb1Kb5bYy8zO2c0m6vmgG14DmZLuRjKq6fG
-        4tFjSoWKg6hGB1S0jtWNjZ1D4eubdX6ZHpiIxgW8SQ==
-X-Google-Smtp-Source: ABdhPJz6VVQxFQvmm7JdVP3ERvj9uHZYDecjbUCcbp9rjZPB01vfIjZhmE5j5Jcl4z9DRijRj9rxSn/IYvyG+4r5ckc=
-X-Received: by 2002:ac2:51ca:: with SMTP id u10mr1812629lfm.646.1621296649965;
- Mon, 17 May 2021 17:10:49 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210517145314.157626-1-jingzhangos@google.com>
- <20210517145314.157626-2-jingzhangos@google.com> <CALzav=dGT7B7FWw_d5v3QaJxgfp6TZv7E4fdchG_7LKh+C17gg@mail.gmail.com>
-In-Reply-To: <CALzav=dGT7B7FWw_d5v3QaJxgfp6TZv7E4fdchG_7LKh+C17gg@mail.gmail.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Mon, 17 May 2021 19:10:38 -0500
-Message-ID: <CAAdAUtjyFhuh4iFJJOkkO20XXKqbcRO-S0ziFfUW1rHL-bkeZw@mail.gmail.com>
-Subject: Re: [PATCH v5 1/4] KVM: stats: Separate common stats from
- architecture specific ones
-To:     David Matlack <dmatlack@google.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=edTAC+VberfNzmpERBE9GVjs5mtrV8JaHhvqsq7uIFU=;
+        b=CT2v82p15RN7bZiv/8RAXKx6N8qwVwTnutzQpAw62HTDFFkbUBgt+IeXC0+UfocBns
+         6q+3+OA+aVIiIe9h1VBTxKrClGJ9XsmEg/5DKGtXzy9jcFC+Prr2OuqLf4Vjvn96QASu
+         AP8HQqEO+AY4/B12uzG3e04A06jdiMBmiMTPi9bQ/gO1JMchEdH5Fc8SJfVY6FZItRra
+         O30yqA3mQDGmGtFZEuPnF3GUNmV8Gm21Z9tghQ4zYrsa02Lq/pnfsF1UrNyq395lQjcF
+         rRB8UxZxM1HsdLheuVMiBLALaNRtGJG/eKdhKi5XGQbGZ4VErRuMoMCdcg8MSpuVtDJF
+         fe5w==
+X-Gm-Message-State: AOAM532jSxdIqrVxzV35X20sgFhpImPgvOZ0wB7kU6KZUF32Ig61T3+Q
+        lCcIH58/zU1ZqHLDr+xw/w2vgA==
+X-Google-Smtp-Source: ABdhPJw3rg34jdvRBg7UfZMvjZh9ZVnoXPaRDW7+ClvXOuEC35VQdlhboR/aOy6EX77F75BWPpCMWw==
+X-Received: by 2002:aca:c685:: with SMTP id w127mr1961677oif.89.1621312242855;
+        Mon, 17 May 2021 21:30:42 -0700 (PDT)
+Received: from [192.168.86.127] ([136.62.4.88])
+        by smtp.gmail.com with ESMTPSA id w66sm3492578ooa.37.2021.05.17.21.30.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 17 May 2021 21:30:42 -0700 (PDT)
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Philipp Rudo <prudo@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+From:   Rob Landley <rob@landley.net>
+Subject: [PATCH] Replace use of perl with sed and tr in s390x build.
+Message-ID: <a48c51f8-5fe4-87e7-284e-c96e2381801a@landley.net>
+Date:   Mon, 17 May 2021 23:46:44 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi David,
+From: Rob Landley <rob@landley.net>
 
-On Mon, May 17, 2021 at 6:39 PM David Matlack <dmatlack@google.com> wrote:
->
-> On Mon, May 17, 2021 at 9:24 AM Jing Zhang <jingzhangos@google.com> wrote:
-> >
-> > Put all common statistics in a separate structure to ease
-> > statistics handling for the incoming new statistics API.
-> >
-> > No functional change intended.
-> >
-> > Signed-off-by: Jing Zhang <jingzhangos@google.com>
-> > ---
-> >  arch/arm64/include/asm/kvm_host.h   |  9 ++-------
-> >  arch/arm64/kvm/guest.c              | 12 ++++++------
-> >  arch/mips/include/asm/kvm_host.h    |  9 ++-------
-> >  arch/mips/kvm/mips.c                | 12 ++++++------
-> >  arch/powerpc/include/asm/kvm_host.h |  9 ++-------
-> >  arch/powerpc/kvm/book3s.c           | 12 ++++++------
-> >  arch/powerpc/kvm/book3s_hv.c        | 12 ++++++------
-> >  arch/powerpc/kvm/book3s_pr.c        |  2 +-
-> >  arch/powerpc/kvm/book3s_pr_papr.c   |  2 +-
-> >  arch/powerpc/kvm/booke.c            | 14 +++++++-------
-> >  arch/s390/include/asm/kvm_host.h    |  9 ++-------
-> >  arch/s390/kvm/kvm-s390.c            | 12 ++++++------
-> >  arch/x86/include/asm/kvm_host.h     |  9 ++-------
-> >  arch/x86/kvm/x86.c                  | 14 +++++++-------
-> >  include/linux/kvm_host.h            |  9 +++++++--
-> >  include/linux/kvm_types.h           | 12 ++++++++++++
-> >  virt/kvm/kvm_main.c                 | 14 +++++++-------
-> >  17 files changed, 82 insertions(+), 90 deletions(-)
-> >
-> > diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-> > index 7cd7d5c8c4bc..f3ad7a20b0af 100644
-> > --- a/arch/arm64/include/asm/kvm_host.h
-> > +++ b/arch/arm64/include/asm/kvm_host.h
-> > @@ -556,16 +556,11 @@ static inline bool __vcpu_write_sys_reg_to_cpu(u64 val, int reg)
-> >  }
-> >
-> >  struct kvm_vm_stat {
-> > -       ulong remote_tlb_flush;
-> > +       struct kvm_vm_stat_common common;
-> >  };
-> >
-> >  struct kvm_vcpu_stat {
-> > -       u64 halt_successful_poll;
-> > -       u64 halt_attempted_poll;
-> > -       u64 halt_poll_success_ns;
-> > -       u64 halt_poll_fail_ns;
-> > -       u64 halt_poll_invalid;
-> > -       u64 halt_wakeup;
-> > +       struct kvm_vcpu_stat_common common;
-> >         u64 hvc_exit_stat;
-> >         u64 wfe_exit_stat;
-> >         u64 wfi_exit_stat;
-> > diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-> > index 5cb4a1cd5603..0e41331b0911 100644
-> > --- a/arch/arm64/kvm/guest.c
-> > +++ b/arch/arm64/kvm/guest.c
-> > @@ -29,18 +29,18 @@
-> >  #include "trace.h"
-> >
-> >  struct kvm_stats_debugfs_item debugfs_entries[] = {
-> > -       VCPU_STAT("halt_successful_poll", halt_successful_poll),
-> > -       VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-> > -       VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-> > -       VCPU_STAT("halt_wakeup", halt_wakeup),
-> > +       VCPU_STAT_COM("halt_successful_poll", halt_successful_poll),
-> > +       VCPU_STAT_COM("halt_attempted_poll", halt_attempted_poll),
-> > +       VCPU_STAT_COM("halt_poll_invalid", halt_poll_invalid),
-> > +       VCPU_STAT_COM("halt_wakeup", halt_wakeup),
->
-> nit: I may be alone in this but I find using the  the following more readable:
->
->         VCPU_STAT("halt_wakeup", common.halt_wakeup),
->
-> >         VCPU_STAT("hvc_exit_stat", hvc_exit_stat),
-> >         VCPU_STAT("wfe_exit_stat", wfe_exit_stat),
-> >         VCPU_STAT("wfi_exit_stat", wfi_exit_stat),
-> >         VCPU_STAT("mmio_exit_user", mmio_exit_user),
-> >         VCPU_STAT("mmio_exit_kernel", mmio_exit_kernel),
-> >         VCPU_STAT("exits", exits),
-> > -       VCPU_STAT("halt_poll_success_ns", halt_poll_success_ns),
-> > -       VCPU_STAT("halt_poll_fail_ns", halt_poll_fail_ns),
-> > +       VCPU_STAT_COM("halt_poll_success_ns", halt_poll_success_ns),
-> > +       VCPU_STAT_COM("halt_poll_fail_ns", halt_poll_fail_ns),
-> >         { NULL }
-> >  };
-> >
-> > diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
-> > index fca4547d580f..6f610fbcd8d1 100644
-> > --- a/arch/mips/include/asm/kvm_host.h
-> > +++ b/arch/mips/include/asm/kvm_host.h
-> > @@ -109,10 +109,11 @@ static inline bool kvm_is_error_hva(unsigned long addr)
-> >  }
-> >
-> >  struct kvm_vm_stat {
-> > -       ulong remote_tlb_flush;
-> > +       struct kvm_vm_stat_common common;
-> >  };
-> >
-> >  struct kvm_vcpu_stat {
-> > +       struct kvm_vcpu_stat_common common;
-> >         u64 wait_exits;
-> >         u64 cache_exits;
-> >         u64 signal_exits;
-> > @@ -142,12 +143,6 @@ struct kvm_vcpu_stat {
-> >  #ifdef CONFIG_CPU_LOONGSON64
-> >         u64 vz_cpucfg_exits;
-> >  #endif
-> > -       u64 halt_successful_poll;
-> > -       u64 halt_attempted_poll;
-> > -       u64 halt_poll_success_ns;
-> > -       u64 halt_poll_fail_ns;
-> > -       u64 halt_poll_invalid;
-> > -       u64 halt_wakeup;
-> >  };
-> >
-> >  struct kvm_arch_memory_slot {
-> > diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-> > index 4d4af97dcc88..f4fc60c05e9c 100644
-> > --- a/arch/mips/kvm/mips.c
-> > +++ b/arch/mips/kvm/mips.c
-> > @@ -68,12 +68,12 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
-> >  #ifdef CONFIG_CPU_LOONGSON64
-> >         VCPU_STAT("vz_cpucfg", vz_cpucfg_exits),
-> >  #endif
-> > -       VCPU_STAT("halt_successful_poll", halt_successful_poll),
-> > -       VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-> > -       VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-> > -       VCPU_STAT("halt_wakeup", halt_wakeup),
-> > -       VCPU_STAT("halt_poll_success_ns", halt_poll_success_ns),
-> > -       VCPU_STAT("halt_poll_fail_ns", halt_poll_fail_ns),
-> > +       VCPU_STAT_COM("halt_successful_poll", halt_successful_poll),
-> > +       VCPU_STAT_COM("halt_attempted_poll", halt_attempted_poll),
-> > +       VCPU_STAT_COM("halt_poll_invalid", halt_poll_invalid),
-> > +       VCPU_STAT_COM("halt_wakeup", halt_wakeup),
-> > +       VCPU_STAT_COM("halt_poll_success_ns", halt_poll_success_ns),
-> > +       VCPU_STAT_COM("halt_poll_fail_ns", halt_poll_fail_ns),
-> >         {NULL}
-> >  };
-> >
-> > diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
-> > index 1e83359f286b..473d9d0804ff 100644
-> > --- a/arch/powerpc/include/asm/kvm_host.h
-> > +++ b/arch/powerpc/include/asm/kvm_host.h
-> > @@ -80,12 +80,13 @@ struct kvmppc_book3s_shadow_vcpu;
-> >  struct kvm_nested_guest;
-> >
-> >  struct kvm_vm_stat {
-> > -       ulong remote_tlb_flush;
-> > +       struct kvm_vm_stat_common common;
-> >         ulong num_2M_pages;
-> >         ulong num_1G_pages;
-> >  };
-> >
-> >  struct kvm_vcpu_stat {
-> > +       struct kvm_vcpu_stat_common common;
-> >         u64 sum_exits;
-> >         u64 mmio_exits;
-> >         u64 signal_exits;
-> > @@ -101,14 +102,8 @@ struct kvm_vcpu_stat {
-> >         u64 emulated_inst_exits;
-> >         u64 dec_exits;
-> >         u64 ext_intr_exits;
-> > -       u64 halt_poll_success_ns;
-> > -       u64 halt_poll_fail_ns;
-> >         u64 halt_wait_ns;
-> > -       u64 halt_successful_poll;
-> > -       u64 halt_attempted_poll;
-> >         u64 halt_successful_wait;
-> > -       u64 halt_poll_invalid;
-> > -       u64 halt_wakeup;
-> >         u64 dbell_exits;
-> >         u64 gdbell_exits;
-> >         u64 ld;
-> > diff --git a/arch/powerpc/kvm/book3s.c b/arch/powerpc/kvm/book3s.c
-> > index 2b691f4d1f26..bd3a10e1fdaf 100644
-> > --- a/arch/powerpc/kvm/book3s.c
-> > +++ b/arch/powerpc/kvm/book3s.c
-> > @@ -47,14 +47,14 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
-> >         VCPU_STAT("dec", dec_exits),
-> >         VCPU_STAT("ext_intr", ext_intr_exits),
-> >         VCPU_STAT("queue_intr", queue_intr),
-> > -       VCPU_STAT("halt_poll_success_ns", halt_poll_success_ns),
-> > -       VCPU_STAT("halt_poll_fail_ns", halt_poll_fail_ns),
-> > +       VCPU_STAT_COM("halt_poll_success_ns", halt_poll_success_ns),
-> > +       VCPU_STAT_COM("halt_poll_fail_ns", halt_poll_fail_ns),
-> >         VCPU_STAT("halt_wait_ns", halt_wait_ns),
-> > -       VCPU_STAT("halt_successful_poll", halt_successful_poll),
-> > -       VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-> > +       VCPU_STAT_COM("halt_successful_poll", halt_successful_poll),
-> > +       VCPU_STAT_COM("halt_attempted_poll", halt_attempted_poll),
-> >         VCPU_STAT("halt_successful_wait", halt_successful_wait),
-> > -       VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-> > -       VCPU_STAT("halt_wakeup", halt_wakeup),
-> > +       VCPU_STAT_COM("halt_poll_invalid", halt_poll_invalid),
-> > +       VCPU_STAT_COM("halt_wakeup", halt_wakeup),
-> >         VCPU_STAT("pf_storage", pf_storage),
-> >         VCPU_STAT("sp_storage", sp_storage),
-> >         VCPU_STAT("pf_instruc", pf_instruc),
-> > diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-> > index 28a80d240b76..58e187e03c52 100644
-> > --- a/arch/powerpc/kvm/book3s_hv.c
-> > +++ b/arch/powerpc/kvm/book3s_hv.c
-> > @@ -236,7 +236,7 @@ static void kvmppc_fast_vcpu_kick_hv(struct kvm_vcpu *vcpu)
-> >
-> >         waitp = kvm_arch_vcpu_get_wait(vcpu);
-> >         if (rcuwait_wake_up(waitp))
-> > -               ++vcpu->stat.halt_wakeup;
-> > +               ++vcpu->stat.common.halt_wakeup;
-> >
-> >         cpu = READ_ONCE(vcpu->arch.thread_cpu);
-> >         if (cpu >= 0 && kvmppc_ipi_thread(cpu))
-> > @@ -3925,7 +3925,7 @@ static void kvmppc_vcore_blocked(struct kvmppc_vcore *vc)
-> >         cur = start_poll = ktime_get();
-> >         if (vc->halt_poll_ns) {
-> >                 ktime_t stop = ktime_add_ns(start_poll, vc->halt_poll_ns);
-> > -               ++vc->runner->stat.halt_attempted_poll;
-> > +               ++vc->runner->stat.common.halt_attempted_poll;
-> >
-> >                 vc->vcore_state = VCORE_POLLING;
-> >                 spin_unlock(&vc->lock);
-> > @@ -3942,7 +3942,7 @@ static void kvmppc_vcore_blocked(struct kvmppc_vcore *vc)
-> >                 vc->vcore_state = VCORE_INACTIVE;
-> >
-> >                 if (!do_sleep) {
-> > -                       ++vc->runner->stat.halt_successful_poll;
-> > +                       ++vc->runner->stat.common.halt_successful_poll;
-> >                         goto out;
-> >                 }
-> >         }
-> > @@ -3954,7 +3954,7 @@ static void kvmppc_vcore_blocked(struct kvmppc_vcore *vc)
-> >                 do_sleep = 0;
-> >                 /* If we polled, count this as a successful poll */
-> >                 if (vc->halt_poll_ns)
-> > -                       ++vc->runner->stat.halt_successful_poll;
-> > +                       ++vc->runner->stat.common.halt_successful_poll;
-> >                 goto out;
-> >         }
-> >
-> > @@ -3981,13 +3981,13 @@ static void kvmppc_vcore_blocked(struct kvmppc_vcore *vc)
-> >                         ktime_to_ns(cur) - ktime_to_ns(start_wait);
-> >                 /* Attribute failed poll time */
-> >                 if (vc->halt_poll_ns)
-> > -                       vc->runner->stat.halt_poll_fail_ns +=
-> > +                       vc->runner->stat.common.halt_poll_fail_ns +=
-> >                                 ktime_to_ns(start_wait) -
-> >                                 ktime_to_ns(start_poll);
-> >         } else {
-> >                 /* Attribute successful poll time */
-> >                 if (vc->halt_poll_ns)
-> > -                       vc->runner->stat.halt_poll_success_ns +=
-> > +                       vc->runner->stat.common.halt_poll_success_ns +=
-> >                                 ktime_to_ns(cur) -
-> >                                 ktime_to_ns(start_poll);
-> >         }
-> > diff --git a/arch/powerpc/kvm/book3s_pr.c b/arch/powerpc/kvm/book3s_pr.c
-> > index d7733b07f489..214caa9d9675 100644
-> > --- a/arch/powerpc/kvm/book3s_pr.c
-> > +++ b/arch/powerpc/kvm/book3s_pr.c
-> > @@ -493,7 +493,7 @@ static void kvmppc_set_msr_pr(struct kvm_vcpu *vcpu, u64 msr)
-> >                 if (!vcpu->arch.pending_exceptions) {
-> >                         kvm_vcpu_block(vcpu);
-> >                         kvm_clear_request(KVM_REQ_UNHALT, vcpu);
-> > -                       vcpu->stat.halt_wakeup++;
-> > +                       vcpu->stat.common.halt_wakeup++;
-> >
-> >                         /* Unset POW bit after we woke up */
-> >                         msr &= ~MSR_POW;
-> > diff --git a/arch/powerpc/kvm/book3s_pr_papr.c b/arch/powerpc/kvm/book3s_pr_papr.c
-> > index 031c8015864a..9384625c8051 100644
-> > --- a/arch/powerpc/kvm/book3s_pr_papr.c
-> > +++ b/arch/powerpc/kvm/book3s_pr_papr.c
-> > @@ -378,7 +378,7 @@ int kvmppc_h_pr(struct kvm_vcpu *vcpu, unsigned long cmd)
-> >                 kvmppc_set_msr_fast(vcpu, kvmppc_get_msr(vcpu) | MSR_EE);
-> >                 kvm_vcpu_block(vcpu);
-> >                 kvm_clear_request(KVM_REQ_UNHALT, vcpu);
-> > -               vcpu->stat.halt_wakeup++;
-> > +               vcpu->stat.common.halt_wakeup++;
-> >                 return EMULATE_DONE;
-> >         case H_LOGICAL_CI_LOAD:
-> >                 return kvmppc_h_pr_logical_ci_load(vcpu);
-> > diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
-> > index 7d5fe43f85c4..07fdd7a1254a 100644
-> > --- a/arch/powerpc/kvm/booke.c
-> > +++ b/arch/powerpc/kvm/booke.c
-> > @@ -49,15 +49,15 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
-> >         VCPU_STAT("inst_emu", emulated_inst_exits),
-> >         VCPU_STAT("dec", dec_exits),
-> >         VCPU_STAT("ext_intr", ext_intr_exits),
-> > -       VCPU_STAT("halt_successful_poll", halt_successful_poll),
-> > -       VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-> > -       VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-> > -       VCPU_STAT("halt_wakeup", halt_wakeup),
-> > +       VCPU_STAT_COM("halt_successful_poll", halt_successful_poll),
-> > +       VCPU_STAT_COM("halt_attempted_poll", halt_attempted_poll),
-> > +       VCPU_STAT_COM("halt_poll_invalid", halt_poll_invalid),
-> > +       VCPU_STAT_COM("halt_wakeup", halt_wakeup),
-> >         VCPU_STAT("doorbell", dbell_exits),
-> >         VCPU_STAT("guest doorbell", gdbell_exits),
-> > -       VCPU_STAT("halt_poll_success_ns", halt_poll_success_ns),
-> > -       VCPU_STAT("halt_poll_fail_ns", halt_poll_fail_ns),
-> > -       VM_STAT("remote_tlb_flush", remote_tlb_flush),
-> > +       VCPU_STAT_COM("halt_poll_success_ns", halt_poll_success_ns),
-> > +       VCPU_STAT_COM("halt_poll_fail_ns", halt_poll_fail_ns),
-> > +       VM_STAT_COM("remote_tlb_flush", remote_tlb_flush),
-> >         { NULL }
-> >  };
-> >
-> > diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> > index 8925f3969478..57a20897f3db 100644
-> > --- a/arch/s390/include/asm/kvm_host.h
-> > +++ b/arch/s390/include/asm/kvm_host.h
-> > @@ -361,6 +361,7 @@ struct sie_page {
-> >  };
-> >
-> >  struct kvm_vcpu_stat {
-> > +       struct kvm_vcpu_stat_common common;
-> >         u64 exit_userspace;
-> >         u64 exit_null;
-> >         u64 exit_external_request;
-> > @@ -370,13 +371,7 @@ struct kvm_vcpu_stat {
-> >         u64 exit_validity;
-> >         u64 exit_instruction;
-> >         u64 exit_pei;
-> > -       u64 halt_successful_poll;
-> > -       u64 halt_attempted_poll;
-> > -       u64 halt_poll_invalid;
-> >         u64 halt_no_poll_steal;
-> > -       u64 halt_wakeup;
-> > -       u64 halt_poll_success_ns;
-> > -       u64 halt_poll_fail_ns;
-> >         u64 instruction_lctl;
-> >         u64 instruction_lctlg;
-> >         u64 instruction_stctl;
-> > @@ -755,12 +750,12 @@ struct kvm_vcpu_arch {
-> >  };
-> >
-> >  struct kvm_vm_stat {
-> > +       struct kvm_vm_stat_common common;
-> >         u64 inject_io;
-> >         u64 inject_float_mchk;
-> >         u64 inject_pfault_done;
-> >         u64 inject_service_signal;
-> >         u64 inject_virtio;
-> > -       u64 remote_tlb_flush;
-> >  };
-> >
-> >  struct kvm_arch_memory_slot {
-> > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> > index 1296fc10f80c..d6bf3372bb10 100644
-> > --- a/arch/s390/kvm/kvm-s390.c
-> > +++ b/arch/s390/kvm/kvm-s390.c
-> > @@ -72,13 +72,13 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
-> >         VCPU_STAT("exit_program_interruption", exit_program_interruption),
-> >         VCPU_STAT("exit_instr_and_program_int", exit_instr_and_program),
-> >         VCPU_STAT("exit_operation_exception", exit_operation_exception),
-> > -       VCPU_STAT("halt_successful_poll", halt_successful_poll),
-> > -       VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-> > -       VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-> > +       VCPU_STAT_COM("halt_successful_poll", halt_successful_poll),
-> > +       VCPU_STAT_COM("halt_attempted_poll", halt_attempted_poll),
-> > +       VCPU_STAT_COM("halt_poll_invalid", halt_poll_invalid),
-> >         VCPU_STAT("halt_no_poll_steal", halt_no_poll_steal),
-> > -       VCPU_STAT("halt_wakeup", halt_wakeup),
-> > -       VCPU_STAT("halt_poll_success_ns", halt_poll_success_ns),
-> > -       VCPU_STAT("halt_poll_fail_ns", halt_poll_fail_ns),
-> > +       VCPU_STAT_COM("halt_wakeup", halt_wakeup),
-> > +       VCPU_STAT_COM("halt_poll_success_ns", halt_poll_success_ns),
-> > +       VCPU_STAT_COM("halt_poll_fail_ns", halt_poll_fail_ns),
-> >         VCPU_STAT("instruction_lctlg", instruction_lctlg),
-> >         VCPU_STAT("instruction_lctl", instruction_lctl),
-> >         VCPU_STAT("instruction_stctl", instruction_stctl),
-> > diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-> > index 55efbacfc244..5bfd6893fbf6 100644
-> > --- a/arch/x86/include/asm/kvm_host.h
-> > +++ b/arch/x86/include/asm/kvm_host.h
-> > @@ -1127,6 +1127,7 @@ struct kvm_arch {
-> >  };
-> >
-> >  struct kvm_vm_stat {
-> > +       struct kvm_vm_stat_common common;
-> >         ulong mmu_shadow_zapped;
-> >         ulong mmu_pte_write;
-> >         ulong mmu_pde_zapped;
-> > @@ -1134,13 +1135,13 @@ struct kvm_vm_stat {
-> >         ulong mmu_recycled;
-> >         ulong mmu_cache_miss;
-> >         ulong mmu_unsync;
-> > -       ulong remote_tlb_flush;
-> >         ulong lpages;
-> >         ulong nx_lpage_splits;
-> >         ulong max_mmu_page_hash_collisions;
-> >  };
-> >
-> >  struct kvm_vcpu_stat {
-> > +       struct kvm_vcpu_stat_common common;
-> >         u64 pf_fixed;
-> >         u64 pf_guest;
-> >         u64 tlb_flush;
-> > @@ -1154,10 +1155,6 @@ struct kvm_vcpu_stat {
-> >         u64 nmi_window_exits;
-> >         u64 l1d_flush;
-> >         u64 halt_exits;
-> > -       u64 halt_successful_poll;
-> > -       u64 halt_attempted_poll;
-> > -       u64 halt_poll_invalid;
-> > -       u64 halt_wakeup;
-> >         u64 request_irq_exits;
-> >         u64 irq_exits;
-> >         u64 host_state_reload;
-> > @@ -1168,8 +1165,6 @@ struct kvm_vcpu_stat {
-> >         u64 irq_injections;
-> >         u64 nmi_injections;
-> >         u64 req_event;
-> > -       u64 halt_poll_success_ns;
-> > -       u64 halt_poll_fail_ns;
-> >         u64 nested_run;
-> >         u64 directed_yield_attempted;
-> >         u64 directed_yield_successful;
-> > diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> > index 9b6bca616929..9a93d80caff6 100644
-> > --- a/arch/x86/kvm/x86.c
-> > +++ b/arch/x86/kvm/x86.c
-> > @@ -226,10 +226,10 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
-> >         VCPU_STAT("irq_window", irq_window_exits),
-> >         VCPU_STAT("nmi_window", nmi_window_exits),
-> >         VCPU_STAT("halt_exits", halt_exits),
-> > -       VCPU_STAT("halt_successful_poll", halt_successful_poll),
-> > -       VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-> > -       VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-> > -       VCPU_STAT("halt_wakeup", halt_wakeup),
-> > +       VCPU_STAT_COM("halt_successful_poll", halt_successful_poll),
-> > +       VCPU_STAT_COM("halt_attempted_poll", halt_attempted_poll),
-> > +       VCPU_STAT_COM("halt_poll_invalid", halt_poll_invalid),
-> > +       VCPU_STAT_COM("halt_wakeup", halt_wakeup),
-> >         VCPU_STAT("hypercalls", hypercalls),
-> >         VCPU_STAT("request_irq", request_irq_exits),
-> >         VCPU_STAT("irq_exits", irq_exits),
-> > @@ -241,8 +241,8 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
-> >         VCPU_STAT("nmi_injections", nmi_injections),
-> >         VCPU_STAT("req_event", req_event),
-> >         VCPU_STAT("l1d_flush", l1d_flush),
-> > -       VCPU_STAT("halt_poll_success_ns", halt_poll_success_ns),
-> > -       VCPU_STAT("halt_poll_fail_ns", halt_poll_fail_ns),
-> > +       VCPU_STAT_COM("halt_poll_success_ns", halt_poll_success_ns),
-> > +       VCPU_STAT_COM("halt_poll_fail_ns", halt_poll_fail_ns),
-> >         VCPU_STAT("nested_run", nested_run),
-> >         VCPU_STAT("directed_yield_attempted", directed_yield_attempted),
-> >         VCPU_STAT("directed_yield_successful", directed_yield_successful),
-> > @@ -253,7 +253,7 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
-> >         VM_STAT("mmu_recycled", mmu_recycled),
-> >         VM_STAT("mmu_cache_miss", mmu_cache_miss),
-> >         VM_STAT("mmu_unsync", mmu_unsync),
-> > -       VM_STAT("remote_tlb_flush", remote_tlb_flush),
-> > +       VM_STAT_COM("remote_tlb_flush", remote_tlb_flush),
-> >         VM_STAT("largepages", lpages, .mode = 0444),
-> >         VM_STAT("nx_largepages_splitted", nx_lpage_splits, .mode = 0444),
-> >         VM_STAT("max_mmu_page_hash_collisions", max_mmu_page_hash_collisions),
-> > diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-> > index 2f34487e21f2..97700e41db3b 100644
-> > --- a/include/linux/kvm_host.h
-> > +++ b/include/linux/kvm_host.h
-> > @@ -1243,10 +1243,15 @@ struct kvm_stats_debugfs_item {
-> >  #define KVM_DBGFS_GET_MODE(dbgfs_item)                                         \
-> >         ((dbgfs_item)->mode ? (dbgfs_item)->mode : 0644)
-> >
-> > -#define VM_STAT(n, x, ...)                                                     \
-> > +#define VM_STAT(n, x, ...)                                                    \
-> >         { n, offsetof(struct kvm, stat.x), KVM_STAT_VM, ## __VA_ARGS__ }
-> > -#define VCPU_STAT(n, x, ...)                                                   \
-> > +#define VCPU_STAT(n, x, ...)                                                  \
-> >         { n, offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU, ## __VA_ARGS__ }
-> > +#define VM_STAT_COM(n, x, ...)                                                \
-> > +       { n, offsetof(struct kvm, stat.common.x), KVM_STAT_VM, ## __VA_ARGS__ }
-> > +#define VCPU_STAT_COM(n, x, ...)                                              \
-> > +       { n, offsetof(struct kvm_vcpu, stat.common.x),                         \
-> > +         KVM_STAT_VCPU, ## __VA_ARGS__ }
-> >
-> >  extern struct kvm_stats_debugfs_item debugfs_entries[];
-> >  extern struct dentry *kvm_debugfs_dir;
-> > diff --git a/include/linux/kvm_types.h b/include/linux/kvm_types.h
-> > index a7580f69dda0..87eb05ad678b 100644
-> > --- a/include/linux/kvm_types.h
-> > +++ b/include/linux/kvm_types.h
-> > @@ -76,5 +76,17 @@ struct kvm_mmu_memory_cache {
-> >  };
-> >  #endif
-> >
-> > +struct kvm_vm_stat_common {
-> > +       ulong remote_tlb_flush;
-> > +};
-> > +
-> > +struct kvm_vcpu_stat_common {
-> > +       u64 halt_successful_poll;
-> > +       u64 halt_attempted_poll;
-> > +       u64 halt_poll_invalid;
-> > +       u64 halt_wakeup;
-> > +       u64 halt_poll_success_ns;
-> > +       u64 halt_poll_fail_ns;
-> > +};
->
-> Putting a "_common" struct here is the opposite of the pattern than
-> what KVM uses for struct kvm and struct kvm_vcpu. What are your
-> thoughts on inverting it so the common stats go in struct
-> kvm_{vcpu,vm}_stat and the arch-specific stats go in a arch-specific
-> struct kvm_{vcpu,vm}_stat_arch?
->
-> I imagine this may result in more churn in this patch since there are
-> more arch-specific stats than there are common stats, but would result
-> in a more consistent struct layout.
-Actually the definition of kvm_{vcpu,vm}_stat are arch specific. There is
-no real structure for arch agnostic stats. Most of the stats in common
-structures are arch agnostic, but not all of them.
-There are some benefits to put all common stats in a separate structure.
-e.g. if we want to add a stat in kvm_main.c, we only need to add this stat
-in the common structure, don't have to update all kvm_{vcpu,vm}_stat
-definition for all architectures.
->
->
-> >
-> >  #endif /* __KVM_TYPES_H__ */
-> > diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> > index 6b4feb92dc79..34a4cf265297 100644
-> > --- a/virt/kvm/kvm_main.c
-> > +++ b/virt/kvm/kvm_main.c
-> > @@ -330,7 +330,7 @@ void kvm_flush_remote_tlbs(struct kvm *kvm)
-> >          */
-> >         if (!kvm_arch_flush_remote_tlb(kvm)
-> >             || kvm_make_all_cpus_request(kvm, KVM_REQ_TLB_FLUSH))
-> > -               ++kvm->stat.remote_tlb_flush;
-> > +               ++kvm->stat.common.remote_tlb_flush;
-> >         cmpxchg(&kvm->tlbs_dirty, dirty_count, 0);
-> >  }
-> >  EXPORT_SYMBOL_GPL(kvm_flush_remote_tlbs);
-> > @@ -2940,9 +2940,9 @@ static inline void
-> >  update_halt_poll_stats(struct kvm_vcpu *vcpu, u64 poll_ns, bool waited)
-> >  {
-> >         if (waited)
-> > -               vcpu->stat.halt_poll_fail_ns += poll_ns;
-> > +               vcpu->stat.common.halt_poll_fail_ns += poll_ns;
-> >         else
-> > -               vcpu->stat.halt_poll_success_ns += poll_ns;
-> > +               vcpu->stat.common.halt_poll_success_ns += poll_ns;
-> >  }
-> >
-> >  /*
-> > @@ -2960,16 +2960,16 @@ void kvm_vcpu_block(struct kvm_vcpu *vcpu)
-> >         if (vcpu->halt_poll_ns && !kvm_arch_no_poll(vcpu)) {
-> >                 ktime_t stop = ktime_add_ns(ktime_get(), vcpu->halt_poll_ns);
-> >
-> > -               ++vcpu->stat.halt_attempted_poll;
-> > +               ++vcpu->stat.common.halt_attempted_poll;
-> >                 do {
-> >                         /*
-> >                          * This sets KVM_REQ_UNHALT if an interrupt
-> >                          * arrives.
-> >                          */
-> >                         if (kvm_vcpu_check_block(vcpu) < 0) {
-> > -                               ++vcpu->stat.halt_successful_poll;
-> > +                               ++vcpu->stat.common.halt_successful_poll;
-> >                                 if (!vcpu_valid_wakeup(vcpu))
-> > -                                       ++vcpu->stat.halt_poll_invalid;
-> > +                                       ++vcpu->stat.common.halt_poll_invalid;
-> >                                 goto out;
-> >                         }
-> >                         poll_end = cur = ktime_get();
-> > @@ -3027,7 +3027,7 @@ bool kvm_vcpu_wake_up(struct kvm_vcpu *vcpu)
-> >         waitp = kvm_arch_vcpu_get_wait(vcpu);
-> >         if (rcuwait_wake_up(waitp)) {
-> >                 WRITE_ONCE(vcpu->ready, true);
-> > -               ++vcpu->stat.halt_wakeup;
-> > +               ++vcpu->stat.common.halt_wakeup;
-> >                 return true;
-> >         }
-> >
-> > --
-> > 2.31.1.751.gd2f1c929bd-goog
-> >
+Commit 246218962e21 in November added a perl dependency to the s390x vmlinux
+build, complicating the "countering trusting trust" build approach ala
+http://lists.landley.net/pipermail/toybox-landley.net/2020-July/011898.html
+
+Signed-off-by: Rob Landley <rob@landley.net>
+---
+
+ arch/s390/boot/compressed/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/s390/boot/compressed/Makefile b/arch/s390/boot/compressed/Makefile
+index de18dab518bb..e941b165bd4f 100644
+--- a/arch/s390/boot/compressed/Makefile
++++ b/arch/s390/boot/compressed/Makefile
+@@ -33,7 +33,7 @@ $(obj)/vmlinux.syms: $(obj)/vmlinux.lds $(objtree)/arch/s390/boot/startup.a $(OB
+ 
+ quiet_cmd_dumpsyms = DUMPSYMS $<
+ define cmd_dumpsyms
+-	$(NM) -n -S --format=bsd "$<" | $(PERL) -ne '/(\w+)\s+(\w+)\s+[tT]\s+(\w+)/ and printf "%x %x %s\0",hex $$1,hex $$2,$$3' > "$@"
++	$(NM) -n -S --format=bsd "$<" | sed -nE 's/^0*([0-9a-fA-F]+) 0*([0-9a-fA-F]+) [tT] ([^ ]*)$$/\1 \2 \3/p' | tr '\n' '\0' > "$@"
+ endef
+ 
+ $(obj)/syms.bin: $(obj)/vmlinux.syms FORCE
