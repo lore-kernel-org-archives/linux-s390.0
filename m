@@ -2,150 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D30DC433B4
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 13:59:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7744C433B4
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 15:05:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4BB2E61184
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 13:59:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A9C0561261
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 15:05:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243689AbhEROBE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 May 2021 10:01:04 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13188 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239860AbhEROBE (ORCPT
+        id S1344594AbhERPHM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 May 2021 11:07:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:23537 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1344532AbhERPHK (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 May 2021 10:01:04 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14IDXH3U124602;
-        Tue, 18 May 2021 09:59:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=fn49UZKCJaLFL+buVVdOvj/wTEW1p00qar2oua87Uq4=;
- b=eehALjAwsgwSs5tnKpQSJz+0tLnKq2wp9IdWFrGAXdtckYsT5S6NP0hNvCt1HzdNZFub
- hjNX5o0VI3LBTND8zvJ+bfow67JYEMCVRG3ynGC5srWZgE21Sbw1ljhbMZmvSBoLkad8
- 7caeBOaigEK2ondHaLBJBrcMbbtZkzPbgvRBkC0RSOirqmRmGdEGt9Gf2+N40Ahr7Z3Z
- u+YZsceDZYsyqem5842vaTlz/MIIB0Cx34Y59va4KZd9r6HG+6uCIGbQ8xXc0sWH+nbF
- owKXOoXxeYDN3bCWiJCK4/3cFNwiLEhCz48lYlOLel3vlFce8ga6s7qFPRvm6KISZIjj ZA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38mb70qa6d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 09:59:43 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14IDYJV7128453;
-        Tue, 18 May 2021 09:59:42 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38mb70qa5f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 09:59:42 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14IDvYIW014201;
-        Tue, 18 May 2021 13:59:40 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04fra.de.ibm.com with ESMTP id 38j5x80tfg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 13:59:40 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14IDxbrh42205454
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 May 2021 13:59:37 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7961CAE053;
-        Tue, 18 May 2021 13:59:37 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D6147AE045;
-        Tue, 18 May 2021 13:59:36 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.42.71])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 18 May 2021 13:59:36 +0000 (GMT)
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
-To:     Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        jgg@nvidia.com, alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
- <20210512203536.4209c29c.pasic@linux.ibm.com>
- <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
- <20210513194541.58d1628a.pasic@linux.ibm.com>
- <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
- <20210514021500.60ad2a22.pasic@linux.ibm.com>
- <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
- <20210517211030.368ca64b.pasic@linux.ibm.com>
- <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
- <9ebd5fd8-b093-e5bc-e680-88fa7a9b085c@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <494af62b-dc9a-ef2c-1869-d8f5ed239504@de.ibm.com>
-Date:   Tue, 18 May 2021 15:59:36 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+        Tue, 18 May 2021 11:07:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1621350352;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=STXxttVWUuxEk4dKEc/75iAMgKsQFPcICY7qFMTjQ80=;
+        b=eaC+xinW3A9SnrLgMsA1Nlc7QLPEcottJxHahkMZibyYbUD+VnSr7H6YjeX2FclGU70fBn
+        djyfBPwcqwVVcbVhVAwvwCYN/PcownHKhkDPytO1VfDr2yXz7OJJK0HSrJuoPx8y9NcC3M
+        G6VITD1wJFTiR0Y1YpAxu0hOo6MmLfw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-408-6HoZWoUtPCyrttgjBR-1_A-1; Tue, 18 May 2021 11:05:48 -0400
+X-MC-Unique: 6HoZWoUtPCyrttgjBR-1_A-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 899A0107ACFB;
+        Tue, 18 May 2021 15:05:47 +0000 (UTC)
+Received: from gondolin.fritz.box (ovpn-113-74.ams2.redhat.com [10.36.113.74])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7411060855;
+        Tue, 18 May 2021 15:05:40 +0000 (UTC)
+Date:   Tue, 18 May 2021 17:05:37 +0200
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 00/11] KVM: s390: pv: implement lazy destroy
+Message-ID: <20210518170537.58b32ffe.cohuck@redhat.com>
+In-Reply-To: <20210517200758.22593-1-imbrenda@linux.ibm.com>
+References: <20210517200758.22593-1-imbrenda@linux.ibm.com>
+Organization: Red Hat GmbH
 MIME-Version: 1.0
-In-Reply-To: <9ebd5fd8-b093-e5bc-e680-88fa7a9b085c@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: VnPax_Mvs8Au0dod5q1YofVymtvZfDwK
-X-Proofpoint-ORIG-GUID: rBhOPXT8o0Gwmu4wxx2jFJo_dmcsiKQu
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-18_04:2021-05-18,2021-05-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- priorityscore=1501 lowpriorityscore=0 mlxlogscore=999 phishscore=0
- adultscore=0 malwarescore=0 mlxscore=0 suspectscore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105180096
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 17 May 2021 22:07:47 +0200
+Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
 
-
-On 18.05.21 15:42, Tony Krowiak wrote:
+> Previously, when a protected VM was rebooted or when it was shut down,
+> its memory was made unprotected, and then the protected VM itself was
+> destroyed. Looping over the whole address space can take some time,
+> considering the overhead of the various Ultravisor Calls (UVCs).  This
+> means that a reboot or a shutdown would take a potentially long amount
+> of time, depending on the amount of used memory.
 > 
+> This patchseries implements a deferred destroy mechanism for protected
+> guests. When a protected guest is destroyed, its memory is cleared in
+> background, allowing the guest to restart or terminate significantly
+> faster than before.
 > 
-> On 5/18/21 5:30 AM, Christian Borntraeger wrote:
->>
->>
->> On 17.05.21 21:10, Halil Pasic wrote:
->>> On Mon, 17 May 2021 09:37:42 -0400
->>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>>
->>>>>
->>>>> Because of this, I don't think the rest of your argument is valid.
->>>>
->>>> Okay, so your concern is that between the point in time the
->>>> vcpu->kvm->arch.crypto.pqap_hook pointer is checked in
->>>> priv.c and the point in time the handle_pqap() function
->>>> in vfio_ap_ops.c is called, the memory allocated for the
->>>> matrix_mdev containing the struct kvm_s390_module_hook
->>>> may get freed, thus rendering the function pointer invalid.
->>>> While not impossible, that seems extremely unlikely to
->>>> happen. Can you articulate a scenario where that could
->>>> even occur?
->>>
->>> Malicious userspace. We tend to do the pqap aqic just once
->>> in the guest right after the queue is detected. I do agree
->>> it ain't very likely to happen during normal operation. But why are
->>> you asking?
->>
->> Would it help, if the code in priv.c would read the hook once
->> and then only work on the copy? We could protect that with rcu
->> and do a synchronize rcu in vfio_ap_mdev_unset_kvm after
->> unsetting the pointer?
+> There are 2 possibilities when a protected VM is torn down:
+> * it still has an address space associated (reboot case)
+> * it does not have an address space anymore (shutdown case)
 > 
-> I'll look into this.
+> For the reboot case, the reference count of the mm is increased, and
+> then a background thread is started to clean up. Once the thread went
+> through the whole address space, the protected VM is actually
+> destroyed.
+> 
+> For the shutdown case, a list of pages to be destroyed is formed when
+> the mm is torn down. Instead of just unmapping the pages when the
+> address space is being torn down, they are also set aside. Later when
+> KVM cleans up the VM, a thread is started to clean up the pages from
+> the list.
 
-I think it could work. in priv.c use rcu_readlock, save the
-pointer, do the check and call, call rcu_read_unlock.
-In vfio_ap use rcu_assign_pointer to set the pointer and
-after setting it to zero call sychronize_rcu.
+Just to make sure, 'clean up' includes doing uv calls?
 
-Halil, I think we can do this as an addon patch as it makes
-sense to have this callback pointer protected independent of
-this patch. Agree?
+> 
+> This means that the same address space can have memory belonging to
+> more than one protected guest, although only one will be running, the
+> others will in fact not even have any CPUs.
+
+Are those set-aside-but-not-yet-cleaned-up pages still possibly
+accessible in any way? I would assume that they only belong to the
+'zombie' guests, and any new or rebooted guest is a new entity that
+needs to get new pages?
+
+Can too many not-yet-cleaned-up pages lead to a (temporary) memory
+exhaustion?
+
