@@ -2,59 +2,60 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A1E7C433ED
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 20:08:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5606C43460
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 20:08:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2CEF76108D
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 20:08:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9FEA761369
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 20:08:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352025AbhERUJg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 May 2021 16:09:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47492 "EHLO
+        id S1352034AbhERUJi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 May 2021 16:09:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232377AbhERUJg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 16:09:36 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E142C061573;
-        Tue, 18 May 2021 13:08:17 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id c17so8245465pfn.6;
-        Tue, 18 May 2021 13:08:17 -0700 (PDT)
+        with ESMTP id S232377AbhERUJi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 16:09:38 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA7BCC061573;
+        Tue, 18 May 2021 13:08:19 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id t4so5735360plc.6;
+        Tue, 18 May 2021 13:08:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=xwqSjjRukmgayPiEHG6XgWTpxGas16u3ual5V3bfHmw=;
-        b=Y336uSVRoKiv8jIb6en3BRJS3t7TxflPrXeWFsA7qKyep4LpqEJJIxHjMuuKRTFdaN
-         e8SwToUVC3qxaGZe7xH+7sTeuVbT6p9wh7wRUHrcesIcB5dtnsMYcIOR1MWgv8HzvahB
-         YxesrTNGVqcxlEbP1LLi6X95ZRjZZ/GBHV8ghJEaeb6jnfjrWGkUFtg3Df+pKlVAi1Hg
-         x9fwbGTFH6/F33uhkDeX+j27AJUZA+ovqg0gEb5TphWfVl24CYhZWL/YU50ldYmRk5Tk
-         jzsJ/AG40yFJjOYep1UFmtxPTXSjkZR8SDym75KKJ4/ia7dDqxt/XRuTVURFa1h4vWPR
-         OxxA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=MNGAefi2XGquv7ADvXSLLg1AB0DvLJWZ+nDSpBzysJE=;
+        b=po/9chrKD5sFYOH0pueuDwSaCPgabrhMyc2CjLFVET34fJ/hAWd+g1uwVdnYlIgkM+
+         4Ky3Ze4gxG+3rMHG++vd50nQbD+GcH4CDBrS/fB25iJHtU5C/ltZNj5/KFryTVVVNMzU
+         qG9Dt/5SuplVU08G+DtdnC3924xIFn9edObevi2Z+XpcL4HytFsRdqZRiWhjkYBxKvgf
+         CDqFs4wFYo1uiFVTX0FlMzkBw9zeV4McZ/CGXsnz1M8OgfSuX3Soq8WWn3gY/gwtIA1r
+         t4z6U0AsV5+gSgz7Ku0p4VbMplFDqIX3xDmWGvAOCGVfAMRc5hYokfVpRBnhBGKSWyZv
+         9xGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=xwqSjjRukmgayPiEHG6XgWTpxGas16u3ual5V3bfHmw=;
-        b=cDeKItDT9EmaFu3pfpP2qGgf8dgQJadWkq08T1BsujfHrF3EfXNbhZwnynCuRpxB51
-         G2Vbi6Ut/E/2m1IeLVW52ZH/BkP5QJlQ8v+XQ4xyUP5BsXA/+PLEdtpJbTKma/Hl3vqh
-         M8t2bQ74rFtVrmoP0QNgME+Z2mZBvpT3yfE96LSqu5c7ivwj/FJu+Ps4NBAV/KbEc/1R
-         1HbRlQFvmTxEchwm5E8QlDGUv+ORFNP7bPE36MxWgOFdNgEi9l2mlBqvSyrz5WBNi8t2
-         IiQjGNj3pCa/fSJNNJ5zXPrVYZcByrGgNtdQQEDMgRBAD1TFUKO+k3Z1vyyFPi26P0oI
-         RgLA==
-X-Gm-Message-State: AOAM532qtK8GMeegMIoKQbyPGwhWOYlXMhjA1mpSd0YR8kQ2Yg+E3NRB
-        ZOwx/O0U+4+XXVsg1i72LLc=
-X-Google-Smtp-Source: ABdhPJzbvDSjO8uCvkwrDXK0OBjaadSCCQZhRcbbnch8QkPAaHiLq0lFgS9zqSFgceSSDGzu7uXb0A==
-X-Received: by 2002:a63:364f:: with SMTP id d76mr6736599pga.311.1621368496551;
-        Tue, 18 May 2021 13:08:16 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=MNGAefi2XGquv7ADvXSLLg1AB0DvLJWZ+nDSpBzysJE=;
+        b=gy7bKxhI/7DdI/ymLVoPm+IwE0R1XBcTosHS608ZzNIEHqXsf1vreMxYuxYTxovruf
+         mBDcPO4OE22OpwAF/wHDRObknVRkGasrCpbCX4OJ/1MZAYmZm3MRz9PZ441iM4agCFUi
+         vwAGFVRrPBUqC2ZDBV/RLFfWblpYIJ81Ah+WFGomtRev8E23YNtbro+Pl2ZWxvZgxRyp
+         u2SJ1MatbR0dTyIjd1pZlRfh0P3aRbOAPblGSxWSm4TA7s5GAbNYY8lhrQCNOvEo2sz5
+         KiWi5jTjmS8wUPBIBARmZ9rtUMDKIacYBxDrcFIYvVmucnIOv0EMMqhueKjGwFvnJGBU
+         IPWg==
+X-Gm-Message-State: AOAM530QKKu0uqFMxf59FA6e6v0YA6T2Kr27O+fy5IBVZvn0Q2oCiOLf
+        UoDR1xJ0ceaOR/yDX69xP+E=
+X-Google-Smtp-Source: ABdhPJzGW7Ar92/6nEIX2ysdxrWuQCZB2TGBhuS0zyU1hYinjuGSb+/BC0JRw+C4p2hD4TR/SSpEcw==
+X-Received: by 2002:a17:90a:e7c6:: with SMTP id kb6mr7137260pjb.81.1621368498964;
+        Tue, 18 May 2021 13:08:18 -0700 (PDT)
 Received: from localhost.localdomain (c-73-93-239-127.hsd1.ca.comcast.net. [73.93.239.127])
-        by smtp.gmail.com with ESMTPSA id r11sm13456600pgl.34.2021.05.18.13.08.14
+        by smtp.gmail.com with ESMTPSA id r11sm13456600pgl.34.2021.05.18.13.08.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 May 2021 13:08:15 -0700 (PDT)
+        Tue, 18 May 2021 13:08:18 -0700 (PDT)
 From:   Yang Shi <shy828301@gmail.com>
 To:     mgorman@suse.de, kirill.shutemov@linux.intel.com, ziy@nvidia.com,
         ying.huang@intel.com, mhocko@suse.com, hughd@google.com,
@@ -63,178 +64,189 @@ To:     mgorman@suse.de, kirill.shutemov@linux.intel.com, ziy@nvidia.com,
         akpm@linux-foundation.org
 Cc:     shy828301@gmail.com, linux-mm@kvack.org,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [v3 PATCH 0/7] mm: thp: use generic THP migration for NUMA hinting fault
-Date:   Tue, 18 May 2021 13:07:54 -0700
-Message-Id: <20210518200801.7413-1-shy828301@gmail.com>
+Subject: [v3 PATCH 1/7] mm: memory: add orig_pmd to struct vm_fault
+Date:   Tue, 18 May 2021 13:07:55 -0700
+Message-Id: <20210518200801.7413-2-shy828301@gmail.com>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210518200801.7413-1-shy828301@gmail.com>
+References: <20210518200801.7413-1-shy828301@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Add orig_pmd to struct vm_fault so the "orig_pmd" parameter used by huge page
+fault could be removed, just like its PTE counterpart does.
 
-Changelog
----------
-v2 --> v3:
-    * Made orig_pte and orig_pmd a union per Mel (patch 1/7).
-    * Renamed pmd and oldpmd in patch 3/7 per Huang Ying.
-    * Used total_mapcount() instead of page_mapcount() in patch 6/7.
-    * Collected ack tags from Mel.
-    * Rebased to linux-next-20210513.
-v1 --> v2:
-    * Adopted the suggestion from Gerald Schaefer to skip huge PMD for S390
-      for now.
-    * Used PageTransHuge to distinguish base page or THP instead of a new
-      parameter for migrate_misplaced_page() per Huang Ying.
-    * Restored PMD lazily to avoid unnecessary TLB shootdown per Huang Ying.
-    * Skipped shared THP.
-    * Updated counters correctly.
-    * Rebased to linux-next (next-20210412).
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+---
+ include/linux/huge_mm.h |  9 ++++-----
+ include/linux/mm.h      |  7 ++++++-
+ mm/huge_memory.c        |  9 ++++++---
+ mm/memory.c             | 26 +++++++++++++-------------
+ 4 files changed, 29 insertions(+), 22 deletions(-)
 
-
-When the THP NUMA fault support was added THP migration was not supported yet.
-So the ad hoc THP migration was implemented in NUMA fault handling.  Since v4.14
-THP migration has been supported so it doesn't make too much sense to still keep
-another THP migration implementation rather than using the generic migration
-code.  It is definitely a maintenance burden to keep two THP migration
-implementation for different code paths and it is more error prone.  Using the
-generic THP migration implementation allows us remove the duplicate code and
-some hacks needed by the old ad hoc implementation.
-
-A quick grep shows x86_64, PowerPC (book3s), ARM64 ans S390 support both THP
-and NUMA balancing.  The most of them support THP migration except for S390.
-Zi Yan tried to add THP migration support for S390 before but it was not
-accepted due to the design of S390 PMD.  For the discussion, please see:
-https://lkml.org/lkml/2018/4/27/953.
-
-Per the discussion with Gerald Schaefer in v1 it is acceptible to skip huge
-PMD for S390 for now.
-
-I saw there were some hacks about gup from git history, but I didn't figure out
-if they have been removed or not since I just found FOLL_NUMA code in the current
-gup implementation and they seems useful.
-
-Patch #1 ~ #2 are preparation patches.
-Patch #3 is the real meat.
-Patch #4 ~ #6 keep consistent counters and behaviors with before.
-Patch #7 skips change huge PMD to prot_none if thp migration is not supported.
-
-
-Test
-----
-Did some tests to measure the latency of do_huge_pmd_numa_page.
-The test VM has 80 vcpus and 64G memory. The test would create 2
-processes to consume 128G memory together which would incur memory
-pressure to cause THP splits. And it also creates 80 processes to hog
-cpu, and the memory consumer processes are bound to different nodes
-periodically in order to increase NUMA faults.
-
-The below test script is used:
-
-echo 3 > /proc/sys/vm/drop_caches
-
-# Run stress-ng for 24 hours
-./stress-ng/stress-ng --vm 2 --vm-bytes 64G --timeout 24h &
-PID=$!
-
-./stress-ng/stress-ng --cpu $NR_CPUS --timeout 24h &
-
-# Wait for vm stressors forked
-sleep 5
-
-PID_1=`pgrep -P $PID | awk 'NR == 1'`
-PID_2=`pgrep -P $PID | awk 'NR == 2'`
-
-JOB1=`pgrep -P $PID_1`
-JOB2=`pgrep -P $PID_2`
-
-# Bind load jobs to different nodes periodically to force generate
-# cross node memory access
-while [ -d "/proc/$PID" ]
-do
-        taskset -apc 8 $JOB1
-        taskset -apc 8 $JOB2
-        sleep 300
-        taskset -apc 58 $JOB1
-        taskset -apc 58 $JOB2
-        sleep 300
-done
-
-With the above test the histogram of latency of do_huge_pmd_numa_page
-is as shown below. Since the number of do_huge_pmd_numa_page varies
-drastically for each run (should be due to scheduler), so I converted
-the raw number to percentage.
-
-                             patched               base
-@us[stress-ng]:
-[0]                          3.57%                 0.16%
-[1]                          55.68%                18.36%
-[2, 4)                       10.46%                40.44%
-[4, 8)                       7.26%                 17.82%
-[8, 16)                      21.12%                13.41%
-[16, 32)                     1.06%                 4.27%
-[32, 64)                     0.56%                 4.07%
-[64, 128)                    0.16%                 0.35%
-[128, 256)                   < 0.1%                < 0.1%
-[256, 512)                   < 0.1%                < 0.1%
-[512, 1K)                    < 0.1%                < 0.1%
-[1K, 2K)                     < 0.1%                < 0.1%
-[2K, 4K)                     < 0.1%                < 0.1%
-[4K, 8K)                     < 0.1%                < 0.1%
-[8K, 16K)                    < 0.1%                < 0.1%
-[16K, 32K)                   < 0.1%                < 0.1%
-[32K, 64K)                   < 0.1%                < 0.1%
-
-Per the result, patched kernel is even slightly better than the base
-kernel. I think this is because the lock contention against THP split
-is less than base kernel due to the refactor.
-
-
-To exclude the affect from THP split, I also did test w/o memory
-pressure. No obvious regression is spotted. The below is the test
-result *w/o* memory pressure.
-                           patched                  base
-@us[stress-ng]:
-[0]                        7.97%                   18.4%
-[1]                        69.63%                  58.24%
-[2, 4)                     4.18%                   2.63%
-[4, 8)                     0.22%                   0.17%
-[8, 16)                    1.03%                   0.92%
-[16, 32)                   0.14%                   < 0.1%
-[32, 64)                   < 0.1%                  < 0.1%
-[64, 128)                  < 0.1%                  < 0.1%
-[128, 256)                 < 0.1%                  < 0.1%
-[256, 512)                 0.45%                   1.19%
-[512, 1K)                  15.45%                  17.27%
-[1K, 2K)                   < 0.1%                  < 0.1%
-[2K, 4K)                   < 0.1%                  < 0.1%
-[4K, 8K)                   < 0.1%                  < 0.1%
-[8K, 16K)                  0.86%                   0.88%
-[16K, 32K)                 < 0.1%                  0.15%
-[32K, 64K)                 < 0.1%                  < 0.1%
-[64K, 128K)                < 0.1%                  < 0.1%
-[128K, 256K)               < 0.1%                  < 0.1%
-
-The series also survived a series of tests that exercise NUMA balancing
-migrations by Mel.
-
-
-Yang Shi (7):
-      mm: memory: add orig_pmd to struct vm_fault
-      mm: memory: make numa_migrate_prep() non-static
-      mm: thp: refactor NUMA fault handling
-      mm: migrate: account THP NUMA migration counters correctly
-      mm: migrate: don't split THP for misplaced NUMA page
-      mm: migrate: check mapcount for THP instead of ref count
-      mm: thp: skip make PMD PROT_NONE if THP migration is not supported
-
- include/linux/huge_mm.h |   9 ++---
- include/linux/migrate.h |  23 -----------
- include/linux/mm.h      |   3 ++
- mm/huge_memory.c        | 156 +++++++++++++++++++++++++-----------------------------------------------
- mm/internal.h           |  21 ++--------
- mm/memory.c             |  31 +++++++--------
- mm/migrate.c            | 204 +++++++++++++++++++++--------------------------------------------------------------------------
- 7 files changed, 123 insertions(+), 324 deletions(-)
+diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
+index 60dad7c88d72..77d6d454df90 100644
+--- a/include/linux/huge_mm.h
++++ b/include/linux/huge_mm.h
+@@ -11,7 +11,7 @@ vm_fault_t do_huge_pmd_anonymous_page(struct vm_fault *vmf);
+ int copy_huge_pmd(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+ 		  pmd_t *dst_pmd, pmd_t *src_pmd, unsigned long addr,
+ 		  struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma);
+-void huge_pmd_set_accessed(struct vm_fault *vmf, pmd_t orig_pmd);
++void huge_pmd_set_accessed(struct vm_fault *vmf);
+ int copy_huge_pud(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+ 		  pud_t *dst_pud, pud_t *src_pud, unsigned long addr,
+ 		  struct vm_area_struct *vma);
+@@ -24,7 +24,7 @@ static inline void huge_pud_set_accessed(struct vm_fault *vmf, pud_t orig_pud)
+ }
+ #endif
+ 
+-vm_fault_t do_huge_pmd_wp_page(struct vm_fault *vmf, pmd_t orig_pmd);
++vm_fault_t do_huge_pmd_wp_page(struct vm_fault *vmf);
+ struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
+ 				   unsigned long addr, pmd_t *pmd,
+ 				   unsigned int flags);
+@@ -283,7 +283,7 @@ struct page *follow_devmap_pmd(struct vm_area_struct *vma, unsigned long addr,
+ struct page *follow_devmap_pud(struct vm_area_struct *vma, unsigned long addr,
+ 		pud_t *pud, int flags, struct dev_pagemap **pgmap);
+ 
+-vm_fault_t do_huge_pmd_numa_page(struct vm_fault *vmf, pmd_t orig_pmd);
++vm_fault_t do_huge_pmd_numa_page(struct vm_fault *vmf);
+ 
+ extern struct page *huge_zero_page;
+ 
+@@ -429,8 +429,7 @@ static inline spinlock_t *pud_trans_huge_lock(pud_t *pud,
+ 	return NULL;
+ }
+ 
+-static inline vm_fault_t do_huge_pmd_numa_page(struct vm_fault *vmf,
+-		pmd_t orig_pmd)
++static inline vm_fault_t do_huge_pmd_numa_page(struct vm_fault *vmf)
+ {
+ 	return 0;
+ }
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 6ce7bac74530..b3a4b405364b 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -550,7 +550,12 @@ struct vm_fault {
+ 	pud_t *pud;			/* Pointer to pud entry matching
+ 					 * the 'address'
+ 					 */
+-	pte_t orig_pte;			/* Value of PTE at the time of fault */
++	union {
++		pte_t orig_pte;		/* Value of PTE at the time of fault */
++		pmd_t orig_pmd;		/* Value of PMD at the time of fault,
++					 * used by PMD fault only.
++					 */
++	};
+ 
+ 	struct page *cow_page;		/* Page handler may use for COW fault */
+ 	struct page *page;		/* ->fault handlers should return a
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 19195fca1aee..692788988530 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1245,11 +1245,12 @@ void huge_pud_set_accessed(struct vm_fault *vmf, pud_t orig_pud)
+ }
+ #endif /* CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD */
+ 
+-void huge_pmd_set_accessed(struct vm_fault *vmf, pmd_t orig_pmd)
++void huge_pmd_set_accessed(struct vm_fault *vmf)
+ {
+ 	pmd_t entry;
+ 	unsigned long haddr;
+ 	bool write = vmf->flags & FAULT_FLAG_WRITE;
++	pmd_t orig_pmd = vmf->orig_pmd;
+ 
+ 	vmf->ptl = pmd_lock(vmf->vma->vm_mm, vmf->pmd);
+ 	if (unlikely(!pmd_same(*vmf->pmd, orig_pmd)))
+@@ -1266,11 +1267,12 @@ void huge_pmd_set_accessed(struct vm_fault *vmf, pmd_t orig_pmd)
+ 	spin_unlock(vmf->ptl);
+ }
+ 
+-vm_fault_t do_huge_pmd_wp_page(struct vm_fault *vmf, pmd_t orig_pmd)
++vm_fault_t do_huge_pmd_wp_page(struct vm_fault *vmf)
+ {
+ 	struct vm_area_struct *vma = vmf->vma;
+ 	struct page *page;
+ 	unsigned long haddr = vmf->address & HPAGE_PMD_MASK;
++	pmd_t orig_pmd = vmf->orig_pmd;
+ 
+ 	vmf->ptl = pmd_lockptr(vma->vm_mm, vmf->pmd);
+ 	VM_BUG_ON_VMA(!vma->anon_vma, vma);
+@@ -1406,9 +1408,10 @@ struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
+ }
+ 
+ /* NUMA hinting page fault entry point for trans huge pmds */
+-vm_fault_t do_huge_pmd_numa_page(struct vm_fault *vmf, pmd_t pmd)
++vm_fault_t do_huge_pmd_numa_page(struct vm_fault *vmf)
+ {
+ 	struct vm_area_struct *vma = vmf->vma;
++	pmd_t pmd = vmf->orig_pmd;
+ 	struct anon_vma *anon_vma = NULL;
+ 	struct page *page;
+ 	unsigned long haddr = vmf->address & HPAGE_PMD_MASK;
+diff --git a/mm/memory.c b/mm/memory.c
+index 97ca3e51cf85..f9df3ab12813 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -4252,12 +4252,12 @@ static inline vm_fault_t create_huge_pmd(struct vm_fault *vmf)
+ }
+ 
+ /* `inline' is required to avoid gcc 4.1.2 build error */
+-static inline vm_fault_t wp_huge_pmd(struct vm_fault *vmf, pmd_t orig_pmd)
++static inline vm_fault_t wp_huge_pmd(struct vm_fault *vmf)
+ {
+ 	if (vma_is_anonymous(vmf->vma)) {
+-		if (userfaultfd_huge_pmd_wp(vmf->vma, orig_pmd))
++		if (userfaultfd_huge_pmd_wp(vmf->vma, vmf->orig_pmd))
+ 			return handle_userfault(vmf, VM_UFFD_WP);
+-		return do_huge_pmd_wp_page(vmf, orig_pmd);
++		return do_huge_pmd_wp_page(vmf);
+ 	}
+ 	if (vmf->vma->vm_ops->huge_fault) {
+ 		vm_fault_t ret = vmf->vma->vm_ops->huge_fault(vmf, PE_SIZE_PMD);
+@@ -4484,26 +4484,26 @@ static vm_fault_t __handle_mm_fault(struct vm_area_struct *vma,
+ 		if (!(ret & VM_FAULT_FALLBACK))
+ 			return ret;
+ 	} else {
+-		pmd_t orig_pmd = *vmf.pmd;
++		vmf.orig_pmd = *vmf.pmd;
+ 
+ 		barrier();
+-		if (unlikely(is_swap_pmd(orig_pmd))) {
++		if (unlikely(is_swap_pmd(vmf.orig_pmd))) {
+ 			VM_BUG_ON(thp_migration_supported() &&
+-					  !is_pmd_migration_entry(orig_pmd));
+-			if (is_pmd_migration_entry(orig_pmd))
++					  !is_pmd_migration_entry(vmf.orig_pmd));
++			if (is_pmd_migration_entry(vmf.orig_pmd))
+ 				pmd_migration_entry_wait(mm, vmf.pmd);
+ 			return 0;
+ 		}
+-		if (pmd_trans_huge(orig_pmd) || pmd_devmap(orig_pmd)) {
+-			if (pmd_protnone(orig_pmd) && vma_is_accessible(vma))
+-				return do_huge_pmd_numa_page(&vmf, orig_pmd);
++		if (pmd_trans_huge(vmf.orig_pmd) || pmd_devmap(vmf.orig_pmd)) {
++			if (pmd_protnone(vmf.orig_pmd) && vma_is_accessible(vma))
++				return do_huge_pmd_numa_page(&vmf);
+ 
+-			if (dirty && !pmd_write(orig_pmd)) {
+-				ret = wp_huge_pmd(&vmf, orig_pmd);
++			if (dirty && !pmd_write(vmf.orig_pmd)) {
++				ret = wp_huge_pmd(&vmf);
+ 				if (!(ret & VM_FAULT_FALLBACK))
+ 					return ret;
+ 			} else {
+-				huge_pmd_set_accessed(&vmf, orig_pmd);
++				huge_pmd_set_accessed(&vmf);
+ 				return 0;
+ 			}
+ 		}
+-- 
+2.26.2
 
