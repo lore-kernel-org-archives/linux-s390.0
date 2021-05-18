@@ -8,54 +8,54 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADAF5C433ED
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 20:08:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1427EC433B4
+	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 20:08:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9527F61074
+	by mail.kernel.org (Postfix) with ESMTP id E511E6109F
 	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 20:08:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352093AbhERUKH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S1352097AbhERUKH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Tue, 18 May 2021 16:10:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47590 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352071AbhERUJ5 (ORCPT
+        with ESMTP id S1352068AbhERUJ5 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 16:09:57 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2043DC061763;
-        Tue, 18 May 2021 13:08:33 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id v13so5725582ple.9;
-        Tue, 18 May 2021 13:08:33 -0700 (PDT)
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C96BC061761;
+        Tue, 18 May 2021 13:08:31 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id cu11-20020a17090afa8bb029015d5d5d2175so2192794pjb.3;
+        Tue, 18 May 2021 13:08:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=/vcL4h8Y/iDJ4PQ//oXXgHbE7D0ndwuNE52sYaiQ5uA=;
-        b=Rm/Otlj3gP5XkV3BLLxJkLQZNy2jj12x4U46YT0W9OzEwpis3BcOIrYA7TVCiGcBYd
-         Y/A52de9C1ucmsAiRKng/fYtrQYoCX40xawvO30vOcJUOan7Bv2m4ddeDNmr4hxw0Qq0
-         6jl+8hWGd+pTu+rgkD94iUuIYKjREOUB2cvP2M5h11Udgoyr7RPzlPbEi5XXf4WweaUf
-         ZpLLVOF0qWA1+HfY6ZP6JGee3F1z5RIbsZofK3zJeI+YbVgxyJb61AlXkNcywq7xNgtx
-         S8bSVLZUqAGKZLV9CHJpPhGdkhrgfZCRAoZ+R2kGYxTIKwp5+kZWKvxXdkwpQeMKM6cu
-         +FHA==
+        bh=Bft5/S3sIep+UIOe0wjEBCs4qeqthplQvAas8/8e+yo=;
+        b=nHLS3OJzElgnE2B/Z8SKCricVXLIx3iJxQjJ0syYMD0st4Cu/HagKgnXREM54zswjw
+         XMNbtKvBMaoANopTaCd8U7u2Hm86+M3RuZtminAUpNjSsKZa0ANHy7i82oYV5IUBo3y5
+         9as9AvR0a6Tf/pms+EH7p0fkg0BSIgxX0pHVwN8P5Wx2tzfzJWe1qn5USVLiIJCq+FuE
+         BSJupLShAnX1rbhtkb46N4UqYZ8EQt19Oxj+xOEtlDuZCPe1a2dfSKZZsE6riRl+RTUN
+         VZadMbE778WhVEQIFJBh5I6kdzgTgYVgZZeinQpMkA7oXwHQKhc9R+s52vZyIwRN3/vc
+         4HjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=/vcL4h8Y/iDJ4PQ//oXXgHbE7D0ndwuNE52sYaiQ5uA=;
-        b=snS1imFqURXbtEa5SVXsZh718Vri6BNxqIQQhyAbqV+o+iOsdNiUrhn/7afxVvFPmw
-         qn7WSeaIkZG+CNKlGcChGO96lLNAGHOgd6Mp4YZjv7AN6aUq/ArtD7G475fQ4nXk4ziV
-         JpT954mnNCB7pIqHxAueizgGFWdjnUca16VXnqGnzdfAHf1AWQMxBPlW1F6q1T9OolMW
-         8hQ/aYue0aBHd4iWm8oJD5AUK67YtjImAsTUof2Zq19esSG2uD2oiCXmuJU/tfogwuSG
-         dgJMfz9IyUjUhHtxpRZzYQ5EoiUL+woHRXDFJjo9RoqpudW9Zi3CZZI3q1PJLM7kPBNv
-         o6Zg==
-X-Gm-Message-State: AOAM532yxA1PLeDO5wvLfYLFj5xPDglvGSiipzeR0RGUShfqD5de0SDV
-        De9d922tMWXhq6RAheDPl+E=
-X-Google-Smtp-Source: ABdhPJzHjDupKD9HBvIBLGRi6l5SuWQ81rgs7GzcOZnGf3LhF6AGiUZhf89yxQ3FkYWXt210nsqHGw==
-X-Received: by 2002:a17:902:8c91:b029:f3:b4da:4600 with SMTP id t17-20020a1709028c91b02900f3b4da4600mr3168651plo.30.1621368512990;
-        Tue, 18 May 2021 13:08:32 -0700 (PDT)
+        bh=Bft5/S3sIep+UIOe0wjEBCs4qeqthplQvAas8/8e+yo=;
+        b=ZXtqbnM3KF3DRg7BvJvnLWwaaw5dIwlO1JzPA+UIVebCU9aSkSU1QKrmTz6IQj9sC7
+         /oF/ADQNhPrcC6/LLRFzccf+J5JVspoilQU0smYvh7GGEUlpQNWvmINAEioJ7FyVPFaL
+         9Rv+9z9rYE6Uduq3nbAe6+qsMNjWR8p83FjXX3NreK4UVByM8oPAJeD+FsUJ6zJoV0gx
+         99w0NvjjMo+PPWr7n4Khe3BCkzkEJwBAOO4j7BknIJMJfQCTn84fLAAqOC37/LWcBQz3
+         nwKoMypV3g1nAlyeG/XkoNgw29hAK8YNtIey6kaLmyZoHVZSK3MM5mGmEmuTCa0wEhb4
+         B3MQ==
+X-Gm-Message-State: AOAM530jIg0vUl2h5yxQU7FSo2OWkzPgYt6s96KHOAcStbX07aTM/LqV
+        RPcHD/A9P78hTXfntiaX4hk=
+X-Google-Smtp-Source: ABdhPJycucOy8RWBt3ZSLaK0DULZYOHapGP8SDJZBX29cfFbM7ELURa2SaI9yfmt82bS4uEWVqBwiA==
+X-Received: by 2002:a17:902:e007:b029:ef:9dd2:be6 with SMTP id o7-20020a170902e007b02900ef9dd20be6mr6495035plo.12.1621368510709;
+        Tue, 18 May 2021 13:08:30 -0700 (PDT)
 Received: from localhost.localdomain (c-73-93-239-127.hsd1.ca.comcast.net. [73.93.239.127])
-        by smtp.gmail.com with ESMTPSA id r11sm13456600pgl.34.2021.05.18.13.08.30
+        by smtp.gmail.com with ESMTPSA id r11sm13456600pgl.34.2021.05.18.13.08.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 May 2021 13:08:32 -0700 (PDT)
+        Tue, 18 May 2021 13:08:29 -0700 (PDT)
 From:   Yang Shi <shy828301@gmail.com>
 To:     mgorman@suse.de, kirill.shutemov@linux.intel.com, ziy@nvidia.com,
         ying.huang@intel.com, mhocko@suse.com, hughd@google.com,
@@ -64,9 +64,9 @@ To:     mgorman@suse.de, kirill.shutemov@linux.intel.com, ziy@nvidia.com,
         akpm@linux-foundation.org
 Cc:     shy828301@gmail.com, linux-mm@kvack.org,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [v3 PATCH 7/7] mm: thp: skip make PMD PROT_NONE if THP migration is not supported
-Date:   Tue, 18 May 2021 13:08:01 -0700
-Message-Id: <20210518200801.7413-8-shy828301@gmail.com>
+Subject: [v3 PATCH 6/7] mm: migrate: check mapcount for THP instead of refcount
+Date:   Tue, 18 May 2021 13:08:00 -0700
+Message-Id: <20210518200801.7413-7-shy828301@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210518200801.7413-1-shy828301@gmail.com>
 References: <20210518200801.7413-1-shy828301@gmail.com>
@@ -76,41 +76,49 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-A quick grep shows x86_64, PowerPC (book3s), ARM64 and S390 support both
-NUMA balancing and THP.  But S390 doesn't support THP migration so NUMA
-balancing actually can't migrate any misplaced pages.
+The generic migration path will check refcount, so no need check refcount here.
+But the old code actually prevents from migrating shared THP (mapped by multiple
+processes), so bail out early if mapcount is > 1 to keep the behavior.
 
-Skip make PMD PROT_NONE for such case otherwise CPU cycles may be wasted
-by pointless NUMA hinting faults on S390.
-
-Acked-by: Mel Gorman <mgorman@suse.de>
 Signed-off-by: Yang Shi <shy828301@gmail.com>
 ---
- mm/huge_memory.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ mm/migrate.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index b8526b9b041a..fb984ef5a761 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1735,6 +1735,7 @@ bool move_huge_pmd(struct vm_area_struct *vma, unsigned long old_addr,
-  * Returns
-  *  - 0 if PMD could not be locked
-  *  - 1 if PMD was locked but protections unchanged and TLB flush unnecessary
-+ *      or if prot_numa but THP migration is not supported
-  *  - HPAGE_PMD_NR if protections changed and TLB flush necessary
-  */
- int change_huge_pmd(struct vm_area_struct *vma, pmd_t *pmd,
-@@ -1749,6 +1750,9 @@ int change_huge_pmd(struct vm_area_struct *vma, pmd_t *pmd,
- 	bool uffd_wp = cp_flags & MM_CP_UFFD_WP;
- 	bool uffd_wp_resolve = cp_flags & MM_CP_UFFD_WP_RESOLVE;
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 035daaec1ca0..77215f28502b 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -2070,6 +2070,10 @@ static int numamigrate_isolate_page(pg_data_t *pgdat, struct page *page)
  
-+	if (prot_numa && !thp_migration_supported())
-+		return 1;
+ 	VM_BUG_ON_PAGE(compound_order(page) && !PageTransHuge(page), page);
+ 
++	/* Do not migrate THP mapped by multiple processes */
++	if (PageTransHuge(page) && total_mapcount(page) > 1)
++		return 0;
 +
- 	ptl = __pmd_trans_huge_lock(pmd, vma);
- 	if (!ptl)
+ 	/* Avoid migrating to a node that is nearly full */
+ 	if (!migrate_balanced_pgdat(pgdat, compound_nr(page)))
  		return 0;
+@@ -2077,18 +2081,6 @@ static int numamigrate_isolate_page(pg_data_t *pgdat, struct page *page)
+ 	if (isolate_lru_page(page))
+ 		return 0;
+ 
+-	/*
+-	 * migrate_misplaced_transhuge_page() skips page migration's usual
+-	 * check on page_count(), so we must do it here, now that the page
+-	 * has been isolated: a GUP pin, or any other pin, prevents migration.
+-	 * The expected page count is 3: 1 for page's mapcount and 1 for the
+-	 * caller's pin and 1 for the reference taken by isolate_lru_page().
+-	 */
+-	if (PageTransHuge(page) && page_count(page) != 3) {
+-		putback_lru_page(page);
+-		return 0;
+-	}
+-
+ 	page_lru = page_is_file_lru(page);
+ 	mod_node_page_state(page_pgdat(page), NR_ISOLATED_ANON + page_lru,
+ 				thp_nr_pages(page));
 -- 
 2.26.2
 
