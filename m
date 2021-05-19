@@ -2,101 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 636DBC433B4
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:07:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8420C433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:07:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 40B0761007
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:07:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 89E2961007
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:07:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235861AbhESIIc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 May 2021 04:08:32 -0400
-Received: from mga01.intel.com ([192.55.52.88]:28069 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235683AbhESIIb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 19 May 2021 04:08:31 -0400
-IronPort-SDR: COl2Nu6Dd9AE5Ne0QP0ESgfVUGHUOc3b2+3RPAqqw7Uk6rNIvfy0+lVz59tG4PeK5xcFkcocqi
- zK915tXQNlTw==
-X-IronPort-AV: E=McAfee;i="6200,9189,9988"; a="221984080"
-X-IronPort-AV: E=Sophos;i="5.82,312,1613462400"; 
-   d="scan'208";a="221984080"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2021 01:07:12 -0700
-IronPort-SDR: +m6QThSTl14NxX0mj/VRdu4CnV61XHCXHOpwQDCABkD55XFK7ns2/d36Ij8WIWZh2o4cI7wOQs
- 2TGdrPwoRnXg==
-X-IronPort-AV: E=Sophos;i="5.82,312,1613462400"; 
-   d="scan'208";a="627525656"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2021 01:07:08 -0700
-Received: from andy by smile with local (Exim 4.94)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1ljHEO-00DAfC-Ef; Wed, 19 May 2021 11:07:04 +0300
-Date:   Wed, 19 May 2021 11:07:04 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Jia He <justin.he@arm.com>, Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Eric Biggers <ebiggers@google.com>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: Re: [PATCH 12/14] d_path: prepend_path(): lift the inner loop into a
- new helper
-Message-ID: <YKTHKNsX/cvYwbWj@smile.fi.intel.com>
-References: <YKRfI29BBnC255Vp@zeniv-ca.linux.org.uk>
- <20210519004901.3829541-1-viro@zeniv.linux.org.uk>
- <20210519004901.3829541-12-viro@zeniv.linux.org.uk>
+        id S236569AbhESIIv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 May 2021 04:08:51 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17942 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235683AbhESIIv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 19 May 2021 04:08:51 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14J83pJ1081357;
+        Wed, 19 May 2021 04:07:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=fYdLleFOEMY/oyxAzuS1SA9ft/aeIlge04AQUxk2Ueg=;
+ b=a3mwC7gETkoMXWV4+Iy5GSmhLFZTxN8uQjYDqgNUOTpHZESKlUmsEk5YZXmrBDFjKWW3
+ jkiRef+VjhgU1kU85PDZ5GuN2Xax3UIAvR5Zetlo1y/9QuTpEVrjVJsPsl2nijflZ5rJ
+ oMniTza72t4ei9O00A85GC5kG6NAsWokU5rhFoD3Lictuv/iPKd6F4jih7fbTlcYSX9S
+ OO966+3ICZFO6Ux0Rz3NXERT2taIRGR1FIc5cdOPU0BZil4FltCOyb7ibCj2wLfdqPGm
+ cCSEyRFBbLymUXnW+lPm2mbDIXG9N1n+7gqI9brqqubI5WQ5+wmGTPHmnm4jOfy9ybId vQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38mxj1rn80-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 04:07:32 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14J841Ot081806;
+        Wed, 19 May 2021 04:07:31 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38mxj1rn6m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 04:07:31 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14J7cQlQ025872;
+        Wed, 19 May 2021 07:40:38 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03fra.de.ibm.com with ESMTP id 38j5x892gg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 07:40:38 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14J7eZMB63111662
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 19 May 2021 07:40:35 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7D1DAA405C;
+        Wed, 19 May 2021 07:40:35 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B8389A405F;
+        Wed, 19 May 2021 07:40:34 +0000 (GMT)
+Received: from linux01.pok.stglabs.ibm.com (unknown [9.114.17.81])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 19 May 2021 07:40:34 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com,
+        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com
+Subject: [kvm-unit-tests PATCH v3 0/6] s390x: uv: Extend guest test and add host test
+Date:   Wed, 19 May 2021 07:40:16 +0000
+Message-Id: <20210519074022.7368-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210519004901.3829541-12-viro@zeniv.linux.org.uk>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: kg7dUF4trKY-fowOmQi3B4ks5krRJYFP
+X-Proofpoint-ORIG-GUID: pzOVygziU9AEQe_04cjt5lXnzZlKsyST
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-19_02:2021-05-18,2021-05-19 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ lowpriorityscore=0 spamscore=0 clxscore=1015 phishscore=0 impostorscore=0
+ bulkscore=0 malwarescore=0 priorityscore=1501 adultscore=0 mlxscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105190059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 19, 2021 at 12:48:59AM +0000, Al Viro wrote:
-> ... and leave the rename_lock/mount_lock handling in prepend_path()
-> itself
+My stack of patches is starting to lean, so lets try to put some of
+them upstream...
 
-...
+The first part is just additions to the UV guest test and a library
+that makes checking the installed UV calls easier. Additionally we now
+check for the proper UV share/unshare availability when allocating IO
+memory instead of only relying on stfle 158.
 
-> +			if (!IS_ERR_OR_NULL(mnt_ns) && !is_anon_ns(mnt_ns))
-> +				return 1;	// absolute root
-> +			else
-> +				return 2;	// detached or not attached yet
+The second part adds a UV host test with a large number UV of return
+code checks.
 
-Would it be slightly better to read
+v3:
+	* Minor changes due to review
+	* I'll pick this on Friday if there are no more remarks
 
-			if (IS_ERR_OR_NULL(mnt_ns) || is_anon_ns(mnt_ns))
-				return 2;	// detached or not attached yet
-			else
-				return 1;	// absolute root
+v2:
+	* Added rev-bys
+	* Added stfle 158 check to uv_os_is_host/guest
+	* Added asserts to uv_query_test_feature()
+	  * Prevent specifying bit nr outside of range
+	  * Prevent checking for features without having queried them
+	* Added !feature bit check to uv guest/host invalid command test
+	* Renamed uv_query_test_feature() to uv_query_test_call()
 
-?
+Janosch Frank (6):
+  s390x: uv-guest: Add invalid share location test
+  s390x: Add more Ultravisor command structure definitions
+  s390x: uv: Add UV lib
+  s390x: Test for share/unshare call support before using them
+  s390x: uv-guest: Test invalid commands
+  s390x: Add UV host test
 
-Oh, I have noticed that it's in the original piece of code (perhaps separate
-change if we ever need it?).
-
+ lib/s390x/asm/uv.h    | 152 ++++++++++++-
+ lib/s390x/io.c        |   2 +
+ lib/s390x/malloc_io.c |   5 +-
+ lib/s390x/uv.c        |  45 ++++
+ lib/s390x/uv.h        |  10 +
+ s390x/Makefile        |   2 +
+ s390x/uv-guest.c      |  60 +++++-
+ s390x/uv-host.c       | 480 ++++++++++++++++++++++++++++++++++++++++++
+ 8 files changed, 743 insertions(+), 13 deletions(-)
+ create mode 100644 lib/s390x/uv.c
+ create mode 100644 lib/s390x/uv.h
+ create mode 100644 s390x/uv-host.c
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.30.2
 
