@@ -5,58 +5,58 @@ X-Spam-Level:
 X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6259C433B4
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 16:58:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D891C433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 17:02:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8F45F60FDA
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 16:58:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F32460FDA
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 17:02:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346886AbhESQ7T (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 May 2021 12:59:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47582 "EHLO
+        id S1355493AbhESREA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 May 2021 13:04:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355439AbhESQ7T (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 May 2021 12:59:19 -0400
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19FB1C061763
-        for <linux-s390@vger.kernel.org>; Wed, 19 May 2021 09:57:58 -0700 (PDT)
-Received: by mail-lj1-x229.google.com with SMTP id b12so9214010ljp.1
-        for <linux-s390@vger.kernel.org>; Wed, 19 May 2021 09:57:57 -0700 (PDT)
+        with ESMTP id S1355484AbhESRD6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 May 2021 13:03:58 -0400
+Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FC73C06138A
+        for <linux-s390@vger.kernel.org>; Wed, 19 May 2021 10:02:34 -0700 (PDT)
+Received: by mail-lj1-x232.google.com with SMTP id e11so16420267ljn.13
+        for <linux-s390@vger.kernel.org>; Wed, 19 May 2021 10:02:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=nXnRBFRSdAWxCxN1vjVIJlzYFA0xQryLk10gJy9ij6Q=;
-        b=pS95ZLgayqQwxXeQu8ZyQ8ycWuDd16ElGeC0xgVYQUfHCnl9JqIwvNsLMVzYfpTn+u
-         4ylD5YuNNMfyuo+nPoA6mEIO3YGuJw8E4wG16u8d2PGReQu3zyMBFOG9ta3vUoParUt6
-         VBwXR6Hnm+iQwRnaU0ju2zrO6HTCf5g6XRrEE6GN7GeKRDvFqs8MA2sHf3MHccHnaFE6
-         ORhUxGYQAZe4Mt2I3W23avCfWFCIsSeLgpToUJu3q8FEeX7qIfxWlQVpVKoxLVNKcUB2
-         Ks0pVOb7sy0MIfXP21Iz0SORueBfNACFXhk9ZAJiTR3OgxcxbO7w5lPRXdyc8yjPaELJ
-         4K6Q==
+        bh=KYEHus9mFcMQyVLotJ3OZmJHh5tJfhq+Pwdg5CqpwgU=;
+        b=MMpYsiS99gN+THuy0lPQ/HUm+reH47/1KUPbzRS6M1wIQ7IGFnidDqSnmBFOpwehxx
+         nOsLeNITKnX4u3V494si+waOCpQ6ak4IgvNZohaOBKK2vNRN9oQFpRusdLGgZAK+3pX1
+         r6p3272/NVav87LVQr3PM+USPsFBYa6Epzbx7TqQGmohhgZu3yIXSi+TKrSNGsnGbj5u
+         1jQReEx5T5kARAdGGblKnlm6LtjQ0NdtiJRB+03xkQ/JylI3GbBUc/O1yp7EYhH1uBDR
+         Kghz3Z3pNfzQdC/oFbJKvMETH6zEH70zlVVaHs4MNH582a55c62CKnXGTYmzerq9dnxA
+         EnaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=nXnRBFRSdAWxCxN1vjVIJlzYFA0xQryLk10gJy9ij6Q=;
-        b=abSgCDvcZwugo/6eZFpttrUCAC2vNDa8abZKqM7yJ81F9wams5CrfmM06+IEfBoP/D
-         zN3mE/oyPgERu1xzC6xP095C4w9jo/IivKbIOxMjhMfogvdalDkrGEG2w4AV71CDEu7l
-         ZEFF0vnhP7zKimJw+0kJsymEf9itDfyH1XVjl6GInTcF6naFg7pjsc8t1xKw2KhR7PhM
-         Sub2K22CGv4A1CxG/aoQV1BRLwzAhufI/Pipn68xNCsnSDeVWo28fqP9EiUxod/A9rej
-         /eyHgS3HdxyiVL6J/hs8hZmfsOK1YqG+Ijnrv9fwdYjwVVKKZQB/g71koBDuusNWbpHb
-         dzow==
-X-Gm-Message-State: AOAM530l6rm1Yl3dYwEsbia5fGaT/8HBAcoTBOTzv87uSyHDKGnjR93J
-        EH6jZCT4KCAdMBv3PEZCqzZWi/FRARPIWJJmeFBeeg==
-X-Google-Smtp-Source: ABdhPJzI+2nDatir7SSjGH9vGdaZ94OaqoLrJ65pr7UMe9dwtydU4yzOQkWodFVnPMXpww81DjPTXpOxM5ET8qLqvAo=
-X-Received: by 2002:a2e:5d7:: with SMTP id 206mr151620ljf.448.1621443475884;
- Wed, 19 May 2021 09:57:55 -0700 (PDT)
+        bh=KYEHus9mFcMQyVLotJ3OZmJHh5tJfhq+Pwdg5CqpwgU=;
+        b=C14pdHzSfNcr91xSsX2qP0L5K/gs/Q3qW9QD01n3ILhbokilZ2MQeqRMilSJvZAwdi
+         kVp7SEV7rDZvcfzjNAPX5h2TcxxXQ6larHXSnt/viD/ce8D7cmIIMjPYMdE8Oigdv+8D
+         QGWozZAMs+epgysftfTsCKTbhLrxTviI1feN+vM0xebB4RLJuYXULpt478l/l48wd/TO
+         QdYTLQ2QSiBCAhuJ5s7Sd7H8wZOnZiows56JCaIZ6OO+cbgnZ/qFxgTbveVY9HRZFKXe
+         Yn57+SNs5BRur8v2Q5dOFLi2o8u7LShn4OTEouDetRWNdylq6H57y3LyoRjixYF69Tav
+         nS/A==
+X-Gm-Message-State: AOAM5327wRp4vEn4QV/CTGirRZLlD5LkAT1jgcPM+ukmEsVGitBJpH4g
+        AKuNOsaW5hqieFl/GGbUOSRo2wmOSts2Nz6SzDwyrQ==
+X-Google-Smtp-Source: ABdhPJzkGyod4UFQTKgh6iVIzPSQBVQPqitmSo9L02VJ97UmqyTweH3QZUVF70Yb7cixe5VCZu2rOn3+5tapf4hpWdc=
+X-Received: by 2002:a2e:5c83:: with SMTP id q125mr121364ljb.447.1621443752367;
+ Wed, 19 May 2021 10:02:32 -0700 (PDT)
 MIME-Version: 1.0
 References: <20210517145314.157626-1-jingzhangos@google.com> <20210517145314.157626-4-jingzhangos@google.com>
 In-Reply-To: <20210517145314.157626-4-jingzhangos@google.com>
 From:   David Matlack <dmatlack@google.com>
-Date:   Wed, 19 May 2021 09:57:29 -0700
-Message-ID: <CALzav=e9iLLzZyccXq6gTM0nv6n=6qEUO+VYQ-RzJ44tNK30NQ@mail.gmail.com>
+Date:   Wed, 19 May 2021 10:02:06 -0700
+Message-ID: <CALzav=chQrg=8krzt_aNuUfKW39SADUr-7C=i1iJSvEU5P=P0Q@mail.gmail.com>
 Subject: Re: [PATCH v5 3/4] KVM: stats: Add documentation for statistics data
  binary interface
 To:     Jing Zhang <jingzhangos@google.com>
@@ -137,11 +137,6 @@ On Mon, May 17, 2021 at 9:25 AM Jing Zhang <jingzhangos@google.com> wrote:
 > +
 > +The Header block is always at the start of the file. It is only needed to be
 > +read one time after a system boot.
-
-By system boot do you mean the host or the VM? If the host then it's
-probably just cleaner to omit that part entirely and just say "It is
-only needed to be read once.".
-
 > +It is in the form of ``struct kvm_stats_header`` as below::
 > +
 > +       #define KVM_STATS_ID_MAXLEN             64
@@ -156,9 +151,6 @@ only needed to be read once.".
 > +
 > +The ``id`` field is identification for the corresponding KVM statistics. For
 > +KVM statistics, it is in the form of "kvm-{kvm pid}", like "kvm-12345". For
-
-Should this say "For VM statistics, ..." instead?
-
 > +VCPU statistics, it is in the form of "kvm-{kvm pid}/vcpu-{vcpu id}", like
 > +"kvm-12345/vcpu-12".
 > +
@@ -174,15 +166,7 @@ Should this say "For VM statistics, ..." instead?
 > +of the file indicated by the file descriptor.
 > +
 > +The Descriptors block is only needed to be read once after a system boot. It is
-
-Ditto here about system boot.
-
 > +an array of ``struct kvm_stats_desc`` as below::
-
-Consider omitting these macros from the documentation, or moving them
-to later. Readers right here are expecting to see the struct
-kvm_stats_desc given the previous line.
-
 > +
 > +       #define KVM_STATS_TYPE_SHIFT            0
 > +       #define KVM_STATS_TYPE_MASK             (0xF << KVM_STATS_TYPE_SHIFT)
@@ -203,12 +187,6 @@ kvm_stats_desc given the previous line.
 > +       #define KVM_STATS_SCALE_POW10           (0x0 << KVM_STATS_SCALE_SHIFT)
 > +       #define KVM_STATS_SCALE_POW2            (0x1 << KVM_STATS_SCALE_SHIFT)
 > +       #define KVM_STATS_SCALE_MAX             KVM_STATS_SCALE_POW2
-
-Terminology nit: I think usually this part is called the "base". e.g.
-when you decompose a number X into N * B^E, B is the "base" and E is
-the "exponent". I see you're using "exponent" already but it might
-make sense to change "scale" to "base" throughout this series.
-
 > +
 > +       struct kvm_stats_desc {
 > +               __u32 flags;
@@ -221,21 +199,6 @@ make sense to change "scale" to "base" throughout this series.
 > +
 > +The ``flags`` field contains the type and unit of the statistics data described
 > +by this descriptor. The following flags are supported:
-
-nit: Suggest breaking this list out into separate lists so readers can
-differentiate between the type, unit, and scale. Something like:
-
-Bits 0-3 of ``flags`` encode the type:
-
-* ``KVM_STATS_TYPE_CUMULATIVE`` ...
-* ``KVM_STATS_TYPE_INSTANT`` ...
-
-Bits 4-7 of ``flags encode the unit:
-
-* ``KVM_STATS_UNIT_NONE`` ...
-...
-etc.
-
 > +  * ``KVM_STATS_TYPE_CUMULATIVE``
 > +    The statistics data is cumulative. The value of data can only be increased.
 > +    Most of the counters used in KVM are of this type.
@@ -276,21 +239,16 @@ etc.
 > +The ``exponent`` field is the scale of corresponding statistics data. It has two
 > +values as follows:
 > +  * ``KVM_STATS_SCALE_POW10``
-
-I thought the scale was encoded in ``flags`` not ``exponent``? Isn't
-the exponent the
-
 > +    The scale is based on power of 10. It is used for measurement of time and
 > +    CPU clock cycles.
 > +  * ``KVM_STATS_SCALE_POW2``
 > +    The scale is based on power of 2. It is used for measurement of memory size.
-
-It might be useful to give an example of how to use the exponent field
-in practice.
-
 > +
 > +The ``size`` field is the number of values of this statistics data. It is in the
 > +unit of ``unsigned long`` for VCPU or ``__u64`` for VM.
+
+Note it is the reverse in the implementation.
+
 > +
 > +The ``unused1`` and ``unused2`` fields are reserved for future
 > +support for other types of statistics data, like log/linear histogram.
