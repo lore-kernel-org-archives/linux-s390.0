@@ -2,209 +2,162 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B72AC43460
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:27:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F64BC433B4
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:46:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6E69860240
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:27:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1EDFC61073
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:46:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245142AbhESI3K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 May 2021 04:29:10 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6200 "EHLO
+        id S242897AbhESIrz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 May 2021 04:47:55 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31312 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S245141AbhESI3H (ORCPT
+        by vger.kernel.org with ESMTP id S1343696AbhESIrw (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 19 May 2021 04:29:07 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14J8QVKm190783;
-        Wed, 19 May 2021 04:27:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=eQKOggv4DWgwYGAY7j/1cjfUTAj0c0ZbEQzNKxxYJ+k=;
- b=NTs6bOh1v2rPa5EaihVpUzUI26Y9YKq2sUWUENQjcTXpBQzqOjhD/F/jqKsp537Y0fhB
- BdICF6ceBCyk9ffQEdZJyulgaT8etcjQLycaWJ1RFF71TMAdNYPnej3t/yTycxkUKQaM
- f0xp837SYeCY6TtAHrXU6KvgA/oUk1OKMrry2mSZHlMJ/nPDyoy/iCGDqM9OCBKVLt89
- LFN/4UOgn8/NCK3L5EJA6jDO27MP76uopso8VbaTD/eLUEDvamLrQ5V9Ur407/YnbBHN
- WsXgWD9m3ggtafFjBt4nxV8QUMI0b2lL35PaRROd/6jN6Ebvj8YTSrQbvfEPExXvPhB7 HQ== 
+        Wed, 19 May 2021 04:47:52 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14J8hf8c151433;
+        Wed, 19 May 2021 04:46:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=OYWWSIcs12yMfYYufLMR8/Q7KvEDR7ikuAOk4RW6roE=;
+ b=sqHNhlRQ7OZzBnCrWq+GWAjtMH4f0glFjDlRU/aR8Sokt+ge0xMj9kBKeORaCl9iTuLo
+ Tqk9kRZKOGSkIAr25OOb4Lj9sRhasik8mTMczBp74qVCczAl7CBhWP38yO/oIQIrUtsA
+ xj2/lvlep7aTlqkMqh4nvF10nm1i8MSgAxthOI+ciePovfqsWJ7dh3bAAXlvzj1eW7Ml
+ UAzIw7jE/5PG8n+TJdhSKQeE0t5/jv75+zTwtHq6XkHZ2NhCMWg6xIKrFBGrwH4TYYhk
+ Mh6WmaevWQ9ISkhG6KX8bNxg+6jx7ih8n93r3GvWLi8EGrbn3TniQVskqDAl5XJi1BC4 EQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38my5vg12w-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38mxbx2arq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 04:27:47 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14J8QaeO191006;
-        Wed, 19 May 2021 04:27:47 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38my5vg124-1
+        Wed, 19 May 2021 04:46:24 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14J8iRvO154388;
+        Wed, 19 May 2021 04:46:23 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38mxbx2ar1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 04:27:47 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14J8RLod025853;
-        Wed, 19 May 2021 08:27:45 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 38j5jgsy9b-1
+        Wed, 19 May 2021 04:46:23 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14J8hvco020970;
+        Wed, 19 May 2021 08:46:21 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04fra.de.ibm.com with ESMTP id 38j5x81386-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 08:27:44 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14J8REsg17629690
+        Wed, 19 May 2021 08:46:21 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14J8kIkd28705074
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 May 2021 08:27:14 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E928442047;
-        Wed, 19 May 2021 08:27:41 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3274A42041;
-        Wed, 19 May 2021 08:27:41 +0000 (GMT)
-Received: from linux01.pok.stglabs.ibm.com (unknown [9.114.17.81])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 19 May 2021 08:27:41 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com,
-        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        thuth@redhat.com
-Subject: [kvm-unit-tests PATCH v2 2/3] lib: s390x: sclp: Extend feature probing
-Date:   Wed, 19 May 2021 08:26:47 +0000
-Message-Id: <20210519082648.46803-3-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210519082648.46803-1-frankja@linux.ibm.com>
-References: <20210519082648.46803-1-frankja@linux.ibm.com>
+        Wed, 19 May 2021 08:46:18 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 517CC11C0D8;
+        Wed, 19 May 2021 08:46:16 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 081F211C307;
+        Wed, 19 May 2021 08:17:50 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.89.97])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 19 May 2021 08:17:49 +0000 (GMT)
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
+References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
+ <20210512203536.4209c29c.pasic@linux.ibm.com>
+ <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
+ <20210513194541.58d1628a.pasic@linux.ibm.com>
+ <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
+ <20210514021500.60ad2a22.pasic@linux.ibm.com>
+ <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
+ <20210517211030.368ca64b.pasic@linux.ibm.com>
+ <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
+ <9ebd5fd8-b093-e5bc-e680-88fa7a9b085c@linux.ibm.com>
+ <494af62b-dc9a-ef2c-1869-d8f5ed239504@de.ibm.com>
+ <20210518173351.39646b45.pasic@linux.ibm.com>
+ <ca5f1c72-09a3-d270-44a0-bda54c554f67@de.ibm.com>
+ <20210519012709.3bcc30e7.pasic@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <250189ed-bded-5261-d8f3-f75787be7aeb@de.ibm.com>
+Date:   Wed, 19 May 2021 10:17:49 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210519012709.3bcc30e7.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: WRoERFRrdLbtYGlsp8pPkFx9Atzc42pS
-X-Proofpoint-ORIG-GUID: X0hz5FdpO_A1pboIFqxN7byKpgJMAtdK
+X-Proofpoint-GUID: -pRYk4RQyfIs3-_W5GkkstdLTwAmRRRt
+X-Proofpoint-ORIG-GUID: Rtnd7wG_q_PxxiCdyVU6eOCYewUvxU0r
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-19_02:2021-05-18,2021-05-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
- priorityscore=1501 malwarescore=0 mlxlogscore=999 clxscore=1015
- suspectscore=0 bulkscore=0 spamscore=0 impostorscore=0 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105190059
+ definitions=2021-05-19_04:2021-05-18,2021-05-19 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 phishscore=0 impostorscore=0 spamscore=0 bulkscore=0
+ malwarescore=0 suspectscore=0 mlxscore=0 clxscore=1011 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105190064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Lets grab more of the feature bits from SCLP read info so we can use
-them in the cpumodel tests.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- lib/s390x/sclp.c | 20 ++++++++++++++++++++
- lib/s390x/sclp.h | 38 +++++++++++++++++++++++++++++++++++---
- 2 files changed, 55 insertions(+), 3 deletions(-)
 
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index f11c2035..291924b0 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -129,6 +129,13 @@ CPUEntry *sclp_get_cpu_entries(void)
- 	return (CPUEntry *)(_read_info + read_info->offset_cpu);
- }
- 
-+static bool sclp_feat_check(int byte, int bit)
-+{
-+	uint8_t *rib = (uint8_t *)read_info;
-+
-+	return !!(rib[byte] & (0x80 >> bit));
-+}
-+
- void sclp_facilities_setup(void)
- {
- 	unsigned short cpu0_addr = stap();
-@@ -140,6 +147,14 @@ void sclp_facilities_setup(void)
- 	cpu = sclp_get_cpu_entries();
- 	if (read_info->offset_cpu > 134)
- 		sclp_facilities.has_diag318 = read_info->byte_134_diag318;
-+	sclp_facilities.has_gsls = sclp_feat_check(85, SCLP_FEAT_85_BIT_GSLS);
-+	sclp_facilities.has_kss = sclp_feat_check(98, SCLP_FEAT_98_BIT_KSS);
-+	sclp_facilities.has_cmma = sclp_feat_check(116, SCLP_FEAT_116_BIT_CMMA);
-+	sclp_facilities.has_64bscao = sclp_feat_check(116, SCLP_FEAT_116_BIT_64BSCAO);
-+	sclp_facilities.has_esca = sclp_feat_check(116, SCLP_FEAT_116_BIT_ESCA);
-+	sclp_facilities.has_ibs = sclp_feat_check(117, SCLP_FEAT_117_BIT_IBS);
-+	sclp_facilities.has_pfmfi = sclp_feat_check(117, SCLP_FEAT_117_BIT_PFMFI);
-+
- 	for (i = 0; i < read_info->entries_cpu; i++, cpu++) {
- 		/*
- 		 * The logic for only reading the facilities from the
-@@ -150,6 +165,11 @@ void sclp_facilities_setup(void)
- 		 */
- 		if (cpu->address == cpu0_addr) {
- 			sclp_facilities.has_sief2 = cpu->feat_sief2;
-+			sclp_facilities.has_skeyi = cpu->feat_skeyi;
-+			sclp_facilities.has_siif = cpu->feat_siif;
-+			sclp_facilities.has_sigpif = cpu->feat_sigpif;
-+			sclp_facilities.has_ib = cpu->feat_ib;
-+			sclp_facilities.has_cei = cpu->feat_cei;
- 			break;
- 		}
- 	}
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index 85231333..115bd2fa 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -94,9 +94,19 @@ typedef struct CPUEntry {
- 	uint8_t reserved0;
- 	uint8_t : 4;
- 	uint8_t feat_sief2 : 1;
-+	uint8_t feat_skeyi : 1;
-+	uint8_t : 2;
-+	uint8_t : 2;
-+	uint8_t feat_gpere : 1;
-+	uint8_t feat_siif : 1;
-+	uint8_t feat_sigpif : 1;
- 	uint8_t : 3;
--	uint8_t features_res2 [SCCB_CPU_FEATURE_LEN - 1];
--	uint8_t reserved2[6];
-+	uint8_t reserved2[3];
-+	uint8_t : 2;
-+	uint8_t feat_ib : 1;
-+	uint8_t feat_cei : 1;
-+	uint8_t : 4;
-+	uint8_t reserved3[6];
- 	uint8_t type;
- 	uint8_t reserved1;
- } __attribute__((packed)) CPUEntry;
-@@ -105,10 +115,32 @@ extern struct sclp_facilities sclp_facilities;
- 
- struct sclp_facilities {
- 	uint64_t has_sief2 : 1;
-+	uint64_t has_skeyi : 1;
-+	uint64_t has_gpere : 1;
-+	uint64_t has_siif : 1;
-+	uint64_t has_sigpif : 1;
-+	uint64_t has_ib : 1;
-+	uint64_t has_cei : 1;
-+
- 	uint64_t has_diag318 : 1;
--	uint64_t : 62;
-+	uint64_t has_gsls : 1;
-+	uint64_t has_cmma : 1;
-+	uint64_t has_64bscao : 1;
-+	uint64_t has_esca : 1;
-+	uint64_t has_kss : 1;
-+	uint64_t has_pfmfi : 1;
-+	uint64_t has_ibs : 1;
-+	uint64_t : 64 - 15;
- };
- 
-+#define SCLP_FEAT_85_BIT_GSLS		7
-+#define SCLP_FEAT_98_BIT_KSS		0
-+#define SCLP_FEAT_116_BIT_64BSCAO	7
-+#define SCLP_FEAT_116_BIT_CMMA		6
-+#define SCLP_FEAT_116_BIT_ESCA		3
-+#define SCLP_FEAT_117_BIT_PFMFI		6
-+#define SCLP_FEAT_117_BIT_IBS		5
-+
- typedef struct ReadInfo {
- 	SCCBHeader h;
- 	uint16_t rnmax;
--- 
-2.30.2
+On 19.05.21 01:27, Halil Pasic wrote:
+> On Tue, 18 May 2021 19:01:42 +0200
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> 
+>> On 18.05.21 17:33, Halil Pasic wrote:
+>>> On Tue, 18 May 2021 15:59:36 +0200
+>>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> [..]
+>>>>>>
+>>>>>> Would it help, if the code in priv.c would read the hook once
+>>>>>> and then only work on the copy? We could protect that with rcu
+>>>>>> and do a synchronize rcu in vfio_ap_mdev_unset_kvm after
+>>>>>> unsetting the pointer?
+>>>
+>>> Unfortunately just "the hook" is ambiguous in this context. We
+>>> have kvm->arch.crypto.pqap_hook that is supposed to point to
+>>> a struct kvm_s390_module_hook member of struct ap_matrix_mdev
+>>> which is also called pqap_hook. And struct kvm_s390_module_hook
+>>> has function pointer member named "hook".
+>>
+>> I was referring to the full struct.
+>>>    
+>>>>>
+>>>>> I'll look into this.
+>>>>
+>>>> I think it could work. in priv.c use rcu_readlock, save the
+>>>> pointer, do the check and call, call rcu_read_unlock.
+>>>> In vfio_ap use rcu_assign_pointer to set the pointer and
+>>>> after setting it to zero call sychronize_rcu.
+>>>
+>>> In my opinion, we should make the accesses to the
+>>> kvm->arch.crypto.pqap_hook pointer properly synchronized. I'm
+>>> not sure if that is what you are proposing. How do we usually
+>>> do synchronisation on the stuff that lives in kvm->arch?
+>>>    
+>>
+>> RCU is a method of synchronization. We  make sure that structure
+>> pqap_hook is still valid as long as we are inside the rcu read
+>> lock. So the idea is: clear pointer, wait until all old readers
+>> have finished and the proceed with getting rid of the structure.
+> 
+> Yes I know that RCU is a method of synchronization, but I'm not
+> very familiar with it. I'm a little confused by "read the hook
+> once and then work on a copy". I guess, I would have to read up
+> on the RCU again to get clarity. I intend to brush up my RCU knowledge
+> once the patch comes along. I would be glad to have your help when
+> reviewing an RCU based solution for this.
 
+Just had a quick look. Its not trivial, as the hook function itself
+takes a mutex and an rcu section must not sleep. Will have a deeper
+look.
