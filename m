@@ -2,57 +2,85 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53A6FC43460
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:13:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F33DC433B4
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:16:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3336160FE9
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:13:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3B12460FE9
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 08:16:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236458AbhESIOi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 May 2021 04:14:38 -0400
-Received: from mx2.suse.de ([195.135.220.15]:48350 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231161AbhESIOf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 19 May 2021 04:14:35 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id B8148B14E;
-        Wed, 19 May 2021 08:13:15 +0000 (UTC)
-Date:   Wed, 19 May 2021 09:13:12 +0100
-From:   Mel Gorman <mgorman@suse.de>
-To:     Yang Shi <shy828301@gmail.com>
-Cc:     kirill.shutemov@linux.intel.com, ziy@nvidia.com,
-        ying.huang@intel.com, mhocko@suse.com, hughd@google.com,
-        gerald.schaefer@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, borntraeger@de.ibm.com,
-        akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [v3 PATCH 1/7] mm: memory: add orig_pmd to struct vm_fault
-Message-ID: <20210519081312.GC3672@suse.de>
-References: <20210518200801.7413-1-shy828301@gmail.com>
- <20210518200801.7413-2-shy828301@gmail.com>
+        id S244691AbhESIRj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 May 2021 04:17:39 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24250 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S244228AbhESIRf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 19 May 2021 04:17:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1621412172;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=h5dhb9evcOZjvVUhntY3IpI+oiAKCg0ITWYWt/oMY8I=;
+        b=BJoNIAtDsYHQHpTvWpUL1Kq2kE+kI7WfCaxZEyn1Nn1v/bq5/rm3vpUvSte3IcvhZouxJB
+        KcSLjElj2rB+Du58RHRa8gND9WXFhPvSffu6nG57OlTr/AdrTEohDad+30lJNgQ5rj8YI8
+        1Bg4TyiivGQ5Bhto+/DnD5e9kpKayKw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-333-0qJQ6Q3FO8SwmMLJeyvSFg-1; Wed, 19 May 2021 04:16:09 -0400
+X-MC-Unique: 0qJQ6Q3FO8SwmMLJeyvSFg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D6F1A8015C6;
+        Wed, 19 May 2021 08:16:07 +0000 (UTC)
+Received: from thuth.remote.csb (ovpn-112-85.ams2.redhat.com [10.36.112.85])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7A33F614F5;
+        Wed, 19 May 2021 08:16:02 +0000 (UTC)
+Subject: Re: [kvm-unit-tests PATCH v3 0/6] s390x: uv: Extend guest test and
+ add host test
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org,
+        imbrenda@linux.ibm.com
+References: <20210519074022.7368-1-frankja@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <b36ae9db-6973-8b4b-36a8-5291edf823b1@redhat.com>
+Date:   Wed, 19 May 2021 10:16:01 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <20210518200801.7413-2-shy828301@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20210519074022.7368-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 18, 2021 at 01:07:55PM -0700, Yang Shi wrote:
-> Add orig_pmd to struct vm_fault so the "orig_pmd" parameter used by huge page
-> fault could be removed, just like its PTE counterpart does.
+On 19/05/2021 09.40, Janosch Frank wrote:
+> My stack of patches is starting to lean, so lets try to put some of
+> them upstream...
 > 
-> Signed-off-by: Yang Shi <shy828301@gmail.com>
+> The first part is just additions to the UV guest test and a library
+> that makes checking the installed UV calls easier. Additionally we now
+> check for the proper UV share/unshare availability when allocating IO
+> memory instead of only relying on stfle 158.
+> 
+> The second part adds a UV host test with a large number UV of return
+> code checks.
+> 
+> v3:
+> 	* Minor changes due to review
+> 	* I'll pick this on Friday if there are no more remarks
 
-Acked-by: Mel Gorman <mgorman@suse.de>
+ From a very quick look on the patches, this looks fine to me.
 
--- 
-Mel Gorman
-SUSE Labs
+Series
+Acked-by: Thomas Huth <thuth@redhat.com>
+
