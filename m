@@ -7,23 +7,23 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF063C43470
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CFE6C43462
 	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 00:51:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D715F6112F
+	by mail.kernel.org (Postfix) with ESMTP id 86F316112F
 	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 00:51:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232450AbhESAwm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 May 2021 20:52:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53960 "EHLO
+        id S1352913AbhESAwi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 May 2021 20:52:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233238AbhESAvI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 20:51:08 -0400
+        with ESMTP id S1352874AbhESAvE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 20:51:04 -0400
 Received: from zeniv-ca.linux.org.uk (zeniv-ca.linux.org.uk [IPv6:2607:5300:60:148a::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59FD0C06175F;
-        Tue, 18 May 2021 17:49:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD93C06175F;
+        Tue, 18 May 2021 17:49:45 -0700 (PDT)
 Received: from viro by zeniv-ca.linux.org.uk with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1ljAOU-00G4Fs-JV; Wed, 19 May 2021 00:49:02 +0000
+        id 1ljAOT-00G4Fe-Ug; Wed, 19 May 2021 00:49:02 +0000
 From:   Al Viro <viro@zeniv.linux.org.uk>
 To:     Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     Jia He <justin.he@arm.com>, Petr Mladek <pmladek@suse.com>,
@@ -45,9 +45,9 @@ Cc:     Jia He <justin.he@arm.com>, Petr Mladek <pmladek@suse.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         linux-s390 <linux-s390@vger.kernel.org>,
         linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: [PATCH 13/14] d_path: prepend_path() is unlikely to return non-zero
-Date:   Wed, 19 May 2021 00:49:00 +0000
-Message-Id: <20210519004901.3829541-13-viro@zeniv.linux.org.uk>
+Subject: [PATCH 06/14] d_path: don't bother with return value of prepend()
+Date:   Wed, 19 May 2021 00:48:53 +0000
+Message-Id: <20210519004901.3829541-6-viro@zeniv.linux.org.uk>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210519004901.3829541-1-viro@zeniv.linux.org.uk>
 References: <YKRfI29BBnC255Vp@zeniv-ca.linux.org.uk>
@@ -59,42 +59,55 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Only simple_dname() checks it, and there we can simply do those
+calls and check for overflow (by looking of negative buflen)
+in the end.
+
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- fs/d_path.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/d_path.c | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
 diff --git a/fs/d_path.c b/fs/d_path.c
-index ba629879a4bf..8a9cd44f6689 100644
+index 311d43287572..72b8087aaf9c 100644
 --- a/fs/d_path.c
 +++ b/fs/d_path.c
-@@ -187,7 +187,7 @@ char *__d_path(const struct path *path,
- 	DECLARE_BUFFER(b, buf, buflen);
+@@ -8,14 +8,13 @@
+ #include <linux/prefetch.h>
+ #include "mount.h"
  
- 	prepend(&b, "", 1);
--	if (prepend_path(path, root, &b) > 0)
-+	if (unlikely(prepend_path(path, root, &b) > 0))
- 		return NULL;
- 	return extract_string(&b);
+-static int prepend(char **buffer, int *buflen, const char *str, int namelen)
++static void prepend(char **buffer, int *buflen, const char *str, int namelen)
+ {
+ 	*buflen -= namelen;
+-	if (*buflen < 0)
+-		return -ENAMETOOLONG;
+-	*buffer -= namelen;
+-	memcpy(*buffer, str, namelen);
+-	return 0;
++	if (likely(*buflen >= 0)) {
++		*buffer -= namelen;
++		memcpy(*buffer, str, namelen);
++	}
  }
-@@ -199,7 +199,7 @@ char *d_absolute_path(const struct path *path,
- 	DECLARE_BUFFER(b, buf, buflen);
  
- 	prepend(&b, "", 1);
--	if (prepend_path(path, &root, &b) > 1)
-+	if (unlikely(prepend_path(path, &root, &b) > 1))
- 		return ERR_PTR(-EINVAL);
- 	return extract_string(&b);
+ /**
+@@ -298,11 +297,10 @@ char *simple_dname(struct dentry *dentry, char *buffer, int buflen)
+ {
+ 	char *end = buffer + buflen;
+ 	/* these dentries are never renamed, so d_lock is not needed */
+-	if (prepend(&end, &buflen, " (deleted)", 11) ||
+-	    prepend(&end, &buflen, dentry->d_name.name, dentry->d_name.len) ||
+-	    prepend(&end, &buflen, "/", 1))  
+-		end = ERR_PTR(-ENAMETOOLONG);
+-	return end;
++	prepend(&end, &buflen, " (deleted)", 11);
++	prepend(&end, &buflen, dentry->d_name.name, dentry->d_name.len);
++	prepend(&end, &buflen, "/", 1);
++	return buflen >= 0 ? end : ERR_PTR(-ENAMETOOLONG);
  }
-@@ -396,7 +396,7 @@ SYSCALL_DEFINE2(getcwd, char __user *, buf, unsigned long, size)
- 		DECLARE_BUFFER(b, page, PATH_MAX);
  
- 		prepend(&b, "", 1);
--		if (prepend_path(&pwd, &root, &b) > 0)
-+		if (unlikely(prepend_path(&pwd, &root, &b) > 0))
- 			prepend(&b, "(unreachable)", 13);
- 		rcu_read_unlock();
- 
+ /*
 -- 
 2.11.0
 
