@@ -2,300 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06862C43460
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 19:30:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E756C433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 20:01:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DD8CD613AE
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 19:30:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 018AA611BD
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 20:01:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232129AbhESTb6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 May 2021 15:31:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53724 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232140AbhESTbz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 May 2021 15:31:55 -0400
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C6BBC06138D
-        for <linux-s390@vger.kernel.org>; Wed, 19 May 2021 12:30:34 -0700 (PDT)
-Received: by mail-lj1-x233.google.com with SMTP id w15so16899005ljo.10
-        for <linux-s390@vger.kernel.org>; Wed, 19 May 2021 12:30:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=PGDO8fbc/TF+sFisRne/2XCCw74JXT4LwjRMRFualWE=;
-        b=fwQ4F6zK+R/uSAi1p/ou7pQoKsrBbw7/cBP4fUy3DMZ6Va72N1TjdKSCv4dyIRR89a
-         JgZRUiaS1MqjHFeRjGSJ20PZQ1kL1yv3vD2G4z85s5ra40p0FvHVzslzutWbHY3nTwDl
-         Aez0VkOOwOOEhQOwpuLQPmA2By94mk20jT7DDGyb89qgaTqajWG+7xbdlQEWr5yBXTUF
-         V5E5Uvb8o6RXS9Jnrk5/HCGvcoglrHLVWEpGKvvLFwr3zzYtfnjCk+bct7mVEQExkxpf
-         +KXUQ9nZlPWO+rUIdZJaTCD8N3F4OdRjsthyHsS/19QPSOB7sgq/XtLxp7USutiXlB/q
-         5ePg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=PGDO8fbc/TF+sFisRne/2XCCw74JXT4LwjRMRFualWE=;
-        b=ewZAcPGKDqV3S8ENKtzJI9HqgBCFMpE3JSWK+thVEnVCZMBgdvJgv0sefSMfYbwC3A
-         ltwUobJ1H/eyO4IXe/LNk8cwUGZSGEV7ZpH6OPpWp4ufwCv785Y2ZMaIjCMuANaGVnbb
-         thJKu4bSNkdjy8V7Sr9oVW6DTocEHev8zmF2CjkbxEltv6e/0rVaupXuvRt3XDUHF1iV
-         Y1MkenTJPg/le85XvEoEiRi1vO0RS/62/9UQy+swJg4JT3fOheLfAsa+AArwSNtdZ2WS
-         wnLHdhs0WoV4EeJszxU4Hg93SssEWcUpz4tpqeum3AldKfrqdtvgu5DTMoImsU3/9BPo
-         /Xow==
-X-Gm-Message-State: AOAM531bV9OD294Is6QEa3SGmof6CSNseta2TcgtuXO3H2eUuv3fFqD3
-        z+m7WTcv04uBr9YFMSP3sr7ojsquB1qMffmj6gmHmg==
-X-Google-Smtp-Source: ABdhPJyo8bC6y6UGVRkW7FKBnZdE79ScL53BuoAInE7OdE0IuW8eo+EcgjcmmECo9buX4YKaW5GFnqbkZ5ZQQil/rm0=
-X-Received: by 2002:a2e:87ce:: with SMTP id v14mr546211ljj.28.1621452632154;
- Wed, 19 May 2021 12:30:32 -0700 (PDT)
+        id S232463AbhESUDP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 May 2021 16:03:15 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:42224 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232496AbhESUDO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 19 May 2021 16:03:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1621454514;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=oqR82qYZ5cHPW+jMmb6LKw1zBxDgfEa0K+Sm55MnPRw=;
+        b=EPf+1bHeNhuGn0Rrr6sUg9QfQAd3pj66II1RbGEWOtigcjPVeLdlvnzLgdbZ4Y3Ml5/UY+
+        JV4+aRg24ZyBhNCJp+s2XFZ1vidOVJ/5Fg0FSke4zSpY4N3zWQdfhJSfd69xWB+3HO+5KU
+        EsCQ+Uui8eWob2LecfwVc6NOTIvYi0s=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-587-6OHx4A6KP1SdsuldedHntQ-1; Wed, 19 May 2021 16:01:50 -0400
+X-MC-Unique: 6OHx4A6KP1SdsuldedHntQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 65013107AFA7;
+        Wed, 19 May 2021 20:01:48 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.3.128.45])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7788D60BF1;
+        Wed, 19 May 2021 20:01:44 +0000 (UTC)
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Linux-Audit Mailing List <linux-audit@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Steve Grubb <sgrubb@redhat.com>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Eric Paris <eparis@redhat.com>, x86@kernel.org,
+        linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Arnd Bergmann <arnd@kernel.org>
+Subject: [PATCH v4 0/3] audit: add support for openat2
+Date:   Wed, 19 May 2021 16:00:19 -0400
+Message-Id: <cover.1621363275.git.rgb@redhat.com>
 MIME-Version: 1.0
-References: <20210517145314.157626-1-jingzhangos@google.com>
- <20210517145314.157626-4-jingzhangos@google.com> <CALzav=chQrg=8krzt_aNuUfKW39SADUr-7C=i1iJSvEU5P=P0Q@mail.gmail.com>
-In-Reply-To: <CALzav=chQrg=8krzt_aNuUfKW39SADUr-7C=i1iJSvEU5P=P0Q@mail.gmail.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Wed, 19 May 2021 14:30:20 -0500
-Message-ID: <CAAdAUthScueaWbkTTAxKTSDb4MbjDonm0LpMZVp5N8DaO6ENnA@mail.gmail.com>
-Subject: Re: [PATCH v5 3/4] KVM: stats: Add documentation for statistics data
- binary interface
-To:     David Matlack <dmatlack@google.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi David,
+The openat2(2) syscall was added in v5.6.  Add support for openat2 to the
+audit syscall classifier and for recording openat2 parameters that cannot
+be captured in the syscall parameters of the SYSCALL record.
 
-On Wed, May 19, 2021 at 12:02 PM David Matlack <dmatlack@google.com> wrote:
->
-> On Mon, May 17, 2021 at 9:25 AM Jing Zhang <jingzhangos@google.com> wrote:
-> >
-> > Update KVM API documentation for binary statistics.
-> >
-> > Signed-off-by: Jing Zhang <jingzhangos@google.com>
-> > ---
-> >  Documentation/virt/kvm/api.rst | 171 +++++++++++++++++++++++++++++++++
-> >  1 file changed, 171 insertions(+)
-> >
-> > diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-> > index 7fcb2fd38f42..9a6aa9770dfd 100644
-> > --- a/Documentation/virt/kvm/api.rst
-> > +++ b/Documentation/virt/kvm/api.rst
-> > @@ -5034,6 +5034,169 @@ see KVM_XEN_VCPU_SET_ATTR above.
-> >  The KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADJUST type may not be used
-> >  with the KVM_XEN_VCPU_GET_ATTR ioctl.
-> >
-> > +4.130 KVM_STATS_GETFD
-> > +---------------------
-> > +
-> > +:Capability: KVM_CAP_STATS_BINARY_FD
-> > +:Architectures: all
-> > +:Type: vm ioctl, vcpu ioctl
-> > +:Parameters: none
-> > +:Returns: statistics file descriptor on success, < 0 on error
-> > +
-> > +Errors:
-> > +
-> > +  ======     ======================================================
-> > +  ENOMEM     if the fd could not be created due to lack of memory
-> > +  EMFILE     if the number of opened files exceeds the limit
-> > +  ======     ======================================================
-> > +
-> > +The file descriptor can be used to read VM/vCPU statistics data in binary
-> > +format. The file data is organized into three blocks as below:
-> > ++-------------+
-> > +|   Header    |
-> > ++-------------+
-> > +| Descriptors |
-> > ++-------------+
-> > +| Stats Data  |
-> > ++-------------+
-> > +
-> > +The Header block is always at the start of the file. It is only needed to be
-> > +read one time after a system boot.
-> > +It is in the form of ``struct kvm_stats_header`` as below::
-> > +
-> > +       #define KVM_STATS_ID_MAXLEN             64
-> > +
-> > +       struct kvm_stats_header {
-> > +               char id[KVM_STATS_ID_MAXLEN];
-> > +               __u32 name_size;
-> > +               __u32 count;
-> > +               __u32 desc_offset;
-> > +               __u32 data_offset;
-> > +       };
-> > +
-> > +The ``id`` field is identification for the corresponding KVM statistics. For
-> > +KVM statistics, it is in the form of "kvm-{kvm pid}", like "kvm-12345". For
-> > +VCPU statistics, it is in the form of "kvm-{kvm pid}/vcpu-{vcpu id}", like
-> > +"kvm-12345/vcpu-12".
-> > +
-> > +The ``name_size`` field is the size (byte) of the statistics name string
-> > +(including trailing '\0') appended to the end of every statistics descriptor.
-> > +
-> > +The ``count`` field is the number of statistics.
-> > +
-> > +The ``desc_offset`` field is the offset of the Descriptors block from the start
-> > +of the file indicated by the file descriptor.
-> > +
-> > +The ``data_offset`` field is the offset of the Stats Data block from the start
-> > +of the file indicated by the file descriptor.
-> > +
-> > +The Descriptors block is only needed to be read once after a system boot. It is
-> > +an array of ``struct kvm_stats_desc`` as below::
-> > +
-> > +       #define KVM_STATS_TYPE_SHIFT            0
-> > +       #define KVM_STATS_TYPE_MASK             (0xF << KVM_STATS_TYPE_SHIFT)
-> > +       #define KVM_STATS_TYPE_CUMULATIVE       (0x0 << KVM_STATS_TYPE_SHIFT)
-> > +       #define KVM_STATS_TYPE_INSTANT          (0x1 << KVM_STATS_TYPE_SHIFT)
-> > +       #define KVM_STATS_TYPE_MAX              KVM_STATS_TYPE_INSTANT
-> > +
-> > +       #define KVM_STATS_UNIT_SHIFT            4
-> > +       #define KVM_STATS_UNIT_MASK             (0xF << KVM_STATS_UNIT_SHIFT)
-> > +       #define KVM_STATS_UNIT_NONE             (0x0 << KVM_STATS_UNIT_SHIFT)
-> > +       #define KVM_STATS_UNIT_BYTES            (0x1 << KVM_STATS_UNIT_SHIFT)
-> > +       #define KVM_STATS_UNIT_SECONDS          (0x2 << KVM_STATS_UNIT_SHIFT)
-> > +       #define KVM_STATS_UNIT_CYCLES           (0x3 << KVM_STATS_UNIT_SHIFT)
-> > +       #define KVM_STATS_UNIT_MAX              KVM_STATS_UNIT_CYCLES
-> > +
-> > +       #define KVM_STATS_SCALE_SHIFT           8
-> > +       #define KVM_STATS_SCALE_MASK            (0xF << KVM_STATS_SCALE_SHIFT)
-> > +       #define KVM_STATS_SCALE_POW10           (0x0 << KVM_STATS_SCALE_SHIFT)
-> > +       #define KVM_STATS_SCALE_POW2            (0x1 << KVM_STATS_SCALE_SHIFT)
-> > +       #define KVM_STATS_SCALE_MAX             KVM_STATS_SCALE_POW2
-> > +
-> > +       struct kvm_stats_desc {
-> > +               __u32 flags;
-> > +               __s16 exponent;
-> > +               __u16 size;
-> > +               __u32 unused1;
-> > +               __u32 unused2;
-> > +               char name[0];
-> > +       };
-> > +
-> > +The ``flags`` field contains the type and unit of the statistics data described
-> > +by this descriptor. The following flags are supported:
-> > +  * ``KVM_STATS_TYPE_CUMULATIVE``
-> > +    The statistics data is cumulative. The value of data can only be increased.
-> > +    Most of the counters used in KVM are of this type.
-> > +    The corresponding ``count`` filed for this type is always 1.
-> > +  * ``KVM_STATS_TYPE_INSTANT``
-> > +    The statistics data is instantaneous. Its value can be increased or
-> > +    decreased. This type is usually used as a measurement of some resources,
-> > +    like the number of dirty pages, the number of large pages, etc.
-> > +    The corresponding ``count`` field for this type is always 1.
-> > +  * ``KVM_STATS_UNIT_NONE``
-> > +    There is no unit for the value of statistics data. This usually means that
-> > +    the value is a simple counter of an event.
-> > +  * ``KVM_STATS_UNIT_BYTES``
-> > +    It indicates that the statistics data is used to measure memory size, in the
-> > +    unit of Byte, KiByte, MiByte, GiByte, etc. The unit of the data is
-> > +    determined by the ``exponent`` field in the descriptor. The
-> > +    ``KVM_STATS_SCALE_POW2`` flag is valid in this case. The unit of the data is
-> > +    determined by ``pow(2, exponent)``. For example, if value is 10,
-> > +    ``exponent`` is 20, which means the unit of statistics data is MiByte, we
-> > +    can get the statistics data in the unit of Byte by
-> > +    ``value * pow(2, exponent) = 10 * pow(2, 20) = 10 MiByte`` which is
-> > +    10 * 1024 * 1024 Bytes.
-> > +  * ``KVM_STATS_UNIT_SECONDS``
-> > +    It indicates that the statistics data is used to measure time/latency, in
-> > +    the unit of nanosecond, microsecond, millisecond and second. The unit of the
-> > +    data is determined by the ``exponent`` field in the descriptor. The
-> > +    ``KVM_STATS_SCALE_POW10`` flag is valid in this case. The unit of the data
-> > +    is determined by ``pow(10, exponent)``. For example, if value is 2000000,
-> > +    ``exponent`` is -6, which means the unit of statistics data is microsecond,
-> > +    we can get the statistics data in the unit of second by
-> > +    ``value * pow(10, exponent) = 2000000 * pow(10, -6) = 2 seconds``.
-> > +  * ``KVM_STATS_UNIT_CYCLES``
-> > +    It indicates that the statistics data is used to measure CPU clock cycles.
-> > +    The ``KVM_STATS_SCALE_POW10`` flag is valid in this case. For example, if
-> > +    value is 200, ``exponent`` is 4, we can get the number of CPU clock cycles
-> > +    by ``value * pow(10, exponent) = 200 * pow(10, 4) = 2000000``.
-> > +
-> > +The ``exponent`` field is the scale of corresponding statistics data. It has two
-> > +values as follows:
-> > +  * ``KVM_STATS_SCALE_POW10``
-> > +    The scale is based on power of 10. It is used for measurement of time and
-> > +    CPU clock cycles.
-> > +  * ``KVM_STATS_SCALE_POW2``
-> > +    The scale is based on power of 2. It is used for measurement of memory size.
-> > +
-> > +The ``size`` field is the number of values of this statistics data. It is in the
-> > +unit of ``unsigned long`` for VCPU or ``__u64`` for VM.
->
-> Note it is the reverse in the implementation.
-Will fix this. Thanks.
->
-> > +
-> > +The ``unused1`` and ``unused2`` fields are reserved for future
-> > +support for other types of statistics data, like log/linear histogram.
-> > +
-> > +The ``name`` field points to the name string of the statistics data. The name
-> > +string starts at the end of ``struct kvm_stats_desc``.
-> > +The maximum length (including trailing '\0') is indicated by ``name_size``
-> > +in ``struct kvm_stats_header``.
-> > +
-> > +The Stats Data block contains an array of data values of type ``struct
-> > +kvm_vm_stats_data`` or ``struct kvm_vcpu_stats_data``. It would be read by
-> > +user space periodically to pull statistics data.
-> > +The order of data value in Stats Data block is the same as the order of
-> > +descriptors in Descriptors block.
-> > +  * Statistics data for VM::
-> > +
-> > +       struct kvm_vm_stats_data {
-> > +               unsigned long value[0];
-> > +       };
-> > +
-> > +  * Statistics data for VCPU::
-> > +
-> > +       struct kvm_vcpu_stats_data {
-> > +               __u64 value[0];
-> > +       };
-> > +
-> >  5. The kvm_run structure
-> >  ========================
-> >
-> > @@ -6891,3 +7054,11 @@ This capability is always enabled.
-> >  This capability indicates that the KVM virtual PTP service is
-> >  supported in the host. A VMM can check whether the service is
-> >  available to the guest on migration.
-> > +
-> > +8.33 KVM_CAP_STATS_BINARY_FD
-> > +----------------------------
-> > +
-> > +:Architectures: all
-> > +
-> > +This capability indicates the feature that user space can create get a file
-> > +descriptor for every VM and VCPU to read statistics data in binary format.
-> > --
-> > 2.31.1.751.gd2f1c929bd-goog
-> >
+Supporting userspace code can be found in
+https://github.com/rgbriggs/audit-userspace/tree/ghau-openat2
+
+Supporting test case can be found in
+https://github.com/linux-audit/audit-testsuite/pull/103
+
+Changelog:
+v4:
+- change filename include/linux/auditscm.h to auditsc_classmacros.h to avoid socket association
+
+v3:
+- re-add commit descriptions that somehow got dropped
+- add new file to MAINTAINERS
+
+v2:
+- add include/linux/auditscm.h for audit syscall class macros due to syscall redefinition warnings:
+        arch/x86/ia32/audit.c:3:
+        ./include/linux/audit.h:12,
+        ./include/linux/sched.h:22,
+        ./include/linux/seccomp.h:21,
+        ./arch/x86/include/asm/seccomp.h:5,
+        ./arch/x86/include/asm/unistd.h:20,
+        ./arch/x86/include/generated/uapi/asm/unistd_64.h:4: warning: "__NR_read" redefined #define __NR_read 0
+	...
+        ./arch/x86/include/generated/uapi/asm/unistd_64.h:338: warning: "__NR_rseq" redefined #define __NR_rseq 334
+    previous:
+        arch/x86/ia32/audit.c:2:
+        ./arch/x86/include/generated/uapi/asm/unistd_32.h:7: note: this is the location of the previous definition #define __NR_read 3                                                                                                      
+	...
+        ./arch/x86/include/generated/uapi/asm/unistd_32.h:386: note: this is the location of the previous definition #define __NR_rseq 386
+
+Richard Guy Briggs (3):
+  audit: replace magic audit syscall class numbers with macros
+  audit: add support for the openat2 syscall
+  audit: add OPENAT2 record to list how
+
+ MAINTAINERS                         |  1 +
+ arch/alpha/kernel/audit.c           | 10 ++++++----
+ arch/ia64/kernel/audit.c            | 10 ++++++----
+ arch/parisc/kernel/audit.c          | 10 ++++++----
+ arch/parisc/kernel/compat_audit.c   | 11 ++++++----
+ arch/powerpc/kernel/audit.c         | 12 ++++++-----
+ arch/powerpc/kernel/compat_audit.c  | 13 +++++++-----
+ arch/s390/kernel/audit.c            | 12 ++++++-----
+ arch/s390/kernel/compat_audit.c     | 13 +++++++-----
+ arch/sparc/kernel/audit.c           | 12 ++++++-----
+ arch/sparc/kernel/compat_audit.c    | 13 +++++++-----
+ arch/x86/ia32/audit.c               | 13 +++++++-----
+ arch/x86/kernel/audit_64.c          | 10 ++++++----
+ fs/open.c                           |  2 ++
+ include/linux/audit.h               | 11 ++++++++++
+ include/linux/auditsc_classmacros.h | 24 ++++++++++++++++++++++
+ include/uapi/linux/audit.h          |  1 +
+ kernel/audit.h                      |  2 ++
+ kernel/auditsc.c                    | 31 +++++++++++++++++++++++------
+ lib/audit.c                         | 14 ++++++++-----
+ lib/compat_audit.c                  | 15 +++++++++-----
+ 21 files changed, 169 insertions(+), 71 deletions(-)
+ create mode 100644 include/linux/auditsc_classmacros.h
+
+-- 
+2.27.0
+
