@@ -2,213 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01D6DC433B4
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 11:26:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84B9EC433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 11:52:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D096D613AA
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 11:26:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5E224610CC
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 11:52:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238399AbhESL1U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 May 2021 07:27:20 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6648 "EHLO
+        id S1352595AbhESLx7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 May 2021 07:53:59 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22524 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S237819AbhESL1T (ORCPT
+        by vger.kernel.org with ESMTP id S229508AbhESLx6 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 19 May 2021 07:27:19 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14JB5YaK002366;
-        Wed, 19 May 2021 07:25:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        Wed, 19 May 2021 07:53:58 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14JBXhqV119200;
+        Wed, 19 May 2021 07:52:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=xjNwDg6g7R/jUn4STa3QG5nV0qyInx4KtgFWDfuBse0=;
- b=lbW3PP5qWk9eiRNicUTrzl5EBQnharuU086gFlmexOGxkaemMp3ZGbxA+Wl+Ywey+ybT
- TI+EcYWjqW9NX/y2S4pvTMg9b5WZQ3wCLUfo2ytYO0bRkRabTalekV6yNlDG6RqDX/kr
- g6FwFIJm4GzWmTNfRo7+fXUR4KiRxNa3WILi3TPAX3UxzQ1XqOuHKzEIXEOhprY6rDJP
- Bkb4tys9EtrL4IsAdhBOC96DuOZH2ba4wjDxu0f9BZVVQZ60/1+msNoV7u957iH3RWOp
- dx2UokkhcFioPHUr+JbzKpD2lzZU8NlEskyM3QypBawyOtpQkGLY/SzTnD5qkImZn4o6 AA== 
+ bh=idxJmoXmobbT82K/pwVtIcHZlgyauX9mmmCtHbW3uwk=;
+ b=LaMwX1GO+M0TCt7ZWN2AMVsS8JggG7vQe+BrXP+5udqJ8CeuqXrTbBXQF4dh+jh4usHB
+ +c/d5i7Eqad+jkr7/oUUp4IRa+JQLWOXoMKGpxoHMhQpK6tKMtNlLbaQa5iWs2I2OCdA
+ kJtYO7eB32r5ZwWVoSUWhiKhve7f5rgs2OlhaccHi8Dt9WKe0yNkNT1YOXxzhn+WJ6w+
+ JKUk0WXZRygCFtOMKnlEe1euJ0n96RVB0evUM2JHlgVoTo7efpZeb+AHTVMywDNltPOj
+ bWVPmABn4PX1SeDatDTQ5T30kBel6pw9yk2vC1lZxd+t5l+/TogRk/X3wcv5RPCL3Wka Cw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38n0a02qre-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38n0c3k7rj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 07:25:58 -0400
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14JB5nXF003560;
-        Wed, 19 May 2021 07:25:57 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38n0a02qqu-1
+        Wed, 19 May 2021 07:52:37 -0400
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14JBXjbL119372;
+        Wed, 19 May 2021 07:52:36 -0400
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38n0c3k7r7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 07:25:57 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14JBPXaF011293;
-        Wed, 19 May 2021 11:25:55 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 38j5jgt2cs-1
+        Wed, 19 May 2021 07:52:36 -0400
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14JBl5rt017372;
+        Wed, 19 May 2021 11:52:36 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma02wdc.us.ibm.com with ESMTP id 38jyu275nr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 11:25:55 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14JBPqrA34013598
+        Wed, 19 May 2021 11:52:36 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14JBqYUm26214672
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 May 2021 11:25:52 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8B8CDAE056;
-        Wed, 19 May 2021 11:25:52 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AC9E8AE051;
-        Wed, 19 May 2021 11:25:51 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.63.209])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Wed, 19 May 2021 11:25:51 +0000 (GMT)
-Date:   Wed, 19 May 2021 13:25:49 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        Wed, 19 May 2021 11:52:34 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A87C9AC05F;
+        Wed, 19 May 2021 11:52:34 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 430B2AC05E;
+        Wed, 19 May 2021 11:52:34 +0000 (GMT)
+Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.177.219])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Wed, 19 May 2021 11:52:34 +0000 (GMT)
+Subject: Re: [PATCH v16 00/14] s390/vfio-ap: dynamic configuration support
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, freude@linux.ibm.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
         alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove
- callback
-Message-ID: <20210519132549.295d48db.pasic@linux.ibm.com>
-In-Reply-To: <250189ed-bded-5261-d8f3-f75787be7aeb@de.ibm.com>
-References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
-        <20210512203536.4209c29c.pasic@linux.ibm.com>
-        <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
-        <20210513194541.58d1628a.pasic@linux.ibm.com>
-        <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
-        <20210514021500.60ad2a22.pasic@linux.ibm.com>
-        <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
-        <20210517211030.368ca64b.pasic@linux.ibm.com>
-        <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
-        <9ebd5fd8-b093-e5bc-e680-88fa7a9b085c@linux.ibm.com>
-        <494af62b-dc9a-ef2c-1869-d8f5ed239504@de.ibm.com>
-        <20210518173351.39646b45.pasic@linux.ibm.com>
-        <ca5f1c72-09a3-d270-44a0-bda54c554f67@de.ibm.com>
-        <20210519012709.3bcc30e7.pasic@linux.ibm.com>
-        <250189ed-bded-5261-d8f3-f75787be7aeb@de.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        fiuczy@linux.ibm.com
+References: <20210510164423.346858-1-akrowiak@linux.ibm.com>
+ <60e91bd2-0802-a3af-11a3-fa6dd8146d90@linux.ibm.com>
+ <20210518185439.72a4d37e.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <b45cb3cc-1b04-4476-ebbd-7b12aecc31e4@linux.ibm.com>
+Date:   Wed, 19 May 2021 07:52:33 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210518185439.72a4d37e.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: _iyEpA1SPmLyKZ1JJ59LaZOsF_ozL0VD
-X-Proofpoint-GUID: J30VBoJ0VeHxI7dmTnPyIu16zuzxnH5P
+X-Proofpoint-ORIG-GUID: fyMY2kAaw7biDif2qhjLPCxhQ_YVuKUj
+X-Proofpoint-GUID: hCiMDr8QSkhw1LWpNgD19hesV2wOgxs-
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-19_04:2021-05-19,2021-05-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
- lowpriorityscore=0 adultscore=0 mlxlogscore=999 phishscore=0 spamscore=0
- impostorscore=0 suspectscore=0 malwarescore=0 clxscore=1015
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105190074
+ definitions=2021-05-19_05:2021-05-19,2021-05-19 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ phishscore=0 priorityscore=1501 clxscore=1015 mlxlogscore=999 adultscore=0
+ suspectscore=0 spamscore=0 bulkscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2105190076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 19 May 2021 10:17:49 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-> On 19.05.21 01:27, Halil Pasic wrote:
-> > On Tue, 18 May 2021 19:01:42 +0200
-> > Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> >   
-> >> On 18.05.21 17:33, Halil Pasic wrote:  
-> >>> On Tue, 18 May 2021 15:59:36 +0200
-> >>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:  
-> > [..]  
-> >>>>>>
-> >>>>>> Would it help, if the code in priv.c would read the hook once
-> >>>>>> and then only work on the copy? We could protect that with rcu
-> >>>>>> and do a synchronize rcu in vfio_ap_mdev_unset_kvm after
-> >>>>>> unsetting the pointer?  
-> >>>
-> >>> Unfortunately just "the hook" is ambiguous in this context. We
-> >>> have kvm->arch.crypto.pqap_hook that is supposed to point to
-> >>> a struct kvm_s390_module_hook member of struct ap_matrix_mdev
-> >>> which is also called pqap_hook. And struct kvm_s390_module_hook
-> >>> has function pointer member named "hook".  
-> >>
-> >> I was referring to the full struct.  
-> >>>      
-> >>>>>
-> >>>>> I'll look into this.  
-> >>>>
-> >>>> I think it could work. in priv.c use rcu_readlock, save the
-> >>>> pointer, do the check and call, call rcu_read_unlock.
-> >>>> In vfio_ap use rcu_assign_pointer to set the pointer and
-> >>>> after setting it to zero call sychronize_rcu.  
-> >>>
-> >>> In my opinion, we should make the accesses to the
-> >>> kvm->arch.crypto.pqap_hook pointer properly synchronized. I'm
-> >>> not sure if that is what you are proposing. How do we usually
-> >>> do synchronisation on the stuff that lives in kvm->arch?
-> >>>      
-> >>
-> >> RCU is a method of synchronization. We  make sure that structure
-> >> pqap_hook is still valid as long as we are inside the rcu read
-> >> lock. So the idea is: clear pointer, wait until all old readers
-> >> have finished and the proceed with getting rid of the structure.  
-> > 
-> > Yes I know that RCU is a method of synchronization, but I'm not
-> > very familiar with it. I'm a little confused by "read the hook
-> > once and then work on a copy". I guess, I would have to read up
-> > on the RCU again to get clarity. I intend to brush up my RCU knowledge
-> > once the patch comes along. I would be glad to have your help when
-> > reviewing an RCU based solution for this.  
-> 
-> Just had a quick look. Its not trivial, as the hook function itself
-> takes a mutex and an rcu section must not sleep. Will have a deeper
-> look.
 
-I refreshed my RCU knowledge and RCU seems to be a reasonable choice
-here. I don't think we have to make the rcu read section span the 
-call to the callback. That is something like
+On 5/18/21 12:54 PM, Halil Pasic wrote:
+> On Tue, 18 May 2021 09:26:01 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> Ping!
+> I'm already working on it. I went trough the all the changes once, and
+> I'm currently trying to understand the new usages of
+> matrix_mdev->wait_for_kvm and matrix_mdev->kvm_busy. You seem to be
+> using these a new purpose...
 
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -613,6 +613,7 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
-        unsigned long reg0;
-        int ret;
-        uint8_t fc;
-+       int (*pqap_hook)(struct kvm_vcpu *vcpu);
- 
-        /* Verify that the AP instruction are available */
-        if (!ap_instructions_available())
-@@ -657,14 +658,21 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
-         * Verify that the hook callback is registered, lock the owner
-         * and call the hook.
-         */
-+       rcu_read_lock();
-        if (vcpu->kvm->arch.crypto.pqap_hook) {
--               if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))
-+               if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner)) {
-+                       rcu_read_unlock();
-                        return -EOPNOTSUPP;
--               ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);
-+               }
-+               pqap_hook = READ_ONCE(vcpu->kvm->arch.crypto.pqap_hook->hook);
-+               rcu_read_unlock();
-+               ret = pqap_hook();
-                module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);
-                if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)
-                        kvm_s390_set_psw_cc(vcpu, 3);
-                return ret;
-+       } else {
-+               rcu_read_unlock();
-        }
-        /*
-         * A vfio_driver must register a hook.
+I merely added that to the commit function which sets the masks
+in the guest's APCB. This is the same usage as in the
+vfio_ap_mdev_unset_kvm() function, to prevent a lockdep splat
+similar to the scenario for which those fields were added in the
+first place.
 
-Should be sufficient. The module get ensures that the pointee is still
-around for the duration of the call. The handle_pqap() from
-vfio_ap_ops.c checks the vcpu->kvm->arch.crypto.pqap_hook the same
-lock that is used to set it to NULL, and bails out if it is NULL. It
-is a bit convoluted, but it should work.
-
-Regards,
-Halil
+>
+> Regards,
+> Halil
 
