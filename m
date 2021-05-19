@@ -7,23 +7,23 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAD98C43603
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 00:51:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0DD0C43619
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 00:51:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 897F86112F
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 00:51:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C77926135F
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 00:51:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352902AbhESAwb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 May 2021 20:52:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53904 "EHLO
+        id S233382AbhESAw2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 May 2021 20:52:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234642AbhESAu5 (ORCPT
+        with ESMTP id S233111AbhESAu5 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 20:50:57 -0400
 Received: from zeniv-ca.linux.org.uk (zeniv-ca.linux.org.uk [IPv6:2607:5300:60:148a::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDFB6C06175F;
-        Tue, 18 May 2021 17:49:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F09C0613CE;
+        Tue, 18 May 2021 17:49:38 -0700 (PDT)
 Received: from viro by zeniv-ca.linux.org.uk with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1ljAOT-00G4FY-K4; Wed, 19 May 2021 00:49:01 +0000
+        id 1ljAOU-00G4Fi-6F; Wed, 19 May 2021 00:49:02 +0000
 From:   Al Viro <viro@zeniv.linux.org.uk>
 To:     Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     Jia He <justin.he@arm.com>, Petr Mladek <pmladek@suse.com>,
@@ -45,9 +45,9 @@ Cc:     Jia He <justin.he@arm.com>, Petr Mladek <pmladek@suse.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         linux-s390 <linux-s390@vger.kernel.org>,
         linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: [PATCH 03/14] d_path: regularize handling of root dentry in __dentry_path()
-Date:   Wed, 19 May 2021 00:48:50 +0000
-Message-Id: <20210519004901.3829541-3-viro@zeniv.linux.org.uk>
+Subject: [PATCH 08/14] d_path: make prepend_name() boolean
+Date:   Wed, 19 May 2021 00:48:55 +0000
+Message-Id: <20210519004901.3829541-8-viro@zeniv.linux.org.uk>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210519004901.3829541-1-viro@zeniv.linux.org.uk>
 References: <YKRfI29BBnC255Vp@zeniv-ca.linux.org.uk>
@@ -59,84 +59,65 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-All path-forming primitives boil down to sequence of prepend_name()
-on dentries encountered along the way toward root.  Each time we prepend
-/ + dentry name to the buffer.  Normally that does exactly what we want,
-but there's a corner case when we don't call prepend_name() at all (in case
-of __dentry_path() that happens if we are given root dentry).  We obviously
-want to end up with "/", rather than "", so this corner case needs to be
-handled.
-
-__dentry_path() used to manually put '/' in the end of buffer before
-doing anything else, to be overwritten by the first call of prepend_name()
-if one happens and to be left in place if we don't call prepend_name() at
-all.  That required manually checking that we had space in the buffer
-(prepend_name() and prepend() take care of such checks themselves) and lead
-to clumsy keeping track of return value.
-
-A better approach is to check if the main loop has added anything
-into the buffer and prepend "/" if it hasn't.  A side benefit of using prepend()
-is that it does the right thing if we'd already run out of buffer, making
-the overflow-handling logics simpler.
+It returns only 0 or -ENAMETOOLONG and both callers only check if
+the result is negative.  Might as well return true on success and
+false on failure...
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- fs/d_path.c | 21 +++++----------------
- 1 file changed, 5 insertions(+), 16 deletions(-)
+ fs/d_path.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/fs/d_path.c b/fs/d_path.c
-index 1a1cf05e7780..b3324ae7cfe2 100644
+index 327cc3744554..83db83446afd 100644
 --- a/fs/d_path.c
 +++ b/fs/d_path.c
-@@ -329,31 +329,22 @@ char *simple_dname(struct dentry *dentry, char *buffer, int buflen)
- static char *__dentry_path(const struct dentry *d, char *p, int buflen)
+@@ -34,15 +34,15 @@ static void prepend(char **buffer, int *buflen, const char *str, int namelen)
+  *
+  * Load acquire is needed to make sure that we see that terminating NUL.
+  */
+-static int prepend_name(char **buffer, int *buflen, const struct qstr *name)
++static bool prepend_name(char **buffer, int *buflen, const struct qstr *name)
  {
- 	const struct dentry *dentry;
--	char *end, *retval;
-+	char *end;
- 	int len, seq = 0;
--	int error = 0;
--
--	if (buflen < 1)
--		goto Elong;
+ 	const char *dname = smp_load_acquire(&name->name); /* ^^^ */
+ 	u32 dlen = READ_ONCE(name->len);
+ 	char *p;
  
- 	rcu_read_lock();
- restart:
- 	dentry = d;
- 	end = p;
- 	len = buflen;
--	/* Get '/' right */
--	retval = end-1;
--	*retval = '/';
- 	read_seqbegin_or_lock(&rename_lock, &seq);
- 	while (!IS_ROOT(dentry)) {
+ 	*buflen -= dlen + 1;
+-	if (*buflen < 0)
+-		return -ENAMETOOLONG;
++	if (unlikely(*buflen < 0))
++		return false;
+ 	p = *buffer -= dlen + 1;
+ 	*p++ = '/';
+ 	while (dlen--) {
+@@ -51,7 +51,7 @@ static int prepend_name(char **buffer, int *buflen, const struct qstr *name)
+ 			break;
+ 		*p++ = c;
+ 	}
+-	return 0;
++	return true;
+ }
+ 
+ /**
+@@ -127,7 +127,7 @@ static int prepend_path(const struct path *path,
+ 		}
+ 		parent = dentry->d_parent;
+ 		prefetch(parent);
+-		if (unlikely(prepend_name(&bptr, &blen, &dentry->d_name) < 0))
++		if (!prepend_name(&bptr, &blen, &dentry->d_name))
+ 			break;
+ 
+ 		dentry = parent;
+@@ -305,7 +305,7 @@ static char *__dentry_path(const struct dentry *d, char *p, int buflen)
  		const struct dentry *parent = dentry->d_parent;
  
  		prefetch(parent);
--		error = prepend_name(&end, &len, &dentry->d_name);
--		if (error)
-+		if (unlikely(prepend_name(&end, &len, &dentry->d_name) < 0))
+-		if (unlikely(prepend_name(&end, &len, &dentry->d_name) < 0))
++		if (!prepend_name(&end, &len, &dentry->d_name))
  			break;
  
--		retval = end;
  		dentry = parent;
- 	}
- 	if (!(seq & 1))
-@@ -363,11 +354,9 @@ static char *__dentry_path(const struct dentry *d, char *p, int buflen)
- 		goto restart;
- 	}
- 	done_seqretry(&rename_lock, seq);
--	if (error)
--		goto Elong;
--	return retval;
--Elong:
--	return ERR_PTR(-ENAMETOOLONG);
-+	if (len == buflen)
-+		prepend(&end, &len, "/", 1);
-+	return len >= 0 ? end : ERR_PTR(-ENAMETOOLONG);
- }
- 
- char *dentry_path_raw(const struct dentry *dentry, char *buf, int buflen)
 -- 
 2.11.0
 
