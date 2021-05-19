@@ -2,156 +2,210 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 824CDC433ED
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 23:27:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46169C433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 00:44:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5AC546112F
-	for <linux-s390@archiver.kernel.org>; Tue, 18 May 2021 23:27:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28DAF6135B
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 00:44:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238420AbhERX2s (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 May 2021 19:28:48 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6020 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230352AbhERX2o (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 May 2021 19:28:44 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14IN48ln032311;
-        Tue, 18 May 2021 19:27:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=szwMXhJStHqamyPt//Gt/3KQhxeXPJVI25+JNBO3flE=;
- b=kh/vnmzzokZZYpplxeO+E9xFFRzY+9xs5Mw+qvwjyls/VVv545/sSgj7d8qeC747pGG/
- eNxu7MDjVcPy7dK9b/lQ1dlpy/563cTwKHgpyNzUVbtPQpZW3rDs01cL/BMcfAi1j55T
- P5IvfcmHpEtloVAJT7YS1xNxnSpt8R+OT18BHUUKk1tAlrb/AViVO24y/We0i6j+Vq9b
- NCRh7fOmVWIQGpFyyhXKdavTL/MIS3QstoLnTM+1jy/ZdYB8G5VGO6zjmIh1TWiYk15a
- 4WiXOCOXw8LwMeLpOKbIBwba0DGSAXfKMY/+TXAP6l0yQ/rEbvP4hoWEwJXiFCwhOhnx ug== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38mpp1rnma-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 19:27:24 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14IN5C75042566;
-        Tue, 18 May 2021 19:27:23 -0400
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38mpp1rnkt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 19:27:23 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14INODP9025658;
-        Tue, 18 May 2021 23:27:21 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03fra.de.ibm.com with ESMTP id 38j5x88y06-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 23:27:21 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14INRIu044433710
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 May 2021 23:27:18 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 15F73A4051;
-        Tue, 18 May 2021 23:27:18 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3315EA4040;
-        Tue, 18 May 2021 23:27:17 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.17.64])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Tue, 18 May 2021 23:27:17 +0000 (GMT)
-Date:   Wed, 19 May 2021 01:27:09 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove
- callback
-Message-ID: <20210519012709.3bcc30e7.pasic@linux.ibm.com>
-In-Reply-To: <ca5f1c72-09a3-d270-44a0-bda54c554f67@de.ibm.com>
-References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
-        <20210512203536.4209c29c.pasic@linux.ibm.com>
-        <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
-        <20210513194541.58d1628a.pasic@linux.ibm.com>
-        <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
-        <20210514021500.60ad2a22.pasic@linux.ibm.com>
-        <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
-        <20210517211030.368ca64b.pasic@linux.ibm.com>
-        <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
-        <9ebd5fd8-b093-e5bc-e680-88fa7a9b085c@linux.ibm.com>
-        <494af62b-dc9a-ef2c-1869-d8f5ed239504@de.ibm.com>
-        <20210518173351.39646b45.pasic@linux.ibm.com>
-        <ca5f1c72-09a3-d270-44a0-bda54c554f67@de.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S239167AbhESAqD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 May 2021 20:46:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52846 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244461AbhESAqC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 20:46:02 -0400
+Received: from zeniv-ca.linux.org.uk (zeniv-ca.linux.org.uk [IPv6:2607:5300:60:148a::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11B6AC06175F;
+        Tue, 18 May 2021 17:44:44 -0700 (PDT)
+Received: from viro by zeniv-ca.linux.org.uk with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1ljAIt-00G48Y-QL; Wed, 19 May 2021 00:43:15 +0000
+Date:   Wed, 19 May 2021 00:43:15 +0000
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Jia He <justin.he@arm.com>, Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Al Viro <viro@ftp.linux.org.uk>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Eric Biggers <ebiggers@google.com>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: [PATCHSET] d_path cleanups
+Message-ID: <YKRfI29BBnC255Vp@zeniv-ca.linux.org.uk>
+References: <20210508122530.1971-1-justin.he@arm.com>
+ <20210508122530.1971-2-justin.he@arm.com>
+ <CAHk-=wgSFUUWJKW1DXa67A0DXVzQ+OATwnC3FCwhqfTJZsvj1A@mail.gmail.com>
+ <YJbivrA4Awp4FXo8@zeniv-ca.linux.org.uk>
+ <CAHk-=whZhNXiOGgw8mXG+PTpGvxnRG1v5_GjtjHpoYXd2Fn_Ow@mail.gmail.com>
+ <YJb9KFBO7MwJeDHz@zeniv-ca.linux.org.uk>
+ <CAHk-=wjhrhkWbV_EY0gupi2ea7QHpGW=68x7g09j_Tns5ZnsLA@mail.gmail.com>
+ <CAHk-=wiOPkSm-01yZzamTvX2RPdJ0784+uWa0OMK-at+3XDd0g@mail.gmail.com>
+ <YJdIx6iiU9YwnQYz@zeniv-ca.linux.org.uk>
+ <CAHk-=wih_O+0xG4QbLw-3XJ71Yh43_SFm3gp9swj8knzXoceZQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: WYWN-i9ftGId583qop22oN4cL01dFjk2
-X-Proofpoint-ORIG-GUID: fc4uHoZ8JOMCtgybKym1QvvLiAXexPjv
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-18_11:2021-05-18,2021-05-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
- phishscore=0 clxscore=1015 lowpriorityscore=0 suspectscore=0 bulkscore=0
- mlxlogscore=999 malwarescore=0 priorityscore=1501 mlxscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2105180159
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wih_O+0xG4QbLw-3XJ71Yh43_SFm3gp9swj8knzXoceZQ@mail.gmail.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 18 May 2021 19:01:42 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+	First of all, apologies for delays (one of the disks on the main
+devel/testing box has become an ex-parrot, with... interesting recovery).
 
-> On 18.05.21 17:33, Halil Pasic wrote:
-> > On Tue, 18 May 2021 15:59:36 +0200
-> > Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-[..]
-> >>>>
-> >>>> Would it help, if the code in priv.c would read the hook once
-> >>>> and then only work on the copy? We could protect that with rcu
-> >>>> and do a synchronize rcu in vfio_ap_mdev_unset_kvm after
-> >>>> unsetting the pointer?  
-> > 
-> > Unfortunately just "the hook" is ambiguous in this context. We
-> > have kvm->arch.crypto.pqap_hook that is supposed to point to
-> > a struct kvm_s390_module_hook member of struct ap_matrix_mdev
-> > which is also called pqap_hook. And struct kvm_s390_module_hook
-> > has function pointer member named "hook".  
-> 
-> I was referring to the full struct.
-> >   
-> >>>
-> >>> I'll look into this.  
-> >>
-> >> I think it could work. in priv.c use rcu_readlock, save the
-> >> pointer, do the check and call, call rcu_read_unlock.
-> >> In vfio_ap use rcu_assign_pointer to set the pointer and
-> >> after setting it to zero call sychronize_rcu.  
-> > 
-> > In my opinion, we should make the accesses to the
-> > kvm->arch.crypto.pqap_hook pointer properly synchronized. I'm
-> > not sure if that is what you are proposing. How do we usually
-> > do synchronisation on the stuff that lives in kvm->arch?
-> >   
-> 
-> RCU is a method of synchronization. We  make sure that structure
-> pqap_hook is still valid as long as we are inside the rcu read
-> lock. So the idea is: clear pointer, wait until all old readers
-> have finished and the proceed with getting rid of the structure.
+	Here's what I've got for carve-up of cleanups.  This stuff lives
+in git://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs.git #work.d_path,
+individual patches in followups.  14 commits, all changes are to fs/d_path.c,
+total being +133/-191.  Moderately tested, seems to work here.  Review
+and testing would be welcome...
 
-Yes I know that RCU is a method of synchronization, but I'm not
-very familiar with it. I'm a little confused by "read the hook
-once and then work on a copy". I guess, I would have to read up
-on the RCU again to get clarity. I intend to brush up my RCU knowledge
-once the patch comes along. I would be glad to have your help when
-reviewing an RCU based solution for this.   
+	Part 1: trivial preliminary cleanup
 
-Regards,
-Halil
+1/14) d_path: "\0" is {0,0}, not {0}
+	A bunch of places used "\0" as a literal for 1-element array consisting
+of NULs.  That should've been "", obviously...
+
+	Part 2: untangling __dentry_path()
+
+2/14) d_path: saner calling conventions for __dentry_path()
+	__dentry_path() used to copy the calling conventions for dentry_path().
+That was fine for use in dentry_path_raw(), but it created a lot of headache
+in dentry_path(), since we might need a suffix (//deleted) in there, without
+NUL between it and the pathname itself.  So we had to
+	1) (possibly) put /deleted into buffer and remember where it went
+	2) let __dentry_path() prepend NUL-terminated pathname
+	3) override NUL with / if we had done (1)
+Life becomes much easier if __dentry_path() does *NOT* put NUL in there.
+Then dentry_path_raw() becomes 'put "" into buffer, then __dentry_path()'
+and dentry_path() - 'put "" or "//deleted" into buffer, then __dentry_path()'.
+
+Additionally, we switch the way buffer information is passed to one similar
+to what we do in prepend()/prepend_name()/etc., i.e. pass the pointer to the
+end of buffer instead of that to beginning.  That's what we'd been using
+in __dentry_path() all along, and now that the callers are doing some prepend()
+before calling __dentry_path(), they that value already on hand.
+
+3/14)  d_path: regularize handling of root dentry in __dentry_path()
+	All path-forming primitives boil down to sequence of prepend_name()
+on dentries encountered along the way toward root.  Each time we prepend
+/ + dentry name to the buffer.  Normally that does exactly what we want,
+but there's a corner case when we don't call prepend_name() at all (in case
+of __dentry_path() that happens if we are given root dentry).  We obviously
+want to end up with "/", rather than "", so this corner case needs to be
+handled.
+	__dentry_path() used to manually put '/' in the end of buffer before
+doing anything else, to be overwritten by the first call of prepend_name()
+if one happens and to be left in place if we don't call prepend_name() at
+all.  That required manually checking that we had space in the buffer
+(prepend_name() and prepend() take care of such checks themselves) and lead
+to clumsy keeping track of return value.
+	A better approach is to check if the main loop has added anything
+into the buffer and prepend "/" if it hasn't.  A side benefit of using prepend()
+is that it does the right thing if we'd already run out of buffer, making
+the overflow-handling logics simpler.
+
+NB: the above might be worth putting into commit message.
+
+	Part 3: overflow handling cleanups
+
+We have an overcomplicated handling of overflows.  Primitives (prepend() and
+prepend_name()) check if we'd run out of space and return -ENAMETOOLONG.
+Then it's propagated all the way out by call chain.  However, the same
+primitives are safe to call in case we'd *already* run out of space and
+that condition is easily checked at any level of callchain.  The next
+5 commits use that to simplify the control flow.
+
+4/14)  d_path: get rid of path_with_deleted()
+	expand into the sole caller, rearrange the suffix handing
+along the lines of dentry_path().
+
+5/14)  getcwd(2): saner logics around prepend_path() call
+	Turn
+		prepend_path()
+		if it says it has run out of space, fail with ENAMETOOLONG
+		if it wants "(unreachable) " prepended
+			do so
+			if that says it has run out of space, fail with ENAMETOOLONG
+	into
+		prepend_path()
+		if it wants "(unreachable) " prepended
+			do so
+		if we see we'd run out of space at some point
+			fail with ENAMETOOLONG
+
+6/14)  d_path: don't bother with return value of prepend()
+	Almost nothing is looking at return value of prepend() and it's
+easy to get rid of the last stragglers...
+
+7/14)  d_path: lift -ENAMETOOLONG handling into callers of prepend_path()
+	It's easier to have prepend_path() return 0 on overflow and
+check for overflow in the callers.  The logics is the same for all callers
+(ran out of space => ERR_PTR(-ENAMETOOLONG)), so we get a bit of boilerplate,
+but even with that the callers become simpler.  Added boilerplate will be
+dealt with a couple of commits down the road.
+
+8/14)  d_path: make prepend_name() boolean
+	Unlike the case of prepend(), callers of prepend_name() really want
+to see whether it has run out of space - the loops it's called in are
+lockless and we could, in principle, end up spinning there for indetermined
+amount of iterations.  Dropping out of loop if we run out of space in the
+buffers serves as a backstop for (very unlikely) cases.
+	However, all we care about is success/failure - we generate
+ENAMETOOLONG in the callers, if not callers of callers, so we can bloody well
+make it return bool.
+
+	Part 4: introduction of prepend_buffer
+
+9/14)  d_path: introduce struct prepend_buffer
+	We've a lot of places where we have pairs of form (pointer to end
+of buffer, amount of space left in front of that).  These sit in pairs of
+variables located next to each other and usually passed by reference.
+Turn those into instances of new type (struct prepend_buffer) and pass
+reference to the pair instead of pairs of references to its fields.
+
+Initialization (of form {buf + len, len}) turned into a macro (DECLARE_BUF),
+to avoid brainos.  Extraction of string (buffer contents if we hadn't run
+out of space, ERR_PTR(-ENAMETOOLONG) otherwise) is done by extract_string();
+that eats the leftover boilerplate from earlier in the series.
+
+	Part 5: extracting the lockless part of prepend_path()
+The thing that started the entire mess had been an attempt to use d_path
+machinery for vsprintf(); that can't grab rename_lock and mount_lock,
+so we needed a variant of prepend_path() that would try to go without
+those locks.  The obvious approach is to lift the internal loop of
+prepend_path() into a new primitive.  However, that needs some massage
+first to separate local variables - otherwise we end up with the
+argument list from hell.
+
+10/14) d_path: prepend_path(): get rid of vfsmnt
+	redundant - we maintain mnt and vfsmnt through the loop,
+with the latter being a pointer to mnt->mnt all along.
+11/14) d_path: prepend_path(): lift resetting b in case when we'd return 3 out of loop
+	the only place in the inner loop where we need p; we use it
+to reset b in case we would return 3.  We can easily check that error is 3
+after the loop and do resetting there.  Note that we only need that after
+the *outer* loop - the body of that starts with assignment to b anyway.
+12/14) d_path: prepend_path(): lift the inner loop into a new helper
+	ta-da
+
+	Part 6: followups
+
+13/14) d_path: prepend_path() is unlikely to return non-zero
+t14/14) getcwd(2): clean up error handling
