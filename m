@@ -2,158 +2,217 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_SANE_2
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0B21C433B4
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 11:07:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A297C433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 11:23:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B1CD96101E
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 11:07:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DCE6D611C2
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 11:23:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346077AbhESLJG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 May 2021 07:09:06 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32990 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240482AbhESLJF (ORCPT
+        id S1350053AbhESLYl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 May 2021 07:24:41 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11700 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1350285AbhESLYY (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 19 May 2021 07:09:05 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14JB4McU175859;
-        Wed, 19 May 2021 07:07:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        Wed, 19 May 2021 07:24:24 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14JB4Nw9053448;
+        Wed, 19 May 2021 07:23:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : from : to : cc
+ : references : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=mgQP3Ox1zUzhqI+jTSjnWTXTwOY6N8NMVBkqvt6iJi4=;
- b=Ek/Cjvwltmcjr7sM4AGleRPxOaWP17xfCHOt/9R/Xta3oZjAyjxuYRye5uonQ/7F+MwD
- yFSQRmeklkFuy6gB9CRxCbbxAU5WTITKQ6+kyajSSvZBQiToOM0MRsz+wN40VZXx9vKw
- Q9XR9duZCdNGqq8plva7mEQbJXqYlF9E+77jIDe8Z7nCuyOPQAL/UpoR08yAfPpj6Sn/
- ntQmxn1c4fjzjLx1W+ao+J+GgrfP7FdskWJBnlsZECtQ6vD7UCfyrYe7t1sRNa01xtsG
- DRCgbBMaZy4/J5ciD6qOKHKvN9nTay0UzUCiK3tF5CngarC2nSi7z/EhWwJKuHFmYODT 9A== 
+ bh=baaD/EhyUIsH+7SWKLJhgTMHX6iZgwqB6kMSnQ5gIoQ=;
+ b=NwghN8WyjqSRCbUrVxL+z53mOos9pN81qHCGBK3fZIQfBjNCtxuykz7a8Q6zMRDpyd7R
+ IHVesq3PkOXzEZTq0dj0LSbZPTg8s4I6YmE9pkxmbJJ+0kIDYGU34dgb+S7WqW8464af
+ PUVdEEtnZqWscz9FnPz/VVVQ2SWV0uY8EkrrBQH4HuW8JUvrfazROuiUIB3la/q93vcb
+ AbhNATjTc4MGlMXnLSp1D3mMRU8SSM615ClEsw4jxARPMRJfP/xKo1bt1GxzhlgfJvkO
+ ALWPtmZTXNxret8HqU7FxE2Axh7TBuEOTkrqR0fo6pPoNnG50XlcRibroBApasU1ZgzF hw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38n182gewj-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38n1dp8j77-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 07:07:30 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14JB4lZJ183041;
-        Wed, 19 May 2021 07:07:29 -0400
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38n182gevx-1
+        Wed, 19 May 2021 07:23:03 -0400
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14JB4ql3059504;
+        Wed, 19 May 2021 07:23:02 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38n1dp8j6j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 07:07:29 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14JAnVTT008925;
-        Wed, 19 May 2021 11:07:28 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma02fra.de.ibm.com with ESMTP id 38mceh8c0v-1
+        Wed, 19 May 2021 07:23:02 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14JBDMg5017214;
+        Wed, 19 May 2021 11:23:00 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 38j5x8a281-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 11:07:27 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14JB7Ond29295018
+        Wed, 19 May 2021 11:23:00 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14JBMv3Q32178546
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 May 2021 11:07:24 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B00CEA4059;
-        Wed, 19 May 2021 11:07:24 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2C109A4040;
-        Wed, 19 May 2021 11:07:24 +0000 (GMT)
-Received: from thinkpad (unknown [9.171.46.43])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Wed, 19 May 2021 11:07:24 +0000 (GMT)
-Date:   Wed, 19 May 2021 13:07:22 +0200
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     linux-mm@kvack.org, akpm@linux-foundation.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm/thp: Make ARCH_ENABLE_SPLIT_PMD_PTLOCK dependent on
- PGTABLE_LEVELS > 2
-Message-ID: <20210519130722.7d255b7f@thinkpad>
-In-Reply-To: <20210517161358.49683f34@thinkpad>
-References: <1620621345-29176-1-git-send-email-anshuman.khandual@arm.com>
-        <a4403be6-5b74-2c86-bc4c-42ae4f0764dc@arm.com>
-        <20210517161358.49683f34@thinkpad>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        Wed, 19 May 2021 11:22:57 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 62FB852050;
+        Wed, 19 May 2021 11:22:57 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.89.97])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id DA6505204E;
+        Wed, 19 May 2021 11:22:56 +0000 (GMT)
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
+References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
+ <20210512203536.4209c29c.pasic@linux.ibm.com>
+ <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
+ <20210513194541.58d1628a.pasic@linux.ibm.com>
+ <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
+ <20210514021500.60ad2a22.pasic@linux.ibm.com>
+ <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
+ <20210517211030.368ca64b.pasic@linux.ibm.com>
+ <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
+ <9ebd5fd8-b093-e5bc-e680-88fa7a9b085c@linux.ibm.com>
+ <494af62b-dc9a-ef2c-1869-d8f5ed239504@de.ibm.com>
+ <20210518173351.39646b45.pasic@linux.ibm.com>
+ <ca5f1c72-09a3-d270-44a0-bda54c554f67@de.ibm.com>
+ <20210519012709.3bcc30e7.pasic@linux.ibm.com>
+ <250189ed-bded-5261-d8f3-f75787be7aeb@de.ibm.com>
+Message-ID: <9c2b4711-5a26-15b0-8651-67a88bf12270@de.ibm.com>
+Date:   Wed, 19 May 2021 13:22:56 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <250189ed-bded-5261-d8f3-f75787be7aeb@de.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: WWrK9mQA_VGxztucBjuP4reC0yVbWybH
-X-Proofpoint-ORIG-GUID: 8Di_qBcH4nJ6RmCX8ShVo6LLQY9FAAW_
+X-Proofpoint-ORIG-GUID: xxaakWftAy8zKw8lKZVH8cQw3sCx2q8P
+X-Proofpoint-GUID: QoBPMHmXFpOuLNdYjKH9o9kB4IFtivgq
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-05-19_04:2021-05-19,2021-05-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 bulkscore=0 adultscore=0 clxscore=1015 spamscore=0
- phishscore=0 mlxscore=0 mlxlogscore=999 impostorscore=0 malwarescore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 bulkscore=0 suspectscore=0 spamscore=0 mlxscore=0
+ lowpriorityscore=0 mlxlogscore=999 phishscore=0 clxscore=1015 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2104190000 definitions=main-2105190074
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 17 May 2021 16:13:57 +0200
-Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
 
-> On Mon, 17 May 2021 09:45:31 +0530
-> Anshuman Khandual <anshuman.khandual@arm.com> wrote:
-> 
-> > 
-> > 
-> > On 5/10/21 10:05 AM, Anshuman Khandual wrote:  
-> > > ARCH_ENABLE_SPLIT_PMD_PTLOCK is irrelevant unless there are two page table
-> > > levels including PMD (also per Documentation/vm/split_page_table_lock.rst).
-> > > Make this dependency explicit on remaining platforms i.e x86 and s390 where
-> > > ARCH_ENABLE_SPLIT_PMD_PTLOCK is subscribed.  
-> 
-> For s390, I don't think this makes a lot of sense. We always have 5 levels
-> defined for PGTABLE_LEVELS, and we would not even compile with any other
-> value, because of the "#error CONFIG_PGTABLE_LEVELS" in include/linux/pgtable.h.
-> 
-> Our pagetable folding also works a bit different than it does on other archs,
-> and we would actually have pmd level entries for 2-level pagetables, so it should
-> all work fine also with PGTABLE_LEVELS == 2 (if it was possible).
-> 
-> In fact, I do not really see why you would need "more than two levels" on any
-> arch, in order to use split PMD locks. Your description also just says
-> "irrelevant unless there are two page table levels", and not "more than two
-> levels", like in Documentation/vm/split_page_table_lock.rst.
-> 
-> Yet, your patch adds checks for "more than", so at least the description
-> seems a bit misleading. I assume that the "more than" has to do with folded
-> PMD on a 2-level system, but the way we fold on s390 I do not see why that
-> should be a problem. Could you please elaborate a bit?
-> 
-> We also have different levels of pagetables for kernel (CONFIG_PGTABLE_LEVELS)
-> and user processes on s390. The latter can have dynamic levels, currently
-> starting with 3, but previously we also had 2 levels for compat tasks e.g.
-> These dynamic levels for user processes are also independent from the
-> CONFIG_PGTABLE_LEVELS used for the kernel pagetable, while the split PMD lock
-> of course also affects user process pagetables, so that would be another
-> reason not to add such a dependency for ARCH_ENABLE_SPLIT_PMD_PTLOCK on s390.
 
-Ouch, I guess I was a bit confused here. I thought the split PMD lock
-was part of the struct page for the 4 KB page where the PMD entry is located,
-and therefore, with more than one page, it still would make (a little) sense
-to use it also for 2 pagetable levels.
+On 19.05.21 10:17, Christian Borntraeger wrote:
+> 
+> 
+> On 19.05.21 01:27, Halil Pasic wrote:
+>> On Tue, 18 May 2021 19:01:42 +0200
+>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+>>
+>>> On 18.05.21 17:33, Halil Pasic wrote:
+>>>> On Tue, 18 May 2021 15:59:36 +0200
+>>>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+>> [..]
+>>>>>>>
+>>>>>>> Would it help, if the code in priv.c would read the hook once
+>>>>>>> and then only work on the copy? We could protect that with rcu
+>>>>>>> and do a synchronize rcu in vfio_ap_mdev_unset_kvm after
+>>>>>>> unsetting the pointer?
+>>>>
+>>>> Unfortunately just "the hook" is ambiguous in this context. We
+>>>> have kvm->arch.crypto.pqap_hook that is supposed to point to
+>>>> a struct kvm_s390_module_hook member of struct ap_matrix_mdev
+>>>> which is also called pqap_hook. And struct kvm_s390_module_hook
+>>>> has function pointer member named "hook".
+>>>
+>>> I was referring to the full struct.
+>>>>>>
+>>>>>> I'll look into this.
+>>>>>
+>>>>> I think it could work. in priv.c use rcu_readlock, save the
+>>>>> pointer, do the check and call, call rcu_read_unlock.
+>>>>> In vfio_ap use rcu_assign_pointer to set the pointer and
+>>>>> after setting it to zero call sychronize_rcu.
+>>>>
+>>>> In my opinion, we should make the accesses to the
+>>>> kvm->arch.crypto.pqap_hook pointer properly synchronized. I'm
+>>>> not sure if that is what you are proposing. How do we usually
+>>>> do synchronisation on the stuff that lives in kvm->arch?
+>>>
+>>> RCU is a method of synchronization. We  make sure that structure
+>>> pqap_hook is still valid as long as we are inside the rcu read
+>>> lock. So the idea is: clear pointer, wait until all old readers
+>>> have finished and the proceed with getting rid of the structure.
+>>
+>> Yes I know that RCU is a method of synchronization, but I'm not
+>> very familiar with it. I'm a little confused by "read the hook
+>> once and then work on a copy". I guess, I would have to read up
+>> on the RCU again to get clarity. I intend to brush up my RCU knowledge
+>> once the patch comes along. I would be glad to have your help when
+>> reviewing an RCU based solution for this.
+> 
+> Just had a quick look. Its not trivial, as the hook function itself
+> takes a mutex and an rcu section must not sleep. Will have a deeper
+> look.
 
-However, pmd_to_page() always returns the struct page of the first page,
-so there is only one split PMD lock for the whole thing (4 pages for s390).
-Of course that means that with 2 pagetable levels, and only one PMD directory,
-the split PMD lock would be equivalent to the global pagetable lock, and
-therefore not make any sense.
 
-Maybe you could change the description to also mention "more than two"
-levels?
+As a quick hack something like this could work. The whole locking is pretty
+complicated and this makes it even more complex so we might want to do
+a cleanup/locking rework later on.
 
-I still do not see a real benefit of the patch, e.g. it does not really
-fix any possible misconfiguration, at least on s390. But it certainly is not
-wrong, and at least it had the benefit of making me aware again of how split
-PMD locks work, so I'll happily add this
 
-Acked-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com> # s390
+index 9928f785c677..fde6e02aab54 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -609,6 +609,7 @@ static int handle_io_inst(struct kvm_vcpu *vcpu)
+   */
+  static int handle_pqap(struct kvm_vcpu *vcpu)
+  {
++       struct kvm_s390_module_hook *pqap_hook;
+         struct ap_queue_status status = {};
+         unsigned long reg0;
+         int ret;
+@@ -657,14 +658,21 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
+          * Verify that the hook callback is registered, lock the owner
+          * and call the hook.
+          */
+-       if (vcpu->kvm->arch.crypto.pqap_hook) {
+-               if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))
++       rcu_read_lock();
++       pqap_hook = rcu_dereference(vcpu->kvm->arch.crypto.pqap_hook);
++       if (pqap_hook) {
++               if (!try_module_get(pqap_hook->owner)) {
++                       rcu_read_unlock();
+                         return -EOPNOTSUPP;
+-               ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);
+-               module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);
++               }
++               rcu_read_unlock();
++               ret = pqap_hook->hook(vcpu);
++               module_put(pqap_hook->owner);
+                 if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)
+                         kvm_s390_set_psw_cc(vcpu, 3);
+                 return ret;
++       } else {
++               rcu_read_unlock();
+         }
+         /*
+          * A vfio_driver must register a hook.
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index f90c9103dac2..a7124abd6aed 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1194,6 +1194,7 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+                 mutex_lock(&matrix_dev->lock);
+                 vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+                 matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
++               synchronize_rcu();
+                 kvm_put_kvm(matrix_mdev->kvm);
+                 matrix_mdev->kvm = NULL;
+                 matrix_mdev->kvm_busy = false;
