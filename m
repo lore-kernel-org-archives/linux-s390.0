@@ -2,108 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C3B4C433ED
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 02:40:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B728C433ED
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 07:40:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE14861364
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 02:40:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ECA6E61353
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 07:40:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235593AbhESCl3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 May 2021 22:41:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50032 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237088AbhESCl0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 May 2021 22:41:26 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFC18C06175F
-        for <linux-s390@vger.kernel.org>; Tue, 18 May 2021 19:40:06 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id lz27so17636521ejb.11
-        for <linux-s390@vger.kernel.org>; Tue, 18 May 2021 19:40:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JtmNJLU/dhQ9ELu/k2h5VHa5Rzw2bCS2zmPu0hLax+8=;
-        b=BVvY6dfBpTLG0lCmqHmrDJcT+SrZNvl2aUJRRzUMfSXvRfy+O8EXPnnwQahXMdao6o
-         ADK4xqT8fNsbM2m33sQnw4i2uQ0JMU5+vr1tAi+7ZAg8S9HHsObzS/enEivmT4rgIsLZ
-         ILiKKP3sz7olT1g3KLaQqtWqIyrwYxRu/fSqs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JtmNJLU/dhQ9ELu/k2h5VHa5Rzw2bCS2zmPu0hLax+8=;
-        b=ojZXkWtfYdklKl7pV58dHMB5ar1w6rym8pv/RO8V+ipZ+3rkJS/cHy5IOCIBsLPUll
-         +87ThYnI2q6KZTzDySsIx2FdtKLTne1j3KM04Bd3nBPundEOs7UVoog+VoAFiiVlCU6v
-         dNaZqMTuoQT+apFUkaRQALMdzll+NeSf/Nejw3r0Qd2VCKOjMvrZMTNkyH91t6/l85Y5
-         k3GJuCaQuqVv2hhuBtoIfgDGS26fgQgdcEUxXO+38w/yp+m1kGk/2yY/pt5NOApS9dvE
-         2Yk+jhCDbwqM3ctMrp7zgzdzz1WQIeeTw4if9Qg4xX06ukfRuEWTEnFdUr3blmhukuja
-         MCFQ==
-X-Gm-Message-State: AOAM532D9gR/YB1FxrIivLraPc/1ITtQJmptiVvzaLTnBdYcuCAdYp0i
-        PQisa6o8sIDQpZf+nnbUeIUtSAbsmrteoach
-X-Google-Smtp-Source: ABdhPJyM2qBNCS1SvSoQyY0pxOJeAFnPIG11delOwwI9RhqJ+Nu5Bascl0SWcnSUivCWZYdpi7fDOA==
-X-Received: by 2002:a17:906:d922:: with SMTP id rn2mr7519161ejb.469.1621392005365;
-        Tue, 18 May 2021 19:40:05 -0700 (PDT)
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com. [209.85.208.50])
-        by smtp.gmail.com with ESMTPSA id k21sm763910ejp.23.2021.05.18.19.40.05
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 May 2021 19:40:05 -0700 (PDT)
-Received: by mail-ed1-f50.google.com with SMTP id o5so4554144edc.5
-        for <linux-s390@vger.kernel.org>; Tue, 18 May 2021 19:40:05 -0700 (PDT)
-X-Received: by 2002:a05:651c:8f:: with SMTP id 15mr6863723ljq.220.1621391994583;
- Tue, 18 May 2021 19:39:54 -0700 (PDT)
+        id S240560AbhESHmB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 May 2021 03:42:01 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28416 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S238476AbhESHmB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 19 May 2021 03:42:01 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14J7Ztdf107203;
+        Wed, 19 May 2021 03:40:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=3uZmSI77E5TGNyfkRuQlpsM6Hja+QeN+kVV0qwniZ1M=;
+ b=PntznEl3JYZ7ruiC+RIQlVLj6KXmcsJPqD/qIURi2Akdd678MNd68qUnPhlwbSZZLjJD
+ HxuG9wBKA6iv3MGdBH7CVpZC8gR9OFimu8Y+B0gF2oZ7oPvAzBUWXgIKdtSk/JZLbjYH
+ Pbc1WYQYVhCvLvFJ5WwiBd86nbmUobEau1qHroXsYv6bvZCG5xymn9RFU6ABNbCceubU
+ Fga/jAfA9WLQ8igtaY30HnJsCnFC4nGCvxIJ+dXQOgrmqk4CuSwLl3wU8c0/PtR2Qe5/
+ IiODsjKRESGUOQufoCXIa1MOWx1ut3/l1S0aClQBE9Iy1Acq/7M6kgHd97F+YnvsJAae JQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38mx73ggg5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 03:40:41 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14J7aMuN108593;
+        Wed, 19 May 2021 03:40:41 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38mx73gget-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 03:40:41 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14J7bdQM004010;
+        Wed, 19 May 2021 07:40:39 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 38j5x89x73-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 07:40:39 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14J7eaLB40829338
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 19 May 2021 07:40:36 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 70E3AA4060;
+        Wed, 19 May 2021 07:40:36 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A38CAA405C;
+        Wed, 19 May 2021 07:40:35 +0000 (GMT)
+Received: from linux01.pok.stglabs.ibm.com (unknown [9.114.17.81])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 19 May 2021 07:40:35 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com,
+        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com
+Subject: [kvm-unit-tests PATCH v3 1/6] s390x: uv-guest: Add invalid share location test
+Date:   Wed, 19 May 2021 07:40:17 +0000
+Message-Id: <20210519074022.7368-2-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210519074022.7368-1-frankja@linux.ibm.com>
+References: <20210519074022.7368-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-References: <20210508122530.1971-1-justin.he@arm.com> <20210508122530.1971-2-justin.he@arm.com>
- <CAHk-=wgSFUUWJKW1DXa67A0DXVzQ+OATwnC3FCwhqfTJZsvj1A@mail.gmail.com>
- <YJbivrA4Awp4FXo8@zeniv-ca.linux.org.uk> <CAHk-=whZhNXiOGgw8mXG+PTpGvxnRG1v5_GjtjHpoYXd2Fn_Ow@mail.gmail.com>
- <YJb9KFBO7MwJeDHz@zeniv-ca.linux.org.uk> <CAHk-=wjhrhkWbV_EY0gupi2ea7QHpGW=68x7g09j_Tns5ZnsLA@mail.gmail.com>
- <CAHk-=wiOPkSm-01yZzamTvX2RPdJ0784+uWa0OMK-at+3XDd0g@mail.gmail.com>
- <YJdIx6iiU9YwnQYz@zeniv-ca.linux.org.uk> <CAHk-=wih_O+0xG4QbLw-3XJ71Yh43_SFm3gp9swj8knzXoceZQ@mail.gmail.com>
- <YKRfI29BBnC255Vp@zeniv-ca.linux.org.uk>
-In-Reply-To: <YKRfI29BBnC255Vp@zeniv-ca.linux.org.uk>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 18 May 2021 16:39:38 -1000
-X-Gmail-Original-Message-ID: <CAHk-=whJkHMtf4RYiE3PLTEo8fM_vU6BG43TNJLbHsGYPsSJfQ@mail.gmail.com>
-Message-ID: <CAHk-=whJkHMtf4RYiE3PLTEo8fM_vU6BG43TNJLbHsGYPsSJfQ@mail.gmail.com>
-Subject: Re: [PATCHSET] d_path cleanups
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Jia He <justin.he@arm.com>, Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Al Viro <viro@ftp.linux.org.uk>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Eric Biggers <ebiggers@google.com>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: NcMP3Ne4QutKwu4WEXMCDZ2oYWUkbfzL
+X-Proofpoint-ORIG-GUID: OlhwDVqisi7uqM7cQ-BGzNzJcyEVNCzT
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-19_02:2021-05-18,2021-05-19 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=999 clxscore=1015 impostorscore=0 malwarescore=0
+ lowpriorityscore=0 priorityscore=1501 adultscore=0 mlxscore=0 bulkscore=0
+ spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105190055
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 18, 2021 at 2:44 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
->
->         Here's what I've got for carve-up of cleanups.
+Let's also test sharing unavailable memory.
 
-Thanks, these all look logical to me.
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+---
+ s390x/uv-guest.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-I only read through the individual patches, I didn't test or check the
-end result, but it all looked like good sane cleanups.
+diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
+index 99544442..a13669ab 100644
+--- a/s390x/uv-guest.c
++++ b/s390x/uv-guest.c
+@@ -15,6 +15,7 @@
+ #include <asm/interrupt.h>
+ #include <asm/facility.h>
+ #include <asm/uv.h>
++#include <sclp.h>
+ 
+ static unsigned long page;
+ 
+@@ -99,6 +100,10 @@ static void test_sharing(void)
+ 	uvcb.header.len = sizeof(uvcb);
+ 	cc = uv_call(0, (u64)&uvcb);
+ 	report(cc == 0 && uvcb.header.rc == UVC_RC_EXECUTED, "share");
++	uvcb.paddr = get_ram_size() + PAGE_SIZE;
++	cc = uv_call(0, (u64)&uvcb);
++	report(cc == 1 && uvcb.header.rc == 0x101, "invalid memory");
++	uvcb.paddr = page;
+ 	report_prefix_pop();
+ 
+ 	report_prefix_push("unshare");
+-- 
+2.30.2
 
-              Linus
