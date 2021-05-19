@@ -2,146 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90E5AC43460
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 15:39:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 611A9C433B4
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 15:56:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 75437611AB
-	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 15:39:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D59C611BD
+	for <linux-s390@archiver.kernel.org>; Wed, 19 May 2021 15:56:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354616AbhESPkv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 May 2021 11:40:51 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29792 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242076AbhESPku (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 19 May 2021 11:40:50 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14JFXBJC038725;
-        Wed, 19 May 2021 11:39:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=ZPboIRUw5VI0ht5DfThXJWc1BV0ZLm8bnhapMm5xNVY=;
- b=H+T9YjpWd/OBvwCoOCdiimByIMgxVQtWPaEYf/49py3DknBRaP7/rYQymjzL7/WVrmFz
- D+4ydSvMi0w0lwgCXx6G4rtTDaZAKAXWgW/KRn48u5nBisMbJLmVFXQ0fs50H292BDS2
- /Rvhquwr63IjNyJOromZzaQII88hNqI7NqxHtndm8kt5UapQG3dUObAVx6EK/pCPC9NO
- J93mcHx/KFaGYT11ANkZhHn+QAgrmxsD/13jll0W4lrwOnMYGKVtWbf+vywo5ABOuKMP
- 6mKfcr9u51Xw4BUg7aNBF3uL31LpoM+4z1rpyzvedQ1mHL6NQT0dWcimCPE/12D4Rq76 4w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38n5acgchd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 11:39:29 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14JFXL52039680;
-        Wed, 19 May 2021 11:39:28 -0400
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38n5acgcgx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 11:39:28 -0400
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14JFN2uF023692;
-        Wed, 19 May 2021 15:39:27 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma02dal.us.ibm.com with ESMTP id 38j5x9qxnd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 May 2021 15:39:27 +0000
-Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14JFdQ4J28442972
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 May 2021 15:39:26 GMT
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2BB83AC060;
-        Wed, 19 May 2021 15:39:26 +0000 (GMT)
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BCF27AC068;
-        Wed, 19 May 2021 15:39:25 +0000 (GMT)
-Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.177.219])
-        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed, 19 May 2021 15:39:25 +0000 (GMT)
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        Tony Krowiak <akrowiak@linux.ibm.com>, stable@vger.kernel.org
-Subject: [PATCH v3 1/2] s390/vfio-ap: fix memory leak in mdev remove callback
-Date:   Wed, 19 May 2021 11:39:20 -0400
-Message-Id: <20210519153921.804887-2-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210519153921.804887-1-akrowiak@linux.ibm.com>
-References: <20210519153921.804887-1-akrowiak@linux.ibm.com>
+        id S1354165AbhESP5k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 May 2021 11:57:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33422 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239586AbhESP5k (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 May 2021 11:57:40 -0400
+Received: from zeniv-ca.linux.org.uk (zeniv-ca.linux.org.uk [IPv6:2607:5300:60:148a::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30C59C06175F;
+        Wed, 19 May 2021 08:56:20 -0700 (PDT)
+Received: from viro by zeniv-ca.linux.org.uk with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1ljOXW-00GH8f-H0; Wed, 19 May 2021 15:55:18 +0000
+Date:   Wed, 19 May 2021 15:55:18 +0000
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Jia He <justin.he@arm.com>, Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Eric Biggers <ebiggers@google.com>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: Re: [PATCH 12/14] d_path: prepend_path(): lift the inner loop into a
+ new helper
+Message-ID: <YKU05k0P7YjH/g6E@zeniv-ca.linux.org.uk>
+References: <YKRfI29BBnC255Vp@zeniv-ca.linux.org.uk>
+ <20210519004901.3829541-1-viro@zeniv.linux.org.uk>
+ <20210519004901.3829541-12-viro@zeniv.linux.org.uk>
+ <YKTHKNsX/cvYwbWj@smile.fi.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 3_o86Q5DXU6i7UqpOxQ6AsHPi7TVaLri
-X-Proofpoint-ORIG-GUID: qDxE0ly_1i3XNoQnslufyjM_UdD_RL0u
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-19_07:2021-05-19,2021-05-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- lowpriorityscore=0 spamscore=0 mlxlogscore=999 priorityscore=1501
- malwarescore=0 clxscore=1015 adultscore=0 bulkscore=0 impostorscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105190096
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YKTHKNsX/cvYwbWj@smile.fi.intel.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The mdev remove callback for the vfio_ap device driver bails out with
--EBUSY if the mdev is in use by a KVM guest. The intended purpose was
-to prevent the mdev from being removed while in use; however, returning a
-non-zero rc does not prevent removal. This could result in a memory leak
-of the resources allocated when the mdev was created. In addition, the
-KVM guest will still have access to the AP devices assigned to the mdev
-even though the mdev no longer exists.
+On Wed, May 19, 2021 at 11:07:04AM +0300, Andy Shevchenko wrote:
+> On Wed, May 19, 2021 at 12:48:59AM +0000, Al Viro wrote:
+> > ... and leave the rename_lock/mount_lock handling in prepend_path()
+> > itself
+> 
+> ...
+> 
+> > +			if (!IS_ERR_OR_NULL(mnt_ns) && !is_anon_ns(mnt_ns))
+> > +				return 1;	// absolute root
+> > +			else
+> > +				return 2;	// detached or not attached yet
+> 
+> Would it be slightly better to read
+> 
+> 			if (IS_ERR_OR_NULL(mnt_ns) || is_anon_ns(mnt_ns))
+> 				return 2;	// detached or not attached yet
+> 			else
+> 				return 1;	// absolute root
+> 
+> ?
+> 
+> Oh, I have noticed that it's in the original piece of code (perhaps separate
+> change if we ever need it?).
 
-To prevent this scenario, cleanup will be done - including unplugging the
-AP adapters, domains and control domains - regardless of whether the mdev
-is in use by a KVM guest or not.
+The real readability problem here is not the negations.  There are 4 possible
+states for vfsmount encoded via ->mnt_ns:
+	1) not attached to any tree, kept alive by refcount alone.
+->mnt_ns == NULL.
+	2) long-term unattached.  Not a part of any mount tree, but we have
+a known holder for it and until that's gone (making ->mnt_ns NULL), refcount
+is guaranteed to remain positive.  pipe_mnt is an example of such.
+->mnt_ns == MNT_NS_INTERNAL, which is encoded as ERR_PTR(-1), thus the use of
+IS_ERR_OR_NULL here (something I'd normally taken out and shot - use of that
+primitive is a sign of lousy API or of a cargo-culted "defensive programming").
+	3) part of a temporary mount tree; not in anyone's namespace.
+->mnt_ns points the tree in question, ->mnt_ns->seq == 0.
+	4) belongs to someone's namespace.  ->mnt_ns points to that,
+->mnt_ns->seq != 0.  That's what we are looking for here.
 
-Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+	It's kludges all the way down ;-/  Note that temporary tree can't become
+a normal one or vice versa - mounts can get transferred to normal namespace,
+but they will see ->mnt_ns reassigned to that.  IOW, ->mnt_ns->seq can't
+get changed without a change to ->mnt_ns.  I suspect that the right way
+to handle that would be to have that state stored as explicit flags.
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index b2c7e10dfdcd..f90c9103dac2 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -26,6 +26,7 @@
- 
- static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
- static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
-+static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev);
- 
- static int match_apqn(struct device *dev, const void *data)
- {
-@@ -366,17 +367,7 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
- 	mutex_lock(&matrix_dev->lock);
--
--	/*
--	 * If the KVM pointer is in flux or the guest is running, disallow
--	 * un-assignment of control domain.
--	 */
--	if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
--		mutex_unlock(&matrix_dev->lock);
--		return -EBUSY;
--	}
--
--	vfio_ap_mdev_reset_queues(mdev);
-+	vfio_ap_mdev_unset_kvm(matrix_mdev);
- 	list_del(&matrix_mdev->node);
- 	kfree(matrix_mdev);
- 	mdev_set_drvdata(mdev, NULL);
--- 
-2.30.2
+	All mounts are created (and destroyed) in state (1); state changes:
+commit_tree() - (1) or (3) to (3) or (4)
+umount_tree() - (3) or (4) to (1)
+clone_private_mount() - (1) to (2)
+open_detached_copy() - (1) to (3)
+copy_mnt_ns() - (1) to (4)
+mount_subtree() - (1) to (3)
+fsmount() - (1) to (3)
+init_mount_tree() - (1) to (4)
+kern_mount() - (1) to (2)
+kern_unmount{,_array}() - (2) to (1)
 
+	commit_tree() has a pathological call chain that has it
+attach stuff to temporary tree; that's basically automount by lookup in
+temporary namespace.  It can distinguish it from the usual (adding to
+normal namespace) by looking at the state of mountpoint we are attaching
+to - or simply describe all cases as "(1) or (3) to whatever state the
+mountpoint is".
+
+	One really hot path where we check (1) vs. (2,3,4) is
+mntput_no_expire(), which is the initial reason behind the current
+representation.  However, read from ->mnt_flags is just as cheap as
+that from ->mnt_ns and the same reasons that make READ_ONCE()
+legitimate there would apply to ->mnt_flags as well.
+
+	We can't reuse MNT_INTERNAL for that, more's the pity -
+it's used to mark the mounts (kern_mount()-created, mostly) that
+need to destroyed synchronously on the final mntput(), with no
+task_work_add() allowed (think of module_init() failing halfway through,
+with kern_unmount() done to destroy the internal mounts already created;
+we *really* don't want to delay that filesystem shutdown until insmod(2)
+heads out to userland).  Another headache is in LSM shite, as usual...
+
+	Anyway, sorting that out is definitely a separate story.
