@@ -2,105 +2,158 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	URIBL_RED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2867C433ED
-	for <linux-s390@archiver.kernel.org>; Thu, 20 May 2021 13:36:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD990C433ED
+	for <linux-s390@archiver.kernel.org>; Thu, 20 May 2021 14:53:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8A11D60C40
-	for <linux-s390@archiver.kernel.org>; Thu, 20 May 2021 13:36:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 74327611ED
+	for <linux-s390@archiver.kernel.org>; Thu, 20 May 2021 14:53:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233057AbhETNiQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 May 2021 09:38:16 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:29130 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232754AbhETNiP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 May 2021 09:38:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1621517812;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
+        id S231567AbhETOzC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 May 2021 10:55:02 -0400
+Received: from mx2.suse.de ([195.135.220.15]:36254 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231418AbhETOzC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 May 2021 10:55:02 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1621522419; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=jDqb0WbNRWfVzDXzZndrXkYjxKSiX/oojU5U/u7mGHY=;
-        b=bwjjaISmcOczzr3Yrd7fvIyIwSuXma2eKN52IhrNBQoAwwPtt5HihxHL5HHef+VDGxr6N3
-        DZ5ZCDJYYtvG2GjZlPweqr6Aqjs1qf9QVTodYbow4plD38fifQchfgWmibdvXAj0/91JhZ
-        1BUuNrUto/Dwp+SCuvNn7fyMijJYmzM=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-229-13QNV190PNiaLpkNYoOpzQ-1; Thu, 20 May 2021 09:36:50 -0400
-X-MC-Unique: 13QNV190PNiaLpkNYoOpzQ-1
-Received: by mail-wr1-f70.google.com with SMTP id 22-20020adf82960000b02901115ae2f734so8645817wrc.5
-        for <linux-s390@vger.kernel.org>; Thu, 20 May 2021 06:36:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:organization
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=jDqb0WbNRWfVzDXzZndrXkYjxKSiX/oojU5U/u7mGHY=;
-        b=pl6L9Q1wJPv2MKPJWFbClZzsteWbEddZhJM1ZzAl4LRkKRsXpvM1FEbPEYSA5iUZkQ
-         S1yYtcF8+4nqQGALCSaDhB21L3SvFocj/u9o5gC3DWBiw4Hjl/mYbclXV/KgzhCpEpsZ
-         9GdXCviP2560w/uz/uP7KCmrplzh7KheESwQ/rLKttVbV0G8OvkIAVLoZaX8aZW8KLoR
-         HJ5fOF3JiA/Rgmzup1wLplDpUkYJIBWBzLqcKXYhfM4GhCleFRJBwHWl+VJ120a4R6Y6
-         OrZjCvLgEUVOnz4eoHMsKJGzqLGgg5nHT7iCZTe4tPqYvGSJ+N+5ghKD2ppjBcA2BNNG
-         rx5A==
-X-Gm-Message-State: AOAM5304oI534Iso5ZK6UeJ76c3NI5QWkiUPpXN9gv8jUtJ0LXnCAtmK
-        f6uVqs/BzEtV+QTTBt1cYhoy+xjZdivV/JVQvzbOykNSeVC9/EzmLzLke4gh5CaJDKHKBdZwGkx
-        n+h4wGVT7WA8qEBs91nT+vA==
-X-Received: by 2002:a5d:500b:: with SMTP id e11mr4383046wrt.209.1621517809072;
-        Thu, 20 May 2021 06:36:49 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxaorDOozd3/iekfxe00tdpJtoWykCK/Q6hRKJwhMQfLXUiMcAmy0IfmqDRNBhc87uSKFjmXg==
-X-Received: by 2002:a5d:500b:: with SMTP id e11mr4383010wrt.209.1621517808685;
-        Thu, 20 May 2021 06:36:48 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c6315.dip0.t-ipconnect.de. [91.12.99.21])
-        by smtp.gmail.com with ESMTPSA id y20sm9770638wmi.0.2021.05.20.06.36.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 May 2021 06:36:48 -0700 (PDT)
-Subject: Re: [kvm-unit-tests RFC 0/2] s390x: Add snippet support
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        thuth@redhat.com, cohuck@redhat.com
-References: <20210520094730.55759-1-frankja@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Message-ID: <7c17d790-5a3c-d4ea-8d78-7148dbc6ca60@redhat.com>
-Date:   Thu, 20 May 2021 15:36:47 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        bh=M8hqVgNQf+om50EjQbuWLvBSRMEEuDC2cfNombgOqIA=;
+        b=tu3s2Wt5SshdfJXLmnHlL4WqWSI4s+yOHxwVBO4l8aV+a3YzJBruqkUV3bF4j5FE9IDyuy
+        2JUPeVuDHwqzd4A9WTnznq7MDD5VcKOZ/ITIsQ4H8/7u7mybX2h1kGP7EyoAx1VT+/0YXH
+        N/slWUMzz91Dblog3HCzXN6c5mhMO7g=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 9B812ABE8;
+        Thu, 20 May 2021 14:53:39 +0000 (UTC)
+Date:   Thu, 20 May 2021 16:53:38 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     Justin He <Justin.He@arm.com>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Eric Biggers <ebiggers@google.com>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: Re: [PATCH 08/14] d_path: make prepend_name() boolean
+Message-ID: <YKZ38jOCZUlpiqTS@alley>
+References: <YKRfI29BBnC255Vp@zeniv-ca.linux.org.uk>
+ <20210519004901.3829541-1-viro@zeniv.linux.org.uk>
+ <20210519004901.3829541-8-viro@zeniv.linux.org.uk>
+ <AM6PR08MB4376607691168C132AB2F558F72A9@AM6PR08MB4376.eurprd08.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <20210520094730.55759-1-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AM6PR08MB4376607691168C132AB2F558F72A9@AM6PR08MB4376.eurprd08.prod.outlook.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 20.05.21 11:47, Janosch Frank wrote:
-> The SIE support allows us to run guests and test the hypervisor's
-> (V)SIE implementation. However it requires that the guest instructions
-> are binary which limits the complexity of the guest code.
+On Thu 2021-05-20 09:12:34, Justin He wrote:
+> Hi Al
 > 
-> The snippet support provides a way to write guest code as ASM or C and
-> simply memcpy it into guest memory. Some of the KVM-unit-test library
-> can be re-used which further speeds up guest code development.
+> > -----Original Message-----
+> > From: Al Viro <viro@ftp.linux.org.uk> On Behalf Of Al Viro
+> > Sent: Wednesday, May 19, 2021 8:49 AM
+> > To: Linus Torvalds <torvalds@linux-foundation.org>
+> > Cc: Justin He <Justin.He@arm.com>; Petr Mladek <pmladek@suse.com>; Steven
+> > Rostedt <rostedt@goodmis.org>; Sergey Senozhatsky
+> > <senozhatsky@chromium.org>; Andy Shevchenko
+> > <andriy.shevchenko@linux.intel.com>; Rasmus Villemoes
+> > <linux@rasmusvillemoes.dk>; Jonathan Corbet <corbet@lwn.net>; Heiko
+> > Carstens <hca@linux.ibm.com>; Vasily Gorbik <gor@linux.ibm.com>; Christian
+> > Borntraeger <borntraeger@de.ibm.com>; Eric W . Biederman
+> > <ebiederm@xmission.com>; Darrick J. Wong <darrick.wong@oracle.com>; Peter
+> > Zijlstra (Intel) <peterz@infradead.org>; Ira Weiny <ira.weiny@intel.com>;
+> > Eric Biggers <ebiggers@google.com>; Ahmed S. Darwish
+> > <a.darwish@linutronix.de>; open list:DOCUMENTATION <linux-
+> > doc@vger.kernel.org>; Linux Kernel Mailing List <linux-
+> > kernel@vger.kernel.org>; linux-s390 <linux-s390@vger.kernel.org>; linux-
+> > fsdevel <linux-fsdevel@vger.kernel.org>
+> > Subject: [PATCH 08/14] d_path: make prepend_name() boolean
+> >
+> > It returns only 0 or -ENAMETOOLONG and both callers only check if
+> > the result is negative.  Might as well return true on success and
+> > false on failure...
+> >
+> > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> > ---
+> >  fs/d_path.c | 12 ++++++------
+> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/fs/d_path.c b/fs/d_path.c
+> > index 327cc3744554..83db83446afd 100644
+> > --- a/fs/d_path.c
+> > +++ b/fs/d_path.c
+> > @@ -34,15 +34,15 @@ static void prepend(char **buffer, int *buflen, const
+> > char *str, int namelen)
+> >   *
+> >   * Load acquire is needed to make sure that we see that terminating NUL.
+> >   */
+> > -static int prepend_name(char **buffer, int *buflen, const struct qstr
+> > *name)
+> > +static bool prepend_name(char **buffer, int *buflen, const struct qstr
+> > *name)
+> >  {
+> >       const char *dname = smp_load_acquire(&name->name); /* ^^^ */
+> >       u32 dlen = READ_ONCE(name->len);
+> >       char *p;
+> >
+> >       *buflen -= dlen + 1;
+> > -     if (*buflen < 0)
+> > -             return -ENAMETOOLONG;
+> > +     if (unlikely(*buflen < 0))
+> > +             return false;
 > 
-> The included mvpg-sie test helped us to deliver the KVM mvpg fixes
-> which Claudio posted a short while ago. In the future I'll post Secure
-> Execution snippet support patches which was my initial goal with this
-> series anyway.
+> I don't object to this patch itself.
+> Just wonder whether we need to relax the check condition of "*buflen < 0" ?
 > 
-> I heard you liked tests so I put tests inside tests so you can test
-> while you test.
+> Given that in vsnprintf code path, sometimes the *buflen is < 0.
+> 
+> Please see https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/lib/vsprintf.c#n2698
 
-The idea sounds sane to me.
+IMHO, the patch is fine. It is likely some misunderstanding.
+The above link points to:
 
--- 
-Thanks,
+2693	str = buf;
+2694	end = buf + size;
+2695
+2696	/* Make sure end is always >= buf */
+2697	if (end < buf) {
+2698		end = ((void *)-1);
+2699		size = end - buf;
+2700	}
 
-David / dhildenb
+"end" points right behind the end of the buffer. It is later
+used instead of the buffer size. The above code handles a potential
+overflow of "buf + size". I causes that "end" will be 0xffffffff
+in case of the overflow.
 
+That said. vsnprintf() returns the number of characters which would
+be generated for the given input. But only the "size" is written.
+This require copying the characters one by one.
+
+It is useful to see how many characters were lost. But I am not sure
+if this ever worked for the dentry functions.
+
+Best Regards,
+Petr
