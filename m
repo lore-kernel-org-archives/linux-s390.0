@@ -7,46 +7,46 @@ X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D17D8C433B4
-	for <linux-s390@archiver.kernel.org>; Thu, 20 May 2021 12:27:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD5A5C433B4
+	for <linux-s390@archiver.kernel.org>; Thu, 20 May 2021 12:52:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AE1F660200
-	for <linux-s390@archiver.kernel.org>; Thu, 20 May 2021 12:27:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8A1586100C
+	for <linux-s390@archiver.kernel.org>; Thu, 20 May 2021 12:52:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232966AbhETM3F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 May 2021 08:29:05 -0400
-Received: from mail-dm3nam07on2079.outbound.protection.outlook.com ([40.107.95.79]:9921
-        "EHLO NAM02-DM3-obe.outbound.protection.outlook.com"
+        id S235580AbhETMyC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 May 2021 08:54:02 -0400
+Received: from mail-dm6nam10on2089.outbound.protection.outlook.com ([40.107.93.89]:60608
+        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S233879AbhETM1x (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 May 2021 08:27:53 -0400
+        id S238600AbhETMwp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 May 2021 08:52:45 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=gfRQL5WknX6TOqsqxpGZAkaZlC+BNBF0DtntyN2QKQ0RHHHvYR0dTZCRa4A1T62Q2ytm3fPiHpOIohVqVj+bY75HiRR/DSB8yzkaI1QoSxywU5my4MYwZldN+ZLqPsv4fvkYUh71AozHSAk8WfID1zpoVCzl0TSmLckLpXV9IOkiDdTtPvctlSTk0XmBGr9DMhGrykwS0VnSpmS9fm3UJiSMwf8mzq3qTaYsF3Ae+DjH32DJSWV5p5vfH2mI33yQH0NsUtJxT4u3Of7Pd06xjU14nLCcIHI2UPg1DIJ+5xSYh9FJ3nldxFYJu/XdfdJV4mQDOGj8/DaCiveZ6faTtg==
+ b=n5z++hArubgIz1MC5pBI+O2+p49ZHEg3H4Q8tkB5Xjhj3Tidbhh/HdhxlWjwnD5o4tfmykQmxO8GdegVy+j/kNjWTuLacdEVvHytAKe9VW/7E0azH20EeZfXrq41ulRuNDi4Wyjfou3PHrBLC3l6wTHPZ1jArMcjkR6CYkDxJF6+iUAg7vsL2cH1eddAxSei6JOH5ARBqmZhD6RQxyXL4n19SMEl1SPcWWDFkq2Mcth5TRaylI60m5gu1n7MseXjk8KryYsD73LDOvo85HEpviof7xHgd96DQfyfbqD29GWrcocMcRYD4nwUgSBSTAIQL0SHnZE8uqYirghO3sJxoA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jQLGw+HoHm9byA0QymRKzwIvfuy00T6XNOWNlF/pd6c=;
- b=YWrs2FcHvD32Kx2pac9dd4qVDtYjHK90GyOAcvJP7MHm4WG0YVkisnImbBBJzuSaUA0X73j45/3X3RwWeq43G9hsKGDx5uQUailQQYIUrtjtWviokeqMx64AWH9UjZoezlUNm+6nXAdvnUMY3JG8kLZs4UrJldW2Pvs30rydF0FdtfnKP/KRJEynNjWsD7UJ9z0KiaS1SkQdyS3cD7/bjshRQFdc6gaEGjQb6fkFWhhBiGCKwZ15KdOAwvOZDRh8B+BevX1pALR1RenRYwlYXSmea+ynuiC4/TIIBSzfs9IN33njk1edj94hKHCbvZiXjaMFqlY+t6Z6IgMILi5MFg==
+ bh=fDG3CM2C3VcnGNqPsG/H6ll6MuZ1kERIwBUrZraeiEU=;
+ b=ApkJTVMXF1yZHLSBtG0wa8NNke2oMhoIrdxH14HsZNzTGr5LKPuvOp9vWwgK8hGwHf27EsdkfGteKbqRpL5sY9rag/x8rd7rnmjeSpKpRilu6cHmP7O0Nu/K9qIcv27tWCTOyHsAnegk8xqdC9M05aJtvhDJRmstqagVy720ovt4VQYk2E8jVlWKJam7PHc3vn1HGYkQOOgG8tlny8iE/CT7K+WcjUs0RFmGRJoddbkodlpEBdMpD7V8B4uBcqccccHX8d6vKB/TfG3iGGJ+tVwsQ6+pxost1QdlCOP0CJZTBxy388QUTPZe5+QZGrkQvauwMnk0EktdxnrXmm4hXw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jQLGw+HoHm9byA0QymRKzwIvfuy00T6XNOWNlF/pd6c=;
- b=pmSILQSwObAJclst9i7FUqHELiDWxVkzslrxWWpVWcOvjTQyDM+IkD+ATaSG6MzVhDgp6KtqJUSWZ1yJhZjnBdRTzaO/8U+zrE3oz890xVzpXYrZwB002NbL/3zi/ax3zCHbXWcrsYEVYJHqXK2mCG+jQKszcO822EH8h4MlN/qotBvR0m91psDZJ6ZL+d/ndNxQ8Vf4hBZEXSyx5UYtKCOVcW21N79qCrIvSIqk1vLyItupaxUiLOks8zOcaKCbw531STJDOkktPAhLXrKkOpK+wsVI+qPQTYIvcxDn64J+QULqkLdtIKkEmnbM9y1cH8WO2Oy9eLc42Q0b2dTH0A==
+ bh=fDG3CM2C3VcnGNqPsG/H6ll6MuZ1kERIwBUrZraeiEU=;
+ b=m4N+FPZnelNG8e3K7UzsUnJ7PWieIckncKpMwKA0dCprh0qh/LlukDEdZTeTm+4hq9v4s3HwJm+BeZnJB2vHW0Mi0pL3aySzs3andv9aNFVnUqiTNxE8xqQwr4s/8gfm3IAoLdIxmA7etNBoXldrEephVEqzn0WTEiQBZE44QZ+43EmEZUQ98a8I5CjfD+2GMMELvt6V17T4uAxZ/7+Kv+6HOgqykqOnbJJd2bINDvyCUxRYymtYZnHdSJD9dtZ0LW0tutGq4ui4nHPR124rPGaj/HdTdmxfEHifDtmEy53wKH9AWSKI4K91BNjo3BlyYAdavwctHm8GsM13yinV1w==
 Authentication-Results: linux.ibm.com; dkim=none (message not signed)
  header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
 Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
- by DM6PR12MB3594.namprd12.prod.outlook.com (2603:10b6:5:11f::13) with
+ by DM6PR12MB4778.namprd12.prod.outlook.com (2603:10b6:5:167::13) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4129.25; Thu, 20 May
- 2021 12:26:28 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4129.28; Thu, 20 May
+ 2021 12:51:22 +0000
 Received: from DM6PR12MB3834.namprd12.prod.outlook.com
  ([fe80::ddb4:2cbb:4589:f039]) by DM6PR12MB3834.namprd12.prod.outlook.com
  ([fe80::ddb4:2cbb:4589:f039%4]) with mapi id 15.20.4150.023; Thu, 20 May 2021
- 12:26:28 +0000
-Date:   Thu, 20 May 2021 09:26:26 -0300
+ 12:51:22 +0000
+Date:   Thu, 20 May 2021 09:51:21 -0300
 From:   Jason Gunthorpe <jgg@nvidia.com>
 To:     Halil Pasic <pasic@linux.ibm.com>
 Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
@@ -55,133 +55,124 @@ Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
         alex.williamson@redhat.com, kwankhede@nvidia.com
 Subject: Re: [PATCH v3 2/2] s390/vfio-ap: control access to PQAP(AQIC)
  interception handler
-Message-ID: <20210520122626.GW1002214@nvidia.com>
+Message-ID: <20210520125121.GX1002214@nvidia.com>
 References: <20210519153921.804887-1-akrowiak@linux.ibm.com>
  <20210519153921.804887-3-akrowiak@linux.ibm.com>
  <20210519161610.GO1002214@nvidia.com>
  <8c93c29a-e223-ac9a-5b54-7329587084c9@linux.ibm.com>
  <20210519232202.GV1002214@nvidia.com>
- <330f099c-3d5e-c552-3047-4b462b1c9fa9@linux.ibm.com>
- <20210520104857.65d75858.pasic@linux.ibm.com>
+ <20210520103829.0913b6de.pasic@linux.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210520104857.65d75858.pasic@linux.ibm.com>
+In-Reply-To: <20210520103829.0913b6de.pasic@linux.ibm.com>
 X-Originating-IP: [47.55.113.94]
-X-ClientProxiedBy: BLAPR03CA0082.namprd03.prod.outlook.com
- (2603:10b6:208:329::27) To DM6PR12MB3834.namprd12.prod.outlook.com
+X-ClientProxiedBy: MN2PR16CA0017.namprd16.prod.outlook.com
+ (2603:10b6:208:134::30) To DM6PR12MB3834.namprd12.prod.outlook.com
  (2603:10b6:5:14a::12)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (47.55.113.94) by BLAPR03CA0082.namprd03.prod.outlook.com (2603:10b6:208:329::27) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4129.33 via Frontend Transport; Thu, 20 May 2021 12:26:27 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1ljhkw-00B8Tk-BC; Thu, 20 May 2021 09:26:26 -0300
+Received: from mlx.ziepe.ca (47.55.113.94) by MN2PR16CA0017.namprd16.prod.outlook.com (2603:10b6:208:134::30) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.23 via Frontend Transport; Thu, 20 May 2021 12:51:22 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lji93-00B97s-3M; Thu, 20 May 2021 09:51:21 -0300
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 1732564b-5ce9-4da9-ac1c-08d91b8a7dbd
-X-MS-TrafficTypeDiagnostic: DM6PR12MB3594:
+X-MS-Office365-Filtering-Correlation-Id: 478e5c5d-2e17-47a1-7f2c-08d91b8df880
+X-MS-TrafficTypeDiagnostic: DM6PR12MB4778:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM6PR12MB3594C0E47A9C28F829D1558CC22A9@DM6PR12MB3594.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-Microsoft-Antispam-PRVS: <DM6PR12MB4778CB5C31401A915354586BC22A9@DM6PR12MB4778.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: XHN1OfNKhgX+GHYS5KzCBrrfNEFYPI+d36C1/9KWAGCqj8Lot2xVzYr8KZ+8uHDDiNcwDkDxuUKrhAEpV9ndAetHntBSX5TnHA3Y7HBkHBz3hn3OOdaCPxNMfbU4MKZhUregjEwWQMbK5WPWZgt/aHU3hZqYGcef72+TUs7Q7mvCp2Njm8HF2H8sMcW6cTEhOWK6FwvtY3kO1B3DAw8MiYGRtVMAEbQlx1zPamCd0f7DVyisqKvyQzhm7niX8Xk9f1ivl6t+H5VfR4a1s7tVqgwrzqvNt0cD7ygVpHqmlLOeQzlJs/m//hsPfTDQaQYV1dP5YY6HHHHtLjT+JbE/OkfwytFonKzlV4ucBJF7q+uSyukllCe6Qy5/ou8lnGg0Ub3q3aEflCi3bDydJBgoI+YgcWlQckRe6rk6BroOuFN1N3DFSa/cL0qhAYriH61sAZqICA3UpC6UZgLKZp5YxBrUNHr0b/aZgV0/2Pn79fX4KoPJfS5SqK5mr7eN8o60AUiHBEdKTx0HC1rcL/zjo3c9uvRPbuHwxoZb2an66NKj5UZIsTbMIZEISlStbWU3xQj5llCJJznPgna/NiPu9NfsmYV1yIxnok5/6HSMU7rBaBxXvhzgyMSivGP6UyNzGBakSa7wGVh7zv9g0RFEmWc2B9U4Sk6WV/b5BTHuX1bQxGg6jJQZYYpsFcNaAYyg
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(396003)(366004)(346002)(376002)(39860400002)(426003)(478600001)(1076003)(8936002)(4326008)(2616005)(2906002)(316002)(8676002)(5660300002)(9786002)(66556008)(6916009)(9746002)(966005)(66946007)(66476007)(107886003)(36756003)(38100700002)(83380400001)(86362001)(26005)(33656002)(186003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?YplZuB8KEWwDlsJSFjgJpacbbT8EhgFyV9VUzxY+HzCjWbu7XUffTp6X52Xi?=
- =?us-ascii?Q?LwJBH7V1YIDMoEdgcvlgovmcPn1cfmMn7HlmF/nLM6mj3XcfXSc+CjlCD+oH?=
- =?us-ascii?Q?kyDzT3N3qQW+8NIHWqazUxKE1TA7YvhsgT0SAn6fJ6fgzmWumTRRrxmYdFqk?=
- =?us-ascii?Q?1pKb02l86alGCsfHQSTnqdzJM+h6J5TqbY7qRsc08nNbUTH1TfPNrEip4ydH?=
- =?us-ascii?Q?z+A3qaD12F7Q6G6og941WCCGa7pqd6G+9+ceUmxHMbiZ2XkuFmzzAIbzJgSp?=
- =?us-ascii?Q?in0cYNOGrrriq50c+hWVPrBAifa/Xqfn31Seyk+33ZQspqKa07eQUZL0ejva?=
- =?us-ascii?Q?5dcH6B2EYbSpaUxDn5cg1KRy8XND+5WAX+6p53fIg9PfeNBar0nLvYEeJlsj?=
- =?us-ascii?Q?4dKiGmRsG2LhU2rKEu/UnvsNDmXSIQXiPNeJ6O1phQex3K4/agGmz/Vb5DrB?=
- =?us-ascii?Q?7ge2a3D6rMCEtyx+Qrbw9JnS55BIbTHUnyeeE68VIlCImkrD0LBTAvxQn6pD?=
- =?us-ascii?Q?UR3C4klouQkCV83e4OlkKbUyiNCOg8CCqQvL/oaagC5bVLT1nUGCLGqm3hPN?=
- =?us-ascii?Q?taTOgfyktbpPftqTvwOnyjTVTCBVtH8mv7JlzxK8LPjyC+YdQkI95HptICbg?=
- =?us-ascii?Q?os4EBYZFVLvno9qyDV8W5JueufJ2Sx255B7zWYW2vEAu+RxeWpa7d5zvyVjl?=
- =?us-ascii?Q?HIr+oTWJCLjD+7EPQFYDz0Q4MXraAzW3RluTpCrUzyfiKcKUNavCrNj+PtFw?=
- =?us-ascii?Q?9ARCsrO9TkmU9ffTHJ6AjOpBz9kegdt5/giELTAqwf52mpBThls9i3XzeEUQ?=
- =?us-ascii?Q?M5d5eVu9a5iFvOn4L+pZ8X9zQ3NwuHwDmhBMVUXcEQ8mUo7QiTHWYSt1cdSE?=
- =?us-ascii?Q?YSniYQpUG4/d8zTiHL1whkBr+hxcJlHro1cZ8uRXBcawkoNdrsi6MYWzIiha?=
- =?us-ascii?Q?icK1OxV48LEta1xk/LKqdJV7kGsoyrgQOVZSms6lInN+hN0/L9s27b33ulJJ?=
- =?us-ascii?Q?R+wGplk67GBhwbO9w7dBdwK5THXPUK1DflpLXG4plsbEtzKTTJQbeStFd33r?=
- =?us-ascii?Q?Dx+zocosFDPSEXHadvNslEf72CbfJER0gJIX/lA/oJgoLAHRIvXOj46/CEav?=
- =?us-ascii?Q?1RapYr5ChdpcA5aKUT/Ttmz35b7iCUzhmWE41a4Lr2bO2Te6NvH2YWxVt0S6?=
- =?us-ascii?Q?/FRBHfAkAoRyfzts7qXUbyhqnShzdIM+ToRmzs57xn/0IV38YVmCKaXA1o6O?=
- =?us-ascii?Q?fLXtCjy+AlF3fV523t1KoGULDfBksvZK948l0UBqsydhLoYIgVWjA4Caddby?=
- =?us-ascii?Q?5VutjzWqKspD7AzrtcXu81Ji?=
+X-Microsoft-Antispam-Message-Info: /xkb6GaSFtBuMdXreo3VB7P21XKVBs97Kvygurl+iJIuMkU7Q/FWZwymqyZOLAxxCLol7AIT5MS1DGnAVcle7mbs4ifCIIzW8NSRak8j/Cy8Y0/Pw/l4ZDky98d2FOlS+VoqSw8l9+Ug7jzl70r4v5Hmi7eqSEsuD2yIab8FLpPenpocWNHw+W762pB1U5UNAy+Rea4Mo51ZWIYTn1ZRvGuLfbl8MroIPnMfVNAyRLCNfefk0jbvu9iTBz3i218/rxaAeTaKOD1JvMkNKnrdW+iQhEgNTVE+tiVVzci+SL8LYCWhz0g908Em1z/49AANtL07miJ3nelLGTQUui5ZOZA1WogWCpc7GkiS6gtxyi6ENbYcqKFX7/ODsgDhxiTDbmY+KM+MNutKC1cK7IukJAWSuivPebomMO15ZhN+a4BqBUNuEPP+LQ3Juo7AXnSHmjnphu0Igiwc09W5SJXQYQIGKJumb1nWvVgr1+IPBBgCh+Ll7XdB164X2IjDP5MRi4VbF4YJS5Vj7bd92D4PF0t4V90OZYYfpgmuuM2yzX9xvGtHPsSe44UythzdpCCssm7VHaOmJ6ckBfVSFhSsBwKarLEmixeylZeV/Y0JffIpYPxlrY/gM9p1OrvNSZv5rK5sTTPNgLXb9nRnz2Dj3O66tAkKrurwhkNqkgckcsXfTDeeJtuZbzooyUmEdYixsA3yjwPaUYObz7VpJaNN4eW2TxZ8KMNF+SRlXJYW6oI=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(136003)(376002)(366004)(39860400002)(396003)(66556008)(66946007)(6916009)(66476007)(83380400001)(9786002)(4326008)(38100700002)(966005)(1076003)(186003)(2906002)(9746002)(33656002)(8936002)(8676002)(26005)(36756003)(86362001)(478600001)(2616005)(426003)(5660300002)(107886003)(316002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?BIWeIu3jRzz3xOghJ0Adq4rsiOlOCW1NS90q1TabCJFNRdg3rfT88dsKlJt0?=
+ =?us-ascii?Q?9ataDPDZwlk0N3FjCiYtCBjOxXQPYwKYCQMcUFRnbjsI/Exew27c9bfa5VMO?=
+ =?us-ascii?Q?SeKgNtUoTlypwMEf2KSgDs95eoQXrr6ipLIDp1OGX5peq5yG48qfGAQfJM4r?=
+ =?us-ascii?Q?rPBmxCYA3jWug/Ev8UaXkebsXTZUwD4RDzjdonivd5iMleBooTytvGZckZwP?=
+ =?us-ascii?Q?VGzpT54l9iP9RMJXRYc1pVCpiD/Ggo6Tw4zg5Q0wy1wg46ncAk+iVxFPI/kX?=
+ =?us-ascii?Q?+UpdWBuyyoXO/FSBUq1mt3rVwEMJyHBZ/mtoCLj/Sao4cPmMllUwvJR8HVFM?=
+ =?us-ascii?Q?OSmgkb1iYTMJpsuiYeSu9zLkJFhip6d1YykSZtZiRyNW5UrQhBXLzUXSpxNO?=
+ =?us-ascii?Q?jaoMUnqfJMuXdxGtZyA9y6HV0hE2rcqvn2HI3FJsZ8X7vhfe7xdDSGyu85wS?=
+ =?us-ascii?Q?ubN166DVbkHh5IqsukWDRSCKk5Gauh0I0hadOUdHtT8ViKY6Y46jZzWqWn6O?=
+ =?us-ascii?Q?c76VgmEAuDHXdjz0RLTGDQ0mv5VJvm4ZyB5JEt9KMt1cou+DWVVyUlkJWwxI?=
+ =?us-ascii?Q?8Ll37t7pNb0p4up3H46IUWG6TrsH4pCZ05Y56a366Oi9r2Yh2fBYr1+jDfcC?=
+ =?us-ascii?Q?9s8wJMOWO4WjJ7YRfMi1gQJ+IoThGRyfrGhZTHG4ucx7sQIL+NcUza6HRl9y?=
+ =?us-ascii?Q?j+7vgdam36unuUhY3juP/TGDibI4yehx7nvzamJ3KLQY5b3LdWT0K8ftvRHY?=
+ =?us-ascii?Q?4E1y/lLtvcXBJzPBMfS5z563lblTCUwdwhWin7R2B1bvFs0TM7h8cYzl4S4B?=
+ =?us-ascii?Q?41KHiM5ze2mgNTiLU/6bvwC7DrO9qKmNqb3OWbUtC+HzDhBdN3SY2zKeF9cH?=
+ =?us-ascii?Q?ufXBL5yi/1vqNGUvjqACBGihELPyiVyXX7pgdddON+nveZAV/iFBfSMIZGEq?=
+ =?us-ascii?Q?n5brF3IOfelSiEhUUyFtQW8a2KdZvcq/ACsCqoFnMNsVsAB8J+9dbRGNgZdK?=
+ =?us-ascii?Q?B64ywTi7R/NpSi8GJACm65Kg0XV3K36iLaRYBZoodRon4wwtKmtyimg/XyDB?=
+ =?us-ascii?Q?R/rEPz89QlkaqXJdb4yCBbAIOAfVBF5xMWamVZai3jiaXxths9OuM+pfb8tj?=
+ =?us-ascii?Q?A17akGi1K9aVuipBBZhK4z9i4+oQY4KNiJCSBmAdKH9kbXwV6RZVws5X1PFh?=
+ =?us-ascii?Q?y0vnuywPXX56dTwFCr9sb8DgCvy/ADAFXv8kwA/79W06/HQWfwcEvJwsEsvJ?=
+ =?us-ascii?Q?SjlUPKv6yegmrpDvLff1A+7m1gYQ183HjF9qgJjo/oMJ0yv/BI5J698jcZGi?=
+ =?us-ascii?Q?PLdrRYmcg5CI6siliUkrEzeW?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1732564b-5ce9-4da9-ac1c-08d91b8a7dbd
+X-MS-Exchange-CrossTenant-Network-Message-Id: 478e5c5d-2e17-47a1-7f2c-08d91b8df880
 X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2021 12:26:28.5001
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2021 12:51:22.6443
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 8gcQJ4vMauvyXbadZKi8AkKK2CGjh44wB59LXsKu7st9fgZFQBLolRhBOOwNrYAx
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3594
+X-MS-Exchange-CrossTenant-UserPrincipalName: bu/tz2X7+YuBslYMy59dyPs6t6uw+JqIpJf3CUAgGcdcg4U9g+NLrZrrsnlQYH3x
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4778
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 20, 2021 at 10:48:57AM +0200, Halil Pasic wrote:
-> On Wed, 19 May 2021 21:08:15 -0400
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+On Thu, May 20, 2021 at 10:38:29AM +0200, Halil Pasic wrote:
+
+> > It eliminates one atomic from a lock, but
+> > if you go on to immediately do something like try_module_get, which
+> > has an atomic inside, the whole thing is pointless (assuming
+> > try_module_get was even the right thing to do)
 > 
-> > >
-> > > This is nonesense too:
-> > >
-> > > 	if (vcpu->kvm->arch.crypto.pqap_hook) {
-> > > 		if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))
-> > > 			return -EOPNOTSUPP;
-> > > 		ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);
-> > >
-> > > It should have a lock around it of some kind, not a
-> > > try_module_get. module_get is not la lock.  
-> > 
-> > As I said earlier, I don't know why the author did this. 
-> 
-> Please have a look at these links from the archive to get some
-> perspective:
-> https://lkml.org/lkml/2020/12/4/994
-> https://lkml.org/lkml/2020/12/3/987
-> https://www.lkml.org/lkml/2019/3/1/260
-> 
-> We can ask the original author, but I don't think we have to. BTW the
-> patch that introduced it has your r-b.
-> 
-> > My best guess
-> > is that he wanted to ensure that the module was still loaded; otherwise,
-> > the data structures contained therein - for example, the pqap_hook
-> > and matrix_mdev that contains it - would be gonzo.
-> 
-> More precisely prevent the module from unloading while we execute code
-> from it. As I've pointed out in a previous email the module may be gone
-> by the time we call try_module_get().
+> I'm not sure about this argument, or that RCU should be used only for
+> highly performance sensitive read workloads. 
 
-No, this is a common misconception.
+Fundamentally RCU is a technique for building a read/write lock that
+avoids an atomic incr on the read side. This comes at the cost of
+significantly slowing down the write side.
 
-The module_get prevents the module from even being attempted to be
-unloaded. Code should acquire this if it has done something that would
-cause a module remove function hang indefinitely, such as a design
-that waits for a user FD to close.
+Everything about RCU is very complicated, people typically use it
+wrong.
 
-This provides a good user experience but should generally not be
-required for correctness.
+People use it wrong so often than Paul wrote a very long list of
+guidelines to help understand if it is being used properly:
 
-All code passing function pointers across subsystems should always
-fully fence those function pointers during removal. This means it
-interacts with some kind of locking that guarentees nothing is
-currently calling, or ever will call again, those function pointers.
+  Documentation/RCU/checklist.rst
 
-This is not just to protect the function pointer code itself, but the
-lock should also protect the data access that function pointer almost
-always invokes. This is the bug here, ap is accessing the matrix_dev
-data from a function pointer without any locking or serialization
-against kfree(matrix_dev). Fencing to guarentee the hook isn't and
-won't run also serves as a strong enough serialization to allow the
-kfree().
+If you haven't memorized this document then you probably shouldn't be
+using RCU at all :)
 
-The basic logic is that a module removal cannot complete until all
-its function pointers have been removed from everywhere and all the
-locking that protect those removals are satisified.
+> Can you please elaborate on the argument above and also put your
+> statement in perspective with https://lwn.net/Articles/263130/?
+
+This article doesn't talk much about the downsides - and focuses on
+performance win. If you need the performance then sure use RCU, but
+RCU is not a general purpose replacement for a rwsem. People should
+*always* reach for a rwsem first. Design that properly and then ask
+themselves if the rwsem can or should be optimized to a RCU.
+
+> Yes a simple sleepable lock would work, and we wouldn't need
+> get_module(). Because before the vfio_ap module unloads, it
+> sets all vcpu->kvm->arch.crypto.pqap_hook instances to NULL. So if
+> we know that vcpu->kvm->arch.crypto.pqap_hook then we know
+> that the still have valid references to the module.
+
+Yes
+ 
+> But in my opinion RCU is also viable (not this patch). I think, I prefer
+> a lock for simplicity, unless it is not (deadlocks) ;).
+
+As soon as you said you needed to sleep RCU stopped being viable. To
+make a sleepable region you need to do an atomic write and at that
+instant all the value of RCU was destroyed - use a normal rwsem.
+
+There is SRCU that solves the sleepable problem, but it has an
+incredible cost in both write side performance and memory usage that
+should only be reached for if high read side performance is really
+required.
 
 Jason
