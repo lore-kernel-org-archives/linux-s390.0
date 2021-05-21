@@ -7,34 +7,34 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B442C43617
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29DD3C43616
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F05096128A
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E89F613C4
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235440AbhEUFxr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 May 2021 01:53:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37282 "EHLO
+        id S236165AbhEUFx4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 May 2021 01:53:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234701AbhEUFxe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 01:53:34 -0400
+        with ESMTP id S235073AbhEUFxj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 01:53:39 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA13C061763;
-        Thu, 20 May 2021 22:52:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 121F8C06138A;
+        Thu, 20 May 2021 22:52:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=WCiTFeRRCmPm+nfHSliHFDSxKf26wi9nawmdHHNIgbI=; b=EYWl9BhkusWNfViwIhy2fYdimJ
-        pElzAlc1Jc778x09wwgZbCkU7tFkVDMGsaOPUeiPHpF8SfHxvjy5+EnVt5sJmTUXXO7Bb4W2j9ZV3
-        djNOvZ2DsIiWx1AIw4tDAwxTWmYaUg09Ghj9J8yN7w5aB+RKjdRiAj3GunDCe9zE+2D1sPTmm4Epi
-        Co+Wt7CskuaicsMJX8EFTU30JzTKGiEJ/b+lbbsJxbjTlMk/rLg08d2nbqVbr/RjGz3Fszax/vXHB
-        h3n8bb3Z7LoieuPqAaCvkxBXuX14i6BY0o2UrqlupNWKNp7aVj0VF1Q1Xh6jDhoI2j3ZVCkDsltr+
-        huw48rEA==;
+        bh=4szuJYmR11pD2G4fH+QS+nxV5W8Ptmu52A+D0MN3nXg=; b=FP2W445ofVpl9uQMnmJieRiFy+
+        QSv42mqlYEUVOOs+asx3KXcv0geXkpNMKZYXZAXP5p2y5+O45wO/WtFx3rDgToiWABOEyDIVtpmjr
+        nAetv60YXcfz7h3701O7QfQp/Bh4cTEotj4KGj86xIr/Lve1UUvC0q2IezjSHzTn2KDLMeiOuXjg6
+        +Iw/b/oJzQZCMYctV7ZGw1Y/0OMW33VtBV8Dy8/TxvYxqHcuMiKyU0A8q93uIeEgKcBHabIySrOrl
+        cCkjZfAGYIJjd+8jz6ouAlw4OTY1qfClEpJxeB07hWIxuyvo4rDSuofjhAY5KzCvn1EOjHXQWVmcd
+        uR3swFoA==;
 Received: from [2001:4bb8:180:5add:4fd7:4137:d2f2:46e6] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1ljy4f-00Gq0n-A1; Fri, 21 May 2021 05:51:53 +0000
+        id 1ljy4l-00Gq2r-6Q; Fri, 21 May 2021 05:51:59 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
@@ -64,9 +64,9 @@ Cc:     linux-block@vger.kernel.org, dm-devel@redhat.com,
         linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org,
         linux-mmc@vger.kernel.org, nvdimm@lists.linux.dev,
         linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: [PATCH 11/26] lightnvm: convert to blk_alloc_disk/blk_cleanup_disk
-Date:   Fri, 21 May 2021 07:51:01 +0200
-Message-Id: <20210521055116.1053587-12-hch@lst.de>
+Subject: [PATCH 13/26] dm: convert to blk_alloc_disk/blk_cleanup_disk
+Date:   Fri, 21 May 2021 07:51:03 +0200
+Message-Id: <20210521055116.1053587-14-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210521055116.1053587-1-hch@lst.de>
 References: <20210521055116.1053587-1-hch@lst.de>
@@ -77,100 +77,60 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Convert the lightnvm driver to use the blk_alloc_disk and blk_cleanup_disk
+Convert the dm driver to use the blk_alloc_disk and blk_cleanup_disk
 helpers to simplify gendisk and request_queue allocation.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/lightnvm/core.c | 23 +++++------------------
- 1 file changed, 5 insertions(+), 18 deletions(-)
+ drivers/md/dm.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/lightnvm/core.c b/drivers/lightnvm/core.c
-index e7dc539fc0ac..cf8a75494833 100644
---- a/drivers/lightnvm/core.c
-+++ b/drivers/lightnvm/core.c
-@@ -305,7 +305,6 @@ static int __nvm_config_extended(struct nvm_dev *dev,
- static int nvm_create_tgt(struct nvm_dev *dev, struct nvm_ioctl_create *create)
- {
- 	struct nvm_ioctl_create_extended e;
--	struct request_queue *tqueue;
- 	struct gendisk *tdisk;
- 	struct nvm_tgt_type *tt;
- 	struct nvm_target *t;
-@@ -370,23 +369,16 @@ static int nvm_create_tgt(struct nvm_dev *dev, struct nvm_ioctl_create *create)
- 		goto err_t;
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index ca2aedd8ee7d..3c7c2d257018 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1801,13 +1801,13 @@ static void cleanup_mapped_device(struct mapped_device *md)
+ 		md->disk->private_data = NULL;
+ 		spin_unlock(&_minor_lock);
+ 		del_gendisk(md->disk);
+-		put_disk(md->disk);
  	}
  
--	tdisk = alloc_disk(0);
-+	tdisk = blk_alloc_disk(dev->q->node);
- 	if (!tdisk) {
- 		ret = -ENOMEM;
- 		goto err_dev;
- 	}
- 
--	tqueue = blk_alloc_queue(dev->q->node);
--	if (!tqueue) {
--		ret = -ENOMEM;
--		goto err_disk;
+-	if (md->queue) {
++	if (md->queue)
+ 		dm_queue_destroy_keyslot_manager(md->queue);
+-		blk_cleanup_queue(md->queue);
 -	}
++
++	if (md->disk)
++		blk_cleanup_disk(md->disk);
+ 
+ 	cleanup_srcu_struct(&md->io_barrier);
+ 
+@@ -1869,13 +1869,10 @@ static struct mapped_device *alloc_dev(int minor)
+ 	 * established. If request-based table is loaded: blk-mq will
+ 	 * override accordingly.
+ 	 */
+-	md->queue = blk_alloc_queue(numa_node_id);
+-	if (!md->queue)
+-		goto bad;
 -
- 	strlcpy(tdisk->disk_name, create->tgtname, sizeof(tdisk->disk_name));
- 	tdisk->major = 0;
- 	tdisk->first_minor = 0;
- 	tdisk->fops = tt->bops;
--	tdisk->queue = tqueue;
+-	md->disk = alloc_disk_node(1, md->numa_node_id);
++	md->disk = blk_alloc_disk(md->numa_node_id);
+ 	if (!md->disk)
+ 		goto bad;
++	md->queue = md->disk->queue;
  
- 	targetdata = tt->init(tgt_dev, tdisk, create->flags);
- 	if (IS_ERR(targetdata)) {
-@@ -395,14 +387,14 @@ static int nvm_create_tgt(struct nvm_dev *dev, struct nvm_ioctl_create *create)
- 	}
+ 	init_waitqueue_head(&md->wait);
+ 	INIT_WORK(&md->work, dm_wq_work);
+@@ -1888,6 +1885,7 @@ static struct mapped_device *alloc_dev(int minor)
  
- 	tdisk->private_data = targetdata;
--	tqueue->queuedata = targetdata;
-+	tdisk->queue->queuedata = targetdata;
- 
- 	mdts = (dev->geo.csecs >> 9) * NVM_MAX_VLBA;
- 	if (dev->geo.mdts) {
- 		mdts = min_t(u32, dev->geo.mdts,
- 				(dev->geo.csecs >> 9) * NVM_MAX_VLBA);
- 	}
--	blk_queue_max_hw_sectors(tqueue, mdts);
-+	blk_queue_max_hw_sectors(tdisk->queue, mdts);
- 
- 	set_capacity(tdisk, tt->capacity(targetdata));
- 	add_disk(tdisk);
-@@ -427,10 +419,7 @@ static int nvm_create_tgt(struct nvm_dev *dev, struct nvm_ioctl_create *create)
- 	if (tt->exit)
- 		tt->exit(targetdata, true);
- err_init:
--	blk_cleanup_queue(tqueue);
--	tdisk->queue = NULL;
--err_disk:
--	put_disk(tdisk);
-+	blk_cleanup_disk(tdisk);
- err_dev:
- 	nvm_remove_tgt_dev(tgt_dev, 0);
- err_t:
-@@ -444,10 +433,8 @@ static void __nvm_remove_target(struct nvm_target *t, bool graceful)
- {
- 	struct nvm_tgt_type *tt = t->type;
- 	struct gendisk *tdisk = t->disk;
--	struct request_queue *q = tdisk->queue;
- 
- 	del_gendisk(tdisk);
--	blk_cleanup_queue(q);
- 
- 	if (tt->sysfs_exit)
- 		tt->sysfs_exit(tdisk);
-@@ -456,7 +443,7 @@ static void __nvm_remove_target(struct nvm_target *t, bool graceful)
- 		tt->exit(tdisk->private_data, graceful);
- 
- 	nvm_remove_tgt_dev(t->dev, 1);
--	put_disk(tdisk);
-+	blk_cleanup_disk(tdisk);
- 	module_put(t->type->owner);
- 
- 	list_del(&t->list);
+ 	md->disk->major = _major;
+ 	md->disk->first_minor = minor;
++	md->disk->minors = 1;
+ 	md->disk->fops = &dm_blk_dops;
+ 	md->disk->queue = md->queue;
+ 	md->disk->private_data = md;
 -- 
 2.30.2
 
