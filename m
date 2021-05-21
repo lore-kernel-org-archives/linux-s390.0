@@ -2,115 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 486C6C43460
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 13:29:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74772C47081
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 17:16:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E06C610CB
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 13:29:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5AE7D613E3
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 17:16:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235094AbhEUNaw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 May 2021 09:30:52 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58940 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234235AbhEUNaq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 May 2021 09:30:46 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14LDMnAg129094;
-        Fri, 21 May 2021 09:29:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=qbyLSEYxo2Punq/yUmuYxrOa5tjum0XaNxmcY8b1kuE=;
- b=JvkNwQlDVciNu1YieagyjI1rbmChdtQT/5FwACSpAhcHSBATSBxvMwvZ3kv4poyBmQIb
- VkjB3FYCyr05i0U+M37F09hY3kafHuCPp6b8K4w0dSKrCygQQ5jPzuiiJQmX27PDUqvm
- sZ4IuYmICKiebPme3sVcE2hEnE13lbnfgcKcS2VFaptCtdUOlVQngdv/jCSSlwhUnKuG
- uErbbfq6GyHLDaJ+cKtFSF/h8zprg/MGcqwr5+ohQJVnq1KXRzy9O8c+Dweu+erKz8w3
- PL8fUFJWNAxVHtTQf8nAgdVz/dKdEAhxolVZhM5onkptUPC0hz1zMq+ED9d8yNlB74Jb AQ== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38pdpsr44b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 May 2021 09:29:19 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14LDSkCH031653;
-        Fri, 21 May 2021 13:29:17 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 38j5x7u5uh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 May 2021 13:29:17 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14LDTEx729557180
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 21 May 2021 13:29:14 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 449F842047;
-        Fri, 21 May 2021 13:29:14 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F04DE4204B;
-        Fri, 21 May 2021 13:29:13 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 21 May 2021 13:29:13 +0000 (GMT)
-From:   Julian Wiedmann <jwi@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     Karsten Graul <kgraul@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-netdev <netdev@vger.kernel.org>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH net] MAINTAINERS: s390/net: add netdev list
-Date:   Fri, 21 May 2021 15:28:56 +0200
-Message-Id: <20210521132856.1573533-1-jwi@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: XXimO-eE9j9LHoGF5cy1zlAMOpeMVLx_
-X-Proofpoint-GUID: XXimO-eE9j9LHoGF5cy1zlAMOpeMVLx_
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S236561AbhEURSO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 May 2021 13:18:14 -0400
+Received: from mail-pl1-f173.google.com ([209.85.214.173]:34801 "EHLO
+        mail-pl1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230051AbhEURSM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 13:18:12 -0400
+Received: by mail-pl1-f173.google.com with SMTP id e15so4699241plh.1;
+        Fri, 21 May 2021 10:16:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=/6CTfoP+3YhIDA2Sa2Vg3MwIl/4IQc5OvLMHtpk2uwk=;
+        b=uUL5NavBU2xwKN6mGV5kA8d9Gkt0Qux+tv7X+/hrXJEiwJ7untsMp6/UHMOsol0vL2
+         G7yCZX8gj9KJHM6rmUoAV50awHqUUJukNvIO97PoZUpu+zbghal5o14wiNL+QIfvkuS3
+         a0D+IDDgTh+Eb9+5cHAcLa5XNhdiDPE2Db6QkN1h0R8ro07UlNrfjvyA53+4ldUQ2CIN
+         mV2X+6CWXii9CDqEQ1d2N1LprWXbQD1yRn55G/pNWU2O0iVChlquXdgFYnxEMMvR3gn4
+         McUhkITWDOI693qGYEhDc35FYa/UUte8Woo8IeCJKL4AYBafGN/UomaezUAERf9smzSE
+         rA8w==
+X-Gm-Message-State: AOAM5330YeP/FhjIlTGl3J32VNv4eXihG3L574df9UhrEyNGL81wlcGT
+        xm9IW8IQnhiBHGoujk+DcSw=
+X-Google-Smtp-Source: ABdhPJxtynqdEQ1F/D+2PqiHL9NmQC5jqLXgWhG+E7yzr8uLp59ObRLAPQ67LxwzZAhslkMqhOa4cA==
+X-Received: by 2002:a17:90a:590d:: with SMTP id k13mr12082927pji.68.1621617409049;
+        Fri, 21 May 2021 10:16:49 -0700 (PDT)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id q24sm4964064pgb.19.2021.05.21.10.16.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 May 2021 10:16:47 -0700 (PDT)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 6461E423A3; Fri, 21 May 2021 17:16:46 +0000 (UTC)
+Date:   Fri, 21 May 2021 17:16:46 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        Lars Ellenberg <lars.ellenberg@linbit.com>,
+        Jim Paris <jim@jtan.com>,
+        Joshua Morris <josh.h.morris@us.ibm.com>,
+        Philip Kelleher <pjk1939@linux.ibm.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Matias Bjorling <mb@lightnvm.io>, Coly Li <colyli@suse.de>,
+        Mike Snitzer <snitzer@redhat.com>, Song Liu <song@kernel.org>,
+        Maxim Levitsky <maximlevitsky@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-xtensa@linux-xtensa.org, linux-m68k@vger.kernel.org,
+        linux-raid@vger.kernel.org, nvdimm@lists.linux.dev,
+        linux-s390@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-bcache@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-block@vger.kernel.org, dm-devel@redhat.com,
+        drbd-dev@tron.linbit.com, linuxppc-dev@lists.ozlabs.org
+Subject: Re: [dm-devel] [PATCH 01/26] block: refactor device number setup in
+ __device_add_disk
+Message-ID: <20210521171646.GA25017@42.do-not-panic.com>
+References: <20210521055116.1053587-1-hch@lst.de>
+ <20210521055116.1053587-2-hch@lst.de>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-21_04:2021-05-20,2021-05-21 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- lowpriorityscore=0 suspectscore=0 mlxscore=0 mlxlogscore=703 clxscore=1011
- adultscore=0 impostorscore=0 priorityscore=1501 malwarescore=0 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105210077
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210521055116.1053587-2-hch@lst.de>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Discussions for network-related code should include the netdev list.
+On Fri, May 21, 2021 at 07:50:51AM +0200, Christoph Hellwig wrote:
+> diff --git a/block/genhd.c b/block/genhd.c
+> index 39ca97b0edc6..2c00bc3261d9 100644
+> --- a/block/genhd.c
+> +++ b/block/genhd.c
+> @@ -335,52 +335,22 @@ static int blk_mangle_minor(int minor)
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- MAINTAINERS | 2 ++
- 1 file changed, 2 insertions(+)
+<-- snip -->
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index c1cb2e38ae2e..88722efd94a1 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -15944,6 +15944,7 @@ S390 IUCV NETWORK LAYER
- M:	Julian Wiedmann <jwi@linux.ibm.com>
- M:	Karsten Graul <kgraul@linux.ibm.com>
- L:	linux-s390@vger.kernel.org
-+L:	netdev@vger.kernel.org
- S:	Supported
- W:	http://www.ibm.com/developerworks/linux/linux390/
- F:	drivers/s390/net/*iucv*
-@@ -15954,6 +15955,7 @@ S390 NETWORK DRIVERS
- M:	Julian Wiedmann <jwi@linux.ibm.com>
- M:	Karsten Graul <kgraul@linux.ibm.com>
- L:	linux-s390@vger.kernel.org
-+L:	netdev@vger.kernel.org
- S:	Supported
- W:	http://www.ibm.com/developerworks/linux/linux390/
- F:	drivers/s390/net/
--- 
-2.25.1
+> -int blk_alloc_devt(struct block_device *bdev, dev_t *devt)
+> +int blk_alloc_ext_minor(void)
+>  {
+> -	struct gendisk *disk = bdev->bd_disk;
+>  	int idx;
+>  
+> -	/* in consecutive minor range? */
+> -	if (bdev->bd_partno < disk->minors) {
+> -		*devt = MKDEV(disk->major, disk->first_minor + bdev->bd_partno);
+> -		return 0;
+> -	}
+> -
 
+It is not obviously clear to me, why this was part of add_disk()
+path, and ...
+
+> diff --git a/block/partitions/core.c b/block/partitions/core.c
+> index dc60ecf46fe6..504297bdc8bf 100644
+> --- a/block/partitions/core.c
+> +++ b/block/partitions/core.c
+> @@ -379,9 +380,15 @@ static struct block_device *add_partition(struct gendisk *disk, int partno,
+>  	pdev->type = &part_type;
+>  	pdev->parent = ddev;
+>  
+> -	err = blk_alloc_devt(bdev, &devt);
+> -	if (err)
+> -		goto out_put;
+> +	/* in consecutive minor range? */
+> +	if (bdev->bd_partno < disk->minors) {
+> +		devt = MKDEV(disk->major, disk->first_minor + bdev->bd_partno);
+> +	} else {
+> +		err = blk_alloc_ext_minor();
+> +		if (err < 0)
+> +			goto out_put;
+> +		devt = MKDEV(BLOCK_EXT_MAJOR, err);
+> +	}
+>  	pdev->devt = devt;
+>  
+>  	/* delay uevent until 'holders' subdir is created */
+
+... and why we only add this here now.
+
+Other than that, this looks like a super nice cleanup!
+
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+
+  Luis
