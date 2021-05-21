@@ -7,34 +7,34 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8EBFC433B4
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:51:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C66B0C43600
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:51:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE96A613BF
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:51:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A793160FD8
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:51:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234636AbhEUFxQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 May 2021 01:53:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37230 "EHLO
+        id S234805AbhEUFxV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 May 2021 01:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234571AbhEUFxP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 01:53:15 -0400
+        with ESMTP id S234701AbhEUFxS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 01:53:18 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9602CC061574;
-        Thu, 20 May 2021 22:51:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F4218C061574;
+        Thu, 20 May 2021 22:51:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=h6/c/pmAVTT50EpYkCB8cars83Aefpk5WatNPBetZlM=; b=ERLX+Er9adUQY5JASpHYlxDt4S
-        zWZPt2U/8Qby2Mlefy9E4u7vRehymcjI24z35jNassCKUcOBAZySuvsAVI6cYWNeBPlVIGquPr/PI
-        K5me+5J9FtyqqIWFR4a9PhJOiEyKOQaHxv2DXeG90uleKzDgmJgbufQK8ymO4S3v/Yg+A+y57GJY1
-        fpf15rMSDLOi29rNlmj8A/blllRngdb+jnDU/o5REeAsVzU7ozsDG8j61Z8ZcFLu3Djm0hdBQS5Hn
-        OjRh7qHzrYTv60W1JMPA4tO/Rr7OZ3hjxs/7X4/BuuMG6rR4xxgObPOh9A45ypfw1ZU5hNwUyfirp
-        7AUS9Ixg==;
+        bh=9gxzUTksSCPmzNu3uikLvND31EJ5aydX0p4jRS3yWUM=; b=hQ935sAL5428xOK5g3d57WQyEz
+        nh68qg6eMmErNuHz/MRa0ELXgEszKLPVM31ef3SugWspRAaNYnPTPGax6lAf9hW5umji1yI9L0r9q
+        zqB9wajpkl4QOrF5LKPCE5QHEs3C8NFjfTJoLe1kqUzFDFr5Wkf1bzleebN141ybNQ7ct85qIw46U
+        SZWrAsyFjKaGWQagXOdQM2MsN5rkD0C9nKWtwK8XCfXJh6IfaHEW/ltD4Rgh6KNlYzOMlOn3j1x0U
+        I4AtrUAheMMI1zVQMhZG72WLBfzFTPQS89jlunzjjceu3/rS5fqmFLNZ2NCs6uRTOpVd4bqw95DTy
+        QjJuMyyA==;
 Received: from [2001:4bb8:180:5add:4fd7:4137:d2f2:46e6] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1ljy4G-00GpxC-Qo; Fri, 21 May 2021 05:51:29 +0000
+        id 1ljy4N-00Gpy6-5p; Fri, 21 May 2021 05:51:35 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
@@ -64,9 +64,9 @@ Cc:     linux-block@vger.kernel.org, dm-devel@redhat.com,
         linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org,
         linux-mmc@vger.kernel.org, nvdimm@lists.linux.dev,
         linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: [PATCH 03/26] block: automatically enable GENHD_FL_EXT_DEVT
-Date:   Fri, 21 May 2021 07:50:53 +0200
-Message-Id: <20210521055116.1053587-4-hch@lst.de>
+Subject: [PATCH 05/26] block: add blk_alloc_disk and blk_cleanup_disk APIs
+Date:   Fri, 21 May 2021 07:50:55 +0200
+Message-Id: <20210521055116.1053587-6-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210521055116.1053587-1-hch@lst.de>
 References: <20210521055116.1053587-1-hch@lst.de>
@@ -77,157 +77,102 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Automatically set the GENHD_FL_EXT_DEVT flag for all disks allocated
-without an explicit number of minors.  This is what all new block
-drivers should do, so make sure it is the default without boilerplate
-code.
+Add two new APIs to allocate and free a gendisk including the
+request_queue for use with BIO based drivers.  This is to avoid
+boilerplate code in drivers.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- block/genhd.c                    | 2 +-
- block/partitions/core.c          | 4 ----
- drivers/block/n64cart.c          | 2 +-
- drivers/lightnvm/core.c          | 1 -
- drivers/memstick/core/ms_block.c | 1 -
- drivers/nvdimm/blk.c             | 1 -
- drivers/nvdimm/btt.c             | 1 -
- drivers/nvdimm/pmem.c            | 1 -
- drivers/nvme/host/core.c         | 1 -
- drivers/nvme/host/multipath.c    | 1 -
- 10 files changed, 2 insertions(+), 13 deletions(-)
+ block/genhd.c         | 35 +++++++++++++++++++++++++++++++++++
+ include/linux/genhd.h | 22 ++++++++++++++++++++++
+ 2 files changed, 57 insertions(+)
 
 diff --git a/block/genhd.c b/block/genhd.c
-index 7f9beaeede11..eec266c9318d 100644
+index e4974af3d729..6d4ce962866d 100644
 --- a/block/genhd.c
 +++ b/block/genhd.c
-@@ -499,7 +499,6 @@ static void __device_add_disk(struct device *parent, struct gendisk *disk,
- 		}
- 	} else {
- 		WARN_ON(disk->minors);
--		WARN_ON(!(disk->flags & (GENHD_FL_EXT_DEVT | GENHD_FL_HIDDEN)));
+@@ -1302,6 +1302,25 @@ struct gendisk *__alloc_disk_node(int minors, int node_id)
+ }
+ EXPORT_SYMBOL(__alloc_disk_node);
  
- 		ret = blk_alloc_ext_minor();
- 		if (ret < 0) {
-@@ -508,6 +507,7 @@ static void __device_add_disk(struct device *parent, struct gendisk *disk,
- 		}
- 		disk->major = BLOCK_EXT_MAJOR;
- 		disk->first_minor = MINOR(ret);
-+		disk->flags |= GENHD_FL_EXT_DEVT;
- 	}
++struct gendisk *__blk_alloc_disk(int node)
++{
++	struct request_queue *q;
++	struct gendisk *disk;
++
++	q = blk_alloc_queue(node);
++	if (!q)
++		return NULL;
++
++	disk = __alloc_disk_node(0, node);
++	if (!disk) {
++		blk_cleanup_queue(q);
++		return NULL;
++	}
++	disk->queue = q;
++	return disk;
++}
++EXPORT_SYMBOL(__blk_alloc_disk);
++
+ /**
+  * put_disk - decrements the gendisk refcount
+  * @disk: the struct gendisk to decrement the refcount for
+@@ -1319,6 +1338,22 @@ void put_disk(struct gendisk *disk)
+ }
+ EXPORT_SYMBOL(put_disk);
  
- 	disk->flags |= GENHD_FL_UP;
-diff --git a/block/partitions/core.c b/block/partitions/core.c
-index 504297bdc8bf..ada3e1e66989 100644
---- a/block/partitions/core.c
-+++ b/block/partitions/core.c
-@@ -326,10 +326,6 @@ static struct block_device *add_partition(struct gendisk *disk, int partno,
- 	const char *dname;
- 	int err;
++/**
++ * blk_cleanup_disk - shutdown a gendisk allocated by blk_alloc_disk
++ * @disk: gendisk to shutdown
++ *
++ * Mark the queue hanging off @disk DYING, drain all pending requests, then mark
++ * the queue DEAD, destroy and put it and the gendisk structure.
++ *
++ * Context: can sleep
++ */
++void blk_cleanup_disk(struct gendisk *disk)
++{
++	blk_cleanup_queue(disk->queue);
++	put_disk(disk);
++}
++EXPORT_SYMBOL(blk_cleanup_disk);
++
+ static void set_disk_ro_uevent(struct gendisk *gd, int ro)
+ {
+ 	char event[] = "DISK_RO=1";
+diff --git a/include/linux/genhd.h b/include/linux/genhd.h
+index a5443f0b139d..03aa12730634 100644
+--- a/include/linux/genhd.h
++++ b/include/linux/genhd.h
+@@ -278,6 +278,28 @@ extern void put_disk(struct gendisk *disk);
  
--	/*
--	 * disk_max_parts() won't be zero, either GENHD_FL_EXT_DEVT is set
--	 * or 'minors' is passed to alloc_disk().
--	 */
- 	if (partno >= disk_max_parts(disk))
- 		return ERR_PTR(-EINVAL);
+ #define alloc_disk(minors) alloc_disk_node(minors, NUMA_NO_NODE)
  
-diff --git a/drivers/block/n64cart.c b/drivers/block/n64cart.c
-index 47bdf324e962..3dae4b631dea 100644
---- a/drivers/block/n64cart.c
-+++ b/drivers/block/n64cart.c
-@@ -141,7 +141,7 @@ static int __init n64cart_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	disk->first_minor = 0;
--	disk->flags = GENHD_FL_NO_PART_SCAN | GENHD_FL_EXT_DEVT;
-+	disk->flags = GENHD_FL_NO_PART_SCAN;
- 	disk->fops = &n64cart_fops;
- 	disk->private_data = &pdev->dev;
- 	strcpy(disk->disk_name, "n64cart");
-diff --git a/drivers/lightnvm/core.c b/drivers/lightnvm/core.c
-index 40a948c08a0b..e7dc539fc0ac 100644
---- a/drivers/lightnvm/core.c
-+++ b/drivers/lightnvm/core.c
-@@ -383,7 +383,6 @@ static int nvm_create_tgt(struct nvm_dev *dev, struct nvm_ioctl_create *create)
- 	}
- 
- 	strlcpy(tdisk->disk_name, create->tgtname, sizeof(tdisk->disk_name));
--	tdisk->flags = GENHD_FL_EXT_DEVT;
- 	tdisk->major = 0;
- 	tdisk->first_minor = 0;
- 	tdisk->fops = tt->bops;
-diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
-index 8004dd64d09a..0bacf4268f83 100644
---- a/drivers/memstick/core/ms_block.c
-+++ b/drivers/memstick/core/ms_block.c
-@@ -2136,7 +2136,6 @@ static int msb_init_disk(struct memstick_dev *card)
- 	msb->disk->fops = &msb_bdops;
- 	msb->disk->private_data = msb;
- 	msb->disk->queue = msb->queue;
--	msb->disk->flags |= GENHD_FL_EXT_DEVT;
- 
- 	capacity = msb->pages_in_block * msb->logical_block_count;
- 	capacity *= (msb->page_size / 512);
-diff --git a/drivers/nvdimm/blk.c b/drivers/nvdimm/blk.c
-index 7b9556291eb1..7ba446d224fb 100644
---- a/drivers/nvdimm/blk.c
-+++ b/drivers/nvdimm/blk.c
-@@ -267,7 +267,6 @@ static int nsblk_attach_disk(struct nd_namespace_blk *nsblk)
- 	disk->first_minor	= 0;
- 	disk->fops		= &nd_blk_fops;
- 	disk->queue		= q;
--	disk->flags		= GENHD_FL_EXT_DEVT;
- 	disk->private_data	= nsblk;
- 	nvdimm_namespace_disk_name(&nsblk->common, disk->disk_name);
- 
-diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
-index 18a267d5073f..1741a7b0b30f 100644
---- a/drivers/nvdimm/btt.c
-+++ b/drivers/nvdimm/btt.c
-@@ -1537,7 +1537,6 @@ static int btt_blk_init(struct btt *btt)
- 	btt->btt_disk->fops = &btt_fops;
- 	btt->btt_disk->private_data = btt;
- 	btt->btt_disk->queue = btt->btt_queue;
--	btt->btt_disk->flags = GENHD_FL_EXT_DEVT;
- 
- 	blk_queue_logical_block_size(btt->btt_queue, btt->sector_size);
- 	blk_queue_max_hw_sectors(btt->btt_queue, UINT_MAX);
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index ed10a8b66068..968b8483c763 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -477,7 +477,6 @@ static int pmem_attach_disk(struct device *dev,
- 
- 	disk->fops		= &pmem_fops;
- 	disk->queue		= q;
--	disk->flags		= GENHD_FL_EXT_DEVT;
- 	disk->private_data	= pmem;
- 	nvdimm_namespace_disk_name(ndns, disk->disk_name);
- 	set_capacity(disk, (pmem->size - pmem->pfn_pad - pmem->data_offset)
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 762125f2905f..24bcae88587a 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3699,7 +3699,6 @@ static void nvme_alloc_ns(struct nvme_ctrl *ctrl, unsigned nsid,
- 	disk->fops = &nvme_bdev_ops;
- 	disk->private_data = ns;
- 	disk->queue = ns->queue;
--	disk->flags = GENHD_FL_EXT_DEVT;
- 	/*
- 	 * Without the multipath code enabled, multiple controller per
- 	 * subsystems are visible as devices and thus we cannot use the
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index f81871c7128a..a5d02f236cca 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -462,7 +462,6 @@ int nvme_mpath_alloc_disk(struct nvme_ctrl *ctrl, struct nvme_ns_head *head)
- 	head->disk->fops = &nvme_ns_head_ops;
- 	head->disk->private_data = head;
- 	head->disk->queue = q;
--	head->disk->flags = GENHD_FL_EXT_DEVT;
- 	sprintf(head->disk->disk_name, "nvme%dn%d",
- 			ctrl->subsys->instance, head->instance);
- 	return 0;
++/**
++ * blk_alloc_disk - allocate a gendisk structure
++ * @node_id: numa node to allocate on
++ *
++ * Allocate and pre-initialize a gendisk structure for use with BIO based
++ * drivers.
++ *
++ * Context: can sleep
++ */
++#define blk_alloc_disk(node_id)						\
++({									\
++	struct gendisk *__disk = __blk_alloc_disk(node_id);		\
++	static struct lock_class_key __key;				\
++									\
++	if (__disk)							\
++		lockdep_init_map(&__disk->lockdep_map,			\
++			"(bio completion)", &__key, 0);			\
++	__disk;								\
++})
++struct gendisk *__blk_alloc_disk(int node);
++void blk_cleanup_disk(struct gendisk *disk);
++
+ int __register_blkdev(unsigned int major, const char *name,
+ 		void (*probe)(dev_t devt));
+ #define register_blkdev(major, name) \
 -- 
 2.30.2
 
