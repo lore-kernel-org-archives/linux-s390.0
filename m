@@ -2,160 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.2 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BEB4C4707C
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 18:30:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 849FEC4707D
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 19:04:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 403B961104
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 18:30:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 694F6613AE
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 19:04:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229762AbhEUSb6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 May 2021 14:31:58 -0400
-Received: from mail-bn8nam08on2071.outbound.protection.outlook.com ([40.107.100.71]:63360
-        "EHLO NAM04-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S234895AbhEUSb5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 May 2021 14:31:57 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UXx/mAxHNs6e9vhLNsUyud43TtLE6iCO1xKaVQ9Djc5JgC3qsRbmFi4hR1/YgcwtBHrEcN2VVtkUeVU0UAUa5qAHLmRDYxmLkSFaUtiE5s0D1DRtf+AeupWDQtWu4g49IgpZbGWtt2llQEgnLbLr2b7XgoaRBBHWpMzrZ18QqFXdy9QIqHXMNZOWhvP9URZc824hvv5yZ8Q6h2q9bbX5FAQr7XgaZimxbb3fFidS/wRNrnvNiVFVzBh4pDrppz27322/0jLfNXA83aSZkprEFZpaImM2muYgJfU1QusZPGMLno5+5gb2UB5wXDv9Rbte+Zu4dDbhCGsIrt5ExtK23A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1ra5PAuaEYT3SZjERc0yt2ufY0HBTmHAbpdHvob8ezg=;
- b=PT7FV/pSaEumcD3ppIrjmm3PYXFvhHTwsxjPjihbAQg7ryDG9sanLdbPBERZod1snNLVvqUInp6Fp0KFhG6dOSUj2fJOm5DFire3xTpTWzkRW9FeV174ws1kmn6zhwOOItmvXnyhb25p+nuinPJTvQZ+0E0TOa6x+5bEqUQDHyeZGLlr4erKXUOtXGMbEDMqWmlFquWPBaPCsVD2pEw1gWHUxl21IAZa4qzwdHZuBf/TuEmuFOlSPEXT3YkZsVO75SbzReFoHN4tL50yZ7QzipX5EmV9CY5oSbstdqI0xv1IFv4PWSh8HjQuoX/mkwmN5cmupGt6FQIfxjvRNFKhYQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1ra5PAuaEYT3SZjERc0yt2ufY0HBTmHAbpdHvob8ezg=;
- b=ZefDY6MO6f6rtQkKl+y58jEsUhLIHnuNexsn7YFmD3O85slxw89VJ+S7xORIQ4B3Qu+EcDa2/donfR2uJbKdyqz4T0Y60RnGojBy5IPBX47kslN5vtBhSTXdqfuRgWYE3MkNfTI3UEA+MfBetH9U2m3JZrbxj/buUefzkPYBLaPl9+1NlNssDKEAoBBKZwNlqTo4WykgSciFTGjPEJ0Um01Wz4l1Zfwj9jB+8EpdZZi99qwzSOTdvcOl9DK7yybJ1AiILEv/+7t80m6mZhWQNxesaJdkE3CSp7AiO+vU4CKjkKuRIuFFOHMI+GP9JZsU95i8mYJ2pq0XXSIz6KE2/g==
-Authentication-Results: linux.ibm.com; dkim=none (message not signed)
- header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL0PR12MB5521.namprd12.prod.outlook.com (2603:10b6:208:1c7::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.26; Fri, 21 May
- 2021 18:30:33 +0000
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::3d51:a3b9:8611:684e]) by BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::3d51:a3b9:8611:684e%7]) with mapi id 15.20.4150.025; Fri, 21 May 2021
- 18:30:33 +0000
-Date:   Fri, 21 May 2021 15:30:31 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com
-Subject: Re: [PATCH v3 2/2] s390/vfio-ap: control access to PQAP(AQIC)
- interception handler
-Message-ID: <20210521183031.GC1002214@nvidia.com>
-References: <20210519153921.804887-1-akrowiak@linux.ibm.com>
- <20210519153921.804887-3-akrowiak@linux.ibm.com>
- <20210519161610.GO1002214@nvidia.com>
- <8c93c29a-e223-ac9a-5b54-7329587084c9@linux.ibm.com>
- <20210519232202.GV1002214@nvidia.com>
- <07dfdf17-f56e-6dd1-8011-eacfbe741e9e@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <07dfdf17-f56e-6dd1-8011-eacfbe741e9e@linux.ibm.com>
-X-Originating-IP: [206.223.160.26]
-X-ClientProxiedBy: YTXPR0101CA0030.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b00::43) To BL0PR12MB5506.namprd12.prod.outlook.com
- (2603:10b6:208:1cb::22)
+        id S232828AbhEUTFu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 May 2021 15:05:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47716 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234678AbhEUTFt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 15:05:49 -0400
+Received: from mail-lj1-x22e.google.com (mail-lj1-x22e.google.com [IPv6:2a00:1450:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CD31C06138B
+        for <linux-s390@vger.kernel.org>; Fri, 21 May 2021 12:04:24 -0700 (PDT)
+Received: by mail-lj1-x22e.google.com with SMTP id p20so25156263ljj.8
+        for <linux-s390@vger.kernel.org>; Fri, 21 May 2021 12:04:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4c0xpiDdquziT96yZl3BHBXwubR9WKTGBWbOrT+AaXw=;
+        b=pECMVQG59uyASUJzijmFgULjtz0WeSXtfGqwCTJG2j+ImfbbJ7Idt9TYYFm4tIh5IH
+         R9tWzg69i+hjy158g1MjSB7Mz7DEsW7oz5U8qy+v+8wWvW0wYfkBXTh5OX/GlD2LFPMi
+         C8LAEMY7I+MRLp0N9IWZ0Vp4vhgE7loV0bxxYgzxSyXWT8/fH8aU2msbrP6jIKVQO7tf
+         xM4kXdA4GPVanJXhvwhALX5tp1GxBbFsrxjmcutTR7FTNKSIP95t7AcRXZNV/25kLVNM
+         OkzP7/ynTJ2xK6k9rq0UpyN6X3sUm8d+2LuQmwcc24FjbjaIDkK4azYIJ8RtyTmDymNU
+         Ktnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4c0xpiDdquziT96yZl3BHBXwubR9WKTGBWbOrT+AaXw=;
+        b=a4+/3YByfvn6OmBCB8I2AS6L42vj8xkdhMigzmlqGosKvum+jcm14Tjm3FY0Tabd47
+         zcw+5978GvvLkZrbY6+JqgW1DRCHdjNnRPJRvZWiuPbsSuMKnoDFmfj4eD+uQx1sx08t
+         8ZD7QrkUQNh4GeCBb6Sa/WhgkjxFH4Xz8pvZxUnTKE2ZFp0s0aYoFrbATbLoQAEAF/qG
+         gN9bciScSJn88TaK9ERM/DmJq8Ed60IOH5etvoFJJ/ICyRp4zOJ7SaUmdrXJXWyJ1h54
+         9KPvaGCmRo8kn9Egq94P1r/5Jbtv2DdDa9kXwnKZsI7/f/93AMSuyPAYNdeGtWC6w7xT
+         PPcQ==
+X-Gm-Message-State: AOAM531r5EcTIbzrzca3ut8f8RK0DcL3IXelrsOxA6TJT2fJwZ081nel
+        BmxXg2n7hkPdAG0haxGeLt4BXVLzyMDGNM7syfSeKw==
+X-Google-Smtp-Source: ABdhPJwOfE4Z7GOUzAJmeJCq4dABeShpU2xSSiKXlcHwytE83fbH1JNzJEVwiDFuyyhMC72fGkxyFOTVjHXM1e9tnqs=
+X-Received: by 2002:a2e:a7c9:: with SMTP id x9mr7858164ljp.216.1621623862953;
+ Fri, 21 May 2021 12:04:22 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (206.223.160.26) by YTXPR0101CA0030.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b00::43) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.30 via Frontend Transport; Fri, 21 May 2021 18:30:33 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lk9up-00CZWw-F8; Fri, 21 May 2021 15:30:31 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: bc73a69e-8c3f-4a44-f675-08d91c8684e2
-X-MS-TrafficTypeDiagnostic: BL0PR12MB5521:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BL0PR12MB5521F9514CF24836B5341381C2299@BL0PR12MB5521.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: nMoB5lY0kc9D9zcz12afkaNERVnaQ26qvxQ5+3BfiakxyDk9G5jtnN3ScSHpUvZRaHMpHHFlE8pJd499hcOstSdQy4uE7VxWSMaIm+f6cT8+DZorjDQvJKhSjh81Kqnz+pdEjgkbU1tcq+QiL3L079qDKW+x6HSAlpe7R7R9uwtcjtd5bpcCp16WI7FpZHE7EVye9y/72HsFLxNdNg/nI2nBM6elRgX4sxnpOjUS/NeMotMEGNDjrCeJOb/lyYkCDEWiGDGWpAMxX4HvZKYNHp9cH+2ii7OYj2uuPV63ZwACQq+Unxn2oH9d55ggMRBQUJLr26k6t2vv+Mr3cfk6IZFLCo+olo4fjZRpGI+v50EafgPFEaAQRk/WLaQ2Nrs+ODddfu3ghosmP6YTt3NBGrFzihAhUAa0cuJ1/T3xckWf0pNZWIz0bPp+RV1RCTiYq3jZ9YTMx6EYo/LIFxGzypR5yO7Ei0POy2aOst15GTW1c/08mkc0TCoIhjKdCvkF+uB2tG+BoP5Cdn1wxjM9CNYD4EgKmofKxNsW6BlC7uWl0DTpOwiR6+oXIKJd1c3fSQOiPdEjFfGRzRnRvTdDOxukRcPPJXhfKM9HiCPhMy8=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(366004)(136003)(396003)(346002)(39860400002)(1076003)(26005)(9746002)(9786002)(2906002)(2616005)(4326008)(8936002)(426003)(186003)(33656002)(38100700002)(66476007)(478600001)(66946007)(83380400001)(36756003)(107886003)(66556008)(86362001)(5660300002)(8676002)(316002)(6916009);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?Wd7Pj7xF6LauSK0CtIxEWcUtSZMxnspBL0vCiCbHJiwJWXBMB3GR57Xa79FA?=
- =?us-ascii?Q?w22CDvSbQc5l7In/h7NU5aklRM2k9nUNdsLwH0nim8c6dGiztVnTLpxIPkDI?=
- =?us-ascii?Q?g1AeZRtU3D6vpAvMoT2CYDaR1tFtGQdRtsajTH80rOfrfk/j1xOev0PonnAk?=
- =?us-ascii?Q?bsjHof7jHo5bUsK4l8vnV0GYGEczUpcrZgM+fiPrQX2np6xFzwaFPuqmHu25?=
- =?us-ascii?Q?wfqX48b6V6t02cvkbrCYlnJJBAjb2W1krQ+S9yol6b4YCgCVzJ8NpInEwqyt?=
- =?us-ascii?Q?ruyKVVCnnw3cfwf1Buy/hpbHAqBXTjWrroZh7BaAAeTeA8uiXOa4E/IQl5y0?=
- =?us-ascii?Q?GBfvwd5GFswdlUvwl6f8eXDTVlMxKcC+JS5S9CJSwOnk6eRoJUJf3u60Nku5?=
- =?us-ascii?Q?d9PQcadU9BQ4tNv16B+X2pZkx7sCQ+Ssa6es4ShUJDsjVaUOLudjGd661rp2?=
- =?us-ascii?Q?wzuKtK3WkwpcWhBzrkfoJZfvYtmxT+VOVGt2AVWUmsyDih5oT+zhdK5Nxr2m?=
- =?us-ascii?Q?68Aiklz9LGZ/hXuRU4n7EWDAQVvzuG/chda0Zn2EpB0npAZLozaFWJQ73isC?=
- =?us-ascii?Q?ImKocx9E+WlX7G5P8FQN2mSPVSOTA1vvpesj/Khyo/9zv10WO3aMZXpbl+7E?=
- =?us-ascii?Q?1O4KG+5OEE/xFcK5t9/KGIWibq/TG0fPNyWQSVnXshG9OLIz1E5FG8Dg1waO?=
- =?us-ascii?Q?Enhtu+fAxFdEAQcXnV7q+m5Yw6xxa7EosvwfD6fHoVq87ugxXAwiAcs5HJgj?=
- =?us-ascii?Q?a4E8OhMWrK3kFdcMOqobh6zezFcar0qA+Xte2c6cmCfDkz8OwssxUhNEP2Jv?=
- =?us-ascii?Q?PhII8YwCxValuUZhAtyuCUjeSKWa0CbFl58x5UYGmZMwWNlTfoNHV6G2NjJO?=
- =?us-ascii?Q?wCa6ev4QUByxTTQNCGlbQokq701vKbfmHoMvuf/GSMr/9+2PKTZWJTrh0qey?=
- =?us-ascii?Q?tkwKuMIhmcfTjydZ9pg9mZyFUsHfRPEVmnKsL2oMcYpJJpeyDL0Hcg6QaVWX?=
- =?us-ascii?Q?trTn80bLxyd1Qu6sBPZ4DZ2edz8fBlkaAvUmFnHzh8T2uL76k6/Lyr9CFOjH?=
- =?us-ascii?Q?v+DeH5mwh5lT1qzAdE9QPsyrnP6nt1N1MVypCNktjUe30veswj7rFSKX138F?=
- =?us-ascii?Q?GFiDSq3Tp9aTLgpmbNYM163m3D9W++WmU1jAQpjTGYCc9YdkVuFrBoQt1V/G?=
- =?us-ascii?Q?Z0JlgtPjnPeE7URtf3LhBTsBCCxPsosIEyIJ3iU47bbBa286+XC8plUalkfZ?=
- =?us-ascii?Q?rvvno1hMo6kgB/rsoxJ8XLfecwGlZMnxT9KzcQ+J37y+3lr/LQhZzJHyOPWy?=
- =?us-ascii?Q?l74wblBLUvDiCQjZI1FI9J1G?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bc73a69e-8c3f-4a44-f675-08d91c8684e2
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 May 2021 18:30:33.2100
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: i9uNW8VbQIP48Gq1K7ZRKtRecPXshZVcxp5lxAtApTHbFlaW6CrtFMeXx9dphi37
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB5521
+References: <20210517145314.157626-1-jingzhangos@google.com>
+ <20210517145314.157626-2-jingzhangos@google.com> <CALzav=dGT7B7FWw_d5v3QaJxgfp6TZv7E4fdchG_7LKh+C17gg@mail.gmail.com>
+ <CAAdAUtjyFhuh4iFJJOkkO20XXKqbcRO-S0ziFfUW1rHL-bkeZw@mail.gmail.com>
+ <CALzav=dHjy8wnLckxifrjVDfVNBmqHcJgeS7PK6BnAp6UCyO5A@mail.gmail.com>
+ <CAAdAUtiXE=CXU_LWG9SpnHsnqUBMC327jC2AvXAFX7-vwwoBog@mail.gmail.com> <24061be4-e1e1-e59b-d701-ea8723915e36@oracle.com>
+In-Reply-To: <24061be4-e1e1-e59b-d701-ea8723915e36@oracle.com>
+From:   Jing Zhang <jingzhangos@google.com>
+Date:   Fri, 21 May 2021 14:04:10 -0500
+Message-ID: <CAAdAUtjDZGcmnubDw3x7tdNG=AFdu6sOG_4Z+AM63cmhQF3B8g@mail.gmail.com>
+Subject: Re: [PATCH v5 1/4] KVM: stats: Separate common stats from
+ architecture specific ones
+To:     Krish Sadhukhan <krish.sadhukhan@oracle.com>
+Cc:     David Matlack <dmatlack@google.com>, KVM <kvm@vger.kernel.org>,
+        KVMARM <kvmarm@lists.cs.columbia.edu>,
+        LinuxMIPS <linux-mips@vger.kernel.org>,
+        KVMPPC <kvm-ppc@vger.kernel.org>,
+        LinuxS390 <linux-s390@vger.kernel.org>,
+        Linuxkselftest <linux-kselftest@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, May 21, 2021 at 02:24:33PM -0400, Tony Krowiak wrote:
-> 
-> > The simple solution in sketch is just this:
-> 
-> The code below results in a lockdep WARN_ON for the
-> reasons documented in my comments interspersed in
-> the code.
+On Tue, May 18, 2021 at 1:40 PM Krish Sadhukhan
+<krish.sadhukhan@oracle.com> wrote:
+>
+>
+> On 5/18/21 10:25 AM, Jing Zhang wrote:
+> > Hi David,
+> >
+> > On Tue, May 18, 2021 at 11:27 AM David Matlack <dmatlack@google.com> wrote:
+> >> On Mon, May 17, 2021 at 5:10 PM Jing Zhang <jingzhangos@google.com> wrote:
+> >> <snip>
+> >>> Actually the definition of kvm_{vcpu,vm}_stat are arch specific. There is
+> >>> no real structure for arch agnostic stats. Most of the stats in common
+> >>> structures are arch agnostic, but not all of them.
+> >>> There are some benefits to put all common stats in a separate structure.
+> >>> e.g. if we want to add a stat in kvm_main.c, we only need to add this stat
+> >>> in the common structure, don't have to update all kvm_{vcpu,vm}_stat
+> >>> definition for all architectures.
+> >> I meant rename the existing arch-specific struct kvm_{vcpu,vm}_stat to
+> >> kvm_{vcpu,vm}_stat_arch and rename struct kvm_{vcpu,vm}_stat_common to
+> >> kvm_{vcpu,vm}_stat.
+> >>
+> >> So in  include/linux/kvm_types.h you'd have:
+> >>
+> >> struct kvm_vm_stat {
+> >>    ulong remote_tlb_flush;
+> >>    struct kvm_vm_stat_arch arch;
+> >> };
+> >>
+> >> struct kvm_vcpu_stat {
+> >>    u64 halt_successful_poll;
+> >>    u64 halt_attempted_poll;
+> >>    u64 halt_poll_invalid;
+> >>    u64 halt_wakeup;
+> >>    u64 halt_poll_success_ns;
+> >>    u64 halt_poll_fail_ns;
+> >>    struct kvm_vcpu_stat_arch arch;
+> >> };
+> >>
+> >> And in arch/x86/include/asm/kvm_host.h you'd have:
+> >>
+> >> struct kvm_vm_stat_arch {
+> >>    ulong mmu_shadow_zapped;
+> >>    ...
+> >> };
+> >>
+> >> struct kvm_vcpu_stat_arch {
+> >>    u64 pf_fixed;
+> >>    u64 pf_guest;
+> >>    u64 tlb_flush;
+> >>    ...
+> >> };
+> >>
+> >> You still have the same benefits of having an arch-neutral place to
+> >> store stats but the struct layout more closely resembles struct
+> >> kvm_vcpu and struct kvm.
+> > You are right. This is a more reasonable way to layout the structures.
+> > I remember that I didn't choose this way is only because that it needs
+> > touching every arch specific stats in all architectures (stat.name ->
+> > stat.arch.name) instead of only touching arch neutral stats.
+> > Let's see if there is any vote from others about this.
+>
+>
+> +1
+>
+> >
+> > Thanks,
+> > Jing
+It is still not fun to change hundreds of stats update code in every
+architectures.
+Let's keep it as it is for now and see how it is going.
 
-Sure, to be expected for a 2 min effort, but you seem to have solved
-it by trivially putting things in the right locking order?
-
-> After trying several different permutations using RCU and
-> an rw_semaphore, I came to the conclusion that setting and
-> clearing the hook pointer while the mdev fd is being open
-> and closed or when the mdev is being removed unnecessarily
-> complicates things. There is no good reason to set/clear the
-> function pointer at this time, nor is there any compelling
-> reason to store the function pointer in a satellite structure
-> of the kvm struct. Since the hook function's lifespan coincides
-> with the lifespan of the vfio_ap module, why not store it
-> when the module is loaded and clear it when the module is
-> unloaded? 
-
-Well, the hook function isn't really the problem..
-
-> Access to the function pointer can be controlled by a lock
-> that is independent of the matrix_dev->lock, thus avoiding
-> potential lock dependencies. Access to the mdev is controlled by
-> the matrix_dev lock, so if the mdev is retrieved from the
-> matrix_dev->mdev_list in the hook function, then we are assured
-> that the mdev will never be accessed after it is freed; problem solved.
-
-This just transforms the problem into needing to hold a lock around
-mdev_list while accessing a member of the mdev_list
-
-Is it simpler?
-
-Jason
+Thanks,
+Jing
