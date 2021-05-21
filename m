@@ -7,34 +7,34 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F3ABC433B4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74EA3C4363E
 	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 42C8660FD8
+	by mail.kernel.org (Postfix) with ESMTP id 6A06D60FD8
 	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236295AbhEUFx5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 May 2021 01:53:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37354 "EHLO
+        id S235065AbhEUFx6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 May 2021 01:53:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235065AbhEUFxj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 01:53:39 -0400
+        with ESMTP id S234661AbhEUFxl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 01:53:41 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24EB1C06138B;
-        Thu, 20 May 2021 22:52:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0C0BC06138C;
+        Thu, 20 May 2021 22:52:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=jZkT+4psi6ph2wRk+l9KSW/tYTO6iyA31KtsYsWzBgk=; b=gTvJfqIchvXjSFkKDd6k63hHCF
-        HmXWz2+G4jM58pGsTWQB42xemCLlQJUhts0XnRfbD4wMN1PVYvr0P/KPJj4SvCnY8wGuR/p6fs3Vv
-        pe9aVmHLh37anrADvL2A6tBFdkzZ35+FU9WeEQBp4Y7VFv4qJomaUHyJz4stopkYwlecIkiOV5TqV
-        yB9ucKNbR/t/GN6LlVcWbbgLApSItXSlfB5jjMKNhHNM6Sm7Zb5/9EuzfQrWM4I7q9U099TEHhhcj
-        kysQ+DqqAYqfAZdOCQpfJkKTntid+LbAnyRue0zwha2pfj4O946vAEcmJkBJOVAGmJZ2SvP/Fdi3p
-        5x4KaAQA==;
+        bh=0RRqRr3mXJO2Ltpsb28euSdgSg07f0NC5QBt8ZO/n70=; b=YcXSW1gnCLEme161Dx7XfccPf1
+        zO8OQkJSl/bkHgc7eiHANqmbFDtrWLuHr+omsOGEqwToc4gQDOeCcet0ay4h9iOpnkykUp4cUFudc
+        YbCns/tVeye/L3n1qDMfo9BzablMFCmqhi3DIkWtJgfEXw+qFe97BtcsFalaeukN3bghnTTywj2J+
+        x4LyzzcfA19SZk5ZoZ9vGCULNnoAvZ1lfjXLZefmveiveW3IIntcTBUb6c7iO5VS2ISvcTruCRNYv
+        HtrRWAJikjcH4NxQNLn8u6dFncBQlrYLKaUKkKqLBP8VeojEAsVtVpqsuPtC/74ri/HwNIAwBrkc0
+        ZPge7Nmw==;
 Received: from [2001:4bb8:180:5add:4fd7:4137:d2f2:46e6] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1ljy4i-00Gq1p-Er; Fri, 21 May 2021 05:51:56 +0000
+        id 1ljy4o-00Gq3c-AO; Fri, 21 May 2021 05:52:02 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
@@ -64,9 +64,9 @@ Cc:     linux-block@vger.kernel.org, dm-devel@redhat.com,
         linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org,
         linux-mmc@vger.kernel.org, nvdimm@lists.linux.dev,
         linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: [PATCH 12/26] bcache: convert to blk_alloc_disk/blk_cleanup_disk
-Date:   Fri, 21 May 2021 07:51:02 +0200
-Message-Id: <20210521055116.1053587-13-hch@lst.de>
+Subject: [PATCH 14/26] md: convert to blk_alloc_disk/blk_cleanup_disk
+Date:   Fri, 21 May 2021 07:51:04 +0200
+Message-Id: <20210521055116.1053587-15-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210521055116.1053587-1-hch@lst.de>
 References: <20210521055116.1053587-1-hch@lst.de>
@@ -77,59 +77,69 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Convert the bcache driver to use the blk_alloc_disk and blk_cleanup_disk
+Convert the md driver to use the blk_alloc_disk and blk_cleanup_disk
 helpers to simplify gendisk and request_queue allocation.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/md/bcache/super.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ drivers/md/md.c | 25 +++++++++----------------
+ 1 file changed, 9 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index bea8c4429ae8..185246a0d855 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -890,13 +890,9 @@ static void bcache_device_free(struct bcache_device *d)
- 		if (disk_added)
- 			del_gendisk(disk);
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 49f897fbb89b..d806be8cc210 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -5598,12 +5598,10 @@ static void md_free(struct kobject *ko)
+ 	if (mddev->sysfs_level)
+ 		sysfs_put(mddev->sysfs_level);
  
--		if (disk->queue)
--			blk_cleanup_queue(disk->queue);
+-	if (mddev->gendisk)
++	if (mddev->gendisk) {
+ 		del_gendisk(mddev->gendisk);
+-	if (mddev->queue)
+-		blk_cleanup_queue(mddev->queue);
+-	if (mddev->gendisk)
+-		put_disk(mddev->gendisk);
++		blk_cleanup_disk(mddev->gendisk);
++	}
+ 	percpu_ref_exit(&mddev->writes_pending);
+ 
+ 	bioset_exit(&mddev->bio_set);
+@@ -5711,20 +5709,13 @@ static int md_alloc(dev_t dev, char *name)
+ 		goto abort;
+ 
+ 	error = -ENOMEM;
+-	mddev->queue = blk_alloc_queue(NUMA_NO_NODE);
+-	if (!mddev->queue)
++	disk = blk_alloc_disk(NUMA_NO_NODE);
++	if (!disk)
+ 		goto abort;
+ 
+-	blk_set_stacking_limits(&mddev->queue->limits);
 -
-+		blk_cleanup_disk(disk);
- 		ida_simple_remove(&bcache_device_idx,
- 				  first_minor_to_idx(disk->first_minor));
--		if (disk_added)
--			put_disk(disk);
- 	}
- 
- 	bioset_exit(&d->bio_split);
-@@ -946,7 +942,7 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
- 			BIOSET_NEED_BVECS|BIOSET_NEED_RESCUER))
- 		goto err;
- 
--	d->disk = alloc_disk(BCACHE_MINORS);
-+	d->disk = blk_alloc_disk(NUMA_NO_NODE);
- 	if (!d->disk)
- 		goto err;
- 
-@@ -955,14 +951,11 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
- 
- 	d->disk->major		= bcache_major;
- 	d->disk->first_minor	= idx_to_first_minor(idx);
-+	d->disk->minors		= BCACHE_MINORS;
- 	d->disk->fops		= ops;
- 	d->disk->private_data	= d;
- 
--	q = blk_alloc_queue(NUMA_NO_NODE);
--	if (!q)
--		return -ENOMEM;
--
--	d->disk->queue			= q;
-+	q = d->disk->queue;
- 	q->limits.max_hw_sectors	= UINT_MAX;
- 	q->limits.max_sectors		= UINT_MAX;
- 	q->limits.max_segment_size	= UINT_MAX;
+-	disk = alloc_disk(1 << shift);
+-	if (!disk) {
+-		blk_cleanup_queue(mddev->queue);
+-		mddev->queue = NULL;
+-		goto abort;
+-	}
+ 	disk->major = MAJOR(mddev->unit);
+ 	disk->first_minor = unit << shift;
++	disk->minors = 1 << shift;
+ 	if (name)
+ 		strcpy(disk->disk_name, name);
+ 	else if (partitioned)
+@@ -5733,7 +5724,9 @@ static int md_alloc(dev_t dev, char *name)
+ 		sprintf(disk->disk_name, "md%d", unit);
+ 	disk->fops = &md_fops;
+ 	disk->private_data = mddev;
+-	disk->queue = mddev->queue;
++
++	mddev->queue = disk->queue;
++	blk_set_stacking_limits(&mddev->queue->limits);
+ 	blk_queue_write_cache(mddev->queue, true, true);
+ 	/* Allow extended partitions.  This makes the
+ 	 * 'mdp' device redundant, but we can't really
 -- 
 2.30.2
 
