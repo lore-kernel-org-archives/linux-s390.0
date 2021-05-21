@@ -7,34 +7,34 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6176DC43470
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E03E9C43460
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 406A6613B4
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C95CD613BB
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235149AbhEUFx7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 May 2021 01:53:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37372 "EHLO
+        id S234762AbhEUFyH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 May 2021 01:54:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235701AbhEUFxn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 01:53:43 -0400
+        with ESMTP id S235392AbhEUFxr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 01:53:47 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FC0BC06138D;
-        Thu, 20 May 2021 22:52:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0BAC061574;
+        Thu, 20 May 2021 22:52:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=3SQMZdLsYr85yTNLOVEF4u3M4EL06PaPJgSyKW20iCs=; b=1eBy0ty2TbKICfoccGpOySQF5l
-        71HLAfoqxFE9+B7ygkyjVOVx3vwD0bu3TNqIUlyQijIi8C+PSVcj3uLS6LLAx8YVrkyjbTQKU7b6F
-        N5roDq487qYMRL+lK69xjE/aWqHtKyvJRNFi9y4/zQZPh+s6WrnxCMOYVv1R3ZhKDlqlsLA+BEUWb
-        sfWHvtkaiAtFf0s3SBrlC1FzeNeEncdcRfnNUEDW0MfhEWZvZRr3Yx1hP+gBsPiMqtBkFXarsmJZl
-        2OQyw0HWIyil2Ons2+K3d1gRMZAd/FIIBv0x9cVAtmlO2wrzsftMYEK854GI1z3HwbSns7V81c7qA
-        aNeDf+Ag==;
+        bh=g6mwX33ahW71DGgnPUME24YpEPNX8JCGIKMP7GFikH8=; b=Ojb1aPpUmy5x20RnAmlaDjjEz1
+        NzzFmwp0AIDELm+ERd+5ViA9IzzZL0NGnqRzmEuITVf8aN5M3VQxEivnv9uPf4nBBoBsxuXaDWgF9
+        0Lw6H/Exx3/WCugOlNZaufDJm1g1gcGl9DsKL0R9wpwZD+uISbj/KqCluMqgOTNgYQ2maN7cCa1Uo
+        BEyumLPUo+vofFGSTu9gFU3M7kqQmbHhzhcQcBs+lfxXeLzKOOdg/om1KizP5/BYXT5oZnbzIZWpT
+        aiebHpDuqdWpspS9rn+bhM1dfQOJMUqAGH2Uz2G1QcW/Okmpd+dKBrZuM1LNQ9aXsBqj+Ya+Hnvhl
+        09pbWjfg==;
 Received: from [2001:4bb8:180:5add:4fd7:4137:d2f2:46e6] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1ljy4r-00Gq5E-Cc; Fri, 21 May 2021 05:52:05 +0000
+        id 1ljy4x-00Gq6W-0f; Fri, 21 May 2021 05:52:11 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
@@ -64,9 +64,9 @@ Cc:     linux-block@vger.kernel.org, dm-devel@redhat.com,
         linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org,
         linux-mmc@vger.kernel.org, nvdimm@lists.linux.dev,
         linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: [PATCH 15/26] nvdimm-blk: convert to blk_alloc_disk/blk_cleanup_disk
-Date:   Fri, 21 May 2021 07:51:05 +0200
-Message-Id: <20210521055116.1053587-16-hch@lst.de>
+Subject: [PATCH 17/26] nvdimm-pmem: convert to blk_alloc_disk/blk_cleanup_disk
+Date:   Fri, 21 May 2021 07:51:07 +0200
+Message-Id: <20210521055116.1053587-18-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210521055116.1053587-1-hch@lst.de>
 References: <20210521055116.1053587-1-hch@lst.de>
@@ -77,74 +77,71 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Convert the nvdimm-blk driver to use the blk_alloc_disk and
+Convert the nvdimm-pmem driver to use the blk_alloc_disk and
 blk_cleanup_disk helpers to simplify gendisk and request_queue
 allocation.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/nvdimm/blk.c | 26 ++++++--------------------
- 1 file changed, 6 insertions(+), 20 deletions(-)
+ drivers/nvdimm/pmem.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/nvdimm/blk.c b/drivers/nvdimm/blk.c
-index 7ba446d224fb..088d3dd6f6fa 100644
---- a/drivers/nvdimm/blk.c
-+++ b/drivers/nvdimm/blk.c
-@@ -228,48 +228,34 @@ static const struct block_device_operations nd_blk_fops = {
- 	.submit_bio =  nd_blk_submit_bio,
- };
+diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
+index 968b8483c763..9fcd05084564 100644
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -338,7 +338,7 @@ static void pmem_pagemap_cleanup(struct dev_pagemap *pgmap)
+ 	struct request_queue *q =
+ 		container_of(pgmap->ref, struct request_queue, q_usage_counter);
  
--static void nd_blk_release_queue(void *q)
--{
 -	blk_cleanup_queue(q);
--}
--
- static void nd_blk_release_disk(void *disk)
- {
- 	del_gendisk(disk);
--	put_disk(disk);
-+	blk_cleanup_disk(disk);
++	blk_cleanup_disk(queue_to_disk(q));
  }
  
- static int nsblk_attach_disk(struct nd_namespace_blk *nsblk)
- {
- 	struct device *dev = &nsblk->common.dev;
- 	resource_size_t available_disk_size;
--	struct request_queue *q;
- 	struct gendisk *disk;
- 	u64 internal_nlba;
+ static void pmem_release_queue(void *pgmap)
+@@ -361,7 +361,6 @@ static void pmem_release_disk(void *__pmem)
+ 	kill_dax(pmem->dax_dev);
+ 	put_dax(pmem->dax_dev);
+ 	del_gendisk(pmem->disk);
+-	put_disk(pmem->disk);
+ }
  
- 	internal_nlba = div_u64(nsblk->size, nsblk_internal_lbasize(nsblk));
- 	available_disk_size = internal_nlba * nsblk_sector_size(nsblk);
+ static const struct dev_pagemap_ops fsdax_pagemap_ops = {
+@@ -422,10 +421,12 @@ static int pmem_attach_disk(struct device *dev,
+ 		return -EBUSY;
+ 	}
  
--	q = blk_alloc_queue(NUMA_NO_NODE);
+-	q = blk_alloc_queue(dev_to_node(dev));
 -	if (!q)
--		return -ENOMEM;
--	if (devm_add_action_or_reset(dev, nd_blk_release_queue, q))
--		return -ENOMEM;
--
--	blk_queue_max_hw_sectors(q, UINT_MAX);
--	blk_queue_logical_block_size(q, nsblk_sector_size(nsblk));
--	blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
--
--	disk = alloc_disk(0);
-+	disk = blk_alloc_disk(NUMA_NO_NODE);
- 	if (!disk)
++	disk = blk_alloc_disk(nid);
++	if (!disk)
  		return -ENOMEM;
++	q = disk->queue;
  
--	disk->first_minor	= 0;
- 	disk->fops		= &nd_blk_fops;
--	disk->queue		= q;
- 	disk->private_data	= nsblk;
- 	nvdimm_namespace_disk_name(&nsblk->common, disk->disk_name);
++	pmem->disk = disk;
+ 	pmem->pfn_flags = PFN_DEV;
+ 	pmem->pgmap.ref = &q->q_usage_counter;
+ 	if (is_nd_pfn(dev)) {
+@@ -470,11 +471,6 @@ static int pmem_attach_disk(struct device *dev,
+ 	if (pmem->pfn_flags & PFN_MAP)
+ 		blk_queue_flag_set(QUEUE_FLAG_DAX, q);
  
-+	blk_queue_max_hw_sectors(disk->queue, UINT_MAX);
-+	blk_queue_logical_block_size(disk->queue, nsblk_sector_size(nsblk));
-+	blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
-+
- 	if (devm_add_action_or_reset(dev, nd_blk_release_disk, disk))
- 		return -ENOMEM;
- 
+-	disk = alloc_disk_node(0, nid);
+-	if (!disk)
+-		return -ENOMEM;
+-	pmem->disk = disk;
+-
+ 	disk->fops		= &pmem_fops;
+ 	disk->queue		= q;
+ 	disk->private_data	= pmem;
+@@ -490,7 +486,6 @@ static int pmem_attach_disk(struct device *dev,
+ 		flags = DAXDEV_F_SYNC;
+ 	dax_dev = alloc_dax(pmem, disk->disk_name, &pmem_dax_ops, flags);
+ 	if (IS_ERR(dax_dev)) {
+-		put_disk(disk);
+ 		return PTR_ERR(dax_dev);
+ 	}
+ 	dax_write_cache(dax_dev, nvdimm_has_cache(nd_region));
 -- 
 2.30.2
 
