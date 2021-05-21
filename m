@@ -2,39 +2,39 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51A8DC43600
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67625C4360C
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:53:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E52D613B6
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:52:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 36D1560FD8
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 05:53:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236194AbhEUFyQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 May 2021 01:54:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37460 "EHLO
+        id S236910AbhEUFyX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 May 2021 01:54:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236436AbhEUFyE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 01:54:04 -0400
+        with ESMTP id S235776AbhEUFyJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 01:54:09 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20772C061343;
-        Thu, 20 May 2021 22:52:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8565C061763;
+        Thu, 20 May 2021 22:52:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=ZAV8JJrVAUnXoR6OurR4mkqtEg3WMlk+fF6tHo9g/7A=; b=RQ5YIAs+5mbK/6S6SBFGzZCoIL
-        klS1hFKw/i99aVf05vtzIoxFkY9Pr4PV68y0ey4X1pxQeLS1H2oxzRVBvyxMkzTmtQ8Tjd+4x9Khu
-        K6yj+9nam8JNpySJVCeLpQQSqwCFPjU4PCDX/OdiMX4O3i7h4UdjcJoKBF+x5YUvGod3RZR/ri1u2
-        BqvyxGfPsXvxjbaujNo64BgtrBXZUF8OftT5Zr2U7XTw//ip/+RAmDe/baxIm9bt/TI8qX8nkYqhH
-        q1Vso2McvdCTWgsaaG1voMKJyWtCve2lkdzuSMfNcr5tHawk3RWp5284MWXyV/KmX6NvgUxNrY5hk
-        1N9pV/6A==;
+        bh=vwzRrqnpea2JzLkYN/ciWo6bEaO9vjxriaBTWz9O9v0=; b=mGOHmtTFt1HkH5saWkCJ6Krik4
+        QCjaoftjpAqMFpQtK2V6/qUxHKbkX7aGYiA+qiiYGE59X9MW0Pavi8s9e+6a+cH8HPor/FKdBZzPd
+        6m0LcmO4Z1cYjY2VW1343YLj1exXM0U8lmnrsnIL+00nYG9KArLBL8C1P72j6sExMxykJ/D2HMTnw
+        /XnnP3t7fumskLi5zedrgRMHIxccxS2UTPh97p8jn3gpDyC9N64+n8LUAgx1jV3kAZD8xV3X72Hyh
+        5N52QRiYKUQZAd/o5Pfw89OzyHoytLJ9yDIkMK3NjRxE8tc/AhBUTYtglscWoMZcNRbS/vclmC7vo
+        cxW8fQjg==;
 Received: from [2001:4bb8:180:5add:4fd7:4137:d2f2:46e6] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1ljy58-00GqAV-Tf; Fri, 21 May 2021 05:52:23 +0000
+        id 1ljy5H-00GqDA-1a; Fri, 21 May 2021 05:52:31 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
@@ -64,9 +64,9 @@ Cc:     linux-block@vger.kernel.org, dm-devel@redhat.com,
         linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org,
         linux-mmc@vger.kernel.org, nvdimm@lists.linux.dev,
         linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: [PATCH 20/26] simdisk: convert to blk_alloc_disk/blk_cleanup_disk
-Date:   Fri, 21 May 2021 07:51:10 +0200
-Message-Id: <20210521055116.1053587-21-hch@lst.de>
+Subject: [PATCH 22/26] ps3vram: convert to blk_alloc_disk/blk_cleanup_disk
+Date:   Fri, 21 May 2021 07:51:12 +0200
+Message-Id: <20210521055116.1053587-23-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210521055116.1053587-1-hch@lst.de>
 References: <20210521055116.1053587-1-hch@lst.de>
@@ -77,79 +77,94 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Convert the simdisk driver to use the blk_alloc_disk and blk_cleanup_disk
+Convert the ps3vram driver to use the blk_alloc_disk and blk_cleanup_disk
 helpers to simplify gendisk and request_queue allocation.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/xtensa/platforms/iss/simdisk.c | 29 +++++++----------------------
- 1 file changed, 7 insertions(+), 22 deletions(-)
+ drivers/block/ps3vram.c | 31 ++++++++-----------------------
+ 1 file changed, 8 insertions(+), 23 deletions(-)
 
-diff --git a/arch/xtensa/platforms/iss/simdisk.c b/arch/xtensa/platforms/iss/simdisk.c
-index fc09be7b1347..3cdfa00738e0 100644
---- a/arch/xtensa/platforms/iss/simdisk.c
-+++ b/arch/xtensa/platforms/iss/simdisk.c
-@@ -27,7 +27,6 @@
- struct simdisk {
- 	const char *filename;
- 	spinlock_t lock;
+diff --git a/drivers/block/ps3vram.c b/drivers/block/ps3vram.c
+index 1d738999fb69..7fbf469651c4 100644
+--- a/drivers/block/ps3vram.c
++++ b/drivers/block/ps3vram.c
+@@ -67,7 +67,6 @@ struct ps3vram_cache {
+ };
+ 
+ struct ps3vram_priv {
 -	struct request_queue *queue;
- 	struct gendisk *gd;
- 	struct proc_dir_entry *procfile;
- 	int users;
-@@ -266,21 +265,13 @@ static int __init simdisk_setup(struct simdisk *dev, int which,
- 	spin_lock_init(&dev->lock);
- 	dev->users = 0;
+ 	struct gendisk *gendisk;
  
--	dev->queue = blk_alloc_queue(NUMA_NO_NODE);
--	if (dev->queue == NULL) {
--		pr_err("blk_alloc_queue failed\n");
--		goto out_alloc_queue;
+ 	u64 size;
+@@ -613,7 +612,6 @@ static int ps3vram_probe(struct ps3_system_bus_device *dev)
+ {
+ 	struct ps3vram_priv *priv;
+ 	int error, status;
+-	struct request_queue *queue;
+ 	struct gendisk *gendisk;
+ 	u64 ddr_size, ddr_lpar, ctrl_lpar, info_lpar, reports_lpar,
+ 	    reports_size, xdr_lpar;
+@@ -736,33 +734,23 @@ static int ps3vram_probe(struct ps3_system_bus_device *dev)
+ 
+ 	ps3vram_proc_init(dev);
+ 
+-	queue = blk_alloc_queue(NUMA_NO_NODE);
+-	if (!queue) {
+-		dev_err(&dev->core, "blk_alloc_queue failed\n");
+-		error = -ENOMEM;
+-		goto out_cache_cleanup;
 -	}
 -
--	dev->gd = alloc_disk(SIMDISK_MINORS);
--	if (dev->gd == NULL) {
--		pr_err("alloc_disk failed\n");
--		goto out_alloc_disk;
--	}
-+	dev->gd = blk_alloc_disk(NUMA_NO_NODE);
-+	if (!dev->gd)
-+		return -ENOMEM;
- 	dev->gd->major = simdisk_major;
- 	dev->gd->first_minor = which;
-+	dev->gd->minors = SIMDISK_MINORS;
- 	dev->gd->fops = &simdisk_ops;
--	dev->gd->queue = dev->queue;
- 	dev->gd->private_data = dev;
- 	snprintf(dev->gd->disk_name, 32, "simdisk%d", which);
- 	set_capacity(dev->gd, 0);
-@@ -288,12 +279,6 @@ static int __init simdisk_setup(struct simdisk *dev, int which,
+-	priv->queue = queue;
+-	blk_queue_max_segments(queue, BLK_MAX_SEGMENTS);
+-	blk_queue_max_segment_size(queue, BLK_MAX_SEGMENT_SIZE);
+-	blk_queue_max_hw_sectors(queue, BLK_SAFE_MAX_SECTORS);
+-
+-	gendisk = alloc_disk(1);
++	gendisk = blk_alloc_disk(NUMA_NO_NODE);
+ 	if (!gendisk) {
+-		dev_err(&dev->core, "alloc_disk failed\n");
++		dev_err(&dev->core, "blk_alloc_disk failed\n");
+ 		error = -ENOMEM;
+-		goto fail_cleanup_queue;
++		goto out_cache_cleanup;
+ 	}
  
- 	dev->procfile = proc_create_data(tmp, 0644, procdir, &simdisk_proc_ops, dev);
+ 	priv->gendisk = gendisk;
+ 	gendisk->major = ps3vram_major;
+-	gendisk->first_minor = 0;
++	gendisk->minors = 1;
+ 	gendisk->fops = &ps3vram_fops;
+-	gendisk->queue = queue;
+ 	gendisk->private_data = dev;
+ 	strlcpy(gendisk->disk_name, DEVICE_NAME, sizeof(gendisk->disk_name));
+ 	set_capacity(gendisk, priv->size >> 9);
++	blk_queue_max_segments(gendisk->queue, BLK_MAX_SEGMENTS);
++	blk_queue_max_segment_size(gendisk->queue, BLK_MAX_SEGMENT_SIZE);
++	blk_queue_max_hw_sectors(gendisk->queue, BLK_SAFE_MAX_SECTORS);
+ 
+ 	dev_info(&dev->core, "%s: Using %llu MiB of GPU memory\n",
+ 		 gendisk->disk_name, get_capacity(gendisk) >> 11);
+@@ -770,8 +758,6 @@ static int ps3vram_probe(struct ps3_system_bus_device *dev)
+ 	device_add_disk(&dev->core, gendisk, NULL);
  	return 0;
--
--out_alloc_disk:
--	blk_cleanup_queue(dev->queue);
--	dev->queue = NULL;
--out_alloc_queue:
--	return -ENOMEM;
- }
  
- static int __init simdisk_init(void)
-@@ -343,10 +328,10 @@ static void simdisk_teardown(struct simdisk *dev, int which,
- 	char tmp[2] = { '0' + which, 0 };
+-fail_cleanup_queue:
+-	blk_cleanup_queue(queue);
+ out_cache_cleanup:
+ 	remove_proc_entry(DEVICE_NAME, NULL);
+ 	ps3vram_cache_cleanup(dev);
+@@ -802,8 +788,7 @@ static void ps3vram_remove(struct ps3_system_bus_device *dev)
+ 	struct ps3vram_priv *priv = ps3_system_bus_get_drvdata(dev);
  
- 	simdisk_detach(dev);
--	if (dev->gd)
-+	if (dev->gd) {
- 		del_gendisk(dev->gd);
--	if (dev->queue)
--		blk_cleanup_queue(dev->queue);
-+		blk_cleanup_disk(dev->gd);
-+	}
- 	remove_proc_entry(tmp, procdir);
- }
- 
+ 	del_gendisk(priv->gendisk);
+-	put_disk(priv->gendisk);
+-	blk_cleanup_queue(priv->queue);
++	blk_cleanup_disk(priv->gendisk);
+ 	remove_proc_entry(DEVICE_NAME, NULL);
+ 	ps3vram_cache_cleanup(dev);
+ 	iounmap(priv->reports);
 -- 
 2.30.2
 
