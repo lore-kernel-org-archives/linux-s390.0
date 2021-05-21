@@ -2,132 +2,209 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C137BC4707A
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 17:44:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C50BC4707A
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 18:24:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8D2EE6135C
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 17:44:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 01EE3610A8
+	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 18:24:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238282AbhEURpe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 May 2021 13:45:34 -0400
-Received: from mail-pf1-f178.google.com ([209.85.210.178]:45938 "EHLO
-        mail-pf1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234062AbhEURpc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 May 2021 13:45:32 -0400
-Received: by mail-pf1-f178.google.com with SMTP id d16so15425095pfn.12;
-        Fri, 21 May 2021 10:44:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=lcP+zO2F1IGQjzr8jBvO9rG6CcCMMr/Whp/T20TGCRM=;
-        b=Bc3IOJsb6hW7LCU1Q2P3RSUaJfScE8RASrZEW3tsmIq9R0cdf4wYkDnBojCmniGGGc
-         lZMBmwXGZBiG8YDNK5KbQyZgfpBK0tfC7y5/vNsJq32v4vxnjeM5Bq3a7O30K4mUOu2l
-         cnG9ea6S5lLHKifIcSUB4+XJ5GKMAMsDmoZ6XUwpKnYYPM++/HknpJJGBwW0hmp7U7cn
-         30jjpC7cYOjWpaP1eAq14iq52fgearQM5pa7F870t8PoSHaoMx8ttREPnY/ELRwGDUtf
-         oKenOBp+WP0DNTlb1U3sYa9w25HJ9+3GK0GAW1U0kpAgdWp098kvKzZDuHTyQzBjKlqR
-         ETRQ==
-X-Gm-Message-State: AOAM531GnK4APq1a32wKtVDfR57xmcFfvFio/TY12QFi8NTWSA8BKosd
-        c88tppVkZxKSPoiCm6Arlns=
-X-Google-Smtp-Source: ABdhPJx2cr14kVfs56RCS6Lg1N9a0F2CxWXa6sTYNwZ2wWHW3RuCIJw00Zxq6x/ufjwVbJsYm0Ya2A==
-X-Received: by 2002:a05:6a00:15d4:b029:2de:a538:c857 with SMTP id o20-20020a056a0015d4b02902dea538c857mr11480779pfu.51.1621619049288;
-        Fri, 21 May 2021 10:44:09 -0700 (PDT)
-Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
-        by smtp.gmail.com with ESMTPSA id o3sm4974976pgh.22.2021.05.21.10.44.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 May 2021 10:44:08 -0700 (PDT)
-Received: by 42.do-not-panic.com (Postfix, from userid 1000)
-        id 766BF423A3; Fri, 21 May 2021 17:44:07 +0000 (UTC)
-Date:   Fri, 21 May 2021 17:44:07 +0000
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Lars Ellenberg <lars.ellenberg@linbit.com>,
-        Jim Paris <jim@jtan.com>,
-        Joshua Morris <josh.h.morris@us.ibm.com>,
-        Philip Kelleher <pjk1939@linux.ibm.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Nitin Gupta <ngupta@vflare.org>,
-        Matias Bjorling <mb@lightnvm.io>, Coly Li <colyli@suse.de>,
-        Mike Snitzer <snitzer@redhat.com>, Song Liu <song@kernel.org>,
-        Maxim Levitsky <maximlevitsky@gmail.com>,
-        Alex Dubov <oakad@yahoo.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-xtensa@linux-xtensa.org, linux-m68k@vger.kernel.org,
-        linux-raid@vger.kernel.org, nvdimm@lists.linux.dev,
-        linux-s390@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-bcache@vger.kernel.org, linux-nvme@lists.infradead.org,
-        linux-block@vger.kernel.org, dm-devel@redhat.com,
-        drbd-dev@tron.linbit.com, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [dm-devel] [PATCH 05/26] block: add blk_alloc_disk and
- blk_cleanup_disk APIs
-Message-ID: <20210521174407.GA25291@42.do-not-panic.com>
-References: <20210521055116.1053587-1-hch@lst.de>
- <20210521055116.1053587-6-hch@lst.de>
+        id S233068AbhEUS0B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 May 2021 14:26:01 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:54748 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233289AbhEUS0B (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 May 2021 14:26:01 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14LI3C6Q115187;
+        Fri, 21 May 2021 14:24:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=fpgL+g7r4C+9FXGgSN+poS6kyf70qviv190qVQcDhLM=;
+ b=B3fQ0iOKB40rT+yOpxPwITyxwX1Pvp5uO2Z2cSAnQQSHtuDv6GaRm39E43BWkwojT6w0
+ b+y483WHn82m1rw0w0H6wdBUp5F7lTgRU0HqpjjtAYtNfyvygO1HkuICga5nCBZEmZWx
+ uyRNfvOnNmB0JFHcv39o6+FpYcNUX96aw47rgefNx4em7Yapv56yAnK0/EHtckxCmTCf
+ j5OXdwrV+EtAvJCgt25/r1FTZ8p2blQziVZxvFveCbFuhD7YHJZtml+qryX5vioXMUZx
+ K3Vj2Hc1sp10QdGtiyHBZkEkybY0Jiu7UioUSgl6sj4dmvmXvUf2m0O0Ex9w45R6FHu+ 7w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38phc8h5a9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 May 2021 14:24:36 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14LI3H6d115643;
+        Fri, 21 May 2021 14:24:36 -0400
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38phc8h5a3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 May 2021 14:24:36 -0400
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14LICW2i003826;
+        Fri, 21 May 2021 18:24:35 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma01wdc.us.ibm.com with ESMTP id 38j5x9sssc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 May 2021 18:24:35 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14LIOZBx38797804
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 21 May 2021 18:24:35 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 22BA2AC05E;
+        Fri, 21 May 2021 18:24:35 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9A376AC05B;
+        Fri, 21 May 2021 18:24:33 +0000 (GMT)
+Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.177.219])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri, 21 May 2021 18:24:33 +0000 (GMT)
+Subject: Re: [PATCH v3 2/2] s390/vfio-ap: control access to PQAP(AQIC)
+ interception handler
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com
+References: <20210519153921.804887-1-akrowiak@linux.ibm.com>
+ <20210519153921.804887-3-akrowiak@linux.ibm.com>
+ <20210519161610.GO1002214@nvidia.com>
+ <8c93c29a-e223-ac9a-5b54-7329587084c9@linux.ibm.com>
+ <20210519232202.GV1002214@nvidia.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <07dfdf17-f56e-6dd1-8011-eacfbe741e9e@linux.ibm.com>
+Date:   Fri, 21 May 2021 14:24:33 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210521055116.1053587-6-hch@lst.de>
+In-Reply-To: <20210519232202.GV1002214@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: KBboVuGKkqRvjJX0TdTwd1YIQf_gH-b-
+X-Proofpoint-ORIG-GUID: J052NDOuwYuhqFC7fbP5cJ6m9CzxPfmA
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-21_08:2021-05-20,2021-05-21 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
+ impostorscore=0 priorityscore=1501 adultscore=0 phishscore=0 clxscore=1015
+ suspectscore=0 malwarescore=0 mlxscore=0 spamscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2105210094
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, May 21, 2021 at 07:50:55AM +0200, Christoph Hellwig wrote:
-> Add two new APIs to allocate and free a gendisk including the
-> request_queue for use with BIO based drivers.  This is to avoid
-> boilerplate code in drivers.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  block/genhd.c         | 35 +++++++++++++++++++++++++++++++++++
->  include/linux/genhd.h | 22 ++++++++++++++++++++++
->  2 files changed, 57 insertions(+)
-> 
-> diff --git a/block/genhd.c b/block/genhd.c
-> index e4974af3d729..6d4ce962866d 100644
-> --- a/block/genhd.c
-> +++ b/block/genhd.c
-> @@ -1302,6 +1302,25 @@ struct gendisk *__alloc_disk_node(int minors, int node_id)
->  }
->  EXPORT_SYMBOL(__alloc_disk_node);
->  
-> +struct gendisk *__blk_alloc_disk(int node)
-> +{
-> +	struct request_queue *q;
-> +	struct gendisk *disk;
-> +
-> +	q = blk_alloc_queue(node);
-> +	if (!q)
-> +		return NULL;
-> +
-> +	disk = __alloc_disk_node(0, node);
-> +	if (!disk) {
-> +		blk_cleanup_queue(q);
-> +		return NULL;
-> +	}
-> +	disk->queue = q;
-> +	return disk;
-> +}
-> +EXPORT_SYMBOL(__blk_alloc_disk);
 
-Its not obvious to me why using this new API requires you then to
-set minors explicitly to 1, and yet here underneath we see the minors
-argument passed is 0.
+> The simple solution in sketch is just this:
 
-Nor is it clear from the documentation.
+The code below results in a lockdep WARN_ON for the
+reasons documented in my comments interspersed in
+the code.
 
-  Luis
+After trying several different permutations using RCU and
+an rw_semaphore, I came to the conclusion that setting and
+clearing the hook pointer while the mdev fd is being open
+and closed or when the mdev is being removed unnecessarily
+complicates things. There is no good reason to set/clear the
+function pointer at this time, nor is there any compelling
+reason to store the function pointer in a satellite structure
+of the kvm struct. Since the hook function's lifespan coincides
+with the lifespan of the vfio_ap module, why not store it
+when the module is loaded and clear it when the module is
+unloaded? Access to the function pointer can be controlled by a lock
+that is independent of the matrix_dev->lock, thus avoiding
+potential lock dependencies. Access to the mdev is controlled by
+the matrix_dev lock, so if the mdev is retrieved from the
+matrix_dev->mdev_list in the hook function, then we are assured
+that the mdev will never be accessed after it is freed; problem solved.
+
+>
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index 9928f785c6773a..f70386452367dd 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -657,13 +657,12 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
+>   	 * Verify that the hook callback is registered, lock the owner
+>   	 * and call the hook.
+>   	 */
+> -	if (vcpu->kvm->arch.crypto.pqap_hook) {
+> -		if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))
+> -			return -EOPNOTSUPP;
+> +	if (down_read_trylock(&vcpu->kvm->arch.crypto.rwsem) &&
+> +	    vcpu->kvm->arch.crypto.pqap_hook) {
+>   		ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);
+
+So, the hook function (handle_pqap in vfio_ap_ops.c) is executed while
+holding the rwsem lock. The hook function tries to lock the matrix_dev->lock
+mutex.
+
+> -		module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);
+>   		if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)
+>   			kvm_s390_set_psw_cc(vcpu, 3);
+> +		up_read(&vcpu->kv->arch.crypto.rwsem);
+>   		return ret;
+>   	}
+>   	/*
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index b2c7e10dfdcdcf..64c89f6a711e94 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -352,8 +352,7 @@ static int vfio_ap_mdev_create(struct mdev_device *mdev)
+>   	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
+>   	init_waitqueue_head(&matrix_mdev->wait_for_kvm);
+>   	mdev_set_drvdata(mdev, matrix_mdev);
+> -	matrix_mdev->pqap_hook.hook = handle_pqap;
+> -	matrix_mdev->pqap_hook.owner = THIS_MODULE;
+> +	down_write(&&vcpu->kvm->arch.crypto.rwsem);
+>   	mutex_lock(&matrix_dev->lock);
+>   	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
+>   	mutex_unlock(&matrix_dev->lock);
+> @@ -1132,7 +1131,9 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+>   					  matrix_mdev->matrix.aqm,
+>   					  matrix_mdev->matrix.adm);
+>   		mutex_lock(&matrix_dev->lock);
+
+Locks the matrix_dev->lock mutex, then tries to lock rwsem
+to store the pqap_hook under the rwsem lock. During testing,
+this occurred while the interception of the PQAP instruction
+was taking place, so the read lock was already taken and the
+hook function was waiting on the matrix_dev->lock taken above.
+All of the test cases ran successfully to completion, so there
+didn't appear to be a deadlock of any sort, but lockdep apparently
+detected a problem.
+
+I was able to get around this by doing the down_write and setting
+the hook vfio_ap_mdev_group_notifier function before calling
+this function (above) and before taking the matrix_dev->lock,
+but that circumvents the protection against accessing a matrix_dev
+that's already been freed.
+
+
+> +		down_write(&kvm->arch.crypto.rwsem);
+>   		kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+> +		up_write(&kvm->arch.crypto.rwsem);
+>   		matrix_mdev->kvm = kvm;
+>   		matrix_mdev->kvm_busy = false;
+>   		wake_up_all(&matrix_mdev->wait_for_kvm);
+> @@ -1202,7 +1203,9 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+>   		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+>   		mutex_lock(&matrix_dev->lock);
+>   		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+> +		down_write(&matrix_mdev->kvm->arch.crypto.rwsem);
+
+Same scenario here.
+
+>   		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+> +		up_write(&matrix_mdev->kvm->arch.crypto.rwsem);
+>   		kvm_put_kvm(matrix_mdev->kvm);
+>   		matrix_mdev->kvm = NULL;
+>   		matrix_mdev->kvm_busy = false;
+>
+>
+> Jason
+
