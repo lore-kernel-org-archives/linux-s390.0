@@ -2,71 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 380E9C04FF3
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 21:10:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62225C47081
+	for <linux-s390@archiver.kernel.org>; Sun, 23 May 2021 07:46:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0803E613FE
-	for <linux-s390@archiver.kernel.org>; Fri, 21 May 2021 21:10:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D8136100A
+	for <linux-s390@archiver.kernel.org>; Sun, 23 May 2021 07:46:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229503AbhEUVLd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 May 2021 17:11:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34400 "EHLO mail.kernel.org"
+        id S231658AbhEWHrc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 23 May 2021 03:47:32 -0400
+Received: from mx2.suse.de ([195.135.220.15]:40030 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229457AbhEUVLd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 May 2021 17:11:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id D4913613EE;
-        Fri, 21 May 2021 21:10:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621631409;
-        bh=7qtJ9r508lTluU2juVl/URvRzMpU9FriaYCqZ+3bPIw=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=Mr3o5DiFDmBxUAigklIOWpKiof2tkVo3UyCqK00RMMpE8HkDQJQNLhGQiSRWNkZ6i
-         RLU5PO4O92Vlks+bAqDfcuJ5q/wJn2GWqrxi/CKl10IVMLXBg4DIzME1T6rIdQvlhA
-         YauPv/ZTnN+JBUx1iDCgpBINJ9fbOQwzshSGuGgDc5qpJiSCoffu58r+I+NQmZXqga
-         PsNeaZD29qJiLYqARUbdjZ2BJJpnljEQvlJCWVvP1Va0xXqhNGcakXHNGFodHW7toc
-         +wLd2uqXqmuGFzKF+Lc9t8wYNpJI+cYnphEIm+wpR2Hw7TzAdGWa6339LKE0+iWqtA
-         cw4JPbaqZAUOQ==
-Content-Type: text/plain; charset="utf-8"
+        id S231591AbhEWHrb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 23 May 2021 03:47:31 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1621755963; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qgeGl97uX/ASq/b1LiyPvGm5KNHhtUs0K8R0hHcKHNc=;
+        b=loXc3McbnIlaTeOmap5xh/BtT1gA18JtYlPnnRT16wqHGfTJ19lzfYOvtfB0oOgoXJJBVk
+        /ReVtyQfx/H7rkQyR4p+DdQCpRAZIyorp+zG3qS0QxK3kt3astNHDmaxUpril0ODq2rDNt
+        r9Vkt/28bb7h7z+3O1fywe0kQCnoBFg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1621755963;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qgeGl97uX/ASq/b1LiyPvGm5KNHhtUs0K8R0hHcKHNc=;
+        b=ColirDJTDltQ04gjJ+NwT5obDqeCRv1j+ud81TmJU8SNYoFAHUoSAb2/6qAn8/xG4ncH3n
+        i/HOh7UwzHlRZeDg==
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id AF152AB5F;
+        Sun, 23 May 2021 07:46:03 +0000 (UTC)
+Subject: Re: [PATCH 01/26] block: refactor device number setup in
+ __device_add_disk
+To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        Lars Ellenberg <lars.ellenberg@linbit.com>,
+        Jim Paris <jim@jtan.com>,
+        Joshua Morris <josh.h.morris@us.ibm.com>,
+        Philip Kelleher <pjk1939@linux.ibm.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Matias Bjorling <mb@lightnvm.io>, Coly Li <colyli@suse.de>,
+        Mike Snitzer <snitzer@redhat.com>, Song Liu <song@kernel.org>,
+        Maxim Levitsky <maximlevitsky@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     linux-block@vger.kernel.org, dm-devel@redhat.com,
+        linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org,
+        drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org,
+        linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-mmc@vger.kernel.org, nvdimm@lists.linux.dev,
+        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+References: <20210521055116.1053587-1-hch@lst.de>
+ <20210521055116.1053587-2-hch@lst.de>
+From:   Hannes Reinecke <hare@suse.de>
+Message-ID: <d55cba32-b114-513b-09d9-40c289fa95c3@suse.de>
+Date:   Sun, 23 May 2021 09:46:01 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
+In-Reply-To: <20210521055116.1053587-2-hch@lst.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] MAINTAINERS: s390/net: add netdev list
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162163140981.28899.15556106989177880068.git-patchwork-notify@kernel.org>
-Date:   Fri, 21 May 2021 21:10:09 +0000
-References: <20210521132856.1573533-1-jwi@linux.ibm.com>
-In-Reply-To: <20210521132856.1573533-1-jwi@linux.ibm.com>
-To:     Julian Wiedmann <jwi@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, kgraul@linux.ibm.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net.git (refs/heads/master):
-
-On Fri, 21 May 2021 15:28:56 +0200 you wrote:
-> Discussions for network-related code should include the netdev list.
+On 5/21/21 7:50 AM, Christoph Hellwig wrote:
+> Untangle the mess around blk_alloc_devt by moving the check for
+> the used allocation scheme into the callers.
 > 
-> Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 > ---
->  MAINTAINERS | 2 ++
->  1 file changed, 2 insertions(+)
+>   block/blk.h             |  4 +-
+>   block/genhd.c           | 96 ++++++++++++++++-------------------------
+>   block/partitions/core.c | 15 +++++--
+>   3 files changed, 49 insertions(+), 66 deletions(-)
+> 
+... and also fixes an issue with GENHD_FL_UP remained set in an error 
+path in __device_add_disk().
 
-Here is the summary with links:
-  - [net] MAINTAINERS: s390/net: add netdev list
-    https://git.kernel.org/netdev/net/c/e5bfaed7508f
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Cheers,
 
-
+Hannes
+-- 
+Dr. Hannes Reinecke                Kernel Storage Architect
+hare@suse.de                              +49 911 74053 688
+SUSE Software Solutions GmbH, Maxfeldstr. 5, 90409 Nürnberg
+HRB 36809 (AG Nürnberg), Geschäftsführer: Felix Imendörffer
