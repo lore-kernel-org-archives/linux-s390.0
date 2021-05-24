@@ -6,23 +6,23 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07274C47084
-	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 07:24:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A6B6C47084
+	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 07:25:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D84F5611CE
-	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 07:24:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4BF3611CB
+	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 07:25:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232365AbhEXHZq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 24 May 2021 03:25:46 -0400
-Received: from verein.lst.de ([213.95.11.211]:53432 "EHLO verein.lst.de"
+        id S232345AbhEXH01 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 24 May 2021 03:26:27 -0400
+Received: from verein.lst.de ([213.95.11.211]:53457 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232128AbhEXHZq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 May 2021 03:25:46 -0400
+        id S232249AbhEXH01 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 24 May 2021 03:26:27 -0400
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id BD6A867373; Mon, 24 May 2021 09:24:13 +0200 (CEST)
-Date:   Mon, 24 May 2021 09:24:13 +0200
+        id 08B3867373; Mon, 24 May 2021 09:24:57 +0200 (CEST)
+Date:   Mon, 24 May 2021 09:24:56 +0200
 From:   Christoph Hellwig <hch@lst.de>
-To:     Luis Chamberlain <mcgrof@kernel.org>
+To:     Hannes Reinecke <hare@suse.de>
 Cc:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
         Chris Zankel <chris@zankel.net>,
@@ -45,33 +45,36 @@ Cc:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-xtensa@linux-xtensa.org, linux-m68k@vger.kernel.org,
-        linux-raid@vger.kernel.org, nvdimm@lists.linux.dev,
-        linux-s390@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-bcache@vger.kernel.org, linux-nvme@lists.infradead.org,
         linux-block@vger.kernel.org, dm-devel@redhat.com,
-        drbd-dev@tron.linbit.com, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [dm-devel] [PATCH 05/26] block: add blk_alloc_disk and
- blk_cleanup_disk APIs
-Message-ID: <20210524072413.GC23890@lst.de>
-References: <20210521055116.1053587-1-hch@lst.de> <20210521055116.1053587-6-hch@lst.de> <20210521174407.GA25291@42.do-not-panic.com>
+        linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org,
+        drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org,
+        linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-mmc@vger.kernel.org, nvdimm@lists.linux.dev,
+        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 06/26] brd: convert to blk_alloc_disk/blk_cleanup_disk
+Message-ID: <20210524072456.GD23890@lst.de>
+References: <20210521055116.1053587-1-hch@lst.de> <20210521055116.1053587-7-hch@lst.de> <83fc5cdc-53ed-0bd3-fbe8-93d0afd20771@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210521174407.GA25291@42.do-not-panic.com>
+In-Reply-To: <83fc5cdc-53ed-0bd3-fbe8-93d0afd20771@suse.de>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, May 21, 2021 at 05:44:07PM +0000, Luis Chamberlain wrote:
-> Its not obvious to me why using this new API requires you then to
-> set minors explicitly to 1, and yet here underneath we see the minors
-> argument passed is 0.
-> 
-> Nor is it clear from the documentation.
+On Sun, May 23, 2021 at 09:58:48AM +0200, Hannes Reinecke wrote:
+>> +	/*
+>> +	 * This is so fdisk will align partitions on 4k, because of
+>> +	 * direct_access API needing 4k alignment, returning a PFN
+>> +	 * (This is only a problem on very small devices <= 4M,
+>> +	 *  otherwise fdisk will align on 1M. Regardless this call
+>> +	 *  is harmless)
+>> +	 */
+>> +	blk_queue_physical_block_size(disk->queue, PAGE_SIZE);
+>>   
+>
+> Maybe converting the comment to refer to 'PAGE_SIZE' instead of 4k while 
+> you're at it ...
 
-Basically for all new drivers no one should set minors at all, and the
-dynamic dev_t mechanism does all the work.  For converted old drivers
-minors is set manually instead of being passed an an argument that
-should be 0 for all new drivers.
+I really do not want to touch these kinds of unrelated things here.
