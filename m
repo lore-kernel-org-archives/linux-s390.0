@@ -2,115 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B14FC47083
-	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 08:27:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A244C04FF3
+	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 09:40:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0FE8E61151
-	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 08:27:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 19071611EE
+	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 09:40:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232397AbhEXI2s (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 24 May 2021 04:28:48 -0400
-Received: from mx2.suse.de ([195.135.220.15]:43162 "EHLO mx2.suse.de"
+        id S232521AbhEXJmP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 24 May 2021 05:42:15 -0400
+Received: from foss.arm.com ([217.140.110.172]:40330 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232311AbhEXI2r (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 May 2021 04:28:47 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1621844838; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Q1F35rBDncf+ODcVO5jTKQ+c6J+Bpaijj4tb+WLiO1U=;
-        b=hWbnJCzrn8D8sq7QiamSboM/nv6TN+2iWleusnloao35oVE4OyeDX0eKAMzya8OGGThQFh
-        zl1nxRchNuFxstuajSgFtmryku8O1hRGBIRcM0SbrM2Dt3hLAz/KodIIf9vgrdWDs21AJk
-        09tFtAADDGOyfSpK1oh2IZudvgHfbuQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1621844838;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Q1F35rBDncf+ODcVO5jTKQ+c6J+Bpaijj4tb+WLiO1U=;
-        b=/Ey/RBTrd/apAViE3Xd9DP0Lfre1LBpPPlJZl5IzG70TmMypTfoLUolyItvUQoIO9R6YkJ
-        B6psOuCyZCUW50Cw==
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id CBD6EAB6D;
-        Mon, 24 May 2021 08:27:17 +0000 (UTC)
-Subject: Re: [PATCH 14/26] md: convert to blk_alloc_disk/blk_cleanup_disk
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Lars Ellenberg <lars.ellenberg@linbit.com>,
-        Jim Paris <jim@jtan.com>,
-        Joshua Morris <josh.h.morris@us.ibm.com>,
-        Philip Kelleher <pjk1939@linux.ibm.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Nitin Gupta <ngupta@vflare.org>,
-        Matias Bjorling <mb@lightnvm.io>, Coly Li <colyli@suse.de>,
-        Mike Snitzer <snitzer@redhat.com>, Song Liu <song@kernel.org>,
-        Maxim Levitsky <maximlevitsky@gmail.com>,
-        Alex Dubov <oakad@yahoo.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
+        id S232313AbhEXJmO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 24 May 2021 05:42:14 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DED0F31B;
+        Mon, 24 May 2021 02:40:46 -0700 (PDT)
+Received: from [10.163.81.166] (unknown [10.163.81.166])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7B64F3F73B;
+        Mon, 24 May 2021 02:40:43 -0700 (PDT)
+Subject: Re: [PATCH] mm/thp: Make ARCH_ENABLE_SPLIT_PMD_PTLOCK dependent on
+ PGTABLE_LEVELS > 2
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc:     linux-mm@kvack.org, akpm@linux-foundation.org,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-block@vger.kernel.org, dm-devel@redhat.com,
-        linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org,
-        drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org,
-        linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org,
-        linux-mmc@vger.kernel.org, nvdimm@lists.linux.dev,
-        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
-References: <20210521055116.1053587-1-hch@lst.de>
- <20210521055116.1053587-15-hch@lst.de>
- <e65de9e6-337c-3e41-b5c2-d033ff236582@suse.de>
- <20210524072642.GF23890@lst.de>
-From:   Hannes Reinecke <hare@suse.de>
-Message-ID: <1360c598-44a9-e0c5-dd81-695cb1ec8ccf@suse.de>
-Date:   Mon, 24 May 2021 10:27:16 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1620621345-29176-1-git-send-email-anshuman.khandual@arm.com>
+ <a4403be6-5b74-2c86-bc4c-42ae4f0764dc@arm.com>
+ <20210517161358.49683f34@thinkpad> <20210519130722.7d255b7f@thinkpad>
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <06299fb2-2f64-9094-3bf4-77045101ae22@arm.com>
+Date:   Mon, 24 May 2021 15:11:27 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20210524072642.GF23890@lst.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20210519130722.7d255b7f@thinkpad>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/24/21 9:26 AM, Christoph Hellwig wrote:
-> On Sun, May 23, 2021 at 10:12:49AM +0200, Hannes Reinecke wrote:
->>> +	blk_set_stacking_limits(&mddev->queue->limits);
->>>    	blk_queue_write_cache(mddev->queue, true, true);
->>>    	/* Allow extended partitions.  This makes the
->>>    	 * 'mdp' device redundant, but we can't really
+
+
+On 5/19/21 4:37 PM, Gerald Schaefer wrote:
+> On Mon, 17 May 2021 16:13:57 +0200
+> Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
+> 
+>> On Mon, 17 May 2021 09:45:31 +0530
+>> Anshuman Khandual <anshuman.khandual@arm.com> wrote:
+>>
 >>>
->> Wouldn't it make sense to introduce a helper 'blk_queue_from_disk()' or
->> somesuch to avoid having to keep an explicit 'queue' pointer?
+>>>
+>>> On 5/10/21 10:05 AM, Anshuman Khandual wrote:  
+>>>> ARCH_ENABLE_SPLIT_PMD_PTLOCK is irrelevant unless there are two page table
+>>>> levels including PMD (also per Documentation/vm/split_page_table_lock.rst).
+>>>> Make this dependency explicit on remaining platforms i.e x86 and s390 where
+>>>> ARCH_ENABLE_SPLIT_PMD_PTLOCK is subscribed.  
+>>
+>> For s390, I don't think this makes a lot of sense. We always have 5 levels
+>> defined for PGTABLE_LEVELS, and we would not even compile with any other
+>> value, because of the "#error CONFIG_PGTABLE_LEVELS" in include/linux/pgtable.h.
+>>
+>> Our pagetable folding also works a bit different than it does on other archs,
+>> and we would actually have pmd level entries for 2-level pagetables, so it should
+>> all work fine also with PGTABLE_LEVELS == 2 (if it was possible).
+>>
+>> In fact, I do not really see why you would need "more than two levels" on any
+>> arch, in order to use split PMD locks. Your description also just says
+>> "irrelevant unless there are two page table levels", and not "more than two
+>> levels", like in Documentation/vm/split_page_table_lock.rst.
+>>
+>> Yet, your patch adds checks for "more than", so at least the description
+>> seems a bit misleading. I assume that the "more than" has to do with folded
+>> PMD on a 2-level system, but the way we fold on s390 I do not see why that
+>> should be a problem. Could you please elaborate a bit?
+>>
+>> We also have different levels of pagetables for kernel (CONFIG_PGTABLE_LEVELS)
+>> and user processes on s390. The latter can have dynamic levels, currently
+>> starting with 3, but previously we also had 2 levels for compat tasks e.g.
+>> These dynamic levels for user processes are also independent from the
+>> CONFIG_PGTABLE_LEVELS used for the kernel pagetable, while the split PMD lock
+>> of course also affects user process pagetables, so that would be another
+>> reason not to add such a dependency for ARCH_ENABLE_SPLIT_PMD_PTLOCK on s390.
 > 
-> My rought plan is that a few series from now bio based drivers will
-> never directly deal with the request_queue at all.
+> Ouch, I guess I was a bit confused here. I thought the split PMD lock
+> was part of the struct page for the 4 KB page where the PMD entry is located,
+> and therefore, with more than one page, it still would make (a little) sense
+> to use it also for 2 pagetable levels.
 > 
-Go for it.
+> However, pmd_to_page() always returns the struct page of the first page,
+> so there is only one split PMD lock for the whole thing (4 pages for s390).
+> Of course that means that with 2 pagetable levels, and only one PMD directory,
+> the split PMD lock would be equivalent to the global pagetable lock, and
+> therefore not make any sense.
+> 
+> Maybe you could change the description to also mention "more than two"
+> levels?
 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
+Yes, will change it.
 
-Cheers,
+> 
+> I still do not see a real benefit of the patch, e.g. it does not really
+> fix any possible misconfiguration, at least on s390. But it certainly is not
+> wrong, and at least it had the benefit of making me aware again of how split
+> PMD locks work, so I'll happily add this
 
-Hannes
--- 
-Dr. Hannes Reinecke                Kernel Storage Architect
-hare@suse.de                              +49 911 74053 688
-SUSE Software Solutions GmbH, Maxfeldstr. 5, 90409 Nürnberg
-HRB 36809 (AG Nürnberg), Geschäftsführer: Felix Imendörffer
+Right, even though it does not change the functionality, the purpose
+of this patch is to enforce (and also possibly document) an inherent
+assumption which may not hold true on all other platforms like arm64.
+
+> 
+> Acked-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com> # s390
+> 
+
+Thanks for reviewing.
