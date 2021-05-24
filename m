@@ -2,120 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D766C04FF3
-	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 16:16:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13DE4C2B9F7
+	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 23:04:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 29C0D613B6
-	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 16:16:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D67166140F
+	for <linux-s390@archiver.kernel.org>; Mon, 24 May 2021 23:04:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233342AbhEXQR3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 24 May 2021 12:17:29 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12078 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232918AbhEXQR2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 May 2021 12:17:28 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14OG4dm0020170;
-        Mon, 24 May 2021 12:15:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=DrvjMI3EBxdgZsRm5hUVcKMed5KOSzIm0p0poRBgU7I=;
- b=awlCksOA8wO/oE75Y4b+FA/58Eo419/0EhuYhrubBrec0sL2kvdy6vp0k9s9GwMBkMa6
- w5brFjErIdu+bzdLGokSpAOZG9So96atuBCaYZR9nH5x9SezjsMNh+Itb3Qh0iiHn/pR
- rzJ7sALtFJGRj2Pt37+kHI2YKlMghnxV7SLGHe2SLDMcTyBbuvnrFVAVq23GfDSWyR9K
- LjELVNO8wxVbFpO0Bkqpm4vSgLXovsIlyRO/Vrm4C3ucHDaVDciwk2vMeS1BDQbxzKe8
- M8BJjlArwCUD8CU/F5z56lE733e/SrDomc4eeoEkiigeu5sKpvwLCDyVndwwHNyfNfDv pA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38repqhkte-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 May 2021 12:15:58 -0400
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14OG7plf038733;
-        Mon, 24 May 2021 12:15:58 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38repqhks5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 May 2021 12:15:57 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14OGBKip016476;
-        Mon, 24 May 2021 16:15:54 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06fra.de.ibm.com with ESMTP id 38ps7h8fyv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 May 2021 16:15:53 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14OGFoiV20316452
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 24 May 2021 16:15:50 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 75CB14203F;
-        Mon, 24 May 2021 16:15:50 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A722A42042;
-        Mon, 24 May 2021 16:15:49 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.37.230])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Mon, 24 May 2021 16:15:49 +0000 (GMT)
-Date:   Mon, 24 May 2021 18:15:48 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, freude@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-Subject: Re: [PATCH v16 06/14] s390/vfio-ap: refresh guest's APCB by
- filtering APQNs assigned to mdev
-Message-ID: <20210524181548.4dbe52bc.pasic@linux.ibm.com>
-In-Reply-To: <20210510164423.346858-7-akrowiak@linux.ibm.com>
-References: <20210510164423.346858-1-akrowiak@linux.ibm.com>
-        <20210510164423.346858-7-akrowiak@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S229539AbhEXXFt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 24 May 2021 19:05:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36260 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229550AbhEXXFt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 May 2021 19:05:49 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37F08C061756
+        for <linux-s390@vger.kernel.org>; Mon, 24 May 2021 16:04:20 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id jt22so44131ejb.7
+        for <linux-s390@vger.kernel.org>; Mon, 24 May 2021 16:04:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=uHnwU/8zVxK9/bfw4gLk9ClQH8SbH6WwTZFdoRwbAtE=;
+        b=QQB024vhpmn4hq25e6Gkh0zhdrnh3KHdtxH6hg6RDKH7CnpR3mYJd6drz35kPPn+vq
+         h6264Me+UgyGvlpwu30FVPeTMz+AEc12Q0M+XUT2JohzSMatCOapVMLXEXEiejzFf7ti
+         ktfb2nZNhIlo275VOb2O2BOnbc3ySbclEou9yYwi6+PYR4gUlNFMkKIpexQj+R7biYK9
+         xXDP+mzIofYbIEFKZVe3ZXLMSxK2QP8MWFHo5cfoJS3ZJay5Rqyq5UdBp1+zLKULS08J
+         lwUq6hGqLZp80Ar+2xFbnq6NvtyQI7K0uQTTZPi/naCAAye6mC44N7eH6EQPj41saYzr
+         cNUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=uHnwU/8zVxK9/bfw4gLk9ClQH8SbH6WwTZFdoRwbAtE=;
+        b=WjEyq+N5tMn1jjzPm0IyjnR/0hWc45U+sG+zqMp6+jjHvW1m11gJQ4shVVkqZhweX7
+         iI+QDUGoCudIIjBCdpLB1qk5F8QqBuRUB1I4S1ZopMjf6vututcD7vtTz0sN4vRvoTNS
+         yGulqClEXzOXYX6ND+4+bH1TweMr5UHV1nIWqSXo/yssFEliWZt/LNneBOzd5+8WfrnQ
+         hcPzaBjnHOSB9R8G0lA12s+8xAUzBHRF7UeG8I56/G6GU960aJ8ABSHEVMCWxCvZ7ZpS
+         KESGaSWRY2kuJ1qhl8mE0f1+FWiwMUFK/oH/hkTCuZBil6oHiCnJFU9IRiyD53A3teTj
+         GyzA==
+X-Gm-Message-State: AOAM530wILN9X8D99ukcsmYA/2BdbNx1pvJM4P8AQtib+UySKtrYs3Td
+        PEpnMs4NRdIGhCr5dA5craD00jqZuTkU35i2soeZ
+X-Google-Smtp-Source: ABdhPJzHdwSaxqdMgKRFDcoSWE+vBddUp/NzMoTBPda3nQNAVt0QAUQEdTUit8AXk9QB29Wy0DPtdDjKh5nmDnbZhoc=
+X-Received: by 2002:a17:907:10d8:: with SMTP id rv24mr25356059ejb.542.1621897458726;
+ Mon, 24 May 2021 16:04:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RIR_5a4GtCOQa80qHPekiPEvbcLNYu2E
-X-Proofpoint-GUID: 7VqVILMie_E9GoIdmJ3Ae-jvQlXJalKg
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-24_08:2021-05-24,2021-05-24 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 malwarescore=0
- mlxlogscore=999 spamscore=0 mlxscore=0 bulkscore=0 priorityscore=1501
- impostorscore=0 clxscore=1015 lowpriorityscore=0 phishscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2105240096
+References: <cover.1621363275.git.rgb@redhat.com> <f5f1a4d8699613f8c02ce762807228c841c2e26f.1621363275.git.rgb@redhat.com>
+ <20210520075842.vnbwbw6yffkybk6z@wittgenstein>
+In-Reply-To: <20210520075842.vnbwbw6yffkybk6z@wittgenstein>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 24 May 2021 19:04:07 -0400
+Message-ID: <CAHC9VhTyAFou=_Xu7ZSZSY+19Yii=hQ1NW1LPisk49Ot9wg7rg@mail.gmail.com>
+Subject: Re: [PATCH v4 2/3] audit: add support for the openat2 syscall
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Richard Guy Briggs <rgb@redhat.com>,
+        Linux-Audit Mailing List <linux-audit@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org, Eric Paris <eparis@parisplace.org>,
+        Steve Grubb <sgrubb@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Eric Paris <eparis@redhat.com>, x86@kernel.org,
+        linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Arnd Bergmann <arnd@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 10 May 2021 12:44:15 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+On Thu, May 20, 2021 at 3:58 AM Christian Brauner
+<christian.brauner@ubuntu.com> wrote:
+> On Wed, May 19, 2021 at 04:00:21PM -0400, Richard Guy Briggs wrote:
+> > The openat2(2) syscall was added in kernel v5.6 with commit fddb5d430ad9
+> > ("open: introduce openat2(2) syscall")
+> >
+> > Add the openat2(2) syscall to the audit syscall classifier.
+> >
+> > Link: https://github.com/linux-audit/audit-kernel/issues/67
+> > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+> > Link: https://lore.kernel.org/r/f5f1a4d8699613f8c02ce762807228c841c2e26f.1621363275.git.rgb@redhat.com
+> > ---
+> >  arch/alpha/kernel/audit.c           | 2 ++
+> >  arch/ia64/kernel/audit.c            | 2 ++
+> >  arch/parisc/kernel/audit.c          | 2 ++
+> >  arch/parisc/kernel/compat_audit.c   | 2 ++
+> >  arch/powerpc/kernel/audit.c         | 2 ++
+> >  arch/powerpc/kernel/compat_audit.c  | 2 ++
+> >  arch/s390/kernel/audit.c            | 2 ++
+> >  arch/s390/kernel/compat_audit.c     | 2 ++
+> >  arch/sparc/kernel/audit.c           | 2 ++
+> >  arch/sparc/kernel/compat_audit.c    | 2 ++
+> >  arch/x86/ia32/audit.c               | 2 ++
+> >  arch/x86/kernel/audit_64.c          | 2 ++
+> >  include/linux/auditsc_classmacros.h | 1 +
+> >  kernel/auditsc.c                    | 3 +++
+> >  lib/audit.c                         | 4 ++++
+> >  lib/compat_audit.c                  | 4 ++++
+> >  16 files changed, 36 insertions(+)
 
-> @@ -1601,8 +1676,10 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
->  	mutex_lock(&matrix_dev->lock);
->  	q = dev_get_drvdata(&apdev->device);
->  
-> -	if (q->matrix_mdev)
-> +	if (q->matrix_mdev) {
->  		vfio_ap_mdev_unlink_queue_fr_mdev(q);
-> +		vfio_ap_mdev_refresh_apcb(q->matrix_mdev);
-> +	}
->  
->  	vfio_ap_mdev_reset_queue(q, 1);
->  	dev_set_drvdata(&apdev->device, NULL);
+...
 
-At this point we don't know if !!kvm_busy or kvm_busy AFAICT. If
-!!kvm_busy, then we may end up changing a shadow_apcb while an other
-thread is in the middle of committing it to the SD satellite. That
-would be no good.
+> > diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+> > index d775ea16505b..3f59ab209dfd 100644
+> > --- a/kernel/auditsc.c
+> > +++ b/kernel/auditsc.c
+> > @@ -76,6 +76,7 @@
+> >  #include <linux/fsnotify_backend.h>
+> >  #include <uapi/linux/limits.h>
+> >  #include <uapi/linux/netfilter/nf_tables.h>
+> > +#include <uapi/linux/openat2.h>
+> >
+> >  #include "audit.h"
+> >
+> > @@ -196,6 +197,8 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
+> >               return ((mask & AUDIT_PERM_WRITE) && ctx->argv[0] == SYS_BIND);
+> >       case AUDITSC_EXECVE:
+> >               return mask & AUDIT_PERM_EXEC;
+> > +     case AUDITSC_OPENAT2:
+> > +             return mask & ACC_MODE((u32)((struct open_how *)ctx->argv[2])->flags);
+>
+> That's a lot of dereferncing, casting and masking all at once. Maybe a
+> small static inline helper would be good for the sake of legibility? Sm
+> like:
+>
+> static inline u32 audit_openat2_acc(struct open_how *how, int mask)
+> {
+>         u32 flags = how->flags;
+>         return mask & ACC_MODE(flags);
+> }
+>
+> but not sure. Just seems more legible to me.
+> Otherwise.
 
-Regards,
-Halil
+I'm on the fence about this.  I understand Christian's concern, but I
+have a bit of hatred towards single caller functions like this.  Since
+this function isn't really high-touch, and I don't expect that to
+change in the near future, let's leave the casting mess as-is.
+
+-- 
+paul moore
+www.paul-moore.com
