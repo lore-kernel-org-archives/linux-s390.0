@@ -2,95 +2,89 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26ABCC2B9F8
-	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 08:11:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08378C2B9F8
+	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 08:18:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0066B6135F
-	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 08:11:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D71CE61400
+	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 08:18:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232022AbhEYIMc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 May 2021 04:12:32 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:16880 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232255AbhEYIK1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 May 2021 04:10:27 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14P84HEE128628
-        for <linux-s390@vger.kernel.org>; Tue, 25 May 2021 04:08:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : cc :
- subject : in-reply-to : in-reply-to : date : message-id : mime-version :
- content-type; s=pp1; bh=vASpDwY11cpVNOitMOfCDh5Av5WBXVGqZiEWopTrAok=;
- b=KPrz/Qx9sfnZgrtRyGAolfJXcp6QMm8f3J7kAcBmZ0lywX3riVf3+3uLKzgRT6i+Ihw6
- 3sc4HjYw+wLGpfKArsV3YMyOywhTvFra9uPxgNMIr+UszjN4LuBz1/50zfVtmevo4+xS
- RJEzNRSJfjREu+7f2WvBqk8rU9xvf4z6iDCI+iQks4SkIDlCBMR31RJrolxZMgxE2DMF
- oxRCIwD5ST/XgzsESabL09HVbTnAVwx+VVH85cap+QDlfNOL59to4oDRN0RD6kCZcBn1
- FMsDwic5sM5qWN7CmhbECYWtBaNBU5I8dVGUciaZeDTPbswDBheJjTORDCGUhafpPlHT jQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38rw7ggfsm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 25 May 2021 04:08:55 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14P84ibh130775
-        for <linux-s390@vger.kernel.org>; Tue, 25 May 2021 04:08:55 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38rw7ggfrs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 May 2021 04:08:55 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14P7v4t5028198;
-        Tue, 25 May 2021 08:08:53 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 38psk8960p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 May 2021 08:08:53 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14P88L8U32964940
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 May 2021 08:08:21 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 535AC5204E;
-        Tue, 25 May 2021 08:08:50 +0000 (GMT)
-Received: from oc8242746057.ibm.com (unknown [9.171.79.73])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 23DD652052;
-        Tue, 25 May 2021 08:08:50 +0000 (GMT)
-From:   Alexander Egorenkov <egorenar@linux.ibm.com>
-To:     Fabrice Fontaine <fontaine.fabrice@gmail.com>
-Cc:     linux-s390@vger.kernel.org, fontaine.fabrice@gmail.com
-Subject: Re: [PATCH] arch/s390: disable SSP when needed
-In-Reply-To: <20210510053133.1220167-1-fontaine.fabrice@gmail.com> (message
- from Fabrice Fontaine on Mon, 10 May 2021 07:31:33 +0200)
-In-Reply-To: 
-Date:   Tue, 25 May 2021 10:08:49 +0200
-Message-ID: <87y2c3nsku.fsf@oc8242746057.ibm.com>
+        id S232130AbhEYIT4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 May 2021 04:19:56 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59476 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230370AbhEYIT4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 25 May 2021 04:19:56 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1621930705; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=dx8Mp3xhIbC9s7UG8etfxN0DUmZKH5uLGFLLxpPpF5k=;
+        b=IymtYxBd/wEomXEep83nc/rgBdMCvkjFvi0Pb3VwB43kQA3t6IEPjQXylOT5wYQ/UNRmmL
+        43ny40FmOF/eLaRtZsXREkQ4fFxp5EDBtL/egvxW8mUvtyrQOlA1uW6WINlcAAj+wQugx/
+        EfqaPh03/0yuSlZkpygKJMJyIGAJ3Ew=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1621930705;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=dx8Mp3xhIbC9s7UG8etfxN0DUmZKH5uLGFLLxpPpF5k=;
+        b=FaJrILtbZNsCTNOxN7pTJBozXaRRhC58JWUc7EKPEGNbX7MjJbFQWaVI8ACjsRBXR7lCpI
+        y9GvtmRLf0yd7tAg==
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 75937AE1F;
+        Tue, 25 May 2021 08:18:25 +0000 (UTC)
+Subject: Re: [PATCH 4/8] block: move adjusting bd_part_count out of
+ __blkdev_get
+To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Song Liu <song@kernel.org>
+Cc:     Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        =?UTF-8?Q?Roger_Pau_Monn=c3=a9?= <roger.pau@citrix.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        linux-block@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
+References: <20210525061301.2242282-1-hch@lst.de>
+ <20210525061301.2242282-5-hch@lst.de>
+From:   Hannes Reinecke <hare@suse.de>
+Message-ID: <e0927e9e-9bfc-45a7-5924-c0a0988d6fbe@suse.de>
+Date:   Tue, 25 May 2021 10:18:23 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 9ttFpxLVNv6EVeCO2aLZ--mk7WjnGFLU
-X-Proofpoint-ORIG-GUID: uW5gMCcbSzoAbwPYg8vbaIHtX54xEam1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-25_05:2021-05-24,2021-05-25 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 spamscore=0 clxscore=1015 adultscore=0 mlxlogscore=605
- mlxscore=0 phishscore=0 priorityscore=1501 bulkscore=0 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105250056
+In-Reply-To: <20210525061301.2242282-5-hch@lst.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Fabrice,
+On 5/25/21 8:12 AM, Christoph Hellwig wrote:
+> Keep in the callers and thus remove the for_part argument.  This mirrors
+> what is done on the blkdev_get side and slightly simplifies
+> blkdev_get_part as well.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>   fs/block_dev.c | 16 +++++++---------
+>   1 file changed, 7 insertions(+), 9 deletions(-)
+> Reviewed-by: Hannes Reinecke <hare@suse.de>
 
-the patch looks good to me.
-Thank you.
+Cheers,
 
-Reviewed-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-
-Regards
-Alex
+Hannes
+-- 
+Dr. Hannes Reinecke                Kernel Storage Architect
+hare@suse.de                              +49 911 74053 688
+SUSE Software Solutions GmbH, Maxfeldstr. 5, 90409 Nürnberg
+HRB 36809 (AG Nürnberg), Geschäftsführer: Felix Imendörffer
