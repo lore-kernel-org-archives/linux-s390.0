@@ -2,353 +2,98 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7795C4707F
-	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 17:38:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B65EC2B9F8
+	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 18:54:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A8FD061378
-	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 17:38:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 401D861249
+	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 18:54:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232626AbhEYRjf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 May 2021 13:39:35 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29400 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232624AbhEYRjd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 May 2021 13:39:33 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14PHXqUp073079;
-        Tue, 25 May 2021 13:38:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=1wiYsEuWCMAsvHRE5r1CX0mDtbkT9iNINnuL5hYoFVM=;
- b=er5Y7d3wzO+DkBoE2ZBFna9Gzz1lrm1q9BM9x64qjg7EK1L7ufHbdr94wehDUShcBdBQ
- HEJV6sq4ZJ53eS6YelCfRSI6V6PcBO3xDAREJQ2AnlnoB0LfKi+d0Dgbm3lsN0TgZlJd
- tWHer2fXwk3l1iaFz1p1EoH/PgEdYzJ6EnIYcSQthY87mXKGoEe7ba/SAbLjjN+omdNJ
- inTdjNex9F5auJycvkkSiQhDbblP8hDjxC9wH6exaLmeZKhZRodW6GARqGD14ctac+fQ
- W3JEGTsPuT+LlMRwIk6Yw7dKKjyQODvAzJoueOIsoFQ8PvlqJuXgI6MyxCmm+JT1NI5G Pw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38s4s9svue-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 May 2021 13:38:02 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14PHXqq1073090;
-        Tue, 25 May 2021 13:38:02 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38s4s9svtr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 May 2021 13:38:01 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14PHULGB011285;
-        Tue, 25 May 2021 17:37:59 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 38s1jn84u8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 May 2021 17:37:59 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14PHbS2Q21234162
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 May 2021 17:37:28 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5F6F8A4053;
-        Tue, 25 May 2021 17:37:57 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 00FD4A4055;
-        Tue, 25 May 2021 17:37:57 +0000 (GMT)
-Received: from ibm-vm (unknown [9.145.7.194])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 25 May 2021 17:37:56 +0000 (GMT)
-Date:   Tue, 25 May 2021 19:37:51 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
-        thuth@redhat.com, cohuck@redhat.com
-Subject: Re: [kvm-unit-tests RFC 2/2] s390x: mvpg: Add SIE mvpg test
-Message-ID: <20210525193751.5e6630c7@ibm-vm>
-In-Reply-To: <20210520094730.55759-3-frankja@linux.ibm.com>
-References: <20210520094730.55759-1-frankja@linux.ibm.com>
-        <20210520094730.55759-3-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        id S232134AbhEYSzr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 May 2021 14:55:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51208 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230029AbhEYSzr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 May 2021 14:55:47 -0400
+Received: from mail-il1-x12e.google.com (mail-il1-x12e.google.com [IPv6:2607:f8b0:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 279BBC061574
+        for <linux-s390@vger.kernel.org>; Tue, 25 May 2021 11:54:16 -0700 (PDT)
+Received: by mail-il1-x12e.google.com with SMTP id w2so446348ilo.7
+        for <linux-s390@vger.kernel.org>; Tue, 25 May 2021 11:54:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Dv2ynAk0e0j4ABap5LyrOWTO8mSQEIfMbBNW1vXhUIU=;
+        b=fAu9RsPKECVBFIwMotcagPLUyEHuxfp5Y3dy/lk7L0LQtxFAbhu1Yq0KdwYPo3G0Qd
+         I1o1HSGJY+c3ZAYJcehtkE1wTB5Yy0qf7D+OQWEpFvhH0NipTxfe88xvlOhsX62PRIN4
+         RQsGmK+qrvo3gtRgBI1CUVQ1x0JX0GsRp2qrqIDcH72Ep7AU/yP2PUhYeuyyVa5MIPtl
+         mfedRidkJz325Pd0FOOrhm3aJqKJi29XSVFVmAyJHlfmQu23FwNgNy2lwrW5ockRLgoc
+         72hmfBe9I+vZXebzqw441gILdQmwd1nzct22jfEyTnXM7qRc4JQF5NwVTiOHMkAdPEDN
+         Qy7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Dv2ynAk0e0j4ABap5LyrOWTO8mSQEIfMbBNW1vXhUIU=;
+        b=aDN2LVMaCLW+uvLCX4Mr9itjji4C2YPhQgCYvCiMtU0MmaacmJZ9ym3MGy9rgl5Uzh
+         DRc0lpTWXN0iG3gQrWEdbmI+rLP/zCAjs2jmMZqKTKul1wtP2ReEtLqweUV081oAANcA
+         aTtDeSiEpP6p7l/2Jpbk472eeEuGPd62BwSEovMRZttHWsj6AKN62YnIEpq33FR66C5i
+         4s6me94VW1d+a76cMB1es2N3en83HuVc0ZXnFaati0zpDEVREDC26ZDKqDFTqqpCoeFn
+         OIhfdGuiNbD+2EkynkyH++NgE4YpUM15VBbSR+6zHh0uRJhwgnfum8OK8H0okS8aCCyr
+         MiJw==
+X-Gm-Message-State: AOAM533BXpcXvPlzL88e0ZVNl6VZvgIIm2PngnPSXGdilZZ2AJBO+tRi
+        2SPWxauX+F217oxKWs40dxWi9A==
+X-Google-Smtp-Source: ABdhPJxMIsiRpGZNoEoY8UBeLDfP1Nr4kSAwOLtXiavBUWZwL3TfAJzcMmGFOZQf9QcORnK25HV0QQ==
+X-Received: by 2002:a05:6e02:587:: with SMTP id c7mr22716661ils.24.1621968855390;
+        Tue, 25 May 2021 11:54:15 -0700 (PDT)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id a19sm13852802ila.31.2021.05.25.11.54.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 25 May 2021 11:54:14 -0700 (PDT)
+Subject: Re: [PATCH 0/1] s390/dasd: fix kernel panic due to missing discipline
+ function
+To:     Stefan Haberland <sth@linux.ibm.com>
+Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+References: <20210525125006.157531-1-sth@linux.ibm.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <a2b5d28e-bf85-bafe-65d4-bba0c92a5382@kernel.dk>
+Date:   Tue, 25 May 2021 12:54:14 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20210525125006.157531-1-sth@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: WTmfIom-bVprSvuk7GD6WPA_ftrOsou4
-X-Proofpoint-ORIG-GUID: JYW6WbD0eY30v6JczI21Y3sgCgiqqAbM
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-25_08:2021-05-25,2021-05-25 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- priorityscore=1501 mlxscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
- clxscore=1015 phishscore=0 malwarescore=0 impostorscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2105250108
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 20 May 2021 09:47:30 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> Let's also check the PEI values to make sure our VSIE implementation
-> is correct.
+On 5/25/21 6:50 AM, Stefan Haberland wrote:
+> Hi Jens,
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  s390x/Makefile                  |   3 +-
->  s390x/mvpg-sie.c                | 139
-> ++++++++++++++++++++++++++++++++ s390x/snippets/c/mvpg-snippet.c |
-> 33 ++++++++ s390x/unittests.cfg             |   3 +
->  4 files changed, 177 insertions(+), 1 deletion(-)
->  create mode 100644 s390x/mvpg-sie.c
->  create mode 100644 s390x/snippets/c/mvpg-snippet.c
+> please apply the following patch that fixes a kernel panic in the DASD
+> device driver.
 > 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index fe267011..6692cf73 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -22,6 +22,7 @@ tests += $(TEST_DIR)/uv-guest.elf
->  tests += $(TEST_DIR)/sie.elf
->  tests += $(TEST_DIR)/mvpg.elf
->  tests += $(TEST_DIR)/uv-host.elf
-> +tests += $(TEST_DIR)/mvpg-sie.elf
->  
->  tests_binary = $(patsubst %.elf,%.bin,$(tests))
->  ifneq ($(HOST_KEY_DOCUMENT),)
-> @@ -79,7 +80,7 @@ FLATLIBS = $(libcflat)
->  SNIPPET_DIR = $(TEST_DIR)/snippets
->  
->  # C snippets that need to be linked
-> -snippets-c =
-> +snippets-c = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
->  
->  # ASM snippets that are directly compiled and converted to a *.gbin
->  snippets-a =
-> diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
-> new file mode 100644
-> index 00000000..a617704b
-> --- /dev/null
-> +++ b/s390x/mvpg-sie.c
-> @@ -0,0 +1,139 @@
-> +#include <libcflat.h>
-> +#include <asm/asm-offsets.h>
-> +#include <asm-generic/barrier.h>
-> +#include <asm/interrupt.h>
-> +#include <asm/pgtable.h>
-> +#include <mmu.h>
-> +#include <asm/page.h>
-> +#include <asm/facility.h>
-> +#include <asm/mem.h>
-> +#include <asm/sigp.h>
-> +#include <smp.h>
-> +#include <alloc_page.h>
-> +#include <bitops.h>
-> +#include <vm.h>
-> +#include <sclp.h>
-> +#include <sie.h>
-> +
-> +static u8 *guest;
-> +static u8 *guest_instr;
-> +static struct vm vm;
-> +
-> +static uint8_t *src;
-> +static uint8_t *dst;
-> +
-> +extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_start[];
-> +extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_end[];
-> +int binary_size;
-> +
-> +static void handle_validity(struct vm *vm)
-> +{
-> +	report(0, "VALIDITY: %x", vm->sblk->ipb >> 16);
+> Stefan Haberland (1):
+>   s390/dasd: add missing discipline function
+> 
+>  drivers/s390/block/dasd_diag.c | 8 +++++++-
+>  drivers/s390/block/dasd_fba.c  | 8 +++++++-
+>  drivers/s390/block/dasd_int.h  | 1 -
+>  3 files changed, 14 insertions(+), 3 deletions(-)
 
-I think an assert would be better. This should not happen, and if it
-happens something went very wrong and we have no guarantee that we will
-be able to continue
+Applied, thanks.
 
-> +}
-> +
-> +static void sie(struct vm *vm)
-> +{
-> +	/* Reset icptcode so we don't trip below */
-> +	vm->sblk->icptcode = 0;
-> +
-> +	while (vm->sblk->icptcode == 0) {
-> +		sie64a(vm->sblk, &vm->save_area);
-> +		if (vm->sblk->icptcode == ICPT_VALIDITY)
-> +			handle_validity(vm);
-> +	}
-> +	vm->save_area.guest.grs[14] = vm->sblk->gg14;
-> +	vm->save_area.guest.grs[15] = vm->sblk->gg15;
-> +}
-> +
-> +static void test_mvpg_pei(void)
-> +{
-> +	uint64_t **pei_dst = (uint64_t **)((uintptr_t) vm.sblk +
-> 0xc0);
-> +	uint64_t **pei_src = (uint64_t **)((uintptr_t) vm.sblk +
-> 0xc8); +
-> +	report_prefix_push("pei");
-
-maybe clear the destination buffer...
-
-> +	protect_page(guest + 0x6000, PAGE_ENTRY_I);
-> +	sie(&vm);
-> +	report(vm.sblk->icptcode == ICPT_PARTEXEC, "Partial
-> execution");
-> +	report((uintptr_t)**pei_src == ((uintptr_t)vm.sblk->mso) +
-> 0x6000 + PAGE_ENTRY_I, "PEI_SRC correct");
-> +	report((uintptr_t)**pei_dst == vm.sblk->mso + 0x5000,
-> "PEI_DST correct");
-
-... and check that the page was not copied
-
-> +	/* Jump over the diag44 */
-> +	sie(&vm);
-
-I would check if you really got a diag44
-
-> +	/* Clear PEI data for next check */
-> +	memset((uint64_t *)((uintptr_t) vm.sblk + 0xc0), 0, 16);
-> +	unprotect_page(guest + 0x6000, PAGE_ENTRY_I);
-> +	protect_page(guest + 0x5000, PAGE_ENTRY_I);
-> +	sie(&vm);
-> +	report(vm.sblk->icptcode == ICPT_PARTEXEC, "Partial
-> execution");
-> +	report((uintptr_t)**pei_src == vm.sblk->mso + 0x6000,
-> "PEI_SRC correct");
-> +	report((uintptr_t)**pei_dst == vm.sblk->mso + 0x5000 +
-> PAGE_ENTRY_I, "PEI_DST correct"); +
-> +	report_prefix_pop();
-> +}
-> +
-> +static void test_mvpg(void)
-> +{
-> +	int binary_size =
-> ((uintptr_t)_binary_s390x_snippets_c_mvpg_snippet_gbin_end -
-> +
-> (uintptr_t)_binary_s390x_snippets_c_mvpg_snippet_gbin_start); +
-> +	memcpy(guest,
-> _binary_s390x_snippets_c_mvpg_snippet_gbin_start, binary_size);
-> +	memset(src, 0x42, PAGE_SIZE);
-> +	memset(dst, 0x43, PAGE_SIZE);
-> +	sie(&vm);
-> +	mb();
-> +	report(!memcmp(src, dst, PAGE_SIZE) && *dst == 0x42, "Page
-
-or maybe you can clear the destination buffer here, if you prefer
-
-> moved"); +}
-> +
-> +static void setup_guest(void)
-> +{
-> +	setup_vm();
-> +
-> +	/* Allocate 1MB as guest memory */
-> +	guest = alloc_pages(8);
-> +	/* The first two pages are the lowcore */
-> +	guest_instr = guest + PAGE_SIZE * 2;
-> +
-> +	vm.sblk = alloc_page();
-> +
-> +	vm.sblk->cpuflags = CPUSTAT_ZARCH | CPUSTAT_RUNNING;
-> +	vm.sblk->prefix = 0;
-> +	/*
-> +	 * Pageable guest with the same ASCE as the test programm,
-> but
-> +	 * the guest memory 0x0 is offset to start at the allocated
-> +	 * guest pages and end after 1MB.
-> +	 *
-> +	 * It's not pretty but faster and easier than managing guest
-> ASCEs.
-> +	 */
-> +	vm.sblk->mso = (u64)guest;
-> +	vm.sblk->msl = (u64)guest;
-> +	vm.sblk->ihcpu = 0xffff;
-> +
-> +	vm.sblk->crycbd = (uint64_t)alloc_page();
-> +
-> +	vm.sblk->gpsw.addr = PAGE_SIZE * 4;
-> +	vm.sblk->gpsw.mask = 0x0000000180000000ULL;
-> +	vm.sblk->ictl = ICTL_OPEREXC | ICTL_PINT;
-> +	/* Enable MVPG interpretation as we want to test KVM and not
-> ourselves */
-> +	vm.sblk->eca = ECA_MVPGI;
-> +
-> +	src = guest + PAGE_SIZE * 6;
-> +	dst = guest + PAGE_SIZE * 5;
-> +}
-> +
-> +int main(void)
-> +{
-> +	report_prefix_push("mvpg-sie");
-> +	if (!sclp_facilities.has_sief2) {
-> +		report_skip("SIEF2 facility unavailable");
-> +		goto done;
-> +	}
-> +
-> +	setup_guest();
-> +	test_mvpg();
-> +	test_mvpg_pei();
-> +
-> +done:
-> +	report_prefix_pop();
-> +	return report_summary();
-> +
-> +}
-> diff --git a/s390x/snippets/c/mvpg-snippet.c
-> b/s390x/snippets/c/mvpg-snippet.c new file mode 100644
-> index 00000000..96b70c9c
-> --- /dev/null
-> +++ b/s390x/snippets/c/mvpg-snippet.c
-> @@ -0,0 +1,33 @@
-> +#include <libcflat.h>
-> +
-> +static inline void force_exit(void)
-> +{
-> +	asm volatile("	diag	0,0,0x44\n");
-> +}
-> +
-> +static inline int mvpg(unsigned long r0, void *dest, void *src)
-> +{
-> +	register unsigned long reg0 asm ("0") = r0;
-> +	int cc;
-> +
-> +	asm volatile("	mvpg    %1,%2\n"
-> +		     "	ipm     %0\n"
-> +		     "	srl     %0,28"
-> +		     : "=&d" (cc) : "a" (dest), "a" (src), "d" (reg0)
-> +		     : "memory", "cc");
-> +	return cc;
-> +}
-> +
-> +static void test_mvpg_real(void)
-> +{
-> +	mvpg(0, (void *)0x5000, (void *)0x6000);
-> +	force_exit();
-> +}
-> +
-> +__attribute__((section(".text"))) int main(void)
-> +{
-> +	test_mvpg_real();
-> +	test_mvpg_real();
-> +	test_mvpg_real();
-> +	return 0;
-> +}
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index 9f81a608..8634b1b1 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -103,3 +103,6 @@ file = sie.elf
->  [mvpg]
->  file = mvpg.elf
->  timeout = 10
-> +
-> +[mvpg-sie]
-> +file = mvpg-sie.elf
+-- 
+Jens Axboe
 
