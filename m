@@ -2,140 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30B37C47085
-	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 13:01:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D70EC2B9F8
+	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 13:03:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 132446141C
-	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 13:01:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 61CAA6141C
+	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 13:03:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233023AbhEYNDX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 May 2021 09:03:23 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13036 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232957AbhEYNDU (ORCPT
+        id S232896AbhEYNFT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 May 2021 09:05:19 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58235 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232862AbhEYNFS (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 May 2021 09:03:20 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14PCXVYx114734;
-        Tue, 25 May 2021 09:01:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=zIkVztrnPmlK/T8hJBotAxR4HEjLOirSp4kgEg6fN5c=;
- b=IZvOmcjyxaco8w5x7a4nbXccFb35V8r5iDNZKXFR6wZf39zf+fTw4KZOr8eXoV78ZQkp
- ywtC6sW0Yhl+9xId1LcvixBMXYF86T7Jj03VMJINoCN0Oz1Qe1HelEfzgD0VI421E6bX
- C9uNWFO/jCuiaLaWkrBU918Ka6szXyCzLEF9UA/FoxY3W2au4XdtCbVO2Xk+sE/1TRzf
- mbzlypg3reB/1Nrz37HTZkerdB4YViafiBq2ydMvfX29hxkpcvgFs6cjyX/Z7NjI9QUG
- H6WmZb+iOpUBFVnmnLzAEB4b2y84biihqdIyUM2B/16aU68oWYDQO/7u8MNOY4W5QVb7 Rw== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38rxhvxwb6-1
+        Tue, 25 May 2021 09:05:18 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14PD2hET014840;
+        Tue, 25 May 2021 09:03:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=TC0d2aXtZ9kOoBZa5c0YpJpsWVUyUFpCZuecZaZrDl8=;
+ b=AXsIA/3RZ5O+k0Gj5ik/E84vZOyh6McWua3cNPy7nPXXHUaFKeHFxReUZXCoBrvVDzFq
+ HJx9vc7kWhiXjwmU3OlR1lNmWWVcvPJEF1wBXLbntBD1ZmD3Nr6LPO1Z98AJOyeU2Muf
+ zJ6TYtsWzmHkAF02d9OMFRRzBUegBKH+IbcIBvhxg9FlRVWWDHmUBAlUnnic6SfYPXwa
+ Ev+4hcnnGidu6I8Unm1zFs/SNt2QQGwcU9jxEbvEPeJt534HPJtlMVFI1c3XcYnI/WeY
+ hsMll9uV9JK6zM/y4ZSNe1rC6XtqsNwws1Cly7wE9tty0+0bjTyGpmSrZhqxPIz6PBJ2 1Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38s1g68qdq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 May 2021 09:01:37 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14PCrE8C020940;
-        Tue, 25 May 2021 13:01:35 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 38s1jn80et-1
+        Tue, 25 May 2021 09:03:46 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14PD2nOu015774;
+        Tue, 25 May 2021 09:03:46 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38s1g68qcg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 May 2021 13:01:34 +0000
+        Tue, 25 May 2021 09:03:46 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14PD2xXJ015238;
+        Tue, 25 May 2021 13:03:44 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 38s1rv801a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 May 2021 13:03:44 +0000
 Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14PD1Wia30146888
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14PD3CLK30474674
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 May 2021 13:01:32 GMT
+        Tue, 25 May 2021 13:03:12 GMT
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BDE69AE055;
-        Tue, 25 May 2021 13:01:32 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6B9DAAE04D;
+        Tue, 25 May 2021 13:03:41 +0000 (GMT)
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 77EAAAE053;
-        Tue, 25 May 2021 13:01:32 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 25 May 2021 13:01:32 +0000 (GMT)
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     linux-mm <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        linux-sparc <sparclinux@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/1] mm/debug_vm_pgtable: fix alignment for pmd/pud_advanced_tests()
-Date:   Tue, 25 May 2021 15:00:43 +0200
-Message-Id: <20210525130043.186290-2-gerald.schaefer@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210525130043.186290-1-gerald.schaefer@linux.ibm.com>
-References: <20210525130043.186290-1-gerald.schaefer@linux.ibm.com>
+        by IMSVA (Postfix) with ESMTP id 76996AE045;
+        Tue, 25 May 2021 13:03:40 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.33.143])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Tue, 25 May 2021 13:03:40 +0000 (GMT)
+Date:   Tue, 25 May 2021 15:03:37 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com
+Subject: Re: [PATCH v4 1/2] s390/vfio-ap: fix memory leak in mdev remove
+ callback
+Message-ID: <20210525150337.021aabd8.pasic@linux.ibm.com>
+In-Reply-To: <20210521193648.940864-2-akrowiak@linux.ibm.com>
+References: <20210521193648.940864-1-akrowiak@linux.ibm.com>
+        <20210521193648.940864-2-akrowiak@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vrHywXj5uRP7xuHWWp7JNYeHqoBJuFrN
-X-Proofpoint-ORIG-GUID: vrHywXj5uRP7xuHWWp7JNYeHqoBJuFrN
+X-Proofpoint-GUID: ayilL24a_T5e9lLRfW6oebhybfsTkuj6
+X-Proofpoint-ORIG-GUID: Jvuzbuj2Sx4nOdw6LW5EnpgKIHIkDBQx
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-05-25_06:2021-05-25,2021-05-25 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 bulkscore=0
- impostorscore=0 mlxscore=0 malwarescore=0 suspectscore=0 mlxlogscore=999
- spamscore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105250077
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ spamscore=0 impostorscore=0 clxscore=1015 phishscore=0 mlxlogscore=999
+ adultscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105250081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In pmd/pud_advanced_tests(), the vaddr is aligned up to the next pmd/pud
-entry, and so it does not match the given pmdp/pudp and (aligned down) pfn
-any more.
+On Fri, 21 May 2021 15:36:47 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-For s390, this results in memory corruption, because the IDTE instruction
-used e.g. in xxx_get_and_clear() will take the vaddr for some calculations,
-in combination with the given pmdp. It will then end up with a wrong table
-origin, ending on ...ff8, and some of those wrongly set low-order bits will
-also select a wrong pagetable level for the index addition. IDTE could
-therefore invalidate (or 0x20) something outside of the page tables,
-depending on the wrongly picked index, which in turn depends on the random
-vaddr.
+> The mdev remove callback for the vfio_ap device driver bails out with
+> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
+> to prevent the mdev from being removed while in use; however, returning a
+> non-zero rc does not prevent removal. This could result in a memory leak
+> of the resources allocated when the mdev was created. In addition, the
+> KVM guest will still have access to the AP devices assigned to the mdev
+> even though the mdev no longer exists.
+> 
+> To prevent this scenario, cleanup will be done - including unplugging the
+> AP adapters, domains and control domains - regardless of whether the mdev
+> is in use by a KVM guest or not.
+> 
+> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
-As result, we sometimes see "BUG task_struct (Not tainted): Padding
-overwritten" on s390, where one 0x5a padding value got overwritten with
-0x7a.
+AFAIU we all agree that, after patch there is a possibility for an use
+after free error. I'm a little confused by the fact that we want this
+one for stable, but the patch that fixes the use after free as no
+Cc stable (it can't have a proper fixes tag, because this one is not yet
+merged). Actually I'm not a big fan of splitting up patches to the
+extent that when not all patches of the series are applied we get bugous
+behavior (e.g. patch n breaks something that is live at patch n level,
+but it is supposed to be OK, because patch n+m is going to fix it (where
+n,m \in \Z^{+}).
 
-Fix this by aligning down, similar to how the pmd/pud_aligned pfns are
-calculated.
+Do we want to squash these? Is the use after free possible prior to this
+patch? 
 
-Fixes: a5c3b9ffb0f40 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
-Cc: <stable@vger.kernel.org> # v5.9+
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
----
- mm/debug_vm_pgtable.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-index 6ff92c8b0a00..f7b23565a04f 100644
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -193,7 +193,7 @@ static void __init pmd_advanced_tests(struct mm_struct *mm,
- 
- 	pr_debug("Validating PMD advanced\n");
- 	/* Align the address wrt HPAGE_PMD_SIZE */
--	vaddr = (vaddr & HPAGE_PMD_MASK) + HPAGE_PMD_SIZE;
-+	vaddr &= HPAGE_PMD_MASK;
- 
- 	pgtable_trans_huge_deposit(mm, pmdp, pgtable);
- 
-@@ -318,7 +318,7 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
- 
- 	pr_debug("Validating PUD advanced\n");
- 	/* Align the address wrt HPAGE_PUD_SIZE */
--	vaddr = (vaddr & HPAGE_PUD_MASK) + HPAGE_PUD_SIZE;
-+	vaddr &= HPAGE_PUD_MASK;
- 
- 	pud = pfn_pud(pfn, prot);
- 	set_pud_at(mm, vaddr, pudp, pud);
--- 
-2.25.1
-
+Regards,
+Halil
