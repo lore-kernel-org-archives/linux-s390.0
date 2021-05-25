@@ -2,188 +2,259 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 262ABC2B9F8
-	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 16:29:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE89CC47084
+	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 17:38:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EFC366141C
-	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 16:29:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BA7EB61157
+	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 17:38:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232504AbhEYQbA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 May 2021 12:31:00 -0400
-Received: from mail-dm6nam10on2046.outbound.protection.outlook.com ([40.107.93.46]:4768
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231689AbhEYQa7 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 May 2021 12:30:59 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ULc12R95VYJvxTmF+zI+l3oUZXnF1C6+8Zev+PpSprlb1COR2blsfQW0PQmS23Vdtxf6jiRn/ix4IXjewKF+kMSZlLgQ69GL4GVmrEJ70B6ElVCHLfTxg4X0+DSmvnDWhWuXdaCgoULfVWB1RWCYT0PMq09vVOUldzyYbCoGCx1LDizKxvc0BJjISsQScVqwul7J9ABrk/3y+BeLDdL2cHPLCxV/tM2SJpMCave5SxKtP5rJfhpDuIy9JApmUSPGgfwPRFMvGjITXYR2Y0NvvvF6DrGff+Y3+3VbmHkkQkK9sO/i4D3W9S6G3UVLFSdjAvOpbQPpXrVb8y48zipjCw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4ZaHXWY51844qmmlDlq7gQjmaZg5F0r77Ks4Zz8V47g=;
- b=XCfraXt4+TTW9HYF2B0N2+56gJJvLYe4K+IxHt6AVrZpRjd27g0c9Jqo0OC+9B2CJf/kud9AR5Hob+g21PXT9aJGIWihm6zGXz46KEm4LIuBK5c+6uN65ANOWr7MaqAjIKJhhVj1bHpsPNJXAxWEYQArJRUAqZmUcLcNkHYTw1P+JXvz7VF2lcOM227XRbLs2U991iVYoi9noFVhC+zkD6L/Phvd/6lXpccl2O7gnWHOFFX7ItBInissvFYV9T1HxDiP7VSiDlRNp9S7H0WyVjulPXGj2XNifZuXnBCND5xheba4h3bpAAHveGxhZUc8VX2DRnKscpF/JtPwc3tYLQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4ZaHXWY51844qmmlDlq7gQjmaZg5F0r77Ks4Zz8V47g=;
- b=iOwA2bq+YQ/CDbGO2aqnvpabR+1i5AjjAO4qeUlbKXnzw+vw3o8U3lwTztSXSnsC8xcz8EnZ8aULNiQLsEnVlryxVKJ+1thaT96oChMHCT55z3a1ofwYXVJOBPY1hyiwtLoAgq1PB/6JjEH4RO386pFoUvieHRcNe5jKYNhWFfVNrOgtVlqxCX5fhfk4fSpK+YxMVRGC2rtxiYXHzadx95X9oPkBgaroISEDGqu/SseflVJwg1eXStSvfTQC9pi7H6J5D4uid8603+gbus4unUI5I79ocFMpSxl/jy0cuEJ7nA1zNVJIi7W/OMgrEoOkp4o+JipeIn6xm5PqpI4CfA==
-Authentication-Results: linux.ibm.com; dkim=none (message not signed)
- header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL1PR12MB5141.namprd12.prod.outlook.com (2603:10b6:208:309::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.20; Tue, 25 May
- 2021 16:29:28 +0000
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::3d51:a3b9:8611:684e]) by BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::3d51:a3b9:8611:684e%7]) with mapi id 15.20.4173.020; Tue, 25 May 2021
- 16:29:28 +0000
-Date:   Tue, 25 May 2021 13:29:27 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        cohuck@redhat.com, pasic@linux.vnet.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com
-Subject: Re: [PATCH v4 2/2] s390/vfio-ap: control access to PQAP(AQIC)
- interception handler
-Message-ID: <20210525162927.GC1002214@nvidia.com>
-References: <20210521193648.940864-1-akrowiak@linux.ibm.com>
- <20210521193648.940864-3-akrowiak@linux.ibm.com>
- <5d15fdf2-aee8-4e6c-c3e1-f07c76ce5974@linux.ibm.com>
- <e2bed0a6-f5e2-0a69-22b9-1b304cbe1362@linux.ibm.com>
- <20210525131912.GW1002214@nvidia.com>
- <c54ef522-f348-df16-a99f-1e31feb1b0bd@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c54ef522-f348-df16-a99f-1e31feb1b0bd@linux.ibm.com>
-X-Originating-IP: [206.223.160.26]
-X-ClientProxiedBy: CH0PR04CA0083.namprd04.prod.outlook.com
- (2603:10b6:610:74::28) To BL0PR12MB5506.namprd12.prod.outlook.com
- (2603:10b6:208:1cb::22)
+        id S231174AbhEYRje (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 May 2021 13:39:34 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15214 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231338AbhEYRjb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 25 May 2021 13:39:31 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14PHWiwO182948;
+        Tue, 25 May 2021 13:38:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ejoggBpdPTPxH0SzIrgFCji7J5mNRkzx9C9gLy2ObhA=;
+ b=Jsk01LS78TAv2W7HZjoXsrItm5yn7TCRAwXvzt5LxjsDmTp3zii3Y1w6gEU8qSK2Smtm
+ 1Zfmps2ad/8TBnW/51uBe6WNk2ZCngbG74Ar6JEjg6Fg8DHRr/4+O3O9BZpQ3TaYPBz2
+ Kyz3XNkR/VKTmgXF2NNIaQupqjJIEOqT+QtXsoLScKXdV43qM9c3Zy/g+mKj5jAFkLdF
+ OZjSyk4t3alcmEWcAPFi4ibAVltOIg84lH55l6BBjrNcPGTA9s0eRGvWFuHqRBV5kO/F
+ LttsqOZWoC2/Ed8eMThPz86p9Y3SyWR4edObleARK0/IQ6p4FOvzOD+QN5zJVAOWo+oH oQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38s4tmhrq3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 May 2021 13:38:00 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14PHX0Cl183589;
+        Tue, 25 May 2021 13:38:00 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38s4tmhrpg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 May 2021 13:38:00 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14PHbwOl004882;
+        Tue, 25 May 2021 17:37:58 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03fra.de.ibm.com with ESMTP id 38s1ssr2h4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 May 2021 17:37:58 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14PHbt7q27722076
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 May 2021 17:37:56 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DF962A4055;
+        Tue, 25 May 2021 17:37:55 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 91556A404D;
+        Tue, 25 May 2021 17:37:55 +0000 (GMT)
+Received: from ibm-vm (unknown [9.145.7.194])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 25 May 2021 17:37:55 +0000 (GMT)
+Date:   Tue, 25 May 2021 18:44:54 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        thuth@redhat.com, cohuck@redhat.com
+Subject: Re: [kvm-unit-tests RFC 1/2] s390x: Add guest snippet support
+Message-ID: <20210525184454.2d0693ef@ibm-vm>
+In-Reply-To: <20210520094730.55759-2-frankja@linux.ibm.com>
+References: <20210520094730.55759-1-frankja@linux.ibm.com>
+        <20210520094730.55759-2-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (206.223.160.26) by CH0PR04CA0083.namprd04.prod.outlook.com (2603:10b6:610:74::28) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.20 via Frontend Transport; Tue, 25 May 2021 16:29:28 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1llZvr-00ERIi-6a; Tue, 25 May 2021 13:29:27 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 42379ec1-d90f-4d26-0503-08d91f9a4487
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5141:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BL1PR12MB5141F43638E81193C703994FC2259@BL1PR12MB5141.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:7691;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: imshn2pPCmOEprQPv1ScemweDDDq6B8+3pPHWLWWaX49Ld2ziKV75gPUSVQD1q/lL8xGnLX3E2Wqw2tlFAW/9utIGcQp5n3aIog/SUb6pYo843jYdDB86jaGFrpG0L+hivBFcQgUtU6Eq7ho9CxMjKvbflGxemJUs8/FEq+jcJqBs75yfcUXxC0kiznJDLxNsYJ9Kbsai6xp65NS4bukCRsTvJykTUUtMtasQ6c5FoXCegs9aIkyOMfaM6sqd8FLgu356050tHa43WtoCEM5v8LNKz0eXbSoksZ8j2ANRJ0oXiozsOBPg1UTotK0G1WmLdr6Tt6sxwCFkY9/xCMwBOAekXWwVcPrvM4O0PgrIlUhibRUS3VTRYePOicVH0OJMl/t4Oyy6ERyEjsbiQCimZxjHdZPhjhQ1peIwlBknbVLPQSAO0ruFHMXAp+vWFHStLAdRjEdTDQx3dyDCtbW+u6u/mWDqCKWz9ZSmc65AQ8uIKig1GTh7g3KWuxMixR/fhdm9XPFPI6bU+5gE//dk7Zilyxr3LkQS+EFA9WwMmwxrTgtbUjiGJj44KtBKXtep1aIRVzX4cN42yXhU4JIjIfzVWDH92tAo/qYUQOs9sM=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39850400004)(376002)(396003)(346002)(366004)(136003)(2906002)(86362001)(83380400001)(1076003)(38100700002)(5660300002)(33656002)(4326008)(316002)(36756003)(8676002)(426003)(66946007)(7416002)(9746002)(9786002)(26005)(66556008)(478600001)(186003)(66476007)(6916009)(2616005)(8936002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?Gm/G8E2nDSdKgWFpXJdzG8fXdbT74CsJ9eHDbwgu+JUbnhq4LhLjlXd7F69D?=
- =?us-ascii?Q?E/ZnV6YZz7wPdzKjyZHMIOP1ApYMznI63tTeM4lrEi648QNQ6g05ufJGxsUQ?=
- =?us-ascii?Q?MZjG+zM6Cf7RTjjdKchPQ5h7RCc6vUurBJnXNxh5sINQEwrDpmmU6q/aRrO/?=
- =?us-ascii?Q?iv4oz96J17In9S9uJT3hJmelGExmxebFy2P+LFxErSts+W42u4aK0/ugAczG?=
- =?us-ascii?Q?GPNMSkPUmfegNxrK16eEoqnweh+rIWzsL+nKWYj1WS+QcmLbu1NDk8ADnh+u?=
- =?us-ascii?Q?YMuG47C3rBH5Eisp9EyvotRnF/oEbkHSWD4h+wnCaqytf8p2rz6SIdmN316e?=
- =?us-ascii?Q?beu36Ojnm/gaG4ChJC9BG3m3AkPXzNVtlT0ZC6UMbrwsti9z2MHXdtRnPuyQ?=
- =?us-ascii?Q?mCETmleggREAQqJ6HA8DbvzzvuxiVkcR5nfl45zlFCI6XYhX+xhacGQ59TFy?=
- =?us-ascii?Q?CPq3YlLPhpp7vSRvIHXF6P55aIVS7IyYfn3hGn8dhXGq2ZOiru2ZfbZvuLPz?=
- =?us-ascii?Q?gU0SQUdX4QICtwJcsndfPhhphmYxESCU9D3V5s9efPIzdzR9VkG9ZlMdP8j2?=
- =?us-ascii?Q?ME7y0d3Ka9JHkUQZIazOgjEA4cRxl5AksrypTY9yDKSMeO1JzOh0mLoNwcpS?=
- =?us-ascii?Q?q+lxT7itcURElGAZufh8wyYjP7u0uX/80TzbUe9pbToAQw/L/ac4uOaQLf+k?=
- =?us-ascii?Q?N6LStBVjcYYlr5SnbR6+VUlCuty4mVkabPuY65YhGh42BJuduOJOJBbF1pXk?=
- =?us-ascii?Q?OdRdr3n8/gnLJb3PNJhGIxeWWEWOaw3jXaADBCuLNf1WU5coavtWm5BPmiG5?=
- =?us-ascii?Q?LdiBNTu9jMlQKMFN3yU8+EgFKQgmULaYf+CsWHoBCjAMHHXw8RVzb3sxf/v6?=
- =?us-ascii?Q?hYKxqtsL0SDI4eNIkypPmX+P1tMOSb8bl1yY1K7tweoaN0doS2U3u0JreuhM?=
- =?us-ascii?Q?cgmpr3mNWnYBG6XuBpbRy4qpErGAEgS7inLJeQJTNWCYa8PD8Qd7zECdVdd8?=
- =?us-ascii?Q?AoDCGiek3omBTC6CmE/RPP7PAE57twAHLMeFng0QrZqU2CPalWpwOmoQ1Tkp?=
- =?us-ascii?Q?rKQc4ouR4EbdJGDBu0u0alkokZwYM7gLayAi51smCRUcJwDcm2gYSnPiHYml?=
- =?us-ascii?Q?FMfdr8dw9srxkPWVusnA4Cx5pxLpyRDGivFdIfKCQbtldvUIk36ScM2QUUCc?=
- =?us-ascii?Q?80U/UvGIpB5DP2r5Z/fkGgayH6ggD55gAzoJbvER03tTrM6hFfZxNhMZRIR5?=
- =?us-ascii?Q?gCzS0hU2nML69BPqav97L9NHZK1zGbzTmBSaxgH4eskJG/BNdJnD9AzSWMLf?=
- =?us-ascii?Q?IPRieUKYfkrst6d74h9lfd8R?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 42379ec1-d90f-4d26-0503-08d91f9a4487
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 May 2021 16:29:28.6472
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: LZ3MdFtVwW0L0Nk1t8GqpqpjyI0zJjeZge8XDWG4ynA1NJ8Dzt/LNml4vPPPogJM
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5141
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: U2rInXmXfEpsqL5RJbAgbtWWyaOtXJSc
+X-Proofpoint-GUID: 0K7aOhS0W7QiATUl5pO21ojuhZZHsUx8
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-25_08:2021-05-25,2021-05-25 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ phishscore=0 clxscore=1015 spamscore=0 malwarescore=0 adultscore=0
+ impostorscore=0 priorityscore=1501 suspectscore=0 mlxlogscore=999
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105250108
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 25, 2021 at 11:56:50AM -0400, Tony Krowiak wrote:
+On Thu, 20 May 2021 09:47:29 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-> The vfio_ap_mdev_unset_kvm() function, however, is called both by
-> the group notifier when the KVM pointer has been cleared or when the
-> mdev is being removed. In both cases, the only way to get the KVM
-> pointer - which is needed to unplug the AP resources from the guest
-> - is from the matrix_mdev which contains it.
+> Snippets can be used to easily write and run guest (SIE) tests.
+> The snippet is linked into the test binaries and can therefore be
+> accessed via a ptr.
+>=20
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  .gitignore                |  2 ++
+>  s390x/Makefile            | 28 ++++++++++++++++++---
+>  s390x/snippets/c/cstart.S | 13 ++++++++++
+>  s390x/snippets/c/flat.lds | 51
+> +++++++++++++++++++++++++++++++++++++++ 4 files changed, 91
+> insertions(+), 3 deletions(-) create mode 100644
+> s390x/snippets/c/cstart.S create mode 100644 s390x/snippets/c/flat.lds
+>=20
+> diff --git a/.gitignore b/.gitignore
+> index 784cb2dd..29d3635b 100644
+> --- a/.gitignore
+> +++ b/.gitignore
+> @@ -22,3 +22,5 @@ cscope.*
+>  /api/dirty-log
+>  /api/dirty-log-perf
+>  /s390x/*.bin
+> +/s390x/snippets/*/*.bin
+> +/s390x/snippets/*/*.gbin
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index 8de926ab..fe267011 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -75,11 +75,33 @@ OBJDIRS +=3D lib/s390x
+>  asmlib =3D $(TEST_DIR)/cstart64.o $(TEST_DIR)/cpu.o
+> =20
+>  FLATLIBS =3D $(libcflat)
+> -%.elf: %.o $(FLATLIBS) $(SRCDIR)/s390x/flat.lds $(asmlib)
+> +
+> +SNIPPET_DIR =3D $(TEST_DIR)/snippets
+> +
+> +# C snippets that need to be linked
+> +snippets-c =3D
+> +
+> +# ASM snippets that are directly compiled and converted to a *.gbin
+> +snippets-a =3D
+> +
+> +snippets =3D $(snippets-a)$(snippets-c)
+                          =E2=86=91=E2=86=91
+I'm not a Makefile expert, but, don't you need a space between the two
+variable expansions?
 
-Okay, but that isn't a problem, the matrix dev holds a ref on the kvm
-pointer so we can just copy it outside the lock after we prevent it
-from changing by unregistering the notifier:
+> +snippets-o +=3D $(patsubst %.gbin,%.o,$(snippets))
+> +
+> +$(snippets-a): $(snippets-o) $(FLATLIBS)
+> +	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
+> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
+> +
+> +$(snippets-c): $(snippets-o) $(SNIPPET_DIR)/c/cstart.o  $(FLATLIBS)
+> +	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/c/flat.lds \
+> +		$(filter %.o, $^) $(FLATLIBS)
+> +	$(OBJCOPY) -O binary $@ $@
+> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
+> +
+> +%.elf: $(snippets) %.o $(FLATLIBS) $(SRCDIR)/s390x/flat.lds $(asmlib)
 
-@@ -1362,14 +1365,19 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- {
-        struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--       mutex_lock(&matrix_dev->lock);
--       vfio_ap_mdev_unset_kvm(matrix_mdev);
--       mutex_unlock(&matrix_dev->lock);
--
-        vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-                                 &matrix_mdev->iommu_notifier);
-        vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
-                                 &matrix_mdev->group_notifier);
-+
-+       mutex_lock(&matrix_dev->lock);
-+       /* matrix_dev->kvm cannot be changed now since we removed the notifiers */
-+       kvm = matrix_mdev->kvm;
-+       matrix_mdev->kvm = NULL;
-+       mutex_unlock(&matrix_dev->lock);
-+
-+       vfio_ap_mdev_unset_kvm(matrix_mdev, kvm);
-+
-        module_put(THIS_MODULE);
+I would keep the %.o as the first in the list
 
-Note the above misordering is an existing bug too
+>  	$(CC) $(CFLAGS) -c -o $(@:.elf=3D.aux.o) \
+>  		$(SRCDIR)/lib/auxinfo.c -DPROGNAME=3D\"$@\"
+>  	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/flat.lds \
+> -		$(filter %.o, $^) $(FLATLIBS) $(@:.elf=3D.aux.o)
+> +		$(filter %.o, $^) $(FLATLIBS) $(snippets)
 
-And reoganize unset_kvm so it uses internal locking and gets the kvm
-from the argument.
+so all the snippets are always baked in every test?
 
-Also the kvm_busy should be replaced by a proper rwsem, don't try to
-open code locks like that - it just defeats lockdep analysis.
+> $(@:.elf=3D.aux.o) $(RM) $(@:.elf=3D.aux.o)
+>  	@chmod a-x $@
+> =20
+> @@ -93,7 +115,7 @@ FLATLIBS =3D $(libcflat)
+>  	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT)
+> --no-verify --image $< -o $@=20
+>  arch_clean: asm_offsets_clean
+> -	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(TEST_DIR)/.*.d
+> lib/s390x/.*.d
+> +	$(RM) $(TEST_DIR)/*.{o,elf,bin}
+> $(SNIPPET_DIR)/c/*.{o,elf,bin,gbin} $(SNIPPET_DIR)/.*.d
+> $(TEST_DIR)/.*.d lib/s390x/.*.d generated-files =3D $(asm-offsets)
+>  $(tests:.elf=3D.o) $(asmlib) $(cflatobjs): $(generated-files)
+> diff --git a/s390x/snippets/c/cstart.S b/s390x/snippets/c/cstart.S
+> new file mode 100644
+> index 00000000..02a3338b
+> --- /dev/null
+> +++ b/s390x/snippets/c/cstart.S
+> @@ -0,0 +1,13 @@
+> +#include <asm/sigp.h>
+> +
+> +.section .init
+> +	.globl start
+> +start:
+> +	/* XOR all registers with themselves to clear them fully. */
+> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+> +	xgr \i,\i
+> +	.endr
+> +	/* 0x3000 is the stack page for now */
+> +	lghi	%r15, 0x4000
+> +	brasl	%r14, main
+> +	sigp    %r1, %r0, SIGP_STOP
+> diff --git a/s390x/snippets/c/flat.lds b/s390x/snippets/c/flat.lds
+> new file mode 100644
+> index 00000000..5e707325
+> --- /dev/null
+> +++ b/s390x/snippets/c/flat.lds
+> @@ -0,0 +1,51 @@
+> +SECTIONS
+> +{
+> +	.lowcore : {
+> +		/*
+> +		 * Initial short psw for disk boot, with 31 bit
+> addressing for
+> +		 * non z/Arch environment compatibility and the
+> instruction
+> +		 * address 0x10000 (cstart64.S .init).
+> +		 */
+> +		. =3D 0;
+> +		 LONG(0x00080000)
+> +		 LONG(0x80004000)
+> +		 /* Restart new PSW for booting via PSW restart. */
+> +		 . =3D 0x1a0;
+> +		 QUAD(0x0000000180000000)
+> +		 QUAD(0x0000000000004000)
+> +	}
+> +	. =3D 0x4000;
+> +	.text : {
+> +		*(.init)
+> +		*(.text)
+> +		*(.text.*)
+> +	}
+> +	. =3D ALIGN(64K);
+> +	etext =3D .;
+> +	.opd : { *(.opd) }
+> +	. =3D ALIGN(16);
+> +	.dynamic : {
+> +		dynamic_start =3D .;
+> +		*(.dynamic)
+> +	}
+> +	.dynsym : {
+> +		dynsym_start =3D .;
+> +		*(.dynsym)
+> +	}
+> +	.rela.dyn : { *(.rela*) }
+> +	. =3D ALIGN(16);
+> +	.data : {
+> +		*(.data)
+> +		*(.data.rel*)
+> +	}
+> +	. =3D ALIGN(16);
+> +	.rodata : { *(.rodata) *(.rodata.*) }
+> +	. =3D ALIGN(16);
+> +	__bss_start =3D .;
+> +	.bss : { *(.bss) }
+> +	__bss_end =3D .;
+> +	. =3D ALIGN(64K);
+> +	edata =3D .;
+> +	. +=3D 64K;
+> +	. =3D ALIGN(64K);
+> +}
 
-Finally, since the only way the ->kvm can be become non-NULL is if the
-notifier is registered, release above removes the notifier, and remove
-can't be called unless release has been completed, it looks to me like
-this the remove check is just dead code, delete it, or leave it as a
-WARN_ON:
-
-@@ -366,16 +366,6 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
-        struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-
-        mutex_lock(&matrix_dev->lock);
--
--       /*
--        * If the KVM pointer is in flux or the guest is running, disallow
--        * un-assignment of control domain.
--        */
--       if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
--               mutex_unlock(&matrix_dev->lock);
--               return -EBUSY;
--       }
-
-Jason
