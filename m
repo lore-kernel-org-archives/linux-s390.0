@@ -2,144 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60849C2B9F8
-	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 13:26:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACE6AC2B9F8
+	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 13:27:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 42C5E61420
-	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 13:26:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7F80A6141B
+	for <linux-s390@archiver.kernel.org>; Tue, 25 May 2021 13:27:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233364AbhEYN1f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 May 2021 09:27:35 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62186 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S233369AbhEYN0e (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 May 2021 09:26:34 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14PD3k5k103406;
-        Tue, 25 May 2021 09:25:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=reply-to : subject :
- from : to : cc : references : message-id : date : mime-version :
- in-reply-to : content-type : content-transfer-encoding; s=pp1;
- bh=Z/f4fUIjz0PIIVzSsMU8XWaPBNMkBh5Im2Zs7tFsMa4=;
- b=aDNHgaQgBUzZNwHAXaUF4rQowyn6W7578U6sfbWRIQ/IAxG+mThSjFiJLSimOvPByNDQ
- O2RZFYrUwSYlnffZ5sPdNfNDvOB1FGKiM1U8xSZMQJsvsu7is/32x1k6judFd1JMJLiw
- lEWkzmO/DPIHIPdaguTnn2NYWhG65w31E8BzHk2tT7YgNWUORHFV1OYp7NRQt4/N2CDx
- s0fBvNr2idx+BC89/G1jZtlTea9Yvu2czzzRhdnwwXOdpJDzuL3m8AjK96bBWCCfemKT
- A9fzlJTk1xqd9mB7eL97SOMcPwh81JCQtCjcTsnT0nO06K/sypEg8txAEVLC5652khh7 Ng== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38s1adsvwt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 May 2021 09:25:03 -0400
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14PD6fpP124940;
-        Tue, 25 May 2021 09:25:03 -0400
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38s1adsvwh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 May 2021 09:25:03 -0400
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14PDDfAa025159;
-        Tue, 25 May 2021 13:25:02 GMT
-Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
-        by ppma02wdc.us.ibm.com with ESMTP id 38s1n3g7te-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 May 2021 13:25:02 +0000
-Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
-        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14PDP1jg11928034
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 May 2021 13:25:01 GMT
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 166BB78060;
-        Tue, 25 May 2021 13:25:01 +0000 (GMT)
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D8C217805F;
-        Tue, 25 May 2021 13:24:59 +0000 (GMT)
-Received: from [9.85.129.37] (unknown [9.85.129.37])
-        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 25 May 2021 13:24:59 +0000 (GMT)
-Reply-To: jjherne@linux.ibm.com
-Subject: Re: [PATCH v4 2/2] s390/vfio-ap: control access to PQAP(AQIC)
- interception handler
-From:   "Jason J. Herne" <jjherne@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jgg@nvidia.com,
+        id S233387AbhEYN3Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 May 2021 09:29:16 -0400
+Received: from mail-dm6nam10on2044.outbound.protection.outlook.com ([40.107.93.44]:39232
+        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S233409AbhEYN2H (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 25 May 2021 09:28:07 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=XdeVVfxUWncXh5Vzrk0iRDgBApyUs8nUsY/Y97uf8OKHlzczNqDNRc3TgfZVTco5zZ15XT+qBoCJYX0FH8h5GhoPrgvw9ttrxnU43UUuMNYgHsxPOK34jR6ZoFtIaeDuv6/pf/wq70O38P1WiM069LNQfQmNFpUhrEpE9dCHh/c4NQUer6IuC0xpcNqNB39nPkmPT920FlK/+1fQAGQbyPxDRbje4LharYmCA/Lrq1EkKKBhuJYBnnT7MNocKlopoIwd2Lwdzi/BngFXsPSMnKqlMLtA0eeS6E2pMO939j6/oZ15v9YF6/NySmm+6YS2wuUusZzedSDodDZPHTj7nA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Estf+jZ+jFoqd7CO1bC52rr2DkRvXMp9Wl/YF9W6M4M=;
+ b=TXqreeKmZfUhKKOjqP9AcGZJWOcavOexhcYfe/F2dSCcyDv8mputd0fujQkZWhyqGoi8Jd4RlOdLv7ff7ljtcY7CslNpzW3gnjezYHLmr3q+31zS711BH11oQO6rSPgakhAK2WHChhRAmid0A8oaAc5cgH5GhfEz6u9K3in/nyeVUnCiju2izPAaCfjBbeA6x3XSfOrLr4RnBqYiNcHUDdtO0Ip3ZUyBP5RRPGfzg0FEEYuTRiso4qascXOMPuHiHxnxXCrB3ujnupemNjbhqgcDvfSOtUs8hwLhBmsP5YXiVxhmh23gbtFL4iQnM782dSca5BEje+smvIVpOaT42Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Estf+jZ+jFoqd7CO1bC52rr2DkRvXMp9Wl/YF9W6M4M=;
+ b=acGD/tOmifDy7km6U3OXm8ypWkpZjGjvPAI1j4u6ciLj1H1QVNtH2zBum1AEER+5RrlM9wO6YBraXza8U5CvM/8/M2tmf0ew039Mdo0wWbn43OD93jzc33fUBaGJsudZEc8YN9a5dFTm4SK2NZovCjnqtqargCbSYYqkC2WFrzuxc4Pi/OL8ZYSIuM3IMEVRs3H54LlsSBNrPII1mzgL23Klr7xyDlcZFzMOit518VYmyCuyg/h7kP2W97UL3Xrber4y4lGo3GznYsZTkPCFtVNkcz9YBWpTujAHpvUvMAZsTQistyY0+VP5gwoNMmEim+UXMUGQV3bzVKIn9kPQ5g==
+Authentication-Results: linux.ibm.com; dkim=none (message not signed)
+ header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL1PR12MB5191.namprd12.prod.outlook.com (2603:10b6:208:318::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.26; Tue, 25 May
+ 2021 13:26:30 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::3d51:a3b9:8611:684e]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::3d51:a3b9:8611:684e%7]) with mapi id 15.20.4173.020; Tue, 25 May 2021
+ 13:26:30 +0000
+Date:   Tue, 25 May 2021 10:26:28 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     "Jason J. Herne" <jjherne@linux.ibm.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com,
         alex.williamson@redhat.com, kwankhede@nvidia.com,
         frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
         hca@linux.ibm.com
+Subject: Re: [PATCH v4 2/2] s390/vfio-ap: control access to PQAP(AQIC)
+ interception handler
+Message-ID: <20210525132628.GX1002214@nvidia.com>
 References: <20210521193648.940864-1-akrowiak@linux.ibm.com>
  <20210521193648.940864-3-akrowiak@linux.ibm.com>
  <5d15fdf2-aee8-4e6c-c3e1-f07c76ce5974@linux.ibm.com>
-Organization: IBM
-Message-ID: <20df4cd0-7859-4727-42bd-9ef419455039@linux.ibm.com>
-Date:   Tue, 25 May 2021 09:24:59 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.0
+ <20df4cd0-7859-4727-42bd-9ef419455039@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20df4cd0-7859-4727-42bd-9ef419455039@linux.ibm.com>
+X-Originating-IP: [206.223.160.26]
+X-ClientProxiedBy: CH2PR11CA0004.namprd11.prod.outlook.com
+ (2603:10b6:610:54::14) To BL0PR12MB5506.namprd12.prod.outlook.com
+ (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
-In-Reply-To: <5d15fdf2-aee8-4e6c-c3e1-f07c76ce5974@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: jGAtmfNck1hlLQSIgAFph7VO04yMQZ0S
-X-Proofpoint-GUID: KXlv49PJCyVIRvKk7lCVdDgIzcV7VaFw
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-25_06:2021-05-25,2021-05-25 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- bulkscore=0 mlxlogscore=999 malwarescore=0 adultscore=0 lowpriorityscore=0
- phishscore=0 suspectscore=0 mlxscore=0 spamscore=0 impostorscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105250081
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (206.223.160.26) by CH2PR11CA0004.namprd11.prod.outlook.com (2603:10b6:610:54::14) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.20 via Frontend Transport; Tue, 25 May 2021 13:26:30 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1llX4m-00ED4n-VV; Tue, 25 May 2021 10:26:28 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 07df59e2-2bfe-4210-e629-08d91f80b4f5
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5191:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BL1PR12MB51911CA3BDCE94EFD0C45F9EC2259@BL1PR12MB5191.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:4502;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: +DWVxV0vn7b++cr0uB/tYywt5zEver72T6vGcIsUkguecD3vajvrQNjFBCyZXHz+A/cScIz4aXBEGV8nyetpYeHwDphu1C7anl7BCsVCi04eGA2jBhIrz3wGJwQaegIv9pJ+SJm5h63XN2QbzNXSCYMIgjdmomGmyJlNcW+rClis5WnIfZSHo+pt9npNC/w54XtmKRXPocxc5XAxRf2afuiV32L3iJWeS5DXr4qiKDYva2ykvTqMbJ1Jk6JIcdubo5R5NPo6PYD5AJ2j70ZDTO+H6uwsc8IqwJqfjAXB28vvsolYaEEbvl5UkZCfZSNhKIArBT6V0EfISVwVpPeuHX6FsMAlWx2iJwQ8eGuBbOEaNSZGhwpj1C6NkU5QUXEdSdftFKHUfgIRxsEnRUAOXaME8hw2l6UJdAi6K1rEAfODTqjfvVfSyTTvNCeZ9KXopp5kL1itkNlhUV1gW5m/UXTBHfL/TWF2NVhipLVKu8ebVjvgfxDE21Tr0Egy5FQKNiyb2SDFqu/u02lULY5TKsSpGWREyd6W3nuKnbln7chEWrAHtenNpYEpAvpYpvJOgquZ2qnL2A+LHkaKDHARWd/T+QyaIyBLvutebKluYPw=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(136003)(346002)(396003)(366004)(376002)(1076003)(7416002)(66946007)(316002)(36756003)(2906002)(26005)(5660300002)(186003)(83380400001)(2616005)(8936002)(86362001)(558084003)(6916009)(66476007)(426003)(9746002)(9786002)(66556008)(478600001)(33656002)(4326008)(8676002)(38100700002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?D9RB51QHtuxUAqCvu7RF3r2cJQiDX9E1hp8Nu19GtRj9nqbK9C6PWeYPWWbY?=
+ =?us-ascii?Q?puHKEcTxUp1RbyJXMJxYgfm7PQT0VHZyA254qF/P0u/fJXyMRfJUjzYvxnPf?=
+ =?us-ascii?Q?OxM+AwvfPyPkbfyGmLTfIKStAQ3Ae9bjvmioj95cXp/aGx6e31aRW7Y65v8w?=
+ =?us-ascii?Q?ThKmYXNszSRrEcr4InooQob+SuerJOLtWEBNqC+LSKQu1peiITQA2vklpYln?=
+ =?us-ascii?Q?b5FCN7S/PtyxGKk9tpgKUFVRptWLuPxSPvqpdVpJz6KQCv6KwZS5LmB/WzXU?=
+ =?us-ascii?Q?eYY6gTTIfHsLdo4SZrpWyXnuPKTHvMEiv5iH5eAqQ83GTqpgigMcAUVtNDXr?=
+ =?us-ascii?Q?r9HiiQwkFvQtvVpX732zmYTCCRlFO9tqX7o9K/35ir2w7UcW8wZM2mY8VWv5?=
+ =?us-ascii?Q?FDDDlPfPqgpcC0sU+cAa3d+ZNIyxw1J+kvloR3yim6io7mSj1wZnoQbqMDks?=
+ =?us-ascii?Q?2dG/bzKHbqX/HXwDcB5UovK+CfAgTkejE8cCXIpl9ISWqZj0cybN+jAfE6nq?=
+ =?us-ascii?Q?tWDKJTumtCWDHC6zooHQscA+jQuT1z/l+w073DxAph24uRujwF9PLuKhVgjE?=
+ =?us-ascii?Q?MoF3tNvONCO+Z2ayvU8C83QzbuUTxiNdl1hNSYyXMNgPEM8+w9NNQKS2A75p?=
+ =?us-ascii?Q?Gpzf+tGBTwfA9Tw7lDBFNN4b+TGOy52krScDWUlDh+AVZ0VQUR7RmK9/S5u+?=
+ =?us-ascii?Q?DZ86zhUbQAoU9a3kS9+OvxqIkVEmlUgAaQWuuXoRpfFLzuRsAv5JEI/mUjtz?=
+ =?us-ascii?Q?TZlilALG/YKwTBEJUFuNEX8z05/HRSCEyiLre0RvmtCd14jVTjx0jwmjzuxN?=
+ =?us-ascii?Q?TkVX0+wiLy9knu1gVsA9+JLibBnp05w3lkQTTwOQLgUUoGVBn200yYy4K4dj?=
+ =?us-ascii?Q?YNvR4OA+QlnQcSc9z6BqSgMVTFRLT1RKB/1At4qVLZ+xARAPVEL5ih3Arg2S?=
+ =?us-ascii?Q?v8KHLKHf6e8/4RUOBI1/5WQ3o6rseUsl51tdHQbYEVumc5Jb7768RIhltJdO?=
+ =?us-ascii?Q?aOQoVRmaoZTDhgRA+wzwjO0RpWNQnb5HcokUXudizvj4ZnTbXt9xL+FeV3k/?=
+ =?us-ascii?Q?RwMtxPmG4hExQpGrqoAfEpMiXBoTkxcIWFgpB22cz03OjwY7lFBGD3X6+Cc7?=
+ =?us-ascii?Q?dsGkSY2PHLD6aJb9Q1lI1LmEoINkVQejrzFp9+fdQZllG4l4PtkBjYk/XjuF?=
+ =?us-ascii?Q?JwBC7/rBdbCTdR4XWGJ5pFgSuvwN0xyj7ey64jPtG39MH8sOOb9DiwCFHXLY?=
+ =?us-ascii?Q?2m1AlsOMN1b+om4WtxNU4fy2Lft0yTnBQeZNMKM8iD0i9BR/6DwbDiTPHisT?=
+ =?us-ascii?Q?mjK/Fn6/3EK9wZ235R91M3K1?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 07df59e2-2bfe-4210-e629-08d91f80b4f5
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 May 2021 13:26:30.2631
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: WZqEAXG4xT+4CsOj15P0bi+uxPFPIp91Hcb+eCiXUEteLy1s1r1yUCc/lWs81/e+
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5191
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/24/21 10:37 AM, Jason J. Herne wrote:
-> On 5/21/21 3:36 PM, Tony Krowiak wrote:
->> The function pointer to the handler that processes interception of the
->> PQAP instruction is contained in the mdev. If the mdev is removed and
->> its storage de-allocated during the processing of the PQAP instruction,
->> the function pointer could get wiped out before the function is called
->> because there is currently nothing that controls access to it.
->>
->> This patch introduces two new functions:
->> * The kvm_arch_crypto_register_hook() function registers a function pointer
->>    for processing intercepted crypto instructions.
->> * The kvm_arch_crypto_register_hook() function un-registers a function
->>    pointer that was previously registered.
-> 
-> Typo: You meant kvm_arch_crypto_UNregister_hook() in the second bullet.
-> 
-> 
-> Just one overall observation on this one. The whole hook system seems kind of 
-> over-engineered if this is our only use for it. It looks like a kvm_s390_crypto_hook is 
-> meant to link a specific module with a function pointer. Do we really need this concept?
-> 
-> I think a simpler design could be to just place a mutex and a function pointer in the 
-> kvm_s390_crypto struct. Then you can grab the mutex in vfio_ap_ops.c when 
-> registering/unregistering. You would also grab the mutex in priv.c when calling the 
-> function pointer. What I am suggesting is essentially the exact same scheme you have 
-> implemented here, but simpler and with less infrastructure.
-> 
-> With that said, I'll point out that I am relative new to this code (and this patch series) 
-> so maybe I've missed something and the extra complexity is needed for some reason. But if 
-> it is not, I'm all in favor of keeping things simple.
-> 
+On Tue, May 25, 2021 at 09:24:59AM -0400, Jason J. Herne wrote:
+> change the function pointer to point to vfio_ap_ops:handle_pqap(). When we
+> unload the module we change the function pointer back to the stub.  The
+> updates should be atomic operations so no lock needed, right?
 
-After thinking about this problem a bit more, I'm wondering if we can remove the lock 
-entirely. How about we store a function pointer in kvm_s390_crypto? Initially that 
-function pointer will point to a stub function that handles the error case, exactly like 
-it is done in priv.c:handle_pqap() today when the function pointer would be NULL. When the 
-ap module loads, we can simply change the function pointer to point to 
-vfio_ap_ops:handle_pqap(). When we unload the module we change the function pointer back 
-to the stub.  The updates should be atomic operations so no lock needed, right?
+No
 
--- 
--- Jason J. Herne (jjherne@linux.ibm.com)
+Jason
