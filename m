@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20DA4C47087
-	for <linux-s390@archiver.kernel.org>; Wed, 26 May 2021 01:06:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02677C4707F
+	for <linux-s390@archiver.kernel.org>; Wed, 26 May 2021 01:59:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E765B6102A
-	for <linux-s390@archiver.kernel.org>; Wed, 26 May 2021 01:06:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BDC9661413
+	for <linux-s390@archiver.kernel.org>; Wed, 26 May 2021 01:59:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232778AbhEZBIX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 May 2021 21:08:23 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:33406 "EHLO
+        id S231157AbhEZCBX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 May 2021 22:01:23 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38764 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232748AbhEZBIX (ORCPT
+        by vger.kernel.org with ESMTP id S230289AbhEZCBX (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 May 2021 21:08:23 -0400
+        Tue, 25 May 2021 22:01:23 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1621991212;
+        s=mimecast20190719; t=1621994391;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=jBcfq2p0pN9Qz0LbsD4Z/VukVJFc1SF/tvTiN/nRRh0=;
-        b=R6Vx2DOkGxuZCOg2qoOYpFtnACyGobjyXotbIdghGLItxaVZRNw/RyB9xihaInCs9E8/ed
-        CdDNr3/FU/3qIm2hvNCKeUjds4S3ZcnloyZkLGuEmzkzXW4wn/Bp2/Dg8UXs2C9x0RxLwT
-        bShjsyrnTiOKHYbGuxRqs6DFet/Aszc=
+        bh=d8inRor7KiBDt1dkNXD0/ZVF1N3dnEi/uAhgNnvWWBU=;
+        b=RvJxjs+OzObJR0fX2u+l31Xi2GK/FvXQ6xxQi0vbBsLez2kp/pgffGGTKdYerYEtxNz2Xj
+        qccRLoxzhgK8k6UUkcef9OhVc2w0oTnFuNJ2bhkqaaQ63COXmFtmtiuARfTQrsJilPBtYt
+        /m+d9v7yd+RzamRPBMDI+5d7yaeeuyg=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-186-sci2CHxJPliPyOZ_x8kZyw-1; Tue, 25 May 2021 21:06:51 -0400
-X-MC-Unique: sci2CHxJPliPyOZ_x8kZyw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+ us-mta-413-sTHQWim9MSW21Mg9oM89ww-1; Tue, 25 May 2021 21:59:50 -0400
+X-MC-Unique: sTHQWim9MSW21Mg9oM89ww-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A67A4180FD61;
-        Wed, 26 May 2021 01:06:49 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1B751107ACCA;
+        Wed, 26 May 2021 01:59:48 +0000 (UTC)
 Received: from T590 (ovpn-12-85.pek2.redhat.com [10.72.12.85])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8C9EC5C1D5;
-        Wed, 26 May 2021 01:06:40 +0000 (UTC)
-Date:   Wed, 26 May 2021 09:06:34 +0800
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 51A9C60CC6;
+        Wed, 26 May 2021 01:59:34 +0000 (UTC)
+Date:   Wed, 26 May 2021 09:59:29 +0800
 From:   Ming Lei <ming.lei@redhat.com>
 To:     Christoph Hellwig <hch@lst.de>
 Cc:     Jens Axboe <axboe@kernel.dk>, Song Liu <song@kernel.org>,
@@ -53,27 +53,28 @@ Cc:     Jens Axboe <axboe@kernel.dk>, Song Liu <song@kernel.org>,
         Jan Hoeppner <hoeppner@linux.ibm.com>,
         linux-block@vger.kernel.org, linux-raid@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 3/8] block: move bd_mutex to struct gendisk
-Message-ID: <YK2fGuOJlnnoRINk@T590>
+Subject: Re: [PATCH 4/8] block: move adjusting bd_part_count out of
+ __blkdev_get
+Message-ID: <YK2rgY1NXIHVi/Ec@T590>
 References: <20210525061301.2242282-1-hch@lst.de>
- <20210525061301.2242282-4-hch@lst.de>
+ <20210525061301.2242282-5-hch@lst.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210525061301.2242282-4-hch@lst.de>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+In-Reply-To: <20210525061301.2242282-5-hch@lst.de>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 25, 2021 at 08:12:56AM +0200, Christoph Hellwig wrote:
-> Replace the per-block device bd_mutex with a per-gendisk open_mutex,
-> thus simplifying locking wherever we deal with partitions.
+On Tue, May 25, 2021 at 08:12:57AM +0200, Christoph Hellwig wrote:
+> Keep in the callers and thus remove the for_part argument.  This mirrors
+> what is done on the blkdev_get side and slightly simplifies
+> blkdev_get_part as well.
 > 
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
 
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Ming Lei <ming.lei@rehat.com>
 
 -- 
 Ming
