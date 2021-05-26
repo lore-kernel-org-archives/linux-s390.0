@@ -2,78 +2,81 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 870C0C47087
-	for <linux-s390@archiver.kernel.org>; Wed, 26 May 2021 02:25:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFEB7C2B9F7
+	for <linux-s390@archiver.kernel.org>; Wed, 26 May 2021 04:23:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6112D61431
-	for <linux-s390@archiver.kernel.org>; Wed, 26 May 2021 02:25:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8F3FE6113E
+	for <linux-s390@archiver.kernel.org>; Wed, 26 May 2021 04:23:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231978AbhEZC0v (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 May 2021 22:26:51 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:30369 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231657AbhEZC0u (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 May 2021 22:26:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1621995920;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=gvGz5ucJVVhj/URcphTQqW5sA4lW00i31YCpTpSWFvc=;
-        b=hrAvYtpe25f/uFUZyeLABPM6tCkWbVdwfxmj1vDN/i/mCOFvs2dSewghkLgn32BpNbOcnI
-        qg/zleVcF8rnPjwVs5oK+fLuG2NFAwjbVp/m+k3O2CiVJV9PZeZnCSPLoqH2lvyogXyOoo
-        Z3n5HzTdsG0PffY/91OXOUTQ7Tqq9rE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-366-a30F69r_OCa4RJ6kZAjaXw-1; Tue, 25 May 2021 22:25:13 -0400
-X-MC-Unique: a30F69r_OCa4RJ6kZAjaXw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0B36E501E0;
-        Wed, 26 May 2021 02:25:12 +0000 (UTC)
-Received: from T590 (ovpn-12-85.pek2.redhat.com [10.72.12.85])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7F7E61F0CF;
-        Wed, 26 May 2021 02:24:57 +0000 (UTC)
-Date:   Wed, 26 May 2021 10:24:53 +0800
-From:   Ming Lei <ming.lei@redhat.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Jens Axboe <axboe@kernel.dk>, Song Liu <song@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Roger Pau =?iso-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Nitin Gupta <ngupta@vflare.org>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-block@vger.kernel.org, linux-raid@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 8/8] block: remove bdget_disk
-Message-ID: <YK2xdQ1ThLjgseps@T590>
-References: <20210525061301.2242282-1-hch@lst.de>
- <20210525061301.2242282-9-hch@lst.de>
+        id S231497AbhEZEZW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 May 2021 00:25:22 -0400
+Received: from foss.arm.com ([217.140.110.172]:38110 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231136AbhEZEZW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 26 May 2021 00:25:22 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6607A1516;
+        Tue, 25 May 2021 21:23:51 -0700 (PDT)
+Received: from [10.163.81.152] (unknown [10.163.81.152])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4560D3F73D;
+        Tue, 25 May 2021 21:23:49 -0700 (PDT)
+Subject: Re: [PATCH 0/1] mm/debug_vm_pgtable: fix alignment for
+ pmd/pud_advanced_tests()
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-mm <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        linux-sparc <sparclinux@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>
+References: <20210525130043.186290-1-gerald.schaefer@linux.ibm.com>
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <c120e573-0654-fc1c-634b-88a48383666e@arm.com>
+Date:   Wed, 26 May 2021 09:54:32 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210525061301.2242282-9-hch@lst.de>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+In-Reply-To: <20210525130043.186290-1-gerald.schaefer@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 25, 2021 at 08:13:01AM +0200, Christoph Hellwig wrote:
-> Just opencode the xa_load in the callers, as none of them actually
-> needs a reference to the bdev.
+
+
+On 5/25/21 6:30 PM, Gerald Schaefer wrote:
+> We sometimes see a "BUG task_struct (Not tainted): Padding overwritten"
+> on s390, directly after running debug_vm_pgtable. This is because of
+> wrong vaddr alignment in pmd/pud_advanced_tests(), leading to memory
+> corruption at least on s390, see patch description.
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> At first glance, other architectures do not seem to care about vaddr in
+> their xxx_get_and_clear() implementations, so they should not be affected.
 
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
+IIRC, alignment (regardless up or down) is the only requirement on certain
+platforms. Probably it should not affect other platforms as this change
+just aligns the virtual address down.
 
--- 
-Ming
+> One exception is sparc, where the addr is passed over to some tlb_batch
+> code, but I'm not sure what implication the wrongly aligned vaddr would
+> have in this case.
+> 
+> Also adding linux-arch, just to make sure.
 
+Right. Not sure if this test gets to run on sparc platform for not being
+currently supported. But we could take a look if there are any reported
+problems because of vaddr.
+
+> 
+> Gerald Schaefer (1):
+>   mm/debug_vm_pgtable: fix alignment for pmd/pud_advanced_tests()
+> 
+>  mm/debug_vm_pgtable.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
