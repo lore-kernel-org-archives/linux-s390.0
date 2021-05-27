@@ -2,201 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A817AC47082
-	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 02:28:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4C03C47089
+	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 06:33:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8A60D61073
-	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 02:28:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 84C36613C5
+	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 06:33:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233505AbhE0CaJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 May 2021 22:30:09 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39996 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231470AbhE0CaI (ORCPT
+        id S231470AbhE0Gez (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 May 2021 02:34:55 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:41862 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229868AbhE0Gey (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 26 May 2021 22:30:08 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14R23rJL102151;
-        Wed, 26 May 2021 22:28:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=y7bzL7BMsT3qu2VF6L1QOQTMiE9/AntLENcNdN3Sd6Q=;
- b=D7oixYWo2yB6vDKVtB/B/Dc8uE6zrR84s6RFZHwZBlw95q2y2w3RoVVKYaP5trsnqIPi
- tvzbkkLNKU0CElkvylugbmRwVkVDYkRljW8gj+ul4t8bF4lbXIOM1AkKYBvdaBBJpbO2
- +iDi/B430QgSMJyn9wYxgEv4JHl2PIQTz/807Eh/9nQH8K0GfBSElmnStBHGNPQANzST
- feHQ7vYFIsvjP4FIcZ2RNtaM1cq9sOQPx5LG2TPoKUoxvwQcO69eml6SrmtuzqcgqzGB
- pJg8l9sJENvH+BYRHoFjyk9CAfy5eJE/c3X3Hh/3o3sVd6zzVAy/7KWd6NqRkqSVOC6p gQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38t0r6jagh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 May 2021 22:28:34 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14R24rCB105436;
-        Wed, 26 May 2021 22:28:33 -0400
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38t0r6jag4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 May 2021 22:28:33 -0400
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14R2I2uI026825;
-        Thu, 27 May 2021 02:28:32 GMT
-Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
-        by ppma01wdc.us.ibm.com with ESMTP id 38s1q6w8tw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 May 2021 02:28:32 +0000
-Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14R2SUKZ24117646
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 27 May 2021 02:28:31 GMT
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E1E2713604F;
-        Thu, 27 May 2021 02:28:30 +0000 (GMT)
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B320D136051;
-        Thu, 27 May 2021 02:28:29 +0000 (GMT)
-Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.177.219])
-        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu, 27 May 2021 02:28:29 +0000 (GMT)
-Subject: Re: [PATCH v4 2/2] s390/vfio-ap: control access to PQAP(AQIC)
- interception handler
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        cohuck@redhat.com, pasic@linux.vnet.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com
-References: <20210521193648.940864-1-akrowiak@linux.ibm.com>
- <20210521193648.940864-3-akrowiak@linux.ibm.com>
- <5d15fdf2-aee8-4e6c-c3e1-f07c76ce5974@linux.ibm.com>
- <e2bed0a6-f5e2-0a69-22b9-1b304cbe1362@linux.ibm.com>
- <20210525131912.GW1002214@nvidia.com>
- <c54ef522-f348-df16-a99f-1e31feb1b0bd@linux.ibm.com>
- <20210525162927.GC1002214@nvidia.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <966142da-779f-d604-c6f6-e58cec128e5d@linux.ibm.com>
-Date:   Wed, 26 May 2021 22:28:29 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        Thu, 27 May 2021 02:34:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1622097200;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nHImtBYkw4lCcg0C5T7A+w8BKD0CNflxB4DhqBvnb7E=;
+        b=VEJLzzejcHMnAUFa8cmM2HJlY7OvciWIFv5M/8p7ISs+tfDsRoFhGcy9ZiYf/99BhjH52k
+        PQ/9m/ffTo64LhGuXQPHXW1lN4h/UZKKGRb07wNxG66Nh0LpQaRa3Jh1GdOxg0/D6BTF2R
+        SIDPu23dbVrkPxW8AXBAG/DUKUTBmHk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-521-hFVtQeprPU69iecJpCDfrw-1; Thu, 27 May 2021 02:33:18 -0400
+X-MC-Unique: hFVtQeprPU69iecJpCDfrw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E4BBB18766D4;
+        Thu, 27 May 2021 06:33:16 +0000 (UTC)
+Received: from gondolin.fritz.box (ovpn-113-46.ams2.redhat.com [10.36.113.46])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BF4BF5C3E9;
+        Thu, 27 May 2021 06:33:15 +0000 (UTC)
+Date:   Thu, 27 May 2021 08:33:13 +0200
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Subject: b4 usage (was: [PULL 0/3] vfio-ccw: some fixes)
+Message-ID: <20210527083313.0f5b9553.cohuck@redhat.com>
+In-Reply-To: <your-ad-here.call-01622068380-ext-9894@work.hours>
+References: <20210520113450.267893-1-cohuck@redhat.com>
+        <your-ad-here.call-01622068380-ext-9894@work.hours>
+Organization: Red Hat GmbH
 MIME-Version: 1.0
-In-Reply-To: <20210525162927.GC1002214@nvidia.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XKLSOes9hCG5tvYX0vaTGrajp5zgkBUO
-X-Proofpoint-ORIG-GUID: hIvO8VP7_i-fgLmoQKzSSMM5wLdbstiT
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-26_13:2021-05-26,2021-05-26 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- impostorscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0
- malwarescore=0 adultscore=0 suspectscore=0 bulkscore=0 spamscore=0
- phishscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105270012
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, 27 May 2021 00:33:00 +0200
+Vasily Gorbik <gor@linux.ibm.com> wrote:
 
+> On Thu, May 20, 2021 at 01:34:47PM +0200, Cornelia Huck wrote:
+> > The following changes since commit 6efb943b8616ec53a5e444193dccf1af9ad6=
+27b5:
+> >=20
+> >   Linux 5.13-rc1 (2021-05-09 14:17:44 -0700)
+> >=20
+> > are available in the Git repository at:
+> >=20
+> >   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git =
+tags/vfio-ccw-20210520
+> >=20
+> > for you to fetch changes up to 2af7a834a435460d546f0cf0a8b8e4d259f1d910:
+> >=20
+> >   vfio-ccw: Serialize FSM IDLE state with I/O completion (2021-05-12 12=
+:59:50 +0200)
+> >=20
+> > ----------------------------------------------------------------
+> > Avoid some races in vfio-ccw request handling.
+> >=20
+> > ----------------------------------------------------------------
+> >=20
+> > Eric Farman (3):
+> >   vfio-ccw: Check initialized flag in cp_init()
+> >   vfio-ccw: Reset FSM state to IDLE inside FSM
+> >   vfio-ccw: Serialize FSM IDLE state with I/O completion =20
+>=20
+> Pulled into fixes, thanks.
+>=20
+> BTW, linux-s390@vger.kernel.org is now archived on lore and we started
 
-On 5/25/21 12:29 PM, Jason Gunthorpe wrote:
-> On Tue, May 25, 2021 at 11:56:50AM -0400, Tony Krowiak wrote:
->
->> The vfio_ap_mdev_unset_kvm() function, however, is called both by
->> the group notifier when the KVM pointer has been cleared or when the
->> mdev is being removed. In both cases, the only way to get the KVM
->> pointer - which is needed to unplug the AP resources from the guest
->> - is from the matrix_mdev which contains it.
-> Okay, but that isn't a problem, the matrix dev holds a ref on the kvm
-> pointer so we can just copy it outside the lock after we prevent it
-> from changing by unregistering the notifier:
->
-> @@ -1362,14 +1365,19 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
->   {
->          struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->   
-> -       mutex_lock(&matrix_dev->lock);
-> -       vfio_ap_mdev_unset_kvm(matrix_mdev);
-> -       mutex_unlock(&matrix_dev->lock);
-> -
->          vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
->                                   &matrix_mdev->iommu_notifier);
->          vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
->                                   &matrix_mdev->group_notifier);
-> +
-> +       mutex_lock(&matrix_dev->lock);
-> +       /* matrix_dev->kvm cannot be changed now since we removed the notifiers */
-> +       kvm = matrix_mdev->kvm;
-> +       matrix_mdev->kvm = NULL;
-> +       mutex_unlock(&matrix_dev->lock);
-> +
-> +       vfio_ap_mdev_unset_kvm(matrix_mdev, kvm);
-> +
->          module_put(THIS_MODULE);
->
-> Note the above misordering is an existing bug too
->
-> And reoganize unset_kvm so it uses internal locking and gets the kvm
-> from the argument.
+Oh, nice.
 
-As I told you in a previous email, this is not a trivial exercise.
-If you take a look at the vfio_ap_mdev_unset_kvm()
-function, you will notice that it invokes the vfio_ap_mdev_reset_queues()
-function to reset the queues after taking them away from the
-guest. As each queue is reset, the resources required for
-processing interrupts for the queue are freed in the
-vfio_ap_free_aqic_resources() function. In order to unregister the
-the guest's ISC, the matrix_mdev->kvm pointer must still
-be set, however, you cleared it above.
+> using b4 (https://git.kernel.org/pub/scm/utils/b4/b4.git) to pick up
+> changes. Besides all other features, it can convert Message-Id: to Link:
 
-Another thing you're overlooking is the fact that all of the
-assignment/unassignment functions associated with the
-corresponding syfs attributes of the mdev change the
-content of the matrix_mdev->matrix and
-matrix_mdev->shadow_apcb structures. In particular,
-the matrix_mdev->matrix contains the APQNs of the
-queues that must be reset. These sysfs attributes can
-be accessed at any time including when the
-vfio_ap_mdev_unset_kvm() function is executing,
-so that is something that must also be taken into
-consideration.
+I've been using b4 to pick patches (Linux and especially QEMU) for
+quite some time now, but never felt the need to convert Message-Id: to
+Link:. If you prefer the Link: format, I can certainly start using that
+for kernel patches.
 
-
->
-> Also the kvm_busy should be replaced by a proper rwsem, don't try to
-> open code locks like that - it just defeats lockdep analysis.
-
-I've had no luck trying to refactor this using rwsem. I always
-run into lockdep problems between the matrix_dev->lock
-and matrix_mdev->rwsem, even if the locking order is maintained.
-Clearly, I am lacking in understanding of how these locks
-interact. Any clues here?
-
-> Finally, since the only way the ->kvm can be become non-NULL is if the
-> notifier is registered, release above removes the notifier, and remove
-> can't be called unless release has been completed, it looks to me like
-> this the remove check is just dead code, delete it, or leave it as a
-> WARN_ON:
->
-> @@ -366,16 +366,6 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
->          struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->
->          mutex_lock(&matrix_dev->lock);
-> -
-> -       /*
-> -        * If the KVM pointer is in flux or the guest is running, disallow
-> -        * un-assignment of control domain.
-> -        */
-> -       if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
-> -               mutex_unlock(&matrix_dev->lock);
-> -               return -EBUSY;
-> -       }
->
-> Jason
+>=20
+> Hm, and b4 also now complains:
+> =E2=9C=97 BADSIG: DKIM/ibm.com
+> have to look into that...
+>=20
 
