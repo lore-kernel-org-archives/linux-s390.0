@@ -2,153 +2,215 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2EDCC47089
-	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 10:35:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAC4EC4707F
+	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 11:24:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CBA87610CB
-	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 10:35:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB99F61358
+	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 11:24:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236187AbhE0KhT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 May 2021 06:37:19 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41016 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S235950AbhE0KhS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 May 2021 06:37:18 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14RAXtRR153268;
-        Thu, 27 May 2021 06:35:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=UcmNkgsGMF9YBSHsLQD9v8WnRBSvndasoAjAPC/Fn8g=;
- b=qe8n354LcF1FSQWMI5ORnYkLg9/r1V9V5PloT0IVfrxHXtri26GTOdYKk1zSM0g4WTl5
- 7PAn1GnIfkefzeITM/4dYi3ZcbJvMiYvM9QlJbm2FTXdPgtP8dnEL6pr877ch/vva6wz
- nAI5RbBEWCx+f+Y7j3of8otC27mmesCdE9RuzJy0EZjdidWMu1mf5m3fLL/8AAQJp4nu
- ZGSZq5YDWiyaRJ3oSJXKj01npdfnN66ZsruOfibEKFmPE/xEJ+38TPps4PywogHMw2E2
- htG3JvoQUGz39ilOm/4/InpaBCJbRDRTBv+FjiSU7mcfmAgew+iVwNiNkPG7rJV1Lp0X EQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38t8fkag0y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 May 2021 06:35:44 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14RAZiL7161835;
-        Thu, 27 May 2021 06:35:44 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38t8fkag04-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 May 2021 06:35:43 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14RAS8I8028781;
-        Thu, 27 May 2021 10:35:41 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 38s1ukh4ax-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 May 2021 10:35:41 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14RAZcHd26542396
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 27 May 2021 10:35:39 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DA41711C050;
-        Thu, 27 May 2021 10:35:38 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6AB6B11C04A;
-        Thu, 27 May 2021 10:35:38 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.86.253])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 27 May 2021 10:35:38 +0000 (GMT)
-Subject: Re: [PATCH v1 10/11] KVM: s390: pv: module parameter to fence lazy
- destroy
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20210517200758.22593-1-imbrenda@linux.ibm.com>
- <20210517200758.22593-11-imbrenda@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <7b43f05f-30e0-1c84-74f1-c28fdd6fcff4@linux.ibm.com>
-Date:   Thu, 27 May 2021 12:35:38 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S229821AbhE0L0K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 May 2021 07:26:10 -0400
+Received: from mail-dm6nam08on2089.outbound.protection.outlook.com ([40.107.102.89]:17472
+        "EHLO NAM04-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229640AbhE0L0K (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 27 May 2021 07:26:10 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kyIzTy0eAzsB0htBrqIRq2slitk3cp2IUCJ2ZgBMHTxKXvx6NSvEweJGrFo/FUETdrAcGbjqdBzmbcaer40Q63ogfSworVl+i+joZA5GTcJONyZCpAG1emL532nfi9EHRXhCChw9PH5g0KVclxHliYOau3hf/InjaCP2NKAOiJZ+Pe9AiJgkmlawmXrkXtO3iowVCWb5JOdz2SYmtEIHEuHfSh1dv9EUE8Cnhye1V851Bk1PvAYtvU//BFbC606mpfZ+ICWHQbVl4DgtV46DW2Il6Ih/wscC1U+g1iyeR4G4Pi+vCRb5PTAlKkvSfb0J0PJZeXCwQXT0VGxEnc89eQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=m+GLlbyavN2s4LlXhC05paHiRoLrZ64ztRX12w67Qs8=;
+ b=UOfRmGAAjvTEfhcQ5LuZYDh/hRHEAnUdOnFZgsyR0XUtz4xIbyaqLftuJ+JEbLhHsvbHM8OJPBE9/T8+cdV+uCHzlCoYwtugMczNNP9D82A1FJThlrtbWIe43TAhJbpToGtuIWV+MTXeRzKYNQcfMCMPdgwpaXUlJtKN/VqDb60toKE7dfTBCFkqknMtTLQe+WtUuD11fZPS3/w30PpqOBhNkPLVYX2mgHgDhozn2e2ON0SsB4hrzmsJqlLeDVBBurAPkmgesRpe3oWt5iFie4jhlyKl6yN/Ppggp0vZ675M5xpbKV+4H5DWw/13qtCLlXCsooJh1D/w7pz+ca0ZSQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=m+GLlbyavN2s4LlXhC05paHiRoLrZ64ztRX12w67Qs8=;
+ b=iu6mWV6lPLcENYc847UpOBycMc8gcK8O9vUmDFF+pqoLte2G+WQYMXFoOcJND6Ux7Frn2Kr5C/IM9oX37rR8mhrOI/djhe87uxx1PSazBfwn/OpdRr/Rnw+k84DxNPoTEDnFLx+Mu+res9uMSv3rl3wJR/eqTC3YT2Fh+z7O7sj+ywHkxKXHfkKW2hlvf2U8whcrJcAgALBrFDen0WDeafyjbCAESv/xFwF9/kRP01Xrb9yYr8cXuUvflXel14xkQ2g2aRylBwRj1+HIqmsdkT0xDDFO+yLiZvUTkUSrpCLA/k6E+1zbVSB3gP2sd0xuhaRGDSR7OiE9jklXI3GGLQ==
+Authentication-Results: linux.ibm.com; dkim=none (message not signed)
+ header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL0PR12MB5556.namprd12.prod.outlook.com (2603:10b6:208:1cf::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.20; Thu, 27 May
+ 2021 11:24:36 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::3d51:a3b9:8611:684e]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::3d51:a3b9:8611:684e%7]) with mapi id 15.20.4173.023; Thu, 27 May 2021
+ 11:24:36 +0000
+Date:   Thu, 27 May 2021 08:24:33 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com
+Subject: Re: [PATCH v4 2/2] s390/vfio-ap: control access to PQAP(AQIC)
+ interception handler
+Message-ID: <20210527112433.GX1002214@nvidia.com>
+References: <20210521193648.940864-1-akrowiak@linux.ibm.com>
+ <20210521193648.940864-3-akrowiak@linux.ibm.com>
+ <5d15fdf2-aee8-4e6c-c3e1-f07c76ce5974@linux.ibm.com>
+ <e2bed0a6-f5e2-0a69-22b9-1b304cbe1362@linux.ibm.com>
+ <20210525131912.GW1002214@nvidia.com>
+ <c54ef522-f348-df16-a99f-1e31feb1b0bd@linux.ibm.com>
+ <20210525162927.GC1002214@nvidia.com>
+ <966142da-779f-d604-c6f6-e58cec128e5d@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <966142da-779f-d604-c6f6-e58cec128e5d@linux.ibm.com>
+X-Originating-IP: [206.223.160.26]
+X-ClientProxiedBy: YT1PR01CA0028.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01::41)
+ To BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
-In-Reply-To: <20210517200758.22593-11-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Ob1OI9kh7xDqOy2NSMECDARFhcLe_MRh
-X-Proofpoint-GUID: yf_WtlHvJM8fsY1cS8pRIfYvDlkUBH2T
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-27_04:2021-05-26,2021-05-27 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- mlxlogscore=999 phishscore=0 clxscore=1015 bulkscore=0 lowpriorityscore=0
- malwarescore=0 suspectscore=0 priorityscore=1501 mlxscore=0 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105270069
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (206.223.160.26) by YT1PR01CA0028.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01::41) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.27 via Frontend Transport; Thu, 27 May 2021 11:24:36 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lmE7t-00FXJ3-SK; Thu, 27 May 2021 08:24:33 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: bce5b8be-498f-4705-3dc8-08d921020237
+X-MS-TrafficTypeDiagnostic: BL0PR12MB5556:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BL0PR12MB555673A4B43E694886772653C2239@BL0PR12MB5556.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:7691;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 8Fyqh+IM8RZKzZtBithyk3tZ/Zjrx5ZM4EK9jqMC28lvd5WRA/41/j55fUy52C2Y78TuDntdpLN4CfCJdUW4d+r0rpoRLYMiHEH/GJIB2ybuixpP23OVaXYfNCvusrrYOkzzd3GxCN3Yv1NQ0Y9+t8h9AcdcUDhU+Nyb25MoEaI2XVEHhJOMeyBtxQqZ/2Zu0XBu3qDUQBRJaC6Fm6/YrjjpEAymTTLxwe///NLO2Nniyc/F4vy2aVM+8qFNOohqQc8dqiTNpuwtGARJEO6DfL69Yn5955qVjSFtReeCFiPV3NRSVByO+JztF2snVgsbOV2dEYpqX4PH0MJeuG9+JSgpxQKewPCnzw07HgavPe16MkrtEKk5ysad9ljE9kvRhP9+VCYyvpGtBJyMQ4UGcm9xuobgQ/ug8JBScHfmVfjMvrg/4dXwYQx2YStIOGhcPtF1a1p6UW0bpQf3JUfMbgKyftL4Qt1QHrIsrCsSGBqDP5Dr9cte/y+KMHppRwjdbfS/QRc6cZ3qR1vyHjwk0l9DjNZwSIlsxzMCFYw4CLP2RNAJZnT2vMtsScwyqmQUgHbwJjBqzYdwiUOH7IUmQpkrB/5dH/zchBz+wzipTHo=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(376002)(366004)(346002)(396003)(39860400002)(83380400001)(478600001)(8936002)(7416002)(8676002)(38100700002)(5660300002)(426003)(33656002)(53546011)(86362001)(6916009)(1076003)(66556008)(316002)(66476007)(2906002)(26005)(9786002)(9746002)(36756003)(4326008)(186003)(2616005)(66946007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?YHP2NGJFEhHYLbxMcpSQgK7pqbWSZIZSTWt6hFeA7YaSQKw+JSx7rnJXE7oO?=
+ =?us-ascii?Q?oUI+PA+dMsiCj3dDs9Kr9pqXcC3qD53Qh7lC2qYY0fZDFc5LLfAvBwSWFHAB?=
+ =?us-ascii?Q?Yh3b8FbugtwsVCWU+3mw1NBYXAkJ09mM7Nx5y4W5kHdr9GkoAVbyXlrpPbHp?=
+ =?us-ascii?Q?L1rYrOivXVOvnP6MOuANicTR8Z2wM2pzCRG2d0vUx2mOIuPxf5Dpxj1Wc6J6?=
+ =?us-ascii?Q?WKamYLCt20eC2ENe8s8EP2obXn6Vt9CIwqr3nhmrL8/v3J8uPs9Hnrps/JRo?=
+ =?us-ascii?Q?oQnD6U9Ok2SbkMfQi1uKBEfWl5JsLIeAK1n6Yvn1yqjICgSZBgyj/ALeDggL?=
+ =?us-ascii?Q?wLeucvvDJyOVKt4T/c6cO2bz7E9Vhd6+nRhSpjGefBRYfEDVOuCxrcsQN3h/?=
+ =?us-ascii?Q?CGSyl9ZFqXEUaW67pEJLHPd7YdsqTdZOtYreH5dq2q7TQMs56YD82b4e6+yj?=
+ =?us-ascii?Q?Pn0AEoeYUqy90wlSffOnWtGyPdP97kjPYRLVjzEBDPQI9bYGQNWxsZfDR59v?=
+ =?us-ascii?Q?rmS9c/GCgrtdRJ7M7fR49Q5vav+GPYuID2kvMzGBSUZRao9urAKxqrH421CI?=
+ =?us-ascii?Q?tRMxh3vrGoc9y1S2admI2ItWA8gcdugyb2ekZ7qQV/eEHSnx+tLyEnYaqbyU?=
+ =?us-ascii?Q?tzqjEVGw/MzpeTcRGNIfmJeKIRIbA1zh19sweKrbM5wEsuh8Zc7LdRvPCVNF?=
+ =?us-ascii?Q?Yzv1zIEVVihWPXiMM3441J/epNFWQrKAIahzqrIyElmZT0z69Q+mY9nZgSBc?=
+ =?us-ascii?Q?D5NPoqg4o+8COmiNEH2iCtp+H8eMotDd6JTkBLuMef6THUcIvAv5ZSKrhTuu?=
+ =?us-ascii?Q?FhVsuLVbfBN//sdPZzP+mcbHOYWR4E0bjwLkXL7OwsiuDWssDO59eoY7pmW7?=
+ =?us-ascii?Q?ZObovA4+uRQMGzZ2eO6rYP+eWI+t/aQHoDrhQclkFJsK5SI4LVWiCUQPU5x0?=
+ =?us-ascii?Q?uyKH+VJrBUUkaiZueQJJYIg7jYM3Co/AEQRcrvUuhoBzkywOXpQMFcoBiJew?=
+ =?us-ascii?Q?ji0ly3dofyUqAjzVccobPfqm6JF+tLHhl/pDA2JpxchTSAgnFu96oaZFtZFx?=
+ =?us-ascii?Q?hTV4UW7DUZDi5UISP6pZeJo2LUhDkKaD1DreXW5Kso9VXu4KpbsY0Pbadres?=
+ =?us-ascii?Q?H+McgTnmT2wYVTS5fTJF955NA0kTLuYT+8PeHOg3pYN5f3QyC9q+7WZqrXh8?=
+ =?us-ascii?Q?b15VXofKkdmQdQF8s+XeyKgQY9DOKH/wTvOYSo8xgH+YRWBweDdqldUaiKd1?=
+ =?us-ascii?Q?MCbMPFcW7sAHsGfkOgw+k+AQipaAuAH0hZCXlsXXAHD6Gu5+YRgFRUeQJ8Vj?=
+ =?us-ascii?Q?oqtQpGG4u2l/1hkgPPBTRjNc?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bce5b8be-498f-4705-3dc8-08d921020237
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 May 2021 11:24:36.3568
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: E/b71o+qYYJaq1rrLE0qAcC9EdJJS7S0ZX9GSCPp6bROoUXZ9IkwZVeJytZm6Rrx
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB5556
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/17/21 10:07 PM, Claudio Imbrenda wrote:
-> Add the module parameter "lazy_destroy", to allow the lazy destroy
-> mechanism to be switched off. This might be useful for debugging
-> purposes.
+On Wed, May 26, 2021 at 10:28:29PM -0400, Tony Krowiak wrote:
 > 
-> The parameter is enabled by default.
 > 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->  arch/s390/kvm/pv.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
+> On 5/25/21 12:29 PM, Jason Gunthorpe wrote:
+> > On Tue, May 25, 2021 at 11:56:50AM -0400, Tony Krowiak wrote:
+> > 
+> > > The vfio_ap_mdev_unset_kvm() function, however, is called both by
+> > > the group notifier when the KVM pointer has been cleared or when the
+> > > mdev is being removed. In both cases, the only way to get the KVM
+> > > pointer - which is needed to unplug the AP resources from the guest
+> > > - is from the matrix_mdev which contains it.
+> > Okay, but that isn't a problem, the matrix dev holds a ref on the kvm
+> > pointer so we can just copy it outside the lock after we prevent it
+> > from changing by unregistering the notifier:
+> > 
+> > @@ -1362,14 +1365,19 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+> >   {
+> >          struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> > -       mutex_lock(&matrix_dev->lock);
+> > -       vfio_ap_mdev_unset_kvm(matrix_mdev);
+> > -       mutex_unlock(&matrix_dev->lock);
+> > -
+> >          vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> >                                   &matrix_mdev->iommu_notifier);
+> >          vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+> >                                   &matrix_mdev->group_notifier);
+> > +
+> > +       mutex_lock(&matrix_dev->lock);
+> > +       /* matrix_dev->kvm cannot be changed now since we removed the notifiers */
+> > +       kvm = matrix_mdev->kvm;
+> > +       matrix_mdev->kvm = NULL;
+> > +       mutex_unlock(&matrix_dev->lock);
+> > +
+> > +       vfio_ap_mdev_unset_kvm(matrix_mdev, kvm);
+> > +
+> >          module_put(THIS_MODULE);
+> > 
+> > Note the above misordering is an existing bug too
+> > 
+> > And reoganize unset_kvm so it uses internal locking and gets the kvm
+> > from the argument.
 > 
-> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-> index 4333d3e54ef0..00c14406205f 100644
-> --- a/arch/s390/kvm/pv.c
-> +++ b/arch/s390/kvm/pv.c
-> @@ -26,6 +26,10 @@ struct deferred_priv {
->  	unsigned long real;
->  };
->  
-> +static int lazy_destroy = 1;
-> +module_param(lazy_destroy, int, 0444);
+> As I told you in a previous email, this is not a trivial exercise.
 
-I'm pondering if we want to make that writable or not.
+Well, it is not a 5 line patch, but it looks like 10 mins work and
+some testing to me, tracking down all the uses of matrx_mdev->kvm
+under the vfio_ap_mdev_unset_kvm() call does not seem difficult nor do
+there seem to be so many.
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> vfio_ap_free_aqic_resources() function. In order to unregister the
+> the guest's ISC, the matrix_mdev->kvm pointer must still
+> be set, however, you cleared it above.
 
-> +MODULE_PARM_DESC(lazy_destroy, "Deferred destroy for protected guests");
-> +
->  int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
->  {
->  	int cc = 0;
-> @@ -348,6 +352,9 @@ int kvm_s390_pv_deinit_vm_deferred(struct kvm *kvm, u16 *rc, u16 *rrc)
->  {
->  	struct deferred_priv *priv;
->  
-> +	if (!lazy_destroy)
-> +		kvm_s390_pv_deinit_vm_now(kvm, rc, rrc);
-> +
->  	priv = kmalloc(sizeof(*priv), GFP_KERNEL | __GFP_ZERO);
->  	if (!priv)
->  		return kvm_s390_pv_deinit_vm_now(kvm, rc, rrc);
-> @@ -396,6 +403,12 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
->  	/* Outputs */
->  	kvm->arch.pv.handle = uvcb.guest_handle;
->  
-> +	if (!lazy_destroy) {
-> +		mmap_write_lock(kvm->mm);
-> +		kvm->mm->context.pv_sync_destroy = 1;
-> +		mmap_write_unlock(kvm->mm);
-> +	}
-> +
->  	atomic_inc(&kvm->mm->context.is_protected);
->  	if (cc) {
->  		if (uvcb.header.rc & UVC_RC_NEED_DESTROY) {
+Which is why I said unset_kvm needs to be reorganized to use the kvm
+argument, not the matrixt_mdev->kvm
+
+> Another thing you're overlooking is the fact that all of the
+> assignment/unassignment functions associated with the
+> corresponding syfs attributes of the mdev change the
+> content of the matrix_mdev->matrix and
+> matrix_mdev->shadow_apcb structures. In particular,
+> the matrix_mdev->matrix contains the APQNs of the
+> queues that must be reset. These sysfs attributes can
+> be accessed at any time including when the
+> vfio_ap_mdev_unset_kvm() function is executing,
+> so that is something that must also be taken into
+> consideration.
+
+I checked and thought they already had a lock?
+ 
+> > Also the kvm_busy should be replaced by a proper rwsem, don't try to
+> > open code locks like that - it just defeats lockdep analysis.
 > 
+> I've had no luck trying to refactor this using rwsem. I always
+> run into lockdep problems between the matrix_dev->lock
+> and matrix_mdev->rwsem, even if the locking order is maintained.
 
+Usually when people start open coding locks it is often because
+lockdep complained.
+
+Open coding a lock makes lockdep stop because the lockdep code is
+removed, but it doesn't fix anything.
+
+> Clearly, I am lacking in understanding of how these locks
+> interact. Any clues here?
+
+I'd have to see the lockdep reports and look at it quite a lot
+more. 
+
+Jason
