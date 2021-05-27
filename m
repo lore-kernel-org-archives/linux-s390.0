@@ -2,148 +2,153 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86E44C47089
-	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 09:14:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8087C4707F
+	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 09:29:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5D80C613D1
-	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 09:14:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BD2D261077
+	for <linux-s390@archiver.kernel.org>; Thu, 27 May 2021 09:29:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235632AbhE0JQF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 May 2021 05:16:05 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42364 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235554AbhE0JQF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 May 2021 05:16:05 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1622106870; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=wF0gVNjinmo0Hc0sps+4CX8PBKyxO99eUnpQyoVA9wM=;
-        b=W/qOh1xTlNtrjaLmf+AL1hXvMsato1qiJBN2mBzHO0jBeKH7Ln3zzg/a9uaH3c8SswJ0j0
-        HjRPf8OkDOVJjkaouS8NvT/SakvUPcG2WewQzWCLGc7Mw5XihX3wt/cCURrDdL3gGTMZA7
-        F3d0KxnCtJlJ45Or6mhxloo6XWHvzJE=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 69D54AB71;
-        Thu, 27 May 2021 09:14:30 +0000 (UTC)
-Date:   Thu, 27 May 2021 11:14:29 +0200
-From:   Petr Mladek <pmladek@suse.com>
-To:     Justin He <Justin.He@arm.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Al Viro <viro@ftp.linux.org.uk>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Eric Biggers <ebiggers@google.com>, nd <nd@arm.com>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Subject: Re: [PATCH RFC 2/3] lib/vsprintf.c: make %pD print full path for file
-Message-ID: <YK9i9Y7LVTYgpad7@alley>
-References: <20210508122530.1971-1-justin.he@arm.com>
- <20210508122530.1971-3-justin.he@arm.com>
- <YJkveb46BoFbXi0q@alley>
- <AM6PR08MB43764A5026A92DEF45EF8DBFF7239@AM6PR08MB4376.eurprd08.prod.outlook.com>
+        id S235655AbhE0JbN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 May 2021 05:31:13 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55358 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235608AbhE0JbN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 27 May 2021 05:31:13 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14R92e8Y041964;
+        Thu, 27 May 2021 05:29:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=M5xuCEVvPBaEIEc6OCW7xYa9va/DlzwC9UTwv3y0UMU=;
+ b=rM5FYWCYpK1qpevLuhwmSMaVGCzY76s5TVjOL4toqYC05o/JW8HZURCArYIMbg9angKN
+ mRrujQarSL0A7m85Ettnn//0NbxBbzbiQDUvRVLfIxXwNrrxpEYZiat2KOUq00bG7wPK
+ 0zJ10xAeUKJJeO76/biAzBjz6Jbei2otBHgrItRUFZ9HLdwQ/NZJwpq66hI5EnCNxWh1
+ OW9ofCwZA/qxnaWEzdIJuKHOMyX5VHNKRmJTTqmWJ6VpL6zIB08083RktokYLTkSCEDq
+ 8bS0V1dNupM2eJa6fyHEGcCSdQmo79FAoCtczurW6iwjL3YCQd6oQPx8VpQRPFaiPdFb 0g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38t74ubqcu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 May 2021 05:29:40 -0400
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14R93MwX044142;
+        Thu, 27 May 2021 05:29:40 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38t74ubqbx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 May 2021 05:29:39 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14R9HQ4n016704;
+        Thu, 27 May 2021 09:29:37 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 38sba2rurg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 May 2021 09:29:37 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14R9TYYB15008252
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 27 May 2021 09:29:34 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4F4B411C04C;
+        Thu, 27 May 2021 09:29:34 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D272711C04A;
+        Thu, 27 May 2021 09:29:33 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.86.253])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 27 May 2021 09:29:33 +0000 (GMT)
+Subject: Re: [PATCH v1 06/11] KVM: s390: pv: usage counter instead of flag
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20210517200758.22593-1-imbrenda@linux.ibm.com>
+ <20210517200758.22593-7-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <e3e47640-2ee6-3529-24da-fcf0694be858@linux.ibm.com>
+Date:   Thu, 27 May 2021 11:29:33 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <AM6PR08MB43764A5026A92DEF45EF8DBFF7239@AM6PR08MB4376.eurprd08.prod.outlook.com>
+In-Reply-To: <20210517200758.22593-7-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: gE_QXIrLfGa540eSuIYWDqpwCdlPyMv-
+X-Proofpoint-GUID: DtkjGaIfeKvHw9FnHG49xFLToFKgyg7p
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-27_04:2021-05-26,2021-05-27 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1015
+ suspectscore=0 priorityscore=1501 bulkscore=0 spamscore=0 malwarescore=0
+ lowpriorityscore=0 adultscore=0 mlxscore=0 impostorscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2105270060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu 2021-05-27 07:20:55, Justin He wrote:
-> > > @@ -923,10 +924,17 @@ static noinline_for_stack
-> > >  char *file_dentry_name(char *buf, char *end, const struct file *f,
-> > >  			struct printf_spec spec, const char *fmt)
-> > >  {
-> > > +	const struct path *path = &f->f_path;
-> > 
-> > This dereferences @f before it is checked by check_pointer().
-> > 
-> > > +	char *p;
-> > > +	char tmp[128];
-> > > +
-> > >  	if (check_pointer(&buf, end, f, spec))
-> > >  		return buf;
-> > >
-> > > -	return dentry_name(buf, end, f->f_path.dentry, spec, fmt);
-> > > +	p = d_path_fast(path, (char *)tmp, 128);
-> > > +	buf = string(buf, end, p, spec);
-> > 
-> > Is 128 a limit of the path or just a compromise, please?
-> > 
-> > d_path_fast() limits the size of the buffer so we could use @buf
-> > directly. We basically need to imitate what string_nocheck() does:
-> > 
-> >      + the length is limited by min(spec.precision, end-buf);
-> >      + the string need to get shifted by widen_string()
-> > 
-> > We already do similar thing in dentry_name(). It might look like:
-> > 
-> > char *file_dentry_name(char *buf, char *end, const struct file *f,
-> > 			struct printf_spec spec, const char *fmt)
-> > {
-> > 	const struct path *path;
-> > 	int lim, len;
-> > 	char *p;
-> > 
-> > 	if (check_pointer(&buf, end, f, spec))
-> > 		return buf;
-> > 
-> > 	path = &f->f_path;
-> > 	if (check_pointer(&buf, end, path, spec))
-> > 		return buf;
-> > 
-> > 	lim = min(spec.precision, end - buf);
-> > 	p = d_path_fast(path, buf, lim);
+On 5/17/21 10:07 PM, Claudio Imbrenda wrote:
+> Use the is_protected field as a counter instead of a flag. This will
+> be used in upcoming patches.
 > 
-> After further think about it, I prefer to choose pass stack space instead of _buf_.
+> Increment the counter when a secure configuration is created, and
+> decrement it when it is destroyed. Previously the flag was set when the
+> set secure parameters UVC was performed.
 > 
-> vsnprintf() should return the size it requires after formatting the string.
-> vprintk_store() will invoke 1st vsnprintf() will 8 bytes to get the reserve_size.
-> Then invoke 2nd printk_sprint()->vscnprintf()->vsnprintf() to fill the space.
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+
+> ---
+>  arch/s390/kvm/pv.c | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
 > 
-> Hence end-buf is <0 in the 1st vsnprintf case.
-
-Grr, you are right, I have completely missed this. I felt that there
-must had been a catch but I did not see it.
-
-> If I call d_path_fast(path, buf, lim) with _buf_ instead of stack space, the
-> logic in prepend_name should be changed a lot. 
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index c3f9f30d2ed4..59039b8a7be7 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -218,7 +218,8 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+>  	cc = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
+>  			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
+>  	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+> -	atomic_set(&kvm->mm->context.is_protected, 0);
+> +	if (!cc)
+> +		atomic_dec(&kvm->mm->context.is_protected);
+>  	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x", *rc, *rrc);
+>  	WARN_ONCE(cc, "protvirt destroy vm failed rc %x rrc %x", *rc, *rrc);
+>  	/* Intended memory leak on "impossible" error */
+> @@ -259,11 +260,14 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+>  	/* Outputs */
+>  	kvm->arch.pv.handle = uvcb.guest_handle;
+>  
+> +	atomic_inc(&kvm->mm->context.is_protected);
+>  	if (cc) {
+> -		if (uvcb.header.rc & UVC_RC_NEED_DESTROY)
+> +		if (uvcb.header.rc & UVC_RC_NEED_DESTROY) {
+>  			kvm_s390_pv_deinit_vm(kvm, &dummy, &dummy);
+> -		else
+> +		} else {
+> +			atomic_dec(&kvm->mm->context.is_protected);
+>  			kvm_s390_pv_dealloc_vm(kvm);
+> +		}
+>  		return -EIO;
+>  	}
+>  	kvm->arch.gmap->guest_handle = uvcb.guest_handle;
+> @@ -286,8 +290,6 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
+>  	*rrc = uvcb.header.rrc;
+>  	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
+>  		     *rc, *rrc);
+> -	if (!cc)
+> -		atomic_set(&kvm->mm->context.is_protected, 1);
+>  	return cc ? -EINVAL : 0;
+>  }
+>  
 > 
-> What do you think of it?
 
-I wonder if vsprintf() could pass a bigger static buffer
-when (str >= end). I would be safe if the dentry API only writes
-to the buffer and does not depend on reading what has already
-been written there. Then it will not matter that it is shared
-between more vsprintf() callers.
-
-It is a dirty hack. I do not have a good feeling about it. Of course,
-a better solution would be when some dentry API just returns
-the required size in this case.
-
-Anyway, the buffer on stack would be more safe. It looks like a good
-compromise. We could always improve it when it is not good enough in
-the real life.
-
-Best Regards,
-Petr
