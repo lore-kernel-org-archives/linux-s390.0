@@ -2,337 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CE42C47087
-	for <linux-s390@archiver.kernel.org>; Fri, 28 May 2021 10:03:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9BF9C4708C
+	for <linux-s390@archiver.kernel.org>; Fri, 28 May 2021 11:40:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4FF55611AE
-	for <linux-s390@archiver.kernel.org>; Fri, 28 May 2021 10:03:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7720C613D4
+	for <linux-s390@archiver.kernel.org>; Fri, 28 May 2021 11:40:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236279AbhE1KEu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 May 2021 06:04:50 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28426 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S236203AbhE1KEt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 28 May 2021 06:04:49 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14SA2trl067418;
-        Fri, 28 May 2021 06:03:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=s03VCbUyq4npk5awr3jvzJuqpz8UuKa9dzXECUCiQic=;
- b=m8ohn8NyLS/YZVgnk+GHcoisPK1jgnIVzfP/jBsaN+r6CL/KwF+i45pnULxOlIo65SUy
- jWRbJmHPFt1PJIgHNhCaD9yL6kNGXovwIesKYo3kzPILx+PAW2RofmMY8xyO/Wv+sPhf
- oNKlBP87HPcPsfVEcr+v5z6x4H4zvCh1t1BXvT+oezzC/ujsPyDoPP5J4oEoMwAF2L51
- 1+uJtJ1PKLqsNIEebHWGaK1A4T6PqzyrhBhL3thfMnDpQMxt/Iv0uc4jrLEcbnM/Zty2
- 9giEcwzrS5Ha3tswStARfhQLHUvJ+cB79gN2BvsuXaBpGO/LRKPruJf3vKrwPO4roif/ yA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38tw29jusv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 May 2021 06:03:14 -0400
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14SA3DZv068958;
-        Fri, 28 May 2021 06:03:13 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38tw29jusc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 May 2021 06:03:13 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14SA02vr012565;
-        Fri, 28 May 2021 10:03:12 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04ams.nl.ibm.com with ESMTP id 38s1r49pyf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 May 2021 10:03:12 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14SA2eSv35782918
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 28 May 2021 10:02:40 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9740AAE053;
-        Fri, 28 May 2021 10:03:09 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 381F2AE04D;
-        Fri, 28 May 2021 10:03:09 +0000 (GMT)
-Received: from ibm-vm (unknown [9.145.7.194])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 28 May 2021 10:03:09 +0000 (GMT)
-Date:   Fri, 28 May 2021 12:03:06 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
-        thuth@redhat.com, cohuck@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v4 6/7] s390x: mmu: add support for large
- pages
-Message-ID: <20210528120306.2ea079cf@ibm-vm>
-In-Reply-To: <23d596c4-331f-088c-8373-74df78568e8a@linux.ibm.com>
-References: <20210526134245.138906-1-imbrenda@linux.ibm.com>
-        <20210526134245.138906-7-imbrenda@linux.ibm.com>
-        <23d596c4-331f-088c-8373-74df78568e8a@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: b-JyX2ZpXWAOi4ZUrxij3Y92CYCKZDk_
-X-Proofpoint-ORIG-GUID: uk7w_0R02-qjowF9AqeSpNSyPpvSsD5p
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-28_04:2021-05-27,2021-05-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- impostorscore=0 malwarescore=0 lowpriorityscore=0 bulkscore=0 mlxscore=0
- adultscore=0 phishscore=0 mlxlogscore=999 priorityscore=1501
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105280067
+        id S234181AbhE1Llr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 May 2021 07:41:47 -0400
+Received: from foss.arm.com ([217.140.110.172]:39628 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233583AbhE1Llo (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 28 May 2021 07:41:44 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4ACCE11D4;
+        Fri, 28 May 2021 04:40:09 -0700 (PDT)
+Received: from entos-ampere-02.shanghai.arm.com (entos-ampere-02.shanghai.arm.com [10.169.214.103])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 144CE3F73B;
+        Fri, 28 May 2021 04:40:02 -0700 (PDT)
+From:   Jia He <justin.he@arm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Jia He <justin.he@arm.com>
+Subject: [PATCH RFCv2 0/3] make '%pD' print full path for file
+Date:   Fri, 28 May 2021 19:39:48 +0800
+Message-Id: <20210528113951.6225-1-justin.he@arm.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 28 May 2021 10:44:32 +0200
-Janosch Frank <frankja@linux.ibm.com> wrote:
+Background
+==========
+Linus suggested printing full path for file instead of printing
+the components as '%pd'.
 
-> On 5/26/21 3:42 PM, Claudio Imbrenda wrote:
-> > Add support for 1M and 2G pages.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > ---
-> >  lib/s390x/mmu.h |  73 +++++++++++++-
-> >  lib/s390x/mmu.c | 260
-> > +++++++++++++++++++++++++++++++++++++++++++----- 2 files changed,
-> > 307 insertions(+), 26 deletions(-)
-> > 
-> > diff --git a/lib/s390x/mmu.h b/lib/s390x/mmu.h
-> > index 603f289e..93208467 100644
-> > --- a/lib/s390x/mmu.h
-> > +++ b/lib/s390x/mmu.h
-> > @@ -10,9 +10,78 @@
-> >  #ifndef _ASMS390X_MMU_H_
-> >  #define _ASMS390X_MMU_H_
-> >  
-> > -void protect_page(void *vaddr, unsigned long prot);
-> > +/*
-> > + * Splits the pagetables down to the given DAT tables level.
-> > + * Returns a pointer to the DAT table entry of the given level.
-> > + * @pgtable root of the page table tree
-> > + * @vaddr address whose page tables are to split
-> > + * @level 3 (for 2GB pud), 4 (for 1 MB pmd) or 5 (for 4KB pages)
-> > + */
-> > +void *split_page(pgd_t *pgtable, void *vaddr, unsigned int level);
-> > +
-> > +/*
-> > + * Applies the given protection bits to the given DAT tables level,
-> > + * splitting if necessary.
-> > + * @pgtable root of the page table tree
-> > + * @vaddr address whose protection bits are to be changed
-> > + * @prot the protection bits to set
-> > + * @level 3 (for 2GB pud), 4 (for 1MB pmd) or 5 (for 4KB pages)
-> > + */
-> > +void protect_dat_entry(void *vaddr, unsigned long prot, unsigned
-> > int level); +/*
-> > + * Clears the given protection bits from the given DAT tables
-> > level,
-> > + * splitting if necessary.
-> > + * @pgtable root of the page table tree
-> > + * @vaddr address whose protection bits are to be changed
-> > + * @prot the protection bits to clear
-> > + * @level 3 (for 2GB pud), 4 (for 1MB pmd) or 5 (for 4kB pages)
-> > + */
-> > +void unprotect_dat_entry(void *vaddr, unsigned long prot, unsigned
-> > int level); +
-> > +/*
-> > + * Applies the given protection bits to the given 4kB pages range,
-> > + * splitting if necessary.
-> > + * @start starting address whose protection bits are to be changed
-> > + * @len size in bytes
-> > + * @prot the protection bits to set
-> > + */
-> >  void protect_range(void *start, unsigned long len, unsigned long
-> > prot); -void unprotect_page(void *vaddr, unsigned long prot);
-> > +/*
-> > + * Clears the given protection bits from the given 4kB pages range,
-> > + * splitting if necessary.
-> > + * @start starting address whose protection bits are to be changed
-> > + * @len size in bytes
-> > + * @prot the protection bits to set
-> > + */
-> >  void unprotect_range(void *start, unsigned long len, unsigned long
-> > prot); 
-> > +/* Similar to install_page, maps the virtual address to the
-> > physical address
-> > + * for the given page tables, using 1MB large pages.
-> > + * Returns a pointer to the DAT table entry.
-> > + * @pgtable root of the page table tree
-> > + * @phys physical address to map, must be 1MB aligned!
-> > + * @vaddr virtual address to map, must be 1MB aligned!
-> > + */
-> > +pmdval_t *install_large_page(pgd_t *pgtable, phys_addr_t phys,
-> > void *vaddr); +
-> > +/* Similar to install_page, maps the virtual address to the
-> > physical address
-> > + * for the given page tables, using 2GB huge pages.
-> > + * Returns a pointer to the DAT table entry.
-> > + * @pgtable root of the page table tree
-> > + * @phys physical address to map, must be 2GB aligned!
-> > + * @vaddr virtual address to map, must be 2GB aligned!
-> > + */
-> > +pudval_t *install_huge_page(pgd_t *pgtable, phys_addr_t phys, void
-> > *vaddr); +
-> > +static inline void protect_page(void *vaddr, unsigned long prot)
-> > +{
-> > +	protect_dat_entry(vaddr, prot, 5);
-> > +}
-> > +
-> > +static inline void unprotect_page(void *vaddr, unsigned long prot)
-> > +{
-> > +	unprotect_dat_entry(vaddr, prot, 5);
-> > +}  
-> 
-> \n
-> 
-> > +void *get_dat_entry(pgd_t *pgtable, void *vaddr, unsigned int
-> > level); +
-> >  #endif /* _ASMS390X_MMU_H_ */
-> > diff --git a/lib/s390x/mmu.c b/lib/s390x/mmu.c
-> > index 5c517366..def91334 100644
-> > --- a/lib/s390x/mmu.c
-> > +++ b/lib/s390x/mmu.c
-> > @@ -15,6 +15,18 @@
-> >  #include <vmalloc.h>
-> >  #include "mmu.h"
-> >  
-> > +/*
-> > + * The naming convention used here is the same as used in the
-> > Linux kernel,
-> > + * and this is the corrispondence between the s390x architectural
-> > names and  
-> 
-> corresponds
+Typically, there is no need for printk specifiers to take any real locks
+(ie mount_lock or rename_lock). So I introduce a new helper d_path_fast
+which is similar to d_path except it doesn't take any seqlock/spinlock.
 
-oops
+This series is based on Al Viro's d_path cleanup patches [1] which
+lifted the inner lockless loop into a new helper. 
 
-> > + * the Linux ones:
-> > + *
-> > + * pgd - region 1 table entry
-> > + * p4d - region 2 table entry
-> > + * pud - region 3 table entry
-> > + * pmd - segment table entry
-> > + * pte - page table entry
-> > + */
-> > +
-> >  static pgd_t *table_root;
-> >  
-> >  void configure_dat(int enable)
-> > @@ -46,54 +58,254 @@ static void mmu_enable(pgd_t *pgtable)
-> >  	lc->pgm_new_psw.mask |= PSW_MASK_DAT;
-> >  }
-> >  
-> > -static pteval_t *get_pte(pgd_t *pgtable, uintptr_t vaddr)
-> > +/*
-> > + * Get the pud (region 3) DAT table entry for the given address
-> > and root,
-> > + * allocating it if necessary
-> > + */
-> > +static inline pud_t *get_pud(pgd_t *pgtable, uintptr_t vaddr)
-> >  {
-> >  	pgd_t *pgd = pgd_offset(pgtable, vaddr);
-> >  	p4d_t *p4d = p4d_alloc(pgd, vaddr);
-> >  	pud_t *pud = pud_alloc(p4d, vaddr);
-> > -	pmd_t *pmd = pmd_alloc(pud, vaddr);
-> > -	pte_t *pte = pte_alloc(pmd, vaddr);
-> >  
-> > -	return &pte_val(*pte);
-> > +	return pud;
-> > +}
-> > +
-> > +/*
-> > + * Get the pmd (segment) DAT table entry for the given address and
-> > pud,
-> > + * allocating it if necessary.
-> > + * The pud must not be huge.
-> > + */
-> > +static inline pmd_t *get_pmd(pud_t *pud, uintptr_t vaddr)
-> > +{
-> > +	pmd_t *pmd;
-> > +
-> > +	assert(!pud_huge(*pud));
-> > +	pmd = pmd_alloc(pud, vaddr);  
-> 
-> Don't we have the *_alloc_map() functions in the kernel whic either
-> map or allocate? I'd prefer that naming over *_alloc() if you also
-> map if already allocated.
+[1] https://lkml.org/lkml/2021/5/18/1260
 
-the functions existed already, I'm only reusing them.
+Test
+====
+The cases I tested:
+1. print '%pD' with full path of ext4 file
+2. mount a ext4 filesystem upon a ext4 filesystem, and print the file
+   with '%pD'
+3. print file path which has more than 256 chars,"-ENAMETOOLONG" will
+   be returned
+4. print file path with '%32pD'
+5. all test_print selftests
+   
+After this set, I found many lines containing '%pD[234]' should be changed
+to '%pD'. I don't want to involve those subsystems in this patch series
+before the helper is stable enough.
+   
+You can get the lines by:
+$find fs/ -name \*.[ch] | xargs grep -rn "\%pD[234"
 
-> > +	return pmd;
-> > +}
-> > +
-> > +/*
-> > + * Get the pte (page) DAT table entry for the given address and
-> > pmd,
-> > + * allocating it if necessary.
-> > + * The pmd must not be large.
-> > + */
-> > +static inline pte_t *get_pte(pmd_t *pmd, uintptr_t vaddr)
-> > +{
-> > +	pte_t *pte;
-> > +
-> > +	assert(!pmd_large(*pmd));
-> > +	pte = pte_alloc(pmd, vaddr);
-> > +	return pte;
-> > +}
-> > +
-> > +/*
-> > + * Splits a large pmd (segment) DAT table entry into equivalent
-> > 4kB small
-> > + * pages.
-> > + * @pmd The pmd to split, it must be large.
-> > + * @va the virtual address corresponding to this pmd.
-> > + */
-> > +static void split_pmd(pmd_t *pmd, uintptr_t va)
-> > +{
-> > +	phys_addr_t pa = pmd_val(*pmd) & SEGMENT_ENTRY_SFAA;
-> > +	unsigned long i;
-> > +	pte_t *pte;
-> > +
-> > +	assert(pmd_large(*pmd));
-> > +	pte = alloc_pages(PAGE_TABLE_ORDER);
-> > +	for (i = 0; i < PAGE_TABLE_ENTRIES; i++)
-> > +		pte_val(pte[i]) =  pa | PAGE_SIZE * i;
-> > +	idte_pmdp(va, &pmd_val(*pmd));
-> > +	pmd_val(*pmd) = __pa(pte) | SEGMENT_ENTRY_TT_SEGMENT;  
-> 
-> Equivalent would mean we carry over protection, no?
+fs/overlayfs/file.c:65: pr_debug("open(%p[%pD2/%c], 0%o) -> (%p, 0%o)\n",
+fs/nfs/direct.c:453:    dfprintk(FILE, "NFS: direct read(%pD2, %zd@%Ld)\n",
+fs/nfs/direct.c:908:    dfprintk(FILE, "NFS: direct write(%pD2, %zd@%Ld)\n",
+fs/nfs/write.c:1371:    dprintk("NFS:       nfs_updatepage(%pD2 %d@%lld)\n",
+fs/nfs/nfs4file.c:116:  dprintk("NFS: flush(%pD2)\n", file);
+fs/nfs/file.c:69:       dprintk("NFS: open file(%pD2)\n", filp);
+fs/nfs/file.c:83:       dprintk("NFS: release(%pD2)\n", filp);
+fs/nfs/file.c:117:      dprintk("NFS: llseek file(%pD2, %lld, %d)\n",
+fs/nfs/file.c:145:      dprintk("NFS: flush(%pD2)\n", file);
+fs/nfs/file.c:166:      dprintk("NFS: read(%pD2, %zu@%lu)\n",
+fs/nfs/file.c:188:      dprintk("NFS: mmap(%pD2)\n", file);
+fs/nfs/file.c:213:      dprintk("NFS: fsync file(%pD2) datasync %d\n", file, datasync);
+fs/nfs/file.c:328:      dfprintk(PAGECACHE, "NFS: write_begin(%pD2(%lu), %u@%lld)\n",
+fs/nfs/file.c:360:      dfprintk(PAGECACHE, "NFS: write_end(%pD2(%lu), %u@%lld)\n",
+fs/nfs/file.c:551:      dfprintk(PAGECACHE, "NFS: vm_page_mkwrite(%pD2(%lu), offset %lld)\n",
+fs/nfs/file.c:621:      dprintk("NFS: write(%pD2, %zu@%Ld)\n",
+fs/nfs/file.c:803:      dprintk("NFS: lock(%pD2, t=%x, fl=%x, r=%lld:%lld)\n",
+fs/nfs/file.c:841:      dprintk("NFS: flock(%pD2, t=%x, fl=%x)\n",
+fs/nfs/dir.c:111:       dfprintk(FILE, "NFS: open dir(%pD2)\n", filp);
+fs/nfs/dir.c:456:                                               pr_notice("NFS: directory %pD2 contains a readdir loop."
+fs/nfs/dir.c:1084:      dfprintk(FILE, "NFS: readdir(%pD2) starting at cookie %llu\n",
+fs/nfs/dir.c:1158:      dfprintk(FILE, "NFS: readdir(%pD2) returns %d\n", file, res);
+fs/nfs/dir.c:1166:      dfprintk(FILE, "NFS: llseek dir(%pD2, %lld, %d)\n",
+fs/nfs/dir.c:1208:      dfprintk(FILE, "NFS: fsync dir(%pD2) datasync %d\n", filp, datasync);
+fs/nfsd/nfs4state.c:2439:         seq_printf(s, "filename: \"%pD2\"", f->nf_file);
+fs/exec.c:817:          pr_warn_once("process '%pD4' started with executable stack\n",
+fs/iomap/direct-io.c:429:               pr_warn_ratelimited("Direct I/O collision with buffered writes! File: %pD4 Comm: %.20s\n",
+fs/ioctl.c:81:          pr_warn_ratelimited("[%s/%d] FS: %s File: %pD4 would truncate fibmap result\n",
+fs/read_write.c:425:            "kernel %s not supported for file %pD4 (pid: %d comm: %.20s)\n",
+fs/splice.c:754:                "splice %s not supported for file %pD4 (pid: %d comm: %.20s)\n",
+fs/afs/mntpt.c:64:      _enter("%p,%p{%pD2}", inode, file, file);
 
-that is a good point... I will need to fix it
+Changelog:
+v2: 
+- implement new d_path_fast based on Al Viro's patches
+- add check_pointer check (by Petr)
+- change the max full path size to 256 in stack space
+v1: https://lkml.org/lkml/2021/5/8/122
 
-> > +
-> > +}
-> > +
-> > +/*
-> > + * Splits a huge pud (region 3) DAT table entry into equivalent
-> > 1MB large
-> > + * pages.
-> > + * @pud The pud to split, it must be huge.
-> > + * @va the virtual address corresponding to this pud.
-> > + */
-> > +static void split_pud(pud_t *pud, uintptr_t va)
-> > +{
-> > +	phys_addr_t pa = pud_val(*pud) & REGION3_ENTRY_RFAA;
-> > +	unsigned long i;
-> > +	pmd_t *pmd;
-> > +
-> > +	assert(pud_huge(*pud));
-> > +	pmd = alloc_pages(SEGMENT_TABLE_ORDER);
-> > +	for (i = 0; i < SEGMENT_TABLE_ENTRIES; i++)
-> > +		pmd_val(pmd[i]) =  pa | SZ_1M * i |
-> > SEGMENT_ENTRY_FC | SEGMENT_ENTRY_TT_SEGMENT;
-> > +	idte_pudp(va, &pud_val(*pud));
-> > +	pud_val(*pud) = __pa(pmd) | REGION_ENTRY_TT_REGION3 |
-> > REGION_TABLE_LENGTH; +}  
+Jia He (3):
+  fs: introduce helper d_path_fast()
+  lib/vsprintf.c: make %pD print full path for file
+  s390/hmcdrv: remove the redundant directory path in debug message
+
+ Documentation/core-api/printk-formats.rst |  5 +++--
+ drivers/s390/char/hmcdrv_dev.c            | 10 +++++-----
+ fs/d_path.c                               | 21 +++++++++++++++++++++
+ include/linux/dcache.h                    |  1 +
+ lib/vsprintf.c                            | 21 +++++++++++++++++----
+ 5 files changed, 47 insertions(+), 11 deletions(-)
+
+-- 
+2.17.1
 
