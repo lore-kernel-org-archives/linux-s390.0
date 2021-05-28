@@ -2,155 +2,429 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59E55C4708C
-	for <linux-s390@archiver.kernel.org>; Fri, 28 May 2021 07:35:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69C45C47087
+	for <linux-s390@archiver.kernel.org>; Fri, 28 May 2021 07:36:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 34678611CD
-	for <linux-s390@archiver.kernel.org>; Fri, 28 May 2021 07:35:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 36AB2611CD
+	for <linux-s390@archiver.kernel.org>; Fri, 28 May 2021 07:36:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233521AbhE1Hgm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 May 2021 03:36:42 -0400
-Received: from esa4.hc3370-68.iphmx.com ([216.71.155.144]:13862 "EHLO
-        esa4.hc3370-68.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230099AbhE1Hgl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 May 2021 03:36:41 -0400
-X-Greylist: delayed 429 seconds by postgrey-1.27 at vger.kernel.org; Fri, 28 May 2021 03:36:40 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=citrix.com; s=securemail; t=1622187307;
-  h=date:from:to:cc:subject:message-id:references:
-   content-transfer-encoding:in-reply-to:mime-version;
-  bh=U2XzInsQ1wxNlSLf+I1V9G/mJa5n/qLyUiHnC6XVj/k=;
-  b=cefXlmDQ5Ty+IRIjDgA4b00viUEwX3/9AhPzgzyiT9t9b2Lc1GGdz88J
-   4vbmMBHGl9cJsedU4B7MXvQQmSYO4ncHAwPeFUtkTX6DfcbxSyAie8WDg
-   ubN81AAHP4w7+B5oeulyrB/+2tYjt5YTYbDOU2FEoFzjMoRLPWxYCACR1
-   g=;
-Authentication-Results: esa4.hc3370-68.iphmx.com; dkim=pass (signature verified) header.i=@citrix.onmicrosoft.com
-IronPort-SDR: ZMMq/NMa0KgFIDHDYJJE/mVXAPQTqcxsWHLaIMRtswTNYFkgeuillHPhaR7GYYyHnWFVc64ZO+
- D3w00uLvfiRPk+HBtcjvyinJxb+hMXGDuoWQwbBdTM81atHsP3f3vN8CSjxACK3D7yBFpj8hxO
- AtaIzuRYdhzlls5nDszGDfUIGHysDXWL5GKYv8P9BxywPyrsfHwMboNL7stX9Sb2cbmIMpdq+2
- qZPBuZyA9iF4xwONsNW8tHXa41sJKuhhGO3upVZUeQUAM3b+XbRsmMJGwgJC2KguK1cy7Qu/n7
- koI=
-X-SBRS: 5.1
-X-MesageID: 46389474
-X-Ironport-Server: esa4.hc3370-68.iphmx.com
-X-Remote-IP: 162.221.158.21
-X-Policy: $RELAYED
-IronPort-HdrOrdr: A9a23:mzNy0qMe+trdrMBcTjujsMiBIKoaSvp037BK7S1MoNJuEvBw9v
- re+MjzsCWftN9/Yh4dcLy7VpVoIkmskKKdg7NhXotKNTOO0AeVxelZhrcKqAeQeREWmNQ96U
- 9hGZIOdeEZDzJB/LrHCN/TKade/DGFmprY+9s31x1WPGZXgzkL1XYDNu6ceHcGIjVuNN4CO7
- e3wNFInDakcWR/VLXAOpFUN9Kz3uEijfjdEGY7OyI=
-X-IronPort-AV: E=Sophos;i="5.83,229,1616472000"; 
-   d="scan'208";a="46389474"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ghR+3Iy8ezSpslzxLaErJpRiKwtC0McqUjfLaPZl0Y3JfGhFG7UTSg4SRHafQYWTsTcjVzIeDGD1BEjPLNRUt3+gXotPlWlcdR6TJBa+3MwLkjRao5oeSZN83WsHcndky5v1JxwF9oGpLCQh2MrQY4jxwSk5wuy74vZRS16W0wlZmJeOvGFr9UvDzO+ify/JK8Ko0EnY18BpWaMQfL/LGo6cwoIY/44RVLjey1zGXu4F2ZrY1Rzd7D/v6xxHdatDYuKCEljMXKrwEjiiX2UXyiegpRnEbta/kwH6Y3UREMUucDIWYVDKx1gr0mOyO9rFzJiT0IHbmp9fYFhZB3rOuQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=r1w4tMyckBpt9XMzH1+2+KfgRy79VDLmIiZqrGSQuO4=;
- b=IFgSdooJzgyzUkuuG0e9o0kM2IYuPlMkN+swwsM7yj51kTBAjGBTQxvlbbya6IV3FAKk6hFIf5/hebv2Rd6l/MEv2nMBf5cDCy8W3k8wJjSVgEkbJ8mF2/4OmrYMguHyEZUohH4hH1IrmBZNTMj2ZMks3V6KT/OGjdF8h8lpHyIBtDaYfhqTKidPEEpMkasZyxlGGOdzO52e4wCMAnTYqxdkW4PexyjncuO1z4hyBSJjuMZ2adRGhwokKWFE6QvE41jitxteEI50C4XRzpG/jNpjkjgn1R3X/rc99BFBARE5lq/qSWvoeNR6wqJvlmAIsLexWOh+RQvic2efiFNy/Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=citrix.com; dmarc=pass action=none header.from=citrix.com;
- dkim=pass header.d=citrix.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=citrix.onmicrosoft.com; s=selector2-citrix-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=r1w4tMyckBpt9XMzH1+2+KfgRy79VDLmIiZqrGSQuO4=;
- b=W4KtDv690EHts6e1C4bUtVqWiGVr7ogwzXofaEzhBrqW5wxxw2kmanKE6y8cZcECKM3jZ0cdYNHRMtVBG+P9CEs7vhlpJza1erVBzw8PtOETV7IeXDXxr4KlQyj97gMG4zuaTj91k0ydN9AmUi7++/nEIw4CcUqBdtri1gHoWnA=
-Date:   Fri, 28 May 2021 09:27:42 +0200
-From:   Roger Pau =?utf-8?B?TW9ubsOp?= <roger.pau@citrix.com>
-To:     Christoph Hellwig <hch@lst.de>
-CC:     Jens Axboe <axboe@kernel.dk>, Song Liu <song@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Nitin Gupta <ngupta@vflare.org>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        <linux-block@vger.kernel.org>, <linux-raid@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 3/8] block: move bd_mutex to struct gendisk
-Message-ID: <YLCbbk6rHOYUtdnj@Air-de-Roger>
-References: <20210525061301.2242282-1-hch@lst.de>
- <20210525061301.2242282-4-hch@lst.de>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210525061301.2242282-4-hch@lst.de>
-X-ClientProxiedBy: MR2P264CA0006.FRAP264.PROD.OUTLOOK.COM
- (2603:10a6:500:1::18) To DS7PR03MB5608.namprd03.prod.outlook.com
- (2603:10b6:5:2c9::18)
+        id S234699AbhE1HiC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 May 2021 03:38:02 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:2072 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234497AbhE1HiC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 May 2021 03:38:02 -0400
+Received: from dggeml716-chm.china.huawei.com (unknown [172.30.72.53])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4FrxFx2wgGzWntx;
+        Fri, 28 May 2021 15:31:49 +0800 (CST)
+Received: from dggpemm500001.china.huawei.com (7.185.36.107) by
+ dggeml716-chm.china.huawei.com (10.3.17.127) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Fri, 28 May 2021 15:36:25 +0800
+Received: from localhost.localdomain.localdomain (10.175.113.25) by
+ dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Fri, 28 May 2021 15:36:24 +0800
+From:   Kefeng Wang <wangkefeng.wang@huawei.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+CC:     <linux-alpha@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-ia64@vger.kernel.org>, <linux-m68k@lists.linux-m68k.org>,
+        <linux-mips@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
+        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        <sparclinux@vger.kernel.org>, <linux-mm@kvack.org>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Will Deacon" <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Russell King <linux@armlinux.org.uk>,
+        Mike Rapoport <rppt@linux.ibm.com>
+Subject: [PATCH v2] mm: generalize ZONE_[DMA|DMA32]
+Date:   Fri, 28 May 2021 15:45:57 +0800
+Message-ID: <20210528074557.17768-1-wangkefeng.wang@huawei.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210527143047.123611-1-wangkefeng.wang@huawei.com>
+References: <20210527143047.123611-1-wangkefeng.wang@huawei.com>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 6154875f-e3eb-4baf-8c3e-08d921aa1baf
-X-MS-TrafficTypeDiagnostic: DM6PR03MB5356:
-X-Microsoft-Antispam-PRVS: <DM6PR03MB53565E40A87198C13A5ED89B8F229@DM6PR03MB5356.namprd03.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:422;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: vwqKxuW3lsTJL1BCvV+k1WQujS2wrweW3pH7w1eEMBPBHGrW96OUC0JWouQRcjDUbTPiis1UHeSYJOZyQ2Ptsd8vUWoLbbsQ9dsJrda+2ogwAWkhJfGdnj26cnEypraiM7OUi88onfRSqmrSlV/1WJ3FjiVQj8LCWqtcc/zfnrxXwEgWGvj/3x0LSE6HEvti35IZZgWfmA7G462UZPiFFISaQaHsLuqflX/89Yzh1Yj/BtKRN9d6O2fCbHJhPO6wDLoltr8fW/7rHBXZelgI8/cJfHm46GXKMDU8Q7iXESJj0g6SGKsadiWvMAHFmjNT37+SO+Yg1t3NL/V18z0KfoIztOYNX22z6p4eEHcG5pbG5/bPF2pjoOoCWJdbdvxOxF9isUN6tv5G5FS0KAHAeIVSsXtXLKeowsTk92gSals8shrIubcUhGPq8IiOApdCcInw8Z1PB2YNJFlnPmKD+c4ZHXAAo9NXxbI/qZSOG+SGY4rlwdFYCOUv8G5EEqnFJ8llfOgFN5zZQhQIqBcktISiPvOJqdQNkMTfVBq0VclW6Iq8APPeLPgWGExYUHrUSlcF7KmHqAQKhAwYK/II3RsnOA1RyPdSnszb5JX0cR0=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR03MB5608.namprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(7916004)(4636009)(39850400004)(366004)(396003)(376002)(136003)(346002)(478600001)(8676002)(6496006)(5660300002)(2906002)(54906003)(186003)(85182001)(16526019)(66556008)(66476007)(66946007)(33716001)(316002)(6916009)(4744005)(956004)(38100700002)(6486002)(83380400001)(9686003)(6666004)(4326008)(26005)(8936002)(86362001)(7416002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?VURTQ3FWS2ZpdU1TTkZJdWlHWDlvb3k2enlxWUtEQmxpL2ZBdlpEbXAzT3JX?=
- =?utf-8?B?WVVTQlZvaStKRnJaanFYRndBeEo1SGhma2FDcVI0alJaOStpZ2R5TmdHalFR?=
- =?utf-8?B?ZTlUaDBMbWhIUXluY2ZlbVZZVmwzNjVNeW1jQld2NUlLUGVkR0dEbXFvTmZW?=
- =?utf-8?B?d0JlbXhsTmhKYzJjVFp1SGxlKzNwVFNHVFVabGRjcWl3QXJzcWNzbUV4STZO?=
- =?utf-8?B?a1Y3bkNMV1g4Q21VVFh6bndFZlBJbndTYWNIRlBkOERiY0RIYTVXa1BMQVZN?=
- =?utf-8?B?dDNLRTM2ZVlGaUZ6Y0hGTlZGVHVwR1U4a1NHdm83OFhaNFc4NTV4N2dBdnQw?=
- =?utf-8?B?UGdDOUZVM3pCZ0UyUmo4bDEreVQ2VVF5RVZibjVoWUdJNFNnU2lvZU9kSXNn?=
- =?utf-8?B?MW9nZjgrN2NJQU5oc1NodWl2K3FMcTNpSkZtclJyRVg3TXl5eUswVEVaTnZm?=
- =?utf-8?B?QXFXaTRsdDJ3VCtFRkp0dVY3Mjc1NXpTSlY0WGJBRXFtRjcwNU9NUCtxZVpO?=
- =?utf-8?B?dng0OXZ2UE1DQlZzTlVZdFExWkhMc245ZlZtT0xmT3JVdWdqSGlkK2VidW5P?=
- =?utf-8?B?QXRlWjBMaGlXMHd3U2ZidC8zVEk1ZTVKc1hRa1RpemJJTDFOeFV3bjB5K3E0?=
- =?utf-8?B?NmhuMTFWTFkyVE45Mm0rS3BmVTg4TmdBa0luUHZ3RktXNFZBV3JVbld2czRt?=
- =?utf-8?B?eFJsRWxLQVdQQWpGcTZsUzQ2amZ4blQ2L3ZCeTA3bnkxNTVrdzFtZWZ2ckwv?=
- =?utf-8?B?Kzl6ODNqNSs4SUdZTlBwVVVoZ09UUTMxVTl2a2VqY0hZVWh3aDk0aUZpbWVI?=
- =?utf-8?B?WE1pUHYrTEEwYlhkTW1vdTJVbFVsVHJDdFVhUlQwWWE1YnQ4YmorYjR5VXIr?=
- =?utf-8?B?b2ZXVG8wWndHWGhFOXJ6UVdWVG9MVnR4a25MQUVQNE93NUhLT2QwNGsyQ3Vs?=
- =?utf-8?B?SDd5M29NRnhsODduYkUxTnNWZmRsNEZLRko3b1BQN0RVdTluckMwa1ZFNUFP?=
- =?utf-8?B?a1NPaHcxOTZDUm4zYjl1M0k4R091bng0NDhIVGZTUjJ3TnFESFRoeW95TW84?=
- =?utf-8?B?bCt4Y2NFMGNVOUZZYWRoVE5RRXBJaEkxczJLR1lGelBnUTFabzVLMGNHempq?=
- =?utf-8?B?bU1nc1A0czhUelZKQ0hQM1NJbWZ2SFVvbWwyZU9uWGREcTk4VkQrUGV4R21x?=
- =?utf-8?B?MlVQRytCckVCeHdlTHhoWlQwbmtabW9tbStTZk5ZUkJXb1pCc2w1bUQ1TUdG?=
- =?utf-8?B?R284OUszaWtTR1hFZDBBV0VFWm5QQUdROXl0UEJpU1MweGg5MCtIbDJxM1FW?=
- =?utf-8?B?c05FZlRVbkU4cUNvVExmbmJLd2lXT1Q0Q0xRZlpSOWZMUy8vOGZmQzFHVjBJ?=
- =?utf-8?B?eU9EZGhaaFYzZ2pFZGhWbHROSExXenQ1L3lwbGtpYmdlT05NbWd1cGlsTWR0?=
- =?utf-8?B?SjVQTkN4UGcxcW0vYjJGdFhBTlFWcUZ4aFU4akRoRlNIc0VSakNlY2QrM1dv?=
- =?utf-8?B?RlU2akFFbVBjRXlCdnZVWmF6UDRlZGFJUHRMK0xrUVE4a2E2cGhSZkQrMVFQ?=
- =?utf-8?B?MjF6SEVEbmtVL0JVTUlESlBGTUw2OUM4a2lVRTJvZUJzYkxpTnR4ZG02TUl4?=
- =?utf-8?B?QXhLbHBxSU8wVkR2Z254T3V6dmJSQStvTWVrTXk1WnZzZFBzUlVjemVsblRZ?=
- =?utf-8?B?ZEhQZGk5QnJhVER6cUVNWHJhN1NHVVRPcHZrRlZsWjNoTzlwTUZmcGZIYUFm?=
- =?utf-8?Q?PFn1H6PtmVRKqBO/0eItEqhON61eGsLApJo4PLT?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6154875f-e3eb-4baf-8c3e-08d921aa1baf
-X-MS-Exchange-CrossTenant-AuthSource: DS7PR03MB5608.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 May 2021 07:27:54.3098
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 335836de-42ef-43a2-b145-348c2ee9ca5b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: QT3bpwJje8Gzl/hm7co08Kg/M/+2pQ2RF0ENnESguRsrw8JH2XKy94F6hG0LwCMXEfTIuEkln1oKSH4x/K/VtQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR03MB5356
-X-OriginatorOrg: citrix.com
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.113.25]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpemm500001.china.huawei.com (7.185.36.107)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 25, 2021 at 08:12:56AM +0200, Christoph Hellwig wrote:
-> Replace the per-block device bd_mutex with a per-gendisk open_mutex,
-> thus simplifying locking wherever we deal with partitions.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  Documentation/filesystems/locking.rst |  2 +-
->  block/genhd.c                         |  7 ++---
->  block/partitions/core.c               | 24 ++++++++---------
->  drivers/block/loop.c                  | 14 +++++-----
->  drivers/block/xen-blkfront.c          |  8 +++---
+ZONE_[DMA|DMA32] configs have duplicate definitions on platforms
+that subscribe them. Instead, just make them generic options which
+can be selected on applicable platforms.
 
-Acked-by: Roger Pau Monné <roger.pau@citrix.com>
+Also only x86/arm64 architectures could enable both ZONE_DMA and
+ZONE_DMA32 if EXPERT, add ARCH_HAS_ZONE_DMA_SET to make dma zone
+configurable and visible on the two architectures.
 
-Thanks, Roger.
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Russell King <linux@armlinux.org.uk>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com> # for arm64
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # for m68k
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+---
+v2:
+-i386 can't enable ZONE_DMA32, fix it.
+-make ZONE_DMA default y on X86 as before.
+-collect ACKs
+
+ arch/alpha/Kconfig                     |  5 +----
+ arch/arm/Kconfig                       |  3 ---
+ arch/arm64/Kconfig                     |  9 +--------
+ arch/ia64/Kconfig                      |  4 +---
+ arch/m68k/Kconfig                      |  5 +----
+ arch/microblaze/Kconfig                |  4 +---
+ arch/mips/Kconfig                      |  7 -------
+ arch/powerpc/Kconfig                   |  4 ----
+ arch/powerpc/platforms/Kconfig.cputype |  1 +
+ arch/riscv/Kconfig                     |  5 +----
+ arch/s390/Kconfig                      |  4 +---
+ arch/sparc/Kconfig                     |  5 +----
+ arch/x86/Kconfig                       | 15 ++-------------
+ mm/Kconfig                             | 12 ++++++++++++
+ 14 files changed, 23 insertions(+), 60 deletions(-)
+
+diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+index 5998106faa60..6a69a14c4825 100644
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -40,6 +40,7 @@ config ALPHA
+ 	select MMU_GATHER_NO_RANGE
+ 	select SET_FS
+ 	select SPARSEMEM_EXTREME if SPARSEMEM
++	select ZONE_DMA
+ 	help
+ 	  The Alpha is a 64-bit general-purpose processor designed and
+ 	  marketed by the Digital Equipment Corporation of blessed memory,
+@@ -65,10 +66,6 @@ config GENERIC_CALIBRATE_DELAY
+ 	bool
+ 	default y
+ 
+-config ZONE_DMA
+-	bool
+-	default y
+-
+ config GENERIC_ISA_DMA
+ 	bool
+ 	default y
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 24804f11302d..000c3f80b58e 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -218,9 +218,6 @@ config GENERIC_CALIBRATE_DELAY
+ config ARCH_MAY_HAVE_PC_FDC
+ 	bool
+ 
+-config ZONE_DMA
+-	bool
+-
+ config ARCH_SUPPORTS_UPROBES
+ 	def_bool y
+ 
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 9f1d8566bbf9..42794474f37f 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -42,6 +42,7 @@ config ARM64
+ 	select ARCH_HAS_SYSCALL_WRAPPER
+ 	select ARCH_HAS_TEARDOWN_DMA_OPS if IOMMU_SUPPORT
+ 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
++	select ARCH_HAS_ZONE_DMA_SET if EXPERT
+ 	select ARCH_HAVE_ELF_PROT
+ 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+ 	select ARCH_INLINE_READ_LOCK if !PREEMPTION
+@@ -307,14 +308,6 @@ config GENERIC_CSUM
+ config GENERIC_CALIBRATE_DELAY
+ 	def_bool y
+ 
+-config ZONE_DMA
+-	bool "Support DMA zone" if EXPERT
+-	default y
+-
+-config ZONE_DMA32
+-	bool "Support DMA32 zone" if EXPERT
+-	default y
+-
+ config ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE
+ 	def_bool y
+ 
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+index 279252e3e0f7..fd8503a0088a 100644
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -60,6 +60,7 @@ config IA64
+ 	select NUMA if !FLATMEM
+ 	select PCI_MSI_ARCH_FALLBACKS if PCI_MSI
+ 	select SET_FS
++	select ZONE_DMA32
+ 	default y
+ 	help
+ 	  The Itanium Processor Family is Intel's 64-bit successor to
+@@ -72,9 +73,6 @@ config 64BIT
+ 	select ATA_NONSTANDARD if ATA
+ 	default y
+ 
+-config ZONE_DMA32
+-	def_bool y
+-
+ config MMU
+ 	bool
+ 	default y
+diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
+index 372e4e69c43a..05a729c6ad7f 100644
+--- a/arch/m68k/Kconfig
++++ b/arch/m68k/Kconfig
+@@ -34,6 +34,7 @@ config M68K
+ 	select SET_FS
+ 	select UACCESS_MEMCPY if !MMU
+ 	select VIRT_TO_BUS
++	select ZONE_DMA
+ 
+ config CPU_BIG_ENDIAN
+ 	def_bool y
+@@ -62,10 +63,6 @@ config TIME_LOW_RES
+ config NO_IOPORT_MAP
+ 	def_bool y
+ 
+-config ZONE_DMA
+-	bool
+-	default y
+-
+ config HZ
+ 	int
+ 	default 1000 if CLEOPATRA
+diff --git a/arch/microblaze/Kconfig b/arch/microblaze/Kconfig
+index 0660f47012bc..14a67a42fcae 100644
+--- a/arch/microblaze/Kconfig
++++ b/arch/microblaze/Kconfig
+@@ -43,6 +43,7 @@ config MICROBLAZE
+ 	select MMU_GATHER_NO_RANGE
+ 	select SPARSE_IRQ
+ 	select SET_FS
++	select ZONE_DMA
+ 
+ # Endianness selection
+ choice
+@@ -60,9 +61,6 @@ config CPU_LITTLE_ENDIAN
+ 
+ endchoice
+ 
+-config ZONE_DMA
+-	def_bool y
+-
+ config ARCH_HAS_ILOG2_U32
+ 	def_bool n
+ 
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index ed51970c08e7..430d5324f1af 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -3277,13 +3277,6 @@ config I8253
+ 	select CLKSRC_I8253
+ 	select CLKEVT_I8253
+ 	select MIPS_EXTERNAL_TIMER
+-
+-config ZONE_DMA
+-	bool
+-
+-config ZONE_DMA32
+-	bool
+-
+ endmenu
+ 
+ config TRAD_SIGNALS
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 088dd2afcfe4..0f78bb383a12 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -403,10 +403,6 @@ config PPC_ADV_DEBUG_DAC_RANGE
+ config PPC_DAWR
+ 	bool
+ 
+-config ZONE_DMA
+-	bool
+-	default y if PPC_BOOK3E_64
+-
+ config PGTABLE_LEVELS
+ 	int
+ 	default 2 if !PPC64
+diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
+index f998e655b570..7d271de8fcbd 100644
+--- a/arch/powerpc/platforms/Kconfig.cputype
++++ b/arch/powerpc/platforms/Kconfig.cputype
+@@ -111,6 +111,7 @@ config PPC_BOOK3E_64
+ 	select PPC_FPU # Make it a choice ?
+ 	select PPC_SMP_MUXED_IPI
+ 	select PPC_DOORBELL
++	select ZONE_DMA
+ 
+ endchoice
+ 
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index a8ad8eb76120..d29643dee126 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -103,6 +103,7 @@ config RISCV
+ 	select SYSCTL_EXCEPTION_TRACE
+ 	select THREAD_INFO_IN_TASK
+ 	select UACCESS_MEMCPY if !MMU
++	select ZONE_DMA32 if 64BIT
+ 
+ config ARCH_MMAP_RND_BITS_MIN
+ 	default 18 if 64BIT
+@@ -132,10 +133,6 @@ config MMU
+ 	  Select if you want MMU-based virtualised addressing space
+ 	  support by paged memory management. If unsure, say 'Y'.
+ 
+-config ZONE_DMA32
+-	bool
+-	default y if 64BIT
+-
+ config VA_BITS
+ 	int
+ 	default 32 if 32BIT
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index b4c7c34069f8..daab9d56957a 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -2,9 +2,6 @@
+ config MMU
+ 	def_bool y
+ 
+-config ZONE_DMA
+-	def_bool y
+-
+ config CPU_BIG_ENDIAN
+ 	def_bool y
+ 
+@@ -210,6 +207,7 @@ config S390
+ 	select THREAD_INFO_IN_TASK
+ 	select TTY
+ 	select VIRT_CPU_ACCOUNTING
++	select ZONE_DMA
+ 	# Note: keep the above list sorted alphabetically
+ 
+ config SCHED_OMIT_FRAME_POINTER
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index 164a5254c91c..39679664cc9a 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -59,6 +59,7 @@ config SPARC32
+ 	select CLZ_TAB
+ 	select HAVE_UID16
+ 	select OLD_SIGACTION
++	select ZONE_DMA
+ 
+ config SPARC64
+ 	def_bool 64BIT
+@@ -141,10 +142,6 @@ config HIGHMEM
+ 	default y if SPARC32
+ 	select KMAP_LOCAL
+ 
+-config ZONE_DMA
+-	bool
+-	default y if SPARC32
+-
+ config GENERIC_ISA_DMA
+ 	bool
+ 	default y if SPARC32
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 0045e1b44190..11cf8a0d6800 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -33,6 +33,7 @@ config X86_64
+ 	select NEED_DMA_MAP_STATE
+ 	select SWIOTLB
+ 	select ARCH_HAS_ELFCORE_COMPAT
++	select ZONE_DMA32
+ 
+ config FORCE_DYNAMIC_FTRACE
+ 	def_bool y
+@@ -93,6 +94,7 @@ config X86
+ 	select ARCH_HAS_SYSCALL_WRAPPER
+ 	select ARCH_HAS_UBSAN_SANITIZE_ALL
+ 	select ARCH_HAS_DEBUG_WX
++	select ARCH_HAS_ZONE_DMA_SET if EXPERT
+ 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+ 	select ARCH_MIGHT_HAVE_ACPI_PDC		if ACPI
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+@@ -343,9 +345,6 @@ config ARCH_SUSPEND_POSSIBLE
+ config ARCH_WANT_GENERAL_HUGETLB
+ 	def_bool y
+ 
+-config ZONE_DMA32
+-	def_bool y if X86_64
+-
+ config AUDIT_ARCH
+ 	def_bool y if X86_64
+ 
+@@ -393,16 +392,6 @@ config CC_HAS_SANE_STACKPROTECTOR
+ 
+ menu "Processor type and features"
+ 
+-config ZONE_DMA
+-	bool "DMA memory allocation support" if EXPERT
+-	default y
+-	help
+-	  DMA memory allocation support allows devices with less than 32-bit
+-	  addressing to allocate within the first 16MB of address space.
+-	  Disable if no such devices will be used.
+-
+-	  If unsure, say Y.
+-
+ config SMP
+ 	bool "Symmetric multi-processing support"
+ 	help
+diff --git a/mm/Kconfig b/mm/Kconfig
+index 02d44e3420f5..16930f40f293 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -789,6 +789,18 @@ config ARCH_HAS_CACHE_LINE_SIZE
+ config ARCH_HAS_PTE_DEVMAP
+ 	bool
+ 
++config ARCH_HAS_ZONE_DMA_SET
++	bool
++
++config ZONE_DMA
++	bool "Support DMA zone" if ARCH_HAS_ZONE_DMA_SET
++	default y if ARM64 || X86
++
++config ZONE_DMA32
++	bool "Support DMA32 zone" if ARCH_HAS_ZONE_DMA_SET
++	depends on !X86_32
++	default y if ARM64
++
+ config ZONE_DEVICE
+ 	bool "Device memory (pmem, HMM, etc...) hotplug support"
+ 	depends on MEMORY_HOTPLUG
+-- 
+2.26.2
+
