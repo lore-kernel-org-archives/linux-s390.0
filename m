@@ -2,117 +2,195 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 681AAC4708D
-	for <linux-s390@archiver.kernel.org>; Fri, 28 May 2021 20:06:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16C46C47082
+	for <linux-s390@archiver.kernel.org>; Sat, 29 May 2021 09:14:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4638A613B5
-	for <linux-s390@archiver.kernel.org>; Fri, 28 May 2021 20:06:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E50FF611AC
+	for <linux-s390@archiver.kernel.org>; Sat, 29 May 2021 09:14:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229631AbhE1UIT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 May 2021 16:08:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52116 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229618AbhE1UIS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 May 2021 16:08:18 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93BB9C061763
-        for <linux-s390@vger.kernel.org>; Fri, 28 May 2021 13:06:41 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id b26so6983968lfq.4
-        for <linux-s390@vger.kernel.org>; Fri, 28 May 2021 13:06:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rasmusvillemoes.dk; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=SOmtzfnBo6NCPJmKRQ2bxbkBgbCrNqNnPAbwGffPcTs=;
-        b=L006ZDgfzIz2uNo0e1HI0KncA6d5iUevfwGopHwj6KZ0AzwLFmI7P+KSXJTBenAtKt
-         YvhygMCnEymm4R7ZuS6YSodjYjIrJh7LSsEhj+yn2mu+dh45d5tZjF54ls96OiZjrKl0
-         /pLSn9bC8pY1aZrCrWbmH+zopo0dZdc4fx0t0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=SOmtzfnBo6NCPJmKRQ2bxbkBgbCrNqNnPAbwGffPcTs=;
-        b=jmt63Yd0gjbaz9ONS19FQ4U5dMjFRi0PmYJuXWjQuVv9oU4DIy53oH9DVwJnDdDKRL
-         5Gpu74e5pJlakCUb/ZtAC1ohE5vC8RqMage0XpgmnioXMqDXm/WioqfLkjHhNLQq373a
-         YpCDh7/j5P6kdBAHXxjs/exccfi/nvlOOWLlXs4GOGYwriBr3e7jTG7x0e7RhmTfdeic
-         Ssq2DGJNAKzuixZbv9x1fvbI71GKRqTjt/ypFf9VVXjQVhr1YLnWCCEHkkRRIqrqqZjl
-         eoFDwmJZrperwcjyAKFllcI7arhR1TAOUEApDLjIjORYryizItnSEndQBGtl70PWMz3A
-         XNNQ==
-X-Gm-Message-State: AOAM532wNJ+CdU9qNsAlkw0ewhii+xw9rns9YmcvQ+cUWqTDm0d1Q7Mh
-        6q2YDU2AtDEf2Ce18Ab4E1BLNjhENL4G3AfQ
-X-Google-Smtp-Source: ABdhPJzKa/84djfH8kXaEz32MIwheVqy9u5D3igsMvIDbXW8m90h4yHajGL+aZ2UQYuvum5S2hn3pA==
-X-Received: by 2002:a05:6512:28e:: with SMTP id j14mr6669923lfp.360.1622232399648;
-        Fri, 28 May 2021 13:06:39 -0700 (PDT)
-Received: from [172.17.20.105] ([81.216.59.226])
-        by smtp.gmail.com with ESMTPSA id k8sm600385lfg.190.2021.05.28.13.06.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 28 May 2021 13:06:39 -0700 (PDT)
-Subject: Re: [PATCH RFCv2 2/3] lib/vsprintf.c: make %pD print full path for
- file
-To:     Justin He <Justin.He@arm.com>, Matthew Wilcox <willy@infradead.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S229620AbhE2JQa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 29 May 2021 05:16:30 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37170 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229597AbhE2JQa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 29 May 2021 05:16:30 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14T9Cn4L147985;
+        Sat, 29 May 2021 05:14:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=BXl3gP/J6zeqy0oCp5OcjpMM7MF0KDhdFjodYFP7JHM=;
+ b=pg7ucbqM9OQhN9832jq0FM+kiE0foIYgvTJPF8GRF2fMwkeSZLfFIgmMS7PG7ElvZrVj
+ 830it1+d7AOX/FfRrTGQap58nzwg26yEjY5tThokGEDX/dCsByLfvqvYLzoSVLsRRrwT
+ CTRL7osR4Qt/eo17Fx7vSpyXtONKJRZMfi7rakyPaOv/VZBRW9nyJqAZ2w7SDBuF0gao
+ HmUPmGGY76R2FXAeRINTlpRs+vjw1t3U+k4UF6cc5t/+CGpEFP0rkQ0SsKMQHkXSmr+F
+ 5/Ym8Lhx7N4XZn+Mm2L7vpS4wcyqdifQEqXIhNbesUT5/Ov0CWTec1/rBBImVhg3ypCO 9g== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38uhxf0phq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 29 May 2021 05:14:53 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14T9CVrP030123;
+        Sat, 29 May 2021 09:14:50 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 38ucvh8353-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 29 May 2021 09:14:50 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14T9Eg5o24248756
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 29 May 2021 09:14:42 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8120411C04C;
+        Sat, 29 May 2021 09:14:42 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 35F3F11C04A;
+        Sat, 29 May 2021 09:14:42 +0000 (GMT)
+Received: from localhost (unknown [9.171.82.234])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Sat, 29 May 2021 09:14:42 +0000 (GMT)
+Date:   Sat, 29 May 2021 11:14:40 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <heiko.carstens@de.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
-References: <20210528113951.6225-1-justin.he@arm.com>
- <20210528113951.6225-3-justin.he@arm.com>
- <YLDpSnV9XBUJq5RU@casper.infradead.org>
- <AM6PR08MB437691E7314C6B774EFED4BDF7229@AM6PR08MB4376.eurprd08.prod.outlook.com>
-From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Message-ID: <89fc3919-ca2c-50fd-35e1-33bf3a59b993@rasmusvillemoes.dk>
-Date:   Fri, 28 May 2021 22:06:37 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 5.13-rc4
+Message-ID: <your-ad-here.call-01622279680-ext-7982@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: nqGmWQLNA4rVn72UBBQvUu62KOb3-13I
+X-Proofpoint-GUID: nqGmWQLNA4rVn72UBBQvUu62KOb3-13I
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-In-Reply-To: <AM6PR08MB437691E7314C6B774EFED4BDF7229@AM6PR08MB4376.eurprd08.prod.outlook.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-29_05:2021-05-27,2021-05-29 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
+ priorityscore=1501 lowpriorityscore=0 mlxscore=0 clxscore=1011
+ impostorscore=0 malwarescore=0 adultscore=0 bulkscore=0 suspectscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105290070
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 28/05/2021 16.22, Justin He wrote:
-> 
->> From: Matthew Wilcox <willy@infradead.org>
+Hello Linus,
 
->> How is it "safer"?  You already have a buffer passed from the caller.
->> Are you saying that d_path_fast() might overrun a really small buffer
->> but won't overrun a 256 byte buffer?
-> No, it won't overrun a 256 byte buf. When the full path size is larger than 256, the p->len is < 0 in prepend_name, and this overrun will be
-> dectected in extract_string() with "-ENAMETOOLONG".
-> 
-> Each printk contains 2 vsnprintf. vsnprintf() returns the required size after formatting the string.>
-> 1. vprintk_store() will invoke 1st vsnprintf() will 8 bytes space to get the reserve_size. In this case, the _buf_ could be less than _end_ by design.
-> 2. Then it invokes 2nd printk_sprint()->vscnprintf()->vsnprintf() to really fill the space.
+please pull s390 changes for 5.13-rc4.
 
-Please do not assume that printk is the only user of vsnprintf() or the
-only one that would use a given %p<foo> extension.
+Thank you,
+Vasily
 
-Also, is it clear that nothing can change underneath you in between two
-calls to vsnprintf()? IOW, is it certain that the path will fit upon a
-second call using the size returned from the first?
+The following changes since commit 6efb943b8616ec53a5e444193dccf1af9ad627b5:
 
-Rasmus
+  Linux 5.13-rc1 (2021-05-09 14:17:44 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.13-3
+
+for you to fetch changes up to ffa99c436aa70c0c0980866523a6ae1023c96768:
+
+  Merge tag 'vfio-ccw-20210520' of https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw into fixes (2021-05-26 23:46:34 +0200)
+
+----------------------------------------------------------------
+- Fix races in vfio-ccw request handling.
+
+----------------------------------------------------------------
+Eric Farman (3):
+      vfio-ccw: Check initialized flag in cp_init()
+      vfio-ccw: Reset FSM state to IDLE inside FSM
+      vfio-ccw: Serialize FSM IDLE state with I/O completion
+
+Vasily Gorbik (1):
+      Merge tag 'vfio-ccw-20210520' of https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw into fixes
+
+ drivers/s390/cio/vfio_ccw_cp.c  |  4 ++++
+ drivers/s390/cio/vfio_ccw_drv.c | 12 ++++++++++--
+ drivers/s390/cio/vfio_ccw_fsm.c |  1 +
+ drivers/s390/cio/vfio_ccw_ops.c |  2 --
+ 4 files changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index b9febc581b1f..8d1b2771c1aa 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -638,6 +638,10 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 	static DEFINE_RATELIMIT_STATE(ratelimit_state, 5 * HZ, 1);
+ 	int ret;
+ 
++	/* this is an error in the caller */
++	if (cp->initialized)
++		return -EBUSY;
++
+ 	/*
+ 	 * We only support prefetching the channel program. We assume all channel
+ 	 * programs executed by supported guests likewise support prefetching.
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 8c625b530035..9b61e9b131ad 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -86,6 +86,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 	struct vfio_ccw_private *private;
+ 	struct irb *irb;
+ 	bool is_final;
++	bool cp_is_finished = false;
+ 
+ 	private = container_of(work, struct vfio_ccw_private, io_work);
+ 	irb = &private->irb;
+@@ -94,14 +95,21 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
+ 	if (scsw_is_solicited(&irb->scsw)) {
+ 		cp_update_scsw(&private->cp, &irb->scsw);
+-		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING)
++		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING) {
+ 			cp_free(&private->cp);
++			cp_is_finished = true;
++		}
+ 	}
+ 	mutex_lock(&private->io_mutex);
+ 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+ 	mutex_unlock(&private->io_mutex);
+ 
+-	if (private->mdev && is_final)
++	/*
++	 * Reset to IDLE only if processing of a channel program
++	 * has finished. Do not overwrite a possible processing
++	 * state if the final interrupt was for HSCH or CSCH.
++	 */
++	if (private->mdev && cp_is_finished)
+ 		private->state = VFIO_CCW_STATE_IDLE;
+ 
+ 	if (private->io_trigger)
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index 23e61aa638e4..e435a9cd92da 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -318,6 +318,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
+ 	}
+ 
+ err_out:
++	private->state = VFIO_CCW_STATE_IDLE;
+ 	trace_vfio_ccw_fsm_io_request(scsw->cmd.fctl, schid,
+ 				      io_region->ret_code, errstr);
+ }
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index 491a64c61fff..c57d2a7f0919 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -279,8 +279,6 @@ static ssize_t vfio_ccw_mdev_write_io_region(struct vfio_ccw_private *private,
+ 	}
+ 
+ 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_IO_REQ);
+-	if (region->ret_code != 0)
+-		private->state = VFIO_CCW_STATE_IDLE;
+ 	ret = (region->ret_code != 0) ? region->ret_code : count;
+ 
+ out_unlock:
