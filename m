@@ -2,86 +2,65 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 863D1C47090
-	for <linux-s390@archiver.kernel.org>; Sat, 29 May 2021 10:46:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EDA0C4708E
+	for <linux-s390@archiver.kernel.org>; Sat, 29 May 2021 16:49:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 685CC6113B
-	for <linux-s390@archiver.kernel.org>; Sat, 29 May 2021 10:46:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1241D610FA
+	for <linux-s390@archiver.kernel.org>; Sat, 29 May 2021 16:49:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229708AbhE2Krx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 29 May 2021 06:47:53 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:2098 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229746AbhE2Krn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 May 2021 06:47:43 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4FsdQJ2ZhzzWpwN;
-        Sat, 29 May 2021 18:41:28 +0800 (CST)
-Received: from dggpemm500001.china.huawei.com (7.185.36.107) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Sat, 29 May 2021 18:46:06 +0800
-Received: from localhost.localdomain.localdomain (10.175.113.25) by
- dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Sat, 29 May 2021 18:46:05 +0800
-From:   Kefeng Wang <wangkefeng.wang@huawei.com>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S229709AbhE2Qum (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 29 May 2021 12:50:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44346 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229800AbhE2Quk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 29 May 2021 12:50:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id 1EF37610FA;
+        Sat, 29 May 2021 16:49:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622306944;
+        bh=/xJ/DfyZHkqZaUTk1sY0PT+Sib8QmQOEu0K5RtUdPxE=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=AjO01dxxdqQs7bto/1zF3Z/7uJDfk9djeKgFaDH4b7yEYxMGoMS/nENTJObxoo6Jn
+         qnCFbQTlPl94tE/vjvbBpJs/7WbalsZ4kIGy3LAZzStJVOBLB49aVL/Xc1TlDIVhFv
+         RYCbnOvW0zlY93NsCZpH+GESdHnmRADOrbcL/jI2+IJ7qq3UdH7HOaGRFEouUJdaNY
+         J/7ka75FMPHFvyJ/STdV5SLG22J+8AOzAr3mYX43W+dwfwV6XtTWNnIMUyNFZUglOQ
+         6BfmODRQGTLzok/WRrGiThwrQbzXnHoZUvM6/mfFgHv4Ht892Jsmkrdgn75u6X1YIv
+         vMg6a7YTIrN+Q==
+Subject: Re: [GIT PULL] s390 updates for 5.13-rc4
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <your-ad-here.call-01622279680-ext-7982@work.hours>
+References: <your-ad-here.call-01622279680-ext-7982@work.hours>
+X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
+X-PR-Tracked-Message-Id: <your-ad-here.call-01622279680-ext-7982@work.hours>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.13-3
+X-PR-Tracked-Commit-Id: ffa99c436aa70c0c0980866523a6ae1023c96768
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 866c4b8a18e26b7ae41c45b1af57c82a66089985
+Message-Id: <162230694408.3322.2106564012439486060.pr-tracker-bot@kernel.org>
+Date:   Sat, 29 May 2021 16:49:04 +0000
+To:     Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        <linux-s390@vger.kernel.org>
-Subject: [PATCH 13/15] s390: convert to setup_initial_init_mm()
-Date:   Sat, 29 May 2021 18:55:02 +0800
-Message-ID: <20210529105504.180544-14-wangkefeng.wang@huawei.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210529105504.180544-1-wangkefeng.wang@huawei.com>
-References: <20210529105504.180544-1-wangkefeng.wang@huawei.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.113.25]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemm500001.china.huawei.com (7.185.36.107)
-X-CFilter-Loop: Reflected
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use setup_initial_init_mm() helper to simplify code.
+The pull request you sent on Sat, 29 May 2021 11:14:40 +0200:
 
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
----
- arch/s390/kernel/setup.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.13-3
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 146d01700a55..3feb9c5972eb 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -1096,10 +1096,7 @@ void __init setup_arch(char **cmdline_p)
- 
-         ROOT_DEV = Root_RAM0;
- 
--	init_mm.start_code = (unsigned long) _text;
--	init_mm.end_code = (unsigned long) _etext;
--	init_mm.end_data = (unsigned long) _edata;
--	init_mm.brk = (unsigned long) _end;
-+	setup_initial_init_mm(_text, _etext, _edata, _end);
- 
- 	if (IS_ENABLED(CONFIG_EXPOLINE_AUTO))
- 		nospec_auto_detect();
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/866c4b8a18e26b7ae41c45b1af57c82a66089985
+
+Thank you!
+
 -- 
-2.26.2
-
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
