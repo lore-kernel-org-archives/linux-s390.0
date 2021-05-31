@@ -2,111 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5D7DC47094
-	for <linux-s390@archiver.kernel.org>; Mon, 31 May 2021 09:40:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 115E7C47080
+	for <linux-s390@archiver.kernel.org>; Mon, 31 May 2021 10:50:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CB0D6611AC
-	for <linux-s390@archiver.kernel.org>; Mon, 31 May 2021 09:40:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DD7F26108D
+	for <linux-s390@archiver.kernel.org>; Mon, 31 May 2021 10:50:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231228AbhEaJmR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 May 2021 05:42:17 -0400
-Received: from mx2.suse.de ([195.135.220.15]:55936 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230500AbhEaJmQ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 31 May 2021 05:42:16 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1622454035; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=bPMteFR0fnmyo8FXBzBxRPRmVb4fglfAJIgPFxZ76ck=;
-        b=fUx3YXqwD0FYvZRCenXctrEefGQaPnqoTrhsrCqr6gtMMdzrHn7ieUqpDhSpsgIMLE6vmZ
-        yIU4fc6DL/cUolu5k960Gxlh8oizRRK4+SmC0UbANavCdZccin0KFMEMVg1If0YV691wVi
-        WEnSrZAT6SGY/njmbiqICl2miIcbHZ0=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 7D2B2B4BA;
-        Mon, 31 May 2021 09:40:35 +0000 (UTC)
-Date:   Mon, 31 May 2021 11:40:34 +0200
-From:   Petr Mladek <pmladek@suse.com>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Justin He <Justin.He@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH RFCv2 2/3] lib/vsprintf.c: make %pD print full path for
- file
-Message-ID: <YLSvEqQQj5RLjAJ/@alley>
-References: <20210528113951.6225-1-justin.he@arm.com>
- <20210528113951.6225-3-justin.he@arm.com>
- <YLDpSnV9XBUJq5RU@casper.infradead.org>
- <AM6PR08MB437691E7314C6B774EFED4BDF7229@AM6PR08MB4376.eurprd08.prod.outlook.com>
- <89fc3919-ca2c-50fd-35e1-33bf3a59b993@rasmusvillemoes.dk>
- <YLOsvz8ZbpjfcuGO@casper.infradead.org>
+        id S231228AbhEaKwU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 May 2021 06:52:20 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29498 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230518AbhEaKwR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 31 May 2021 06:52:17 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14VAXs8a076717;
+        Mon, 31 May 2021 06:50:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=2+nrFyx6S43CHiLPYIp2Ak+zvfJkcKxsC5zMZR9SbwY=;
+ b=Bk+XVkGgNBKZoT6rgQU856mh1gqA1jy/+L4fF3BLvsg5HAlGck4q7wTiU0zpObO5cw5E
+ 4wpSW5HQURJzRlbsOUHUBWt4RgK3VIAXh4sKT6Q6I3GCPb8Z/ozN6p6P2xBKuoYjkL4B
+ lOTkmcFgA1r2bzcX5OqPqssxZoaEaHXttPG+D1yBX+rc4/F+ZqQ8urTnAaOW6AJVFn0P
+ HIWj95fu5wh84rTop7pKP+1ShIOx/Zf0ufwdLe2auAVjcS+wwJk9OhXkUxDH2VvLqY/Q
+ s5DSK4oxzIStkFbtuGBeV2QFcuyoh5omJgkXD6T3cbO2OiQCBgv/7yvTPzUTp3ohwtcS 2g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38vs1rg2ey-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 May 2021 06:50:36 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14VAZ85g083187;
+        Mon, 31 May 2021 06:50:36 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38vs1rg2e9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 May 2021 06:50:36 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14VAh01H030773;
+        Mon, 31 May 2021 10:50:34 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 38ud888yfg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 May 2021 10:50:34 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14VAoWAu11141450
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 31 May 2021 10:50:32 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1E29D52050;
+        Mon, 31 May 2021 10:50:32 +0000 (GMT)
+Received: from linux01.pok.stglabs.ibm.com (unknown [9.114.17.81])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 6C1DE5204E;
+        Mon, 31 May 2021 10:50:31 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+Subject: [kvm-unit-tests PATCH] s390x: selftest: Fix report output
+Date:   Mon, 31 May 2021 10:50:03 +0000
+Message-Id: <20210531105003.44737-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YLOsvz8ZbpjfcuGO@casper.infradead.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: aa-pZdmFiLd__BFdukLpMD9GVM4hsX2f
+X-Proofpoint-GUID: oug8H962GbdrlhyOhE1LcRkDXBhs-ayQ
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-31_07:2021-05-31,2021-05-31 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ priorityscore=1501 suspectscore=0 bulkscore=0 mlxscore=0
+ lowpriorityscore=0 mlxlogscore=999 spamscore=0 adultscore=0 malwarescore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105310075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun 2021-05-30 16:18:23, Matthew Wilcox wrote:
-> On Fri, May 28, 2021 at 10:06:37PM +0200, Rasmus Villemoes wrote:
-> > On 28/05/2021 16.22, Justin He wrote:
-> > > 
-> > >> From: Matthew Wilcox <willy@infradead.org>
-> > 
-> > >> How is it "safer"?  You already have a buffer passed from the caller.
-> > >> Are you saying that d_path_fast() might overrun a really small buffer
-> > >> but won't overrun a 256 byte buffer?
-> > > No, it won't overrun a 256 byte buf. When the full path size is larger than 256, the p->len is < 0 in prepend_name, and this overrun will be
-> > > dectected in extract_string() with "-ENAMETOOLONG".
-> > > 
-> > > Each printk contains 2 vsnprintf. vsnprintf() returns the required size after formatting the string.>
-> > > 1. vprintk_store() will invoke 1st vsnprintf() will 8 bytes space to get the reserve_size. In this case, the _buf_ could be less than _end_ by design.
-> > > 2. Then it invokes 2nd printk_sprint()->vscnprintf()->vsnprintf() to really fill the space.
-> > 
-> > Please do not assume that printk is the only user of vsnprintf() or the
-> > only one that would use a given %p<foo> extension.
-> > 
-> > Also, is it clear that nothing can change underneath you in between two
-> > calls to vsnprintf()? IOW, is it certain that the path will fit upon a
-> > second call using the size returned from the first?
-> 
-> No, but that's also true of %s.  I think vprintk_store() is foolish to
-> do it this way.
+To make our TAP parser (and me) happy we don't want to have to reports
+with exactly the same wording.
 
-Just for record. vprintk_store() is foolish here by intention.
-It avoids the need of static per-CPU X per-context buffers
-and it is simple.
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ s390x/selftest.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-I believe that it should be good enough in practice. Any race here
-would make the result racy anyway.
+diff --git a/s390x/selftest.c b/s390x/selftest.c
+index b2fe2e7b..c2ca9896 100644
+--- a/s390x/selftest.c
++++ b/s390x/selftest.c
+@@ -47,12 +47,19 @@ static void test_malloc(void)
+ 	*tmp2 = 123456789;
+ 	mb();
+ 
+-	report((uintptr_t)tmp & 0xf000000000000000ul, "malloc: got vaddr");
+-	report(*tmp == 123456789, "malloc: access works");
++	report_prefix_push("malloc");
++	report_prefix_push("ptr_0");
++	report((uintptr_t)tmp & 0xf000000000000000ul, "allocated memory");
++	report(*tmp == 123456789, "wrote allocated memory");
++	report_prefix_pop();
++
++	report_prefix_push("ptr_1");
+ 	report((uintptr_t)tmp2 & 0xf000000000000000ul,
+-	       "malloc: got 2nd vaddr");
+-	report((*tmp2 == 123456789), "malloc: access works");
+-	report(tmp != tmp2, "malloc: addresses differ");
++	       "allocated memory");
++	report((*tmp2 == 123456789), "wrote allocated memory");
++	report_prefix_pop();
++
++	report(tmp != tmp2, "allocated memory addresses differ");
+ 
+ 	expect_pgm_int();
+ 	configure_dat(0);
+@@ -62,6 +69,7 @@ static void test_malloc(void)
+ 
+ 	free(tmp);
+ 	free(tmp2);
++	report_prefix_pop();
+ }
+ 
+ int main(int argc, char**argv)
+-- 
+2.30.2
 
-Of course, we might need to reconsider it if there are real life
-problems with this approach.
-
-Best Regards,
-Petr
