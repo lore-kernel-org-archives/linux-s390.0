@@ -4,154 +4,329 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19016C47082
-	for <linux-s390@archiver.kernel.org>; Mon, 31 May 2021 12:09:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C85CC47080
+	for <linux-s390@archiver.kernel.org>; Mon, 31 May 2021 12:22:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EEB0C61287
-	for <linux-s390@archiver.kernel.org>; Mon, 31 May 2021 12:09:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 66A70610C9
+	for <linux-s390@archiver.kernel.org>; Mon, 31 May 2021 12:22:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231492AbhEaMLa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 May 2021 08:11:30 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58066 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231670AbhEaMLD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 31 May 2021 08:11:03 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14VC2vmG145859;
-        Mon, 31 May 2021 08:09:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=uyoPLmz1i1YcQV1f0M6oftc/7Lnj7eEsKzdH9yo/ORE=;
- b=GUu0XkvakgZmvtiLOGHrY1myrw54OlWJeXix2wrG9nSmMzfw/wwFBQEiUXvosK5GoLkn
- HhIAUO7z5TGLQiN0xxZjUQOUSL+8XR9H3Q20T80sOOy1XpCofrXQMHX5NeYwXjLKqNSP
- Gz52uoqCoJ4gX+3urWq4J8CBRhfEyaCMzYJYBJ1slk3eTnaRPnRZGjZefRWdqCzOCE+9
- vhFqIxDTUzp0HyEclk3FqxJefgCEiVJH1vIviqNIy4CIIg4S8vCwDGeSL1h2N15pKY0M
- e0boIQEh/4bUlKp/uA1qARmmDphothnZM73109Az3hi0QZ0S3NKKSLpB6MWyWldWke5U yQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38vye3r7jp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 May 2021 08:09:23 -0400
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14VC37ar147051;
-        Mon, 31 May 2021 08:09:23 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38vye3r7j4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 May 2021 08:09:23 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14VC9Lw3022855;
-        Mon, 31 May 2021 12:09:21 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 38ud8890rn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 May 2021 12:09:20 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14VC9ICs35062112
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 31 May 2021 12:09:18 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AE28FA4065;
-        Mon, 31 May 2021 12:09:18 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 58537A406A;
-        Mon, 31 May 2021 12:09:18 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.89.221])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 31 May 2021 12:09:18 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH] s390x: selftest: Fix report output
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, thuth@redhat.com
-References: <20210531105003.44737-1-frankja@linux.ibm.com>
- <20210531131119.65587773.cohuck@redhat.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <ee1c2162-027a-f6b2-694f-08e9aae7f44d@linux.ibm.com>
-Date:   Mon, 31 May 2021 14:09:17 +0200
+        id S231450AbhEaMYS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 May 2021 08:24:18 -0400
+Received: from mail-dm6nam12on2076.outbound.protection.outlook.com ([40.107.243.76]:18273
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231327AbhEaMYN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 31 May 2021 08:24:13 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kNyhJTsf3pt/r/xJamo8CmEEtQ8PlpqlrxZtKV5/KRLbtROS00ndhXthrfTfEoU6o+TNla6Vsb0DxOAX2W2MF1aFmFC8hWk32XilicD576FX+GiikXXlq4Ng97l1O6bEaEotS5Jyvag5ypgZT/etcvPLK0PRf/sQKl/GytEg6c7A2TE9wtQE54O62y0Q474ijklDi9SC/qpS8krJW58Ki4ZEtmzNYCVWmUgpjmEP2uv/xrfEhSyIIwb9/m8rfObocwMivDjkrZ/IKbPFurOagXJMbAxlfNp+RI8KR6hQq7mq7u0L3w9uhZ8iljB5FCPMwPCLOkTrVyAlYEg1PSfqgA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oS/QsdVDIzT8OPpGE0MNvbxd3Px81tbH99R4M1X8mI4=;
+ b=Yix4qG2hYTGUGcJ+mGjY1jE1NdEiAFJmHnna7HSKhFhhm1gD1/5cN7/M/IBbj/8H9xtG4LJ7vf1ZspJwYrVE4Zm+bkUQGtm83riuo5NB+RGMeVT3uYUnaXiAKvG2Qu+9mun6xFJaGzoO41FU5JtdR4nvxXRMOqrpXuHpGiO4L7T1eXK3vogFdIcF2Yi2JQnOJAWW27TgqdeY+pgqsZk3jwwDE5jkv0XV3pIIVvX44rQsrMuK4b1xDWbxr225KYvW4c+yL4ejoP4Ayz0yVjL35iOdE50NA5VoVHbPBKUvPno1udw4NOt8YjmytvQR4Mim3SZwe6j3ZCSBlandRMRUeA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 149.199.62.198) smtp.rcpttodomain=linux.ibm.com smtp.mailfrom=xilinx.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=xilinx.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oS/QsdVDIzT8OPpGE0MNvbxd3Px81tbH99R4M1X8mI4=;
+ b=tULRj4D3zOCR1er2uvUfkkrbShd4TaZRYh0jXOpFcN/hDc/e1uYNNdjsszseyAjuS7yP0KJCI16H+wf+f8igyfyp++uOl0XCH38sZ9X8MJJ7XS4nbZnvjCnehTvyWmBseA2+iMCNhRnI/ZfApdT6zkQkH3Nk+z/m69D7w2R/d3Y=
+Received: from BN6PR14CA0048.namprd14.prod.outlook.com (2603:10b6:404:13f::34)
+ by CH2PR02MB6454.namprd02.prod.outlook.com (2603:10b6:610:10::28) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.27; Mon, 31 May
+ 2021 12:22:28 +0000
+Received: from BN1NAM02FT018.eop-nam02.prod.protection.outlook.com
+ (2603:10b6:404:13f:cafe::63) by BN6PR14CA0048.outlook.office365.com
+ (2603:10b6:404:13f::34) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.20 via Frontend
+ Transport; Mon, 31 May 2021 12:22:28 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 149.199.62.198)
+ smtp.mailfrom=xilinx.com; linux.ibm.com; dkim=none (message not signed)
+ header.d=none;linux.ibm.com; dmarc=pass action=none header.from=xilinx.com;
+Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
+ 149.199.62.198 as permitted sender) receiver=protection.outlook.com;
+ client-ip=149.199.62.198; helo=xsj-pvapexch01.xlnx.xilinx.com;
+Received: from xsj-pvapexch01.xlnx.xilinx.com (149.199.62.198) by
+ BN1NAM02FT018.mail.protection.outlook.com (10.13.3.159) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.4150.30 via Frontend Transport; Mon, 31 May 2021 12:22:28 +0000
+Received: from xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) by
+ xsj-pvapexch01.xlnx.xilinx.com (172.19.86.40) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Mon, 31 May 2021 05:22:27 -0700
+Received: from smtp.xilinx.com (172.19.127.96) by
+ xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server id
+ 15.1.2176.2 via Frontend Transport; Mon, 31 May 2021 05:22:27 -0700
+Envelope-to: rppt@linux.ibm.com,
+ linux@armlinux.org.uk,
+ rth@twiddle.net,
+ palmer@dabbelt.com,
+ bp@alien8.de,
+ mingo@redhat.com,
+ davem@davemloft.net,
+ tsbogend@alpha.franken.de,
+ geert@linux-m68k.org,
+ will@kernel.org,
+ catalin.marinas@arm.com,
+ linux-mm@kvack.org,
+ sparclinux@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ linux-riscv@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org,
+ linux-mips@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org,
+ linux-ia64@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org,
+ linux-alpha@vger.kernel.org,
+ akpm@linux-foundation.org,
+ wangkefeng.wang@huawei.com
+Received: from [172.30.17.109] (port=59010)
+        by smtp.xilinx.com with esmtp (Exim 4.90)
+        (envelope-from <michal.simek@xilinx.com>)
+        id 1lngw6-0007Re-TG; Mon, 31 May 2021 05:22:27 -0700
+Subject: Re: [PATCH v2] mm: generalize ZONE_[DMA|DMA32]
+To:     Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+CC:     <linux-alpha@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-ia64@vger.kernel.org>, <linux-m68k@lists.linux-m68k.org>,
+        <linux-mips@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
+        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        <sparclinux@vger.kernel.org>, <linux-mm@kvack.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Russell King <linux@armlinux.org.uk>,
+        Mike Rapoport <rppt@linux.ibm.com>
+References: <20210527143047.123611-1-wangkefeng.wang@huawei.com>
+ <20210528074557.17768-1-wangkefeng.wang@huawei.com>
+From:   Michal Simek <michal.simek@xilinx.com>
+Message-ID: <67269724-625f-4e82-7c05-a52879bc94bd@xilinx.com>
+Date:   Mon, 31 May 2021 14:22:21 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+ Thunderbird/78.10.2
 MIME-Version: 1.0
-In-Reply-To: <20210531131119.65587773.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20210528074557.17768-1-wangkefeng.wang@huawei.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: gw3XPXCkcTEDmS1UqjJUtZKmE65mGt_C
-X-Proofpoint-GUID: 9E6j179ncDiZAyaaRWOh3bFFotV9TB27
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-31_08:2021-05-31,2021-05-31 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- impostorscore=0 suspectscore=0 clxscore=1015 malwarescore=0
- priorityscore=1501 phishscore=0 adultscore=0 mlxscore=0 bulkscore=0
- spamscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2104190000 definitions=main-2105310087
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 527071dd-5cb3-4563-fdf7-08d9242ec17c
+X-MS-TrafficTypeDiagnostic: CH2PR02MB6454:
+X-Microsoft-Antispam-PRVS: <CH2PR02MB64548E9C7BA43828A70BB99EC63F9@CH2PR02MB6454.namprd02.prod.outlook.com>
+X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
+X-MS-Oob-TLC-OOBClassifiers: OLM:1148;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: J/pg3xWFq6y3RPjkPGOiLaLW9Wji9CdPTwNTWe9CaVsvRMWZMMj6QBjCcA77bEYBz9I5D+0zqiF2j8dQaEYAM4CcAI4qrpZtICpeIr5a0Z29sxH5bnGkAyJw3+iyyumdB8VyXziwywdDNwR0zc0Y04Wvm7dDira4ALIlBSKvhjkdhlqN5BPsu6GSpQv7qM0fGXaUK7HzfrklLidpcbtLiFQB4Gha0XPPDwXKQSRFPHJpLzppjEq77Z8SwlIUVeIoXBy4L5jA2yaNbEWUQMIce7ai+aXSIqSYro0ECe1OLB4zunQBtZ/H3ivgTQJRIPSioqMRyG75cKmPx50ZpTo+xVZUKwlWR6nLBDRHjMm1w66izC/EGbNH/POi8bjCmJiNsroTdxvjP1kK7WK+aAQzl6BkZzp8OCWkp3ZRJnsnevlr4xBuCb+Yb4zz9BuRHxD6zDco6DWQctQDOzeJc9jfSmCboq4rc93kdFU29DcCJsMXZMP6+o+vnByrm99B54RyUSPMlIPwft5iFt93pFnT2pl+aWfhqkPlvdSKtQ10XfypwmdZ+H6rpW+QxovZRHSimxf/xMTPFTptFzpvJjNlTgFCr4DJ5nYpCOJaxR5cec5b1t0vXm4HGbnCsu51jBCO7kSwr+2PBzihAGNm4/y2r617R4UHhcrt8boxg+AFqnAIpNZtJW0hr9uQzXXimWaKGAcID2PgXhcyd6vcXBD4wKnw/F4fhvn9oLO8rGnGi6I=
+X-Forefront-Antispam-Report: CIP:149.199.62.198;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:xsj-pvapexch01.xlnx.xilinx.com;PTR:unknown-62-198.xilinx.com;CAT:NONE;SFS:(4636009)(396003)(39860400002)(136003)(346002)(376002)(46966006)(36840700001)(5660300002)(53546011)(426003)(2906002)(9786002)(47076005)(7416002)(36756003)(31696002)(2616005)(83380400001)(36860700001)(336012)(44832011)(4326008)(6666004)(70206006)(8936002)(316002)(8676002)(31686004)(70586007)(54906003)(356005)(7636003)(26005)(82740400003)(110136005)(478600001)(186003)(82310400003)(50156003)(83133001)(43740500002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: xilinx.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 May 2021 12:22:28.1446
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 527071dd-5cb3-4563-fdf7-08d9242ec17c
+X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.62.198];Helo=[xsj-pvapexch01.xlnx.xilinx.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN1NAM02FT018.eop-nam02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR02MB6454
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/31/21 1:11 PM, Cornelia Huck wrote:
-> On Mon, 31 May 2021 10:50:03 +0000
-> Janosch Frank <frankja@linux.ibm.com> wrote:
-> 
->> To make our TAP parser (and me) happy we don't want to have to reports
-> 
-> "we want to have two reports" ?
-> 
-> If that's not what has been intended, I'm confused :)
 
-Things that happen if the following sentence is heard:
-"Can you fix this quickly, please?"
 
-Will fix, thanks for the review!
-
+On 5/28/21 9:45 AM, Kefeng Wang wrote:
+> ZONE_[DMA|DMA32] configs have duplicate definitions on platforms
+> that subscribe them. Instead, just make them generic options which
+> can be selected on applicable platforms.
 > 
->> with exactly the same wording.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>  s390x/selftest.c | 18 +++++++++++++-----
->>  1 file changed, 13 insertions(+), 5 deletions(-)
->>
->> diff --git a/s390x/selftest.c b/s390x/selftest.c
->> index b2fe2e7b..c2ca9896 100644
->> --- a/s390x/selftest.c
->> +++ b/s390x/selftest.c
->> @@ -47,12 +47,19 @@ static void test_malloc(void)
->>  	*tmp2 = 123456789;
->>  	mb();
->>  
->> -	report((uintptr_t)tmp & 0xf000000000000000ul, "malloc: got vaddr");
->> -	report(*tmp == 123456789, "malloc: access works");
->> +	report_prefix_push("malloc");
->> +	report_prefix_push("ptr_0");
->> +	report((uintptr_t)tmp & 0xf000000000000000ul, "allocated memory");
->> +	report(*tmp == 123456789, "wrote allocated memory");
->> +	report_prefix_pop();
->> +
->> +	report_prefix_push("ptr_1");
->>  	report((uintptr_t)tmp2 & 0xf000000000000000ul,
->> -	       "malloc: got 2nd vaddr");
->> -	report((*tmp2 == 123456789), "malloc: access works");
->> -	report(tmp != tmp2, "malloc: addresses differ");
->> +	       "allocated memory");
->> +	report((*tmp2 == 123456789), "wrote allocated memory");
->> +	report_prefix_pop();
->> +
->> +	report(tmp != tmp2, "allocated memory addresses differ");
->>  
->>  	expect_pgm_int();
->>  	configure_dat(0);
->> @@ -62,6 +69,7 @@ static void test_malloc(void)
->>  
->>  	free(tmp);
->>  	free(tmp2);
->> +	report_prefix_pop();
->>  }
->>  
->>  int main(int argc, char**argv)
+> Also only x86/arm64 architectures could enable both ZONE_DMA and
+> ZONE_DMA32 if EXPERT, add ARCH_HAS_ZONE_DMA_SET to make dma zone
+> configurable and visible on the two architectures.
 > 
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+> Cc: Richard Henderson <rth@twiddle.net>
+> Cc: Russell King <linux@armlinux.org.uk>
+> Acked-by: Catalin Marinas <catalin.marinas@arm.com> # for arm64
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # for m68k
+> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> ---
+> v2:
+> -i386 can't enable ZONE_DMA32, fix it.
+> -make ZONE_DMA default y on X86 as before.
+> -collect ACKs
+> 
+>  arch/alpha/Kconfig                     |  5 +----
+>  arch/arm/Kconfig                       |  3 ---
+>  arch/arm64/Kconfig                     |  9 +--------
+>  arch/ia64/Kconfig                      |  4 +---
+>  arch/m68k/Kconfig                      |  5 +----
+>  arch/microblaze/Kconfig                |  4 +---
+>  arch/mips/Kconfig                      |  7 -------
+>  arch/powerpc/Kconfig                   |  4 ----
+>  arch/powerpc/platforms/Kconfig.cputype |  1 +
+>  arch/riscv/Kconfig                     |  5 +----
+>  arch/s390/Kconfig                      |  4 +---
+>  arch/sparc/Kconfig                     |  5 +----
+>  arch/x86/Kconfig                       | 15 ++-------------
+>  mm/Kconfig                             | 12 ++++++++++++
+>  14 files changed, 23 insertions(+), 60 deletions(-)
+> 
+> diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+> index 5998106faa60..6a69a14c4825 100644
+> --- a/arch/alpha/Kconfig
+> +++ b/arch/alpha/Kconfig
+> @@ -40,6 +40,7 @@ config ALPHA
+>  	select MMU_GATHER_NO_RANGE
+>  	select SET_FS
+>  	select SPARSEMEM_EXTREME if SPARSEMEM
+> +	select ZONE_DMA
+>  	help
+>  	  The Alpha is a 64-bit general-purpose processor designed and
+>  	  marketed by the Digital Equipment Corporation of blessed memory,
+> @@ -65,10 +66,6 @@ config GENERIC_CALIBRATE_DELAY
+>  	bool
+>  	default y
+>  
+> -config ZONE_DMA
+> -	bool
+> -	default y
+> -
+>  config GENERIC_ISA_DMA
+>  	bool
+>  	default y
+> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+> index 24804f11302d..000c3f80b58e 100644
+> --- a/arch/arm/Kconfig
+> +++ b/arch/arm/Kconfig
+> @@ -218,9 +218,6 @@ config GENERIC_CALIBRATE_DELAY
+>  config ARCH_MAY_HAVE_PC_FDC
+>  	bool
+>  
+> -config ZONE_DMA
+> -	bool
+> -
+>  config ARCH_SUPPORTS_UPROBES
+>  	def_bool y
+>  
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index 9f1d8566bbf9..42794474f37f 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -42,6 +42,7 @@ config ARM64
+>  	select ARCH_HAS_SYSCALL_WRAPPER
+>  	select ARCH_HAS_TEARDOWN_DMA_OPS if IOMMU_SUPPORT
+>  	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
+> +	select ARCH_HAS_ZONE_DMA_SET if EXPERT
+>  	select ARCH_HAVE_ELF_PROT
+>  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+>  	select ARCH_INLINE_READ_LOCK if !PREEMPTION
+> @@ -307,14 +308,6 @@ config GENERIC_CSUM
+>  config GENERIC_CALIBRATE_DELAY
+>  	def_bool y
+>  
+> -config ZONE_DMA
+> -	bool "Support DMA zone" if EXPERT
+> -	default y
+> -
+> -config ZONE_DMA32
+> -	bool "Support DMA32 zone" if EXPERT
+> -	default y
+> -
+>  config ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE
+>  	def_bool y
+>  
+> diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+> index 279252e3e0f7..fd8503a0088a 100644
+> --- a/arch/ia64/Kconfig
+> +++ b/arch/ia64/Kconfig
+> @@ -60,6 +60,7 @@ config IA64
+>  	select NUMA if !FLATMEM
+>  	select PCI_MSI_ARCH_FALLBACKS if PCI_MSI
+>  	select SET_FS
+> +	select ZONE_DMA32
+>  	default y
+>  	help
+>  	  The Itanium Processor Family is Intel's 64-bit successor to
+> @@ -72,9 +73,6 @@ config 64BIT
+>  	select ATA_NONSTANDARD if ATA
+>  	default y
+>  
+> -config ZONE_DMA32
+> -	def_bool y
+> -
+>  config MMU
+>  	bool
+>  	default y
+> diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
+> index 372e4e69c43a..05a729c6ad7f 100644
+> --- a/arch/m68k/Kconfig
+> +++ b/arch/m68k/Kconfig
+> @@ -34,6 +34,7 @@ config M68K
+>  	select SET_FS
+>  	select UACCESS_MEMCPY if !MMU
+>  	select VIRT_TO_BUS
+> +	select ZONE_DMA
+>  
+>  config CPU_BIG_ENDIAN
+>  	def_bool y
+> @@ -62,10 +63,6 @@ config TIME_LOW_RES
+>  config NO_IOPORT_MAP
+>  	def_bool y
+>  
+> -config ZONE_DMA
+> -	bool
+> -	default y
+> -
+>  config HZ
+>  	int
+>  	default 1000 if CLEOPATRA
+> diff --git a/arch/microblaze/Kconfig b/arch/microblaze/Kconfig
+> index 0660f47012bc..14a67a42fcae 100644
+> --- a/arch/microblaze/Kconfig
+> +++ b/arch/microblaze/Kconfig
+> @@ -43,6 +43,7 @@ config MICROBLAZE
+>  	select MMU_GATHER_NO_RANGE
+>  	select SPARSE_IRQ
+>  	select SET_FS
+> +	select ZONE_DMA
+>  
+>  # Endianness selection
+>  choice
+> @@ -60,9 +61,6 @@ config CPU_LITTLE_ENDIAN
+>  
+>  endchoice
+>  
+> -config ZONE_DMA
+> -	def_bool y
+> -
+>  config ARCH_HAS_ILOG2_U32
+>  	def_bool n
+>  
 
+
+Acked-by: Michal Simek <michal.simek@xilinx.com> # for MB
+
+Michal
