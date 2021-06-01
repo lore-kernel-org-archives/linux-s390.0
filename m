@@ -2,88 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82801C47080
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 16:55:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 070F9C4708F
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 17:06:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5FFB1613B6
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 16:55:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D7128613BC
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 17:06:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232490AbhFAQ5O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Jun 2021 12:57:14 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49724 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230288AbhFAQ5O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 12:57:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1622566532;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=V46U5BjZCJkONhTvdGGIniGrnFBz3Ay4NH7d08zkjm8=;
-        b=Ubf0m1rEmMWysXJF+e9um37zdp9EG6uqXbBh4O8jdb8ngzVHqwvcw18EKT40r77Ov+YkAq
-        94GqhyTXScwdo/mpWfxsM4TaZ93Tyx8g0AouRhXTTXTKlU1mq9Z3NlYAxqm3paJQ3OioMr
-        JAY+Ghw7W6lmrbZbwrU3pA2kUq0ssM4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-266-F0wLloOoM82Tt1Ae2T9PUQ-1; Tue, 01 Jun 2021 12:55:30 -0400
-X-MC-Unique: F0wLloOoM82Tt1Ae2T9PUQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C6CB41020C33;
-        Tue,  1 Jun 2021 16:55:29 +0000 (UTC)
-Received: from localhost (ovpn-113-153.ams2.redhat.com [10.36.113.153])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 625DE60C0F;
-        Tue,  1 Jun 2021 16:55:26 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH] s390x: unify header guards
-In-Reply-To: <20210601182545.36acdc98@ibm-vm>
-Organization: Red Hat GmbH
-References: <20210601161525.462315-1-cohuck@redhat.com>
- <20210601182545.36acdc98@ibm-vm>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Tue, 01 Jun 2021 18:55:24 +0200
-Message-ID: <87k0ndr0cj.fsf@redhat.com>
+        id S234228AbhFARIE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Jun 2021 13:08:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34256 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231918AbhFARIE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 13:08:04 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C0B5C061574;
+        Tue,  1 Jun 2021 10:06:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=hA62la00vFMppd9s1AomcqtrMlyNDRJAkQFp1nXnFAg=; b=bhrq8HGvk2ZC9QEwuF3N+FtO15
+        D91cwCGObxRWpjhgo3KsDyZ/ccqpaKL1PKiqNJ6DyXoAd3sH8j3/v38LCVcvBBaQBBbuic3LwsDAJ
+        +8tAvC6xnAzAmA2HBRfvUbPq/pfObzWigW5VlFNHN6lhA+Gd/VRL+a5EXewYUpnCrHRxvkb1TzGlH
+        N401VSuO7kjeKd04aOalX52/LMQFAWweJvJvB+wz/rFUfpsnLI/iY+MRzMxnPT/d5GwzdRe7k/JbE
+        vf5bEBx1jR7MUlL5Kj0nk0aza5v71zysqRMPjrRoDA00lec1DdVTRanpocwFGdS/z1Iad8J2I7IBt
+        rFdK0zyg==;
+Received: from willy by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1lo7pK-00AEY3-91; Tue, 01 Jun 2021 17:05:15 +0000
+Date:   Tue, 1 Jun 2021 18:05:14 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Justin He <Justin.He@arm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>
+Subject: Re: [PATCH RFCv2 2/3] lib/vsprintf.c: make %pD print full path for
+ file
+Message-ID: <YLZoyjSJyzU5w1qO@casper.infradead.org>
+References: <AM6PR08MB437691E7314C6B774EFED4BDF7229@AM6PR08MB4376.eurprd08.prod.outlook.com>
+ <YLEDwFCPcFx+qeul@casper.infradead.org>
+ <AM6PR08MB437615DB6A6DEC33223A3138F7229@AM6PR08MB4376.eurprd08.prod.outlook.com>
+ <YLEKqGkm8bX6LZfP@casper.infradead.org>
+ <AM6PR08MB43764764B52AAC7F05B71056F73E9@AM6PR08MB4376.eurprd08.prod.outlook.com>
+ <YLZSgZIcWyYTmqOT@casper.infradead.org>
+ <CAHp75VfYgEtJeiVp8b10Va54QShyg4DmWeufuB_WGC8C2SE2mQ@mail.gmail.com>
+ <YLZVwFh9MZJR3amM@casper.infradead.org>
+ <YLZX9oicn8u4ZVCl@smile.fi.intel.com>
+ <YLZcAesVG1SYL5fp@smile.fi.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YLZcAesVG1SYL5fp@smile.fi.intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Claudio Imbrenda <imbrenda@linux.ibm.com> writes:
+On Tue, Jun 01, 2021 at 07:10:41PM +0300, Andy Shevchenko wrote:
+> On Tue, Jun 01, 2021 at 06:53:26PM +0300, Andy Shevchenko wrote:
+> > On Tue, Jun 01, 2021 at 04:44:00PM +0100, Matthew Wilcox wrote:
+> > > On Tue, Jun 01, 2021 at 06:36:41PM +0300, Andy Shevchenko wrote:
+> > > > On Tue, Jun 1, 2021 at 6:32 PM Matthew Wilcox <willy@infradead.org> wrote:
+> > > > > On Tue, Jun 01, 2021 at 02:42:15PM +0000, Justin He wrote:
+> > > > 
+> > > > ...
+> > > > 
+> > > > > Just don't put anything
+> > > > > in the buffer if the user didn't supply enough space.  As long as you
+> > > > > get the return value right, they know the string is bad (or they don't
+> > > > > care if the string is bad)
+> > > > 
+> > > > It might be that I'm out of context here, but printf() functionality
+> > > > in the kernel (vsprintf() if being precise)  and its users consider
+> > > > that it should fill buffer up to the end of whatever space is
+> > > > available.
+> > > 
+> > > Do they though?  What use is it to specify a small buffer, print a
+> > > large filename into it and then use that buffer, knowing that it wasn't
+> > > big enough?  That would help decide whether we should print the
+> > > start or the end of the filename.
+> > > 
+> > > Remember, we're going for usefulness here, not abiding by the letter of
+> > > the standard under all circumstances, no matter the cost.  At least
+> > > partially because we're far outside the standard here; POSIX does
+> > > not specify what %pD does.
+> > > 
+> > > "The argument shall be a pointer to void. The value of the
+> > > pointer is converted to a sequence of printable characters, in an
+> > > implementation-defined manner."
+> > 
+> > All nice words, but don't forget kasprintf() or other usages like this.
+> > For the same input we have to have the same result independently on the room in
+> > the buffer.
+> > 
+> > So, if I print "Hello, World" I should always get it, not "Monkey's Paw".
+> > I.o.w.
+> > 
+> >  snprintf(10) ==> "Hello, Wor"
+> >  snprintf(5)  ==> "Hello"
+> >  snprintf(2)  !=> "Mo"
+> >  snprintf(1)  !=> "M"
+> >  snprintf(1)  ==> "H"
+> > 
+> > Inconsistency here is really not what we want.
+> 
+> I have to add that in light of the topic those characters should be counted
+> from the end of the filename. So, we will give user as much as possible of useful
+> information. I.o.w. always print the last part of filename up to the buffer
+> size or if the filename is shorter than buffer we will have it in full.
 
-> On Tue,  1 Jun 2021 18:15:25 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
->
->> Let's unify the header guards to _ASM_S390X_FILE_H_ respectively
->> _S390X_FILE_H_. This makes it more obvious what the file is
->> about, and avoids possible name space collisions.
->> 
->> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
->
-> LGTM, but... what about the other architectures? I think we should 
-> try to standardize more generally
+Ah, not monkey's paw, but donkey hoof then ...
 
-See my comment below :)
+Here's some examples, what do you think makes sense?
 
-I think it would make sense to standardize all architectures; but I
-would also like some feedback on the format I have chosen.
+snprintf(buf, 16, "bad file '%pD'\n", q);
 
->
->> ---
->> 
->> Only did s390x for now; the other archs seem to be inconsistent in
->> places as well, and I can also try to tackle them if it makes sense.
->> 
+what content do you want buf to have when q is variously:
 
+1. /abcd/efgh
+2. /a/bcdefgh.iso
+3. /abcdef/gh
+
+I would argue that
+"bad file ''\n"
+is actually a better string to have than any of (case 2)
+"bad file '/a/bc"
+"bad file 'bcdef"
+"bad file 'h.iso"
