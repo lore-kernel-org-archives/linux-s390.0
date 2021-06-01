@@ -2,128 +2,195 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 537B9C4708F
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 11:26:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6F5BC47080
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 13:19:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2BE1A61057
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 11:26:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B2A2C613B1
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 13:19:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233299AbhFAL1m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Jun 2021 07:27:42 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62258 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230308AbhFAL1m (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 07:27:42 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 151B2teK116967;
-        Tue, 1 Jun 2021 07:25:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
+        id S233924AbhFANVK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Jun 2021 09:21:10 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:1864 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233064AbhFANVJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 09:21:09 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 151D7E92145199;
+        Tue, 1 Jun 2021 09:18:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=g3SnxyIN5/jUzx1WFoWZHmL+DiWvwkp/44ekH6M3gZc=;
- b=T9pAgf3NCa1H8nANmbXs5SCl7v0fCIy6b5AJlhgeHEMt/I7YgoyaTYxkuswMJ4tXe0PL
- XkTLc20kqvZ7zlhGeqNABAGqi1BXdb40A9ezcV2wxXA97uW2bWRvI8NxulmVwEMmTxcN
- 6JHTrZdDri1CdFeR/NZs9eihghkJ+PfvEj6mva0SkklLnxzRfSVBgwFSZr9ktvxeC4kg
- kSxKI/35xg6nPRzVPNAjYEzJkIDGsLwhzcZIfoOeNLoLfsm1sW6+Nq/2NcncSRR1NOJz
- nQpEsPKiTaESapN2tnRL3V4dnsYIqWpEg3JCDaYeSv0mBIryTj2+5xEfC2F0JPn0gtW0 8Q== 
+ bh=nujpD2uRJJJK6SGWNkvfjHopcPKh4UOdpV9UeDwm950=;
+ b=lu9zdtiAOggn0BEn0PWSqNkynDl14bx+UcEni8ELAqwUzdVV8LvK96tznyKVGyxUEYFN
+ DV+Wu9jrPl4LeJ9kgdSAql7rCf+g7k2HiwCwoHN3cYpI6swQbEwbon/K3tVtu/5RRzOU
+ LMVfdHSFy66oBmZaktBpyatrVm1X9xeGc1O13brQFmcom5elIMusETlBRTU8AHTZBQik
+ IYexEy3ZPWwGw3zI2pbG6mnmU7D1skagjSG2WYFNB25QXjzNXgKGrLccuGte3r+KrelC
+ 8EZZe5+Aoh354IjNcA/aAc2atFwoF63+oZwQXEfboAjxoOWnTvOAnYrbQ4yxbvTXdRDD KA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38whnn40t9-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38wma4jq5t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Jun 2021 07:25:58 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 151B2waM117341;
-        Tue, 1 Jun 2021 07:25:58 -0400
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38whnn40t1-1
+        Tue, 01 Jun 2021 09:18:45 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 151D7UWu146948;
+        Tue, 1 Jun 2021 09:18:45 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38wma4jq53-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Jun 2021 07:25:58 -0400
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 151BH5sd032294;
-        Tue, 1 Jun 2021 11:25:57 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma02dal.us.ibm.com with ESMTP id 38ud89c3vw-1
+        Tue, 01 Jun 2021 09:18:44 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 151DEBq2004348;
+        Tue, 1 Jun 2021 13:18:42 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 38ud889qy6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Jun 2021 11:25:57 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 151BPuG637683558
+        Tue, 01 Jun 2021 13:18:42 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 151DIdi518284996
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 1 Jun 2021 11:25:56 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EFCDF124054;
-        Tue,  1 Jun 2021 11:25:55 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 88D5E124055;
-        Tue,  1 Jun 2021 11:25:55 +0000 (GMT)
-Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.178.155])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue,  1 Jun 2021 11:25:55 +0000 (GMT)
-Subject: Re: [PATCH v16 06/14] s390/vfio-ap: refresh guest's APCB by filtering
- APQNs assigned to mdev
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, freude@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-References: <20210510164423.346858-1-akrowiak@linux.ibm.com>
- <20210510164423.346858-7-akrowiak@linux.ibm.com>
- <20210524181548.4dbe52bc.pasic@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <25ddf7f5-3d70-7e9d-14b1-76f753e64d00@linux.ibm.com>
-Date:   Tue, 1 Jun 2021 07:25:55 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        Tue, 1 Jun 2021 13:18:39 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EDD24A4059;
+        Tue,  1 Jun 2021 13:18:38 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3027BA4040;
+        Tue,  1 Jun 2021 13:18:38 +0000 (GMT)
+Received: from thinkpad (unknown [9.171.61.122])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Tue,  1 Jun 2021 13:18:38 +0000 (GMT)
+Date:   Tue, 1 Jun 2021 15:18:36 +0200
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org
+Subject: Re: [RFC/RFT PATCH 1/5] s390: make crashk_res resource a child of
+ "System RAM"
+Message-ID: <20210601151836.1f3a90e0@thinkpad>
+In-Reply-To: <20210531122959.23499-2-rppt@kernel.org>
+References: <20210531122959.23499-1-rppt@kernel.org>
+        <20210531122959.23499-2-rppt@kernel.org>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20210524181548.4dbe52bc.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Language: en-US
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: OkgP8otBoMFt2Lvf0N75nG-NCjXsSUyg
-X-Proofpoint-GUID: v1Xa7Uq9UVn1hDyeFfUGrfA8bZeOjRZK
+X-Proofpoint-ORIG-GUID: zfZM6brFCcTyehtRJvYgRd1OdKDzk76Y
+X-Proofpoint-GUID: 4M8jGD7jEmJYuCMaDnew6ToMDp5DgKp1
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-06-01_06:2021-05-31,2021-06-01 signatures=0
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- bulkscore=0 mlxscore=0 lowpriorityscore=0 mlxlogscore=999 suspectscore=0
- clxscore=1015 phishscore=0 adultscore=0 malwarescore=0 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106010075
+ impostorscore=0 mlxscore=0 spamscore=0 bulkscore=0 malwarescore=0
+ suspectscore=0 phishscore=0 lowpriorityscore=0 adultscore=0
+ mlxlogscore=999 clxscore=1011 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2104190000 definitions=main-2106010089
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 31 May 2021 15:29:55 +0300
+Mike Rapoport <rppt@kernel.org> wrote:
 
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> Commit 4e042af463f8 ("s390/kexec: fix crash on resize of reserved memory")
+> added a comment that says "crash kernel resource should not be part of the
+> System RAM resource" but never explained why. As it looks from the code in
+> the kernel and in kexec there is no actual reason for that.
 
-On 5/24/21 12:15 PM, Halil Pasic wrote:
-> On Mon, 10 May 2021 12:44:15 -0400
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->> @@ -1601,8 +1676,10 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
->>   	mutex_lock(&matrix_dev->lock);
->>   	q = dev_get_drvdata(&apdev->device);
->>   
->> -	if (q->matrix_mdev)
->> +	if (q->matrix_mdev) {
->>   		vfio_ap_mdev_unlink_queue_fr_mdev(q);
->> +		vfio_ap_mdev_refresh_apcb(q->matrix_mdev);
->> +	}
->>   
->>   	vfio_ap_mdev_reset_queue(q, 1);
->>   	dev_set_drvdata(&apdev->device, NULL);
-> At this point we don't know if !!kvm_busy or kvm_busy AFAICT. If
-> !!kvm_busy, then we may end up changing a shadow_apcb while an other
-> thread is in the middle of committing it to the SD satellite. That
-> would be no good.
+Still testing, but so far everything works fine.
 
-No, that would not be a good thing, we should check for
+> 
+> Keeping crashk_res inline with other resources makes code simpler and
+> cleaner, and allows future consolidation of the resources setup across
+> several architectures.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  arch/s390/kernel/setup.c | 21 +++++----------------
+>  1 file changed, 5 insertions(+), 16 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+> index 5aab59ad5688..30430e7c1b03 100644
+> --- a/arch/s390/kernel/setup.c
+> +++ b/arch/s390/kernel/setup.c
+> @@ -500,6 +500,9 @@ static struct resource __initdata *standard_resources[] = {
+>  	&code_resource,
+>  	&data_resource,
+>  	&bss_resource,
+> +#ifdef CONFIG_CRASH_DUMP
+> +	&crashk_res,
+> +#endif
+>  };
+>  
+>  static void __init setup_resources(void)
+> @@ -535,7 +538,7 @@ static void __init setup_resources(void)
+>  
+>  		for (j = 0; j < ARRAY_SIZE(standard_resources); j++) {
+>  			std_res = standard_resources[j];
+> -			if (std_res->start < res->start ||
+> +			if (!std_res->end || std_res->start < res->start ||
+>  			    std_res->start > res->end)
+>  				continue;
+>  			if (std_res->end > res->end) {
+
+Why is this extra check for !std_res->end added here? I assume it
+might be needed later, after you moved this to common code, but I
+cannot see how any of the other patches in this series would require
 that.
 
->
-> Regards,
-> Halil
+> @@ -552,20 +555,6 @@ static void __init setup_resources(void)
+>  			}
+>  		}
+>  	}
+> -#ifdef CONFIG_CRASH_DUMP
+> -	/*
+> -	 * Re-add removed crash kernel memory as reserved memory. This makes
+> -	 * sure it will be mapped with the identity mapping and struct pages
+> -	 * will be created, so it can be resized later on.
+> -	 * However add it later since the crash kernel resource should not be
+> -	 * part of the System RAM resource.
+> -	 */
+> -	if (crashk_res.end) {
+> -		memblock_add_node(crashk_res.start, resource_size(&crashk_res), 0);
+> -		memblock_reserve(crashk_res.start, resource_size(&crashk_res));
+> -		insert_resource(&iomem_resource, &crashk_res);
+> -	}
+> -#endif
+>  }
+>  
+>  static void __init setup_ident_map_size(void)
+> @@ -733,7 +722,7 @@ static void __init reserve_crashkernel(void)
+>  		diag10_range(PFN_DOWN(crash_base), PFN_DOWN(crash_size));
+>  	crashk_res.start = crash_base;
+>  	crashk_res.end = crash_base + crash_size - 1;
+> -	memblock_remove(crash_base, crash_size);
+> +	memblock_reserve(crash_base, crash_size);
+>  	pr_info("Reserving %lluMB of memory at %lluMB "
+>  		"for crashkernel (System RAM: %luMB)\n",
+>  		crash_size >> 20, crash_base >> 20,
 
+Other architectures check the return value of memblock_reserve() at
+this point, and exit crashkernel reservation if it fails. IIUC, the
+only reason why memblock_reserve() could fail would be the same reason
+why also memblock_remove() could fail, i.e. that memblock_double_array()
+would fail. And since we also do not check that at the moment, your
+patch would probably not (additionally) break anything.
+
+Still, this might be something for an add-on patch (for us). Do you
+happen to know how likely it would be that memblock_remove/reserve()
+could fail at this point?
