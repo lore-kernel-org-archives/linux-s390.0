@@ -2,130 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB001C47082
-	for <linux-s390@archiver.kernel.org>; Mon, 31 May 2021 21:55:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA7C5C47082
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 02:56:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A856B61287
-	for <linux-s390@archiver.kernel.org>; Mon, 31 May 2021 21:55:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B54986135D
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 02:56:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231717AbhEaV5L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 May 2021 17:57:11 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46396 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231240AbhEaV5K (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 31 May 2021 17:57:10 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14VLhRJ8028501;
-        Mon, 31 May 2021 17:55:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=6ga0okV+GzQJQdPaMW2IItWnEY6HUhXAuL1mWYBLAwM=;
- b=IT+soXpy9Hp4VitACREy4cBgofgvhsWYaV+iVbxz3PzmUoH9WQf7nVyGTsdriv5URN4n
- jadtw4gJOyKR2prUI2DUf/TAnZ7zD8rrKA5sBHV/1LeX+CchVP7l45NZ5qlqEQwUwpv2
- uYuWLKY9lUtBsL4woMd+0Ul9a97a6VWNOIU6KdEgc+o+uIOq+mWeDW8ZMJT2Hq4Q0ovC
- 6GVRHvnuZSkV7xclnQ6OMtcZ3A5Fkku/72Oz/fEp+oOoRpI4eObQgivW790nELE82X6T
- v4P3WMu9/Xm32f35xG+FjQO1KOilUi/AGpnybIIKhhM/5Y55MBO8w3pEEdJuAlD68+iV OA== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38w7ybg65k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 May 2021 17:55:28 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14VLtQoT009383;
-        Mon, 31 May 2021 21:55:26 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma01fra.de.ibm.com with ESMTP id 38ud888p8m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 May 2021 21:55:26 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14VLtNd434079074
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 31 May 2021 21:55:23 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5DE63AE051;
-        Mon, 31 May 2021 21:55:23 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F235AAE04D;
-        Mon, 31 May 2021 21:55:22 +0000 (GMT)
-Received: from localhost (unknown [9.171.3.22])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 31 May 2021 21:55:22 +0000 (GMT)
-Date:   Mon, 31 May 2021 23:55:21 +0200
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Rob Landley <rob@landley.net>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Philipp Rudo <prudo@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Replace use of perl with sed and tr in s390x build.
-Message-ID: <your-ad-here.call-01622498121-ext-5758@work.hours>
-References: <a48c51f8-5fe4-87e7-284e-c96e2381801a@landley.net>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <a48c51f8-5fe4-87e7-284e-c96e2381801a@landley.net>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kFhzGz_GNpo1T4mShkQSIBh9OmbGtfYb
-X-Proofpoint-ORIG-GUID: kFhzGz_GNpo1T4mShkQSIBh9OmbGtfYb
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S232599AbhFAC6L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 May 2021 22:58:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38890 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232515AbhFAC6J (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 May 2021 22:58:09 -0400
+Received: from ozlabs.org (bilbo.ozlabs.org [IPv6:2401:3900:2:1::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B9B3C061574;
+        Mon, 31 May 2021 19:56:27 -0700 (PDT)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4FvGy61k79z9sWF;
+        Tue,  1 Jun 2021 12:56:13 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
+        s=201909; t=1622516184;
+        bh=iY7MeF5kJVTgb76PGSIe64N6mVxLFvLQ+P911N0MgIM=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=mgyJJS7Mpwj0xHxjTQUJCbxWXBqEpx7u6kJmlJrory1kepRlcJMq86u8b7CRC0TBx
+         2eKAPApa1yyT+8Bx3Nq7xXqq+U0aoxEZ+zVk8LZNufbS19MjY54JklUeikWPo3saVu
+         rZYPlntAMlPhhFnF6Z4PsS/40mD9BayKN5dAP0deDvSFY91SZJGkqyvQLfTKpVKAj7
+         nHaMrjkuyFLjQPzypNJGHxewO6DV/mxxi6HJjuKa/Hbn4YkWBejjdidjhax1ODsJHB
+         2xtaQQzhaLoYsK439xsAx0/uvUVbRJkkNCZEwtolQgis+ZjvEfMSx7TFq4rv4vlYtC
+         mKEDQ5CYN2DQw==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-mm@kvack.org,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Russell King <linux@armlinux.org.uk>,
+        Mike Rapoport <rppt@linux.ibm.com>
+Subject: Re: [PATCH v2] mm: generalize ZONE_[DMA|DMA32]
+In-Reply-To: <20210528074557.17768-1-wangkefeng.wang@huawei.com>
+References: <20210527143047.123611-1-wangkefeng.wang@huawei.com>
+ <20210528074557.17768-1-wangkefeng.wang@huawei.com>
+Date:   Tue, 01 Jun 2021 12:56:10 +1000
+Message-ID: <87k0negunp.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-31_15:2021-05-31,2021-05-31 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- lowpriorityscore=0 clxscore=1011 priorityscore=1501 impostorscore=0
- spamscore=0 mlxlogscore=999 mlxscore=0 malwarescore=0 phishscore=0
- adultscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2104190000 definitions=main-2105310162
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 17, 2021 at 11:46:44PM -0500, Rob Landley wrote:
-> From: Rob Landley <rob@landley.net>
-> 
-> Commit 246218962e21 in November added a perl dependency to the s390x vmlinux
-> build, complicating the "countering trusting trust" build approach ala
-> http://lists.landley.net/pipermail/toybox-landley.net/2020-July/011898.html
-> 
-> Signed-off-by: Rob Landley <rob@landley.net>
+Kefeng Wang <wangkefeng.wang@huawei.com> writes:
+> ZONE_[DMA|DMA32] configs have duplicate definitions on platforms
+> that subscribe them. Instead, just make them generic options which
+> can be selected on applicable platforms.
+>
+> Also only x86/arm64 architectures could enable both ZONE_DMA and
+> ZONE_DMA32 if EXPERT, add ARCH_HAS_ZONE_DMA_SET to make dma zone
+> configurable and visible on the two architectures.
+>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+> Cc: Richard Henderson <rth@twiddle.net>
+> Cc: Russell King <linux@armlinux.org.uk>
+> Acked-by: Catalin Marinas <catalin.marinas@arm.com> # for arm64
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # for m68k
+> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 > ---
-> 
->  arch/s390/boot/compressed/Makefile |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/boot/compressed/Makefile b/arch/s390/boot/compressed/Makefile
-> index de18dab518bb..e941b165bd4f 100644
-> --- a/arch/s390/boot/compressed/Makefile
-> +++ b/arch/s390/boot/compressed/Makefile
-> @@ -33,7 +33,7 @@ $(obj)/vmlinux.syms: $(obj)/vmlinux.lds $(objtree)/arch/s390/boot/startup.a $(OB
->  
->  quiet_cmd_dumpsyms = DUMPSYMS $<
->  define cmd_dumpsyms
-> -	$(NM) -n -S --format=bsd "$<" | $(PERL) -ne '/(\w+)\s+(\w+)\s+[tT]\s+(\w+)/ and printf "%x %x %s\0",hex $$1,hex $$2,$$3' > "$@"
-> +	$(NM) -n -S --format=bsd "$<" | sed -nE 's/^0*([0-9a-fA-F]+) 0*([0-9a-fA-F]+) [tT] ([^ ]*)$$/\1 \2 \3/p' | tr '\n' '\0' > "$@"
->  endef
+> v2:
+> -i386 can't enable ZONE_DMA32, fix it.
+> -make ZONE_DMA default y on X86 as before.
+> -collect ACKs
+>
+>  arch/alpha/Kconfig                     |  5 +----
+>  arch/arm/Kconfig                       |  3 ---
+>  arch/arm64/Kconfig                     |  9 +--------
+>  arch/ia64/Kconfig                      |  4 +---
+>  arch/m68k/Kconfig                      |  5 +----
+>  arch/microblaze/Kconfig                |  4 +---
+>  arch/mips/Kconfig                      |  7 -------
+>  arch/powerpc/Kconfig                   |  4 ----
+>  arch/powerpc/platforms/Kconfig.cputype |  1 +
 
-The change itself is fine. Yields the same result as before with
-binutils/llvm/elfutils versions of nm.
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
-With s390 defconfig there is at least another perl invocation via
-./lib/build_OID_registry, which is hard to get rid of. debug_defconfig calls
-./scripts/headers_check.pl on top. Perl is explicitly listed in "Minimal
-requirements to compile the Kernel" in Documentation/process/changes.rst and
-quite frankly I'm not aware of any plans to get rid of it. It has its use.
-
-So, would you mind if I pick your patch changing the commit message
-like the following?
-"""
-s390/decompressor: replace use of perl with simple sed/tr
-
-Use simple sed/tr instead of perl to generate decompressor symbols
-file with the same result.
-
-Signed-off-by: Rob Landley <rob@landley.net>
-"""
+cheers
