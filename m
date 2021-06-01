@@ -2,113 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA7C5C47082
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 02:56:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B8E8C47092
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 08:45:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B54986135D
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 02:56:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 78F2960FDA
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 08:45:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232599AbhFAC6L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 May 2021 22:58:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38890 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232515AbhFAC6J (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 May 2021 22:58:09 -0400
-Received: from ozlabs.org (bilbo.ozlabs.org [IPv6:2401:3900:2:1::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B9B3C061574;
-        Mon, 31 May 2021 19:56:27 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4FvGy61k79z9sWF;
-        Tue,  1 Jun 2021 12:56:13 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
-        s=201909; t=1622516184;
-        bh=iY7MeF5kJVTgb76PGSIe64N6mVxLFvLQ+P911N0MgIM=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=mgyJJS7Mpwj0xHxjTQUJCbxWXBqEpx7u6kJmlJrory1kepRlcJMq86u8b7CRC0TBx
-         2eKAPApa1yyT+8Bx3Nq7xXqq+U0aoxEZ+zVk8LZNufbS19MjY54JklUeikWPo3saVu
-         rZYPlntAMlPhhFnF6Z4PsS/40mD9BayKN5dAP0deDvSFY91SZJGkqyvQLfTKpVKAj7
-         nHaMrjkuyFLjQPzypNJGHxewO6DV/mxxi6HJjuKa/Hbn4YkWBejjdidjhax1ODsJHB
-         2xtaQQzhaLoYsK439xsAx0/uvUVbRJkkNCZEwtolQgis+ZjvEfMSx7TFq4rv4vlYtC
-         mKEDQ5CYN2DQw==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-mm@kvack.org,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        id S233571AbhFAIr2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Jun 2021 04:47:28 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:39795 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233656AbhFAIrU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 04:47:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1622537138;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Ei1+7YPTwhcGwSC6x5usnbU/cNlmjtRYkQNi6UDFTrc=;
+        b=EkJhtoONb6k8ZLDNDIAdPVTlgBlWdVE2M2uF60nvXfXnMQucj4l2m8Qmn6iUvJzoV6pLuw
+        uXb5R3JA/pDjQdM2pIKir6rnLgUmu5Csi80b7NIAbGKeR8neOhOSev5B089vY3oW3kRi/A
+        FgCEeItGeDXPGrbZBz/vOIujyyTE/+8=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-486-t7Cv83hcOKeQzv7TrFVDTw-1; Tue, 01 Jun 2021 04:45:37 -0400
+X-MC-Unique: t7Cv83hcOKeQzv7TrFVDTw-1
+Received: by mail-wm1-f70.google.com with SMTP id r15-20020a05600c35cfb029017cc4b1e9faso846652wmq.8
+        for <linux-s390@vger.kernel.org>; Tue, 01 Jun 2021 01:45:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:references:from:organization:subject
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=Ei1+7YPTwhcGwSC6x5usnbU/cNlmjtRYkQNi6UDFTrc=;
+        b=hGgwr36F/PkdBNb1zP4G5/HFmEgIZ4x/cK9i+QXT/eOJsqC+5Wev6E/S5pIZy6CzTA
+         zbbXmCu4T2EIae+SxTZdAepQuCoNjUq7tEIET6AyhERzJcWzAxo8MANA8RliBO6OhWCp
+         ThLr3E/4Bu8BXzleZl9hDdgHeuk3jn/QhxMvZt2yehtf0fxypTqcwuA8sbAexgud65Bg
+         9hbyJVEG0BsYo1WkK4kCC9VnnizTSp+hI+j21ElP1a9DhbGhd18meoAqiwrjjMqSQRfF
+         uHKcWhUdBr2uoDdxHyDl7donXrx2N+VCqQCtp0yhadst75NSyRCUh6ab96G0ZClWEfNM
+         pzFQ==
+X-Gm-Message-State: AOAM530o70MdHK/D9sAmeMjGnorGnp2WZMju1ca5V5R4J/+sGELV9BO8
+        0ULs8gqKykq0qcGFgqoUveOtdLcqJvv3ooS+QAQC7nmjY2I7CDRjwApgsLKynJUGSZeeqp4dqy+
+        BqLAHkIVar9gb0TQl3F7vycgSO6G++uZA2xEvZY4bDiE1K0BvLYhYgy0TnXi847xNR2c41A==
+X-Received: by 2002:a05:600c:2256:: with SMTP id a22mr3376734wmm.138.1622537136581;
+        Tue, 01 Jun 2021 01:45:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw71orUED6J0M5xRL2FPbrXf1zLtQk15md+bXCGp928W5f5vqEbcF2SNwRqRon22LUBP3L6NQ==
+X-Received: by 2002:a05:600c:2256:: with SMTP id a22mr3376705wmm.138.1622537136338;
+        Tue, 01 Jun 2021 01:45:36 -0700 (PDT)
+Received: from [192.168.3.132] (p5b0c69ce.dip0.t-ipconnect.de. [91.12.105.206])
+        by smtp.gmail.com with ESMTPSA id e26sm16961562wmh.39.2021.06.01.01.45.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Jun 2021 01:45:36 -0700 (PDT)
+To:     Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Richard Henderson <rth@twiddle.net>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
         Russell King <linux@armlinux.org.uk>,
-        Mike Rapoport <rppt@linux.ibm.com>
-Subject: Re: [PATCH v2] mm: generalize ZONE_[DMA|DMA32]
-In-Reply-To: <20210528074557.17768-1-wangkefeng.wang@huawei.com>
-References: <20210527143047.123611-1-wangkefeng.wang@huawei.com>
- <20210528074557.17768-1-wangkefeng.wang@huawei.com>
-Date:   Tue, 01 Jun 2021 12:56:10 +1000
-Message-ID: <87k0negunp.fsf@mpe.ellerman.id.au>
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org
+References: <20210531122959.23499-1-rppt@kernel.org>
+ <20210531122959.23499-2-rppt@kernel.org>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [RFC/RFT PATCH 1/5] s390: make crashk_res resource a child of
+ "System RAM"
+Message-ID: <1efc386c-2cb4-164f-7194-497f142f969f@redhat.com>
+Date:   Tue, 1 Jun 2021 10:45:35 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20210531122959.23499-2-rppt@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Kefeng Wang <wangkefeng.wang@huawei.com> writes:
-> ZONE_[DMA|DMA32] configs have duplicate definitions on platforms
-> that subscribe them. Instead, just make them generic options which
-> can be selected on applicable platforms.
->
-> Also only x86/arm64 architectures could enable both ZONE_DMA and
-> ZONE_DMA32 if EXPERT, add ARCH_HAS_ZONE_DMA_SET to make dma zone
-> configurable and visible on the two architectures.
->
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: Palmer Dabbelt <palmer@dabbelt.com>
-> Cc: Richard Henderson <rth@twiddle.net>
-> Cc: Russell King <linux@armlinux.org.uk>
-> Acked-by: Catalin Marinas <catalin.marinas@arm.com> # for arm64
-> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # for m68k
-> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> ---
-> v2:
-> -i386 can't enable ZONE_DMA32, fix it.
-> -make ZONE_DMA default y on X86 as before.
-> -collect ACKs
->
->  arch/alpha/Kconfig                     |  5 +----
->  arch/arm/Kconfig                       |  3 ---
->  arch/arm64/Kconfig                     |  9 +--------
->  arch/ia64/Kconfig                      |  4 +---
->  arch/m68k/Kconfig                      |  5 +----
->  arch/microblaze/Kconfig                |  4 +---
->  arch/mips/Kconfig                      |  7 -------
->  arch/powerpc/Kconfig                   |  4 ----
->  arch/powerpc/platforms/Kconfig.cputype |  1 +
+On 31.05.21 14:29, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> Commit 4e042af463f8 ("s390/kexec: fix crash on resize of reserved memory")
+> added a comment that says "crash kernel resource should not be part of the
+> System RAM resource" but never explained why. As it looks from the code in
+> the kernel and in kexec there is no actual reason for that.
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Are you sure?
 
-cheers
+Looking at kexec-tools: kexec/arch/s390/kexec-s390.c
+
+get_memory_ranges_s390() wants "System RAM" and Crash kernel only with 
+"with_crashk=1". Your patch would change that. "Crash kernel" would 
+always be included if you make it a child of "System RAM".
+
+Further, get_memory_ranges() and is_crashkernel_mem_reserved() look out 
+for "Crash kernel\n" via parse_iomem_single().
+
+However, parse_iomem_single() does not care about ranges that start with 
+spaces IIRC via
+   sscanf(line, "%llx-%llx : %n" ...
+
+So once you make "Crash kernel" a child of "System RAM", kexec-tools 
+would break if I'm not completely wrong.
+
+-- 
+Thanks,
+
+David / dhildenb
+
