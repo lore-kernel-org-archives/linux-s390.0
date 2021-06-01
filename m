@@ -2,128 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A54FC4708F
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 09:02:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 537B9C4708F
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 11:26:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5CB2261375
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 09:02:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2BE1A61057
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 11:26:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233561AbhFAJEC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Jun 2021 05:04:02 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:47333 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233539AbhFAJEB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 05:04:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1622538140;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=lTj0e2ix7Em5ReRBGmBE8UcFjJXaGmDtfxA9DwPKs3Y=;
-        b=hl5WtER7JX53dBcKImZjoE4E6KN9LoXwoMyigbxWhzWkOWPZpdeAiu+PmU/q0+IunsoGhN
-        Yo66ulpzstSzLhhTrtXenzpOU7dgAvXVUxsEbekOoe20CEKuba75uU6PStmzEGMitZe29N
-        Alxkuqq1//928qwfQ4rZUCgxtdhPy1Y=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-26-PSQ2ge4lPH6UozU88qGJ9g-1; Tue, 01 Jun 2021 05:02:19 -0400
-X-MC-Unique: PSQ2ge4lPH6UozU88qGJ9g-1
-Received: by mail-wr1-f72.google.com with SMTP id n2-20020adfb7420000b029010e47b59f31so4564845wre.9
-        for <linux-s390@vger.kernel.org>; Tue, 01 Jun 2021 02:02:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:references:organization:subject
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=lTj0e2ix7Em5ReRBGmBE8UcFjJXaGmDtfxA9DwPKs3Y=;
-        b=K9jrJMcHigV8XkFbpqID+Ou/wvQUhqdO+fJlRckVCbEmnLTSXd2Rv1kVCE0NLDGMlE
-         ygdiwz1Ny/L4bUTfYjYwrU5+0P+BGcZXxlOOL+s4TOKhw0f8tS0RbYEj4wwwlQpFOBTf
-         VscT2+iv9JFvnycSMpF/p8JGJi7ck/M5oRI4erO33Q3x1WNzk9Wfn4TcpH/yQgOWWKd4
-         x+Kg4PE5e9xkHREn1afjEP9qCr7xJRfM+E6csqzBYTfqwXfJ+bGZb5Q4DaYXaPaBkbMc
-         2xGSMbIFMCabFv4T2lu/eOkQ6rtQXipECI7jGXmnHlm6Gs6WjBpLexquD7qBrPwWozVc
-         dR0Q==
-X-Gm-Message-State: AOAM533jzFonDDYFMnSBsuqM2yLKUdce9XdmIognK4HF0GLA8AlAkNLG
-        EJzOj+AhIt7N+6ytByeM/Oxa8uIY+aWtH/uBdfX68/LZzeju0JO8geBaqLQYoVT7sUG05ovNgyn
-        e74aqZqFTp601PTdDt/jC+9xjPcv3MiGII1Wgpf0N3/Tq+vRB+TznTZ1Kf0l2uOgZmJ509g==
-X-Received: by 2002:a05:600c:47c4:: with SMTP id l4mr3421532wmo.145.1622538138427;
-        Tue, 01 Jun 2021 02:02:18 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzye8Yw+0bLOb0SBvbHwXC4HYmyiMFfH3IyzfuxKInF6JuzngzXM+aezXKoW/iZU7+Z69Ow5A==
-X-Received: by 2002:a05:600c:47c4:: with SMTP id l4mr3421493wmo.145.1622538138179;
-        Tue, 01 Jun 2021 02:02:18 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c69ce.dip0.t-ipconnect.de. [91.12.105.206])
-        by smtp.gmail.com with ESMTPSA id 11sm17960058wmo.24.2021.06.01.02.02.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Jun 2021 02:02:17 -0700 (PDT)
-From:   David Hildenbrand <david@redhat.com>
-To:     Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org
-References: <20210531122959.23499-1-rppt@kernel.org>
- <20210531122959.23499-2-rppt@kernel.org>
- <1efc386c-2cb4-164f-7194-497f142f969f@redhat.com>
-Organization: Red Hat
-Subject: Re: [RFC/RFT PATCH 1/5] s390: make crashk_res resource a child of
- "System RAM"
-Message-ID: <f6cd0c41-d7e2-65f5-94eb-9a21514df799@redhat.com>
-Date:   Tue, 1 Jun 2021 11:02:17 +0200
+        id S233299AbhFAL1m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Jun 2021 07:27:42 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62258 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230308AbhFAL1m (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 07:27:42 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 151B2teK116967;
+        Tue, 1 Jun 2021 07:25:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=g3SnxyIN5/jUzx1WFoWZHmL+DiWvwkp/44ekH6M3gZc=;
+ b=T9pAgf3NCa1H8nANmbXs5SCl7v0fCIy6b5AJlhgeHEMt/I7YgoyaTYxkuswMJ4tXe0PL
+ XkTLc20kqvZ7zlhGeqNABAGqi1BXdb40A9ezcV2wxXA97uW2bWRvI8NxulmVwEMmTxcN
+ 6JHTrZdDri1CdFeR/NZs9eihghkJ+PfvEj6mva0SkklLnxzRfSVBgwFSZr9ktvxeC4kg
+ kSxKI/35xg6nPRzVPNAjYEzJkIDGsLwhzcZIfoOeNLoLfsm1sW6+Nq/2NcncSRR1NOJz
+ nQpEsPKiTaESapN2tnRL3V4dnsYIqWpEg3JCDaYeSv0mBIryTj2+5xEfC2F0JPn0gtW0 8Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38whnn40t9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Jun 2021 07:25:58 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 151B2waM117341;
+        Tue, 1 Jun 2021 07:25:58 -0400
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38whnn40t1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Jun 2021 07:25:58 -0400
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 151BH5sd032294;
+        Tue, 1 Jun 2021 11:25:57 GMT
+Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
+        by ppma02dal.us.ibm.com with ESMTP id 38ud89c3vw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Jun 2021 11:25:57 +0000
+Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
+        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 151BPuG637683558
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 1 Jun 2021 11:25:56 GMT
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EFCDF124054;
+        Tue,  1 Jun 2021 11:25:55 +0000 (GMT)
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 88D5E124055;
+        Tue,  1 Jun 2021 11:25:55 +0000 (GMT)
+Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.178.155])
+        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue,  1 Jun 2021 11:25:55 +0000 (GMT)
+Subject: Re: [PATCH v16 06/14] s390/vfio-ap: refresh guest's APCB by filtering
+ APQNs assigned to mdev
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, freude@linux.ibm.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20210510164423.346858-1-akrowiak@linux.ibm.com>
+ <20210510164423.346858-7-akrowiak@linux.ibm.com>
+ <20210524181548.4dbe52bc.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <25ddf7f5-3d70-7e9d-14b1-76f753e64d00@linux.ibm.com>
+Date:   Tue, 1 Jun 2021 07:25:55 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <1efc386c-2cb4-164f-7194-497f142f969f@redhat.com>
+In-Reply-To: <20210524181548.4dbe52bc.pasic@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: OkgP8otBoMFt2Lvf0N75nG-NCjXsSUyg
+X-Proofpoint-GUID: v1Xa7Uq9UVn1hDyeFfUGrfA8bZeOjRZK
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-06-01_06:2021-05-31,2021-06-01 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 mlxscore=0 lowpriorityscore=0 mlxlogscore=999 suspectscore=0
+ clxscore=1015 phishscore=0 adultscore=0 malwarescore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106010075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 01.06.21 10:45, David Hildenbrand wrote:
-> On 31.05.21 14:29, Mike Rapoport wrote:
->> From: Mike Rapoport <rppt@linux.ibm.com>
->>
->> Commit 4e042af463f8 ("s390/kexec: fix crash on resize of reserved memory")
->> added a comment that says "crash kernel resource should not be part of the
->> System RAM resource" but never explained why. As it looks from the code in
->> the kernel and in kexec there is no actual reason for that.
-> 
-> Are you sure?
-> 
-> Looking at kexec-tools: kexec/arch/s390/kexec-s390.c
-> 
-> get_memory_ranges_s390() wants "System RAM" and Crash kernel only with
-> "with_crashk=1". Your patch would change that. "Crash kernel" would
-> always be included if you make it a child of "System RAM".
-> 
-> Further, get_memory_ranges() and is_crashkernel_mem_reserved() look out
-> for "Crash kernel\n" via parse_iomem_single().
-> 
-> However, parse_iomem_single() does not care about ranges that start with
-> spaces IIRC via
->     sscanf(line, "%llx-%llx : %n" ...
 
-I think I'm wrong about that one because I read
 
-"Input white-space characters (as specified by the isspace function) are 
-skipped, unless the specification includes a [ , c , or n specifier"
+On 5/24/21 12:15 PM, Halil Pasic wrote:
+> On Mon, 10 May 2021 12:44:15 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> @@ -1601,8 +1676,10 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
+>>   	mutex_lock(&matrix_dev->lock);
+>>   	q = dev_get_drvdata(&apdev->device);
+>>   
+>> -	if (q->matrix_mdev)
+>> +	if (q->matrix_mdev) {
+>>   		vfio_ap_mdev_unlink_queue_fr_mdev(q);
+>> +		vfio_ap_mdev_refresh_apcb(q->matrix_mdev);
+>> +	}
+>>   
+>>   	vfio_ap_mdev_reset_queue(q, 1);
+>>   	dev_set_drvdata(&apdev->device, NULL);
+> At this point we don't know if !!kvm_busy or kvm_busy AFAICT. If
+> !!kvm_busy, then we may end up changing a shadow_apcb while an other
+> thread is in the middle of committing it to the SD satellite. That
+> would be no good.
 
-So having it as a child won't affect parse_iomem_single().
+No, that would not be a good thing, we should check for
+that.
 
--- 
-Thanks,
-
-David / dhildenb
+>
+> Regards,
+> Halil
 
