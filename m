@@ -2,80 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0477C47080
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 13:44:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 265D2C4708F
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 13:48:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7C3836128A
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 13:44:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 088C76008E
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 13:48:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233964AbhFANqP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Jun 2021 09:46:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43960 "EHLO
+        id S233797AbhFANtx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Jun 2021 09:49:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233584AbhFANqO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 09:46:14 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D375C061574;
-        Tue,  1 Jun 2021 06:44:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=rggE9c9jPClwMN2X8gbCPefstnu44+7rkOqQHsvCaqY=; b=Ja79jS70YoAJsu+15UKjw295C
-        rS1Xu2kgPjWmCUgzmyCEv3/Xh6H7DHwnYCAnhiXz2Gz/5BhvwG7y7DAY7DLFZWR8mIg+LHWApYR/6
-        RPZy5sBIg0a7UpxThUigANBRcMG2SJSvSBAeL7vEmlksKJvIqbYpQjqvpljcADLWVqEp4iNarIHxN
-        76ARqzlh9WTujtDTz34LYT9+JxY8mQ4oNl9+kB0e0Ng1q3WP+vT5ipFCBIalHe3Z9pidvnoasNbaF
-        J2+oN/tfVjHXAlyODBslqJEb+dkwcukc689ywesw2Wae6vWAgw/EXiY81s/EFcig+nGX2rrekns3A
-        GY56DLZew==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:44576)
-        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1lo4h5-00048n-7n; Tue, 01 Jun 2021 14:44:31 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1lo4h3-0000AG-LT; Tue, 01 Jun 2021 14:44:29 +0100
-Date:   Tue, 1 Jun 2021 14:44:29 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
+        with ESMTP id S234084AbhFANtw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 09:49:52 -0400
+Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5F61C061760
+        for <linux-s390@vger.kernel.org>; Tue,  1 Jun 2021 06:48:10 -0700 (PDT)
+Received: by mail-oi1-x236.google.com with SMTP id s19so15535812oic.7
+        for <linux-s390@vger.kernel.org>; Tue, 01 Jun 2021 06:48:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=QlGkt7fWsHM9mcKdq1bDx/YwBl/iUUk0WEjc5rg04fY=;
+        b=SJMAgBW5mswAe1ZmlZlRdAFuvYPDEVLqi723Nnx1S4FLz3Yy3Tj3lQWVdZ0F6Qr4eS
+         SMIy05Vpx5EU+XswU9cem+w+MzG0a62ahvk23Tf2SUyNvaWPkh1rlmu3OkVCdEssPf8k
+         xwwmCV/LazyU6UjgCMJxdw//dP9UOpzUM54yyNCR3QG30hScN/IqdhxGg71hNvOalyX+
+         pO6I2f3s4rBYqGHOnzUAspl9mEOwDLA0qywJ9pSLvD5fVKPzw+UNtHhfYY4OA0aw1ASO
+         zcdxwDDiGjJD5VEZLuOr0Rlq6ubnYTbGW3SYaGllJ+Xvfy3vmm5YD3DkNvXi1rVEGPqw
+         8g9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=QlGkt7fWsHM9mcKdq1bDx/YwBl/iUUk0WEjc5rg04fY=;
+        b=AgiNV8dxJsuBSkNXCyPJG1FJiF8CvLRzENjk3skcq3u+/VEsRRrYqZE0Y4IZ7XG/ee
+         MCADOEDdyJYhUynh4F6wt6C5o+0lHClbMSriNWkENBpsKTByk+Im9UgXKHsT8Q6d1IKU
+         5O15NlCc5/eUkRZnyTGkL0OdmwCJFDy3fBd+FsBmFCyIHpqfax+qvl5HCxHsv9frUFLa
+         B0DaQ4EA4jHYuGRwP0Ci+uQCHLPQSfO0gxB7UI7CrEVsD4fklhRAI7zQVI9AkwFO13+L
+         OCW3mpU8NWXJG1kwOFItgDEVTkXllKIAAIA4mNewO/npmB7TKNOp074O01GURs8DoEC+
+         9Y2Q==
+X-Gm-Message-State: AOAM532VQyMOapvW0vp/22dO8docVdx9ay7LyR3xBeftFLMH0MG/cfv/
+        ei8g+PPbvm9SlKsN+nk+vgF3J6hDkdntWw==
+X-Google-Smtp-Source: ABdhPJyRtEOQYxSXItYfv2Xv0el0nwhIYWVK6zfd5YIEz7fo5+/L3t2bxzT7qaz6PyG5RR7CPJmZJA==
+X-Received: by 2002:a05:6808:245:: with SMTP id m5mr18302900oie.6.1622555290008;
+        Tue, 01 Jun 2021 06:48:10 -0700 (PDT)
+Received: from [192.168.1.134] ([198.8.77.61])
+        by smtp.gmail.com with ESMTPSA id i4sm3456045oih.13.2021.06.01.06.48.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Jun 2021 06:48:09 -0700 (PDT)
+Subject: Re: simplify gendisk and request_queue allocation for bio based
+ drivers
+To:     Christoph Hellwig <hch@lst.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        Lars Ellenberg <lars.ellenberg@linbit.com>,
+        Jim Paris <jim@jtan.com>,
+        Joshua Morris <josh.h.morris@us.ibm.com>,
+        Philip Kelleher <pjk1939@linux.ibm.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Matias Bjorling <mb@lightnvm.io>, Coly Li <colyli@suse.de>,
+        Mike Snitzer <snitzer@redhat.com>, Song Liu <song@kernel.org>,
+        Maxim Levitsky <maximlevitsky@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org
-Subject: Re: [RFC/RFT PATCH 0/5] consolidate "System RAM" resources setup
-Message-ID: <20210601134429.GY30436@shell.armlinux.org.uk>
-References: <20210531122959.23499-1-rppt@kernel.org>
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     linux-block@vger.kernel.org, dm-devel@redhat.com,
+        linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org,
+        drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org,
+        linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-mmc@vger.kernel.org, nvdimm@lists.linux.dev,
+        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+References: <20210521055116.1053587-1-hch@lst.de>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <a5d7127f-b422-5556-6810-cf4c98c038ac@kernel.dk>
+Date:   Tue, 1 Jun 2021 07:48:09 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210531122959.23499-1-rppt@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+In-Reply-To: <20210521055116.1053587-1-hch@lst.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 31, 2021 at 03:29:54PM +0300, Mike Rapoport wrote:
-> * arm has "System RAM (boot alias)" that do not seem useful for any other
->   architecture
+On 5/20/21 11:50 PM, Christoph Hellwig wrote:
+> Hi all,
+> 
+> this series is the first part of cleaning up lifetimes and allocation of
+> the gendisk and request_queue structure.  It adds a new interface to
+> allocate the disk and queue together for bio based drivers, and a helper
+> for cleanup/free them when a driver is unloaded or a device is removed.
+> 
+> Together this removes the need to treat the gendisk and request_queue
+> as separate entities for bio based drivers.
 
-This is VERY important for kexec and must _not_ be removed, since you
-will be causing a userspace regression by doing so.
+Applied, thanks.
 
 -- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+Jens Axboe
+
