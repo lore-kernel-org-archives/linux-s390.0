@@ -2,140 +2,462 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DE82C47080
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 16:12:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3854C47080
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 16:15:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 43D3660232
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 16:12:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CEBD160FD8
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 16:15:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233698AbhFAQNq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Jun 2021 12:13:46 -0400
-Received: from mga11.intel.com ([192.55.52.93]:40749 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230523AbhFAQNp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 1 Jun 2021 12:13:45 -0400
-IronPort-SDR: 6Dkv8BuOKeY+L7xXcEHmzPTLyKWGWDZixwFkq9yD2vweJlIYLn6oQPK8dNSfT9EL/8mStwBcrJ
- oD1Tl+0XTZhQ==
-X-IronPort-AV: E=McAfee;i="6200,9189,10002"; a="200564663"
-X-IronPort-AV: E=Sophos;i="5.83,240,1616482800"; 
-   d="scan'208";a="200564663"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2021 09:10:50 -0700
-IronPort-SDR: p6iGhjR6RZGIaThSJIMsrDMkBC2yTJlyRQMHAQQu9Ss7eIs9YVt2ec8zXDcXUzwZchHJzXPSuv
- K1tCePzPVo4Q==
-X-IronPort-AV: E=Sophos;i="5.83,240,1616482800"; 
-   d="scan'208";a="549777277"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2021 09:10:45 -0700
-Received: from andy by smile with local (Exim 4.94)
-        (envelope-from <andy.shevchenko@gmail.com>)
-        id 1lo6yX-00GTkz-TQ; Tue, 01 Jun 2021 19:10:41 +0300
-Date:   Tue, 1 Jun 2021 19:10:41 +0300
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Justin He <Justin.He@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>
-Subject: Re: [PATCH RFCv2 2/3] lib/vsprintf.c: make %pD print full path for
- file
-Message-ID: <YLZcAesVG1SYL5fp@smile.fi.intel.com>
-References: <YLDpSnV9XBUJq5RU@casper.infradead.org>
- <AM6PR08MB437691E7314C6B774EFED4BDF7229@AM6PR08MB4376.eurprd08.prod.outlook.com>
- <YLEDwFCPcFx+qeul@casper.infradead.org>
- <AM6PR08MB437615DB6A6DEC33223A3138F7229@AM6PR08MB4376.eurprd08.prod.outlook.com>
- <YLEKqGkm8bX6LZfP@casper.infradead.org>
- <AM6PR08MB43764764B52AAC7F05B71056F73E9@AM6PR08MB4376.eurprd08.prod.outlook.com>
- <YLZSgZIcWyYTmqOT@casper.infradead.org>
- <CAHp75VfYgEtJeiVp8b10Va54QShyg4DmWeufuB_WGC8C2SE2mQ@mail.gmail.com>
- <YLZVwFh9MZJR3amM@casper.infradead.org>
- <YLZX9oicn8u4ZVCl@smile.fi.intel.com>
+        id S230385AbhFAQRZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Jun 2021 12:17:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24893 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230288AbhFAQRY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 12:17:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1622564142;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=Q4leLm952lrrTCgalhESBYHzQycOxByzl6dLVNBRG84=;
+        b=QqMfjokpkprIh0AtQoDY2BsBI3xs7T5+dwI+FbsdBqHEW2ebXsLrF1qCcxiwPalq4W5PQT
+        q5NZhtgjuJIpGwmVBooOBifPPzAnAHpQOuZ4lpdqnOFN/8UEtLG1hRBGsO8OCfw8TSCgD+
+        Jw5KlmIvTHecaZUiYPF14aXxk6AqAMg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-264-d4YwJTFnNqqCG7TfcJcnDQ-1; Tue, 01 Jun 2021 12:15:41 -0400
+X-MC-Unique: d4YwJTFnNqqCG7TfcJcnDQ-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9144F802690;
+        Tue,  1 Jun 2021 16:15:40 +0000 (UTC)
+Received: from gondolin.fritz.box (ovpn-113-153.ams2.redhat.com [10.36.113.153])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A8C38369A;
+        Tue,  1 Jun 2021 16:15:35 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Cornelia Huck <cohuck@redhat.com>
+Subject: [kvm-unit-tests PATCH] s390x: unify header guards
+Date:   Tue,  1 Jun 2021 18:15:25 +0200
+Message-Id: <20210601161525.462315-1-cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YLZX9oicn8u4ZVCl@smile.fi.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 01, 2021 at 06:53:26PM +0300, Andy Shevchenko wrote:
-> On Tue, Jun 01, 2021 at 04:44:00PM +0100, Matthew Wilcox wrote:
-> > On Tue, Jun 01, 2021 at 06:36:41PM +0300, Andy Shevchenko wrote:
-> > > On Tue, Jun 1, 2021 at 6:32 PM Matthew Wilcox <willy@infradead.org> wrote:
-> > > > On Tue, Jun 01, 2021 at 02:42:15PM +0000, Justin He wrote:
-> > > 
-> > > ...
-> > > 
-> > > > Just don't put anything
-> > > > in the buffer if the user didn't supply enough space.  As long as you
-> > > > get the return value right, they know the string is bad (or they don't
-> > > > care if the string is bad)
-> > > 
-> > > It might be that I'm out of context here, but printf() functionality
-> > > in the kernel (vsprintf() if being precise)  and its users consider
-> > > that it should fill buffer up to the end of whatever space is
-> > > available.
-> > 
-> > Do they though?  What use is it to specify a small buffer, print a
-> > large filename into it and then use that buffer, knowing that it wasn't
-> > big enough?  That would help decide whether we should print the
-> > start or the end of the filename.
-> > 
-> > Remember, we're going for usefulness here, not abiding by the letter of
-> > the standard under all circumstances, no matter the cost.  At least
-> > partially because we're far outside the standard here; POSIX does
-> > not specify what %pD does.
-> > 
-> > "The argument shall be a pointer to void. The value of the
-> > pointer is converted to a sequence of printable characters, in an
-> > implementation-defined manner."
-> 
-> All nice words, but don't forget kasprintf() or other usages like this.
-> For the same input we have to have the same result independently on the room in
-> the buffer.
-> 
-> So, if I print "Hello, World" I should always get it, not "Monkey's Paw".
-> I.o.w.
-> 
->  snprintf(10) ==> "Hello, Wor"
->  snprintf(5)  ==> "Hello"
->  snprintf(2)  !=> "Mo"
->  snprintf(1)  !=> "M"
->  snprintf(1)  ==> "H"
-> 
-> Inconsistency here is really not what we want.
+Let's unify the header guards to _ASM_S390X_FILE_H_ respectively
+_S390X_FILE_H_. This makes it more obvious what the file is
+about, and avoids possible name space collisions.
 
-I have to add that in light of the topic those characters should be counted
-from the end of the filename. So, we will give user as much as possible of useful
-information. I.o.w. always print the last part of filename up to the buffer
-size or if the filename is shorter than buffer we will have it in full.
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
 
+Only did s390x for now; the other archs seem to be inconsistent in
+places as well, and I can also try to tackle them if it makes sense.
+
+---
+ lib/s390x/asm/bitops.h       | 4 ++--
+ lib/s390x/asm/cpacf.h        | 6 +++---
+ lib/s390x/asm/interrupt.h    | 4 ++--
+ lib/s390x/asm/io.h           | 4 ++--
+ lib/s390x/asm/mem.h          | 4 ++--
+ lib/s390x/asm/memory_areas.h | 4 ++--
+ lib/s390x/asm/page.h         | 4 ++--
+ lib/s390x/asm/pgtable.h      | 6 +++---
+ lib/s390x/asm/sigp.h         | 6 +++---
+ lib/s390x/asm/spinlock.h     | 4 ++--
+ lib/s390x/asm/stack.h        | 4 ++--
+ lib/s390x/asm/time.h         | 4 ++--
+ lib/s390x/asm/uv.h           | 4 ++--
+ lib/s390x/css.h              | 4 ++--
+ lib/s390x/interrupt.h        | 6 +++---
+ lib/s390x/mmu.h              | 6 +++---
+ lib/s390x/sclp.h             | 6 +++---
+ lib/s390x/sie.h              | 6 +++---
+ lib/s390x/smp.h              | 4 ++--
+ lib/s390x/uv.h               | 6 +++---
+ lib/s390x/vm.h               | 6 +++---
+ s390x/sthyi.h                | 4 ++--
+ 22 files changed, 53 insertions(+), 53 deletions(-)
+
+diff --git a/lib/s390x/asm/bitops.h b/lib/s390x/asm/bitops.h
+index 792881ec3249..61cd38fd36b7 100644
+--- a/lib/s390x/asm/bitops.h
++++ b/lib/s390x/asm/bitops.h
+@@ -8,8 +8,8 @@
+  *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>,
+  *
+  */
+-#ifndef _ASMS390X_BITOPS_H_
+-#define _ASMS390X_BITOPS_H_
++#ifndef _ASM_S390X_BITOPS_H_
++#define _ASM_S390X_BITOPS_H_
+ 
+ #ifndef _BITOPS_H_
+ #error only <bitops.h> can be included directly
+diff --git a/lib/s390x/asm/cpacf.h b/lib/s390x/asm/cpacf.h
+index 805fcf1a2d71..8e9b8d754c92 100644
+--- a/lib/s390x/asm/cpacf.h
++++ b/lib/s390x/asm/cpacf.h
+@@ -8,8 +8,8 @@
+  *	      Harald Freudenberger (freude@de.ibm.com)
+  *	      Martin Schwidefsky <schwidefsky@de.ibm.com>
+  */
+-#ifndef _ASM_S390_CPACF_H
+-#define _ASM_S390_CPACF_H
++#ifndef _ASM_S390X_CPACF_H_
++#define _ASM_S390X_CPACF_H_
+ 
+ #include <asm/facility.h>
+ #include <linux/compiler.h>
+@@ -471,4 +471,4 @@ static inline void cpacf_pckmo(long func, void *param)
+ 		: "cc", "memory");
+ }
+ 
+-#endif	/* _ASM_S390_CPACF_H */
++#endif	/* _ASM_S390X_CPACF_H_ */
+diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
+index 31e4766d23d5..c095a76f1e7d 100644
+--- a/lib/s390x/asm/interrupt.h
++++ b/lib/s390x/asm/interrupt.h
+@@ -5,8 +5,8 @@
+  * Authors:
+  *  David Hildenbrand <david@redhat.com>
+  */
+-#ifndef _ASMS390X_IRQ_H_
+-#define _ASMS390X_IRQ_H_
++#ifndef _ASM_S390X_IRQ_H_
++#define _ASM_S390X_IRQ_H_
+ #include <asm/arch_def.h>
+ 
+ #define EXT_IRQ_EMERGENCY_SIG	0x1201
+diff --git a/lib/s390x/asm/io.h b/lib/s390x/asm/io.h
+index 1dc6283b641f..8b602ca70075 100644
+--- a/lib/s390x/asm/io.h
++++ b/lib/s390x/asm/io.h
+@@ -6,8 +6,8 @@
+  *  Thomas Huth <thuth@redhat.com>
+  *  David Hildenbrand <david@redhat.com>
+  */
+-#ifndef _ASMS390X_IO_H_
+-#define _ASMS390X_IO_H_
++#ifndef _ASM_S390X_IO_H_
++#define _ASM_S390X_IO_H_
+ 
+ #define __iomem
+ 
+diff --git a/lib/s390x/asm/mem.h b/lib/s390x/asm/mem.h
+index 281390ebd816..082655759d54 100644
+--- a/lib/s390x/asm/mem.h
++++ b/lib/s390x/asm/mem.h
+@@ -5,8 +5,8 @@
+  * Copyright IBM Corp. 2018
+  * Author(s): Janosch Frank <frankja@de.ibm.com>
+  */
+-#ifndef _ASM_S390_MEM_H
+-#define _ASM_S390_MEM_H
++#ifndef _ASM_S390X_MEM_H_
++#define _ASM_S390X_MEM_H_
+ 
+ #define SKEY_ACC	0xf0
+ #define SKEY_FP		0x08
+diff --git a/lib/s390x/asm/memory_areas.h b/lib/s390x/asm/memory_areas.h
+index 827bfb356007..c368bbb5dc5e 100644
+--- a/lib/s390x/asm/memory_areas.h
++++ b/lib/s390x/asm/memory_areas.h
+@@ -1,5 +1,5 @@
+-#ifndef _ASMS390X_MEMORY_AREAS_H_
+-#define _ASMS390X_MEMORY_AREAS_H_
++#ifndef _ASM_S390X_MEMORY_AREAS_H_
++#define _ASM_S390X_MEMORY_AREAS_H_
+ 
+ #define AREA_NORMAL_PFN (1 << 19)
+ #define AREA_NORMAL_NUMBER 0
+diff --git a/lib/s390x/asm/page.h b/lib/s390x/asm/page.h
+index f130f936c5da..c22c089c13e4 100644
+--- a/lib/s390x/asm/page.h
++++ b/lib/s390x/asm/page.h
+@@ -6,8 +6,8 @@
+  *  Thomas Huth <thuth@redhat.com>
+  *  David Hildenbrand <david@redhat.com>
+  */
+-#ifndef _ASMS390X_PAGE_H_
+-#define _ASMS390X_PAGE_H_
++#ifndef _ASM_S390X_PAGE_H_
++#define _ASM_S390X_PAGE_H_
+ 
+ #include <asm-generic/page.h>
+ 
+diff --git a/lib/s390x/asm/pgtable.h b/lib/s390x/asm/pgtable.h
+index 277f34801460..210d6ab398e2 100644
+--- a/lib/s390x/asm/pgtable.h
++++ b/lib/s390x/asm/pgtable.h
+@@ -7,8 +7,8 @@
+  * Authors:
+  *  David Hildenbrand <david@redhat.com>
+  */
+-#ifndef _ASMS390X_PGTABLE_H_
+-#define _ASMS390X_PGTABLE_H_
++#ifndef _ASM_S390X_PGTABLE_H_
++#define _ASM_S390X_PGTABLE_H_
+ 
+ #include <asm/page.h>
+ #include <alloc_page.h>
+@@ -219,4 +219,4 @@ static inline void ipte(unsigned long vaddr, pteval_t *p_pte)
+ 
+ void configure_dat(int enable);
+ 
+-#endif /* _ASMS390X_PGTABLE_H_ */
++#endif /* _ASM_S390X_PGTABLE_H_ */
+diff --git a/lib/s390x/asm/sigp.h b/lib/s390x/asm/sigp.h
+index 00844d26d15a..b3bf7e9cb50c 100644
+--- a/lib/s390x/asm/sigp.h
++++ b/lib/s390x/asm/sigp.h
+@@ -5,8 +5,8 @@
+  * Copied from the Linux kernel file arch/s390/include/asm/sigp.h
+  */
+ 
+-#ifndef ASM_S390X_SIGP_H
+-#define ASM_S390X_SIGP_H
++#ifndef _ASM_S390X_SIGP_H_
++#define _ASM_S390X_SIGP_H_
+ 
+ /* SIGP order codes */
+ #define SIGP_SENSE			1
+@@ -73,4 +73,4 @@ static inline int sigp_retry(uint16_t addr, uint8_t order, unsigned long parm,
+ }
+ 
+ #endif /* __ASSEMBLER__ */
+-#endif /* ASM_S390X_SIGP_H */
++#endif /* _ASM_S390X_SIGP_H_ */
+diff --git a/lib/s390x/asm/spinlock.h b/lib/s390x/asm/spinlock.h
+index 677d2cd6e287..ca9bf8616749 100644
+--- a/lib/s390x/asm/spinlock.h
++++ b/lib/s390x/asm/spinlock.h
+@@ -6,8 +6,8 @@
+  *  Thomas Huth <thuth@redhat.com>
+  *  David Hildenbrand <david@redhat.com>
+  */
+-#ifndef __ASMS390X_SPINLOCK_H
+-#define __ASMS390X_SPINLOCK_H
++#ifndef _ASM_S390X_SPINLOCK_H_
++#define _ASM_S390X_SPINLOCK_H_
+ 
+ #include <asm-generic/spinlock.h>
+ 
+diff --git a/lib/s390x/asm/stack.h b/lib/s390x/asm/stack.h
+index 909da36dce47..b49978051d88 100644
+--- a/lib/s390x/asm/stack.h
++++ b/lib/s390x/asm/stack.h
+@@ -6,8 +6,8 @@
+  *  Thomas Huth <thuth@redhat.com>
+  *  David Hildenbrand <david@redhat.com>
+  */
+-#ifndef _ASMS390X_STACK_H_
+-#define _ASMS390X_STACK_H_
++#ifndef _ASM_S390X_STACK_H_
++#define _ASM_S390X_STACK_H_
+ 
+ #ifndef _STACK_H_
+ #error Do not directly include <asm/stack.h>. Just use <stack.h>.
+diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
+index 0d67f7231992..72a43228d73d 100644
+--- a/lib/s390x/asm/time.h
++++ b/lib/s390x/asm/time.h
+@@ -8,8 +8,8 @@
+  * Copied from the s390/intercept test by:
+  *  Pierre Morel <pmorel@linux.ibm.com>
+  */
+-#ifndef ASM_S390X_TIME_H
+-#define ASM_S390X_TIME_H
++#ifndef _ASM_S390X_TIME_H_
++#define _ASM_S390X_TIME_H_
+ 
+ #define STCK_SHIFT_US	(63 - 51)
+ #define STCK_MAX	((1UL << 52) - 1)
+diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
+index b22cbaa87109..12c4fdcce669 100644
+--- a/lib/s390x/asm/uv.h
++++ b/lib/s390x/asm/uv.h
+@@ -9,8 +9,8 @@
+  * This code is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 2.
+  */
+-#ifndef ASM_S390X_UV_H
+-#define ASM_S390X_UV_H
++#ifndef _ASM_S390X_UV_H_
++#define _ASM_S390X_UV_H_
+ 
+ #define UVC_RC_EXECUTED		0x0001
+ #define UVC_RC_INV_CMD		0x0002
+diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+index 7e3d2613402e..d644971fb2b7 100644
+--- a/lib/s390x/css.h
++++ b/lib/s390x/css.h
+@@ -6,8 +6,8 @@
+  * Author: Pierre Morel <pmorel@linux.ibm.com>
+  */
+ 
+-#ifndef CSS_H
+-#define CSS_H
++#ifndef _S390X_CSS_H_
++#define _S390X_CSS_H_
+ 
+ #define lowcore_ptr ((struct lowcore *)0x0)
+ 
+diff --git a/lib/s390x/interrupt.h b/lib/s390x/interrupt.h
+index 1973d267c2f1..48d90cec1f23 100644
+--- a/lib/s390x/interrupt.h
++++ b/lib/s390x/interrupt.h
+@@ -1,8 +1,8 @@
+-#ifndef INTERRUPT_H
+-#define INTERRUPT_H
++#ifndef _S390X_INTERRUPT_H_
++#define _S390X_INTERRUPT_H_
+ #include <asm/interrupt.h>
+ 
+ int register_io_int_func(void (*f)(void));
+ int unregister_io_int_func(void (*f)(void));
+ 
+-#endif /* INTERRUPT_H */
++#endif /* _S390X_INTERRUPT_H_ */
+diff --git a/lib/s390x/mmu.h b/lib/s390x/mmu.h
+index 603f289e8e00..328a25513aae 100644
+--- a/lib/s390x/mmu.h
++++ b/lib/s390x/mmu.h
+@@ -7,12 +7,12 @@
+  * Authors:
+  *	Janosch Frank <frankja@de.ibm.com>
+  */
+-#ifndef _ASMS390X_MMU_H_
+-#define _ASMS390X_MMU_H_
++#ifndef _S390X_MMU_H_
++#define _S390X_MMU_H_
+ 
+ void protect_page(void *vaddr, unsigned long prot);
+ void protect_range(void *start, unsigned long len, unsigned long prot);
+ void unprotect_page(void *vaddr, unsigned long prot);
+ void unprotect_range(void *start, unsigned long len, unsigned long prot);
+ 
+-#endif /* _ASMS390X_MMU_H_ */
++#endif /* _S390X_MMU_H_ */
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index 7abf1038f5ee..28e526e2c915 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -10,8 +10,8 @@
+  * Author: Christian Borntraeger <borntraeger@de.ibm.com>
+  */
+ 
+-#ifndef SCLP_H
+-#define SCLP_H
++#ifndef _S390X_SCLP_H_
++#define _S390X_SCLP_H_
+ 
+ #define SCLP_CMD_CODE_MASK                      0xffff00ff
+ 
+@@ -329,4 +329,4 @@ void sclp_memory_setup(void);
+ uint64_t get_ram_size(void);
+ uint64_t get_max_ram_size(void);
+ 
+-#endif /* SCLP_H */
++#endif /* _S390X_SCLP_H_ */
+diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+index 518613baf1fa..db30d6164ab6 100644
+--- a/lib/s390x/sie.h
++++ b/lib/s390x/sie.h
+@@ -1,6 +1,6 @@
+ /* SPDX-License-Identifier: GPL-2.0-or-later */
+-#ifndef SIE_H
+-#define SIE_H
++#ifndef _S390X_SIE_H_
++#define _S390X_SIE_H_
+ 
+ #define CPUSTAT_STOPPED    0x80000000
+ #define CPUSTAT_WAIT       0x10000000
+@@ -195,4 +195,4 @@ extern void sie_entry(void);
+ extern void sie_exit(void);
+ extern void sie64a(struct kvm_s390_sie_block *sblk, struct vm_save_area *save_area);
+ 
+-#endif /* SIE_H */
++#endif /* _S390X_SIE_H_ */
+diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
+index 67ff16ca3c52..d99f9fc6cced 100644
+--- a/lib/s390x/smp.h
++++ b/lib/s390x/smp.h
+@@ -7,8 +7,8 @@
+  * Authors:
+  *  Janosch Frank <frankja@linux.ibm.com>
+  */
+-#ifndef SMP_H
+-#define SMP_H
++#ifndef _S390_SMP_H_
++#define _S390_SMP_H_
+ 
+ #include <asm/arch_def.h>
+ 
+diff --git a/lib/s390x/uv.h b/lib/s390x/uv.h
+index 42608a967a03..96257851b1d4 100644
+--- a/lib/s390x/uv.h
++++ b/lib/s390x/uv.h
+@@ -1,10 +1,10 @@
+ /* SPDX-License-Identifier: GPL-2.0-or-later */
+-#ifndef UV_H
+-#define UV_H
++#ifndef _S390X_UV_H_
++#define _S390X_UV_H_
+ 
+ bool uv_os_is_guest(void);
+ bool uv_os_is_host(void);
+ bool uv_query_test_call(unsigned int nr);
+ int uv_setup(void);
+ 
+-#endif /* UV_H */
++#endif /* _S390X_UV_H_ */
+diff --git a/lib/s390x/vm.h b/lib/s390x/vm.h
+index 16722760cb46..7abba0ccae3d 100644
+--- a/lib/s390x/vm.h
++++ b/lib/s390x/vm.h
+@@ -5,9 +5,9 @@
+  * Copyright (c) 2020 Red Hat Inc
+  */
+ 
+-#ifndef S390X_VM_H
+-#define S390X_VM_H
++#ifndef _S390X_VM_H_
++#define _S390X_VM_H_
+ 
+ bool vm_is_tcg(void);
+ 
+-#endif  /* S390X_VM_H */
++#endif  /* _S390X_VM_H_ */
+diff --git a/s390x/sthyi.h b/s390x/sthyi.h
+index bbd74c6197c3..eb92fdd2f2b2 100644
+--- a/s390x/sthyi.h
++++ b/s390x/sthyi.h
+@@ -7,8 +7,8 @@
+  * Authors:
+  *    Janosch Frank <frankja@linux.vnet.ibm.com>
+  */
+-#ifndef _STHYI_H_
+-#define _STHYI_H_
++#ifndef _S390X_STHYI_H_
++#define _S390X_STHYI_H_
+ 
+ #include <stdint.h>
+ 
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.31.1
 
