@@ -2,194 +2,169 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F0A5C47083
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 12:04:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B77DC47092
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 13:55:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7286E613B1
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 12:04:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C009613DE
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 13:55:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229932AbhFBMGk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Jun 2021 08:06:40 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16118 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229844AbhFBMGi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 08:06:38 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 152C2cPO189409;
-        Wed, 2 Jun 2021 08:03:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=7wC8Y59HiMIthB9xfz5dL+I0HD65zOwRPB4cvu5JQYY=;
- b=QRLGyPounpLaRIZgsSUK1LazhFSMWWWVFIpjfvUyvXqdSXI7p94FVQMtSFG3bMtHNL86
- rLVrJ3SvpT994x2pe7o0yL3iXXDeNBst8Q4A8KEa89vx85ZQSTDkkYsEjLQaMo+eb8VZ
- +GFr8IfErHwDLNlYl+L0v9/qNIinOxFcyNlMJhpRMjSZcskv/o9bM0Y0jNVwjZETIKG0
- IXpmjsLB5CkqOhxt84ImzKiTyn/t0QZlZGbbzTco4+M0nPgqtd7mDQbl31t9d+7DOxJc
- iYhombbX7dZq4eRMaB6F1ITduKcVH4H0X0f5lSV3QvlOH2CDPoe61GoP3QIOjHTOkYh/ DA== 
+        id S229641AbhFBN4w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Jun 2021 09:56:52 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49130 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229590AbhFBN4v (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 09:56:51 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 152DaiWL008290;
+        Wed, 2 Jun 2021 09:54:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=WmZjR7l62AhdoDS2RktXANR5nkORtTOgYHzx6ctUV/Q=;
+ b=kG0JKv/BHTALc3tO3r5A13m7Xay13WCPa+NOcKGpk/mbNx8wNgZstAb6Z3Onmy/APSoU
+ LJ0SuNz2jdsq1g3ymHLVt3CerXwq1O6IrUOSr1Sc2GTdvhbETJGoz+NyVNM2UQZHOu0r
+ WPy+mmVUbcD0gZXWHuX3Fa0D20m+v0SMLU32Q1iYzhzyW/b/bmMuWKYcOqesOJRItgOF
+ mjogp2RwJG0aZyEGnrkOIiw7vEIS0BLdLEXkc95neVeDkt6MRBGJ5VhiQ5FD+JW8J9Z6
+ jbgRnB7EO9rLZ7ACN/kEweMvbYJapo72OaidBN4TUIu2ft6f0aYQP1VxwsLXrgoWsoyZ 1w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38x7kr3h5n-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38x92dm0s1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Jun 2021 08:03:00 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 152C2cNZ189527;
-        Wed, 2 Jun 2021 08:02:59 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38x7kr3h4k-1
+        Wed, 02 Jun 2021 09:54:29 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 152Dcx18017122;
+        Wed, 2 Jun 2021 09:54:28 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38x92dm0qe-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Jun 2021 08:02:59 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 152BwHfr023191;
-        Wed, 2 Jun 2021 12:02:57 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 38ud87s9cx-1
+        Wed, 02 Jun 2021 09:54:28 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 152Dlt2n024334;
+        Wed, 2 Jun 2021 13:54:25 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 38ud88acyf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Jun 2021 12:02:56 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 152C2r4H26280248
+        Wed, 02 Jun 2021 13:54:25 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 152DsNhj27853120
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Jun 2021 12:02:53 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A0364A405F;
-        Wed,  2 Jun 2021 12:02:53 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 479C3A4040;
-        Wed,  2 Jun 2021 12:02:52 +0000 (GMT)
-Received: from sig-9-145-17-43.uk.ibm.com (unknown [9.145.17.43])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  2 Jun 2021 12:02:52 +0000 (GMT)
-Message-ID: <e4891689c7651611020bdf3b4db9895819da345a.camel@linux.ibm.com>
-Subject: Re: [PATCH 27/30] scm_blk: use blk_mq_alloc_disk and
- blk_cleanup_disk
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc:     Justin Sanders <justin@coraid.com>,
-        Denis Efremov <efremov@linux.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Tim Waugh <tim@cyberelk.net>,
-        Geoff Levand <geoff@infradead.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Roger Pau =?ISO-8859-1?Q?Monn=E9?= <roger.pau@citrix.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Maxim Levitsky <maximlevitsky@gmail.com>,
-        Alex Dubov <oakad@yahoo.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        Wed, 2 Jun 2021 13:54:23 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F296711C05C;
+        Wed,  2 Jun 2021 13:54:22 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E020411C054;
+        Wed,  2 Jun 2021 13:54:19 +0000 (GMT)
+Received: from linux.ibm.com (unknown [9.145.77.40])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed,  2 Jun 2021 13:54:19 +0000 (GMT)
+Date:   Wed, 2 Jun 2021 16:54:17 +0300
+From:   Mike Rapoport <rppt@linux.ibm.com>
+To:     "Russell King (Oracle)" <linux@armlinux.org.uk>
+Cc:     Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        dm-devel@redhat.com, linux-block@vger.kernel.org,
-        nbd@other.debian.org, linuxppc-dev@lists.ozlabs.org,
-        ceph-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org, linux-mmc@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
-Date:   Wed, 02 Jun 2021 14:02:51 +0200
-In-Reply-To: <20210602065345.355274-28-hch@lst.de>
-References: <20210602065345.355274-1-hch@lst.de>
-         <20210602065345.355274-28-hch@lst.de>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org
+Subject: Re: [RFC/RFT PATCH 2/5] memblock: introduce generic
+ memblock_setup_resources()
+Message-ID: <YLeNiUkIw+aFpMcz@linux.ibm.com>
+References: <20210531122959.23499-1-rppt@kernel.org>
+ <20210531122959.23499-3-rppt@kernel.org>
+ <20210601135415.GZ30436@shell.armlinux.org.uk>
+ <YLdCRoldZFYMZ0BG@linux.ibm.com>
+ <20210602101521.GD30436@shell.armlinux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210602101521.GD30436@shell.armlinux.org.uk>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 9Pi9MTQ_S8CJ1ewvOnGa4xYgtn5KH1ib
-X-Proofpoint-ORIG-GUID: -LAzjZA1VGIxMM3aVX5RPubiT3GLOjUz
+X-Proofpoint-GUID: J1pL7ClAT_QwidlIsJz58cbv6Fart2RR
+X-Proofpoint-ORIG-GUID: t-LdfegxWsAyi89ULkkDrRm0-GDDH0TW
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-02_06:2021-06-02,2021-06-02 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- priorityscore=1501 lowpriorityscore=0 adultscore=0 bulkscore=0
- mlxlogscore=999 spamscore=0 clxscore=1011 suspectscore=0 phishscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106020078
+ definitions=2021-06-02_07:2021-06-02,2021-06-02 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=999 mlxscore=0 malwarescore=0 impostorscore=0
+ lowpriorityscore=0 adultscore=0 spamscore=0 clxscore=1015 suspectscore=0
+ bulkscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106020088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2021-06-02 at 09:53 +0300, Christoph Hellwig wrote:
-> Use blk_mq_alloc_disk and blk_cleanup_disk to simplify the gendisk and
-> request_queue allocation.
+On Wed, Jun 02, 2021 at 11:15:21AM +0100, Russell King (Oracle) wrote:
+> On Wed, Jun 02, 2021 at 11:33:10AM +0300, Mike Rapoport wrote:
+> > On Tue, Jun 01, 2021 at 02:54:15PM +0100, Russell King (Oracle) wrote:
+> > > On Mon, May 31, 2021 at 03:29:56PM +0300, Mike Rapoport wrote:
+> > > > +	code_resource.start = __pa_symbol(_text);
+> > > > +	code_resource.end = __pa_symbol(_etext)-1;
+> > > > +	rodata_resource.start = __pa_symbol(__start_rodata);
+> > > > +	rodata_resource.end = __pa_symbol(__end_rodata)-1;
+> > > > +	data_resource.start = __pa_symbol(_sdata);
+> > > > +	data_resource.end = __pa_symbol(_edata)-1;
+> > > > +	bss_resource.start = __pa_symbol(__bss_start);
+> > > > +	bss_resource.end = __pa_symbol(__bss_stop)-1;
+> > > 
+> > > This falls short on 32-bit ARM. The old code was:
+> > > 
+> > > -       kernel_code.start   = virt_to_phys(_text);
+> > > -       kernel_code.end     = virt_to_phys(__init_begin - 1);
+> > > -       kernel_data.start   = virt_to_phys(_sdata);                             
+> > > -       kernel_data.end     = virt_to_phys(_end - 1);                           
+> > > 
+> > > If I look at one of my kernels:
+> > > 
+> > > c0008000 T _text
+> > > c0b5b000 R __end_rodata
+> > > ... exception and unwind tables live here ...
+> > > c0c00000 T __init_begin
+> > > c0e00000 D _sdata
+> > > c0e68870 D _edata
+> > > c0e68870 B __bss_start
+> > > c0e995d4 B __bss_stop
+> > > c0e995d4 B _end
+> > > 
+> > > So the original covers _text..__init_begin-1 which includes the
+> > > exception and unwind tables. Your version above omits these, which
+> > > leaves them exposed.
+> > 
+> > Right, this needs to be fixed. Is there any reason the exception and unwind
+> > tables cannot be placed between _sdata and _edata? 
+> > 
+> > It seems to me that they were left outside for purely historical reasons.
+> > Commit ee951c630c5c ("ARM: 7568/1: Sort exception table at compile time")
+> > moved the exception tables out of .data section before _sdata existed.
+> > Commit 14c4a533e099 ("ARM: 8583/1: mm: fix location of _etext") moved
+> > _etext before the unwind tables and didn't bother to put them into data or
+> > rodata areas.
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/s390/block/scm_blk.c | 21 ++++++---------------
->  1 file changed, 6 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/s390/block/scm_blk.c b/drivers/s390/block/scm_blk.c
-> index a4f6f2e62b1d..88cba6212ee2 100644
-> --- a/drivers/s390/block/scm_blk.c
-> +++ b/drivers/s390/block/scm_blk.c
-> @@ -462,12 +462,12 @@ int scm_blk_dev_setup(struct scm_blk_dev *bdev, struct scm_device *scmdev)
->  	if (ret)
->  		goto out;
->  
-> -	rq = blk_mq_init_queue(&bdev->tag_set);
-> -	if (IS_ERR(rq)) {
-> -		ret = PTR_ERR(rq);
-> +	bdev->gendisk = blk_mq_alloc_disk(&bdev->tag_set, scmdev);
-> +	if (IS_ERR(bdev->gendisk)) {
-> +		ret = PTR_ERR(bdev->gendisk);
->  		goto out_tag;
->  	}
-> -	bdev->rq = rq;
-> +	rq = bdev->rq = bdev->gendisk->queue;
->  	nr_max_blk = min(scmdev->nr_max_block,
->  			 (unsigned int) (PAGE_SIZE / sizeof(struct aidaw)));
->  
-> @@ -477,17 +477,11 @@ int scm_blk_dev_setup(struct scm_blk_dev *bdev, struct scm_device *scmdev)
->  	blk_queue_flag_set(QUEUE_FLAG_NONROT, rq);
->  	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, rq);
->  
-> -	bdev->gendisk = alloc_disk(SCM_NR_PARTS);
-> -	if (!bdev->gendisk) {
-> -		ret = -ENOMEM;
-> -		goto out_queue;
-> -	}
-> -	rq->queuedata = scmdev;
->  	bdev->gendisk->private_data = scmdev;
->  	bdev->gendisk->fops = &scm_blk_devops;
-> -	bdev->gendisk->queue = rq;
->  	bdev->gendisk->major = scm_major;
->  	bdev->gendisk->first_minor = devindex * SCM_NR_PARTS;
-> +	bdev->gendisk->minors = SCM_NR_PARTS;
->  
->  	len = snprintf(bdev->gendisk->disk_name, DISK_NAME_LEN, "scm");
->  	if (devindex > 25) {
-> @@ -504,8 +498,6 @@ int scm_blk_dev_setup(struct scm_blk_dev *bdev, struct scm_device *scmdev)
->  	device_add_disk(&scmdev->dev, bdev->gendisk, NULL);
->  	return 0;
->  
-> -out_queue:
-> -	blk_cleanup_queue(rq);
->  out_tag:
->  	blk_mq_free_tag_set(&bdev->tag_set);
->  out:
-> @@ -516,9 +508,8 @@ int scm_blk_dev_setup(struct scm_blk_dev *bdev, struct scm_device *scmdev)
->  void scm_blk_dev_cleanup(struct scm_blk_dev *bdev)
->  {
->  	del_gendisk(bdev->gendisk);
-> -	blk_cleanup_queue(bdev->gendisk->queue);
-> +	blk_cleanup_disk(bdev->gendisk);
->  	blk_mq_free_tag_set(&bdev->tag_set);
-> -	put_disk(bdev->gendisk);
->  }
->  
->  void scm_blk_set_available(struct scm_blk_dev *bdev)
+> You can not assume that all sections will be between these symbols. This
+> isn't specific to 32-bit ARM. If you look at x86's vmlinux.lds.in, you
+> will see that BUG_TABLE and ORC_UNWIND_TABLE are after _edata, along
+> with many other undiscarded sections before __bss_start.
 
-Not an expert on SCM or this code but I gave this a quick test and it
-seems to work fine.
+But if you look at x86's setup_arch() all these never make it to the
+resource tree. So there are holes in /proc/iomem between the kernel
+resources.
 
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> So it seems your assumptions in trying to clean this up are somewhat
+> false.
 
-
-
+My assumption was that there is complete lack of consistency between what
+is reserved memory and how it is reported in /proc/iomem or
+/sys/firmware/memmap for that matter. I'm not trying to clean this up, I'm
+trying to make different views of the physical memory consistent.
+Consolidating several similar per-arch implementations is the first step in
+this direction.
+ 
+-- 
+Sincerely yours,
+Mike.
