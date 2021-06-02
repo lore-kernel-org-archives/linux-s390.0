@@ -2,184 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C07EFC47097
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 10:54:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09DA5C47092
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 10:54:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AEC4A613D0
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 10:54:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E8471613AE
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 10:54:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232298AbhFBK4f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Jun 2021 06:56:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38654 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231974AbhFBK4C (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 2 Jun 2021 06:56:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E38A613B8;
-        Wed,  2 Jun 2021 10:54:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622631259;
-        bh=wiXTn//eiKgcS7LspEevBm9W4ghqhPpXnabDtNpHAWc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aenRwMba72rCI0f0+YNCvpuF+B89DZZZcNy9A9qwZOX6ztizS+NE4FPYA+R2Z5DXy
-         QYv8+KSCh6yjWLYdBikUAv7ieP4WMTl94vBwxzbYcnCTRTAGBIyKSVSP2gQG/05lMD
-         +DwqtVWXRXNkgKAw56m8CW6AJoabI3YW+EfCfTd9lrYhPayUhA0fOCDd0Yyijv33ox
-         /sBbmXZ8VZZpnfRgcKD9Jbkqxyp1ZCAEGc0kCUIWKXx5LhlqP653x+i94BLo0J2/Kb
-         PvtG19vRg2yFN7Z8DuxiaI0hWRcGrZDHaooM5xN0EpA7pMJUV4VvTcv6PXqzg7KKfh
-         G7quvwCN3TybQ==
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Matt Turner <mattst88@gmail.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Richard Henderson <rth@twiddle.net>,
-        Vineet Gupta <vgupta@synopsys.com>, kexec@lists.infradead.org,
-        linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org
-Subject: [PATCH 3/9] arc: remove support for DISCONTIGMEM
-Date:   Wed,  2 Jun 2021 13:53:42 +0300
-Message-Id: <20210602105348.13387-4-rppt@kernel.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20210602105348.13387-1-rppt@kernel.org>
-References: <20210602105348.13387-1-rppt@kernel.org>
+        id S232305AbhFBK4g (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Jun 2021 06:56:36 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31048 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232068AbhFBK4G (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 06:56:06 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 152AX07O015501;
+        Wed, 2 Jun 2021 06:54:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=rrQmKGq7zPkkI9h7rd4kiOv62439d9gDRPCcKqHmypo=;
+ b=eRzP+BmPfJ7Z/WkjzCKTi2bNLL3SGX8tUxKI9FaLc9x8uEYt6dRp8zAwFS/gngB8Du5y
+ Y7cQBmOoh4Qm0at6cAEWCDEcz16mU1S/NcH+16lboFMo+73+xVJ2wDZ8IH+Jp1hJ0im2
+ adxMLFREnR79STOkQzgaKq9uyNbMh6XrBSa3EVBKr7mitEOtAQANshQwqbDeVTUTBFVg
+ 24i2JLNz+ieQHam3wk8SxtMojwDc89q1MNmuhVKDagfvBXaarGIS6xvyYNfreCA6eznv
+ wn6fOqXfw6fPVJMoGYFOmRpl/7kMgpj2lH+bwYWc/yyu4z1fMICfmDg73v0HSBAKh/I0 5w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38x5kr58xt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Jun 2021 06:54:23 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 152AXtWT017835;
+        Wed, 2 Jun 2021 06:54:23 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38x5kr58x7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Jun 2021 06:54:23 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 152AsIxU030435;
+        Wed, 2 Jun 2021 10:54:21 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 38ud88a8yp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Jun 2021 10:54:20 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 152AsI7m14746066
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 2 Jun 2021 10:54:18 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AB57A11C04C;
+        Wed,  2 Jun 2021 10:54:18 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5FF4211C054;
+        Wed,  2 Jun 2021 10:54:18 +0000 (GMT)
+Received: from ibm-vm (unknown [9.145.2.225])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  2 Jun 2021 10:54:18 +0000 (GMT)
+Date:   Wed, 2 Jun 2021 12:54:16 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, thuth@redhat.com, cohuck@redhat.com
+Subject: Re: [kvm-unit-tests PATCH] s390x: sie: Only overwrite r3 if it
+ isn't needed anymore
+Message-ID: <20210602125416.392d0868@ibm-vm>
+In-Reply-To: <539ca61d-eaf8-f47f-c7ce-d5a520273517@redhat.com>
+References: <20210602094352.11647-1-frankja@linux.ibm.com>
+        <539ca61d-eaf8-f47f-c7ce-d5a520273517@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: h2jlIm8wGyAmHE2ud1SP51YpTM4tijJV
+X-Proofpoint-ORIG-GUID: clawCgMDBgmIyN3dO-YE4_1plLi_p1Kd
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-06-02_06:2021-06-02,2021-06-02 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=999 spamscore=0 priorityscore=1501 bulkscore=0 phishscore=0
+ mlxscore=0 clxscore=1015 adultscore=0 suspectscore=0 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106020067
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+On Wed, 2 Jun 2021 11:47:12 +0200
+David Hildenbrand <david@redhat.com> wrote:
 
-DISCONTIGMEM was replaced by FLATMEM with freeing of the unused memory map
-in v5.11.
+> On 02.06.21 11:43, Janosch Frank wrote:
+> > The lmg overwrites r3 which we later use to reference the fprs and
+> > fpc. Let's do the lmg at the end where overwriting is fine.
+> > 
+> > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-Remove the support for DISCONTIGMEM entirely.
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/arc/Kconfig              | 13 ------------
- arch/arc/include/asm/mmzone.h | 40 -----------------------------------
- arch/arc/mm/init.c            |  8 -------
- 3 files changed, 61 deletions(-)
- delete mode 100644 arch/arc/include/asm/mmzone.h
-
-diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
-index 2d98501c0897..d8f51eb8963b 100644
---- a/arch/arc/Kconfig
-+++ b/arch/arc/Kconfig
-@@ -62,10 +62,6 @@ config SCHED_OMIT_FRAME_POINTER
- config GENERIC_CSUM
- 	def_bool y
- 
--config ARCH_DISCONTIGMEM_ENABLE
--	def_bool n
--	depends on BROKEN
--
- config ARCH_FLATMEM_ENABLE
- 	def_bool y
- 
-@@ -344,15 +340,6 @@ config ARC_HUGEPAGE_16M
- 
- endchoice
- 
--config NODES_SHIFT
--	int "Maximum NUMA Nodes (as a power of 2)"
--	default "0" if !DISCONTIGMEM
--	default "1" if DISCONTIGMEM
--	depends on NEED_MULTIPLE_NODES
--	help
--	  Accessing memory beyond 1GB (with or w/o PAE) requires 2 memory
--	  zones.
--
- config ARC_COMPACT_IRQ_LEVELS
- 	depends on ISA_ARCOMPACT
- 	bool "Setup Timer IRQ as high Priority"
-diff --git a/arch/arc/include/asm/mmzone.h b/arch/arc/include/asm/mmzone.h
-deleted file mode 100644
-index b86b9d1e54dc..000000000000
---- a/arch/arc/include/asm/mmzone.h
-+++ /dev/null
-@@ -1,40 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
--/*
-- * Copyright (C) 2016 Synopsys, Inc. (www.synopsys.com)
-- */
--
--#ifndef _ASM_ARC_MMZONE_H
--#define _ASM_ARC_MMZONE_H
--
--#ifdef CONFIG_DISCONTIGMEM
--
--extern struct pglist_data node_data[];
--#define NODE_DATA(nid) (&node_data[nid])
--
--static inline int pfn_to_nid(unsigned long pfn)
--{
--	int is_end_low = 1;
--
--	if (IS_ENABLED(CONFIG_ARC_HAS_PAE40))
--		is_end_low = pfn <= virt_to_pfn(0xFFFFFFFFUL);
--
--	/*
--	 * node 0: lowmem:             0x8000_0000   to 0xFFFF_FFFF
--	 * node 1: HIGHMEM w/o  PAE40: 0x0           to 0x7FFF_FFFF
--	 *         HIGHMEM with PAE40: 0x1_0000_0000 to ...
--	 */
--	if (pfn >= ARCH_PFN_OFFSET && is_end_low)
--		return 0;
--
--	return 1;
--}
--
--static inline int pfn_valid(unsigned long pfn)
--{
--	int nid = pfn_to_nid(pfn);
--
--	return (pfn <= node_end_pfn(nid));
--}
--#endif /* CONFIG_DISCONTIGMEM  */
--
--#endif
-diff --git a/arch/arc/mm/init.c b/arch/arc/mm/init.c
-index 397a201adfe3..abfeef7bf6f8 100644
---- a/arch/arc/mm/init.c
-+++ b/arch/arc/mm/init.c
-@@ -32,11 +32,6 @@ unsigned long arch_pfn_offset;
- EXPORT_SYMBOL(arch_pfn_offset);
- #endif
- 
--#ifdef CONFIG_DISCONTIGMEM
--struct pglist_data node_data[MAX_NUMNODES] __read_mostly;
--EXPORT_SYMBOL(node_data);
--#endif
--
- long __init arc_get_mem_sz(void)
- {
- 	return low_mem_sz;
-@@ -147,9 +142,6 @@ void __init setup_arch_memory(void)
- 	 * to the hole is freed and ARC specific version of pfn_valid()
- 	 * handles the hole in the memory map.
- 	 */
--#ifdef CONFIG_DISCONTIGMEM
--	node_set_online(1);
--#endif
- 
- 	min_high_pfn = PFN_DOWN(high_mem_start);
- 	max_high_pfn = PFN_DOWN(high_mem_start + high_mem_sz);
--- 
-2.28.0
+> > ---
+> > 
+> > Finding this took me longer than I'd like to admit. :)
+> > 
+> > ---
+> >   s390x/cpu.S | 2 +-
+> >   1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/s390x/cpu.S b/s390x/cpu.S
+> > index e2ad56c8..82b5e25d 100644
+> > --- a/s390x/cpu.S
+> > +++ b/s390x/cpu.S
+> > @@ -81,11 +81,11 @@ sie64a:
+> >   	stg	%r3,__SF_SIE_SAVEAREA(%r15)	# save
+> > guest register save area 
+> >   	# Load guest's gprs, fprs and fpc
+> > -	lmg	%r0,%r13,SIE_SAVEAREA_GUEST_GRS(%r3)
+> >   	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+> >   	ld	\i, \i * 8 + SIE_SAVEAREA_GUEST_FPRS(%r3)
+> >   	.endr
+> >   	lfpc	SIE_SAVEAREA_GUEST_FPC(%r3)
+> > +	lmg	%r0,%r13,SIE_SAVEAREA_GUEST_GRS(%r3)
+> >   
+> >   	# Move scb ptr into r14 for the sie instruction
+> >   	lg	%r14,__SF_SIE_CONTROL(%r15)
+> >   
+> 
+> Oh, that's nasty
+> 
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> 
 
