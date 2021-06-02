@@ -2,213 +2,197 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4C38C4708F
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7DFAC47098
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BF7C76139A
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B6ED56135D
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230413AbhFBG5b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Jun 2021 02:57:31 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32930 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231171AbhFBG5V (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 02:57:21 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1526YJpc108772;
-        Wed, 2 Jun 2021 02:55:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=AggN6kILmAq6M552UF66y/v2nWUUZffhUg8jiO0qhW4=;
- b=PpT/tyMiRPDUsoxCXMtbgnwbwYGzLCDkbLB9UKylypA4FOYWI/bFDWEY7CfCEdgn2NNS
- JkmyJLEK022XM5wWoCeR3YnJp1DKeRdnmsX98neyDOt+MhWqgQfhp3egcvr/yLO/edmI
- E0maKeFZ8iM0HorQeJGEj06hc8nSJ0psCjTksjr+GB6pewUE+ZK2lMLFZQ3rCxHPXs0e
- iyiNi+npciK8+LvtEORfNFNLo+uHp8GJc9xqC46SC5jmcqEIh3SF+lQbGSqPrMVqyET5
- uZVAJsROa9SV9LoBiY6QAdCM6CV4D54kku7R4EpNqeaC90Luo5gdnQpLXhOXTcXPhJjY Og== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38x4qd0nb5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Jun 2021 02:55:02 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1526a1Kp118406;
-        Wed, 2 Jun 2021 02:55:02 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38x4qd0n9v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Jun 2021 02:55:02 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1526qSCJ008200;
-        Wed, 2 Jun 2021 06:54:59 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma05fra.de.ibm.com with ESMTP id 38ud87s65k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Jun 2021 06:54:59 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1526sMEt22479250
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Jun 2021 06:54:22 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5B35D4C040;
-        Wed,  2 Jun 2021 06:54:56 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F02FA4C046;
-        Wed,  2 Jun 2021 06:54:52 +0000 (GMT)
-Received: from linux.ibm.com (unknown [9.145.77.40])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Wed,  2 Jun 2021 06:54:52 +0000 (GMT)
-Date:   Wed, 2 Jun 2021 09:54:50 +0300
-From:   Mike Rapoport <rppt@linux.ibm.com>
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
+        id S231371AbhFBG5e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Jun 2021 02:57:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47796 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231208AbhFBG5X (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 02:57:23 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF786C061756;
+        Tue,  1 Jun 2021 23:55:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=+VW3u/9XCdDTbtqEZvujMXwGJbXBwfM20yjCH8e5d3E=; b=GwQP6IERGYi9h/w11aM5Gv7Bak
+        KwC96m3PPXGkoyZYwi/kNvLQSakOJo8KyQC+PaSGnzJZtxZtj+EAf1YdIWxyGh1h3/ItGALtuAyht
+        Zb0UCagxGAtcH3yWBInWzJjMPdgOtlr0aVxDJradU0LlW4CU0UoZ9uFlxXZ9MaFs9QpR6rJJqNKpM
+        Lp+TbCyqXP0eixAsJNjUJ38MR0l0b3AJnHt9CihDHSmpFaOitPKX0HSMzdaVcLJGEB+8v4t2ImMr4
+        1mz3v9UKvRtkqRqwAqZX0MDPtIqhunVVCv1zjkY4f5TbIaxRb9R62pOguo/krhQJ2ETMPxpLnqyY0
+        E1fIMYVA==;
+Received: from shol69.static.otenet.gr ([83.235.170.67] helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1loKme-0025w6-S0; Wed, 02 Jun 2021 06:55:21 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Justin Sanders <justin@coraid.com>,
+        Denis Efremov <efremov@linux.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Tim Waugh <tim@cyberelk.net>,
+        Geoff Levand <geoff@infradead.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Maxim Levitsky <maximlevitsky@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org
-Subject: Re: [RFC/RFT PATCH 1/5] s390: make crashk_res resource a child of
- "System RAM"
-Message-ID: <YLcrOtfuhCw9e63w@linux.ibm.com>
-References: <20210531122959.23499-1-rppt@kernel.org>
- <20210531122959.23499-2-rppt@kernel.org>
- <20210601151836.1f3a90e0@thinkpad>
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        dm-devel@redhat.com, linux-block@vger.kernel.org,
+        nbd@other.debian.org, linuxppc-dev@lists.ozlabs.org,
+        ceph-devel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org, linux-mmc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: [PATCH 19/30] nbd: use blk_mq_alloc_disk and blk_cleanup_disk
+Date:   Wed,  2 Jun 2021 09:53:34 +0300
+Message-Id: <20210602065345.355274-20-hch@lst.de>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210602065345.355274-1-hch@lst.de>
+References: <20210602065345.355274-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210601151836.1f3a90e0@thinkpad>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: x1gpB5QYTm7sXsXiPqw0ZFNHlr3tRL4e
-X-Proofpoint-ORIG-GUID: vZcsgnNHdeQa4JksiepwCR0xd-j5brVe
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-02_02:2021-06-01,2021-06-02 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- adultscore=0 impostorscore=0 bulkscore=0 phishscore=0 clxscore=1015
- priorityscore=1501 spamscore=0 mlxlogscore=999 lowpriorityscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106020041
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 01, 2021 at 03:18:36PM +0200, Gerald Schaefer wrote:
-> On Mon, 31 May 2021 15:29:55 +0300
-> Mike Rapoport <rppt@kernel.org> wrote:
-> 
-> > From: Mike Rapoport <rppt@linux.ibm.com>
-> > 
-> > Commit 4e042af463f8 ("s390/kexec: fix crash on resize of reserved memory")
-> > added a comment that says "crash kernel resource should not be part of the
-> > System RAM resource" but never explained why. As it looks from the code in
-> > the kernel and in kexec there is no actual reason for that.
-> 
-> Still testing, but so far everything works fine.
-> 
-> > 
-> > Keeping crashk_res inline with other resources makes code simpler and
-> > cleaner, and allows future consolidation of the resources setup across
-> > several architectures.
-> > 
-> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> > ---
-> >  arch/s390/kernel/setup.c | 21 +++++----------------
-> >  1 file changed, 5 insertions(+), 16 deletions(-)
-> > 
-> > diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-> > index 5aab59ad5688..30430e7c1b03 100644
-> > --- a/arch/s390/kernel/setup.c
-> > +++ b/arch/s390/kernel/setup.c
-> > @@ -500,6 +500,9 @@ static struct resource __initdata *standard_resources[] = {
-> >  	&code_resource,
-> >  	&data_resource,
-> >  	&bss_resource,
-> > +#ifdef CONFIG_CRASH_DUMP
-> > +	&crashk_res,
-> > +#endif
-> >  };
-> >  
-> >  static void __init setup_resources(void)
-> > @@ -535,7 +538,7 @@ static void __init setup_resources(void)
-> >  
-> >  		for (j = 0; j < ARRAY_SIZE(standard_resources); j++) {
-> >  			std_res = standard_resources[j];
-> > -			if (std_res->start < res->start ||
-> > +			if (!std_res->end || std_res->start < res->start ||
-> >  			    std_res->start > res->end)
-> >  				continue;
-> >  			if (std_res->end > res->end) {
-> 
-> Why is this extra check for !std_res->end added here? I assume it
-> might be needed later, after you moved this to common code, but I
-> cannot see how any of the other patches in this series would require
-> that.
+Use blk_mq_alloc_disk and blk_cleanup_disk to simplify the gendisk and
+request_queue allocation.
 
-This is needed to avoid requesting empty crash_res.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/block/nbd.c | 53 ++++++++++++++++++---------------------------
+ 1 file changed, 21 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 45d2c28c8fc8..614d82e7fae4 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -219,15 +219,11 @@ static const struct device_attribute pid_attr = {
+ static void nbd_dev_remove(struct nbd_device *nbd)
+ {
+ 	struct gendisk *disk = nbd->disk;
+-	struct request_queue *q;
  
-> > @@ -552,20 +555,6 @@ static void __init setup_resources(void)
-> >  			}
-> >  		}
-> >  	}
-> > -#ifdef CONFIG_CRASH_DUMP
-> > -	/*
-> > -	 * Re-add removed crash kernel memory as reserved memory. This makes
-> > -	 * sure it will be mapped with the identity mapping and struct pages
-> > -	 * will be created, so it can be resized later on.
-> > -	 * However add it later since the crash kernel resource should not be
-> > -	 * part of the System RAM resource.
-> > -	 */
-> > -	if (crashk_res.end) {
-> > -		memblock_add_node(crashk_res.start, resource_size(&crashk_res), 0);
-> > -		memblock_reserve(crashk_res.start, resource_size(&crashk_res));
-> > -		insert_resource(&iomem_resource, &crashk_res);
-> > -	}
-> > -#endif
-> >  }
-> >  
-> >  static void __init setup_ident_map_size(void)
-> > @@ -733,7 +722,7 @@ static void __init reserve_crashkernel(void)
-> >  		diag10_range(PFN_DOWN(crash_base), PFN_DOWN(crash_size));
-> >  	crashk_res.start = crash_base;
-> >  	crashk_res.end = crash_base + crash_size - 1;
-> > -	memblock_remove(crash_base, crash_size);
-> > +	memblock_reserve(crash_base, crash_size);
-> >  	pr_info("Reserving %lluMB of memory at %lluMB "
-> >  		"for crashkernel (System RAM: %luMB)\n",
-> >  		crash_size >> 20, crash_base >> 20,
-> 
-> Other architectures check the return value of memblock_reserve() at
-> this point, and exit crashkernel reservation if it fails. IIUC, the
-> only reason why memblock_reserve() could fail would be the same reason
-> why also memblock_remove() could fail, i.e. that memblock_double_array()
-> would fail. And since we also do not check that at the moment, your
-> patch would probably not (additionally) break anything.
-
-We don't check the return value of memblock_reserve() (or memblock_remove()
-for that matter) in vast majority of cases all over the place, but it is
-very much unlikely it will fail because there is not enough memory.
+ 	if (disk) {
+-		q = disk->queue;
+ 		del_gendisk(disk);
+-		blk_cleanup_queue(q);
+ 		blk_mq_free_tag_set(&nbd->tag_set);
+-		disk->private_data = NULL;
+-		put_disk(disk);
++		blk_cleanup_disk(disk);
+ 	}
  
-> Still, this might be something for an add-on patch (for us). Do you
-> happen to know how likely it would be that memblock_remove/reserve()
-> could fail at this point?
-
-Generally, the worst case scenario is that memblock_remove/reserve() will
-need to double one of the memblock arrays. This will require to allocate
-several kilobytes of memory, but since the memory this early is mostly free
-it should not be a problem.
-
-Looking particularly at s390 case, there are handful of reservations before
-setup_resouces(), so we can accommodate more than 100 calls to
-memblock_reserve() before we'll need to increase memblock.reserved array.
-
+ 	/*
+@@ -1646,15 +1642,24 @@ static int nbd_dev_add(int index)
+ {
+ 	struct nbd_device *nbd;
+ 	struct gendisk *disk;
+-	struct request_queue *q;
+ 	int err = -ENOMEM;
+ 
+ 	nbd = kzalloc(sizeof(struct nbd_device), GFP_KERNEL);
+ 	if (!nbd)
+ 		goto out;
+ 
+-	disk = alloc_disk(1 << part_shift);
+-	if (!disk)
++	nbd->tag_set.ops = &nbd_mq_ops;
++	nbd->tag_set.nr_hw_queues = 1;
++	nbd->tag_set.queue_depth = 128;
++	nbd->tag_set.numa_node = NUMA_NO_NODE;
++	nbd->tag_set.cmd_size = sizeof(struct nbd_cmd);
++	nbd->tag_set.flags = BLK_MQ_F_SHOULD_MERGE |
++		BLK_MQ_F_BLOCKING;
++	nbd->tag_set.driver_data = nbd;
++	nbd->destroy_complete = NULL;
++
++	err = blk_mq_alloc_tag_set(&nbd->tag_set);
++	if (err)
+ 		goto out_free_nbd;
+ 
+ 	if (index >= 0) {
+@@ -1668,30 +1673,15 @@ static int nbd_dev_add(int index)
+ 			index = err;
+ 	}
+ 	if (err < 0)
+-		goto out_free_disk;
+-
++		goto out_free_tags;
+ 	nbd->index = index;
+-	nbd->disk = disk;
+-	nbd->tag_set.ops = &nbd_mq_ops;
+-	nbd->tag_set.nr_hw_queues = 1;
+-	nbd->tag_set.queue_depth = 128;
+-	nbd->tag_set.numa_node = NUMA_NO_NODE;
+-	nbd->tag_set.cmd_size = sizeof(struct nbd_cmd);
+-	nbd->tag_set.flags = BLK_MQ_F_SHOULD_MERGE |
+-		BLK_MQ_F_BLOCKING;
+-	nbd->tag_set.driver_data = nbd;
+-	nbd->destroy_complete = NULL;
+ 
+-	err = blk_mq_alloc_tag_set(&nbd->tag_set);
+-	if (err)
++	disk = blk_mq_alloc_disk(&nbd->tag_set, NULL);
++	if (IS_ERR(disk)) {
++		err = PTR_ERR(disk);
+ 		goto out_free_idr;
+-
+-	q = blk_mq_init_queue(&nbd->tag_set);
+-	if (IS_ERR(q)) {
+-		err = PTR_ERR(q);
+-		goto out_free_tags;
+ 	}
+-	disk->queue = q;
++	nbd->disk = disk;
+ 
+ 	/*
+ 	 * Tell the block layer that we are not a rotational device
+@@ -1712,6 +1702,7 @@ static int nbd_dev_add(int index)
+ 	INIT_LIST_HEAD(&nbd->list);
+ 	disk->major = NBD_MAJOR;
+ 	disk->first_minor = index << part_shift;
++	disk->minors = 1 << part_shift;
+ 	disk->fops = &nbd_fops;
+ 	disk->private_data = nbd;
+ 	sprintf(disk->disk_name, "nbd%d", index);
+@@ -1719,12 +1710,10 @@ static int nbd_dev_add(int index)
+ 	nbd_total_devices++;
+ 	return index;
+ 
+-out_free_tags:
+-	blk_mq_free_tag_set(&nbd->tag_set);
+ out_free_idr:
+ 	idr_remove(&nbd_index_idr, index);
+-out_free_disk:
+-	put_disk(disk);
++out_free_tags:
++	blk_mq_free_tag_set(&nbd->tag_set);
+ out_free_nbd:
+ 	kfree(nbd);
+ out:
 -- 
-Sincerely yours,
-Mike.
+2.30.2
+
