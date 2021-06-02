@@ -2,129 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 967E2C47083
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:59:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70C82C47092
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 07:06:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 72CFD61242
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:59:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B8FC613AE
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 07:06:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230272AbhFBHB3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Jun 2021 03:01:29 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:21633 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229955AbhFBHB2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 03:01:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1622617185;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=UKf0lOdGUnKEBEe6OBgcdT+Hi5/oJPRiHF9Bpb46ZMY=;
-        b=gZ22RMWy5guNqgD+DYNryX64HFxeAjWztJ6TMu4Rf/Lq7zgbDaJBNhjRSQR80QOsc8d353
-        +fe1YywH/aA8n1OOeTg1MEIvvsv6nFShLXmyZnsnc1wVPSGcEcibzRRNAVn4hnr2D6H+KB
-        Djtz5KIvELMr/M3/HvkywaPC0H/eB1E=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-265-1dTLJXI_OKSNL7XS_7iIzw-1; Wed, 02 Jun 2021 02:59:42 -0400
-X-MC-Unique: 1dTLJXI_OKSNL7XS_7iIzw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 667F98042A9;
-        Wed,  2 Jun 2021 06:59:41 +0000 (UTC)
-Received: from localhost (ovpn-113-172.ams2.redhat.com [10.36.113.172])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1122A6A03D;
-        Wed,  2 Jun 2021 06:59:37 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Thomas Huth <thuth@redhat.com>,
+        id S230093AbhFBHIU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Jun 2021 03:08:20 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37352 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229753AbhFBHIT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 03:08:19 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15272aoD070108;
+        Wed, 2 Jun 2021 03:06:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=GFBycVBB+/xnfkQ4jX/AScq7z7Un90yyHMcTZFBccbA=;
+ b=RzP73lw6Z5V0yFsM5tT3opZIMdNz8zJuEtt+mQTgXJbSNOQ/9Hiked48PLn7QIER9Qs2
+ Ed4PU4dHfcSfVvjc9I6nk7RN/EU4DedAPcOuQjS2p67FHJWnkGVy9/JUgUQtpOqaP78f
+ lklLYpBCp+GReSSE/bLpzmDmUwvpzRuMj/4NtiMOqYuK11bPrC7SZMWQHwXGnaILS8xH
+ oxlHPUBpmCM8FCpToWtTWxtIQrlIaIsdzENMHAfILucP0IZYwH4LIQpiA7M86RdZ6unl
+ aeAlL7cuGAI6FX/uDsGCr4I4FX9opLAQIp8johTnzT5WvGsffEZIbaMmVJtl8S+7QHSP Lw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38x55h09ks-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Jun 2021 03:06:03 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15273HKp073495;
+        Wed, 2 Jun 2021 03:06:03 -0400
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38x55h09hv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Jun 2021 03:06:02 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15272oDY026082;
+        Wed, 2 Jun 2021 07:06:00 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06fra.de.ibm.com with ESMTP id 38ucvh96a9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Jun 2021 07:06:00 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15275vu933096056
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 2 Jun 2021 07:05:57 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 09E1842042;
+        Wed,  2 Jun 2021 07:05:57 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E5FE84203F;
+        Wed,  2 Jun 2021 07:05:53 +0000 (GMT)
+Received: from linux.ibm.com (unknown [9.145.77.40])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed,  2 Jun 2021 07:05:53 +0000 (GMT)
+Date:   Wed, 2 Jun 2021 10:05:51 +0300
+From:   Mike Rapoport <rppt@linux.ibm.com>
+To:     "Russell King (Oracle)" <linux@armlinux.org.uk>
+Cc:     Mike Rapoport <rppt@kernel.org>, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Andrew Jones <drjones@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH] s390x: unify header guards
-In-Reply-To: <d87b32d6-1d41-1413-96c6-0d6b2361b079@redhat.com>
-Organization: Red Hat GmbH
-References: <20210601161525.462315-1-cohuck@redhat.com>
- <d87b32d6-1d41-1413-96c6-0d6b2361b079@redhat.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Wed, 02 Jun 2021 08:59:36 +0200
-Message-ID: <87h7igrbtz.fsf@redhat.com>
+        Heiko Carstens <hca@linux.ibm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org
+Subject: Re: [RFC/RFT PATCH 0/5] consolidate "System RAM" resources setup
+Message-ID: <YLctz5z34knyHVFz@linux.ibm.com>
+References: <20210531122959.23499-1-rppt@kernel.org>
+ <20210601134429.GY30436@shell.armlinux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210601134429.GY30436@shell.armlinux.org.uk>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: f3G9ixy-BGxGSouhWNCKbcO-usydOj1k
+X-Proofpoint-ORIG-GUID: NQ-TJPvOXD2GbphMmpQ8sXZjkW9bcYbI
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-06-02_02:2021-06-01,2021-06-02 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ clxscore=1015 phishscore=0 mlxlogscore=761 bulkscore=0 priorityscore=1501
+ spamscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106020045
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thomas Huth <thuth@redhat.com> writes:
+On Tue, Jun 01, 2021 at 02:44:29PM +0100, Russell King (Oracle) wrote:
+> On Mon, May 31, 2021 at 03:29:54PM +0300, Mike Rapoport wrote:
+> > * arm has "System RAM (boot alias)" that do not seem useful for any other
+> >   architecture
+> 
+> This is VERY important for kexec and must _not_ be removed, since you
+> will be causing a userspace regression by doing so.
 
-> On 01/06/2021 18.15, Cornelia Huck wrote:
->> Let's unify the header guards to _ASM_S390X_FILE_H_ respectively
->> _S390X_FILE_H_. This makes it more obvious what the file is
->> about, and avoids possible name space collisions.
->> 
->> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
->> ---
->> 
->> Only did s390x for now; the other archs seem to be inconsistent in
->> places as well, and I can also try to tackle them if it makes sense.
-> ...
->> diff --git a/lib/s390x/asm/bitops.h b/lib/s390x/asm/bitops.h
->> index 792881ec3249..61cd38fd36b7 100644
->> --- a/lib/s390x/asm/bitops.h
->> +++ b/lib/s390x/asm/bitops.h
->> @@ -8,8 +8,8 @@
->>    *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>,
->>    *
->>    */
->> -#ifndef _ASMS390X_BITOPS_H_
->> -#define _ASMS390X_BITOPS_H_
->> +#ifndef _ASM_S390X_BITOPS_H_
->> +#define _ASM_S390X_BITOPS_H_
->
-> Why not the other way round (S390X_ASM_BITOPS_H) ?
+I didn't remove these. I'll update the changelog and the cover letter to
+make it clear.
 
-Most existing guards were this way around, I don't really have a
-preference here, we should just agree on one format :)
-
->
->  > diff --git a/s390x/sthyi.h b/s390x/sthyi.h
->  > index bbd74c6197c3..eb92fdd2f2b2 100644
->  > --- a/s390x/sthyi.h
->  > +++ b/s390x/sthyi.h
->  > @@ -7,8 +7,8 @@
->  >   * Authors:
->  >   *    Janosch Frank <frankja@linux.vnet.ibm.com>
->  >   */
->  > -#ifndef _STHYI_H_
->  > -#define _STHYI_H_
->  > +#ifndef _S390X_STHYI_H_
->  > +#define _S390X_STHYI_H_
->
-> While we're at it: Do we also want to drop the leading (and trailing) 
-> underscores here? ... since leading underscore followed by a capital letter 
-> is a reserved namespace in C and you should normally not use these in nice 
-> programs...? I think I'm ok with keeping the underscores in the files in the 
-> lib folder (since these are our core libraries, similar to the system and 
-> libc headers on a normal system), but in files that are not part of the lib 
-> folder, we should rather avoid them.
-
-Hm, I actually ended up _adding_ some underscores in various places... I
-can certainly drop them for !lib.
-
-What about the following structure:
-
-- in lib/<arch>/asm/: _ARCH_ASM_FILE_H_
-- in lib/<arch>/: _ARCH_FILE_H_
-- in lib/linux/: _LINUX_FILE_H_
-- in lib/: _FILE_H_
-(lib/libfdt is imported code, leave untouched)
-- in <arch>/: ARCH_FILE_H
-
+-- 
+Sincerely yours,
+Mike.
