@@ -2,153 +2,159 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7ED4C4708F
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:50:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82B6EC47092
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:54:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9A2A261242
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:50:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 697FC613C1
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:54:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229581AbhFBGvq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Jun 2021 02:51:46 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9732 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229737AbhFBGvl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 02:51:41 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1526YESt183504;
-        Wed, 2 Jun 2021 02:49:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=eV7OHaaJkxhnxAKYxQ3UBXiQubYpTc8z6/Iva34uIBE=;
- b=gCkyuaVJJGpN2/Vgzs7G/zu6ZJRxyMhNA1/xyWcO5kxDJVfghYUVQFtwNz5qM7DP3XP5
- cS3NCvg1jOEzC2QKh0C+x2ymgXeJpF4r/91hg6FXWv+dhVHmr4OH/ugkjAUS/TK/3wY7
- LuHkRqx3JBFeEhmB9B4PBuGpMELcXubSIWsKbqkwJkjyss8ydf3q7i0rFHWLGcXypwCZ
- 3XIACI1milEwAss4DV3Jrte9DXoD3f21LGKc6ZS6X+K78ZXoBKSlyHEM3xUdF5JbeY1Z
- bhZg6lHSaBUJkMXIRUPl1pbQUTFQajGywANqx9fz9z7UfxtL+1AXkojyxPQHpjMyyt5h FQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38x20j43s4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Jun 2021 02:49:58 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1526ZUHi186605;
-        Wed, 2 Jun 2021 02:49:58 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38x20j43rq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Jun 2021 02:49:58 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1526n89r030702;
-        Wed, 2 Jun 2021 06:49:56 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma01fra.de.ibm.com with ESMTP id 38ud88964d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Jun 2021 06:49:56 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1526nsDB29491474
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Jun 2021 06:49:54 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EBA684C040;
-        Wed,  2 Jun 2021 06:49:53 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 501634C046;
-        Wed,  2 Jun 2021 06:49:53 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.24.5])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  2 Jun 2021 06:49:53 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH] s390x: unify header guards
-To:     Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Andrew Jones <drjones@redhat.com>
-References: <20210601161525.462315-1-cohuck@redhat.com>
- <d87b32d6-1d41-1413-96c6-0d6b2361b079@redhat.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <28419313-ab8e-322e-4995-30f42e4f5236@linux.ibm.com>
-Date:   Wed, 2 Jun 2021 08:49:52 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S230212AbhFBG4E (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Jun 2021 02:56:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47520 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230075AbhFBG4D (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 02:56:03 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D682C06174A;
+        Tue,  1 Jun 2021 23:54:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=SnRF2RasuO3TzWzCcWD7psRmahwH4O2DjzNGyzgJCxM=; b=RfiXqx1buYxjqGM6Ru6s2uXbtK
+        szP8Lp35KdwoBLpRViL7iCBQHBOTXZ4Qu5LJOvN43OaaHCTJwbYuBSl2SqXNEe3Ty441iVm62zV/q
+        FK7bqtRTYnR/sNzxWhxA2AWxTTSYR0R47li/OgrbNqJ/z/C247XNi+vyVCBUJz2HWLNRhHDg9jROf
+        W37wVhanz0woIFa4DI1Hiypd6xGuMEzMDW+t6oSvgQDur5ioE4KQTAUXWM04CshX1rW4l4k5bAsYt
+        fMWsLaqDTkxSQegnpPyUc9dgQ8DJelIKHSJsddjUREuKapJzcCJM+AP8gSr/w6bRFlEnBsoDVPXvd
+        WWIbvGOQ==;
+Received: from shol69.static.otenet.gr ([83.235.170.67] helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1loKlG-0025Fb-J7; Wed, 02 Jun 2021 06:53:55 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Justin Sanders <justin@coraid.com>,
+        Denis Efremov <efremov@linux.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Tim Waugh <tim@cyberelk.net>,
+        Geoff Levand <geoff@infradead.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Maxim Levitsky <maximlevitsky@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        dm-devel@redhat.com, linux-block@vger.kernel.org,
+        nbd@other.debian.org, linuxppc-dev@lists.ozlabs.org,
+        ceph-devel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org, linux-mmc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: [PATCH 01/30] blk-mq: factor out a blk_mq_alloc_sq_tag_set helper
+Date:   Wed,  2 Jun 2021 09:53:16 +0300
+Message-Id: <20210602065345.355274-2-hch@lst.de>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210602065345.355274-1-hch@lst.de>
+References: <20210602065345.355274-1-hch@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <d87b32d6-1d41-1413-96c6-0d6b2361b079@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: qCyUMehGgiQSabYvi8dtvaYi9iY-ejG8
-X-Proofpoint-ORIG-GUID: pq3rBoS0tiEPDm9VcysTNGXlnoHTfwua
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-02_01:2021-06-01,2021-06-02 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- impostorscore=0 mlxlogscore=999 phishscore=0 priorityscore=1501
- lowpriorityscore=0 spamscore=0 bulkscore=0 mlxscore=0 adultscore=0
- clxscore=1015 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2104190000 definitions=main-2106020041
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/2/21 5:56 AM, Thomas Huth wrote:
-> On 01/06/2021 18.15, Cornelia Huck wrote:
->> Let's unify the header guards to _ASM_S390X_FILE_H_ respectively
->> _S390X_FILE_H_. This makes it more obvious what the file is
->> about, and avoids possible name space collisions.
->>
->> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
->> ---
->>
->> Only did s390x for now; the other archs seem to be inconsistent in
->> places as well, and I can also try to tackle them if it makes sense.
-> ...
->> diff --git a/lib/s390x/asm/bitops.h b/lib/s390x/asm/bitops.h
->> index 792881ec3249..61cd38fd36b7 100644
->> --- a/lib/s390x/asm/bitops.h
->> +++ b/lib/s390x/asm/bitops.h
->> @@ -8,8 +8,8 @@
->>    *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>,
->>    *
->>    */
->> -#ifndef _ASMS390X_BITOPS_H_
->> -#define _ASMS390X_BITOPS_H_
->> +#ifndef _ASM_S390X_BITOPS_H_
->> +#define _ASM_S390X_BITOPS_H_
-> 
-> Why not the other way round (S390X_ASM_BITOPS_H) ?
-> 
->  > diff --git a/s390x/sthyi.h b/s390x/sthyi.h
->  > index bbd74c6197c3..eb92fdd2f2b2 100644
->  > --- a/s390x/sthyi.h
->  > +++ b/s390x/sthyi.h
->  > @@ -7,8 +7,8 @@
->  >   * Authors:
->  >   *    Janosch Frank <frankja@linux.vnet.ibm.com>
->  >   */
->  > -#ifndef _STHYI_H_
->  > -#define _STHYI_H_
->  > +#ifndef _S390X_STHYI_H_
->  > +#define _S390X_STHYI_H_
-> 
-> While we're at it: Do we also want to drop the leading (and trailing) 
-> underscores here? ... since leading underscore followed by a capital letter 
-> is a reserved namespace in C and you should normally not use these in nice 
-> programs...? I think I'm ok with keeping the underscores in the files in the 
-> lib folder (since these are our core libraries, similar to the system and 
-> libc headers on a normal system), but in files that are not part of the lib 
-> folder, we should rather avoid them.
+Factour out a helper to initialize a simple single hw queue tag_set from
+blk_mq_init_sq_queue.  This will allow to phase out blk_mq_init_sq_queue
+in favor of a more symmetric and general API.
 
-Yes please.
-Also, I have the feeling that we should document our decision so we can
-point people to a file if questions arise.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ block/blk-mq.c         | 32 ++++++++++++++++++--------------
+ include/linux/blk-mq.h |  3 +++
+ 2 files changed, 21 insertions(+), 14 deletions(-)
 
-
-> 
->   Thomas
-> 
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index f11d4018ce2e..eaacfa963a73 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -3152,24 +3152,12 @@ struct request_queue *blk_mq_init_sq_queue(struct blk_mq_tag_set *set,
+ 	struct request_queue *q;
+ 	int ret;
+ 
+-	memset(set, 0, sizeof(*set));
+-	set->ops = ops;
+-	set->nr_hw_queues = 1;
+-	set->nr_maps = 1;
+-	set->queue_depth = queue_depth;
+-	set->numa_node = NUMA_NO_NODE;
+-	set->flags = set_flags;
+-
+-	ret = blk_mq_alloc_tag_set(set);
++	ret = blk_mq_alloc_sq_tag_set(set, ops, queue_depth, set_flags);
+ 	if (ret)
+ 		return ERR_PTR(ret);
+-
+ 	q = blk_mq_init_queue(set);
+-	if (IS_ERR(q)) {
++	if (IS_ERR(q))
+ 		blk_mq_free_tag_set(set);
+-		return q;
+-	}
+-
+ 	return q;
+ }
+ EXPORT_SYMBOL(blk_mq_init_sq_queue);
+@@ -3589,6 +3577,22 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
+ }
+ EXPORT_SYMBOL(blk_mq_alloc_tag_set);
+ 
++/* allocate and initialize a tagset for a simple single-queue device */
++int blk_mq_alloc_sq_tag_set(struct blk_mq_tag_set *set,
++		const struct blk_mq_ops *ops, unsigned int queue_depth,
++		unsigned int set_flags)
++{
++	memset(set, 0, sizeof(*set));
++	set->ops = ops;
++	set->nr_hw_queues = 1;
++	set->nr_maps = 1;
++	set->queue_depth = queue_depth;
++	set->numa_node = NUMA_NO_NODE;
++	set->flags = set_flags;
++	return blk_mq_alloc_tag_set(set);
++}
++EXPORT_SYMBOL_GPL(blk_mq_alloc_sq_tag_set);
++
+ void blk_mq_free_tag_set(struct blk_mq_tag_set *set)
+ {
+ 	int i, j;
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index 359486940fa0..bb950fc669ef 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -439,6 +439,9 @@ struct request_queue *blk_mq_init_sq_queue(struct blk_mq_tag_set *set,
+ void blk_mq_unregister_dev(struct device *, struct request_queue *);
+ 
+ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set);
++int blk_mq_alloc_sq_tag_set(struct blk_mq_tag_set *set,
++		const struct blk_mq_ops *ops, unsigned int queue_depth,
++		unsigned int set_flags);
+ void blk_mq_free_tag_set(struct blk_mq_tag_set *set);
+ 
+ void blk_mq_flush_plug_list(struct blk_plug *plug, bool from_schedule);
+-- 
+2.30.2
 
