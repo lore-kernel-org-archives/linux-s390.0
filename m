@@ -2,125 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 952D2C47092
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:56:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 967E2C47083
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:59:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 837D26108C
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:56:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 72CFD61242
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:59:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231286AbhFBG6f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Jun 2021 02:58:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47850 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbhFBG6L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 02:58:11 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B229C061763;
-        Tue,  1 Jun 2021 23:56:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-        :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=ZrMEf0Ls9F+Osx12fthB6jYFp7YA2RuOfcMRudkR5eo=; b=RmhbmeEgAua7D4yc0CN6m+daMw
-        ggu55W3yOtqsYbnSz5c1dfLFQJ9ncvb9hc3nNvkXY6f0gcSGMOhLStwUwb0UQrJ1aG7h0ZSUng/WX
-        es/ejunr+apwEHWPUWRQDfPQvgeX1hrHlUl4NOb5oItwm7czJQwirbV+FChfRP7dM0qxLnCRqVmgI
-        bA1/+LYF3tWUOd/53KL9zns/VStS5lpZkIiq55Ah7xS6m/8ryTxd0+2JtSdNyv1ovCOilXcKoWuJr
-        8KfLwtubqhZXD6/OkB2mdwrFmz8NTFBmkmZB+9B1+iGvFIgntGiUljL/AChzeEhq1iCnrHX8J/lkd
-        xKgRqjOg==;
-Received: from shol69.static.otenet.gr ([83.235.170.67] helo=localhost)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1loKnR-0026ec-A8; Wed, 02 Jun 2021 06:56:10 +0000
-From:   Christoph Hellwig <hch@lst.de>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Justin Sanders <justin@coraid.com>,
-        Denis Efremov <efremov@linux.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Tim Waugh <tim@cyberelk.net>,
-        Geoff Levand <geoff@infradead.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Maxim Levitsky <maximlevitsky@gmail.com>,
-        Alex Dubov <oakad@yahoo.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        dm-devel@redhat.com, linux-block@vger.kernel.org,
-        nbd@other.debian.org, linuxppc-dev@lists.ozlabs.org,
-        ceph-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org, linux-mmc@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: [PATCH 30/30] z2ram: use blk_mq_alloc_disk and blk_cleanup_disk
-Date:   Wed,  2 Jun 2021 09:53:45 +0300
-Message-Id: <20210602065345.355274-31-hch@lst.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210602065345.355274-1-hch@lst.de>
-References: <20210602065345.355274-1-hch@lst.de>
+        id S230272AbhFBHB3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Jun 2021 03:01:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:21633 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229955AbhFBHB2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 03:01:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1622617185;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=UKf0lOdGUnKEBEe6OBgcdT+Hi5/oJPRiHF9Bpb46ZMY=;
+        b=gZ22RMWy5guNqgD+DYNryX64HFxeAjWztJ6TMu4Rf/Lq7zgbDaJBNhjRSQR80QOsc8d353
+        +fe1YywH/aA8n1OOeTg1MEIvvsv6nFShLXmyZnsnc1wVPSGcEcibzRRNAVn4hnr2D6H+KB
+        Djtz5KIvELMr/M3/HvkywaPC0H/eB1E=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-265-1dTLJXI_OKSNL7XS_7iIzw-1; Wed, 02 Jun 2021 02:59:42 -0400
+X-MC-Unique: 1dTLJXI_OKSNL7XS_7iIzw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 667F98042A9;
+        Wed,  2 Jun 2021 06:59:41 +0000 (UTC)
+Received: from localhost (ovpn-113-172.ams2.redhat.com [10.36.113.172])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1122A6A03D;
+        Wed,  2 Jun 2021 06:59:37 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Andrew Jones <drjones@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH] s390x: unify header guards
+In-Reply-To: <d87b32d6-1d41-1413-96c6-0d6b2361b079@redhat.com>
+Organization: Red Hat GmbH
+References: <20210601161525.462315-1-cohuck@redhat.com>
+ <d87b32d6-1d41-1413-96c6-0d6b2361b079@redhat.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Wed, 02 Jun 2021 08:59:36 +0200
+Message-ID: <87h7igrbtz.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use blk_mq_alloc_disk and blk_cleanup_disk to simplify the gendisk and
-request_queue allocation.
+Thomas Huth <thuth@redhat.com> writes:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/block/z2ram.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+> On 01/06/2021 18.15, Cornelia Huck wrote:
+>> Let's unify the header guards to _ASM_S390X_FILE_H_ respectively
+>> _S390X_FILE_H_. This makes it more obvious what the file is
+>> about, and avoids possible name space collisions.
+>> 
+>> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+>> ---
+>> 
+>> Only did s390x for now; the other archs seem to be inconsistent in
+>> places as well, and I can also try to tackle them if it makes sense.
+> ...
+>> diff --git a/lib/s390x/asm/bitops.h b/lib/s390x/asm/bitops.h
+>> index 792881ec3249..61cd38fd36b7 100644
+>> --- a/lib/s390x/asm/bitops.h
+>> +++ b/lib/s390x/asm/bitops.h
+>> @@ -8,8 +8,8 @@
+>>    *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>,
+>>    *
+>>    */
+>> -#ifndef _ASMS390X_BITOPS_H_
+>> -#define _ASMS390X_BITOPS_H_
+>> +#ifndef _ASM_S390X_BITOPS_H_
+>> +#define _ASM_S390X_BITOPS_H_
+>
+> Why not the other way round (S390X_ASM_BITOPS_H) ?
 
-diff --git a/drivers/block/z2ram.c b/drivers/block/z2ram.c
-index c1d20818e649..a8968d9e759b 100644
---- a/drivers/block/z2ram.c
-+++ b/drivers/block/z2ram.c
-@@ -323,27 +323,20 @@ static const struct blk_mq_ops z2_mq_ops = {
- 
- static int z2ram_register_disk(int minor)
- {
--	struct request_queue *q;
- 	struct gendisk *disk;
- 
--	disk = alloc_disk(1);
--	if (!disk)
--		return -ENOMEM;
--
--	q = blk_mq_init_queue(&tag_set);
--	if (IS_ERR(q)) {
--		put_disk(disk);
--		return PTR_ERR(q);
--	}
-+	disk = blk_mq_alloc_disk(&tag_set, NULL);
-+	if (IS_ERR(disk))
-+		return PTR_ERR(disk);
- 
- 	disk->major = Z2RAM_MAJOR;
- 	disk->first_minor = minor;
-+	disk->minors = 1;
- 	disk->fops = &z2_fops;
- 	if (minor)
- 		sprintf(disk->disk_name, "z2ram%d", minor);
- 	else
- 		sprintf(disk->disk_name, "z2ram");
--	disk->queue = q;
- 
- 	z2ram_gendisk[minor] = disk;
- 	add_disk(disk);
--- 
-2.30.2
+Most existing guards were this way around, I don't really have a
+preference here, we should just agree on one format :)
+
+>
+>  > diff --git a/s390x/sthyi.h b/s390x/sthyi.h
+>  > index bbd74c6197c3..eb92fdd2f2b2 100644
+>  > --- a/s390x/sthyi.h
+>  > +++ b/s390x/sthyi.h
+>  > @@ -7,8 +7,8 @@
+>  >   * Authors:
+>  >   *    Janosch Frank <frankja@linux.vnet.ibm.com>
+>  >   */
+>  > -#ifndef _STHYI_H_
+>  > -#define _STHYI_H_
+>  > +#ifndef _S390X_STHYI_H_
+>  > +#define _S390X_STHYI_H_
+>
+> While we're at it: Do we also want to drop the leading (and trailing) 
+> underscores here? ... since leading underscore followed by a capital letter 
+> is a reserved namespace in C and you should normally not use these in nice 
+> programs...? I think I'm ok with keeping the underscores in the files in the 
+> lib folder (since these are our core libraries, similar to the system and 
+> libc headers on a normal system), but in files that are not part of the lib 
+> folder, we should rather avoid them.
+
+Hm, I actually ended up _adding_ some underscores in various places... I
+can certainly drop them for !lib.
+
+What about the following structure:
+
+- in lib/<arch>/asm/: _ARCH_ASM_FILE_H_
+- in lib/<arch>/: _ARCH_FILE_H_
+- in lib/linux/: _LINUX_FILE_H_
+- in lib/: _FILE_H_
+(lib/libfdt is imported code, leave untouched)
+- in <arch>/: ARCH_FILE_H
 
