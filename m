@@ -2,142 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2BFBC4708F
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 19:01:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BB63C4708F
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 03:56:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8BE6C608FE
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Jun 2021 19:01:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 022E5613B1
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 03:56:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234685AbhFATDd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Jun 2021 15:03:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60268 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234638AbhFATDc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 15:03:32 -0400
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA201C061574
-        for <linux-s390@vger.kernel.org>; Tue,  1 Jun 2021 12:01:49 -0700 (PDT)
-Received: by mail-lj1-x230.google.com with SMTP id w15so20668971ljo.10
-        for <linux-s390@vger.kernel.org>; Tue, 01 Jun 2021 12:01:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rasmusvillemoes.dk; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=RAu0njSTC+kf8drexs7MaZKoE+RFr/l6rpBisM//YE8=;
-        b=Ubm1IKre509GEWJnIt1bo0fRJNfmHccoI20TkXQ9yfHdF/oebFoF8keJiNoiUOrs7X
-         VfT4DycS9NU6tC6PB5TL9w1v0tqnoJiSrlqYUM0sNWE2MwixNys6XjGaG7v6mpXb57b7
-         LWKaKfyXXz9TMrKN2/lbmduSACCMKLBdvT3SM=
+        id S229825AbhFBD6e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Jun 2021 23:58:34 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:27113 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229590AbhFBD6e (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Jun 2021 23:58:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1622606211;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=uA3eZjb5JJ8NaO9JVvpGUQyJtR4AB1k+URnb80+XFJY=;
+        b=hhLAJ4lKnJRe3dF62b+r3jDBaCgy0JtGqMagGGVbTPYPF/uP+H1wL1wH8me4tmFsen1ZrU
+        OPcYA+jWrpkLsp2UEz2N/mlpngMVV2CZ8dsEx2fVMmnwMIJ9x+96PpUB7Kk94FHimqcFjZ
+        4gqpLBonMgf9peyXswBpNTtxGjlkkHY=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-534-R1j8Jlf_PhyofrK0Bd4DyQ-1; Tue, 01 Jun 2021 23:56:50 -0400
+X-MC-Unique: R1j8Jlf_PhyofrK0Bd4DyQ-1
+Received: by mail-wr1-f72.google.com with SMTP id z4-20020adfe5440000b0290114f89c9931so422566wrm.17
+        for <linux-s390@vger.kernel.org>; Tue, 01 Jun 2021 20:56:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=RAu0njSTC+kf8drexs7MaZKoE+RFr/l6rpBisM//YE8=;
-        b=HtVfdTMeR5IhAt1pQY7GBh6gDgNzs585YK8mLm2WEIsaFxJvmXqvvDUNW7Hi10EzBv
-         ZMRnY42XV85eHerPdW8kQhTEsxuM3iWD7k3W/YQpD5oQZz42UwjoyP4Az/FQt6zhQ10B
-         khHhQ9tEI+MeqOgkI63ut+qfAtzwKlPeWCxF42wgzTKD0RpMFCC/CZuVkX8+l6tsJuBy
-         KGykuhsowAU1kMQI8c60BmmXBI5EnKodi730mfm8SrwxvuMHBZrbEaBMaT37F5usCIU2
-         eA8uLtHNY+j0owTxXAGjstoArbB3szmXDMb2JRXmBk2t7nfy7YxlFqeCJ3XQMEs+AH57
-         rxOQ==
-X-Gm-Message-State: AOAM533nHeUVGlzvlOyATiqj1lyfktToLP1OBR48yMTuXD8zAg20KydY
-        1lhHiU/o0i5mu+VaGh1llPB2PQ==
-X-Google-Smtp-Source: ABdhPJw9s8bBsmzDHRpKgKg/J93DXW07RWbA/3WaPNRwJsVn9SJW571H6MDEnq3hSiz8E+K7r3/Pmg==
-X-Received: by 2002:a05:651c:2c7:: with SMTP id f7mr22407178ljo.255.1622574107996;
-        Tue, 01 Jun 2021 12:01:47 -0700 (PDT)
-Received: from [172.17.20.140] ([81.216.59.226])
-        by smtp.gmail.com with ESMTPSA id g2sm2103831ljn.35.2021.06.01.12.01.46
+        bh=uA3eZjb5JJ8NaO9JVvpGUQyJtR4AB1k+URnb80+XFJY=;
+        b=igLlu0uEnNLVIZsq4X1NmaDupJr3yaWk7GVLgs0mwBDRWm76JS166XE8DVtU9wVk7r
+         RJAtiaaKBfov+nguSgSU0SeQCUOgVLlWl1oOLastxZMwv8rA6QFR57L+JUK7gS6VJvb7
+         QT5lTMCgu8ywXA6jHkXdqZEfGlzW7G/tcS5+M6eC0v03c9KKqHNFXMUoZvlaW2Y3gobn
+         5IjeuyICxTUknM/DgX97+/7tze7dHl/kLKFtRexWL3x7ZOhFzIivUY7LAejCn22Bv/P6
+         3xiY3WobOXCjRtNzHV7yLmVDF5pZcj+g+JsUVmVEhgQ6BoEv3azEmq1zBuivCKOq+bXG
+         Nr/Q==
+X-Gm-Message-State: AOAM532HyoL+p70MZDLzRhpoiXjizDBwOChYQa+7SMV9rwNqHbVfZWqj
+        lTIbqoWu4isOpcVDKg2owBbuRlEQpjehbCRf8VFGGI+xnUHKGAbIsmO3xtBMpg8fxutCspdesRF
+        zvneoklJWclm62WCWotW+eA==
+X-Received: by 2002:adf:8b09:: with SMTP id n9mr31493150wra.148.1622606208925;
+        Tue, 01 Jun 2021 20:56:48 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxMNoHgl1EXVxoMuGKWjdrCSXO4mnIAzucixAqL6J0PgNUUwb9gvq2fHxVxdSBMtWVy8sB0fg==
+X-Received: by 2002:adf:8b09:: with SMTP id n9mr31493134wra.148.1622606208707;
+        Tue, 01 Jun 2021 20:56:48 -0700 (PDT)
+Received: from thuth.remote.csb (p5791de31.dip0.t-ipconnect.de. [87.145.222.49])
+        by smtp.gmail.com with ESMTPSA id 125sm1221530wmb.34.2021.06.01.20.56.47
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Jun 2021 12:01:47 -0700 (PDT)
-Subject: Re: [PATCH RFCv2 2/3] lib/vsprintf.c: make %pD print full path for
- file
-To:     Matthew Wilcox <willy@infradead.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Justin He <Justin.He@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>
-References: <AM6PR08MB437691E7314C6B774EFED4BDF7229@AM6PR08MB4376.eurprd08.prod.outlook.com>
- <YLEDwFCPcFx+qeul@casper.infradead.org>
- <AM6PR08MB437615DB6A6DEC33223A3138F7229@AM6PR08MB4376.eurprd08.prod.outlook.com>
- <YLEKqGkm8bX6LZfP@casper.infradead.org>
- <AM6PR08MB43764764B52AAC7F05B71056F73E9@AM6PR08MB4376.eurprd08.prod.outlook.com>
- <YLZSgZIcWyYTmqOT@casper.infradead.org>
- <CAHp75VfYgEtJeiVp8b10Va54QShyg4DmWeufuB_WGC8C2SE2mQ@mail.gmail.com>
- <YLZVwFh9MZJR3amM@casper.infradead.org> <YLZX9oicn8u4ZVCl@smile.fi.intel.com>
- <YLZcAesVG1SYL5fp@smile.fi.intel.com> <YLZoyjSJyzU5w1qO@casper.infradead.org>
-From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Message-ID: <39f599a7-9175-f220-3803-b1920ddb8d40@rasmusvillemoes.dk>
-Date:   Tue, 1 Jun 2021 21:01:45 +0200
+        Tue, 01 Jun 2021 20:56:48 -0700 (PDT)
+To:     Cornelia Huck <cohuck@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Andrew Jones <drjones@redhat.com>
+References: <20210601161525.462315-1-cohuck@redhat.com>
+From:   Thomas Huth <thuth@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH] s390x: unify header guards
+Message-ID: <d87b32d6-1d41-1413-96c6-0d6b2361b079@redhat.com>
+Date:   Wed, 2 Jun 2021 05:56:47 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-In-Reply-To: <YLZoyjSJyzU5w1qO@casper.infradead.org>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <20210601161525.462315-1-cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 01/06/2021 19.05, Matthew Wilcox wrote:
-
-> Here's some examples, what do you think makes sense?
+On 01/06/2021 18.15, Cornelia Huck wrote:
+> Let's unify the header guards to _ASM_S390X_FILE_H_ respectively
+> _S390X_FILE_H_. This makes it more obvious what the file is
+> about, and avoids possible name space collisions.
 > 
-> snprintf(buf, 16, "bad file '%pD'\n", q);
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> ---
 > 
-> what content do you want buf to have when q is variously:
-> 
-> 1. /abcd/efgh
-> 2. /a/bcdefgh.iso
-> 3. /abcdef/gh
-> 
-> I would argue that
-> "bad file ''\n"
-> is actually a better string to have than any of (case 2)
-> "bad file '/a/bc"
-> "bad file 'bcdef"
-> "bad file 'h.iso"
-> 
+> Only did s390x for now; the other archs seem to be inconsistent in
+> places as well, and I can also try to tackle them if it makes sense.
+...
+> diff --git a/lib/s390x/asm/bitops.h b/lib/s390x/asm/bitops.h
+> index 792881ec3249..61cd38fd36b7 100644
+> --- a/lib/s390x/asm/bitops.h
+> +++ b/lib/s390x/asm/bitops.h
+> @@ -8,8 +8,8 @@
+>    *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>,
+>    *
+>    */
+> -#ifndef _ASMS390X_BITOPS_H_
+> -#define _ASMS390X_BITOPS_H_
+> +#ifndef _ASM_S390X_BITOPS_H_
+> +#define _ASM_S390X_BITOPS_H_
 
-Whatever ends up being decided, _please_ document that in
-machine-readable and -verifiable form. I.e., update lib/test_printf.c
-accordingly.
+Why not the other way round (S390X_ASM_BITOPS_H) ?
 
-Currently (and originally) it only tests %pd because %pD is/was
-essentially just %pd with an indirection to get the struct dentry* from
-a struct file*.
+ > diff --git a/s390x/sthyi.h b/s390x/sthyi.h
+ > index bbd74c6197c3..eb92fdd2f2b2 100644
+ > --- a/s390x/sthyi.h
+ > +++ b/s390x/sthyi.h
+ > @@ -7,8 +7,8 @@
+ >   * Authors:
+ >   *    Janosch Frank <frankja@linux.vnet.ibm.com>
+ >   */
+ > -#ifndef _STHYI_H_
+ > -#define _STHYI_H_
+ > +#ifndef _S390X_STHYI_H_
+ > +#define _S390X_STHYI_H_
 
-The existing framework is strongly centered around expecting '/a/bc (see
-all the logic where we do multiple checks with size 0, size random, size
-plenty, and for the random case check that the buffer contents match the
-complete output up till the randomly chosen size), so adding tests for
-some other semantics would require a bit more juggling.
+While we're at it: Do we also want to drop the leading (and trailing) 
+underscores here? ... since leading underscore followed by a capital letter 
+is a reserved namespace in C and you should normally not use these in nice 
+programs...? I think I'm ok with keeping the underscores in the files in the 
+lib folder (since these are our core libraries, similar to the system and 
+libc headers on a normal system), but in files that are not part of the lib 
+folder, we should rather avoid them.
 
-Not that that should be an argument in favor of that behaviour. But FWIW
-that would be my preference.
-
-Rasmus
-
+  Thomas
 
