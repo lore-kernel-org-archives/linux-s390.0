@@ -2,39 +2,39 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 711F3C47097
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:54:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 682D1C47096
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:54:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5C12561359
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:54:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 517FC61359
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 06:54:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230254AbhFBG4G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Jun 2021 02:56:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47526 "EHLO
+        id S230234AbhFBG4K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Jun 2021 02:56:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230234AbhFBG4E (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 02:56:04 -0400
+        with ESMTP id S230245AbhFBG4H (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 02:56:07 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69974C061574;
-        Tue,  1 Jun 2021 23:54:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E3F8C061574;
+        Tue,  1 Jun 2021 23:54:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=GNz/Hu0V5gogSB4co5eOK6xP1gnr1qh2/gA3KL3Dtxg=; b=BI35MypsV5ujI5j9LOM8ffKO3O
-        PPR2xJ+smyVf1yBqrB22os7cElpqLd6BGSF+LAFux1FWghPPtYUh71lumcyGTaH+GySHaNY4TdhS/
-        AV4vc/JIVMat63n8MdcbvA03bNT/GrAfqDiF7ptTNcphdfH4Gmp4s374edZksMq4302Y5G3rKEHTv
-        zkjAvx0fvVtUm2B/6XY5TSPrkqQmnos5aAqRHBWaQFtoEeGLkMCCmRvVNoipNM5EQcjvqqNXgrxv+
-        Uv5yjt1xCW0uwaWbb4vvYLNz6VSHAG5NmTU3avE4Jh6rqZRN77aCtw5TtcxU3fh9zr5QCwFWGydth
-        c/21yB+g==;
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=myJzdG0UY+YhduciAvl62vV0+eYIWXuf0viapKKEim4=; b=iGVLX51PspxKKCnzMpC4EouJj5
+        B2zrb4+pSV9mnMrSg79gkg0MGmfd8cZ1WB50YixRgjFbx4kOwp4juWx6b16UoCxx1LpymNY6Yk0x8
+        1nzXicL+0dUmecEKqHWZqBXMyeC2V5zboJkZLT8Z5vqTYJk/8WfYA9rvi3yfvAsJVwtzqljPiu8AS
+        Za/PcTal9v5fdMjqkHRd71J1Y7Beckc40vm4RzsUt68TBw5T15mRNRvzTDicRFuks4v90WQ7UfdEb
+        6GRv3x0E21udpoMdOjy7ckRjA7wLy9iC+PnSFHrTfG3ucQpfezI0IJkNiWgyB2fdem2B9y0l01OTl
+        3C4E0UGA==;
 Received: from shol69.static.otenet.gr ([83.235.170.67] helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1loKlB-0025F3-IY; Wed, 02 Jun 2021 06:53:50 +0000
+        id 1loKlL-0025I2-Rr; Wed, 02 Jun 2021 06:54:00 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     Justin Sanders <justin@coraid.com>,
@@ -64,10 +64,12 @@ Cc:     Justin Sanders <justin@coraid.com>,
         virtualization@lists.linux-foundation.org,
         xen-devel@lists.xenproject.org, linux-mmc@vger.kernel.org,
         linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: simplify gendisk and request_queue allocation for blk-mq based drivers
-Date:   Wed,  2 Jun 2021 09:53:15 +0300
-Message-Id: <20210602065345.355274-1-hch@lst.de>
+Subject: [PATCH 02/30] blk-mq: improve the blk_mq_init_allocated_queue interface
+Date:   Wed,  2 Jun 2021 09:53:17 +0300
+Message-Id: <20210602065345.355274-3-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210602065345.355274-1-hch@lst.de>
+References: <20210602065345.355274-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
@@ -75,46 +77,171 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi all,
+Don't return the passed in request_queue but a normal error code, and
+drop the elevator_init argument in favor of just calling elevator_init_mq
+directly from dm-rq.
 
-this series is the scond part of cleaning up lifetimes and allocation of
-the gendisk and request_queue structure.  It adds a new interface to
-allocate the disk and queue together for blk based drivers, and uses that
-in all drivers that do not have any caveats in their gendisk and
-request_queue lifetime rules.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ block/blk-mq.c           | 36 ++++++++++++++----------------------
+ block/blk.h              |  1 -
+ block/elevator.c         |  2 +-
+ drivers/md/dm-rq.c       |  9 +++------
+ include/linux/blk-mq.h   |  5 ++---
+ include/linux/elevator.h |  1 +
+ 6 files changed, 21 insertions(+), 33 deletions(-)
 
-Diffstat:
- block/blk-mq.c                      |   91 +++++++++++++++-------------------
- block/blk.h                         |    1 
- block/elevator.c                    |    2 
- drivers/block/amiflop.c             |   16 +-----
- drivers/block/aoe/aoeblk.c          |   33 ++++--------
- drivers/block/aoe/aoedev.c          |    3 -
- drivers/block/ataflop.c             |   16 +-----
- drivers/block/floppy.c              |   20 +------
- drivers/block/loop.c                |   19 ++-----
- drivers/block/nbd.c                 |   53 +++++++------------
- drivers/block/null_blk/main.c       |   11 +---
- drivers/block/paride/pcd.c          |   19 +++----
- drivers/block/paride/pd.c           |   30 ++++-------
- drivers/block/paride/pf.c           |   18 ++----
- drivers/block/ps3disk.c             |   36 +++++--------
- drivers/block/rbd.c                 |   52 ++++++-------------
- drivers/block/rnbd/rnbd-clt.c       |   35 +++----------
- drivers/block/sunvdc.c              |   47 ++++-------------
- drivers/block/swim.c                |   34 +++++-------
- drivers/block/swim3.c               |   33 +++++-------
- drivers/block/sx8.c                 |   23 ++------
- drivers/block/virtio_blk.c          |   26 ++-------
- drivers/block/xen-blkfront.c        |   96 ++++++++++++++----------------------
- drivers/block/z2ram.c               |   15 +----
- drivers/cdrom/gdrom.c               |   45 +++++++---------
- drivers/md/dm-rq.c                  |    9 +--
- drivers/memstick/core/ms_block.c    |   25 +++------
- drivers/memstick/core/mspro_block.c |   26 ++++-----
- drivers/mtd/mtd_blkdevs.c           |   48 ++++++++----------
- drivers/mtd/ubi/block.c             |   68 ++++++++++---------------
- drivers/s390/block/scm_blk.c        |   21 ++-----
- include/linux/blk-mq.h              |   24 ++++++---
- include/linux/elevator.h            |    1 
- 33 files changed, 386 insertions(+), 610 deletions(-)
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index eaacfa963a73..6112741e1ff9 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -3115,21 +3115,18 @@ void blk_mq_release(struct request_queue *q)
+ struct request_queue *blk_mq_init_queue_data(struct blk_mq_tag_set *set,
+ 		void *queuedata)
+ {
+-	struct request_queue *uninit_q, *q;
++	struct request_queue *q;
++	int ret;
+ 
+-	uninit_q = blk_alloc_queue(set->numa_node);
+-	if (!uninit_q)
++	q = blk_alloc_queue(set->numa_node);
++	if (!q)
+ 		return ERR_PTR(-ENOMEM);
+-	uninit_q->queuedata = queuedata;
+-
+-	/*
+-	 * Initialize the queue without an elevator. device_add_disk() will do
+-	 * the initialization.
+-	 */
+-	q = blk_mq_init_allocated_queue(set, uninit_q, false);
+-	if (IS_ERR(q))
+-		blk_cleanup_queue(uninit_q);
+-
++	q->queuedata = queuedata;
++	ret = blk_mq_init_allocated_queue(set, q);
++	if (ret) {
++		blk_cleanup_queue(q);
++		return ERR_PTR(ret);
++	}
+ 	return q;
+ }
+ EXPORT_SYMBOL_GPL(blk_mq_init_queue_data);
+@@ -3273,9 +3270,8 @@ static void blk_mq_realloc_hw_ctxs(struct blk_mq_tag_set *set,
+ 	mutex_unlock(&q->sysfs_lock);
+ }
+ 
+-struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
+-						  struct request_queue *q,
+-						  bool elevator_init)
++int blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
++		struct request_queue *q)
+ {
+ 	/* mark the queue as mq asap */
+ 	q->mq_ops = set->ops;
+@@ -3325,11 +3321,7 @@ struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
+ 	blk_mq_init_cpu_queues(q, set->nr_hw_queues);
+ 	blk_mq_add_queue_tag_set(set, q);
+ 	blk_mq_map_swqueue(q);
+-
+-	if (elevator_init)
+-		elevator_init_mq(q);
+-
+-	return q;
++	return 0;
+ 
+ err_hctxs:
+ 	kfree(q->queue_hw_ctx);
+@@ -3340,7 +3332,7 @@ struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
+ 	q->poll_cb = NULL;
+ err_exit:
+ 	q->mq_ops = NULL;
+-	return ERR_PTR(-ENOMEM);
++	return -ENOMEM;
+ }
+ EXPORT_SYMBOL(blk_mq_init_allocated_queue);
+ 
+diff --git a/block/blk.h b/block/blk.h
+index 3440142f029b..d3fa47af3607 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -192,7 +192,6 @@ void blk_account_io_done(struct request *req, u64 now);
+ 
+ void blk_insert_flush(struct request *rq);
+ 
+-void elevator_init_mq(struct request_queue *q);
+ int elevator_switch_mq(struct request_queue *q,
+ 			      struct elevator_type *new_e);
+ void __elevator_exit(struct request_queue *, struct elevator_queue *);
+diff --git a/block/elevator.c b/block/elevator.c
+index 440699c28119..06e203426410 100644
+--- a/block/elevator.c
++++ b/block/elevator.c
+@@ -693,7 +693,7 @@ void elevator_init_mq(struct request_queue *q)
+ 		elevator_put(e);
+ 	}
+ }
+-
++EXPORT_SYMBOL_GPL(elevator_init_mq); /* only for dm-rq */
+ 
+ /*
+  * switch to new_e io scheduler. be careful not to introduce deadlocks -
+diff --git a/drivers/md/dm-rq.c b/drivers/md/dm-rq.c
+index 9c3bc3711b33..0dbd48cbdff9 100644
+--- a/drivers/md/dm-rq.c
++++ b/drivers/md/dm-rq.c
+@@ -530,7 +530,6 @@ static const struct blk_mq_ops dm_mq_ops = {
+ 
+ int dm_mq_init_request_queue(struct mapped_device *md, struct dm_table *t)
+ {
+-	struct request_queue *q;
+ 	struct dm_target *immutable_tgt;
+ 	int err;
+ 
+@@ -557,12 +556,10 @@ int dm_mq_init_request_queue(struct mapped_device *md, struct dm_table *t)
+ 	if (err)
+ 		goto out_kfree_tag_set;
+ 
+-	q = blk_mq_init_allocated_queue(md->tag_set, md->queue, true);
+-	if (IS_ERR(q)) {
+-		err = PTR_ERR(q);
++	err = blk_mq_init_allocated_queue(md->tag_set, md->queue);
++	if (err)
+ 		goto out_tag_set;
+-	}
+-
++	elevator_init_mq(md->queue);
+ 	return 0;
+ 
+ out_tag_set:
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index bb950fc669ef..73750b2838d2 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -429,9 +429,8 @@ enum {
+ struct request_queue *blk_mq_init_queue(struct blk_mq_tag_set *);
+ struct request_queue *blk_mq_init_queue_data(struct blk_mq_tag_set *set,
+ 		void *queuedata);
+-struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
+-						  struct request_queue *q,
+-						  bool elevator_init);
++int blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
++		struct request_queue *q);
+ struct request_queue *blk_mq_init_sq_queue(struct blk_mq_tag_set *set,
+ 						const struct blk_mq_ops *ops,
+ 						unsigned int queue_depth,
+diff --git a/include/linux/elevator.h b/include/linux/elevator.h
+index dcb2f9022c1d..783ecb3cb77a 100644
+--- a/include/linux/elevator.h
++++ b/include/linux/elevator.h
+@@ -120,6 +120,7 @@ extern void elv_merged_request(struct request_queue *, struct request *,
+ extern bool elv_attempt_insert_merge(struct request_queue *, struct request *);
+ extern struct request *elv_former_request(struct request_queue *, struct request *);
+ extern struct request *elv_latter_request(struct request_queue *, struct request *);
++void elevator_init_mq(struct request_queue *q);
+ 
+ /*
+  * io scheduler registration
+-- 
+2.30.2
+
