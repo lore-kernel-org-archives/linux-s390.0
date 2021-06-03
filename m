@@ -2,66 +2,57 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-21.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C490CC47099
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Jun 2021 21:14:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08935C47082
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Jun 2021 21:15:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A83B6613EA
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Jun 2021 21:14:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DE958613EA
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Jun 2021 21:15:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230132AbhFCVQd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Jun 2021 17:16:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48376 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230129AbhFCVQb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Jun 2021 17:16:31 -0400
-Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85DF8C061763
-        for <linux-s390@vger.kernel.org>; Thu,  3 Jun 2021 14:14:36 -0700 (PDT)
-Received: by mail-pf1-x449.google.com with SMTP id 197-20020a6218ce0000b02902e9c6393facso4106119pfy.18
-        for <linux-s390@vger.kernel.org>; Thu, 03 Jun 2021 14:14:36 -0700 (PDT)
+        id S229719AbhFCVRQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Jun 2021 17:17:16 -0400
+Received: from mail-pj1-f74.google.com ([209.85.216.74]:65182 "EHLO
+        mail-pj1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229707AbhFCVRQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Jun 2021 17:17:16 -0400
+Received: by mail-pj1-f74.google.com with SMTP id jw3-20020a17090b4643b029016606f04954so4419967pjb.9
+        for <linux-s390@vger.kernel.org>; Thu, 03 Jun 2021 14:15:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=7lYIpwAKoJhaiEM5+z+3PAhyaX8WxzO9xGjhTMMBn6o=;
-        b=ULlQHn6l+FLbaUJUHMTK59zH6EOX/QCltF6COyCi4rht212Z229rZUqodny+KM5WnZ
-         H4nYmompfM9c7vr65EfJ78ZF9BgAq7WiDfVgYoXBIG0DT/KkY9dTQBQS2rGl+rHttidG
-         e83uGFKsR7j09FdI/A9ojDIBNXKPC4MugMjUGSuyN/9XJx3hJJlWYYndhI0AKVmPl8b2
-         c0VezAqV1T0bNgnnwzCH/Jdw4QwLnmyK1laKL2/pADfaKBENNio5JG2FMDhRKfTZYzM0
-         Y9nkH3luD2/Cbl0tlioDe4Kq/ZEvEfuKTvmTU9Ow2FiGap4X/ctdC5eXinskVii7ZcpV
-         owuw==
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=I8SaxGWcB7tE5LgATQxqpPQ7x4H4jY+lCpBauP/mtmE=;
+        b=v4NgbfeqtYok0nadkyQOQYhH0/cc3YuV8LeF1teBzQov02jDdA9IwtNsTjiXssKy9k
+         lVffn3D6dt82OhY5gs0hFB5oIwHL8xvT9H3v1bma72ihTKCZi1Zk2t2aa014cQNa5UzD
+         DbKEb//m0+o8xQowxXbRc/Ve/I2AG4LU2nQFiO1Ie2PSqxDUR3eYJihknZL3UVCMeE+w
+         YWzsehJueSvNSScWsQp724tbAJe7jBiUVpwMQkL9RIzefMXHJCgYpTAoenYocG6UZYpL
+         iN7fsnWE2kf++Rf5Nvrap7/nItDWAA00w2X2A9Emcq6xa8gVmhOHOT89tbfA/M9ij5Tz
+         eQ3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=7lYIpwAKoJhaiEM5+z+3PAhyaX8WxzO9xGjhTMMBn6o=;
-        b=U4dKRi4wdIQe9/68WJKeg6v+P1TxwipxkxgkU+XvOJHKmT2otmJM/7jlwgeYHtmfq7
-         4hnyM1y+42m4nANc1khmEBvvPML/3pPUdajrZm3i3mtqphYsubC1aF/CQu+2y9AiPEqq
-         uXU+W2+7IutpCdenQh1nZgm0cVfnsKsBubODHjpcFhnozrmv1lDcKmhhqKnhQADNejwT
-         w86tn5qgNXKLLNp14KNG5od8FlZ5Rxl6ueRVA1N792+SH6sApiMSdMWzOkzpYOO+je3Q
-         OszQMUpcdbNkxqrWBydWV+mF9DJnmauqm5RUTVe7rJaOjnK7hrLFuvKxYlA2GmPpwF+k
-         cZ3w==
-X-Gm-Message-State: AOAM531jEZWwRLSSUK4ZteBF8HNjVIkaHIQkvYPPy7SjyiKZTbHKge2F
-        y2/cLdhUiKJwv6mugULDLoCTOOgBS1BbDIBT1Q==
-X-Google-Smtp-Source: ABdhPJxm2Ps971hfhxdJtKL0dyd3QcZkfvN97SKKDEvs7HP7IoQvFmtzUjT/4kLxh0KJO+KAasT850cCUSK2/rdVNQ==
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=I8SaxGWcB7tE5LgATQxqpPQ7x4H4jY+lCpBauP/mtmE=;
+        b=XgCFb5ZfJX2rMhvqVeyJiLhV2e0iUU7rTSTgNhJaocC65K0P8tAyLqzK30LDjOUnCu
+         PTvTRCjmlxWgxPuJc6CIWxTGJmA1BUYhdcrpthpVly55xn7nM0FGjMzBY4ypXaMJazMA
+         /3HR+xFaX4UhP+Brv42xUrEb4UaXpTHRraw11vJ/g6PhfWUXEmKSkluuRbrDwH0lB8oB
+         eTbcDEUSKYctwsWp3smQ66Pz/y3L1i/5y2+5cL8+x7cPXOb5zdoeQcibHC9nXU4tHW3Q
+         iv9I1x0/1P0smFIBKkDS5G7chPivAUzFkqZEv2jAP5K4wH+gDS8wYL6cDqSWxtXmKqUZ
+         AddA==
+X-Gm-Message-State: AOAM531YyPOXkO/UnwhvcGeGYu6yxfcHtvJZlNHMBu4saL/dcZY7apk2
+        DYpX9XCb2bhu6Z6sHdfHkrIUAVZh/NmiSksmug==
+X-Google-Smtp-Source: ABdhPJzU0E7qL3ArY231F/yeQk8juDRb1mHPctFM8DztGr6M0q3AK+ihMrnxdraTAHhl5MR5gudSicYWtrl8rO80Sg==
 X-Received: from jgzg.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1acf])
- (user=jingzhangos job=sendgmr) by 2002:a05:6a00:813:b029:27f:fb6a:24b5 with
- SMTP id m19-20020a056a000813b029027ffb6a24b5mr1113724pfk.18.1622754875857;
- Thu, 03 Jun 2021 14:14:35 -0700 (PDT)
-Date:   Thu,  3 Jun 2021 21:14:25 +0000
-In-Reply-To: <20210603211426.790093-1-jingzhangos@google.com>
-Message-Id: <20210603211426.790093-4-jingzhangos@google.com>
+ (user=jingzhangos job=sendgmr) by 2002:a17:902:6bc7:b029:ee:f84f:1093 with
+ SMTP id m7-20020a1709026bc7b02900eef84f1093mr936835plt.37.1622754870972; Thu,
+ 03 Jun 2021 14:14:30 -0700 (PDT)
+Date:   Thu,  3 Jun 2021 21:14:22 +0000
+Message-Id: <20210603211426.790093-1-jingzhangos@google.com>
 Mime-Version: 1.0
-References: <20210603211426.790093-1-jingzhangos@google.com>
 X-Mailer: git-send-email 2.32.0.rc1.229.g3e70b5a671-goog
-Subject: [PATCH v7 3/4] KVM: stats: Add documentation for statistics data
- binary interface
+Subject: [PATCH v7 0/4] KVM statistics data fd-based binary interface
 From:   Jing Zhang <jingzhangos@google.com>
 To:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
         LinuxMIPS <linux-mips@vger.kernel.org>,
@@ -99,210 +90,107 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Update KVM API documentation for binary statistics.
+This patchset provides a file descriptor for every VM and VCPU to read
+KVM statistics data in binary format.
+It is meant to provide a lightweight, flexible, scalable and efficient
+lock-free solution for user space telemetry applications to pull the
+statistics data periodically for large scale systems. The pulling
+frequency could be as high as a few times per second.
+In this patchset, every statistics data are treated to have some
+attributes as below:
+  * architecture dependent or generic
+  * VM statistics data or VCPU statistics data
+  * type: cumulative, instantaneous,
+  * unit: none for simple counter, nanosecond, microsecond,
+    millisecond, second, Byte, KiByte, MiByte, GiByte. Clock Cycles
+Since no lock/synchronization is used, the consistency between all
+the statistics data is not guaranteed. That means not all statistics
+data are read out at the exact same time, since the statistics date
+are still being updated by KVM subsystems while they are read out.
 
-Reviewed-by: David Matlack <dmatlack@google.com>
-Reviewed-by: Ricardo Koller <ricarkol@google.com>
-Signed-off-by: Jing Zhang <jingzhangos@google.com>
 ---
- Documentation/virt/kvm/api.rst | 180 +++++++++++++++++++++++++++++++++
- 1 file changed, 180 insertions(+)
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 7fcb2fd38f42..550bfbdf611b 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -5034,6 +5034,178 @@ see KVM_XEN_VCPU_SET_ATTR above.
- The KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADJUST type may not be used
- with the KVM_XEN_VCPU_GET_ATTR ioctl.
- 
-+4.130 KVM_GET_STATS_FD
-+---------------------
-+
-+:Capability: KVM_CAP_STATS_BINARY_FD
-+:Architectures: all
-+:Type: vm ioctl, vcpu ioctl
-+:Parameters: none
-+:Returns: statistics file descriptor on success, < 0 on error
-+
-+Errors:
-+
-+  ======     ======================================================
-+  ENOMEM     if the fd could not be created due to lack of memory
-+  EMFILE     if the number of opened files exceeds the limit
-+  ======     ======================================================
-+
-+The file descriptor can be used to read VM/vCPU statistics data in binary
-+format. The file data is organized into three blocks as below:
-++-------------+
-+|   Header    |
-++-------------+
-+| Descriptors |
-++-------------+
-+| Stats Data  |
-++-------------+
-+
-+The Header block is always at the start of the file. It is only needed to be
-+read one time for the lifetime of the file descriptor.
-+It is in the form of ``struct kvm_stats_header`` as below::
-+
-+	#define KVM_STATS_ID_MAXLEN		64
-+
-+	struct kvm_stats_header {
-+		char id[KVM_STATS_ID_MAXLEN];
-+		__u32 name_size;
-+		__u32 count;
-+		__u32 desc_offset;
-+		__u32 data_offset;
-+	};
-+
-+The ``id`` field is identification for the corresponding KVM statistics. For
-+VM statistics, it is in the form of "kvm-{kvm pid}", like "kvm-12345". For
-+VCPU statistics, it is in the form of "kvm-{kvm pid}/vcpu-{vcpu id}", like
-+"kvm-12345/vcpu-12".
-+
-+The ``name_size`` field is the size (byte) of the statistics name string
-+(including trailing '\0') appended to the end of every statistics descriptor.
-+
-+The ``count`` field is the number of statistics.
-+
-+The ``desc_offset`` field is the offset of the Descriptors block from the start
-+of the file indicated by the file descriptor.
-+
-+The ``data_offset`` field is the offset of the Stats Data block from the start
-+of the file indicated by the file descriptor.
-+
-+The Descriptors block is only needed to be read once for the lifetime of the
-+file descriptor. It is an array of ``struct kvm_stats_desc`` as shown in
-+below code block::
-+
-+	#define KVM_STATS_TYPE_SHIFT		0
-+	#define KVM_STATS_TYPE_MASK		(0xF << KVM_STATS_TYPE_SHIFT)
-+	#define KVM_STATS_TYPE_CUMULATIVE	(0x0 << KVM_STATS_TYPE_SHIFT)
-+	#define KVM_STATS_TYPE_INSTANT		(0x1 << KVM_STATS_TYPE_SHIFT)
-+	#define KVM_STATS_TYPE_MAX		KVM_STATS_TYPE_INSTANT
-+
-+	#define KVM_STATS_UNIT_SHIFT		4
-+	#define KVM_STATS_UNIT_MASK		(0xF << KVM_STATS_UNIT_SHIFT)
-+	#define KVM_STATS_UNIT_NONE		(0x0 << KVM_STATS_UNIT_SHIFT)
-+	#define KVM_STATS_UNIT_BYTES		(0x1 << KVM_STATS_UNIT_SHIFT)
-+	#define KVM_STATS_UNIT_SECONDS		(0x2 << KVM_STATS_UNIT_SHIFT)
-+	#define KVM_STATS_UNIT_CYCLES		(0x3 << KVM_STATS_UNIT_SHIFT)
-+	#define KVM_STATS_UNIT_MAX		KVM_STATS_UNIT_CYCLES
-+
-+	#define KVM_STATS_BASE_SHIFT		8
-+	#define KVM_STATS_BASE_MASK		(0xF << KVM_STATS_BASE_SHIFT)
-+	#define KVM_STATS_BASE_POW10		(0x0 << KVM_STATS_BASE_SHIFT)
-+	#define KVM_STATS_BASE_POW2		(0x1 << KVM_STATS_BASE_SHIFT)
-+	#define KVM_STATS_BASE_MAX		KVM_STATS_BASE_POW2
-+
-+	struct kvm_stats_desc {
-+		__u32 flags;
-+		__s16 exponent;
-+		__u16 size;
-+		__u32 unused1;
-+		__u32 unused2;
-+		char name[0];
-+	};
-+
-+The ``flags`` field contains the type and unit of the statistics data described
-+by this descriptor. The following flags are supported:
-+
-+Bits 0-3 of ``flags`` encode the type:
-+  * ``KVM_STATS_TYPE_CUMULATIVE``
-+    The statistics data is cumulative. The value of data can only be increased.
-+    Most of the counters used in KVM are of this type.
-+    The corresponding ``count`` filed for this type is always 1.
-+  * ``KVM_STATS_TYPE_INSTANT``
-+    The statistics data is instantaneous. Its value can be increased or
-+    decreased. This type is usually used as a measurement of some resources,
-+    like the number of dirty pages, the number of large pages, etc.
-+    The corresponding ``count`` field for this type is always 1.
-+
-+Bits 4-7 of ``flags`` encode the unit:
-+  * ``KVM_STATS_UNIT_NONE``
-+    There is no unit for the value of statistics data. This usually means that
-+    the value is a simple counter of an event.
-+  * ``KVM_STATS_UNIT_BYTES``
-+    It indicates that the statistics data is used to measure memory size, in the
-+    unit of Byte, KiByte, MiByte, GiByte, etc. The unit of the data is
-+    determined by the ``exponent`` field in the descriptor. The
-+    ``KVM_STATS_BASE_POW2`` flag is valid in this case. The unit of the data is
-+    determined by ``pow(2, exponent)``. For example, if value is 10,
-+    ``exponent`` is 20, which means the unit of statistics data is MiByte, we
-+    can get the statistics data in the unit of Byte by
-+    ``value * pow(2, exponent) = 10 * pow(2, 20) = 10 MiByte`` which is
-+    10 * 1024 * 1024 Bytes.
-+  * ``KVM_STATS_UNIT_SECONDS``
-+    It indicates that the statistics data is used to measure time/latency, in
-+    the unit of nanosecond, microsecond, millisecond and second. The unit of the
-+    data is determined by the ``exponent`` field in the descriptor. The
-+    ``KVM_STATS_BASE_POW10`` flag is valid in this case. The unit of the data
-+    is determined by ``pow(10, exponent)``. For example, if value is 2000000,
-+    ``exponent`` is -6, which means the unit of statistics data is microsecond,
-+    we can get the statistics data in the unit of second by
-+    ``value * pow(10, exponent) = 2000000 * pow(10, -6) = 2 seconds``.
-+  * ``KVM_STATS_UNIT_CYCLES``
-+    It indicates that the statistics data is used to measure CPU clock cycles.
-+    The ``KVM_STATS_BASE_POW10`` flag is valid in this case. For example, if
-+    value is 200, ``exponent`` is 4, we can get the number of CPU clock cycles
-+    by ``value * pow(10, exponent) = 200 * pow(10, 4) = 2000000``.
-+
-+Bits 7-11 of ``flags`` encode the base:
-+  * ``KVM_STATS_BASE_POW10``
-+    The scale is based on power of 10. It is used for measurement of time and
-+    CPU clock cycles.
-+  * ``KVM_STATS_BASE_POW2``
-+    The scale is based on power of 2. It is used for measurement of memory size.
-+
-+The ``exponent`` field is the scale of corresponding statistics data. For
-+example, if the unit is ``KVM_STATS_UNIT_BYTES``, the base is
-+``KVM_STATS_BASE_POW2``, the ``exponent`` is 10, then we know that the real
-+unit of the statistics data is KBytes a.k.a pow(2, 10) = 1024 bytes.
-+
-+The ``size`` field is the number of values of this statistics data. It is in the
-+unit of ``unsigned long`` for VM or ``__u64`` for VCPU.
-+
-+The ``unused1`` and ``unused2`` fields are reserved for future
-+support for other types of statistics data, like log/linear histogram.
-+
-+The ``name`` field points to the name string of the statistics data. The name
-+string starts at the end of ``struct kvm_stats_desc``.
-+The maximum length (including trailing '\0') is indicated by ``name_size``
-+in ``struct kvm_stats_header``.
-+
-+The Stats Data block contains an array of data values of type ``struct
-+kvm_vm_stats_data`` or ``struct kvm_vcpu_stats_data``. It would be read by
-+user space periodically to pull statistics data.
-+The order of data value in Stats Data block is the same as the order of
-+descriptors in Descriptors block.
-+  * Statistics data for VM::
-+
-+	struct kvm_vm_stats_data {
-+		unsigned long value[0];
-+	};
-+
-+  * Statistics data for VCPU::
-+
-+	struct kvm_vcpu_stats_data {
-+		__u64 value[0];
-+	};
-+
- 5. The kvm_run structure
- ========================
- 
-@@ -6891,3 +7063,11 @@ This capability is always enabled.
- This capability indicates that the KVM virtual PTP service is
- supported in the host. A VMM can check whether the service is
- available to the guest on migration.
-+
-+8.33 KVM_CAP_STATS_BINARY_FD
-+----------------------------
-+
-+:Architectures: all
-+
-+This capability indicates the feature that user space can create get a file
-+descriptor for every VM and VCPU to read statistics data in binary format.
+* v6 -> v7
+  - Improve file descriptor allocation function by Krish suggestion
+  - Use "generic stats" instead of "common stats" as Krish suggested
+  - Addressed some other nits from Krish and David Matlack
+
+* v5 -> v6
+  - Use designated initializers for STATS_DESC
+  - Change KVM_STATS_SCALE... to KVM_STATS_BASE...
+  - Use a common function for kvm_[vm|vcpu]_stats_read
+  - Fix some documentation errors/missings
+  - Use TEST_ASSERT in selftest
+  - Use a common function for [vm|vcpu]_stats_test in selftest
+
+* v4 -> v5
+  - Rebase to kvm/queue, commit a4345a7cecfb ("Merge tag
+    'kvmarm-fixes-5.13-1'")
+  - Change maximum stats name length to 48
+  - Replace VM_STATS_COMMON/VCPU_STATS_COMMON macros with stats
+    descriptor definition macros.
+  - Fixed some errors/warnings reported by checkpatch.pl
+
+* v3 -> v4
+  - Rebase to kvm/queue, commit 9f242010c3b4 ("KVM: avoid "deadlock"
+    between install_new_memslots and MMU notifier")
+  - Use C-stype comments in the whole patch
+  - Fix wrong count for x86 VCPU stats descriptors
+  - Fix KVM stats data size counting and validity check in selftest
+
+* v2 -> v3
+  - Rebase to kvm/queue, commit edf408f5257b ("KVM: avoid "deadlock"
+    between install_new_memslots and MMU notifier")
+  - Resolve some nitpicks about format
+
+* v1 -> v2
+  - Use ARRAY_SIZE to count the number of stats descriptors
+  - Fix missing `size` field initialization in macro STATS_DESC
+
+[1] https://lore.kernel.org/kvm/20210402224359.2297157-1-jingzhangos@google.com
+[2] https://lore.kernel.org/kvm/20210415151741.1607806-1-jingzhangos@google.com
+[3] https://lore.kernel.org/kvm/20210423181727.596466-1-jingzhangos@google.com
+[4] https://lore.kernel.org/kvm/20210429203740.1935629-1-jingzhangos@google.com
+[5] https://lore.kernel.org/kvm/20210517145314.157626-1-jingzhangos@google.com
+[6] https://lore.kernel.org/kvm/20210524151828.4113777-1-jingzhangos@google.com
+
+---
+
+Jing Zhang (4):
+  KVM: stats: Separate generic stats from architecture specific ones
+  KVM: stats: Add fd-based API to read binary stats data
+  KVM: stats: Add documentation for statistics data binary interface
+  KVM: selftests: Add selftest for KVM statistics data binary interface
+
+ Documentation/virt/kvm/api.rst                | 180 +++++++++++++++
+ arch/arm64/include/asm/kvm_host.h             |   9 +-
+ arch/arm64/kvm/guest.c                        |  38 +++-
+ arch/mips/include/asm/kvm_host.h              |   9 +-
+ arch/mips/kvm/mips.c                          |  64 +++++-
+ arch/powerpc/include/asm/kvm_host.h           |   9 +-
+ arch/powerpc/kvm/book3s.c                     |  64 +++++-
+ arch/powerpc/kvm/book3s_hv.c                  |  12 +-
+ arch/powerpc/kvm/book3s_pr.c                  |   2 +-
+ arch/powerpc/kvm/book3s_pr_papr.c             |   2 +-
+ arch/powerpc/kvm/booke.c                      |  59 ++++-
+ arch/s390/include/asm/kvm_host.h              |   9 +-
+ arch/s390/kvm/kvm-s390.c                      | 129 ++++++++++-
+ arch/x86/include/asm/kvm_host.h               |   9 +-
+ arch/x86/kvm/x86.c                            |  67 +++++-
+ include/linux/kvm_host.h                      | 141 +++++++++++-
+ include/linux/kvm_types.h                     |  12 +
+ include/uapi/linux/kvm.h                      |  50 ++++
+ tools/testing/selftests/kvm/.gitignore        |   1 +
+ tools/testing/selftests/kvm/Makefile          |   3 +
+ .../testing/selftests/kvm/include/kvm_util.h  |   3 +
+ .../selftests/kvm/kvm_binary_stats_test.c     | 215 ++++++++++++++++++
+ tools/testing/selftests/kvm/lib/kvm_util.c    |  12 +
+ virt/kvm/kvm_main.c                           | 169 +++++++++++++-
+ 24 files changed, 1178 insertions(+), 90 deletions(-)
+ create mode 100644 tools/testing/selftests/kvm/kvm_binary_stats_test.c
+
+
+base-commit: a4345a7cecfb91ae78cd43d26b0c6a956420761a
 -- 
 2.32.0.rc1.229.g3e70b5a671-goog
 
