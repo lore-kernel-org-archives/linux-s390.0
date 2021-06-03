@@ -2,169 +2,183 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,PDS_BAD_THREAD_QP_64,SPF_HELO_NONE,SPF_PASS autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25025C47083
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 20:15:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11EC3C47083
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Jun 2021 00:03:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0FB04613D8
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Jun 2021 20:15:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D785960E0C
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Jun 2021 00:03:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229762AbhFBUQx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Jun 2021 16:16:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60164 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbhFBUQw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 16:16:52 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A85CC061756;
-        Wed,  2 Jun 2021 13:15:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=hg1i1lJUDI2dbeh2/KVZj893kEGRfKzlm3YByZ5waG8=; b=pw5LtsnUBCH9bK2J0dEulMays
-        omr8kMIj1brZGBhcbDHrAae/h+L4FnbWtFLgTbPNrmeMqEkbEcgl4Vz7SE8RqRsvtZ6UbqRIVF0Qq
-        iVX2dypzeNwFOS7Px9gyAZA0B0cGjui2nj9yoXNL6zBKZcwA1okNTEnf6qTDQz0h0QIugSNpDBxlQ
-        BCoYuqDSMNOafq7kf12tLMf+P7f6DryHtuIjU1b5dWa5tD21VEwQbqwQFL81W8vebifiK8hc5Szfy
-        EPHT3nsn+EYbrK5t/g8EAFQt2VIIKN7AEZEMInO4I1pJxIKvV5srYPBdZ/+CRQjiSMoxOKI6LVow9
-        XqvY+jujw==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:44646)
-        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1loXGa-0001mw-OQ; Wed, 02 Jun 2021 21:15:04 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1loXGY-0001QE-UG; Wed, 02 Jun 2021 21:15:02 +0100
-Date:   Wed, 2 Jun 2021 21:15:02 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Mike Rapoport <rppt@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
+        id S229682AbhFCAFB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Jun 2021 20:05:01 -0400
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:38766 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229554AbhFCAFA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Jun 2021 20:05:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1622678597; x=1654214597;
+  h=from:to:cc:subject:date:message-id:references:
+   content-transfer-encoding:mime-version;
+  bh=o+yVEy7H2DT98ziF3VPykTWncyxjepBwGZs7YTcqT/c=;
+  b=XtGkkLwI1KeeXUnQuhjVzBKbtSP8BPnfTgDDjUroIThZQHNDAbj2MZi9
+   2VyxGevlMm/etM0R4bWfRT7YPKzrEhzSSazKJHoca2qwD3KRX9mJIIpvD
+   t68yCvlmxVNyz0BURujpznFkbPtyIXCvScQ/WljtXy4KuAXVOK7Xcwh5Y
+   lRWlGXZP5Q/K7et2wxPgZoERI8zkg9ls2Jsrwihjj2GyOZYTVvH1GoWCW
+   NZV4w8+Qg4o4KZVc91CuoL9XXZI5y7QdRQo83aORJT3e24DAejyBAsLFY
+   WrhlsXUColmm6ny9+w9krgfi0yc89PjUBIXxp49O8zeE8zi848nYP+H4W
+   A==;
+IronPort-SDR: LTb6lWTZrT6MpXhNb90CXDWwwbXdwgf7gnlp3B+5NpeFnl49QaTVO9d3+JGjekYbIqFJqNeky8
+ juc4HJiGdxwkVx3B4wM1UHFgwF0LrHxxv7K53bcl6FoPHgidfYHEXOuQseFdIBq7sRXaG15g/x
+ FFmf8sTaug1JzxVrcRlIVLwuuHqI/kB6FgX9fPyc/7N++MoFutfUXVVlY3W7g7WDVKoJQx2kVY
+ t4qy2LB5jXTo5H1YFdL7hIAgUZUiEEaLdVwLeUV/thdwRmAxTRqyS7wH4MZ6tqVc1WqBmygTgV
+ W0I=
+X-IronPort-AV: E=Sophos;i="5.83,244,1616428800"; 
+   d="scan'208";a="274374650"
+Received: from mail-dm6nam08lp2041.outbound.protection.outlook.com (HELO NAM04-DM6-obe.outbound.protection.outlook.com) ([104.47.73.41])
+  by ob1.hgst.iphmx.com with ESMTP; 03 Jun 2021 08:03:11 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=YgDEBaXb7HbGmAbrhs9l/t6X5iZXwUbIc3vE9TT3omr41KxvJ8GfK33JFn12sOV3EAFFjssQjgYtFvAc7C8BTpwWbz3GiaP78ObZD/9UxqfeHy28jAFEAQDVl0rDy9tZ7m/BcnlSGR8WEpjPGUXUPdlYkyiXS9EL2wwplzsaKBhgKTQ+r2KaQLcPVyTgjKamYC3l6qfgb/Vhz8HxVF83PjQn5zrLufTyX8Fzkni4jgz1RmWhgTU6D4Z7twg4+4hKIUGXmOA6rP5hInxSi8kixHpC+bz9uXvbGKWgzVlfr3wb5trg+OPmmOg0vNeUgIuZ77RsWKSGly5vmtf6hW3iEQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ujYjzUTvNk5lRoWbqXrQWBuQwFbs/0kVBkPupo0kRlU=;
+ b=mxiCzU3U4ch5wdnvTYx0X1rthFhvYc5UtEkmv1kX/cem7n72ZWYlrGGFUPEdeoJUJ2ALPMlDaeJ5WNx6OGrW8L9iQz8ZgI5nWDI7huqbuWAKivFyDPsGk39exKYdQf8NoXNa54jigO3Se/mww86UgLrN41FhVLiTvjVUmSPYPMpA9BfGw8I59L39q6X4Untvg5t/plJ+V1zeLeFZqof/5Q4Wv/c6bJjWFSg7Vk7pSIUhES2U6WkcNDK8d6ca7ChheAfwWwdDbKShPR8JexEEHk4RWZI0I7i3oBZRC11Vrx330RrUmo3Jc0q0gbs7flstnLNwrhfTXPc/iWr9cNi8QA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ujYjzUTvNk5lRoWbqXrQWBuQwFbs/0kVBkPupo0kRlU=;
+ b=WGZp/4FqdH6GKPOZNdLEvwYnG2t7pCklbI8rSzqu2aW+Du+B88rLNixQwKCogAX9CMHTpsIzzcBBpaikU9Aeea3dPIQWepJdvs61P8TYtTmnYpAFCdu/hvZaMpHXRtQHOfN1Y7MDupHHat4SJbRtY8DC5DMUQcF5qCTLBOfSfLs=
+Received: from BYAPR04MB4965.namprd04.prod.outlook.com (2603:10b6:a03:4d::25)
+ by BYAPR04MB4327.namprd04.prod.outlook.com (2603:10b6:a02:ff::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.22; Thu, 3 Jun
+ 2021 00:03:11 +0000
+Received: from BYAPR04MB4965.namprd04.prod.outlook.com
+ ([fe80::6873:3d64:8f9f:faf0]) by BYAPR04MB4965.namprd04.prod.outlook.com
+ ([fe80::6873:3d64:8f9f:faf0%7]) with mapi id 15.20.4173.034; Thu, 3 Jun 2021
+ 00:03:11 +0000
+From:   Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
+To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+CC:     Justin Sanders <justin@coraid.com>,
+        Denis Efremov <efremov@linux.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Tim Waugh <tim@cyberelk.net>,
+        Geoff Levand <geoff@infradead.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        =?iso-8859-1?Q?Roger_Pau_Monn=E9?= <roger.pau@citrix.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Maxim Levitsky <maximlevitsky@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-s390@vger.kernel.org
-Subject: Re: [RFC/RFT PATCH 2/5] memblock: introduce generic
- memblock_setup_resources()
-Message-ID: <20210602201502.GP30436@shell.armlinux.org.uk>
-References: <20210531122959.23499-1-rppt@kernel.org>
- <20210531122959.23499-3-rppt@kernel.org>
- <20210601135415.GZ30436@shell.armlinux.org.uk>
- <YLdCRoldZFYMZ0BG@linux.ibm.com>
- <20210602101521.GD30436@shell.armlinux.org.uk>
- <YLeNiUkIw+aFpMcz@linux.ibm.com>
- <20210602155141.GM30436@shell.armlinux.org.uk>
- <YLfRVGC+tq5L0TZ6@kernel.org>
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "dm-devel@redhat.com" <dm-devel@redhat.com>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+        "nbd@other.debian.org" <nbd@other.debian.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "ceph-devel@vger.kernel.org" <ceph-devel@vger.kernel.org>,
+        "virtualization@lists.linux-foundation.org" 
+        <virtualization@lists.linux-foundation.org>,
+        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH 03/30] blk-mq: add the blk_mq_alloc_disk APIs
+Thread-Topic: [PATCH 03/30] blk-mq: add the blk_mq_alloc_disk APIs
+Thread-Index: AQHXV3wpg+GpGHxRB0OZy0BgL2WPKw==
+Date:   Thu, 3 Jun 2021 00:03:11 +0000
+Message-ID: <BYAPR04MB49653D1B88ADA8EDEAA88F82863C9@BYAPR04MB4965.namprd04.prod.outlook.com>
+References: <20210602065345.355274-1-hch@lst.de>
+ <20210602065345.355274-4-hch@lst.de>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: lst.de; dkim=none (message not signed)
+ header.d=none;lst.de; dmarc=none action=none header.from=wdc.com;
+x-originating-ip: [199.255.45.62]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: a35b10a6-7fc6-40a1-0ea7-08d92622f9fc
+x-ms-traffictypediagnostic: BYAPR04MB4327:
+x-microsoft-antispam-prvs: <BYAPR04MB43277DCC98ED185FAD050823863C9@BYAPR04MB4327.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:6430;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: KUrktxVP+HJoyFo+Xhee5NaJZPcQWKKjnb74IsZAcSkgfCH6+h+NTgHgkMgXC+hwOuSG/i1IhPYyYKCsv77QSzV9Hhxn7pe0x68SgN+2AzX3rRjWTDe9DRIvSVanF8X2xHqtALAvdDy2ycNLQAQoEkxScFxhheG3qy2xYatcVn6IbXsDKKAIG5ch3PISks8XZ49m15svn5lR1L6k0UcaE0ycDI0tDr91fCMwL+cPaxDOeJN/vwOHF2ADWiJKkoY8c5CBW/PWmwsBeBB0VkYtMlLQQ1hmkLTPjrtDolAW6VfrTCTDF2yt4ozSc8pKBlk/zi/Rh8Duc7FPDk5ZnwFGOcWpoEY9n6EOaOUGel8w8s3sl6uLcHqUsE7U0x1awfu146GXHfAOXix9XA4Ve7vp3YoNmEOcFHKlnNutlWKIeC+QaMcQCbCeWWqsTdYr6gCst4hOWYrX5P6gHlnSOKMSL0IFN4Yhk4jyqWIJJQ5rCFeQsOY9CyxnpmXPC8mOPTbs5r38pDAUOey+TbzObDC/i5Tvq5iaasgO1B3U6i91LO49JWmhUV1c5QVDRHx9b7qQiQFSjbyDtMcJj4BWIjcfbnE8Chv2pWlZYEXBqq5W2tI=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR04MB4965.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(396003)(376002)(366004)(136003)(346002)(33656002)(5660300002)(4326008)(4744005)(76116006)(71200400001)(478600001)(26005)(54906003)(110136005)(7696005)(86362001)(83380400001)(6506007)(53546011)(316002)(66446008)(66946007)(8676002)(7416002)(2906002)(8936002)(55016002)(38100700002)(9686003)(52536014)(186003)(66476007)(64756008)(122000001)(7406005)(66556008);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: =?iso-8859-1?Q?ynVliGDQxRvrJcMGRyYPK/j4RBDB/47O8t3S1ZBmmqi+OJl5cSFj36BpMo?=
+ =?iso-8859-1?Q?duRdXwb92TxF9zCA2J+P5WyYYWJRZ7m7yKAAdRJ3hNHdIUhx62prWbAllO?=
+ =?iso-8859-1?Q?5RzOYlHsmxLJg+MygW/Kw2A/GTRNKk77DPVvAMNbZV8oZOyETasQ16Od6c?=
+ =?iso-8859-1?Q?4ZCVwGDu8x2CQ3QzJNsJLqvcxCM0cPdTuqouzX4I1Pio3tR5HNBGqfPCNR?=
+ =?iso-8859-1?Q?Z+IgWO+M5NixkHMYNj0aKB1Dc/wY/3iHguuMp3vnUD+EAHjKVDTyCfVw8l?=
+ =?iso-8859-1?Q?wrJw0rM7eSMFx+/cl0Bkb3op9EgyVU8L7sB2nBNpzGNCPPbsQijJxXnh2q?=
+ =?iso-8859-1?Q?xCV6e9qqdx9fqomwbQ7OALpxqS5/3BHu+fm9/8AtX5rxpM5ppAz6YMr6x9?=
+ =?iso-8859-1?Q?YVJwy2YhgSW9FovzjveHt+0+Mlerhknec+EHSa+YIc592uuH55NgadlSg6?=
+ =?iso-8859-1?Q?xwMh7eU5Ye4bQO6LgA29iZQcfT5UWTnWwhmwGcN2RQ4QMSsZP3lOWoE2Lw?=
+ =?iso-8859-1?Q?/oa0c0LbzbVy+oZJZrQXC214a+1pSfA3J/oukxkCCVZy+ZJjIE24lzGvyl?=
+ =?iso-8859-1?Q?NKMLX+J7hK0iRFLrla9gI3Y9pdma9MEQuOZjUGslMsZCMLvkeokcK5UexK?=
+ =?iso-8859-1?Q?vhSvLlBfi0dzJ2fVNY7C9WtwNxgkrP9y4aEikHYXl/ex0027ccidERsazY?=
+ =?iso-8859-1?Q?XmMV+SNP8XyGnSLmFS2Uoo1HZWXGa2Rp53DCkghI0cqmLT3ALHSlq/pWhr?=
+ =?iso-8859-1?Q?edbuRICh9T840Rmq44qk0cphIGz6/CNJ0h5MGwL9m21dInIDnfM65GjhOG?=
+ =?iso-8859-1?Q?hRprIHCj84jMb+2kEGnQnfyOJbRqCXxwVniBHSTsP+rcSl2hfOxYUupLcZ?=
+ =?iso-8859-1?Q?yiZ3S2b91z8+tiP2Tx+o9UIeLNQdZuQyfl4Ki58ul5h8b4mWJ83xDPA8Dg?=
+ =?iso-8859-1?Q?jgRQ8ivpRJWPx87Q54ZWRmVBanO8sRxhLtaWy/VAO4bP/1IEe3p2kjK8cI?=
+ =?iso-8859-1?Q?N7eFSdRP+VZQsvFktJr/tEQhuHJZqIEy4hUZlMhxFBtj5rlHIGECM7zVi3?=
+ =?iso-8859-1?Q?oYmOUS/rKmsGB53BS/h4yKaiTBh1hr/33nwKz88puhi8PIoJBHQwjgdbUY?=
+ =?iso-8859-1?Q?jW8L/RcihUjfKP25UQVcyfUMWzVkZ5Wn6pd8QTiS4VyzI+V2/yRo8RSb+S?=
+ =?iso-8859-1?Q?XEjy3TiONhDX9jH4u8CaJ37mbvIQsX+cnTOK5EgtJgH/gNotsknqrTZOtG?=
+ =?iso-8859-1?Q?6vMjFlI+n66XU3uCAnAj+od+U/vfHAsUXH+K15iPWW8g+f9xg5MbrhK37J?=
+ =?iso-8859-1?Q?OCpDLLKwXs4bpDw1i/lgQtxo5+UN2h7coueAuN0AcEhHfMP7bayfzpAEpr?=
+ =?iso-8859-1?Q?XUuyds4AE6?=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YLfRVGC+tq5L0TZ6@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR04MB4965.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a35b10a6-7fc6-40a1-0ea7-08d92622f9fc
+X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Jun 2021 00:03:11.2016
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: RDjWAyq6BnuphswWhaa7UCiHTzD/aNrldhcDCrmF+sKsMkcPX6G37kEVI5ch879ou5meUtnrLy6SEuld6NLqkNrrCFzCbDYRgIMVPMUYv2k=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR04MB4327
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 02, 2021 at 09:43:32PM +0300, Mike Rapoport wrote:
-> Back then when __ex_table was moved from .data section, _sdata and _edata
-> were part of the .data section. Today they are not. So something like the
-> patch below will ensure for instance that __ex_table would be a part of
-> "Kernel data" in /proc/iomem without moving it to the .data section:
-> 
-> diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
-> index f7f4620d59c3..2991feceab31 100644
-> --- a/arch/arm/kernel/vmlinux.lds.S
-> +++ b/arch/arm/kernel/vmlinux.lds.S
-> @@ -72,13 +72,6 @@ SECTIONS
->  
->  	RO_DATA(PAGE_SIZE)
->  
-> -	. = ALIGN(4);
-> -	__ex_table : AT(ADDR(__ex_table) - LOAD_OFFSET) {
-> -		__start___ex_table = .;
-> -		ARM_MMU_KEEP(*(__ex_table))
-> -		__stop___ex_table = .;
-> -	}
-> -
->  #ifdef CONFIG_ARM_UNWIND
->  	ARM_UNWIND_SECTIONS
->  #endif
-> @@ -143,6 +136,14 @@ SECTIONS
->  	__init_end = .;
->  
->  	_sdata = .;
-> +
-> +	. = ALIGN(4);
-> +	__ex_table : AT(ADDR(__ex_table) - LOAD_OFFSET) {
-> +		__start___ex_table = .;
-> +		ARM_MMU_KEEP(*(__ex_table))
-> +		__stop___ex_table = .;
-> +	}
-> +
->  	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
->  	_edata = .;
-
-This example has undesirable security implications. It moves the
-exception table out of the read-only mappings into the read-write
-mappings, thereby providing a way for an attacker to bypass the
-read-only protection on the kernel and manipulate code pointers at
-potentially known addresses for distro built kernels.
-
-> I agree there is a risk but I don't think it's high. It does not look like
-> the minor changes in "reserved" reporting in /proc/iomem will break kexec
-> tooling.
-
-What makes you come to that conclusion? The kexec tools architecture
-backends get to decide what they do when parsing /proc/iomem.
-Currently, only firmware areas are marked reserved in /proc/iomem on
-32-bit ARM.
-
-This is read by kexec, and entered into its memory_range[] table as
-either RAM, or RESERVED.
-
-kexec uses this to search for a suitable hole in the memory map to
-place the kernel in physical memory. The addition of what I will call
-ficticious "reserved" areas by the host kernel because the host kernel
-happened to use them _will_ have an impact on this.
-
-They _are_ ficticious, because they are purely an artifact of the host
-kernel being run, and are of no consequence to tooling such as kexec.
-What such tooling is interested in is which areas it needs to avoid
-because of firmware.
-
-I think what isn't helping here is that you haven't adequately
-described what your overall objective actually is. Framing it in
-terms of wanting the reserved memory to be consistent between the
-various kernel "interfaces" such as /proc/iomem, the memblock debugfs
-and firmware is very ambiguous and open to different interpretations,
-whcih I think is what the problem is here.
-
-> Anyway the amount of reserved and free memory depends on a
-> particular system, kernel version, configuration and command line.
-> I have no intention to report kernel boot time reservations
-> to /proc/iomem on architectures that do not report them there today,
-> although this also does not seem like a significant factor.
-
-You seem to be missing the point I've tried to make. The areas in
-memblock that are marked "reserved" are the areas of reserved memory
-from the firmware _plus_ the areas that the kernel has made during
-boot which are of no consequence to userspace.
-
-Wanting /proc/iomem, memblock and firmware to all agree on the values
-that they mark as "reserved" is IMHO unrealistic.
-
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+On 6/1/21 23:54, Christoph Hellwig wrote:=0A=
+> Add a new API to allocate a gendisk including the request_queue for use=
+=0A=
+> with blk-mq based drivers.  This is to avoid boilerplate code in drivers.=
+=0A=
+>=0A=
+> Signed-off-by: Christoph Hellwig <hch@lst.de>=0A=
+=0A=
+This would be a nice API to get rid of the couple initialization=0A=
+calls and respective error handling in each blk-mq based drivers.=0A=
+=0A=
+Looks good.=0A=
+=0A=
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>=0A=
+=0A=
+=0A=
