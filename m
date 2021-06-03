@@ -2,167 +2,293 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26BA2C47096
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Jun 2021 15:38:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AE5EC47096
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Jun 2021 16:44:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 11D566100B
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Jun 2021 15:38:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 23035613B1
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Jun 2021 16:44:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230131AbhFCPkN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Jun 2021 11:40:13 -0400
-Received: from mail-ua1-f46.google.com ([209.85.222.46]:39628 "EHLO
-        mail-ua1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230036AbhFCPkH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Jun 2021 11:40:07 -0400
-Received: by mail-ua1-f46.google.com with SMTP id c10so3532475uan.6
-        for <linux-s390@vger.kernel.org>; Thu, 03 Jun 2021 08:38:23 -0700 (PDT)
+        id S229906AbhFCQqh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Jun 2021 12:46:37 -0400
+Received: from mail-pg1-f170.google.com ([209.85.215.170]:40865 "EHLO
+        mail-pg1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229888AbhFCQqh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Jun 2021 12:46:37 -0400
+Received: by mail-pg1-f170.google.com with SMTP id j12so5578545pgh.7
+        for <linux-s390@vger.kernel.org>; Thu, 03 Jun 2021 09:44:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=7DKVf+GiS9951bpd4cfEBh88PiRutTQ//wVEud26id8=;
-        b=XGhrfqnzBbfnTVSNkFDv5GHmpnKX09udhfIYlIGvsHf5udWupM3hEeaCuAp1/iGcK2
-         itxazCeDLeGnN0Ew9V7mjQKrXGASjKXLT43xef2dS4qB5N1wZq329ew5d1FZXKKcqiVw
-         6FD/vr0CrXQkvA5Vx5CUZuiBjtgVFz1ZbiUU7kgR3MEWuPhMcO948V0XjU30zv2QSu9a
-         tohz+jrjUWOtrbk55SyLep3Y8Ie2TFo0EIpc+U1g5ZdabSEhCf2ga/7pzz9IJem82LbC
-         xz7dKg0/t3XaDdcBysnSaVg/DwjADlBkyj4crHUSmvNFlYRf/JXspkWoLbMUskTXooPD
-         5/eQ==
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9Q2DATu13P1pzwQHWEVjGMuJXKz5nnidG53u8t/T69Y=;
+        b=oZWknSmeVZZfZwya3xUfjHMkrSowYXFuz2O2dLlUa9GiJ/jfDEeFrwHMXwjBA4wEI+
+         KgJVTITaDxvaEi2nzAHfwWTEAk9ONAyP6YJm2+/EYC4K3inpb83m3E64GzZtZ9U1kDBl
+         lZo5D5cvDzPWuhMzO9hZfc3PzZmWok9dwf5rg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=7DKVf+GiS9951bpd4cfEBh88PiRutTQ//wVEud26id8=;
-        b=HV2aeXj360iAK3yaEdH+IE1F/9b31vlyB0PSla9gTDwgu1OclKpuUALt7fHpKzNueU
-         gfAKX48G/lzb3/FghQRulJfiAJo+BiTitYwlRnnz4RBr2BN5e1Yv9B1NHPF42bFouWpK
-         YmomzVKl0+buwDJ/rVkFbEMEIkkD7VVDUK3ahAYJJzjdpst5pvMAz+Xu06NndBo4Vx1C
-         ATqgnyV1qxkctCcQP3Cp7FeI1oe5vnNPiXTFDMiyWcuXqoosq0iAtYyicD5gYSC3sVF4
-         4izBSw6gtSu+oOq7qaYCjHjd55XHqYPHEGpAUATE91jXCnHeDmaGGACI4gsmTAH/OXE8
-         PDGg==
-X-Gm-Message-State: AOAM533DC84mAKBWch+0Q+Ch7LXzZCoyLMxc72AP2xVhcphQ/JBn5slJ
-        tkw6avfOJDybcu8F+4nWSXaitkrI5RV3Tn0TZZHhgw==
-X-Google-Smtp-Source: ABdhPJyc/MDglzj7ZqHuKLnfpO6vVPHNJJJjAhghObYaMjdvGQtxzeGy+jhwPjnJIpGZowWwyMtWi1MuD2fSyYUnfEo=
-X-Received: by 2002:ab0:7c5b:: with SMTP id d27mr407242uaw.15.1622734642855;
- Thu, 03 Jun 2021 08:37:22 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210602065345.355274-1-hch@lst.de> <20210602065345.355274-9-hch@lst.de>
-In-Reply-To: <20210602065345.355274-9-hch@lst.de>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Thu, 3 Jun 2021 17:36:45 +0200
-Message-ID: <CAPDyKFoh6HKx2rHHRXvw--Ou53TR2wLFGrKCDuetigxQ8QbvfQ@mail.gmail.com>
-Subject: Re: [PATCH 08/30] mspro: use blk_mq_alloc_disk
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Jens Axboe <axboe@kernel.dk>, Justin Sanders <justin@coraid.com>,
-        Denis Efremov <efremov@linux.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Tim Waugh <tim@cyberelk.net>,
-        Geoff Levand <geoff@infradead.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Maxim Levitsky <maximlevitsky@gmail.com>,
-        Alex Dubov <oakad@yahoo.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9Q2DATu13P1pzwQHWEVjGMuJXKz5nnidG53u8t/T69Y=;
+        b=JYhSSQkztC/v8rhqWrwjPf6amvScZ6q17txbNCZ0JYZA2HcLcjCQMvYLsgqxj6fYBW
+         TH9E1bThC7Oz+JSST7moNLBUGfIDFf5LKb5eP4GT6ptLgHwWw9iWITY3J2MhzxI09CLi
+         dp7SUhoLDkej4F8dx0eXXhUgJi1dgGPcy6fNM3wfGjlfIhAvVmgsGP8gzVXxGYypyXPR
+         J76Ee3xa/0Lv+tCgu57y2ukouGWcnM6xmBZamMB2DdA0HPM0L8jAnHk4NbxpjN77rmK3
+         gxkYxMpxBhY8JDyJrmOt3jQwGeArNE9hbWjq2P4/jjMFDbsRymf73hPdAFTbM3hYGGPr
+         GxVg==
+X-Gm-Message-State: AOAM531CYzdo7xwXYKN3TYc8PMwJnbaofBK6yGwNhUNHkXo7SoIIyjIg
+        WJ1DmBwzmrIepYQZwmq/6HBvaQ==
+X-Google-Smtp-Source: ABdhPJx7I5PtkMSKl9b8zDas4WwIKw7SMCpW5CkmtGzDxyA7T/ENxk1ZY0pC15QcFzNPM4JDV5yvgQ==
+X-Received: by 2002:a63:dc4e:: with SMTP id f14mr368523pgj.378.1622738632157;
+        Thu, 03 Jun 2021 09:43:52 -0700 (PDT)
+Received: from senozhatsky.flets-east.jp ([2409:10:2e40:5100:1585:76c1:e367:901a])
+        by smtp.gmail.com with ESMTPSA id 76sm2749589pfy.82.2021.06.03.09.43.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Jun 2021 09:43:51 -0700 (PDT)
+From:   Sergey Senozhatsky <senozhatsky@chromium.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>
+Cc:     Marc Zyngier <maz@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+        Paul Mackerras <paulus@ozlabs.org>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        dm-devel@redhat.com, linux-block <linux-block@vger.kernel.org>,
-        nbd@other.debian.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        ceph-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org,
-        linux-mmc <linux-mmc@vger.kernel.org>,
-        linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Suleiman Souhlal <suleiman@google.com>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        kvm@vger.kernel.org, kvm-ppc@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>
+Subject: [RFC][PATCH] kvm: add suspend pm-notifier
+Date:   Fri,  4 Jun 2021 01:43:15 +0900
+Message-Id: <20210603164315.682994-1-senozhatsky@chromium.org>
+X-Mailer: git-send-email 2.32.0.rc0.204.g9fa02ecfa5-goog
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2 Jun 2021 at 08:54, Christoph Hellwig <hch@lst.de> wrote:
->
-> Use the blk_mq_alloc_disk API to simplify the gendisk and request_queue
-> allocation.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+Add KVM suspend/hibernate PM-notifier which lets architectures
+to implement arch-specific VM suspend code. For instance, on x86
+this sets PVCLOCK_GUEST_STOPPED on all the VCPUs.
 
-Acked-by: Ulf Hansson <ulf.hansson@linaro.org>
+Our case is that user puts the host system into sleep multiple
+times a day (e.g. closes the laptop's lid) so we need a reliable
+way to suspend VMs properly.
 
-Kind regards
-Uffe
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+---
+ arch/arm64/kvm/arm.c       |  4 ++++
+ arch/mips/kvm/mips.c       |  4 ++++
+ arch/powerpc/kvm/powerpc.c |  4 ++++
+ arch/s390/kvm/kvm-s390.c   |  4 ++++
+ arch/x86/kvm/x86.c         | 21 ++++++++++++++++++++
+ include/linux/kvm_host.h   |  8 ++++++++
+ virt/kvm/kvm_main.c        | 40 ++++++++++++++++++++++++++++++++++++++
+ 7 files changed, 85 insertions(+)
 
+diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+index 1126eae27400..547dbe44d039 100644
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -1311,6 +1311,10 @@ static int kvm_vm_ioctl_set_device_addr(struct kvm *kvm,
+ 	}
+ }
+ 
++void kvm_arch_pm_notifier(struct kvm *kvm)
++{
++}
++
+ long kvm_arch_vm_ioctl(struct file *filp,
+ 		       unsigned int ioctl, unsigned long arg)
+ {
+diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+index 4d4af97dcc88..d4408acd2be6 100644
+--- a/arch/mips/kvm/mips.c
++++ b/arch/mips/kvm/mips.c
+@@ -980,6 +980,10 @@ void kvm_arch_flush_remote_tlbs_memslot(struct kvm *kvm,
+ 	kvm_flush_remote_tlbs(kvm);
+ }
+ 
++void kvm_arch_pm_notifier(struct kvm *kvm)
++{
++}
++
+ long kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
+ {
+ 	long r;
+diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
+index a2a68a958fa0..96e8a7b6fcf0 100644
+--- a/arch/powerpc/kvm/powerpc.c
++++ b/arch/powerpc/kvm/powerpc.c
+@@ -2334,6 +2334,10 @@ static int kvmppc_get_cpu_char(struct kvm_ppc_cpu_char *cp)
+ }
+ #endif
+ 
++void kvm_arch_pm_notifier(struct kvm *kvm)
++{
++}
++
+ long kvm_arch_vm_ioctl(struct file *filp,
+                        unsigned int ioctl, unsigned long arg)
+ {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 1296fc10f80c..c5f86fc1e497 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2367,6 +2367,10 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+ 	return r;
+ }
+ 
++void kvm_arch_pm_notifier(struct kvm *kvm)
++{
++}
++
+ long kvm_arch_vm_ioctl(struct file *filp,
+ 		       unsigned int ioctl, unsigned long arg)
+ {
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index bbc4e04e67ad..3f3d6497593f 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -5613,6 +5613,27 @@ static int kvm_vm_ioctl_set_msr_filter(struct kvm *kvm, void __user *argp)
+ 	return 0;
+ }
+ 
++void kvm_arch_pm_notifier(struct kvm *kvm)
++{
++#ifdef CONFIG_PM
++	int c;
++
++	mutex_lock(&kvm->lock);
++	for (c = 0; c < kvm->created_vcpus; c++) {
++		struct kvm_vcpu *vcpu = kvm->vcpus[c];
++		int r;
++
++		if (!vcpu)
++			continue;
++		r = kvm_set_guest_paused(vcpu);
++		if (!r)
++			continue;
++		pr_err("Failed to suspend VCPU-%d: %d\n", vcpu->vcpu_id,  r);
++	}
++	mutex_unlock(&kvm->lock);
++#endif
++}
++
+ long kvm_arch_vm_ioctl(struct file *filp,
+ 		       unsigned int ioctl, unsigned long arg)
+ {
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 2f34487e21f2..86695320a6b7 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -37,6 +37,8 @@
+ #include <asm/kvm_host.h>
+ #include <linux/kvm_dirty_ring.h>
+ 
++#include <linux/notifier.h>
++
+ #ifndef KVM_MAX_VCPU_ID
+ #define KVM_MAX_VCPU_ID KVM_MAX_VCPUS
+ #endif
+@@ -579,6 +581,10 @@ struct kvm {
+ 	pid_t userspace_pid;
+ 	unsigned int max_halt_poll_ns;
+ 	u32 dirty_ring_size;
++
++#ifdef CONFIG_PM
++	struct notifier_block pm_notifier;
++#endif
+ };
+ 
+ #define kvm_err(fmt, ...) \
+@@ -992,6 +998,8 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu);
+ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu);
+ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu);
+ 
++void kvm_arch_pm_notifier(struct kvm *kvm);
++
+ #ifdef __KVM_HAVE_ARCH_VCPU_DEBUGFS
+ void kvm_arch_create_vcpu_debugfs(struct kvm_vcpu *vcpu, struct dentry *debugfs_dentry);
+ #endif
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 6b4feb92dc79..86925ab7d162 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -51,6 +51,7 @@
+ #include <linux/io.h>
+ #include <linux/lockdep.h>
+ #include <linux/kthread.h>
++#include <linux/suspend.h>
+ 
+ #include <asm/processor.h>
+ #include <asm/ioctl.h>
+@@ -779,6 +780,43 @@ static int kvm_init_mmu_notifier(struct kvm *kvm)
+ 
+ #endif /* CONFIG_MMU_NOTIFIER && KVM_ARCH_WANT_MMU_NOTIFIER */
+ 
++#ifdef CONFIG_PM
++static int kvm_pm_notifier_call(struct notifier_block *bl,
++				unsigned long state,
++				void *unused)
++{
++	struct kvm *kvm = container_of(bl, struct kvm, pm_notifier);
++
++	switch (state) {
++	case PM_HIBERNATION_PREPARE:
++	case PM_SUSPEND_PREPARE:
++		kvm_arch_pm_notifier(kvm);
++		break;
++	}
++	return NOTIFY_DONE;
++}
++
++static void kvm_init_pm_notifier(struct kvm *kvm)
++{
++	kvm->pm_notifier.notifier_call = kvm_pm_notifier_call;
++	kvm->pm_notifier.priority = INT_MAX;
++	register_pm_notifier(&kvm->pm_notifier);
++}
++
++static void kvm_destroy_pm_notifier(struct kvm *kvm)
++{
++	unregister_pm_notifier(&kvm->pm_notifier);
++}
++#else
++static void kvm_init_pm_notifier(struct kvm *kvm)
++{
++}
++
++static void kvm_destroy_pm_notifier(struct kvm *kvm)
++{
++}
++#endif /* CONFIG_PM */
++
+ static struct kvm_memslots *kvm_alloc_memslots(void)
+ {
+ 	int i;
+@@ -962,6 +1000,7 @@ static struct kvm *kvm_create_vm(unsigned long type)
+ 	mutex_unlock(&kvm_lock);
+ 
+ 	preempt_notifier_inc();
++	kvm_init_pm_notifier(kvm);
+ 
+ 	return kvm;
+ 
+@@ -1009,6 +1048,7 @@ static void kvm_destroy_vm(struct kvm *kvm)
+ 	int i;
+ 	struct mm_struct *mm = kvm->mm;
+ 
++	kvm_destroy_pm_notifier(kvm);
+ 	kvm_uevent_notify_change(KVM_EVENT_DESTROY_VM, kvm);
+ 	kvm_destroy_vm_debugfs(kvm);
+ 	kvm_arch_sync_events(kvm);
+-- 
+2.32.0.rc0.204.g9fa02ecfa5-goog
 
-> ---
->  drivers/memstick/core/mspro_block.c | 26 +++++++++++---------------
->  1 file changed, 11 insertions(+), 15 deletions(-)
->
-> diff --git a/drivers/memstick/core/mspro_block.c b/drivers/memstick/core/mspro_block.c
-> index cf7fe0d58ee7..22778d0e24f5 100644
-> --- a/drivers/memstick/core/mspro_block.c
-> +++ b/drivers/memstick/core/mspro_block.c
-> @@ -1205,21 +1205,17 @@ static int mspro_block_init_disk(struct memstick_dev *card)
->         if (disk_id < 0)
->                 return disk_id;
->
-> -       msb->disk = alloc_disk(1 << MSPRO_BLOCK_PART_SHIFT);
-> -       if (!msb->disk) {
-> -               rc = -ENOMEM;
-> +       rc = blk_mq_alloc_sq_tag_set(&msb->tag_set, &mspro_mq_ops, 2,
-> +                                    BLK_MQ_F_SHOULD_MERGE);
-> +       if (rc)
->                 goto out_release_id;
-> -       }
->
-> -       msb->queue = blk_mq_init_sq_queue(&msb->tag_set, &mspro_mq_ops, 2,
-> -                                               BLK_MQ_F_SHOULD_MERGE);
-> -       if (IS_ERR(msb->queue)) {
-> -               rc = PTR_ERR(msb->queue);
-> -               msb->queue = NULL;
-> -               goto out_put_disk;
-> +       msb->disk = blk_mq_alloc_disk(&msb->tag_set, card);
-> +       if (IS_ERR(msb->disk)) {
-> +               rc = PTR_ERR(msb->disk);
-> +               goto out_free_tag_set;
->         }
-> -
-> -       msb->queue->queuedata = card;
-> +       msb->queue = msb->disk->queue;
->
->         blk_queue_max_hw_sectors(msb->queue, MSPRO_BLOCK_MAX_PAGES);
->         blk_queue_max_segments(msb->queue, MSPRO_BLOCK_MAX_SEGS);
-> @@ -1228,10 +1224,10 @@ static int mspro_block_init_disk(struct memstick_dev *card)
->
->         msb->disk->major = major;
->         msb->disk->first_minor = disk_id << MSPRO_BLOCK_PART_SHIFT;
-> +       msb->disk->minors = 1 << MSPRO_BLOCK_PART_SHIFT;
->         msb->disk->fops = &ms_block_bdops;
->         msb->usage_count = 1;
->         msb->disk->private_data = msb;
-> -       msb->disk->queue = msb->queue;
->
->         sprintf(msb->disk->disk_name, "mspblk%d", disk_id);
->
-> @@ -1247,8 +1243,8 @@ static int mspro_block_init_disk(struct memstick_dev *card)
->         msb->active = 1;
->         return 0;
->
-> -out_put_disk:
-> -       put_disk(msb->disk);
-> +out_free_tag_set:
-> +       blk_mq_free_tag_set(&msb->tag_set);
->  out_release_id:
->         mutex_lock(&mspro_block_disk_lock);
->         idr_remove(&mspro_block_disk_idr, disk_id);
-> --
-> 2.30.2
->
