@@ -2,129 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6B6CC48BCF
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 08:53:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3098C47082
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 09:19:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9385260E08
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 08:53:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CDDE061002
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 09:19:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230320AbhFGIzM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Jun 2021 04:55:12 -0400
-Received: from mail-ua1-f50.google.com ([209.85.222.50]:38531 "EHLO
-        mail-ua1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230252AbhFGIzL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Jun 2021 04:55:11 -0400
-Received: by mail-ua1-f50.google.com with SMTP id d13so8588144uav.5;
-        Mon, 07 Jun 2021 01:53:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=y7XwbZyFAy9rqQo5J7t8DRS+d/mueoOLl5p+cSQb+8Y=;
-        b=c1QgfpCrjDUVTkAyyBp8WpGyHfrCmwlqwtVXwHahbmua8An8O/eClybf1j+oMHclTg
-         rMIvMWrYrB9Gj2TD3pRIwvdsxkB7d9icqIhx+1ZvDF7Hagiw9U5kXikrzk61x3JjITC7
-         8pG70uh9P/71b9Fu0L2APErbzHJ58IttG/qzIbOqza9sBBKYsJ3QPxRl1kmblPcGDkaK
-         NPkTJVaQoCn/VaRb1KszZ/Q39MTWlQvqB+mnpFRoIOjOQUQjsnSYUteF7Dj4qVL9u+Xb
-         ECq++QQ7vbqY3EDwo1oBHc8szh/J74Mct3oP7UWWUTuzXWOG+5vhy1QPhID0bwAgs6ws
-         QMyA==
-X-Gm-Message-State: AOAM532XV40qPaFsEC/GJkAhhxOwX05CIufouWf1JTWpIJDVLxJyQyBP
-        gmz4WkdAf7f5Mky/jxlESS/KPFB5bvNH7j6p8/o=
-X-Google-Smtp-Source: ABdhPJw70xfmNroh3KIu5QGmqKsYwQ+PKLyHQ50n7DeatYgE4iGl6TNz+FWGTOL2BBcrgRRRH99rMYwIPPT469OpB6M=
-X-Received: by 2002:ab0:63d9:: with SMTP id i25mr6682382uap.106.1623055999326;
- Mon, 07 Jun 2021 01:53:19 -0700 (PDT)
+        id S230267AbhFGJVA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Jun 2021 05:21:00 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:3447 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230239AbhFGJU6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Jun 2021 05:20:58 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.57])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Fz75b0byhz6wHk;
+        Mon,  7 Jun 2021 17:16:03 +0800 (CST)
+Received: from dggemi761-chm.china.huawei.com (10.1.198.147) by
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Mon, 7 Jun 2021 17:19:05 +0800
+Received: from SWX921481.china.huawei.com (10.126.200.77) by
+ dggemi761-chm.china.huawei.com (10.1.198.147) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Mon, 7 Jun 2021 17:18:56 +0800
+From:   Barry Song <song.bao.hua@hisilicon.com>
+To:     <akpm@linux-foundation.org>, <hpa@zytor.com>, <tglx@linutronix.de>,
+        <mingo@redhat.com>, <bp@alien8.de>, <hca@linux.ibm.com>,
+        <gor@linux.ibm.com>, <borntraeger@de.ibm.com>,
+        <naveen.n.rao@linux.ibm.com>, <anil.s.keshavamurthy@intel.com>,
+        <davem@davemloft.net>, <mhiramat@kernel.org>,
+        <linux-s390@vger.kernel.org>, <x86@kernel.org>
+CC:     <linux-kernel@vger.kernel.org>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        Christoph Hellwig <hch@infradead.org>
+Subject: [PATCH v2] kprobes: remove duplicated strong free_insn_page in x86 and s390
+Date:   Mon, 7 Jun 2021 21:18:54 +1200
+Message-ID: <20210607091854.31580-1-song.bao.hua@hisilicon.com>
+X-Mailer: git-send-email 2.21.0.windows.1
 MIME-Version: 1.0
-References: <20210604064916.26580-1-rppt@kernel.org> <20210604064916.26580-9-rppt@kernel.org>
-In-Reply-To: <20210604064916.26580-9-rppt@kernel.org>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Mon, 7 Jun 2021 10:53:08 +0200
-Message-ID: <CAMuHMdVa29gUQAdHjKh-qDNpOJaoGwXtUkBM2qnOTi1DWV70xA@mail.gmail.com>
-Subject: Re: [PATCH v2 8/9] mm: replace CONFIG_NEED_MULTIPLE_NODES with CONFIG_NUMA
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Matt Turner <mattst88@gmail.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Richard Henderson <rth@twiddle.net>,
-        Vineet Gupta <vgupta@synopsys.com>, kexec@lists.infradead.org,
-        alpha <linux-alpha@vger.kernel.org>,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux MM <linux-mm@kvack.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        arcml <linux-snps-arc@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        sparclinux <sparclinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.126.200.77]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggemi761-chm.china.huawei.com (10.1.198.147)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Mike,
+free_insn_page() in x86 and s390 are same with the common weak function
+in kernel/kprobes.c.
+Plus, the comment "Recover page to RW mode before releasing it" in x86
+seems insensible to be there since resetting mapping is done by common
+code in vfree() of module_memfree().
+So drop these two duplicated strong functions and related comment, then
+mark the common one in kernel/kprobes.c strong.
 
-On Fri, Jun 4, 2021 at 8:50 AM Mike Rapoport <rppt@kernel.org> wrote:
-> From: Mike Rapoport <rppt@linux.ibm.com>
->
-> After removal of DISCINTIGMEM the NEED_MULTIPLE_NODES and NUMA
-> configuration options are equivalent.
->
-> Drop CONFIG_NEED_MULTIPLE_NODES and use CONFIG_NUMA instead.
->
-> Done with
->
->         $ sed -i 's/CONFIG_NEED_MULTIPLE_NODES/CONFIG_NUMA/' \
->                 $(git grep -wl CONFIG_NEED_MULTIPLE_NODES)
->         $ sed -i 's/NEED_MULTIPLE_NODES/NUMA/' \
->                 $(git grep -wl NEED_MULTIPLE_NODES)
->
-> with manual tweaks afterwards.
->
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
+---
+ -v2:
+ remove free_insn_page in s390 as well and remove the __weak in common
+ code according to Christoph's comment;
 
-Thanks for your patch!
+ arch/s390/kernel/kprobes.c     | 5 -----
+ arch/x86/kernel/kprobes/core.c | 6 ------
+ kernel/kprobes.c               | 2 +-
+ 3 files changed, 1 insertion(+), 12 deletions(-)
 
-As you dropped the following hunk from v2 of PATCH 5/9, there's now
-one reference left of CONFIG_NEED_MULTIPLE_NODES
-(plus the discontigmem comment):
-
--diff --git a/mm/memory.c b/mm/memory.c
--index f3ffab9b9e39157b..fd0ebb63be3304f5 100644
----- a/mm/memory.c
--+++ b/mm/memory.c
--@@ -90,8 +90,7 @@
-- #warning Unfortunate NUMA and NUMA Balancing config, growing
-page-frame for last_cpupid.
-- #endif
+diff --git a/arch/s390/kernel/kprobes.c b/arch/s390/kernel/kprobes.c
+index aae24dc75df6..60cfbd24229b 100644
+--- a/arch/s390/kernel/kprobes.c
++++ b/arch/s390/kernel/kprobes.c
+@@ -44,11 +44,6 @@ void *alloc_insn_page(void)
+ 	return page;
+ }
+ 
+-void free_insn_page(void *page)
+-{
+-	module_memfree(page);
+-}
 -
---#ifndef CONFIG_NEED_MULTIPLE_NODES
---/* use the per-pgdat data instead for discontigmem - mbligh */
--+#ifdef CONFIG_FLATMEM
-- unsigned long max_mapnr;
-- EXPORT_SYMBOL(max_mapnr);
+ static void *alloc_s390_insn_page(void)
+ {
+ 	if (xchg(&insn_page_in_use, 1) == 1)
+diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
+index d3d65545cb8b..3bce67d3a03c 100644
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -422,12 +422,6 @@ void *alloc_insn_page(void)
+ 	return page;
+ }
+ 
+-/* Recover page to RW mode before releasing it */
+-void free_insn_page(void *page)
+-{
+-	module_memfree(page);
+-}
 -
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
+ /* Kprobe x86 instruction emulation - only regs->ip or IF flag modifiers */
+ 
+ static void kprobe_emulate_ifmodifiers(struct kprobe *p, struct pt_regs *regs)
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 745f08fdd7a6..ddb643f3879f 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -106,7 +106,7 @@ void __weak *alloc_insn_page(void)
+ 	return module_alloc(PAGE_SIZE);
+ }
+ 
+-void __weak free_insn_page(void *page)
++void free_insn_page(void *page)
+ {
+ 	module_memfree(page);
+ }
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.25.1
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
