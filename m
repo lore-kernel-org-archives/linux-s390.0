@@ -2,117 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED1E9C47095
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 10:02:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D12F3C47094
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 10:58:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D5FCB611C0
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 10:02:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAC8D610A2
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 10:58:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230343AbhFGKEs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Jun 2021 06:04:48 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38514 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230193AbhFGKEr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Jun 2021 06:04:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623060176;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QDxOcIV3LOZMskX0TR+s6vQHpg3Tao4QIKopLA2bBSk=;
-        b=ghiLA6oS2iFfn7A2ks4eTVastQWlVxjUCrMaQQQPthWYREQsbBm+37uaCfUBIZDD8PnXh7
-        /IEEcnE0vbLIs4zAWER+sIVM5t/b23CZtw1qgpp6oiMdNbAcN6YsbsBWa02h8a8Isi8L0S
-        pDcvFrxSrAvlbzA4CoaBDsHGwDbXMvk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-91-vJrdM4aXPeqXJF8yV5JH6w-1; Mon, 07 Jun 2021 06:02:51 -0400
-X-MC-Unique: vJrdM4aXPeqXJF8yV5JH6w-1
-Received: by mail-wm1-f69.google.com with SMTP id w3-20020a1cf6030000b0290195fd5fd0f2so3923135wmc.4
-        for <linux-s390@vger.kernel.org>; Mon, 07 Jun 2021 03:02:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QDxOcIV3LOZMskX0TR+s6vQHpg3Tao4QIKopLA2bBSk=;
-        b=HegotKXSdxm8ckEabKUAOHuEKXwSl08JgC1kECNkQndhb0bIlgL86LVkPjiJ8xoeZI
-         RhFcc06I8ZxFo+KVNCv8MZbDVpRcC+mhmo2dRiSb6FrOG3T0p4vENY8+Vm06SoEqBSBN
-         Cq9CWQoubeP748IvU5IgUFpAsOwZAOoMe579ClYlUeruux1fWDg8rXYX/8SZ0SYQcoHa
-         17HmJwk1R5XvBt9j6/lNi6CtlLtc052QETz06Q4YOkWtTV1WK9pLzAU/9nwLtKGwHdQT
-         rCd6Glh4ZpPxOZs8X2+XRNGmESMURAEWRPD0AcijFgBqXWmhFwhUjjZum+rf6CVMwjBk
-         ZFvg==
-X-Gm-Message-State: AOAM5315Pg515OoY+y8K8mnezByGG6Qdy9dlxPRrD4ZnX65hk28788oO
-        pZFRdrezCZJNsWY9IdTYfA8s+61uIMh+9BQXeQC3DykDHd62i0ANPhtfFZ9mx8GGAadBPJqZ1SU
-        XDcGGAUNZhr8LHXPvNwORVK7tI9X0oyGOdRrXJuwFaNgYk6eerNwfbH8vhHk9b/0fbEBr1g==
-X-Received: by 2002:a5d:64c8:: with SMTP id f8mr15962968wri.386.1623060170916;
-        Mon, 07 Jun 2021 03:02:50 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzL4k2ErUlnKNJsph+jyfsDApfgauXG26LfkRzqkoYWhTta0sLsvXg3BmjHcbSsGp6qar3B8A==
-X-Received: by 2002:a5d:64c8:: with SMTP id f8mr15962951wri.386.1623060170708;
-        Mon, 07 Jun 2021 03:02:50 -0700 (PDT)
-Received: from thuth.remote.csb (pd957536e.dip0.t-ipconnect.de. [217.87.83.110])
-        by smtp.gmail.com with ESMTPSA id p187sm14203741wmp.28.2021.06.07.03.02.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Jun 2021 03:02:50 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH 3/3] s390x: run: Skip PV tests when tcg is
- the accelerator
-To:     David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     cohuck@redhat.com, linux-s390@vger.kernel.org
-References: <20210318125015.45502-1-frankja@linux.ibm.com>
- <20210318125015.45502-4-frankja@linux.ibm.com>
- <92be69b9-227a-d01c-6877-738a4482b8c6@redhat.com>
- <656f9301-70ec-a1e1-2d24-48ede0b07aca@redhat.com>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <9fec70e1-a5a0-9f65-7a79-5106757e38cb@redhat.com>
-Date:   Mon, 7 Jun 2021 12:02:48 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+        id S230193AbhFGLAb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Jun 2021 07:00:31 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21720 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230230AbhFGLAb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Jun 2021 07:00:31 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 157AXHkO195101;
+        Mon, 7 Jun 2021 06:58:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=4AN2CA0GuJHNAFTpN0s5mVh7V1bwkgGdEaCEZc4EmZA=;
+ b=nah15DsKNTSEuw1FTKHDGfW0Dq1Nf57uBsw4VRhljFlvewI/gak/ma4R0KE7NixQk7Mk
+ 2WwlSr1geKwijnXVqT2jnxDx6mahBui0nvEaZ7/yoyAUEzSXR/4ZtYzr9zq1C1uw0H4E
+ g9jChdlMALCtP+DQmgQKq7D8cLeHzvax7yVBpVjS+EeeQYqmjssnanYtuji6aAfKqixs
+ Gf+IQEje/PEnkxHZ3LyOsYK6aCGOsLxTrvIRgzHUokvVi1HH6io5PgP/Oirc+7gZ6pGV
+ gXeKR8jldsuSJwiktYRbYx6XHbZ8PALUIV1LCe/915IbjDqyyvoAwf6Nv0bS1/z1TbGp +Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 391db4gaab-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 07 Jun 2021 06:58:02 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 157AguL4034323;
+        Mon, 7 Jun 2021 06:58:01 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 391db4ga9p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 07 Jun 2021 06:58:01 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 157ArLHE026321;
+        Mon, 7 Jun 2021 10:57:59 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3900hhruud-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 07 Jun 2021 10:57:59 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 157AvuLE31261016
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 7 Jun 2021 10:57:56 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F19DE4203F;
+        Mon,  7 Jun 2021 10:57:55 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 58ECA42049;
+        Mon,  7 Jun 2021 10:57:55 +0000 (GMT)
+Received: from osiris (unknown [9.171.17.10])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon,  7 Jun 2021 10:57:55 +0000 (GMT)
+Date:   Mon, 7 Jun 2021 12:57:53 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Barry Song <song.bao.hua@hisilicon.com>
+Cc:     akpm@linux-foundation.org, hpa@zytor.com, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, gor@linux.ibm.com,
+        borntraeger@de.ibm.com, naveen.n.rao@linux.ibm.com,
+        anil.s.keshavamurthy@intel.com, davem@davemloft.net,
+        mhiramat@kernel.org, linux-s390@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v2] kprobes: remove duplicated strong free_insn_page in
+ x86 and s390
+Message-ID: <YL37sTAUIfDulsDE@osiris>
+References: <20210607091854.31580-1-song.bao.hua@hisilicon.com>
 MIME-Version: 1.0
-In-Reply-To: <656f9301-70ec-a1e1-2d24-48ede0b07aca@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210607091854.31580-1-song.bao.hua@hisilicon.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: oDpWfoLYqSGBbqOS0oP66RlJBZuwVMXC
+X-Proofpoint-ORIG-GUID: fSLjZx7Pw9a_vgp9UKRPpWUchr74zUMb
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-06-07_07:2021-06-04,2021-06-07 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ lowpriorityscore=0 adultscore=0 spamscore=0 malwarescore=0 suspectscore=0
+ bulkscore=0 mlxlogscore=906 phishscore=0 priorityscore=1501 mlxscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106070081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 07/06/2021 11.57, David Hildenbrand wrote:
-> On 07.06.21 11:54, Thomas Huth wrote:
->> On 18/03/2021 13.50, Janosch Frank wrote:
->>> TCG doesn't support PV.
->>>
->>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->>> ---
->>>    s390x/run | 5 +++++
->>>    1 file changed, 5 insertions(+)
->>>
->>> diff --git a/s390x/run b/s390x/run
->>> index df7ef5ca..82922701 100755
->>> --- a/s390x/run
->>> +++ b/s390x/run
->>> @@ -19,6 +19,11 @@ else
->>>        ACCEL=$DEF_ACCEL
->>>    fi
->>> +if [ "${1: -7}" == ".pv.bin" ] || [ "${TESTNAME: -3}" == "_PV" ] && [ 
->>> $ACCEL == "tcg" ]; then
->>
->> Put $ACCEL in quotes?
->>
->> With that nit fixed:
->>
+On Mon, Jun 07, 2021 at 09:18:54PM +1200, Barry Song wrote:
+> free_insn_page() in x86 and s390 are same with the common weak function
+> in kernel/kprobes.c.
+> Plus, the comment "Recover page to RW mode before releasing it" in x86
+> seems insensible to be there since resetting mapping is done by common
+> code in vfree() of module_memfree().
+> So drop these two duplicated strong functions and related comment, then
+> mark the common one in kernel/kprobes.c strong.
 > 
-> Should these "==" be "=" ? Bash string comparisons always mess with my mind.
+> Cc: Christoph Hellwig <hch@infradead.org>
+> Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
+> ---
+>  -v2:
+>  remove free_insn_page in s390 as well and remove the __weak in common
+>  code according to Christoph's comment;
+> 
+>  arch/s390/kernel/kprobes.c     | 5 -----
+>  arch/x86/kernel/kprobes/core.c | 6 ------
+>  kernel/kprobes.c               | 2 +-
+>  3 files changed, 1 insertion(+), 12 deletions(-)
 
-Oh, right. I also always have to check "man test" to get the right answer, 
-but "=" is more portable, indeed. (Well, k-u-t are hard-wired to bash, but 
-it's better to write clean shell code anyway)
-
-  Thomas
-
+For the s390 part:
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
