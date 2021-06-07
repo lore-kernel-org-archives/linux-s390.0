@@ -2,125 +2,87 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3098C47082
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 09:19:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A462C4743C
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 09:31:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CDDE061002
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 09:19:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D3A2610A1
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Jun 2021 09:31:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230267AbhFGJVA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Jun 2021 05:21:00 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:3447 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230239AbhFGJU6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Jun 2021 05:20:58 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Fz75b0byhz6wHk;
-        Mon,  7 Jun 2021 17:16:03 +0800 (CST)
-Received: from dggemi761-chm.china.huawei.com (10.1.198.147) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Mon, 7 Jun 2021 17:19:05 +0800
-Received: from SWX921481.china.huawei.com (10.126.200.77) by
- dggemi761-chm.china.huawei.com (10.1.198.147) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Mon, 7 Jun 2021 17:18:56 +0800
-From:   Barry Song <song.bao.hua@hisilicon.com>
-To:     <akpm@linux-foundation.org>, <hpa@zytor.com>, <tglx@linutronix.de>,
-        <mingo@redhat.com>, <bp@alien8.de>, <hca@linux.ibm.com>,
-        <gor@linux.ibm.com>, <borntraeger@de.ibm.com>,
-        <naveen.n.rao@linux.ibm.com>, <anil.s.keshavamurthy@intel.com>,
-        <davem@davemloft.net>, <mhiramat@kernel.org>,
-        <linux-s390@vger.kernel.org>, <x86@kernel.org>
-CC:     <linux-kernel@vger.kernel.org>,
-        Barry Song <song.bao.hua@hisilicon.com>,
-        Christoph Hellwig <hch@infradead.org>
-Subject: [PATCH v2] kprobes: remove duplicated strong free_insn_page in x86 and s390
-Date:   Mon, 7 Jun 2021 21:18:54 +1200
-Message-ID: <20210607091854.31580-1-song.bao.hua@hisilicon.com>
-X-Mailer: git-send-email 2.21.0.windows.1
+        id S230291AbhFGJd0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Jun 2021 05:33:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43396 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230242AbhFGJd0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Jun 2021 05:33:26 -0400
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E386EC061766;
+        Mon,  7 Jun 2021 02:31:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=MlvkgxFcyawWgLbaD1anFAhejhA4mPswAd0WEOPLbd0=; b=cetr6/k8ZHIlURSNkBDEkxOd3
+        puNo+HwooQUeJn9AaPBl4regJ9NkcXwohGBb5OPUoX7XTTODh5d6IsuhC8Hnw3taLmVn0F8+4hF1o
+        ArioCmyKCJRUZ5c5W9Ct8Cw0Zpb4xNWdK87xHBWnc3daFNyrTg9aLL7A/E6TbbFPNgdTXMtoLpPh1
+        VNTboFgYQtPgYxGziLgboqSm+C9rc0zETM+h5ZE5kg+2kGPOkoZAIe8MZfd5JZNTDNazJFXr/S6Gm
+        YDi+dqX3d1L4b71QKMOqk7jvcXPp8QSgQdX3C28GtCjdiTWKtuBWWAYuFwAi7GnVSCXRZB8Zx7iVW
+        ALDutps2w==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:44784)
+        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1lqBbS-0000Eu-Fv; Mon, 07 Jun 2021 10:31:26 +0100
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1lqBbN-0005oE-UB; Mon, 07 Jun 2021 10:31:21 +0100
+Date:   Mon, 7 Jun 2021 10:31:21 +0100
+From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        uclinux-h8-devel@lists.sourceforge.jp, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-mm@kvack.org,
+        linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v2 00/15] init_mm: cleanup ARCH's text/data/brk setup code
+Message-ID: <20210607093121.GC22278@shell.armlinux.org.uk>
+References: <20210604070633.32363-1-wangkefeng.wang@huawei.com>
+ <YL0+Jargm+y9aqx1@kernel.org>
+ <481056ab-686e-9f42-3b8a-b31941f58af6@huawei.com>
+ <006eb573-5a20-1ac7-6234-338d11346a08@csgroup.eu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.126.200.77]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggemi761-chm.china.huawei.com (10.1.198.147)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <006eb573-5a20-1ac7-6234-338d11346a08@csgroup.eu>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-free_insn_page() in x86 and s390 are same with the common weak function
-in kernel/kprobes.c.
-Plus, the comment "Recover page to RW mode before releasing it" in x86
-seems insensible to be there since resetting mapping is done by common
-code in vfree() of module_memfree().
-So drop these two duplicated strong functions and related comment, then
-mark the common one in kernel/kprobes.c strong.
+On Mon, Jun 07, 2021 at 07:48:54AM +0200, Christophe Leroy wrote:
+> Hi Kefeng,
+> 
+> What you could do is to define a __weak function that architectures can
+> override and call that function from mm_init() as suggested by Mike,
 
-Cc: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
----
- -v2:
- remove free_insn_page in s390 as well and remove the __weak in common
- code according to Christoph's comment;
+The problem with weak functions is that they bloat the kernel. Each
+time a weak function is overriden, it becomes dead unreachable code
+within the kernel image.
 
- arch/s390/kernel/kprobes.c     | 5 -----
- arch/x86/kernel/kprobes/core.c | 6 ------
- kernel/kprobes.c               | 2 +-
- 3 files changed, 1 insertion(+), 12 deletions(-)
+At some point we're probabily going to have to enable -ffunction-sections
+to (hopefully) allow the dead code to be discarded.
 
-diff --git a/arch/s390/kernel/kprobes.c b/arch/s390/kernel/kprobes.c
-index aae24dc75df6..60cfbd24229b 100644
---- a/arch/s390/kernel/kprobes.c
-+++ b/arch/s390/kernel/kprobes.c
-@@ -44,11 +44,6 @@ void *alloc_insn_page(void)
- 	return page;
- }
- 
--void free_insn_page(void *page)
--{
--	module_memfree(page);
--}
--
- static void *alloc_s390_insn_page(void)
- {
- 	if (xchg(&insn_page_in_use, 1) == 1)
-diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
-index d3d65545cb8b..3bce67d3a03c 100644
---- a/arch/x86/kernel/kprobes/core.c
-+++ b/arch/x86/kernel/kprobes/core.c
-@@ -422,12 +422,6 @@ void *alloc_insn_page(void)
- 	return page;
- }
- 
--/* Recover page to RW mode before releasing it */
--void free_insn_page(void *page)
--{
--	module_memfree(page);
--}
--
- /* Kprobe x86 instruction emulation - only regs->ip or IF flag modifiers */
- 
- static void kprobe_emulate_ifmodifiers(struct kprobe *p, struct pt_regs *regs)
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 745f08fdd7a6..ddb643f3879f 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -106,7 +106,7 @@ void __weak *alloc_insn_page(void)
- 	return module_alloc(PAGE_SIZE);
- }
- 
--void __weak free_insn_page(void *page)
-+void free_insn_page(void *page)
- {
- 	module_memfree(page);
- }
 -- 
-2.25.1
-
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
