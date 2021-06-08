@@ -2,123 +2,182 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 373B5C47082
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 08:59:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B60CFC48BDF
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 09:13:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1CDF161153
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 08:59:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 95D6861263
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 09:13:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229942AbhFHJBX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Jun 2021 05:01:23 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64854 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229507AbhFHJBW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Jun 2021 05:01:22 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1588ttPe092876;
-        Tue, 8 Jun 2021 04:59:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=zncH8Y9Ig0Sn9Z3dBCqA5uZhMuCKXbQPTA0d+6pwXOo=;
- b=Se6/j3C2gQwm99LOmRd4SZODrfND5eLXc4af3CFsBFRpQnVRztp8X8mfQ6xYi9ULA8bQ
- Mf25UOu0OVtRGlQvwVMjhyiXq85M8z1TRxn31xIhvqnhrhdukfcH6PopbMcvSferxHQU
- Z7HCrOgsYl69d60snbYKVQ38Oo32NUAK3yYscjurSlo+nT7IBqHV4dUmCn2PcOs2n8us
- dCQkMrqdF30SsbE8HmCRBWnMKczUSY5UC2ZyL5FJet5Y8xHGGgbjvccjEDQE7vOXK55e
- XPn3fU9IyM+5PGF9/4wKjj5P5wUMbZMUNk+o6B2UioI2eGsYyBELE/MEd1APJTwNgbj/ sg== 
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3925fj01e7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Jun 2021 04:59:27 -0400
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1588vaL9032077;
-        Tue, 8 Jun 2021 08:59:27 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma04dal.us.ibm.com with ESMTP id 3900w9b6qd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Jun 2021 08:59:27 +0000
-Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1588xPxs22741264
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 8 Jun 2021 08:59:25 GMT
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 82CA278068;
-        Tue,  8 Jun 2021 08:59:25 +0000 (GMT)
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4B48E7805C;
-        Tue,  8 Jun 2021 08:59:24 +0000 (GMT)
-Received: from [9.171.25.104] (unknown [9.171.25.104])
-        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTPS;
-        Tue,  8 Jun 2021 08:59:24 +0000 (GMT)
-Subject: Re: [PATCH net-next 0/4] net/smc: Add SMC statistic support
-To:     David Miller <davem@davemloft.net>, kgraul@linux.ibm.com
-Cc:     kuba@kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20210607182014.3384922-1-kgraul@linux.ibm.com>
- <20210607.133346.155691512247470187.davem@davemloft.net>
-From:   Guvenc Gulce <guvenc@linux.ibm.com>
-Message-ID: <1df10dbb-a3bd-9b8f-6fb9-8a8fe98ae175@linux.ibm.com>
-Date:   Tue, 8 Jun 2021 10:59:22 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S230389AbhFHJPV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Jun 2021 05:15:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33814 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229507AbhFHJPU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 8 Jun 2021 05:15:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF16C61208;
+        Tue,  8 Jun 2021 09:13:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623143608;
+        bh=JiiuTjFCB/4PLSsHGFNFns29l9HBPjAxjVfH42hb+H4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BvBM91enChDqY6+VuhfUkSW1HXIS9ONW9olMjxmDaKa7XG0xFJ88O84JgyyOUqCn2
+         zUlrusQNc+hVn4BaQ/hZVyUb111Dx/0tXSwwa1nft23bMjs842ThUbJ97WIXp48iAN
+         r0g3L51e1nIYJ+KG+xqOOKm8wEM0xnzHCbU/F5o+L0LMd7cx2OoQcnKd39oshKQQ8X
+         1xoHEyi5Pr0JMt9c9KNVQ+agiuHE3xgktQcWzhfx+TwlsoVquZYtBqrqsWjBXsXwdc
+         kvWtnfkm9HI72rJ+KD+i20Cm8mWhZAuWSSvbBxlTAuV4H0sJOC9f3xiWuy2knlZ9v6
+         r+gmfpltnZIlA==
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Matt Turner <mattst88@gmail.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Vineet Gupta <vgupta@synopsys.com>, kexec@lists.infradead.org,
+        linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org
+Subject: [PATCH v3 0/9] Remove DISCONTIGMEM memory model
+Date:   Tue,  8 Jun 2021 12:13:07 +0300
+Message-Id: <20210608091316.3622-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-In-Reply-To: <20210607.133346.155691512247470187.davem@davemloft.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 8RMZyZaSZ0X8X33-1jINQtzzJmIPiTlN
-X-Proofpoint-GUID: 8RMZyZaSZ0X8X33-1jINQtzzJmIPiTlN
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-08_05:2021-06-04,2021-06-08 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- lowpriorityscore=0 impostorscore=0 suspectscore=0 priorityscore=1501
- malwarescore=0 mlxscore=0 adultscore=0 clxscore=1011 phishscore=0
- bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106080051
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Dave,
-Thank you for looking into this. SMC is a protocol interacting with PCI devices (like RoCE Cards) and
-runs on top of TCP protocol. As SMC is a network protocol and not an ethernet device driver, we
-decided to use the generic netlink interface. There is already an established internal generic netlink
-interface mechanism in SMC which is used to collect SMC Protocol internal information. This patchset
-extends that existing mechanism.
-Ethtool's predefined netlink interfaces are specifically tailored for the ethernet device internals and needs
-and these netlink interfaces wouldn't really fit to the use cases of the SMC protocol.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Other protocols (like tipc, ncsi, ieee802154, tcp metrics) under the net subsystem use also similar generic
-netlink mechanism for collecting and transporting protocol specific information to userspace. This also
-encouraged us to make the generic netlink decision for exposing the gathered SMC protocol statistics
-and internal information to the userspace.
+Hi,
 
-Regards,
+SPARSEMEM memory model was supposed to entirely replace DISCONTIGMEM a
+(long) while ago. The last architectures that used DISCONTIGMEM were
+updated to use other memory models in v5.11 and it is about the time to
+entirely remove DISCONTIGMEM from the kernel.
 
-Guvenc Gulce
+This set removes DISCONTIGMEM from alpha, arc and m68k, simplifies memory
+model selection in mm/Kconfig and replaces usage of redundant
+CONFIG_NEED_MULTIPLE_NODES and CONFIG_FLAT_NODE_MEM_MAP with CONFIG_NUMA
+and CONFIG_FLATMEM respectively. 
 
-On 07/06/2021 22:33, David Miller wrote:
-> From: Karsten Graul <kgraul@linux.ibm.com>
-> Date: Mon,  7 Jun 2021 20:20:10 +0200
->
->> Please apply the following patch series for smc to netdev's net-next tree.
->>
->> The patchset adds statistic support to the SMC protocol. Per-cpu
->> variables are used to collect the statistic information for better
->> performance and for reducing concurrency pitfalls. The code that is
->> collecting statistic data is implemented in macros to increase code
->> reuse and readability.
->> The generic netlink mechanism in SMC is extended to provide the
->> collected statistics to userspace.
->> Network namespace awareness is also part of the statistics
->> implementation.
-> Why not use ethtool stats?
->
-> Thank you.
+I've also removed NUMA support on alpha that was BROKEN for more than 15
+years.
+
+There were also minor updates all over arch/ to remove mentions of
+DISCONTIGMEM in comments and #ifdefs.
+
+v3:
+* Remove stale reference of CONFIG_NEED_MULTIPLE_NODES and stale
+  discontigmem comment, per Geert
+* Add Vineet Acks
+* Fix spelling in cover letter subject
+
+v2: Link: https://lore.kernel.org/lkml/20210604064916.26580-1-rppt@kernel.org
+* Fix build errors reported by kbuild bot
+* Add additional cleanups in m68k as suggested by Geert
+
+v1: Link: https://lore.kernel.org/lkml/20210602105348.13387-1-rppt@kernel.org
+
+Mike Rapoport (9):
+  alpha: remove DISCONTIGMEM and NUMA
+  arc: update comment about HIGHMEM implementation
+  arc: remove support for DISCONTIGMEM
+  m68k: remove support for DISCONTIGMEM
+  mm: remove CONFIG_DISCONTIGMEM
+  arch, mm: remove stale mentions of DISCONIGMEM
+  docs: remove description of DISCONTIGMEM
+  mm: replace CONFIG_NEED_MULTIPLE_NODES with CONFIG_NUMA
+  mm: replace CONFIG_FLAT_NODE_MEM_MAP with CONFIG_FLATMEM
+
+ Documentation/admin-guide/sysctl/vm.rst |  12 +-
+ Documentation/vm/memory-model.rst       |  45 +----
+ arch/alpha/Kconfig                      |  22 ---
+ arch/alpha/include/asm/machvec.h        |   6 -
+ arch/alpha/include/asm/mmzone.h         | 100 -----------
+ arch/alpha/include/asm/pgtable.h        |   4 -
+ arch/alpha/include/asm/topology.h       |  39 -----
+ arch/alpha/kernel/core_marvel.c         |  53 +-----
+ arch/alpha/kernel/core_wildfire.c       |  29 +--
+ arch/alpha/kernel/pci_iommu.c           |  29 ---
+ arch/alpha/kernel/proto.h               |   8 -
+ arch/alpha/kernel/setup.c               |  16 --
+ arch/alpha/kernel/sys_marvel.c          |   5 -
+ arch/alpha/kernel/sys_wildfire.c        |   5 -
+ arch/alpha/mm/Makefile                  |   2 -
+ arch/alpha/mm/init.c                    |   3 -
+ arch/alpha/mm/numa.c                    | 223 ------------------------
+ arch/arc/Kconfig                        |  13 --
+ arch/arc/include/asm/mmzone.h           |  40 -----
+ arch/arc/mm/init.c                      |  21 +--
+ arch/arm64/Kconfig                      |   2 +-
+ arch/ia64/Kconfig                       |   2 +-
+ arch/ia64/kernel/topology.c             |   5 +-
+ arch/ia64/mm/numa.c                     |   5 +-
+ arch/m68k/Kconfig.cpu                   |  10 --
+ arch/m68k/include/asm/mmzone.h          |  10 --
+ arch/m68k/include/asm/page.h            |   2 +-
+ arch/m68k/include/asm/page_mm.h         |  35 ----
+ arch/m68k/mm/init.c                     |  20 ---
+ arch/mips/Kconfig                       |   2 +-
+ arch/mips/include/asm/mmzone.h          |   8 +-
+ arch/mips/include/asm/page.h            |   2 +-
+ arch/mips/mm/init.c                     |   7 +-
+ arch/nds32/include/asm/memory.h         |   6 -
+ arch/powerpc/Kconfig                    |   2 +-
+ arch/powerpc/include/asm/mmzone.h       |   4 +-
+ arch/powerpc/kernel/setup_64.c          |   2 +-
+ arch/powerpc/kernel/smp.c               |   2 +-
+ arch/powerpc/kexec/core.c               |   4 +-
+ arch/powerpc/mm/Makefile                |   2 +-
+ arch/powerpc/mm/mem.c                   |   4 +-
+ arch/riscv/Kconfig                      |   2 +-
+ arch/s390/Kconfig                       |   2 +-
+ arch/sh/include/asm/mmzone.h            |   4 +-
+ arch/sh/kernel/topology.c               |   2 +-
+ arch/sh/mm/Kconfig                      |   2 +-
+ arch/sh/mm/init.c                       |   2 +-
+ arch/sparc/Kconfig                      |   2 +-
+ arch/sparc/include/asm/mmzone.h         |   4 +-
+ arch/sparc/kernel/smp_64.c              |   2 +-
+ arch/sparc/mm/init_64.c                 |  12 +-
+ arch/x86/Kconfig                        |   2 +-
+ arch/x86/kernel/setup_percpu.c          |   6 +-
+ arch/x86/mm/init_32.c                   |   4 +-
+ arch/xtensa/include/asm/page.h          |   4 -
+ include/asm-generic/memory_model.h      |  37 +---
+ include/asm-generic/topology.h          |   2 +-
+ include/linux/gfp.h                     |   4 +-
+ include/linux/memblock.h                |   6 +-
+ include/linux/mm.h                      |   4 +-
+ include/linux/mmzone.h                  |  20 ++-
+ kernel/crash_core.c                     |   4 +-
+ mm/Kconfig                              |  36 +---
+ mm/memblock.c                           |   8 +-
+ mm/memory.c                             |   3 +-
+ mm/page_alloc.c                         |  25 +--
+ mm/page_ext.c                           |   2 +-
+ 67 files changed, 101 insertions(+), 911 deletions(-)
+ delete mode 100644 arch/alpha/include/asm/mmzone.h
+ delete mode 100644 arch/alpha/mm/numa.c
+ delete mode 100644 arch/arc/include/asm/mmzone.h
+ delete mode 100644 arch/m68k/include/asm/mmzone.h
+
+
+base-commit: c4681547bcce777daf576925a966ffa824edd09d
+-- 
+2.28.0
 
