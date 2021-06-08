@@ -2,86 +2,137 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 261D9C4743D
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 08:26:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2678CC4743D
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 08:32:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0FFA761351
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 08:26:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0D90561285
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 08:32:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231434AbhFHI2F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Jun 2021 04:28:05 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:3797 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231286AbhFHI16 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Jun 2021 04:27:58 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Fzjqq337jzWskM;
-        Tue,  8 Jun 2021 16:21:11 +0800 (CST)
-Received: from dggpemm500001.china.huawei.com (7.185.36.107) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Tue, 8 Jun 2021 16:25:59 +0800
-Received: from localhost.localdomain.localdomain (10.175.113.25) by
- dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Tue, 8 Jun 2021 16:25:58 +0800
-From:   Kefeng Wang <wangkefeng.wang@huawei.com>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <linux-mm@kvack.org>, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        "Heiko Carstens" <hca@linux.ibm.com>,
+        id S231133AbhFHIeN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Jun 2021 04:34:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52906 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231338AbhFHIeK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 8 Jun 2021 04:34:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AAF4561183;
+        Tue,  8 Jun 2021 08:32:09 +0000 (UTC)
+Date:   Tue, 8 Jun 2021 09:32:07 +0100
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Marek Kedzierski <mkedzier@redhat.com>,
+        Hui Zhu <teawater@gmail.com>,
+        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+        Wei Yang <richard.weiyang@linux.alibaba.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+        linux-acpi@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        "Christian Borntraeger" <borntraeger@de.ibm.com>,
-        <linux-s390@vger.kernel.org>
-Subject: [PATCH v3 resend 13/15] s390: convert to setup_initial_init_mm()
-Date:   Tue, 8 Jun 2021 16:34:16 +0800
-Message-ID: <20210608083418.137226-14-wangkefeng.wang@huawei.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210608083418.137226-1-wangkefeng.wang@huawei.com>
-References: <20210608083418.137226-1-wangkefeng.wang@huawei.com>
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Baoquan He <bhe@redhat.com>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Sergei Trofimovich <slyfox@gentoo.org>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Michel Lespinasse <michel@lespinasse.org>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Joe Perches <joe@perches.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Jia He <justin.he@arm.com>,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org
+Subject: Re: [PATCH v1 04/12] mm/memory_hotplug: remove nid parameter from
+ arch_remove_memory()
+Message-ID: <20210608083206.GE17957@arm.com>
+References: <20210607195430.48228-1-david@redhat.com>
+ <20210607195430.48228-5-david@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.113.25]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpemm500001.china.huawei.com (7.185.36.107)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210607195430.48228-5-david@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use setup_initial_init_mm() helper to simplify code.
+On Mon, Jun 07, 2021 at 09:54:22PM +0200, David Hildenbrand wrote:
+> The parameter is unused, let's remove it.
+> 
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: Andy Lutomirski <luto@kernel.org>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: x86@kernel.org
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+> Cc: Ard Biesheuvel <ardb@kernel.org>
+> Cc: Mike Rapoport <rppt@kernel.org>
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+> Cc: Baoquan He <bhe@redhat.com>
+> Cc: Laurent Dufour <ldufour@linux.ibm.com>
+> Cc: Sergei Trofimovich <slyfox@gentoo.org>
+> Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+> Cc: Michel Lespinasse <michel@lespinasse.org>
+> Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+> Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+> Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+> Cc: Joe Perches <joe@perches.com>
+> Cc: Pierre Morel <pmorel@linux.ibm.com>
+> Cc: Jia He <justin.he@arm.com>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-ia64@vger.kernel.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-sh@vger.kernel.org
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/arm64/mm/mmu.c            | 3 +--
 
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
----
- arch/s390/kernel/setup.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
-
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 5aab59ad5688..e1793ed43510 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -1119,10 +1119,7 @@ void __init setup_arch(char **cmdline_p)
- 
-         ROOT_DEV = Root_RAM0;
- 
--	init_mm.start_code = (unsigned long) _text;
--	init_mm.end_code = (unsigned long) _etext;
--	init_mm.end_data = (unsigned long) _edata;
--	init_mm.brk = (unsigned long) _end;
-+	setup_initial_init_mm(_text, _etext, _edata, _end);
- 
- 	if (IS_ENABLED(CONFIG_EXPOLINE_AUTO))
- 		nospec_auto_detect();
--- 
-2.26.2
-
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
