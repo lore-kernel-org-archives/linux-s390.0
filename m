@@ -2,160 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42ED0C4743E
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 12:40:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8B44C4743D
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 14:53:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 27E2F6101A
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 12:40:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ADDBE6124B
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 14:53:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232607AbhFHMlz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Jun 2021 08:41:55 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32480 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S232529AbhFHMly (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Jun 2021 08:41:54 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 158CYaR1017242;
-        Tue, 8 Jun 2021 08:40:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=dde8jdUZxgUWIBFYKAHf8IUHpkwFAR1SGhJH84IOhus=;
- b=WyQ/7ySMeBVaTEpQ+diS5ytlHHlaEi5vLeyywiH7byz1rdq+GJF9QM14UOOR/uBcIMQu
- FOkaWdqjQjG8bB4FmJV4a3rvZbIpyZjCyQQarvL0eORZUElCkDTljS0mdlwglJHVoCUH
- bOfPl/jp9Nj1l4Al7Hj3zduHkhluUBPT2yCEqTuJgEIFaxGvy/IVLMHk3cYpHW+OKig5
- dJ2CXlbO5yzj3JzPXa8U/ibcYU2qNX71Vq0oUE1DCVRwBQYMxFM32JyK8CRRuMjMry/q
- 1H5t9+Yics6HmtJZpsgKIa4a40tZX1khFg5l3HhDzl35FfvX8jiDcNJeTolpOhIGYire 0g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3926q3bk77-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Jun 2021 08:40:01 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 158CZfF3024572;
-        Tue, 8 Jun 2021 08:40:00 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3926q3bk5u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Jun 2021 08:40:00 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 158CXXLK010329;
-        Tue, 8 Jun 2021 12:39:58 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04fra.de.ibm.com with ESMTP id 3900w88uh0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Jun 2021 12:39:58 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 158CdtHJ31588846
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 8 Jun 2021 12:39:55 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6E13F4C05A;
-        Tue,  8 Jun 2021 12:39:55 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 59C0D4C050;
-        Tue,  8 Jun 2021 12:39:55 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue,  8 Jun 2021 12:39:55 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id E27F8E014D; Tue,  8 Jun 2021 14:39:54 +0200 (CEST)
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-To:     pbonzini@redhat.com
-Cc:     borntraeger@de.ibm.com, bgardon@google.com, dmatlack@google.com,
-        drjones@redhat.com, frankja@linux.ibm.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, peterx@redhat.com,
-        venkateshs@chromium.org
-Subject: [PATCH v2] KVM: selftests: introduce P47V64 for s390x
-Date:   Tue,  8 Jun 2021 14:39:54 +0200
-Message-Id: <20210608123954.10991-1-borntraeger@de.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <4d6513f3-d921-dff0-d883-51c6dbdcbe39@de.ibm.com>
-References: <4d6513f3-d921-dff0-d883-51c6dbdcbe39@de.ibm.com>
+        id S233288AbhFHOzr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Jun 2021 10:55:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36684 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232833AbhFHOzq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Jun 2021 10:55:46 -0400
+Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA078C061787;
+        Tue,  8 Jun 2021 07:53:53 -0700 (PDT)
+Received: by mail-vs1-xe2f.google.com with SMTP id f11so11019880vst.0;
+        Tue, 08 Jun 2021 07:53:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=2AJ2s6Swi7DKePDYPTjpM9W7XfKGuXx2NmxnXLQgYSU=;
+        b=rU2pKJ75Y3/QHhh8al8WEHFkA1xcRM5SZMWEuWTFwhfJJj/V+31x/44DQ1/ocvOPg+
+         HHLB+cX2JzVE7e8VyhwDv4Qz2FVNR+zh+m0OixPYjyc4fzjuukhztIpMy0r4QCqs9ENM
+         rx2wn2LyftAjOv4hRMViR3COc1TqDPy9Jwcq9YGNqCboxfBQc5R+uHuQkEmoWcUMg/uD
+         GgTRTBH9LOsD2SMP7YGpIDk7kjlQlU6IpzX1idxEjiKF6VTF7R6q/SsI4HkaBei2kO/c
+         foGKHLzxbvnAfZr24OLQ0mXOUtMYfCqu0p3aPHXa31jtaApPg9eDz4MFF332lbCsxpOF
+         vhTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=2AJ2s6Swi7DKePDYPTjpM9W7XfKGuXx2NmxnXLQgYSU=;
+        b=D4riTu+GYWyLpk4htmmpUOp//a4v0AguE0Z0xrLAcTS4VYON/XHr2P917+FNf7oe/6
+         JstzC4vbnA9ocx6zWvuDO+iUwBNqMnQjhR1AGfYIU5Z14HNW2zWoAgLkvl9KJbmTKWV9
+         66Bluy+vYTZd5Q5bPgtLaIV9iBA6DwmuXBSvuNCVfDbPPDxhP+fj1l0kPG3OWU7nstXM
+         /jWm+2hFhu+safn732hzQR4ClEk55qByl0iPT7dfF/Ut40/PQkXng0LlXRxkyqYeFB+9
+         fBTfyRbGZm0Bx4tvgdFoE5zrXaHPQfryJc6ieTF5IPp2d5zABdTzQ6COvuDOfk7s8wnZ
+         /ofg==
+X-Gm-Message-State: AOAM530niIKkmnn81rPS+u1KlNCItTSihfYBSoqGD1/fzjisqJQRTV0n
+        95Jf382kH8y3U3dM5UvUlANZOD3Jr0NiVXHD+Bw=
+X-Google-Smtp-Source: ABdhPJyRLWrfWEbRY82WKzbAaqxe+Tz0Rq9l4OoSLSgaPe9ZQ71sH6V/8n9uYyj4peJXY7ySMuwi8lVHUHfIxXWhTlU=
+X-Received: by 2002:a67:ed5a:: with SMTP id m26mr149235vsp.59.1623164030307;
+ Tue, 08 Jun 2021 07:53:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ZdzJW7DTl0BPwpPi4RDy6q7bayCcz98d
-X-Proofpoint-ORIG-GUID: _mRzglErmW20Yqs7XnXUlI6wlnxbF1LP
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-08_09:2021-06-04,2021-06-08 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 spamscore=0
- malwarescore=0 mlxlogscore=932 adultscore=0 phishscore=0 mlxscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106080083
+References: <20210608083418.137226-1-wangkefeng.wang@huawei.com> <20210608083418.137226-2-wangkefeng.wang@huawei.com>
+In-Reply-To: <20210608083418.137226-2-wangkefeng.wang@huawei.com>
+From:   Souptick Joarder <jrdr.linux@gmail.com>
+Date:   Tue, 8 Jun 2021 20:23:38 +0530
+Message-ID: <CAFqt6zYmCQ=wxEjnOJ6fgJWYQyFajBuxWD=UT_D-WjWUS_4pcw@mail.gmail.com>
+Subject: Re: [PATCH v3 resend 01/15] mm: add setup_initial_init_mm() helper
+To:     Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, Linux-MM <linux-mm@kvack.org>,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        uclinux-h8-devel@lists.sourceforge.jp,
+        linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-sh@vger.kernel.org, linux-s390@vger.kernel.org,
+        X86 ML <x86@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-s390x can have up to 47bits of physical guest and 64bits of virtual
-address  bits. Add a new address mode to avoid errors of testcases
-going beyond 47bits.
+On Tue, Jun 8, 2021 at 1:56 PM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
+>
+> Add setup_initial_init_mm() helper to setup kernel text,
+> data and brk.
+>
+> Cc: linux-snps-arc@lists.infradead.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-csky@vger.kernel.org
+> Cc: uclinux-h8-devel@lists.sourceforge.jp
+> Cc: linux-m68k@lists.linux-m68k.org
+> Cc: openrisc@lists.librecores.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-riscv@lists.infradead.org
+> Cc: linux-sh@vger.kernel.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: x86@kernel.org
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> ---
+>  include/linux/mm.h | 3 +++
+>  mm/init-mm.c       | 9 +++++++++
+>  2 files changed, 12 insertions(+)
+>
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index c274f75efcf9..02aa057540b7 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -244,6 +244,9 @@ int __add_to_page_cache_locked(struct page *page, struct address_space *mapping,
+>
+>  #define lru_to_page(head) (list_entry((head)->prev, struct page, lru))
+>
+> +void setup_initial_init_mm(void *start_code, void *end_code,
+> +                          void *end_data, void *brk);
+> +
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
-v1->v2:
-- remove wrong comment
-- use 5 levels of page tables
- tools/testing/selftests/kvm/include/kvm_util.h | 3 ++-
- tools/testing/selftests/kvm/lib/kvm_util.c     | 5 +++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+Gentle query -> is there any limitation to add inline functions in
+setup_arch() functions ?
 
-diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
-index fcd8e3855111..b602552b1ed0 100644
---- a/tools/testing/selftests/kvm/include/kvm_util.h
-+++ b/tools/testing/selftests/kvm/include/kvm_util.h
-@@ -43,6 +43,7 @@ enum vm_guest_mode {
- 	VM_MODE_P40V48_4K,
- 	VM_MODE_P40V48_64K,
- 	VM_MODE_PXXV48_4K,	/* For 48bits VA but ANY bits PA */
-+	VM_MODE_P47V64_4K,
- 	NUM_VM_MODES,
- };
- 
-@@ -60,7 +61,7 @@ enum vm_guest_mode {
- 
- #elif defined(__s390x__)
- 
--#define VM_MODE_DEFAULT			VM_MODE_P52V48_4K
-+#define VM_MODE_DEFAULT			VM_MODE_P47V64_4K
- #define MIN_PAGE_SHIFT			12U
- #define ptes_per_page(page_size)	((page_size) / 16)
- 
-diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
-index 28e528c19d28..b126fab6c4e1 100644
---- a/tools/testing/selftests/kvm/lib/kvm_util.c
-+++ b/tools/testing/selftests/kvm/lib/kvm_util.c
-@@ -175,6 +175,7 @@ const char *vm_guest_mode_string(uint32_t i)
- 		[VM_MODE_P40V48_4K]	= "PA-bits:40,  VA-bits:48,  4K pages",
- 		[VM_MODE_P40V48_64K]	= "PA-bits:40,  VA-bits:48, 64K pages",
- 		[VM_MODE_PXXV48_4K]	= "PA-bits:ANY, VA-bits:48,  4K pages",
-+		[VM_MODE_P47V64_4K]	= "PA-bits:47,  VA-bits:64,  4K pages",
- 	};
- 	_Static_assert(sizeof(strings)/sizeof(char *) == NUM_VM_MODES,
- 		       "Missing new mode strings?");
-@@ -192,6 +193,7 @@ const struct vm_guest_mode_params vm_guest_mode_params[] = {
- 	{ 40, 48,  0x1000, 12 },
- 	{ 40, 48, 0x10000, 16 },
- 	{  0,  0,  0x1000, 12 },
-+	{ 47, 64,  0x1000, 12 },
- };
- _Static_assert(sizeof(vm_guest_mode_params)/sizeof(struct vm_guest_mode_params) == NUM_VM_MODES,
- 	       "Missing new mode params?");
-@@ -277,6 +279,9 @@ struct kvm_vm *vm_create(enum vm_guest_mode mode, uint64_t phy_pages, int perm)
- 		TEST_FAIL("VM_MODE_PXXV48_4K not supported on non-x86 platforms");
- #endif
- 		break;
-+	case VM_MODE_P47V64_4K:
-+		vm->pgtable_levels = 5;
-+		break;
- 	default:
- 		TEST_FAIL("Unknown guest mode, mode: 0x%x", mode);
- 	}
--- 
-2.31.1
-
+>  /*
+>   * Linux kernel virtual memory manager primitives.
+>   * The idea being to have a "virtual" mm in the same way
+> diff --git a/mm/init-mm.c b/mm/init-mm.c
+> index 153162669f80..b4a6f38fb51d 100644
+> --- a/mm/init-mm.c
+> +++ b/mm/init-mm.c
+> @@ -40,3 +40,12 @@ struct mm_struct init_mm = {
+>         .cpu_bitmap     = CPU_BITS_NONE,
+>         INIT_MM_CONTEXT(init_mm)
+>  };
+> +
+> +void setup_initial_init_mm(void *start_code, void *end_code,
+> +                          void *end_data, void *brk)
+> +{
+> +       init_mm.start_code = (unsigned long)start_code;
+> +       init_mm.end_code = (unsigned long)end_code;
+> +       init_mm.end_data = (unsigned long)end_data;
+> +       init_mm.brk = (unsigned long)brk;
+> +}
+> --
+> 2.26.2
+>
+>
