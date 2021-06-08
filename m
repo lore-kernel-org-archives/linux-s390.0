@@ -2,133 +2,155 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77C54C47082
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 15:14:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4CDEC47082
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 16:41:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 615B06128A
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 15:14:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8EFDB610F8
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Jun 2021 16:41:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232287AbhFHPQc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Jun 2021 11:16:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41196 "EHLO
+        id S231792AbhFHQnf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Jun 2021 12:43:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232116AbhFHPQb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Jun 2021 11:16:31 -0400
-Received: from mail-vk1-xa36.google.com (mail-vk1-xa36.google.com [IPv6:2607:f8b0:4864:20::a36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88BF9C061574;
-        Tue,  8 Jun 2021 08:14:21 -0700 (PDT)
-Received: by mail-vk1-xa36.google.com with SMTP id k71so234426vka.11;
-        Tue, 08 Jun 2021 08:14:21 -0700 (PDT)
+        with ESMTP id S231175AbhFHQnf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Jun 2021 12:43:35 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A499FC061787
+        for <linux-s390@vger.kernel.org>; Tue,  8 Jun 2021 09:41:42 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id 11so10934231plk.12
+        for <linux-s390@vger.kernel.org>; Tue, 08 Jun 2021 09:41:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=O1gHl02oivo3RqMJKlwA/A5dzOE7PgpnMHshZI9Ylrs=;
-        b=q/pGziiOz9jkwf1xpb1EEOjAPz/8OP9lR8P5rwugXRCKdIw+1wS1ArDWbo56DTgYcO
-         2xIIfHxWOdAkxjck+U0UFvbyJXLOxqC0e39gdVGuoyznrtl6Kqsbm0vXEM9F9Ph6UxlB
-         rR5msRf1tYIkQmYvAoVpDNmbWTNV7I44HNDPmtNDKlNk0+jSHN0zTfRpSQal7ClgWNKL
-         nt58hzE/ILIPgRy01To/yIbhd4Nn1FvYEU+6H+m4XZ6Yl5ZdcJKv99WcwWeAt69su8a1
-         jHh7JWQyepBhzoAemaPXbFi97EGcaWlnBbUsAZgHFnVI4KURGRzpgTzD9HaiwUKNr0lJ
-         8aOA==
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=b/MZpiR66ewTSim1WwCgmLNKDwnWD3pufYpqwYfLPKU=;
+        b=eppItGX1DgZiHMFm/WaH4b6ozdA44efGectWI1T2JKxSAAS0Osf16y7A2zCxg4TQBg
+         K9YrCHhg6ZQuXCXLl+5ZWKAIJ4uWKQKGATy79/XnCMTwppi1cXc8Z/R9UUKJhLR4k4mm
+         7V7ULWc/F2ufJoOGyi1vMLbpWgQZ985RF//a5Bi1Cd21z3jyKj9VjnjMmTblL0dXsQw5
+         sWnQ8Sd+kvZCBiuDQPwB9heuWIc3dM4BH3XfdhVugKP8YyV0zxwOHvRT14pieUjJasps
+         m05wg7SkpadjM8e5a4CDBQEFETfiSA8B855xkvVGqH0qzJ8D4X9wKcy4GkztAs3MPicV
+         SY2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=O1gHl02oivo3RqMJKlwA/A5dzOE7PgpnMHshZI9Ylrs=;
-        b=KbbPBs6QDzECgm96/DOsRDjdmqUJnnO6UBzF975xszySLWG7M9rJxY7YJrBBv+01rQ
-         71E/+mqQcsOEKCi/6ye9gfy/kKTSJ0MnsrL1P9Vr1VDEgvDT6OgpevXWv/QX9hW2vSyC
-         HdoCYhn8/g2M7a5EoOVVzmcWemx3czdH9AkPD2FDAWlc9YQeaP/yPiFv3ntlNJqu94Fu
-         bwM4qQ64NRJCYqwlkxNG1cjKH2QmoT2YatfYt/Fi/S2R13espuSrFKCfxhb3s9XKq8iu
-         k711qvgchVCQaIMgXaPyFy9e1/FQ1DJfgtJXsfFxHN+LiLdNfvIOiQ5LO/Gd2P/0IV0C
-         xzhQ==
-X-Gm-Message-State: AOAM532deFgQB6epF4q8ySf/ObUt/UXMCjB58Ydlk+/S9NAhY8n1jJ+A
-        iCd327Lb/AjV1ga1Pkh1zGDHT92frSzcdA23qhs=
-X-Google-Smtp-Source: ABdhPJzvEmzWuahJjCnq+ZMJixhpkm3KNp6kok+q20Al/eAGM2mP9WokEC+P56s7XJVWAW/iqzmnjaTihV1wlYq26Ug=
-X-Received: by 2002:a05:6122:a1b:: with SMTP id 27mr387134vkn.23.1623165260736;
- Tue, 08 Jun 2021 08:14:20 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=b/MZpiR66ewTSim1WwCgmLNKDwnWD3pufYpqwYfLPKU=;
+        b=ZYbAH6FKBgFlyehR4Xgj/hMI3chHr5RUsmY4s0R8qOsvu48BMAuyYyr76imzov4xwk
+         LIdqh7kYzIuu8xjSuPbC1WBWoEOSXqE6JyM7WVtxQ9I0opbnCgu4fWGWCw+jrFw9YVoL
+         RDbQ1lw59GOQDu0QSezDm0k4/OwTCMT42W73/hetoUe4/0vAtISc/4PoBSdZs/s3UlP/
+         MU3yoDPNGb6gDjKzK8dWEDnyJi5wPdvzt6cBbjqk+N5Ot30gJSFpGedyF+4WOr4ULA2t
+         EcKmJyJwxo76XoEaP72riXu9alGH/Ktlz3+HQUYXzVW+iGigh9so4eKBr5EOpKtHXT/8
+         VR2Q==
+X-Gm-Message-State: AOAM533l+8Z5tlJ4nFguZ8TKJUE/aipteJ0Am/25Q+k5+ul+EQEwSSJv
+        GgUfYwwb1OsTk8BhHnsPaSNL3g==
+X-Google-Smtp-Source: ABdhPJyLX/erWPaMyVyNgXSpSeNvJjb8Ds8CeGzeCnkGsW/Qodl00uQSPBRqaRwMmuoqc4szSEv3FA==
+X-Received: by 2002:a17:902:d88e:b029:10e:601e:d779 with SMTP id b14-20020a170902d88eb029010e601ed779mr853444plz.82.1623170500557;
+        Tue, 08 Jun 2021 09:41:40 -0700 (PDT)
+Received: from google.com (254.80.82.34.bc.googleusercontent.com. [34.82.80.254])
+        by smtp.gmail.com with ESMTPSA id b20sm14218333pjh.11.2021.06.08.09.41.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Jun 2021 09:41:39 -0700 (PDT)
+Date:   Tue, 8 Jun 2021 16:41:36 +0000
+From:   David Matlack <dmatlack@google.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     pbonzini@redhat.com, bgardon@google.com, drjones@redhat.com,
+        frankja@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, peterx@redhat.com,
+        venkateshs@chromium.org
+Subject: Re: [PATCH v2] KVM: selftests: introduce P47V64 for s390x
+Message-ID: <YL+dwGhYheOiliZG@google.com>
+References: <4d6513f3-d921-dff0-d883-51c6dbdcbe39@de.ibm.com>
+ <20210608123954.10991-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-References: <20210608083418.137226-1-wangkefeng.wang@huawei.com>
- <20210608083418.137226-2-wangkefeng.wang@huawei.com> <CAFqt6zYmCQ=wxEjnOJ6fgJWYQyFajBuxWD=UT_D-WjWUS_4pcw@mail.gmail.com>
- <34f88fdc-1842-7954-bccc-0142a8d66eea@csgroup.eu>
-In-Reply-To: <34f88fdc-1842-7954-bccc-0142a8d66eea@csgroup.eu>
-From:   Souptick Joarder <jrdr.linux@gmail.com>
-Date:   Tue, 8 Jun 2021 20:44:08 +0530
-Message-ID: <CAFqt6zbV32+FsEFywqb6vk90tQ442S63CO+bh=2h8OxxutYQEQ@mail.gmail.com>
-Subject: Re: [PATCH v3 resend 01/15] mm: add setup_initial_init_mm() helper
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     Kefeng Wang <wangkefeng.wang@huawei.com>,
-        uclinux-h8-devel@lists.sourceforge.jp, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, X86 ML <x86@kernel.org>,
-        linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
-        Linux-MM <linux-mm@kvack.org>, linux-m68k@lists.linux-m68k.org,
-        openrisc@lists.librecores.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210608123954.10991-1-borntraeger@de.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 8, 2021 at 8:27 PM Christophe Leroy
-<christophe.leroy@csgroup.eu> wrote:
->
->
->
-> Le 08/06/2021 =C3=A0 16:53, Souptick Joarder a =C3=A9crit :
-> > On Tue, Jun 8, 2021 at 1:56 PM Kefeng Wang <wangkefeng.wang@huawei.com>=
- wrote:
-> >>
-> >> Add setup_initial_init_mm() helper to setup kernel text,
-> >> data and brk.
-> >>
-> >> Cc: linux-snps-arc@lists.infradead.org
-> >> Cc: linux-arm-kernel@lists.infradead.org
-> >> Cc: linux-csky@vger.kernel.org
-> >> Cc: uclinux-h8-devel@lists.sourceforge.jp
-> >> Cc: linux-m68k@lists.linux-m68k.org
-> >> Cc: openrisc@lists.librecores.org
-> >> Cc: linuxppc-dev@lists.ozlabs.org
-> >> Cc: linux-riscv@lists.infradead.org
-> >> Cc: linux-sh@vger.kernel.org
-> >> Cc: linux-s390@vger.kernel.org
-> >> Cc: x86@kernel.org
-> >> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> >> ---
-> >>   include/linux/mm.h | 3 +++
-> >>   mm/init-mm.c       | 9 +++++++++
-> >>   2 files changed, 12 insertions(+)
-> >>
-> >> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> >> index c274f75efcf9..02aa057540b7 100644
-> >> --- a/include/linux/mm.h
-> >> +++ b/include/linux/mm.h
-> >> @@ -244,6 +244,9 @@ int __add_to_page_cache_locked(struct page *page, =
-struct address_space *mapping,
-> >>
-> >>   #define lru_to_page(head) (list_entry((head)->prev, struct page, lru=
-))
-> >>
-> >> +void setup_initial_init_mm(void *start_code, void *end_code,
-> >> +                          void *end_data, void *brk);
-> >> +
-> >
-> > Gentle query -> is there any limitation to add inline functions in
-> > setup_arch() functions ?
->
-> Kefeng just followed comment from Mike I guess, see
-> https://patchwork.ozlabs.org/project/linuxppc-dev/patch/20210604070633.32=
-363-2-wangkefeng.wang@huawei.com/#2696253
+On Tue, Jun 08, 2021 at 02:39:54PM +0200, Christian Borntraeger wrote:
+> s390x can have up to 47bits of physical guest and 64bits of virtual
+> address  bits. Add a new address mode to avoid errors of testcases
+> going beyond 47bits.
 
-Ok.
->
-> Christophe
->
+Thanks for the fix. My apologies for breaking s390.
+
+The patch "KVM: selftests: Fix 32-bit truncation of vm_get_max_gfn()"
+has already been added to stable so you may want to add the following:
+
+Fixes: ef4c9f4f6546 ("KVM: selftests: Fix 32-bit truncation of vm_get_max_gfn()")
+Cc: stable@vger.kernel.org
+
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+Reviewed-by: David Matlack <dmatlack@google.com>
+
+> ---
+> v1->v2:
+> - remove wrong comment
+> - use 5 levels of page tables
+>  tools/testing/selftests/kvm/include/kvm_util.h | 3 ++-
+>  tools/testing/selftests/kvm/lib/kvm_util.c     | 5 +++++
+>  2 files changed, 7 insertions(+), 1 deletion(-)
+> 
+> diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
+> index fcd8e3855111..b602552b1ed0 100644
+> --- a/tools/testing/selftests/kvm/include/kvm_util.h
+> +++ b/tools/testing/selftests/kvm/include/kvm_util.h
+> @@ -43,6 +43,7 @@ enum vm_guest_mode {
+>  	VM_MODE_P40V48_4K,
+>  	VM_MODE_P40V48_64K,
+>  	VM_MODE_PXXV48_4K,	/* For 48bits VA but ANY bits PA */
+> +	VM_MODE_P47V64_4K,
+>  	NUM_VM_MODES,
+>  };
+>  
+> @@ -60,7 +61,7 @@ enum vm_guest_mode {
+>  
+>  #elif defined(__s390x__)
+>  
+> -#define VM_MODE_DEFAULT			VM_MODE_P52V48_4K
+> +#define VM_MODE_DEFAULT			VM_MODE_P47V64_4K
+>  #define MIN_PAGE_SHIFT			12U
+>  #define ptes_per_page(page_size)	((page_size) / 16)
+>  
+> diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
+> index 28e528c19d28..b126fab6c4e1 100644
+> --- a/tools/testing/selftests/kvm/lib/kvm_util.c
+> +++ b/tools/testing/selftests/kvm/lib/kvm_util.c
+> @@ -175,6 +175,7 @@ const char *vm_guest_mode_string(uint32_t i)
+>  		[VM_MODE_P40V48_4K]	= "PA-bits:40,  VA-bits:48,  4K pages",
+>  		[VM_MODE_P40V48_64K]	= "PA-bits:40,  VA-bits:48, 64K pages",
+>  		[VM_MODE_PXXV48_4K]	= "PA-bits:ANY, VA-bits:48,  4K pages",
+> +		[VM_MODE_P47V64_4K]	= "PA-bits:47,  VA-bits:64,  4K pages",
+>  	};
+>  	_Static_assert(sizeof(strings)/sizeof(char *) == NUM_VM_MODES,
+>  		       "Missing new mode strings?");
+> @@ -192,6 +193,7 @@ const struct vm_guest_mode_params vm_guest_mode_params[] = {
+>  	{ 40, 48,  0x1000, 12 },
+>  	{ 40, 48, 0x10000, 16 },
+>  	{  0,  0,  0x1000, 12 },
+> +	{ 47, 64,  0x1000, 12 },
+>  };
+>  _Static_assert(sizeof(vm_guest_mode_params)/sizeof(struct vm_guest_mode_params) == NUM_VM_MODES,
+>  	       "Missing new mode params?");
+> @@ -277,6 +279,9 @@ struct kvm_vm *vm_create(enum vm_guest_mode mode, uint64_t phy_pages, int perm)
+>  		TEST_FAIL("VM_MODE_PXXV48_4K not supported on non-x86 platforms");
+>  #endif
+>  		break;
+> +	case VM_MODE_P47V64_4K:
+> +		vm->pgtable_levels = 5;
+> +		break;
+>  	default:
+>  		TEST_FAIL("Unknown guest mode, mode: 0x%x", mode);
+>  	}
+> -- 
+> 2.31.1
+> 
