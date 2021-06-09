@@ -1,173 +1,76 @@
 Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Level: *
+X-Spam-Status: No, score=1.0 required=3.0 tests=BAYES_50,DKIMWL_BL,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0295C48BCD
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 13:52:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1FDFC48BCD
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:20:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AE3D061182
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 13:52:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9A214613B1
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:20:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236223AbhFINyb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Jun 2021 09:54:31 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18192 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236601AbhFINya (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 09:54:30 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 159DX8SS035352;
-        Wed, 9 Jun 2021 09:52:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=reply-to : subject : to
- : cc : references : from : message-id : date : mime-version : in-reply-to
- : content-type : content-transfer-encoding; s=pp1;
- bh=GMrzNFFgUs7qfkOL7nPr/So4LfCK/9yU/maWUS/v4GQ=;
- b=gltyn1dAXdf7FysBD5ET4wIwMA+AIhS947dY+EGajsZvS7aiBKJwB0/3W1NjUepC0Dtd
- KX618YsbhGVgJXKc1xTzPI3eUcWlzT0a93gv17rSXKkgQa/hBkHwN1WlSrotWLCw+SLP
- X34wesKUgAKm5+bf6ADldFBUl+9FRZ3GEwjaI5MGu0radkWhE6TJygX2IpV0pfb2zP4Q
- b0jbQkJjY+Qg1aG/2+fXIy+39J2bkPDsjkuJQjO2jNeDyb1b21iHw8kqGxtoMNRpXtV3
- RuzXFs9JOY9+xMfp5u+u3ATPGU6powjr8TJyDAMFijvu66k04oBCQc0PDV27SV1Rv5Eh 8A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 392qae6k3v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Jun 2021 09:52:33 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 159Db6EL054161;
-        Wed, 9 Jun 2021 09:52:33 -0400
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 392qae6k39-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Jun 2021 09:52:33 -0400
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 159Dpf5Z017790;
-        Wed, 9 Jun 2021 13:52:31 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma03wdc.us.ibm.com with ESMTP id 3900wa0290-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Jun 2021 13:52:31 +0000
-Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 159DqU3428836282
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 9 Jun 2021 13:52:30 GMT
-Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 56B71AE066;
-        Wed,  9 Jun 2021 13:52:30 +0000 (GMT)
-Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E6710AE060;
-        Wed,  9 Jun 2021 13:52:29 +0000 (GMT)
-Received: from [9.85.129.42] (unknown [9.85.129.42])
-        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed,  9 Jun 2021 13:52:29 +0000 (GMT)
-Reply-To: jjherne@linux.ibm.com
-Subject: Re: [PATCH v16 02/14] s390/vfio-ap: use new AP bus interface to
- search for queue devices
-To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-References: <20210510164423.346858-1-akrowiak@linux.ibm.com>
- <20210510164423.346858-3-akrowiak@linux.ibm.com>
-From:   "Jason J. Herne" <jjherne@linux.ibm.com>
-Organization: IBM
-Message-ID: <06270f45-898b-5869-874d-008e3410c0de@linux.ibm.com>
-Date:   Wed, 9 Jun 2021 09:52:29 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.0
-MIME-Version: 1.0
-In-Reply-To: <20210510164423.346858-3-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ItsiQf8RQRW91hEkkI7sRXtRTrnHgonA
-X-Proofpoint-ORIG-GUID: vdB4Tvs2_hHdyJCk8gapm8qJrmaBkEC6
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-09_04:2021-06-04,2021-06-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 phishscore=0
- spamscore=0 adultscore=0 mlxscore=0 lowpriorityscore=0 bulkscore=0
- impostorscore=0 suspectscore=0 priorityscore=1501 clxscore=1011
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106090067
+        id S237714AbhFIOWo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Jun 2021 10:22:44 -0400
+Received: from flippie-beckerswealthsa.xyz ([62.173.138.170]:50336 "EHLO
+        host.flippie-beckerswealthsa.xyz" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237537AbhFIOWj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 10:22:39 -0400
+Received: from flippie-beckerswealthsa.xyz (ec2-18-118-29-154.us-east-2.compute.amazonaws.com [18.118.29.154])
+        by host.flippie-beckerswealthsa.xyz (Postfix) with ESMTPA id 1474530C3ED7
+        for <linux-s390@vger.kernel.org>; Wed,  9 Jun 2021 15:09:33 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 host.flippie-beckerswealthsa.xyz 1474530C3ED7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=flippie-beckerswealthsa.xyz; s=default; t=1623240574;
+        bh=h0ivQLrZuUWuyEKz/TWb+FP9AASpHhVqOsJtRcwKQV4=;
+        h=Reply-To:From:To:Subject:Date:From;
+        b=jPqVY1C7aFBSVDsXWemQbpY+peMej0Ui3hTvqNKNWEFNX9guvAjF42Sn3lIrqyz0Z
+         UJ0J9UHmVL0yW57k4igCfy8J/KNYqkUQNcOg7LCokthj+PFYMscyxKhGbk+kNhYUVr
+         MzFVZdwkehi32cxVu4Baboq809WFCXqu134mi/hQ=
+DKIM-Filter: OpenDKIM Filter v2.11.0 host.flippie-beckerswealthsa.xyz 1474530C3ED7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=flippie-beckerswealthsa.xyz; s=default; t=1623240574;
+        bh=h0ivQLrZuUWuyEKz/TWb+FP9AASpHhVqOsJtRcwKQV4=;
+        h=Reply-To:From:To:Subject:Date:From;
+        b=jPqVY1C7aFBSVDsXWemQbpY+peMej0Ui3hTvqNKNWEFNX9guvAjF42Sn3lIrqyz0Z
+         UJ0J9UHmVL0yW57k4igCfy8J/KNYqkUQNcOg7LCokthj+PFYMscyxKhGbk+kNhYUVr
+         MzFVZdwkehi32cxVu4Baboq809WFCXqu134mi/hQ=
+Reply-To: jmasuku40@flippiebeckerwealthservices.com
+From:   Jotham Masuku <jmasuku40@flippie-beckerswealthsa.xyz>
+To:     linux-s390@vger.kernel.org
+Subject: Projects
+Date:   09 Jun 2021 12:09:33 +0000
+Message-ID: <20210609120933.A168F55A3598F744@flippie-beckerswealthsa.xyz>
+Mime-Version: 1.0
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/10/21 12:44 PM, Tony Krowiak wrote:
-> This patch refactors the vfio_ap device driver to use the AP bus's
-> ap_get_qdev() function to retrieve the vfio_ap_queue struct containing
-> information about a queue that is bound to the vfio_ap device driver.
-> The bus's ap_get_qdev() function retrieves the queue device from a
-> hashtable keyed by APQN. This is much more efficient than looping over
-> the list of devices attached to the AP bus by several orders of
-> magnitude.
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-> ---
->   drivers/s390/crypto/vfio_ap_ops.c | 23 +++++++++--------------
->   1 file changed, 9 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 757166da947e..8a50aa650b65 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -27,13 +27,6 @@
->   static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
->   static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
->   
-> -static int match_apqn(struct device *dev, const void *data)
-> -{
-> -	struct vfio_ap_queue *q = dev_get_drvdata(dev);
-> -
-> -	return (q->apqn == *(int *)(data)) ? 1 : 0;
-> -}
-> -
->   /**
->    * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
->    * @matrix_mdev: the associated mediated matrix
-> @@ -1253,15 +1246,17 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
->   
->   static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
->   {
-> -	struct device *dev;
-> +	struct ap_queue *queue;
->   	struct vfio_ap_queue *q = NULL;
+Hello there,
 
-The use of q and queue as variable names was a little confusing to me at first. I tried 
-renaming them a few times, the best I could come up with was this:
+I hope this message finds you in good spirits especially during=20
+this challenging time of coronavirus pandemic. I hope you and=20
+your family are well and keeping safe. Anyway, I am Jotham=20
+Masuku, a broker working with Flippiebecker Wealth. I got your=20
+contact (along with few other contacts) through an online=20
+business directory and I thought I should contact you to see if=20
+you are interested in this opportunity. I am contacting you=20
+because one of my high profile clients is interested in investing=20
+abroad and has asked me to look for individuals and companies=20
+with interesting business ideas and projects that he can invest=20
+in. He wants to invest a substantial amount of asset abroad.
 
-struct ap_queue *queue;
-struct vfio_ap_queue *vfio_queue = NULL;
+Please kindly respond back to this email if you are interested in=20
+this opportunity. Once I receive your response, I will give you=20
+more details and we can plan a strategy that will be beneficial=20
+to all parties.
 
-Take it or leave it :) Other than that, LGTM.
-Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
+Best regards
 
-
-> -	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
-> -				 &apqn, match_apqn);
-> -	if (dev) {
-> -		q = dev_get_drvdata(dev);
-> -		put_device(dev);
-> -	}
-> +	queue = ap_get_qdev(apqn);
-> +	if (!queue)
-> +		return NULL;
-> +
-> +	if (queue->ap_dev.device.driver == &matrix_dev->vfio_ap_drv->driver)
-> +		q = dev_get_drvdata(&queue->ap_dev.device);
-> +
-> +	put_device(&queue->ap_dev.device);
->   
->   	return q;
->   }
-> 
-
-
--- 
--- Jason J. Herne (jjherne@linux.ibm.com)
+J Masuku
+Flippiebecker Wealth
