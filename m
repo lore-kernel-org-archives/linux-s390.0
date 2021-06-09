@@ -2,114 +2,96 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63488C48BE8
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:51:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CCB5C48BCF
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:59:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 476EB613BC
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:51:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4FE0D6124C
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:59:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238279AbhFIOw4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Jun 2021 10:52:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59320 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238257AbhFIOw4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 9 Jun 2021 10:52:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2163C6128A;
-        Wed,  9 Jun 2021 14:50:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623250261;
-        bh=svcXYr1x4uog0gl91R41ozY2Q0KNDzZmG4YRGTMMy2A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YkHX/JVfHqUvpWvWXkgg3rdrkk7agHtEIKqaX0vfSpX504lTGaDjO7Qz7iARqzkGp
-         DWsHVY+tAbRsBUSVBkbhVjgZvGY6y/wRIXGMo+CgzooB/zqPomfgnsHX9y3mgTbMXc
-         xGiW+RangNEk+pKIT8UX8w6paGaFQZLDQ+McKqTpjqFKueMHIVGMXJpalfW0Fph76r
-         Lcm2WPwzewVnde/Vu5ujWTdQssxwNbFghUliAxp8Ku3YbSQHaHnLbkGz+awfGrnWGJ
-         yu4qANQoP9p9s4/vzkSPeJiYpDnHVlRdjW4xbBVW2tivL4go8M8laNS3QaNsdGKKc0
-         R1JEjjJpSG45g==
-Date:   Wed, 9 Jun 2021 17:50:50 +0300
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Matt Turner <mattst88@gmail.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Richard Henderson <rth@twiddle.net>,
-        Vineet Gupta <vgupta@synopsys.com>, kexec@lists.infradead.org,
-        alpha <linux-alpha@vger.kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        linux-ia64@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        sparclinux <sparclinux@vger.kernel.org>
-Subject: Re: [PATCH v2 0/9] Remove DISCINTIGMEM memory model
-Message-ID: <YMDVSu00xXGmdCtC@kernel.org>
-References: <20210604064916.26580-1-rppt@kernel.org>
- <CAK8P3a2tZDJDqgr9-1vJrnbDhd_36eKq8LMEznDkU7rvuAnAag@mail.gmail.com>
+        id S235311AbhFIPBa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Jun 2021 11:01:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:55475 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234434AbhFIPB3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 11:01:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1623250775;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nA9PBp+35l2p5P4vytTZuSks3wQXQqDpY2Yq/GrTgTA=;
+        b=Syf0uROVd9iJdoqSC2zOWTHR3xt6rdMwut8e++AgNHptr5iHhhOKDd1zzp1aARMnrzErpn
+        2HB9o5iYVviju0IZuFdA0GLQrgfAn70XsjP9cynt9K6ZjDb7RfLRcgb275wAA2zBLBmCS3
+        M1su6q8pmVf4dXlHNWhoTQucJyBv6OU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-125-gpKs0YE4ObqKHsAATFMK5g-1; Wed, 09 Jun 2021 10:59:33 -0400
+X-MC-Unique: gpKs0YE4ObqKHsAATFMK5g-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 46D8B19611AA;
+        Wed,  9 Jun 2021 14:59:32 +0000 (UTC)
+Received: from [10.36.112.148] (ovpn-112-148.ams2.redhat.com [10.36.112.148])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 82EEB60BD8;
+        Wed,  9 Jun 2021 14:59:26 +0000 (UTC)
+Subject: Re: [kvm-unit-tests PATCH v2 5/7] powerpc: unify header guards
+To:     Cornelia Huck <cohuck@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Andrew Jones <drjones@redhat.com>
+Cc:     kvm@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        kvmarm@lists.cs.columbia.edu, kvm-ppc@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20210609143712.60933-1-cohuck@redhat.com>
+ <20210609143712.60933-6-cohuck@redhat.com>
+From:   Laurent Vivier <lvivier@redhat.com>
+Message-ID: <efeba182-aff5-a953-f691-4ed738e7d526@redhat.com>
+Date:   Wed, 9 Jun 2021 16:59:25 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a2tZDJDqgr9-1vJrnbDhd_36eKq8LMEznDkU7rvuAnAag@mail.gmail.com>
+In-Reply-To: <20210609143712.60933-6-cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Arnd,
-
-On Wed, Jun 09, 2021 at 01:30:39PM +0200, Arnd Bergmann wrote:
-> On Fri, Jun 4, 2021 at 8:49 AM Mike Rapoport <rppt@kernel.org> wrote:
-> >
-> > From: Mike Rapoport <rppt@linux.ibm.com>
-> >
-> > Hi,
-> >
-> > SPARSEMEM memory model was supposed to entirely replace DISCONTIGMEM a
-> > (long) while ago. The last architectures that used DISCONTIGMEM were
-> > updated to use other memory models in v5.11 and it is about the time to
-> > entirely remove DISCONTIGMEM from the kernel.
-> >
-> > This set removes DISCONTIGMEM from alpha, arc and m68k, simplifies memory
-> > model selection in mm/Kconfig and replaces usage of redundant
-> > CONFIG_NEED_MULTIPLE_NODES and CONFIG_FLAT_NODE_MEM_MAP with CONFIG_NUMA
-> > and CONFIG_FLATMEM respectively.
-> >
-> > I've also removed NUMA support on alpha that was BROKEN for more than 15
-> > years.
-> >
-> > There were also minor updates all over arch/ to remove mentions of
-> > DISCONTIGMEM in comments and #ifdefs.
+On 09/06/2021 16:37, Cornelia Huck wrote:
+> Only spapr.h needed a tweak.
 > 
-> Hi Mike and Andrew,
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  powerpc/spapr.h | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-> It looks like everyone is happy with this version so far. How should we merge it
-> for linux-next? I'm happy to take it through the asm-generic tree, but linux-mm
-> would fit at least as well. In case we go for linux-mm, feel free to add
+> diff --git a/powerpc/spapr.h b/powerpc/spapr.h
+> index b41aece07968..3a29598be44f 100644
+> --- a/powerpc/spapr.h
+> +++ b/powerpc/spapr.h
+> @@ -1,6 +1,6 @@
+> -#ifndef _ASMPOWERPC_SPAPR_H_
+> -#define _ASMPOWERPC_SPAPR_H_
+> +#ifndef POWERPC_SPAPR_H
+> +#define POWERPC_SPAPR_H
+>  
+>  #define SPAPR_KERNEL_LOAD_ADDR 0x400000
+>  
+> -#endif /* _ASMPOWERPC_SPAPR_H_ */
+> +#endif /* POWERPC_SPAPR_H */
+> 
 
-Andrew already took to mmotm.
- 
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Laurent Vivier <lvivier@redhat.com>
 
-Thanks!
-
-> for the whole series.
-
--- 
-Sincerely yours,
-Mike.
