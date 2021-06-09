@@ -2,143 +2,186 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88D82C48BCF
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 17:50:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48736C48BCD
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 18:23:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6C431613D2
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 17:50:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F2356128A
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 18:23:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231807AbhFIRwn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Jun 2021 13:52:43 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60678 "EHLO
+        id S229809AbhFISZr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Jun 2021 14:25:47 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21798 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231785AbhFIRwn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 13:52:43 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 159HXGdG062295;
-        Wed, 9 Jun 2021 13:50:35 -0400
+        by vger.kernel.org with ESMTP id S229782AbhFISZr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 14:25:47 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 159I3NE4163251;
+        Wed, 9 Jun 2021 14:23:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
  references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=TsE7K9AEgOY5t7Fl5iXw74bhWOBWGgF7QY2kPSYlNb8=;
- b=of6Ys8gf/aMloMG3AblIDMM4yVktSuQy9oBpdS4zGFyO7uEbhZDtQOghDpgmBl8VVsTi
- oYiLTx7P0nkuNrba8/jLPnosI/n3zQn+eAMiXeATNg6lFFqg1F04v7eGCDQ35zZQt47T
- Rdqb9naZMTghHIZjTkdO1OzJEYkLfw8uA/FerCXn+2EjPVXCb8frUoTosiy6RUMjWMHD
- bYHYDhjyKwVP0KrUrwF95HrpULMRHZ9/QvxddBLMS2zjyuLLK7PUmp5333etOFab3Kqn
- Z+AOxzeCcO06roXiDR+B27PPTEYy97/CcnwNCYA+5WnPN9ENuA1YjTfGNxtmRD++1Pjo lg== 
+ bh=CVnLcPck4luc+7ow1AQPmNX/cTnKh7ymvw2EU+meJFw=;
+ b=VLbD6XsY4+HHrYpezZjkMr5/PhRSnvP91DQfzEuo0P12edMg89gSY/d0Qlp33wi8k+Xz
+ v4GfR6Pw4Jb9aBLoPl/jVu5jDkYWKfFkFUqZSnVgOdooKA4hh0wEqWce45hXJqc0FF12
+ 0M30kPKVcRbC/M/bEayjbqDEgpmRKOJmwmoArFSo27Jc4JiWM75dWHtwgmxhpny/L63i
+ jGkrZlYKlqHoPPt6q5z5yMdUz/NlaPL99vE6grYvTGyZfLIdmsVN229ioyEvxUtl7e4g
+ 8NV2SLGeirRNVMVaDXdTloEfeBqeI0QfT8kuQouU+6N3J49py3YwgTdk4NRhBZqBUouG 7w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39324grcm8-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39311buqsp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Jun 2021 13:50:35 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 159HZ8ho069317;
-        Wed, 9 Jun 2021 13:50:35 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39324grcka-1
+        Wed, 09 Jun 2021 14:23:51 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 159I5MX3174412;
+        Wed, 9 Jun 2021 14:23:50 -0400
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39311buqs5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Jun 2021 13:50:35 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 159HlNHp012435;
-        Wed, 9 Jun 2021 17:50:32 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3900w8jb5t-1
+        Wed, 09 Jun 2021 14:23:50 -0400
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 159IIppA002306;
+        Wed, 9 Jun 2021 18:23:49 GMT
+Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
+        by ppma05wdc.us.ibm.com with ESMTP id 3900w9stev-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Jun 2021 17:50:32 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 159Hncrp27525546
+        Wed, 09 Jun 2021 18:23:49 +0000
+Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
+        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 159INlrI26345752
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 9 Jun 2021 17:49:38 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 39843AE053;
-        Wed,  9 Jun 2021 17:50:29 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3A8EFAE045;
-        Wed,  9 Jun 2021 17:50:28 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.13.5])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  9 Jun 2021 17:50:28 +0000 (GMT)
-Subject: Re: [PATCH v2 1/2] mm/vmalloc: export __vmalloc_node_range
-To:     Uladzislau Rezki <urezki@gmail.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        cohuck@redhat.com, david@redhat.com, linux-mm@kvack.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        David Rientjes <rientjes@google.com>
-References: <20210608180618.477766-1-imbrenda@linux.ibm.com>
- <20210608180618.477766-2-imbrenda@linux.ibm.com>
- <YMDlVdB8m62AhbB7@infradead.org> <20210609182809.7ae07aad@ibm-vm>
- <20210609164919.GA1938@pc638.lan>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <1fec60f1-6479-39a6-f47f-f47166f754f6@de.ibm.com>
-Date:   Wed, 9 Jun 2021 19:50:27 +0200
+        Wed, 9 Jun 2021 18:23:47 GMT
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E9993136060;
+        Wed,  9 Jun 2021 18:23:46 +0000 (GMT)
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A210D136055;
+        Wed,  9 Jun 2021 18:23:45 +0000 (GMT)
+Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.129.35])
+        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Wed,  9 Jun 2021 18:23:45 +0000 (GMT)
+Subject: Re: [PATCH v16 02/14] s390/vfio-ap: use new AP bus interface to
+ search for queue devices
+To:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20210510164423.346858-1-akrowiak@linux.ibm.com>
+ <20210510164423.346858-3-akrowiak@linux.ibm.com>
+ <06270f45-898b-5869-874d-008e3410c0de@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <1c4d2554-956b-e507-a4f2-bf1a68384652@linux.ibm.com>
+Date:   Wed, 9 Jun 2021 14:23:44 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <20210609164919.GA1938@pc638.lan>
+In-Reply-To: <06270f45-898b-5869-874d-008e3410c0de@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: C7pzIybad354Dlmg-WHXAmSDyDEkUBA0
-X-Proofpoint-ORIG-GUID: 8lJefzpcUGju01xPyP9PWcM0k5gaepPN
+X-Proofpoint-GUID: EMlGJZBOK4yBkTU6a6ZqdP2rnvm5jm7w
+X-Proofpoint-ORIG-GUID: l36Cp-5wB5aqxwuBjIhqjYIR3kX49Nr3
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-06-09_07:2021-06-04,2021-06-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
- mlxscore=0 malwarescore=0 phishscore=0 priorityscore=1501 adultscore=0
- suspectscore=0 clxscore=1015 spamscore=0 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106090087
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1015 impostorscore=0 suspectscore=0 mlxscore=0 bulkscore=0
+ mlxlogscore=999 lowpriorityscore=0 spamscore=0 malwarescore=0 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106090091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 09.06.21 18:49, Uladzislau Rezki wrote:
-> On Wed, Jun 09, 2021 at 06:28:09PM +0200, Claudio Imbrenda wrote:
->> On Wed, 9 Jun 2021 16:59:17 +0100
->> Christoph Hellwig <hch@infradead.org> wrote:
+On 6/9/21 9:52 AM, Jason J. Herne wrote:
+> On 5/10/21 12:44 PM, Tony Krowiak wrote:
+>> This patch refactors the vfio_ap device driver to use the AP bus's
+>> ap_get_qdev() function to retrieve the vfio_ap_queue struct containing
+>> information about a queue that is bound to the vfio_ap device driver.
+>> The bus's ap_get_qdev() function retrieves the queue device from a
+>> hashtable keyed by APQN. This is much more efficient than looping over
+>> the list of devices attached to the AP bus by several orders of
+>> magnitude.
 >>
->>> On Tue, Jun 08, 2021 at 08:06:17PM +0200, Claudio Imbrenda wrote:
->>>> The recent patches to add support for hugepage vmalloc mappings
->>>> added a flag for __vmalloc_node_range to allow to request small
->>>> pages. This flag is not accessible when calling vmalloc, the only
->>>> option is to call directly __vmalloc_node_range, which is not
->>>> exported.
->>>>
->>>> This means that a module can't vmalloc memory with small pages.
->>>>
->>>> Case in point: KVM on s390x needs to vmalloc a large area, and it
->>>> needs to be mapped with small pages, because of a hardware
->>>> limitation.
->>>>
->>>> This patch exports __vmalloc_node_range so it can be used in modules
->>>> too.
->>>
->>> No.  I spent a lot of effort to mak sure such a low-level API is
->>> not exported.
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 23 +++++++++--------------
+>>   1 file changed, 9 insertions(+), 14 deletions(-)
 >>
->> ok, but then how can we vmalloc memory with small pages from KVM?
-> Does the s390x support CONFIG_HAVE_ARCH_HUGE_VMALLOC what is arch
-> specific?
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
+>> b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 757166da947e..8a50aa650b65 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -27,13 +27,6 @@
+>>   static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+>>   static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
+>>   -static int match_apqn(struct device *dev, const void *data)
+>> -{
+>> -    struct vfio_ap_queue *q = dev_get_drvdata(dev);
+>> -
+>> -    return (q->apqn == *(int *)(data)) ? 1 : 0;
+>> -}
+>> -
+>>   /**
+>>    * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a 
+>> list
+>>    * @matrix_mdev: the associated mediated matrix
+>> @@ -1253,15 +1246,17 @@ static int vfio_ap_mdev_group_notifier(struct 
+>> notifier_block *nb,
+>>     static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
+>>   {
+>> -    struct device *dev;
+>> +    struct ap_queue *queue;
+>>       struct vfio_ap_queue *q = NULL;
+>
+> The use of q and queue as variable names was a little confusing to me 
+> at first. I tried renaming them a few times, the best I could come up 
+> with was this:
 
-Not yet, but we surely want that for almost everything on s390.
-Only this particular firmware interface does not handle large pages
-for donated memory.
+I am (was) not a fan of the naming convention, but using 'q' to name a 
+struct vfio_ap_queue
+was introduced (not by me) quite some time ago, so rather than 
+introducing a variable name
+change at this juncture, I stuck with it to be consistent with the other 
+places it is used.
 
-> 
-> If not then small pages are used. Or am i missing something?
-> 
-> I agree with Christoph that exporting a low level internals
-> is not a good idea.
+>
+> struct ap_queue *queue;
+> struct vfio_ap_queue *vfio_queue = NULL;
+>
+> Take it or leave it :) Other than that, LGTM.
+> Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
+
+Thanks for your review.
+
+>
+>
+>> -    dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+>> -                 &apqn, match_apqn);
+>> -    if (dev) {
+>> -        q = dev_get_drvdata(dev);
+>> -        put_device(dev);
+>> -    }
+>> +    queue = ap_get_qdev(apqn);
+>> +    if (!queue)
+>> +        return NULL;
+>> +
+>> +    if (queue->ap_dev.device.driver == 
+>> &matrix_dev->vfio_ap_drv->driver)
+>> +        q = dev_get_drvdata(&queue->ap_dev.device);
+>> +
+>> +    put_device(&queue->ap_dev.device);
+>>         return q;
+>>   }
+>>
+>
+>
+
