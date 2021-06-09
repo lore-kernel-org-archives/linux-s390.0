@@ -2,105 +2,76 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE2C6C48BCD
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 15:51:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8707C48BCF
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 15:59:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C6A9860FEB
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 15:51:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE0F960FEB
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 15:59:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237156AbhFIPxo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Jun 2021 11:53:44 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49083 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237411AbhFIPxk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 11:53:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623253905;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=AlPS4g9klGGODfdBQvh17uuQojemuSkP0oW9AXtfw0Y=;
-        b=NLbAHwWt89Z0IUY2KczHH6fnQtvL4bhAIXpi/4YNSAORffOrjiMzjIEED9pfpaVLGHMy7G
-        NuYr2ROYO0Ytho87l4MgoE24kS6zp+Etbn2QKbQPlwTo/bzYJcR7GxmNaLshPrE7sJANIN
-        3HNvcM1doSkCLMgVpsk2rNk4zYsYmBI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-330-sjedR2EdM96_rQA9BdWv9w-1; Wed, 09 Jun 2021 11:51:41 -0400
-X-MC-Unique: sjedR2EdM96_rQA9BdWv9w-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C1133801FCD;
-        Wed,  9 Jun 2021 15:51:40 +0000 (UTC)
-Received: from [10.36.112.148] (ovpn-112-148.ams2.redhat.com [10.36.112.148])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5C7CA5D6AD;
-        Wed,  9 Jun 2021 15:51:34 +0000 (UTC)
-Subject: Re: [kvm-unit-tests PATCH v2 4/7] arm: unify header guards
-To:     Cornelia Huck <cohuck@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Andrew Jones <drjones@redhat.com>
-Cc:     kvm@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        kvmarm@lists.cs.columbia.edu, kvm-ppc@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20210609143712.60933-1-cohuck@redhat.com>
- <20210609143712.60933-5-cohuck@redhat.com>
- <8399161a-ef26-7d4f-19fb-c54ca40fe6c3@redhat.com> <874ke711m6.fsf@redhat.com>
-From:   Laurent Vivier <lvivier@redhat.com>
-Message-ID: <233f8a97-146e-3a75-9447-d5155a0dd7c9@redhat.com>
-Date:   Wed, 9 Jun 2021 17:51:17 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S235588AbhFIQBo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Jun 2021 12:01:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59206 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232332AbhFIQBo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 12:01:44 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C44FC061574;
+        Wed,  9 Jun 2021 08:59:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=QFACyy0y7HrUHjJ9cPsUOZAld6dTw9TIGvy3FNUUEgI=; b=ez+gR39/yIG6DsvQX0y7KALGqu
+        OMULMPUpfNufKUvUdlEHN9s2LEkIYgMxMfPfQeyQyt1wGMKGeUjcrWNkr7BLGGvaSSV7rC4R0cTtA
+        byA46TmoajpBqD9QCw0smhbVGAyfuECZ9PZXPoFgfdwS4ZDlew+syrpxouv9W9pOhFcEi2ZVOfCpM
+        Zvg1XsScqRW6Vnr1UcQMDERu1VKEejBJYgg0tsaBFC8rNIbU/TJIQvAxrAXuro5+TzC2mFXbiLv0X
+        89qLCoy/65c33llcaRR67OL30Tz3FXndfAlaBhPMJkPK+YIF5ltu0md10TfhTvsXYyvRXKKutc8Mq
+        +/s34mJA==;
+Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1lr0bt-000fa4-Ku; Wed, 09 Jun 2021 15:59:26 +0000
+Date:   Wed, 9 Jun 2021 16:59:17 +0100
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
+        linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        David Rientjes <rientjes@google.com>
+Subject: Re: [PATCH v2 1/2] mm/vmalloc: export __vmalloc_node_range
+Message-ID: <YMDlVdB8m62AhbB7@infradead.org>
+References: <20210608180618.477766-1-imbrenda@linux.ibm.com>
+ <20210608180618.477766-2-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <874ke711m6.fsf@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210608180618.477766-2-imbrenda@linux.ibm.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 09/06/2021 17:47, Cornelia Huck wrote:
-> On Wed, Jun 09 2021, Laurent Vivier <lvivier@redhat.com> wrote:
+On Tue, Jun 08, 2021 at 08:06:17PM +0200, Claudio Imbrenda wrote:
+> The recent patches to add support for hugepage vmalloc mappings added a
+> flag for __vmalloc_node_range to allow to request small pages.
+> This flag is not accessible when calling vmalloc, the only option is to
+> call directly __vmalloc_node_range, which is not exported.
 > 
->> On 09/06/2021 16:37, Cornelia Huck wrote:
->>> The assembler.h files were the only ones not already following
->>> the convention.
->>>
->>> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
->>> ---
->>>  lib/arm/asm/assembler.h   | 6 +++---
->>>  lib/arm64/asm/assembler.h | 6 +++---
->>>  2 files changed, 6 insertions(+), 6 deletions(-)
->>
->> What about lib/arm/io.h?
+> This means that a module can't vmalloc memory with small pages.
 > 
-> It didn't have a guard yet, so I didn't touch it.
+> Case in point: KVM on s390x needs to vmalloc a large area, and it needs
+> to be mapped with small pages, because of a hardware limitation.
 > 
->>
->> I think you can remove the guard from
->>
->> lib/arm/asm/memory_areas.h
->>
->> as the other files including directly a header doesn't guard it.
-> 
-> I see other architectures doing that, though. I guess it doesn't hurt,
-> but we can certainly also remove it. Other opinions?
+> This patch exports __vmalloc_node_range so it can be used in modules
+> too.
 
-It doesn't hurt to remove it but I think what is important is to have the same rule
-everywhere.
-
-Thanks,
-Laurent
-
-
+No.  I spent a lot of effort to mak sure such a low-level API is
+not exported.
