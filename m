@@ -2,117 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A326C48BCD
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 16:50:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 582ECC48BD1
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 17:48:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 06A83613CB
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 16:50:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 38780613D2
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 17:48:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230197AbhFIQwS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Jun 2021 12:52:18 -0400
-Received: from mail-lf1-f44.google.com ([209.85.167.44]:38772 "EHLO
-        mail-lf1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229678AbhFIQwS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 12:52:18 -0400
-Received: by mail-lf1-f44.google.com with SMTP id r5so39130083lfr.5;
-        Wed, 09 Jun 2021 09:50:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:date:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=3gyxMnoRbxZRykvLr0IvxpYyG30m6bnQauem2mqaYuE=;
-        b=bqV8Edyba/9+2ATfjOdGoik5skLG7JqjUNrGKFLdyIPQ4E02O1rM8v9UuFEkqCr/Rj
-         +k9CepUb0UuyqBRc9MFQemqFiuK9/2nAZJ8BwE1k4pG7ggZ3FUl6LxQsHXB8lBZTrOK7
-         jpVwnYVNJwIGP7ELL0hhcwZaxyrmY/oZDP8Rl5YJnAVlvcQI4J0chqNu7tMIwrkbkmPG
-         oNB8VndF9inx71al5Jk/cMzxuAdOcc6AKBlWfNxc0XTx6Hpeh8d+bLdsiKDkBz2ruB+G
-         iY4cT6AEV1wIpe6y9HAK981qXvYKxvHk6HVApPu1bYGV8F6TUymYNPBzMO/XET/t3C4N
-         qxng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=3gyxMnoRbxZRykvLr0IvxpYyG30m6bnQauem2mqaYuE=;
-        b=Webjth61+V2ZXl9S0LMA3dvwgZ45LjBrgV/Tbzb2ihqr9UUg64gDLYQf+66zDAx+gX
-         /f5SZbMziUarc+vqxq8y3psEhsuMya56ONsIreGWYZS8Hm2Bp6wHD405wTlfH0e7A8MH
-         3SXk20pR+n26e9b7XKAfDcK4LxwPUa2jebTENYnHTXLFNFH8gHXXYHK/VRyAhi7RBBOq
-         glS5kzLfPkrhs1C3DK8vTWEzIlQRtxwWfp/zstk5RFeaZM4xCb7Y60GidUKLPABfJ4dH
-         FphETc6myOwHR/RvvGsCEXioTWjEYT/rDCsGGau/08ZB+DE1MVPcgDVdlA/HBpoSAOSZ
-         swow==
-X-Gm-Message-State: AOAM531Iuu9r/kUOFBLPnY2CbZnoFsJRU5PBG+ouCGiMN1zr8NSL4xH6
-        gZ0UcyO1qaoRMf8kDAF0juA=
-X-Google-Smtp-Source: ABdhPJwRhPuDQP7LxDCokVoIWdr9QXFRmIQbHsiCg35TrI5owb6lII2MZIz4HoVtokdNWMPoPRrYVQ==
-X-Received: by 2002:a05:6512:b85:: with SMTP id b5mr286001lfv.380.1623257362065;
-        Wed, 09 Jun 2021 09:49:22 -0700 (PDT)
-Received: from pc638.lan (h5ef52e3d.seluork.dyn.perspektivbredband.net. [94.245.46.61])
-        by smtp.gmail.com with ESMTPSA id b18sm33359lfb.277.2021.06.09.09.49.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Jun 2021 09:49:21 -0700 (PDT)
-From:   Uladzislau Rezki <urezki@gmail.com>
-X-Google-Original-From: Uladzislau Rezki <urezki@pc638.lan>
-Date:   Wed, 9 Jun 2021 18:49:19 +0200
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        id S231617AbhFIRuF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Jun 2021 13:50:05 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58670 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231810AbhFIRuE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 13:50:04 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 159HXPwH166986;
+        Wed, 9 Jun 2021 13:47:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Qq7VXFeevVpStHRWsXVOehxcpO+2RgWaMg7rO3uTjhk=;
+ b=GyE176ThP/s+gHa/G/nLJWTZRbP3sFQepOwOmSFxbAt+h5iqDkJXdVz6jETuZI24pVlO
+ 8pZkI4t+JMkGatQ9GdFY0AzqdCZHfAfEhxC/12WB1gqY09OzzSl1b013Dya1bJw4WFqA
+ kLl2F39iwSZFOFjkuJ0+LwAR2As0zWdhp+ye8j1nB6HRBC+kvTglhCoyODSyS8KBe8KX
+ D9ArHgCgkWzbtjQ5OsgEfI8tbeIo44f1xmwY6JIPhdNYaCM4DGrlotOtMaFFebx7Kbgv
+ XTDORSD2izCW38oNeiPodNEespc+pRlMLscWjRoFWgJ+hXWSdhJkAY7xGpo+xMI6ECCH ew== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3930r1k7vg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Jun 2021 13:47:50 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 159HZc8v173764;
+        Wed, 9 Jun 2021 13:47:50 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3930r1k7v1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Jun 2021 13:47:49 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 159HldaD005888;
+        Wed, 9 Jun 2021 17:47:48 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma05fra.de.ibm.com with ESMTP id 3900w89a21-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Jun 2021 17:47:48 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 159Hlj4Z32309716
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 9 Jun 2021 17:47:45 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 19C62AE051;
+        Wed,  9 Jun 2021 17:47:45 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2E95EAE045;
+        Wed,  9 Jun 2021 17:47:44 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.13.5])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  9 Jun 2021 17:47:44 +0000 (GMT)
+Subject: Re: [PATCH v2 1/2] mm/vmalloc: export __vmalloc_node_range
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Christoph Hellwig <hch@infradead.org>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
-        linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        cohuck@redhat.com, david@redhat.com, linux-mm@kvack.org,
+        Andrew Morton <akpm@linux-foundation.org>,
         Nicholas Piggin <npiggin@gmail.com>,
         Uladzislau Rezki <urezki@gmail.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>,
         David Rientjes <rientjes@google.com>
-Subject: Re: [PATCH v2 1/2] mm/vmalloc: export __vmalloc_node_range
-Message-ID: <20210609164919.GA1938@pc638.lan>
 References: <20210608180618.477766-1-imbrenda@linux.ibm.com>
  <20210608180618.477766-2-imbrenda@linux.ibm.com>
- <YMDlVdB8m62AhbB7@infradead.org>
- <20210609182809.7ae07aad@ibm-vm>
+ <YMDlVdB8m62AhbB7@infradead.org> <20210609182809.7ae07aad@ibm-vm>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <6bf6fb06-0930-8cae-3e2b-8cb3237a6197@de.ibm.com>
+Date:   Wed, 9 Jun 2021 19:47:43 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20210609182809.7ae07aad@ibm-vm>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ZsdyWAcx_73hJwtXE9Sp0Mco4mrsan6t
+X-Proofpoint-GUID: qH6CxK9epqyjYop4gXKwm76Ys42u_HKD
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-06-09_04:2021-06-04,2021-06-09 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 mlxlogscore=999 adultscore=0
+ clxscore=1011 bulkscore=0 phishscore=0 spamscore=0 suspectscore=0
+ malwarescore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106090087
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 09, 2021 at 06:28:09PM +0200, Claudio Imbrenda wrote:
+On 09.06.21 18:28, Claudio Imbrenda wrote:
 > On Wed, 9 Jun 2021 16:59:17 +0100
 > Christoph Hellwig <hch@infradead.org> wrote:
 > 
-> > On Tue, Jun 08, 2021 at 08:06:17PM +0200, Claudio Imbrenda wrote:
-> > > The recent patches to add support for hugepage vmalloc mappings
-> > > added a flag for __vmalloc_node_range to allow to request small
-> > > pages. This flag is not accessible when calling vmalloc, the only
-> > > option is to call directly __vmalloc_node_range, which is not
-> > > exported.
-> > > 
-> > > This means that a module can't vmalloc memory with small pages.
-> > > 
-> > > Case in point: KVM on s390x needs to vmalloc a large area, and it
-> > > needs to be mapped with small pages, because of a hardware
-> > > limitation.
-> > > 
-> > > This patch exports __vmalloc_node_range so it can be used in modules
-> > > too.  
-> > 
-> > No.  I spent a lot of effort to mak sure such a low-level API is
-> > not exported.
+>> On Tue, Jun 08, 2021 at 08:06:17PM +0200, Claudio Imbrenda wrote:
+>>> The recent patches to add support for hugepage vmalloc mappings
+>>> added a flag for __vmalloc_node_range to allow to request small
+>>> pages. This flag is not accessible when calling vmalloc, the only
+>>> option is to call directly __vmalloc_node_range, which is not
+>>> exported.
+>>>
+>>> This means that a module can't vmalloc memory with small pages.
+>>>
+>>> Case in point: KVM on s390x needs to vmalloc a large area, and it
+>>> needs to be mapped with small pages, because of a hardware
+>>> limitation.
+>>>
+>>> This patch exports __vmalloc_node_range so it can be used in modules
+>>> too.
+>>
+>> No.  I spent a lot of effort to mak sure such a low-level API is
+>> not exported.
 > 
 > ok, but then how can we vmalloc memory with small pages from KVM?
-Does the s390x support CONFIG_HAVE_ARCH_HUGE_VMALLOC what is arch
-specific?
 
-If not then small pages are used. Or am i missing something?
+An alternative would be to provide a vmalloc_no_huge function in generic
+code  (similar to  vmalloc_32) (or if preferred in s390 base architecture code)
+Something like
 
-I agree with Christoph that exporting a low level internals
-is not a good idea.
+void *vmalloc_no_huge(unsigned long size)
+{
+         return __vmalloc_node_flags(size, NUMA_NO_NODE,VM_NO_HUGE_VMAP |
+                                 GFP_KERNEL | __GFP_ZERO);
+}
+EXPORT_SYMBOL(vmalloc_no_huge);
 
---
-Vlad Rezki
+or a similar vzalloc variant.
