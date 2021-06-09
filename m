@@ -2,504 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96F38C48BCD
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:49:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63488C48BE8
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:51:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7082A6128A
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:49:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 476EB613BC
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:51:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238101AbhFIOvu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Jun 2021 10:51:50 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:25312 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234853AbhFIOvt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 10:51:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623250194;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kPADNTwFpZwmZXzzAXUXoQL6rJ0SbSv3Bmha0yUuchE=;
-        b=c8ROV6IxsTv7KVxEsVKo9En8MdajHnC/U4NNQRcubjHkYxjIDDcjasxOuLi/AsO36TL6ZA
-        et79ROIyp8v7r45ttWzFuv4/FLjQJzFBPJ/j092lq892VB9gP9pOaay3jT3GGRS/jOHdzt
-        BxvVjfYsr/0NsUwSWWGwfNhIK6u79aE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-570-oikCZQaRO1q1JlPxoEsLLg-1; Wed, 09 Jun 2021 10:49:53 -0400
-X-MC-Unique: oikCZQaRO1q1JlPxoEsLLg-1
-Received: by mail-wr1-f72.google.com with SMTP id q15-20020adfc50f0000b0290111f48b865cso10865743wrf.4
-        for <linux-s390@vger.kernel.org>; Wed, 09 Jun 2021 07:49:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:organization
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=kPADNTwFpZwmZXzzAXUXoQL6rJ0SbSv3Bmha0yUuchE=;
-        b=PI6NzRIvYtnxNNkYtCXXSAxNR95kD10LorPZBmc+T43xLNtP32sandrZkyc/Fgh+lp
-         ujAhPdpimVny1qQgCuM/52ci++KbiyialA6Jt1GVhrDs3TBhkBZZvHYsUrGar/rLPrxE
-         6ofoC25KB81rFxZm/iX2HzGFQgWwZUvhpPa7/xA1pHTFHFLR18Uj0CqbjD89KphivsOt
-         Wgd2QKiCiX+jOcRUf1OKiZX7+4yuEv2LBPPKGkB6trTLH3rmslbH6spD6YcQ3lDRAGKT
-         OkxKhcnKwRLszqinmwJwHPl2Fbxst2nK6+8/va7Sxu21mnStZKkYHaMt7X6ZEn8aRRg5
-         yDLA==
-X-Gm-Message-State: AOAM533RmL99VNJ6bwq3DVm28Mf4Tu6mxlDPhyG9Nllph8OHy0wLBdbJ
-        J3mkrZa4qtuxzPhLfHHiVzYB/8/xMS2ipsrFIxp6pFpb4JjCRIcyzyF96UeRuXeKZqvcSGjeU12
-        nBPX8NNb6/mCd7enex2Jk/7kkNDjp8JaPV624eHHaZNSQdaVMdoef0+jm6hl5tOJLGNOcRg==
-X-Received: by 2002:a5d:530c:: with SMTP id e12mr174485wrv.165.1623250192133;
-        Wed, 09 Jun 2021 07:49:52 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzJAsLUfwPAV8SKw7A8bkaIzr0yv/5tACaMMA+I4d9ATGwios9zxjytr9KkgtaI+kSa11VRog==
-X-Received: by 2002:a5d:530c:: with SMTP id e12mr174435wrv.165.1623250191798;
-        Wed, 09 Jun 2021 07:49:51 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c611d.dip0.t-ipconnect.de. [91.12.97.29])
-        by smtp.gmail.com with ESMTPSA id r4sm158876wre.84.2021.06.09.07.49.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Jun 2021 07:49:51 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH v2 7/7] x86: unify header guards
-To:     Cornelia Huck <cohuck@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Andrew Jones <drjones@redhat.com>
-Cc:     kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        kvmarm@lists.cs.columbia.edu, kvm-ppc@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20210609143712.60933-1-cohuck@redhat.com>
- <20210609143712.60933-8-cohuck@redhat.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Message-ID: <661ee535-bdac-aa1d-7b29-a271f698e778@redhat.com>
-Date:   Wed, 9 Jun 2021 16:49:50 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S238279AbhFIOw4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Jun 2021 10:52:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59320 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238257AbhFIOw4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 9 Jun 2021 10:52:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2163C6128A;
+        Wed,  9 Jun 2021 14:50:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623250261;
+        bh=svcXYr1x4uog0gl91R41ozY2Q0KNDzZmG4YRGTMMy2A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YkHX/JVfHqUvpWvWXkgg3rdrkk7agHtEIKqaX0vfSpX504lTGaDjO7Qz7iARqzkGp
+         DWsHVY+tAbRsBUSVBkbhVjgZvGY6y/wRIXGMo+CgzooB/zqPomfgnsHX9y3mgTbMXc
+         xGiW+RangNEk+pKIT8UX8w6paGaFQZLDQ+McKqTpjqFKueMHIVGMXJpalfW0Fph76r
+         Lcm2WPwzewVnde/Vu5ujWTdQssxwNbFghUliAxp8Ku3YbSQHaHnLbkGz+awfGrnWGJ
+         yu4qANQoP9p9s4/vzkSPeJiYpDnHVlRdjW4xbBVW2tivL4go8M8laNS3QaNsdGKKc0
+         R1JEjjJpSG45g==
+Date:   Wed, 9 Jun 2021 17:50:50 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Matt Turner <mattst88@gmail.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Vineet Gupta <vgupta@synopsys.com>, kexec@lists.infradead.org,
+        alpha <linux-alpha@vger.kernel.org>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        linux-ia64@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        "open list:SYNOPSYS ARC ARCHITECTURE" 
+        <linux-snps-arc@lists.infradead.org>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        sparclinux <sparclinux@vger.kernel.org>
+Subject: Re: [PATCH v2 0/9] Remove DISCINTIGMEM memory model
+Message-ID: <YMDVSu00xXGmdCtC@kernel.org>
+References: <20210604064916.26580-1-rppt@kernel.org>
+ <CAK8P3a2tZDJDqgr9-1vJrnbDhd_36eKq8LMEznDkU7rvuAnAag@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210609143712.60933-8-cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a2tZDJDqgr9-1vJrnbDhd_36eKq8LMEznDkU7rvuAnAag@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 09.06.21 16:37, Cornelia Huck wrote:
-> Standardize header guards to _ASMX86_HEADER_H_, _X86_HEADER_H_,
-> and X86_HEADER_H.
-> 
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->   lib/x86/acpi.h             | 4 ++--
->   lib/x86/apic-defs.h        | 6 +++---
->   lib/x86/apic.h             | 4 ++--
->   lib/x86/asm/barrier.h      | 4 ++--
->   lib/x86/asm/debugreg.h     | 6 +++---
->   lib/x86/asm/io.h           | 4 ++--
->   lib/x86/asm/memory_areas.h | 4 ++--
->   lib/x86/asm/page.h         | 4 ++--
->   lib/x86/asm/pci.h          | 4 ++--
->   lib/x86/asm/spinlock.h     | 4 ++--
->   lib/x86/asm/stack.h        | 4 ++--
->   lib/x86/atomic.h           | 4 ++--
->   lib/x86/delay.h            | 4 ++--
->   lib/x86/desc.h             | 4 ++--
->   lib/x86/fault_test.h       | 4 ++--
->   lib/x86/fwcfg.h            | 4 ++--
->   lib/x86/intel-iommu.h      | 4 ++--
->   lib/x86/isr.h              | 4 ++--
->   lib/x86/msr.h              | 6 +++---
->   lib/x86/processor.h        | 4 ++--
->   lib/x86/smp.h              | 4 ++--
->   lib/x86/usermode.h         | 4 ++--
->   lib/x86/vm.h               | 4 ++--
->   x86/hyperv.h               | 4 ++--
->   x86/ioram.h                | 4 ++--
->   x86/kvmclock.h             | 4 ++--
->   x86/svm.h                  | 4 ++--
->   x86/types.h                | 4 ++--
->   x86/vmx.h                  | 4 ++--
->   29 files changed, 61 insertions(+), 61 deletions(-)
-> 
-> diff --git a/lib/x86/acpi.h b/lib/x86/acpi.h
-> index 08aaf57a7890..1b803740f331 100644
-> --- a/lib/x86/acpi.h
-> +++ b/lib/x86/acpi.h
-> @@ -1,5 +1,5 @@
-> -#ifndef KVM_ACPI_H
-> -#define KVM_ACPI_H 1
-> +#ifndef _X86_ACPI_H_
-> +#define _X86_ACPI_H_
->   
->   #include "libcflat.h"
->   
-> diff --git a/lib/x86/apic-defs.h b/lib/x86/apic-defs.h
-> index b2014de800a7..dabefe7879ea 100644
-> --- a/lib/x86/apic-defs.h
-> +++ b/lib/x86/apic-defs.h
-> @@ -1,5 +1,5 @@
-> -#ifndef _ASM_X86_APICDEF_H
-> -#define _ASM_X86_APICDEF_H
-> +#ifndef _X86_APIC_DEFS_H_
-> +#define _X86_APIC_DEFS_H_
->   
->   /*
->    * Abuse this header file to hold the number of max-cpus, making it available
-> @@ -144,4 +144,4 @@
->   
->   #define APIC_BASE_MSR	0x800
->   
-> -#endif /* _ASM_X86_APICDEF_H */
-> +#endif /* _X86_APIC_DEFS_H_ */
-> diff --git a/lib/x86/apic.h b/lib/x86/apic.h
-> index a7eff6354a83..c4821716b352 100644
-> --- a/lib/x86/apic.h
-> +++ b/lib/x86/apic.h
-> @@ -1,5 +1,5 @@
-> -#ifndef CFLAT_APIC_H
-> -#define CFLAT_APIC_H
-> +#ifndef _X86_APIC_H_
-> +#define _X86_APIC_H_
->   
->   #include <stdint.h>
->   #include "apic-defs.h"
-> diff --git a/lib/x86/asm/barrier.h b/lib/x86/asm/barrier.h
-> index 193fb4c2e712..66c8f56f1c9a 100644
-> --- a/lib/x86/asm/barrier.h
-> +++ b/lib/x86/asm/barrier.h
-> @@ -1,5 +1,5 @@
-> -#ifndef _ASM_X86_BARRIER_H_
-> -#define _ASM_X86_BARRIER_H_
-> +#ifndef _ASMX86_BARRIER_H_
-> +#define _ASMX86_BARRIER_H_
->   /*
->    * Copyright (C) 2016, Red Hat Inc, Alexander Gordeev <agordeev@redhat.com>
->    *
-> diff --git a/lib/x86/asm/debugreg.h b/lib/x86/asm/debugreg.h
-> index d95d080b30e3..e86f5a629480 100644
-> --- a/lib/x86/asm/debugreg.h
-> +++ b/lib/x86/asm/debugreg.h
-> @@ -1,6 +1,6 @@
->   /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-> -#ifndef _UAPI_ASM_X86_DEBUGREG_H
-> -#define _UAPI_ASM_X86_DEBUGREG_H
-> +#ifndef _ASMX86_DEBUGREG_H_
-> +#define _ASMX86_DEBUGREG_H_
->   
->   
->   /* Indicate the register numbers for a number of the specific
-> @@ -78,4 +78,4 @@
->    * HW breakpoint additions
->    */
->   
-> -#endif /* _UAPI_ASM_X86_DEBUGREG_H */
-> +#endif /* _ASMX86_DEBUGREG_H_ */
-> diff --git a/lib/x86/asm/io.h b/lib/x86/asm/io.h
-> index 35a5c7347411..88734320aa93 100644
-> --- a/lib/x86/asm/io.h
-> +++ b/lib/x86/asm/io.h
-> @@ -1,5 +1,5 @@
-> -#ifndef _ASM_X86_IO_H_
-> -#define _ASM_X86_IO_H_
-> +#ifndef _ASMX86_IO_H_
-> +#define _ASMX86_IO_H_
->   
->   #define __iomem
->   
-> diff --git a/lib/x86/asm/memory_areas.h b/lib/x86/asm/memory_areas.h
-> index e84016f8b060..bd47a89aba7d 100644
-> --- a/lib/x86/asm/memory_areas.h
-> +++ b/lib/x86/asm/memory_areas.h
-> @@ -1,5 +1,5 @@
-> -#ifndef _ASM_X86_MEMORY_AREAS_H_
-> -#define _ASM_X86_MEMORY_AREAS_H_
-> +#ifndef _ASMX86_MEMORY_AREAS_H_
-> +#define _ASMX86_MEMORY_AREAS_H_
->   
->   #define AREA_NORMAL_PFN BIT(36-12)
->   #define AREA_NORMAL_NUMBER 0
-> diff --git a/lib/x86/asm/page.h b/lib/x86/asm/page.h
-> index 2cf8881e16d2..fc1416071ec9 100644
-> --- a/lib/x86/asm/page.h
-> +++ b/lib/x86/asm/page.h
-> @@ -1,5 +1,5 @@
-> -#ifndef _ASM_X86_PAGE_H_
-> -#define _ASM_X86_PAGE_H_
-> +#ifndef _ASMX86_PAGE_H_
-> +#define _ASMX86_PAGE_H_
->   /*
->    * Copyright (C) 2016, Red Hat Inc, Alexander Gordeev <agordeev@redhat.com>
->    *
-> diff --git a/lib/x86/asm/pci.h b/lib/x86/asm/pci.h
-> index c937e5cd71e1..03e55c277f12 100644
-> --- a/lib/x86/asm/pci.h
-> +++ b/lib/x86/asm/pci.h
-> @@ -1,5 +1,5 @@
-> -#ifndef ASM_PCI_H
-> -#define ASM_PCI_H
-> +#ifndef _ASMX86_PCI_H_
-> +#define _ASMX86_PCI_H_
->   /*
->    * Copyright (C) 2013, Red Hat Inc, Michael S. Tsirkin <mst@redhat.com>
->    *
-> diff --git a/lib/x86/asm/spinlock.h b/lib/x86/asm/spinlock.h
-> index 692020c5185c..34fadf771c11 100644
-> --- a/lib/x86/asm/spinlock.h
-> +++ b/lib/x86/asm/spinlock.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __ASM_SPINLOCK_H
-> -#define __ASM_SPINLOCK_H
-> +#ifndef _ASMX86_SPINLOCK_H_
-> +#define _ASMX86_SPINLOCK_H_
->   
->   #include <asm-generic/spinlock.h>
->   
-> diff --git a/lib/x86/asm/stack.h b/lib/x86/asm/stack.h
-> index b14e2c0fa012..417695373801 100644
-> --- a/lib/x86/asm/stack.h
-> +++ b/lib/x86/asm/stack.h
-> @@ -1,5 +1,5 @@
-> -#ifndef _X86ASM_STACK_H_
-> -#define _X86ASM_STACK_H_
-> +#ifndef _ASMX86_STACK_H_
-> +#define _ASMX86_STACK_H_
->   
->   #ifndef _STACK_H_
->   #error Do not directly include <asm/stack.h>. Just use <stack.h>.
-> diff --git a/lib/x86/atomic.h b/lib/x86/atomic.h
-> index c9ce489d3904..13e734bb464d 100644
-> --- a/lib/x86/atomic.h
-> +++ b/lib/x86/atomic.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __ATOMIC_H
-> -#define __ATOMIC_H
-> +#ifndef _X86_ATOMIC_H_
-> +#define _X86_ATOMIC_H_
->   
->   #include "asm-generic/atomic.h"
->   
-> diff --git a/lib/x86/delay.h b/lib/x86/delay.h
-> index a51eb34485d0..26270edb2156 100644
-> --- a/lib/x86/delay.h
-> +++ b/lib/x86/delay.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __X86_DELAY__
-> -#define __X86_DELAY__
-> +#ifndef _X86_DELAY_H_
-> +#define _X86_DELAY_H_
->   
->   #include "libcflat.h"
->   
-> diff --git a/lib/x86/desc.h b/lib/x86/desc.h
-> index 77b2c59d5551..a6ffb38c79a1 100644
-> --- a/lib/x86/desc.h
-> +++ b/lib/x86/desc.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __IDT_TEST__
-> -#define __IDT_TEST__
-> +#ifndef _X86_DESC_H_
-> +#define _X86_DESC_H_
->   
->   #include <setjmp.h>
->   
-> diff --git a/lib/x86/fault_test.h b/lib/x86/fault_test.h
-> index dfa715ba6720..07566365d57c 100644
-> --- a/lib/x86/fault_test.h
-> +++ b/lib/x86/fault_test.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __FAULT_TEST__
-> -#define __FAULT_TEST__
-> +#ifndef _X86_FAULT_TEST_H_
-> +#define _X86_FAULT_TEST_H_
->   
->   #include "x86/msr.h"
->   #include "x86/processor.h"
-> diff --git a/lib/x86/fwcfg.h b/lib/x86/fwcfg.h
-> index ac4257e5d78e..2434cf62222a 100644
-> --- a/lib/x86/fwcfg.h
-> +++ b/lib/x86/fwcfg.h
-> @@ -1,5 +1,5 @@
-> -#ifndef FWCFG_H
-> -#define FWCFG_H
-> +#ifndef _X86_FWCFG_H_
-> +#define _X86_FWCFG_H_
->   
->   #include <stdint.h>
->   #include <stdbool.h>
-> diff --git a/lib/x86/intel-iommu.h b/lib/x86/intel-iommu.h
-> index 05b9744b916b..e14f825e796d 100644
-> --- a/lib/x86/intel-iommu.h
-> +++ b/lib/x86/intel-iommu.h
-> @@ -12,8 +12,8 @@
->    * (From include/linux/intel-iommu.h)
->    */
->   
-> -#ifndef __INTEL_IOMMU_H__
-> -#define __INTEL_IOMMU_H__
-> +#ifndef _X86_INTEL_IOMMU_H_
-> +#define _X86_INTEL_IOMMU_H_
->   
->   #include "libcflat.h"
->   #include "isr.h"
-> diff --git a/lib/x86/isr.h b/lib/x86/isr.h
-> index a50929190b64..746ac7af4a90 100644
-> --- a/lib/x86/isr.h
-> +++ b/lib/x86/isr.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __ISR_TEST__
-> -#define __ISR_TEST__
-> +#ifndef _X86_ISR_H_
-> +#define _X86_ISR_H_
->   
->   typedef struct {
->       ulong regs[sizeof(ulong)*2];
-> diff --git a/lib/x86/msr.h b/lib/x86/msr.h
-> index 5213bcd55836..5001b169cc48 100644
-> --- a/lib/x86/msr.h
-> +++ b/lib/x86/msr.h
-> @@ -1,5 +1,5 @@
-> -#ifndef _ASM_X86_MSR_INDEX_H
-> -#define _ASM_X86_MSR_INDEX_H
-> +#ifndef _X86_MSR_H_
-> +#define _X86_MSR_H_
->   
->   /* CPU model specific register (MSR) numbers */
->   
-> @@ -435,4 +435,4 @@
->   #define MSR_VM_IGNNE                    0xc0010115
->   #define MSR_VM_HSAVE_PA                 0xc0010117
->   
-> -#endif /* _ASM_X86_MSR_INDEX_H */
-> +#endif /* _X86_MSR_H_ */
-> diff --git a/lib/x86/processor.h b/lib/x86/processor.h
-> index abc04b08afb0..b6068f52d850 100644
-> --- a/lib/x86/processor.h
-> +++ b/lib/x86/processor.h
-> @@ -1,5 +1,5 @@
-> -#ifndef LIBCFLAT_PROCESSOR_H
-> -#define LIBCFLAT_PROCESSOR_H
-> +#ifndef _X86_PROCESSOR_H_
-> +#define _X86_PROCESSOR_H_
->   
->   #include "libcflat.h"
->   #include "desc.h"
-> diff --git a/lib/x86/smp.h b/lib/x86/smp.h
-> index 09dfa86f123b..f74845e6903c 100644
-> --- a/lib/x86/smp.h
-> +++ b/lib/x86/smp.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __SMP_H
-> -#define __SMP_H
-> +#ifndef _X86_SMP_H_
-> +#define _X86_SMP_H_
->   #include <asm/spinlock.h>
->   
->   void smp_init(void);
-> diff --git a/lib/x86/usermode.h b/lib/x86/usermode.h
-> index 4e005e65f917..04e358e2a3a3 100644
-> --- a/lib/x86/usermode.h
-> +++ b/lib/x86/usermode.h
-> @@ -1,5 +1,5 @@
-> -#ifndef _USERMODE_H_
-> -#define _USERMODE_H_
-> +#ifndef _X86_USERMODE_H_
-> +#define _X86_USERMODE_H_
->   
->   #include "x86/msr.h"
->   #include "x86/processor.h"
-> diff --git a/lib/x86/vm.h b/lib/x86/vm.h
-> index 3a1432f39d2a..d9753c3d4606 100644
-> --- a/lib/x86/vm.h
-> +++ b/lib/x86/vm.h
-> @@ -1,5 +1,5 @@
-> -#ifndef VM_H
-> -#define VM_H
-> +#ifndef _X86_VM_H_
-> +#define _X86_VM_H_
->   
->   #include "processor.h"
->   #include "asm/page.h"
-> diff --git a/x86/hyperv.h b/x86/hyperv.h
-> index e135221fa28a..e3803e02f4dc 100644
-> --- a/x86/hyperv.h
-> +++ b/x86/hyperv.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __HYPERV_H
-> -#define __HYPERV_H
-> +#ifndef X86_HYPERV_H
-> +#define X86_HYPERV_H
->   
->   #include "libcflat.h"
->   #include "processor.h"
-> diff --git a/x86/ioram.h b/x86/ioram.h
-> index 2938142b36d3..9c816a83eae5 100644
-> --- a/x86/ioram.h
-> +++ b/x86/ioram.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __IO_RAM_H
-> -#define __IO_RAM_H
-> +#ifndef X86_IORAM_H
-> +#define X86_IORAM_H
->   
->   #define IORAM_BASE_PHYS 0xff000000UL
->   #define IORAM_LEN       0x10000UL
-> diff --git a/x86/kvmclock.h b/x86/kvmclock.h
-> index f823c6dbb65d..1a40a7c0f6bc 100644
-> --- a/x86/kvmclock.h
-> +++ b/x86/kvmclock.h
-> @@ -1,5 +1,5 @@
-> -#ifndef KVMCLOCK_H
-> -#define KVMCLOCK_H
-> +#ifndef X86_KVMCLOCK_H
-> +#define X86_KVMCLOCK_H
->   
->   #define MSR_KVM_WALL_CLOCK_NEW  0x4b564d00
->   #define MSR_KVM_SYSTEM_TIME_NEW 0x4b564d01
-> diff --git a/x86/svm.h b/x86/svm.h
-> index 593e3b0f64b1..995b0f8ccbfe 100644
-> --- a/x86/svm.h
-> +++ b/x86/svm.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __SVM_H
-> -#define __SVM_H
-> +#ifndef X86_SVM_H
-> +#define X86_SVM_H
->   
->   #include "libcflat.h"
->   
-> diff --git a/x86/types.h b/x86/types.h
-> index 047556e854d6..56ce5ececdec 100644
-> --- a/x86/types.h
-> +++ b/x86/types.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __TYPES_H
-> -#define __TYPES_H
-> +#ifndef X86_TYPES_H
-> +#define X86_TYPES_H
->   
->   #define DE_VECTOR 0
->   #define DB_VECTOR 1
-> diff --git a/x86/vmx.h b/x86/vmx.h
-> index 7e39b843cafb..2c534ca4b801 100644
-> --- a/x86/vmx.h
-> +++ b/x86/vmx.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __VMX_H
-> -#define __VMX_H
-> +#ifndef X86_VMX_H
-> +#define X86_VMX_H
->   
->   #include "libcflat.h"
->   #include "processor.h"
-> 
+Hi Arnd,
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+On Wed, Jun 09, 2021 at 01:30:39PM +0200, Arnd Bergmann wrote:
+> On Fri, Jun 4, 2021 at 8:49 AM Mike Rapoport <rppt@kernel.org> wrote:
+> >
+> > From: Mike Rapoport <rppt@linux.ibm.com>
+> >
+> > Hi,
+> >
+> > SPARSEMEM memory model was supposed to entirely replace DISCONTIGMEM a
+> > (long) while ago. The last architectures that used DISCONTIGMEM were
+> > updated to use other memory models in v5.11 and it is about the time to
+> > entirely remove DISCONTIGMEM from the kernel.
+> >
+> > This set removes DISCONTIGMEM from alpha, arc and m68k, simplifies memory
+> > model selection in mm/Kconfig and replaces usage of redundant
+> > CONFIG_NEED_MULTIPLE_NODES and CONFIG_FLAT_NODE_MEM_MAP with CONFIG_NUMA
+> > and CONFIG_FLATMEM respectively.
+> >
+> > I've also removed NUMA support on alpha that was BROKEN for more than 15
+> > years.
+> >
+> > There were also minor updates all over arch/ to remove mentions of
+> > DISCONTIGMEM in comments and #ifdefs.
+> 
+> Hi Mike and Andrew,
+> 
+> It looks like everyone is happy with this version so far. How should we merge it
+> for linux-next? I'm happy to take it through the asm-generic tree, but linux-mm
+> would fit at least as well. In case we go for linux-mm, feel free to add
+
+Andrew already took to mmotm.
+ 
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
+
+Thanks!
+
+> for the whole series.
 
 -- 
-Thanks,
-
-David / dhildenb
-
+Sincerely yours,
+Mike.
