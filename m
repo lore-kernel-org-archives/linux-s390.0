@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5649DC48BCF
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:46:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C51FC48BCD
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:47:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 38319613AD
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:46:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3FFEA610A1
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Jun 2021 14:47:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238075AbhFIOsU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Jun 2021 10:48:20 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:21021 "EHLO
+        id S238184AbhFIOsz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Jun 2021 10:48:55 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:34240 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234611AbhFIOsT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 10:48:19 -0400
+        by vger.kernel.org with ESMTP id S238165AbhFIOst (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Jun 2021 10:48:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623249985;
+        s=mimecast20190719; t=1623250014;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=YIqvjSEU4FgOL3T+Qh1WRtqKFo8pGZcLfL/2xIjJVgQ=;
-        b=XP5Ve8UmEdyIUAFXnJjcu7YjbrDp5I20OItyp7NR5XvFKh5FYWS8C+91sHdVhVARGq0sQp
-        CPtZn6upHbI/iz7En0ivZYXK793rjMPqEK7Hzs500NMVBg+i3hMjrEn/VYR9farToSS5SA
-        F0sH3OpZI3IygDptTd5f74DJ7Cnl7HA=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-588-FhISMM-ZPWusJV0Ef5R7Pw-1; Wed, 09 Jun 2021 10:46:23 -0400
-X-MC-Unique: FhISMM-ZPWusJV0Ef5R7Pw-1
-Received: by mail-wm1-f69.google.com with SMTP id n21-20020a7bcbd50000b02901a2ee0826aeso2627939wmi.7
-        for <linux-s390@vger.kernel.org>; Wed, 09 Jun 2021 07:46:23 -0700 (PDT)
+        bh=t0hZQMWWxDl7Xi8l29AWO8IasO+rf5yU93tb5RzLQ7g=;
+        b=hQp5IV7fTOiU7oEAh9Gq1XUQ0s8bg4UC8Af9hkh4tuVGo7P24gJ+HJhULDqXnt/o0vLxwC
+        oI1PRtjIXmD1zyS7yLA7QFtHfFrscEy1JUspv384DNdvDztwqWf1hJ3dKg+cV034yRDBj1
+        FNFjrWzIhG+fcMznWVLgOWnRAojzfVQ=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-292-5kaflTEFPwW25BukMuJIcA-1; Wed, 09 Jun 2021 10:46:53 -0400
+X-MC-Unique: 5kaflTEFPwW25BukMuJIcA-1
+Received: by mail-wm1-f72.google.com with SMTP id r4-20020a7bc0840000b02901b7cb5713ecso622681wmh.1
+        for <linux-s390@vger.kernel.org>; Wed, 09 Jun 2021 07:46:53 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:organization
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=YIqvjSEU4FgOL3T+Qh1WRtqKFo8pGZcLfL/2xIjJVgQ=;
-        b=BhncQajfx6zqkCH2BnMEmlnLsXj9eONZmJmciloR7WbKNs5kTgTQFU5gyWKXiLv9RC
-         x85QQQsqCDsJ8RD1EQuaWB9smfAlEEeRoO2rX1VQD23eLadebfESCI5HbUaS+tJNtjrW
-         ykimk6A9FwqY79idsAQGNJugrjssPK7rSR5605cvQDaO8QYiT5o4/uQx1K2Xhal8gpyD
-         Zp8fUp/rkcOsv5gL5r2MURhc4RgDoM0AEz3XYQDtKyY0KnPRhqc6A6IVPDgDxwa7s2eZ
-         ekTjVWn0xt6UlcNcqEsQSle5kGzvqGz+aN1Q8o4V+LryC4qXIpV1lQlkbuuTi3PEyHGw
-         5NcA==
-X-Gm-Message-State: AOAM5333fp7Czz4vdAiTgZeaC5ECl+F3w7D6rcFqH5FvG4DiNYMVN8b4
-        Y9vxMunzYIcwLFpCB6jJ3fiym/yBhrpUNLvhFIm8R+HRPDFtyzKYz12XpQiye0b8Cq9bFTZganX
-        /8Yz0PA6rXJ7PjsAyjWtfvs8ePgmKAN/m1bCpYKPBv/lPQvo9t7Ox1lXQRViPzm60tUNjuA==
-X-Received: by 2002:a05:6000:1c1:: with SMTP id t1mr188266wrx.282.1623249982414;
-        Wed, 09 Jun 2021 07:46:22 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwYGAMXz2ChPOq3Q/uYsovwSNcvm3wQtqcAcXSOMYfajhjXyyWekzuMWA5VoJWHNrDFPXvJrw==
-X-Received: by 2002:a05:6000:1c1:: with SMTP id t1mr188234wrx.282.1623249982170;
-        Wed, 09 Jun 2021 07:46:22 -0700 (PDT)
+        bh=t0hZQMWWxDl7Xi8l29AWO8IasO+rf5yU93tb5RzLQ7g=;
+        b=GGRDgqsRc6O+ClkVfAUFmWJQUboSCNIGP2BDA6RoyDsm/VJKYXOpLQyDlafA73ls/C
+         9lLh9NnnhbIkS0uCMRXPCTB1WrGBuEN8BWVlQ6yf7O+CGnl30vZIBXvA4pfQydvBLGWs
+         1h/rnZ/HKytJfNWkFLor3cwYfpDXL5CJ2/Ah3hUagERrJ0Lx16bs8BHaS7r7jT+fbGsF
+         DwdN7uoDNXXhrN3F2JAdLY+wOf+bgaVDrr4rF06Nk4iE9kdKGuwLOEhCcTlgS26f1ZTb
+         XkXEbB/FHmY+zYTIZ4KEfn2gjuT/oYpmhfX15YcJCfM9CdeYhOB5zXKtIxOl1XFw9tc3
+         lciA==
+X-Gm-Message-State: AOAM533brVEkaFTUuFF82G0JxNiON99ZtgfHFO0/WdA0K92A190P825y
+        hrLbbTrv5L/chU3s7uxqFsMpEusyADMZwVBUtpgwThDwYo4f/YtmaI0rwC0trwW6oPsGPPrWw3u
+        KaI4xN8LzI+VKCXcpbtqILh7fOULphO5eBbRg8OLMbM35p5SLifHfz8t+opsIp7F1xcBY1A==
+X-Received: by 2002:a05:600c:19d1:: with SMTP id u17mr10383529wmq.31.1623250012138;
+        Wed, 09 Jun 2021 07:46:52 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzboBk7WBqh0GgSbryL8mzgfVK8EI4S6S8GDygMVs49zQtyl7XBe/7JeBQTIe1GgwDVwlYqzQ==
+X-Received: by 2002:a05:600c:19d1:: with SMTP id u17mr10383492wmq.31.1623250011775;
+        Wed, 09 Jun 2021 07:46:51 -0700 (PDT)
 Received: from [192.168.3.132] (p5b0c611d.dip0.t-ipconnect.de. [91.12.97.29])
-        by smtp.gmail.com with ESMTPSA id u20sm10489wmq.24.2021.06.09.07.46.21
+        by smtp.gmail.com with ESMTPSA id e16sm175080wrw.49.2021.06.09.07.46.51
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Jun 2021 07:46:21 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH v2 3/7] asm-generic: unify header guards
+        Wed, 09 Jun 2021 07:46:51 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH v2 4/7] arm: unify header guards
 To:     Cornelia Huck <cohuck@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Thomas Huth <thuth@redhat.com>,
@@ -71,15 +71,15 @@ Cc:     kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
         kvmarm@lists.cs.columbia.edu, kvm-ppc@vger.kernel.org,
         linux-s390@vger.kernel.org
 References: <20210609143712.60933-1-cohuck@redhat.com>
- <20210609143712.60933-4-cohuck@redhat.com>
+ <20210609143712.60933-5-cohuck@redhat.com>
 From:   David Hildenbrand <david@redhat.com>
 Organization: Red Hat
-Message-ID: <3b614940-b8be-244c-5271-23dffbd02ae9@redhat.com>
-Date:   Wed, 9 Jun 2021 16:46:20 +0200
+Message-ID: <97d532a5-af52-c2f6-0f0f-7334299aef1a@redhat.com>
+Date:   Wed, 9 Jun 2021 16:46:50 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.10.1
 MIME-Version: 1.0
-In-Reply-To: <20210609143712.60933-4-cohuck@redhat.com>
+In-Reply-To: <20210609143712.60933-5-cohuck@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -88,70 +88,57 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 09.06.21 16:37, Cornelia Huck wrote:
-> Standardize header guards to _ASM_GENERIC_HEADER_H_.
+> The assembler.h files were the only ones not already following
+> the convention.
 > 
 > Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 > ---
->   lib/asm-generic/atomic.h          | 4 ++--
->   lib/asm-generic/barrier.h         | 6 +++---
->   lib/asm-generic/memory_areas.h    | 4 ++--
->   lib/asm-generic/pci-host-bridge.h | 4 ++--
->   4 files changed, 9 insertions(+), 9 deletions(-)
+>   lib/arm/asm/assembler.h   | 6 +++---
+>   lib/arm64/asm/assembler.h | 6 +++---
+>   2 files changed, 6 insertions(+), 6 deletions(-)
 > 
-> diff --git a/lib/asm-generic/atomic.h b/lib/asm-generic/atomic.h
-> index 26b645a7cc18..b09ce95053e7 100644
-> --- a/lib/asm-generic/atomic.h
-> +++ b/lib/asm-generic/atomic.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __ASM_GENERIC_ATOMIC_H__
-> -#define __ASM_GENERIC_ATOMIC_H__
-> +#ifndef _ASM_GENERIC_ATOMIC_H_
-> +#define _ASM_GENERIC_ATOMIC_H_
->   
->   /* From QEMU include/qemu/atomic.h */
->   #define atomic_fetch_inc(ptr)  __sync_fetch_and_add(ptr, 1)
-> diff --git a/lib/asm-generic/barrier.h b/lib/asm-generic/barrier.h
-> index 6a990ff8d5a5..5499a5664d4d 100644
-> --- a/lib/asm-generic/barrier.h
-> +++ b/lib/asm-generic/barrier.h
-> @@ -1,5 +1,5 @@
-> -#ifndef _ASM_BARRIER_H_
-> -#define _ASM_BARRIER_H_
-> +#ifndef _ASM_GENERIC_BARRIER_H_
-> +#define _ASM_GENERIC_BARRIER_H_
->   /*
->    * asm-generic/barrier.h
->    *
-> @@ -32,4 +32,4 @@
->   #define cpu_relax()	asm volatile ("":::"memory")
+> diff --git a/lib/arm/asm/assembler.h b/lib/arm/asm/assembler.h
+> index dfd3c51bf6ad..4200252dd14d 100644
+> --- a/lib/arm/asm/assembler.h
+> +++ b/lib/arm/asm/assembler.h
+> @@ -8,8 +8,8 @@
+>   #error "Only include this from assembly code"
 >   #endif
 >   
-> -#endif /* _ASM_BARRIER_H_ */
-> +#endif /* _ASM_GENERIC_BARRIER_H_ */
-> diff --git a/lib/asm-generic/memory_areas.h b/lib/asm-generic/memory_areas.h
-> index 3074afe23393..c86db255ecee 100644
-> --- a/lib/asm-generic/memory_areas.h
-> +++ b/lib/asm-generic/memory_areas.h
-> @@ -1,5 +1,5 @@
-> -#ifndef __ASM_GENERIC_MEMORY_AREAS_H__
-> -#define __ASM_GENERIC_MEMORY_AREAS_H__
-> +#ifndef _ASM_GENERIC_MEMORY_AREAS_H_
-> +#define _ASM_GENERIC_MEMORY_AREAS_H_
+> -#ifndef __ASM_ASSEMBLER_H
+> -#define __ASM_ASSEMBLER_H
+> +#ifndef _ASMARM_ASSEMBLER_H_
+> +#define _ASMARM_ASSEMBLER_H_
 >   
->   #define AREA_NORMAL_PFN 0
->   #define AREA_NORMAL_NUMBER 0
-> diff --git a/lib/asm-generic/pci-host-bridge.h b/lib/asm-generic/pci-host-bridge.h
-> index 9e91499b9446..174ff341dd0d 100644
-> --- a/lib/asm-generic/pci-host-bridge.h
-> +++ b/lib/asm-generic/pci-host-bridge.h
-> @@ -1,5 +1,5 @@
-> -#ifndef _ASM_PCI_HOST_BRIDGE_H_
-> -#define _ASM_PCI_HOST_BRIDGE_H_
-> +#ifndef _ASM_GENERIC_PCI_HOST_BRIDGE_H_
-> +#define _ASM_GENERIC_PCI_HOST_BRIDGE_H_
 >   /*
->    * Copyright (C) 2016, Red Hat Inc, Alexander Gordeev <agordeev@redhat.com>
->    *
+>    * dcache_line_size - get the minimum D-cache line size from the CTR register
+> @@ -50,4 +50,4 @@
+>   	dsb	\domain
+>   	.endm
+>   
+> -#endif	/* __ASM_ASSEMBLER_H */
+> +#endif	/* _ASMARM_ASSEMBLER_H_ */
+> diff --git a/lib/arm64/asm/assembler.h b/lib/arm64/asm/assembler.h
+> index 0a6ab9720bdd..a271e4ceefe6 100644
+> --- a/lib/arm64/asm/assembler.h
+> +++ b/lib/arm64/asm/assembler.h
+> @@ -12,8 +12,8 @@
+>   #error "Only include this from assembly code"
+>   #endif
+>   
+> -#ifndef __ASM_ASSEMBLER_H
+> -#define __ASM_ASSEMBLER_H
+> +#ifndef _ASMARM64_ASSEMBLER_H_
+> +#define _ASMARM64_ASSEMBLER_H_
+>   
+>   /*
+>    * raw_dcache_line_size - get the minimum D-cache line size on this CPU
+> @@ -51,4 +51,4 @@
+>   	dsb	\domain
+>   	.endm
+>   
+> -#endif	/* __ASM_ASSEMBLER_H */
+> +#endif	/* _ASMARM64_ASSEMBLER_H_ */
 > 
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
