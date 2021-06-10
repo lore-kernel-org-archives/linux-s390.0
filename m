@@ -2,82 +2,98 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2785DC47094
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 05:25:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2985C48BDF
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 12:17:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EAABF613E1
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 05:25:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAD1C60FF0
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 12:17:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230077AbhFJF1J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Jun 2021 01:27:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38090 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229705AbhFJF1J (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Jun 2021 01:27:09 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14D5DC061574;
-        Wed,  9 Jun 2021 22:25:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=0q4RCvc/9mzT3mQV4dTF1WnKIhRqdnIIYV31Jdhy1KQ=; b=WV2xiZA3cNN/xfc3Hy5VQQcra4
-        i/kUVdx5dj/vBw9CKf7eqA2UCMB3gebnUW1fhL0LTlnOkgyCrIjCV0gqFx9+usHQBS4yvbucRBoGg
-        JNC+75/rCUoVxOKlaov0NGbYIjSbwDxhx8FfXuvpM+5tXkSnW5TbXX7FSq+fqxim45alIaVx8m2JM
-        RtddiwUAZEG2sUILhPcMnydEMwqkqT+MOttywz2PULGGqe57UtiCPLWggiJ/PhST4eb0l8+EgJZyk
-        GEVQrc0al3ZUAifTo7iDYlWQpycpUgWOUYkaU4sqTxsRyDJEED2YCd2wUzo/0DR4zIMnpm3fuIuYg
-        1hxYTrng==;
-Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1lrDBH-001GCn-Eh; Thu, 10 Jun 2021 05:24:46 +0000
-Date:   Thu, 10 Jun 2021 06:24:39 +0100
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        cohuck@redhat.com, david@redhat.com, linux-mm@kvack.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        David Rientjes <rientjes@google.com>
-Subject: Re: [PATCH v2 1/2] mm/vmalloc: export __vmalloc_node_range
-Message-ID: <YMGiFya4JP9VuV0Y@infradead.org>
-References: <20210608180618.477766-1-imbrenda@linux.ibm.com>
- <20210608180618.477766-2-imbrenda@linux.ibm.com>
- <YMDlVdB8m62AhbB7@infradead.org>
- <20210609182809.7ae07aad@ibm-vm>
- <6bf6fb06-0930-8cae-3e2b-8cb3237a6197@de.ibm.com>
+        id S230360AbhFJMT1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Jun 2021 08:19:27 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43551 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230255AbhFJMT0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 10 Jun 2021 08:19:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1623327450;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Uv0xs33ewLzq+ryxudIHULBGFCkV88+uHAen7THruNI=;
+        b=FAsBBbNjCcaMTi22JwkTiFRwVkiaKSQQDJNjEu9MFmvDFk85EGKP1zhMIFtGE4GeFCuloD
+        MrGjIukbFzaD26ieM6J23h1updP44IgdKqbqHgSiHiOA7UlDQ7Zlo+WwKuPTZuLCc083P1
+        IsIpy10fqAsGX+rloa4PlXzYfl6AAQo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-446-C_LD9CEhMAKT2zbl-a5lDw-1; Thu, 10 Jun 2021 08:17:25 -0400
+X-MC-Unique: C_LD9CEhMAKT2zbl-a5lDw-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5EDAB8042B7;
+        Thu, 10 Jun 2021 12:17:24 +0000 (UTC)
+Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9EEFC18B42;
+        Thu, 10 Jun 2021 12:17:19 +0000 (UTC)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     kvm@vger.kernel.org, Andrew Jones <drjones@redhat.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>
+Cc:     Laurent Vivier <lvivier@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        kvmarm@lists.cs.columbia.edu, linux-s390@vger.kernel.org,
+        kvm-ppc@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v2 0/7] unify header guards
+Date:   Thu, 10 Jun 2021 08:17:19 -0400
+Message-Id: <162332742682.173232.8556399043091141939.b4-ty@redhat.com>
+In-Reply-To: <20210609143712.60933-1-cohuck@redhat.com>
+References: <20210609143712.60933-1-cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6bf6fb06-0930-8cae-3e2b-8cb3237a6197@de.ibm.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 09, 2021 at 07:47:43PM +0200, Christian Borntraeger wrote:
-> An alternative would be to provide a vmalloc_no_huge function in generic
-> code  (similar to  vmalloc_32) (or if preferred in s390 base architecture code)
-> Something like
+On Wed, 9 Jun 2021 16:37:05 +0200, Cornelia Huck wrote:
+> This is an extension of "s390x: unify header guards" to the rest
+> of kvm-unit-tests. I tried to choose a pattern that minimizes the
+> changes; most of them are for s390x and x86.
 > 
-> void *vmalloc_no_huge(unsigned long size)
-> {
->         return __vmalloc_node_flags(size, NUMA_NO_NODE,VM_NO_HUGE_VMAP |
->                                 GFP_KERNEL | __GFP_ZERO);
-> }
-> EXPORT_SYMBOL(vmalloc_no_huge);
+> v1->v2:
+> - change the patterns and document them
+> - change other architectures and architecture-independent code as well
 > 
-> or a similar vzalloc variant.
+> [...]
 
-Exactly.  Given that this seems to be a weird pecularity of legacy s390
-interfaces I'd only export it for 390 for now, although for
-documentation purposes I'd probably still keep it in vmalloc.c.
+Applied, thanks!
+
+[1/7] README.md: add guideline for header guards format
+      commit: 844669a9631d78a54b47f6667c9a2750b65d101c
+[2/7] lib: unify header guards
+      commit: 9f0ae3012430ed7072d04247fb674125c616a6b4
+[3/7] asm-generic: unify header guards
+      commit: 951e6299b30016bf04a343973296c4274e87f0e2
+[4/7] arm: unify header guards
+      commit: 16f52ec9a4763e62e35453497e4f077031abcbfb
+[5/7] powerpc: unify header guards
+      commit: 040ee6d9aee563b2b1f28e810c5e36fbbcc17bd9
+[6/7] s390x: unify header guards
+      commit: eb5a1bbab00619256b76177e7a88cfe05834b026
+[7/7] x86: unify header guards
+      commit: c865f654ffe4c5955038aaf74f702ba62f3eb014
+
+Best regards,
+-- 
+Paolo Bonzini <pbonzini@redhat.com>
+
