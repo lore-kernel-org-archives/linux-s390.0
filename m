@@ -7,57 +7,57 @@ X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DB97C47094
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 17:26:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71B88C47094
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 17:27:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8170B613C9
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 17:26:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4661D600EF
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 17:27:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230247AbhFJR2R (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Jun 2021 13:28:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57168 "EHLO
+        id S230059AbhFJR3w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Jun 2021 13:29:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230086AbhFJR2O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Jun 2021 13:28:14 -0400
-Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9543DC061760
-        for <linux-s390@vger.kernel.org>; Thu, 10 Jun 2021 10:26:15 -0700 (PDT)
-Received: by mail-lf1-x12a.google.com with SMTP id f30so4473133lfj.1
-        for <linux-s390@vger.kernel.org>; Thu, 10 Jun 2021 10:26:15 -0700 (PDT)
+        with ESMTP id S230051AbhFJR3w (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Jun 2021 13:29:52 -0400
+Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A508DC061760
+        for <linux-s390@vger.kernel.org>; Thu, 10 Jun 2021 10:27:55 -0700 (PDT)
+Received: by mail-lf1-x130.google.com with SMTP id j2so4444591lfg.9
+        for <linux-s390@vger.kernel.org>; Thu, 10 Jun 2021 10:27:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=onW47ZbFH5e5HdlUoVPNuscSOQqX/2SrpfD9q95JllY=;
-        b=b6hzP0YccRsWRRzU9ACpHmsFQnmYuaVTbX3pLJrVClZpmJ8BdQEY4NyzcB+e9HkDWy
-         NC09VOvmFwa0/XSiTVEsk5yJuCNs+bQIW3AIZ02R9sahMKur9D08Bgr3lJ/OhJRtLD1o
-         BlYEX0xLTOySTV9lBOztJD3qJAdsp/6IHVAqlgN264WrwRKJy5jiyfY2YODTbTv50eZm
-         HagnQMsvfTQIbob7ncuANB6LsQf7XAFdg0eqOnkqhq7Zz2bDCxMdB+xv1sthskhngNbZ
-         UBLuUJ4UMHWPJP6okHwkretFYjIcBoI+l5AuDgK1Gl+KtZaAOhvO85V10T2j4GFhFYmw
-         bEDw==
+        bh=FLnQvFD4x7DNDj+NEJ3O+AkctP1r/V6a1b3Mdx886HU=;
+        b=rYFqapPgHlrCQ4YV5UAaF9vTXxJW71bDJszf6XXAAypmGGRdGy7rfe1/NkQ88jkidv
+         zj0sX27ZlwVd1QclSX13XE640t7tzrvWWWb1G2tctffoctIf1fhooZ7Z71CevX/0YxEF
+         tuOvnyEYg0UtYKXQV9KQGDQGVcEUJKGE2o7Ere77VbhsmdIPiI7RPZHMj8zFUV6O58ia
+         ZHRxLj73Uxg2A+dJQSroGT/BW6I99RPB91M1y0pZsGyl/MLduTCcimMeMfbZQU+j52PK
+         73cqjjeLjcblTMTYG4JtB0oQ0j/azuNLDIYH6CGSA+Lzz/w3wgp0j+picMdZdSjO0idh
+         bqlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=onW47ZbFH5e5HdlUoVPNuscSOQqX/2SrpfD9q95JllY=;
-        b=rgQYQo9Lb3tWChp/Ye9ewvWWyRqs6WPl3dJb0JaGbYkhMoTpwWZx32vgh/G4TDAmEV
-         LdQ4GO6sSO3gXN4rHQ0O2qV1FPdj/s32TTdMbncYjNZh/I+BuohNxxY9hDkkI9B5pECu
-         fFtjCW/kcF9VRf6C2EvN8jBZmr8A1yA+5rsJo1lixVD56/ETwLzVYIO6y1TWRi3UnZkX
-         i5HwIY1aDO79IpJxeh/TpQ1zTa4FTiK0HKy8kBWyJosMD/CijW6JU+IxE3XXzf8ZQGkb
-         7mSA5Ej9YqTUcs1d1kwIoMFHHvt5RBGwR+yNyGje/nUUCyvDYDGh5S/Bx1T38RIeULsc
-         8Dbg==
-X-Gm-Message-State: AOAM532cg74izP8eNoE2XnYkCmWc2bRALKtJ1RpSnekqoovRyohV+zKN
-        erirtsZpJwKxk+/fOTWnWYrz9A2mEXKHOEvFRNk7Hg==
-X-Google-Smtp-Source: ABdhPJz8EC2IEZhB34cW1A4E6Lqer1JPVsXnD5iNMnq9sh79Ry5VJrolXUt5s8cOLAUMW6xiM1HrMzx1A5MFg25P0eQ=
-X-Received: by 2002:a05:6512:3ea:: with SMTP id n10mr2582051lfq.178.1623345973683;
- Thu, 10 Jun 2021 10:26:13 -0700 (PDT)
+        bh=FLnQvFD4x7DNDj+NEJ3O+AkctP1r/V6a1b3Mdx886HU=;
+        b=H14k0PWG5b8MFHQj+kAf0m1YXcJ+Ohc8zlPqdlwO9k/yyCRaXzb2I6UNisimbZ7Ufy
+         2EkEnt3fkVY7dgF/LLDxBoNFe08pKxb8OEZSG5HMGHTvzO+Vl9lGjfOUQM2JoSQIDJSP
+         Ghs1OSJ5lPKzJiHS66wY0SpRM+ijXl0s7E0Y77ktbZYj1EpnvzPYTFFScaMJJv+jPpBe
+         fQ9hsXUe0MQqQL0A+fN3HiJj6YMdVWY49tdK2Kr5ZFe0lJ1P73/vs7Xxas9Hth5wHDNY
+         qj11FXysWKHD0wB3uGWLasuVkCN/pjwPykyl8BFyWadTqRW8SwrBz8g0hgXvHlPyrEvs
+         xt0g==
+X-Gm-Message-State: AOAM531XS/iozgm+tML2WUWtWk5J5GwEOHPgJlk1XgvdLa3AS5eReMty
+        1ywI1/1aDvZ9cqCKtrs7gDBBAzDn+3oRMY0+5kXcMQ==
+X-Google-Smtp-Source: ABdhPJxMYyFCrOdc3qDmqDYkOsRd9Ou7KT5iYSlyqMweabXy+tFPPqYLyS4hzfuDF71PLN1Lon73E77keupLBsrNlto=
+X-Received: by 2002:a05:6512:33c4:: with SMTP id d4mr2754345lfg.536.1623346073785;
+ Thu, 10 Jun 2021 10:27:53 -0700 (PDT)
 MIME-Version: 1.0
 References: <20210603211426.790093-1-jingzhangos@google.com>
- <20210603211426.790093-3-jingzhangos@google.com> <e3b2b3ab-88a2-827c-7775-10be63158ff3@redhat.com>
-In-Reply-To: <e3b2b3ab-88a2-827c-7775-10be63158ff3@redhat.com>
+ <20210603211426.790093-3-jingzhangos@google.com> <345170fd-636c-f1be-7dc3-69467e51d872@redhat.com>
+In-Reply-To: <345170fd-636c-f1be-7dc3-69467e51d872@redhat.com>
 From:   Jing Zhang <jingzhangos@google.com>
-Date:   Thu, 10 Jun 2021 12:26:01 -0500
-Message-ID: <CAAdAUtg638Fk9QVAdZ0Xt96YS311KCfeJqNiP5FycCMafZ3R0A@mail.gmail.com>
+Date:   Thu, 10 Jun 2021 12:27:41 -0500
+Message-ID: <CAAdAUthr+An=SWZLDfWQ1nfnAr-PdAJgSuBmK2iypa1a3+Ay5g@mail.gmail.com>
 Subject: Re: [PATCH v7 2/4] KVM: stats: Add fd-based API to read binary stats data
 To:     Paolo Bonzini <pbonzini@redhat.com>
 Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
@@ -96,42 +96,56 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 Hi Paolo,
 
-On Thu, Jun 10, 2021 at 11:23 AM Paolo Bonzini <pbonzini@redhat.com> wrote:
+On Thu, Jun 10, 2021 at 11:42 AM Paolo Bonzini <pbonzini@redhat.com> wrote:
 >
 > On 03/06/21 23:14, Jing Zhang wrote:
-> > +#define DEFINE_VM_STATS_DESC(...) {                                         \
-> > +     STATS_DESC_COUNTER("remote_tlb_flush"),                                \
-> > +     ## __VA_ARGS__                                                         \
-> > +}
+> > +struct _kvm_stats_header {
+> > +     __u32 name_size;
+> > +     __u32 count;
+> > +     __u32 desc_offset;
+> > +     __u32 data_offset;
+> > +};
 > > +
-> > +#define DEFINE_VCPU_STATS_DESC(...) {                                               \
-> > +     STATS_DESC_COUNTER("halt_successful_poll"),                            \
-> > +     STATS_DESC_COUNTER("halt_attempted_poll"),                             \
-> > +     STATS_DESC_COUNTER("halt_poll_invalid"),                               \
-> > +     STATS_DESC_COUNTER("halt_wakeup"),                                     \
-> > +     STATS_DESC_TIME_NSEC("halt_poll_success_ns"),                          \
-> > +     STATS_DESC_TIME_NSEC("halt_poll_fail_ns"),                             \
-> > +     ## __VA_ARGS__                                                         \
 >
-> Let's instead put this (note it's without braces) in macros like these
+> Keeping this struct in sync with kvm_stats_header is a bit messy.  If
+> you move the id at the end of the header, however, you can use the same
+> trick with the zero-sized array that you used for _kvm_stats_desc.
 >
-> #define KVM_GENERIC_VM_STATS()                                                  \
->         STATS_DESC_COUNTER("remote_tlb_flush"),
+Good point. Will do.
+> > +struct kvm_vm_stats_data {
+> > +     unsigned long value[0];
+> > +};
+> > +
 >
-> #define KVM_GENERIC_VCPU_STATS(...)                                             \
->         STATS_DESC_COUNTER("halt_successful_poll"),                             \
->         STATS_DESC_COUNTER("halt_attempted_poll"),                              \
->         STATS_DESC_COUNTER("halt_poll_invalid"),                                \
->         STATS_DESC_COUNTER("halt_wakeup"),                                      \
->         STATS_DESC_TIME_NSEC("halt_poll_success_ns"),                           \
->         STATS_DESC_TIME_NSEC("halt_poll_fail_ns"),
+> I posted the patch to switch the VM statistics to 64-bit; you can rebase
+> on top of it.
+Cool!
 >
-> and it can be used in the arch files.  In fact it can even be added in patch 1 and
-> switched to STATS_DESC_* here.
+> > +#define KVM_GET_STATS_FD  _IOR(KVMIO,  0xcc, struct kvm_stats_header)
+>
+> This should be _IO(KVMIO, 0xcc) since it does not have an argument.
+>
+Will correct it.
+> > +#define STATS_DESC(stat, type, unit, scale, exp)                            \
+> > +     {                                                                      \
+> > +             {                                                              \
+> > +                     .flags = type | unit | scale,                          \
+> > +                     .exponent = exp,                                       \
+> > +                     .size = 1                                              \
+> > +             },                                                             \
+> > +             .name = stat,                                                  \
+>
+> Here you can use
+>
+>         type | BUILD_BUG_ON_ZERO(type & ~KVM_STATS_TYPE_MASK) |
+>         unit | BUILD_BUG_ON_ZERO(unit & ~KVM_STATS_UNIT_MASK) |
+>         scale | BUILD_BUG_ON_ZERO(scale & ~KVM_STATS_SCALE_MASK) |
+>
+> to get a little bit of type checking.
+Sure, will do.
 >
 > Paolo
 >
-Sure, will do.
 
-Thank,s
+Thanks,
 Jing
