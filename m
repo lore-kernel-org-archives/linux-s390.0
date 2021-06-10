@@ -2,101 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12BE3C48BDF
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 13:04:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF1C3C47094
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 14:20:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EED43613F1
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 13:04:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C6D8E613C6
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 14:20:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230466AbhFJNGQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Jun 2021 09:06:16 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28029 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230451AbhFJNGO (ORCPT
+        id S231320AbhFJOWD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Jun 2021 10:22:03 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6549 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230084AbhFJOWC (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Jun 2021 09:06:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623330258;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=5hD4Pe0huNw0SFcYR08aVLvC2nmpzAq+LEJ0WpnDAtI=;
-        b=NMkiMq8FEoQWCnR6sFi8oiz/Bf9u8/pfQoXo1dRcgkHbi7uqElzcewYOU4OD5KeaD8Grda
-        iA5kC+b256g5JQeMo0zsABIGa/wgOCrdJO0bQDJf0ucI6yy0iADvKNSiaPmT/If8+smXDN
-        gTyLkZ/0QgUBhFflYq4VgYAw8pkvy1M=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-317-SVD3zjkSNqGdc53u2XtP3Q-1; Thu, 10 Jun 2021 09:04:16 -0400
-X-MC-Unique: SVD3zjkSNqGdc53u2XtP3Q-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 735E88030A0;
-        Thu, 10 Jun 2021 13:04:15 +0000 (UTC)
-Received: from localhost (ovpn-113-107.ams2.redhat.com [10.36.113.107])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id D13A35C1C5;
-        Thu, 10 Jun 2021 13:04:09 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
-        Andrew Jones <drjones@redhat.com>,
-        Thomas Huth <thuth@redhat.com>
-Cc:     Laurent Vivier <lvivier@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        kvmarm@lists.cs.columbia.edu, linux-s390@vger.kernel.org,
-        kvm-ppc@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v2 0/7] unify header guards
-In-Reply-To: <162332742682.173232.8556399043091141939.b4-ty@redhat.com>
-Organization: Red Hat GmbH
-References: <20210609143712.60933-1-cohuck@redhat.com>
- <162332742682.173232.8556399043091141939.b4-ty@redhat.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Thu, 10 Jun 2021 15:04:08 +0200
-Message-ID: <87r1h9zx9z.fsf@redhat.com>
+        Thu, 10 Jun 2021 10:22:02 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15AE3bhv096619;
+        Thu, 10 Jun 2021 10:20:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=hjL552Ig2sktrHftFzN1dDJ1btbi/msqXjCaJCTaUIQ=;
+ b=Ukp0UTxMXqBOYKnaXXXqpLz2w0a2DxKbOmxuPWKgBKIzpfXtzHLOHy0VseCAtHkOnHDs
+ +DHO/wXH/WeioiqEfz0mxJbhn5dSU3wvlULMqSJhJOI6coFFlPYtIAvszNxwFsmnSEj7
+ shFWpD6t2gXX+WT3rE7sFtSDAHxNYwz9B2KDY53sVYAFlbhwHq5p/iWRvtT/Ep3hgPB+
+ HeSv/3PBbyvf6DU+9NmbzXZsIeVgjttzswuDDRRX54+yA3lv25YcWBBaATDs0rD4qd3c
+ iJdiLBkQvyVjFa5AVZWaoKGdj5eJnZhka7R4aiyUtuTp54Lwr3s0tvWeX6o3oARuQERE iw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 393kksj2xy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Jun 2021 10:20:05 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15AE4OwE103549;
+        Thu, 10 Jun 2021 10:20:04 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 393kksj2x4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Jun 2021 10:20:04 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15AEGURK003473;
+        Thu, 10 Jun 2021 14:20:03 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 3900w89kmm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Jun 2021 14:20:02 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15AEJ9LS26542396
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 10 Jun 2021 14:19:10 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 389ACA405B;
+        Thu, 10 Jun 2021 14:20:00 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 91BF9A408A;
+        Thu, 10 Jun 2021 14:19:59 +0000 (GMT)
+Received: from linux01.pok.stglabs.ibm.com (unknown [9.114.17.81])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 10 Jun 2021 14:19:59 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+Subject: [kvm-unit-tests PATCH v2] s390x: selftest: Add prefixes to fix report output (was "s390x: selftest: Fix report output")
+Date:   Thu, 10 Jun 2021 14:19:13 +0000
+Message-Id: <20210610141913.61553-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: C6rwW3NCkBONvO-pC4k9vfKA5SFVDmND
+X-Proofpoint-GUID: _EpD5b9Kdty1uYTtrpS1K6yL3TWEmzyU
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-06-10_07:2021-06-10,2021-06-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ bulkscore=0 spamscore=0 malwarescore=0 mlxlogscore=999 suspectscore=0
+ priorityscore=1501 clxscore=1015 lowpriorityscore=0 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106100091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 10 2021, Paolo Bonzini <pbonzini@redhat.com> wrote:
+To make our TAP parser (and me) happy we don't want to have two reports
+with exactly the same wording so I added in two new prefix pushes.
 
-> On Wed, 9 Jun 2021 16:37:05 +0200, Cornelia Huck wrote:
->> This is an extension of "s390x: unify header guards" to the rest
->> of kvm-unit-tests. I tried to choose a pattern that minimizes the
->> changes; most of them are for s390x and x86.
->> 
->> v1->v2:
->> - change the patterns and document them
->> - change other architectures and architecture-independent code as well
->> 
->> [...]
->
-> Applied, thanks!
->
-> [1/7] README.md: add guideline for header guards format
->       commit: 844669a9631d78a54b47f6667c9a2750b65d101c
-> [2/7] lib: unify header guards
->       commit: 9f0ae3012430ed7072d04247fb674125c616a6b4
-> [3/7] asm-generic: unify header guards
->       commit: 951e6299b30016bf04a343973296c4274e87f0e2
-> [4/7] arm: unify header guards
->       commit: 16f52ec9a4763e62e35453497e4f077031abcbfb
-> [5/7] powerpc: unify header guards
->       commit: 040ee6d9aee563b2b1f28e810c5e36fbbcc17bd9
-> [6/7] s390x: unify header guards
->       commit: eb5a1bbab00619256b76177e7a88cfe05834b026
-> [7/7] x86: unify header guards
->       commit: c865f654ffe4c5955038aaf74f702ba62f3eb014
+Also moving the code inside of the region of a prefix will give us
+more data when a problem arises.
 
-Oh, that was quick :)
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ s390x/selftest.c | 26 ++++++++++++++++++--------
+ 1 file changed, 18 insertions(+), 8 deletions(-)
 
-I'll do some further (small) updates on top, then.
+diff --git a/s390x/selftest.c b/s390x/selftest.c
+index b2fe2e7b..0f099ca0 100644
+--- a/s390x/selftest.c
++++ b/s390x/selftest.c
+@@ -40,19 +40,28 @@ static void test_pgm_int(void)
+ 
+ static void test_malloc(void)
+ {
+-	int *tmp = malloc(sizeof(int));
+-	int *tmp2 = malloc(sizeof(int));
++	int *tmp, *tmp2;
+ 
++	report_prefix_push("malloc");
++
++	report_prefix_push("ptr_0");
++	tmp = malloc(sizeof(int));
++	report((uintptr_t)tmp & 0xf000000000000000ul, "allocated memory");
+ 	*tmp = 123456789;
++	mb();
++	report(*tmp == 123456789, "wrote allocated memory");
++	report_prefix_pop();
++
++	report_prefix_push("ptr_1");
++	tmp2 = malloc(sizeof(int));
++	report((uintptr_t)tmp2 & 0xf000000000000000ul,
++	       "allocated memory");
+ 	*tmp2 = 123456789;
+ 	mb();
++	report((*tmp2 == 123456789), "wrote allocated memory");
++	report_prefix_pop();
+ 
+-	report((uintptr_t)tmp & 0xf000000000000000ul, "malloc: got vaddr");
+-	report(*tmp == 123456789, "malloc: access works");
+-	report((uintptr_t)tmp2 & 0xf000000000000000ul,
+-	       "malloc: got 2nd vaddr");
+-	report((*tmp2 == 123456789), "malloc: access works");
+-	report(tmp != tmp2, "malloc: addresses differ");
++	report(tmp != tmp2, "allocated memory addresses differ");
+ 
+ 	expect_pgm_int();
+ 	configure_dat(0);
+@@ -62,6 +71,7 @@ static void test_malloc(void)
+ 
+ 	free(tmp);
+ 	free(tmp2);
++	report_prefix_pop();
+ }
+ 
+ int main(int argc, char**argv)
+-- 
+2.30.2
 
