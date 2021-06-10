@@ -2,73 +2,73 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9582BC48BD1
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 15:42:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B94DFC47094
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 15:57:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 81531613AE
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 15:42:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9FB1B60E08
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 15:57:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231727AbhFJPoo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Jun 2021 11:44:44 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:9528 "EHLO
+        id S230280AbhFJP7L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Jun 2021 11:59:11 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31544 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230280AbhFJPon (ORCPT
+        by vger.kernel.org with ESMTP id S231428AbhFJP7K (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Jun 2021 11:44:43 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15AFXO9a191021;
-        Thu, 10 Jun 2021 11:42:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=C7T1dNiDQ2imTqntlWjIOOSa+cy5WfZb/znhYm7cuOo=;
- b=KJaB4swg7yxXlUgl4My5M+ngYjmdmpJ0rMKmJPDCWmpGBV3YVuFrH9g40OVZPk2lvGa4
- nXEMD4/leBFZ1GCjJtD5+SSWGlguh6AhZ9HmlIoFYtJypTHWkk+Tmq6nrPO1qw/7a1qH
- 1su1DlWsi9w6NgNWdzGe67mwpIKxmGgjdGOfhX5rRbRO3mLCTWRXUMO1G2A1xFrXtb+o
- JYKgdLuafjEy3lzmq3e0I3c3m/MGrMjGpOJIs340xK8X+qUx9TUzWRYaeg79G5LOwgLY
- WBncbGVcF4JcQHnm1JsZlyd2Qg15WEuSJ+sJPlqXvUdw74TYVsaoZ6KXI0oCNWzAhW7H 7g== 
+        Thu, 10 Jun 2021 11:59:10 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15AFXH7f140888;
+        Thu, 10 Jun 2021 11:57:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=uKX2/jAAP65Vd02Aya8sWx7xYJRNb7mhgs7DZ2kbOXI=;
+ b=THQUBT/uv60bIDCpoyp59v1VRFAfLFsNC3kXGIq9mOzljXf7c+Y7OShLL2fqspkCuYKg
+ E8AINTOyyTtc5Krb1/ElVw72+4VN73MSwZJFW21j/g5bSH0HgKu0u6TkmEgxwNU0KyPD
+ /+KDeeLQhlpHB5zAKJ87SFJtSWmo2SGcLvsUVXdiNxJ3YPyDQIMyYEkpksHs6pBMPRPp
+ HJRHSBDvNM+lroGtfJV4NmARHqPZJtLZEXJ6sOvzNUO79XKbykjFnf51qaG0oopF1Sm7
+ P5d/yzDtWyIpnSx5fhFleytyw+tEn9K/EZLmrp79inWHVa+gBUj4lTfC/2+bLfQQ6dDb EA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 393maq2ymt-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 393msna7k7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Jun 2021 11:42:29 -0400
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15AFXOdk191134;
-        Thu, 10 Jun 2021 11:42:28 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 393maq2ykf-1
+        Thu, 10 Jun 2021 11:57:05 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15AFYMgG145946;
+        Thu, 10 Jun 2021 11:57:04 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 393msna7j8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Jun 2021 11:42:28 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15AFa5Nb000714;
-        Thu, 10 Jun 2021 15:42:26 GMT
+        Thu, 10 Jun 2021 11:57:04 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15AFqkRK027791;
+        Thu, 10 Jun 2021 15:57:02 GMT
 Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3900w8jwt9-1
+        by ppma06ams.nl.ibm.com with ESMTP id 3900hhtx9h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Jun 2021 15:42:26 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15AFgN4A33685930
+        Thu, 10 Jun 2021 15:57:01 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15AFuxs023068930
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 10 Jun 2021 15:42:23 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1BC6D4204B;
-        Thu, 10 Jun 2021 15:42:23 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 714BF42045;
-        Thu, 10 Jun 2021 15:42:22 +0000 (GMT)
-Received: from ibm-vm.ibmuc.com (unknown [9.145.5.240])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 10 Jun 2021 15:42:22 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     linux-kernel@vger.kernel.org
+        Thu, 10 Jun 2021 15:56:59 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 128824C059;
+        Thu, 10 Jun 2021 15:56:59 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 55F784C052;
+        Thu, 10 Jun 2021 15:56:58 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.35.90])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 10 Jun 2021 15:56:58 +0000 (GMT)
+Subject: Re: [PATCH v3 2/2] KVM: s390: fix for hugepage vmalloc
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        david@redhat.com, linux-mm@kvack.org,
-        Andrew Morton <akpm@linux-foundation.org>,
+        frankja@linux.ibm.com, cohuck@redhat.com, david@redhat.com,
+        linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
         Nicholas Piggin <npiggin@gmail.com>,
         Uladzislau Rezki <urezki@gmail.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
@@ -76,65 +76,73 @@ Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         Ingo Molnar <mingo@redhat.com>,
         David Rientjes <rientjes@google.com>,
         Christoph Hellwig <hch@infradead.org>
-Subject: [PATCH v3 2/2] KVM: s390: fix for hugepage vmalloc
-Date:   Thu, 10 Jun 2021 17:42:20 +0200
-Message-Id: <20210610154220.529122-3-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210610154220.529122-1-imbrenda@linux.ibm.com>
 References: <20210610154220.529122-1-imbrenda@linux.ibm.com>
+ <20210610154220.529122-3-imbrenda@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <368cfb74-fdc2-00a7-d452-696e375c2ff7@de.ibm.com>
+Date:   Thu, 10 Jun 2021 17:56:58 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210610154220.529122-3-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: f2bIjlpU2qOZC5QP62bw1yslvSASTZBD
-X-Proofpoint-GUID: jkcCYnLSx41nMxS6qSlPTyO2Y6TQYMln
+X-Proofpoint-GUID: 8lHUiS35QZWtxxrtV5VKu5c3t-_L5vee
+X-Proofpoint-ORIG-GUID: BPOuKf0_1wDEX0XI3ZafasLem8gC-plt
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-06-10_10:2021-06-10,2021-06-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=687 spamscore=0
- clxscore=1015 priorityscore=1501 mlxscore=0 lowpriorityscore=0 bulkscore=0
- phishscore=0 adultscore=0 malwarescore=0 suspectscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2106100099
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 spamscore=0 clxscore=1015 phishscore=0 priorityscore=1501
+ adultscore=0 suspectscore=0 impostorscore=0 mlxlogscore=876 mlxscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106100099
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The Create Secure Configuration Ultravisor Call does not support using
-large pages for the virtual memory area. This is a hardware limitation.
 
-This patch replaces the vzalloc call with an almost equivalent call to
-the newly introduced vmalloc_no_huge function, which guarantees that
-only small pages will be used for the backing.
 
-The new call will not clear the allocated memory, but that has never
-been an actual requirement.
+On 10.06.21 17:42, Claudio Imbrenda wrote:
+> The Create Secure Configuration Ultravisor Call does not support using
+> large pages for the virtual memory area. This is a hardware limitation.
+> 
+> This patch replaces the vzalloc call with an almost equivalent call to
+> the newly introduced vmalloc_no_huge function, which guarantees that
+> only small pages will be used for the backing.
+> 
+> The new call will not clear the allocated memory, but that has never
+> been an actual requirement.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: David Rientjes <rientjes@google.com>
+> Cc: Christoph Hellwig <hch@infradead.org>
+> ---
+>   arch/s390/kvm/pv.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index 813b6e93dc83..ad7c6d7cc90b 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -140,7 +140,7 @@ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
+>   	/* Allocate variable storage */
+>   	vlen = ALIGN(virt * ((npages * PAGE_SIZE) / HPAGE_SIZE), PAGE_SIZE);
+>   	vlen += uv_info.guest_virt_base_stor_len;
+> -	kvm->arch.pv.stor_var = vzalloc(vlen);
+> +	kvm->arch.pv.stor_var = vmalloc_no_huge(vlen);
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Christoph Hellwig <hch@infradead.org>
----
- arch/s390/kvm/pv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+dont we need a memset now?
 
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 813b6e93dc83..ad7c6d7cc90b 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -140,7 +140,7 @@ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
- 	/* Allocate variable storage */
- 	vlen = ALIGN(virt * ((npages * PAGE_SIZE) / HPAGE_SIZE), PAGE_SIZE);
- 	vlen += uv_info.guest_virt_base_stor_len;
--	kvm->arch.pv.stor_var = vzalloc(vlen);
-+	kvm->arch.pv.stor_var = vmalloc_no_huge(vlen);
- 	if (!kvm->arch.pv.stor_var)
- 		goto out_err;
- 	return 0;
--- 
-2.31.1
-
+>   	if (!kvm->arch.pv.stor_var)
+>   		goto out_err;
+>   	return 0;
+> 
