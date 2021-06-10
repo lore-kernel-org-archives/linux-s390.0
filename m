@@ -2,76 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59277C48BE0
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 21:09:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1FE8C48BDF
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 22:47:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3FF16613E7
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 21:09:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AAE89613E7
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 22:47:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230332AbhFJVLR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Jun 2021 17:11:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46534 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230281AbhFJVLQ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Jun 2021 17:11:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D00C6100A;
-        Thu, 10 Jun 2021 21:09:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1623359350;
-        bh=3uaKX4KWu0Y7+XQgx32jwGfnVzT9DzauJXLAk/77HMY=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=blEMPalfjEBPfhZPnkH5BgzoTabj85Ajnb0HACnx80mKy/nwDMJVwclzrSSJ+mamY
-         KAg2/DZHZ7f6ykjRUkB+dhEvC1nsbaZpCbJrGels74TVComEKM8CuLFy8nzsRCGlvn
-         bkCKZ+P94YHb5pT5FSjO9QuAfeHeE8G91zY1Jeus=
-Date:   Thu, 10 Jun 2021 14:09:09 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
-        linux-mm@kvack.org, Nicholas Piggin <npiggin@gmail.com>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
+        id S230169AbhFJWtx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Jun 2021 18:49:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43470 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230103AbhFJWtx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Jun 2021 18:49:53 -0400
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F1FBC0617A6
+        for <linux-s390@vger.kernel.org>; Thu, 10 Jun 2021 15:47:56 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id p17so5669138lfc.6
+        for <linux-s390@vger.kernel.org>; Thu, 10 Jun 2021 15:47:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=NB6oruf2NY8GhkThmLRjR9OK5AwQwpQtqUKMMQIim6Q=;
+        b=RlAcwFqFOmgURmrxCa/W36B7QDS48JsLtq3ukyvETwbEWY9n6kYR15OJLR1+m/Ayoa
+         IFOPgRn+MWHaHRxfzFfw8YKkIIgs2ZCGs14vP+ZHoxKKjXRv9KyIxggliDfqvjBIjYCq
+         V94EObt9JIV8pROJEKleOqvY3Lp4pDZx/7FjYYuWinqlm2/1Nytb+dPDD+hsW55nAX2C
+         NGH7VQWOTOBEWWcYPh7P7p/+0rXPvWK0nt69u5R3R8eLlCTBAmYqdMr2C3ARulRpzg4R
+         8Q+QNXpBn09jeaY6tlsnVHADHx9NQbdhTP8oD+yYICZdPO5DY7zVDUU7MeMZbXvDgcyf
+         zO/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=NB6oruf2NY8GhkThmLRjR9OK5AwQwpQtqUKMMQIim6Q=;
+        b=GfcnirLYeK62+hkJixdN0tptEuR72m7nsilTwddGAXeRGm4Vnv4/8ff0sdTZikXaL7
+         fl/t3J7w5/Vm6UFaEluCo96X7eQYUOpPkvusD3PuXaAOSANpsSpUS/wjQ0I6AX9D4G9m
+         5SJKjqOmLTSfY01xkulOypibkWykzz0NqfeDusnmvrjvCTZwiPDdOlVQmOl5w80HRIqE
+         3VfdLSz69YC1WBZ6SZCpOBA/2RB6uBCRFf0HAPD4TAEMM34yAiN4zJ5XC58zoorNybEj
+         gmXA8VD0DF9KyEvSPQGIJDVk9x2bzWg04VxSVrk17otDSbh22F7dl0vP976v1vfGQff4
+         +qrw==
+X-Gm-Message-State: AOAM5326N6mp9EZDr33TzpBfusgSN9Q7BtvkmgDwRsnRxzN2V/ln3QKF
+        J6GqplYzX53LZeXv+75Igkn3TFPBp3WpzKMv50P9fQ==
+X-Google-Smtp-Source: ABdhPJwpq8QDGCaA9l+lT37FAjCpuN+L2RrV3HuGV2JBb0AyojuY/TbuPJ2PuprqJ9F9pWJFYjBYz3jwM7wdjjpecmI=
+X-Received: by 2002:a05:6512:39ca:: with SMTP id k10mr657852lfu.473.1623365274281;
+ Thu, 10 Jun 2021 15:47:54 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210603211426.790093-1-jingzhangos@google.com>
+ <20210603211426.790093-3-jingzhangos@google.com> <e3b2b3ab-88a2-827c-7775-10be63158ff3@redhat.com>
+In-Reply-To: <e3b2b3ab-88a2-827c-7775-10be63158ff3@redhat.com>
+From:   Jing Zhang <jingzhangos@google.com>
+Date:   Thu, 10 Jun 2021 17:47:41 -0500
+Message-ID: <CAAdAUtjAuDdyBz7qd7UE0WuY77US-bhY1-jA9E11ddhZ0=gw6g@mail.gmail.com>
+Subject: Re: [PATCH v7 2/4] KVM: stats: Add fd-based API to read binary stats data
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
+        LinuxMIPS <linux-mips@vger.kernel.org>,
+        KVMPPC <kvm-ppc@vger.kernel.org>,
+        LinuxS390 <linux-s390@vger.kernel.org>,
+        Linuxkselftest <linux-kselftest@vger.kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
         David Rientjes <rientjes@google.com>,
-        Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH v3 1/2] mm/vmalloc: add vmalloc_no_huge
-Message-Id: <20210610140909.781959d063608710e24e70c9@linux-foundation.org>
-In-Reply-To: <20210610154220.529122-2-imbrenda@linux.ibm.com>
-References: <20210610154220.529122-1-imbrenda@linux.ibm.com>
-        <20210610154220.529122-2-imbrenda@linux.ibm.com>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
+        David Matlack <dmatlack@google.com>,
+        Ricardo Koller <ricarkol@google.com>,
+        Krish Sadhukhan <krish.sadhukhan@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 10 Jun 2021 17:42:19 +0200 Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
+Hi Paolo,
 
-> The recent patches to add support for hugepage vmalloc mappings added a
-> flag for __vmalloc_node_range to allow to request small pages.
-> This flag is not accessible when calling vmalloc, the only option is to
-> call directly __vmalloc_node_range, which is not exported.
+On Thu, Jun 10, 2021 at 11:23 AM Paolo Bonzini <pbonzini@redhat.com> wrote:
+>
+> On 03/06/21 23:14, Jing Zhang wrote:
+> > +#define DEFINE_VM_STATS_DESC(...) {                                         \
+> > +     STATS_DESC_COUNTER("remote_tlb_flush"),                                \
+> > +     ## __VA_ARGS__                                                         \
+> > +}
+> > +
+> > +#define DEFINE_VCPU_STATS_DESC(...) {                                               \
+> > +     STATS_DESC_COUNTER("halt_successful_poll"),                            \
+> > +     STATS_DESC_COUNTER("halt_attempted_poll"),                             \
+> > +     STATS_DESC_COUNTER("halt_poll_invalid"),                               \
+> > +     STATS_DESC_COUNTER("halt_wakeup"),                                     \
+> > +     STATS_DESC_TIME_NSEC("halt_poll_success_ns"),                          \
+> > +     STATS_DESC_TIME_NSEC("halt_poll_fail_ns"),                             \
+> > +     ## __VA_ARGS__                                                         \
+>
+> Let's instead put this (note it's without braces) in macros like these
+>
+> #define KVM_GENERIC_VM_STATS()                                                  \
+>         STATS_DESC_COUNTER("remote_tlb_flush"),
+>
+> #define KVM_GENERIC_VCPU_STATS(...)                                             \
+>         STATS_DESC_COUNTER("halt_successful_poll"),                             \
+>         STATS_DESC_COUNTER("halt_attempted_poll"),                              \
+>         STATS_DESC_COUNTER("halt_poll_invalid"),                                \
+>         STATS_DESC_COUNTER("halt_wakeup"),                                      \
+>         STATS_DESC_TIME_NSEC("halt_poll_success_ns"),                           \
+>         STATS_DESC_TIME_NSEC("halt_poll_fail_ns"),
+>
+> and it can be used in the arch files.  In fact it can even be added in patch 1 and
+> switched to STATS_DESC_* here.
+>
+> Paolo
+>
+I just remember that the reason I used braces is due to following
+error from checkpatch.pl:
+ERROR: Macros with complex values should be enclosed in parentheses
 
-I can find no patch which adds such a flag to __vmalloc_node_range(). 
-I assume you're referring to "mm/vmalloc: switch to bulk allocator in
-__vmalloc_area_node()"?
+So, just keep it as it is?
 
-Please be quite specific when identifying patches.  More specific than
-"the recent patches"!
-
-Also, it appears from the discussion at
-https://lkml.kernel.org/r/YKUWKFyLdqTYliwu@infradead.org that we'll be
-seeing a new version of "mm/vmalloc: switch to bulk allocator in
-__vmalloc_area_node()".  Would it be better to build these s390 fixes into
-the next version of that patch series rather than as a separate
-followup thing?
-
+Thanks,
+Jing
