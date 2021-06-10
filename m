@@ -4,149 +4,167 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF1C3C47094
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 14:20:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34BD4C48BDF
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 15:42:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C6D8E613C6
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 14:20:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1CE8F613AE
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 15:42:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231320AbhFJOWD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Jun 2021 10:22:03 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6549 "EHLO
+        id S231572AbhFJPog (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Jun 2021 11:44:36 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46002 "EHLO
         mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230084AbhFJOWC (ORCPT
+        by vger.kernel.org with ESMTP id S231356AbhFJPof (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Jun 2021 10:22:02 -0400
+        Thu, 10 Jun 2021 11:44:35 -0400
 Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15AE3bhv096619;
-        Thu, 10 Jun 2021 10:20:05 -0400
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15AFXORA094017;
+        Thu, 10 Jun 2021 11:42:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=hjL552Ig2sktrHftFzN1dDJ1btbi/msqXjCaJCTaUIQ=;
- b=Ukp0UTxMXqBOYKnaXXXqpLz2w0a2DxKbOmxuPWKgBKIzpfXtzHLOHy0VseCAtHkOnHDs
- +DHO/wXH/WeioiqEfz0mxJbhn5dSU3wvlULMqSJhJOI6coFFlPYtIAvszNxwFsmnSEj7
- shFWpD6t2gXX+WT3rE7sFtSDAHxNYwz9B2KDY53sVYAFlbhwHq5p/iWRvtT/Ep3hgPB+
- HeSv/3PBbyvf6DU+9NmbzXZsIeVgjttzswuDDRRX54+yA3lv25YcWBBaATDs0rD4qd3c
- iJdiLBkQvyVjFa5AVZWaoKGdj5eJnZhka7R4aiyUtuTp54Lwr3s0tvWeX6o3oARuQERE iw== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=RDlGeGGZR9MUk+iXXW+r4erk5KUvKKu/IS5n4qA0x7o=;
+ b=I30T5W3t5Ys0ELnJ0LdN5T6utF9urUitRsPAFOIY7z1kq9wtQBvaWJtBUQ5mE3zFMG3W
+ xa52XWxAsrzfqlwfQ0Yq1U32AE37M9Pyj2i6W4VHATescZKQxXHyuwNY+dNwvD206ZDL
+ hpecNgzF2EHu+j5IoiJ69Axe1HQ6q09Y1XKPGauR8rV/xsQBRwRQjVNToPGGdY2gBNnc
+ ObF5cetwqzvw5owMWc53CjNPUXLF3wnZR695LDx8+L9R8yZ4c+xuJjLecjESp370PqRC
+ v935GpAhK0rjkpQUDlg5YTnNI0C5UVf7MB8YQ+8Dq9/OOaQiZusVWUaPTtCXPiRSOTHF XQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 393kksj2xy-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 393mu91v16-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Jun 2021 10:20:05 -0400
+        Thu, 10 Jun 2021 11:42:27 -0400
 Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15AE4OwE103549;
-        Thu, 10 Jun 2021 10:20:04 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 393kksj2x4-1
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15AFXrJ6096289;
+        Thu, 10 Jun 2021 11:42:27 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 393mu91v0c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Jun 2021 10:20:04 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15AEGURK003473;
-        Thu, 10 Jun 2021 14:20:03 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04fra.de.ibm.com with ESMTP id 3900w89kmm-1
+        Thu, 10 Jun 2021 11:42:27 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15AFX3r0031382;
+        Thu, 10 Jun 2021 15:42:25 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma01fra.de.ibm.com with ESMTP id 3936ns08m8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Jun 2021 14:20:02 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15AEJ9LS26542396
+        Thu, 10 Jun 2021 15:42:25 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15AFgMEm34668926
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 10 Jun 2021 14:19:10 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 389ACA405B;
-        Thu, 10 Jun 2021 14:20:00 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 91BF9A408A;
-        Thu, 10 Jun 2021 14:19:59 +0000 (GMT)
-Received: from linux01.pok.stglabs.ibm.com (unknown [9.114.17.81])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 10 Jun 2021 14:19:59 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, thuth@redhat.com, cohuck@redhat.com
-Subject: [kvm-unit-tests PATCH v2] s390x: selftest: Add prefixes to fix report output (was "s390x: selftest: Fix report output")
-Date:   Thu, 10 Jun 2021 14:19:13 +0000
-Message-Id: <20210610141913.61553-1-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.30.2
+        Thu, 10 Jun 2021 15:42:22 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5E9B942047;
+        Thu, 10 Jun 2021 15:42:22 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B495C42045;
+        Thu, 10 Jun 2021 15:42:21 +0000 (GMT)
+Received: from ibm-vm.ibmuc.com (unknown [9.145.5.240])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 10 Jun 2021 15:42:21 +0000 (GMT)
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        david@redhat.com, linux-mm@kvack.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        David Rientjes <rientjes@google.com>,
+        Christoph Hellwig <hch@infradead.org>
+Subject: [PATCH v3 1/2] mm/vmalloc: add vmalloc_no_huge
+Date:   Thu, 10 Jun 2021 17:42:19 +0200
+Message-Id: <20210610154220.529122-2-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210610154220.529122-1-imbrenda@linux.ibm.com>
+References: <20210610154220.529122-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: C6rwW3NCkBONvO-pC4k9vfKA5SFVDmND
-X-Proofpoint-GUID: _EpD5b9Kdty1uYTtrpS1K6yL3TWEmzyU
+X-Proofpoint-GUID: zyArlWDvrVWhy5c4PKKsxS6DEZSDGhAV
+X-Proofpoint-ORIG-GUID: yYfALIzOA1g5D1szFX7LNQTRxnyVsT7D
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-10_07:2021-06-10,2021-06-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
- bulkscore=0 spamscore=0 malwarescore=0 mlxlogscore=999 suspectscore=0
- priorityscore=1501 clxscore=1015 lowpriorityscore=0 mlxscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106100091
+ definitions=2021-06-10_10:2021-06-10,2021-06-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 clxscore=1015 impostorscore=0 mlxscore=0 malwarescore=0
+ phishscore=0 adultscore=0 bulkscore=0 spamscore=0 priorityscore=1501
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106100099
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-To make our TAP parser (and me) happy we don't want to have two reports
-with exactly the same wording so I added in two new prefix pushes.
+The recent patches to add support for hugepage vmalloc mappings added a
+flag for __vmalloc_node_range to allow to request small pages.
+This flag is not accessible when calling vmalloc, the only option is to
+call directly __vmalloc_node_range, which is not exported.
 
-Also moving the code inside of the region of a prefix will give us
-more data when a problem arises.
+This means that a module can't vmalloc memory with small pages.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Case in point: KVM on s390x needs to vmalloc a large area, and it needs
+to be mapped with small pages, because of a hardware limitation.
+
+This patch adds the function vmalloc_no_huge, which works like vmalloc,
+but it is guaranteed to always back the mapping using small pages. This
+function is exported, therefore it is usable by modules.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Christoph Hellwig <hch@infradead.org>
 ---
- s390x/selftest.c | 26 ++++++++++++++++++--------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ include/linux/vmalloc.h |  1 +
+ mm/vmalloc.c            | 16 ++++++++++++++++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/s390x/selftest.c b/s390x/selftest.c
-index b2fe2e7b..0f099ca0 100644
---- a/s390x/selftest.c
-+++ b/s390x/selftest.c
-@@ -40,19 +40,28 @@ static void test_pgm_int(void)
+diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
+index 4d668abb6391..bfaaf0b6fa76 100644
+--- a/include/linux/vmalloc.h
++++ b/include/linux/vmalloc.h
+@@ -135,6 +135,7 @@ extern void *__vmalloc_node_range(unsigned long size, unsigned long align,
+ 			const void *caller);
+ void *__vmalloc_node(unsigned long size, unsigned long align, gfp_t gfp_mask,
+ 		int node, const void *caller);
++void *vmalloc_no_huge(unsigned long size);
  
- static void test_malloc(void)
- {
--	int *tmp = malloc(sizeof(int));
--	int *tmp2 = malloc(sizeof(int));
-+	int *tmp, *tmp2;
- 
-+	report_prefix_push("malloc");
-+
-+	report_prefix_push("ptr_0");
-+	tmp = malloc(sizeof(int));
-+	report((uintptr_t)tmp & 0xf000000000000000ul, "allocated memory");
- 	*tmp = 123456789;
-+	mb();
-+	report(*tmp == 123456789, "wrote allocated memory");
-+	report_prefix_pop();
-+
-+	report_prefix_push("ptr_1");
-+	tmp2 = malloc(sizeof(int));
-+	report((uintptr_t)tmp2 & 0xf000000000000000ul,
-+	       "allocated memory");
- 	*tmp2 = 123456789;
- 	mb();
-+	report((*tmp2 == 123456789), "wrote allocated memory");
-+	report_prefix_pop();
- 
--	report((uintptr_t)tmp & 0xf000000000000000ul, "malloc: got vaddr");
--	report(*tmp == 123456789, "malloc: access works");
--	report((uintptr_t)tmp2 & 0xf000000000000000ul,
--	       "malloc: got 2nd vaddr");
--	report((*tmp2 == 123456789), "malloc: access works");
--	report(tmp != tmp2, "malloc: addresses differ");
-+	report(tmp != tmp2, "allocated memory addresses differ");
- 
- 	expect_pgm_int();
- 	configure_dat(0);
-@@ -62,6 +71,7 @@ static void test_malloc(void)
- 
- 	free(tmp);
- 	free(tmp2);
-+	report_prefix_pop();
+ extern void vfree(const void *addr);
+ extern void vfree_atomic(const void *addr);
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index a13ac524f6ff..296a2fcc3fbe 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -2998,6 +2998,22 @@ void *vmalloc(unsigned long size)
  }
+ EXPORT_SYMBOL(vmalloc);
  
- int main(int argc, char**argv)
++/**
++ * vmalloc_no_huge - allocate virtually contiguous memory using small pages
++ * @size:    allocation size
++ *
++ * Allocate enough non-huge pages to cover @size from the page level
++ * allocator and map them into contiguous kernel virtual space.
++ *
++ * Return: pointer to the allocated memory or %NULL on error
++ */
++void *vmalloc_no_huge(unsigned long size)
++{
++	return __vmalloc_node_range(size, 1, VMALLOC_START, VMALLOC_END, GFP_KERNEL, PAGE_KERNEL,
++				    VM_NO_HUGE_VMAP, NUMA_NO_NODE, __builtin_return_address(0));
++}
++EXPORT_SYMBOL(vmalloc_no_huge);
++
+ /**
+  * vzalloc - allocate virtually contiguous memory with zero fill
+  * @size:    allocation size
 -- 
-2.30.2
+2.31.1
 
