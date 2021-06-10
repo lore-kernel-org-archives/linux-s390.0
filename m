@@ -2,213 +2,168 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A7D0C47094
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 17:30:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23ACEC48BD1
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 19:33:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 21262601FD
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 17:30:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 062FA6108D
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 19:33:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229823AbhFJRcX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Jun 2021 13:32:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58118 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230410AbhFJRcX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Jun 2021 13:32:23 -0400
-Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0985C0617A8
-        for <linux-s390@vger.kernel.org>; Thu, 10 Jun 2021 10:30:26 -0700 (PDT)
-Received: by mail-lf1-x132.google.com with SMTP id r198so4445531lff.11
-        for <linux-s390@vger.kernel.org>; Thu, 10 Jun 2021 10:30:26 -0700 (PDT)
+        id S230349AbhFJTfJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Jun 2021 15:35:09 -0400
+Received: from mail-lf1-f53.google.com ([209.85.167.53]:42821 "EHLO
+        mail-lf1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229941AbhFJTfI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Jun 2021 15:35:08 -0400
+Received: by mail-lf1-f53.google.com with SMTP id j2so4953630lfg.9;
+        Thu, 10 Jun 2021 12:32:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ioyoetTgICcLM1co3hfV64SuUDGjPwWrOEhUg6YRdzA=;
-        b=sB636TtZaglUv0NqmI1HpIzfYrhUSTp9FixNWI9fognuH/4ofXLUg+MSlnb2BDSSyN
-         bgnFZfMxacXrj0hNr6tDOdoml3bY+2lbyLUAyEKLvnLWT7tJSaxJLC0mgWCmXMvMnyAQ
-         bMs2u4sRM1T3OLRa51TrmGDRFH7Vf5Wiy85zTz2MqnpRupCEb/JjKxMw1Agfj3wZFoPK
-         ooNOedia0wjF8Pc4yXynatPRf2IlXw+bcRHe4XFCZF+nbbTf6RpzpD5vzpDgsG9SDJZY
-         OEHcYcSHBHpXfdz2wuVM6nBemDB70pPK+Ah47MF4RTTc4GV8pH3D2tehvv7lI3OgNyw+
-         8cQw==
+        d=gmail.com; s=20161025;
+        h=from:date:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=ceEFCfaWcCIy0ElzDio4qVx5/HAKi3T4+rWQRTQywmk=;
+        b=uTMmqKV1/EHV2IkJR+zozPe+lbZxHXntZRGKJ8BGJXBWDl7IfUoj83QbMq9vsWP9iL
+         B8CLwVHTKzMobvTu9QYxYVCXWgiHZJlepd5QN95Ca3q2eChFOGqEjTtaYpR6xS8T/31e
+         Bks6kNrS5X2KFxZJDsY2HobnnexCzqbw58fOXFxmNIX+2cmTyDZbKmsvCPaAHwi2UZkw
+         BgFuBFqAMuK5oTkaomSeXQ0KclouWjis7nD/on4oIigkf6RZpNXP8QaCg/RewiTR/bi9
+         gXc6aptsZOYJtSJ4xNwNbKZZHkoTOptEO1thdiSFc8efeFUPzRDVhkkXAv2xmxOP/dAo
+         Xsjw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ioyoetTgICcLM1co3hfV64SuUDGjPwWrOEhUg6YRdzA=;
-        b=Ny6cUHBtXU6t8ICjPQFzrMNuJqk0ktuA9jHDyEuw38DKWhtCZsZsKhRcmQ7ZAQ1J5A
-         Wbd3hIFf4FvIyEmwnLvQEcAXO2RrT2soiOBw5ZYfUXfUo/6CUU9tT+3iL7muXa+RGmm/
-         A8H+gUZ99IyTLhRCj/4PAq9nJdvSjIWvqDRcjaj4AVKPfviG34hYsSJJbbjH0gF822Ym
-         uQJhvKcPlk8K0k018J/xAfmEoUCX/Ag5FFq5bs6vdGtgnl12yTUDZJ9zMRodU6/FnO15
-         8Q7RIiSDDPvgXC6od4XfyRaCk8quP0LBwTA9UdC2MUsol+kmeeFZTR7jtNTNb2lBOtn2
-         NiJw==
-X-Gm-Message-State: AOAM532IlBWLqRjjbAa5X5+Kt0N+5g+BLUaEiwEqnyfIsc3n6n1plEVc
-        3+m7q/h2HSQf8gv9wLEnV1LuPWDaXNRrzcPD3qBjzw==
-X-Google-Smtp-Source: ABdhPJwPGuxT6GUgLlFj7a9bOlaihGu3nNRoyK0hl7HhJBQt4QwWOrlUmuo32S6AzGUwSWFJG1S+/nJgxpSqyKrjqNw=
-X-Received: by 2002:a05:6512:3ea:: with SMTP id n10mr2590829lfq.178.1623346224387;
- Thu, 10 Jun 2021 10:30:24 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210603211426.790093-1-jingzhangos@google.com> <873a0398-09fc-0278-3f0c-884b73dad3aa@redhat.com>
-In-Reply-To: <873a0398-09fc-0278-3f0c-884b73dad3aa@redhat.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Thu, 10 Jun 2021 12:30:12 -0500
-Message-ID: <CAAdAUtiVDqFdq-ckcBqcj6DZjt+g0uhqNoWsVn_axDVi0+n9Fw@mail.gmail.com>
-Subject: Re: [PATCH v7 0/4] KVM statistics data fd-based binary interface
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
+        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=ceEFCfaWcCIy0ElzDio4qVx5/HAKi3T4+rWQRTQywmk=;
+        b=WqAlebruaHJkEhlwDhknkSDNb1/MujS4zQsYtJRl8zU2R15myWO2qLhmz5e0j86J+e
+         vAvhOVBMl6g7vfg05A2nH99qWDb2YfUbywX7T2MZ3Fhrlm0QZzA3/oqYpkX4koXKMkdX
+         uCMgjUL2UaegKF9qF2Jogpbk+5JCNxxd56u8n8whvjMq0hZr2KGNi6yUiDGySrmUsOAL
+         Ac3V0uZf+RQdVtDf8cIinnYUmjt4yT9rHa9B5yUB7i/SB/RskpErwQ5RYr7rNMlLeg4Z
+         tngavS2XjTFbJPLdE6iSl+XQYlVeDU0h+eZp6f68Rp9YLQHmYdc+JdjAVjLr1um7FB/6
+         p3GA==
+X-Gm-Message-State: AOAM531AaGVZvFbdayYzng7yrXf5n3pH6Om6/KEs1jeVHb4VZTweUpKW
+        NpyWGt1HbM4/vZj4GxSOfE4=
+X-Google-Smtp-Source: ABdhPJzeKGA5ayEBXmZhKvS0JSerAdTETjvEF7FnTPCA+SF5O5wL34fvbQ+0BOjnrh5IGR0T0Yj+Ew==
+X-Received: by 2002:ac2:5a4b:: with SMTP id r11mr259219lfn.338.1623353518654;
+        Thu, 10 Jun 2021 12:31:58 -0700 (PDT)
+Received: from pc638.lan (h5ef52e3d.seluork.dyn.perspektivbredband.net. [94.245.46.61])
+        by smtp.gmail.com with ESMTPSA id s12sm270903lfg.44.2021.06.10.12.31.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Jun 2021 12:31:57 -0700 (PDT)
+From:   Uladzislau Rezki <urezki@gmail.com>
+X-Google-Original-From: Uladzislau Rezki <urezki@pc638.lan>
+Date:   Thu, 10 Jun 2021 21:31:55 +0200
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
+        linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
         David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
-        David Matlack <dmatlack@google.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>
-Content-Type: text/plain; charset="UTF-8"
+        Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v3 1/2] mm/vmalloc: add vmalloc_no_huge
+Message-ID: <20210610193155.GA1854@pc638.lan>
+References: <20210610154220.529122-1-imbrenda@linux.ibm.com>
+ <20210610154220.529122-2-imbrenda@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210610154220.529122-2-imbrenda@linux.ibm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Paolo,
+Hello.
 
-On Thu, Jun 10, 2021 at 11:46 AM Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> On 03/06/21 23:14, Jing Zhang wrote:
-> > This patchset provides a file descriptor for every VM and VCPU to read
-> > KVM statistics data in binary format.
-> > It is meant to provide a lightweight, flexible, scalable and efficient
-> > lock-free solution for user space telemetry applications to pull the
-> > statistics data periodically for large scale systems. The pulling
-> > frequency could be as high as a few times per second.
-> > In this patchset, every statistics data are treated to have some
-> > attributes as below:
-> >    * architecture dependent or generic
-> >    * VM statistics data or VCPU statistics data
-> >    * type: cumulative, instantaneous,
-> >    * unit: none for simple counter, nanosecond, microsecond,
-> >      millisecond, second, Byte, KiByte, MiByte, GiByte. Clock Cycles
-> > Since no lock/synchronization is used, the consistency between all
-> > the statistics data is not guaranteed. That means not all statistics
-> > data are read out at the exact same time, since the statistics date
-> > are still being updated by KVM subsystems while they are read out.
-> >
-> > ---
-> >
-> > * v6 -> v7
-> >    - Improve file descriptor allocation function by Krish suggestion
-> >    - Use "generic stats" instead of "common stats" as Krish suggested
-> >    - Addressed some other nits from Krish and David Matlack
-> >
-> > * v5 -> v6
-> >    - Use designated initializers for STATS_DESC
-> >    - Change KVM_STATS_SCALE... to KVM_STATS_BASE...
-> >    - Use a common function for kvm_[vm|vcpu]_stats_read
-> >    - Fix some documentation errors/missings
-> >    - Use TEST_ASSERT in selftest
-> >    - Use a common function for [vm|vcpu]_stats_test in selftest
-> >
-> > * v4 -> v5
-> >    - Rebase to kvm/queue, commit a4345a7cecfb ("Merge tag
-> >      'kvmarm-fixes-5.13-1'")
-> >    - Change maximum stats name length to 48
-> >    - Replace VM_STATS_COMMON/VCPU_STATS_COMMON macros with stats
-> >      descriptor definition macros.
-> >    - Fixed some errors/warnings reported by checkpatch.pl
-> >
-> > * v3 -> v4
-> >    - Rebase to kvm/queue, commit 9f242010c3b4 ("KVM: avoid "deadlock"
-> >      between install_new_memslots and MMU notifier")
-> >    - Use C-stype comments in the whole patch
-> >    - Fix wrong count for x86 VCPU stats descriptors
-> >    - Fix KVM stats data size counting and validity check in selftest
-> >
-> > * v2 -> v3
-> >    - Rebase to kvm/queue, commit edf408f5257b ("KVM: avoid "deadlock"
-> >      between install_new_memslots and MMU notifier")
-> >    - Resolve some nitpicks about format
-> >
-> > * v1 -> v2
-> >    - Use ARRAY_SIZE to count the number of stats descriptors
-> >    - Fix missing `size` field initialization in macro STATS_DESC
-> >
-> > [1] https://lore.kernel.org/kvm/20210402224359.2297157-1-jingzhangos@google.com
-> > [2] https://lore.kernel.org/kvm/20210415151741.1607806-1-jingzhangos@google.com
-> > [3] https://lore.kernel.org/kvm/20210423181727.596466-1-jingzhangos@google.com
-> > [4] https://lore.kernel.org/kvm/20210429203740.1935629-1-jingzhangos@google.com
-> > [5] https://lore.kernel.org/kvm/20210517145314.157626-1-jingzhangos@google.com
-> > [6] https://lore.kernel.org/kvm/20210524151828.4113777-1-jingzhangos@google.com
-> >
-> > ---
-> >
-> > Jing Zhang (4):
-> >    KVM: stats: Separate generic stats from architecture specific ones
-> >    KVM: stats: Add fd-based API to read binary stats data
-> >    KVM: stats: Add documentation for statistics data binary interface
-> >    KVM: selftests: Add selftest for KVM statistics data binary interface
-> >
-> >   Documentation/virt/kvm/api.rst                | 180 +++++++++++++++
-> >   arch/arm64/include/asm/kvm_host.h             |   9 +-
-> >   arch/arm64/kvm/guest.c                        |  38 +++-
-> >   arch/mips/include/asm/kvm_host.h              |   9 +-
-> >   arch/mips/kvm/mips.c                          |  64 +++++-
-> >   arch/powerpc/include/asm/kvm_host.h           |   9 +-
-> >   arch/powerpc/kvm/book3s.c                     |  64 +++++-
-> >   arch/powerpc/kvm/book3s_hv.c                  |  12 +-
-> >   arch/powerpc/kvm/book3s_pr.c                  |   2 +-
-> >   arch/powerpc/kvm/book3s_pr_papr.c             |   2 +-
-> >   arch/powerpc/kvm/booke.c                      |  59 ++++-
-> >   arch/s390/include/asm/kvm_host.h              |   9 +-
-> >   arch/s390/kvm/kvm-s390.c                      | 129 ++++++++++-
-> >   arch/x86/include/asm/kvm_host.h               |   9 +-
-> >   arch/x86/kvm/x86.c                            |  67 +++++-
-> >   include/linux/kvm_host.h                      | 141 +++++++++++-
-> >   include/linux/kvm_types.h                     |  12 +
-> >   include/uapi/linux/kvm.h                      |  50 ++++
-> >   tools/testing/selftests/kvm/.gitignore        |   1 +
-> >   tools/testing/selftests/kvm/Makefile          |   3 +
-> >   .../testing/selftests/kvm/include/kvm_util.h  |   3 +
-> >   .../selftests/kvm/kvm_binary_stats_test.c     | 215 ++++++++++++++++++
-> >   tools/testing/selftests/kvm/lib/kvm_util.c    |  12 +
-> >   virt/kvm/kvm_main.c                           | 169 +++++++++++++-
-> >   24 files changed, 1178 insertions(+), 90 deletions(-)
-> >   create mode 100644 tools/testing/selftests/kvm/kvm_binary_stats_test.c
-> >
-> >
-> > base-commit: a4345a7cecfb91ae78cd43d26b0c6a956420761a
-> >
->
-> I had a few remarks, but it looks very nice overall.
->
-> Thanks!
->
-> Paolo
->
-Happy to see per-VM stats use u64 too.
-Will send out another patchset based on your remarks.
+See below a small nit:
 
-Thanks,
-Jing
+> The recent patches to add support for hugepage vmalloc mappings added a
+> flag for __vmalloc_node_range to allow to request small pages.
+> This flag is not accessible when calling vmalloc, the only option is to
+> call directly __vmalloc_node_range, which is not exported.
+> 
+> This means that a module can't vmalloc memory with small pages.
+> 
+> Case in point: KVM on s390x needs to vmalloc a large area, and it needs
+> to be mapped with small pages, because of a hardware limitation.
+> 
+> This patch adds the function vmalloc_no_huge, which works like vmalloc,
+> but it is guaranteed to always back the mapping using small pages. This
+> function is exported, therefore it is usable by modules.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: David Rientjes <rientjes@google.com>
+> Cc: Christoph Hellwig <hch@infradead.org>
+> ---
+>  include/linux/vmalloc.h |  1 +
+>  mm/vmalloc.c            | 16 ++++++++++++++++
+>  2 files changed, 17 insertions(+)
+> 
+> diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
+> index 4d668abb6391..bfaaf0b6fa76 100644
+> --- a/include/linux/vmalloc.h
+> +++ b/include/linux/vmalloc.h
+> @@ -135,6 +135,7 @@ extern void *__vmalloc_node_range(unsigned long size, unsigned long align,
+>  			const void *caller);
+>  void *__vmalloc_node(unsigned long size, unsigned long align, gfp_t gfp_mask,
+>  		int node, const void *caller);
+> +void *vmalloc_no_huge(unsigned long size);
+>  
+>  extern void vfree(const void *addr);
+>  extern void vfree_atomic(const void *addr);
+> diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+> index a13ac524f6ff..296a2fcc3fbe 100644
+> --- a/mm/vmalloc.c
+> +++ b/mm/vmalloc.c
+> @@ -2998,6 +2998,22 @@ void *vmalloc(unsigned long size)
+>  }
+>  EXPORT_SYMBOL(vmalloc);
+>  
+> +/**
+> + * vmalloc_no_huge - allocate virtually contiguous memory using small pages
+> + * @size:    allocation size
+> + *
+You state that it allocates using "small pages". I think it might be confused 
+for people because of that vague meaning. The comment should be improved, imho,
+saying rather about order-0 pages what we call "small pages".
+
+> + * Allocate enough non-huge pages to cover @size from the page level
+> + * allocator and map them into contiguous kernel virtual space.
+> + *
+> + * Return: pointer to the allocated memory or %NULL on error
+> + */
+> +void *vmalloc_no_huge(unsigned long size)
+> +{
+> +	return __vmalloc_node_range(size, 1, VMALLOC_START, VMALLOC_END, GFP_KERNEL, PAGE_KERNEL,
+> +				    VM_NO_HUGE_VMAP, NUMA_NO_NODE, __builtin_return_address(0));
+> +}
+> +EXPORT_SYMBOL(vmalloc_no_huge);
+> +
+>  /**
+>   * vzalloc - allocate virtually contiguous memory with zero fill
+>   * @size:    allocation size
+> -- 
+> 2.31.1
+> 
+anyone looks good to me, please use:
+
+Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+
+Thanks.
+
+--
+Vlad Rezki
