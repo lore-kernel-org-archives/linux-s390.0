@@ -2,218 +2,154 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26182C48BE5
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 16:46:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA45DC47094
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 16:50:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1197F61425
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 16:46:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB0AC6108E
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Jun 2021 16:50:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231532AbhFJQsM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Jun 2021 12:48:12 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:37964 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231538AbhFJQsK (ORCPT
+        id S230291AbhFJQw0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Jun 2021 12:52:26 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34644 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230166AbhFJQwZ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Jun 2021 12:48:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623343574;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=pmjeoZP2Zk9cpGLWV8EkH2NTyjrRS5zlwXdTRFtjA7s=;
-        b=BddZSZm+RypfUdxixOenAmsgn5VEsyCrySA43CWkVkYRd+0b0vwKDUMRLRqqiCy+4gvuOX
-        +sMLiutE9f9QRUZnZPKDR/k5wuLqdpmjSuz498mjhe8yeUVRsPsp7cI6HA6y8czTsJm1dA
-        mKtWhGDywG1is1wp+tsMZ2hPAtWG3ok=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-167-WJNAgteeM8eAHRg40BKA7g-1; Thu, 10 Jun 2021 12:46:12 -0400
-X-MC-Unique: WJNAgteeM8eAHRg40BKA7g-1
-Received: by mail-wm1-f70.google.com with SMTP id g14-20020a05600c4eceb02901b609849650so3672937wmq.6
-        for <linux-s390@vger.kernel.org>; Thu, 10 Jun 2021 09:46:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=pmjeoZP2Zk9cpGLWV8EkH2NTyjrRS5zlwXdTRFtjA7s=;
-        b=tYTILMbuoKSqFNUH9g9/r4WSNESlgxzXP0yK1VRRE7wsJqOBO+baRGrn8hFY8gH2m3
-         yyCWiedlZnNJUFJ23y+h2LR80g85hbaXG1rwJoi2LWOeqvCN6vYvHL7YfGKSiYqGul/C
-         m4McAk6O1jtOKOsZAnE9XG2ixeElcIdMLjP0wUCOketbLMELUuM9TEGL5PG8iLFrdNZ5
-         dRzRo8Th8RunUDb+ELqaGVJy9jNToCAb0uoXmTxu8/zkfw3aXDL4DWRCc7kOdWhu2GqL
-         ZsMcHi1OOLJ9Fh39yV00sugiCvY7BklgVsgGARWzotRYZM/ySR9SHPjuhiUkH+LzNLQF
-         0Fqg==
-X-Gm-Message-State: AOAM5332cu7obFF0/LHmBljBqvbnC1ZF0PNlrQWxLxed66dFovRxf4sj
-        huZf1ZMM4C+mJw0yinQLGKbyLfN3K7/Z0SJRR/dBZ7ZkF/wmsoM+eFoZddco3FjJw2Sz1RQUcwY
-        DdvJIjXjMqD7R25Bh8nc0LA==
-X-Received: by 2002:adf:f1cb:: with SMTP id z11mr6611941wro.2.1623343571739;
-        Thu, 10 Jun 2021 09:46:11 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyUfMy73RUGQtVL6eMZ0HpF2pAlTGaxCKpwYBu5GL/GZakJJNUaPWWZRvrLtTVMobB7MLHKLQ==
-X-Received: by 2002:adf:f1cb:: with SMTP id z11mr6611916wro.2.1623343571544;
-        Thu, 10 Jun 2021 09:46:11 -0700 (PDT)
-Received: from ?IPv6:2001:b07:add:ec09:c399:bc87:7b6c:fb2a? ([2001:b07:add:ec09:c399:bc87:7b6c:fb2a])
-        by smtp.gmail.com with ESMTPSA id p6sm4266126wrf.51.2021.06.10.09.46.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Jun 2021 09:46:11 -0700 (PDT)
-Subject: Re: [PATCH v7 0/4] KVM statistics data fd-based binary interface
-To:     Jing Zhang <jingzhangos@google.com>, KVM <kvm@vger.kernel.org>,
-        KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
+        Thu, 10 Jun 2021 12:52:25 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15AGXC5t023308;
+        Thu, 10 Jun 2021 12:50:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=27Mi0+Md+EuWMwIKLJmLnnlXiz4k7R+ONup19CRSC7M=;
+ b=PZastsUYwpKNLfCVvM/GVWw4ocUPrnyC5pGBXvJkyNxoIpX4uXgxThA1ievbRg5gdsux
+ wdD2OXUfxo9MRGb9zqt98LUBI9OF2Kd7Vs+e5KpZs19iZKewTCG/32BOvUxwSyanQ8XA
+ W99ztlV7p0Y1pIovad7VACaJKHBpdpBJeQEUPCSuvy1KCFQeAdHj7XaXuz4otNhi6wEY
+ oniWdoG3DpRDlvRyzpzjrswQF0aTZnSOGQ39cSDPu36FtW+l3l4Sg3Yb9olgNoRSDkeI
+ ZQ5HpaINtwEhQtuyT4UIMql4Rf/7UNANU3HRnzOZEad847C+g6Ep5Wx84Ziv64+i+mL/ gw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 393macnb4n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Jun 2021 12:50:02 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15AGXBSB023206;
+        Thu, 10 Jun 2021 12:50:01 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 393macnb3h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Jun 2021 12:50:01 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15AGlhYI026305;
+        Thu, 10 Jun 2021 16:49:59 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma01fra.de.ibm.com with ESMTP id 3936ns094n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Jun 2021 16:49:59 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15AGnufJ34078990
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 10 Jun 2021 16:49:56 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EE80811C052;
+        Thu, 10 Jun 2021 16:49:55 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4518811C04C;
+        Thu, 10 Jun 2021 16:49:55 +0000 (GMT)
+Received: from ibm-vm (unknown [9.145.5.240])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 10 Jun 2021 16:49:55 +0000 (GMT)
+Date:   Thu, 10 Jun 2021 18:49:53 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        cohuck@redhat.com, david@redhat.com, linux-mm@kvack.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
         David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
-        David Matlack <dmatlack@google.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>
-References: <20210603211426.790093-1-jingzhangos@google.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <873a0398-09fc-0278-3f0c-884b73dad3aa@redhat.com>
-Date:   Thu, 10 Jun 2021 18:46:08 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v3 2/2] KVM: s390: fix for hugepage vmalloc
+Message-ID: <20210610184953.19bed6b4@ibm-vm>
+In-Reply-To: <368cfb74-fdc2-00a7-d452-696e375c2ff7@de.ibm.com>
+References: <20210610154220.529122-1-imbrenda@linux.ibm.com>
+        <20210610154220.529122-3-imbrenda@linux.ibm.com>
+        <368cfb74-fdc2-00a7-d452-696e375c2ff7@de.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20210603211426.790093-1-jingzhangos@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: iC2QAseRmfXSA0wLSjDo59zNrqf0MWXJ
+X-Proofpoint-GUID: _OlaA-jqjeH7DLk3y5Z-fGqCXuEKPrF_
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-06-10_11:2021-06-10,2021-06-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 impostorscore=0 suspectscore=0 phishscore=0 mlxscore=0
+ malwarescore=0 spamscore=0 adultscore=0 mlxlogscore=906 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106100105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 03/06/21 23:14, Jing Zhang wrote:
-> This patchset provides a file descriptor for every VM and VCPU to read
-> KVM statistics data in binary format.
-> It is meant to provide a lightweight, flexible, scalable and efficient
-> lock-free solution for user space telemetry applications to pull the
-> statistics data periodically for large scale systems. The pulling
-> frequency could be as high as a few times per second.
-> In this patchset, every statistics data are treated to have some
-> attributes as below:
->    * architecture dependent or generic
->    * VM statistics data or VCPU statistics data
->    * type: cumulative, instantaneous,
->    * unit: none for simple counter, nanosecond, microsecond,
->      millisecond, second, Byte, KiByte, MiByte, GiByte. Clock Cycles
-> Since no lock/synchronization is used, the consistency between all
-> the statistics data is not guaranteed. That means not all statistics
-> data are read out at the exact same time, since the statistics date
-> are still being updated by KVM subsystems while they are read out.
-> 
-> ---
-> 
-> * v6 -> v7
->    - Improve file descriptor allocation function by Krish suggestion
->    - Use "generic stats" instead of "common stats" as Krish suggested
->    - Addressed some other nits from Krish and David Matlack
-> 
-> * v5 -> v6
->    - Use designated initializers for STATS_DESC
->    - Change KVM_STATS_SCALE... to KVM_STATS_BASE...
->    - Use a common function for kvm_[vm|vcpu]_stats_read
->    - Fix some documentation errors/missings
->    - Use TEST_ASSERT in selftest
->    - Use a common function for [vm|vcpu]_stats_test in selftest
-> 
-> * v4 -> v5
->    - Rebase to kvm/queue, commit a4345a7cecfb ("Merge tag
->      'kvmarm-fixes-5.13-1'")
->    - Change maximum stats name length to 48
->    - Replace VM_STATS_COMMON/VCPU_STATS_COMMON macros with stats
->      descriptor definition macros.
->    - Fixed some errors/warnings reported by checkpatch.pl
-> 
-> * v3 -> v4
->    - Rebase to kvm/queue, commit 9f242010c3b4 ("KVM: avoid "deadlock"
->      between install_new_memslots and MMU notifier")
->    - Use C-stype comments in the whole patch
->    - Fix wrong count for x86 VCPU stats descriptors
->    - Fix KVM stats data size counting and validity check in selftest
-> 
-> * v2 -> v3
->    - Rebase to kvm/queue, commit edf408f5257b ("KVM: avoid "deadlock"
->      between install_new_memslots and MMU notifier")
->    - Resolve some nitpicks about format
-> 
-> * v1 -> v2
->    - Use ARRAY_SIZE to count the number of stats descriptors
->    - Fix missing `size` field initialization in macro STATS_DESC
-> 
-> [1] https://lore.kernel.org/kvm/20210402224359.2297157-1-jingzhangos@google.com
-> [2] https://lore.kernel.org/kvm/20210415151741.1607806-1-jingzhangos@google.com
-> [3] https://lore.kernel.org/kvm/20210423181727.596466-1-jingzhangos@google.com
-> [4] https://lore.kernel.org/kvm/20210429203740.1935629-1-jingzhangos@google.com
-> [5] https://lore.kernel.org/kvm/20210517145314.157626-1-jingzhangos@google.com
-> [6] https://lore.kernel.org/kvm/20210524151828.4113777-1-jingzhangos@google.com
-> 
-> ---
-> 
-> Jing Zhang (4):
->    KVM: stats: Separate generic stats from architecture specific ones
->    KVM: stats: Add fd-based API to read binary stats data
->    KVM: stats: Add documentation for statistics data binary interface
->    KVM: selftests: Add selftest for KVM statistics data binary interface
-> 
->   Documentation/virt/kvm/api.rst                | 180 +++++++++++++++
->   arch/arm64/include/asm/kvm_host.h             |   9 +-
->   arch/arm64/kvm/guest.c                        |  38 +++-
->   arch/mips/include/asm/kvm_host.h              |   9 +-
->   arch/mips/kvm/mips.c                          |  64 +++++-
->   arch/powerpc/include/asm/kvm_host.h           |   9 +-
->   arch/powerpc/kvm/book3s.c                     |  64 +++++-
->   arch/powerpc/kvm/book3s_hv.c                  |  12 +-
->   arch/powerpc/kvm/book3s_pr.c                  |   2 +-
->   arch/powerpc/kvm/book3s_pr_papr.c             |   2 +-
->   arch/powerpc/kvm/booke.c                      |  59 ++++-
->   arch/s390/include/asm/kvm_host.h              |   9 +-
->   arch/s390/kvm/kvm-s390.c                      | 129 ++++++++++-
->   arch/x86/include/asm/kvm_host.h               |   9 +-
->   arch/x86/kvm/x86.c                            |  67 +++++-
->   include/linux/kvm_host.h                      | 141 +++++++++++-
->   include/linux/kvm_types.h                     |  12 +
->   include/uapi/linux/kvm.h                      |  50 ++++
->   tools/testing/selftests/kvm/.gitignore        |   1 +
->   tools/testing/selftests/kvm/Makefile          |   3 +
->   .../testing/selftests/kvm/include/kvm_util.h  |   3 +
->   .../selftests/kvm/kvm_binary_stats_test.c     | 215 ++++++++++++++++++
->   tools/testing/selftests/kvm/lib/kvm_util.c    |  12 +
->   virt/kvm/kvm_main.c                           | 169 +++++++++++++-
->   24 files changed, 1178 insertions(+), 90 deletions(-)
->   create mode 100644 tools/testing/selftests/kvm/kvm_binary_stats_test.c
-> 
-> 
-> base-commit: a4345a7cecfb91ae78cd43d26b0c6a956420761a
-> 
+On Thu, 10 Jun 2021 17:56:58 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-I had a few remarks, but it looks very nice overall.
+> On 10.06.21 17:42, Claudio Imbrenda wrote:
+> > The Create Secure Configuration Ultravisor Call does not support
+> > using large pages for the virtual memory area. This is a hardware
+> > limitation.
+> > 
+> > This patch replaces the vzalloc call with an almost equivalent call
+> > to the newly introduced vmalloc_no_huge function, which guarantees
+> > that only small pages will be used for the backing.
+> > 
+> > The new call will not clear the allocated memory, but that has never
+> > been an actual requirement.
 
-Thanks!
+^ here
 
-Paolo
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > Cc: Nicholas Piggin <npiggin@gmail.com>
+> > Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+> > Cc: Catalin Marinas <catalin.marinas@arm.com>
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Ingo Molnar <mingo@redhat.com>
+> > Cc: David Rientjes <rientjes@google.com>
+> > Cc: Christoph Hellwig <hch@infradead.org>
+> > ---
+> >   arch/s390/kvm/pv.c | 2 +-
+> >   1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> > index 813b6e93dc83..ad7c6d7cc90b 100644
+> > --- a/arch/s390/kvm/pv.c
+> > +++ b/arch/s390/kvm/pv.c
+> > @@ -140,7 +140,7 @@ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
+> >   	/* Allocate variable storage */
+> >   	vlen = ALIGN(virt * ((npages * PAGE_SIZE) / HPAGE_SIZE),
+> > PAGE_SIZE); vlen += uv_info.guest_virt_base_stor_len;
+> > -	kvm->arch.pv.stor_var = vzalloc(vlen);
+> > +	kvm->arch.pv.stor_var = vmalloc_no_huge(vlen);  
+> 
+> dont we need a memset now?
+
+no, as explained above
+
+> >   	if (!kvm->arch.pv.stor_var)
+> >   		goto out_err;
+> >   	return 0;
+> >   
 
