@@ -2,157 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26CFFC48BE0
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 17:11:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48869C48BD1
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 17:41:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 039276124C
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 17:11:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 209D5601FA
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 17:41:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231309AbhFKRNx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Jun 2021 13:13:53 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:25591 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230212AbhFKRNw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Jun 2021 13:13:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623431514;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=fN/mVV/PbyF2783Hpa69RufdmQkjHk7SYejj/LdWl0k=;
-        b=KTjukm/3z+h54EBcpy0V1ZiSr1hHxv7nAmjTduhQ60X8+ey0AF1FIgNVCzu6F8V+ctLYyW
-        OjyLeKLZi5Nr57kO7PSsmlr9Hx4YeDNAvnpGqHOOnVMkLCvh3JzyrXdTgbaTzahFZXyELo
-        AU69QYIaKlv4lnEmJxJimP4tJF40SIs=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-368-JYNkw_VpN-quaMpNgMMgeA-1; Fri, 11 Jun 2021 13:11:52 -0400
-X-MC-Unique: JYNkw_VpN-quaMpNgMMgeA-1
-Received: by mail-wm1-f72.google.com with SMTP id n8-20020a05600c3b88b02901b6e5bcd841so1857449wms.9
-        for <linux-s390@vger.kernel.org>; Fri, 11 Jun 2021 10:11:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:organization
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=fN/mVV/PbyF2783Hpa69RufdmQkjHk7SYejj/LdWl0k=;
-        b=WzjxdX1yPXW6ET7YdiLN20sKtwM5rdWR9GTYwUzOYEhjQUJvgummwc4Ys0sW8aGGaD
-         1DNylgFBUWul0aU51URoE6/Tm+WbuDQ+2Q88i7hPxWsDLzDOx46XoWUVYWXT7tUZbtQ+
-         38h0mzg98Mm0m2PlGvI0BIMJDe06/1ESzSR5C7Cs/5rtgi1kSSG9/ityOnYLTUd82sd9
-         RZDMmWPmg7bUR0As0Y60votMVOQH6P9GxTd0qar8f3IthFwV8otzziIELyJ/I8rWNDwV
-         FSmdk1RDnXPwQL3KY73eZhQY/+sJyVGzdB/3iEkO3/rb7A1XglqSDqYqx+2ooS3ACaJe
-         ZMhA==
-X-Gm-Message-State: AOAM5328fx+8sqbfuc7c5yRZGsLNSm92AJQjupJDgC0broCeFWfEmETD
-        wsndVN9szEX2a/37iZTwfupD7S1QJLiONyEZtzSC9hNbO/EiGfw+53CBLpCDQLu98sMYtMJXvh2
-        C8OTLSl0/eRpTcjFPtwr6Og==
-X-Received: by 2002:a5d:64c3:: with SMTP id f3mr5215043wri.263.1623431511679;
-        Fri, 11 Jun 2021 10:11:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwqAEtDrL+JGgbe7s64y6Qwu724j6kGakolpO9O9iu4bscLtvjosb65kz5vimWchOT3ZRhvXA==
-X-Received: by 2002:a5d:64c3:: with SMTP id f3mr5215010wri.263.1623431511354;
-        Fri, 11 Jun 2021 10:11:51 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c64b6.dip0.t-ipconnect.de. [91.12.100.182])
-        by smtp.gmail.com with ESMTPSA id v18sm8416778wrb.10.2021.06.11.10.11.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 11 Jun 2021 10:11:51 -0700 (PDT)
-Subject: Re: [PATCH 2/3] s390/vfio-ap: introduce two new r/w locks to replace
- wait_queue_head_t
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        id S229985AbhFKRnv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Jun 2021 13:43:51 -0400
+Received: from mail-dm3nam07on2042.outbound.protection.outlook.com ([40.107.95.42]:19040
+        "EHLO NAM02-DM3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229480AbhFKRnu (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 11 Jun 2021 13:43:50 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Z9Vk1OYvDRfEie6uNocfeTNA9U0moZOdRxIA+hgHUPj9+szoV8QpFbtpbpOZHIgTt3JZQqHyNVINS5/MeCnAeGA3ZgvyPzGLr9qWMFcvpSq/gfMonpGj1gjR+nKbMAyKWA2o6lJOq2HzLhkOjmKzGSYke0Bx5k41h+HBfD9jaD1B3Pm024iWaEFaQ+uG0Ss25x/NOzDtlVnO0nTfsNWdfpPdDur9cLRt6cLz+KGUyQukrgwz8UOyORrUq01BZowesTH4nu0AZEFj9/qTTp4elhkxkPkCu+1zXr1dTPPgCFMEGOCUKhTFxFuDgvDFEFnr9KSyP8CF49dA83IsW+83IA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=hsEPWM3dnplZ2FTYTGniMDIr0FIIXLaB5QVLu6DLia8=;
+ b=MOhfWR/kwbosKZF2M+togM/l8EFvDokbfkYnYoERqHTCNEyue6tQFQjdmKgGnGfhOdxfyNImqy9EjvegPFEn0y+7cOifti0NiCpUMvsCOswtwitAk4hrjZEmRtzkd5NWPqfgLOs5RtNFlH0AwUVK4Es0+lsLQrc76XK1mwlarwCwpnoal0A6FR+sFzOdavIYbi+OC3vuF7+uGAW682elvaX2FGvuEBHdN0mCyHAgNgyst3Pf13AFPb7wMxeT8Ck56sH2M0cz0MucaXT/BY3xvDesF+Esb7Sktbl9+jpGl6l+1niVZslQf48eLQCHXATr4gAvphcLOpSaONWnuxlj0Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=hsEPWM3dnplZ2FTYTGniMDIr0FIIXLaB5QVLu6DLia8=;
+ b=GMyqHLZD2njfTrQjrNodepsoRZJvZQNXXcaXaKICepfHNRoJYFGGn+l3QmFKW8QjqR48ZfgnR+uZnBsiId/SvhBIJCLv0BHPQ9rW+wryidqYMi/ZRbTNVv7kgK0bVLmw2ee265r7xn08glYg52fOOQPVel6+Kh+QRV4qPw9tc9hUMevXc6e40PaaBe7xnXjAkJmFQriELOauVsywTPx8tEhYWkraOes0wKfFti9jXAujLwuU+vPVzcIVPldr7tflLvUqg9FIqApALq88O11V9fuyd/QM8APKbz+xA6xNysEDmZj+kMvDIISwi0OQA5WakV77XQqdUqRmPH8AC65Wnw==
+Authentication-Results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL1PR12MB5045.namprd12.prod.outlook.com (2603:10b6:208:310::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.21; Fri, 11 Jun
+ 2021 17:41:51 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::3d51:a3b9:8611:684e]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::3d51:a3b9:8611:684e%7]) with mapi id 15.20.4219.021; Fri, 11 Jun 2021
+ 17:41:51 +0000
+Date:   Fri, 11 Jun 2021 14:41:50 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
         alex.williamson@redhat.com, kwankhede@nvidia.com,
         frankja@linux.ibm.com, imbrenda@linux.ibm.com, hca@linux.ibm.com
+Subject: Re: [PATCH 2/3] s390/vfio-ap: introduce two new r/w locks to replace
+ wait_queue_head_t
+Message-ID: <20210611174150.GX1002214@nvidia.com>
 References: <20210609224634.575156-1-akrowiak@linux.ibm.com>
  <20210609224634.575156-3-akrowiak@linux.ibm.com>
  <20210611170526.GU1002214@nvidia.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Message-ID: <7ed059b0-5d58-eeec-167c-280917b47c00@redhat.com>
-Date:   Fri, 11 Jun 2021 19:11:50 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+ <7ed059b0-5d58-eeec-167c-280917b47c00@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7ed059b0-5d58-eeec-167c-280917b47c00@redhat.com>
+X-Originating-IP: [47.55.113.94]
+X-ClientProxiedBy: BL1PR13CA0148.namprd13.prod.outlook.com
+ (2603:10b6:208:2bb::33) To BL0PR12MB5506.namprd12.prod.outlook.com
+ (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
-In-Reply-To: <20210611170526.GU1002214@nvidia.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (47.55.113.94) by BL1PR13CA0148.namprd13.prod.outlook.com (2603:10b6:208:2bb::33) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.9 via Frontend Transport; Fri, 11 Jun 2021 17:41:50 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lrlAE-005hcg-36; Fri, 11 Jun 2021 14:41:50 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 05ae0b69-739b-4b5c-1c4b-08d92d0031df
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5045:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BL1PR12MB5045FBADC2F0B5BC6FB8E29BC2349@BL1PR12MB5045.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:7219;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: wMQafXJ7/TllgP2lLCPQ6YoYYdLBOIN8fjfnQ2bOZkQKnUaMKgJUNnX83QCfNHDMuy5q2wgtyUC/iRiohzY/1VyYRxc74p9iZYKAQUkr+OHNbZtRpg6khLPyG0hYaDsyTJ5vNCD4xMUUzx5iL2kQ8lvRWhm7kYEuIVbv9MpdGEjJIU3LX18J9qo2xvB/A8SktsSIHTRtc/jlcX4tJ1DU+awYOtXflCqCts1RiYsTHy7MPaDFNTaibTj3MKj58vKwql62XTzC1DVJFIYgnFTZMaQ1+A2glIcVLkebigKs9A5svOOyJuKryeTThoQGQWJPjNHiB4hxestN9IzdXONmWUzbVY0I6M7HlqCirTXc/NESvQo0g4eektJi9xxTsYhasZGE9hVzdg0Pbwj/yhR1oCqgOn9l/gpHkySq73J5Ynz06Q2w/JgJqm3cMUHUlCDxKhC6mTSLrX2klBJ41jwaSvSwhM6IF3W75RU54ftMMXmebDoAErFyslCAoecs0RIRY7vJ3gBZ+sYA9XjDl+jepqRWam0ecsZwnpPQzd/xarbUgJtsDO7z3ADPKKHH/uS28bmZJDuS/LJe83aFXc/A6P8MU1EaK7MHbxNMzMnLBT0=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(346002)(396003)(39860400002)(376002)(136003)(8676002)(26005)(478600001)(4744005)(83380400001)(1076003)(2906002)(38100700002)(186003)(426003)(8936002)(9786002)(7416002)(33656002)(9746002)(316002)(36756003)(6916009)(86362001)(66946007)(2616005)(4326008)(5660300002)(66476007)(66556008);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?mH7xkTTLBA5eXGXWifa8YNPC5aVoM3a+JLGkY+SoQzBNH4ZrizafERKq2VMT?=
+ =?us-ascii?Q?GNYNchf75wg/+3x3lgr1Dw3Zwa0qXPiwEZHujBBBS+0jl8PtUNOQK9ZiPYTz?=
+ =?us-ascii?Q?h2IdvEtDsBaDTBTUCN3Vndh6n6dUXI3gLrPiP7S4KxtrGvG9mNhkRcQZOFJj?=
+ =?us-ascii?Q?S4zZMr783DkBZb19CxdsK8jAEAIiTF6s87fbOFEuV/L6G/HjDCt9/rAtSWDJ?=
+ =?us-ascii?Q?b5UH5ba+x9ZXn82cs1brn1lHxbu2n49Q1oAH2UD42ReXDCtlkQH1XTD/nXP0?=
+ =?us-ascii?Q?5yYbXxIacpmYFXxGCBkQ53xjMNtmEZr6V98FsdSivgGTQcd3oU6lTm2wdhnN?=
+ =?us-ascii?Q?af8tFiFU0OnW10XmqUKd4TiLoR3IH0y14qczL3Dgtidi0aH+0yu1YX7edFKB?=
+ =?us-ascii?Q?Cvwa/qOXZ/+nmbKt8QkfyY7BC53vcAWYR0TaUNNPUS8kilqANqz45zzEZks0?=
+ =?us-ascii?Q?V9AFSnI94gClbdrx7tLR5yYvmt2xSXAwzAC0xIPT0IkHBIOgnBdruV6bl2rj?=
+ =?us-ascii?Q?qIvyi/b1QfOfEa5cArEMEWe4Vw3S/FVoslo1iT4GwTjAde0IqDhX3XbRwO5d?=
+ =?us-ascii?Q?3ay7Q3bvjXcVownd5iBPHL8cnUVnS60Diuca0t5D2wodlZb68tW0ZN2EsjIc?=
+ =?us-ascii?Q?S3je6M2OMca+yPLpyEnErC2V41DybPcCIpWqpi3RVSrJo6+sp48h7lkQ6avT?=
+ =?us-ascii?Q?vU7j24iQ3wLYm/jhgGdHGKnjoSsDT5jYeoRnju3RVgBrERMEXuBKt7QekLTN?=
+ =?us-ascii?Q?258PnBnlEEYgv179iFenAeMlUroh3o6h4se+/ZQ57vDRo3xxcztkg5+ajorH?=
+ =?us-ascii?Q?AorBILI2U/LLbSP4knmGyvdMrVKY00M+T4P/wT1g27vRqbvPKWkh3HyRhxVq?=
+ =?us-ascii?Q?8DZiL4sQN7aDKfJ/A7AnxonreVms0yllKIaIwGCC53yb/x755e8MOlua1b6L?=
+ =?us-ascii?Q?vPqeHaTfIzPpV0lbBuSqzFdu3FOwrR3YRXuiWmc8dXWfr0q+Yar/fcGbTPYa?=
+ =?us-ascii?Q?mYERcWh3vGyoclucbHCF4Xn/m7CmNn54K/aAU6jb66vw2/k5y9+GDFViRWKW?=
+ =?us-ascii?Q?y5Ltlm1OM69r1Z5Po2bFJVPj6ChAovDJqghG6OS9fbRuIJpQDm3g+PfkQdlT?=
+ =?us-ascii?Q?t4/pduMYz/Nln2JnS9j0YLDsinjB/U9FYAU6sA3XwvkPh8mdGSa7LmXstxm0?=
+ =?us-ascii?Q?cPQicSGQOoZ9lkoVHBtAMr+PWwFyll3bkGgzUAijfT0tFUNamf64n/WpS+hU?=
+ =?us-ascii?Q?Mc8vPAqqJXsQ7HQP+Q1y5vAfwaQWR6uFzzp9SJjLu36jqoueZIvEnUmmOSmS?=
+ =?us-ascii?Q?orRlTwBQsXStuqNHcVLvOqGX?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 05ae0b69-739b-4b5c-1c4b-08d92d0031df
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Jun 2021 17:41:51.0975
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: LofcJAUmi1djM5YaJunc/1C1hF+FQhHwaCnwnwb7zJqXkERSlqpUQqvvY0WLj/G5
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5045
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11.06.21 19:05, Jason Gunthorpe wrote:
-> On Wed, Jun 09, 2021 at 06:46:33PM -0400, Tony Krowiak wrote:
->> This patch introduces two new r/w locks to replace the wait_queue_head_t
->> that was introduced to fix a lockdep splat reported when testing
->> pass-through of AP queues to a Secure Execution guest. This was the
->> abbreviated dependency chain reported by lockdep that was fixed using
->> a wait queue:
->>
->> kvm_arch_crypto_set_masks+0x4a/0x2b8 [kvm]        kvm->lock
->> vfio_ap_mdev_group_notifier+0x154/0x170 [vfio_ap] matrix_dev->lock
->>
->> handle_pqap+0x56/0x1d0 [vfio_ap]    matrix_dev->lock
->> kvm_vcpu_ioctl+0x2cc/0x898 [kvm]    vcpu->mutex
->>
->> kvm_s390_cpus_to_pv+0x4e/0xf8 [kvm]   vcpu->mutex
->> kvm_arch_vm_ioctl+0x3ec/0x550 [kvm]   kvm->lock
-> 
-> Is the problem larger than kvm_arch_crypto_set_masks()? If not it
-> looks easy enough to fix, just pull the kvm->lock out of
-> kvm_arch_crypto_set_masks() and obtain it in vfio_ap_mdev_set_kvm()
-> before the rwsem. Now your locks are in the right order and all should
-> be well?
-> 
->> +static int vfio_ap_mdev_matrix_store_lock(struct ap_matrix_mdev *matrix_mdev)
->> +{
->> +	if (!down_write_trylock(&matrix_mdev->rwsem))
->> +		return -EBUSY;
->> +
->> +	if (matrix_mdev->kvm) {
->> +		up_write(&matrix_mdev->rwsem);
->> +		return -EBUSY;
->> +	}
->> +
->> +	if (!down_write_trylock(&matrix_mdev->matrix.rwsem)) {
->> +		up_write(&matrix_mdev->rwsem);
->> +		return -EBUSY;
->> +	}
->> +
->> +	return 0;
->> +}
-> 
-> This double locking is quite strange, at least it deserves a detailed
-> comment? The comments suggest these locks protect distinct data so..
-> 
->> +
->> +	ret = vfio_ap_mdev_matrix_store_lock(matrix_mdev);
->> +	if (ret)
->> +		return ret;
->>   
->>   	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
-> 
-> here it obtained both locks but only touched matrix.aqm which is only
-> protected by the inner lock - what was the point of obtaining the
-> outer lock?
-> 
-> Also, not convinced down_write_trylock() is appropriate from a sysfs
-> callback, it should block and wait, surely? Otherwise userspace gets
-> random racy failures depending on what the kernel is doing??
+On Fri, Jun 11, 2021 at 07:11:50PM +0200, David Hildenbrand wrote:
 
-It might we worth exploring lock_device_hotplug_sysfs() which does a
+> > Also, not convinced down_write_trylock() is appropriate from a sysfs
+> > callback, it should block and wait, surely? Otherwise userspace gets
+> > random racy failures depending on what the kernel is doing??
+> 
+> It might we worth exploring lock_device_hotplug_sysfs() which does a
+> 
+> "return restart_syscall()" with some delay.
 
-"return restart_syscall()" with some delay.
+The ideal design from a sysfs should be a single
+down_write_killable().
 
+restart_syscall will just create a weird spinlock that is hopefully
+unlikely to spin :\
 
--- 
-Thanks,
-
-David / dhildenb
-
+Jason
