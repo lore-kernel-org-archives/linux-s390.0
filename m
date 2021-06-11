@@ -2,70 +2,67 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0B3BC48BE8
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 12:01:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B593FC48BD1
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 12:04:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 853AA613BA
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 12:01:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 960EF613CD
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 12:04:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231528AbhFKMDe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Jun 2021 08:03:34 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60564 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231489AbhFKMDd (ORCPT
+        id S231553AbhFKMGH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Jun 2021 08:06:07 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43354 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231420AbhFKMGE (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Jun 2021 08:03:33 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15BBXDPL101354;
-        Fri, 11 Jun 2021 08:00:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=mbHNpsEeNzEvHddb7n05jQiVtEGHVhDGgdGI3qgT5cU=;
- b=iRzgFIYvoDbpwIwZ8cf1+4qafFIBZ9IK4gVOJb6pb5MQzNjfOOE5Gx2p4dnRA1vKGWuk
- shAH/zG7A4YfT5imRMBvl53mhjzVQcjBSWzJtiuGWzQMco0Ye5Kid1aA2hpvVlPpKw3Y
- WahmxjtU7CRu+Sk0I/Z4QrCTH7onWjUNGoTzt6JGVfpR4jJ+oVUTOiwjwwxAcSFnlnpA
- 7bsgG1gqqP27txRSYkNO5BthxoWenMfHL4Hpv8wIrYQzxyI2K2QWJF8ohTpIWmM8qVNj
- PDdPjmfSfukd0Q2GBk3IXye1DgD8Rm9INMC3SGzjPbCYxFlsnomUwwUUPfqxldRmXFOv Og== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39457f40xc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 08:00:55 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15BBYTaO105704;
-        Fri, 11 Jun 2021 08:00:55 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39457f40r7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 08:00:54 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15BBxCWJ008598;
-        Fri, 11 Jun 2021 12:00:48 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3900w8bdjh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 12:00:48 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15BBxoUV33489284
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 11 Jun 2021 11:59:50 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C87AAE065;
-        Fri, 11 Jun 2021 12:00:45 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4546CAE057;
-        Fri, 11 Jun 2021 12:00:44 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.35.90])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 11 Jun 2021 12:00:44 +0000 (GMT)
+        Fri, 11 Jun 2021 08:06:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1623413046;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SJDmCGSzSoN+SjlCljTi/drpSsUmCLU82T+0nPdBIYI=;
+        b=QRS9kZ27PpeWh3COWmFcpV2kCZVJZCvmbpw3mCxHa1NBiUv8rUGk4usKEHfqmqoS3l9ghM
+        Qw2pdE6qsHoCilReOhuH5KDb8v2m1tyGK2NJUHJ9mLcmVBtbxCu3savKG+sGf5k2NMfwtr
+        LEHjxktf/tf6pSLL35VaMQh2Aa6s19M=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-130-TZbQ7NH7M72lSSeyAodGtw-1; Fri, 11 Jun 2021 08:04:03 -0400
+X-MC-Unique: TZbQ7NH7M72lSSeyAodGtw-1
+Received: by mail-wm1-f72.google.com with SMTP id z25-20020a1c4c190000b029019f15b0657dso4355872wmf.8
+        for <linux-s390@vger.kernel.org>; Fri, 11 Jun 2021 05:04:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=SJDmCGSzSoN+SjlCljTi/drpSsUmCLU82T+0nPdBIYI=;
+        b=I9QO/JxzUo3acfsE43JLdFPZ2WmbDiI36IkAVIU6tOSNuiBYnmcrG3AR0YO2J6u3Mc
+         vTI9oPmhhBSTNUhz6ihLaZYPtS/LhA/HbGGngMKCBtmVMXmOnGfjnwg7igaI160WR/Hk
+         ZNJIxklBZIPomTWpMNgQm89LFWPavTO+k3GYaGIdZh4Z78nmvYnawP6ZJDUO1Uf5I2dw
+         AMjzJW/WzsBF6aH4IbE9CcR5Nt7Nxn51laoMd7vh8dSCuo72I23JQXUBMnk2hGUxVQoY
+         Een91s80kgMJgDzaI8h526uB8/TJKvBkscO+UpdBQSJytT2ocjoTgghzTN1d8hbsP9MX
+         1esQ==
+X-Gm-Message-State: AOAM530HsuZhZmonjvd9cckhGcFv3E+E+xLGPZjfOqqcrgZLm6YihyR4
+        5+oE1aP3UcJJbMGrNHZnLm3nXBBvUwZnL8PfJ12mDttQ7woEnVOE1pXpl+UIZcVPLVJpSV9UTIs
+        R/C5Dg/yyMvTr3f7kRJFUPg==
+X-Received: by 2002:a7b:c0cb:: with SMTP id s11mr3607777wmh.21.1623413042162;
+        Fri, 11 Jun 2021 05:04:02 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzG2XIC2YxHXVTDi+gO8yJwV9JxmgIYE7VFZU1/ddoPOqjwHeITDdMBlqBjpf4Ks7p+wpwf+g==
+X-Received: by 2002:a7b:c0cb:: with SMTP id s11mr3607733wmh.21.1623413041887;
+        Fri, 11 Jun 2021 05:04:01 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id o20sm11859481wms.3.2021.06.11.05.04.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 11 Jun 2021 05:04:01 -0700 (PDT)
 Subject: Re: [PATCH v7 1/4] KVM: stats: Separate generic stats from
  architecture specific ones
-To:     Paolo Bonzini <pbonzini@redhat.com>,
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
         Jing Zhang <jingzhangos@google.com>, KVM <kvm@vger.kernel.org>,
         KVMARM <kvmarm@lists.cs.columbia.edu>,
         LinuxMIPS <linux-mips@vger.kernel.org>,
@@ -99,61 +96,46 @@ References: <20210603211426.790093-1-jingzhangos@google.com>
  <20210603211426.790093-2-jingzhangos@google.com>
  <03f3fa03-6f61-7864-4867-3dc332a9d6f3@de.ibm.com>
  <bdd315f7-0615-af69-90c3-1e5646f3e259@redhat.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <c0173386-0c37-73c0-736a-e904636b6c94@de.ibm.com>
-Date:   Fri, 11 Jun 2021 14:00:43 +0200
+ <c0173386-0c37-73c0-736a-e904636b6c94@de.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <c5199e63-762d-a731-7ef2-c2af3a8cb0c3@redhat.com>
+Date:   Fri, 11 Jun 2021 14:03:59 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-In-Reply-To: <bdd315f7-0615-af69-90c3-1e5646f3e259@redhat.com>
+In-Reply-To: <c0173386-0c37-73c0-736a-e904636b6c94@de.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8MP2ezwEt9170vbChq_FRz0xBregGrk3
-X-Proofpoint-ORIG-GUID: GqhBvqOjrdf5YHNLJ4FCXl4R-mUl-zgg
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-11_05:2021-06-11,2021-06-11 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 bulkscore=0 phishscore=0 spamscore=0 lowpriorityscore=0
- mlxlogscore=999 priorityscore=1501 clxscore=1015 suspectscore=0 mlxscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106110073
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 11/06/21 14:00, Christian Borntraeger wrote:
+> What is the semantics of remote_tlb_flush?
 
+I always interpreted it as "number of times the KVM page table 
+management code needed other CPUs to learn about new page tables". 
+Whether the broadcast is done in software or hardware shouldn't matter; 
+either way I suppose there is still some traffic on the bus involved.
 
-On 11.06.21 12:51, Paolo Bonzini wrote:
-> On 11/06/21 08:57, Christian Borntraeger wrote:
->>> @@ -755,12 +750,12 @@ struct kvm_vcpu_arch {
->>>   };
->>>   struct kvm_vm_stat {
->>> +    struct kvm_vm_stat_generic generic;
->>
->> s390 does not have remote_tlb_flush. I guess this does not hurt?
+ARM is also not updating the stat, I'll send a patch for that.
+
+Paolo
+
+> For the host:
+> We usually do not do remote TLB flushes in the "IPI with a flush 
+> executed on the remote CPU" sense.
+> We do have instructions that invalidates table entries and it will take 
+> care of remote TLBs as well (IPTE and IDTE and CRDTE).
+> This is nice, but on the other side an operating system MUST use these 
+> instruction if the page table might be in use by any CPU. If not, you 
+> can get a delayed access exception machine check if the hardware detect 
+> a TLB/page table incosistency.
+> Only if you can guarantee that nobody has this page table attached you 
+> can also use a normal store + tlb flush instruction.
 > 
-> It would have to be accounted in gmap_flush_tlb, but there is no struct kvm in there.  A slightly hackish possibility would be to include the gmap by value (instead of by pointer) in struct kvm, and then use container_of.
-
-What is the semantics of remote_tlb_flush?
-For the host:
-We usually do not do remote TLB flushes in the "IPI with a flush executed on the remote CPU" sense.
-We do have instructions that invalidates table entries and it will take care of remote TLBs as well (IPTE and IDTE and CRDTE).
-This is nice, but on the other side an operating system MUST use these instruction if the page table might be in use by any CPU. If not, you can get a delayed access exception machine check if the hardware detect a TLB/page table incosistency.
-Only if you can guarantee that nobody has this page table attached you can also use a normal store + tlb flush instruction.
-
-For the guest (and I guess thats what we care about here?) TLB flushes are almost completely handled by hardware. There is only the set prefix instruction that is handled by KVM and this flushes the cpu local cache.
-> 
-> This reminds me that I have never asked you why the gmap code is not in arch/s390/kvm, 
-
-Because we share the last level of the page tables with userspace so the KVM address space is somewhat tied to the user address space.
-This is partly because Martin wanted to have control over this due to some oddities about our page tables and partly because of the rule from above. Using a IPTE of such a page table entry will take care of the TLB entries for both (user and guest) mappings in an atomic fashion when the page table changes.
-
-
-and also that there is no code in QEMU that uses KVM_VM_S390_UCONTROL or KVM_S390_VCPU_FAULT.  It would be nice to have some testcases for that, and also for KVM_S390_VCPU_FAULT with regular virtual machines... or to remove the code if it's unused.
-
-This is used by an internal firmware test tool that uses KVM to speed up simulation of hardware instructions.
-Search for CECSIM to get an idea (the existing papers still talk about the same approach using z/VM).
-I will check what we can do regarding regression tests.
+> For the guest (and I guess thats what we care about here?) TLB flushes 
+> are almost completely handled by hardware. There is only the set prefix 
+> instruction that is handled by KVM and this flushes the cpu local cache.
 
