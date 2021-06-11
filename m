@@ -2,514 +2,802 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F47BC49EA7
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 14:07:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80A41C48BE0
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 15:00:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F912613C8
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 14:07:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B2F2613B3
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 15:00:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231873AbhFKOJQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Jun 2021 10:09:16 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33238 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231843AbhFKOJN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Jun 2021 10:09:13 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15BE4uMd013910;
-        Fri, 11 Jun 2021 10:07:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=RZGh+o4fzEhTRuErEDKuSG1g20//VIJ88JX7cc320lo=;
- b=ZLREy0eucw1Ciu9i5co7LvZzklvnpya6Bih9nl3zE540QpiNUKT0EkvGZ/g8T1cqdzH/
- iKm16TI8YlmiTeptRiVpWQMQjrH0FN95yorb3jTNsXKvrDmSmRNfHOTh2rtXKoUim+9g
- 53EDfsgQtqGw9uLL5XimlA0syD8Q8QByt9oW4pT1k60X2HBxRLCfMx+oYX6ltf3BtL9k
- mqTzZlAPAwv0fb5fWMF9Mx5dXTMe+nz2NuYmzcisFnD/hHHaoXOeOawZKAXd4Nq0Mzo8
- lOpGw4+i3Pi3lTicpoD8dei/znDpLnK5mkGzRJeT2CYl6kA6gk2PTSraIAbYclTlqUMz ag== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3948cn28w8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 10:07:15 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15BE6kht024522;
-        Fri, 11 Jun 2021 10:07:15 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3948cn28v1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 10:07:15 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15BDww3g009751;
-        Fri, 11 Jun 2021 14:07:12 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3900w89xf4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 14:07:12 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15BE6D1o30147010
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 11 Jun 2021 14:06:13 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 545605204F;
-        Fri, 11 Jun 2021 14:07:08 +0000 (GMT)
-Received: from ibm-vm.ibmuc.com (unknown [9.145.5.240])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 080A65205F;
-        Fri, 11 Jun 2021 14:07:07 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com,
-        frankja@linux.ibm.com, cohuck@redhat.com
-Subject: [kvm-unit-tests PATCH v5 6/7] s390x: mmu: add support for large pages
-Date:   Fri, 11 Jun 2021 16:07:04 +0200
-Message-Id: <20210611140705.553307-7-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210611140705.553307-1-imbrenda@linux.ibm.com>
-References: <20210611140705.553307-1-imbrenda@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QzzjeaIJlKPsOfeXhVK8SBcN1WT9LSb1
-X-Proofpoint-ORIG-GUID: BfODx10JdJg5DmYq_nTCOZbxlFUyXYlW
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-11_05:2021-06-11,2021-06-11 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 bulkscore=0 lowpriorityscore=0 mlxscore=0 mlxlogscore=999
- suspectscore=0 spamscore=0 phishscore=0 priorityscore=1501 clxscore=1015
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106110090
+        id S231555AbhFKPCj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Jun 2021 11:02:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33264 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231179AbhFKPCj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Jun 2021 11:02:39 -0400
+Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBCD5C061574
+        for <linux-s390@vger.kernel.org>; Fri, 11 Jun 2021 08:00:41 -0700 (PDT)
+Received: by mail-pj1-x104a.google.com with SMTP id om12-20020a17090b3a8cb029016a4ee7d56fso5595278pjb.7
+        for <linux-s390@vger.kernel.org>; Fri, 11 Jun 2021 08:00:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=uim87IAj8KCKmOSsULsfH8blvn43ITFIDbaIVP4r8jE=;
+        b=v3wrdyhzygEkOld+RcXbcgQEfgEJ/ExVLpVOv7yMLzWS/MfFUbYFdCePLElxJHQQCa
+         r0jWml4EUh0VEomgu2N1VoVaDLVYmdDIk4l4/FXhx+2aGVOtDVY8OKt0wagIF07M6c31
+         8deaonijuj/DIt11x3iPWcOJhVGN0Su90ZaZhM0tCXRE6Ql6Ox+kX3kHwtn1mnvMKL+L
+         a27clHJFyEYK2O/tUui1ubh9bYB4H2SZyszh/esjihZ5jTVXpSia7z57EHrlz8sK74ue
+         04OfluKuDLrd1h7z4vvQt6/GYcmfuD701Qycu9eyj5NBCmLXsRdNJTfb/6xAM6EPxDAE
+         eI3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=uim87IAj8KCKmOSsULsfH8blvn43ITFIDbaIVP4r8jE=;
+        b=A7tmMel0vgGouUpnu92EkNev44gVB/k/6NpCxYQtDqisUxgPXy6fF6moxrsQRh93KX
+         8Lxs/6bfOCdvfneeadKS0WOApVTVj1azvUNiUe4zdLxM1gTm1dBPQ2rHBpXwO9Aa/67g
+         kgM1lEGGul6jrP7thyaiu3PpSicHIwh/a+yCt9eqzNigoZE0z/tdEEqtpB/VlaWdwif9
+         w72+9rVKmjW2JW6o57cdjjkrt/+mu7vJiJs8SnYFC4m8vwLoXpZAaFGI7rTi/zXYVQTE
+         DHkt2o/CA4x5VbraeWsRBCm8vMiPfXNPEjBHLIYRtFxHltcQE79nk6j94zw/+8JKYkMZ
+         HL5Q==
+X-Gm-Message-State: AOAM5315gyZa3WD9wqbyXDLFNGrm1aSMaspIhrvme118m1aQyQWpgBGv
+        Q+oesKz8EICGiBy33WE1wHsSzzsNUGwoTFFCrQ==
+X-Google-Smtp-Source: ABdhPJzw14sBk2SudnhzcJxOniJUb+JRBSy3KrK4tHQVYc9BYUY5vL/ROPIIfB7+IcCNqHSIWR4G5IcqYa3qDBT3nQ==
+X-Received: from jgzg.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1acf])
+ (user=jingzhangos job=sendgmr) by 2002:a17:902:c651:b029:118:896f:cead with
+ SMTP id s17-20020a170902c651b0290118896fceadmr2568395pls.29.1623423640742;
+ Fri, 11 Jun 2021 08:00:40 -0700 (PDT)
+Date:   Fri, 11 Jun 2021 15:00:37 +0000
+Message-Id: <20210611150037.1969770-1-jingzhangos@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.32.0.272.g935e593368-goog
+Subject: [PATCH] KVM: stats: Remove debugfs interface for KVM stats
+From:   Jing Zhang <jingzhangos@google.com>
+To:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
+        LinuxMIPS <linux-mips@vger.kernel.org>,
+        KVMPPC <kvm-ppc@vger.kernel.org>,
+        LinuxS390 <linux-s390@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Jing Zhang <jingzhangos@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add support for 1M and 2G pages.
+To avoid duplication, remove the debugfs interface for KVM stats,
+since the fd-based binary stats interface is available.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Jing Zhang <jingzhangos@google.com>
 ---
- lib/s390x/mmu.h |  84 +++++++++++++++-
- lib/s390x/mmu.c | 262 +++++++++++++++++++++++++++++++++++++++++++-----
- 2 files changed, 320 insertions(+), 26 deletions(-)
+ arch/arm64/kvm/guest.c    |  16 ---
+ arch/mips/kvm/mips.c      |  39 ------
+ arch/powerpc/kvm/book3s.c |  33 -----
+ arch/powerpc/kvm/booke.c  |  25 ----
+ arch/s390/kvm/kvm-s390.c  | 108 ----------------
+ arch/x86/kvm/x86.c        |  47 -------
+ include/linux/kvm_host.h  |  34 +----
+ virt/kvm/kvm_main.c       | 258 --------------------------------------
+ 8 files changed, 1 insertion(+), 559 deletions(-)
 
-diff --git a/lib/s390x/mmu.h b/lib/s390x/mmu.h
-index b995f85b..ab35d782 100644
---- a/lib/s390x/mmu.h
-+++ b/lib/s390x/mmu.h
-@@ -10,9 +10,89 @@
- #ifndef _S390X_MMU_H_
- #define _S390X_MMU_H_
+diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
+index 7048603f4b26..ab5b878b8b14 100644
+--- a/arch/arm64/kvm/guest.c
++++ b/arch/arm64/kvm/guest.c
+@@ -62,22 +62,6 @@ struct _kvm_stats_header kvm_vcpu_stats_header = {
+ 	}
+ };
  
--void protect_page(void *vaddr, unsigned long prot);
-+enum pgt_level {
-+	pgtable_level_pgd = 1,
-+	pgtable_level_p4d,
-+	pgtable_level_pud,
-+	pgtable_level_pmd,
-+	pgtable_level_pte,
-+};
-+
-+/*
-+ * Splits the pagetables down to the given DAT tables level.
-+ * Returns a pointer to the DAT table entry of the given level.
-+ * @pgtable root of the page table tree
-+ * @vaddr address whose page tables are to split
-+ * @level 3 (for 2GB pud), 4 (for 1 MB pmd) or 5 (for 4KB pages)
-+ */
-+void *split_page(pgd_t *pgtable, void *vaddr, enum pgt_level level);
-+
-+/*
-+ * Applies the given protection bits to the given DAT tables level,
-+ * splitting if necessary.
-+ * @pgtable root of the page table tree
-+ * @vaddr address whose protection bits are to be changed
-+ * @prot the protection bits to set
-+ * @level 3 (for 2GB pud), 4 (for 1MB pmd) or 5 (for 4KB pages)
-+ */
-+void protect_dat_entry(void *vaddr, unsigned long prot, enum pgt_level level);
-+
-+/*
-+ * Clears the given protection bits from the given DAT tables level,
-+ * splitting if necessary.
-+ * @pgtable root of the page table tree
-+ * @vaddr address whose protection bits are to be changed
-+ * @prot the protection bits to clear
-+ * @level 3 (for 2GB pud), 4 (for 1MB pmd) or 5 (for 4kB pages)
-+ */
-+void unprotect_dat_entry(void *vaddr, unsigned long prot, enum pgt_level level);
-+
-+/*
-+ * Applies the given protection bits to the given 4kB pages range,
-+ * splitting if necessary.
-+ * @start starting address whose protection bits are to be changed
-+ * @len size in bytes
-+ * @prot the protection bits to set
-+ */
- void protect_range(void *start, unsigned long len, unsigned long prot);
--void unprotect_page(void *vaddr, unsigned long prot);
-+
-+/*
-+ * Clears the given protection bits from the given 4kB pages range,
-+ * splitting if necessary.
-+ * @start starting address whose protection bits are to be changed
-+ * @len size in bytes
-+ * @prot the protection bits to set
-+ */
- void unprotect_range(void *start, unsigned long len, unsigned long prot);
- 
-+/* Similar to install_page, maps the virtual address to the physical address
-+ * for the given page tables, using 1MB large pages.
-+ * Returns a pointer to the DAT table entry.
-+ * @pgtable root of the page table tree
-+ * @phys physical address to map, must be 1MB aligned!
-+ * @vaddr virtual address to map, must be 1MB aligned!
-+ */
-+pmdval_t *install_large_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr);
-+
-+/* Similar to install_page, maps the virtual address to the physical address
-+ * for the given page tables, using 2GB huge pages.
-+ * Returns a pointer to the DAT table entry.
-+ * @pgtable root of the page table tree
-+ * @phys physical address to map, must be 2GB aligned!
-+ * @vaddr virtual address to map, must be 2GB aligned!
-+ */
-+pudval_t *install_huge_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr);
-+
-+static inline void protect_page(void *vaddr, unsigned long prot)
-+{
-+	protect_dat_entry(vaddr, prot, pgtable_level_pte);
-+}
-+
-+static inline void unprotect_page(void *vaddr, unsigned long prot)
-+{
-+	unprotect_dat_entry(vaddr, prot, pgtable_level_pte);
-+}
-+
-+void *get_dat_entry(pgd_t *pgtable, void *vaddr, unsigned int level);
-+
- #endif /* _ASMS390X_MMU_H_ */
-diff --git a/lib/s390x/mmu.c b/lib/s390x/mmu.c
-index 5c517366..c973443b 100644
---- a/lib/s390x/mmu.c
-+++ b/lib/s390x/mmu.c
-@@ -15,6 +15,18 @@
- #include <vmalloc.h>
- #include "mmu.h"
- 
-+/*
-+ * The naming convention used here is the same as used in the Linux kernel;
-+ * this is the correspondence between the s390x architectural names and the
-+ * Linux ones:
-+ *
-+ * pgd - region 1 table entry
-+ * p4d - region 2 table entry
-+ * pud - region 3 table entry
-+ * pmd - segment table entry
-+ * pte - page table entry
-+ */
-+
- static pgd_t *table_root;
- 
- void configure_dat(int enable)
-@@ -46,54 +58,256 @@ static void mmu_enable(pgd_t *pgtable)
- 	lc->pgm_new_psw.mask |= PSW_MASK_DAT;
- }
- 
--static pteval_t *get_pte(pgd_t *pgtable, uintptr_t vaddr)
-+/*
-+ * Get the pud (region 3) DAT table entry for the given address and root,
-+ * allocating it if necessary
-+ */
-+static inline pud_t *get_pud(pgd_t *pgtable, uintptr_t vaddr)
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT("hvc_exit_stat", hvc_exit_stat),
+-	VCPU_STAT("wfe_exit_stat", wfe_exit_stat),
+-	VCPU_STAT("wfi_exit_stat", wfi_exit_stat),
+-	VCPU_STAT("mmio_exit_user", mmio_exit_user),
+-	VCPU_STAT("mmio_exit_kernel", mmio_exit_kernel),
+-	VCPU_STAT("exits", exits),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	{ NULL }
+-};
+-
+ static bool core_reg_offset_is_vreg(u64 off)
  {
- 	pgd_t *pgd = pgd_offset(pgtable, vaddr);
- 	p4d_t *p4d = p4d_alloc(pgd, vaddr);
- 	pud_t *pud = pud_alloc(p4d, vaddr);
--	pmd_t *pmd = pmd_alloc(pud, vaddr);
--	pte_t *pte = pte_alloc(pmd, vaddr);
+ 	return off >= KVM_REG_ARM_CORE_REG(fp_regs.vregs) &&
+diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+index 8fc70539a83b..285f009f02d1 100644
+--- a/arch/mips/kvm/mips.c
++++ b/arch/mips/kvm/mips.c
+@@ -97,45 +97,6 @@ struct _kvm_stats_header kvm_vcpu_stats_header = {
+ 	}
+ };
  
--	return &pte_val(*pte);
-+	return pud;
-+}
-+
-+/*
-+ * Get the pmd (segment) DAT table entry for the given address and pud,
-+ * allocating it if necessary.
-+ * The pud must not be huge.
-+ */
-+static inline pmd_t *get_pmd(pud_t *pud, uintptr_t vaddr)
-+{
-+	pmd_t *pmd;
-+
-+	assert(!pud_huge(*pud));
-+	pmd = pmd_alloc(pud, vaddr);
-+	return pmd;
-+}
-+
-+/*
-+ * Get the pte (page) DAT table entry for the given address and pmd,
-+ * allocating it if necessary.
-+ * The pmd must not be large.
-+ */
-+static inline pte_t *get_pte(pmd_t *pmd, uintptr_t vaddr)
-+{
-+	pte_t *pte;
-+
-+	assert(!pmd_large(*pmd));
-+	pte = pte_alloc(pmd, vaddr);
-+	return pte;
-+}
-+
-+/*
-+ * Splits a large pmd (segment) DAT table entry into equivalent 4kB small
-+ * pages.
-+ * @pmd The pmd to split, it must be large.
-+ * @va the virtual address corresponding to this pmd.
-+ */
-+static void split_pmd(pmd_t *pmd, uintptr_t va)
-+{
-+	phys_addr_t pa = pmd_val(*pmd) & SEGMENT_ENTRY_SFAA;
-+	unsigned long i, prot;
-+	pte_t *pte;
-+
-+	assert(pmd_large(*pmd));
-+	pte = alloc_pages(PAGE_TABLE_ORDER);
-+	prot = pmd_val(*pmd) & (SEGMENT_ENTRY_IEP | SEGMENT_ENTRY_P);
-+	for (i = 0; i < PAGE_TABLE_ENTRIES; i++)
-+		pte_val(pte[i]) =  pa | PAGE_SIZE * i | prot;
-+	idte_pmdp(va, &pmd_val(*pmd));
-+	pmd_val(*pmd) = __pa(pte) | SEGMENT_ENTRY_TT_SEGMENT;
-+
-+}
-+
-+/*
-+ * Splits a huge pud (region 3) DAT table entry into equivalent 1MB large
-+ * pages.
-+ * @pud The pud to split, it must be huge.
-+ * @va the virtual address corresponding to this pud.
-+ */
-+static void split_pud(pud_t *pud, uintptr_t va)
-+{
-+	phys_addr_t pa = pud_val(*pud) & REGION3_ENTRY_RFAA;
-+	unsigned long i, prot;
-+	pmd_t *pmd;
-+
-+	assert(pud_huge(*pud));
-+	pmd = alloc_pages(SEGMENT_TABLE_ORDER);
-+	prot = pud_val(*pud) & (REGION3_ENTRY_IEP | REGION_ENTRY_P);
-+	for (i = 0; i < SEGMENT_TABLE_ENTRIES; i++)
-+		pmd_val(pmd[i]) =  pa | SZ_1M * i | prot | SEGMENT_ENTRY_FC | SEGMENT_ENTRY_TT_SEGMENT;
-+	idte_pudp(va, &pud_val(*pud));
-+	pud_val(*pud) = __pa(pmd) | REGION_ENTRY_TT_REGION3 | REGION_TABLE_LENGTH;
-+}
-+
-+void *get_dat_entry(pgd_t *pgtable, void *vaddr, enum pgt_level level)
-+{
-+	uintptr_t va = (uintptr_t)vaddr;
-+	pgd_t *pgd;
-+	p4d_t *p4d;
-+	pud_t *pud;
-+	pmd_t *pmd;
-+
-+	assert(level && (level <= 5));
-+	pgd = pgd_offset(pgtable, va);
-+	if (level == pgtable_level_pgd)
-+		return pgd;
-+	p4d = p4d_alloc(pgd, va);
-+	if (level == pgtable_level_p4d)
-+		return p4d;
-+	pud = pud_alloc(p4d, va);
-+
-+	if (level == pgtable_level_pud)
-+		return pud;
-+	if (!pud_none(*pud) && pud_huge(*pud))
-+		split_pud(pud, va);
-+	pmd = get_pmd(pud, va);
-+	if (level == pgtable_level_pmd)
-+		return pmd;
-+	if (!pmd_none(*pmd) && pmd_large(*pmd))
-+		split_pmd(pmd, va);
-+	return get_pte(pmd, va);
-+}
-+
-+void *split_page(pgd_t *pgtable, void *vaddr, enum pgt_level level)
-+{
-+	assert((level >= 3) && (level <= 5));
-+	return get_dat_entry(pgtable ? pgtable : table_root, vaddr, level);
- }
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT("wait", wait_exits),
+-	VCPU_STAT("cache", cache_exits),
+-	VCPU_STAT("signal", signal_exits),
+-	VCPU_STAT("interrupt", int_exits),
+-	VCPU_STAT("cop_unusable", cop_unusable_exits),
+-	VCPU_STAT("tlbmod", tlbmod_exits),
+-	VCPU_STAT("tlbmiss_ld", tlbmiss_ld_exits),
+-	VCPU_STAT("tlbmiss_st", tlbmiss_st_exits),
+-	VCPU_STAT("addrerr_st", addrerr_st_exits),
+-	VCPU_STAT("addrerr_ld", addrerr_ld_exits),
+-	VCPU_STAT("syscall", syscall_exits),
+-	VCPU_STAT("resvd_inst", resvd_inst_exits),
+-	VCPU_STAT("break_inst", break_inst_exits),
+-	VCPU_STAT("trap_inst", trap_inst_exits),
+-	VCPU_STAT("msa_fpe", msa_fpe_exits),
+-	VCPU_STAT("fpe", fpe_exits),
+-	VCPU_STAT("msa_disabled", msa_disabled_exits),
+-	VCPU_STAT("flush_dcache", flush_dcache_exits),
+-	VCPU_STAT("vz_gpsi", vz_gpsi_exits),
+-	VCPU_STAT("vz_gsfc", vz_gsfc_exits),
+-	VCPU_STAT("vz_hc", vz_hc_exits),
+-	VCPU_STAT("vz_grr", vz_grr_exits),
+-	VCPU_STAT("vz_gva", vz_gva_exits),
+-	VCPU_STAT("vz_ghfc", vz_ghfc_exits),
+-	VCPU_STAT("vz_gpa", vz_gpa_exits),
+-	VCPU_STAT("vz_resvd", vz_resvd_exits),
+-#ifdef CONFIG_CPU_LOONGSON64
+-	VCPU_STAT("vz_cpucfg", vz_cpucfg_exits),
+-#endif
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	{NULL}
+-};
+-
+ bool kvm_trace_guest_mode_change;
  
- phys_addr_t virt_to_pte_phys(pgd_t *pgtable, void *vaddr)
+ int kvm_guest_mode_change_trace_reg(void)
+diff --git a/arch/powerpc/kvm/book3s.c b/arch/powerpc/kvm/book3s.c
+index eff5a96aa638..f0fd9d1d5ee0 100644
+--- a/arch/powerpc/kvm/book3s.c
++++ b/arch/powerpc/kvm/book3s.c
+@@ -98,39 +98,6 @@ struct _kvm_stats_header kvm_vcpu_stats_header = {
+ 	}
+ };
+ 
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT("exits", sum_exits),
+-	VCPU_STAT("mmio", mmio_exits),
+-	VCPU_STAT("sig", signal_exits),
+-	VCPU_STAT("sysc", syscall_exits),
+-	VCPU_STAT("inst_emu", emulated_inst_exits),
+-	VCPU_STAT("dec", dec_exits),
+-	VCPU_STAT("ext_intr", ext_intr_exits),
+-	VCPU_STAT("queue_intr", queue_intr),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	VCPU_STAT("halt_wait_ns", halt_wait_ns),
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT("halt_successful_wait", halt_successful_wait),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT("pf_storage", pf_storage),
+-	VCPU_STAT("sp_storage", sp_storage),
+-	VCPU_STAT("pf_instruc", pf_instruc),
+-	VCPU_STAT("sp_instruc", sp_instruc),
+-	VCPU_STAT("ld", ld),
+-	VCPU_STAT("ld_slow", ld_slow),
+-	VCPU_STAT("st", st),
+-	VCPU_STAT("st_slow", st_slow),
+-	VCPU_STAT("pthru_all", pthru_all),
+-	VCPU_STAT("pthru_host", pthru_host),
+-	VCPU_STAT("pthru_bad_aff", pthru_bad_aff),
+-	VM_STAT("largepages_2M", num_2M_pages, .mode = 0444),
+-	VM_STAT("largepages_1G", num_1G_pages, .mode = 0444),
+-	{ NULL }
+-};
+-
+ static inline void kvmppc_update_int_pending(struct kvm_vcpu *vcpu,
+ 			unsigned long pending_now, unsigned long old_pending)
  {
--	return (*get_pte(pgtable, (uintptr_t)vaddr) & PAGE_MASK) +
--	       ((unsigned long)vaddr & ~PAGE_MASK);
-+	uintptr_t va = (uintptr_t)vaddr;
-+	pud_t *pud;
-+	pmd_t *pmd;
-+	pte_t *pte;
-+
-+	pud = get_pud(pgtable, va);
-+	if (pud_huge(*pud))
-+		return (pud_val(*pud) & REGION3_ENTRY_RFAA) | (va & ~REGION3_ENTRY_RFAA);
-+	pmd = get_pmd(pud, va);
-+	if (pmd_large(*pmd))
-+		return (pmd_val(*pmd) & SEGMENT_ENTRY_SFAA) | (va & ~SEGMENT_ENTRY_SFAA);
-+	pte = get_pte(pmd, va);
-+	return (pte_val(*pte) & PAGE_MASK) | (va & ~PAGE_MASK);
-+}
-+
-+/*
-+ * Get the DAT table entry of the given level for the given address,
-+ * splitting if necessary. If the entry was not invalid, invalidate it, and
-+ * return the pointer to the entry and, if requested, its old value.
-+ * @pgtable root of the page tables
-+ * @vaddr virtual address
-+ * @level 3 (for 2GB pud), 4 (for 1MB pmd) or 5 (for 4kB pages)
-+ * @old if not NULL, will be written with the old value of the DAT table
-+ * entry before invalidation
-+ */
-+static void *dat_get_and_invalidate(pgd_t *pgtable, void *vaddr, enum pgt_level level, unsigned long *old)
-+{
-+	unsigned long va = (unsigned long)vaddr;
-+	void *ptr;
-+
-+	ptr = get_dat_entry(pgtable, vaddr, level);
-+	if (old)
-+		*old = *(unsigned long *)ptr;
-+	if ((level == pgtable_level_pgd) && !pgd_none(*(pgd_t *)ptr))
-+		idte_pgdp(va, ptr);
-+	else if ((level == pgtable_level_p4d) && !p4d_none(*(p4d_t *)ptr))
-+		idte_p4dp(va, ptr);
-+	else if ((level == pgtable_level_pud) && !pud_none(*(pud_t *)ptr))
-+		idte_pudp(va, ptr);
-+	else if ((level == pgtable_level_pmd) && !pmd_none(*(pmd_t *)ptr))
-+		idte_pmdp(va, ptr);
-+	else if (!pte_none(*(pte_t *)ptr))
-+		ipte(va, ptr);
-+	return ptr;
- }
+diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
+index 5b0c4dff4f10..890ec72cd327 100644
+--- a/arch/powerpc/kvm/booke.c
++++ b/arch/powerpc/kvm/booke.c
+@@ -89,31 +89,6 @@ struct _kvm_stats_header kvm_vcpu_stats_header = {
+ 	}
+ };
  
--static pteval_t *set_pte(pgd_t *pgtable, pteval_t val, void *vaddr)
-+static void cleanup_pmd(pmd_t *pmd)
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT("mmio", mmio_exits),
+-	VCPU_STAT("sig", signal_exits),
+-	VCPU_STAT("itlb_r", itlb_real_miss_exits),
+-	VCPU_STAT("itlb_v", itlb_virt_miss_exits),
+-	VCPU_STAT("dtlb_r", dtlb_real_miss_exits),
+-	VCPU_STAT("dtlb_v", dtlb_virt_miss_exits),
+-	VCPU_STAT("sysc", syscall_exits),
+-	VCPU_STAT("isi", isi_exits),
+-	VCPU_STAT("dsi", dsi_exits),
+-	VCPU_STAT("inst_emu", emulated_inst_exits),
+-	VCPU_STAT("dec", dec_exits),
+-	VCPU_STAT("ext_intr", ext_intr_exits),
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT("doorbell", dbell_exits),
+-	VCPU_STAT("guest doorbell", gdbell_exits),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	VM_STAT_GENERIC("remote_tlb_flush", remote_tlb_flush),
+-	{ NULL }
+-};
+-
+ /* TODO: use vcpu_printf() */
+ void kvmppc_dump_vcpu(struct kvm_vcpu *vcpu)
  {
--	pteval_t *p_pte = get_pte(pgtable, (uintptr_t)vaddr);
-+	/* was invalid or large, nothing to do */
-+	if (pmd_none(*pmd) || pmd_large(*pmd))
-+		return;
-+	/* was not large, free the corresponding page table */
-+	free_pages((void *)(pmd_val(*pmd) & PAGE_MASK));
-+}
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 522a6ac2e347..75d6d499c455 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -183,114 +183,6 @@ struct _kvm_stats_header kvm_vcpu_stats_header = {
+ 	}
+ };
  
--	/* first flush the old entry (if we're replacing anything) */
--	if (!(*p_pte & PAGE_ENTRY_I))
--		ipte((uintptr_t)vaddr, p_pte);
-+static void cleanup_pud(pud_t *pud)
-+{
-+	unsigned long i;
-+	pmd_t *pmd;
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT("userspace_handled", exit_userspace),
+-	VCPU_STAT("exit_null", exit_null),
+-	VCPU_STAT("pfault_sync", pfault_sync),
+-	VCPU_STAT("exit_validity", exit_validity),
+-	VCPU_STAT("exit_stop_request", exit_stop_request),
+-	VCPU_STAT("exit_external_request", exit_external_request),
+-	VCPU_STAT("exit_io_request", exit_io_request),
+-	VCPU_STAT("exit_external_interrupt", exit_external_interrupt),
+-	VCPU_STAT("exit_instruction", exit_instruction),
+-	VCPU_STAT("exit_pei", exit_pei),
+-	VCPU_STAT("exit_program_interruption", exit_program_interruption),
+-	VCPU_STAT("exit_instr_and_program_int", exit_instr_and_program),
+-	VCPU_STAT("exit_operation_exception", exit_operation_exception),
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT("halt_no_poll_steal", halt_no_poll_steal),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	VCPU_STAT("instruction_lctlg", instruction_lctlg),
+-	VCPU_STAT("instruction_lctl", instruction_lctl),
+-	VCPU_STAT("instruction_stctl", instruction_stctl),
+-	VCPU_STAT("instruction_stctg", instruction_stctg),
+-	VCPU_STAT("deliver_ckc", deliver_ckc),
+-	VCPU_STAT("deliver_cputm", deliver_cputm),
+-	VCPU_STAT("deliver_emergency_signal", deliver_emergency_signal),
+-	VCPU_STAT("deliver_external_call", deliver_external_call),
+-	VCPU_STAT("deliver_service_signal", deliver_service_signal),
+-	VCPU_STAT("deliver_virtio", deliver_virtio),
+-	VCPU_STAT("deliver_stop_signal", deliver_stop_signal),
+-	VCPU_STAT("deliver_prefix_signal", deliver_prefix_signal),
+-	VCPU_STAT("deliver_restart_signal", deliver_restart_signal),
+-	VCPU_STAT("deliver_program", deliver_program),
+-	VCPU_STAT("deliver_io", deliver_io),
+-	VCPU_STAT("deliver_machine_check", deliver_machine_check),
+-	VCPU_STAT("exit_wait_state", exit_wait_state),
+-	VCPU_STAT("inject_ckc", inject_ckc),
+-	VCPU_STAT("inject_cputm", inject_cputm),
+-	VCPU_STAT("inject_external_call", inject_external_call),
+-	VM_STAT("inject_float_mchk", inject_float_mchk),
+-	VCPU_STAT("inject_emergency_signal", inject_emergency_signal),
+-	VM_STAT("inject_io", inject_io),
+-	VCPU_STAT("inject_mchk", inject_mchk),
+-	VM_STAT("inject_pfault_done", inject_pfault_done),
+-	VCPU_STAT("inject_program", inject_program),
+-	VCPU_STAT("inject_restart", inject_restart),
+-	VM_STAT("inject_service_signal", inject_service_signal),
+-	VCPU_STAT("inject_set_prefix", inject_set_prefix),
+-	VCPU_STAT("inject_stop_signal", inject_stop_signal),
+-	VCPU_STAT("inject_pfault_init", inject_pfault_init),
+-	VM_STAT("inject_virtio", inject_virtio),
+-	VCPU_STAT("instruction_epsw", instruction_epsw),
+-	VCPU_STAT("instruction_gs", instruction_gs),
+-	VCPU_STAT("instruction_io_other", instruction_io_other),
+-	VCPU_STAT("instruction_lpsw", instruction_lpsw),
+-	VCPU_STAT("instruction_lpswe", instruction_lpswe),
+-	VCPU_STAT("instruction_pfmf", instruction_pfmf),
+-	VCPU_STAT("instruction_ptff", instruction_ptff),
+-	VCPU_STAT("instruction_stidp", instruction_stidp),
+-	VCPU_STAT("instruction_sck", instruction_sck),
+-	VCPU_STAT("instruction_sckpf", instruction_sckpf),
+-	VCPU_STAT("instruction_spx", instruction_spx),
+-	VCPU_STAT("instruction_stpx", instruction_stpx),
+-	VCPU_STAT("instruction_stap", instruction_stap),
+-	VCPU_STAT("instruction_iske", instruction_iske),
+-	VCPU_STAT("instruction_ri", instruction_ri),
+-	VCPU_STAT("instruction_rrbe", instruction_rrbe),
+-	VCPU_STAT("instruction_sske", instruction_sske),
+-	VCPU_STAT("instruction_ipte_interlock", instruction_ipte_interlock),
+-	VCPU_STAT("instruction_essa", instruction_essa),
+-	VCPU_STAT("instruction_stsi", instruction_stsi),
+-	VCPU_STAT("instruction_stfl", instruction_stfl),
+-	VCPU_STAT("instruction_tb", instruction_tb),
+-	VCPU_STAT("instruction_tpi", instruction_tpi),
+-	VCPU_STAT("instruction_tprot", instruction_tprot),
+-	VCPU_STAT("instruction_tsch", instruction_tsch),
+-	VCPU_STAT("instruction_sthyi", instruction_sthyi),
+-	VCPU_STAT("instruction_sie", instruction_sie),
+-	VCPU_STAT("instruction_sigp_sense", instruction_sigp_sense),
+-	VCPU_STAT("instruction_sigp_sense_running", instruction_sigp_sense_running),
+-	VCPU_STAT("instruction_sigp_external_call", instruction_sigp_external_call),
+-	VCPU_STAT("instruction_sigp_emergency", instruction_sigp_emergency),
+-	VCPU_STAT("instruction_sigp_cond_emergency", instruction_sigp_cond_emergency),
+-	VCPU_STAT("instruction_sigp_start", instruction_sigp_start),
+-	VCPU_STAT("instruction_sigp_stop", instruction_sigp_stop),
+-	VCPU_STAT("instruction_sigp_stop_store_status", instruction_sigp_stop_store_status),
+-	VCPU_STAT("instruction_sigp_store_status", instruction_sigp_store_status),
+-	VCPU_STAT("instruction_sigp_store_adtl_status", instruction_sigp_store_adtl_status),
+-	VCPU_STAT("instruction_sigp_set_arch", instruction_sigp_arch),
+-	VCPU_STAT("instruction_sigp_set_prefix", instruction_sigp_prefix),
+-	VCPU_STAT("instruction_sigp_restart", instruction_sigp_restart),
+-	VCPU_STAT("instruction_sigp_cpu_reset", instruction_sigp_cpu_reset),
+-	VCPU_STAT("instruction_sigp_init_cpu_reset", instruction_sigp_init_cpu_reset),
+-	VCPU_STAT("instruction_sigp_unknown", instruction_sigp_unknown),
+-	VCPU_STAT("instruction_diag_10", diagnose_10),
+-	VCPU_STAT("instruction_diag_44", diagnose_44),
+-	VCPU_STAT("instruction_diag_9c", diagnose_9c),
+-	VCPU_STAT("diag_9c_ignored", diagnose_9c_ignored),
+-	VCPU_STAT("diag_9c_forward", diagnose_9c_forward),
+-	VCPU_STAT("instruction_diag_258", diagnose_258),
+-	VCPU_STAT("instruction_diag_308", diagnose_308),
+-	VCPU_STAT("instruction_diag_500", diagnose_500),
+-	VCPU_STAT("instruction_diag_other", diagnose_other),
+-	{ NULL }
+-};
+-
+ /* allow nested virtualization in KVM (if enabled by user space) */
+ static int nested;
+ module_param(nested, int, S_IRUGO);
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index abc5cc8293b3..d24055fcdc0b 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -282,53 +282,6 @@ struct _kvm_stats_header kvm_vcpu_stats_header = {
+ 	}
+ };
  
--	*p_pte = val;
--	return p_pte;
-+	/* was invalid or large, nothing to do */
-+	if (pud_none(*pud) || pud_huge(*pud))
-+		return;
-+	/* recursively clean up all pmds if needed */
-+	pmd = (pmd_t *)(pud_val(*pud) & PAGE_MASK);
-+	for (i = 0; i < SEGMENT_TABLE_ENTRIES; i++)
-+		cleanup_pmd(pmd + i);
-+	/* free the corresponding segment table */
-+	free_pages(pmd);
-+}
-+
-+/*
-+ * Set the DAT entry for the given level of the given virtual address. If a
-+ * mapping already existed, it is overwritten. If an existing mapping with
-+ * smaller pages existed, all the lower tables are freed.
-+ * Returns the pointer to the DAT table entry.
-+ * @pgtable root of the page tables
-+ * @val the new value for the DAT table entry
-+ * @vaddr the virtual address
-+ * @level 3 for pud (region 3), 4 for pmd (segment) and 5 for pte (pages)
-+ */
-+static void *set_dat_entry(pgd_t *pgtable, unsigned long val, void *vaddr, enum pgt_level level)
-+{
-+	unsigned long old, *res;
-+
-+	res = dat_get_and_invalidate(pgtable, vaddr, level, &old);
-+	if (level == pgtable_level_pmd)
-+		cleanup_pmd((pmd_t *)&old);
-+	if (level == pgtable_level_pud)
-+		cleanup_pud((pud_t *)&old);
-+	*res = val;
-+	return res;
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT("pf_fixed", pf_fixed),
+-	VCPU_STAT("pf_guest", pf_guest),
+-	VCPU_STAT("tlb_flush", tlb_flush),
+-	VCPU_STAT("invlpg", invlpg),
+-	VCPU_STAT("exits", exits),
+-	VCPU_STAT("io_exits", io_exits),
+-	VCPU_STAT("mmio_exits", mmio_exits),
+-	VCPU_STAT("signal_exits", signal_exits),
+-	VCPU_STAT("irq_window", irq_window_exits),
+-	VCPU_STAT("nmi_window", nmi_window_exits),
+-	VCPU_STAT("halt_exits", halt_exits),
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT("hypercalls", hypercalls),
+-	VCPU_STAT("request_irq", request_irq_exits),
+-	VCPU_STAT("irq_exits", irq_exits),
+-	VCPU_STAT("host_state_reload", host_state_reload),
+-	VCPU_STAT("fpu_reload", fpu_reload),
+-	VCPU_STAT("insn_emulation", insn_emulation),
+-	VCPU_STAT("insn_emulation_fail", insn_emulation_fail),
+-	VCPU_STAT("irq_injections", irq_injections),
+-	VCPU_STAT("nmi_injections", nmi_injections),
+-	VCPU_STAT("req_event", req_event),
+-	VCPU_STAT("l1d_flush", l1d_flush),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	VCPU_STAT("nested_run", nested_run),
+-	VCPU_STAT("directed_yield_attempted", directed_yield_attempted),
+-	VCPU_STAT("directed_yield_successful", directed_yield_successful),
+-	VCPU_STAT("guest_mode", guest_mode),
+-	VM_STAT("mmu_shadow_zapped", mmu_shadow_zapped),
+-	VM_STAT("mmu_pte_write", mmu_pte_write),
+-	VM_STAT("mmu_pde_zapped", mmu_pde_zapped),
+-	VM_STAT("mmu_flooded", mmu_flooded),
+-	VM_STAT("mmu_recycled", mmu_recycled),
+-	VM_STAT("mmu_cache_miss", mmu_cache_miss),
+-	VM_STAT("mmu_unsync", mmu_unsync),
+-	VM_STAT_GENERIC("remote_tlb_flush", remote_tlb_flush),
+-	VM_STAT("largepages", lpages, .mode = 0444),
+-	VM_STAT("nx_largepages_splitted", nx_lpage_splits, .mode = 0444),
+-	VM_STAT("max_mmu_page_hash_collisions", max_mmu_page_hash_collisions),
+-	{ NULL }
+-};
+-
+ u64 __read_mostly host_xcr0;
+ u64 __read_mostly supported_xcr0;
+ EXPORT_SYMBOL_GPL(supported_xcr0);
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 5e77f32abef5..60ddb64a134e 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -589,7 +589,6 @@ struct kvm {
+ 	struct list_head devices;
+ 	u64 manual_dirty_log_protect;
+ 	struct dentry *debugfs_dentry;
+-	struct kvm_stat_data **debugfs_stat_data;
+ 	struct srcu_struct srcu;
+ 	struct srcu_struct irq_srcu;
+ 	pid_t userspace_pid;
+@@ -1255,23 +1254,6 @@ static inline bool kvm_is_error_gpa(struct kvm *kvm, gpa_t gpa)
+ 	return kvm_is_error_hva(hva);
  }
  
- pteval_t *install_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr)
+-enum kvm_stat_kind {
+-	KVM_STAT_VM,
+-	KVM_STAT_VCPU,
+-};
+-
+-struct kvm_stat_data {
+-	struct kvm *kvm;
+-	struct kvm_stats_debugfs_item *dbgfs_item;
+-};
+-
+-struct kvm_stats_debugfs_item {
+-	const char *name;
+-	int offset;
+-	enum kvm_stat_kind kind;
+-	int mode;
+-};
+-
+ struct _kvm_stats_header {
+ 	struct kvm_stats_header header;
+ 	char id[KVM_STATS_ID_MAXLEN];
+@@ -1283,20 +1265,7 @@ struct _kvm_stats_desc {
+ 	char name[KVM_STATS_NAME_LEN];
+ };
+ 
+-#define KVM_DBGFS_GET_MODE(dbgfs_item)                                         \
+-	((dbgfs_item)->mode ? (dbgfs_item)->mode : 0644)
+-
+-#define VM_STAT(n, x, ...)						       \
+-	{ n, offsetof(struct kvm, stat.x), KVM_STAT_VM, ## __VA_ARGS__ }
+-#define VCPU_STAT(n, x, ...)						       \
+-	{ n, offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU, ## __VA_ARGS__ }
+-#define VM_STAT_GENERIC(n, x, ...)					       \
+-	{ n, offsetof(struct kvm, stat.generic.x), KVM_STAT_VM, ## __VA_ARGS__ }
+-#define VCPU_STAT_GENERIC(n, x, ...)					       \
+-	{ n, offsetof(struct kvm_vcpu, stat.generic.x),			       \
+-	  KVM_STAT_VCPU, ## __VA_ARGS__ }
+-
+-#define STATS_DESC(stat, type, unit, base, exp)			       \
++#define STATS_DESC(stat, type, unit, base, exp)				       \
+ 	{								       \
+ 		{							       \
+ 			.flags = type | unit | base |			       \
+@@ -1410,7 +1379,6 @@ struct _kvm_stats_desc {
+ 	STATS_DESC_TIME_NSEC("halt_poll_success_ns"),			       \
+ 	STATS_DESC_TIME_NSEC("halt_poll_fail_ns")
+ 
+-extern struct kvm_stats_debugfs_item debugfs_entries[];
+ extern struct dentry *kvm_debugfs_dir;
+ extern struct _kvm_stats_header kvm_vm_stats_header;
+ extern struct _kvm_stats_header kvm_vcpu_stats_header;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index f5bea71ea61c..f2da1d94057d 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -115,9 +115,6 @@ static DEFINE_PER_CPU(struct kvm_vcpu *, kvm_running_vcpu);
+ struct dentry *kvm_debugfs_dir;
+ EXPORT_SYMBOL_GPL(kvm_debugfs_dir);
+ 
+-static int kvm_debugfs_num_entries;
+-static const struct file_operations stat_fops_per_vm;
+-
+ static long kvm_vcpu_ioctl(struct file *file, unsigned int ioctl,
+ 			   unsigned long arg);
+ #ifdef CONFIG_KVM_COMPAT
+@@ -862,25 +859,15 @@ static void kvm_free_memslots(struct kvm *kvm, struct kvm_memslots *slots)
+ 
+ static void kvm_destroy_vm_debugfs(struct kvm *kvm)
  {
--	return set_pte(pgtable, __pa(phys), vaddr);
-+	assert(IS_ALIGNED(phys, PAGE_SIZE));
-+	assert(IS_ALIGNED((uintptr_t)vaddr, PAGE_SIZE));
-+	return set_dat_entry(pgtable, phys, vaddr, pgtable_level_pte);
-+}
-+
-+pmdval_t *install_large_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr)
-+{
-+	assert(IS_ALIGNED(phys, SZ_1M));
-+	assert(IS_ALIGNED((uintptr_t)vaddr, SZ_1M));
-+	return set_dat_entry(pgtable, phys | SEGMENT_ENTRY_FC, vaddr, pgtable_level_pmd);
-+}
-+
-+pudval_t *install_huge_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr)
-+{
-+	assert(IS_ALIGNED(phys, SZ_2G));
-+	assert(IS_ALIGNED((uintptr_t)vaddr, SZ_2G));
-+	return set_dat_entry(pgtable, phys | REGION3_ENTRY_FC | REGION_ENTRY_TT_REGION3, vaddr, pgtable_level_pud);
+-	int i;
+-
+ 	if (!kvm->debugfs_dentry)
+ 		return;
+ 
+ 	debugfs_remove_recursive(kvm->debugfs_dentry);
+-
+-	if (kvm->debugfs_stat_data) {
+-		for (i = 0; i < kvm_debugfs_num_entries; i++)
+-			kfree(kvm->debugfs_stat_data[i]);
+-		kfree(kvm->debugfs_stat_data);
+-	}
  }
  
--void protect_page(void *vaddr, unsigned long prot)
-+void protect_dat_entry(void *vaddr, unsigned long prot, enum pgt_level level)
+ static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
  {
--	pteval_t *p_pte = get_pte(table_root, (uintptr_t)vaddr);
--	pteval_t n_pte = *p_pte | prot;
-+	unsigned long old, *ptr;
+ 	char dir_name[ITOA_MAX_LEN * 2];
+-	struct kvm_stat_data *stat_data;
+-	struct kvm_stats_debugfs_item *p;
  
--	set_pte(table_root, n_pte, vaddr);
-+	ptr = dat_get_and_invalidate(table_root, vaddr, level, &old);
-+	*ptr = old | prot;
+ 	if (!debugfs_initialized())
+ 		return 0;
+@@ -888,24 +875,6 @@ static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
+ 	snprintf(dir_name, sizeof(dir_name), "%d-%d", task_pid_nr(current), fd);
+ 	kvm->debugfs_dentry = debugfs_create_dir(dir_name, kvm_debugfs_dir);
+ 
+-	kvm->debugfs_stat_data = kcalloc(kvm_debugfs_num_entries,
+-					 sizeof(*kvm->debugfs_stat_data),
+-					 GFP_KERNEL_ACCOUNT);
+-	if (!kvm->debugfs_stat_data)
+-		return -ENOMEM;
+-
+-	for (p = debugfs_entries; p->name; p++) {
+-		stat_data = kzalloc(sizeof(*stat_data), GFP_KERNEL_ACCOUNT);
+-		if (!stat_data)
+-			return -ENOMEM;
+-
+-		stat_data->kvm = kvm;
+-		stat_data->dbgfs_item = p;
+-		kvm->debugfs_stat_data[p - debugfs_entries] = stat_data;
+-		debugfs_create_file(p->name, KVM_DBGFS_GET_MODE(p),
+-				    kvm->debugfs_dentry, stat_data,
+-				    &stat_fops_per_vm);
+-	}
+ 	return 0;
  }
  
--void unprotect_page(void *vaddr, unsigned long prot)
-+void unprotect_dat_entry(void *vaddr, unsigned long prot, enum pgt_level level)
+@@ -4937,214 +4906,6 @@ struct kvm_io_device *kvm_io_bus_get_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ }
+ EXPORT_SYMBOL_GPL(kvm_io_bus_get_dev);
+ 
+-static int kvm_debugfs_open(struct inode *inode, struct file *file,
+-			   int (*get)(void *, u64 *), int (*set)(void *, u64),
+-			   const char *fmt)
+-{
+-	struct kvm_stat_data *stat_data = (struct kvm_stat_data *)
+-					  inode->i_private;
+-
+-	/* The debugfs files are a reference to the kvm struct which
+-	 * is still valid when kvm_destroy_vm is called.
+-	 * To avoid the race between open and the removal of the debugfs
+-	 * directory we test against the users count.
+-	 */
+-	if (!refcount_inc_not_zero(&stat_data->kvm->users_count))
+-		return -ENOENT;
+-
+-	if (simple_attr_open(inode, file, get,
+-		    KVM_DBGFS_GET_MODE(stat_data->dbgfs_item) & 0222
+-		    ? set : NULL,
+-		    fmt)) {
+-		kvm_put_kvm(stat_data->kvm);
+-		return -ENOMEM;
+-	}
+-
+-	return 0;
+-}
+-
+-static int kvm_debugfs_release(struct inode *inode, struct file *file)
+-{
+-	struct kvm_stat_data *stat_data = (struct kvm_stat_data *)
+-					  inode->i_private;
+-
+-	simple_attr_release(inode, file);
+-	kvm_put_kvm(stat_data->kvm);
+-
+-	return 0;
+-}
+-
+-static int kvm_get_stat_per_vm(struct kvm *kvm, size_t offset, u64 *val)
+-{
+-	*val = *(u64 *)((void *)kvm + offset);
+-
+-	return 0;
+-}
+-
+-static int kvm_clear_stat_per_vm(struct kvm *kvm, size_t offset)
+-{
+-	*(u64 *)((void *)kvm + offset) = 0;
+-
+-	return 0;
+-}
+-
+-static int kvm_get_stat_per_vcpu(struct kvm *kvm, size_t offset, u64 *val)
+-{
+-	int i;
+-	struct kvm_vcpu *vcpu;
+-
+-	*val = 0;
+-
+-	kvm_for_each_vcpu(i, vcpu, kvm)
+-		*val += *(u64 *)((void *)vcpu + offset);
+-
+-	return 0;
+-}
+-
+-static int kvm_clear_stat_per_vcpu(struct kvm *kvm, size_t offset)
+-{
+-	int i;
+-	struct kvm_vcpu *vcpu;
+-
+-	kvm_for_each_vcpu(i, vcpu, kvm)
+-		*(u64 *)((void *)vcpu + offset) = 0;
+-
+-	return 0;
+-}
+-
+-static int kvm_stat_data_get(void *data, u64 *val)
+-{
+-	int r = -EFAULT;
+-	struct kvm_stat_data *stat_data = (struct kvm_stat_data *)data;
+-
+-	switch (stat_data->dbgfs_item->kind) {
+-	case KVM_STAT_VM:
+-		r = kvm_get_stat_per_vm(stat_data->kvm,
+-					stat_data->dbgfs_item->offset, val);
+-		break;
+-	case KVM_STAT_VCPU:
+-		r = kvm_get_stat_per_vcpu(stat_data->kvm,
+-					  stat_data->dbgfs_item->offset, val);
+-		break;
+-	}
+-
+-	return r;
+-}
+-
+-static int kvm_stat_data_clear(void *data, u64 val)
+-{
+-	int r = -EFAULT;
+-	struct kvm_stat_data *stat_data = (struct kvm_stat_data *)data;
+-
+-	if (val)
+-		return -EINVAL;
+-
+-	switch (stat_data->dbgfs_item->kind) {
+-	case KVM_STAT_VM:
+-		r = kvm_clear_stat_per_vm(stat_data->kvm,
+-					  stat_data->dbgfs_item->offset);
+-		break;
+-	case KVM_STAT_VCPU:
+-		r = kvm_clear_stat_per_vcpu(stat_data->kvm,
+-					    stat_data->dbgfs_item->offset);
+-		break;
+-	}
+-
+-	return r;
+-}
+-
+-static int kvm_stat_data_open(struct inode *inode, struct file *file)
+-{
+-	__simple_attr_check_format("%llu\n", 0ull);
+-	return kvm_debugfs_open(inode, file, kvm_stat_data_get,
+-				kvm_stat_data_clear, "%llu\n");
+-}
+-
+-static const struct file_operations stat_fops_per_vm = {
+-	.owner = THIS_MODULE,
+-	.open = kvm_stat_data_open,
+-	.release = kvm_debugfs_release,
+-	.read = simple_attr_read,
+-	.write = simple_attr_write,
+-	.llseek = no_llseek,
+-};
+-
+-static int vm_stat_get(void *_offset, u64 *val)
+-{
+-	unsigned offset = (long)_offset;
+-	struct kvm *kvm;
+-	u64 tmp_val;
+-
+-	*val = 0;
+-	mutex_lock(&kvm_lock);
+-	list_for_each_entry(kvm, &vm_list, vm_list) {
+-		kvm_get_stat_per_vm(kvm, offset, &tmp_val);
+-		*val += tmp_val;
+-	}
+-	mutex_unlock(&kvm_lock);
+-	return 0;
+-}
+-
+-static int vm_stat_clear(void *_offset, u64 val)
+-{
+-	unsigned offset = (long)_offset;
+-	struct kvm *kvm;
+-
+-	if (val)
+-		return -EINVAL;
+-
+-	mutex_lock(&kvm_lock);
+-	list_for_each_entry(kvm, &vm_list, vm_list) {
+-		kvm_clear_stat_per_vm(kvm, offset);
+-	}
+-	mutex_unlock(&kvm_lock);
+-
+-	return 0;
+-}
+-
+-DEFINE_SIMPLE_ATTRIBUTE(vm_stat_fops, vm_stat_get, vm_stat_clear, "%llu\n");
+-
+-static int vcpu_stat_get(void *_offset, u64 *val)
+-{
+-	unsigned offset = (long)_offset;
+-	struct kvm *kvm;
+-	u64 tmp_val;
+-
+-	*val = 0;
+-	mutex_lock(&kvm_lock);
+-	list_for_each_entry(kvm, &vm_list, vm_list) {
+-		kvm_get_stat_per_vcpu(kvm, offset, &tmp_val);
+-		*val += tmp_val;
+-	}
+-	mutex_unlock(&kvm_lock);
+-	return 0;
+-}
+-
+-static int vcpu_stat_clear(void *_offset, u64 val)
+-{
+-	unsigned offset = (long)_offset;
+-	struct kvm *kvm;
+-
+-	if (val)
+-		return -EINVAL;
+-
+-	mutex_lock(&kvm_lock);
+-	list_for_each_entry(kvm, &vm_list, vm_list) {
+-		kvm_clear_stat_per_vcpu(kvm, offset);
+-	}
+-	mutex_unlock(&kvm_lock);
+-
+-	return 0;
+-}
+-
+-DEFINE_SIMPLE_ATTRIBUTE(vcpu_stat_fops, vcpu_stat_get, vcpu_stat_clear,
+-			"%llu\n");
+-
+-static const struct file_operations *stat_fops[] = {
+-	[KVM_STAT_VCPU] = &vcpu_stat_fops,
+-	[KVM_STAT_VM]   = &vm_stat_fops,
+-};
+-
+ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm)
  {
--	pteval_t *p_pte = get_pte(table_root, (uintptr_t)vaddr);
--	pteval_t n_pte = *p_pte & ~prot;
-+	unsigned long old, *ptr;
+ 	struct kobj_uevent_env *env;
+@@ -5179,16 +4940,6 @@ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm)
+ 	}
+ 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
  
--	set_pte(table_root, n_pte, vaddr);
-+	ptr = dat_get_and_invalidate(table_root, vaddr, level, &old);
-+	*ptr = old & ~prot;
+-	if (!IS_ERR_OR_NULL(kvm->debugfs_dentry)) {
+-		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL_ACCOUNT);
+-
+-		if (p) {
+-			tmp = dentry_path_raw(kvm->debugfs_dentry, p, PATH_MAX);
+-			if (!IS_ERR(tmp))
+-				add_uevent_var(env, "STATS_PATH=%s", tmp);
+-			kfree(p);
+-		}
+-	}
+ 	/* no need for checks, since we are adding at most only 5 keys */
+ 	env->envp[env->envp_idx++] = NULL;
+ 	kobject_uevent_env(&kvm_dev.this_device->kobj, KOBJ_CHANGE, env->envp);
+@@ -5197,16 +4948,7 @@ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm)
+ 
+ static void kvm_init_debug(void)
+ {
+-	struct kvm_stats_debugfs_item *p;
+-
+ 	kvm_debugfs_dir = debugfs_create_dir("kvm", NULL);
+-
+-	kvm_debugfs_num_entries = 0;
+-	for (p = debugfs_entries; p->name; ++p, kvm_debugfs_num_entries++) {
+-		debugfs_create_file(p->name, KVM_DBGFS_GET_MODE(p),
+-				    kvm_debugfs_dir, (void *)(long)p->offset,
+-				    stat_fops[p->kind]);
+-	}
  }
  
- void protect_range(void *start, unsigned long len, unsigned long prot)
-@@ -102,7 +316,7 @@ void protect_range(void *start, unsigned long len, unsigned long prot)
- 
- 	len &= PAGE_MASK;
- 	for (; len; len -= PAGE_SIZE, curr += PAGE_SIZE)
--		protect_page((void *)curr, prot);
-+		protect_dat_entry((void *)curr, prot, 5);
- }
- 
- void unprotect_range(void *start, unsigned long len, unsigned long prot)
-@@ -111,7 +325,7 @@ void unprotect_range(void *start, unsigned long len, unsigned long prot)
- 
- 	len &= PAGE_MASK;
- 	for (; len; len -= PAGE_SIZE, curr += PAGE_SIZE)
--		unprotect_page((void *)curr, prot);
-+		unprotect_dat_entry((void *)curr, prot, 5);
- }
- 
- static void setup_identity(pgd_t *pgtable, phys_addr_t start_addr,
+ static int kvm_suspend(void)
 -- 
-2.31.1
+2.32.0.272.g935e593368-goog
 
