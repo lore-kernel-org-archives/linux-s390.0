@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD32DC4743D
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 07:33:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C227AC48BD1
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 07:34:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B778E613AE
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 07:33:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD262613B4
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 07:34:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231336AbhFKHfz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Jun 2021 03:35:55 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32778 "EHLO
+        id S231386AbhFKHf4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Jun 2021 03:35:56 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59564 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230405AbhFKHfx (ORCPT
+        by vger.kernel.org with ESMTP id S231324AbhFKHfz (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Jun 2021 03:35:53 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15B7Ws1A015492;
-        Fri, 11 Jun 2021 03:33:54 -0400
+        Fri, 11 Jun 2021 03:35:55 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15B7Wg3J150845;
+        Fri, 11 Jun 2021 03:33:55 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=xwhMIQcO55FMq1EqcVhuiBWGR5GHFeaVJwkxgeLpuYo=;
- b=HM+1yQIKCcdcl9ZsfYhOGyFoH+3zNz4fWO41PNPsMe/zAmJr2QjRBUOCKz8JorEnLcOT
- 9uPgCt/a0wq9KxTiVpuxDETE4+YZW4ulBzARmlvncnkzus1ysogOdDjwtSsCbMuhcfbZ
- LhWETCXL/eFBmRvtYWFWrm3xlwa8WTJuDmwComEg9FHq38TT5mEsnc6LzdXpuHHUxnkV
- jk6syKa85Clbo8dfhU/UGpf+GM4Z2uO4y8opYSpbq/Wy+CkxPw7Aa1iHY4CiTjveOUX5
- xUdLBcXqt9dEi7oY7IEYT+Kl30/RH3mkhusnWw9k745FfGyXtFEtZ/Tx2VqjZsKwxqKo 5Q== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39439wgc3u-1
+ bh=OsX4kgYDsJsPAHfeWMBqfogdsmcQ0E8W9NDi4p7viRI=;
+ b=dCxLIzsizn9iGAj3OQfLT/oZxqkpWb1G+6BultWX0UUBdw54CAA2QHayFAAoY+HaCF22
+ SlWev0NWCtY1NxM/ZiLK4RI2Ji9rqV1VeVCWSSuotMNEGGyhDFIHxTTMtZyVIbCDANGQ
+ kMF59+nfPSkcS7Om8S0lw5ZDJFnnEWrAjYyE9lMUjq3jlWiFn59Vb2jj6q9Iw/1rxI2S
+ BLzy6sTpL80fhGrcyTCgCO5d1KTM2EegHxgT42U3Gds5Hb0owTLiQWvKYkU3zNRK1cwo
+ EbCOE7GkXfBaTvGD47PLVfHUKTt3gkbZY0cL2r/HKV/aCawsKhekVB+WUbWClmWs1bVU yg== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39439g0dgq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 03:33:54 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15B7XqbE017669;
-        Fri, 11 Jun 2021 07:33:52 GMT
+        Fri, 11 Jun 2021 03:33:55 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15B7Vr9p024352;
+        Fri, 11 Jun 2021 07:33:53 GMT
 Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06fra.de.ibm.com with ESMTP id 3900hhhtgx-1
+        by ppma06ams.nl.ibm.com with ESMTP id 3900hhu9bq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 11 Jun 2021 07:33:52 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15B7Wv0835651996
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15B7WvAO36372894
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Fri, 11 Jun 2021 07:32:57 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ED2A0A4060;
-        Fri, 11 Jun 2021 07:33:48 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 8E630A406F;
+        Fri, 11 Jun 2021 07:33:49 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BB4FFA4068;
-        Fri, 11 Jun 2021 07:33:48 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 5D883A4067;
+        Fri, 11 Jun 2021 07:33:49 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 11 Jun 2021 07:33:48 +0000 (GMT)
+        Fri, 11 Jun 2021 07:33:49 +0000 (GMT)
 From:   Julian Wiedmann <jwi@linux.ibm.com>
 To:     David Miller <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>
@@ -64,134 +64,201 @@ Cc:     linux-netdev <netdev@vger.kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>,
         Karsten Graul <kgraul@linux.ibm.com>,
         Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 3/9] s390/qeth: unify the tracking of active cmds on ccw device
-Date:   Fri, 11 Jun 2021 09:33:35 +0200
-Message-Id: <20210611073341.1634501-4-jwi@linux.ibm.com>
+Subject: [PATCH net-next 5/9] s390/qeth: consolidate completion of pending TX buffers
+Date:   Fri, 11 Jun 2021 09:33:37 +0200
+Message-Id: <20210611073341.1634501-6-jwi@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210611073341.1634501-1-jwi@linux.ibm.com>
 References: <20210611073341.1634501-1-jwi@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: E7Okw0JlzUvXIxQheTY20McyBsjRVgim
-X-Proofpoint-ORIG-GUID: E7Okw0JlzUvXIxQheTY20McyBsjRVgim
+X-Proofpoint-ORIG-GUID: s2G7ZrIVgtRzTkrVnti511d_aYVrxF51
+X-Proofpoint-GUID: s2G7ZrIVgtRzTkrVnti511d_aYVrxF51
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-06-11_01:2021-06-11,2021-06-11 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
- bulkscore=0 malwarescore=0 phishscore=0 priorityscore=1501 adultscore=0
- spamscore=0 lowpriorityscore=0 impostorscore=0 clxscore=1015
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
+ clxscore=1015 phishscore=0 mlxlogscore=999 mlxscore=0 adultscore=0
+ malwarescore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2104190000 definitions=main-2106110048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We have one field to track _whether_ a cmd is active on a ccw device
-('irq_pending'), and one to track _which_ cmd it is ('active_cmd').
+With commit 396c100472dd ("s390/qdio: let driver manage the QAOB")
+a pending TX buffer now has access to its associated QAOB during
+TX completion processing. We can thus reduce the amount of work & state
+propagation that needs to be done by qeth_qdio_handle_aob().
 
-Get rid of the irq_pending field, by testing active_cmd for NULL.
+Move all this logic into the respective TX completion paths. Doing so
+even allows us to determine more precise TX_NOTIFY_* values via
+qeth_compute_cq_notification(aob->aorc, ...).
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      | 14 +++++++-------
- drivers/s390/net/qeth_core_main.c | 12 ++++--------
- 2 files changed, 11 insertions(+), 15 deletions(-)
+ drivers/s390/net/qeth_core.h      |  3 +-
+ drivers/s390/net/qeth_core_main.c | 73 ++++++++++++-------------------
+ 2 files changed, 29 insertions(+), 47 deletions(-)
 
 diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 4d29801bcf41..ad0e86aa99b2 100644
+index ad0e86aa99b2..5de5b419a761 100644
 --- a/drivers/s390/net/qeth_core.h
 +++ b/drivers/s390/net/qeth_core.h
-@@ -614,7 +614,6 @@ struct qeth_channel {
- 	struct ccw_device *ccwdev;
- 	struct qeth_cmd_buffer *active_cmd;
- 	enum qeth_channel_states state;
--	atomic_t irq_pending;
+@@ -422,8 +422,7 @@ enum qeth_qdio_out_buffer_state {
+ 	/* Finished by the TX completion code: */
+ 	QETH_QDIO_BUF_NEED_QAOB,
+ 	/* Received QAOB notification on CQ: */
+-	QETH_QDIO_BUF_QAOB_OK,
+-	QETH_QDIO_BUF_QAOB_ERROR,
++	QETH_QDIO_BUF_QAOB_DONE,
  };
  
- struct qeth_reply {
-@@ -664,11 +663,6 @@ static inline struct ccw1 *__ccw_from_cmd(struct qeth_cmd_buffer *iob)
- 	return (struct ccw1 *)(iob->data + ALIGN(iob->length, 8));
- }
- 
--static inline bool qeth_trylock_channel(struct qeth_channel *channel)
--{
--	return atomic_cmpxchg(&channel->irq_pending, 0, 1) == 0;
--}
--
- /**
-  *  OSA card related definitions
-  */
-@@ -896,10 +890,16 @@ static inline bool qeth_use_tx_irqs(struct qeth_card *card)
- static inline void qeth_unlock_channel(struct qeth_card *card,
- 				       struct qeth_channel *channel)
- {
--	atomic_set(&channel->irq_pending, 0);
-+	xchg(&channel->active_cmd, NULL);
- 	wake_up(&card->wait_q);
- }
- 
-+static inline bool qeth_trylock_channel(struct qeth_channel *channel,
-+					struct qeth_cmd_buffer *cmd)
-+{
-+	return cmpxchg(&channel->active_cmd, NULL, cmd) == NULL;
-+}
-+
- struct qeth_trap_id {
- 	__u16 lparnr;
- 	char vmname[8];
+ struct qeth_qdio_out_buffer {
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index f22f223a4a6c..83d540f8b527 100644
+index 83d540f8b527..99e3b0b75cc3 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -1268,7 +1268,6 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
- 		iob = (struct qeth_cmd_buffer *) (addr_t)intparm;
- 	}
+@@ -70,9 +70,6 @@ static void qeth_issue_next_read_cb(struct qeth_card *card,
+ 				    unsigned int data_length);
+ static int qeth_qdio_establish(struct qeth_card *);
+ static void qeth_free_qdio_queues(struct qeth_card *card);
+-static void qeth_notify_skbs(struct qeth_qdio_out_q *queue,
+-		struct qeth_qdio_out_buffer *buf,
+-		enum iucv_tx_notify notification);
  
--	channel->active_cmd = NULL;
- 	qeth_unlock_channel(card, channel);
+ static void qeth_close_dev_handler(struct work_struct *work)
+ {
+@@ -437,12 +434,9 @@ static enum iucv_tx_notify qeth_compute_cq_notification(int sbalf15,
+ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 				 unsigned long phys_aob_addr)
+ {
+-	enum qeth_qdio_out_buffer_state new_state = QETH_QDIO_BUF_QAOB_OK;
+ 	struct qaob *aob;
+ 	struct qeth_qdio_out_buffer *buffer;
+-	enum iucv_tx_notify notification;
+ 	struct qeth_qdio_out_q *queue;
+-	unsigned int i;
  
- 	rc = qeth_check_irb_error(card, cdev, irb);
-@@ -1715,11 +1714,10 @@ static int qeth_stop_channel(struct qeth_channel *channel)
- 	rc = ccw_device_set_offline(cdev);
+ 	aob = (struct qaob *) phys_to_virt(phys_aob_addr);
+ 	QETH_CARD_TEXT(card, 5, "haob");
+@@ -450,12 +444,10 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 	buffer = (struct qeth_qdio_out_buffer *) aob->user1;
+ 	QETH_CARD_TEXT_(card, 5, "%lx", aob->user1);
  
- 	spin_lock_irq(get_ccwdev_lock(cdev));
--	if (channel->active_cmd) {
-+	if (channel->active_cmd)
- 		dev_err(&cdev->dev, "Stopped channel while cmd %px was still active\n",
- 			channel->active_cmd);
--		channel->active_cmd = NULL;
+-	if (aob->aorc) {
++	if (aob->aorc)
+ 		QETH_CARD_TEXT_(card, 2, "aorc%02X", aob->aorc);
+-		new_state = QETH_QDIO_BUF_QAOB_ERROR;
 -	}
+ 
+-	switch (atomic_xchg(&buffer->state, new_state)) {
++	switch (atomic_xchg(&buffer->state, QETH_QDIO_BUF_QAOB_DONE)) {
+ 	case QETH_QDIO_BUF_PRIMED:
+ 		/* Faster than TX completion code, let it handle the async
+ 		 * completion for us. It will also recycle the QAOB.
+@@ -468,21 +460,6 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 		break;
+ 	case QETH_QDIO_BUF_NEED_QAOB:
+ 		/* TX completion code is already finished. */
+-		notification = qeth_compute_cq_notification(aob->aorc, 1);
+-		qeth_notify_skbs(buffer->q, buffer, notification);
+-
+-		/* Free dangling allocations. The attached skbs are handled by
+-		 * qeth_tx_complete_pending_bufs(), and so is the QAOB.
+-		 */
+-		for (i = 0;
+-		     i < aob->sb_count && i < QETH_MAX_BUFFER_ELEMENTS(card);
+-		     i++) {
+-			void *data = phys_to_virt(aob->sba[i]);
+-
+-			if (data && buffer->is_header[i])
+-				kmem_cache_free(qeth_core_header_cache, data);
+-			buffer->is_header[i] = 0;
+-		}
+ 
+ 		queue = buffer->q;
+ 		atomic_set(&buffer->state, QETH_QDIO_BUF_EMPTY);
+@@ -1435,15 +1412,29 @@ static void qeth_tx_complete_pending_bufs(struct qeth_card *card,
+ 	struct qeth_qdio_out_buffer *buf, *tmp;
+ 
+ 	list_for_each_entry_safe(buf, tmp, &queue->pending_bufs, list_entry) {
++		struct qaob *aob = buf->aob;
++		enum iucv_tx_notify notify;
++		unsigned int i;
 +
- 	cdev->handler = NULL;
- 	spin_unlock_irq(get_ccwdev_lock(cdev));
+ 		if (drain || atomic_read(&buf->state) == QETH_QDIO_BUF_EMPTY) {
+ 			QETH_CARD_TEXT(card, 5, "fp");
+ 			QETH_CARD_TEXT_(card, 5, "%lx", (long) buf);
  
-@@ -1732,7 +1730,7 @@ static int qeth_start_channel(struct qeth_channel *channel)
- 	int rc;
+-			if (drain)
+-				qeth_notify_skbs(queue, buf,
+-						 TX_NOTIFY_GENERALERROR);
++			notify = drain ? TX_NOTIFY_GENERALERROR :
++					 qeth_compute_cq_notification(aob->aorc, 1);
++			qeth_notify_skbs(queue, buf, notify);
+ 			qeth_tx_complete_buf(buf, drain, budget);
  
- 	channel->state = CH_STATE_DOWN;
--	atomic_set(&channel->irq_pending, 0);
-+	xchg(&channel->active_cmd, NULL);
++			for (i = 0;
++			     i < aob->sb_count && i < queue->max_elements;
++			     i++) {
++				void *data = phys_to_virt(aob->sba[i]);
++
++				if (data && buf->is_header[i])
++					kmem_cache_free(qeth_core_header_cache,
++							data);
++			}
++
+ 			list_del(&buf->list_entry);
+ 			qeth_free_out_buf(buf);
+ 		}
+@@ -6048,6 +6039,7 @@ static void qeth_iqd_tx_complete(struct qeth_qdio_out_q *queue,
  
- 	spin_lock_irq(get_ccwdev_lock(cdev));
- 	cdev->handler = qeth_irq;
-@@ -2039,7 +2037,7 @@ static int qeth_send_control_data(struct qeth_card *card,
- 	reply->param = reply_param;
+ 	if (qdio_error == QDIO_ERROR_SLSB_PENDING) {
+ 		struct qaob *aob = buffer->aob;
++		enum iucv_tx_notify notify;
  
- 	timeout = wait_event_interruptible_timeout(card->wait_q,
--						   qeth_trylock_channel(channel),
-+						   qeth_trylock_channel(channel, iob),
- 						   timeout);
- 	if (timeout <= 0) {
- 		qeth_put_cmd(iob);
-@@ -2059,8 +2057,6 @@ static int qeth_send_control_data(struct qeth_card *card,
- 	spin_lock_irq(get_ccwdev_lock(channel->ccwdev));
- 	rc = ccw_device_start_timeout(channel->ccwdev, __ccw_from_cmd(iob),
- 				      (addr_t) iob, 0, 0, timeout);
--	if (!rc)
--		channel->active_cmd = iob;
- 	spin_unlock_irq(get_ccwdev_lock(channel->ccwdev));
- 	if (rc) {
- 		QETH_DBF_MESSAGE(2, "qeth_send_control_data on device %x: ccw_device_start rc = %i\n",
+ 		if (!aob) {
+ 			netdev_WARN_ONCE(card->dev,
+@@ -6084,30 +6076,21 @@ static void qeth_iqd_tx_complete(struct qeth_qdio_out_q *queue,
+ 					 &queue->pending_bufs);
+ 				/* Skip clearing the buffer: */
+ 				return;
+-			case QETH_QDIO_BUF_QAOB_OK:
+-				qeth_notify_skbs(queue, buffer,
+-						 TX_NOTIFY_DELAYED_OK);
+-				error = false;
+-				break;
+-			case QETH_QDIO_BUF_QAOB_ERROR:
+-				qeth_notify_skbs(queue, buffer,
+-						 TX_NOTIFY_DELAYED_GENERALERROR);
+-				error = true;
++			case QETH_QDIO_BUF_QAOB_DONE:
++				notify = qeth_compute_cq_notification(aob->aorc, 1);
++				qeth_notify_skbs(queue, buffer, notify);
++				error = !!aob->aorc;
+ 				break;
+ 			default:
+ 				WARN_ON_ONCE(1);
+ 			}
+ 
+ 			break;
+-		case QETH_QDIO_BUF_QAOB_OK:
+-			/* qeth_qdio_handle_aob() already received a QAOB: */
+-			qeth_notify_skbs(queue, buffer, TX_NOTIFY_OK);
+-			error = false;
+-			break;
+-		case QETH_QDIO_BUF_QAOB_ERROR:
++		case QETH_QDIO_BUF_QAOB_DONE:
+ 			/* qeth_qdio_handle_aob() already received a QAOB: */
+-			qeth_notify_skbs(queue, buffer, TX_NOTIFY_GENERALERROR);
+-			error = true;
++			notify = qeth_compute_cq_notification(aob->aorc, 0);
++			qeth_notify_skbs(queue, buffer, notify);
++			error = !!aob->aorc;
+ 			break;
+ 		default:
+ 			WARN_ON_ONCE(1);
 -- 
 2.25.1
 
