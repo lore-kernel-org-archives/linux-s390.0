@@ -2,51 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F1FEC48BD1
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 17:05:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7952C48BE5
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 17:06:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 71698613AD
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 17:05:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9B137613AD
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 17:06:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230017AbhFKRH1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Jun 2021 13:07:27 -0400
-Received: from mail-co1nam11on2065.outbound.protection.outlook.com ([40.107.220.65]:62615
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        id S231199AbhFKRIL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Jun 2021 13:08:11 -0400
+Received: from mail-bn7nam10on2078.outbound.protection.outlook.com ([40.107.92.78]:62592
+        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230197AbhFKRH1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Jun 2021 13:07:27 -0400
+        id S231408AbhFKRIK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 11 Jun 2021 13:08:10 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BJgYYY8uU6OS2QEcahbPMs3gXAv2SH/Lq9g57JNZX7FYLAQp4Cfj3HxQpEaSWqtWoBWonVsdvo57KsjF1z/uZWYHvfI4X6cJ4VWa2zhV4CHjYQaP6ooxYB1L8dnYLVu8PIZreu3D0C1aetagaQ8IiSf8qF34PKocKUzAwuhc7+wkTNjjyi/bbA7pxkpSei5/0xk5N0rf5C+nnPzWzI7qG73igeTz0zzLputDBErbeJ+ihYbr/v1qjnCYwJ3+X1Wo2Pr/yFY+c+jlhPTAaSxCHLjLfr0FXfiL2KTHM9EkkDbBdnb7HD/qCaRjtBnc+sk0QjWFxkGVNgkAALJEoUBUCw==
+ b=Wca1RdKtnvuMl/4n3RkETskLfAFfXyUUvmUr/o9KQUOUK9w6T2lHAgwIo7qnKaocS5nCpab9uj5q7agQ05EIizDyuoCwFvBOqHEwpnSW+M1n7/Jx9sugSMB6rhKKTvqzYYR88KbaLkthNprbboR4aPii7s13Cons34kpPWP14LNuRO/MP1pJgVe0zKgFtAaqaq2O0xYJ325s4m3FrvCVsQ3pFDK6YBGNR6YSZPpUKECQY+QfLpePv1bz6yMJjfuqU+mzNooO2kpk7fmZ7R52FVYSS7pmTr5NkPcxwoCefCbYPFrbcbEyG7L76GGR96GPKgoMGTPp3xoTJRAtr6D2pw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Y/YKdSKmbOs07BGwYbnrTmyPScH52VXSLOaUQVWdBBg=;
- b=egJ4CGcBxHXeEO6GR1Q4TuyysluPetgUIQxOkFSjUirOD3nf5Nx8Qmj+jtUyUhV19jcVUplOBWKaRLqSGUojgQBXyh3ZWpEjwxWcbST8nI5ACxSu9/cbB9bgVPEt9qUHuKjDRP+POmP6d76spPturqhsf/0MRxCKAMQiQbCQ2b3Bc1XmXMsSlejWeQQZEhiHuKPR+awkVZ6gc8CvA4/0j3S+qu1BMFyZhsY0fvsP3vZrJO9ogRL6SGCYEkXjMoTjX51yg2LsOwzGYu3T2kqC2ergOei5sHedjFJm82hrRLIc2m5U7kVNk6+dlVLCujlcc4PTJ3JaFn4ImJxn92juSw==
+ bh=Qm+L5CfZlhht3vTJUMQeGXCSNML/Z6wiIPzHRjdhDHA=;
+ b=UUZvvyaNNCvaUId/fHNox6yIsnuuPIdqdOjVy8daAATx1ZcKF7ef6VtHm3FP+eqNJQnyzaCTMaWGGMWGTr3MNFJAgZGXSzLA7otPbbDrpaB3WuVPr7ixhYncy9HAGZYw4AkKrH0o/WDNj3kq5cGht4OQABaQEQpB0nz3VM6w54CBzCMU23WrYqHGWPv0s0INS83FZ1jt9uwhZZqlx3mO1YhUyNb10bJ0I29QOk7m528cLXYp8rOzo5FPeAKJ+A8UzFQNybAIKGcDmzgwWdkTxk/RspDUuFiI2f7mjMQIwN4ouelx6yuunNuQZs4hAZ/awgciE1ENOF94q89gmHDjag==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Y/YKdSKmbOs07BGwYbnrTmyPScH52VXSLOaUQVWdBBg=;
- b=Tn3WpQI9ao440VHNbud9r+gcgL41cbneiLZCjksqtkoGEvdpCvRkhE2BJhmiaKyEyq9bnsWcB4H+xQx/IYTHPBtBYHNPCPb24CMMajhXOuol6XfISaiyrx6/5Wa2yVNyAEdCQsW945BeifsQCYJv6R7meoJM5O5GlwgvScGujftiKRLvhvFRezVbMrRTr8di3QOMFPSGUL4XgEMDXLiIfLvb08VAVi9rURjY7XWwApgGYIBqRyz6PGgtyoLI0zuJpYF8+cFvBCahVqqQp0L4RQNGSv+vawB2H5czxaCE7/M9OXhMJhig+76igtZNbRylBdGpd2GLsSBYa1D1Qc+3qA==
+ bh=Qm+L5CfZlhht3vTJUMQeGXCSNML/Z6wiIPzHRjdhDHA=;
+ b=RCD7WmzzXmUNxxWivCYa8pYeKCx1DMcGBFL5oGl7XcHdiqHaCIupSlYe1dagbPuOyvk+vuAO45fjWP+pTQmXioS/AZW7eG2s83bb+joLIEzLdVHUXQx1NgsLxcn5q0H9vR5ixIz97fQlWd939DeWBpJk63EWb/bDFtz8vp72osEXEJnVE0GWBcqaw0j+ZRu2BY42qkGBk6mg1ci4MMybj7Jtztz5F51/+EuZ674W2AMqBqyTlSmfPJDzVpe4jcTcKvfV/Jx2eBj7DcrkwdHWf1eoNE94CbiZxNS14zOmryxMxOXfPX86cbZV0W4jyv9OvgDtKtyK2LFJfHgFJEJcyg==
 Authentication-Results: linux.ibm.com; dkim=none (message not signed)
  header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
 Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL0PR12MB5554.namprd12.prod.outlook.com (2603:10b6:208:1cd::9) with
+ by BL1PR12MB5255.namprd12.prod.outlook.com (2603:10b6:208:315::7) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.24; Fri, 11 Jun
- 2021 17:05:27 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.20; Fri, 11 Jun
+ 2021 17:06:11 +0000
 Received: from BL0PR12MB5506.namprd12.prod.outlook.com
  ([fe80::3d51:a3b9:8611:684e]) by BL0PR12MB5506.namprd12.prod.outlook.com
  ([fe80::3d51:a3b9:8611:684e%7]) with mapi id 15.20.4219.021; Fri, 11 Jun 2021
- 17:05:27 +0000
-Date:   Fri, 11 Jun 2021 14:05:26 -0300
+ 17:06:11 +0000
+Date:   Fri, 11 Jun 2021 14:06:10 -0300
 From:   Jason Gunthorpe <jgg@nvidia.com>
 To:     Tony Krowiak <akrowiak@linux.ibm.com>
 Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -55,127 +55,93 @@ Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         alex.williamson@redhat.com, kwankhede@nvidia.com,
         frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
         hca@linux.ibm.com
-Subject: Re: [PATCH 2/3] s390/vfio-ap: introduce two new r/w locks to replace
- wait_queue_head_t
-Message-ID: <20210611170526.GU1002214@nvidia.com>
+Subject: Re: [PATCH 3/3] s390/vfio-ap: r/w lock for PQAP interception handler
+ function pointer
+Message-ID: <20210611170610.GV1002214@nvidia.com>
 References: <20210609224634.575156-1-akrowiak@linux.ibm.com>
- <20210609224634.575156-3-akrowiak@linux.ibm.com>
+ <20210609224634.575156-4-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210609224634.575156-3-akrowiak@linux.ibm.com>
+In-Reply-To: <20210609224634.575156-4-akrowiak@linux.ibm.com>
 X-Originating-IP: [47.55.113.94]
-X-ClientProxiedBy: BLAPR03CA0082.namprd03.prod.outlook.com
- (2603:10b6:208:329::27) To BL0PR12MB5506.namprd12.prod.outlook.com
+X-ClientProxiedBy: BL0PR02CA0088.namprd02.prod.outlook.com
+ (2603:10b6:208:51::29) To BL0PR12MB5506.namprd12.prod.outlook.com
  (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (47.55.113.94) by BLAPR03CA0082.namprd03.prod.outlook.com (2603:10b6:208:329::27) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.21 via Frontend Transport; Fri, 11 Jun 2021 17:05:27 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lrkb0-005h4W-84; Fri, 11 Jun 2021 14:05:26 -0300
+Received: from mlx.ziepe.ca (47.55.113.94) by BL0PR02CA0088.namprd02.prod.outlook.com (2603:10b6:208:51::29) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.21 via Frontend Transport; Fri, 11 Jun 2021 17:06:11 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lrkbi-005h5A-FO; Fri, 11 Jun 2021 14:06:10 -0300
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 8e507c5f-1ff0-4e65-8da5-08d92cfb1c2d
-X-MS-TrafficTypeDiagnostic: BL0PR12MB5554:
+X-MS-Office365-Filtering-Correlation-Id: 4ecbb1c0-5d42-4859-2e23-08d92cfb3693
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5255:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BL0PR12MB5554B1CE2EADE908779C607BC2349@BL0PR12MB5554.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:7691;
+X-Microsoft-Antispam-PRVS: <BL1PR12MB52553B72406B843840489C89C2349@BL1PR12MB5255.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:7219;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: X7LXBVwnXJIvxid5eFpU88NfAxH28t4F2FDRL71yf1sPUzO7z+6InAtpA4DxKU0IPwys5Eue4fybBpK8WWg4bdOpgtYQTpgQ9bKJKrkNWBRMV3sQkcRBC4OrIqloZbvq3/07EUkqW0jDJ0VcoBOPV7fJGZUl+YolgGwJde+JcwpTwXrMzUbtQNuqoC0svSJFqHqR/bolBNsHMWhgXax/j3HyGtGU4FhBOU8RKGGEwcfBUUG3fuS9crUr5UTt8ERzUVyysriZympLa52l3V0qx2Rb9tH3teJboOVMjkn6CopZZXdHN0KHd55ll+rR6DnYQv4XTxQ+qLudRFCgTECYfaWGK0FOYSFr3eTk4ERZlIU78SoTDY80UuDYi8c5F9pZvSwrJrZXsmbSk59uDg8kS+QWSMuLI7Yb3IhFr6dlklTgYDaZxSptlzDH0ILwxd+Qb4vkzj2cXA8H1O9vLKWRhyy1dE0X2mn84rP9u88ZwalhhIq+UyWxxNzS1gM7TOKoZutCks+eLjBv3at+bjk3IUXMR2CUb1iIGXLAb6BcV5KjePO0+rUaH/uqP4TR1heXbgylwNKUBuN8vJR1rhMzmUhza5EpG0VisZ+GM2fAAIM=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(376002)(366004)(396003)(39860400002)(346002)(6916009)(8936002)(38100700002)(316002)(36756003)(4326008)(186003)(26005)(83380400001)(8676002)(1076003)(66556008)(66476007)(66946007)(478600001)(33656002)(86362001)(2906002)(2616005)(7416002)(9786002)(5660300002)(9746002)(426003);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: myUqdCVOmNehU98Zfwpy2TEsECQkH6gq2hp7621BPpFnUSEvILh6VfXyzRctCZrRGal5Yto7IGNdXRAlgwBs6D7gGYkYAa3VcYH6qSRhILDGkTUh5G8IBz0dcF4bkf9hqBaPrOXiOfYV66N9CxfAZwRUWf3o0RMMcoiE+bImP3VoRgC1xdG4b+ukgJ9DhrMVtFj6OTT5R59kEn9Be/BJJZgx2MUoEcIgKdNL7HMryXiYIihWDEhCSDRW56yVjsqadUQK013h+7/wYRNmltKSZslayqBKo17xgKLHx/9gq2xpvq1BNdcVD4nWCvLIcDiXQsF0vj4PPoUACSdQzPnyp0QXKy2vWF/3ILcSZ8nuy/UXQ2hL6aI+FwIpTt9z6unHBlKD4RAohtUqmXlYPg4Bn6UcHhZ9gPCpVYuoa6KR4uuEKjFzxpIb5YkMBXUHyOSR4/4ZHwqGUYChIO/v7DyVQQeoR3vCAzkhueZ5Ynp8HgM+pxON3yIf8qstgK9agpexr/RpUjWdEdjrMgJhY4dCEBF6xn4pQewU52ikYbZdkD9Rk35NX0dWTznc5auLAp75TjbpZJ3POJTugDJb6oP0nEUUOkQ+bAHCmLGVUq2f0xU=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(376002)(39860400002)(136003)(346002)(396003)(66476007)(6916009)(5660300002)(4744005)(66556008)(36756003)(26005)(86362001)(66946007)(38100700002)(33656002)(8936002)(2906002)(8676002)(478600001)(186003)(4326008)(83380400001)(1076003)(426003)(2616005)(316002)(7416002)(9786002)(9746002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?0frug7PN//eRkPS0q/f8zTEO3PbC2XKm4DZoQYVY/hj8ANBtnrUr7jlKpKHp?=
- =?us-ascii?Q?MmJKoAYIRp059fFpH2Iuoh7fwuu0nlK8Cyr5DfO1mMEar+2xsZuu/9cdJMDa?=
- =?us-ascii?Q?bFzMknlvt9/52zQOuQ/DsTIy1bJGcu45BjxW6HXztU8g682Bz1ylcZTArwuu?=
- =?us-ascii?Q?s9v0RAe5RurGNcYmg30ulabIj2oCNn4UgHjaxKvJywRFdNh7cWa84yecWdQg?=
- =?us-ascii?Q?uD0m8EhyH9n1ZG3slphshv4dyFOWqBEAQSL1PtQBzIFObHpJy1oF7mWsuU1M?=
- =?us-ascii?Q?DWzZTp01+se6zABC/1jSkpNolM86vZhEu/1t4Ge3mE4qWAFntiXptTidbhjv?=
- =?us-ascii?Q?OrinURaHa8g8v/G+uXDyJLnflTzRzPfP0ao7GdB/YuUNfUn5m51iUZ8ofXyW?=
- =?us-ascii?Q?9fBx9MFDJF0pGlIR/NtI/XuuYPqxvJURt8okrQzB/UX/1KL2aPV85FOFL70V?=
- =?us-ascii?Q?3WYJ9SH3GLj2Nt3GU0Zg7gx1BAVedHUlZ9Qbg3fGdbR+OGdLTaa8hGWXKoUb?=
- =?us-ascii?Q?Z6KED3HQtM+3ELod4Uk9ho0C03+AL2Km12WrKjPJ1hFi1ANn0XIquqx4GBF1?=
- =?us-ascii?Q?KmYN325rc9nLJyouP3ZMouCiRfdvz3AZZSU186nlZqfopkjjAx7GM1/0puNG?=
- =?us-ascii?Q?AKsnV2obCigKFz1niEgMeQcih0e+JkSkxlfFQUpbLvhX3DOd/HSfMPZp91Ri?=
- =?us-ascii?Q?/dlL/O7JGYh3zqCfuMK0eV9jnB8PXUXLP6IEEinClbZlwozxOrYf7kcb90xm?=
- =?us-ascii?Q?JRrukQExw0r87e55LDPeFtKHV4iegH6XxlAjZm5DhEWKtbqaVHKov3RfTM0Z?=
- =?us-ascii?Q?ek3195zCC+X2Jz3VW3DLQyjrFoyEOPq0D+n1Mz3SxFfpch+jb7N8uDssFQAk?=
- =?us-ascii?Q?5y5PLB4aUz45h+IysSrvf6YNJi2F8M++/AX30ZGIQ2VmoLQCEq8sR8fauw98?=
- =?us-ascii?Q?OBa1ZAjkszt2AKxU2MCrPzWLaU/CwtbBCsceCdRbRTsWxIvQPGQ618w1Eq/G?=
- =?us-ascii?Q?7iEC2H69P8KOyZGWHD78vukuEEwk8LJLRbBIADrtC3vmcYUvn0x2uwfH9G2f?=
- =?us-ascii?Q?KmTUn3Nf+vXR8WqC3sUcd8nxAEdOezSUtpcV/hjY8WAdoQsUshkEk4E2owke?=
- =?us-ascii?Q?w4gDecyYx/Iottxnaj17vMtO5Q97OV7qC6/8RhWW/0oZmVXXPnenBpjIe2vH?=
- =?us-ascii?Q?aoli6DFcoIpXYQH8XQ+QTzgUMqAGLvxO2aI+1l+faHBmBaMIAEHI3WqE5Q8b?=
- =?us-ascii?Q?Bvpmq85UHMPU2F+pvfbTtXMvDyHbiwpYQGZ7G0dSVEREZ8brCOOrjKSlQeGa?=
- =?us-ascii?Q?c0ZnFRIveqm+3eJ8d3CtckfH?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?n4eFk72wLE3+AYWDE5uxqZFTx+c4ywGzl5DBALI+ZmKuN4Xwr60Z95Eqx98E?=
+ =?us-ascii?Q?E/xIqPNiOaP2VdWtpsGe7VkHd/CDi74WnNY40i8XpLkfENUSTRv0Iou1qfbp?=
+ =?us-ascii?Q?mIt2SSlT79qyyiLk8fPbPx+sqBooIwMUJnI74BXOob2oswklAxv4XPS5JXQ1?=
+ =?us-ascii?Q?kqrxW1qbwQDaTt0Jj/f/NwkYXTzloz+90AXeotjJA6+tdLW6pZrszAKZ1yAu?=
+ =?us-ascii?Q?81Zml470+flBuiiv4WW45hx7JEN28AJjx01whPCwl2JzcLvYva4inCEWGPFQ?=
+ =?us-ascii?Q?rjDAortfc8kOEj7KNIau3b3owJskyP87lUxXX1xbtvoBqNjxxdhNcGtcyjuC?=
+ =?us-ascii?Q?qjCpzdzp5/8GTGruzSDgKlIrhtD+GwowDVYpvY4xMwSWrX49bttyKnwUEtfI?=
+ =?us-ascii?Q?wKzGAlcaFKh+q/L2XvZthhMXwLlIVZVOfbbBTBlzy1ac1sTKTWQhyrTOwqKC?=
+ =?us-ascii?Q?2NlhUvsz66Xu7SU63ODjNR4kpMbEPnUcUxddu6H1C1ma4dqHonR6b7ZDMuqZ?=
+ =?us-ascii?Q?ZQ5W6bdDFeF/5OkoSAwKZBwrw9wtXbrLfUMN6YcXirArk9z8zhDLXKaYWa4d?=
+ =?us-ascii?Q?Da4BUciLapP5t36BSFI1Ugu6Y7jIE1p7V7PrxZWe7UDiI38z8hWnC21pSvLN?=
+ =?us-ascii?Q?8pODBtuABCpKd4okrBzBEFR2M6WL4RMyOnNXmHLmTA7jbK2o4PLdFpeq3dwE?=
+ =?us-ascii?Q?pv7PdxK8sIJVFD+6SteieKQgVfLnrXlHgWzzV4VvuGBY/iEACmyH4/D2mBBp?=
+ =?us-ascii?Q?ZdVIVJHXWjxilWCcB1GiIn+V4NdhS0WRKeKrnTkOYwXmAVpKhTrP90Wd+AcU?=
+ =?us-ascii?Q?g3JP7iKoUyqBUn+QREJ8f57JAWHK8QrCceve3MDB+p5HlXIozlq0ZykChIlB?=
+ =?us-ascii?Q?kqrQn9nhNEJMbJcZMYf13NyV9xDey+g0yvS+GLVmSl/6x8fO1eywcXhe9bKc?=
+ =?us-ascii?Q?s5+14M5wXFPIPrFVR6q9JhT5fcxkmshjdC/Ot0XmpfnBkXsHFO47yYeKgi05?=
+ =?us-ascii?Q?03gGJeWl8RYjWJTTa/JSeuVWb2TM2LV3G/aBmV0Obop/N5hZ5Y0GPBYgoehy?=
+ =?us-ascii?Q?K4/ADHyXELoC/POPmRLkKkDNK+Fb/X33lVizRbKquzktZI3NKAxEQJT6TO5q?=
+ =?us-ascii?Q?fgPzOLMC6sMOPb6CXgF/W0sKal658YxQ1MnLGWV8FE9y0moH8vCkf3V85g+5?=
+ =?us-ascii?Q?2WXVCWQx4lcWF1vTpTPiq83VpP2vz6/PxaYz4R9/M+sxchyCyhkAQ65JvZpo?=
+ =?us-ascii?Q?Vx51d86IAwmwGFUx8C96DX/9NqbkM5PcTwfuxiCce5m7Q+PYVqZL50dx+Orq?=
+ =?us-ascii?Q?fcuyqR2V9O9qGGYlkHLLA9rE?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8e507c5f-1ff0-4e65-8da5-08d92cfb1c2d
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4ecbb1c0-5d42-4859-2e23-08d92cfb3693
 X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Jun 2021 17:05:27.2210
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Jun 2021 17:06:11.4948
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: HfPDQBsBKkE69ObQaK38RGxUl/71jf49KsHKZgIzVAp1tQ8y+VEaINna3a2BGbuA
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB5554
+X-MS-Exchange-CrossTenant-UserPrincipalName: knrOoacp70SIvNdVII3uV3mxcpMfQ9icECGsOyWalMHb/mA4xk1pjIgAFiSo2xol
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5255
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jun 09, 2021 at 06:46:33PM -0400, Tony Krowiak wrote:
-> This patch introduces two new r/w locks to replace the wait_queue_head_t
-> that was introduced to fix a lockdep splat reported when testing
-> pass-through of AP queues to a Secure Execution guest. This was the
-> abbreviated dependency chain reported by lockdep that was fixed using
-> a wait queue:
+On Wed, Jun 09, 2021 at 06:46:34PM -0400, Tony Krowiak wrote:
+> The function pointer to the interception handler for the PQAP instruction
+> can get changed during the interception process. Let's add a
+> semaphore to struct kvm_s390_crypto to control read/write access to the
+> function pointer contained therein.
 > 
-> kvm_arch_crypto_set_masks+0x4a/0x2b8 [kvm]        kvm->lock
-> vfio_ap_mdev_group_notifier+0x154/0x170 [vfio_ap] matrix_dev->lock
+> The semaphore must be locked for write access by the vfio_ap device driver
+> when notified that the KVM pointer has been set or cleared. It must be
+> locked for read access by the interception framework when the PQAP
+> instruction is intercepted.
 > 
-> handle_pqap+0x56/0x1d0 [vfio_ap]    matrix_dev->lock
-> kvm_vcpu_ioctl+0x2cc/0x898 [kvm]    vcpu->mutex
-> 
-> kvm_s390_cpus_to_pv+0x4e/0xf8 [kvm]   vcpu->mutex
-> kvm_arch_vm_ioctl+0x3ec/0x550 [kvm]   kvm->lock
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/kvm_host.h      |  6 +++---
+>  arch/s390/kvm/kvm-s390.c              |  1 +
+>  arch/s390/kvm/priv.c                  |  6 +++---
+>  drivers/s390/crypto/vfio_ap_ops.c     | 14 ++++++++++----
+>  drivers/s390/crypto/vfio_ap_private.h |  2 +-
+>  5 files changed, 18 insertions(+), 11 deletions(-)
 
-Is the problem larger than kvm_arch_crypto_set_masks()? If not it
-looks easy enough to fix, just pull the kvm->lock out of
-kvm_arch_crypto_set_masks() and obtain it in vfio_ap_mdev_set_kvm()
-before the rwsem. Now your locks are in the right order and all should
-be well?
+This is alot better than the try_module_get!
 
-> +static int vfio_ap_mdev_matrix_store_lock(struct ap_matrix_mdev *matrix_mdev)
-> +{
-> +	if (!down_write_trylock(&matrix_mdev->rwsem))
-> +		return -EBUSY;
-> +
-> +	if (matrix_mdev->kvm) {
-> +		up_write(&matrix_mdev->rwsem);
-> +		return -EBUSY;
-> +	}
-> +
-> +	if (!down_write_trylock(&matrix_mdev->matrix.rwsem)) {
-> +		up_write(&matrix_mdev->rwsem);
-> +		return -EBUSY;
-> +	}
-> +
-> +	return 0;
-> +}
-
-This double locking is quite strange, at least it deserves a detailed
-comment? The comments suggest these locks protect distinct data so..
-
-> +
-> +	ret = vfio_ap_mdev_matrix_store_lock(matrix_mdev);
-> +	if (ret)
-> +		return ret;
->  
->  	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
-
-here it obtained both locks but only touched matrix.aqm which is only
-protected by the inner lock - what was the point of obtaining the
-outer lock?
-
-Also, not convinced down_write_trylock() is appropriate from a sysfs
-callback, it should block and wait, surely? Otherwise userspace gets
-random racy failures depending on what the kernel is doing??
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 
 Jason
