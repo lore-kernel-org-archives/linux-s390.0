@@ -2,146 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_RED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5380FC48BE0
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 08:24:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10666C48BD1
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 09:28:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 37BAF60FD8
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 08:24:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DB2FD613CD
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 09:28:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229584AbhFKIZ7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Jun 2021 04:25:59 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53506 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231180AbhFKIZ6 (ORCPT
+        id S231484AbhFKJaY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Jun 2021 05:30:24 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3710 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230460AbhFKJaW (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Jun 2021 04:25:58 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15B83O4M150107;
-        Fri, 11 Jun 2021 04:23:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=83Vmmdclr1Jg/D+7BzdpWoc8MKMZeu3kYzCb2+tqcDQ=;
- b=GxDy2KBmMgJgcDbb+O5fNnPSGUON8xCMrDvVf6uoDQ1RlQU3bKGni9edx3dGEb47Y9h6
- Wr8CZlbSRmvuSlRGrHmo83KyssJw0cWTCUVVN2oLVOJUibMuEfyfbQg4i9KceJfg6QIs
- UF5zBC6BJJiyPlo2geWIbzNIr7W21XJDf1/uB2O8cHzY2NsRGwwmnOMnHvic2oPBNFom
- EfWBQVYmrol7ZXutn8CRZFazL3FVGXYq+H3mAI2YG/a7FXLvCfhrg+UfIDDE+kR2JUbl
- Nw8I6l+cGGCk5gJvYLBdScg1ZEHvSfaZRSOjVh1Gk+1TVgyGXnCdzk8EVTlpbfJRnKPd xg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3943ys8ggp-1
+        Fri, 11 Jun 2021 05:30:22 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15B93RlF159911;
+        Fri, 11 Jun 2021 05:28:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=h18rkByN+srPmFu11YTDLVjsXF5/Wia051rwQ7X3oyg=;
+ b=iVbmf+VLGx6QW+qZAKzH/Wj6B7yJWOJX7GpkkIjNTcDFemwoOAx+cWYbh8hw9MefkfYY
+ sbc9xy5wsmAg9H5xHNJ8FHleVER7jezkPQPBJQ56c68A0VcbEPYqJOngTrBhIFNoUav3
+ NQyabu+nOHqskqP/yyPm2uzZQ/TYrvBlnfdiRg91SCidFkdFCNvJQGrL5bVhYkhve/Jx
+ aw/tNdzwEufKA2EdA9wG9P9oQRwsyb/DrYxuy5vJCa68gnsuLRcTC0jZID6clMP2rnHP
+ vZyZJ/avVJOIBE0VAHvtLcrphsK/bL8UG0H9sRFbA3SHxoMch/PAVeWQ/Ij9BcfY8rZK eQ== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39447tsrdk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 04:23:42 -0400
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15B83jY4151018;
-        Fri, 11 Jun 2021 04:23:41 -0400
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3943ys8gft-1
+        Fri, 11 Jun 2021 05:28:20 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15B9JT8q028949;
+        Fri, 11 Jun 2021 09:28:19 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03ams.nl.ibm.com with ESMTP id 3900w8kb3u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 04:23:41 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15B8FhQL008759;
-        Fri, 11 Jun 2021 08:23:39 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma02fra.de.ibm.com with ESMTP id 392e798vnk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 08:23:39 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15B8McLC31457698
+        Fri, 11 Jun 2021 09:28:18 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15B9RKew36831630
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 11 Jun 2021 08:22:38 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 112AE5205F;
-        Fri, 11 Jun 2021 08:23:33 +0000 (GMT)
-Received: from ibm-vm (unknown [9.145.5.240])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 5E6E352057;
-        Fri, 11 Jun 2021 08:23:32 +0000 (GMT)
-Date:   Fri, 11 Jun 2021 10:23:30 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
-        linux-mm@kvack.org, Nicholas Piggin <npiggin@gmail.com>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        David Rientjes <rientjes@google.com>,
-        Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH v3 1/2] mm/vmalloc: add vmalloc_no_huge
-Message-ID: <20210611102330.17701bad@ibm-vm>
-In-Reply-To: <20210610140909.781959d063608710e24e70c9@linux-foundation.org>
-References: <20210610154220.529122-1-imbrenda@linux.ibm.com>
-        <20210610154220.529122-2-imbrenda@linux.ibm.com>
-        <20210610140909.781959d063608710e24e70c9@linux-foundation.org>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-Content-Type: text/plain; charset=US-ASCII
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RlvbrGdC0VlhrvDxDD-SdLs5JOvmRIdv
-X-Proofpoint-GUID: W-7tZ1fiYAyc8Fu1j3OYcXEnLXp1kKu0
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Fri, 11 Jun 2021 09:27:20 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8E35442047;
+        Fri, 11 Jun 2021 09:28:09 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2F9154203F;
+        Fri, 11 Jun 2021 09:28:09 +0000 (GMT)
+Received: from [9.171.82.75] (unknown [9.171.82.75])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 11 Jun 2021 09:28:09 +0000 (GMT)
+Subject: Re: [PATCH net-next 0/4] net/smc: Add SMC statistic support
+To:     David Miller <davem@davemloft.net>
+Cc:     kuba@kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Guvenc Gulce <guvenc@linux.ibm.com>
+References: <20210607182014.3384922-1-kgraul@linux.ibm.com>
+ <20210607.133346.155691512247470187.davem@davemloft.net>
+ <1df10dbb-a3bd-9b8f-6fb9-8a8fe98ae175@linux.ibm.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+Message-ID: <b169ffb2-13e1-de0a-49ee-2035d74c45af@linux.ibm.com>
+Date:   Fri, 11 Jun 2021 11:28:10 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
+In-Reply-To: <1df10dbb-a3bd-9b8f-6fb9-8a8fe98ae175@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: eX4QdvcD6jlllRZCd61aOHxFk_Nee-wv
+X-Proofpoint-ORIG-GUID: eX4QdvcD6jlllRZCd61aOHxFk_Nee-wv
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-11_01:2021-06-11,2021-06-11 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- mlxscore=0 phishscore=0 priorityscore=1501 mlxlogscore=999
- lowpriorityscore=0 suspectscore=0 clxscore=1015 adultscore=0
- malwarescore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106110052
+ definitions=2021-06-11_02:2021-06-11,2021-06-11 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 bulkscore=0 mlxlogscore=999 suspectscore=0
+ priorityscore=1501 phishscore=0 impostorscore=0 mlxscore=0 spamscore=0
+ adultscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2104190000 definitions=main-2106110057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 10 Jun 2021 14:09:09 -0700
-Andrew Morton <akpm@linux-foundation.org> wrote:
+> On 07/06/2021 22:33, David Miller wrote:
+>> From: Karsten Graul <kgraul@linux.ibm.com>
+>> Date: Mon,  7 Jun 2021 20:20:10 +0200
+>>
+>>> Please apply the following patch series for smc to netdev's net-next tree.
+>>>
+>>> The patchset adds statistic support to the SMC protocol. Per-cpu
+>>> variables are used to collect the statistic information for better
+>>> performance and for reducing concurrency pitfalls. The code that is
+>>> collecting statistic data is implemented in macros to increase code
+>>> reuse and readability.
+>>> The generic netlink mechanism in SMC is extended to provide the
+>>> collected statistics to userspace.
+>>> Network namespace awareness is also part of the statistics
+>>> implementation.
+>> Why not use ethtool stats?
+>>
+>> Thank you.
 
-> On Thu, 10 Jun 2021 17:42:19 +0200 Claudio Imbrenda
-> <imbrenda@linux.ibm.com> wrote:
+On 08/06/2021 10:59, Guvenc Gulce wrote:
+> Hi Dave,
+> Thank you for looking into this. SMC is a protocol interacting with PCI devices (like RoCE Cards) and
+> runs on top of TCP protocol. As SMC is a network protocol and not an ethernet device driver, we
+> decided to use the generic netlink interface. There is already an established internal generic netlink
+> interface mechanism in SMC which is used to collect SMC Protocol internal information. This patchset
+> extends that existing mechanism.
+> Ethtool's predefined netlink interfaces are specifically tailored for the ethernet device internals and needs
+> and these netlink interfaces wouldn't really fit to the use cases of the SMC protocol.
 > 
-> > The recent patches to add support for hugepage vmalloc mappings
-
-I will put the proper commit ID here
-
-> > added a flag for __vmalloc_node_range to allow to request small
-
-and the name of the flag here
-
-> > pages. This flag is not accessible when calling vmalloc, the only
-
-and improve the wording in general ("order-0 pages" instead of "small
-pages")
-
-> > option is to call directly __vmalloc_node_range, which is not
-> > exported.  
+> Other protocols (like tipc, ncsi, ieee802154, tcp metrics) under the net subsystem use also similar generic
+> netlink mechanism for collecting and transporting protocol specific information to userspace. This also
+> encouraged us to make the generic netlink decision for exposing the gathered SMC protocol statistics
+> and internal information to the userspace.
 > 
-> I can find no patch which adds such a flag to __vmalloc_node_range(). 
-> I assume you're referring to "mm/vmalloc: switch to bulk allocator in
-> __vmalloc_area_node()"?
+> Regards,
 > 
-> Please be quite specific when identifying patches.  More specific than
-> "the recent patches"!
-
-sorry!
-
-I was referring to this one: 
-121e6f3258fe393e22c36f61a ("mm/vmalloc: hugepage vmalloc mappings")
-
-which introduces the flag VM_NO_HUGE_VMAP
-
-I will reword the commit to be more specific
-
-> Also, it appears from the discussion at
-> https://lkml.kernel.org/r/YKUWKFyLdqTYliwu@infradead.org that we'll be
-> seeing a new version of "mm/vmalloc: switch to bulk allocator in
-> __vmalloc_area_node()".  Would it be better to build these s390 fixes
-> into the next version of that patch series rather than as a separate
-> followup thing?
+> Guvenc Gulce
 > 
 
+I just wanted to touch base with you regarding Guvenc's response where he explained our ideas about the statistics interface. We would be happy to hear your thoughts on how to proceed.
+
+--
+Karsten
