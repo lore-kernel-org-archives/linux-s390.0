@@ -7,51 +7,51 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92DCAC48BD1
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 07:33:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD32DC4743D
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 07:33:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7DB9B613BA
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 07:33:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B778E613AE
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Jun 2021 07:33:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230504AbhFKHfx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Jun 2021 03:35:53 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48380 "EHLO
+        id S231336AbhFKHfz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Jun 2021 03:35:55 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32778 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230035AbhFKHfw (ORCPT
+        by vger.kernel.org with ESMTP id S230405AbhFKHfx (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Jun 2021 03:35:52 -0400
+        Fri, 11 Jun 2021 03:35:53 -0400
 Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15B7Wt8K015560;
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15B7Ws1A015492;
         Fri, 11 Jun 2021 03:33:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=PxBEazD7AsBMILcXKKpFFo9PYbowUToUjnFo7TBRlr4=;
- b=QJjqhslhwZbVvpDKwv+z4dlCKTYZ0B8VUAJaagQeWira8iIc/DBqUp4hzKpmSSz6lvmX
- kH+xaGhq65TK//8rvSgDOCWYYhHDM8H+1kDOcRhofwG8KxI6ZnjeKC66LS6oiF1BB2PM
- hRnlXlSWltrR/Ujsmo0id5ZAi9jLc2YNVCWpN5L5wu4jGx+59vOr/PrMU+SwPtMJIuPX
- QtUDN9Cu9JGmNeeTm0u3Z+ebnoP66vmwH8zXqnQluJ0fXfv7EbZD6k+IjFt/d83/m+BW
- CAn5WXrZZZYA7oD7YJWtwewbnO/8YNQjMVgwLF247LjZLmX60V5blhVPpTduYMeMKQM4 0g== 
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39439wgc3m-1
+ bh=xwhMIQcO55FMq1EqcVhuiBWGR5GHFeaVJwkxgeLpuYo=;
+ b=HM+1yQIKCcdcl9ZsfYhOGyFoH+3zNz4fWO41PNPsMe/zAmJr2QjRBUOCKz8JorEnLcOT
+ 9uPgCt/a0wq9KxTiVpuxDETE4+YZW4ulBzARmlvncnkzus1ysogOdDjwtSsCbMuhcfbZ
+ LhWETCXL/eFBmRvtYWFWrm3xlwa8WTJuDmwComEg9FHq38TT5mEsnc6LzdXpuHHUxnkV
+ jk6syKa85Clbo8dfhU/UGpf+GM4Z2uO4y8opYSpbq/Wy+CkxPw7Aa1iHY4CiTjveOUX5
+ xUdLBcXqt9dEi7oY7IEYT+Kl30/RH3mkhusnWw9k745FfGyXtFEtZ/Tx2VqjZsKwxqKo 5Q== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39439wgc3u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 03:33:53 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15B7WqcW007668;
-        Fri, 11 Jun 2021 07:33:51 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma02fra.de.ibm.com with ESMTP id 392e798v75-1
+        Fri, 11 Jun 2021 03:33:54 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15B7XqbE017669;
+        Fri, 11 Jun 2021 07:33:52 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06fra.de.ibm.com with ESMTP id 3900hhhtgx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Jun 2021 07:33:51 +0000
+        Fri, 11 Jun 2021 07:33:52 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15B7WrIB35455448
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15B7Wv0835651996
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 11 Jun 2021 07:32:53 GMT
+        Fri, 11 Jun 2021 07:32:57 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5BC95A4066;
+        by IMSVA (Postfix) with ESMTP id ED2A0A4060;
         Fri, 11 Jun 2021 07:33:48 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2B409A406B;
+        by IMSVA (Postfix) with ESMTP id BB4FFA4068;
         Fri, 11 Jun 2021 07:33:48 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
@@ -64,17 +64,17 @@ Cc:     linux-netdev <netdev@vger.kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>,
         Karsten Graul <kgraul@linux.ibm.com>,
         Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 1/9] s390/qeth: count TX completion interrupts
-Date:   Fri, 11 Jun 2021 09:33:33 +0200
-Message-Id: <20210611073341.1634501-2-jwi@linux.ibm.com>
+Subject: [PATCH net-next 3/9] s390/qeth: unify the tracking of active cmds on ccw device
+Date:   Fri, 11 Jun 2021 09:33:35 +0200
+Message-Id: <20210611073341.1634501-4-jwi@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210611073341.1634501-1-jwi@linux.ibm.com>
 References: <20210611073341.1634501-1-jwi@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: EVe-rNQqKkXUrJINvk8pu7Ri6WrFNdBJ
-X-Proofpoint-ORIG-GUID: EVe-rNQqKkXUrJINvk8pu7Ri6WrFNdBJ
+X-Proofpoint-GUID: E7Okw0JlzUvXIxQheTY20McyBsjRVgim
+X-Proofpoint-ORIG-GUID: E7Okw0JlzUvXIxQheTY20McyBsjRVgim
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-06-11_01:2021-06-11,2021-06-11 signatures=0
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
@@ -86,57 +86,112 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-While the qdio layer already tracks the number of HW interrupts for a
-device, there's value in understanding how many of them have been
-raised due to our TX completion logic.
+We have one field to track _whether_ a cmd is active on a ccw device
+('irq_pending'), and one to track _which_ cmd it is ('active_cmd').
+
+Get rid of the irq_pending field, by testing active_cmd for NULL.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      | 1 +
- drivers/s390/net/qeth_core_main.c | 4 +++-
- drivers/s390/net/qeth_ethtool.c   | 1 +
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/s390/net/qeth_core.h      | 14 +++++++-------
+ drivers/s390/net/qeth_core_main.c | 12 ++++--------
+ 2 files changed, 11 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index fd9b869d278e..3a49ef8dd906 100644
+index 4d29801bcf41..ad0e86aa99b2 100644
 --- a/drivers/s390/net/qeth_core.h
 +++ b/drivers/s390/net/qeth_core.h
-@@ -483,6 +483,7 @@ struct qeth_out_q_stats {
- 	u64 stopped;
- 	u64 doorbell;
- 	u64 coal_frames;
-+	u64 completion_irq;
- 	u64 completion_yield;
- 	u64 completion_timer;
+@@ -614,7 +614,6 @@ struct qeth_channel {
+ 	struct ccw_device *ccwdev;
+ 	struct qeth_cmd_buffer *active_cmd;
+ 	enum qeth_channel_states state;
+-	atomic_t irq_pending;
+ };
  
+ struct qeth_reply {
+@@ -664,11 +663,6 @@ static inline struct ccw1 *__ccw_from_cmd(struct qeth_cmd_buffer *iob)
+ 	return (struct ccw1 *)(iob->data + ALIGN(iob->length, 8));
+ }
+ 
+-static inline bool qeth_trylock_channel(struct qeth_channel *channel)
+-{
+-	return atomic_cmpxchg(&channel->irq_pending, 0, 1) == 0;
+-}
+-
+ /**
+  *  OSA card related definitions
+  */
+@@ -896,10 +890,16 @@ static inline bool qeth_use_tx_irqs(struct qeth_card *card)
+ static inline void qeth_unlock_channel(struct qeth_card *card,
+ 				       struct qeth_channel *channel)
+ {
+-	atomic_set(&channel->irq_pending, 0);
++	xchg(&channel->active_cmd, NULL);
+ 	wake_up(&card->wait_q);
+ }
+ 
++static inline bool qeth_trylock_channel(struct qeth_channel *channel,
++					struct qeth_cmd_buffer *cmd)
++{
++	return cmpxchg(&channel->active_cmd, NULL, cmd) == NULL;
++}
++
+ struct qeth_trap_id {
+ 	__u16 lparnr;
+ 	char vmname[8];
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index a1f08e9aa064..9085f22ca34c 100644
+index f22f223a4a6c..83d540f8b527 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -1400,8 +1400,10 @@ static void qeth_clear_output_buffer(struct qeth_qdio_out_q *queue,
- 	int i;
+@@ -1268,7 +1268,6 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 		iob = (struct qeth_cmd_buffer *) (addr_t)intparm;
+ 	}
  
- 	/* is PCI flag set on buffer? */
--	if (buf->buffer->element[0].sflags & SBAL_SFLAGS0_PCI_REQ)
-+	if (buf->buffer->element[0].sflags & SBAL_SFLAGS0_PCI_REQ) {
- 		atomic_dec(&queue->set_pci_flags_count);
-+		QETH_TXQ_STAT_INC(queue, completion_irq);
-+	}
+-	channel->active_cmd = NULL;
+ 	qeth_unlock_channel(card, channel);
  
- 	qeth_tx_complete_buf(buf, error, budget);
+ 	rc = qeth_check_irb_error(card, cdev, irb);
+@@ -1715,11 +1714,10 @@ static int qeth_stop_channel(struct qeth_channel *channel)
+ 	rc = ccw_device_set_offline(cdev);
  
-diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
-index 3a51bbff0ffe..190dac2065df 100644
---- a/drivers/s390/net/qeth_ethtool.c
-+++ b/drivers/s390/net/qeth_ethtool.c
-@@ -41,6 +41,7 @@ static const struct qeth_stats txq_stats[] = {
- 	QETH_TXQ_STAT("Queue stopped", stopped),
- 	QETH_TXQ_STAT("Doorbell", doorbell),
- 	QETH_TXQ_STAT("IRQ for frames", coal_frames),
-+	QETH_TXQ_STAT("Completion IRQ", completion_irq),
- 	QETH_TXQ_STAT("Completion yield", completion_yield),
- 	QETH_TXQ_STAT("Completion timer", completion_timer),
- };
+ 	spin_lock_irq(get_ccwdev_lock(cdev));
+-	if (channel->active_cmd) {
++	if (channel->active_cmd)
+ 		dev_err(&cdev->dev, "Stopped channel while cmd %px was still active\n",
+ 			channel->active_cmd);
+-		channel->active_cmd = NULL;
+-	}
++
+ 	cdev->handler = NULL;
+ 	spin_unlock_irq(get_ccwdev_lock(cdev));
+ 
+@@ -1732,7 +1730,7 @@ static int qeth_start_channel(struct qeth_channel *channel)
+ 	int rc;
+ 
+ 	channel->state = CH_STATE_DOWN;
+-	atomic_set(&channel->irq_pending, 0);
++	xchg(&channel->active_cmd, NULL);
+ 
+ 	spin_lock_irq(get_ccwdev_lock(cdev));
+ 	cdev->handler = qeth_irq;
+@@ -2039,7 +2037,7 @@ static int qeth_send_control_data(struct qeth_card *card,
+ 	reply->param = reply_param;
+ 
+ 	timeout = wait_event_interruptible_timeout(card->wait_q,
+-						   qeth_trylock_channel(channel),
++						   qeth_trylock_channel(channel, iob),
+ 						   timeout);
+ 	if (timeout <= 0) {
+ 		qeth_put_cmd(iob);
+@@ -2059,8 +2057,6 @@ static int qeth_send_control_data(struct qeth_card *card,
+ 	spin_lock_irq(get_ccwdev_lock(channel->ccwdev));
+ 	rc = ccw_device_start_timeout(channel->ccwdev, __ccw_from_cmd(iob),
+ 				      (addr_t) iob, 0, 0, timeout);
+-	if (!rc)
+-		channel->active_cmd = iob;
+ 	spin_unlock_irq(get_ccwdev_lock(channel->ccwdev));
+ 	if (rc) {
+ 		QETH_DBF_MESSAGE(2, "qeth_send_control_data on device %x: ccw_device_start rc = %i\n",
 -- 
 2.25.1
 
