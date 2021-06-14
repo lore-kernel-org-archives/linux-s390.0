@@ -2,71 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EEADC48BE6
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 13:44:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06278C2B9F4
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 13:56:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E5CBA611EE
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 13:44:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D5C1F610A0
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 13:56:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234125AbhFNNq5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Jun 2021 09:46:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:55819 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234028AbhFNNq4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 14 Jun 2021 09:46:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623678293;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=WB47Pni+nWnZCpL3j99qdXOV/pBIAB8A+KnYUYN28RA=;
-        b=IA58C7pvf4dGyL9Vt89mklcGWVzHiP9PGQTAR7XSo5YmbgRe18d4N/MnEaN9iEX19EWT1v
-        /UGPcJqIF58MzIAfsFwsBngPM6wQ9Ji1sH6opxxcELRunrsteWucEvA5/2CEB9Mxo7Oc/g
-        TNjqolFNI0ru+vFh3YkUlfi50/uMuqI=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-360-iJaAFyY4PimGFwu3gi_OSQ-1; Mon, 14 Jun 2021 09:44:52 -0400
-X-MC-Unique: iJaAFyY4PimGFwu3gi_OSQ-1
-Received: by mail-wm1-f69.google.com with SMTP id f22-20020a1c6a160000b029018f49a7efb7so6701150wmc.1
-        for <linux-s390@vger.kernel.org>; Mon, 14 Jun 2021 06:44:51 -0700 (PDT)
+        id S233970AbhFNN6h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Jun 2021 09:58:37 -0400
+Received: from mail-lf1-f44.google.com ([209.85.167.44]:46803 "EHLO
+        mail-lf1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233180AbhFNN6g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Jun 2021 09:58:36 -0400
+Received: by mail-lf1-f44.google.com with SMTP id m21so21198817lfg.13;
+        Mon, 14 Jun 2021 06:56:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:date:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=rfiTiAsaGwFfBsojv2IuZ/vi3R4Qmqml2BB/SXTuMxk=;
+        b=ntDdfnb4AnV08fR6j4kCDhcqslMOtURBHNun1Y+WyDgZJhgLmTDuAqILNkJfI2+2nh
+         Z7k7auT3eWIB4Jkjf7pwctPWx+D043MYJXHztIJf3S9+o8uSmaL9PTnrBvDgmatelZep
+         qWPCqEpXZxWe9PDuaBdlbzbDbdCzldc+klBsh7EyxYU+LKvnba5CHJw6xcUp3A7Laf7e
+         bHdqlOdkA4TI5X9vIjFIGHRGi+s3zdyCBrCWLVOl6+ETrOE60ssgwi3TG289hdrqtNLI
+         tgmkmHt3z7ulRdznsybFVZu0WI2BNMot973+5C/4eO8Rcf81mys6ZrT6bWmt672FgwXh
+         6R2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:organization
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=WB47Pni+nWnZCpL3j99qdXOV/pBIAB8A+KnYUYN28RA=;
-        b=hjo9SZlTWPjZYQORAdxOzYYTXSbI3nVSdohE8h6tAw7J9B+k/bQJUxzmTTzJrY2ghp
-         vPxhBehfcRhaqgOdXZMZIFaXJx1sa35XPK0bOJWQ96OPLqIUvXGJfuGInQNie47QTvXd
-         EL3B0HD4/QHNea5kg6zMlBRftfFY+v+JHaWA9vR84rgXmDsHSxKaBDjl043h/h+KJBy8
-         IoEhv0gF0qTpSXpSFfBCLKFyUSGMtAkeQchNrl1Y1GOns8F66XwriRbRug6bmgnBw4Tg
-         Yp9IlZ0bYboB85WZ9gDYU9TdlPF+jDiusY4KDD69VIYjszZ+D+Ud3TYmX/Oh5fjrOGrP
-         eafQ==
-X-Gm-Message-State: AOAM531eEWQq9fRcl1xO6ujZYo7pt6FYK5Zh0N6I8D6acdy/erD7z0mf
-        yygQ2h6mwa4qVqXb93AmRsIgcD6VenWtaPLwdW5vFSsDpYBI/0Wf0bTFIZd9JIMjP7po6yyKH/b
-        BeospZ3oQAleygyqwdL8gzQ==
-X-Received: by 2002:a1c:4e12:: with SMTP id g18mr28719063wmh.101.1623678290831;
-        Mon, 14 Jun 2021 06:44:50 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzWpm7VHBHg5E8TavVz/PqtB9z7c94nrDgE5PFAe0bmP/4EluavDGqNCHfZLyv6MB54rYIebA==
-X-Received: by 2002:a1c:4e12:: with SMTP id g18mr28719035wmh.101.1623678290649;
-        Mon, 14 Jun 2021 06:44:50 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c66ca.dip0.t-ipconnect.de. [91.12.102.202])
-        by smtp.gmail.com with ESMTPSA id 125sm21656180wmb.34.2021.06.14.06.44.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Jun 2021 06:44:50 -0700 (PDT)
-Subject: Re: [PATCH v4 1/2] mm/vmalloc: add vmalloc_no_huge
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        linux-kernel@vger.kernel.org
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        linux-mm@kvack.org, Uladzislau Rezki <urezki@gmail.com>,
+        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=rfiTiAsaGwFfBsojv2IuZ/vi3R4Qmqml2BB/SXTuMxk=;
+        b=lodAjoN1AgmYIkJGJAiDeTxmX5cC1uZsgZU0C1gnBY662wCzGKUJ/bZkq2Rkx9yPYN
+         +fvfuM0/sTI5GET+d2fR8kHYhRBN7S9AR1TrSyGgz7G+YJjhJNoEo1Nz3/gRZ/SNwDvW
+         eMCeNoIxafzdYQTwpxYVq49ivCGTovoFgRspbZU1usbXplmllZ70+UZd+HJkYkf64Idr
+         QX5atjv6XMX7J4paNj7/XMLepYX/1V/eAMX1tPsVfxHLP0USHkjbz4D4hE3Qkx7ga1R1
+         rajLxaGC1xSM3WZz5kLihzm5IzXb8IZOpLVRIWv01/frZs66cPMqnuXJ071bz67l2obi
+         YSHw==
+X-Gm-Message-State: AOAM532AOBfTxOhlBDp9n6J5iWdts5xRXEGWP0W2t4aCB2Rbj8+EJqd3
+        6CESzFCbfIKSbLQLdejEU1Q=
+X-Google-Smtp-Source: ABdhPJwcoyNr5z2508ee5VPUu2JVpFWe38lsHh000t9UPgmNgU01qmagswsQ//h6nHGZIuAKUQGMUA==
+X-Received: by 2002:ac2:44c9:: with SMTP id d9mr12317154lfm.290.1623678932767;
+        Mon, 14 Jun 2021 06:55:32 -0700 (PDT)
+Received: from pc638.lan (h5ef52e3d.seluork.dyn.perspektivbredband.net. [94.245.46.61])
+        by smtp.gmail.com with ESMTPSA id y24sm505239ljj.16.2021.06.14.06.55.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Jun 2021 06:55:32 -0700 (PDT)
+From:   Uladzislau Rezki <urezki@gmail.com>
+X-Google-Original-From: Uladzislau Rezki <urezki@pc638.lan>
+Date:   Mon, 14 Jun 2021 15:55:30 +0200
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com, linux-mm@kvack.org,
+        Uladzislau Rezki <urezki@gmail.com>,
         Nicholas Piggin <npiggin@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
@@ -74,101 +69,96 @@ Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         Ingo Molnar <mingo@redhat.com>,
         David Rientjes <rientjes@google.com>,
         Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v4 1/2] mm/vmalloc: add vmalloc_no_huge
+Message-ID: <20210614135530.GA1858@pc638.lan>
 References: <20210614132357.10202-1-imbrenda@linux.ibm.com>
  <20210614132357.10202-2-imbrenda@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Message-ID: <8f24292e-e8c9-9b9b-0429-2ac984a01611@redhat.com>
-Date:   Mon, 14 Jun 2021 15:44:49 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+ <8f24292e-e8c9-9b9b-0429-2ac984a01611@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210614132357.10202-2-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8f24292e-e8c9-9b9b-0429-2ac984a01611@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 14.06.21 15:23, Claudio Imbrenda wrote:
-> Commit 121e6f3258fe3 ("mm/vmalloc: hugepage vmalloc mappings") added
-> support for hugepage vmalloc mappings, it also added the flag
-> VM_NO_HUGE_VMAP for __vmalloc_node_range to request the allocation to
-> be performed with 0-order non-huge pages.  This flag is not accessible
-> when calling vmalloc, the only option is to call directly
-> __vmalloc_node_range, which is not exported.
+> On 14.06.21 15:23, Claudio Imbrenda wrote:
+> > Commit 121e6f3258fe3 ("mm/vmalloc: hugepage vmalloc mappings") added
+> > support for hugepage vmalloc mappings, it also added the flag
+> > VM_NO_HUGE_VMAP for __vmalloc_node_range to request the allocation to
+> > be performed with 0-order non-huge pages.  This flag is not accessible
+> > when calling vmalloc, the only option is to call directly
+> > __vmalloc_node_range, which is not exported.
+> > 
+> > This means that a module can't vmalloc memory with small pages.
+> > 
+> > Case in point: KVM on s390x needs to vmalloc a large area, and it needs
+> > to be mapped with non-huge pages, because of a hardware limitation.
+> > 
+> > This patch adds the function vmalloc_no_huge, which works like vmalloc,
+> > but it is guaranteed to always back the mapping using small pages. This
+> > new function is exported, therefore it is usable by modules.
+> > 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+> > Acked-by: Nicholas Piggin <npiggin@gmail.com>
+> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > Cc: Nicholas Piggin <npiggin@gmail.com>
+> > Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+> > Cc: Catalin Marinas <catalin.marinas@arm.com>
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Ingo Molnar <mingo@redhat.com>
+> > Cc: David Rientjes <rientjes@google.com>
+> > Cc: Christoph Hellwig <hch@infradead.org>
+> > ---
+> >   include/linux/vmalloc.h |  1 +
+> >   mm/vmalloc.c            | 16 ++++++++++++++++
+> >   2 files changed, 17 insertions(+)
+> > 
+> > diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
+> > index 4d668abb6391..bfaaf0b6fa76 100644
+> > --- a/include/linux/vmalloc.h
+> > +++ b/include/linux/vmalloc.h
+> > @@ -135,6 +135,7 @@ extern void *__vmalloc_node_range(unsigned long size, unsigned long align,
+> >   			const void *caller);
+> >   void *__vmalloc_node(unsigned long size, unsigned long align, gfp_t gfp_mask,
+> >   		int node, const void *caller);
+> > +void *vmalloc_no_huge(unsigned long size);
+> >   extern void vfree(const void *addr);
+> >   extern void vfree_atomic(const void *addr);
+> > diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+> > index a13ac524f6ff..296a2fcc3fbe 100644
+> > --- a/mm/vmalloc.c
+> > +++ b/mm/vmalloc.c
+> > @@ -2998,6 +2998,22 @@ void *vmalloc(unsigned long size)
+> >   }
+> >   EXPORT_SYMBOL(vmalloc);
+> > +/**
+> > + * vmalloc_no_huge - allocate virtually contiguous memory using small pages
+> > + * @size:    allocation size
+> > + *
+> > + * Allocate enough non-huge pages to cover @size from the page level
+> > + * allocator and map them into contiguous kernel virtual space.
+> > + *
+> > + * Return: pointer to the allocated memory or %NULL on error
+> > + */
+> > +void *vmalloc_no_huge(unsigned long size)
+> > +{
+> > +	return __vmalloc_node_range(size, 1, VMALLOC_START, VMALLOC_END, GFP_KERNEL, PAGE_KERNEL,
+> > +				    VM_NO_HUGE_VMAP, NUMA_NO_NODE, __builtin_return_address(0));
+> > +}
+> > +EXPORT_SYMBOL(vmalloc_no_huge);
+> > +
+> >   /**
+> >    * vzalloc - allocate virtually contiguous memory with zero fill
+> >    * @size:    allocation size
+> > 
 > 
-> This means that a module can't vmalloc memory with small pages.
+> Reviewed-by: David Hildenbrand <david@redhat.com>
 > 
-> Case in point: KVM on s390x needs to vmalloc a large area, and it needs
-> to be mapped with non-huge pages, because of a hardware limitation.
 > 
-> This patch adds the function vmalloc_no_huge, which works like vmalloc,
-> but it is guaranteed to always back the mapping using small pages. This
-> new function is exported, therefore it is usable by modules.
-> 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-> Acked-by: Nicholas Piggin <npiggin@gmail.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Nicholas Piggin <npiggin@gmail.com>
-> Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: David Rientjes <rientjes@google.com>
-> Cc: Christoph Hellwig <hch@infradead.org>
-> ---
->   include/linux/vmalloc.h |  1 +
->   mm/vmalloc.c            | 16 ++++++++++++++++
->   2 files changed, 17 insertions(+)
-> 
-> diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
-> index 4d668abb6391..bfaaf0b6fa76 100644
-> --- a/include/linux/vmalloc.h
-> +++ b/include/linux/vmalloc.h
-> @@ -135,6 +135,7 @@ extern void *__vmalloc_node_range(unsigned long size, unsigned long align,
->   			const void *caller);
->   void *__vmalloc_node(unsigned long size, unsigned long align, gfp_t gfp_mask,
->   		int node, const void *caller);
-> +void *vmalloc_no_huge(unsigned long size);
->   
->   extern void vfree(const void *addr);
->   extern void vfree_atomic(const void *addr);
-> diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> index a13ac524f6ff..296a2fcc3fbe 100644
-> --- a/mm/vmalloc.c
-> +++ b/mm/vmalloc.c
-> @@ -2998,6 +2998,22 @@ void *vmalloc(unsigned long size)
->   }
->   EXPORT_SYMBOL(vmalloc);
->   
-> +/**
-> + * vmalloc_no_huge - allocate virtually contiguous memory using small pages
-> + * @size:    allocation size
-> + *
-> + * Allocate enough non-huge pages to cover @size from the page level
-> + * allocator and map them into contiguous kernel virtual space.
-> + *
-> + * Return: pointer to the allocated memory or %NULL on error
-> + */
-> +void *vmalloc_no_huge(unsigned long size)
-> +{
-> +	return __vmalloc_node_range(size, 1, VMALLOC_START, VMALLOC_END, GFP_KERNEL, PAGE_KERNEL,
-> +				    VM_NO_HUGE_VMAP, NUMA_NO_NODE, __builtin_return_address(0));
-> +}
-> +EXPORT_SYMBOL(vmalloc_no_huge);
-> +
->   /**
->    * vzalloc - allocate virtually contiguous memory with zero fill
->    * @size:    allocation size
-> 
+Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
--- 
-Thanks,
-
-David / dhildenb
-
+--
+Vlad Rezki
