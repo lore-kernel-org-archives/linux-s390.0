@@ -7,34 +7,34 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21A02C4743C
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 15:09:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFB84C49EA6
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 15:09:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 093D860240
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 15:09:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B8D4860240
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 15:09:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233398AbhFNPLR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Jun 2021 11:11:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36786 "EHLO
+        id S233427AbhFNPLX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Jun 2021 11:11:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233383AbhFNPLQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Jun 2021 11:11:16 -0400
+        with ESMTP id S233048AbhFNPLX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Jun 2021 11:11:23 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECCD0C061574;
-        Mon, 14 Jun 2021 08:09:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D69C5C061574;
+        Mon, 14 Jun 2021 08:09:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=jldv6FKLr3ujn9AqD0OISzLxNQCDa9L+elc7GcM/r/E=; b=QBddYAiQL7mPco7LQwmPuhItX/
-        6V+viZSQNB08r+SJOp2tNOqj93yKOsSiLyslvkyIX5d+7Ghckck7wNnLpnahSWXVJmByh5xRvKoYv
-        Ox9x5lmNfHXJ7KXsAXC3FSRC+4MGmZ+ISB7FTZV6YVZLt7ffC5lfMEVnLKX5HaJCAlXs/B04q0pqq
-        AVq5N5wSMX6F+kH32htLgSXmKQiEyp4RKXQF62h8OL22jhaYUVrcq20UyecrRRQ82XYyCGkRlF6Si
-        TOo0cBZOBLp93jKf9clKOA7z1vfn9qUIEEKQtsuwmXjYf0VVHbhLs3nYzBmQMX/HTpD8COVgb/1Uo
-        b/5rz8Hw==;
+        bh=mK8kZxMmwpLFLvKSSecAo5yq1vW8IxoaNB0nNbcvV1U=; b=yr0m7Jr4p1aUsn7BUssbX4oHY2
+        qUU9y0N6s76eAqimmHkw5NlIkP/7mWfuIywU9DEBhC2kXVnFjkrzZdF6cQOyXIAt32zm6fYrVYUMm
+        Pgdo0fmC119vqo+nxX3IWSrUpJepNJ1zY07vfQvrPNczgWz3hkMAo/f6+FVz0HpfbKxGapMy2CwQS
+        h+78w4IP468qSWZq9oK965uP+Jqm+vI4K8aVu+T5ETZu8EQSi3zJepJfyMGVKfoDHBZE0yAnHah+J
+        XZWKpwRIjoAYBbzB0ObFg25j/iJYjiYJpWeCScekbq9T3pm96cCfCqXl2f+v+Wic/qjVq0nXIiQi8
+        TmYiwrLQ==;
 Received: from [2001:4bb8:19b:fdce:4b1a:b4aa:22d8:1629] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1lsoD0-00EfhP-Gs; Mon, 14 Jun 2021 15:09:03 +0000
+        id 1lsoDA-00Efmq-FH; Mon, 14 Jun 2021 15:09:13 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jason Gunthorpe <jgg@nvidia.com>,
@@ -56,9 +56,9 @@ Cc:     David Airlie <airlied@linux.ie>,
         linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
         "Rafael J. Wysocki" <rafael@kernel.org>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 04/10] driver core: Don't return EPROBE_DEFER to userspace during sysfs bind
-Date:   Mon, 14 Jun 2021 17:08:40 +0200
-Message-Id: <20210614150846.4111871-5-hch@lst.de>
+Subject: [PATCH 07/10] vfio/mdev: Allow the mdev_parent_ops to specify the device driver to bind
+Date:   Mon, 14 Jun 2021 17:08:43 +0200
+Message-Id: <20210614150846.4111871-8-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210614150846.4111871-1-hch@lst.de>
 References: <20210614150846.4111871-1-hch@lst.de>
@@ -69,161 +69,145 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-EPROBE_DEFER is an internal kernel error code and it should not be leaked
-to userspace via the bind_store() sysfs. Userspace doesn't have this
-constant and cannot understand it.
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-Further, it doesn't really make sense to have userspace trigger a deferred
-probe via bind_store(), which could eventually succeed, while
-simultaneously returning an error back.
+This allows a mdev driver to opt out of using vfio_mdev.c, instead the
+driver will provide a 'struct mdev_driver' and register directly with the
+driver core.
 
-Resolve this by splitting driver_probe_device so that the version used
-by the sysfs binding that turns EPROBE_DEFER into -EAGAIN, while the one
-used for internally binding keeps the error code, and calls
-driver_deferred_probe_add where needed.  This call is now a little later,
-which harmless, and the trigger reinjection check now also happens for the
-always_defer case, which is not required but otherwise harmless.
+Much of mdev_parent_ops becomes unused in this mode:
+- create()/remove() are done via the mdev_driver probe()/remove()
+- mdev_attr_groups becomes mdev_driver driver.dev_groups
+- Wrapper function callbacks are replaced with the same ones from
+  struct vfio_device_ops
 
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/base/dd.c | 72 +++++++++++++++++++++++++----------------------
- 1 file changed, 39 insertions(+), 33 deletions(-)
+ drivers/vfio/mdev/mdev_core.c   | 30 ++++++++++++++++++++++--------
+ drivers/vfio/mdev/mdev_driver.c | 10 ++++++++++
+ include/linux/mdev.h            |  2 ++
+ 3 files changed, 34 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 4c6af8c062c8..8c65673e344c 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -491,15 +491,6 @@ EXPORT_SYMBOL_GPL(device_bind_driver);
- static atomic_t probe_count = ATOMIC_INIT(0);
- static DECLARE_WAIT_QUEUE_HEAD(probe_waitqueue);
+diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
+index ff8c1a845166..e4581ec093a6 100644
+--- a/drivers/vfio/mdev/mdev_core.c
++++ b/drivers/vfio/mdev/mdev_core.c
+@@ -94,9 +94,11 @@ static void mdev_device_remove_common(struct mdev_device *mdev)
+ 	mdev_remove_sysfs_files(mdev);
+ 	device_del(&mdev->dev);
+ 	lockdep_assert_held(&parent->unreg_sem);
+-	ret = parent->ops->remove(mdev);
+-	if (ret)
+-		dev_err(&mdev->dev, "Remove failed: err=%d\n", ret);
++	if (parent->ops->remove) {
++		ret = parent->ops->remove(mdev);
++		if (ret)
++			dev_err(&mdev->dev, "Remove failed: err=%d\n", ret);
++	}
  
--static void driver_deferred_probe_add_trigger(struct device *dev,
--					      int local_trigger_count)
--{
--	driver_deferred_probe_add(dev);
--	/* Did a trigger occur while probing? Need to re-trigger if yes */
--	if (local_trigger_count != atomic_read(&deferred_trigger_count))
--		driver_deferred_probe_trigger();
--}
--
- static ssize_t state_synced_show(struct device *dev,
- 				 struct device_attribute *attr, char *buf)
- {
-@@ -545,10 +536,9 @@ static int call_driver_probe(struct device *dev, struct device_driver *drv)
+ 	/* Balances with device_initialize() */
+ 	put_device(&mdev->dev);
+@@ -127,7 +129,9 @@ int mdev_register_device(struct device *dev, const struct mdev_parent_ops *ops)
+ 	char *envp[] = { env_string, NULL };
  
- static int really_probe(struct device *dev, struct device_driver *drv)
- {
--	int local_trigger_count = atomic_read(&deferred_trigger_count);
- 	bool test_remove = IS_ENABLED(CONFIG_DEBUG_TEST_DRIVER_REMOVE) &&
- 			   !drv->suppress_bind_attrs;
--	int ret = -EPROBE_DEFER, probe_ret = 0;
-+	int ret, probe_ret = 0;
+ 	/* check for mandatory ops */
+-	if (!ops || !ops->create || !ops->remove || !ops->supported_type_groups)
++	if (!ops || !ops->supported_type_groups)
++		return -EINVAL;
++	if (!ops->device_driver && (!ops->create || !ops->remove))
+ 		return -EINVAL;
  
- 	if (defer_all_probes) {
- 		/*
-@@ -557,13 +547,10 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 		 * wait_for_device_probe() right after that to avoid any races.
- 		 */
- 		dev_dbg(dev, "Driver %s force probe deferral\n", drv->name);
--		driver_deferred_probe_add(dev);
--		return ret;
-+		return -EPROBE_DEFER;
+ 	dev = get_device(dev);
+@@ -256,6 +260,7 @@ int mdev_device_create(struct mdev_type *type, const guid_t *uuid)
+ 	int ret;
+ 	struct mdev_device *mdev, *tmp;
+ 	struct mdev_parent *parent = type->parent;
++	struct mdev_driver *drv = parent->ops->device_driver;
+ 
+ 	mutex_lock(&mdev_list_lock);
+ 
+@@ -296,14 +301,22 @@ int mdev_device_create(struct mdev_type *type, const guid_t *uuid)
+ 		goto out_put_device;
  	}
  
- 	ret = device_links_check_suppliers(dev);
--	if (ret == -EPROBE_DEFER)
--		driver_deferred_probe_add_trigger(dev, local_trigger_count);
- 	if (ret)
- 		return ret;
- 
-@@ -679,8 +666,6 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 		dev->pm_domain->dismiss(dev);
- 	pm_runtime_reinit(dev);
- 	dev_pm_set_driver_flags(dev, 0);
--	if (probe_ret == -EPROBE_DEFER)
--		driver_deferred_probe_add_trigger(dev, local_trigger_count);
- done:
- 	atomic_dec(&probe_count);
- 	wake_up_all(&probe_waitqueue);
-@@ -737,21 +722,7 @@ void wait_for_device_probe(void)
- }
- EXPORT_SYMBOL_GPL(wait_for_device_probe);
- 
--/**
-- * driver_probe_device - attempt to bind device & driver together
-- * @drv: driver to bind a device to
-- * @dev: device to try to bind to the driver
-- *
-- * This function returns -ENODEV if the device is not registered, -EBUSY if it
-- * already has a driver, 0 if the device is bound successfully and a positive
-- * (inverted) error code for failures from the ->probe method.
-- *
-- * This function must be called with @dev lock held.  When called for a
-- * USB interface, @dev->parent lock must be held as well.
-- *
-- * If the device has a parent, runtime-resume the parent before driver probing.
-- */
--static int driver_probe_device(struct device_driver *drv, struct device *dev)
-+static int __driver_probe_device(struct device_driver *drv, struct device *dev)
- {
- 	int ret = 0;
- 
-@@ -782,6 +753,39 @@ static int driver_probe_device(struct device_driver *drv, struct device *dev)
- 	return ret;
- }
- 
-+/**
-+ * driver_probe_device - attempt to bind device & driver together
-+ * @drv: driver to bind a device to
-+ * @dev: device to try to bind to the driver
-+ *
-+ * This function returns -ENODEV if the device is not registered, -EBUSY if it
-+ * already has a driver, 0 if the device is bound successfully and a positive
-+ * (inverted) error code for failures from the ->probe method.
-+ *
-+ * This function must be called with @dev lock held.  When called for a
-+ * USB interface, @dev->parent lock must be held as well.
-+ *
-+ * If the device has a parent, runtime-resume the parent before driver probing.
-+ */
-+static int driver_probe_device(struct device_driver *drv, struct device *dev)
-+{
-+	int trigger_count = atomic_read(&deferred_trigger_count);
-+	int ret;
-+
-+	ret = __driver_probe_device(drv, dev);
-+	if (ret == -EPROBE_DEFER || ret == EPROBE_DEFER) {
-+		driver_deferred_probe_add(dev);
-+
-+		/*
-+		 * Did a trigger occur while probing? Need to re-trigger if yes
-+		 */
-+		if (trigger_count != atomic_read(&deferred_trigger_count) &&
-+		    !defer_all_probes)
-+			driver_deferred_probe_trigger();
+-	ret = parent->ops->create(mdev);
+-	if (ret)
+-		goto out_unlock;
++	if (parent->ops->create) {
++		ret = parent->ops->create(mdev);
++		if (ret)
++			goto out_unlock;
 +	}
-+	return ret;
+ 
+ 	ret = device_add(&mdev->dev);
+ 	if (ret)
+ 		goto out_remove;
+ 
++	if (!drv)
++		drv = &vfio_mdev_driver;
++	ret = device_driver_attach(&drv->driver, &mdev->dev);
++	if (ret)
++		goto out_del;
++
+ 	ret = mdev_create_sysfs_files(mdev);
+ 	if (ret)
+ 		goto out_del;
+@@ -317,7 +330,8 @@ int mdev_device_create(struct mdev_type *type, const guid_t *uuid)
+ out_del:
+ 	device_del(&mdev->dev);
+ out_remove:
+-	parent->ops->remove(mdev);
++	if (parent->ops->remove)
++		parent->ops->remove(mdev);
+ out_unlock:
+ 	up_read(&parent->unreg_sem);
+ out_put_device:
+diff --git a/drivers/vfio/mdev/mdev_driver.c b/drivers/vfio/mdev/mdev_driver.c
+index 041699571b7e..c368ec824e2b 100644
+--- a/drivers/vfio/mdev/mdev_driver.c
++++ b/drivers/vfio/mdev/mdev_driver.c
+@@ -71,10 +71,20 @@ static int mdev_remove(struct device *dev)
+ 	return 0;
+ }
+ 
++static int mdev_match(struct device *dev, struct device_driver *drv)
++{
++	/*
++	 * No drivers automatically match. Drivers are only bound by explicit
++	 * device_driver_attach()
++	 */
++	return 0;
 +}
 +
- static inline bool cmdline_requested_async_probing(const char *drv_name)
- {
- 	return parse_option_str(async_probe_drv_names, drv_name);
-@@ -1049,12 +1053,14 @@ int device_driver_attach(struct device_driver *drv, struct device *dev)
- 	int ret;
+ struct bus_type mdev_bus_type = {
+ 	.name		= "mdev",
+ 	.probe		= mdev_probe,
+ 	.remove		= mdev_remove,
++	.match		= mdev_match,
+ };
+ EXPORT_SYMBOL_GPL(mdev_bus_type);
  
- 	__device_driver_lock(dev, dev->parent);
--	ret = driver_probe_device(drv, dev);
-+	ret = __driver_probe_device(drv, dev);
- 	__device_driver_unlock(dev, dev->parent);
- 
- 	/* also return probe errors as normal negative errnos */
- 	if (ret > 0)
- 		ret = -ret;
-+	if (ret == -EPROBE_DEFER)
-+		return -EAGAIN;
- 	return ret;
- }
- 
+diff --git a/include/linux/mdev.h b/include/linux/mdev.h
+index 1fb34ea394ad..3a38598c2605 100644
+--- a/include/linux/mdev.h
++++ b/include/linux/mdev.h
+@@ -55,6 +55,7 @@ struct device *mtype_get_parent_dev(struct mdev_type *mtype);
+  * register the device to mdev module.
+  *
+  * @owner:		The module owner.
++ * @device_driver:	Which device driver to probe() on newly created devices
+  * @dev_attr_groups:	Attributes of the parent device.
+  * @mdev_attr_groups:	Attributes of the mediated device.
+  * @supported_type_groups: Attributes to define supported types. It is mandatory
+@@ -103,6 +104,7 @@ struct device *mtype_get_parent_dev(struct mdev_type *mtype);
+  **/
+ struct mdev_parent_ops {
+ 	struct module   *owner;
++	struct mdev_driver *device_driver;
+ 	const struct attribute_group **dev_attr_groups;
+ 	const struct attribute_group **mdev_attr_groups;
+ 	struct attribute_group **supported_type_groups;
 -- 
 2.30.2
 
