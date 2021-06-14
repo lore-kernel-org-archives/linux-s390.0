@@ -7,34 +7,34 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFB84C49EA6
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 15:09:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B08EFC49EA4
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 15:09:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B8D4860240
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 15:09:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9751D60240
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 15:09:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233427AbhFNPLX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Jun 2021 11:11:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36814 "EHLO
+        id S233414AbhFNPLW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Jun 2021 11:11:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233048AbhFNPLX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Jun 2021 11:11:23 -0400
+        with ESMTP id S233456AbhFNPLV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Jun 2021 11:11:21 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D69C5C061574;
-        Mon, 14 Jun 2021 08:09:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFCA3C061766;
+        Mon, 14 Jun 2021 08:09:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=mK8kZxMmwpLFLvKSSecAo5yq1vW8IxoaNB0nNbcvV1U=; b=yr0m7Jr4p1aUsn7BUssbX4oHY2
-        qUU9y0N6s76eAqimmHkw5NlIkP/7mWfuIywU9DEBhC2kXVnFjkrzZdF6cQOyXIAt32zm6fYrVYUMm
-        Pgdo0fmC119vqo+nxX3IWSrUpJepNJ1zY07vfQvrPNczgWz3hkMAo/f6+FVz0HpfbKxGapMy2CwQS
-        h+78w4IP468qSWZq9oK965uP+Jqm+vI4K8aVu+T5ETZu8EQSi3zJepJfyMGVKfoDHBZE0yAnHah+J
-        XZWKpwRIjoAYBbzB0ObFg25j/iJYjiYJpWeCScekbq9T3pm96cCfCqXl2f+v+Wic/qjVq0nXIiQi8
-        TmYiwrLQ==;
+        bh=NwFt6Rh6oe+pwJn0pLaLOHbSwglWoxkKqpc719j6xiw=; b=OKtlELdG+PLca2hx24e+oHg1Kb
+        R5nJ+5N9Z1yAkGsnJlMBq6Wz9B3p3Er1hnRqbeViYXwE0jGVI2zyu3a3AfmVv1260bjigBkKI1Cac
+        OqeNbuCBI3E9J+j19nBRYc/0SIQAcWAyAlKlw5nkcrXhw2nrMG41ByAIlzdMEmLN2pzEM67RnMsvQ
+        DVaaW4GrTm34DVl07c3gPi1CcO9BZf9kLSXMq2mpczexxuF5SMQN9Jt+iwLhOzEK6Yt+9gwUIzKJb
+        vn++GQQ072dlRDqe1IDMVVd0Zdz6t3WdGf2swBXcgkEML7qN/rdJAJPotEke79oBwdzSmg/oQ7Qn5
+        6nNf7n3Q==;
 Received: from [2001:4bb8:19b:fdce:4b1a:b4aa:22d8:1629] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1lsoDA-00Efmq-FH; Mon, 14 Jun 2021 15:09:13 +0000
+        id 1lsoD3-00Efid-TB; Mon, 14 Jun 2021 15:09:06 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jason Gunthorpe <jgg@nvidia.com>,
@@ -56,9 +56,9 @@ Cc:     David Airlie <airlied@linux.ie>,
         linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
         "Rafael J. Wysocki" <rafael@kernel.org>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 07/10] vfio/mdev: Allow the mdev_parent_ops to specify the device driver to bind
-Date:   Mon, 14 Jun 2021 17:08:43 +0200
-Message-Id: <20210614150846.4111871-8-hch@lst.de>
+Subject: [PATCH 05/10] driver core: Export device_driver_attach()
+Date:   Mon, 14 Jun 2021 17:08:41 +0200
+Message-Id: <20210614150846.4111871-6-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210614150846.4111871-1-hch@lst.de>
 References: <20210614150846.4111871-1-hch@lst.de>
@@ -71,143 +71,81 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Jason Gunthorpe <jgg@nvidia.com>
 
-This allows a mdev driver to opt out of using vfio_mdev.c, instead the
-driver will provide a 'struct mdev_driver' and register directly with the
-driver core.
+This is intended as a replacement API for device_bind_driver(). It has at
+least the following benefits:
 
-Much of mdev_parent_ops becomes unused in this mode:
-- create()/remove() are done via the mdev_driver probe()/remove()
-- mdev_attr_groups becomes mdev_driver driver.dev_groups
-- Wrapper function callbacks are replaced with the same ones from
-  struct vfio_device_ops
+- Internal locking. Few of the users of device_bind_driver() follow the
+  locking rules
+
+- Calls device driver probe() internally. Notably this means that devm
+  support for probe works correctly as probe() error will call
+  devres_release_all()
+
+- struct device_driver -> dev_groups is supported
+
+- Simplified calling convention, no need to manually call probe().
+
+The general usage is for situations that already know what driver to bind
+and need to ensure the bind is synchronized with other logic. Call
+device_driver_attach() after device_add().
+
+If probe() returns a failure then this will be preserved up through to the
+error return of device_driver_attach().
 
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/vfio/mdev/mdev_core.c   | 30 ++++++++++++++++++++++--------
- drivers/vfio/mdev/mdev_driver.c | 10 ++++++++++
- include/linux/mdev.h            |  2 ++
- 3 files changed, 34 insertions(+), 8 deletions(-)
+ drivers/base/base.h    | 1 -
+ drivers/base/dd.c      | 3 +++
+ include/linux/device.h | 2 ++
+ 3 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
-index ff8c1a845166..e4581ec093a6 100644
---- a/drivers/vfio/mdev/mdev_core.c
-+++ b/drivers/vfio/mdev/mdev_core.c
-@@ -94,9 +94,11 @@ static void mdev_device_remove_common(struct mdev_device *mdev)
- 	mdev_remove_sysfs_files(mdev);
- 	device_del(&mdev->dev);
- 	lockdep_assert_held(&parent->unreg_sem);
--	ret = parent->ops->remove(mdev);
--	if (ret)
--		dev_err(&mdev->dev, "Remove failed: err=%d\n", ret);
-+	if (parent->ops->remove) {
-+		ret = parent->ops->remove(mdev);
-+		if (ret)
-+			dev_err(&mdev->dev, "Remove failed: err=%d\n", ret);
-+	}
+diff --git a/drivers/base/base.h b/drivers/base/base.h
+index e5f9b7e656c3..404db83ee5ec 100644
+--- a/drivers/base/base.h
++++ b/drivers/base/base.h
+@@ -152,7 +152,6 @@ extern int driver_add_groups(struct device_driver *drv,
+ 			     const struct attribute_group **groups);
+ extern void driver_remove_groups(struct device_driver *drv,
+ 				 const struct attribute_group **groups);
+-int device_driver_attach(struct device_driver *drv, struct device *dev);
+ void device_driver_detach(struct device *dev);
  
- 	/* Balances with device_initialize() */
- 	put_device(&mdev->dev);
-@@ -127,7 +129,9 @@ int mdev_register_device(struct device *dev, const struct mdev_parent_ops *ops)
- 	char *envp[] = { env_string, NULL };
- 
- 	/* check for mandatory ops */
--	if (!ops || !ops->create || !ops->remove || !ops->supported_type_groups)
-+	if (!ops || !ops->supported_type_groups)
-+		return -EINVAL;
-+	if (!ops->device_driver && (!ops->create || !ops->remove))
- 		return -EINVAL;
- 
- 	dev = get_device(dev);
-@@ -256,6 +260,7 @@ int mdev_device_create(struct mdev_type *type, const guid_t *uuid)
- 	int ret;
- 	struct mdev_device *mdev, *tmp;
- 	struct mdev_parent *parent = type->parent;
-+	struct mdev_driver *drv = parent->ops->device_driver;
- 
- 	mutex_lock(&mdev_list_lock);
- 
-@@ -296,14 +301,22 @@ int mdev_device_create(struct mdev_type *type, const guid_t *uuid)
- 		goto out_put_device;
- 	}
- 
--	ret = parent->ops->create(mdev);
--	if (ret)
--		goto out_unlock;
-+	if (parent->ops->create) {
-+		ret = parent->ops->create(mdev);
-+		if (ret)
-+			goto out_unlock;
-+	}
- 
- 	ret = device_add(&mdev->dev);
- 	if (ret)
- 		goto out_remove;
- 
-+	if (!drv)
-+		drv = &vfio_mdev_driver;
-+	ret = device_driver_attach(&drv->driver, &mdev->dev);
-+	if (ret)
-+		goto out_del;
-+
- 	ret = mdev_create_sysfs_files(mdev);
- 	if (ret)
- 		goto out_del;
-@@ -317,7 +330,8 @@ int mdev_device_create(struct mdev_type *type, const guid_t *uuid)
- out_del:
- 	device_del(&mdev->dev);
- out_remove:
--	parent->ops->remove(mdev);
-+	if (parent->ops->remove)
-+		parent->ops->remove(mdev);
- out_unlock:
- 	up_read(&parent->unreg_sem);
- out_put_device:
-diff --git a/drivers/vfio/mdev/mdev_driver.c b/drivers/vfio/mdev/mdev_driver.c
-index 041699571b7e..c368ec824e2b 100644
---- a/drivers/vfio/mdev/mdev_driver.c
-+++ b/drivers/vfio/mdev/mdev_driver.c
-@@ -71,10 +71,20 @@ static int mdev_remove(struct device *dev)
- 	return 0;
- }
- 
-+static int mdev_match(struct device *dev, struct device_driver *drv)
-+{
-+	/*
-+	 * No drivers automatically match. Drivers are only bound by explicit
-+	 * device_driver_attach()
-+	 */
-+	return 0;
-+}
-+
- struct bus_type mdev_bus_type = {
- 	.name		= "mdev",
- 	.probe		= mdev_probe,
- 	.remove		= mdev_remove,
-+	.match		= mdev_match,
- };
- EXPORT_SYMBOL_GPL(mdev_bus_type);
- 
-diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-index 1fb34ea394ad..3a38598c2605 100644
---- a/include/linux/mdev.h
-+++ b/include/linux/mdev.h
-@@ -55,6 +55,7 @@ struct device *mtype_get_parent_dev(struct mdev_type *mtype);
-  * register the device to mdev module.
+ extern char *make_class_name(const char *name, struct kobject *kobj);
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 8c65673e344c..aab47c0b356f 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -471,6 +471,8 @@ static void driver_sysfs_remove(struct device *dev)
+  * (It is ok to call with no other effort from a driver's probe() method.)
   *
-  * @owner:		The module owner.
-+ * @device_driver:	Which device driver to probe() on newly created devices
-  * @dev_attr_groups:	Attributes of the parent device.
-  * @mdev_attr_groups:	Attributes of the mediated device.
-  * @supported_type_groups: Attributes to define supported types. It is mandatory
-@@ -103,6 +104,7 @@ struct device *mtype_get_parent_dev(struct mdev_type *mtype);
-  **/
- struct mdev_parent_ops {
- 	struct module   *owner;
-+	struct mdev_driver *device_driver;
- 	const struct attribute_group **dev_attr_groups;
- 	const struct attribute_group **mdev_attr_groups;
- 	struct attribute_group **supported_type_groups;
+  * This function must be called with the device lock held.
++ *
++ * Callers should prefer to use device_driver_attach() instead.
+  */
+ int device_bind_driver(struct device *dev)
+ {
+@@ -1063,6 +1065,7 @@ int device_driver_attach(struct device_driver *drv, struct device *dev)
+ 		return -EAGAIN;
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(device_driver_attach);
+ 
+ static void __driver_attach_async_helper(void *_dev, async_cookie_t cookie)
+ {
+diff --git a/include/linux/device.h b/include/linux/device.h
+index f1a00040fa53..d8b9c9e7d493 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -845,6 +845,8 @@ static inline void *dev_get_platdata(const struct device *dev)
+  * Manual binding of a device to driver. See drivers/base/bus.c
+  * for information on use.
+  */
++int __must_check device_driver_attach(struct device_driver *drv,
++				      struct device *dev);
+ int __must_check device_bind_driver(struct device *dev);
+ void device_release_driver(struct device *dev);
+ int  __must_check device_attach(struct device *dev);
 -- 
 2.30.2
 
