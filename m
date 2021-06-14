@@ -2,109 +2,146 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 878C6C2B9F4
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 13:39:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEA99C48BE6
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 13:44:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6453B61153
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 13:39:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A1BF2611CE
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 13:44:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233831AbhFNNlH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Jun 2021 09:41:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45148 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233803AbhFNNlH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Jun 2021 09:41:07 -0400
-Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59EDFC061574
-        for <linux-s390@vger.kernel.org>; Mon, 14 Jun 2021 06:38:50 -0700 (PDT)
-Received: by mail-lj1-x22b.google.com with SMTP id r16so20201937ljk.9
-        for <linux-s390@vger.kernel.org>; Mon, 14 Jun 2021 06:38:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jwXVBisdJjThQGclWp6IXCFWn4jZGyH9ozIVniD3KMs=;
-        b=Sfnahi+pG4f+QayKKfpg1VM9f1f/aavyhFB9lV4TW7kVp8kgwXwutKZgf8qxz/lUHO
-         lMF1eyk+OUeIfEflL2EVp7oOntvNTW4LR2xdgfo10unS7HOrbD/JfqvVvE65tdtNURq3
-         cWjf08IDH/DHN/POTRHR+exPljpQFlQagIGlpaFpZGCbIGxW37FFXdAJ24/hrWm4l1f2
-         3S+64Qxp+3t/WL/Nkn6sjpuboNlGonNj//y/G4zguiIgohLGREJhMkKuaVzxUvB3Vpm0
-         66uiv+f1PifS8I+j8o9hts2k1EwrzNpReCSpsWIPLf3JP/VAkc3BYSjJLmrmllFTpLpo
-         pDbw==
+        id S232745AbhFNNqx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Jun 2021 09:46:53 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:42576 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232966AbhFNNqx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 14 Jun 2021 09:46:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1623678290;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=lrIwXDeHLLQ2dpMrbw5IZ7PKfiFZNvx91zdI2k8RLy8=;
+        b=FWhpvryItpyViVV4EXmWA/cKjMgWvUjJMwU2lLFcINW/NKkMne5Z8oRqnxjVoalwxfLtG7
+        +BUG3H8Sxz45Y0C82lapSQqD8s0SXocBU6q297a7gFfIyLIytYfMlQpRJWkrHigarLqPAx
+        UK05bId4uAplsi8NuhetPp5p3IVghF8=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-262-mLbfy6JNPAibV35dl7Do9g-1; Mon, 14 Jun 2021 09:44:49 -0400
+X-MC-Unique: mLbfy6JNPAibV35dl7Do9g-1
+Received: by mail-wr1-f69.google.com with SMTP id x9-20020a5d49090000b0290118d8746e06so7102219wrq.10
+        for <linux-s390@vger.kernel.org>; Mon, 14 Jun 2021 06:44:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=jwXVBisdJjThQGclWp6IXCFWn4jZGyH9ozIVniD3KMs=;
-        b=icpA8BVp43q8uo3JRqyD6Iog3GNcN4ntnlP1tqKkrzdQjLm3C08OkSgI5a3AJ5UoAL
-         15LM/6j16+CYgP445h9DaPyDJNXMvYhUuibjnhD8Jh++CS9982c0jhcxaj0TV2/ntUG2
-         IcREozqMewVxyjIXBL+K/iWBBW8nawifCNyWZh963VP/GvsOAdyuAPVyRMjWTcoQrYVk
-         UppumRymDpze+S/mXEuffoI9BgNKzhhVxrQzNFbE7RqZTxkrErAzfrDOnX5tSaOLz6zh
-         M43XOJy7fU61ZPfXw/QaPv3YObZ8IDqs9idiGLyp2b+99IrK1atCJ6noJBP3AHtUDMi0
-         JnEA==
-X-Gm-Message-State: AOAM532768GivYe3By8bRV1CqvLvACXLU9Xt9W6Wp12vIVk1E7XDwf4X
-        sN1ni/jgRDS5oEq6l6oUJBRQMszwv0Nv3++KKZ8iFdE2CLM=
-X-Google-Smtp-Source: ABdhPJxvc1pwRawgj0zOcL4Ijt7TpwUjNPqVQwwwwNAeptDw/nWdJwRIpcLx7ajZLxmfXVy2goAh+tpIPcpdk7YzAj8=
-X-Received: by 2002:a2e:9b8f:: with SMTP id z15mr13317109lji.304.1623677928539;
- Mon, 14 Jun 2021 06:38:48 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:organization
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=lrIwXDeHLLQ2dpMrbw5IZ7PKfiFZNvx91zdI2k8RLy8=;
+        b=fuvXYBIvUg4FoemF/WqGsLZozAYZlSjqV+STBiShtJHdZQQI/YNEyanoW190712I2z
+         bY0liA6RSGXFW9IYKtbKcVwnjTecgWDzsHGJPQGGV4QjL8txyh0mCXH5dftlY7AVcJqv
+         DTmJECzUzb3381H/+GK1vz/WS5dIufcyzGm8fFDZoHCCW104z8eqZgCGMEakuvVygLUR
+         OQgZAxEyNOhsA0jL80rCFnq2N+iJViZRitap3o1uYRCNgKvTlANoXqj0tM+GfsyN7FeK
+         xrRcvIwf5+8JTKtQeVffse9a3q+ZY0q2V94w08K6J4pE1sN/i3VIBZBEGyDDniT32sPM
+         OUrA==
+X-Gm-Message-State: AOAM5328RvvR1QIO/ndliNm+PTYiaX+95L8WNp+wy4zYmDLXmFJcICDa
+        oETeQ6u1HXuoTPaQp0B2StKtPhA3JqarTBTuqJOF3h9p2bOlLxBB20ti6tqpQyWTXzk+hNA8+/S
+        ZbiXkb3nk84Fn/MmjIvh54w==
+X-Received: by 2002:a1c:f206:: with SMTP id s6mr16351328wmc.102.1623678285249;
+        Mon, 14 Jun 2021 06:44:45 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxFXrW+YbfMtfgwKXb7OxONoQUWezJP1D2Ith4tIayhYHEhRZ9UZdTJKdX2jlwWnzIBZZCPAA==
+X-Received: by 2002:a1c:f206:: with SMTP id s6mr16351304wmc.102.1623678285091;
+        Mon, 14 Jun 2021 06:44:45 -0700 (PDT)
+Received: from [192.168.3.132] (p5b0c66ca.dip0.t-ipconnect.de. [91.12.102.202])
+        by smtp.gmail.com with ESMTPSA id o7sm17627580wro.76.2021.06.14.06.44.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 14 Jun 2021 06:44:44 -0700 (PDT)
+Subject: Re: [PATCH v4 2/2] KVM: s390: prepare for hugepage vmalloc
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        linux-mm@kvack.org, Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        David Rientjes <rientjes@google.com>,
+        Christoph Hellwig <hch@infradead.org>
+References: <20210614132357.10202-1-imbrenda@linux.ibm.com>
+ <20210614132357.10202-3-imbrenda@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Message-ID: <fef95723-2966-fb5e-04b4-1f5023d4a0af@redhat.com>
+Date:   Mon, 14 Jun 2021 15:44:43 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-References: <20210614025351.365284-1-jingzhangos@google.com> <dc48637c-e683-a64a-b744-bd5fe2037f31@redhat.com>
-In-Reply-To: <dc48637c-e683-a64a-b744-bd5fe2037f31@redhat.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Mon, 14 Jun 2021 08:38:36 -0500
-Message-ID: <CAAdAUtjxXmN0cG9EU55Pd1TFuED-itoUJQECv3_ab=8imkxMtQ@mail.gmail.com>
-Subject: Re: [PATCH 0/4] Remove duplicated stats definitions for debugfs
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Fuad Tabba <tabba@google.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210614132357.10202-3-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 14, 2021 at 4:53 AM Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> On 14/06/21 04:53, Jing Zhang wrote:
-> > This is a follow-up patchset to binary stats interface patchset as below:
-> > https://lore.kernel.org/kvm/20210611124624.1404010-1-jingzhangos@google.com
-> >
-> > This patchset contains a commit to fix some missing stats and add static
-> > check to make sure we have the right number of stats descriptors and add an
-> > 'offset' field in stats descriptor to make sure the or order of stats
-> > descriptors is not relevant to the order of stats in vm/vcpu stats
-> > structure. This will totally avoid the possibility of missing stats and
-> > mismatched stats definitions.
-> >
-> > The binary stats interface defines stats in another array of descriptors,
-> > while the original stats debugfs interface uses array of kvm_stats_debugfs
-> > item. To remove the duplicated stats definition, this patchset would
-> > utilize only the stats descriptors to provide stats information to debugfs
-> > interface. This patchset adds a 'mode' flag to support the read/write mode
-> > of stats, which can be used to indicate the file permission of debugfs
-> > stats files. It removes the usage of kvm_stats_debugfs_item and all the
-> > debugfs_entries defined in all archs.
-> >
-> > The patch also fixes an issue that read only stats could be cleared in
-> > global level, though not permitted in VM level in the original debugfs
-> > code.
->
-> Thanks for putting this together quickly.  I think we can drop the mode,
-> see the suggestion in patch 2.
->
-> It's probably best to fold the v8 for the stats functionality, these
-> patches (squashed appropriately) and Fuad's remars in a single posting.
->   But I'm quite confident that it can make it in 5.14.
->
-> Paolo
->
-Thanks. Will drop the mode, squash stats functionality with v8 and fold them
-in another single posting (v9).
+On 14.06.21 15:23, Claudio Imbrenda wrote:
+> The Create Secure Configuration Ultravisor Call does not support using
+> large pages for the virtual memory area. This is a hardware limitation.
+> 
+> This patch replaces the vzalloc call with an almost equivalent call to
+> the newly introduced vmalloc_no_huge function, which guarantees that
+> only small pages will be used for the backing.
+> 
+> The new call will not clear the allocated memory, but that has never
+> been an actual requirement.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Acked-by: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: David Rientjes <rientjes@google.com>
+> Cc: Christoph Hellwig <hch@infradead.org>
+> ---
+>   arch/s390/kvm/pv.c | 7 ++++++-
+>   1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index 813b6e93dc83..c8841f476e91 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -140,7 +140,12 @@ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
+>   	/* Allocate variable storage */
+>   	vlen = ALIGN(virt * ((npages * PAGE_SIZE) / HPAGE_SIZE), PAGE_SIZE);
+>   	vlen += uv_info.guest_virt_base_stor_len;
+> -	kvm->arch.pv.stor_var = vzalloc(vlen);
+> +	/*
+> +	 * The Create Secure Configuration Ultravisor Call does not support
+> +	 * using large pages for the virtual memory area.
+> +	 * This is a hardware limitation.
+> +	 */
+> +	kvm->arch.pv.stor_var = vmalloc_no_huge(vlen);
+>   	if (!kvm->arch.pv.stor_var)
+>   		goto out_err;
+>   	return 0;
+> 
 
-Jing
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Thanks,
+
+David / dhildenb
+
