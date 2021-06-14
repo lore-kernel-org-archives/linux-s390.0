@@ -2,328 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
-	version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98392C49360
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 07:57:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC10FC48BE8
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 09:01:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F34461289
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 07:57:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BE4AA611CA
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Jun 2021 09:01:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232579AbhFNH7d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Jun 2021 03:59:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54470 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231340AbhFNH7d (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Jun 2021 03:59:33 -0400
-Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E16EBC061574
-        for <linux-s390@vger.kernel.org>; Mon, 14 Jun 2021 00:57:30 -0700 (PDT)
-Received: by mail-oi1-x22b.google.com with SMTP id q10so9285065oij.5
-        for <linux-s390@vger.kernel.org>; Mon, 14 Jun 2021 00:57:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Yq6AnfCSSGBKIjj0YUKAQhUo7JvGmmvBuQXaLpyD50c=;
-        b=XG+FKxmfcX5Krd+wIYJAOJoEAWGt7/+MF5rP5R9m2fDAOoDqN0bp1FI4ZBUxKjT94g
-         JOFOq6f8O/MH4bjUOFM/HsKKw8lt2xDloBBqnhsxMiFH7BgC104XADMYjavu8Oup4LfR
-         jgOigas1ZFTjt9q08NEOSVzlwtG64oK84LVMHeY+LhTboYum8BN5sCyOdSGxmORa+HjT
-         0Kp+XpFY030W3lQLTJn+XHETgjud/jARd8OzJUALsnLrwe4yGHKJoJKDEeStFESCJUWO
-         e9Bx1xfCBodSDdwymUkwEqonPH/2P04s1JHSmEL7bvEdY0wiFNt6/NKLg3HEYHV0pFvw
-         Xf3Q==
+        id S232594AbhFNJDz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Jun 2021 05:03:55 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34162 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232528AbhFNJDy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 14 Jun 2021 05:03:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1623661309;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Vu71pFISFQB26ccLvg0CQj6wZuEmNrd515lFL21+3Sk=;
+        b=WobfIq10qMms42sG/s84lb6csi4G5yTA82ioBir147YiZ80LPG9BimgfWFHXTNwB5fB8nw
+        5KkKcoy+hS3/PV7OjWVkEFAIzI/EljqSz/DWQagFCbtEBjRpLccR2lljgphDMMLTuYx77W
+        2tYNwWgg1g3MF/uCW0WY5m5tJqZVRO4=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-85-Kl1ASH5fPG-jyiCrQgzl4A-1; Mon, 14 Jun 2021 05:01:47 -0400
+X-MC-Unique: Kl1ASH5fPG-jyiCrQgzl4A-1
+Received: by mail-ed1-f72.google.com with SMTP id y7-20020aa7ce870000b029038fd7cdcf3bso19834699edv.15
+        for <linux-s390@vger.kernel.org>; Mon, 14 Jun 2021 02:01:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Yq6AnfCSSGBKIjj0YUKAQhUo7JvGmmvBuQXaLpyD50c=;
-        b=ZpHLxaSCEXRkD7Wf6nbPr8woX6btgqmaazB0XsPoCu4IVXLWHVpvfvOGI2jRezvaB4
-         YI20iqheZSBpIr6Xc2Fzog4RK3QV7ae2DaDbJWv5hjnwLAzdcCg7Ix+gUjnY1mYK3/MW
-         EA8NwfODZ8yYDslZa/dDCYnB3zxitbDBM+317ZlVNbWA2p1qMucC90biLVTF8YYyTUCA
-         ZXbVPzbh7wLEDue10OH3nF5dubiJC4hjU/O4gv0Jvm+Gzecta9pMZW2dFEzm4u7ajJdX
-         xjbxF7Pqa2cUafsdqLjN1XCWPWZE7GmrD1/bNc5sAjzFIbwrzWUmns2KjNjOIvfG/XoG
-         y9Bw==
-X-Gm-Message-State: AOAM531oH+FSslFt4xCSkXfRZG3kdW3rEHrkdrDrapzPrRzZfhbvJEps
-        gxfIzKTt8hL2NzepLTNcuIu5OswruWuGBh/huG3hGw==
-X-Google-Smtp-Source: ABdhPJxXbh3raDmzdNtJDlVZIjrXxst6G4uF4DHsOU1jnE1vIsaJzRI1vd/bW3K4lBCJONGuzpQ3gE6UIVFo/t0pyEc=
-X-Received: by 2002:aca:b38a:: with SMTP id c132mr4604810oif.90.1623657449654;
- Mon, 14 Jun 2021 00:57:29 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210603211426.790093-1-jingzhangos@google.com> <20210603211426.790093-4-jingzhangos@google.com>
-In-Reply-To: <20210603211426.790093-4-jingzhangos@google.com>
-From:   Fuad Tabba <tabba@google.com>
-Date:   Mon, 14 Jun 2021 08:56:53 +0100
-Message-ID: <CA+EHjTxeZOAPA9w6UJe7rW+-UdznrEsNmomWodZDN3DLgLoJKA@mail.gmail.com>
-Subject: Re: [PATCH v7 3/4] KVM: stats: Add documentation for statistics data
- binary interface
-To:     Jing Zhang <jingzhangos@google.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Vu71pFISFQB26ccLvg0CQj6wZuEmNrd515lFL21+3Sk=;
+        b=les/rYwInLC491j6csMT53FykP9ZpNzCOYFkQT66mncb2W+tzFGfx+BSKnup19ExiO
+         6IGaDUvXHnFW1pqnYhpLV/IrEtMmByYxxRPv+rF5swtVzUicIgu5PAR3PeAAhM6iYoM+
+         C6URYQA11kW6T4jiHOW82nNV73TtDan812dbGktFPWqL+4cHDS+R6FcIbHoUJt19uWjK
+         1X+8lAP79UrfkiodOW+xd2VUSB2KoienNCCIARS3aGEkHv0vwwL5xpUqHYr6eqO5pco7
+         wIL4h/EKrGL5pODnQleLNLSTii8dgnCNA5h34Uj8RFk0JHPQWTRVs1ckyWn+CsfbiPXd
+         TkGw==
+X-Gm-Message-State: AOAM5315zC1jEZ/Y4RdH5uQofQf+sfc4krcKa73ZWW73KmKPmmESJJDX
+        EqNKe8jq8DfROewAgCJjG0bFMgsol9ZsLb/cEwfccI5wdsS4ltq5NH86L8Awl13wyovwLVGtuaX
+        j722YIE8tfiX4ChSdT5mkUg==
+X-Received: by 2002:a17:906:919:: with SMTP id i25mr13807852ejd.171.1623661306862;
+        Mon, 14 Jun 2021 02:01:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx+fLbnuHGety/JfKAcniNuROzvJXDxZM4MObP9ZDsQ/Xs26Tw0DmHFHnS/gasdb1Ql3S2RTg==
+X-Received: by 2002:a17:906:919:: with SMTP id i25mr13807831ejd.171.1623661306669;
+        Mon, 14 Jun 2021 02:01:46 -0700 (PDT)
+Received: from gator.home (cst2-174-132.cust.vodafone.cz. [31.30.174.132])
+        by smtp.gmail.com with ESMTPSA id h22sm8094337edv.0.2021.06.14.02.01.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Jun 2021 02:01:46 -0700 (PDT)
+Date:   Mon, 14 Jun 2021 11:01:44 +0200
+From:   Andrew Jones <drjones@redhat.com>
+To:     Cornelia Huck <cohuck@redhat.com>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org,
+        Laurent Vivier <lvivier@redhat.com>,
         David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
-        David Matlack <dmatlack@google.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>
-Content-Type: text/plain; charset="UTF-8"
+        kvmarm@lists.cs.columbia.edu, kvm-ppc@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v2 1/7] README.md: add guideline for
+ header guards format
+Message-ID: <20210614090144.q76g5mgmuno47snj@gator.home>
+References: <20210609143712.60933-1-cohuck@redhat.com>
+ <20210609143712.60933-2-cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210609143712.60933-2-cohuck@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Jing,
-
-
-On Thu, Jun 3, 2021 at 10:14 PM Jing Zhang <jingzhangos@google.com> wrote:
->
-> Update KVM API documentation for binary statistics.
->
-> Reviewed-by: David Matlack <dmatlack@google.com>
-> Reviewed-by: Ricardo Koller <ricarkol@google.com>
-> Signed-off-by: Jing Zhang <jingzhangos@google.com>
+On Wed, Jun 09, 2021 at 04:37:06PM +0200, Cornelia Huck wrote:
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 > ---
->  Documentation/virt/kvm/api.rst | 180 +++++++++++++++++++++++++++++++++
->  1 file changed, 180 insertions(+)
->
-> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-> index 7fcb2fd38f42..550bfbdf611b 100644
-> --- a/Documentation/virt/kvm/api.rst
-> +++ b/Documentation/virt/kvm/api.rst
-> @@ -5034,6 +5034,178 @@ see KVM_XEN_VCPU_SET_ATTR above.
->  The KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADJUST type may not be used
->  with the KVM_XEN_VCPU_GET_ATTR ioctl.
->
-> +4.130 KVM_GET_STATS_FD
-> +---------------------
+>  README.md | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+> 
+> diff --git a/README.md b/README.md
+> index 24d4bdaaee0d..687ff50d0af1 100644
+> --- a/README.md
+> +++ b/README.md
+> @@ -156,6 +156,15 @@ Exceptions:
+>  
+>    - While the kernel standard requires 80 columns, we allow up to 120.
+>  
+> +Header guards:
+> +
+> +Please try to adhere to adhere to the following patterns when adding
 
-nit: missing one - (to match the subtitle length)
+Double 'to adhere'
 
-> +
-> +:Capability: KVM_CAP_STATS_BINARY_FD
-> +:Architectures: all
-> +:Type: vm ioctl, vcpu ioctl
-> +:Parameters: none
-> +:Returns: statistics file descriptor on success, < 0 on error
-> +
-> +Errors:
-> +
-> +  ======     ======================================================
-> +  ENOMEM     if the fd could not be created due to lack of memory
-> +  EMFILE     if the number of opened files exceeds the limit
-> +  ======     ======================================================
-> +
-> +The file descriptor can be used to read VM/vCPU statistics data in binary
-> +format. The file data is organized into three blocks as below:
-> ++-------------+
-> +|   Header    |
-> ++-------------+
-> +| Descriptors |
-> ++-------------+
-> +| Stats Data  |
-> ++-------------+
-> +
-> +The Header block is always at the start of the file. It is only needed to be
-> +read one time for the lifetime of the file descriptor.
-> +It is in the form of ``struct kvm_stats_header`` as below::
-> +
-> +       #define KVM_STATS_ID_MAXLEN             64
-> +
-> +       struct kvm_stats_header {
-> +               char id[KVM_STATS_ID_MAXLEN];
-> +               __u32 name_size;
-> +               __u32 count;
-> +               __u32 desc_offset;
-> +               __u32 data_offset;
-> +       };
-> +
-> +The ``id`` field is identification for the corresponding KVM statistics. For
-> +VM statistics, it is in the form of "kvm-{kvm pid}", like "kvm-12345". For
-> +VCPU statistics, it is in the form of "kvm-{kvm pid}/vcpu-{vcpu id}", like
-> +"kvm-12345/vcpu-12".
-> +
-> +The ``name_size`` field is the size (byte) of the statistics name string
-> +(including trailing '\0') appended to the end of every statistics descriptor.
-> +
-> +The ``count`` field is the number of statistics.
-> +
-> +The ``desc_offset`` field is the offset of the Descriptors block from the start
-> +of the file indicated by the file descriptor.
-> +
-> +The ``data_offset`` field is the offset of the Stats Data block from the start
-> +of the file indicated by the file descriptor.
-> +
-> +The Descriptors block is only needed to be read once for the lifetime of the
-> +file descriptor. It is an array of ``struct kvm_stats_desc`` as shown in
-> +below code block::
-> +
-> +       #define KVM_STATS_TYPE_SHIFT            0
-> +       #define KVM_STATS_TYPE_MASK             (0xF << KVM_STATS_TYPE_SHIFT)
-> +       #define KVM_STATS_TYPE_CUMULATIVE       (0x0 << KVM_STATS_TYPE_SHIFT)
-> +       #define KVM_STATS_TYPE_INSTANT          (0x1 << KVM_STATS_TYPE_SHIFT)
-> +       #define KVM_STATS_TYPE_MAX              KVM_STATS_TYPE_INSTANT
-> +
-> +       #define KVM_STATS_UNIT_SHIFT            4
-> +       #define KVM_STATS_UNIT_MASK             (0xF << KVM_STATS_UNIT_SHIFT)
-> +       #define KVM_STATS_UNIT_NONE             (0x0 << KVM_STATS_UNIT_SHIFT)
-> +       #define KVM_STATS_UNIT_BYTES            (0x1 << KVM_STATS_UNIT_SHIFT)
-> +       #define KVM_STATS_UNIT_SECONDS          (0x2 << KVM_STATS_UNIT_SHIFT)
-> +       #define KVM_STATS_UNIT_CYCLES           (0x3 << KVM_STATS_UNIT_SHIFT)
-> +       #define KVM_STATS_UNIT_MAX              KVM_STATS_UNIT_CYCLES
-> +
-> +       #define KVM_STATS_BASE_SHIFT            8
-> +       #define KVM_STATS_BASE_MASK             (0xF << KVM_STATS_BASE_SHIFT)
-> +       #define KVM_STATS_BASE_POW10            (0x0 << KVM_STATS_BASE_SHIFT)
-> +       #define KVM_STATS_BASE_POW2             (0x1 << KVM_STATS_BASE_SHIFT)
-> +       #define KVM_STATS_BASE_MAX              KVM_STATS_BASE_POW2
-> +
-> +       struct kvm_stats_desc {
-> +               __u32 flags;
-> +               __s16 exponent;
-> +               __u16 size;
-> +               __u32 unused1;
-> +               __u32 unused2;
-> +               char name[0];
-> +       };
-> +
-> +The ``flags`` field contains the type and unit of the statistics data described
-> +by this descriptor. The following flags are supported:
-> +
-> +Bits 0-3 of ``flags`` encode the type:
-> +  * ``KVM_STATS_TYPE_CUMULATIVE``
-> +    The statistics data is cumulative. The value of data can only be increased.
-> +    Most of the counters used in KVM are of this type.
-> +    The corresponding ``count`` filed for this type is always 1.
+Thanks,
+drew
 
-filed -> field
+> +"#ifndef <...> #define <...>" header guards:
+> +    ./lib:             _HEADER_H_
+> +    ./lib/<ARCH>:      _ARCH_HEADER_H_
+> +    ./lib/<ARCH>/asm:  _ASMARCH_HEADER_H_
+> +    ./<ARCH>:          ARCH_HEADER_H
+> +
+>  ## Patches
+>  
+>  Patches are welcome at the KVM mailing list <kvm@vger.kernel.org>.
+> -- 
+> 2.31.1
+> 
 
-> +  * ``KVM_STATS_TYPE_INSTANT``
-> +    The statistics data is instantaneous. Its value can be increased or
-> +    decreased. This type is usually used as a measurement of some resources,
-> +    like the number of dirty pages, the number of large pages, etc.
-> +    The corresponding ``count`` field for this type is always 1.
-> +
-> +Bits 4-7 of ``flags`` encode the unit:
-> +  * ``KVM_STATS_UNIT_NONE``
-> +    There is no unit for the value of statistics data. This usually means that
-> +    the value is a simple counter of an event.
-> +  * ``KVM_STATS_UNIT_BYTES``
-> +    It indicates that the statistics data is used to measure memory size, in the
-> +    unit of Byte, KiByte, MiByte, GiByte, etc. The unit of the data is
-> +    determined by the ``exponent`` field in the descriptor. The
-> +    ``KVM_STATS_BASE_POW2`` flag is valid in this case. The unit of the data is
-> +    determined by ``pow(2, exponent)``. For example, if value is 10,
-> +    ``exponent`` is 20, which means the unit of statistics data is MiByte, we
-> +    can get the statistics data in the unit of Byte by
-> +    ``value * pow(2, exponent) = 10 * pow(2, 20) = 10 MiByte`` which is
-> +    10 * 1024 * 1024 Bytes.
-> +  * ``KVM_STATS_UNIT_SECONDS``
-> +    It indicates that the statistics data is used to measure time/latency, in
-> +    the unit of nanosecond, microsecond, millisecond and second. The unit of the
-> +    data is determined by the ``exponent`` field in the descriptor. The
-> +    ``KVM_STATS_BASE_POW10`` flag is valid in this case. The unit of the data
-> +    is determined by ``pow(10, exponent)``. For example, if value is 2000000,
-> +    ``exponent`` is -6, which means the unit of statistics data is microsecond,
-> +    we can get the statistics data in the unit of second by
-> +    ``value * pow(10, exponent) = 2000000 * pow(10, -6) = 2 seconds``.
-> +  * ``KVM_STATS_UNIT_CYCLES``
-> +    It indicates that the statistics data is used to measure CPU clock cycles.
-> +    The ``KVM_STATS_BASE_POW10`` flag is valid in this case. For example, if
-> +    value is 200, ``exponent`` is 4, we can get the number of CPU clock cycles
-> +    by ``value * pow(10, exponent) = 200 * pow(10, 4) = 2000000``.
-> +
-> +Bits 7-11 of ``flags`` encode the base:
-
-Bits 8-11
-
-> +  * ``KVM_STATS_BASE_POW10``
-> +    The scale is based on power of 10. It is used for measurement of time and
-> +    CPU clock cycles.
-> +  * ``KVM_STATS_BASE_POW2``
-> +    The scale is based on power of 2. It is used for measurement of memory size.
-> +
-> +The ``exponent`` field is the scale of corresponding statistics data. For
-> +example, if the unit is ``KVM_STATS_UNIT_BYTES``, the base is
-> +``KVM_STATS_BASE_POW2``, the ``exponent`` is 10, then we know that the real
-> +unit of the statistics data is KBytes a.k.a pow(2, 10) = 1024 bytes.
-> +
-> +The ``size`` field is the number of values of this statistics data. It is in the
-> +unit of ``unsigned long`` for VM or ``__u64`` for VCPU.
-> +
-> +The ``unused1`` and ``unused2`` fields are reserved for future
-> +support for other types of statistics data, like log/linear histogram.
-> +
-> +The ``name`` field points to the name string of the statistics data. The name
-> +string starts at the end of ``struct kvm_stats_desc``.
-> +The maximum length (including trailing '\0') is indicated by ``name_size``
-> +in ``struct kvm_stats_header``.
-> +
-> +The Stats Data block contains an array of data values of type ``struct
-> +kvm_vm_stats_data`` or ``struct kvm_vcpu_stats_data``. It would be read by
-> +user space periodically to pull statistics data.
-> +The order of data value in Stats Data block is the same as the order of
-> +descriptors in Descriptors block.
-> +  * Statistics data for VM::
-> +
-> +       struct kvm_vm_stats_data {
-> +               unsigned long value[0];
-> +       };
-> +
-> +  * Statistics data for VCPU::
-> +
-> +       struct kvm_vcpu_stats_data {
-> +               __u64 value[0];
-> +       };
-> +
->  5. The kvm_run structure
->  ========================
->
-> @@ -6891,3 +7063,11 @@ This capability is always enabled.
->  This capability indicates that the KVM virtual PTP service is
->  supported in the host. A VMM can check whether the service is
->  available to the guest on migration.
-> +
-> +8.33 KVM_CAP_STATS_BINARY_FD
-> +----------------------------
-> +
-> +:Architectures: all
-> +
-> +This capability indicates the feature that user space can create get a file
-> +descriptor for every VM and VCPU to read statistics data in binary format.
-
-nit: user space -> userspace (it's spelled that way throughout this document)
-
-Cheers,
-/fuad
-
-> --
-> 2.32.0.rc1.229.g3e70b5a671-goog
->
-> _______________________________________________
-> kvmarm mailing list
-> kvmarm@lists.cs.columbia.edu
-> https://lists.cs.columbia.edu/mailman/listinfo/kvmarm
