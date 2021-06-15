@@ -2,157 +2,328 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38CC6C48BDF
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 15:27:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C57D3C49361
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 15:47:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 13264613D3
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 15:27:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9F72B614A7
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 15:47:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231538AbhFOP3z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Jun 2021 11:29:55 -0400
-Received: from mail-mw2nam10on2080.outbound.protection.outlook.com ([40.107.94.80]:18529
-        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231384AbhFOP3y (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:29:54 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=MLm8xPlGPU7P1UCl/Xip4kQ1McLNoWhcTTQNOxjGhjxx9rgvm4t/uYWS0jNIpY3r2mc+yals4L3j1Q72tQTRzGJXL/XCRKePhHsqzO6rxSWlQv1gBeoauZu+mQ1F9SbEn8xmZrMTUenevLdnjHRLTp5wAPFQGMmuE/zrI39xNySU8ocFpvU0pTYy/zyA5tzzqOU0KrSI5wdsswZgURx93AbEsuQarJZrnhGvFChePIcYjWRX/uGekuTyGciTE4O8+0D2Gl7xIpAtBy/AvHT579klPzh12zEGFcNtB6IgHbr6yN+VfSB7/rptILQa/HuaAKv77bTRsH/Jr09gSQaVNw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nPaTbR5qOjvH9FJGuIeGCpTGt34lXHjFtnUB08uGOG8=;
- b=P77QHFoYX2Sq0NNjTfuPAKuBq3mEEp03RVFAnm7B3x7dY8hDmQ1A2JIKK2++nbgGV4J6PphBrcYmLrMB92vsfup3UeZDgC8CRmnHLW0/UiXoSNdgfODDsQkCVyxOTNhw7S27RbiZ9ltvtgMCrCeIR5ALtNqNMSD0Okh+ynodNOXg0TxOUaYbIRgDntbZQUiEWGqqmq1cftW6wtxpqjMgEoMbKilShAlTAS9HC+nNpCF7J8xofpwQO6/HeWvakExxOQs8iAfS/jn4lYPRCIDLoQjZPl975zC/UZ5y2uT7jlECVs/Arxs36URVyjpI72a8JUMJzNI4DZJeT8ujFQLIZw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nPaTbR5qOjvH9FJGuIeGCpTGt34lXHjFtnUB08uGOG8=;
- b=eD1W6VHhzbXSC9Zx6UOOa+uxdWYxWAmBiNopmGgsSEd47YftbTA09MW5eWmtpRJslZqR10hLwElQLUgqtaO+hEaevz/3HJpmGrOraDVa/9z3Z8nPdtx7Gb2SG22zR8rNyjh9cKjUC6HqSB7ShPp4VdgkD4EeEDvkpNfL4kz6Kx8wexXntdd7TMEWmiDMT5ETKU5l2XO1wUfgT6xiPx1xBqJhKc2fVoZH6fo20z2V203vzgFho9CW0uNglzBPq84TdwP74lECd7HdgCY7x42NdNqtQnOP9sed7XGuQohSvcWeKML6Jakca4SJCgljTgndc/qZeq/pi8iEGh/f9YhoSw==
-Authentication-Results: lst.de; dkim=none (message not signed)
- header.d=none;lst.de; dmarc=none action=none header.from=nvidia.com;
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL0PR12MB5555.namprd12.prod.outlook.com (2603:10b6:208:1c2::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.23; Tue, 15 Jun
- 2021 15:27:46 +0000
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::3d51:a3b9:8611:684e]) by BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::3d51:a3b9:8611:684e%8]) with mapi id 15.20.4242.016; Tue, 15 Jun 2021
- 15:27:46 +0000
-Date:   Tue, 15 Jun 2021 12:27:44 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, Vasily Gorbik <gor@linux.ibm.com>,
+        id S231616AbhFOPty (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Jun 2021 11:49:54 -0400
+Received: from mailout2.w1.samsung.com ([210.118.77.12]:38213 "EHLO
+        mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231366AbhFOPty (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Jun 2021 11:49:54 -0400
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+        by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20210615154748euoutp025393b0ef1c05766c8964ff08effcb737~IzBfLeirf0708407084euoutp02U;
+        Tue, 15 Jun 2021 15:47:48 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20210615154748euoutp025393b0ef1c05766c8964ff08effcb737~IzBfLeirf0708407084euoutp02U
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1623772068;
+        bh=X0hoPpP4PG9rXwI/rCRN/9SSp3Kx8sxGj31M98xjvfU=;
+        h=Subject:To:Cc:From:Date:In-Reply-To:References:From;
+        b=qJZOgWIWUXl8lnnt9+IxTIfAKH+yJbdmf6G9NWvHS3NKPvKBD8A1zhdMrs0dBTpCw
+         TTJcqahuR4hMHCgWD3qx7YlIWRXqLQmQ4kQliMh/gkWXrGBG6YhpegstqWuOg6QjHs
+         zghIbtOv7f2Sl4wFEzFd3MNi3/gfanhjgq/L45XU=
+Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20210615154747eucas1p10fc0c489f6b2b99ec3ee3c0d1d182386~IzBerCabW2052020520eucas1p1O;
+        Tue, 15 Jun 2021 15:47:47 +0000 (GMT)
+Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
+        eusmges3new.samsung.com (EUCPMTA) with SMTP id 25.05.09439.3ABC8C06; Tue, 15
+        Jun 2021 16:47:47 +0100 (BST)
+Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+        20210615154746eucas1p1321b6f1cf38d21899632e132cf025e61~IzBeAseUp3082930829eucas1p1T;
+        Tue, 15 Jun 2021 15:47:46 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
+        eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20210615154746eusmtrp2ae9e870f68d5a24f27850c8ddaf7c3b5~IzBd-erfP0310203102eusmtrp2N;
+        Tue, 15 Jun 2021 15:47:46 +0000 (GMT)
+X-AuditID: cbfec7f5-c03ff700000024df-5c-60c8cba39819
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+        eusmgms1.samsung.com (EUCPMTA) with SMTP id 42.91.08705.2ABC8C06; Tue, 15
+        Jun 2021 16:47:46 +0100 (BST)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+        eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20210615154744eusmtip131f3ea0c677d37e629dba0cc864eb86e~IzBb_60KM0958409584eusmtip1b;
+        Tue, 15 Jun 2021 15:47:44 +0000 (GMT)
+Subject: Re: [PATCH 09/30] mtd_blkdevs: use blk_mq_alloc_disk
+To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc:     Justin Sanders <justin@coraid.com>,
+        Denis Efremov <efremov@linux.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Tim Waugh <tim@cyberelk.net>,
+        Geoff Levand <geoff@infradead.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        =?UTF-8?Q?Roger_Pau_Monn=c3=a9?= <roger.pau@citrix.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Maxim Levitsky <maximlevitsky@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: Re: Allow mdev drivers to directly create the vfio_device (v2 /
- alternative)
-Message-ID: <20210615152744.GU1002214@nvidia.com>
-References: <20210614150846.4111871-1-hch@lst.de>
- <YMg49UF8of2yHWum@kroah.com>
- <20210615055021.GB21080@lst.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210615055021.GB21080@lst.de>
-X-Originating-IP: [47.55.113.94]
-X-ClientProxiedBy: BL1PR13CA0260.namprd13.prod.outlook.com
- (2603:10b6:208:2ba::25) To BL0PR12MB5506.namprd12.prod.outlook.com
- (2603:10b6:208:1cb::22)
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        dm-devel@redhat.com, linux-block@vger.kernel.org,
+        nbd@other.debian.org, linuxppc-dev@lists.ozlabs.org,
+        ceph-devel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org, linux-mmc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+From:   Marek Szyprowski <m.szyprowski@samsung.com>
+Message-ID: <13b21a07-b7c7-37db-fdc9-77bf174b6f8f@samsung.com>
+Date:   Tue, 15 Jun 2021 17:47:44 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0)
+        Gecko/20100101 Thunderbird/78.11.0
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (47.55.113.94) by BL1PR13CA0260.namprd13.prod.outlook.com (2603:10b6:208:2ba::25) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.9 via Frontend Transport; Tue, 15 Jun 2021 15:27:45 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1ltAye-007AAY-SE; Tue, 15 Jun 2021 12:27:44 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 44dcfcfc-1004-4ac8-de06-08d930122049
-X-MS-TrafficTypeDiagnostic: BL0PR12MB5555:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BL0PR12MB5555EAF43F86D6F250FBC07CC2309@BL0PR12MB5555.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:7219;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: hRMiPbKkpDnhHmTcxlc1V/7QFa8+GwFHMMnQoYHBPXLWlwoTMQHbEULvtJMCqEeRZC3mYJb4WoGea+d4galRWBz4bSeyZE1CQKD27DHDp6A01Yle7UcHxbQPl7e9+NT8VLCHqwL7YHdGRTb1NnBGl+osCikHaRRwC8RHtxNSHqs8aIxRz8qYytKesQcTbZHqh3DQP/Li3i5p19lsRkfkaVbRT+5jLHivOhzGyzuXr39B+NL2JGsa7PkzfhrJBkrD3fjMcTqoX/0nkJUK2maaCnU2oagoEPxXcdtk4QLu3TTYadTxsSCWrO0MCd/UbP1mcynGP58EDx2tssWe3xLVX6PA9Nqg9flyXkMUFkBFP71iBIgxYB+4V1zV5oGBC9QD7A8vQI1e0lG1wDgkrpKXTXkTZnkSHzUqQeNyDoGLXAXk0dhi2pwTfzKYtZHvh2t93ClrQQcJw7gM6F3EDo/ZCZrx58QBNVIjwHdjM+UHIXhuhO2WRIY1McvJVoV0qoeGfSmXkFKRvfrTgmCrQajodSVbWqtVMLm/tewAMr6bhGQ3GinBYNhS9EXPUKh8hhNBuutZlH9N3T4WnQUyK+tvpKhz3nTHFlEDRs9eM3X8TFM=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(54906003)(7416002)(9746002)(9786002)(498600001)(6916009)(4744005)(2616005)(5660300002)(66946007)(38100700002)(26005)(83380400001)(426003)(8676002)(4326008)(66556008)(36756003)(33656002)(186003)(2906002)(66476007)(8936002)(1076003)(86362001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?23xGDNv98FYbxKREKW0GhW1+akIZpRFkHRyyTNlNMr9ssCRBarThxcvlX2eC?=
- =?us-ascii?Q?Y2HtWK/a6CuaIDNq9pbC+CeQXdnqbMnoEhOzcB4w0MCzm0Wxi0cxXTZfBuNv?=
- =?us-ascii?Q?dC7qvCoiHWVAp1NAjqgYHB1GiVLBbI/y3bvC47OxMmsYobYp5BGoXAmUpYNk?=
- =?us-ascii?Q?QYg6SBlCvrLvVeuteK7auqQ82mgVaTwQ8B8AV+tCb0lN+KiJoZ1xVHBmCZeb?=
- =?us-ascii?Q?cRLk32OLlSDFIZ9cYFhOLT2rNrWWnCSo6y2E2Cjim8x87m93QLwdMma8oFU4?=
- =?us-ascii?Q?Vtxu7nRi6YxxWWl7GRGgkoW7yt262eg7WUOMxMeYS9Q08gR7Z1iaROVl7yM9?=
- =?us-ascii?Q?vOHBMXY2GsEeilffvjuKpxnDAfVFZ+mxXiIotrc0nAfNBpMZYKTagkl09EGQ?=
- =?us-ascii?Q?ouCH5e/jpth9fdzrFOKtvRisgRZiw9VgSQQciHdw15eNKR6NLt8zv1fYCcDM?=
- =?us-ascii?Q?t3u6vmBO35NwLmLgNrW3f5Hq0xsfwVVhNZkXaeqIBuqvf2VEflQBMlhnCZ5+?=
- =?us-ascii?Q?zdb2LKKecmJ19uTcwpOdlFml9ERJkrP9kmo/zlO7sVDbwobrs3g5RUXSEPKw?=
- =?us-ascii?Q?AJzYdx/GixkeU4tlOWJf8dsbSVHHLOpDLO1CH8iUj/BXOl7bUKpfGDGHO63R?=
- =?us-ascii?Q?llX9CUVC9qXFw3nNjqHMntZcUalN4IbAGgK2BFO9uqhGvQsPcrjFtjxTeH9h?=
- =?us-ascii?Q?VJ6v1r7qyQYF2c9JIHVoXhdSdck5IXjYcWaYSmAAWQXUX9MsK+U+D8pD54Eo?=
- =?us-ascii?Q?QWiTPKOM7fR7wlh1MXEquDppUVyiRwDbKY/xjqsP6Z1NZzu4ZpU5ERit1HTv?=
- =?us-ascii?Q?KtqJENo4AE7hca2qHwEjoS6bPRw0l3hwcoK1X111E1VreawgFvGy5TRb6JfX?=
- =?us-ascii?Q?n2E33b087rNhEVk63FoOESFoMLltLQtMEeRXM+XAKBaSAr9v3bNPVQSnTUd3?=
- =?us-ascii?Q?DQ0n2JLNFK2+Og0g9fgZ9tw1VQQ2EDqb3zm/iWTaZtk3pg8Q1FvxVYNWK7qT?=
- =?us-ascii?Q?P94NHA4wJ+iXqDnol1kgkQB/l8+Npf9i1Ivi1JWddMUKfi9N0a4Jz01kWChO?=
- =?us-ascii?Q?pH2ry0+sbn+Q3Mz3S1pQ7zAKUl1Q8Au3uagedISJ6NEhbRfS3mG5Id+PTYXU?=
- =?us-ascii?Q?4ZS2+6r5kghXZNI9/iuJzjLIYXDkymDXMhDj2gZQoNDbG3E3aLxjHwgmt/Bj?=
- =?us-ascii?Q?+6kZP6y5bGhGyu1w0OQQ71pRXqIcdTj6N8wnoLFKC787c2E3ajwt4nPW2Qzu?=
- =?us-ascii?Q?OUgWPLvYA44QQaTMnddjH73IY/5MJuDV36nOWsj5teAsbdClLTBmzHhmPXUo?=
- =?us-ascii?Q?E8fkTBe/9Yb4+FB5VZf8nJIF?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 44dcfcfc-1004-4ac8-de06-08d930122049
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jun 2021 15:27:46.1470
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ODg9KfC3v6zrdNqnXo2EGbKfpgjjfLW8/C4ODXjg5XqTTQQdzLXQDTaeYkU0zXrW
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB5555
+In-Reply-To: <20210602065345.355274-10-hch@lst.de>
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Brightmail-Tracker: H4sIAAAAAAAAA02Sa0xTZxjH855zenrapXgoKK/KhqvTZGWCzC2+CQ4vY3DiB0S2+IEt0gZO
+        AIVqWphuy5SAE22GVEqkazcucimTi1puAlOkjJtAZVAmVhgpgiLCBnLbEOgohY1vv+f/f573
+        ef7JS+FCM7mFipbFsXKZNEZE8onKpn9Mu3LbWiS7Uy57oKL+VBLd1tzkoIzCKgJNPE7D0N0/
+        dRxkflALUN4LP9SpneWgyrZbXPQy8wZAPxc1YmggM5lEBV1TGBo3pBNoweqDzAk7UUHuMEB3
+        LZ7oV1sqQLWJBVykyknC0eu5JQ4aa73ORQ3J9zjINj/KQa+HSzBkbSrCkbp6DCDNw1wOunh7
+        BqDBfD2ObB0TXKTvyCTRXLkaOyBiMou/YV6qVYBpfdFOMI0N9VymftBIMtXafi5TVihm2sb6
+        MKa7I54ZMmdgjOr6fcCU5Z1n1L16wDzU5ACmYcJMMLWPE8jgzaH8fRFsTPSXrNzbT8KPSsu6
+        T5x+6nlW89vWBGDYrgQ8CtIfQMtIO1ACPiWkCwFsNtlwRzENYNGUcrWYWnbSdWBtpGAxHbez
+        kNYD+HuH1NE0CWDxcB9mN1zoj+BgqYljZ1f6ANTdyiftTTidx4OPTImE3SBpH6gcVy4bFCWg
+        /WBKjbtdJugdcMx6lbTzRjoc/pWpWXlHQDvD1h+GVkZ59PvwQZ1thXHaAyZV6HAHu0HLUBZm
+        3wXpIT68ZOnFHFf7Q7M+lXSwCxxtLuc62B3aqtcGkgC0mkq4juJ7ALsTNauZfWGfaX7lUpx+
+        F96s8XbIB+EF5R3cLkPaCfaOOzuOcIJplRmrsgBeuih0dO+E2ubS/9bWd3bhKiDSroumXRdH
+        uy6O9v+92YC4AdzYeEVsJKvYI2PPeCmksYp4WaRX+KlYA1j++G1LzTN3QOHopJcRYBQwAkjh
+        IlfBLkWLRCiIkH71NSs/FSaPj2EVRrCVIkRugpqK4jAhHSmNY0+y7GlWvuZiFG9LAiZNenOA
+        91nluZmjE82fuxiajs+W+Zs/je/6IzrLemK3qTfkO3d5NRUaZ9nb8/yLeZPR3+TtNiIJrko7
+        UTHicczvSonhvSD3zopXruqze62zXYq6HZ7RsQPeHPMbf9/ruXDcqWnTj7KynpDAKnVIpa86
+        Oyk/efJg8DXLtvyRw6Pftsqm0o4U6558eDJIwVzpf7Kg5UdiAZuf/zQksUU9Dd0n1B9++61p
+        7wiLpj3gWGjgonYpfSFAnnL+qFg19/EnYs2zwP3Xlq6eyfY9FFjX8mjD9ukw57xt4tCmd+a4
+        3ZJfgjz3h5/jPts4sFjaIDF6ZFQX5ZSVHyIbDSXDG46o6Fd7XC/PbxIRiiipjxiXK6T/AgrX
+        tBBnBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA02Sa0xTdxjG+Z9bC6Tk0JZ4hpiZLkMDo9AC9c8C1C/bzrIsUaaJUxxt8HAR
+        KK6Xpduy2YiKdi5UWgYrrlxbqsBALjpuU6l1AkOGY2YSmFBgC1gUr4xx6WjZEr798r7P70ne
+        5GWj3Bk8lJ2tUDNKhTxXQARgA2s/jUdVD9yWxXT/FQvrx4sIeLmsCYel9qsYXLhfjMCeR+U4
+        HOnvArB2Nhn+Yn6JwysDzSz40HIJwIv1TgQ+sBQS0Hb3GQLnW0wYXJkUwRFdOLTVzADYMxoJ
+        b3qKAOw6YWNBQ1UBCpcX13Do7qtmQUfhjzj0/DOHw+WZRgRO3qpHobHDDWDZUA0OT19+AaDL
+        WodCz+ACC9YNWgi42GZEdgtoS8Pn9EOjAdB9sz9jtNNxg0XfcPUSdId5nEW32iPoAfcYQv86
+        qKGnR0oR2lB9HdCttcdp4+91gB4qqwK0Y2EEo7vu64g9rxwUJirzNWpme1a+Sp0kOCSCYqEo
+        AQrFcQlCUeyuw2+K4wXRyYlHmNzsTxhldLJMmFVccR07NhWpLRveqgMtr+mBP5si4yjbqgn1
+        Mpe0Aur5hP/GPIzq+0aHbzCPWrmnJ/QgYD3zGFC/TX1FeBc8MolyfX/HF+KTu6nyZqsvhJI2
+        f2p0eJy10XqAWio45WOCFFH6eW8Tm80hk6mvO8O8Y4x8nXJPnvd1hpDp1FJToY85ZDDV9+00
+        5mV/Ukz1X/P4GCUllKV1Et3gV6mC9vL/eAs1Ol2BGADXvEk3b1LMmxTzJqUSYJcAn9Go8jLz
+        VCKhSp6n0igyhen5eS1g/d+u3Fpq/QFY5p4IewHCBr2AYqMCPidKdVvG5RyRf/oZo8xPU2py
+        GVUviF+/5zwaGpKev/6wCnWaSBITL4qTJMTEJ0hiBVs47d81pHHJTLmayWGYY4zyfw9h+4fq
+        kNS43HOz8asBOc8aX3QWHdI2B9szLmRI91hXnU/3HnVlVa2IU6TbwAcmtd8ux0SkNkJnr8zo
+        3Pruny9Loi0V147ST2oJSebQO4q7N7e5+NgfbfwKrTnxcXRgqeSjKb+9y3/Lz+akLrIP0MPZ
+        jtTjYcXZ+/AvwkOGrMbnNU1BTNC8VvrxNO9DnnQqiCdlC9z7A9faL8pOTtRuX+wcHtP3Ne54
+        dLjh5E6TM5A01r5ve3vsTkp/lMMkqzI0vReZ4GfYGZKUcoLz5VvwzOmOC0/5SzOERRlc2Xau
+        lMc45SV27X7rG0EZptUzJVcPeuDZsHqsslvnyuspnet4EH6K6Q6/J8BUWXJRBKpUyf8FChkx
+        W/gDAAA=
+X-CMS-MailID: 20210615154746eucas1p1321b6f1cf38d21899632e132cf025e61
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20210615154746eucas1p1321b6f1cf38d21899632e132cf025e61
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20210615154746eucas1p1321b6f1cf38d21899632e132cf025e61
+References: <20210602065345.355274-1-hch@lst.de>
+        <20210602065345.355274-10-hch@lst.de>
+        <CGME20210615154746eucas1p1321b6f1cf38d21899632e132cf025e61@eucas1p1.samsung.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 15, 2021 at 07:50:21AM +0200, Christoph Hellwig wrote:
-> On Tue, Jun 15, 2021 at 07:21:57AM +0200, Greg Kroah-Hartman wrote:
-> > This looks much better as far as the driver core changes go, thank you
-> > for doing this.
-> > 
-> > I'm guessing there will be at least one more revision of this.
-> 
-> Yes.
-> 
-> > Do you
-> > want this to go through my driver core tree or is there a mdev tree it
-> > should go through?  Either is fine for me.
-> 
-> Either way is fine with me.  Alex, do you have a preference?
+Hi,
 
-I would prefer to see it go to Alex's tree since there are more vfio
-patches following this that might get to this merge window.
+On 02.06.2021 08:53, Christoph Hellwig wrote:
+> Use the blk_mq_alloc_disk API to simplify the gendisk and request_queue
+> allocation.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-If you want the driver core part on a branch you can pull/etc I can
-organize that.
+This patch landed in linux-next as commit 6966bb921def ("mtd_blkdevs: 
+use blk_mq_alloc_disk"). It causes the following regression on my QEMU 
+arm64 setup:
 
-Jason
+  Using buffer write method
+  Concatenating MTD devices:
+  (0): "0.flash"
+  (1): "0.flash"
+  into device "0.flash"
+  Unable to handle kernel NULL pointer dereference at virtual address 
+0000000000000068
+  Mem abort info:
+    ESR = 0x96000004
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+  Data abort info:
+    ISV = 0, ISS = 0x00000004
+    CM = 0, WnR = 0
+  [0000000000000068] user address but active_mm is swapper
+  Internal error: Oops: 96000004 [#1] PREEMPT SMP
+  Modules linked in:
+  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.13.0-rc3+ #10492
+  Hardware name: linux,dummy-virt (DT)
+  pstate: 00000005 (nzcv daif -PAN -UAO -TCO BTYPE=--)
+  pc : blk_finish_plug+0x5c/0x268
+  lr : blk_queue_write_cache+0x28/0x70
+...
+  Call trace:
+   blk_finish_plug+0x5c/0x268
+   add_mtd_blktrans_dev+0x270/0x420
+   mtdblock_add_mtd+0x68/0x98
+   blktrans_notify_add+0x44/0x70
+   add_mtd_device+0x41c/0x490
+   mtd_device_parse_register+0xf4/0x1c8
+   physmap_flash_probe+0x44c/0x780
+   platform_probe+0x90/0xd8
+   really_probe+0x108/0x3c0
+   driver_probe_device+0x60/0xc0
+   device_driver_attach+0x6c/0x78
+   __driver_attach+0xc0/0x100
+   bus_for_each_dev+0x68/0xc8
+   driver_attach+0x20/0x28
+   bus_add_driver+0x168/0x1f8
+   driver_register+0x60/0x110
+   __platform_driver_register+0x24/0x30
+   physmap_init+0x18/0x20
+   do_one_initcall+0x84/0x450
+   kernel_init_freeable+0x2dc/0x334
+   kernel_init+0x10/0x110
+   ret_from_fork+0x10/0x18
+  Code: 88027c01 35ffffa2 17fff079 f9800031 (c85f7c22)
+  ---[ end trace b774518e0766cc92 ]---
+  Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+  SMP: stopping secondary CPUs
+  Kernel Offset: 0x594d1fa00000 from 0xffff800010000000
+  PHYS_OFFSET: 0xffffea7300000000
+  CPU features: 0x11000671,00000846
+  Memory Limit: none
+  ---[ end Kernel panic - not syncing: Attempted to kill init! 
+exitcode=0x0000000b ]---
+
+> ---
+>   drivers/mtd/mtd_blkdevs.c | 48 ++++++++++++++++++---------------------
+>   1 file changed, 22 insertions(+), 26 deletions(-)
+>
+> diff --git a/drivers/mtd/mtd_blkdevs.c b/drivers/mtd/mtd_blkdevs.c
+> index fb8e12d590a1..5dc4c966ea73 100644
+> --- a/drivers/mtd/mtd_blkdevs.c
+> +++ b/drivers/mtd/mtd_blkdevs.c
+> @@ -30,11 +30,9 @@ static void blktrans_dev_release(struct kref *kref)
+>   	struct mtd_blktrans_dev *dev =
+>   		container_of(kref, struct mtd_blktrans_dev, ref);
+>   
+> -	dev->disk->private_data = NULL;
+> -	blk_cleanup_queue(dev->rq);
+> +	blk_cleanup_disk(dev->disk);
+>   	blk_mq_free_tag_set(dev->tag_set);
+>   	kfree(dev->tag_set);
+> -	put_disk(dev->disk);
+>   	list_del(&dev->list);
+>   	kfree(dev);
+>   }
+> @@ -354,7 +352,7 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
+>   	if (new->devnum > (MINORMASK >> tr->part_bits) ||
+>   	    (tr->part_bits && new->devnum >= 27 * 26)) {
+>   		mutex_unlock(&blktrans_ref_mutex);
+> -		goto error1;
+> +		return ret;
+>   	}
+>   
+>   	list_add_tail(&new->list, &tr->devs);
+> @@ -366,17 +364,28 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
+>   	if (!tr->writesect)
+>   		new->readonly = 1;
+>   
+> -	/* Create gendisk */
+>   	ret = -ENOMEM;
+> -	gd = alloc_disk(1 << tr->part_bits);
+> +	new->tag_set = kzalloc(sizeof(*new->tag_set), GFP_KERNEL);
+> +	if (!new->tag_set)
+> +		goto out_list_del;
+>   
+> -	if (!gd)
+> -		goto error2;
+> +	ret = blk_mq_alloc_sq_tag_set(new->tag_set, &mtd_mq_ops, 2,
+> +			BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_BLOCKING);
+> +	if (ret)
+> +		goto out_kfree_tag_set;
+> +
+> +	/* Create gendisk */
+> +	gd = blk_mq_alloc_disk(new->tag_set, new);
+> +	if (IS_ERR(gd)) {
+> +		ret = PTR_ERR(gd);
+> +		goto out_free_tag_set;
+> +	}
+>   
+>   	new->disk = gd;
+>   	gd->private_data = new;
+>   	gd->major = tr->major;
+>   	gd->first_minor = (new->devnum) << tr->part_bits;
+> +	gd->minors = 1 << tr->part_bits;
+>   	gd->fops = &mtd_block_ops;
+>   
+>   	if (tr->part_bits)
+> @@ -398,22 +407,9 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
+>   	spin_lock_init(&new->queue_lock);
+>   	INIT_LIST_HEAD(&new->rq_list);
+>   
+> -	new->tag_set = kzalloc(sizeof(*new->tag_set), GFP_KERNEL);
+> -	if (!new->tag_set)
+> -		goto error3;
+> -
+> -	new->rq = blk_mq_init_sq_queue(new->tag_set, &mtd_mq_ops, 2,
+> -				BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_BLOCKING);
+> -	if (IS_ERR(new->rq)) {
+> -		ret = PTR_ERR(new->rq);
+> -		new->rq = NULL;
+> -		goto error4;
+> -	}
+> -
+>   	if (tr->flush)
+>   		blk_queue_write_cache(new->rq, true, false);
+>   
+> -	new->rq->queuedata = new;
+>   	blk_queue_logical_block_size(new->rq, tr->blksize);
+>   
+>   	blk_queue_flag_set(QUEUE_FLAG_NONROT, new->rq);
+> @@ -437,13 +433,13 @@ int add_mtd_blktrans_dev(struct mtd_blktrans_dev *new)
+>   		WARN_ON(ret);
+>   	}
+>   	return 0;
+> -error4:
+> +
+> +out_free_tag_set:
+> +	blk_mq_free_tag_set(new->tag_set);
+> +out_kfree_tag_set:
+>   	kfree(new->tag_set);
+> -error3:
+> -	put_disk(new->disk);
+> -error2:
+> +out_list_del:
+>   	list_del(&new->list);
+> -error1:
+>   	return ret;
+>   }
+>   
+
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
+
