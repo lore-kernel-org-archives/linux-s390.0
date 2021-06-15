@@ -2,95 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5663C48BDF
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 09:21:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAAB2C48BDF
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 10:29:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B74FE613B6
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 09:21:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9E6C161451
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 10:29:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231255AbhFOJXq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Jun 2021 05:23:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52836 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231146AbhFOJXp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Jun 2021 05:23:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E23BF6137D;
-        Tue, 15 Jun 2021 09:21:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623748901;
-        bh=0tj/dQXhQr4F8TkJ6u1QLLJjy1TjKMTf4Ej+MdIFcnI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Q5lST+dKOr4Dkl2UvZOYXFU0nxIYOs1vGMf3GpujfqPe/5SiJ3pNN9BuT6A9RmZcR
-         D/kah3Ydys+8ikUaKNj4CpYs+Byb3CybeMwgGrGiBMlDVhfeqyDewJ7I7wZzC0m6fi
-         2mRxpNnl2uEoOWM10Sps8EkZbn/PVdnivEL0TO28=
-Date:   Tue, 15 Jun 2021 11:21:38 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Cc:     Jing Zhang <jingzhangos@google.com>, KVM <kvm@vger.kernel.org>,
-        KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
+        id S231496AbhFOKbK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Jun 2021 06:31:10 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:27720 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231460AbhFOKbJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 15 Jun 2021 06:31:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1623752945;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=VhDOgMjiOwt7H+lgbYmC14lLfCiQZ3CWo0eN0+/p/wA=;
+        b=WVj+kV1pNZtXqbgGdGWu0J/brmL1bcVz6Dxlc2jiKzZjPSFvQ7TIgAW9kFhZMtAjdwem94
+        Cwr2tpoOniWUonudtbAVUmdd+eoVhMqavu7bSw4tgXRlOAK0PP5jaOuVatqNub2KB5rt2C
+        mbBYsE4hzarViWb7+WZCdGV9yI5XARg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-118-28sqSogFMDmkecx9WwbJyQ-1; Tue, 15 Jun 2021 06:27:59 -0400
+X-MC-Unique: 28sqSogFMDmkecx9WwbJyQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 95D6D802575;
+        Tue, 15 Jun 2021 10:27:56 +0000 (UTC)
+Received: from localhost (ovpn-113-156.ams2.redhat.com [10.36.113.156])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7FA5A5C1D5;
+        Tue, 15 Jun 2021 10:27:55 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Christoph Hellwig <hch@lst.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>
+Cc:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
-        David Matlack <dmatlack@google.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
-        Fuad Tabba <tabba@google.com>
-Subject: Re: [PATCH v9 0/5] KVM statistics data fd-based binary interface
-Message-ID: <YMhxIiciyzPchF/2@kroah.com>
-References: <20210614212155.1670777-1-jingzhangos@google.com>
- <b86aa6df-5fd7-d705-1688-4d325df6f7d9@metux.net>
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: Re: [PATCH 01/10] driver core: Pull required checks into
+ driver_probe_device()
+In-Reply-To: <20210614150846.4111871-2-hch@lst.de>
+Organization: Red Hat GmbH
+References: <20210614150846.4111871-1-hch@lst.de>
+ <20210614150846.4111871-2-hch@lst.de>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Tue, 15 Jun 2021 12:27:53 +0200
+Message-ID: <87h7hzxw0m.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b86aa6df-5fd7-d705-1688-4d325df6f7d9@metux.net>
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 15, 2021 at 10:37:36AM +0200, Enrico Weigelt, metux IT consult wrote:
-> Why not putting this into sysfs ?
+On Mon, Jun 14 2021, Christoph Hellwig <hch@lst.de> wrote:
 
-Because sysfs is "one value per file".
+> From: Jason Gunthorpe <jgg@nvidia.com>
+>
+> Checking if the dev is dead or if the dev is already bound is a required
+> precondition to invoking driver_probe_device(). All the call chains
+> leading here duplicate these checks.
+>
+> Add it directly to driver_probe_device() so the precondition is clear and
+> remove the checks from device_driver_attach() and
+> __driver_attach_async_helper().
+>
+> The other call chain going through __device_attach_driver() does have
+> these same checks but they are inlined into logic higher up the call stack
+> and can't be removed.
+>
+> The sysfs uAPI call chain starting at bind_store() is a bit confused
+> because it reads dev->driver unlocked and returns -ENODEV if it is !NULL,
+> otherwise it reads it again under lock and returns 0 if it is !NULL. Fix
+> this to always return -EBUSY and always read dev->driver under its lock.
+>
+> Done in preparation for the next patches which will add additional
+> callers to driver_probe_device() and will need these checks as well.
+>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> [hch: drop the extra checks in device_driver_attach and bind_store]
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/base/bus.c |  2 +-
+>  drivers/base/dd.c  | 32 ++++++++++----------------------
+>  2 files changed, 11 insertions(+), 23 deletions(-)
 
-> I see two options:
-> 
-> a) if it's really kvm-specific (and no chance of using the same
->    interface for other hypervisors), we could put it under the
->    kvm device (/sys/class/misc/kvm).
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
-Again, that is NOT what sysfs is for.
-
-> b) have a generic VMM stats interface that theroretically could work
->    with any hypervisor.
-
-What other hypervisor matters?
-
-greg k-h
