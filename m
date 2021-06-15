@@ -2,191 +2,95 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69E70C48BE5
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 20:35:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 587B8C48BE5
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 23:05:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 463686109E
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 20:35:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2800B61245
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 23:05:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230298AbhFOUhX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Jun 2021 16:37:23 -0400
-Received: from mail-bn7nam10on2048.outbound.protection.outlook.com ([40.107.92.48]:56483
-        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229979AbhFOUhX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Jun 2021 16:37:23 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HBblvPjoe0zUc6+JKQ3OzdxsrBSmZynirZgqB3Ejk/AdgJYWMH3Vo4q+gI5vHG7PM+z3pAQMDVn6relRNQ7nd1Qk1d+fV8BJwhFds9/Eceva7jsfXVclfVCTajZuPmJMqaF83ZWANuFPyrU7nDnOYGS/CXgQZdOgvqf5caPkArs9XAOIPVTwMRd+T8yjDftUMIXojVZhx1LRDcjUQJ+hYYkJ5M10RKkJUsPdtw9MYO0GJ5pykhBtoWFi3rnBp8hY3HAUd50eIW2SKRIykEx+ttbZc/aIDwjB7TlIGjWwDH8TqPv7x9cOTwlRHuA4fA80aGJ48P0ki07a7L387LclAw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SyNPjse/mrrpjUSRXvN/I7o7CCAw5Tg26RPrmMOYX7M=;
- b=ToEdKNgEk4kxxIm1itoM8++UOmikcZzpeDT+80YHhMyL07LwdFzlWp+Lbb2EtBZSuZz2IyMgnRM/QqZ7kVuGb93n8Jj1FZpkPfe8Y5YvGLBfO6CGXasD6Q4vbL1xR4Zz36irzjzlBqyan4OtapjbQnFd4ar5JXtuzaJJHCIkwut9QuVTjRK230jk3uORXc3N5+exMi35giVZPVL4IadB1v95xbUV0n0e3dW9l4ABjquAUhgHaTEkrusWHLJp80WG9JJO1CXK6+pw8Ni/gW2WzrQh03vgBp2trYWk+bEd3550GnKQs/6Nhp/E0ZTO14aKekzMmAK+OVKfoQgEQUtryw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SyNPjse/mrrpjUSRXvN/I7o7CCAw5Tg26RPrmMOYX7M=;
- b=WuVC82WAsArqMqYUR+ZOgnm6/jGIOOw1i4Tkgluf7OhI9/NvY29cvKeudekWmNrFoG4fzA31MhyjyefT4G7NEpMrYw+NV9fusjc7xR97yLzzq7iHVe4J8znw38z7I7nFkMMzGIPFq4Lzp3WCmD4ZqYsnqadewUW+lZLhTs5yC5ta2bp7C6pZ3iDcNu18ns4mPHL+r2abLlSFNXvy8cTuMnBea1+3J5M3WXiUTp9YD4BLhjfSr087vAI5bbLimZy8oox6RzoOY8sX1MpVQmTjTirUNIknOCl5hoq4La7BVL/zj8mKbDszGvDnu5urEp4++Py/IZfir+zkWAq/TQhVUg==
-Authentication-Results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL1PR12MB5096.namprd12.prod.outlook.com (2603:10b6:208:316::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.15; Tue, 15 Jun
- 2021 20:35:16 +0000
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::3d51:a3b9:8611:684e]) by BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::3d51:a3b9:8611:684e%8]) with mapi id 15.20.4242.016; Tue, 15 Jun 2021
- 20:35:16 +0000
-Date:   Tue, 15 Jun 2021 17:35:15 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: Re: Allow mdev drivers to directly create the vfio_device (v3)
-Message-ID: <20210615203515.GW1002214@nvidia.com>
-References: <20210615133519.754763-1-hch@lst.de>
- <20210615133549.362e5a9e.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210615133549.362e5a9e.alex.williamson@redhat.com>
-X-Originating-IP: [206.223.160.26]
-X-ClientProxiedBy: CH2PR18CA0028.namprd18.prod.outlook.com
- (2603:10b6:610:4f::38) To BL0PR12MB5506.namprd12.prod.outlook.com
- (2603:10b6:208:1cb::22)
+        id S229811AbhFOXHy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Jun 2021 19:07:54 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1926 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230043AbhFOXHy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 15 Jun 2021 19:07:54 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15FN4DkS096067;
+        Tue, 15 Jun 2021 19:05:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=VRd/qr35+S3j0HU3zjfgTYFgw+QuMF2USsC+SQ3HaDA=;
+ b=DXkhXPCo2lrcQi03b/Qex6fOFTpwAYAfZZXhDVRLf8ESvkIRS3SGK4acsVMEJ2A5Pb9d
+ b42NVtgnEE2zNuIx3lakggCM5bJsLht1H/BAtxDr011uq6eVg+2Y+odP+FfNrAQb8CaW
+ V+S8/lZLJaGVMFmIr6pO2FD2IVN8Z8ksX28NucBKD3Ap49Z3mUIQABEcVzZqxAD7WcB0
+ vXC8lmfg78g4gc0No0ltyU+ycLxcTflB/wGpxUOmmJ9Mt8FpLwV3AvyoQ1BOeMPSfSyX
+ mA8OGW0OkTzB6VaRCQq6uTIHjEUWj43/iRfx7MbjaTJ4fxxhgcy6Qeg3mXq7by5Fp+iJ 0A== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3975cer92y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Jun 2021 19:05:40 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15FN2mMZ024668;
+        Tue, 15 Jun 2021 23:05:39 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 3966jpgep8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Jun 2021 23:05:38 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15FN5ZOG34799874
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Jun 2021 23:05:35 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9CBA54C040;
+        Tue, 15 Jun 2021 23:05:35 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 28D574C058;
+        Tue, 15 Jun 2021 23:05:35 +0000 (GMT)
+Received: from localhost (unknown [9.171.72.121])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 15 Jun 2021 23:05:35 +0000 (GMT)
+Date:   Wed, 16 Jun 2021 01:05:33 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Zou Wei <zou_wei@huawei.com>
+Cc:     hca@linux.ibm.com, borntraeger@de.ibm.com,
+        gregkh@linuxfoundation.org, jirislaby@kernel.org,
+        vneethv@linux.ibm.com, dsterba@suse.com, oberpar@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -next] s390/sclp: convert list_for_each to entry variant
+Message-ID: <your-ad-here.call-01623798333-ext-7548@work.hours>
+References: <1623740220-15846-1-git-send-email-zou_wei@huawei.com>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (206.223.160.26) by CH2PR18CA0028.namprd18.prod.outlook.com (2603:10b6:610:4f::38) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.20 via Frontend Transport; Tue, 15 Jun 2021 20:35:16 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1ltFmF-007EAe-CR; Tue, 15 Jun 2021 17:35:15 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: c84e145d-ea49-4669-ecfa-08d9303d15ad
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5096:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BL1PR12MB50965060D1ED7D046BCCCD86C2309@BL1PR12MB5096.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: KIZ3yfi44ag0nkWPBZaCs5H4dg2Gpiw1SVwYzj5Xy3YdEGesCaImK8VETbUq8MvTXH+8a/2EgElNNhUiW2qBz+XGNRi7LugJPpwSN7/K2AFY+WS5sCB9DUGGm624k0ZJwCHln/tJUGDOlcVG0HktRLmXcJw8OpDbf4e6fsGwVA7LG8v2nCYihFuMhD4LTyT7S6LzXKcEOXzjE8kUMGzXnCEHtEnM+Gvdgd0dTymh36l20GEyE3WG60b4PMBBT3jqdezlriyvEPhL78jvFAs6HUuApFfAnIpnLYCW8oH72BYR753V15T+tNmho+WB8lhUkwM0RKWQNpVNysvjjDb8R+2dZcOPyxlgwf2VtThA0fYPzDi/N0pcvBrQCqxJVuD4oDi5CuMpztvySa1l2hoClb2M1qrfVnJkmwVXeTeH4i/cDpGDPhX6eQuU6iO9ZYAL4lzg+7LUVQdnAeyKhFCHAdPmpVKmgqsFtA+3Owgax/12Rb3JM6vkEHj0IhDb/fVakfCOOlOurLFO6awsj++9olvSW2ou1iziTl39/ztaWKAfJeji+xlGnK3eczXX1hLSvG2cJni1zpWxb+2uU++PZb2r1v0foSYYSPv8n1a5OoNTH8KOI5pnQhrRJTfmcY9vAQ8kwOFiS+ylEHKKwqzKWgdLBeQ6nLX4KkjQo+Pzs7C4V4mIxS2+SDMXq9njg3SwKQH+c6lIPu9ZuytFpr7P652Sw02J6NJ/tLqCjsJNZW4=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(396003)(366004)(39860400002)(346002)(376002)(33656002)(66476007)(66556008)(6916009)(8936002)(86362001)(2906002)(186003)(8676002)(7416002)(38100700002)(478600001)(4326008)(83380400001)(426003)(54906003)(5660300002)(9746002)(966005)(26005)(316002)(1076003)(2616005)(36756003)(66946007)(9786002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?w3HvP2u6Tgo2+qQ4cFJsMO+q1qmdyBmlYrcy8NZog/oYwZ0paRsrGWpTopCE?=
- =?us-ascii?Q?8GGGPeeNztUdu0PqJ7YG+BwhwV8CsQ/ayUmZNu56jMd4MzUG/Z0xbf0vw44q?=
- =?us-ascii?Q?RWBPDayTzXackd7W2yl40VS1oB43cBkbQi9GVjWTQxtSR7GIRwxBOkAmKpoA?=
- =?us-ascii?Q?3F/JtOf+g5x+M1ERUU3/hraOIUz1uuMPxUss+c1iGxKtG/oTftUysJpqvusB?=
- =?us-ascii?Q?xC3avtGPLMwSk0qOS6qI20piuP9U5FU4i7MfQmU9hRPpRO4dlQ7weSppLgVJ?=
- =?us-ascii?Q?5Fyk1gsDzsUPCCzje4zKaxvwXVYDdUpF5UUINLTq+qK5OdXPAgPgrCN55Njj?=
- =?us-ascii?Q?AXdpjdfjzwYQ/rRwPFn/kXWUg2xSRLMOACE7n8KfAnPiFINVfytSJwPiE/Xk?=
- =?us-ascii?Q?WN+mZGPVTpi2AINZXzrin5fPKFM18OE90S1wGgPGoaZ4bCtj3qi35HDB6O+j?=
- =?us-ascii?Q?HScoNOIXgot2IhOfZkp58/ESePQSrU28WqxlX36RYE8RLiPXVEq1wOiGqZuP?=
- =?us-ascii?Q?mV3TA8s3GFbikoSLfrJwUmOU92fTAPu76VAX4O65t6Yf6qd6K6vAIlImULjm?=
- =?us-ascii?Q?NyNG5/8fV4EhjntSRBZhakw+3PDoxLZDXfRu+IcbeL0nmfk1aipL3G3OYALX?=
- =?us-ascii?Q?jTkD6wD+ULR6oxcHLaN7CD7kP7kBMWCL4rV3tinSDCTk1+6mt0AItABLvIoQ?=
- =?us-ascii?Q?7gwZX5rMCxdykywFpdI7f6LKZpNc+zHfEdSFAuLoBNMR5a06z5Ixv9xR8DJO?=
- =?us-ascii?Q?hPrcKnUworn3Oh9UxX2s8ytPLl8kxsOKYtmB3X5SE8+7s4pV4w+6uMXWvDkD?=
- =?us-ascii?Q?lxDOBMmTTyS4OX60uuHiF/LX5bNcSsU4WtlVoWM6WqbjW5dCf1KIbyMu/sQk?=
- =?us-ascii?Q?wOSevZ2GGfYOGvEDiC75zA7O1h9wEeQQnjGlKf/r1qXFQrtn6WtT0XCvf+3b?=
- =?us-ascii?Q?TbbZnogIIjaWeF7U0F5uspiW14JJwac2MQnwJ6eP9nEFSyNqoscKl5ztkVp1?=
- =?us-ascii?Q?8iXv6grcZNwlWHFTlP7r0lqVzh19AkxADN3LQX9NQooz/Dassp4EejLVY0Fv?=
- =?us-ascii?Q?XKXCJlEqNY5k56+uMCRZWD32wpUdT8N4Usyz3B+3cIcecn946kHlWfU12Czw?=
- =?us-ascii?Q?ykXm2tVl2vFA9T1Ks8yo0W2/Vau9y8CucbYtsoXaYGsvF4e9lA2m294JMgmw?=
- =?us-ascii?Q?3GFpD/HqC2UytLNzXFl0zZKcJwAn07Ic6Tqb/zeMbLw1rGlm4lzeVkWaT4g8?=
- =?us-ascii?Q?wdOcp00V6bL1Lxpua/D5mhgS3sLMQ6F+VADA3g7TLcJ4ZL7t6ZqtSHDnW0wY?=
- =?us-ascii?Q?oL3U6CW8YHgk3lwTwnN8YMlB?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c84e145d-ea49-4669-ecfa-08d9303d15ad
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jun 2021 20:35:16.6833
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: c3qeVrzV/I+FjL2YkX7O3f6kngbz/DorJFCUV3w9n8sATmcXaVsvbpNCCHk+7H0/
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5096
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1623740220-15846-1-git-send-email-zou_wei@huawei.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: S40vlL13GhrUD5kQ2v8fzY6WZTZaLhKB
+X-Proofpoint-GUID: S40vlL13GhrUD5kQ2v8fzY6WZTZaLhKB
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-06-15_07:2021-06-15,2021-06-15 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 mlxlogscore=999 bulkscore=0 phishscore=0
+ priorityscore=1501 suspectscore=0 impostorscore=0 mlxscore=0 spamscore=0
+ clxscore=1011 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106150142
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 15, 2021 at 01:35:49PM -0600, Alex Williamson wrote:
-> On Tue, 15 Jun 2021 15:35:09 +0200
-> Christoph Hellwig <hch@lst.de> wrote:
+On Tue, Jun 15, 2021 at 02:57:00PM +0800, Zou Wei wrote:
+> convert list_for_each() to list_for_each_entry() where
+> applicable.
 > 
-> > This is my alternative take on this series from Jason:
-> > 
-> > https://lore.kernel.org/dri-devel/87czsszi9i.fsf@redhat.com/T/
-> > 
-> > The mdev/vfio parts are exactly the same, but this solves the driver core
-> > changes for the direct probing without the in/out flag that Greg hated,
-> > which cause a little more work, but probably make the result better.
-> > 
-> > Original decription from Jason below:
-> > 
-> > The mdev bus's core part for managing the lifecycle of devices is mostly
-> > as one would expect for a driver core bus subsystem.
-> > 
-> > However instead of having a normal 'struct device_driver' and binding the
-> > actual mdev drivers through the standard driver core mechanisms it open
-> > codes this with the struct mdev_parent_ops and provides a single driver
-> > that shims between the VFIO core's struct vfio_device and the actual
-> > device driver.
-> > 
-> > Instead, allow mdev drivers implement an actual struct mdev_driver and
-> > directly call vfio_register_group_dev() in the probe() function for the
-> > mdev. Arrange to bind the created mdev_device to the mdev_driver that is
-> > provided by the end driver.
-> > 
-> > The actual execution flow doesn't change much, eg what was
-> > parent_ops->create is now device_driver->probe and it is called at almost
-> > the exact same time - except under the normal control of the driver core.
-> > 
-> > Ultimately converting all the drivers unlocks a fair number of additional
-> > VFIO simplifications and cleanups.
-> 
-> Looks like we need an update to
-> Documentation/driver-api/vfio-mediated-device.rst to go along with
-> this.
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Zou Wei <zou_wei@huawei.com>
+> ---
+>  drivers/s390/char/sclp_tty.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 
-I have those updates in the patch that removes the old way, do you
-want to move them forward to here?
-
-> Also, if we're preserving compatibility with the "legacy"
-> mdev_parent_ops callbacks without deprecating them,
-
-I view this as breaking up the work into manageable steps and patch
-series. This is already at 10 patches just to provide the
-infrastructure. The next steps will be to move the driver conversions
-ahead.
-
-> does it really make sense to convert every one of the sample drivers
-> to this new direct registration?  
-
-Yes, the rest of the drivers will get converted eventually too. There
-is no reason to hold things back. Depending on timelines we might be
-able to get AP into this cycle too...
-
-Jason
+Applied, thanks!
