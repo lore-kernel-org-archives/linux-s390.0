@@ -2,129 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07460C48BE5
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 07:44:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57C5DC48BE5
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 07:53:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E553161407
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 07:44:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2DFAD60E09
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 07:53:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230144AbhFOHqE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Jun 2021 03:46:04 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31120 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229613AbhFOHqD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Jun 2021 03:46:03 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15F7Y2cs021359;
-        Tue, 15 Jun 2021 03:43:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=adpqRCpixsBPI3Dmqt4EnbXaGR6Lwwm/ncIPBJTljRo=;
- b=K8fqDSWkY3SpbX0evoEuUWYMCGpLpFWAtXcDoD2vN9A1n18L5rJfS82np778hm04yJyD
- mClIe8SUWmiwvzjG0yhHtW2ab6rYLdTTiI/tkW771PAWRwZq5ggXqYxwajBwVkAfmgWa
- vpZ4sPPAL5C8ZXWfIUOtxrgV2iTdAFOMNLW/gCGRmDWCPIr+ne5rWpjTCtGt8x6uvunq
- cLEp4UMFlUZJKlK0lNjSnmyHeP2pfOvpb5hCObO3BOIuHcTdgaHUpekmTi6pL0Mv/nGS
- B27lR2Z31SRRT8tDV9DFAow/kVpVsXWWBjjuCvRAs9aYPLWRhS8/ReZmyIVAANEbwnSz OQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 396qn48rpf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Jun 2021 03:43:55 -0400
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15F7Z26T024989;
-        Tue, 15 Jun 2021 03:43:55 -0400
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 396qn48rnv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Jun 2021 03:43:55 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15F7giQN022028;
-        Tue, 15 Jun 2021 07:43:53 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03fra.de.ibm.com with ESMTP id 394mj90qtb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Jun 2021 07:43:53 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15F7hogq33882496
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Jun 2021 07:43:50 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 334264C04A;
-        Tue, 15 Jun 2021 07:43:50 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 957CD4C04E;
-        Tue, 15 Jun 2021 07:43:49 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.85.205])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 15 Jun 2021 07:43:49 +0000 (GMT)
-Subject: Re: [PATCH 1/3] s390/vfio-ap: clean up mdev resources when remove
- callback invoked
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com
-References: <20210609224634.575156-1-akrowiak@linux.ibm.com>
- <20210609224634.575156-2-akrowiak@linux.ibm.com>
- <20210611164854.GT1002214@nvidia.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <fb6a3aa4-c12b-5b38-54a5-36941d5d8dbd@de.ibm.com>
-Date:   Tue, 15 Jun 2021 09:43:44 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+        id S230448AbhFOHzj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Jun 2021 03:55:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60000 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230196AbhFOHzi (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 15 Jun 2021 03:55:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4086B60E09;
+        Tue, 15 Jun 2021 07:53:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623743613;
+        bh=vDFtBhlYLrwtZnXOmkUZxpC5WdGn3oEPAkfut4CQqlM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=k5TCBQVSBuiL6rRGP41YwOT3DJImXi6Z1ty8MpV5XWkPGRguUfc9uqH2nPdbuWVKF
+         nvKqUgp1gYQEozxBTNl+B8OwZn6E0A0Azee9sgNbBFp5f2BF9MrCeazfECaTgWqA9R
+         IbVaQdoTKURDMZqti9x/Eraat8P4E50XDSuVD+MuJCPgtp9VnY24fi2kAu85igKzhD
+         0A1BkJXNkIQZLCyCOJWVgqoq+ZvwfFA4F+e8cmCvtDh1bylcfCG/QNJysbdmDUL8NF
+         wKqmAxU0QdRufELcUgnOVFU0l12rQxTX29JTQBnJJY+L0yB5UefYMAD5OIhB88ScBU
+         CFl88in6YsOAw==
+Date:   Tue, 15 Jun 2021 10:53:30 +0300
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Jing Zhang <jingzhangos@google.com>, KVM <kvm@vger.kernel.org>,
+        KVMARM <kvmarm@lists.cs.columbia.edu>,
+        LinuxMIPS <linux-mips@vger.kernel.org>,
+        KVMPPC <kvm-ppc@vger.kernel.org>,
+        LinuxS390 <linux-s390@vger.kernel.org>,
+        Linuxkselftest <linux-kselftest@vger.kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
+        David Matlack <dmatlack@google.com>,
+        Ricardo Koller <ricarkol@google.com>,
+        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
+        Fuad Tabba <tabba@google.com>
+Subject: Re: [PATCH v9 0/5] KVM statistics data fd-based binary interface
+Message-ID: <YMhcek2cIu3Oz5Ek@unreal>
+References: <20210614212155.1670777-1-jingzhangos@google.com>
+ <YMg5xPbmK3myjIX8@unreal>
+ <15875c41-e1e7-3bf2-a85c-21384684d279@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210611164854.GT1002214@nvidia.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zMOFSxYXPb8cCdSg2C0a_8mZ9PkHfm_L
-X-Proofpoint-ORIG-GUID: Mfu71SqRO_FJkulYxDIM_5DwDDXPDnMY
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-15_04:2021-06-14,2021-06-15 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- phishscore=0 priorityscore=1501 impostorscore=0 lowpriorityscore=0
- suspectscore=0 mlxlogscore=999 malwarescore=0 adultscore=0 spamscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106150045
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15875c41-e1e7-3bf2-a85c-21384684d279@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 11.06.21 18:48, Jason Gunthorpe wrote:
-> On Wed, Jun 09, 2021 at 06:46:32PM -0400, Tony Krowiak wrote:
->> The mdev remove callback for the vfio_ap device driver bails out with
->> -EBUSY if the mdev is in use by a KVM guest (i.e., the KVM pointer in the
->> struct ap_matrix_mdev is not NULL). The intended purpose was
->> to prevent the mdev from being removed while in use. There are two
->> problems with this scenario:
->>
->> 1. Returning a non-zero return code from the remove callback does not
->>     prevent the removal of the mdev.
->>
->> 2. The KVM pointer in the struct ap_matrix_mdev will always be NULL because
->>     the remove callback will not get invoked until the mdev fd is closed.
->>     When the mdev fd is closed, the mdev release callback is invoked and
->>     clears the KVM pointer from the struct ap_matrix_mdev.
->>
->> Let's go ahead and remove the check for KVM in the remove callback and
->> allow the cleanup of mdev resources to proceed.
->>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 10 ----------
->>   1 file changed, 10 deletions(-)
+On Tue, Jun 15, 2021 at 09:06:43AM +0200, Paolo Bonzini wrote:
+> On 15/06/21 07:25, Leon Romanovsky wrote:
+> > Sorry for my naive questions, but how does telemetry get statistics
+> > for hypervisors? Why is KVM different from hypervisors or NIC's statistics
+> > or any other high speed devices (RDMA) that generate tons of data?
 > 
-> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> Right now, the only way is debugfs but it's slow, and it's disabled when
+> using lockdown mode; this series is a way to fix this.
+> 
+> I sense that there is another question in there; are you wondering if
+> another mechanism should be used, for example netlink?  The main issue there
+> is how to identify a VM, since KVM file descriptors don't have a name.
+> Using a pid works (sort of) for debugfs, but pids are not appropriate for a
+> stable API.  Using a file descriptor as in this series requires
+> collaboration from the userspace program; howver, once the file descriptor
+> has been transmitted via SCM_RIGHTS, telemetry can read it forever without
+> further IPC, and there is proper privilege separation.
 
-Jason, I guess you want this patch still in 5.13, the other 2 can be 5.14?
+Yeah, sorry for mixing different questions into one.
+
+So the answer to the question "why KVM is different" is that it doesn't
+have any stable identification except file descriptor. While hypervisors
+have stable names, NICs and RDMA devices have interface indexes e.t.c.
+Did I get it right?
+
+And this was second part of my question, the first part was my attempt to
+get on answer why current statistics like process info (/proc/xxx/*), NICs
+(netlink) and RDMA (sysfs) are not using binary format.
+
+Thanks
+
+> 
+> Paolo
+> 
