@@ -2,200 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F4F3C48BDF
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 11:31:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A9DEC48BDF
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 11:42:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5BCA661455
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 11:31:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 48DCE6145C
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 11:42:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230079AbhFOLdX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Jun 2021 07:33:23 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:58553 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229965AbhFOLdU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Jun 2021 07:33:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623756675;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=aQ2nOAspl2AGDi9hsIXoVirS49xlNLfSm3ZVd3FKUiQ=;
-        b=MhniVwOZ4jcNpZ+mqxKjf5LQBwxwaczLjeLmwKfG00lfyJWXA283NbUyXeSiVuVKJS1V39
-        BwReT4PqVs264NJ9V1Ugx5yk/xplmhsx/ZnIPsmd2XReq+Lt8cvbX+A9O7aSUejN6083tE
-        +JYo7i1RIPGjC8kSXo9Buh6Nq+1MTyc=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-446-MMbrBuznMduGYbcUtZowcA-1; Tue, 15 Jun 2021 07:31:14 -0400
-X-MC-Unique: MMbrBuznMduGYbcUtZowcA-1
-Received: by mail-ej1-f69.google.com with SMTP id p5-20020a17090653c5b02903db1cfa514dso4395413ejo.13
-        for <linux-s390@vger.kernel.org>; Tue, 15 Jun 2021 04:31:14 -0700 (PDT)
+        id S229869AbhFOLoL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Jun 2021 07:44:11 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:57105 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229951AbhFOLoK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Jun 2021 07:44:10 -0400
+Received: from mail-wm1-f71.google.com ([209.85.128.71])
+        by youngberry.canonical.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <dimitri.ledkov@canonical.com>)
+        id 1lt7SH-0007bj-Ey
+        for linux-s390@vger.kernel.org; Tue, 15 Jun 2021 11:42:05 +0000
+Received: by mail-wm1-f71.google.com with SMTP id v25-20020a1cf7190000b0290197a4be97b7so1393355wmh.9
+        for <linux-s390@vger.kernel.org>; Tue, 15 Jun 2021 04:42:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=aQ2nOAspl2AGDi9hsIXoVirS49xlNLfSm3ZVd3FKUiQ=;
-        b=dz4ETxtkYEaKw4DOITMzx3BqWYMasxqB6dnk17QX0I3iRSHjsnwYTVfTb109AdVpyT
-         5ohy4iCGYCF8nuJbbfr9skcOd6Ak90wvgxZz+Q6Qb7jx1J+fkEI7KygJPvQ1tD3Zud7O
-         P3OY2yZjbbug6vYJ17tXa3OHMD+tEGHt35iOk9ZNjPKZ4MkoGcTAC41MfX+9+GKtwl++
-         VlQUsuZwItZPaN7sTY6rptuY31wLSaBLbeEJYUtmdCVHKch6gwa6j3GVuW3hYIxz8foA
-         Jdj7ahaionDyeZeyL0EBjaNsVuFo+hfko+xbN7bwBkNgMsTMHD481Kxh4rz5J6QYw9lC
-         ZEQw==
-X-Gm-Message-State: AOAM533HY4bUM9H4FzJwW6gqHBJBrFsk5ME1theNAMT/kq1M4b6TVTf2
-        VlGr1+kqGHjP913kojVA+4VuhV/3LFHMieE3cTldiHDm/sUmQ5NSKap2wGRs8pg2syy4MCpc+HR
-        qBcrgAERorKmq2APqFcd2jQ==
-X-Received: by 2002:a17:906:6ad0:: with SMTP id q16mr20563652ejs.286.1623756673648;
-        Tue, 15 Jun 2021 04:31:13 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzKlp02kMxK2rO+S69nIrAnTgSLt5X2p2XEkmw4RDKa1lrb0dqopq+Tz3VP4q2ZjtECG1DKNg==
-X-Received: by 2002:a17:906:6ad0:: with SMTP id q16mr20563625ejs.286.1623756673461;
-        Tue, 15 Jun 2021 04:31:13 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id u21sm7110928eja.59.2021.06.15.04.31.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Jun 2021 04:31:12 -0700 (PDT)
-To:     "Enrico Weigelt, metux IT consult" <lkml@metux.net>,
-        Jing Zhang <jingzhangos@google.com>, KVM <kvm@vger.kernel.org>,
-        KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
+        bh=CYDncFNuUvtFCPbJvAJNhxcp0bRwM7nHPoRx8JOBLSQ=;
+        b=ELWoPwgSCLPLlM3+jPLHKBqcsJOekPCNz2huTGdw4h4Fj7l+75bHzWjslL7WPIfn5g
+         9ifottpYjF63AsANXDPSKl0v7CtBPtW5pSHFl+NFWsPcDHApEpo5SloCw03t1htQEbW0
+         sMWYiVXSdCZItTNWAuB0f5mLUBC9qwJkJiVu1rar8ffdsyT/NhVV9CI+Nu4Bhu0GmlgP
+         p0NysReWGG+pH/m0FAgz4WQqTnaW8VsVf88+N+jIzz6grU3/9EuaQgrOfDO5G0H3xd4+
+         FehG4d2xTUzpwZgTlInourzM0oNcHATmGkaZFDTdYInrUBz6/hqS/rUnw327mFHhcxlV
+         TUNA==
+X-Gm-Message-State: AOAM532EWc/gNVQm9KPOn8fAPA/1wyKRzLozwZmn7jZVsZhKRcP9trwU
+        HKjjhCFFJfxomloJAwZFfe1TB01NhAywgLzr2hFLbH6APMt7VENbOKUcbgANmd2xjv4v5akI/c8
+        8v2mT2Hm6pK/nYB/aruOLNCfGDmkAL2CTxifyGxs=
+X-Received: by 2002:adf:f990:: with SMTP id f16mr25183223wrr.340.1623757325208;
+        Tue, 15 Jun 2021 04:42:05 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzOYE9lZAw7L+BTijLcTg5ei2l1NBa58a2BDZyzq1Dzi2zpfv/VgRp5Qc3iid2UXmV/5e3ACw==
+X-Received: by 2002:adf:f990:: with SMTP id f16mr25183194wrr.340.1623757324976;
+        Tue, 15 Jun 2021 04:42:04 -0700 (PDT)
+Received: from localhost ([2a01:4b00:85fd:d700:dc22:6ba5:a376:4d8d])
+        by smtp.gmail.com with ESMTPSA id r2sm19428181wrv.39.2021.06.15.04.42.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Jun 2021 04:42:04 -0700 (PDT)
+From:   Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
-        David Matlack <dmatlack@google.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
-        Fuad Tabba <tabba@google.com>
-References: <20210614212155.1670777-1-jingzhangos@google.com>
- <b86aa6df-5fd7-d705-1688-4d325df6f7d9@metux.net>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v9 0/5] KVM statistics data fd-based binary interface
-Message-ID: <ad7905f9-8338-382a-b1df-9b3352bbd2f8@redhat.com>
-Date:   Tue, 15 Jun 2021 13:31:10 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        linux-s390@vger.kernel.org
+Subject: [PATCH] s390/boot: add zstd support
+Date:   Tue, 15 Jun 2021 12:41:50 +0100
+Message-Id: <20210615114150.325080-1-dimitri.ledkov@canonical.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-In-Reply-To: <b86aa6df-5fd7-d705-1688-4d325df6f7d9@metux.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 15/06/21 10:37, Enrico Weigelt, metux IT consult wrote:
-> * why is it binary instead of text ? is it so very high volume that
->    it really matters ?
+Enable ztsd support in s390/boot, to enable booting with zstd
+compressed kernel when configured with CONFIG_KERNEL_ZSTD=y.
 
-The main reason to have a binary format is not the high volume actually 
-(though it also has its part).  Rather, we would really like to include 
-the schema to make the statistics self-describing.  This includes stuff 
-like whether the unit of measure of a statistic is clock cycles, 
-nanoseconds, pages or whatnot; having this kind of information in text 
-leads to awkwardness in the parsers.  trace-cmd is another example where 
-the data consists of a schema followed by binary data.
+BugLink: https://bugs.launchpad.net/bugs/1931725
+Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+cc: Heiko Carstens <hca@linux.ibm.com>
+cc: Vasily Gorbik <gor@linux.ibm.com>
+cc: Christian Borntraeger <borntraeger@de.ibm.com>
+cc: linux-s390@vger.kernel.org
+---
+ arch/s390/Kconfig                        | 1 +
+ arch/s390/boot/compressed/Makefile       | 4 ++++
+ arch/s390/boot/compressed/decompressor.c | 4 ++++
+ 3 files changed, 9 insertions(+)
 
-Text format could certainly be added if there's a usecase, but for 
-developer use debugfs is usually a suitable replacement.
-
-Last year we tried the opposite direction: we built a one-value-per-file 
-filesystem with a common API that any subsystem could use (e.g. 
-providing ethtool stats, /proc/interrupts, etc. in addition to KVM 
-stats).  We started with text, similar to sysfs, with the plan of 
-extending it to a binary format later.  However, other subsystems 
-expressed very little interest in this, so instead we decided to go with 
-something that is designed around KVM needs.
-
-Still, the binary format that KVM uses is designed not to be 
-KVM-specific.  If other subsystems want to publish high-volume, 
-self-describing statistic information, they are welcome to share the 
-binary format and the code.  Perhaps it may make sense in some cases to 
-have them in sysfs, even (e.g. /sys/kernel/slab/*/.stats).  As Greg said 
-sysfs is currently one value per file, but perhaps that could be changed 
-if the binary format is an additional way to access the information and 
-not the only one (not that I'm planning to do it).
-
-> * how will possible future extensions of the telemetry packets work ?
-
-The format includes a schema, so it's possible to add more statistics in 
-the future.  The exact list of statistics varies per architecture and is 
-not part of the userspace API (obvious caveat: https://xkcd.com/1172/).
-
-> * aren't there other means to get this fd instead of an ioctl() on the
->    VM fd ? something more from the outside (eg. sysfs/procfs)
-
-Not yet, but if there's a need it can be added.  It'd be plausible to 
-publish system-wide statistics via a ioctl on /dev/kvm, for example. 
-We'd have to check how this compares with stuff that is world-readable 
-in procfs and sysfs, but I don't think there are security concerns in 
-exposing that.
-
-There's also pidfd_getfd(2) which can be used to pull a VM file 
-descriptor from another running process.  That can be used to avoid the 
-issue of KVM file descriptors being unnamed.
-
-> * how will that relate to other hypervisors ?
-
-Other hypervisors do not run as part of the Linux kernel (at least they 
-are not upstream).  These statistics only apply to Linux *hosts*, not 
-guests.
-
-As far as I know, there is no standard that Xen or the proprietary 
-hypervisors use to communicate their telemetry info to monitoring tools, 
-and also no standard binary format used by exporters to talk to 
-monitoring tools.  If this format will be adopted by other hypervisors 
-or any random software, I will be happy.
-
-> Some notes from the operating perspective:
-> 
-> In typical datacenters we've got various monitoring tools that are able
-> to catch up lots of data from different sources (especially files). If
-> an operator e.g. is interested in something in happening in some file
-> (e.g. in /proc of /sys), it's quite trivial - just configure yet another
-> probe (maybe some regex for parsing) and done. Automatically fed in his
-> $monitoring_solution (e.g. nagios, ELK, Splunk, whatsnot)
-
-... but in practice what you do is you have prebuilt exporters that 
-talks to $monitoring_solution.  Monitoring individual files is the 
-exception, not the rule.  But indeed Libvirt already has I/O and network 
-statistics and there is an exporter for Prometheus, so we should add 
-support for this new method as well to both QEMU (exporting the file 
-descriptor) and Libvirt.
-
-I hope this helps clarifying your doubts!
-
-Paolo
-
-> With your approach, it's not that simple: now the operator needs to
-> create (and deploy and manage) a separate agent that somehow receives
-> that fd from the VMM, reads and parses that specific binary stream
-> and finally pushes it into the monitoring infrastructure. Or the VMM
-> writes it into some file, where some monitoring agent can pick it up.
-> In any case, not actually trivial from ops perspective.
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index b4c7c34069f8..fdbf584e13eb 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -172,6 +172,7 @@ config S390
+ 	select HAVE_KERNEL_LZO
+ 	select HAVE_KERNEL_UNCOMPRESSED
+ 	select HAVE_KERNEL_XZ
++	select HAVE_KERNEL_ZSTD
+ 	select HAVE_KPROBES
+ 	select HAVE_KPROBES_ON_FTRACE
+ 	select HAVE_KRETPROBES
+diff --git a/arch/s390/boot/compressed/Makefile b/arch/s390/boot/compressed/Makefile
+index de18dab518bb..75660aaaa7a3 100644
+--- a/arch/s390/boot/compressed/Makefile
++++ b/arch/s390/boot/compressed/Makefile
+@@ -14,6 +14,7 @@ obj-y	:= $(if $(CONFIG_KERNEL_UNCOMPRESSED),,decompressor.o) info.o
+ obj-all := $(obj-y) piggy.o syms.o
+ targets	:= vmlinux.lds vmlinux vmlinux.bin vmlinux.bin.gz vmlinux.bin.bz2
+ targets += vmlinux.bin.xz vmlinux.bin.lzma vmlinux.bin.lzo vmlinux.bin.lz4
++targets += vmlinux.bin.zst
+ targets += info.bin syms.bin vmlinux.syms $(obj-all)
+ 
+ KBUILD_AFLAGS := $(KBUILD_AFLAGS_DECOMPRESSOR)
+@@ -63,6 +64,7 @@ suffix-$(CONFIG_KERNEL_LZ4)  := .lz4
+ suffix-$(CONFIG_KERNEL_LZMA)  := .lzma
+ suffix-$(CONFIG_KERNEL_LZO)  := .lzo
+ suffix-$(CONFIG_KERNEL_XZ)  := .xz
++suffix-$(CONFIG_KERNEL_ZSTD)  := .zst
+ 
+ $(obj)/vmlinux.bin.gz: $(vmlinux.bin.all-y) FORCE
+ 	$(call if_changed,gzip)
+@@ -76,6 +78,8 @@ $(obj)/vmlinux.bin.lzo: $(vmlinux.bin.all-y) FORCE
+ 	$(call if_changed,lzo)
+ $(obj)/vmlinux.bin.xz: $(vmlinux.bin.all-y) FORCE
+ 	$(call if_changed,xzkern)
++$(obj)/vmlinux.bin.zst: $(vmlinux.bin.all-y) FORCE
++	$(call if_changed,zstd22)
+ 
+ OBJCOPYFLAGS_piggy.o := -I binary -O elf64-s390 -B s390:64-bit --rename-section .data=.vmlinux.bin.compressed
+ $(obj)/piggy.o: $(obj)/vmlinux.bin$(suffix-y) FORCE
+diff --git a/arch/s390/boot/compressed/decompressor.c b/arch/s390/boot/compressed/decompressor.c
+index 3061b11c4d27..02fd0d245c7e 100644
+--- a/arch/s390/boot/compressed/decompressor.c
++++ b/arch/s390/boot/compressed/decompressor.c
+@@ -61,6 +61,10 @@ static unsigned long free_mem_end_ptr = (unsigned long) _end + BOOT_HEAP_SIZE;
+ #include "../../../../lib/decompress_unxz.c"
+ #endif
+ 
++#ifdef CONFIG_KERNEL_ZSTD
++#include "../../../../lib/decompress_unzstd.c"
++#endif
++
+ #define decompress_offset ALIGN((unsigned long)_end + BOOT_HEAP_SIZE, PAGE_SIZE)
+ 
+ unsigned long mem_safe_offset(void)
+-- 
+2.27.0
 
