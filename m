@@ -6,21 +6,21 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF49EC48BE8
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 05:49:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 059B9C48BE8
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 05:50:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7BDBA61413
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 05:49:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E445F61410
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Jun 2021 05:50:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229811AbhFOFvF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Jun 2021 01:51:05 -0400
-Received: from verein.lst.de ([213.95.11.211]:47299 "EHLO verein.lst.de"
+        id S230306AbhFOFw1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Jun 2021 01:52:27 -0400
+Received: from verein.lst.de ([213.95.11.211]:47314 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229539AbhFOFvE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Jun 2021 01:51:04 -0400
+        id S229976AbhFOFw1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 15 Jun 2021 01:52:27 -0400
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id 2547D67373; Tue, 15 Jun 2021 07:48:57 +0200 (CEST)
-Date:   Tue, 15 Jun 2021 07:48:56 +0200
+        id 7D15767373; Tue, 15 Jun 2021 07:50:21 +0200 (CEST)
+Date:   Tue, 15 Jun 2021 07:50:21 +0200
 From:   Christoph Hellwig <hch@lst.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Christoph Hellwig <hch@lst.de>, Jason Gunthorpe <jgg@nvidia.com>,
@@ -42,22 +42,29 @@ Cc:     Christoph Hellwig <hch@lst.de>, Jason Gunthorpe <jgg@nvidia.com>,
         linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
         "Rafael J. Wysocki" <rafael@kernel.org>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: Re: [PATCH 02/10] driver core: Better distinguish probe errors in
- really_probe
-Message-ID: <20210615054856.GA21080@lst.de>
-References: <20210614150846.4111871-1-hch@lst.de> <20210614150846.4111871-3-hch@lst.de> <YMg39xWiesZzjVUr@kroah.com>
+Subject: Re: Allow mdev drivers to directly create the vfio_device (v2 /
+ alternative)
+Message-ID: <20210615055021.GB21080@lst.de>
+References: <20210614150846.4111871-1-hch@lst.de> <YMg49UF8of2yHWum@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YMg39xWiesZzjVUr@kroah.com>
+In-Reply-To: <YMg49UF8of2yHWum@kroah.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 15, 2021 at 07:17:43AM +0200, Greg Kroah-Hartman wrote:
-> Like Kirti said, 0 needs to be handled here.  Did this not spew a lot of
-> warnings in the logs?
+On Tue, Jun 15, 2021 at 07:21:57AM +0200, Greg Kroah-Hartman wrote:
+> This looks much better as far as the driver core changes go, thank you
+> for doing this.
+> 
+> I'm guessing there will be at least one more revision of this.
 
-Trying again it did.  But I didn't even notice given all the crap
-printed during a typical boot these days..
+Yes.
+
+> Do you
+> want this to go through my driver core tree or is there a mdev tree it
+> should go through?  Either is fine for me.
+
+Either way is fine with me.  Alex, do you have a preference?
