@@ -2,66 +2,65 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD20AC48BE8
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 17:12:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47C9FC48BE5
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 18:04:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9C667610A1
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 17:12:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 118DD6128C
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 18:04:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231322AbhFPROc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Jun 2021 13:14:32 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28099 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231321AbhFPROa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 16 Jun 2021 13:14:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623863544;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=9dwXJG+e2J+zj861tULnfcQYsx7+UyssMsGTwpLEmFo=;
-        b=bG6E4okBXecFxsF2clBs6gpW1RD9cBNDbunvAbBoYLRSxjmW+ATv0FlEsjjTIoiQpOvcBJ
-        xsrRounB4jRskiql+OMr29PbVtURozUZJjGHH2oB7H3U4Ek7gn7hoZ+0Tiq4sEWW9eO+wT
-        n9N5VmMFYOntWLJc+fpy2oZK5/Cwyok=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-147-UXUDaGSfNw-ZS7ZWM95wng-1; Wed, 16 Jun 2021 13:12:23 -0400
-X-MC-Unique: UXUDaGSfNw-ZS7ZWM95wng-1
-Received: by mail-ej1-f72.google.com with SMTP id hz18-20020a1709072cf2b02903fbaae9f4faso1235784ejc.4
-        for <linux-s390@vger.kernel.org>; Wed, 16 Jun 2021 10:12:22 -0700 (PDT)
+        id S231455AbhFPSGs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Jun 2021 14:06:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45468 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231431AbhFPSGs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Jun 2021 14:06:48 -0400
+Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F2BDC061767
+        for <linux-s390@vger.kernel.org>; Wed, 16 Jun 2021 11:04:41 -0700 (PDT)
+Received: by mail-lf1-x129.google.com with SMTP id q20so5776506lfo.2
+        for <linux-s390@vger.kernel.org>; Wed, 16 Jun 2021 11:04:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=QL+p+jTvyBCoLxHGaGA1zRf3kZytampV5ZR7Ur3gf3U=;
+        b=fc72JuPUMioH4fKcNp+iPSBFNFwPDf9vgPJdUSG3pw+STeGrnlJ9Ykw74FPB2eMydA
+         Sqz9/CE4otVTzoV3HvOTnxoTeIPshc58RynzPKMqktwF+8M37v22nUpbn2fUK4p80EA/
+         u+jDv0yLybYMqBYCsGGy1+uAjdoOYIPiVI+GMwvC8MVkrgIbkzWddLjLMtwjfV7JUFlx
+         tMRPD64MsgNUMHxn1FEeM87Wj3TDYYrkOaoTd9AAiTHYZ7yBM0mQ9RRNy99pEcalkMNO
+         bgUfYhJ4wiiU1aq2mWNaQr4ASs7AcbLZbwp/pDFZNTInyx4sL7X4HU1iZ2JHMIh3xvXt
+         NHSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=9dwXJG+e2J+zj861tULnfcQYsx7+UyssMsGTwpLEmFo=;
-        b=V66jg3al/60K8bcAgattGq/NFZ/k699hbk3T8CGO2U16VYSFWvTtw8JkW45liLoy9f
-         3pXA9KbhswjMu9wdq/pkOpVgh2cH0NBApq+nstwdmeksq0eOUx2lAx6B5KjBRK1IcRtM
-         v6fYabV7+66Ok+5BKxWxsToB5xFDp9JobSZNo5I77SymGP7IAv3f9Z2r2e4pKSRWt7Ms
-         bD4+LXuvcIQoENI732FDG6Bo+mbklEqjHB2AEu7NZBYbM5fDlyYNKm30jHZvAA/eSPYG
-         6rhRDKVv4fBldRDAHsIbbyD1WOOInTThtYItbU300MBx0tMmhz47CSBCFc0NAuCyQfQd
-         dcAA==
-X-Gm-Message-State: AOAM532Dx/oynCItSZxzsQEtq/ImDwfajkAFCtprz4Lba7VQ7FohN6qY
-        +iM1ilG22nrMtZyv8gjXYksNLyVJaqdxB3/hsKMiAEMDxYtsTfya9C15pDH7mfBjobTuP5FPal/
-        tPjMJlbstnaoLiSG8Ro6tQw==
-X-Received: by 2002:a17:906:63d2:: with SMTP id u18mr605554ejk.186.1623863541219;
-        Wed, 16 Jun 2021 10:12:21 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzTKt1qnrMXcwrhxVgt67u44Y8CuaXLcDbu0P6sbQSAbP+DQ5wAsoiwPjVbuTt+umuJCe/+bA==
-X-Received: by 2002:a17:906:63d2:: with SMTP id u18mr604976ejk.186.1623863534799;
-        Wed, 16 Jun 2021 10:12:14 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id n2sm2261519edi.32.2021.06.16.10.12.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Jun 2021 10:12:13 -0700 (PDT)
-To:     Jing Zhang <jingzhangos@google.com>, KVM <kvm@vger.kernel.org>,
-        KVMARM <kvmarm@lists.cs.columbia.edu>,
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=QL+p+jTvyBCoLxHGaGA1zRf3kZytampV5ZR7Ur3gf3U=;
+        b=X3CShpzAQ9Ysdh2HMc5kcbnuuAdtXF+aVvQ1ODY+/QkeVf8MW8Xcfl7JI7P30J9jSC
+         rNygz25J/ujLQbCwar+D7In14qTY5iRKI0v5dY2nHaDU+vlGSmEkXICU0749kpdMLeV6
+         5dqFgHCmAL/VHZIfOyDRau/kaQxxrSfVGKikb7W47TU39XAwsuYyn2cTL9fU81X6BN8X
+         Kn64lOGdkuFZeUYsic+ogDM2gz/JSwTl+sYXz1oJh5Sy0ye8gVHc5U86MtBxrYJGPaA/
+         8ZT3UJEu2PvIf9MznFK8FM8+srjyiUD5k2cPCRXBDCCevQUV54lWA2o7aBD3mNufUwSU
+         nAQA==
+X-Gm-Message-State: AOAM532Z+wFGRbLI7qQ0vFytwhnfIjfyosDZ+3KOfTkZ5hallvu2RzfG
+        FtEbxyPaFGfSxwaw6P2BOASUZXXuimokUj4sfGbKvA==
+X-Google-Smtp-Source: ABdhPJy4bQ7Jt4JKRNwI4lBCx0kB2MjipwAUemjUdaMvVbQnSwyfIs30xmfWtPQ46Uafcxy5ggZv35nXlECeV1DCBO4=
+X-Received: by 2002:a05:6512:33c4:: with SMTP id d4mr713703lfg.536.1623866679050;
+ Wed, 16 Jun 2021 11:04:39 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210614212155.1670777-1-jingzhangos@google.com>
+ <20210614212155.1670777-3-jingzhangos@google.com> <60b0d569-e484-f424-722b-eb7ba415e19b@redhat.com>
+In-Reply-To: <60b0d569-e484-f424-722b-eb7ba415e19b@redhat.com>
+From:   Jing Zhang <jingzhangos@google.com>
+Date:   Wed, 16 Jun 2021 13:04:28 -0500
+Message-ID: <CAAdAUthShFyjhsdAPVhUSf78QsiBCfD1rbcJXhFZ5BsQG2f4Mg@mail.gmail.com>
+Subject: Re: [PATCH v9 2/5] KVM: stats: Add fd-based API to read binary stats data
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
         LinuxMIPS <linux-mips@vger.kernel.org>,
         KVMPPC <kvm-ppc@vger.kernel.org>,
         LinuxS390 <linux-s390@vger.kernel.org>,
@@ -91,59 +90,54 @@ To:     Jing Zhang <jingzhangos@google.com>, KVM <kvm@vger.kernel.org>,
         Ricardo Koller <ricarkol@google.com>,
         Krish Sadhukhan <krish.sadhukhan@oracle.com>,
         Fuad Tabba <tabba@google.com>
-References: <20210614212155.1670777-1-jingzhangos@google.com>
- <20210614212155.1670777-3-jingzhangos@google.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v9 2/5] KVM: stats: Add fd-based API to read binary stats
- data
-Message-ID: <60b0d569-e484-f424-722b-eb7ba415e19b@redhat.com>
-Date:   Wed, 16 Jun 2021 19:12:11 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
-MIME-Version: 1.0
-In-Reply-To: <20210614212155.1670777-3-jingzhangos@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 14/06/21 23:21, Jing Zhang wrote:
-> +	/* Copy kvm stats values */
-> +	copylen = header->header.data_offset + size_stats - pos;
-> +	copylen = min(copylen, remain);
-> +	if (copylen > 0) {
-> +		src = stats + pos - header->header.data_offset;
-> +		if (copy_to_user(dest, src, copylen))
-> +			return -EFAULT;
-> +		remain -= copylen;
-> +		pos += copylen;
-> +		dest += copylen;
-> +	}
+On Wed, Jun 16, 2021 at 12:12 PM Paolo Bonzini <pbonzini@redhat.com> wrote:
+>
+> On 14/06/21 23:21, Jing Zhang wrote:
+> > +     /* Copy kvm stats values */
+> > +     copylen = header->header.data_offset + size_stats - pos;
+> > +     copylen = min(copylen, remain);
+> > +     if (copylen > 0) {
+> > +             src = stats + pos - header->header.data_offset;
+> > +             if (copy_to_user(dest, src, copylen))
+> > +                     return -EFAULT;
+> > +             remain -= copylen;
+> > +             pos += copylen;
+> > +             dest += copylen;
+> > +     }
+>
+> Hi Jing,
+>
+> this code is causing usercopy warnings because the statistics are not
+> part of the vcpu slab's usercopy region.  You need to move struct
+> kvm_vcpu_stat next to struct kvm_vcpu_arch, and adjust the call to
+> kmem_cache_create_usercopy in kvm_init.
+>
+> Can you post a new version of the series, and while you are at it
+> explain the rationale for binary stats in the commit message for this
+> patch?  This should include:
+>
+> - the problem statement (e.g. frequency of the accesses)
+>
+> - what are the benefits compared to debugfs
+>
+> - why the schema is included in the file descriptor as well
+>
+> You can probably find a lot or all of the information in my emails from
+> the last couple days, but you might also have other breadcrumbs from
+> Google's internal implementation of binary stats.
+>
+> Thanks,
+>
+> Paolo
+>
+Hi Paolo
 
-Hi Jing,
+Will fix the usercopy warnings, add more explanations and post another version.
+And thanks for all the information in your emails.
 
-this code is causing usercopy warnings because the statistics are not 
-part of the vcpu slab's usercopy region.  You need to move struct 
-kvm_vcpu_stat next to struct kvm_vcpu_arch, and adjust the call to 
-kmem_cache_create_usercopy in kvm_init.
-
-Can you post a new version of the series, and while you are at it 
-explain the rationale for binary stats in the commit message for this 
-patch?  This should include:
-
-- the problem statement (e.g. frequency of the accesses)
-
-- what are the benefits compared to debugfs
-
-- why the schema is included in the file descriptor as well
-
-You can probably find a lot or all of the information in my emails from 
-the last couple days, but you might also have other breadcrumbs from 
-Google's internal implementation of binary stats.
-
-Thanks,
-
-Paolo
-
+Jing
