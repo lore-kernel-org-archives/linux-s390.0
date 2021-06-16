@@ -7,78 +7,78 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D85AC48BE6
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 14:53:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D52DC48BE8
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 14:53:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F6F16115C
+	by mail.kernel.org (Postfix) with ESMTP id F3DCB61075
 	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 14:53:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234233AbhFPOz0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Jun 2021 10:55:26 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18622 "EHLO
+        id S234165AbhFPOz1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Jun 2021 10:55:27 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62680 "EHLO
         mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233747AbhFPOzZ (ORCPT
+        by vger.kernel.org with ESMTP id S234152AbhFPOzZ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
         Wed, 16 Jun 2021 10:55:25 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15GEYQCt157797;
-        Wed, 16 Jun 2021 10:53:14 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15GEYWEW050945;
+        Wed, 16 Jun 2021 10:53:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=HblBm5Y/tc5GrClRmdzXCdSmM+tg4PgJ6DQhNCbfYQs=;
- b=eSBYhdfMmGw1DPSIxIcIZQwIq3COSV9wtm/Umse0dwRidNGlydZpz04thrUpPZXVZMxn
- /9JDa6yURCMAzXgjCWDd9HvxIzLg9fi7Vw0OAVuGYhR0nCGamBFBSToauicPkAiYE+4E
- fY9K//JWqjLcZ9MLxCwhkQWVz6lcD3b2BHbupnvfjsyVYTBGCDSc/W5CMI8AzkMOQ3Mg
- ym5M4R7Ht+rtiFcBegqZ46xLz76Tu25c4IXoIFM9P6medxDd73dbi02ZlHPLVaozu/Js
- g1k/jFKw2kXfjbe64/j+cWdI1BG648RLzBw7dtNBdxfSAAyqpfnhA0lN/7L416NN3NlB cQ== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 397j8vu602-1
+ bh=cw5F3182k7d4uDD5I11Mk/si9K6mSPF9F5g5jKFWBGk=;
+ b=qPn9J2kI9BqBAVh9dLum6EBAaWtjMkc3SreZPbL5tbYx71gu4XoznRiLRDEs24pNN0EC
+ Ftamoo9f0buFhANw/g/9+xUaf8KRb1Ov3HKTAO8DiQigP6bp1o6PAWDNJFeUvbZ0jr51
+ i399Pkz5zFt3z9nIcc8j+SqNKnyqcMgLofGew8Rt05u4KirZvPVi+0XOUYO7wh569nay
+ iVXNUXoZXSQoj3vQnweyVujngaBpjvDxR9ZLzWIqN7qiyK3adEEdzGTy2/oNoMuiypZW
+ bp5C40SqusO0M8l+d+3jvOjXhZ2RAMynh8F/gOB598cxtDDipnrTYA20F3a9XPRv/KIj HQ== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 397jyy19bn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Jun 2021 10:53:13 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15GEmNCY009750;
-        Wed, 16 Jun 2021 14:53:12 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma05fra.de.ibm.com with ESMTP id 394mj8h70m-1
+        Wed, 16 Jun 2021 10:53:15 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15GEqrgm029236;
+        Wed, 16 Jun 2021 14:53:13 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03fra.de.ibm.com with ESMTP id 394mj916qy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 16 Jun 2021 14:53:12 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15GEr9ig30802392
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15GErA3B32506350
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 16 Jun 2021 14:53:09 GMT
+        Wed, 16 Jun 2021 14:53:10 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4D7E442041;
+        by IMSVA (Postfix) with ESMTP id E41AC4204B;
         Wed, 16 Jun 2021 14:53:09 +0000 (GMT)
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0211D42047;
+        by IMSVA (Postfix) with ESMTP id A6F5B42047;
         Wed, 16 Jun 2021 14:53:09 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 16 Jun 2021 14:53:08 +0000 (GMT)
+        Wed, 16 Jun 2021 14:53:09 +0000 (GMT)
 From:   Karsten Graul <kgraul@linux.ibm.com>
 To:     David Miller <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org, guvenc@linux.ibm.com
-Subject: [PATCH net-next v2 1/4] net/smc: Add SMC statistics support
-Date:   Wed, 16 Jun 2021 16:52:55 +0200
-Message-Id: <20210616145258.2381446-2-kgraul@linux.ibm.com>
+Subject: [PATCH net-next v2 3/4] net/smc: Add netlink support for SMC fallback statistics
+Date:   Wed, 16 Jun 2021 16:52:57 +0200
+Message-Id: <20210616145258.2381446-4-kgraul@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210616145258.2381446-1-kgraul@linux.ibm.com>
 References: <20210616145258.2381446-1-kgraul@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: xadxuhZCzjAJrydimXX59mrLreKcizpk
-X-Proofpoint-GUID: xadxuhZCzjAJrydimXX59mrLreKcizpk
+X-Proofpoint-GUID: r2GQOSRT4WhsFOeUM4ct744IfdI0cJES
+X-Proofpoint-ORIG-GUID: r2GQOSRT4WhsFOeUM4ct744IfdI0cJES
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
  definitions=2021-06-16_07:2021-06-15,2021-06-16 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
- phishscore=0 lowpriorityscore=0 malwarescore=0 priorityscore=1501
- impostorscore=0 suspectscore=0 adultscore=0 bulkscore=0 clxscore=1015
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
+ mlxscore=0 mlxlogscore=999 bulkscore=0 spamscore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 lowpriorityscore=0 impostorscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2104190000 definitions=main-2106160084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -86,716 +86,196 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Add the ability to collect SMC statistics information. Per-cpu
-variables are used to collect the statistic information for better
-performance and for reducing concurrency pitfalls. The code that is
-collecting statistic data is implemented in macros to increase code
-reuse and readability.
+Add support to collect more detailed SMC fallback reason statistics and
+provide these statistics to user space on the netlink interface.
 
 Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- net/smc/Makefile    |   2 +-
- net/smc/af_smc.c    |  89 ++++++++++++----
- net/smc/smc_core.c  |  13 ++-
- net/smc/smc_rx.c    |   8 ++
- net/smc/smc_stats.c |  35 ++++++
- net/smc/smc_stats.h | 253 ++++++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_tx.c    |  16 ++-
- 7 files changed, 395 insertions(+), 21 deletions(-)
- create mode 100644 net/smc/smc_stats.c
- create mode 100644 net/smc/smc_stats.h
+ include/uapi/linux/smc.h | 14 ++++++
+ net/smc/smc_netlink.c    |  5 +++
+ net/smc/smc_netlink.h    |  2 +-
+ net/smc/smc_stats.c      | 92 ++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_stats.h      |  1 +
+ 5 files changed, 113 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/Makefile b/net/smc/Makefile
-index 77e54fe42b1c..99a0186cba5b 100644
---- a/net/smc/Makefile
-+++ b/net/smc/Makefile
-@@ -2,4 +2,4 @@
- obj-$(CONFIG_SMC)	+= smc.o
- obj-$(CONFIG_SMC_DIAG)	+= smc_diag.o
- smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o smc_llc.o
--smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink.o
-+smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink.o smc_stats.o
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 5eff7cccceff..efeaed384769 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -49,6 +49,7 @@
- #include "smc_tx.h"
- #include "smc_rx.h"
- #include "smc_close.h"
-+#include "smc_stats.h"
+diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
+index f32f11b30963..0f7f87c70baf 100644
+--- a/include/uapi/linux/smc.h
++++ b/include/uapi/linux/smc.h
+@@ -48,6 +48,7 @@ enum {
+ 	SMC_NETLINK_GET_DEV_SMCD,
+ 	SMC_NETLINK_GET_DEV_SMCR,
+ 	SMC_NETLINK_GET_STATS,
++	SMC_NETLINK_GET_FBACK_STATS,
+ };
  
- static DEFINE_MUTEX(smc_server_lgr_pending);	/* serialize link group
- 						 * creation on server
-@@ -508,9 +509,42 @@ static void smc_link_save_peer_info(struct smc_link *link,
- 	link->peer_mtu = clc->r0.qp_mtu;
- }
- 
--static void smc_switch_to_fallback(struct smc_sock *smc)
-+static void smc_stat_inc_fback_rsn_cnt(struct smc_sock *smc,
-+				       struct smc_stats_fback *fback_arr)
-+{
-+	int cnt;
+ /* SMC_GENL_FAMILY top level attributes */
+@@ -60,6 +61,7 @@ enum {
+ 	SMC_GEN_DEV_SMCD,		/* nest */
+ 	SMC_GEN_DEV_SMCR,		/* nest */
+ 	SMC_GEN_STATS,			/* nest */
++	SMC_GEN_FBACK_STATS,		/* nest */
+ 	__SMC_GEN_MAX,
+ 	SMC_GEN_MAX = __SMC_GEN_MAX - 1
+ };
+@@ -228,4 +230,16 @@ enum {
+ 	__SMC_NLA_STATS_MAX,
+ 	SMC_NLA_STATS_MAX = __SMC_NLA_STATS_MAX - 1
+ };
 +
-+	for (cnt = 0; cnt < SMC_MAX_FBACK_RSN_CNT; cnt++) {
-+		if (fback_arr[cnt].fback_code == smc->fallback_rsn) {
-+			fback_arr[cnt].count++;
-+			break;
-+		}
-+		if (!fback_arr[cnt].fback_code) {
-+			fback_arr[cnt].fback_code = smc->fallback_rsn;
-+			fback_arr[cnt].count++;
-+			break;
-+		}
++/* SMC_GEN_FBACK_STATS attributes */
++enum {
++	SMC_NLA_FBACK_STATS_PAD,
++	SMC_NLA_FBACK_STATS_TYPE,	/* u8 */
++	SMC_NLA_FBACK_STATS_SRV_CNT,	/* u64 */
++	SMC_NLA_FBACK_STATS_CLNT_CNT,	/* u64 */
++	SMC_NLA_FBACK_STATS_RSN_CODE,	/* u32 */
++	SMC_NLA_FBACK_STATS_RSN_CNT,	/* u16 */
++	__SMC_NLA_FBACK_STATS_MAX,
++	SMC_NLA_FBACK_STATS_MAX = __SMC_NLA_FBACK_STATS_MAX - 1
++};
+ #endif /* _UAPI_LINUX_SMC_H */
+diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
+index 30e30b23370f..6fb6f96c1d17 100644
+--- a/net/smc/smc_netlink.c
++++ b/net/smc/smc_netlink.c
+@@ -61,6 +61,11 @@ static const struct genl_ops smc_gen_nl_ops[] = {
+ 		/* can be retrieved by unprivileged users */
+ 		.dumpit = smc_nl_get_stats,
+ 	},
++	{
++		.cmd = SMC_NETLINK_GET_FBACK_STATS,
++		/* can be retrieved by unprivileged users */
++		.dumpit = smc_nl_get_fback_stats,
++	},
+ };
+ 
+ static const struct nla_policy smc_gen_nl_policy[2] = {
+diff --git a/net/smc/smc_netlink.h b/net/smc/smc_netlink.h
+index 3477265cba6c..5ce2c0a89ccd 100644
+--- a/net/smc/smc_netlink.h
++++ b/net/smc/smc_netlink.h
+@@ -18,7 +18,7 @@
+ extern struct genl_family smc_gen_nl_family;
+ 
+ struct smc_nl_dmp_ctx {
+-	int pos[2];
++	int pos[3];
+ };
+ 
+ static inline struct smc_nl_dmp_ctx *smc_nl_dmp_ctx(struct netlink_callback *c)
+diff --git a/net/smc/smc_stats.c b/net/smc/smc_stats.c
+index 72119d3d8558..b3d279d29c52 100644
+--- a/net/smc/smc_stats.c
++++ b/net/smc/smc_stats.c
+@@ -312,3 +312,95 @@ int smc_nl_get_stats(struct sk_buff *skb,
+ errmsg:
+ 	return skb->len;
+ }
++
++static int smc_nl_get_fback_details(struct sk_buff *skb,
++				    struct netlink_callback *cb, int pos,
++				    bool is_srv)
++{
++	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
++	int cnt_reported = cb_ctx->pos[2];
++	struct smc_stats_fback *trgt_arr;
++	struct nlattr *attrs;
++	int rc = 0;
++	void *nlh;
++
++	if (is_srv)
++		trgt_arr = &fback_rsn.srv[0];
++	else
++		trgt_arr = &fback_rsn.clnt[0];
++	if (!trgt_arr[pos].fback_code)
++		return -ENODATA;
++	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
++			  &smc_gen_nl_family, NLM_F_MULTI,
++			  SMC_NETLINK_GET_FBACK_STATS);
++	if (!nlh)
++		goto errmsg;
++	attrs = nla_nest_start(skb, SMC_GEN_FBACK_STATS);
++	if (!attrs)
++		goto errout;
++	if (nla_put_u8(skb, SMC_NLA_FBACK_STATS_TYPE, is_srv))
++		goto errattr;
++	if (!cnt_reported) {
++		if (nla_put_u64_64bit(skb, SMC_NLA_FBACK_STATS_SRV_CNT,
++				      fback_rsn.srv_fback_cnt,
++				      SMC_NLA_FBACK_STATS_PAD))
++			goto errattr;
++		if (nla_put_u64_64bit(skb, SMC_NLA_FBACK_STATS_CLNT_CNT,
++				      fback_rsn.clnt_fback_cnt,
++				      SMC_NLA_FBACK_STATS_PAD))
++			goto errattr;
++		cnt_reported = 1;
 +	}
++
++	if (nla_put_u32(skb, SMC_NLA_FBACK_STATS_RSN_CODE,
++			trgt_arr[pos].fback_code))
++		goto errattr;
++	if (nla_put_u16(skb, SMC_NLA_FBACK_STATS_RSN_CNT,
++			trgt_arr[pos].count))
++		goto errattr;
++
++	cb_ctx->pos[2] = cnt_reported;
++	nla_nest_end(skb, attrs);
++	genlmsg_end(skb, nlh);
++	return rc;
++
++errattr:
++	nla_nest_cancel(skb, attrs);
++errout:
++	genlmsg_cancel(skb, nlh);
++errmsg:
++	return -EMSGSIZE;
 +}
 +
-+static void smc_stat_fallback(struct smc_sock *smc)
++int smc_nl_get_fback_stats(struct sk_buff *skb, struct netlink_callback *cb)
 +{
++	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
++	int rc_srv = 0, rc_clnt = 0, k;
++	int skip_serv = cb_ctx->pos[1];
++	int snum = cb_ctx->pos[0];
++	bool is_srv = true;
++
 +	mutex_lock(&smc_stat_fback_rsn);
-+	if (smc->listen_smc) {
-+		smc_stat_inc_fback_rsn_cnt(smc, fback_rsn.srv);
-+		fback_rsn.srv_fback_cnt++;
-+	} else {
-+		smc_stat_inc_fback_rsn_cnt(smc, fback_rsn.clnt);
-+		fback_rsn.clnt_fback_cnt++;
++	for (k = 0; k < SMC_MAX_FBACK_RSN_CNT; k++) {
++		if (k < snum)
++			continue;
++		if (!skip_serv) {
++			rc_srv = smc_nl_get_fback_details(skb, cb, k, is_srv);
++			if (rc_srv && rc_srv != ENODATA)
++				break;
++		} else {
++			skip_serv = 0;
++		}
++		rc_clnt = smc_nl_get_fback_details(skb, cb, k, !is_srv);
++		if (rc_clnt && rc_clnt != ENODATA) {
++			skip_serv = 1;
++			break;
++		}
++		if (rc_clnt == ENODATA && rc_srv == ENODATA)
++			break;
 +	}
 +	mutex_unlock(&smc_stat_fback_rsn);
-+}
-+
-+static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
- {
- 	smc->use_fallback = true;
-+	smc->fallback_rsn = reason_code;
-+	smc_stat_fallback(smc);
- 	if (smc->sk.sk_socket && smc->sk.sk_socket->file) {
- 		smc->clcsock->file = smc->sk.sk_socket->file;
- 		smc->clcsock->file->private_data = smc->clcsock;
-@@ -522,8 +556,7 @@ static void smc_switch_to_fallback(struct smc_sock *smc)
- /* fall back during connect */
- static int smc_connect_fallback(struct smc_sock *smc, int reason_code)
- {
--	smc_switch_to_fallback(smc);
--	smc->fallback_rsn = reason_code;
-+	smc_switch_to_fallback(smc, reason_code);
- 	smc_copy_sock_settings_to_clc(smc);
- 	smc->connect_nonblock = 0;
- 	if (smc->sk.sk_state == SMC_INIT)
-@@ -538,6 +571,7 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code,
- 	int rc;
- 
- 	if (reason_code < 0) { /* error, fallback is not possible */
-+		this_cpu_inc(smc_stats->clnt_hshake_err_cnt);
- 		if (smc->sk.sk_state == SMC_INIT)
- 			sock_put(&smc->sk); /* passive closing */
- 		return reason_code;
-@@ -545,6 +579,7 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code,
- 	if (reason_code != SMC_CLC_DECL_PEERDECL) {
- 		rc = smc_clc_send_decline(smc, reason_code, version);
- 		if (rc < 0) {
-+			this_cpu_inc(smc_stats->clnt_hshake_err_cnt);
- 			if (smc->sk.sk_state == SMC_INIT)
- 				sock_put(&smc->sk); /* passive closing */
- 			return rc;
-@@ -992,6 +1027,7 @@ static int __smc_connect(struct smc_sock *smc)
- 	if (rc)
- 		goto vlan_cleanup;
- 
-+	SMC_STAT_CLNT_SUCC_INC(aclc);
- 	smc_connect_ism_vlan_cleanup(smc, ini);
- 	kfree(buf);
- 	kfree(ini);
-@@ -1308,6 +1344,7 @@ static void smc_listen_out_err(struct smc_sock *new_smc)
- {
- 	struct sock *newsmcsk = &new_smc->sk;
- 
-+	this_cpu_inc(smc_stats->srv_hshake_err_cnt);
- 	if (newsmcsk->sk_state == SMC_INIT)
- 		sock_put(&new_smc->sk); /* passive closing */
- 	newsmcsk->sk_state = SMC_CLOSED;
-@@ -1325,8 +1362,7 @@ static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
- 		smc_listen_out_err(new_smc);
- 		return;
- 	}
--	smc_switch_to_fallback(new_smc);
--	new_smc->fallback_rsn = reason_code;
-+	smc_switch_to_fallback(new_smc, reason_code);
- 	if (reason_code && reason_code != SMC_CLC_DECL_PEERDECL) {
- 		if (smc_clc_send_decline(new_smc, reason_code, version) < 0) {
- 			smc_listen_out_err(new_smc);
-@@ -1699,8 +1735,7 @@ static void smc_listen_work(struct work_struct *work)
- 
- 	/* check if peer is smc capable */
- 	if (!tcp_sk(newclcsock->sk)->syn_smc) {
--		smc_switch_to_fallback(new_smc);
--		new_smc->fallback_rsn = SMC_CLC_DECL_PEERNOSMC;
-+		smc_switch_to_fallback(new_smc, SMC_CLC_DECL_PEERNOSMC);
- 		smc_listen_out_connected(new_smc);
- 		return;
- 	}
-@@ -1778,6 +1813,7 @@ static void smc_listen_work(struct work_struct *work)
- 	}
- 	smc_conn_save_peer_info(new_smc, cclc);
- 	smc_listen_out_connected(new_smc);
-+	SMC_STAT_SERV_SUCC_INC(ini);
- 	goto out_free;
- 
- out_unlock:
-@@ -1984,18 +2020,19 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 
- 	if (msg->msg_flags & MSG_FASTOPEN) {
- 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
--			smc_switch_to_fallback(smc);
--			smc->fallback_rsn = SMC_CLC_DECL_OPTUNSUPP;
-+			smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
- 		} else {
- 			rc = -EINVAL;
- 			goto out;
- 		}
- 	}
- 
--	if (smc->use_fallback)
-+	if (smc->use_fallback) {
- 		rc = smc->clcsock->ops->sendmsg(smc->clcsock, msg, len);
--	else
-+	} else {
- 		rc = smc_tx_sendmsg(smc, msg, len);
-+		SMC_STAT_TX_PAYLOAD(smc, len, rc);
-+	}
- out:
- 	release_sock(sk);
- 	return rc;
-@@ -2030,6 +2067,7 @@ static int smc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 	} else {
- 		msg->msg_namelen = 0;
- 		rc = smc_rx_recvmsg(smc, msg, NULL, len, flags);
-+		SMC_STAT_RX_PAYLOAD(smc, rc, rc);
- 	}
- 
- out:
-@@ -2194,8 +2232,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	case TCP_FASTOPEN_NO_COOKIE:
- 		/* option not supported by SMC */
- 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
--			smc_switch_to_fallback(smc);
--			smc->fallback_rsn = SMC_CLC_DECL_OPTUNSUPP;
-+			smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
- 		} else {
- 			rc = -EINVAL;
- 		}
-@@ -2204,18 +2241,22 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 		if (sk->sk_state != SMC_INIT &&
- 		    sk->sk_state != SMC_LISTEN &&
- 		    sk->sk_state != SMC_CLOSED) {
--			if (val)
-+			if (val) {
-+				SMC_STAT_INC(!smc->conn.lnk, ndly_cnt);
- 				mod_delayed_work(smc->conn.lgr->tx_wq,
- 						 &smc->conn.tx_work, 0);
-+			}
- 		}
- 		break;
- 	case TCP_CORK:
- 		if (sk->sk_state != SMC_INIT &&
- 		    sk->sk_state != SMC_LISTEN &&
- 		    sk->sk_state != SMC_CLOSED) {
--			if (!val)
-+			if (!val) {
-+				SMC_STAT_INC(!smc->conn.lnk, cork_cnt);
- 				mod_delayed_work(smc->conn.lgr->tx_wq,
- 						 &smc->conn.tx_work, 0);
-+			}
- 		}
- 		break;
- 	case TCP_DEFER_ACCEPT:
-@@ -2338,11 +2379,13 @@ static ssize_t smc_sendpage(struct socket *sock, struct page *page,
- 		goto out;
- 	}
- 	release_sock(sk);
--	if (smc->use_fallback)
-+	if (smc->use_fallback) {
- 		rc = kernel_sendpage(smc->clcsock, page, offset,
- 				     size, flags);
--	else
-+	} else {
-+		SMC_STAT_INC(!smc->conn.lnk, sendpage_cnt);
- 		rc = sock_no_sendpage(sock, page, offset, size, flags);
-+	}
- 
- out:
- 	return rc;
-@@ -2391,6 +2434,7 @@ static ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
- 			flags = MSG_DONTWAIT;
- 		else
- 			flags = 0;
-+		SMC_STAT_INC(!smc->conn.lnk, splice_cnt);
- 		rc = smc_rx_recvmsg(smc, NULL, pipe, len, flags);
- 	}
- out:
-@@ -2514,10 +2558,16 @@ static int __init smc_init(void)
- 	if (!smc_close_wq)
- 		goto out_alloc_hs_wq;
- 
-+	rc = smc_stats_init();
-+	if (rc) {
-+		pr_err("%s: smc_stats_init fails with %d\n", __func__, rc);
-+		goto out_alloc_wqs;
-+	}
-+
- 	rc = smc_core_init();
- 	if (rc) {
- 		pr_err("%s: smc_core_init fails with %d\n", __func__, rc);
--		goto out_alloc_wqs;
-+		goto out_smc_stat;
- 	}
- 
- 	rc = smc_llc_init();
-@@ -2569,6 +2619,8 @@ static int __init smc_init(void)
- 	proto_unregister(&smc_proto);
- out_core:
- 	smc_core_exit();
-+out_smc_stat:
-+	smc_stats_exit();
- out_alloc_wqs:
- 	destroy_workqueue(smc_close_wq);
- out_alloc_hs_wq:
-@@ -2591,6 +2643,7 @@ static void __exit smc_exit(void)
- 	smc_ib_unregister_client();
- 	destroy_workqueue(smc_close_wq);
- 	destroy_workqueue(smc_hs_wq);
-+	smc_stats_exit();
- 	proto_unregister(&smc_proto6);
- 	proto_unregister(&smc_proto);
- 	smc_pnet_exit();
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 317bc2c90fab..d69f58f670a1 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -33,6 +33,7 @@
- #include "smc_close.h"
- #include "smc_ism.h"
- #include "smc_netlink.h"
-+#include "smc_stats.h"
- 
- #define SMC_LGR_NUM_INCR		256
- #define SMC_LGR_FREE_DELAY_SERV		(600 * HZ)
-@@ -2029,6 +2030,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 	struct smc_link_group *lgr = conn->lgr;
- 	struct list_head *buf_list;
- 	int bufsize, bufsize_short;
-+	bool is_dgraded = false;
- 	struct mutex *lock;	/* lock buffer list */
- 	int sk_buf_size;
- 
-@@ -2056,6 +2058,8 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 		/* check for reusable slot in the link group */
- 		buf_desc = smc_buf_get_slot(bufsize_short, lock, buf_list);
- 		if (buf_desc) {
-+			SMC_STAT_RMB_SIZE(is_smcd, is_rmb, bufsize);
-+			SMC_STAT_BUF_REUSE(is_smcd, is_rmb);
- 			memset(buf_desc->cpu_addr, 0, bufsize);
- 			break; /* found reusable slot */
- 		}
-@@ -2067,9 +2071,16 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 
- 		if (PTR_ERR(buf_desc) == -ENOMEM)
- 			break;
--		if (IS_ERR(buf_desc))
-+		if (IS_ERR(buf_desc)) {
-+			if (!is_dgraded) {
-+				is_dgraded = true;
-+				SMC_STAT_RMB_DOWNGRADED(is_smcd, is_rmb);
-+			}
- 			continue;
-+		}
- 
-+		SMC_STAT_RMB_ALLOC(is_smcd, is_rmb);
-+		SMC_STAT_RMB_SIZE(is_smcd, is_rmb, bufsize);
- 		buf_desc->used = 1;
- 		mutex_lock(lock);
- 		list_add(&buf_desc->list, buf_list);
-diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-index fcfac59f8b72..ce1ae39923b1 100644
---- a/net/smc/smc_rx.c
-+++ b/net/smc/smc_rx.c
-@@ -21,6 +21,7 @@
- #include "smc_cdc.h"
- #include "smc_tx.h" /* smc_tx_consumer_update() */
- #include "smc_rx.h"
-+#include "smc_stats.h"
- 
- /* callback implementation to wakeup consumers blocked with smc_rx_wait().
-  * indirectly called by smc_cdc_msg_recv_action().
-@@ -227,6 +228,7 @@ static int smc_rx_recv_urg(struct smc_sock *smc, struct msghdr *msg, int len,
- 	    conn->urg_state == SMC_URG_READ)
- 		return -EINVAL;
- 
-+	SMC_STAT_INC(!conn->lnk, urg_data_cnt);
- 	if (conn->urg_state == SMC_URG_VALID) {
- 		if (!(flags & MSG_PEEK))
- 			smc->conn.urg_state = SMC_URG_READ;
-@@ -303,6 +305,12 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
- 	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
- 	target = sock_rcvlowat(sk, flags & MSG_WAITALL, len);
- 
-+	readable = atomic_read(&conn->bytes_to_rcv);
-+	if (readable >= conn->rmb_desc->len)
-+		SMC_STAT_RMB_RX_FULL(!conn->lnk);
-+
-+	if (len < readable)
-+		SMC_STAT_RMB_RX_SIZE_SMALL(!conn->lnk);
- 	/* we currently use 1 RMBE per RMB, so RMBE == RMB base addr */
- 	rcvbuf_base = conn->rx_off + conn->rmb_desc->cpu_addr;
- 
-diff --git a/net/smc/smc_stats.c b/net/smc/smc_stats.c
-new file mode 100644
-index 000000000000..76e938388520
---- /dev/null
-+++ b/net/smc/smc_stats.c
-@@ -0,0 +1,35 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Shared Memory Communications over RDMA (SMC-R) and RoCE
-+ *
-+ * SMC statistics netlink routines
-+ *
-+ * Copyright IBM Corp. 2021
-+ *
-+ * Author(s):  Guvenc Gulce
-+ */
-+#include <linux/init.h>
-+#include <linux/mutex.h>
-+#include <linux/percpu.h>
-+#include <linux/ctype.h>
-+#include "smc_stats.h"
-+
-+/* serialize fallback reason statistic gathering */
-+DEFINE_MUTEX(smc_stat_fback_rsn);
-+struct smc_stats __percpu *smc_stats;	/* per cpu counters for SMC */
-+struct smc_stats_reason fback_rsn;
-+
-+int __init smc_stats_init(void)
-+{
-+	memset(&fback_rsn, 0, sizeof(fback_rsn));
-+	smc_stats = alloc_percpu(struct smc_stats);
-+	if (!smc_stats)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
-+void smc_stats_exit(void)
-+{
-+	free_percpu(smc_stats);
++	cb_ctx->pos[1] = skip_serv;
++	cb_ctx->pos[0] = k;
++	return skb->len;
 +}
 diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
-new file mode 100644
-index 000000000000..928372114cf1
---- /dev/null
+index 84baaca59eaf..7c35b22d9e29 100644
+--- a/net/smc/smc_stats.h
 +++ b/net/smc/smc_stats.h
-@@ -0,0 +1,253 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Shared Memory Communications over RDMA (SMC-R) and RoCE
-+ *
-+ * Macros for SMC statistics
-+ *
-+ * Copyright IBM Corp. 2021
-+ *
-+ * Author(s):  Guvenc Gulce
-+ */
-+
-+#ifndef NET_SMC_SMC_STATS_H_
-+#define NET_SMC_SMC_STATS_H_
-+#include <linux/init.h>
-+#include <linux/mutex.h>
-+#include <linux/percpu.h>
-+#include <linux/ctype.h>
-+#include <linux/smc.h>
-+
-+#include "smc_clc.h"
-+
-+#define SMC_MAX_FBACK_RSN_CNT 30
-+
-+extern struct smc_stats __percpu *smc_stats;	/* per cpu counters for SMC */
-+extern struct smc_stats_reason fback_rsn;
-+extern struct mutex smc_stat_fback_rsn;
-+
-+enum {
-+	SMC_BUF_8K,
-+	SMC_BUF_16K,
-+	SMC_BUF_32K,
-+	SMC_BUF_64K,
-+	SMC_BUF_128K,
-+	SMC_BUF_256K,
-+	SMC_BUF_512K,
-+	SMC_BUF_1024K,
-+	SMC_BUF_G_1024K,
-+	SMC_BUF_MAX,
-+};
-+
-+struct smc_stats_fback {
-+	int	fback_code;
-+	u16	count;
-+};
-+
-+struct smc_stats_reason {
-+	struct	smc_stats_fback srv[SMC_MAX_FBACK_RSN_CNT];
-+	struct	smc_stats_fback clnt[SMC_MAX_FBACK_RSN_CNT];
-+	u64			srv_fback_cnt;
-+	u64			clnt_fback_cnt;
-+};
-+
-+struct smc_stats_rmbcnt {
-+	u64	buf_size_small_peer_cnt;
-+	u64	buf_size_small_cnt;
-+	u64	buf_full_peer_cnt;
-+	u64	buf_full_cnt;
-+	u64	reuse_cnt;
-+	u64	alloc_cnt;
-+	u64	dgrade_cnt;
-+};
-+
-+struct smc_stats_memsize {
-+	u64	buf[SMC_BUF_MAX];
-+};
-+
-+struct smc_stats_tech {
-+	struct smc_stats_memsize tx_rmbsize;
-+	struct smc_stats_memsize rx_rmbsize;
-+	struct smc_stats_memsize tx_pd;
-+	struct smc_stats_memsize rx_pd;
-+	struct smc_stats_rmbcnt rmb_tx;
-+	struct smc_stats_rmbcnt rmb_rx;
-+	u64			clnt_v1_succ_cnt;
-+	u64			clnt_v2_succ_cnt;
-+	u64			srv_v1_succ_cnt;
-+	u64			srv_v2_succ_cnt;
-+	u64			sendpage_cnt;
-+	u64			urg_data_cnt;
-+	u64			splice_cnt;
-+	u64			cork_cnt;
-+	u64			ndly_cnt;
-+	u64			rx_bytes;
-+	u64			tx_bytes;
-+	u64			rx_cnt;
-+	u64			tx_cnt;
-+};
-+
-+struct smc_stats {
-+	struct smc_stats_tech	smc[2];
-+	u64			clnt_hshake_err_cnt;
-+	u64			srv_hshake_err_cnt;
-+};
-+
-+#define SMC_STAT_PAYLOAD_SUB(_tech, key, _len, _rc) \
-+do { \
-+	typeof(_tech) t = (_tech); \
-+	typeof(_len) l = (_len); \
-+	int _pos = fls64((l) >> 13); \
-+	typeof(_rc) r = (_rc); \
-+	int m = SMC_BUF_MAX - 1; \
-+	this_cpu_inc((*smc_stats).smc[t].key ## _cnt); \
-+	if (r <= 0) \
-+		break; \
-+	_pos = (_pos < m) ? ((l == 1 << (_pos + 12)) ? _pos - 1 : _pos) : m; \
-+	this_cpu_inc((*smc_stats).smc[t].key ## _pd.buf[_pos]); \
-+	this_cpu_add((*smc_stats).smc[t].key ## _bytes, r); \
-+} \
-+while (0)
-+
-+#define SMC_STAT_TX_PAYLOAD(_smc, length, rcode) \
-+do { \
-+	typeof(_smc) __smc = _smc; \
-+	typeof(length) _len = (length); \
-+	typeof(rcode) _rc = (rcode); \
-+	bool is_smcd = !__smc->conn.lnk; \
-+	if (is_smcd) \
-+		SMC_STAT_PAYLOAD_SUB(SMC_TYPE_D, tx, _len, _rc); \
-+	else \
-+		SMC_STAT_PAYLOAD_SUB(SMC_TYPE_R, tx, _len, _rc); \
-+} \
-+while (0)
-+
-+#define SMC_STAT_RX_PAYLOAD(_smc, length, rcode) \
-+do { \
-+	typeof(_smc) __smc = _smc; \
-+	typeof(length) _len = (length); \
-+	typeof(rcode) _rc = (rcode); \
-+	bool is_smcd = !__smc->conn.lnk; \
-+	if (is_smcd) \
-+		SMC_STAT_PAYLOAD_SUB(SMC_TYPE_D, rx, _len, _rc); \
-+	else \
-+		SMC_STAT_PAYLOAD_SUB(SMC_TYPE_R, rx, _len, _rc); \
-+} \
-+while (0)
-+
-+#define SMC_STAT_RMB_SIZE_SUB(_tech, k, _len) \
-+do { \
-+	typeof(_len) _l = (_len); \
-+	typeof(_tech) t = (_tech); \
-+	int _pos = fls((_l) >> 13); \
-+	int m = SMC_BUF_MAX - 1; \
-+	_pos = (_pos < m) ? ((_l == 1 << (_pos + 12)) ? _pos - 1 : _pos) : m; \
-+	this_cpu_inc((*smc_stats).smc[t].k ## _rmbsize.buf[_pos]); \
-+} \
-+while (0)
-+
-+#define SMC_STAT_RMB_SUB(type, t, key) \
-+	this_cpu_inc((*smc_stats).smc[t].rmb ## _ ## key.type ## _cnt)
-+
-+#define SMC_STAT_RMB_SIZE(_is_smcd, _is_rx, _len) \
-+do { \
-+	typeof(_is_smcd) is_d = (_is_smcd); \
-+	typeof(_is_rx) is_r = (_is_rx); \
-+	typeof(_len) l = (_len); \
-+	if ((is_d) && (is_r)) \
-+		SMC_STAT_RMB_SIZE_SUB(SMC_TYPE_D, rx, l); \
-+	if ((is_d) && !(is_r)) \
-+		SMC_STAT_RMB_SIZE_SUB(SMC_TYPE_D, tx, l); \
-+	if (!(is_d) && (is_r)) \
-+		SMC_STAT_RMB_SIZE_SUB(SMC_TYPE_R, rx, l); \
-+	if (!(is_d) && !(is_r)) \
-+		SMC_STAT_RMB_SIZE_SUB(SMC_TYPE_R, tx, l); \
-+} \
-+while (0)
-+
-+#define SMC_STAT_RMB(type, _is_smcd, _is_rx) \
-+do { \
-+	typeof(_is_smcd) is_d = (_is_smcd); \
-+	typeof(_is_rx) is_r = (_is_rx); \
-+	if ((is_d) && (is_r)) \
-+		SMC_STAT_RMB_SUB(type, SMC_TYPE_D, rx); \
-+	if ((is_d) && !(is_r)) \
-+		SMC_STAT_RMB_SUB(type, SMC_TYPE_D, tx); \
-+	if (!(is_d) && (is_r)) \
-+		SMC_STAT_RMB_SUB(type, SMC_TYPE_R, rx); \
-+	if (!(is_d) && !(is_r)) \
-+		SMC_STAT_RMB_SUB(type, SMC_TYPE_R, tx); \
-+} \
-+while (0)
-+
-+#define SMC_STAT_BUF_REUSE(is_smcd, is_rx) \
-+	SMC_STAT_RMB(reuse, is_smcd, is_rx)
-+
-+#define SMC_STAT_RMB_ALLOC(is_smcd, is_rx) \
-+	SMC_STAT_RMB(alloc, is_smcd, is_rx)
-+
-+#define SMC_STAT_RMB_DOWNGRADED(is_smcd, is_rx) \
-+	SMC_STAT_RMB(dgrade, is_smcd, is_rx)
-+
-+#define SMC_STAT_RMB_TX_PEER_FULL(is_smcd) \
-+	SMC_STAT_RMB(buf_full_peer, is_smcd, false)
-+
-+#define SMC_STAT_RMB_TX_FULL(is_smcd) \
-+	SMC_STAT_RMB(buf_full, is_smcd, false)
-+
-+#define SMC_STAT_RMB_TX_PEER_SIZE_SMALL(is_smcd) \
-+	SMC_STAT_RMB(buf_size_small_peer, is_smcd, false)
-+
-+#define SMC_STAT_RMB_TX_SIZE_SMALL(is_smcd) \
-+	SMC_STAT_RMB(buf_size_small, is_smcd, false)
-+
-+#define SMC_STAT_RMB_RX_SIZE_SMALL(is_smcd) \
-+	SMC_STAT_RMB(buf_size_small, is_smcd, true)
-+
-+#define SMC_STAT_RMB_RX_FULL(is_smcd) \
-+	SMC_STAT_RMB(buf_full, is_smcd, true)
-+
-+#define SMC_STAT_INC(is_smcd, type) \
-+do { \
-+	if ((is_smcd)) \
-+		this_cpu_inc(smc_stats->smc[SMC_TYPE_D].type); \
-+	else \
-+		this_cpu_inc(smc_stats->smc[SMC_TYPE_R].type); \
-+} \
-+while (0)
-+
-+#define SMC_STAT_CLNT_SUCC_INC(_aclc) \
-+do { \
-+	typeof(_aclc) acl = (_aclc); \
-+	bool is_v2 = (acl->hdr.version == SMC_V2); \
-+	bool is_smcd = (acl->hdr.typev1 == SMC_TYPE_D); \
-+	if (is_v2 && is_smcd) \
-+		this_cpu_inc(smc_stats->smc[SMC_TYPE_D].clnt_v2_succ_cnt); \
-+	else if (is_v2 && !is_smcd) \
-+		this_cpu_inc(smc_stats->smc[SMC_TYPE_R].clnt_v2_succ_cnt); \
-+	else if (!is_v2 && is_smcd) \
-+		this_cpu_inc(smc_stats->smc[SMC_TYPE_D].clnt_v1_succ_cnt); \
-+	else if (!is_v2 && !is_smcd) \
-+		this_cpu_inc(smc_stats->smc[SMC_TYPE_R].clnt_v1_succ_cnt); \
-+} \
-+while (0)
-+
-+#define SMC_STAT_SERV_SUCC_INC(_ini) \
-+do { \
-+	typeof(_ini) i = (_ini); \
-+	bool is_v2 = (i->smcd_version & SMC_V2); \
-+	bool is_smcd = (i->is_smcd); \
-+	if (is_v2 && is_smcd) \
-+		this_cpu_inc(smc_stats->smc[SMC_TYPE_D].srv_v2_succ_cnt); \
-+	else if (is_v2 && !is_smcd) \
-+		this_cpu_inc(smc_stats->smc[SMC_TYPE_R].srv_v2_succ_cnt); \
-+	else if (!is_v2 && is_smcd) \
-+		this_cpu_inc(smc_stats->smc[SMC_TYPE_D].srv_v1_succ_cnt); \
-+	else if (!is_v2 && !is_smcd) \
-+		this_cpu_inc(smc_stats->smc[SMC_TYPE_R].srv_v1_succ_cnt); \
-+} \
-+while (0)
-+
-+int smc_stats_init(void) __init;
-+void smc_stats_exit(void);
-+
-+#endif /* NET_SMC_SMC_STATS_H_ */
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 4532c16bf85e..a043544d715f 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -27,6 +27,7 @@
- #include "smc_close.h"
- #include "smc_ism.h"
- #include "smc_tx.h"
-+#include "smc_stats.h"
+@@ -248,6 +248,7 @@ do { \
+ while (0)
  
- #define SMC_TX_WORK_DELAY	0
- #define SMC_TX_CORK_DELAY	(HZ >> 2)	/* 250 ms */
-@@ -45,6 +46,8 @@ static void smc_tx_write_space(struct sock *sk)
- 
- 	/* similar to sk_stream_write_space */
- 	if (atomic_read(&smc->conn.sndbuf_space) && sock) {
-+		if (test_bit(SOCK_NOSPACE, &sock->flags))
-+			SMC_STAT_RMB_TX_FULL(!smc->conn.lnk);
- 		clear_bit(SOCK_NOSPACE, &sock->flags);
- 		rcu_read_lock();
- 		wq = rcu_dereference(sk->sk_wq);
-@@ -151,6 +154,15 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
- 		goto out_err;
- 	}
- 
-+	if (len > conn->sndbuf_desc->len)
-+		SMC_STAT_RMB_TX_SIZE_SMALL(!conn->lnk);
-+
-+	if (len > conn->peer_rmbe_size)
-+		SMC_STAT_RMB_TX_PEER_SIZE_SMALL(!conn->lnk);
-+
-+	if (msg->msg_flags & MSG_OOB)
-+		SMC_STAT_INC(!conn->lnk, urg_data_cnt);
-+
- 	while (msg_data_left(msg)) {
- 		if (sk->sk_state == SMC_INIT)
- 			return -ENOTCONN;
-@@ -419,8 +431,10 @@ static int smc_tx_rdma_writes(struct smc_connection *conn,
- 	/* destination: RMBE */
- 	/* cf. snd_wnd */
- 	rmbespace = atomic_read(&conn->peer_rmbe_space);
--	if (rmbespace <= 0)
-+	if (rmbespace <= 0) {
-+		SMC_STAT_RMB_TX_PEER_FULL(!conn->lnk);
- 		return 0;
-+	}
- 	smc_curs_copy(&prod, &conn->local_tx_ctrl.prod, conn);
- 	smc_curs_copy(&cons, &conn->local_rx_ctrl.cons, conn);
+ int smc_nl_get_stats(struct sk_buff *skb, struct netlink_callback *cb);
++int smc_nl_get_fback_stats(struct sk_buff *skb, struct netlink_callback *cb);
+ int smc_stats_init(void) __init;
+ void smc_stats_exit(void);
  
 -- 
 2.25.1
