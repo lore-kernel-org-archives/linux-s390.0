@@ -2,134 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34ECFC48BE6
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 20:19:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80814C48BE6
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 20:20:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EBF38613B9
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 20:19:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A23C613C7
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 20:20:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233332AbhFPUVv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Jun 2021 16:21:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47638 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233314AbhFPUVv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Jun 2021 16:21:51 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E588C061574
-        for <linux-s390@vger.kernel.org>; Wed, 16 Jun 2021 13:19:44 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id m13-20020a17090b068db02901656cc93a75so4704379pjz.3
-        for <linux-s390@vger.kernel.org>; Wed, 16 Jun 2021 13:19:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=+KfHfR5+t0EnVDipxN8Cyuc0KkUY5m0xDUxbL/YVUKI=;
-        b=M2M05GwAjHTM0WwuFWCLIJBXc7Mhmzduj5N8rkDWyWW7Bq+aM40Y5v6k5+kPQ4tecA
-         YePfJMATp4pNXHeVunU8k8CCS3tNkZLexRP4nVx82umJkEDmIeIbwfBAqljx4nnxwFrE
-         /9uTkaEqkwVn++hUMZzVnQ30+9Uy7Qe5wo0A0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=+KfHfR5+t0EnVDipxN8Cyuc0KkUY5m0xDUxbL/YVUKI=;
-        b=HCzve/Ck7yu+4gpFv0tb/iFtuFhAVHiOYRsKuQQhE5had0Q0AX+I/Ehz0M76Hc4mWY
-         SZnTjjdAdl8cLjTtWiqvora4G6zj9M2f1I2b84R0Qkhp5o3GGFA3se/RhOYj4SomIKiN
-         zrys+YxfnMqvVADqWaV5x+dEoHwll001kW/aRj7r8kTm0m9ZJusahYsppF0wEyFD9R8B
-         mYzWyRnA15+fX1WhZXvPfrUL1rm38D9p7gL0CN3VeG+9LDbKOA6uUGFYkb5/Gwm8tjHr
-         8tDlH1+7CyPlii+zp2nVLWceJlrt48LSBs9C0PygYouScoSgK6selvD/uV1scKHhuGs0
-         vjkg==
-X-Gm-Message-State: AOAM531ioemAHkph9rkt+J12mWmxZ0oHYfC+8Caj2qazBushxdDtazcr
-        TyiYZ7ZhXl5eJID8QRVJsqAaiQ==
-X-Google-Smtp-Source: ABdhPJxpXazaGEOtfXB0QagaHQxcdZPLoAGZ+6NYzn4yC2kbuf+G6USVmDjKV6ANQyL87954djWnVg==
-X-Received: by 2002:a17:90a:aa8e:: with SMTP id l14mr1206561pjq.27.1623874784217;
-        Wed, 16 Jun 2021 13:19:44 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id c5sm3111954pfn.144.2021.06.16.13.19.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jun 2021 13:19:43 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: [PATCH] s390: iucv: Avoid field over-reading memcpy()
-Date:   Wed, 16 Jun 2021 13:19:42 -0700
-Message-Id: <20210616201942.1246211-1-keescook@chromium.org>
-X-Mailer: git-send-email 2.25.1
+        id S233339AbhFPUWq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Jun 2021 16:22:46 -0400
+Received: from mail-dm6nam12on2082.outbound.protection.outlook.com ([40.107.243.82]:52545
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S233317AbhFPUWp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 16 Jun 2021 16:22:45 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=UIfRf+ekaPiHv+Ey/nLsqOlmJHfKdLfbhmwrf02+65vf6k1+myy1YsDIKZfK7Oe/7GZVeoAnbTULVfEdxR6FZKmpfBkPLUwX/7tVhJ5CECLGes9IPkBd8nPpVUWSNdhgO/OwdAqf95RJwPgTG1nK8dtHgEymxpiQAqtR/PIY6vj4o9T+CHCsi/Noxi+ri1Hu8gNo1ZBS7Lj7OMisLCJoG8W+O4Foxzyc65kRqLXWZqOPNTTWs+WM1b8FqQn3EdH0Din4H9Qt2NtCveNlCOHdwu7sXZYiJc96LRulAO84Dn/nunI0AtBy/VXEECg4BWKHcYAJCnSpNrDrWR0S5/cEZg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ShhqULBmWTaZSNF94z/ojlK2eu9Oq2kQAdZIzI8yvmM=;
+ b=gr1AqU3CFOYRPxWh1cvMLjl07ThkRa6uKRibmJ0TSHVvBG5lyJtt6jhncmhxO1J9OfyNlvULRDnzYfBmIcSvk2r7jMZqqVbnhlmtIipucb4FMkR5o72yhEPXx+RL/WU/rQRUVjSGoAPYsbxvy4YzOlA1zGXbkDOdL6oD7FFoKComEUD161Blo7lDXvR0ysoq7e4hBYxVtOvY/DCHmPSWz2IPiMXXmQ1VNUuT0dxaYwgEikgeZroDVAZH9RYX7+o1opZLYIXTNSu0JYDiI9HzUW7vEFt6BrTg/n6fo/jVjHTlvJI6ZO0GcTA96XA6YPcf8yYpCalhquwUxt3bXskCBQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.34) smtp.rcpttodomain=lwn.net smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ShhqULBmWTaZSNF94z/ojlK2eu9Oq2kQAdZIzI8yvmM=;
+ b=Z9apFKYzoWtNOGQY+RsRn7kbLAIbl8duo7dsY59vqk8aOCjn0lVbx//ylT8jwfZLPiNjDJ67Nls226ZDiGchUPwz7SwjdJjvmpQ+KfL96BjD95zUL6ptIjHy5FINI0OI6D8bWKZJKVbzc5UgOEA3V/yHOkm+X8MeabqzdUt0tWf9qAWs/hKuIvUiVH22J50DELw2XAu03z9tKYO8+T2MBrJ9W3Q1aWAZ4cPkV6juVFfDzeEKGAp8k6A6oT4jA9jsxKuK29yXj9KZ+Ir7YHHK5LbaaYtyXLQ11dPKBpKqv4NpLRo9F7PBfuUZDGNVLH5OY8ozda245Y1gHV/zKqYgoQ==
+Received: from BN9PR03CA0875.namprd03.prod.outlook.com (2603:10b6:408:13c::10)
+ by CY4PR12MB1575.namprd12.prod.outlook.com (2603:10b6:910:f::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.24; Wed, 16 Jun
+ 2021 20:20:36 +0000
+Received: from BN8NAM11FT050.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:13c:cafe::40) by BN9PR03CA0875.outlook.office365.com
+ (2603:10b6:408:13c::10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.19 via Frontend
+ Transport; Wed, 16 Jun 2021 20:20:36 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
+ smtp.mailfrom=nvidia.com; lwn.net; dkim=none (message not signed)
+ header.d=none;lwn.net; dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.34; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.34) by
+ BN8NAM11FT050.mail.protection.outlook.com (10.13.177.5) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4242.16 via Frontend Transport; Wed, 16 Jun 2021 20:20:35 +0000
+Received: from [10.40.101.248] (172.20.187.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 16 Jun
+ 2021 20:20:28 +0000
+Subject: Re: [PATCH 02/10] driver core: Better distinguish probe errors in
+ really_probe
+To:     Christoph Hellwig <hch@lst.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        "Alex Williamson" <alex.williamson@redhat.com>
+CC:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        <dri-devel@lists.freedesktop.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        <intel-gfx@lists.freedesktop.org>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        <kvm@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+        <linux-s390@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+References: <20210615133519.754763-1-hch@lst.de>
+ <20210615133519.754763-3-hch@lst.de>
+X-Nvconfidentiality: public
+From:   Kirti Wankhede <kwankhede@nvidia.com>
+Message-ID: <6ef69d97-5197-2bda-8149-320e4cc39486@nvidia.com>
+Date:   Thu, 17 Jun 2021 01:50:25 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-X-Patch-Hashes: v=1; h=sha256; g=0981c4eb75dd427d7d91cd99c36bf53addbcfc5d; i=YZOtmOq/sZVNbtRsnkBMD2Kw6M6DcNHBXTl6zJRUyvI=; m=CVqI9jG6YZ9jf8f1ED3Ps1ANOEjrAU1kS6Hl4wF6mU4=; p=5tZ5+WKosX4UV7nN9rSQBm46PiXYBFh/e0B4ynthelY=
-X-Patch-Sig: m=pgp; i=keescook@chromium.org; s=0x0x8972F4DFDC6DC026; b=iQIzBAABCgAdFiEEpcP2jyKd1g9yPm4TiXL039xtwCYFAmDKXN0ACgkQiXL039xtwCaSnA/+Pcj H3UWanMJVaOTGAEIdXDCjPackgZXSABrZgBCld484XkzWVdo8GRuckbZCt4017+wGCvmoBES96pze OOJzXiG14jyAgv/c7zi6Q6Pdt8zVC+J9syB8vpovW/BYd3WRWbJWet+vyiVwXCFwLteMypdVQjSbD vPqlwtEIhLRIgQJWi7apUcKznj8cupOGcY6fDHrMXjqvk7Ef9nvM5D5I2mfZSjhxvQ6kSciJFTE90 3JNIuLnTh2L4FHQzf2aCR+6uzC6sveKa7LECGTT89TPiGvD0BqBRXfEvhz/gj5gS9iOKVPyUweUhk jV/Ix7tV7MrNl80eNRBtE1wGiGMRkMxckSrp4rWCyPYMLGvV3KszaQY7kwfRh6hOryEGqQifabHUR coGMga1jVG13xKwmqEpcgGJu6+RJ/MWXsw9uMWaV1NZefjZGmqd6x9zOv1SItCyqRceMSoPEQZeC0 VOlihXZ65qlXyXPdJDDWoe0sYlTTxZqhBSgJpnARCCwopTkG5ULwvaR5rXl/W+MUSlVOU/V4/SDn0 Yoo1ryNQjEIdhP7FsUcFA4ywbxOHPfqSW4AiFx3AlhJVDXnaMJtCopNV5jyCFsKSF0xJ45I61WG8L 3cVbIqTzvgqJ4IJcEwrYPdoVeKxae24fWQxBzwGeyIDrzrpSdHxqHSUGFesVyUP4=
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210615133519.754763-3-hch@lst.de>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [172.20.187.5]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 874258c9-52cc-48c2-c694-08d93104336a
+X-MS-TrafficTypeDiagnostic: CY4PR12MB1575:
+X-Microsoft-Antispam-PRVS: <CY4PR12MB1575683A651625061DA3DB26DC0F9@CY4PR12MB1575.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:4125;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: pNO+loQudS7xysRfS6tXSkMbmD8wzxovGmdhtZvSGkRdR+MyNuxbsTm1kgWWUHLfInFGWR8RiHc5NOhz4Jxwhfu9RnnRf5vGQ1h+VQab3FSBVpMb34vkfveqZdDXxFTGW7Twq+GWk6xG/aUgHjuChtiQFHixHLkeXkh4w7haRdnaZRFFuH4SMhJG8lz+mZ4y6h0iUvhfPdCzvzCLyVap8Hk/2DhYUdMsIvqSkmOY1F9UBZvi54aNkgYmJqjFmNSDP0AEL26IO++j5TwUGL2bHZkbkWPbiU27o1pmSZawjQmJ4B9CCTN4nFxLpnFcIbPqHOiZgScGjZii8UuSt0yXZYOSNMGba/RcjlE1kOGwtqK+XGLL2afRiILMVcqbBip76w/cL9ZAY1fDokhDj/NpvcAXfi2ZQ59vo0ws9cOrjQm5qv1jdxuQoaF5dj4rn/z9gvcpvsZQ6uB56tdkEF2eObjU+Sv+yP4EBKKMYtlpuo+vYUf7yTvvC6UqIazMOQDOu0xAVb5RBJl3oxY+vf498Y0qEgChRNLSv7PNYvZltS37s1LQwFACeWosZ1ShNxW2DR0WqtM5k3vw19YLJZQcIN0yR3Evzv8ReiYpPQPK/CmizsPCJ8YcTeBDm0tSB8vcqjt1j5uj0WpIXoE9D42LuulckevFySE1bAbXAxtN60nwBSBmd4GY/NpYvqWmBQvE
+X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(376002)(346002)(136003)(396003)(39860400002)(36840700001)(46966006)(47076005)(16526019)(5660300002)(36860700001)(70586007)(4744005)(70206006)(26005)(186003)(7416002)(36906005)(478600001)(110136005)(4326008)(53546011)(54906003)(8676002)(16576012)(36756003)(31686004)(336012)(316002)(82310400003)(426003)(2906002)(356005)(31696002)(6666004)(2616005)(7636003)(8936002)(86362001)(82740400003)(43740500002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jun 2021 20:20:35.8383
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 874258c9-52cc-48c2-c694-08d93104336a
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT050.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1575
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In preparation for FORTIFY_SOURCE performing compile-time and run-time
-field bounds checking for memcpy(), memmove(), and memset(), avoid
-intentionally reading across neighboring array fields.
 
-Add a wrapping struct to serve as the memcpy() source so the compiler
-can perform appropriate bounds checking, avoiding this future warning:
 
-In function '__fortify_memcpy',
-    inlined from 'iucv_message_pending' at net/iucv/iucv.c:1663:4:
-./include/linux/fortify-string.h:246:4: error: call to '__read_overflow2_field' declared with attribute error: detected read beyond size of field (2nd parameter)
+On 6/15/2021 7:05 PM, Christoph Hellwig wrote:
+> really_probe tries to special case errors from ->probe, but due to all
+> other initialization added to the function over time now a lot of
+> internal errors hit that code path as well.  Untangle that by adding
+> a new probe_err local variable and apply the special casing only to
+> that.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- net/iucv/iucv.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index 349c6ac3313f..e6795d5a546a 100644
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -1635,14 +1635,16 @@ struct iucv_message_pending {
- 	u8  iptype;
- 	u32 ipmsgid;
- 	u32 iptrgcls;
--	union {
--		u32 iprmmsg1_u32;
--		u8  iprmmsg1[4];
--	} ln1msg1;
--	union {
--		u32 ipbfln1f;
--		u8  iprmmsg2[4];
--	} ln1msg2;
-+	struct {
-+		union {
-+			u32 iprmmsg1_u32;
-+			u8  iprmmsg1[4];
-+		} ln1msg1;
-+		union {
-+			u32 ipbfln1f;
-+			u8  iprmmsg2[4];
-+		} ln1msg2;
-+	} rmmsg;
- 	u32 res1[3];
- 	u32 ipbfln2f;
- 	u8  ippollfg;
-@@ -1660,10 +1662,10 @@ static void iucv_message_pending(struct iucv_irq_data *data)
- 		msg.id = imp->ipmsgid;
- 		msg.class = imp->iptrgcls;
- 		if (imp->ipflags1 & IUCV_IPRMDATA) {
--			memcpy(msg.rmmsg, imp->ln1msg1.iprmmsg1, 8);
-+			memcpy(msg.rmmsg, &imp->rmmsg, 8);
- 			msg.length = 8;
- 		} else
--			msg.length = imp->ln1msg2.ipbfln1f;
-+			msg.length = imp->rmmsg.ln1msg2.ipbfln1f;
- 		msg.reply_size = imp->ipbfln2f;
- 		path->handler->message_pending(path, &msg);
- 	}
--- 
-2.25.1
-
+Reviewed-by: Kirti Wankhede <kwankhede@nvidia.com>
