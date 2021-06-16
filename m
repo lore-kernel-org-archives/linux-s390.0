@@ -2,207 +2,87 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 667EEC48BE5
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 19:45:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC9D0C48BE8
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 20:10:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3DC51610CA
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 19:45:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B37B5613CB
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 20:10:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232941AbhFPTrP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Jun 2021 15:47:15 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:41876 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231941AbhFPTrO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 16 Jun 2021 15:47:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623872707;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+QNVwJfqsz7DuF9a+ahjJykVrEv0cF3FdHRVfv7uhlg=;
-        b=ZcRtJiJQiZjdpORy+RGO5g8A8pVV+BzXXdQCf2IvqFYCVspeLmtK2YPULx5qG1DW+10p8R
-        Cz4X29DNS4S5iBdStfeQRYdN37yCdl+mskDhAOu85UoCBnFq8u/jpgCmcr1xw3JryPkmdt
-        oxQS1dGUV5CD6VOTGqgCYsOO9ZxRZ7Y=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-370-O049TwqvP9mkX9agEai0VA-1; Wed, 16 Jun 2021 15:45:06 -0400
-X-MC-Unique: O049TwqvP9mkX9agEai0VA-1
-Received: by mail-ed1-f69.google.com with SMTP id z5-20020a05640235c5b0290393974bcf7eso272971edc.2
-        for <linux-s390@vger.kernel.org>; Wed, 16 Jun 2021 12:45:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=+QNVwJfqsz7DuF9a+ahjJykVrEv0cF3FdHRVfv7uhlg=;
-        b=DLUqqWmL+rbWm1ux4iXmE8GhpaN6tQJyTBX3yXTpdhuqW8E9k9/DPLAnq3lrDdxKC2
-         uTLwZjKv2ImY3tzaG+/QEdCqIHcZMuwfko0hese23LKDe3xqIUpvBhRnpHBDkjS7/D6k
-         yLrBWhjcMBcgNiVsekt1po5FtSZKdLPZJozhAUf4aT1RFHxaeD27W6iYf1TcCXTspqCO
-         VghxYcUdm1OoMQyn/7cL/ru3fKUrjDzD5OM0IRv+GMhe6Zytg66YVNhbDt0yk7bWhNJ3
-         cyK4nPG23OEIAIJSgY4Q3KhpLftuBP6pCZjHe7WvbjzydrjQemokNJJWVU+RBror9nMF
-         0Jjw==
-X-Gm-Message-State: AOAM530T2yFBODixPdjilFi/pZ4dG8EA9OA8MbQzn5DxLpqBLYk6mWyc
-        QYMq3p/lH/vFrGf8zc5lllhIzyxIXlawDf7L9AXA8e8yB5jQuQTEVObu9CT3dWJQoeJtCLjk5lx
-        lj8YRtV3YhiGUwRPzwMi1Ag==
-X-Received: by 2002:a17:907:6fd:: with SMTP id yh29mr1241049ejb.432.1623872704841;
-        Wed, 16 Jun 2021 12:45:04 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy4XKHV98pEZbROOGkCOI5giEsQGV4xvXa4BnXoBwGpr7AA8qMDKS7AagRuHdxurUSpCqNENg==
-X-Received: by 2002:a17:907:6fd:: with SMTP id yh29mr1241026ejb.432.1623872704577;
-        Wed, 16 Jun 2021 12:45:04 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id m22sm233740ejn.50.2021.06.16.12.45.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Jun 2021 12:45:03 -0700 (PDT)
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Jing Zhang <jingzhangos@google.com>, KVM <kvm@vger.kernel.org>,
-        KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
-        David Matlack <dmatlack@google.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
-        Fuad Tabba <tabba@google.com>
-References: <20210614212155.1670777-1-jingzhangos@google.com>
- <20210614212155.1670777-4-jingzhangos@google.com>
- <YMoW7SBqO9EPgCXw@kroah.com>
- <9b9a951d-d020-5599-5c4f-e154b40522b9@redhat.com>
- <YMpAcaqjk4ZN90gj@kroah.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v9 3/5] KVM: stats: Add documentation for statistics data
- binary interface
-Message-ID: <56cbf176-4b89-fe52-1c84-56468b932cc8@redhat.com>
-Date:   Wed, 16 Jun 2021 21:45:02 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S233192AbhFPUMV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Jun 2021 16:12:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58478 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233202AbhFPUMR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 16 Jun 2021 16:12:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id 99349613BF;
+        Wed, 16 Jun 2021 20:10:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623874210;
+        bh=dp1JbF5spmd4DWGu0qehInvE6vR88NpAL5KG99Ph82o=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=n25OACMJWShh0D1YSfiUlL+KnG/zUp/GF5BvH3WjPpi/0+nMJuCilxrfdo3BvbKc8
+         UXqIdBnPS2ok4MFNmImaUabx61R3491zoCViyqPiA3n7NmizILmMYhu8JeSa+WKD17
+         EcqweF9p+lwt1KztgfL/YfX8Vn5APIvRS+nisdru2hTPuYSvqKyH1asbGVjhQybzSv
+         d60PS7uYUptXJmZF1OdmXo1skUAzoWFXNBKBbQ6CuWYsLZL/lxHrqBitO6nnPZdPiI
+         J34Tqs5Fsa+hYXzyf6Nw8cF81EADB2I4mLcyX0saSwb3QnYf/T0xSzik9i+907N63S
+         H332WeoOOR76g==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <YMpAcaqjk4ZN90gj@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v2 0/4] net/smc: Add SMC statistic support
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162387421060.22643.2650018672021576779.git-patchwork-notify@kernel.org>
+Date:   Wed, 16 Jun 2021 20:10:10 +0000
+References: <20210616145258.2381446-1-kgraul@linux.ibm.com>
+In-Reply-To: <20210616145258.2381446-1-kgraul@linux.ibm.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, hca@linux.ibm.com,
+        raspl@linux.ibm.com, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, guvenc@linux.ibm.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 16/06/21 20:18, Greg KH wrote:
-> On Wed, Jun 16, 2021 at 06:59:15PM +0200, Paolo Bonzini wrote:
->> - varlink structs are encoded as JSON dictionaries.  Therefore, every time
->> userspace reads the fields, the kernel has to include the field names as
->> JSON dictionary keys.  This means that a lot of time is spent writing
->> buffers, and on the receiving side parsing them.
+Hello:
+
+This series was applied to netdev/net-next.git (refs/heads/master):
+
+On Wed, 16 Jun 2021 16:52:54 +0200 you wrote:
+> Please apply the following patch series for smc to netdev's net-next tree.
 > 
-> Has this been measured?  Years ago when I messed with this, it was in
-> the noise as JSON parsing is really fast these days.
-
-Yes, parsing is really fast.  However, the work doesn't end at building 
-an in-memory representation.  An efficient representation (and a schema 
-that is negotiated in advance) makes it possible to do this work as late 
-and as little as possible, instead of doing it on every fetch of the 
-statistics.
-
-For cloud vendors running virtual machines, they want to consolidate 
-housekeeping tasks on as few CPUs as possible (because housekeeping CPUs 
-cannot be billed to the customers), and every millisecond really counts.
-ASCII is inviting, but things like Protobufs, FlatBuffers, Cap'n'Proto 
-are all binary because all those hidden costs do exist.
-
->> - because numeric data has to be converted to ASCII the output doesn't have
->> fixed offsets, so it is not possible to make an efficient implementation of
->> pread.
+> This v2 is a resend of the code contained in v1 but with an updated
+> cover letter to describe why we have chosen to use the generic netlink
+> mechanism to access the smc protocol's statistic data.
 > 
-> efficient where?  In the kernel?
-
-Yes, Jing's patches can just do a quick copy_to_user if pread does not 
-access the schema.  And it's very simple code too.
-
->> - even though Varlink specifies that int is "usually int64", a little-known
->> gem is that JSON behavior for numbers not representable as a double (i.e.
->> exceeding 2^53) is implementation-defined
+> The patchset adds statistic support to the SMC protocol. Per-cpu
+> variables are used to collect the statistic information for better
+> performance and for reducing concurrency pitfalls. The code that is
+> collecting statistic data is implemented in macros to increase code
+> reuse and readability.
+> The generic netlink mechanism in SMC is extended to provide the
+> collected statistics to userspace.
+> Network namespace awareness is also part of the statistics
+> implementation.
 > 
-> That's interesting, do the varlink developers know this?  And we can say
-> "for the kernel int will be int64" and be done with it, so this
-> shouldn't be that big of an issue.
+> [...]
 
-Well yeah, but there's still the problem of what the other side thinks. 
-  In the end varlink's interesting because it's just JSON, meaning 
-there's plenty of parsers available---but they all too often don't 
-separate int vs. double.  We had this issue with projects talking to 
-QEMU (which has been using JSON the same way as varlink for ten years or 
-so) and JSON parsers returning an overflow for 2^64-1 (because it rounds 
-to 2^64) or an incorrect value.  I'm not saying it's a showstopper, it's 
-just an unavoidable ugliness if you pick JSON.
+Here is the summary with links:
+  - [net-next,v2,1/4] net/smc: Add SMC statistics support
+    https://git.kernel.org/netdev/net-next/c/e0e4b8fa5338
+  - [net-next,v2,2/4] net/smc: Add netlink support for SMC statistics
+    https://git.kernel.org/netdev/net-next/c/8c40602b4be1
+  - [net-next,v2,3/4] net/smc: Add netlink support for SMC fallback statistics
+    https://git.kernel.org/netdev/net-next/c/f0dd7bf5e330
+  - [net-next,v2,4/4] net/smc: Make SMC statistics network namespace aware
+    https://git.kernel.org/netdev/net-next/c/194730a9beb5
 
->> For the schema, there are some specific problems with varlink, but also a
->> more generic issue.  The specific problems are:
->>
->> - the schema doesn't include the length of arrays.  This makes it hard to
->> compute in advance lengths and offsets of fields (even ignoring the fact
->> that data is not binary, which I'll get to later)
-> 
-> Do you care in advance?
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Yes, once we add for example histograms we would like to include in the 
-schema the size and number of the buckets.
-
-> Again, I didn't think this was an issue with the kernel implementation
-> in that the userspace side could determine the schema by the data coming
-> from the kernel, it wouldn't have to "know" about it ahead of time.
-> But I could be wrong.
-
-No, you're right.  The C implementations are really just very thin 
-wrappers over JSON.  There's very little "Varlink"ness in them.
-
-However the interesting part of the schema are the metadata--the unit, 
-whether something is an instant vs. a cumulative value, the bucket size 
-when we add histograms.  These things are obviously not included in the 
-data and must be communicated separately.  Userspace tools could also 
-use a schema to validate user requests ("record the halt_poll_fail_ns 
-every second").
-
->> All that said, what we _could_ do is serialize the schema as JSON
->> instead of using a binary format
-> 
-> It should be in some standard format. If not, and it sounds like you
-> have looked into it, or at least the  userspace side, then that's fine.
-> But you should write up a justification somewhere why you didn't use an
-> existing format (what about the netlink format?)
-
-I guess you're talking about NETLINK_GENERIC, that also has the issue 
-that the schema (the attributes) is not dynamic but rather part of the 
-uAPI.  We explicitly don't want them to be stable, they're like 
-tracepoints in that respect and that's why we took ideas from trace-cmd. 
-  Anyway, as a start Jing will summarize all these discussions in v10.
-
-Thanks,
-
-Paolo
 
