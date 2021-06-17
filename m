@@ -7,57 +7,57 @@ X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_IN_DEF_DKIM_WL
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4CE6C2B9F4
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 15:09:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE89EC49361
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 15:20:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9E630613AA
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 15:09:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5C56613F8
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 15:20:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233165AbhFQPLt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Jun 2021 11:11:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45428 "EHLO
+        id S233152AbhFQPWt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Jun 2021 11:22:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233111AbhFQPLt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Jun 2021 11:11:49 -0400
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F03C7C0617A6
-        for <linux-s390@vger.kernel.org>; Thu, 17 Jun 2021 08:09:40 -0700 (PDT)
-Received: by mail-lf1-x133.google.com with SMTP id bp38so11191771lfb.0
-        for <linux-s390@vger.kernel.org>; Thu, 17 Jun 2021 08:09:40 -0700 (PDT)
+        with ESMTP id S233130AbhFQPWt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Jun 2021 11:22:49 -0400
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D712C06175F
+        for <linux-s390@vger.kernel.org>; Thu, 17 Jun 2021 08:20:41 -0700 (PDT)
+Received: by mail-lf1-x136.google.com with SMTP id r198so11105345lff.11
+        for <linux-s390@vger.kernel.org>; Thu, 17 Jun 2021 08:20:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=xXZRhEcd2Cbrj/tVl2ryBxrcp7ZNIEiNaJWzDG2F5Kg=;
-        b=TqWgVeNXToRFcCgGFrlG52MtXOvoEpEgH+psGbhdraIxWdvhr8qhRpfWoVKcSxORjB
-         B831vy6R7RTZzs2nM/KQJ71iM9aVLCvGMf20DJUF4AiJWHbwKHIT31rxxZUeXh2p2oRt
-         XL4KPiTOT9hbUZgUJfDFuKG7oGbFDKYHU8SCBYWaX0RmwnVcF135fDTnUplDx6/kg56A
-         WtUBi4LRlBK+S9bbzajtt7FAUOTE3fofCi+CtbjwZsPln+zjbIngScXUpHx9H35LbAYv
-         yhbCZ2245i7w4fll7tlZ0JTQLXy7oTYwQOusiRyXIwwEXch8Jc2WjtK44ttM+hrJsoLv
-         Zk4w==
+        bh=5nxSzCxRIGKeYpvFJwHnokf+lsLXzTQKnVZehNuKBfY=;
+        b=v73zJk16lVzUG7QbbkRkacwK3TUPJGuBDYnlw6a7OPjaXiFoy/Tg1SF7o+pP2VkjgQ
+         GCw+WkjfIQ3l6iS90jFkDddYRWl54Fy+YMR/OLBaPnT1q7EH0oEDgCPwHFRf8oPp7gGh
+         W7Ec4TAFYCyuNTidERQalF9VJ9rhnKCIZeBncU5P/7WoHZpOenVDVwlRJezyVC2NtJ6Y
+         vboZ+Jh+7e1OhUpnKBfhBMPZL2co2cGDoDioEPRVmBRw4+jEILLh2FWrKa/OxCOxZ34S
+         /rw7UTqce3bTc65+uzu2YO9pLXUzTgYikYTMftRKjr074dSbh8dedXtXArBgTf7VXUpm
+         YOvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=xXZRhEcd2Cbrj/tVl2ryBxrcp7ZNIEiNaJWzDG2F5Kg=;
-        b=jILWL3U83eOAiZrsi0Hm8skEXOXnqiz2RJeCU9l27oWs9E6mIfPnJCu3Twz55vTw1M
-         yjoyNVKHXu6TVGSKxrfCDG+Dh/Qc3zxGPBJxaSVjv0Aom/LGg8zL6kMrBFmZQEofgzXY
-         V8HCzlEovpGPX++X/DJWlvIG54TL6XWvBKeWfyRrd+InQNUQSpbWpBDrFHy3uC3g7rh4
-         Ev30tNehqXfqY6BjR2+6jL5neWo3VsXAOPapTEyR2fizXNLUi39dZ5nOGpsOcVsWfrR8
-         1UF6p8HGVm6ndsfsnHkWlaCRqWVV0nHxJKmZU9WJmiorbzHKXEvzMFNZ5FBUqdgvpwbw
-         Pz8Q==
-X-Gm-Message-State: AOAM5301c+ZOgRRQoqAwtden8XabYPlGGqHOb+VJGT+0JJE4aY4j5qGB
-        NXrgXtwxkUMkG8TolJfUu+/eZlGYQxmDc5cP9zJAgA==
-X-Google-Smtp-Source: ABdhPJzAyrQsMnAqbBOEYMZVZQD5qO0SZlAXpM63+DpcX+GVx2elMNK7wl3R9skQOGetSMH5r+n7sJJM07csoEf6gTw=
-X-Received: by 2002:a05:6512:33c4:: with SMTP id d4mr4587741lfg.536.1623942578963;
- Thu, 17 Jun 2021 08:09:38 -0700 (PDT)
+        bh=5nxSzCxRIGKeYpvFJwHnokf+lsLXzTQKnVZehNuKBfY=;
+        b=Gszt0TCg8eCdQBoMZG0629q1ry1WftZGG1JhXQEEz1jS6YEWpBYlIp+pg0ma6kMon+
+         /cXmoErWsRDyiWsF+h3COzvL2zq4lw3HuLSEIhLjKB4bGAjIAOO8EsyP2paer8L6IwLc
+         +n9KCjB6w/vCh/etbZ8YJDqtN95yF7dxYPImsE1VqZumsvfNeXY6E8rIwAsniH3W0ce1
+         GhgCNpUPBoICho6YhIUoMg598XndOv1QUSYWyPwQ/WTVNjOskH1+h/hrLVS/bEcLymKx
+         5s6/pdM4RFPMYHtRkwbO70VwV+Y/7p32CQm2RE1Sk28RqEaG/oox3J4ggQZzlABOcWBl
+         aELw==
+X-Gm-Message-State: AOAM531/p4xPB3D0q0VyP+finjHUdYPeTRa9sQjb1anbLqD97rNBDHJS
+        2FGXVEl7kjfojQewEYd6dCRI/mbbIc01sdXr5SOOCg==
+X-Google-Smtp-Source: ABdhPJxKKizWi/fGNn+9wpt69Ewj2CzuOybJdiyg4e/t3EuxZUFb779j6T3WEp//mVN3Ae7BamP0hcGF5jtDYBl/+0Y=
+X-Received: by 2002:a05:6512:3ea:: with SMTP id n10mr4392667lfq.178.1623943239558;
+ Thu, 17 Jun 2021 08:20:39 -0700 (PDT)
 MIME-Version: 1.0
 References: <20210617044146.2667540-1-jingzhangos@google.com>
- <20210617044146.2667540-4-jingzhangos@google.com> <YMrjKhV8TNwmRtf6@kroah.com>
-In-Reply-To: <YMrjKhV8TNwmRtf6@kroah.com>
+ <20210617044146.2667540-4-jingzhangos@google.com> <YMrkGZzPrt0jA1iP@kroah.com>
+In-Reply-To: <YMrkGZzPrt0jA1iP@kroah.com>
 From:   Jing Zhang <jingzhangos@google.com>
-Date:   Thu, 17 Jun 2021 10:09:27 -0500
-Message-ID: <CAAdAUtiySqu6VKpK2LDnG5S0m9tRKjrKSu5BWoFurkhWay4yCg@mail.gmail.com>
+Date:   Thu, 17 Jun 2021 10:20:27 -0500
+Message-ID: <CAAdAUtik0Yw+4=4Ld-DJSokNzvdpa-tsxkqAdBCAb-C=uS0-sA@mail.gmail.com>
 Subject: Re: [PATCH v10 3/5] KVM: stats: Add documentation for binary
  statistics interface
 To:     Greg KH <gregkh@linuxfoundation.org>
@@ -99,7 +99,7 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 Hi Greg,
 
-On Thu, Jun 17, 2021 at 12:52 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+On Thu, Jun 17, 2021 at 12:56 AM Greg KH <gregkh@linuxfoundation.org> wrote:
 >
 > On Thu, Jun 17, 2021 at 04:41:44AM +0000, Jing Zhang wrote:
 > > +     struct kvm_stats_desc {
@@ -110,19 +110,39 @@ On Thu, Jun 17, 2021 at 12:52 AM Greg KH <gregkh@linuxfoundation.org> wrote:
 > > +             __u32 unused;
 > > +             char name[0];
 > > +     };
-> > +
-> > +The ``flags`` field contains the type and unit of the statistics data described
-> > +by this descriptor. The following flags are supported:
-> > +
-> > +Bits 0-3 of ``flags`` encode the type:
 >
 > <snip>
 >
-> As flags is a bit field, what is the endian of it?  Native or LE or BE?
-> I'm guessing "cpu native", but you should be explicit as userspace will
-> have to deal with this somehow.
-Sure, will add clarification for endianness.
+> > +The ``unused`` fields are reserved for future support for other types of
+> > +statistics data, like log/linear histogram.
 >
+> you HAVE to set unused to 0 for now, otherwise userspace does not know
+> it is unused, right?  And then, really it is "used", so why not just say
+> that now?  It's tricky, but you have to get this right now otherwise you
+> can never use it in the future.
+>
+Sure, will do that.
+> > +The ``name`` field points to the name string of the statistics data. The name
+>
+> It is not a pointer, it is the data itself.
+>
+Will fix it.
+> > +string starts at the end of ``struct kvm_stats_desc``.
+> > +The maximum length (including trailing '\0') is indicated by ``name_size``
+> > +in ``struct kvm_stats_header``.
+>
+> I thought we were replacing [0] arrays with [], are you sure you should
+> be declaring this as [0]?  Same for all structures in this document (and
+> code).
+>
+The reason to declare it as [0] is to have the flexibility to change the maximum
+length of KVM stats name. For now, the max len is  defined as 48, which can
+be read from the header. Then the userspace can get the length of descriptor by
+adding sizeof(struct_kvm_stats_desc) + 48. Whenever the max len is changed
+in KVM, the userspace would not have to update code to reflect that.
+However, if we are OK to restrict the maximum KVM stats' length to 48
+(or any other
+number), we can just declear it with [] instead of [0].
 > thanks,
 >
 > greg k-h
