@@ -2,565 +2,175 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC357C49EA2
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 14:27:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 638DBC49361
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 14:48:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C35E361369
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 14:27:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 50775613E3
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 14:48:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232347AbhFQO3h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Jun 2021 10:29:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35710 "EHLO
+        id S231720AbhFQOua (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Jun 2021 10:50:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231656AbhFQO3h (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Jun 2021 10:29:37 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F25C061574;
-        Thu, 17 Jun 2021 07:27:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=ujRFjTI8vtF5cVjWAvU/yHpeu7U6TIHTjoSCC7BIhA0=; b=CW9q0fwPMPgbNtZR0pGclP5A0U
-        RDVk12Js6lpyVjuSm/bT4eKO+jC6/FZPPw+u5XiO/VpUe6XL4EHqXn/J0Ileb7fT2Q01/7hWBTgET
-        VRwQRwIX8BtJc68VXxv7yEH9Pp1PWCuw4XFzYJaJ+NLa/cvV6Y8wC/5klF6atWbX8XMIZBJ8/KsMM
-        DCgJ5Pqns7BOy8JpFjvMOLwYoZxMbA4jqJ2b8V5VUPJmjSsqWXyl0e4KDTRtZ/updE9DJTxCHLshE
-        OsxD1XT2lXrE7vOscpSpl/JR6Pq9T0mIKNJIZtypA5UKtYvsmQpQFdY9x9HISXtIzexnGZMAlfo35
-        b0Y51YWw==;
-Received: from [2001:4bb8:19b:fdce:dccf:26cc:e207:71f6] (helo=localhost)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ltsyW-009Dsc-Dp; Thu, 17 Jun 2021 14:26:36 +0000
-From:   Christoph Hellwig <hch@lst.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>
-Cc:     David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 10/10] vfio/mbochs: Convert to use vfio_register_group_dev()
-Date:   Thu, 17 Jun 2021 16:22:18 +0200
-Message-Id: <20210617142218.1877096-11-hch@lst.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210617142218.1877096-1-hch@lst.de>
-References: <20210617142218.1877096-1-hch@lst.de>
+        with ESMTP id S232089AbhFQOu3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Jun 2021 10:50:29 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39934C06175F
+        for <linux-s390@vger.kernel.org>; Thu, 17 Jun 2021 07:48:21 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id bp38so11072815lfb.0
+        for <linux-s390@vger.kernel.org>; Thu, 17 Jun 2021 07:48:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=7xTcig9u+ckmAK7F7nxFSbFSF3LG6qPs6DaQp7FLrvY=;
+        b=bygYJMkfBrOTcD5rgvdu2TqpUYCHPRA5N7W6suhW34MjzQ7Q41hSSaiV4p4h1kSB8B
+         wtVqMlTitgQM18JdvB7h9Q+oFDUtZ5+vI4b0NNHWxiQOyhK6wSHPrWESvV/RMicAbEB2
+         JONdfC82tVgGDbroHeVLo3Zu06osDZZ2CimkJypcMPXAcRddVw5QsLGliJLlP3ZRnfRW
+         QBMeN4RVmbyQ6GXkM4cATYRg3sKqyvnFP/9pSO3RCyzzxmSghU06nl6L+xfZxsQeCtwA
+         OxuR8KUTSn5/6zjnAcYoWUmGsLpODf/TMKL/SNbBxB4gcI/KyOtgXGVUlZqe9XP1j3C1
+         Cw6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=7xTcig9u+ckmAK7F7nxFSbFSF3LG6qPs6DaQp7FLrvY=;
+        b=Lq8S/H0uzIXGhA2xGoHiro70rQ9Aqsjibdizgh+hUtMDAtj7Z1izMPbzPSd5OK5j2b
+         L0AXaEZk4g9MAyu7Aj91vrq5ibB0jnkwRump+eqN0W6pF8LI5F9OI3lYqICaH3bRxnd9
+         d48Qbf3sPAi2yexhXHcobyP9yXv8cCtg56XdducQChR4UevVetJMXWSCjYMo+Gu60+D1
+         Zz577RFLmE+5nP4D+bTHABNVrRr3sjdd4vtA/73B2lkGv7F5r141A1DYVBVZJpS5ooXk
+         LX/pPwA494AVaxv65uG682cNmWrK0mYKR+TD99I5ZCweex53lpQOPRpRkQWj/62Z5jSo
+         rU6Q==
+X-Gm-Message-State: AOAM532huU4Z/3M0kv/WVO5gxP0pFlU4RUmJRcAtCjYu9EVap7wkOWt/
+        NTJd+P+2hvfLQnVRTjX6v50vN73sB7v9bDDR5y+lJA==
+X-Google-Smtp-Source: ABdhPJyAGNi+2863i+xt6PnvN+8SqM67FY0o8ilXr0tbP46MEwKu1YD9BBtN+J/dXZivkcBRgfa36w81fk2G41mFTyg=
+X-Received: by 2002:a05:6512:318d:: with SMTP id i13mr4438454lfe.407.1623941299197;
+ Thu, 17 Jun 2021 07:48:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+References: <20210617044146.2667540-1-jingzhangos@google.com>
+ <20210617044146.2667540-3-jingzhangos@google.com> <YMrzzYEkDQNCpnP7@kroah.com>
+In-Reply-To: <YMrzzYEkDQNCpnP7@kroah.com>
+From:   Jing Zhang <jingzhangos@google.com>
+Date:   Thu, 17 Jun 2021 09:48:07 -0500
+Message-ID: <CAAdAUtibbp4y_Ju4E+EeQ6HmRsEGXycjK-Y_P78xGVySYkftSQ@mail.gmail.com>
+Subject: Re: [PATCH v10 2/5] KVM: stats: Add fd-based API to read binary stats data
+To:     Greg KH <greg@kroah.com>
+Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
+        LinuxMIPS <linux-mips@vger.kernel.org>,
+        KVMPPC <kvm-ppc@vger.kernel.org>,
+        LinuxS390 <linux-s390@vger.kernel.org>,
+        Linuxkselftest <linux-kselftest@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
+        David Matlack <dmatlack@google.com>,
+        Ricardo Koller <ricarkol@google.com>,
+        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
+        Fuad Tabba <tabba@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+Hi Greg,
 
-This is straightforward conversion, the mdev_state is actually serving as
-the vfio_device and we can replace all the mdev_get_drvdata()'s and the
-wonky dead code with a simple container_of().
+On Thu, Jun 17, 2021 at 2:03 AM Greg KH <greg@kroah.com> wrote:
+>
+> On Thu, Jun 17, 2021 at 04:41:43AM +0000, Jing Zhang wrote:
+> > Provides a file descriptor per VM to read VM stats info/data.
+> > Provides a file descriptor per vCPU to read vCPU stats info/data.
+> >
+> > The KVM stats now is only accessible by debugfs, which has some
+> > shortcomings this change are supposed to fix:
+> > 1. Debugfs is not a stable interface for production and it is
+> >    disabled when kernel Lockdown mode is enabled.
+>
+> debugfs _could_ be a stable interface if you want it to be and make that
+> rule for your subsystem.  Disabling it for lockdown mode is a different
+> issue, and that is a system-wide-policy-decision, not a debugfs-specific
+> thing.
+>
+> > 2. Debugfs is organized as "one value per file", it is good for
+> >    debugging, but not supposed to be used for production.
+>
+> debugfs IS NOT one-value-per-file, you can do whatever you want in
+> there.  sysfs IS one-value-per-file, do not get the two confused there.
+>
+> > 3. Debugfs read/clear in KVM are protected by the global kvm_lock.
+>
+> That's your implementation issue, not a debugfs issue.
+>
+> The only "rule" in debugfs is:
+>         There are no rules.
+>
+> So while your subsystem might have issues with using debugfs for
+> statistics like this, that's not debugfs's fault, that's how you want to
+> use the debugfs files for your subsystem.
+>
+You are right. The issues are from how the debugfs is used in KVM stats.
+Will fix the text accordingly.
+> > Besides that, there are some other benefits with this change:
+> > 1. All KVM VM/VCPU stats can be read out in a bulk by one copy
+> >    to userspace.
+> > 2. A schema is used to describe KVM statistics. From userspace's
+> >    perspective, the KVM statistics are self-describing.
+> > 3. Fd-based solution provides the possibility that a telemetry can
+> >    read KVM stats in a less privileged situation.
+>
+> "possiblity"?  Does this work or not?  Have you tested it?
+>
+I should've said "We are able to read KVM stats in a less privileged process".
+> > +static ssize_t kvm_vm_stats_read(struct file *file, char __user *user_buffer,
+> > +                           size_t size, loff_t *offset)
+> > +{
+> > +     struct kvm *kvm = file->private_data;
+> > +
+> > +     snprintf(&kvm_vm_stats_header.id[0], sizeof(kvm_vm_stats_header.id),
+> > +                     "kvm-%d", task_pid_nr(current));
+>
+> Why do you write to this static variable for EVERY read?  Shouldn't you
+> just do it once at open?  How can it change?
+>
+> Wait, it's a single shared variable, what happens when multiple tasks
+> open this thing and read from it?  You race between writing to this
+> variable here and then:
+>
+> > +     return kvm_stats_read(&kvm_vm_stats_header, &kvm_vm_stats_desc[0],
+> > +             &kvm->stat, sizeof(kvm->stat), user_buffer, size, offset);
+>
+> Accessing it here.
+>
+> So how is this really working?
+>
+You are right. We only need to do it once at the open. Will fix it according to
+Paolo's suggestion.
+> thanks,
+>
+> greg k-h
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- samples/vfio-mdev/mbochs.c | 163 +++++++++++++++++++++----------------
- 1 file changed, 91 insertions(+), 72 deletions(-)
-
-diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-index 881ef9a7296f..6c0f229db36a 100644
---- a/samples/vfio-mdev/mbochs.c
-+++ b/samples/vfio-mdev/mbochs.c
-@@ -130,6 +130,7 @@ static struct class	*mbochs_class;
- static struct cdev	mbochs_cdev;
- static struct device	mbochs_dev;
- static int		mbochs_used_mbytes;
-+static const struct vfio_device_ops mbochs_dev_ops;
- 
- struct vfio_region_info_ext {
- 	struct vfio_region_info          base;
-@@ -160,6 +161,7 @@ struct mbochs_dmabuf {
- 
- /* State of each mdev device */
- struct mdev_state {
-+	struct vfio_device vdev;
- 	u8 *vconfig;
- 	u64 bar_mask[3];
- 	u32 memory_bar_mask;
-@@ -425,11 +427,9 @@ static void handle_edid_blob(struct mdev_state *mdev_state, u16 offset,
- 		memcpy(buf, mdev_state->edid_blob + offset, count);
- }
- 
--static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
--			   loff_t pos, bool is_write)
-+static ssize_t mdev_access(struct mdev_state *mdev_state, char *buf,
-+			   size_t count, loff_t pos, bool is_write)
- {
--	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
--	struct device *dev = mdev_dev(mdev);
- 	struct page *pg;
- 	loff_t poff;
- 	char *map;
-@@ -478,7 +478,7 @@ static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
- 		put_page(pg);
- 
- 	} else {
--		dev_dbg(dev, "%s: %s @0x%llx (unhandled)\n",
-+		dev_dbg(mdev_state->vdev.dev, "%s: %s @0x%llx (unhandled)\n",
- 			__func__, is_write ? "WR" : "RD", pos);
- 		ret = -1;
- 		goto accessfailed;
-@@ -493,9 +493,8 @@ static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
- 	return ret;
- }
- 
--static int mbochs_reset(struct mdev_device *mdev)
-+static int mbochs_reset(struct mdev_state *mdev_state)
- {
--	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
- 	u32 size64k = mdev_state->memsize / (64 * 1024);
- 	int i;
- 
-@@ -506,12 +505,13 @@ static int mbochs_reset(struct mdev_device *mdev)
- 	return 0;
- }
- 
--static int mbochs_create(struct mdev_device *mdev)
-+static int mbochs_probe(struct mdev_device *mdev)
- {
- 	const struct mbochs_type *type =
- 		&mbochs_types[mdev_get_type_group_id(mdev)];
- 	struct device *dev = mdev_dev(mdev);
- 	struct mdev_state *mdev_state;
-+	int ret = -ENOMEM;
- 
- 	if (type->mbytes + mbochs_used_mbytes > max_mbytes)
- 		return -ENOMEM;
-@@ -519,6 +519,7 @@ static int mbochs_create(struct mdev_device *mdev)
- 	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
- 	if (mdev_state == NULL)
- 		return -ENOMEM;
-+	vfio_init_group_dev(&mdev_state->vdev, &mdev->dev, &mbochs_dev_ops);
- 
- 	mdev_state->vconfig = kzalloc(MBOCHS_CONFIG_SPACE_SIZE, GFP_KERNEL);
- 	if (mdev_state->vconfig == NULL)
-@@ -537,7 +538,6 @@ static int mbochs_create(struct mdev_device *mdev)
- 
- 	mutex_init(&mdev_state->ops_lock);
- 	mdev_state->mdev = mdev;
--	mdev_set_drvdata(mdev, mdev_state);
- 	INIT_LIST_HEAD(&mdev_state->dmabufs);
- 	mdev_state->next_id = 1;
- 
-@@ -547,32 +547,38 @@ static int mbochs_create(struct mdev_device *mdev)
- 	mdev_state->edid_regs.edid_offset = MBOCHS_EDID_BLOB_OFFSET;
- 	mdev_state->edid_regs.edid_max_size = sizeof(mdev_state->edid_blob);
- 	mbochs_create_config_space(mdev_state);
--	mbochs_reset(mdev);
-+	mbochs_reset(mdev_state);
- 
- 	mbochs_used_mbytes += type->mbytes;
-+
-+	ret = vfio_register_group_dev(&mdev_state->vdev);
-+	if (ret)
-+		goto err_mem;
-+	dev_set_drvdata(&mdev->dev, mdev_state);
- 	return 0;
- 
- err_mem:
- 	kfree(mdev_state->vconfig);
- 	kfree(mdev_state);
--	return -ENOMEM;
-+	return ret;
- }
- 
--static int mbochs_remove(struct mdev_device *mdev)
-+static void mbochs_remove(struct mdev_device *mdev)
- {
--	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
-+	struct mdev_state *mdev_state = dev_get_drvdata(&mdev->dev);
- 
- 	mbochs_used_mbytes -= mdev_state->type->mbytes;
--	mdev_set_drvdata(mdev, NULL);
-+	vfio_unregister_group_dev(&mdev_state->vdev);
- 	kfree(mdev_state->pages);
- 	kfree(mdev_state->vconfig);
- 	kfree(mdev_state);
--	return 0;
- }
- 
--static ssize_t mbochs_read(struct mdev_device *mdev, char __user *buf,
-+static ssize_t mbochs_read(struct vfio_device *vdev, char __user *buf,
- 			   size_t count, loff_t *ppos)
- {
-+	struct mdev_state *mdev_state =
-+		container_of(vdev, struct mdev_state, vdev);
- 	unsigned int done = 0;
- 	int ret;
- 
-@@ -582,7 +588,7 @@ static ssize_t mbochs_read(struct mdev_device *mdev, char __user *buf,
- 		if (count >= 4 && !(*ppos % 4)) {
- 			u32 val;
- 
--			ret =  mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret =  mdev_access(mdev_state, (char *)&val, sizeof(val),
- 					   *ppos, false);
- 			if (ret <= 0)
- 				goto read_err;
-@@ -594,7 +600,7 @@ static ssize_t mbochs_read(struct mdev_device *mdev, char __user *buf,
- 		} else if (count >= 2 && !(*ppos % 2)) {
- 			u16 val;
- 
--			ret = mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret = mdev_access(mdev_state, (char *)&val, sizeof(val),
- 					  *ppos, false);
- 			if (ret <= 0)
- 				goto read_err;
-@@ -606,7 +612,7 @@ static ssize_t mbochs_read(struct mdev_device *mdev, char __user *buf,
- 		} else {
- 			u8 val;
- 
--			ret = mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret = mdev_access(mdev_state, (char *)&val, sizeof(val),
- 					  *ppos, false);
- 			if (ret <= 0)
- 				goto read_err;
-@@ -629,9 +635,11 @@ static ssize_t mbochs_read(struct mdev_device *mdev, char __user *buf,
- 	return -EFAULT;
- }
- 
--static ssize_t mbochs_write(struct mdev_device *mdev, const char __user *buf,
-+static ssize_t mbochs_write(struct vfio_device *vdev, const char __user *buf,
- 			    size_t count, loff_t *ppos)
- {
-+	struct mdev_state *mdev_state =
-+		container_of(vdev, struct mdev_state, vdev);
- 	unsigned int done = 0;
- 	int ret;
- 
-@@ -644,7 +652,7 @@ static ssize_t mbochs_write(struct mdev_device *mdev, const char __user *buf,
- 			if (copy_from_user(&val, buf, sizeof(val)))
- 				goto write_err;
- 
--			ret = mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret = mdev_access(mdev_state, (char *)&val, sizeof(val),
- 					  *ppos, true);
- 			if (ret <= 0)
- 				goto write_err;
-@@ -656,7 +664,7 @@ static ssize_t mbochs_write(struct mdev_device *mdev, const char __user *buf,
- 			if (copy_from_user(&val, buf, sizeof(val)))
- 				goto write_err;
- 
--			ret = mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret = mdev_access(mdev_state, (char *)&val, sizeof(val),
- 					  *ppos, true);
- 			if (ret <= 0)
- 				goto write_err;
-@@ -668,7 +676,7 @@ static ssize_t mbochs_write(struct mdev_device *mdev, const char __user *buf,
- 			if (copy_from_user(&val, buf, sizeof(val)))
- 				goto write_err;
- 
--			ret = mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret = mdev_access(mdev_state, (char *)&val, sizeof(val),
- 					  *ppos, true);
- 			if (ret <= 0)
- 				goto write_err;
-@@ -754,9 +762,10 @@ static const struct vm_operations_struct mbochs_region_vm_ops = {
- 	.fault = mbochs_region_vm_fault,
- };
- 
--static int mbochs_mmap(struct mdev_device *mdev, struct vm_area_struct *vma)
-+static int mbochs_mmap(struct vfio_device *vdev, struct vm_area_struct *vma)
- {
--	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
-+	struct mdev_state *mdev_state =
-+		container_of(vdev, struct mdev_state, vdev);
- 
- 	if (vma->vm_pgoff != MBOCHS_MEMORY_BAR_OFFSET >> PAGE_SHIFT)
- 		return -EINVAL;
-@@ -963,7 +972,7 @@ mbochs_dmabuf_find_by_id(struct mdev_state *mdev_state, u32 id)
- static int mbochs_dmabuf_export(struct mbochs_dmabuf *dmabuf)
- {
- 	struct mdev_state *mdev_state = dmabuf->mdev_state;
--	struct device *dev = mdev_dev(mdev_state->mdev);
-+	struct device *dev = mdev_state->vdev.dev;
- 	DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
- 	struct dma_buf *buf;
- 
-@@ -991,15 +1000,10 @@ static int mbochs_dmabuf_export(struct mbochs_dmabuf *dmabuf)
- 	return 0;
- }
- 
--static int mbochs_get_region_info(struct mdev_device *mdev,
-+static int mbochs_get_region_info(struct mdev_state *mdev_state,
- 				  struct vfio_region_info_ext *ext)
- {
- 	struct vfio_region_info *region_info = &ext->base;
--	struct mdev_state *mdev_state;
--
--	mdev_state = mdev_get_drvdata(mdev);
--	if (!mdev_state)
--		return -EINVAL;
- 
- 	if (region_info->index >= MBOCHS_NUM_REGIONS)
- 		return -EINVAL;
-@@ -1047,15 +1051,13 @@ static int mbochs_get_region_info(struct mdev_device *mdev,
- 	return 0;
- }
- 
--static int mbochs_get_irq_info(struct mdev_device *mdev,
--			       struct vfio_irq_info *irq_info)
-+static int mbochs_get_irq_info(struct vfio_irq_info *irq_info)
- {
- 	irq_info->count = 0;
- 	return 0;
- }
- 
--static int mbochs_get_device_info(struct mdev_device *mdev,
--				  struct vfio_device_info *dev_info)
-+static int mbochs_get_device_info(struct vfio_device_info *dev_info)
- {
- 	dev_info->flags = VFIO_DEVICE_FLAGS_PCI;
- 	dev_info->num_regions = MBOCHS_NUM_REGIONS;
-@@ -1063,11 +1065,9 @@ static int mbochs_get_device_info(struct mdev_device *mdev,
- 	return 0;
- }
- 
--static int mbochs_query_gfx_plane(struct mdev_device *mdev,
-+static int mbochs_query_gfx_plane(struct mdev_state *mdev_state,
- 				  struct vfio_device_gfx_plane_info *plane)
- {
--	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
--	struct device *dev = mdev_dev(mdev);
- 	struct mbochs_dmabuf *dmabuf;
- 	struct mbochs_mode mode;
- 	int ret;
-@@ -1121,18 +1121,16 @@ static int mbochs_query_gfx_plane(struct mdev_device *mdev,
- done:
- 	if (plane->drm_plane_type == DRM_PLANE_TYPE_PRIMARY &&
- 	    mdev_state->active_id != plane->dmabuf_id) {
--		dev_dbg(dev, "%s: primary: %d => %d\n", __func__,
--			mdev_state->active_id, plane->dmabuf_id);
-+		dev_dbg(mdev_state->vdev.dev, "%s: primary: %d => %d\n",
-+			__func__, mdev_state->active_id, plane->dmabuf_id);
- 		mdev_state->active_id = plane->dmabuf_id;
- 	}
- 	mutex_unlock(&mdev_state->ops_lock);
- 	return 0;
- }
- 
--static int mbochs_get_gfx_dmabuf(struct mdev_device *mdev,
--				 u32 id)
-+static int mbochs_get_gfx_dmabuf(struct mdev_state *mdev_state, u32 id)
- {
--	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
- 	struct mbochs_dmabuf *dmabuf;
- 
- 	mutex_lock(&mdev_state->ops_lock);
-@@ -1154,9 +1152,11 @@ static int mbochs_get_gfx_dmabuf(struct mdev_device *mdev,
- 	return dma_buf_fd(dmabuf->buf, 0);
- }
- 
--static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
--			unsigned long arg)
-+static long mbochs_ioctl(struct vfio_device *vdev, unsigned int cmd,
-+			 unsigned long arg)
- {
-+	struct mdev_state *mdev_state =
-+		container_of(vdev, struct mdev_state, vdev);
- 	int ret = 0;
- 	unsigned long minsz, outsz;
- 
-@@ -1173,7 +1173,7 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
- 		if (info.argsz < minsz)
- 			return -EINVAL;
- 
--		ret = mbochs_get_device_info(mdev, &info);
-+		ret = mbochs_get_device_info(&info);
- 		if (ret)
- 			return ret;
- 
-@@ -1197,7 +1197,7 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
- 		if (outsz > sizeof(info))
- 			return -EINVAL;
- 
--		ret = mbochs_get_region_info(mdev, &info);
-+		ret = mbochs_get_region_info(mdev_state, &info);
- 		if (ret)
- 			return ret;
- 
-@@ -1220,7 +1220,7 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
- 		    (info.index >= VFIO_PCI_NUM_IRQS))
- 			return -EINVAL;
- 
--		ret = mbochs_get_irq_info(mdev, &info);
-+		ret = mbochs_get_irq_info(&info);
- 		if (ret)
- 			return ret;
- 
-@@ -1243,7 +1243,7 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
- 		if (plane.argsz < minsz)
- 			return -EINVAL;
- 
--		ret = mbochs_query_gfx_plane(mdev, &plane);
-+		ret = mbochs_query_gfx_plane(mdev_state, &plane);
- 		if (ret)
- 			return ret;
- 
-@@ -1260,19 +1260,19 @@ static long mbochs_ioctl(struct mdev_device *mdev, unsigned int cmd,
- 		if (get_user(dmabuf_id, (__u32 __user *)arg))
- 			return -EFAULT;
- 
--		return mbochs_get_gfx_dmabuf(mdev, dmabuf_id);
-+		return mbochs_get_gfx_dmabuf(mdev_state, dmabuf_id);
- 	}
- 
- 	case VFIO_DEVICE_SET_IRQS:
- 		return -EINVAL;
- 
- 	case VFIO_DEVICE_RESET:
--		return mbochs_reset(mdev);
-+		return mbochs_reset(mdev_state);
- 	}
- 	return -ENOTTY;
- }
- 
--static int mbochs_open(struct mdev_device *mdev)
-+static int mbochs_open(struct vfio_device *vdev)
- {
- 	if (!try_module_get(THIS_MODULE))
- 		return -ENODEV;
-@@ -1280,9 +1280,10 @@ static int mbochs_open(struct mdev_device *mdev)
- 	return 0;
- }
- 
--static void mbochs_close(struct mdev_device *mdev)
-+static void mbochs_close(struct vfio_device *vdev)
- {
--	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
-+	struct mdev_state *mdev_state =
-+		container_of(vdev, struct mdev_state, vdev);
- 	struct mbochs_dmabuf *dmabuf, *tmp;
- 
- 	mutex_lock(&mdev_state->ops_lock);
-@@ -1306,8 +1307,7 @@ static ssize_t
- memory_show(struct device *dev, struct device_attribute *attr,
- 	    char *buf)
- {
--	struct mdev_device *mdev = mdev_from_dev(dev);
--	struct mdev_state *mdev_state = mdev_get_drvdata(mdev);
-+	struct mdev_state *mdev_state = dev_get_drvdata(dev);
- 
- 	return sprintf(buf, "%d MB\n", mdev_state->type->mbytes);
- }
-@@ -1398,18 +1398,30 @@ static struct attribute_group *mdev_type_groups[] = {
- 	NULL,
- };
- 
-+static const struct vfio_device_ops mbochs_dev_ops = {
-+	.open = mbochs_open,
-+	.release = mbochs_close,
-+	.read = mbochs_read,
-+	.write = mbochs_write,
-+	.ioctl = mbochs_ioctl,
-+	.mmap = mbochs_mmap,
-+};
-+
-+static struct mdev_driver mbochs_driver = {
-+	.driver = {
-+		.name = "mbochs",
-+		.owner = THIS_MODULE,
-+		.mod_name = KBUILD_MODNAME,
-+		.dev_groups = mdev_dev_groups,
-+	},
-+	.probe = mbochs_probe,
-+	.remove	= mbochs_remove,
-+};
-+
- static const struct mdev_parent_ops mdev_fops = {
- 	.owner			= THIS_MODULE,
--	.mdev_attr_groups	= mdev_dev_groups,
-+	.device_driver		= &mbochs_driver,
- 	.supported_type_groups	= mdev_type_groups,
--	.create			= mbochs_create,
--	.remove			= mbochs_remove,
--	.open			= mbochs_open,
--	.release		= mbochs_close,
--	.read			= mbochs_read,
--	.write			= mbochs_write,
--	.ioctl			= mbochs_ioctl,
--	.mmap			= mbochs_mmap,
- };
- 
- static const struct file_operations vd_fops = {
-@@ -1434,11 +1446,15 @@ static int __init mbochs_dev_init(void)
- 	cdev_add(&mbochs_cdev, mbochs_devt, MINORMASK + 1);
- 	pr_info("%s: major %d\n", __func__, MAJOR(mbochs_devt));
- 
-+	ret = mdev_register_driver(&mbochs_driver);
-+	if (ret)
-+		goto err_cdev;
-+
- 	mbochs_class = class_create(THIS_MODULE, MBOCHS_CLASS_NAME);
- 	if (IS_ERR(mbochs_class)) {
- 		pr_err("Error: failed to register mbochs_dev class\n");
- 		ret = PTR_ERR(mbochs_class);
--		goto failed1;
-+		goto err_driver;
- 	}
- 	mbochs_dev.class = mbochs_class;
- 	mbochs_dev.release = mbochs_device_release;
-@@ -1446,19 +1462,21 @@ static int __init mbochs_dev_init(void)
- 
- 	ret = device_register(&mbochs_dev);
- 	if (ret)
--		goto failed2;
-+		goto err_class;
- 
- 	ret = mdev_register_device(&mbochs_dev, &mdev_fops);
- 	if (ret)
--		goto failed3;
-+		goto err_device;
- 
- 	return 0;
- 
--failed3:
-+err_device:
- 	device_unregister(&mbochs_dev);
--failed2:
-+err_class:
- 	class_destroy(mbochs_class);
--failed1:
-+err_driver:
-+	mdev_unregister_driver(&mbochs_driver);
-+err_cdev:
- 	cdev_del(&mbochs_cdev);
- 	unregister_chrdev_region(mbochs_devt, MINORMASK + 1);
- 	return ret;
-@@ -1470,6 +1488,7 @@ static void __exit mbochs_dev_exit(void)
- 	mdev_unregister_device(&mbochs_dev);
- 
- 	device_unregister(&mbochs_dev);
-+	mdev_unregister_driver(&mbochs_driver);
- 	cdev_del(&mbochs_cdev);
- 	unregister_chrdev_region(mbochs_devt, MINORMASK + 1);
- 	class_destroy(mbochs_class);
--- 
-2.30.2
-
+Thanks,
+Jing
