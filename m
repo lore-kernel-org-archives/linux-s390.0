@@ -2,66 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-21.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
 	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2803C49EA2
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 21:36:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF00FC2B9F4
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 04:41:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AC9CF613BD
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Jun 2021 21:36:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 84B7461245
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 04:41:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234079AbhFPViU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Jun 2021 17:38:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36270 "EHLO
+        id S230038AbhFQEn7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Jun 2021 00:43:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233881AbhFPViU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Jun 2021 17:38:20 -0400
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F680C06175F
-        for <linux-s390@vger.kernel.org>; Wed, 16 Jun 2021 14:36:12 -0700 (PDT)
-Received: by mail-lf1-x12e.google.com with SMTP id m21so6638368lfg.13
-        for <linux-s390@vger.kernel.org>; Wed, 16 Jun 2021 14:36:12 -0700 (PDT)
+        with ESMTP id S229599AbhFQEn6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Jun 2021 00:43:58 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D7DC061760
+        for <linux-s390@vger.kernel.org>; Wed, 16 Jun 2021 21:41:50 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id u48-20020a25ab330000b029053982019c2dso6776300ybi.2
+        for <linux-s390@vger.kernel.org>; Wed, 16 Jun 2021 21:41:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/WBzpjTlEIC+0YeR2sTj8EB49LrNZdqG2Ywu4ujpL/Q=;
-        b=aZzmBV0zeDjsxdiwAUGxkQ+qlM+Z2+Xtp3RbQn+OWJ4LjuOhdlWs/AN9UfD9GEzEze
-         YUFBJFHcn29V8Q3VenTkgY0YxugH4MZvDfK8ndTpnNPmqPA3k+sqN0Ulz7MY5mbiwHto
-         FjI/Pl232CGxxpB+KT8ao/Dmjwto06Z0NqStvWEcXegANq5jQFrp3HLwTj+E+MDGMiEf
-         aBGiWlQ73xBzoaXcbiA7YzxIBrhQssIbGOXsOYOdgQ1j4/iik+qrlYn/bnBYa9mgwWgn
-         CKBX4YRnrVpvLj2VUlPRu8oZqoAlcn6bnqf28MIrG9eedG1kHAxxTI8D8bYJf99Kj0tb
-         RkPw==
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=3s1eozoLTG+O62g1UQDRz9lp8lZhA9dilcFNCLVNrmc=;
+        b=db0YxvYVAksAIvRn8DzguGB76wytBIFVDrzngep7lWWXtMo8kZQa5rchHf2uteEu+K
+         HxS1Dw/r8AqDIq6UtA5zCFjMeBoLgyDHUXbdcvAFijzMFX66eyfRqi72Z8wBXua8HAx+
+         6NO8WoBZ/BWJoOv+5U3aOXqkawAw2myIX9n4COBU6wnRCFBcavbfvqPW2uqMrbnsNQeb
+         AscXOEU2JShseLT0EAKG5/FLqPqqnwaf2Pi/QlqymJX/z0OrhAfhQbsGHktJVGLCeWAZ
+         9VG7lh6B3+dyfQiHQQSV+Fp63MWKIunrezw9OfpZdsVZl/EoLoWDtsA2zqj0uaY65esP
+         /QNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/WBzpjTlEIC+0YeR2sTj8EB49LrNZdqG2Ywu4ujpL/Q=;
-        b=GonDCv3fKR3sk/B2o0LaDY7IaifIXFoVsOZZBIpTeMLXyJMC1EKxSlOOalbsc7NxHO
-         4HONaSqE1GNHJrU50Be1DpSlfSoKAnryhY/tPv5ADM9PEbK9M6sQC67uI03xu3TMxYrV
-         Xgst8Q+V0ZZ02cIpoZW0pzJ/Rd/7xXIlwAX/H6WKl5Qx6tQRKNZZQ56zSxlOC8h52p+j
-         mZ8cskW2KClGYCI5GL9q5ceZiQ9LE6ReZ+wXPY5c85A0fKpdaSDodsooRmOEnsnmeNkz
-         n8nD/AaaU6J7HnhrNrrVsw/SLcMG/6lMtRx0RJ8+Z/aBlgl7b1Y95OB52V+sFXXkAxyU
-         TAzA==
-X-Gm-Message-State: AOAM531jdkWjXYtN2pmodJpKVlO9oKd0aIBDy+ghCFxbss+tYirudJ/X
-        K7eEKonusw0DSHfRlP37/R7oMYErIG5Qi17TPoCXXQ==
-X-Google-Smtp-Source: ABdhPJy1IJHyCrFhtgtxVlR1G3P9sX7o1GbwIfDHAJj1N5NekBiATWZci4u9neAJFDfE+FpyK0UbWFHMwA/cWl+463Q=
-X-Received: by 2002:a19:7601:: with SMTP id c1mr1361226lff.106.1623879370494;
- Wed, 16 Jun 2021 14:36:10 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210614212155.1670777-1-jingzhangos@google.com>
- <20210614212155.1670777-5-jingzhangos@google.com> <CA+EHjTybjrYL5KUJebmjvj_R5yULDxXsiPzn6f5f-y5HzQqM6A@mail.gmail.com>
-In-Reply-To: <CA+EHjTybjrYL5KUJebmjvj_R5yULDxXsiPzn6f5f-y5HzQqM6A@mail.gmail.com>
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=3s1eozoLTG+O62g1UQDRz9lp8lZhA9dilcFNCLVNrmc=;
+        b=HfVVBoJdJampeONQCK+3K12LT2PxJFdYpzkZ6TsoXXsgTS4TtYXtAY1mYsKT8vwXd0
+         7jQfvj3QBKV+ryZzYa/7MkAENKYcQcVXgNd+HkklBQ+nuncbb9Ap6cZeT2tBBE0qM/O9
+         RvS6qrbY49SAOTeBxYw+Laqy/BncQ13Prh0enEmhyilXcrUVxONiZ/vDXZMAiLmeZIX+
+         erl8uO1RMJL/dkgRY6fvh3nm/j03zfv/UPS5kYvPruhKsTxMo0Pj0GMDdD7M8UICRHv4
+         wa2v/viHEyPmhNo1yVL1rC05FIV6MBi+NVqCAuYyF56WJN+2vVmrdaCWmxzN+sETdXId
+         yAcg==
+X-Gm-Message-State: AOAM532ZVExmmQX3jREJjFYkA4OE72EH3YUrZX+YavelCtFc8cw/EkEv
+        9veur20pSWeMLasHzx9rXqJbngvUKOxelDeFOQ==
+X-Google-Smtp-Source: ABdhPJwOgJClowYYNO7/RLiARDkMAJNcFXI3q8kTYlz9mBs1EHYvPdFwazYpeod5q8BGxxGHGgHEjkMc4EAD1OxX+w==
+X-Received: from jgzg.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1acf])
+ (user=jingzhangos job=sendgmr) by 2002:a25:bb46:: with SMTP id
+ b6mr3371267ybk.346.1623904909931; Wed, 16 Jun 2021 21:41:49 -0700 (PDT)
+Date:   Thu, 17 Jun 2021 04:41:41 +0000
+Message-Id: <20210617044146.2667540-1-jingzhangos@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.32.0.272.g935e593368-goog
+Subject: [PATCH v10 0/5] KVM statistics data fd-based binary interface
 From:   Jing Zhang <jingzhangos@google.com>
-Date:   Wed, 16 Jun 2021 16:35:59 -0500
-Message-ID: <CAAdAUtgJ00h+QAMofm8WHOjgGVwTdzEQa4HW=g6MFzf3YgxqJQ@mail.gmail.com>
-Subject: Re: [PATCH v9 4/5] KVM: selftests: Add selftest for KVM statistics
- data binary interface
-To:     Fuad Tabba <tabba@google.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
+To:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
         LinuxMIPS <linux-mips@vger.kernel.org>,
         KVMPPC <kvm-ppc@vger.kernel.org>,
         LinuxS390 <linux-s390@vger.kernel.org>,
@@ -90,104 +85,144 @@ Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
         Emanuele Giuseppe Esposito <eesposit@redhat.com>,
         David Matlack <dmatlack@google.com>,
         Ricardo Koller <ricarkol@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>
+        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
+        Fuad Tabba <tabba@google.com>
+Cc:     Jing Zhang <jingzhangos@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Fuad,
+This patchset provides a file descriptor for every VM and VCPU to read
+KVM statistics data in binary format.
+It is meant to provide a lightweight, flexible, scalable and efficient
+lock-free solution for user space telemetry applications to pull the
+statistics data periodically for large scale systems. The pulling
+frequency could be as high as a few times per second.
+In this patchset, every statistics data are treated to have some
+attributes as below:
+  * architecture dependent or generic
+  * VM statistics data or VCPU statistics data
+  * type: cumulative, instantaneous, peak
+  * unit: none for simple counter, nanosecond, microsecond,
+    millisecond, second, Byte, KiByte, MiByte, GiByte, Clock Cycles
+Since no lock/synchronization is used, the consistency between all
+the statistics data is not guaranteed. That means not all statistics
+data are read out at the exact same time, since the statistics data
+are still being updated by KVM subsystems while they are read out.
 
-On Tue, Jun 15, 2021 at 3:03 AM Fuad Tabba <tabba@google.com> wrote:
->
-> Hi Jing,
->
-> > +int main(int argc, char *argv[])
-> > +{
-> > +       int max_vm = DEFAULT_NUM_VM, max_vcpu = DEFAULT_NUM_VCPU, ret, i, j;
-> > +       struct kvm_vm **vms;
-> > +
-> > +       /* Get the number of VMs and VCPUs that would be created for testing. */
-> > +       if (argc > 1) {
-> > +               max_vm = strtol(argv[1], NULL, 0);
-> > +               if (max_vm <= 0)
-> > +                       max_vm = DEFAULT_NUM_VM;
-> > +       }
-> > +       if (argc > 2) {
-> > +               max_vcpu = strtol(argv[2], NULL, 0);
-> > +               if (max_vcpu <= 0)
-> > +                       max_vcpu = DEFAULT_NUM_VCPU;
-> > +       }
-> > +
-> > +       /* Check the extension for binary stats */
-> > +       ret = kvm_check_cap(KVM_CAP_BINARY_STATS_FD);
-> > +       TEST_ASSERT(ret >= 0,
-> > +                       "Binary form statistics interface is not supported");
->
-> kvm_check_cap returns the value of KVM_CHECK_EXTENSION, which is 0 if
-> unsupported (-ERROR on an error). The assertion should be for ret > 0.
->
-> Made that change locally, and tested it with various configurations
-> (vhe, nvhe), as well as kernel versions (with and without
-> KVM_CAP_BINARY_STATS_FD), and it passes (or fails as expected).
-> Without that fix and with a kernel that doesn't support
-> KVM_CAP_BINARY_STATS_FD, it passes that assertion, but fails later at
-> vcpu_stats_test().
->
-> With that fixed:
-> Tested-by: Fuad Tabba <tabba@google.com> #arm64
->
-> Cheers,
-> /fuad
->
->
-Thanks for the review and testing. Will fix it.
-> > +
-> > +       /* Create VMs and VCPUs */
-> > +       vms = malloc(sizeof(vms[0]) * max_vm);
-> > +       TEST_ASSERT(vms, "Allocate memory for storing VM pointers");
-> > +       for (i = 0; i < max_vm; ++i) {
-> > +               vms[i] = vm_create(VM_MODE_DEFAULT,
-> > +                               DEFAULT_GUEST_PHY_PAGES, O_RDWR);
-> > +               for (j = 0; j < max_vcpu; ++j)
-> > +                       vm_vcpu_add(vms[i], j);
-> > +       }
-> > +
-> > +       /* Check stats read for every VM and VCPU */
-> > +       for (i = 0; i < max_vm; ++i) {
-> > +               vm_stats_test(vms[i]);
-> > +               for (j = 0; j < max_vcpu; ++j)
-> > +                       vcpu_stats_test(vms[i], j);
-> > +       }
-> > +
-> > +       for (i = 0; i < max_vm; ++i)
-> > +               kvm_vm_free(vms[i]);
-> > +       free(vms);
-> > +       return 0;
-> > +}
-> > diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
-> > index 5c70596dd1b9..83c02cb0ae1e 100644
-> > --- a/tools/testing/selftests/kvm/lib/kvm_util.c
-> > +++ b/tools/testing/selftests/kvm/lib/kvm_util.c
-> > @@ -2286,3 +2286,15 @@ unsigned int vm_calc_num_guest_pages(enum vm_guest_mode mode, size_t size)
-> >         n = DIV_ROUND_UP(size, vm_guest_mode_params[mode].page_size);
-> >         return vm_adjust_num_guest_pages(mode, n);
-> >  }
-> > +
-> > +int vm_get_stats_fd(struct kvm_vm *vm)
-> > +{
-> > +       return ioctl(vm->fd, KVM_GET_STATS_FD, NULL);
-> > +}
-> > +
-> > +int vcpu_get_stats_fd(struct kvm_vm *vm, uint32_t vcpuid)
-> > +{
-> > +       struct vcpu *vcpu = vcpu_find(vm, vcpuid);
-> > +
-> > +       return ioctl(vcpu->fd, KVM_GET_STATS_FD, NULL);
-> > +}
-> > --
-> > 2.32.0.272.g935e593368-goog
-> >
+---
 
-Thank,
-Jing
+* v9 -> v10
+  - Relocate vcpu stat in vcpu's slab's usercopy region
+  - Fix test issue for capability checking
+  - Update commit message to explain why/how we need to add this new
+    API for KVM statistics
+
+* v8 -> v9
+  - Rebase to commit 8331a2bc0898
+    (KVM: X86: Introduce KVM_HC_MAP_GPA_RANGE hypercall)
+  - Reduce code duplication between binary and debugfs interface
+  - Add field "offset" in stats descriptor to let us define stats
+    descriptors in any order (not necessary in the order of stats
+    defined in vm/vcpu stats structures)
+  - Add static check to make sure the number of stats descriptors
+    is the same as the number of stats defined in vm/vcpu stats
+    structures
+  - Fix missing/mismatched stats descriptor definition caused by
+    rebase
+
+* v7 -> v8
+  - Rebase to kvm/queue, commit c1dc20e254b4 ("KVM: switch per-VM
+  stats to u64")
+  - Revise code to reflect the per-VM stats type from ulong to u64
+  - Addressed some other nits
+
+* v6 -> v7
+  - Improve file descriptor allocation function by Krish suggestion
+  - Use "generic stats" instead of "common stats" as Krish suggested
+  - Addressed some other nits from Krish and David Matlack
+
+* v5 -> v6
+  - Use designated initializers for STATS_DESC
+  - Change KVM_STATS_SCALE... to KVM_STATS_BASE...
+  - Use a common function for kvm_[vm|vcpu]_stats_read
+  - Fix some documentation errors/missings
+  - Use TEST_ASSERT in selftest
+  - Use a common function for [vm|vcpu]_stats_test in selftest
+
+* v4 -> v5
+  - Rebase to kvm/queue, commit a4345a7cecfb ("Merge tag
+    'kvmarm-fixes-5.13-1'")
+  - Change maximum stats name length to 48
+  - Replace VM_STATS_COMMON/VCPU_STATS_COMMON macros with stats
+    descriptor definition macros.
+  - Fixed some errors/warnings reported by checkpatch.pl
+
+* v3 -> v4
+  - Rebase to kvm/queue, commit 9f242010c3b4 ("KVM: avoid "deadlock"
+    between install_new_memslots and MMU notifier")
+  - Use C-stype comments in the whole patch
+  - Fix wrong count for x86 VCPU stats descriptors
+  - Fix KVM stats data size counting and validity check in selftest
+
+* v2 -> v3
+  - Rebase to kvm/queue, commit edf408f5257b ("KVM: avoid "deadlock"
+    between install_new_memslots and MMU notifier")
+  - Resolve some nitpicks about format
+
+* v1 -> v2
+  - Use ARRAY_SIZE to count the number of stats descriptors
+  - Fix missing `size` field initialization in macro STATS_DESC
+
+[1] https://lore.kernel.org/kvm/20210402224359.2297157-1-jingzhangos@google.com
+[2] https://lore.kernel.org/kvm/20210415151741.1607806-1-jingzhangos@google.com
+[3] https://lore.kernel.org/kvm/20210423181727.596466-1-jingzhangos@google.com
+[4] https://lore.kernel.org/kvm/20210429203740.1935629-1-jingzhangos@google.com
+[5] https://lore.kernel.org/kvm/20210517145314.157626-1-jingzhangos@google.com
+[6] https://lore.kernel.org/kvm/20210524151828.4113777-1-jingzhangos@google.com
+[7] https://lore.kernel.org/kvm/20210603211426.790093-1-jingzhangos@google.com
+[8] https://lore.kernel.org/kvm/20210611124624.1404010-1-jingzhangos@google.com
+[9] https://lore.kernel.org/kvm/20210614212155.1670777-1-jingzhangos@google.com
+
+---
+
+Jing Zhang (5):
+  KVM: stats: Separate generic stats from architecture specific ones
+  KVM: stats: Add fd-based API to read binary stats data
+  KVM: stats: Add documentation for binary statistics interface
+  KVM: selftests: Add selftest for KVM statistics data binary interface
+  KVM: stats: Remove code duplication for binary and debugfs stats
+
+ Documentation/virt/kvm/api.rst                | 177 +++++++++++-
+ arch/arm64/include/asm/kvm_host.h             |   9 +-
+ arch/arm64/kvm/guest.c                        |  50 +++-
+ arch/mips/include/asm/kvm_host.h              |   9 +-
+ arch/mips/kvm/mips.c                          |  92 +++---
+ arch/powerpc/include/asm/kvm_host.h           |   9 +-
+ arch/powerpc/kvm/book3s.c                     |  93 ++++--
+ arch/powerpc/kvm/book3s_hv.c                  |  12 +-
+ arch/powerpc/kvm/book3s_pr.c                  |   2 +-
+ arch/powerpc/kvm/book3s_pr_papr.c             |   2 +-
+ arch/powerpc/kvm/booke.c                      |  78 +++--
+ arch/s390/include/asm/kvm_host.h              |   9 +-
+ arch/s390/kvm/kvm-s390.c                      | 234 ++++++++-------
+ arch/x86/include/asm/kvm_host.h               |   9 +-
+ arch/x86/kvm/x86.c                            | 111 ++++---
+ include/linux/kvm_host.h                      | 180 +++++++++++-
+ include/linux/kvm_types.h                     |  12 +
+ include/uapi/linux/kvm.h                      |  48 ++++
+ tools/testing/selftests/kvm/.gitignore        |   1 +
+ tools/testing/selftests/kvm/Makefile          |   3 +
+ .../testing/selftests/kvm/include/kvm_util.h  |   3 +
+ .../selftests/kvm/kvm_binary_stats_test.c     | 225 +++++++++++++++
+ tools/testing/selftests/kvm/lib/kvm_util.c    |  12 +
+ virt/kvm/kvm_main.c                           | 270 +++++++++++++++---
+ 24 files changed, 1299 insertions(+), 351 deletions(-)
+ create mode 100644 tools/testing/selftests/kvm/kvm_binary_stats_test.c
+
+
+base-commit: 8331a2bc089881d7fd2fc9a6658f39780817e4e0
+-- 
+2.32.0.272.g935e593368-goog
+
