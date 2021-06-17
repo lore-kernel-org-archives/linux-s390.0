@@ -7,58 +7,59 @@ X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_IN_DEF_DKIM_WL
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF5CDC49EA2
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 14:56:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4CE6C2B9F4
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 15:09:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DB551613CA
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 14:56:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9E630613AA
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Jun 2021 15:09:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232345AbhFQO6f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Jun 2021 10:58:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42266 "EHLO
+        id S233165AbhFQPLt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Jun 2021 11:11:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230299AbhFQO6e (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Jun 2021 10:58:34 -0400
-Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B65DAC061574
-        for <linux-s390@vger.kernel.org>; Thu, 17 Jun 2021 07:56:25 -0700 (PDT)
-Received: by mail-lj1-x232.google.com with SMTP id n17so9463797ljg.2
-        for <linux-s390@vger.kernel.org>; Thu, 17 Jun 2021 07:56:25 -0700 (PDT)
+        with ESMTP id S233111AbhFQPLt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Jun 2021 11:11:49 -0400
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F03C7C0617A6
+        for <linux-s390@vger.kernel.org>; Thu, 17 Jun 2021 08:09:40 -0700 (PDT)
+Received: by mail-lf1-x133.google.com with SMTP id bp38so11191771lfb.0
+        for <linux-s390@vger.kernel.org>; Thu, 17 Jun 2021 08:09:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=EbTYKOXEoTjmKWk+fpZnI99Si3buCUHA1ir4ZzP+nnI=;
-        b=kc50UfvlreBP4U5XFPb9bvzXsic67xc5PlptbeuPCrbP14fhRwj9rOBUGLN6p+dtZX
-         SOP1ZY5unyfg5G3JMXQ9hNEF7K9BJdNpysaExPQ4ZGnlcljp5AKYoIS2AnJWN9HA/eWW
-         lcShCvH37ITs73OSDSewiBRwVuWFOqCDZuZLvOsSFwyv8XeY/lnBVaai2CWHMzpJ0ZWY
-         Y53GpWGGPDQii1rEcnb3vD8rPnS7JYgrBF/1Tz+6xjdeaKCB2GHwPT9jPUZBQxOpU2vJ
-         uVx93iAJ9KIPSlbLvTT+iKfClmYBRlq2GejTdrownxtxHdZu6Y8+qgMycGlLKMFEmk5n
-         Fe2w==
+        bh=xXZRhEcd2Cbrj/tVl2ryBxrcp7ZNIEiNaJWzDG2F5Kg=;
+        b=TqWgVeNXToRFcCgGFrlG52MtXOvoEpEgH+psGbhdraIxWdvhr8qhRpfWoVKcSxORjB
+         B831vy6R7RTZzs2nM/KQJ71iM9aVLCvGMf20DJUF4AiJWHbwKHIT31rxxZUeXh2p2oRt
+         XL4KPiTOT9hbUZgUJfDFuKG7oGbFDKYHU8SCBYWaX0RmwnVcF135fDTnUplDx6/kg56A
+         WtUBi4LRlBK+S9bbzajtt7FAUOTE3fofCi+CtbjwZsPln+zjbIngScXUpHx9H35LbAYv
+         yhbCZ2245i7w4fll7tlZ0JTQLXy7oTYwQOusiRyXIwwEXch8Jc2WjtK44ttM+hrJsoLv
+         Zk4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=EbTYKOXEoTjmKWk+fpZnI99Si3buCUHA1ir4ZzP+nnI=;
-        b=CNfzyPZZr39NAF1RmMQ2a0qtGMHeAFubeUwZbnoppNj6QJRdkirP4AmGruxoNsJeMi
-         6wg/A5L0fIEGUwmdssIpYsWkBiJ9V2LPNzuvjmyMHfVBIiaDFuhDaAEtn4UJ5RETGYCI
-         5HonGQzMEXD1CbQY4L8e2xpORyTnPnXmGGxiKArDial/YH9wXGYhl0k84FcTAQhHNzy5
-         jYcj4PJpKcAzhuEuzri6TxpZdaVsq9tiKLozSM3IXRQGBPsx8jVXdAWr8khtqaorCpIX
-         eqgRa4mYhQHzHuzaSt/QKZI9Dd0BAX+UjNoTtltpADcjfen1lkeAHWCvtZqb4yl0On5d
-         ZnqA==
-X-Gm-Message-State: AOAM533h2k8Si8Eii5wzNq3AePVkoOCPXRScJrIsE5ao6DxgvjKux/Gp
-        mM7JD+K35h2BF4Gxa8jb03v2ATsp1IudA203VGAgjQ==
-X-Google-Smtp-Source: ABdhPJyHZSoRzwk/uvauvQQuu1bVwpP27gPIjPYDoJYNtfXQcbgPRMFOMqegaGb6vFsOuSX995igEG4xKcInEvg9Wdg=
-X-Received: by 2002:a2e:9b8f:: with SMTP id z15mr4952786lji.304.1623941783847;
- Thu, 17 Jun 2021 07:56:23 -0700 (PDT)
+        bh=xXZRhEcd2Cbrj/tVl2ryBxrcp7ZNIEiNaJWzDG2F5Kg=;
+        b=jILWL3U83eOAiZrsi0Hm8skEXOXnqiz2RJeCU9l27oWs9E6mIfPnJCu3Twz55vTw1M
+         yjoyNVKHXu6TVGSKxrfCDG+Dh/Qc3zxGPBJxaSVjv0Aom/LGg8zL6kMrBFmZQEofgzXY
+         V8HCzlEovpGPX++X/DJWlvIG54TL6XWvBKeWfyRrd+InQNUQSpbWpBDrFHy3uC3g7rh4
+         Ev30tNehqXfqY6BjR2+6jL5neWo3VsXAOPapTEyR2fizXNLUi39dZ5nOGpsOcVsWfrR8
+         1UF6p8HGVm6ndsfsnHkWlaCRqWVV0nHxJKmZU9WJmiorbzHKXEvzMFNZ5FBUqdgvpwbw
+         Pz8Q==
+X-Gm-Message-State: AOAM5301c+ZOgRRQoqAwtden8XabYPlGGqHOb+VJGT+0JJE4aY4j5qGB
+        NXrgXtwxkUMkG8TolJfUu+/eZlGYQxmDc5cP9zJAgA==
+X-Google-Smtp-Source: ABdhPJzAyrQsMnAqbBOEYMZVZQD5qO0SZlAXpM63+DpcX+GVx2elMNK7wl3R9skQOGetSMH5r+n7sJJM07csoEf6gTw=
+X-Received: by 2002:a05:6512:33c4:: with SMTP id d4mr4587741lfg.536.1623942578963;
+ Thu, 17 Jun 2021 08:09:38 -0700 (PDT)
 MIME-Version: 1.0
 References: <20210617044146.2667540-1-jingzhangos@google.com>
- <20210617044146.2667540-3-jingzhangos@google.com> <YMr4rArKvj3obDEM@kroah.com>
-In-Reply-To: <YMr4rArKvj3obDEM@kroah.com>
+ <20210617044146.2667540-4-jingzhangos@google.com> <YMrjKhV8TNwmRtf6@kroah.com>
+In-Reply-To: <YMrjKhV8TNwmRtf6@kroah.com>
 From:   Jing Zhang <jingzhangos@google.com>
-Date:   Thu, 17 Jun 2021 09:56:12 -0500
-Message-ID: <CAAdAUtiiQ0304vWR3Zm2XUKz374W4LY3=qdrFZCsQ27VkqMn9A@mail.gmail.com>
-Subject: Re: [PATCH v10 2/5] KVM: stats: Add fd-based API to read binary stats data
+Date:   Thu, 17 Jun 2021 10:09:27 -0500
+Message-ID: <CAAdAUtiySqu6VKpK2LDnG5S0m9tRKjrKSu5BWoFurkhWay4yCg@mail.gmail.com>
+Subject: Re: [PATCH v10 3/5] KVM: stats: Add documentation for binary
+ statistics interface
 To:     Greg KH <gregkh@linuxfoundation.org>
 Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
         LinuxMIPS <linux-mips@vger.kernel.org>,
@@ -98,119 +99,33 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 Hi Greg,
 
-On Thu, Jun 17, 2021 at 2:24 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+On Thu, Jun 17, 2021 at 12:52 AM Greg KH <gregkh@linuxfoundation.org> wrote:
 >
-> On Thu, Jun 17, 2021 at 04:41:43AM +0000, Jing Zhang wrote:
-> > Provides a file descriptor per VM to read VM stats info/data.
-> > Provides a file descriptor per vCPU to read vCPU stats info/data.
->
-> Shouldn't this be two separate patches, one for each thing as these are
-> two different features being added?
->
-Actually, it is really not easy to separate this change into two patches even by
-following Paolo's suggestion. And it would be a surprise to userspace to see
-only VM stats, no VCPU stats.
-I guess it is the text that caused the confusion, I'll change the commit message
-for this.
-> Anyway, an implementation question for both of these:
->
-> > +static ssize_t kvm_stats_read(struct _kvm_stats_header *header,
-> > +             struct _kvm_stats_desc *desc, void *stats, size_t size_stats,
-> > +             char __user *user_buffer, size_t size, loff_t *offset)
-> > +{
-> > +     ssize_t copylen, len, remain = size;
->
-> You are "burying" the fact that remain is initialized here, not nice, I
-> totally missed it when reading this the first time.
->
-> This should be:
->         ssize_t copylen;
->         ssize_t len;
->         ssize_t remain = size;
-> to be obvious.
->
-> Remember you will be looking at this code for the next 20 years, make it
-> easy to read.
->
-Nice! Will do.
-> > +     size_t size_header, size_desc;
-> > +     loff_t pos = *offset;
-> > +     char __user *dest = user_buffer;
-> > +     void *src;
+> On Thu, Jun 17, 2021 at 04:41:44AM +0000, Jing Zhang wrote:
+> > +     struct kvm_stats_desc {
+> > +             __u32 flags;
+> > +             __s16 exponent;
+> > +             __u16 size;
+> > +             __u32 offset;
+> > +             __u32 unused;
+> > +             char name[0];
+> > +     };
 > > +
-> > +     size_header = sizeof(*header);
-> > +     size_desc = header->header.count * sizeof(*desc);
+> > +The ``flags`` field contains the type and unit of the statistics data described
+> > +by this descriptor. The following flags are supported:
 > > +
-> > +     len = size_header + size_desc + size_stats - pos;
-> > +     len = min(len, remain);
-> > +     if (len <= 0)
-> > +             return 0;
-> > +     remain = len;
-> > +
-> > +     /* Copy kvm stats header */
-> > +     copylen = size_header - pos;
-> > +     copylen = min(copylen, remain);
-> > +     if (copylen > 0) {
-> > +             src = (void *)header + pos;
-> > +             if (copy_to_user(dest, src, copylen))
-> > +                     return -EFAULT;
-> > +             remain -= copylen;
-> > +             pos += copylen;
-> > +             dest += copylen;
-> > +     }
+> > +Bits 0-3 of ``flags`` encode the type:
 >
-> I thought you said that you would not provide the header for each read,
-> if you keep reading from the fd.  It looks like you are adding it here
-> to each read, or is there some "magic" with pos happening here that I do
-> not understand?
+> <snip>
 >
-> And if there is "magic" with pos, you should document it as it's not
-> very obvious :)
->
-Will do.
-> > +     /* Copy kvm stats descriptors */
-> > +     copylen = header->header.desc_offset + size_desc - pos;
-> > +     copylen = min(copylen, remain);
-> > +     if (copylen > 0) {
-> > +             src = (void *)desc + pos - header->header.desc_offset;
-> > +             if (copy_to_user(dest, src, copylen))
-> > +                     return -EFAULT;
-> > +             remain -= copylen;
-> > +             pos += copylen;
-> > +             dest += copylen;
-> > +     }
-> > +     /* Copy kvm stats values */
->
-> New lines between code blocks of doing things?
->
-Will add lines between code blocks.
-> And again, why copy the decriptor again?  or is it being skipped
-> somehow?  Ah, I think I see how it's being skipped, if I look really
-> closely.  But again, it's not obvious, and I could be wrong.  Please
-> document this REALLY well.
->
-> Write code for the developer first, compiler second.  Again, you are
-> going to be maintaining it for 20+ years, think of your future self...
->
->
-Sure, will document it.
-> > +     copylen = header->header.data_offset + size_stats - pos;
-> > +     copylen = min(copylen, remain);
-> > +     if (copylen > 0) {
-> > +             src = stats + pos - header->header.data_offset;
-> > +             if (copy_to_user(dest, src, copylen))
-> > +                     return -EFAULT;
-> > +             remain -= copylen;
-> > +             pos += copylen;
-> > +             dest += copylen;
-> > +     }
-> > +
-> > +     *offset = pos;
-> > +     return len;
-> > +}
+> As flags is a bit field, what is the endian of it?  Native or LE or BE?
+> I'm guessing "cpu native", but you should be explicit as userspace will
+> have to deal with this somehow.
+Sure, will add clarification for endianness.
 >
 > thanks,
 >
 > greg k-h
+
 Thanks,
 Jing
