@@ -2,73 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D62EC49361
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 19:10:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ACA0C48BE8
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 19:47:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0DACC61264
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 19:10:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4776E6127C
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 19:47:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234775AbhFRTMO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Jun 2021 15:12:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60220 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234004AbhFRTMN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 18 Jun 2021 15:12:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id DD5CF611CD;
-        Fri, 18 Jun 2021 19:10:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624043403;
-        bh=yHi5hmdCTJXfhPTaItXGrrcfwfFO5yVubE0rGaw8BJc=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=tfwP7rScC+Afb6endM3o6PAT/p1ugXXwFwM0v+Y0VV0o2nr45XaFVksDlgYQlqjv9
-         DVoHlPsmu//pXNAllQ4F+20ucfOoapM7LU6Mq974Pb6dXI4P//bQXUTDv2V4TfkQV1
-         z57B8gdPJwNS6yIJ+et18pe/KOqDxHqljegohiaH1pjMZpmVW9FcgqNaSbzeNwabxX
-         puJXgqAiTqDqV21JRrofNZ4PEvIFr4nnwnStgpsg5fEWZXXhztaXl/aXqEx4L5A2eV
-         TBwpMjSwp4MYaV8PYHe5vcOKsC64BnW5Ol5vm0C+t1gkErPZuzUFMdfPGlkhvc6fxs
-         nkEe8LqkDQ3oA==
-Content-Type: text/plain; charset="utf-8"
+        id S231403AbhFRTt2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Jun 2021 15:49:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230430AbhFRTt0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Jun 2021 15:49:26 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B5A2C061574
+        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 12:47:16 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id c15so5146003pls.13
+        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 12:47:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:in-reply-to:message-id:references
+         :mime-version;
+        bh=eq0N34Elw7O9e3nBxwSL+pENedj11Jkr0/H5vmh3pBo=;
+        b=md5MeIpFhcK2iIApQdDDALKT7hCraWLPVY3CbjtqgJicSzCUh6v5whBrWKvYm9kZPx
+         +vweAivEg59pZRNL+Q6LtzJ8V4rmZjLZJC/dM7v5zPpBbsQg0nMqVD3JnIhd6yklk6Y5
+         tnWZHSnsL1jw07DChiw4RbShzbMsPc3ybynFJLdK1PVN6tCOofoqrefLlTPQGy1NLtYR
+         ddrwoLzLdY1oQ/QgAm+fd0mQI6wqGZTlQvuIzY7Olj2hCF8CPtqeyQGtx+b2z5NmE74i
+         pWI39ae7i843LtjLzOWU/eneQaxPNAGa0NRPyJS0NFJu0mkBHzglNAawqyENDad+LzyE
+         nkNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
+         :references:mime-version;
+        bh=eq0N34Elw7O9e3nBxwSL+pENedj11Jkr0/H5vmh3pBo=;
+        b=Qaq/sWl9LEcxkZ5A9liGE89binDTgLHInNcAemhaGw9LDdrac8mbMbZsqHnRiw2+D3
+         k8135E5Qqh0wIBQ9awmicQ6otag9GUcOPxzZlNB4Hgvd8Pft7v5qheY+vBuRwuFDDcGw
+         ms70nNqIm8coGDMe5peW2whoBk2qf1aO0K+1ZBDuaiOmZPesLUStZoT8Ui/MMt9hCvFO
+         eoc75XKVMAtMeDBT7xgJc20YsWgLFoHOcjTrVASNJJyCUqcRSY5b1QXfIUJkV3Q5C9T6
+         p9zFeIqX8zTbu2iz4TB0IZetcCOCYwsazSdn70ZOu75cKTgSt+Moy30ajhYrYAjMO2pB
+         DFOg==
+X-Gm-Message-State: AOAM5328E52jNofliCBE5A0yrs7G/Fft6fHc5A0/bR2ibbE2o3McxgDt
+        +nAxhxD8VKDtMi44wmc2GAntmQ==
+X-Google-Smtp-Source: ABdhPJwIj5XwSwiZJe0QhGTCJrTe3ZX8MEoalt16+FuxZ8ezP+RY6l+/5DuS09FY/e3rd9JPPR2OkQ==
+X-Received: by 2002:a17:902:c1cc:b029:122:52b4:3855 with SMTP id c12-20020a170902c1ccb029012252b43855mr1621009plc.10.1624045635401;
+        Fri, 18 Jun 2021 12:47:15 -0700 (PDT)
+Received: from [2620:15c:17:3:3a6:a5d0:1984:a150] ([2620:15c:17:3:3a6:a5d0:1984:a150])
+        by smtp.gmail.com with ESMTPSA id s1sm9601820pgg.49.2021.06.18.12.47.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Jun 2021 12:47:14 -0700 (PDT)
+Date:   Fri, 18 Jun 2021 12:47:13 -0700 (PDT)
+From:   David Rientjes <rientjes@google.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
+        linux-mm@kvack.org, Uladzislau Rezki <urezki@gmail.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v4 1/2] mm/vmalloc: add vmalloc_no_huge
+In-Reply-To: <20210614132357.10202-2-imbrenda@linux.ibm.com>
+Message-ID: <1ab3bba4-dc91-4f8-ecd5-b18b17ec6d8@google.com>
+References: <20210614132357.10202-1-imbrenda@linux.ibm.com> <20210614132357.10202-2-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] MAINTAINERS: add Guvenc as SMC maintainer
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162404340383.6189.12452797951801238164.git-patchwork-notify@kernel.org>
-Date:   Fri, 18 Jun 2021 19:10:03 +0000
-References: <20210618070030.2326320-1-kgraul@linux.ibm.com>
-In-Reply-To: <20210618070030.2326320-1-kgraul@linux.ibm.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com,
-        guvenc@linux.ibm.com, jwi@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+On Mon, 14 Jun 2021, Claudio Imbrenda wrote:
 
-This patch was applied to netdev/net.git (refs/heads/master):
-
-On Fri, 18 Jun 2021 09:00:30 +0200 you wrote:
-> Add Guvenc as maintainer for Shared Memory Communications (SMC)
-> Sockets.
+> Commit 121e6f3258fe3 ("mm/vmalloc: hugepage vmalloc mappings") added
+> support for hugepage vmalloc mappings, it also added the flag
+> VM_NO_HUGE_VMAP for __vmalloc_node_range to request the allocation to
+> be performed with 0-order non-huge pages.  This flag is not accessible
+> when calling vmalloc, the only option is to call directly
+> __vmalloc_node_range, which is not exported.
 > 
-> Cc: Julian Wiedmann <jwi@linux.ibm.com>
-> Acked-by: Guvenc Gulce <guvenc@linux.ibm.com>
-> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+> This means that a module can't vmalloc memory with small pages.
 > 
-> [...]
+> Case in point: KVM on s390x needs to vmalloc a large area, and it needs
+> to be mapped with non-huge pages, because of a hardware limitation.
+> 
+> This patch adds the function vmalloc_no_huge, which works like vmalloc,
+> but it is guaranteed to always back the mapping using small pages. This
+> new function is exported, therefore it is usable by modules.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+> Acked-by: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: David Rientjes <rientjes@google.com>
+> Cc: Christoph Hellwig <hch@infradead.org>
 
-Here is the summary with links:
-  - [net] MAINTAINERS: add Guvenc as SMC maintainer
-    https://git.kernel.org/netdev/net/c/35036d69b9bd
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Acked-by: David Rientjes <rientjes@google.com>
