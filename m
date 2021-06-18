@@ -8,58 +8,59 @@ X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE0CEC48BDF
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 22:27:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E830CC49EB7
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 22:27:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AE9CA61284
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 22:27:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CEAE161284
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 22:27:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235014AbhFRW3d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Jun 2021 18:29:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40720 "EHLO
+        id S235030AbhFRW3h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Jun 2021 18:29:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234988AbhFRW3c (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Jun 2021 18:29:32 -0400
-Received: from mail-qt1-x84a.google.com (mail-qt1-x84a.google.com [IPv6:2607:f8b0:4864:20::84a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89007C061574
-        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 15:27:21 -0700 (PDT)
-Received: by mail-qt1-x84a.google.com with SMTP id z17-20020ac86b910000b0290244cba55754so4871676qts.19
-        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 15:27:21 -0700 (PDT)
+        with ESMTP id S235022AbhFRW3g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Jun 2021 18:29:36 -0400
+Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF10C061574
+        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 15:27:25 -0700 (PDT)
+Received: by mail-qk1-x749.google.com with SMTP id r190-20020a375dc70000b02903acea04c19fso6913657qkb.8
+        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 15:27:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=OA+JdIquUOVcL/l8QewS/+IzKG93A6pr9TNQuQAgEfw=;
-        b=hIRLz+6Zgs7A3X4lM/Jp/zMEc06UAnyy4/DRB7iM2LP8l3lTDWwj0lTR23ZnOAOjIt
-         +8vU0yIx0XHGx/RQJzRr4NA3ptsFAG0jm6Krt7CRuxqcAt6Tz4dv7ApA36kV8+rQMK81
-         5E3PSbaHw1dWaczKmJfQIBT7EFBaUUk0KppAzeTqGyFuRTJwJb7jesgOD7JrxQ5J6nQr
-         YfXpT/cKmt+sh94cHA6GbTfmAlbIFfZAa9libpF1qyjNI7V6n/AgCdpjP5A1CgckCH+q
-         oblVUXDVWSZEHfFBt3qxhhHrB6Y4uK+s4DT9vjGz6a8C3GmcRBEPse+Z63/Ca5hQPM3z
-         OXGw==
+        bh=eN3dxZ8BFIRS3Hlof+IHtKOraVyIMvaNzLndrV3sqGk=;
+        b=FshJab8E71LQLCWv12VtcKginPAG1HHlENInT/TxiDzs2aF7XI1ko32aPtWOv4nQby
+         wdLNK5rNBIZ7LpteL3tGoQxbLdinrHaD0CNMFLQpX9WP8P3c8Rt8TSE8lX1hsrYvebrS
+         RRybausbL0RI6CXWgjMKNl2Be8rTHVvQpsQhf0AWMXFM6p7NTarhVNI9c6FV8TmsoLmg
+         e1VV79+ZT1ehnpXSBOkPZKSCtbCRFr0SgX2jeBzG8nDOLqKv1lEVQw280rv0c7hQAQab
+         wk9II0b6cyfGhS1SE3pu1Qz7LEqQEr+TGiTTDIc7760L9p/EjibaPXTKup2TZPkL8K/S
+         kgqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=OA+JdIquUOVcL/l8QewS/+IzKG93A6pr9TNQuQAgEfw=;
-        b=hKWY3hUlR5GzmQEMqGHn2iwb6rcFlKzqnLG0vS9npl5gjFGgQBspdoGtTkyQ0ayLKr
-         XDJh64/XpLxIv+hbqdkfSpvyAyOlyhfUPXEWGkFa86LExUtv2AKS8ZVn3AWgpacwRU/Y
-         r4UFdTuzdgYmhJPLFNHTPYnagwMmqecn8dNF8rxz689p0qCShrn+LulzixUN2WneqblZ
-         wNEeJpg74dDleaVhSlSheoPMmt1cdNYRAel0oAvMrwjluU+NTzmrxm0862lfHRDIl4yM
-         vOnZQ8gY+JdePpBaZjsAIuVGZPgFd38nW1kGn7VyH00nvL2g2bRrr0YbL3RB0O4w2k/g
-         bO+g==
-X-Gm-Message-State: AOAM5316kJDPJoJQ5WGxzwxIlgXIWbT0ciN45nZXOaMF/ZckI5JRfEWM
-        KRyaf0irY0rQACMFdBOQBzy/4crOKSIFxnSa3w==
-X-Google-Smtp-Source: ABdhPJziHRaegNqaGrPpMtfw89jDozVTZxzI6xQ16fOQCFL1WD/l+D18PTKai6NrGHKXgUhaHCSSBZxRvDmKkr8rww==
+        bh=eN3dxZ8BFIRS3Hlof+IHtKOraVyIMvaNzLndrV3sqGk=;
+        b=rNpbbVyQbbC43G/duLKkOt5GpZRLpuvnOudzx31HCqgci4K08L9Cs+qXd81fOYt/5L
+         dzAX0apnjKKxfeG5cKK5sh/f/rB8QINaDQbTSkvZusgOJoOy1bRlnU1FxcnIsv5bTewU
+         tm/p4iyirOmkjbXpBgeq08vqHgwYHLVftuNSQ0Acs6Cw0uVLZwkVQVkKqv5SEumzLkK/
+         zaZwqYk2UoCePbo/kktKMgh4jstYwN8sjf4QblXYczlV3JXis3X0L8qpnHAlLPR+sN1c
+         9piu0m7G5k5xjojluuFIEJw0SaKO8imkVMKiszlOiNAF3d1UcBEvlrlT0l0N2d7ZrkbG
+         tbxA==
+X-Gm-Message-State: AOAM530SPhTRoElMBGM2nmhPOU9DzaORwrh2Rm4T1yLpxXGpp41/CbQs
+        gKL2UVTVgqcFZAFH0udrcZbXiY896U2kUTW9eQ==
+X-Google-Smtp-Source: ABdhPJzVhghs4QhRvW6cistW3aetciLEtts6Riy7YXSpQOnJkwnU/DNAMKxsurNRex8AHGbXkiuaabHQgPWXJEYdrQ==
 X-Received: from jgzg.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1acf])
- (user=jingzhangos job=sendgmr) by 2002:ad4:55eb:: with SMTP id
- bu11mr8098250qvb.2.1624055240676; Fri, 18 Jun 2021 15:27:20 -0700 (PDT)
-Date:   Fri, 18 Jun 2021 22:27:07 +0000
+ (user=jingzhangos job=sendgmr) by 2002:a25:6f56:: with SMTP id
+ k83mr16914223ybc.281.1624055244178; Fri, 18 Jun 2021 15:27:24 -0700 (PDT)
+Date:   Fri, 18 Jun 2021 22:27:09 +0000
 In-Reply-To: <20210618222709.1858088-1-jingzhangos@google.com>
-Message-Id: <20210618222709.1858088-6-jingzhangos@google.com>
+Message-Id: <20210618222709.1858088-8-jingzhangos@google.com>
 Mime-Version: 1.0
 References: <20210618222709.1858088-1-jingzhangos@google.com>
 X-Mailer: git-send-email 2.32.0.288.g62a8d224e6-goog
-Subject: [PATCH v12 5/7] KVM: stats: Add documentation for binary statistics interface
+Subject: [PATCH v12 7/7] KVM: stats: Remove code duplication for binary and
+ debugfs stats
 From:   Jing Zhang <jingzhangos@google.com>
 To:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
         LinuxMIPS <linux-mips@vger.kernel.org>,
@@ -99,266 +100,639 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This new API provides a file descriptor for every VM and VCPU to read
-KVM statistics data in binary format.
-It is meant to provide a lightweight, flexible, scalable and efficient
-lock-free solution for user space telemetry applications to pull the
-statistics data periodically for large scale systems. The pulling
-frequency could be as high as a few times per second.
-The statistics descriptors are defined by KVM in kernel and can be
-by userspace to discover VM/VCPU statistics during the one-time setup
-stage.
-The statistics data itself could be read out by userspace telemetry
-periodically without any extra parsing or setup effort.
-There are a few existed interface protocols and definitions, but no
-one can fulfil all the requirements this interface implemented as
-below:
-1. During high frequency periodic stats reading, there should be no
-   extra efforts except the stats data read itself.
-2. Support stats annotation, like type (cumulative, instantaneous,
-   peak, histogram, etc) and unit (counter, time, size, cycles, etc).
-3. The stats data reading should be free of lock/synchronization. We
-   don't care about the consistency between all the stats data. All
-   stats data can not be read out at exactly the same time. We really
-   care about the change or trend of the stats data. The lock-free
-   solution is not just for efficiency and scalability, also for the
-   stats data accuracy and usability. For example, in the situation
-   that all the stats data readings are protected by a global lock,
-   if one VCPU died somehow with that lock held, then all stats data
-   reading would be blocked, then we have no way from stats data that
-   which VCPU has died.
-4. The stats data reading workload can be handed over to other
-   unprivileged process.
+To remove code duplication, use the binary stats descriptors for
+debugfs interface for KVM stats. Then we only have one stats
+definitions for both binary and debugfs interface.
 
-Reviewed-by: David Matlack <dmatlack@google.com>
-Reviewed-by: Ricardo Koller <ricarkol@google.com>
-Reviewed-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
-Reviewed-by: Fuad Tabba <tabba@google.com>
 Signed-off-by: Jing Zhang <jingzhangos@google.com>
 ---
- Documentation/virt/kvm/api.rst | 198 ++++++++++++++++++++++++++++++++-
- 1 file changed, 197 insertions(+), 1 deletion(-)
+ arch/arm64/kvm/guest.c    |  16 ------
+ arch/mips/kvm/mips.c      |  39 --------------
+ arch/powerpc/kvm/book3s.c |  33 ------------
+ arch/powerpc/kvm/booke.c  |  25 ---------
+ arch/s390/kvm/kvm-s390.c  | 108 --------------------------------------
+ arch/x86/kvm/x86.c        |  49 +----------------
+ include/linux/kvm_host.h  |  22 +-------
+ virt/kvm/kvm_main.c       | 104 ++++++++++++++++++++++++++----------
+ 8 files changed, 78 insertions(+), 318 deletions(-)
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index e328caa35d6c..289ea7be696a 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -5034,7 +5034,6 @@ see KVM_XEN_VCPU_SET_ATTR above.
- The KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADJUST type may not be used
- with the KVM_XEN_VCPU_GET_ATTR ioctl.
+diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
+index ce8b53b3c5c8..1512a8007a78 100644
+--- a/arch/arm64/kvm/guest.c
++++ b/arch/arm64/kvm/guest.c
+@@ -64,22 +64,6 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
+ 		       sizeof(kvm_vcpu_stats_desc),
+ };
  
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT("hvc_exit_stat", hvc_exit_stat),
+-	VCPU_STAT("wfe_exit_stat", wfe_exit_stat),
+-	VCPU_STAT("wfi_exit_stat", wfi_exit_stat),
+-	VCPU_STAT("mmio_exit_user", mmio_exit_user),
+-	VCPU_STAT("mmio_exit_kernel", mmio_exit_kernel),
+-	VCPU_STAT("exits", exits),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	{ NULL }
+-};
 -
- 4.131 KVM_GET_SREGS2
- ------------------
+ static bool core_reg_offset_is_vreg(u64 off)
+ {
+ 	return off >= KVM_REG_ARM_CORE_REG(fp_regs.vregs) &&
+diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+index a048111fd6ec..af9dd029a4e1 100644
+--- a/arch/mips/kvm/mips.c
++++ b/arch/mips/kvm/mips.c
+@@ -97,45 +97,6 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
+ 		       sizeof(kvm_vcpu_stats_desc),
+ };
  
-@@ -5081,6 +5080,195 @@ Writes special registers into the vcpu.
- See KVM_GET_SREGS2 for the data structures.
- This ioctl (when supported) replaces the KVM_SET_SREGS.
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT("wait", wait_exits),
+-	VCPU_STAT("cache", cache_exits),
+-	VCPU_STAT("signal", signal_exits),
+-	VCPU_STAT("interrupt", int_exits),
+-	VCPU_STAT("cop_unusable", cop_unusable_exits),
+-	VCPU_STAT("tlbmod", tlbmod_exits),
+-	VCPU_STAT("tlbmiss_ld", tlbmiss_ld_exits),
+-	VCPU_STAT("tlbmiss_st", tlbmiss_st_exits),
+-	VCPU_STAT("addrerr_st", addrerr_st_exits),
+-	VCPU_STAT("addrerr_ld", addrerr_ld_exits),
+-	VCPU_STAT("syscall", syscall_exits),
+-	VCPU_STAT("resvd_inst", resvd_inst_exits),
+-	VCPU_STAT("break_inst", break_inst_exits),
+-	VCPU_STAT("trap_inst", trap_inst_exits),
+-	VCPU_STAT("msa_fpe", msa_fpe_exits),
+-	VCPU_STAT("fpe", fpe_exits),
+-	VCPU_STAT("msa_disabled", msa_disabled_exits),
+-	VCPU_STAT("flush_dcache", flush_dcache_exits),
+-	VCPU_STAT("vz_gpsi", vz_gpsi_exits),
+-	VCPU_STAT("vz_gsfc", vz_gsfc_exits),
+-	VCPU_STAT("vz_hc", vz_hc_exits),
+-	VCPU_STAT("vz_grr", vz_grr_exits),
+-	VCPU_STAT("vz_gva", vz_gva_exits),
+-	VCPU_STAT("vz_ghfc", vz_ghfc_exits),
+-	VCPU_STAT("vz_gpa", vz_gpa_exits),
+-	VCPU_STAT("vz_resvd", vz_resvd_exits),
+-#ifdef CONFIG_CPU_LOONGSON64
+-	VCPU_STAT("vz_cpucfg", vz_cpucfg_exits),
+-#endif
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	{NULL}
+-};
+-
+ bool kvm_trace_guest_mode_change;
  
-+4.133 KVM_GET_STATS_FD
-+----------------------
-+
-+:Capability: KVM_CAP_STATS_BINARY_FD
-+:Architectures: all
-+:Type: vm ioctl, vcpu ioctl
-+:Parameters: none
-+:Returns: statistics file descriptor on success, < 0 on error
-+
-+Errors:
-+
-+  ======     ======================================================
-+  ENOMEM     if the fd could not be created due to lack of memory
-+  EMFILE     if the number of opened files exceeds the limit
-+  ======     ======================================================
-+
-+The file descriptor can be used to read VM/vCPU statistics data in binary
-+format. Please be aware that it is not guaranteed that the four blocks are
-+adjacent, that's why offset fields are included in the Header. But the
-+order of the four blocks are guaranteed and there is no overlap between any
-+two blocks.
-+And all four blocks are aligned with 64 bits in the file.
-+The file data is organized into three blocks as below:
-++-------------+
-+|   Header    |
-++-------------+
-++-------------+
-+|  id string  |
-++-------------+
-++-------------+
-+| Descriptors |
-++-------------+
-++-------------+
-+| Stats Data  |
-++-------------+
-+
-+The Header block is always at the start of the file. It is only needed to be
-+read one time for the lifetime of the file descriptor.
-+It is in the form of ``struct kvm_stats_header`` as below::
-+
-+	struct kvm_stats_header {
-+                __u32 flags;
-+		__u32 name_size;
-+		__u32 num_desc;
-+                __u32 id_offset;
-+		__u32 desc_offset;
-+		__u32 data_offset;
-+	};
-+
-+The ``flags`` field is not used at the moment. It is always read as 0.
-+
-+The ``name_size`` field is the size (in byte) of the statistics name string
-+(including trailing '\0') appended to the end of every statistics descriptor.
-+It also is the size of id string block.
-+
-+The ``num_desc`` field is the number of statistics.
-+
-+The ``id_offset`` field is the offset of the id string from the start of the
-+file indicated by the file descriptor. It is a multiple of 8.
-+
-+The ``desc_offset`` field is the offset of the Descriptors block from the start
-+of the file indicated by the file descriptor. It is a multiple of 8.
-+
-+The ``data_offset`` field is the offset of the Stats Data block from the start
-+of the file indicated by the file descriptor. It is a multiple of 8.
-+
-+The id string is a '\0' terminated string which identifies the corresponding
-+KVM statistics. For VM statistics, it is in the form of "kvm-{kvm pid}", like
-+"kvm-12345". For VCPU statistics, it is in the form of
-+"kvm-{kvm pid}/vcpu-{vcpu id}", like "kvm-12345/vcpu-12".
-+The size of id string block is indicated by the ``name_size`` field in Header.
-+
-+The Descriptors block is only needed to be read once for the lifetime of the
-+file descriptor. It is an array of ``struct kvm_stats_desc`` as shown in
-+below code block::
-+
-+	#define KVM_STATS_TYPE_SHIFT		0
-+	#define KVM_STATS_TYPE_MASK		(0xF << KVM_STATS_TYPE_SHIFT)
-+	#define KVM_STATS_TYPE_CUMULATIVE	(0x0 << KVM_STATS_TYPE_SHIFT)
-+	#define KVM_STATS_TYPE_INSTANT		(0x1 << KVM_STATS_TYPE_SHIFT)
-+        #define KVM_STATS_TYPE_PEAK		(0x2 << KVM_STATS_TYPE_SHIFT)
-+        #define KVM_STATS_TYPE_MAX		KVM_STATS_TYPE_PEAK
-+
-+	#define KVM_STATS_UNIT_SHIFT		4
-+	#define KVM_STATS_UNIT_MASK		(0xF << KVM_STATS_UNIT_SHIFT)
-+	#define KVM_STATS_UNIT_NONE		(0x0 << KVM_STATS_UNIT_SHIFT)
-+	#define KVM_STATS_UNIT_BYTES		(0x1 << KVM_STATS_UNIT_SHIFT)
-+	#define KVM_STATS_UNIT_SECONDS		(0x2 << KVM_STATS_UNIT_SHIFT)
-+	#define KVM_STATS_UNIT_CYCLES		(0x3 << KVM_STATS_UNIT_SHIFT)
-+	#define KVM_STATS_UNIT_MAX		KVM_STATS_UNIT_CYCLES
-+
-+	#define KVM_STATS_BASE_SHIFT		8
-+	#define KVM_STATS_BASE_MASK		(0xF << KVM_STATS_BASE_SHIFT)
-+	#define KVM_STATS_BASE_POW10		(0x0 << KVM_STATS_BASE_SHIFT)
-+	#define KVM_STATS_BASE_POW2		(0x1 << KVM_STATS_BASE_SHIFT)
-+	#define KVM_STATS_BASE_MAX		KVM_STATS_BASE_POW2
-+
-+	struct kvm_stats_desc {
-+		__u32 flags;
-+		__s16 exponent;
-+		__u16 size;
-+		__u32 offset;
-+		__u32 unused;
-+		char name[];
-+	};
-+
-+The ``flags`` field contains the type and unit of the statistics data described
-+by this descriptor. Its endianness is CPU native.
-+The following flags are supported:
-+
-+Bits 0-3 of ``flags`` encode the type:
-+  * ``KVM_STATS_TYPE_CUMULATIVE``
-+    The statistics data is cumulative. The value of data can only be increased.
-+    Most of the counters used in KVM are of this type.
-+    The corresponding ``size`` field for this type is always 1.
-+    All cumulative statistics data are read/write.
-+  * ``KVM_STATS_TYPE_INSTANT``
-+    The statistics data is instantaneous. Its value can be increased or
-+    decreased. This type is usually used as a measurement of some resources,
-+    like the number of dirty pages, the number of large pages, etc.
-+    All instant statistics are read only.
-+    The corresponding ``size`` field for this type is always 1.
-+  * ``KVM_STATS_TYPE_PEAK``
-+    The statistics data is peak, which is used as read/write instant statistics.
-+    The corresponding ``size`` field for this type is always 1.
-+
-+Bits 4-7 of ``flags`` encode the unit:
-+  * ``KVM_STATS_UNIT_NONE``
-+    There is no unit for the value of statistics data. This usually means that
-+    the value is a simple counter of an event.
-+  * ``KVM_STATS_UNIT_BYTES``
-+    It indicates that the statistics data is used to measure memory size, in the
-+    unit of Byte, KiByte, MiByte, GiByte, etc. The unit of the data is
-+    determined by the ``exponent`` field in the descriptor. The
-+    ``KVM_STATS_BASE_POW2`` flag is valid in this case. The unit of the data is
-+    determined by ``pow(2, exponent)``. For example, if value is 10,
-+    ``exponent`` is 20, which means the unit of statistics data is MiByte, we
-+    can get the statistics data in the unit of Byte by
-+    ``value * pow(2, exponent) = 10 * pow(2, 20) = 10 MiByte`` which is
-+    10 * 1024 * 1024 Bytes.
-+  * ``KVM_STATS_UNIT_SECONDS``
-+    It indicates that the statistics data is used to measure time/latency, in
-+    the unit of nanosecond, microsecond, millisecond and second. The unit of the
-+    data is determined by the ``exponent`` field in the descriptor. The
-+    ``KVM_STATS_BASE_POW10`` flag is valid in this case. The unit of the data
-+    is determined by ``pow(10, exponent)``. For example, if value is 2000000,
-+    ``exponent`` is -6, which means the unit of statistics data is microsecond,
-+    we can get the statistics data in the unit of second by
-+    ``value * pow(10, exponent) = 2000000 * pow(10, -6) = 2 seconds``.
-+  * ``KVM_STATS_UNIT_CYCLES``
-+    It indicates that the statistics data is used to measure CPU clock cycles.
-+    The ``KVM_STATS_BASE_POW10`` flag is valid in this case. For example, if
-+    value is 200, ``exponent`` is 4, we can get the number of CPU clock cycles
-+    by ``value * pow(10, exponent) = 200 * pow(10, 4) = 2000000``.
-+
-+Bits 8-11 of ``flags`` encode the base:
-+  * ``KVM_STATS_BASE_POW10``
-+    The scale is based on power of 10. It is used for measurement of time and
-+    CPU clock cycles.
-+  * ``KVM_STATS_BASE_POW2``
-+    The scale is based on power of 2. It is used for measurement of memory size.
-+
-+The ``exponent`` field is the scale of corresponding statistics data. For
-+example, if the unit is ``KVM_STATS_UNIT_BYTES``, the base is
-+``KVM_STATS_BASE_POW2``, the ``exponent`` is 10, then we know that the real
-+unit of the statistics data is KBytes a.k.a pow(2, 10) = 1024 bytes.
-+If the unit is ``KVM_STATS_UNIT_SECONDS``, the base is ``KVM_STATS_BASE_POW10``,
-+the ``exponent`` is -6, then we know that the real unit of the statistics data
-+is microsecond a.k.a 1 second * pow(10, -6) = 1 microsecond.
-+
-+The ``size`` field is the number of values of this statistics data. Its
-+value is usually 1 for most of simple statistics. 1 means it contains an
-+unsigned 64bit data.
-+
-+The ``offset`` field is the offset from the start of Data Block to the start of
-+the corresponding statistics data.
-+
-+The ``unused`` fields are reserved for future support for other types of
-+statistics data, like log/linear histogram. Its current value is always 0.
-+
-+The ``name`` field is the name string of the statistics data. The name string
-+starts at the end of ``struct kvm_stats_desc``.
-+The maximum length (including trailing '\0') is indicated by ``name_size``
-+in ``struct kvm_stats_header``.
-+
-+The Stats Data block contains an array of statistics data whose type is __u64.
-+It would be read out by userspace periodically.
-+The order of data value in Stats Data block is the same as the order of
-+descriptors in Descriptors block.
+ int kvm_guest_mode_change_trace_reg(void)
+diff --git a/arch/powerpc/kvm/book3s.c b/arch/powerpc/kvm/book3s.c
+index 5a258779baa2..122468ce297d 100644
+--- a/arch/powerpc/kvm/book3s.c
++++ b/arch/powerpc/kvm/book3s.c
+@@ -100,39 +100,6 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
+ 		       sizeof(kvm_vcpu_stats_desc),
+ };
  
- 5. The kvm_run structure
- ========================
-@@ -6969,3 +7157,11 @@ The argument to KVM_ENABLE_CAP is also a bitmask, and must be a subset
- of the result of KVM_CHECK_EXTENSION.  KVM will forward to userspace
- the hypercalls whose corresponding bit is in the argument, and return
- ENOSYS for the others.
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT("exits", sum_exits),
+-	VCPU_STAT("mmio", mmio_exits),
+-	VCPU_STAT("sig", signal_exits),
+-	VCPU_STAT("sysc", syscall_exits),
+-	VCPU_STAT("inst_emu", emulated_inst_exits),
+-	VCPU_STAT("dec", dec_exits),
+-	VCPU_STAT("ext_intr", ext_intr_exits),
+-	VCPU_STAT("queue_intr", queue_intr),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	VCPU_STAT("halt_wait_ns", halt_wait_ns),
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT("halt_successful_wait", halt_successful_wait),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT("pf_storage", pf_storage),
+-	VCPU_STAT("sp_storage", sp_storage),
+-	VCPU_STAT("pf_instruc", pf_instruc),
+-	VCPU_STAT("sp_instruc", sp_instruc),
+-	VCPU_STAT("ld", ld),
+-	VCPU_STAT("ld_slow", ld_slow),
+-	VCPU_STAT("st", st),
+-	VCPU_STAT("st_slow", st_slow),
+-	VCPU_STAT("pthru_all", pthru_all),
+-	VCPU_STAT("pthru_host", pthru_host),
+-	VCPU_STAT("pthru_bad_aff", pthru_bad_aff),
+-	VM_STAT("largepages_2M", num_2M_pages, .mode = 0444),
+-	VM_STAT("largepages_1G", num_1G_pages, .mode = 0444),
+-	{ NULL }
+-};
+-
+ static inline void kvmppc_update_int_pending(struct kvm_vcpu *vcpu,
+ 			unsigned long pending_now, unsigned long old_pending)
+ {
+diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
+index ae2289fb4425..551b30d84aee 100644
+--- a/arch/powerpc/kvm/booke.c
++++ b/arch/powerpc/kvm/booke.c
+@@ -91,31 +91,6 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
+ 		       sizeof(kvm_vcpu_stats_desc),
+ };
+ 
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT("mmio", mmio_exits),
+-	VCPU_STAT("sig", signal_exits),
+-	VCPU_STAT("itlb_r", itlb_real_miss_exits),
+-	VCPU_STAT("itlb_v", itlb_virt_miss_exits),
+-	VCPU_STAT("dtlb_r", dtlb_real_miss_exits),
+-	VCPU_STAT("dtlb_v", dtlb_virt_miss_exits),
+-	VCPU_STAT("sysc", syscall_exits),
+-	VCPU_STAT("isi", isi_exits),
+-	VCPU_STAT("dsi", dsi_exits),
+-	VCPU_STAT("inst_emu", emulated_inst_exits),
+-	VCPU_STAT("dec", dec_exits),
+-	VCPU_STAT("ext_intr", ext_intr_exits),
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT("doorbell", dbell_exits),
+-	VCPU_STAT("guest doorbell", gdbell_exits),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	VM_STAT_GENERIC("remote_tlb_flush", remote_tlb_flush),
+-	{ NULL }
+-};
+-
+ /* TODO: use vcpu_printf() */
+ void kvmppc_dump_vcpu(struct kvm_vcpu *vcpu)
+ {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 47b5023c43d0..1695f0ced5ba 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -186,114 +186,6 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
+ 		       sizeof(kvm_vcpu_stats_desc),
+ };
+ 
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT("userspace_handled", exit_userspace),
+-	VCPU_STAT("exit_null", exit_null),
+-	VCPU_STAT("pfault_sync", pfault_sync),
+-	VCPU_STAT("exit_validity", exit_validity),
+-	VCPU_STAT("exit_stop_request", exit_stop_request),
+-	VCPU_STAT("exit_external_request", exit_external_request),
+-	VCPU_STAT("exit_io_request", exit_io_request),
+-	VCPU_STAT("exit_external_interrupt", exit_external_interrupt),
+-	VCPU_STAT("exit_instruction", exit_instruction),
+-	VCPU_STAT("exit_pei", exit_pei),
+-	VCPU_STAT("exit_program_interruption", exit_program_interruption),
+-	VCPU_STAT("exit_instr_and_program_int", exit_instr_and_program),
+-	VCPU_STAT("exit_operation_exception", exit_operation_exception),
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT("halt_no_poll_steal", halt_no_poll_steal),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	VCPU_STAT("instruction_lctlg", instruction_lctlg),
+-	VCPU_STAT("instruction_lctl", instruction_lctl),
+-	VCPU_STAT("instruction_stctl", instruction_stctl),
+-	VCPU_STAT("instruction_stctg", instruction_stctg),
+-	VCPU_STAT("deliver_ckc", deliver_ckc),
+-	VCPU_STAT("deliver_cputm", deliver_cputm),
+-	VCPU_STAT("deliver_emergency_signal", deliver_emergency_signal),
+-	VCPU_STAT("deliver_external_call", deliver_external_call),
+-	VCPU_STAT("deliver_service_signal", deliver_service_signal),
+-	VCPU_STAT("deliver_virtio", deliver_virtio),
+-	VCPU_STAT("deliver_stop_signal", deliver_stop_signal),
+-	VCPU_STAT("deliver_prefix_signal", deliver_prefix_signal),
+-	VCPU_STAT("deliver_restart_signal", deliver_restart_signal),
+-	VCPU_STAT("deliver_program", deliver_program),
+-	VCPU_STAT("deliver_io", deliver_io),
+-	VCPU_STAT("deliver_machine_check", deliver_machine_check),
+-	VCPU_STAT("exit_wait_state", exit_wait_state),
+-	VCPU_STAT("inject_ckc", inject_ckc),
+-	VCPU_STAT("inject_cputm", inject_cputm),
+-	VCPU_STAT("inject_external_call", inject_external_call),
+-	VM_STAT("inject_float_mchk", inject_float_mchk),
+-	VCPU_STAT("inject_emergency_signal", inject_emergency_signal),
+-	VM_STAT("inject_io", inject_io),
+-	VCPU_STAT("inject_mchk", inject_mchk),
+-	VM_STAT("inject_pfault_done", inject_pfault_done),
+-	VCPU_STAT("inject_program", inject_program),
+-	VCPU_STAT("inject_restart", inject_restart),
+-	VM_STAT("inject_service_signal", inject_service_signal),
+-	VCPU_STAT("inject_set_prefix", inject_set_prefix),
+-	VCPU_STAT("inject_stop_signal", inject_stop_signal),
+-	VCPU_STAT("inject_pfault_init", inject_pfault_init),
+-	VM_STAT("inject_virtio", inject_virtio),
+-	VCPU_STAT("instruction_epsw", instruction_epsw),
+-	VCPU_STAT("instruction_gs", instruction_gs),
+-	VCPU_STAT("instruction_io_other", instruction_io_other),
+-	VCPU_STAT("instruction_lpsw", instruction_lpsw),
+-	VCPU_STAT("instruction_lpswe", instruction_lpswe),
+-	VCPU_STAT("instruction_pfmf", instruction_pfmf),
+-	VCPU_STAT("instruction_ptff", instruction_ptff),
+-	VCPU_STAT("instruction_stidp", instruction_stidp),
+-	VCPU_STAT("instruction_sck", instruction_sck),
+-	VCPU_STAT("instruction_sckpf", instruction_sckpf),
+-	VCPU_STAT("instruction_spx", instruction_spx),
+-	VCPU_STAT("instruction_stpx", instruction_stpx),
+-	VCPU_STAT("instruction_stap", instruction_stap),
+-	VCPU_STAT("instruction_iske", instruction_iske),
+-	VCPU_STAT("instruction_ri", instruction_ri),
+-	VCPU_STAT("instruction_rrbe", instruction_rrbe),
+-	VCPU_STAT("instruction_sske", instruction_sske),
+-	VCPU_STAT("instruction_ipte_interlock", instruction_ipte_interlock),
+-	VCPU_STAT("instruction_essa", instruction_essa),
+-	VCPU_STAT("instruction_stsi", instruction_stsi),
+-	VCPU_STAT("instruction_stfl", instruction_stfl),
+-	VCPU_STAT("instruction_tb", instruction_tb),
+-	VCPU_STAT("instruction_tpi", instruction_tpi),
+-	VCPU_STAT("instruction_tprot", instruction_tprot),
+-	VCPU_STAT("instruction_tsch", instruction_tsch),
+-	VCPU_STAT("instruction_sthyi", instruction_sthyi),
+-	VCPU_STAT("instruction_sie", instruction_sie),
+-	VCPU_STAT("instruction_sigp_sense", instruction_sigp_sense),
+-	VCPU_STAT("instruction_sigp_sense_running", instruction_sigp_sense_running),
+-	VCPU_STAT("instruction_sigp_external_call", instruction_sigp_external_call),
+-	VCPU_STAT("instruction_sigp_emergency", instruction_sigp_emergency),
+-	VCPU_STAT("instruction_sigp_cond_emergency", instruction_sigp_cond_emergency),
+-	VCPU_STAT("instruction_sigp_start", instruction_sigp_start),
+-	VCPU_STAT("instruction_sigp_stop", instruction_sigp_stop),
+-	VCPU_STAT("instruction_sigp_stop_store_status", instruction_sigp_stop_store_status),
+-	VCPU_STAT("instruction_sigp_store_status", instruction_sigp_store_status),
+-	VCPU_STAT("instruction_sigp_store_adtl_status", instruction_sigp_store_adtl_status),
+-	VCPU_STAT("instruction_sigp_set_arch", instruction_sigp_arch),
+-	VCPU_STAT("instruction_sigp_set_prefix", instruction_sigp_prefix),
+-	VCPU_STAT("instruction_sigp_restart", instruction_sigp_restart),
+-	VCPU_STAT("instruction_sigp_cpu_reset", instruction_sigp_cpu_reset),
+-	VCPU_STAT("instruction_sigp_init_cpu_reset", instruction_sigp_init_cpu_reset),
+-	VCPU_STAT("instruction_sigp_unknown", instruction_sigp_unknown),
+-	VCPU_STAT("instruction_diag_10", diagnose_10),
+-	VCPU_STAT("instruction_diag_44", diagnose_44),
+-	VCPU_STAT("instruction_diag_9c", diagnose_9c),
+-	VCPU_STAT("diag_9c_ignored", diagnose_9c_ignored),
+-	VCPU_STAT("diag_9c_forward", diagnose_9c_forward),
+-	VCPU_STAT("instruction_diag_258", diagnose_258),
+-	VCPU_STAT("instruction_diag_308", diagnose_308),
+-	VCPU_STAT("instruction_diag_500", diagnose_500),
+-	VCPU_STAT("instruction_diag_other", diagnose_other),
+-	{ NULL }
+-};
+-
+ /* allow nested virtualization in KVM (if enabled by user space) */
+ static int nested;
+ module_param(nested, int, S_IRUGO);
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index c87f7e17cd0d..f2dbb1649177 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -234,7 +234,7 @@ const struct _kvm_stats_desc kvm_vm_stats_desc[] = {
+ 	STATS_DESC_ICOUNTER(VM, mmu_unsync),
+ 	STATS_DESC_ICOUNTER(VM, lpages),
+ 	STATS_DESC_ICOUNTER(VM, nx_lpage_splits),
+-	STATS_DESC_ICOUNTER(VM, max_mmu_page_hash_collisions)
++	STATS_DESC_PCOUNTER(VM, max_mmu_page_hash_collisions)
+ };
+ static_assert(ARRAY_SIZE(kvm_vm_stats_desc) ==
+ 		sizeof(struct kvm_vm_stat) / sizeof(u64));
+@@ -289,53 +289,6 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
+ 		       sizeof(kvm_vcpu_stats_desc),
+ };
+ 
+-struct kvm_stats_debugfs_item debugfs_entries[] = {
+-	VCPU_STAT("pf_fixed", pf_fixed),
+-	VCPU_STAT("pf_guest", pf_guest),
+-	VCPU_STAT("tlb_flush", tlb_flush),
+-	VCPU_STAT("invlpg", invlpg),
+-	VCPU_STAT("exits", exits),
+-	VCPU_STAT("io_exits", io_exits),
+-	VCPU_STAT("mmio_exits", mmio_exits),
+-	VCPU_STAT("signal_exits", signal_exits),
+-	VCPU_STAT("irq_window", irq_window_exits),
+-	VCPU_STAT("nmi_window", nmi_window_exits),
+-	VCPU_STAT("halt_exits", halt_exits),
+-	VCPU_STAT_GENERIC("halt_successful_poll", halt_successful_poll),
+-	VCPU_STAT_GENERIC("halt_attempted_poll", halt_attempted_poll),
+-	VCPU_STAT_GENERIC("halt_poll_invalid", halt_poll_invalid),
+-	VCPU_STAT_GENERIC("halt_wakeup", halt_wakeup),
+-	VCPU_STAT("hypercalls", hypercalls),
+-	VCPU_STAT("request_irq", request_irq_exits),
+-	VCPU_STAT("irq_exits", irq_exits),
+-	VCPU_STAT("host_state_reload", host_state_reload),
+-	VCPU_STAT("fpu_reload", fpu_reload),
+-	VCPU_STAT("insn_emulation", insn_emulation),
+-	VCPU_STAT("insn_emulation_fail", insn_emulation_fail),
+-	VCPU_STAT("irq_injections", irq_injections),
+-	VCPU_STAT("nmi_injections", nmi_injections),
+-	VCPU_STAT("req_event", req_event),
+-	VCPU_STAT("l1d_flush", l1d_flush),
+-	VCPU_STAT_GENERIC("halt_poll_success_ns", halt_poll_success_ns),
+-	VCPU_STAT_GENERIC("halt_poll_fail_ns", halt_poll_fail_ns),
+-	VCPU_STAT("nested_run", nested_run),
+-	VCPU_STAT("directed_yield_attempted", directed_yield_attempted),
+-	VCPU_STAT("directed_yield_successful", directed_yield_successful),
+-	VCPU_STAT("guest_mode", guest_mode),
+-	VM_STAT("mmu_shadow_zapped", mmu_shadow_zapped),
+-	VM_STAT("mmu_pte_write", mmu_pte_write),
+-	VM_STAT("mmu_pde_zapped", mmu_pde_zapped),
+-	VM_STAT("mmu_flooded", mmu_flooded),
+-	VM_STAT("mmu_recycled", mmu_recycled),
+-	VM_STAT("mmu_cache_miss", mmu_cache_miss),
+-	VM_STAT("mmu_unsync", mmu_unsync),
+-	VM_STAT_GENERIC("remote_tlb_flush", remote_tlb_flush),
+-	VM_STAT("largepages", lpages, .mode = 0444),
+-	VM_STAT("nx_largepages_splitted", nx_lpage_splits, .mode = 0444),
+-	VM_STAT("max_mmu_page_hash_collisions", max_mmu_page_hash_collisions),
+-	{ NULL }
+-};
+-
+ u64 __read_mostly host_xcr0;
+ u64 __read_mostly supported_xcr0;
+ EXPORT_SYMBOL_GPL(supported_xcr0);
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index d9bb7644ec6f..48277d5b41ba 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -1264,14 +1264,8 @@ enum kvm_stat_kind {
+ 
+ struct kvm_stat_data {
+ 	struct kvm *kvm;
+-	struct kvm_stats_debugfs_item *dbgfs_item;
+-};
+-
+-struct kvm_stats_debugfs_item {
+-	const char *name;
+-	int offset;
++	const struct _kvm_stats_desc *desc;
+ 	enum kvm_stat_kind kind;
+-	int mode;
+ };
+ 
+ struct _kvm_stats_desc {
+@@ -1279,19 +1273,6 @@ struct _kvm_stats_desc {
+ 	char name[KVM_STATS_NAME_SIZE];
+ };
+ 
+-#define KVM_DBGFS_GET_MODE(dbgfs_item)                                         \
+-	((dbgfs_item)->mode ? (dbgfs_item)->mode : 0644)
+-
+-#define VM_STAT(n, x, ...)						       \
+-	{ n, offsetof(struct kvm, stat.x), KVM_STAT_VM, ## __VA_ARGS__ }
+-#define VCPU_STAT(n, x, ...)						       \
+-	{ n, offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU, ## __VA_ARGS__ }
+-#define VM_STAT_GENERIC(n, x, ...)					       \
+-	{ n, offsetof(struct kvm, stat.generic.x), KVM_STAT_VM, ## __VA_ARGS__ }
+-#define VCPU_STAT_GENERIC(n, x, ...)					       \
+-	{ n, offsetof(struct kvm_vcpu, stat.generic.x),			       \
+-	  KVM_STAT_VCPU, ## __VA_ARGS__ }
+-
+ #define STATS_DESC_COMMON(type, unit, base, exp)			       \
+ 	.flags = type | unit | base |					       \
+ 		 BUILD_BUG_ON_ZERO(type & ~KVM_STATS_TYPE_MASK) |	       \
+@@ -1444,7 +1425,6 @@ struct _kvm_stats_desc {
+ 	STATS_DESC_TIME_NSEC(VCPU_GENERIC, halt_poll_success_ns),	       \
+ 	STATS_DESC_TIME_NSEC(VCPU_GENERIC, halt_poll_fail_ns)
+ 
+-extern struct kvm_stats_debugfs_item debugfs_entries[];
+ extern struct dentry *kvm_debugfs_dir;
+ ssize_t kvm_stats_read(char *id, const struct kvm_stats_header *header,
+ 		       const struct _kvm_stats_desc *desc,
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 5f9d566db1c4..7a4d69c98822 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -115,7 +115,6 @@ static DEFINE_PER_CPU(struct kvm_vcpu *, kvm_running_vcpu);
+ struct dentry *kvm_debugfs_dir;
+ EXPORT_SYMBOL_GPL(kvm_debugfs_dir);
+ 
+-static int kvm_debugfs_num_entries;
+ static const struct file_operations stat_fops_per_vm;
+ 
+ static long kvm_vcpu_ioctl(struct file *file, unsigned int ioctl,
+@@ -860,9 +859,24 @@ static void kvm_free_memslots(struct kvm *kvm, struct kvm_memslots *slots)
+ 	kvfree(slots);
+ }
+ 
++static umode_t kvm_stats_debugfs_mode(const struct _kvm_stats_desc *pdesc)
++{
++	switch (pdesc->desc.flags & KVM_STATS_TYPE_MASK) {
++	case KVM_STATS_TYPE_INSTANT:
++		return 0444;
++	case KVM_STATS_TYPE_CUMULATIVE:
++	case KVM_STATS_TYPE_PEAK:
++	default:
++		return 0644;
++	}
++}
 +
-+8.35 KVM_CAP_STATS_BINARY_FD
-+----------------------------
 +
-+:Architectures: all
+ static void kvm_destroy_vm_debugfs(struct kvm *kvm)
+ {
+ 	int i;
++	int kvm_debugfs_num_entries = kvm_vm_stats_header.num_desc +
++				      kvm_vcpu_stats_header.num_desc;
+ 
+ 	if (!kvm->debugfs_dentry)
+ 		return;
+@@ -880,7 +894,10 @@ static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
+ {
+ 	char dir_name[ITOA_MAX_LEN * 2];
+ 	struct kvm_stat_data *stat_data;
+-	struct kvm_stats_debugfs_item *p;
++	const struct _kvm_stats_desc *pdesc;
++	int i;
++	int kvm_debugfs_num_entries = kvm_vm_stats_header.num_desc +
++				      kvm_vcpu_stats_header.num_desc;
+ 
+ 	if (!debugfs_initialized())
+ 		return 0;
+@@ -894,15 +911,32 @@ static int kvm_create_vm_debugfs(struct kvm *kvm, int fd)
+ 	if (!kvm->debugfs_stat_data)
+ 		return -ENOMEM;
+ 
+-	for (p = debugfs_entries; p->name; p++) {
++	for (i = 0; i < kvm_vm_stats_header.num_desc; ++i) {
++		pdesc = &kvm_vm_stats_desc[i];
+ 		stat_data = kzalloc(sizeof(*stat_data), GFP_KERNEL_ACCOUNT);
+ 		if (!stat_data)
+ 			return -ENOMEM;
+ 
+ 		stat_data->kvm = kvm;
+-		stat_data->dbgfs_item = p;
+-		kvm->debugfs_stat_data[p - debugfs_entries] = stat_data;
+-		debugfs_create_file(p->name, KVM_DBGFS_GET_MODE(p),
++		stat_data->desc = pdesc;
++		stat_data->kind = KVM_STAT_VM;
++		kvm->debugfs_stat_data[i] = stat_data;
++		debugfs_create_file(pdesc->name, kvm_stats_debugfs_mode(pdesc),
++				    kvm->debugfs_dentry, stat_data,
++				    &stat_fops_per_vm);
++	}
 +
-+This capability indicates the feature that userspace can create get a file
-+descriptor for every VM and VCPU to read statistics data in binary format.
++	for (i = 0; i < kvm_vcpu_stats_header.num_desc; ++i) {
++		pdesc = &kvm_vcpu_stats_desc[i];
++		stat_data = kzalloc(sizeof(*stat_data), GFP_KERNEL_ACCOUNT);
++		if (!stat_data)
++			return -ENOMEM;
++
++		stat_data->kvm = kvm;
++		stat_data->desc = pdesc;
++		stat_data->kind = KVM_STAT_VCPU;
++		kvm->debugfs_stat_data[i] = stat_data;
++		debugfs_create_file(pdesc->name, kvm_stats_debugfs_mode(pdesc),
+ 				    kvm->debugfs_dentry, stat_data,
+ 				    &stat_fops_per_vm);
+ 	}
+@@ -4901,7 +4935,7 @@ static int kvm_debugfs_open(struct inode *inode, struct file *file,
+ 		return -ENOENT;
+ 
+ 	if (simple_attr_open(inode, file, get,
+-		    KVM_DBGFS_GET_MODE(stat_data->dbgfs_item) & 0222
++		    kvm_stats_debugfs_mode(stat_data->desc) & 0222
+ 		    ? set : NULL,
+ 		    fmt)) {
+ 		kvm_put_kvm(stat_data->kvm);
+@@ -4924,14 +4958,14 @@ static int kvm_debugfs_release(struct inode *inode, struct file *file)
+ 
+ static int kvm_get_stat_per_vm(struct kvm *kvm, size_t offset, u64 *val)
+ {
+-	*val = *(u64 *)((void *)kvm + offset);
++	*val = *(u64 *)((void *)(&kvm->stat) + offset);
+ 
+ 	return 0;
+ }
+ 
+ static int kvm_clear_stat_per_vm(struct kvm *kvm, size_t offset)
+ {
+-	*(u64 *)((void *)kvm + offset) = 0;
++	*(u64 *)((void *)(&kvm->stat) + offset) = 0;
+ 
+ 	return 0;
+ }
+@@ -4944,7 +4978,7 @@ static int kvm_get_stat_per_vcpu(struct kvm *kvm, size_t offset, u64 *val)
+ 	*val = 0;
+ 
+ 	kvm_for_each_vcpu(i, vcpu, kvm)
+-		*val += *(u64 *)((void *)vcpu + offset);
++		*val += *(u64 *)((void *)(&vcpu->stat) + offset);
+ 
+ 	return 0;
+ }
+@@ -4955,7 +4989,7 @@ static int kvm_clear_stat_per_vcpu(struct kvm *kvm, size_t offset)
+ 	struct kvm_vcpu *vcpu;
+ 
+ 	kvm_for_each_vcpu(i, vcpu, kvm)
+-		*(u64 *)((void *)vcpu + offset) = 0;
++		*(u64 *)((void *)(&vcpu->stat) + offset) = 0;
+ 
+ 	return 0;
+ }
+@@ -4965,14 +4999,14 @@ static int kvm_stat_data_get(void *data, u64 *val)
+ 	int r = -EFAULT;
+ 	struct kvm_stat_data *stat_data = (struct kvm_stat_data *)data;
+ 
+-	switch (stat_data->dbgfs_item->kind) {
++	switch (stat_data->kind) {
+ 	case KVM_STAT_VM:
+ 		r = kvm_get_stat_per_vm(stat_data->kvm,
+-					stat_data->dbgfs_item->offset, val);
++					stat_data->desc->desc.offset, val);
+ 		break;
+ 	case KVM_STAT_VCPU:
+ 		r = kvm_get_stat_per_vcpu(stat_data->kvm,
+-					  stat_data->dbgfs_item->offset, val);
++					  stat_data->desc->desc.offset, val);
+ 		break;
+ 	}
+ 
+@@ -4987,14 +5021,14 @@ static int kvm_stat_data_clear(void *data, u64 val)
+ 	if (val)
+ 		return -EINVAL;
+ 
+-	switch (stat_data->dbgfs_item->kind) {
++	switch (stat_data->kind) {
+ 	case KVM_STAT_VM:
+ 		r = kvm_clear_stat_per_vm(stat_data->kvm,
+-					  stat_data->dbgfs_item->offset);
++					  stat_data->desc->desc.offset);
+ 		break;
+ 	case KVM_STAT_VCPU:
+ 		r = kvm_clear_stat_per_vcpu(stat_data->kvm,
+-					    stat_data->dbgfs_item->offset);
++					    stat_data->desc->desc.offset);
+ 		break;
+ 	}
+ 
+@@ -5051,6 +5085,7 @@ static int vm_stat_clear(void *_offset, u64 val)
+ }
+ 
+ DEFINE_SIMPLE_ATTRIBUTE(vm_stat_fops, vm_stat_get, vm_stat_clear, "%llu\n");
++DEFINE_SIMPLE_ATTRIBUTE(vm_stat_readonly_fops, vm_stat_get, NULL, "%llu\n");
+ 
+ static int vcpu_stat_get(void *_offset, u64 *val)
+ {
+@@ -5087,11 +5122,7 @@ static int vcpu_stat_clear(void *_offset, u64 val)
+ 
+ DEFINE_SIMPLE_ATTRIBUTE(vcpu_stat_fops, vcpu_stat_get, vcpu_stat_clear,
+ 			"%llu\n");
+-
+-static const struct file_operations *stat_fops[] = {
+-	[KVM_STAT_VCPU] = &vcpu_stat_fops,
+-	[KVM_STAT_VM]   = &vm_stat_fops,
+-};
++DEFINE_SIMPLE_ATTRIBUTE(vcpu_stat_readonly_fops, vcpu_stat_get, NULL, "%llu\n");
+ 
+ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm)
+ {
+@@ -5145,15 +5176,32 @@ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm)
+ 
+ static void kvm_init_debug(void)
+ {
+-	struct kvm_stats_debugfs_item *p;
++	const struct file_operations *fops;
++	const struct _kvm_stats_desc *pdesc;
++	int i;
+ 
+ 	kvm_debugfs_dir = debugfs_create_dir("kvm", NULL);
+ 
+-	kvm_debugfs_num_entries = 0;
+-	for (p = debugfs_entries; p->name; ++p, kvm_debugfs_num_entries++) {
+-		debugfs_create_file(p->name, KVM_DBGFS_GET_MODE(p),
+-				    kvm_debugfs_dir, (void *)(long)p->offset,
+-				    stat_fops[p->kind]);
++	for (i = 0; i < kvm_vm_stats_header.num_desc; ++i) {
++		pdesc = &kvm_vm_stats_desc[i];
++		if (kvm_stats_debugfs_mode(pdesc) & 0222)
++			fops = &vm_stat_fops;
++		else
++			fops = &vm_stat_readonly_fops;
++		debugfs_create_file(pdesc->name, kvm_stats_debugfs_mode(pdesc),
++				kvm_debugfs_dir,
++				(void *)(long)pdesc->desc.offset, fops);
++	}
++
++	for (i = 0; i < kvm_vcpu_stats_header.num_desc; ++i) {
++		pdesc = &kvm_vcpu_stats_desc[i];
++		if (kvm_stats_debugfs_mode(pdesc) & 0222)
++			fops = &vcpu_stat_fops;
++		else
++			fops = &vcpu_stat_readonly_fops;
++		debugfs_create_file(pdesc->name, kvm_stats_debugfs_mode(pdesc),
++				kvm_debugfs_dir,
++				(void *)(long)pdesc->desc.offset, fops);
+ 	}
+ }
+ 
 -- 
 2.32.0.288.g62a8d224e6-goog
 
