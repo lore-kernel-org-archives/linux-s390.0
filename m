@@ -2,64 +2,63 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57578C48BDF
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 12:34:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60C46C48BE8
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 12:40:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 34817613EB
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 12:34:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C93A61369
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 12:40:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231809AbhFRMgt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Jun 2021 08:36:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47350 "EHLO
+        id S231689AbhFRMnB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Jun 2021 08:43:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231503AbhFRMgo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Jun 2021 08:36:44 -0400
-Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65DC9C061767
-        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 05:34:33 -0700 (PDT)
-Received: by mail-lj1-x22b.google.com with SMTP id d2so13801643ljj.11
-        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 05:34:33 -0700 (PDT)
+        with ESMTP id S231151AbhFRMnA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Jun 2021 08:43:00 -0400
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 446CFC06175F
+        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 05:40:51 -0700 (PDT)
+Received: by mail-lj1-x22c.google.com with SMTP id a21so8867835ljj.1
+        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 05:40:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=nZ8eZKcheetAVVtntDyOPDczvB8LGNmHxynp06Hwje4=;
-        b=gem9n2oV7siw83AG8SlRs8mVxwOwxCy2gN2ftYt8Cz67bhgXmc2w00MxcPfoZ9mJpB
-         sg/wSDsX34t83RRTKbk6Qs27kQStSxWG3HjPj6/XU2HOoxB14lnA7+ishARi3u47qouL
-         A9ohAwN083OUKOdmoDlEFBPNodXkFN6VPz2ttTDC0uxV7v+gu+6Hw710eM5GaIYooO8/
-         4DUDPjLNVyihbqd7JbECs734pUsTIHIC8tGN5Xt1IgghNHNM+TbucaOhD480OZ4REs27
-         VL6ufqWcV+HYsEvcDPLjJJRwT4Lbxi6EUqfyDmTWaim1b0e8tq3/RkTCwRFcYY1isfOT
-         aZhQ==
+        bh=lTCFT34wZQ6wqw0v55S0/U3NKIwHuOeNrXDMYFIV7K4=;
+        b=hqTeJJbX7/uWvicwk0W7mO7VWFrxnAtEZEA9wxTwHPUsG1A9GE6o82dwk9h9G/Qg4+
+         tYKd8Yc/RVBBDSV4YOARkn59pXkeWoIBpQTaR+GJr4EpTut+8QejHgmDJ9mdfHALLNdm
+         CbmWCb4vhJAse6oi6zqqIwNnrz9qd1DuKoGwag6e7fymoju59tKdtWzKrhmrWpDg9tAL
+         NcqmF73HloyPFiQuz9dpGEYVCuWOpud4ZHAYI30iVYKmLLiMp7Hijm5qV89/YwIOvMfT
+         +caZ7f1zlGSQ0+Ba7zTU66Kw2AJ3u9q03sGTScMiLZkbn2Q6URb0DUR4wk6Ex+Xsx8ES
+         tK1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=nZ8eZKcheetAVVtntDyOPDczvB8LGNmHxynp06Hwje4=;
-        b=oIskUnembjOL0ra4mRq08eXb4Di2wMmRdgyk997/pp0O65sJiOERFdxNbOL2U58c1N
-         xw3vFFz25CcZ+s1moeTWwOdS0k66xN6VgV+ghyGcK7MMzI1HCYR9Y+udAQphvKH6YQJW
-         TPefD6TXFLUDXpUSJH/fpSzk1QH2CbSMP1xcW8/nG8Qx2VwTiBh+nkcLwzHJZgOhpe63
-         8DftsFyhZIWRDZ7qPcf31bQskYhQm/sSX/64BTPQA8Tfr3YMdudfdcPggeJDkN5ItBaE
-         40ZhKV5ieZLyEJDUtqnGTPw2TGdhBEQmviz0xX5htgJDkRQL3Vp/d5mLqnX3i54Yse0n
-         HZwQ==
-X-Gm-Message-State: AOAM532LXHYs5J4Xc1Rg+NL38+YzBEwrgrzpSyBTSXltREib2L7mEGtR
-        jBd+o6IqFGbCK/8DT1Ye8kdphrsiDTv4OsVKRViR2Q==
-X-Google-Smtp-Source: ABdhPJy/SmtmBEa6EeaTOLzSOUyOJ0FCW1v/VcB96xzGJFrUogLnnlSkPebfytnB2OvvIcWiKdLH+1HCeEh87E18VuA=
-X-Received: by 2002:a2e:bf21:: with SMTP id c33mr9245298ljr.28.1624019671303;
- Fri, 18 Jun 2021 05:34:31 -0700 (PDT)
+        bh=lTCFT34wZQ6wqw0v55S0/U3NKIwHuOeNrXDMYFIV7K4=;
+        b=E2f1NGRAPE/kHhU9iy9P+t0dGLcpP3LJ5PXEKbE5pHTaEnDNTT6KdKFeUedOFGOxT4
+         6KoIKGLmGCI1JgKDqbG1L3ZwhF1VuFrX9zwhykG3ZDr77kCEvXRA8gTNsooVKj1eh496
+         89ZcMQVQiteD9a+aVsvlNawHrCWWvRJjhzKyWB2627I05ui1UhfOFXscA8h4rZC3E/a5
+         nW5yWtFZEHBOcz+P+OimHxgP5q/qzvObuNfPSM/4SxdjvOJgQemFp2Gp4PlM00/C/R4T
+         bW+bQC9VpysWjAHzmwT+ZnRMzcoKLvrFlCzDVzDPI84yc3+/aQLVM0ylciNO1IyTAjJm
+         EOSw==
+X-Gm-Message-State: AOAM5324/FAF/PKeAeF310q5BMY4bZmSzZfADlp68jMYQLzIAGU1tm84
+        OHFlQevdeEkg5tONuynz3DaUNWNS+eSKRwMP4Ej4Jw==
+X-Google-Smtp-Source: ABdhPJzeSWkgT/cK9CFrufOw5F5I/U7jwEyhu1xuazXez4Bg7GmtDJRRX+/TkYXYISNxG1PG5VddP6h2LAZfRaK76Ko=
+X-Received: by 2002:a05:651c:150a:: with SMTP id e10mr9439436ljf.215.1624020049341;
+ Fri, 18 Jun 2021 05:40:49 -0700 (PDT)
 MIME-Version: 1.0
 References: <20210618044819.3690166-1-jingzhangos@google.com>
- <20210618044819.3690166-4-jingzhangos@google.com> <YMxD/NxAvKkXB2iM@kroah.com>
-In-Reply-To: <YMxD/NxAvKkXB2iM@kroah.com>
+ <20210618044819.3690166-3-jingzhangos@google.com> <YMxDv5BgfdMn2Y9b@kroah.com>
+In-Reply-To: <YMxDv5BgfdMn2Y9b@kroah.com>
 From:   Jing Zhang <jingzhangos@google.com>
-Date:   Fri, 18 Jun 2021 07:34:19 -0500
-Message-ID: <CAAdAUti86QZY+KT+NLnLyYf0P09_p5AWhXMmT7+mSt1r=OVEfA@mail.gmail.com>
-Subject: Re: [PATCH v11 3/7] KVM: stats: Support binary stats retrieval for a VM
+Date:   Fri, 18 Jun 2021 07:40:37 -0500
+Message-ID: <CAAdAUtim1zV=OtHCABYZVy4JnKjJ7+BwihUrTPbc6v4EZ5D4tw@mail.gmail.com>
+Subject: Re: [PATCH v11 2/7] KVM: stats: Add fd-based API to read binary stats data
 To:     Greg KH <gregkh@linuxfoundation.org>
 Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
         LinuxMIPS <linux-mips@vger.kernel.org>,
@@ -97,63 +96,172 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 18, 2021 at 1:58 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+On Fri, Jun 18, 2021 at 1:57 AM Greg KH <gregkh@linuxfoundation.org> wrote:
 >
-> On Fri, Jun 18, 2021 at 04:48:15AM +0000, Jing Zhang wrote:
-> > Add a VM ioctl to get a statistics file descriptor by which a read
-> > functionality is provided for userspace to read out VM stats header,
-> > descriptors and data.
-> > Define VM statistics descriptors and header for all architectures.
-> >
-> > Reviewed-by: David Matlack <dmatlack@google.com>
-> > Reviewed-by: Ricardo Koller <ricarkol@google.com>
-> > Reviewed-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
-> > Reviewed-by: Fuad Tabba <tabba@google.com>
-> > Tested-by: Fuad Tabba <tabba@google.com> #arm64
-> > Signed-off-by: Jing Zhang <jingzhangos@google.com>
-> > ---
-> >  arch/arm64/kvm/guest.c    | 14 +++++++++++++
-> >  arch/mips/kvm/mips.c      | 14 +++++++++++++
-> >  arch/powerpc/kvm/book3s.c | 16 +++++++++++++++
-> >  arch/powerpc/kvm/booke.c  | 16 +++++++++++++++
-> >  arch/s390/kvm/kvm-s390.c  | 19 +++++++++++++++++
-> >  arch/x86/kvm/x86.c        | 24 ++++++++++++++++++++++
-> >  include/linux/kvm_host.h  |  6 ++++++
-> >  virt/kvm/kvm_main.c       | 43 +++++++++++++++++++++++++++++++++++++++
-> >  8 files changed, 152 insertions(+)
-> >
-> > diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-> > index 4962331d01e6..f456d1defe2b 100644
-> > --- a/arch/arm64/kvm/guest.c
-> > +++ b/arch/arm64/kvm/guest.c
-> > @@ -28,6 +28,20 @@
-> >
-> >  #include "trace.h"
-> >
-> > +struct _kvm_stats_desc kvm_vm_stats_desc[] = {
-> > +     KVM_GENERIC_VM_STATS()
-> > +};
-> > +static_assert(ARRAY_SIZE(kvm_vm_stats_desc) ==
-> > +             sizeof(struct kvm_vm_stat) / sizeof(u64));
+> Minor comment nits:
+>
+> On Fri, Jun 18, 2021 at 04:48:14AM +0000, Jing Zhang wrote:
+> > +/*
+> > + * Common vm/vcpu stats read function to userspace.
+>
+> Should you use a real kernel-doc style here?  You almost are, might as
+> well do it "right" :)
+>
+Will fix that.
+> > + * @id: identification string of the stats
+> > + * @header: stats header for a vm or a vcpu
+> > + * @desc: start address of an array of stats descriptors for a vm or a vcpu
+> > + * @stats: start address of stats data block for a vm or a vcpu
+> > + * @size_stats: the size of stats data block pointed by @stats
+> > + * @user_buffer: start address of userspace buffer
+> > + * @size: requested read size from userspace
+> > + * @offset: the start position from which the content will be read for the
+> > + *          corresponding vm or vcp file descriptor
+> > + *
+> > + * The file content of a vm/vcpu file descriptor is now defined as below:
+> > + * +-------------+
+> > + * |   Header    |
+> > + * +-------------+
+> > + * | Descriptors |
+> > + * +-------------+
+> > + * | Stats Data  |
+> > + * +-------------+
+>
+> Where is the "header id string"?  In the header?
+>
+Yes, the id string is in the header.
+> > + * Although this function allows userspace to read any amount of data (as long
+> > + * as in the limit) from any position, the typical usage would follow below
+> > + * steps:
+> > + * 1. Read header from offset 0. Get the offset of descriptors and stats data
+> > + *    and some other necessary information. This is a one-time work for the
+> > + *    lifecycle of the corresponding vm/vcpu stats fd.
+> > + * 2. Read descriptors from its offset and discover all the stats by parsing
+> > + *    descriptors. This is a one-time work for the lifecycle of the
+> > + *    corresponding vm/vcpu stats fd.
+> > + * 3. Periodically read stats data from its offset.
+>
+> You forgot "2.5.  rewind fd pointer position", see below...
+>
+Sure, will clarify that.
+> > + */
+> > +ssize_t kvm_stats_read(char *id, struct kvm_stats_header *header,
+> > +             struct _kvm_stats_desc *desc, void *stats, size_t size_stats,
+> > +             char __user *user_buffer, size_t size, loff_t *offset)
+> > +{
+> > +     ssize_t len;
+> > +     ssize_t copylen;
+> > +     ssize_t remain = size;
+> > +     size_t size_desc;
+> > +     size_t size_header;
+> > +     void *src;
+> > +     loff_t pos = *offset;
+> > +     char __user *dest = user_buffer;
 > > +
-> > +struct kvm_stats_header kvm_vm_stats_header = {
+> > +     size_header = sizeof(*header);
+> > +     size_desc = header->count * sizeof(*desc);
+> > +
+> > +     len = KVM_STATS_ID_MAXLEN + size_header + size_desc + size_stats - pos;
+> > +     len = min(len, remain);
+> > +     if (len <= 0)
+> > +             return 0;
+> > +     remain = len;
+> > +
+> > +     /* Copy kvm stats header.
+> > +      * The header is the first block of content userspace usually read out.
+> > +      * The pos is 0 and the copylen and remain would be the size of header.
+> > +      * The copy of the header would be skipped if offset is larger than the
+> > +      * size of header. That usually happens when userspace reads stats
+> > +      * descriptors and stats data.
+> > +      */
 >
-> Can this be const?
+> Looks like this is the networking "style" of multi-line comments, not
+> the rest of the kernel.  You might want to fix this up to be the normal
+> style which would be:
 >
-> > +     .name_size = KVM_STATS_NAME_LEN,
-> > +     .count = ARRAY_SIZE(kvm_vm_stats_desc),
-> > +     .desc_offset = sizeof(struct kvm_stats_header) + KVM_STATS_ID_MAXLEN,
-> > +     .data_offset = sizeof(struct kvm_stats_header) + KVM_STATS_ID_MAXLEN +
-> > +                    sizeof(kvm_vm_stats_desc),
-> > +};
+>         /*
+>          * Copy kvm stats header.
+>          * The header is the first block of content userspace usually read out.
+>          * The pos is 0 and the copylen and remain would be the size of header.
+>          * The copy of the header would be skipped if offset is larger than the
+>          * size of header. That usually happens when userspace reads stats
+>          * descriptors and stats data.
+>          */
 >
-> If it can't be const, what is modified in it that prevents that from
-> happening?
+> I do not know how picky the kvm maintainers are about this, that's up to
+> them :)
+>
+>
+Will fix it.
+> > +     copylen = size_header - pos;
+> > +     copylen = min(copylen, remain);
+> > +     if (copylen > 0) {
+> > +             src = (void *)header + pos;
+> > +             if (copy_to_user(dest, src, copylen))
+> > +                     return -EFAULT;
+> > +             remain -= copylen;
+> > +             pos += copylen;
+> > +             dest += copylen;
+> > +     }
+> > +
+> > +     /* Copy kvm stats header id string.
+> > +      * The id string is unique for every vm/vcpu, which is stored in kvm
+> > +      * and kvm_vcpu structure.
+> > +      */
+>
+> This header too is skipped if necessary, so you should say that as well.
+>
+>
+Sure, will clarify that.
+> > +     copylen = size_header + KVM_STATS_ID_MAXLEN - pos;
+> > +     copylen = min(copylen, remain);
+> > +     if (copylen > 0) {
+> > +             src = id + pos - size_header;
+> > +             if (copy_to_user(dest, src, copylen))
+> > +                     return -EFAULT;
+> > +             remain -= copylen;
+> > +             pos += copylen;
+> > +             dest += copylen;
+> > +     }
+> > +
+> > +     /* Copy kvm stats descriptors.
+> > +      * The descriptors copy would be skipped in the typical case that
+> > +      * userspace periodically read stats data, since the pos would be
+> > +      * greater than the end address of descriptors
+> > +      * (header->header.desc_offset + size_desc) causing copylen <= 0.
+> > +      */
+>
+> But you say that it is skipped here.
+>
+> > +     copylen = header->desc_offset + size_desc - pos;
+> > +     copylen = min(copylen, remain);
+> > +     if (copylen > 0) {
+> > +             src = (void *)desc + pos - header->desc_offset;
+> > +             if (copy_to_user(dest, src, copylen))
+> > +                     return -EFAULT;
+> > +             remain -= copylen;
+> > +             pos += copylen;
+> > +             dest += copylen;
+> > +     }
+> > +
+> > +     /* Copy kvm stats values */
+> > +     copylen = header->data_offset + size_stats - pos;
+> > +     copylen = min(copylen, remain);
+> > +     if (copylen > 0) {
+> > +             src = stats + pos - header->data_offset;
+>
+> This lets you sync to the end of the header and read just the stats, but
+> does that mean that userspace keeps needing to "rewind" back to the end
+> of the header to read the stats again?
+>
+> Or can it just keep reading off the end of the previous read?
+>
+> It's not quite obvious here, and I mention that above in step "2.5", so
+> maybe I am wrong, which is fine, but then I'm confused :)
+Userspace needs to rewind back to read the stats again or just use pread
+as Paolo mentioned and that's used in the testcase.
+>
 >
 > thanks,
 >
 > greg k-h
-Yes, it can be const.
-
-Thanks,
-Jing
