@@ -2,110 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ACA0C48BE8
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 19:47:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79E5FC48BE8
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 20:05:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4776E6127C
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 19:47:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 60AB7613C1
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 20:05:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231403AbhFRTt2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Jun 2021 15:49:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60944 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230430AbhFRTt0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Jun 2021 15:49:26 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B5A2C061574
-        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 12:47:16 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id c15so5146003pls.13
-        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 12:47:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :mime-version;
-        bh=eq0N34Elw7O9e3nBxwSL+pENedj11Jkr0/H5vmh3pBo=;
-        b=md5MeIpFhcK2iIApQdDDALKT7hCraWLPVY3CbjtqgJicSzCUh6v5whBrWKvYm9kZPx
-         +vweAivEg59pZRNL+Q6LtzJ8V4rmZjLZJC/dM7v5zPpBbsQg0nMqVD3JnIhd6yklk6Y5
-         tnWZHSnsL1jw07DChiw4RbShzbMsPc3ybynFJLdK1PVN6tCOofoqrefLlTPQGy1NLtYR
-         ddrwoLzLdY1oQ/QgAm+fd0mQI6wqGZTlQvuIzY7Olj2hCF8CPtqeyQGtx+b2z5NmE74i
-         pWI39ae7i843LtjLzOWU/eneQaxPNAGa0NRPyJS0NFJu0mkBHzglNAawqyENDad+LzyE
-         nkNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:mime-version;
-        bh=eq0N34Elw7O9e3nBxwSL+pENedj11Jkr0/H5vmh3pBo=;
-        b=Qaq/sWl9LEcxkZ5A9liGE89binDTgLHInNcAemhaGw9LDdrac8mbMbZsqHnRiw2+D3
-         k8135E5Qqh0wIBQ9awmicQ6otag9GUcOPxzZlNB4Hgvd8Pft7v5qheY+vBuRwuFDDcGw
-         ms70nNqIm8coGDMe5peW2whoBk2qf1aO0K+1ZBDuaiOmZPesLUStZoT8Ui/MMt9hCvFO
-         eoc75XKVMAtMeDBT7xgJc20YsWgLFoHOcjTrVASNJJyCUqcRSY5b1QXfIUJkV3Q5C9T6
-         p9zFeIqX8zTbu2iz4TB0IZetcCOCYwsazSdn70ZOu75cKTgSt+Moy30ajhYrYAjMO2pB
-         DFOg==
-X-Gm-Message-State: AOAM5328E52jNofliCBE5A0yrs7G/Fft6fHc5A0/bR2ibbE2o3McxgDt
-        +nAxhxD8VKDtMi44wmc2GAntmQ==
-X-Google-Smtp-Source: ABdhPJwIj5XwSwiZJe0QhGTCJrTe3ZX8MEoalt16+FuxZ8ezP+RY6l+/5DuS09FY/e3rd9JPPR2OkQ==
-X-Received: by 2002:a17:902:c1cc:b029:122:52b4:3855 with SMTP id c12-20020a170902c1ccb029012252b43855mr1621009plc.10.1624045635401;
-        Fri, 18 Jun 2021 12:47:15 -0700 (PDT)
-Received: from [2620:15c:17:3:3a6:a5d0:1984:a150] ([2620:15c:17:3:3a6:a5d0:1984:a150])
-        by smtp.gmail.com with ESMTPSA id s1sm9601820pgg.49.2021.06.18.12.47.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Jun 2021 12:47:14 -0700 (PDT)
-Date:   Fri, 18 Jun 2021 12:47:13 -0700 (PDT)
-From:   David Rientjes <rientjes@google.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
-        linux-mm@kvack.org, Uladzislau Rezki <urezki@gmail.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH v4 1/2] mm/vmalloc: add vmalloc_no_huge
-In-Reply-To: <20210614132357.10202-2-imbrenda@linux.ibm.com>
-Message-ID: <1ab3bba4-dc91-4f8-ecd5-b18b17ec6d8@google.com>
-References: <20210614132357.10202-1-imbrenda@linux.ibm.com> <20210614132357.10202-2-imbrenda@linux.ibm.com>
+        id S232711AbhFRUHz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Jun 2021 16:07:55 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8698 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232357AbhFRUHy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 18 Jun 2021 16:07:54 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15IK525m053681;
+        Fri, 18 Jun 2021 16:05:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=2nTcRrb+LP3a3HBH5DQjGcwYoM6+yiDCY4R/OtVw6rU=;
+ b=E8w9JDdRLTPvxPDsKWEP9EfYZEmCp35s+jHlezZWHhyfewpNXZYC5SVOrSv3RDhtKuM+
+ dfegAL03fep6wjitft6tQ1X8yldDTSXKT+4xC1HSrp2+BIMv/gT6zku/WBMI8R5+AfeS
+ YpjPMVeE99xjlSWnrlElOPB1KnqaLr1vuVHUUyqVrqaQqwRK8F5M6FwM8vQ7ACGz6+1Z
+ WCeXs79FVLhBuKGaIn/WcH160NzyloCJA5R4HU10SITirnfPsHCbm1LM8+3/YJYDCoD3
+ gMMT/BD20/3dKm7EBQZKJzpoMRhQKHcVxIy29n/xiQ4xvpgJu30XspAyQCenGrlTLSNf zA== 
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3991ngrwht-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Jun 2021 16:05:41 -0400
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15IJwD5C015439;
+        Fri, 18 Jun 2021 20:05:41 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma03wdc.us.ibm.com with ESMTP id 394mjabvw4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Jun 2021 20:05:41 +0000
+Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15IK5eae31588790
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 18 Jun 2021 20:05:40 GMT
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D0617AE05C;
+        Fri, 18 Jun 2021 20:05:40 +0000 (GMT)
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 99FCBAE05F;
+        Fri, 18 Jun 2021 20:05:40 +0000 (GMT)
+Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.128.252])
+        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri, 18 Jun 2021 20:05:40 +0000 (GMT)
+Subject: Re: [PATCH v2] s390/vfio-ap: Fix module unload memory leak of
+ matrix_dev
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     "Jason J. Herne" <jjherne@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        pasic@linux.ibm.com
+References: <20210618171255.2025-1-jjherne@linux.ibm.com>
+ <af3d6c67-e045-770f-82ff-dd8e691c1317@linux.ibm.com>
+ <20210618182336.GJ1002214@nvidia.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <1a951d33-e1bc-d23f-36e1-4987c661c7a9@linux.ibm.com>
+Date:   Fri, 18 Jun 2021 16:05:40 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20210618182336.GJ1002214@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XKEs9Hqze12ivyN5XsbkxukNql5pbfBp
+X-Proofpoint-GUID: XKEs9Hqze12ivyN5XsbkxukNql5pbfBp
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-18_11:2021-06-18,2021-06-18 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 phishscore=0 mlxlogscore=999 mlxscore=0 lowpriorityscore=0
+ impostorscore=0 adultscore=0 clxscore=1015 spamscore=0 malwarescore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106180117
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 14 Jun 2021, Claudio Imbrenda wrote:
 
-> Commit 121e6f3258fe3 ("mm/vmalloc: hugepage vmalloc mappings") added
-> support for hugepage vmalloc mappings, it also added the flag
-> VM_NO_HUGE_VMAP for __vmalloc_node_range to request the allocation to
-> be performed with 0-order non-huge pages.  This flag is not accessible
-> when calling vmalloc, the only option is to call directly
-> __vmalloc_node_range, which is not exported.
-> 
-> This means that a module can't vmalloc memory with small pages.
-> 
-> Case in point: KVM on s390x needs to vmalloc a large area, and it needs
-> to be mapped with non-huge pages, because of a hardware limitation.
-> 
-> This patch adds the function vmalloc_no_huge, which works like vmalloc,
-> but it is guaranteed to always back the mapping using small pages. This
-> new function is exported, therefore it is usable by modules.
-> 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-> Acked-by: Nicholas Piggin <npiggin@gmail.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Nicholas Piggin <npiggin@gmail.com>
-> Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: David Rientjes <rientjes@google.com>
-> Cc: Christoph Hellwig <hch@infradead.org>
 
-Acked-by: David Rientjes <rientjes@google.com>
+On 6/18/21 2:23 PM, Jason Gunthorpe wrote:
+> On Fri, Jun 18, 2021 at 02:11:23PM -0400, Tony Krowiak wrote:
+>>
+>> On 6/18/21 1:12 PM, Jason J. Herne wrote:
+>>> vfio_ap_matrix_dev_release is shadowing the global matrix_dev with a NULL
+>>> pointer. Driver data for the matrix device is never set and so
+>>> dev_get_drvdata() always returns NULL. When release is called we end up
+>>> not freeing matrix_dev. The fix is to remove the shadow variable and get
+>>> the correct pointer from the device using container_of. We'll also NULL
+>>> the global to prevent any future use.
+>>>
+>>> Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
+>>>    drivers/s390/crypto/vfio_ap_drv.c | 5 ++---
+>>>    1 file changed, 2 insertions(+), 3 deletions(-)
+>>>
+>>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+>>> index 7dc72cb718b0..40e66cb363d1 100644
+>>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+>>> @@ -82,9 +82,8 @@ static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
+>>>    static void vfio_ap_matrix_dev_release(struct device *dev)
+>>>    {
+>>> -	struct ap_matrix_dev *matrix_dev = dev_get_drvdata(dev);
+>>> -
+>>> -	kfree(matrix_dev);
+>>> +	kfree(container_of(dev, struct ap_matrix_dev, device));
+>> I suppose if we're not going to assume that the release is being
+>> called to free the global matrix_dev, then if you are going to
+>> retrieve it using container_of(), then maybe we should verify
+>> the retrieved pointer is the same as the global matrix_dev?
+> That seems like overkill to me
+
+After thinking about it, it's probably more than overkill as I
+assume the container_of() function would fail if dev was
+not contained in matrix_mdev:
+
+Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+
+>
+> Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+>
+> Jason
+
