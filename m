@@ -2,231 +2,525 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+X-Spam-Status: No, score=-15.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0A8FC48BDF
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 07:02:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EAD1C48BE8
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 07:36:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 79099613AA
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 07:02:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 55304613B4
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 07:36:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231838AbhFRHEW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Jun 2021 03:04:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44268 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232059AbhFRHEV (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 18 Jun 2021 03:04:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCE746100A;
-        Fri, 18 Jun 2021 07:02:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623999732;
-        bh=lPwhwKYjLCuBb8iHU8Fh4mII4hR3kacqcXifOpUboVE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pd4DtYq3djICAHUOSGQlUqCHGrPLaz23j7yHmMvA9IlMEFXXRx5TcHYpUNnHS+cZZ
-         e7k1Q3mzozRQaz8RD5qRcWMEBdzePEi3+EUkbh7Nd/z6fcmVdiDgihCW3nyPzogDR0
-         2b10gOywi6w5pc+tS/hdE6hw/4+bnU2P58rz9in0=
-Date:   Fri, 18 Jun 2021 09:02:10 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jing Zhang <jingzhangos@google.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
-        David Matlack <dmatlack@google.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
-        Fuad Tabba <tabba@google.com>
-Subject: Re: [PATCH v11 5/7] KVM: stats: Add documentation for binary
- statistics interface
-Message-ID: <YMxE8pUrbQkwlpbD@kroah.com>
-References: <20210618044819.3690166-1-jingzhangos@google.com>
- <20210618044819.3690166-6-jingzhangos@google.com>
+        id S229730AbhFRHiY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Jun 2021 03:38:24 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:14808 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229475AbhFRHiX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 18 Jun 2021 03:38:23 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15I7YM6A112623;
+        Fri, 18 Jun 2021 03:36:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ENgAy6c7Q4nwLIejbgYJZ3kIx2XE/zalP/iHD7x7nuE=;
+ b=KCsVD3GeuEeL3PS2ZPA3zeSkRT6m262cfkwbwNk69tYDXbzcJHSK57MCHgeeBf+c3Ffl
+ rLUTBkDsUDx2J0B6pX/Wh/fI4a0873LFzFVtUBzImBdirHY+ugyPBgvBMFrm+GgZh4nx
+ gUH6W3puCZBfJ25u0u7uL1XEGMk60N0Frbyk0M73cNmSgOTnDkFRWaEjn0G2x+QLJZVG
+ JXSRW1FZZniABSsFK02TdRYT2275f1GV8WMV0WUGk6MBFKXjqP54+JuxyCraJ23mshko
+ zNmqWYet+MgbMYp6+ECGIM0tkAUg1cgqB32Hzwn5STEWk/thtSTXy11O4laeoj9koWkS fA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 398hn70pae-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Jun 2021 03:36:14 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15I7aEMU122595;
+        Fri, 18 Jun 2021 03:36:14 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 398hn70p8d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Jun 2021 03:36:14 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15I7PLnT010199;
+        Fri, 18 Jun 2021 07:36:11 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 394mj91r82-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Jun 2021 07:36:11 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15I7a9LR24904112
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 18 Jun 2021 07:36:09 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E037342042;
+        Fri, 18 Jun 2021 07:36:08 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 821124203F;
+        Fri, 18 Jun 2021 07:36:08 +0000 (GMT)
+Received: from linux.fritz.box (unknown [9.145.172.21])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 18 Jun 2021 07:36:08 +0000 (GMT)
+Subject: Re: [kvm-unit-tests PATCH v5 6/7] s390x: mmu: add support for large
+ pages
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com,
+        cohuck@redhat.com
+References: <20210611140705.553307-1-imbrenda@linux.ibm.com>
+ <20210611140705.553307-7-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <ac930fdd-53e9-cbc5-687d-8d99d968a3a1@linux.ibm.com>
+Date:   Fri, 18 Jun 2021 09:36:08 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210618044819.3690166-6-jingzhangos@google.com>
+In-Reply-To: <20210611140705.553307-7-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: e-4xD15_wMfT6N_AVjG59iArqk2c9mx1
+X-Proofpoint-GUID: uvN1FF6uSrz4Rpt3ohRJrZTrdN190y_I
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-17_17:2021-06-15,2021-06-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ malwarescore=0 phishscore=0 lowpriorityscore=0 suspectscore=0 mlxscore=0
+ clxscore=1015 impostorscore=0 priorityscore=1501 spamscore=0 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106180042
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 18, 2021 at 04:48:17AM +0000, Jing Zhang wrote:
-> This new API provides a file descriptor for every VM and VCPU to read
-> KVM statistics data in binary format.
-> It is meant to provide a lightweight, flexible, scalable and efficient
-> lock-free solution for user space telemetry applications to pull the
-> statistics data periodically for large scale systems. The pulling
-> frequency could be as high as a few times per second.
-> The statistics descriptors are defined by KVM in kernel and can be
-> by userspace to discover VM/VCPU statistics during the one-time setup
-> stage.
-> The statistics data itself could be read out by userspace telemetry
-> periodically without any extra parsing or setup effort.
-> There are a few existed interface protocols and definitions, but no
-> one can fulfil all the requirements this interface implemented as
-> below:
-> 1. During high frequency periodic stats reading, there should be no
->    extra efforts except the stats data read itself.
-> 2. Support stats annotation, like type (cumulative, instantaneous,
->    peak, histogram, etc) and unit (counter, time, size, cycles, etc).
-> 3. The stats data reading should be free of lock/synchronization. We
->    don't care about the consistency between all the stats data. All
->    stats data can not be read out at exactly the same time. We really
->    care about the change or trend of the stats data. The lock-free
->    solution is not just for efficiency and scalability, also for the
->    stats data accuracy and usability. For example, in the situation
->    that all the stats data readings are protected by a global lock,
->    if one VCPU died somehow with that lock held, then all stats data
->    reading would be blocked, then we have no way from stats data that
->    which VCPU has died.
-> 4. The stats data reading workload can be handed over to other
->    unprivileged process.
+On 6/11/21 4:07 PM, Claudio Imbrenda wrote:
+> Add support for 1M and 2G pages.
 > 
-> Reviewed-by: David Matlack <dmatlack@google.com>
-> Reviewed-by: Ricardo Koller <ricarkol@google.com>
-> Reviewed-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
-> Reviewed-by: Fuad Tabba <tabba@google.com>
-> Signed-off-by: Jing Zhang <jingzhangos@google.com>
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+Acked-by: Janosch Frank <frankja@de.ibm.com>
+
 > ---
->  Documentation/virt/kvm/api.rst | 176 ++++++++++++++++++++++++++++++++-
->  1 file changed, 175 insertions(+), 1 deletion(-)
+>  lib/s390x/mmu.h |  84 +++++++++++++++-
+>  lib/s390x/mmu.c | 262 +++++++++++++++++++++++++++++++++++++++++++-----
+>  2 files changed, 320 insertions(+), 26 deletions(-)
 > 
-> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-> index e328caa35d6c..7ca1c8d190c0 100644
-> --- a/Documentation/virt/kvm/api.rst
-> +++ b/Documentation/virt/kvm/api.rst
-> @@ -5034,7 +5034,6 @@ see KVM_XEN_VCPU_SET_ATTR above.
->  The KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADJUST type may not be used
->  with the KVM_XEN_VCPU_GET_ATTR ioctl.
+> diff --git a/lib/s390x/mmu.h b/lib/s390x/mmu.h
+> index b995f85b..ab35d782 100644
+> --- a/lib/s390x/mmu.h
+> +++ b/lib/s390x/mmu.h
+> @@ -10,9 +10,89 @@
+>  #ifndef _S390X_MMU_H_
+>  #define _S390X_MMU_H_
 >  
-> -
->  4.131 KVM_GET_SREGS2
->  ------------------
+> -void protect_page(void *vaddr, unsigned long prot);
+> +enum pgt_level {
+> +	pgtable_level_pgd = 1,
+> +	pgtable_level_p4d,
+> +	pgtable_level_pud,
+> +	pgtable_level_pmd,
+> +	pgtable_level_pte,
+> +};
+> +
+> +/*
+> + * Splits the pagetables down to the given DAT tables level.
+> + * Returns a pointer to the DAT table entry of the given level.
+> + * @pgtable root of the page table tree
+> + * @vaddr address whose page tables are to split
+> + * @level 3 (for 2GB pud), 4 (for 1 MB pmd) or 5 (for 4KB pages)
+> + */
+> +void *split_page(pgd_t *pgtable, void *vaddr, enum pgt_level level);
+> +
+> +/*
+> + * Applies the given protection bits to the given DAT tables level,
+> + * splitting if necessary.
+> + * @pgtable root of the page table tree
+> + * @vaddr address whose protection bits are to be changed
+> + * @prot the protection bits to set
+> + * @level 3 (for 2GB pud), 4 (for 1MB pmd) or 5 (for 4KB pages)
+> + */
+> +void protect_dat_entry(void *vaddr, unsigned long prot, enum pgt_level level);
+> +
+> +/*
+> + * Clears the given protection bits from the given DAT tables level,
+> + * splitting if necessary.
+> + * @pgtable root of the page table tree
+> + * @vaddr address whose protection bits are to be changed
+> + * @prot the protection bits to clear
+> + * @level 3 (for 2GB pud), 4 (for 1MB pmd) or 5 (for 4kB pages)
+> + */
+> +void unprotect_dat_entry(void *vaddr, unsigned long prot, enum pgt_level level);
+> +
+> +/*
+> + * Applies the given protection bits to the given 4kB pages range,
+> + * splitting if necessary.
+> + * @start starting address whose protection bits are to be changed
+> + * @len size in bytes
+> + * @prot the protection bits to set
+> + */
+>  void protect_range(void *start, unsigned long len, unsigned long prot);
+> -void unprotect_page(void *vaddr, unsigned long prot);
+> +
+> +/*
+> + * Clears the given protection bits from the given 4kB pages range,
+> + * splitting if necessary.
+> + * @start starting address whose protection bits are to be changed
+> + * @len size in bytes
+> + * @prot the protection bits to set
+> + */
+>  void unprotect_range(void *start, unsigned long len, unsigned long prot);
 >  
-> @@ -5081,6 +5080,173 @@ Writes special registers into the vcpu.
->  See KVM_GET_SREGS2 for the data structures.
->  This ioctl (when supported) replaces the KVM_SET_SREGS.
+> +/* Similar to install_page, maps the virtual address to the physical address
+> + * for the given page tables, using 1MB large pages.
+> + * Returns a pointer to the DAT table entry.
+> + * @pgtable root of the page table tree
+> + * @phys physical address to map, must be 1MB aligned!
+> + * @vaddr virtual address to map, must be 1MB aligned!
+> + */
+> +pmdval_t *install_large_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr);
+> +
+> +/* Similar to install_page, maps the virtual address to the physical address
+> + * for the given page tables, using 2GB huge pages.
+> + * Returns a pointer to the DAT table entry.
+> + * @pgtable root of the page table tree
+> + * @phys physical address to map, must be 2GB aligned!
+> + * @vaddr virtual address to map, must be 2GB aligned!
+> + */
+> +pudval_t *install_huge_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr);
+> +
+> +static inline void protect_page(void *vaddr, unsigned long prot)
+> +{
+> +	protect_dat_entry(vaddr, prot, pgtable_level_pte);
+> +}
+> +
+> +static inline void unprotect_page(void *vaddr, unsigned long prot)
+> +{
+> +	unprotect_dat_entry(vaddr, prot, pgtable_level_pte);
+> +}
+> +
+> +void *get_dat_entry(pgd_t *pgtable, void *vaddr, unsigned int level);
+> +
+>  #endif /* _ASMS390X_MMU_H_ */
+> diff --git a/lib/s390x/mmu.c b/lib/s390x/mmu.c
+> index 5c517366..c973443b 100644
+> --- a/lib/s390x/mmu.c
+> +++ b/lib/s390x/mmu.c
+> @@ -15,6 +15,18 @@
+>  #include <vmalloc.h>
+>  #include "mmu.h"
 >  
-> +4.133 KVM_GET_STATS_FD
-> +----------------------
+> +/*
+> + * The naming convention used here is the same as used in the Linux kernel;
+> + * this is the correspondence between the s390x architectural names and the
+> + * Linux ones:
+> + *
+> + * pgd - region 1 table entry
+> + * p4d - region 2 table entry
+> + * pud - region 3 table entry
+> + * pmd - segment table entry
+> + * pte - page table entry
+> + */
 > +
-> +:Capability: KVM_CAP_STATS_BINARY_FD
-> +:Architectures: all
-> +:Type: vm ioctl, vcpu ioctl
-> +:Parameters: none
-> +:Returns: statistics file descriptor on success, < 0 on error
+>  static pgd_t *table_root;
+>  
+>  void configure_dat(int enable)
+> @@ -46,54 +58,256 @@ static void mmu_enable(pgd_t *pgtable)
+>  	lc->pgm_new_psw.mask |= PSW_MASK_DAT;
+>  }
+>  
+> -static pteval_t *get_pte(pgd_t *pgtable, uintptr_t vaddr)
+> +/*
+> + * Get the pud (region 3) DAT table entry for the given address and root,
+> + * allocating it if necessary
+> + */
+> +static inline pud_t *get_pud(pgd_t *pgtable, uintptr_t vaddr)
+>  {
+>  	pgd_t *pgd = pgd_offset(pgtable, vaddr);
+>  	p4d_t *p4d = p4d_alloc(pgd, vaddr);
+>  	pud_t *pud = pud_alloc(p4d, vaddr);
+> -	pmd_t *pmd = pmd_alloc(pud, vaddr);
+> -	pte_t *pte = pte_alloc(pmd, vaddr);
+>  
+> -	return &pte_val(*pte);
+> +	return pud;
+> +}
 > +
-> +Errors:
+> +/*
+> + * Get the pmd (segment) DAT table entry for the given address and pud,
+> + * allocating it if necessary.
+> + * The pud must not be huge.
+> + */
+> +static inline pmd_t *get_pmd(pud_t *pud, uintptr_t vaddr)
+> +{
+> +	pmd_t *pmd;
 > +
-> +  ======     ======================================================
-> +  ENOMEM     if the fd could not be created due to lack of memory
-> +  EMFILE     if the number of opened files exceeds the limit
-> +  ======     ======================================================
+> +	assert(!pud_huge(*pud));
+> +	pmd = pmd_alloc(pud, vaddr);
+> +	return pmd;
+> +}
 > +
-> +The file descriptor can be used to read VM/vCPU statistics data in binary
-> +format. The file data is organized into three blocks as below:
-> ++-------------+
-> +|   Header    |
-> ++-------------+
-> +| Descriptors |
-> ++-------------+
-> +| Stats Data  |
-> ++-------------+
+> +/*
+> + * Get the pte (page) DAT table entry for the given address and pmd,
+> + * allocating it if necessary.
+> + * The pmd must not be large.
+> + */
+> +static inline pte_t *get_pte(pmd_t *pmd, uintptr_t vaddr)
+> +{
+> +	pte_t *pte;
 > +
-> +The Header block is always at the start of the file. It is only needed to be
-> +read one time for the lifetime of the file descriptor.
-> +It is in the form of ``struct kvm_stats_header`` as below::
+> +	assert(!pmd_large(*pmd));
+> +	pte = pte_alloc(pmd, vaddr);
+> +	return pte;
+> +}
 > +
-> +	#define KVM_STATS_ID_MAXLEN		64
+> +/*
+> + * Splits a large pmd (segment) DAT table entry into equivalent 4kB small
+> + * pages.
+> + * @pmd The pmd to split, it must be large.
+> + * @va the virtual address corresponding to this pmd.
+> + */
+> +static void split_pmd(pmd_t *pmd, uintptr_t va)
+> +{
+> +	phys_addr_t pa = pmd_val(*pmd) & SEGMENT_ENTRY_SFAA;
+> +	unsigned long i, prot;
+> +	pte_t *pte;
 > +
-> +	struct kvm_stats_header {
-> +		__u32 name_size;
-> +		__u32 count;
-> +		__u32 desc_offset;
-> +		__u32 data_offset;
-> +		char id[];
-> +	};
+> +	assert(pmd_large(*pmd));
+> +	pte = alloc_pages(PAGE_TABLE_ORDER);
+> +	prot = pmd_val(*pmd) & (SEGMENT_ENTRY_IEP | SEGMENT_ENTRY_P);
+> +	for (i = 0; i < PAGE_TABLE_ENTRIES; i++)
+> +		pte_val(pte[i]) =  pa | PAGE_SIZE * i | prot;
+> +	idte_pmdp(va, &pmd_val(*pmd));
+> +	pmd_val(*pmd) = __pa(pte) | SEGMENT_ENTRY_TT_SEGMENT;
 > +
-> +The ``id`` field is a '\0' terminated string which identifies the corresponding
-> +KVM statistics. For VM statistics, it is in the form of "kvm-{kvm pid}", like
-> +"kvm-12345". For VCPU statistics, it is in the form of
-> +"kvm-{kvm pid}/vcpu-{vcpu id}", like "kvm-12345/vcpu-12".
+> +}
 > +
-> +The ``name_size`` field is the size (in byte) of the statistics name string
-> +(including trailing '\0') appended to the end of every statistics descriptor.
+> +/*
+> + * Splits a huge pud (region 3) DAT table entry into equivalent 1MB large
+> + * pages.
+> + * @pud The pud to split, it must be huge.
+> + * @va the virtual address corresponding to this pud.
+> + */
+> +static void split_pud(pud_t *pud, uintptr_t va)
+> +{
+> +	phys_addr_t pa = pud_val(*pud) & REGION3_ENTRY_RFAA;
+> +	unsigned long i, prot;
+> +	pmd_t *pmd;
 > +
-> +The ``count`` field is the number of statistics.
+> +	assert(pud_huge(*pud));
+> +	pmd = alloc_pages(SEGMENT_TABLE_ORDER);
+> +	prot = pud_val(*pud) & (REGION3_ENTRY_IEP | REGION_ENTRY_P);
+> +	for (i = 0; i < SEGMENT_TABLE_ENTRIES; i++)
+> +		pmd_val(pmd[i]) =  pa | SZ_1M * i | prot | SEGMENT_ENTRY_FC | SEGMENT_ENTRY_TT_SEGMENT;
+> +	idte_pudp(va, &pud_val(*pud));
+> +	pud_val(*pud) = __pa(pmd) | REGION_ENTRY_TT_REGION3 | REGION_TABLE_LENGTH;
+> +}
 > +
-> +The ``desc_offset`` field is the offset of the Descriptors block from the start
-> +of the file indicated by the file descriptor.
+> +void *get_dat_entry(pgd_t *pgtable, void *vaddr, enum pgt_level level)
+> +{
+> +	uintptr_t va = (uintptr_t)vaddr;
+> +	pgd_t *pgd;
+> +	p4d_t *p4d;
+> +	pud_t *pud;
+> +	pmd_t *pmd;
 > +
-> +The ``data_offset`` field is the offset of the Stats Data block from the start
-> +of the file indicated by the file descriptor.
+> +	assert(level && (level <= 5));
+> +	pgd = pgd_offset(pgtable, va);
+> +	if (level == pgtable_level_pgd)
+> +		return pgd;
+> +	p4d = p4d_alloc(pgd, va);
+> +	if (level == pgtable_level_p4d)
+> +		return p4d;
+> +	pud = pud_alloc(p4d, va);
 > +
-> +The Descriptors block is only needed to be read once for the lifetime of the
-> +file descriptor. It is an array of ``struct kvm_stats_desc`` as shown in
-> +below code block::
+> +	if (level == pgtable_level_pud)
+> +		return pud;
+> +	if (!pud_none(*pud) && pud_huge(*pud))
+> +		split_pud(pud, va);
+> +	pmd = get_pmd(pud, va);
+> +	if (level == pgtable_level_pmd)
+> +		return pmd;
+> +	if (!pmd_none(*pmd) && pmd_large(*pmd))
+> +		split_pmd(pmd, va);
+> +	return get_pte(pmd, va);
+> +}
 > +
-> +	#define KVM_STATS_TYPE_SHIFT		0
-> +	#define KVM_STATS_TYPE_MASK		(0xF << KVM_STATS_TYPE_SHIFT)
-> +	#define KVM_STATS_TYPE_CUMULATIVE	(0x0 << KVM_STATS_TYPE_SHIFT)
-> +	#define KVM_STATS_TYPE_INSTANT		(0x1 << KVM_STATS_TYPE_SHIFT)
-> +	#define KVM_STATS_TYPE_MAX		KVM_STATS_TYPE_INSTANT
+> +void *split_page(pgd_t *pgtable, void *vaddr, enum pgt_level level)
+> +{
+> +	assert((level >= 3) && (level <= 5));
+> +	return get_dat_entry(pgtable ? pgtable : table_root, vaddr, level);
+>  }
+>  
+>  phys_addr_t virt_to_pte_phys(pgd_t *pgtable, void *vaddr)
+>  {
+> -	return (*get_pte(pgtable, (uintptr_t)vaddr) & PAGE_MASK) +
+> -	       ((unsigned long)vaddr & ~PAGE_MASK);
+> +	uintptr_t va = (uintptr_t)vaddr;
+> +	pud_t *pud;
+> +	pmd_t *pmd;
+> +	pte_t *pte;
 > +
-> +	#define KVM_STATS_UNIT_SHIFT		4
-> +	#define KVM_STATS_UNIT_MASK		(0xF << KVM_STATS_UNIT_SHIFT)
-> +	#define KVM_STATS_UNIT_NONE		(0x0 << KVM_STATS_UNIT_SHIFT)
-> +	#define KVM_STATS_UNIT_BYTES		(0x1 << KVM_STATS_UNIT_SHIFT)
-> +	#define KVM_STATS_UNIT_SECONDS		(0x2 << KVM_STATS_UNIT_SHIFT)
-> +	#define KVM_STATS_UNIT_CYCLES		(0x3 << KVM_STATS_UNIT_SHIFT)
-> +	#define KVM_STATS_UNIT_MAX		KVM_STATS_UNIT_CYCLES
+> +	pud = get_pud(pgtable, va);
+> +	if (pud_huge(*pud))
+> +		return (pud_val(*pud) & REGION3_ENTRY_RFAA) | (va & ~REGION3_ENTRY_RFAA);
+> +	pmd = get_pmd(pud, va);
+> +	if (pmd_large(*pmd))
+> +		return (pmd_val(*pmd) & SEGMENT_ENTRY_SFAA) | (va & ~SEGMENT_ENTRY_SFAA);
+> +	pte = get_pte(pmd, va);
+> +	return (pte_val(*pte) & PAGE_MASK) | (va & ~PAGE_MASK);
+> +}
 > +
-> +	#define KVM_STATS_BASE_SHIFT		8
-> +	#define KVM_STATS_BASE_MASK		(0xF << KVM_STATS_BASE_SHIFT)
-> +	#define KVM_STATS_BASE_POW10		(0x0 << KVM_STATS_BASE_SHIFT)
-> +	#define KVM_STATS_BASE_POW2		(0x1 << KVM_STATS_BASE_SHIFT)
-> +	#define KVM_STATS_BASE_MAX		KVM_STATS_BASE_POW2
+> +/*
+> + * Get the DAT table entry of the given level for the given address,
+> + * splitting if necessary. If the entry was not invalid, invalidate it, and
+> + * return the pointer to the entry and, if requested, its old value.
+> + * @pgtable root of the page tables
+> + * @vaddr virtual address
+> + * @level 3 (for 2GB pud), 4 (for 1MB pmd) or 5 (for 4kB pages)
+> + * @old if not NULL, will be written with the old value of the DAT table
+> + * entry before invalidation
+> + */
+> +static void *dat_get_and_invalidate(pgd_t *pgtable, void *vaddr, enum pgt_level level, unsigned long *old)
+> +{
+> +	unsigned long va = (unsigned long)vaddr;
+> +	void *ptr;
 > +
-> +	struct kvm_stats_desc {
-> +		__u32 flags;
-> +		__s16 exponent;
-> +		__u16 size;
-> +		__u32 offset;
-> +		__u32 unused;
-> +		char name[];
-> +	};
+> +	ptr = get_dat_entry(pgtable, vaddr, level);
+> +	if (old)
+> +		*old = *(unsigned long *)ptr;
+> +	if ((level == pgtable_level_pgd) && !pgd_none(*(pgd_t *)ptr))
+> +		idte_pgdp(va, ptr);
+> +	else if ((level == pgtable_level_p4d) && !p4d_none(*(p4d_t *)ptr))
+> +		idte_p4dp(va, ptr);
+> +	else if ((level == pgtable_level_pud) && !pud_none(*(pud_t *)ptr))
+> +		idte_pudp(va, ptr);
+> +	else if ((level == pgtable_level_pmd) && !pmd_none(*(pmd_t *)ptr))
+> +		idte_pmdp(va, ptr);
+> +	else if (!pte_none(*(pte_t *)ptr))
+> +		ipte(va, ptr);
+> +	return ptr;
+>  }
+>  
+> -static pteval_t *set_pte(pgd_t *pgtable, pteval_t val, void *vaddr)
+> +static void cleanup_pmd(pmd_t *pmd)
+>  {
+> -	pteval_t *p_pte = get_pte(pgtable, (uintptr_t)vaddr);
+> +	/* was invalid or large, nothing to do */
+> +	if (pmd_none(*pmd) || pmd_large(*pmd))
+> +		return;
+> +	/* was not large, free the corresponding page table */
+> +	free_pages((void *)(pmd_val(*pmd) & PAGE_MASK));
+> +}
+>  
+> -	/* first flush the old entry (if we're replacing anything) */
+> -	if (!(*p_pte & PAGE_ENTRY_I))
+> -		ipte((uintptr_t)vaddr, p_pte);
+> +static void cleanup_pud(pud_t *pud)
+> +{
+> +	unsigned long i;
+> +	pmd_t *pmd;
+>  
+> -	*p_pte = val;
+> -	return p_pte;
+> +	/* was invalid or large, nothing to do */
+> +	if (pud_none(*pud) || pud_huge(*pud))
+> +		return;
+> +	/* recursively clean up all pmds if needed */
+> +	pmd = (pmd_t *)(pud_val(*pud) & PAGE_MASK);
+> +	for (i = 0; i < SEGMENT_TABLE_ENTRIES; i++)
+> +		cleanup_pmd(pmd + i);
+> +	/* free the corresponding segment table */
+> +	free_pages(pmd);
+> +}
+> +
+> +/*
+> + * Set the DAT entry for the given level of the given virtual address. If a
+> + * mapping already existed, it is overwritten. If an existing mapping with
+> + * smaller pages existed, all the lower tables are freed.
+> + * Returns the pointer to the DAT table entry.
+> + * @pgtable root of the page tables
+> + * @val the new value for the DAT table entry
+> + * @vaddr the virtual address
+> + * @level 3 for pud (region 3), 4 for pmd (segment) and 5 for pte (pages)
+> + */
+> +static void *set_dat_entry(pgd_t *pgtable, unsigned long val, void *vaddr, enum pgt_level level)
+> +{
+> +	unsigned long old, *res;
+> +
+> +	res = dat_get_and_invalidate(pgtable, vaddr, level, &old);
+> +	if (level == pgtable_level_pmd)
+> +		cleanup_pmd((pmd_t *)&old);
+> +	if (level == pgtable_level_pud)
+> +		cleanup_pud((pud_t *)&old);
+> +	*res = val;
+> +	return res;
+>  }
+>  
+>  pteval_t *install_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr)
+>  {
+> -	return set_pte(pgtable, __pa(phys), vaddr);
+> +	assert(IS_ALIGNED(phys, PAGE_SIZE));
+> +	assert(IS_ALIGNED((uintptr_t)vaddr, PAGE_SIZE));
+> +	return set_dat_entry(pgtable, phys, vaddr, pgtable_level_pte);
+> +}
+> +
+> +pmdval_t *install_large_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr)
+> +{
+> +	assert(IS_ALIGNED(phys, SZ_1M));
+> +	assert(IS_ALIGNED((uintptr_t)vaddr, SZ_1M));
+> +	return set_dat_entry(pgtable, phys | SEGMENT_ENTRY_FC, vaddr, pgtable_level_pmd);
+> +}
+> +
+> +pudval_t *install_huge_page(pgd_t *pgtable, phys_addr_t phys, void *vaddr)
+> +{
+> +	assert(IS_ALIGNED(phys, SZ_2G));
+> +	assert(IS_ALIGNED((uintptr_t)vaddr, SZ_2G));
+> +	return set_dat_entry(pgtable, phys | REGION3_ENTRY_FC | REGION_ENTRY_TT_REGION3, vaddr, pgtable_level_pud);
+>  }
+>  
+> -void protect_page(void *vaddr, unsigned long prot)
+> +void protect_dat_entry(void *vaddr, unsigned long prot, enum pgt_level level)
+>  {
+> -	pteval_t *p_pte = get_pte(table_root, (uintptr_t)vaddr);
+> -	pteval_t n_pte = *p_pte | prot;
+> +	unsigned long old, *ptr;
+>  
+> -	set_pte(table_root, n_pte, vaddr);
+> +	ptr = dat_get_and_invalidate(table_root, vaddr, level, &old);
+> +	*ptr = old | prot;
+>  }
+>  
+> -void unprotect_page(void *vaddr, unsigned long prot)
+> +void unprotect_dat_entry(void *vaddr, unsigned long prot, enum pgt_level level)
+>  {
+> -	pteval_t *p_pte = get_pte(table_root, (uintptr_t)vaddr);
+> -	pteval_t n_pte = *p_pte & ~prot;
+> +	unsigned long old, *ptr;
+>  
+> -	set_pte(table_root, n_pte, vaddr);
+> +	ptr = dat_get_and_invalidate(table_root, vaddr, level, &old);
+> +	*ptr = old & ~prot;
+>  }
+>  
+>  void protect_range(void *start, unsigned long len, unsigned long prot)
+> @@ -102,7 +316,7 @@ void protect_range(void *start, unsigned long len, unsigned long prot)
+>  
+>  	len &= PAGE_MASK;
+>  	for (; len; len -= PAGE_SIZE, curr += PAGE_SIZE)
+> -		protect_page((void *)curr, prot);
+> +		protect_dat_entry((void *)curr, prot, 5);
+>  }
+>  
+>  void unprotect_range(void *start, unsigned long len, unsigned long prot)
+> @@ -111,7 +325,7 @@ void unprotect_range(void *start, unsigned long len, unsigned long prot)
+>  
+>  	len &= PAGE_MASK;
+>  	for (; len; len -= PAGE_SIZE, curr += PAGE_SIZE)
+> -		unprotect_page((void *)curr, prot);
+> +		unprotect_dat_entry((void *)curr, prot, 5);
+>  }
+>  
+>  static void setup_identity(pgd_t *pgtable, phys_addr_t start_addr,
+> 
 
-As I mention in another patch, this should be sucked in directly from
-the .h file in kerneldoc format, so that everything stays in sync.  I
-bet almost this whole file can be put into the .h file, look at how drm
-and v4l2 does this in a way that you only have to write the above one
-time, not try to keep it in sync in two different places.
-
-thanks,
-
-greg k-h
