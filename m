@@ -2,122 +2,158 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B5C8C48BE8
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 08:42:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57578C48BDF
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 12:34:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 251A7610CA
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 08:42:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 34817613EB
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 12:34:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233624AbhFRIo7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Jun 2021 04:44:59 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59708 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S233622AbhFRIo5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 18 Jun 2021 04:44:57 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15I8X1ts086417;
-        Fri, 18 Jun 2021 04:42:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=WbzSnA8nbxcmk/DChKVe5ctPYDstqZgdtPrr/A1odZk=;
- b=anGd94GRoGP3ejjfGZmoGJuEgtrxm+2O4ND8aiBWc8oAKKC+NzQ34O5BkUwrh6Llmx71
- t/AR94zUihUiwvxsa9rPeIRZY3jf0Qq4DuxKqSrY5H4FXseQV7OgmumUjRRa6MFDoZ9T
- 1U8DBukm1pAP2+O6FGOYuB9JeURR2UKUm+t8ehEgEGVhfHbNEAUmYLJpDhVQJB8NeM/x
- 0qwjJZhgE9y9xSgbxg/bVrDYW5TBLCPqGpKfOPlVJ8KdBxO5V7Ck+/VeqzNYHZw/MQy4
- 0gdph09Hf5aO4m5xO29TEfR57uGkTT0pSiu+Xazr634cg1tuCfJtHI74T16Fp9E67QlD gA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 398nvavcqj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Jun 2021 04:42:39 -0400
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15I8X3fC086574;
-        Fri, 18 Jun 2021 04:42:38 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 398nvavcpj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Jun 2021 04:42:38 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15I8Wsr6015449;
-        Fri, 18 Jun 2021 08:42:35 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 394mj8u6mj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Jun 2021 08:42:35 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15I8gWB624117562
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 18 Jun 2021 08:42:32 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9584B52052;
-        Fri, 18 Jun 2021 08:42:32 +0000 (GMT)
-Received: from osiris (unknown [9.145.4.27])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 154A75204E;
-        Fri, 18 Jun 2021 08:42:32 +0000 (GMT)
-Date:   Fri, 18 Jun 2021 10:42:30 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
-        linux-s390@vger.kernel.org, linux-next@vger.kernel.org,
-        lkft-triage@lists.linaro.org, Arnd Bergmann <arnd@arndb.de>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>
-Subject: Re: [PATCH] scripts/min-tool-version.sh: Raise minimum clang version
- to 13.0.0 for s390
-Message-ID: <YMxcdv/1taBevSjP@osiris>
-References: <YMtib5hKVyNknZt3@osiris>
- <20210617193139.856957-1-nathan@kernel.org>
+        id S231809AbhFRMgt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Jun 2021 08:36:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47350 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231503AbhFRMgo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Jun 2021 08:36:44 -0400
+Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65DC9C061767
+        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 05:34:33 -0700 (PDT)
+Received: by mail-lj1-x22b.google.com with SMTP id d2so13801643ljj.11
+        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 05:34:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nZ8eZKcheetAVVtntDyOPDczvB8LGNmHxynp06Hwje4=;
+        b=gem9n2oV7siw83AG8SlRs8mVxwOwxCy2gN2ftYt8Cz67bhgXmc2w00MxcPfoZ9mJpB
+         sg/wSDsX34t83RRTKbk6Qs27kQStSxWG3HjPj6/XU2HOoxB14lnA7+ishARi3u47qouL
+         A9ohAwN083OUKOdmoDlEFBPNodXkFN6VPz2ttTDC0uxV7v+gu+6Hw710eM5GaIYooO8/
+         4DUDPjLNVyihbqd7JbECs734pUsTIHIC8tGN5Xt1IgghNHNM+TbucaOhD480OZ4REs27
+         VL6ufqWcV+HYsEvcDPLjJJRwT4Lbxi6EUqfyDmTWaim1b0e8tq3/RkTCwRFcYY1isfOT
+         aZhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nZ8eZKcheetAVVtntDyOPDczvB8LGNmHxynp06Hwje4=;
+        b=oIskUnembjOL0ra4mRq08eXb4Di2wMmRdgyk997/pp0O65sJiOERFdxNbOL2U58c1N
+         xw3vFFz25CcZ+s1moeTWwOdS0k66xN6VgV+ghyGcK7MMzI1HCYR9Y+udAQphvKH6YQJW
+         TPefD6TXFLUDXpUSJH/fpSzk1QH2CbSMP1xcW8/nG8Qx2VwTiBh+nkcLwzHJZgOhpe63
+         8DftsFyhZIWRDZ7qPcf31bQskYhQm/sSX/64BTPQA8Tfr3YMdudfdcPggeJDkN5ItBaE
+         40ZhKV5ieZLyEJDUtqnGTPw2TGdhBEQmviz0xX5htgJDkRQL3Vp/d5mLqnX3i54Yse0n
+         HZwQ==
+X-Gm-Message-State: AOAM532LXHYs5J4Xc1Rg+NL38+YzBEwrgrzpSyBTSXltREib2L7mEGtR
+        jBd+o6IqFGbCK/8DT1Ye8kdphrsiDTv4OsVKRViR2Q==
+X-Google-Smtp-Source: ABdhPJy/SmtmBEa6EeaTOLzSOUyOJ0FCW1v/VcB96xzGJFrUogLnnlSkPebfytnB2OvvIcWiKdLH+1HCeEh87E18VuA=
+X-Received: by 2002:a2e:bf21:: with SMTP id c33mr9245298ljr.28.1624019671303;
+ Fri, 18 Jun 2021 05:34:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210617193139.856957-1-nathan@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4bCbJ863SOOjvOHDFC_wa6hO-bo1QLk6
-X-Proofpoint-ORIG-GUID: xW4I_Z0qNkRAMI_ghInzYLw6jUTbad0d
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-06-18_04:2021-06-15,2021-06-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- bulkscore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
- mlxlogscore=999 malwarescore=0 mlxscore=0 suspectscore=0 clxscore=1011
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106180048
+References: <20210618044819.3690166-1-jingzhangos@google.com>
+ <20210618044819.3690166-4-jingzhangos@google.com> <YMxD/NxAvKkXB2iM@kroah.com>
+In-Reply-To: <YMxD/NxAvKkXB2iM@kroah.com>
+From:   Jing Zhang <jingzhangos@google.com>
+Date:   Fri, 18 Jun 2021 07:34:19 -0500
+Message-ID: <CAAdAUti86QZY+KT+NLnLyYf0P09_p5AWhXMmT7+mSt1r=OVEfA@mail.gmail.com>
+Subject: Re: [PATCH v11 3/7] KVM: stats: Support binary stats retrieval for a VM
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
+        LinuxMIPS <linux-mips@vger.kernel.org>,
+        KVMPPC <kvm-ppc@vger.kernel.org>,
+        LinuxS390 <linux-s390@vger.kernel.org>,
+        Linuxkselftest <linux-kselftest@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
+        David Matlack <dmatlack@google.com>,
+        Ricardo Koller <ricarkol@google.com>,
+        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
+        Fuad Tabba <tabba@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 17, 2021 at 12:31:40PM -0700, Nathan Chancellor wrote:
-> clang versions prior to the current development version of 13.0.0 cannot
-> compile s390 after commit 3abbdfde5a65 ("s390/bitops: use register pair
-> instead of register asm") and the s390 maintainers do not intend to work
-> around this in the kernel. Codify this in scripts/min-tool-version.sh
-> similar to arm64 with GCC 5.1.0 so that there are no reports of broken
-> builds.
-> 
-> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> ---
-> 
-> This should probably go through the s390 tree with Masahiro's ack.
+On Fri, Jun 18, 2021 at 1:58 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Fri, Jun 18, 2021 at 04:48:15AM +0000, Jing Zhang wrote:
+> > Add a VM ioctl to get a statistics file descriptor by which a read
+> > functionality is provided for userspace to read out VM stats header,
+> > descriptors and data.
+> > Define VM statistics descriptors and header for all architectures.
+> >
+> > Reviewed-by: David Matlack <dmatlack@google.com>
+> > Reviewed-by: Ricardo Koller <ricarkol@google.com>
+> > Reviewed-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+> > Reviewed-by: Fuad Tabba <tabba@google.com>
+> > Tested-by: Fuad Tabba <tabba@google.com> #arm64
+> > Signed-off-by: Jing Zhang <jingzhangos@google.com>
+> > ---
+> >  arch/arm64/kvm/guest.c    | 14 +++++++++++++
+> >  arch/mips/kvm/mips.c      | 14 +++++++++++++
+> >  arch/powerpc/kvm/book3s.c | 16 +++++++++++++++
+> >  arch/powerpc/kvm/booke.c  | 16 +++++++++++++++
+> >  arch/s390/kvm/kvm-s390.c  | 19 +++++++++++++++++
+> >  arch/x86/kvm/x86.c        | 24 ++++++++++++++++++++++
+> >  include/linux/kvm_host.h  |  6 ++++++
+> >  virt/kvm/kvm_main.c       | 43 +++++++++++++++++++++++++++++++++++++++
+> >  8 files changed, 152 insertions(+)
+> >
+> > diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
+> > index 4962331d01e6..f456d1defe2b 100644
+> > --- a/arch/arm64/kvm/guest.c
+> > +++ b/arch/arm64/kvm/guest.c
+> > @@ -28,6 +28,20 @@
+> >
+> >  #include "trace.h"
+> >
+> > +struct _kvm_stats_desc kvm_vm_stats_desc[] = {
+> > +     KVM_GENERIC_VM_STATS()
+> > +};
+> > +static_assert(ARRAY_SIZE(kvm_vm_stats_desc) ==
+> > +             sizeof(struct kvm_vm_stat) / sizeof(u64));
+> > +
+> > +struct kvm_stats_header kvm_vm_stats_header = {
+>
+> Can this be const?
+>
+> > +     .name_size = KVM_STATS_NAME_LEN,
+> > +     .count = ARRAY_SIZE(kvm_vm_stats_desc),
+> > +     .desc_offset = sizeof(struct kvm_stats_header) + KVM_STATS_ID_MAXLEN,
+> > +     .data_offset = sizeof(struct kvm_stats_header) + KVM_STATS_ID_MAXLEN +
+> > +                    sizeof(kvm_vm_stats_desc),
+> > +};
+>
+> If it can't be const, what is modified in it that prevents that from
+> happening?
+>
+> thanks,
+>
+> greg k-h
+Yes, it can be const.
 
-Thank's a lot!
-
-I'll add the below text to the commit message, and apply it internally
-first:
-
-[hca@linux.ibm.com: breaking compatibility with older clang compilers
- is intended to finally make use of a feature which allows the
- compiler to allocate even/odd register pairs. This is possible since
- a very long time with gcc, but only since llvm-project commit
- d058262b1471 ("[SystemZ] Support i128 inline asm operands.") with
- clang. Using that feature allows to get rid of error prone register
- asm statements, of which the above named kernel commit is only the
- first of a larger not yet complete series]
+Thanks,
+Jing
