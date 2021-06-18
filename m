@@ -2,109 +2,231 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D000CC48BE8
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 07:01:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0A8FC48BDF
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 07:02:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B06E7610A1
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 07:01:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 79099613AA
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 07:02:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231631AbhFRHDo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Jun 2021 03:03:44 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21908 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229816AbhFRHDo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 18 Jun 2021 03:03:44 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15I6Wkbb151864;
-        Fri, 18 Jun 2021 03:01:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=3Y/QAFCVp/tbF3uU+dnCZ4rNEFIIjcqp7i+8Q9YyBs4=;
- b=WIGmNXfzXqmosz7e9Glp4B0CjWmM/37i7keO4PmnBTIXslq+Tz7Wriv23kssomU3QAj6
- 2AfEkojp930BxgESR0sBugn1fC7UMNmAbF0t6nR3Ssq7zElH8kcn0P6wBNOUnivPq5Y0
- 5q+JulALFCpD/J0DabFozrY/+P8AApvMrtf9JuMncICvQSl8XtsEFTn9KfKXB9R8lsjq
- sxtci4wJYdq8HMD4Pp3V7hUj5R/NNcw8nkXgQZtMOvqrQjpTIOi9hx32f5jLQhpcWLqn
- TDM1DiQ51RhXLsVInqUXrMM+LSq6foNgQIgLn26tr98UJvm7rO8kqs5v7XZTf+S7slBS TQ== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 398jmmen8b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Jun 2021 03:01:31 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15I6uosA000371;
-        Fri, 18 Jun 2021 07:01:29 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 394m6hu4qh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Jun 2021 07:01:29 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15I71QjP33358212
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 18 Jun 2021 07:01:26 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9214942042;
-        Fri, 18 Jun 2021 07:01:26 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 578C14204B;
-        Fri, 18 Jun 2021 07:01:26 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 18 Jun 2021 07:01:26 +0000 (GMT)
-From:   Karsten Graul <kgraul@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Guvenc Gulce <guvenc@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net] MAINTAINERS: add Guvenc as SMC maintainer
-Date:   Fri, 18 Jun 2021 09:00:30 +0200
-Message-Id: <20210618070030.2326320-1-kgraul@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: lesYsBQDwGiSUuoYYcFaOkJw88WXzxHp
-X-Proofpoint-GUID: lesYsBQDwGiSUuoYYcFaOkJw88WXzxHp
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S231838AbhFRHEW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Jun 2021 03:04:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44268 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232059AbhFRHEV (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 18 Jun 2021 03:04:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCE746100A;
+        Fri, 18 Jun 2021 07:02:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623999732;
+        bh=lPwhwKYjLCuBb8iHU8Fh4mII4hR3kacqcXifOpUboVE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=pd4DtYq3djICAHUOSGQlUqCHGrPLaz23j7yHmMvA9IlMEFXXRx5TcHYpUNnHS+cZZ
+         e7k1Q3mzozRQaz8RD5qRcWMEBdzePEi3+EUkbh7Nd/z6fcmVdiDgihCW3nyPzogDR0
+         2b10gOywi6w5pc+tS/hdE6hw/4+bnU2P58rz9in0=
+Date:   Fri, 18 Jun 2021 09:02:10 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jing Zhang <jingzhangos@google.com>
+Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
+        LinuxMIPS <linux-mips@vger.kernel.org>,
+        KVMPPC <kvm-ppc@vger.kernel.org>,
+        LinuxS390 <linux-s390@vger.kernel.org>,
+        Linuxkselftest <linux-kselftest@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
+        David Matlack <dmatlack@google.com>,
+        Ricardo Koller <ricarkol@google.com>,
+        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
+        Fuad Tabba <tabba@google.com>
+Subject: Re: [PATCH v11 5/7] KVM: stats: Add documentation for binary
+ statistics interface
+Message-ID: <YMxE8pUrbQkwlpbD@kroah.com>
+References: <20210618044819.3690166-1-jingzhangos@google.com>
+ <20210618044819.3690166-6-jingzhangos@google.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-06-17_17:2021-06-15,2021-06-17 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 clxscore=1015 mlxlogscore=833 phishscore=0
- lowpriorityscore=0 impostorscore=0 mlxscore=0 malwarescore=0 bulkscore=0
- suspectscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2104190000 definitions=main-2106180037
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210618044819.3690166-6-jingzhangos@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add Guvenc as maintainer for Shared Memory Communications (SMC)
-Sockets.
+On Fri, Jun 18, 2021 at 04:48:17AM +0000, Jing Zhang wrote:
+> This new API provides a file descriptor for every VM and VCPU to read
+> KVM statistics data in binary format.
+> It is meant to provide a lightweight, flexible, scalable and efficient
+> lock-free solution for user space telemetry applications to pull the
+> statistics data periodically for large scale systems. The pulling
+> frequency could be as high as a few times per second.
+> The statistics descriptors are defined by KVM in kernel and can be
+> by userspace to discover VM/VCPU statistics during the one-time setup
+> stage.
+> The statistics data itself could be read out by userspace telemetry
+> periodically without any extra parsing or setup effort.
+> There are a few existed interface protocols and definitions, but no
+> one can fulfil all the requirements this interface implemented as
+> below:
+> 1. During high frequency periodic stats reading, there should be no
+>    extra efforts except the stats data read itself.
+> 2. Support stats annotation, like type (cumulative, instantaneous,
+>    peak, histogram, etc) and unit (counter, time, size, cycles, etc).
+> 3. The stats data reading should be free of lock/synchronization. We
+>    don't care about the consistency between all the stats data. All
+>    stats data can not be read out at exactly the same time. We really
+>    care about the change or trend of the stats data. The lock-free
+>    solution is not just for efficiency and scalability, also for the
+>    stats data accuracy and usability. For example, in the situation
+>    that all the stats data readings are protected by a global lock,
+>    if one VCPU died somehow with that lock held, then all stats data
+>    reading would be blocked, then we have no way from stats data that
+>    which VCPU has died.
+> 4. The stats data reading workload can be handed over to other
+>    unprivileged process.
+> 
+> Reviewed-by: David Matlack <dmatlack@google.com>
+> Reviewed-by: Ricardo Koller <ricarkol@google.com>
+> Reviewed-by: Krish Sadhukhan <krish.sadhukhan@oracle.com>
+> Reviewed-by: Fuad Tabba <tabba@google.com>
+> Signed-off-by: Jing Zhang <jingzhangos@google.com>
+> ---
+>  Documentation/virt/kvm/api.rst | 176 ++++++++++++++++++++++++++++++++-
+>  1 file changed, 175 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+> index e328caa35d6c..7ca1c8d190c0 100644
+> --- a/Documentation/virt/kvm/api.rst
+> +++ b/Documentation/virt/kvm/api.rst
+> @@ -5034,7 +5034,6 @@ see KVM_XEN_VCPU_SET_ATTR above.
+>  The KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADJUST type may not be used
+>  with the KVM_XEN_VCPU_GET_ATTR ioctl.
+>  
+> -
+>  4.131 KVM_GET_SREGS2
+>  ------------------
+>  
+> @@ -5081,6 +5080,173 @@ Writes special registers into the vcpu.
+>  See KVM_GET_SREGS2 for the data structures.
+>  This ioctl (when supported) replaces the KVM_SET_SREGS.
+>  
+> +4.133 KVM_GET_STATS_FD
+> +----------------------
+> +
+> +:Capability: KVM_CAP_STATS_BINARY_FD
+> +:Architectures: all
+> +:Type: vm ioctl, vcpu ioctl
+> +:Parameters: none
+> +:Returns: statistics file descriptor on success, < 0 on error
+> +
+> +Errors:
+> +
+> +  ======     ======================================================
+> +  ENOMEM     if the fd could not be created due to lack of memory
+> +  EMFILE     if the number of opened files exceeds the limit
+> +  ======     ======================================================
+> +
+> +The file descriptor can be used to read VM/vCPU statistics data in binary
+> +format. The file data is organized into three blocks as below:
+> ++-------------+
+> +|   Header    |
+> ++-------------+
+> +| Descriptors |
+> ++-------------+
+> +| Stats Data  |
+> ++-------------+
+> +
+> +The Header block is always at the start of the file. It is only needed to be
+> +read one time for the lifetime of the file descriptor.
+> +It is in the form of ``struct kvm_stats_header`` as below::
+> +
+> +	#define KVM_STATS_ID_MAXLEN		64
+> +
+> +	struct kvm_stats_header {
+> +		__u32 name_size;
+> +		__u32 count;
+> +		__u32 desc_offset;
+> +		__u32 data_offset;
+> +		char id[];
+> +	};
+> +
+> +The ``id`` field is a '\0' terminated string which identifies the corresponding
+> +KVM statistics. For VM statistics, it is in the form of "kvm-{kvm pid}", like
+> +"kvm-12345". For VCPU statistics, it is in the form of
+> +"kvm-{kvm pid}/vcpu-{vcpu id}", like "kvm-12345/vcpu-12".
+> +
+> +The ``name_size`` field is the size (in byte) of the statistics name string
+> +(including trailing '\0') appended to the end of every statistics descriptor.
+> +
+> +The ``count`` field is the number of statistics.
+> +
+> +The ``desc_offset`` field is the offset of the Descriptors block from the start
+> +of the file indicated by the file descriptor.
+> +
+> +The ``data_offset`` field is the offset of the Stats Data block from the start
+> +of the file indicated by the file descriptor.
+> +
+> +The Descriptors block is only needed to be read once for the lifetime of the
+> +file descriptor. It is an array of ``struct kvm_stats_desc`` as shown in
+> +below code block::
+> +
+> +	#define KVM_STATS_TYPE_SHIFT		0
+> +	#define KVM_STATS_TYPE_MASK		(0xF << KVM_STATS_TYPE_SHIFT)
+> +	#define KVM_STATS_TYPE_CUMULATIVE	(0x0 << KVM_STATS_TYPE_SHIFT)
+> +	#define KVM_STATS_TYPE_INSTANT		(0x1 << KVM_STATS_TYPE_SHIFT)
+> +	#define KVM_STATS_TYPE_MAX		KVM_STATS_TYPE_INSTANT
+> +
+> +	#define KVM_STATS_UNIT_SHIFT		4
+> +	#define KVM_STATS_UNIT_MASK		(0xF << KVM_STATS_UNIT_SHIFT)
+> +	#define KVM_STATS_UNIT_NONE		(0x0 << KVM_STATS_UNIT_SHIFT)
+> +	#define KVM_STATS_UNIT_BYTES		(0x1 << KVM_STATS_UNIT_SHIFT)
+> +	#define KVM_STATS_UNIT_SECONDS		(0x2 << KVM_STATS_UNIT_SHIFT)
+> +	#define KVM_STATS_UNIT_CYCLES		(0x3 << KVM_STATS_UNIT_SHIFT)
+> +	#define KVM_STATS_UNIT_MAX		KVM_STATS_UNIT_CYCLES
+> +
+> +	#define KVM_STATS_BASE_SHIFT		8
+> +	#define KVM_STATS_BASE_MASK		(0xF << KVM_STATS_BASE_SHIFT)
+> +	#define KVM_STATS_BASE_POW10		(0x0 << KVM_STATS_BASE_SHIFT)
+> +	#define KVM_STATS_BASE_POW2		(0x1 << KVM_STATS_BASE_SHIFT)
+> +	#define KVM_STATS_BASE_MAX		KVM_STATS_BASE_POW2
+> +
+> +	struct kvm_stats_desc {
+> +		__u32 flags;
+> +		__s16 exponent;
+> +		__u16 size;
+> +		__u32 offset;
+> +		__u32 unused;
+> +		char name[];
+> +	};
 
-Cc: Julian Wiedmann <jwi@linux.ibm.com>
-Acked-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+As I mention in another patch, this should be sucked in directly from
+the .h file in kerneldoc format, so that everything stays in sync.  I
+bet almost this whole file can be put into the .h file, look at how drm
+and v4l2 does this in a way that you only have to write the above one
+time, not try to keep it in sync in two different places.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 183cc61e2dc0..5046e55dc7f3 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -16571,6 +16571,7 @@ F:	drivers/misc/sgi-xp/
- 
- SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
- M:	Karsten Graul <kgraul@linux.ibm.com>
-+M:	Guvenc Gulce <guvenc@linux.ibm.com>
- L:	linux-s390@vger.kernel.org
- S:	Supported
- W:	http://www.ibm.com/developerworks/linux/linux390/
--- 
-2.25.1
+thanks,
 
+greg k-h
