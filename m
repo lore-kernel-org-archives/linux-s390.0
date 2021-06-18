@@ -2,205 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13C25C48BDF
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 13:03:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7220C48BDF
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 14:01:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E772D61205
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 13:03:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8AFF761209
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Jun 2021 14:01:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232515AbhFRNFO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Jun 2021 09:05:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53864 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232389AbhFRNFN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Jun 2021 09:05:13 -0400
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FD4FC061760
-        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 06:03:03 -0700 (PDT)
-Received: by mail-lj1-x236.google.com with SMTP id k8so13841359lja.4
-        for <linux-s390@vger.kernel.org>; Fri, 18 Jun 2021 06:03:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=sEclsuEWMpJAtZre1q7afze1RnKMopUqEN3Jq0eFLJo=;
-        b=vWbKHgBItt8O7lINA7KgYjqeNkMrhXk8Vo4/mwzHt+XzDHF8TwoTLudfyISLKu6e4E
-         crEoUad+aXxFkZUoUzykuOPLXpriwUyBVa9xD/29tvlKgKsc5veLSdSs0P8uStI83p6J
-         IOpxlJyoPzpIyURxXbWjcWr7jsnP6TrgAuFYCQuahJJpg/9IjrJXQVaGo6+I35vTmLQW
-         2hHg/yrkx6UZ8hw+T45mpqVwes2HiyNqHTDc9ltDAtxIZ2oThwvBodTxWmAlYDJZ39oe
-         zQ0v1ar5jAXbN2cs6bmCH09I7Amcqg8oZDxc1oLafArpZfJzE/dmGXxUQRHSEt4uGj35
-         EDYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=sEclsuEWMpJAtZre1q7afze1RnKMopUqEN3Jq0eFLJo=;
-        b=Itaf4hkDfOeQIUqwW2LRkqV68fZcu4ZmXfCVZeSa2A5ucoaK48suz8ueAO979ZcFAf
-         PJapzmkguaLveimoJjhTPbMd3JKVWdMPmA4oLrS0TMfjxcuvN0TUq175mQ0JMemTn1f8
-         bit8/5P3Aa+cKkPdqsAQrzmOqkjnb6h/yZ2h/s1YtlJ3Rg8mNz93YV7Bdo681qj9j+Zk
-         3dfyKajWsVjhQVEaVNRLT0f/561rq40V9wFeLMrkLVvOjqfSLeYMHv9k5ZY44Eejvzu0
-         0K4au/z/wq+D7fV56WGCh3A1QIsMDxDHV/PzkxoggFOZXG515pe0xzb1QGlTXR1ytpyz
-         eAEA==
-X-Gm-Message-State: AOAM530VJb21VVObveJ9BLJ814I1GnP0Bl1w20zUa1Fe4n7gJUsBvYG5
-        IhefROUYhc/LQRjzx9qoMXiNvDcsp9o6DP1vs/erfw==
-X-Google-Smtp-Source: ABdhPJwYJQdcIEytkrMx0Wz3wvyodJYH5zp4XXjs8/9Vx6hj1aP7xcJZkVdJWvuJ4nqyknxb0IdsL0leVGFcKnX9GTM=
-X-Received: by 2002:a05:651c:150a:: with SMTP id e10mr9521276ljf.215.1624021379799;
- Fri, 18 Jun 2021 06:02:59 -0700 (PDT)
+        id S232136AbhFRODz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Jun 2021 10:03:55 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29654 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S230387AbhFRODz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 18 Jun 2021 10:03:55 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15IDWpU2196043;
+        Fri, 18 Jun 2021 10:01:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=+pWbFSs9Iel7c/V4vUdVowfVW9cWcsmHw41QoLDbzW8=;
+ b=YTD5/cbMFv9IuLeOoGsQWoGW0Gfxwj+FxhcdHlpa48ph50pikgjitgxUdC9aycgmJNLd
+ hfsH33kp8DXwJfzA59KRNFJ2O9NSKa7G8/20VEHVw6Ju0hcLQJXAfwRcv+EUgLqkAY+P
+ S9HkBwo0MUsfaQzLP50IMRpl8Bi+Ywp+9oqcdDgKVMCfiX7dKkrSYr+hBjU0oaZX/pdV
+ 6niErhE4HZvtXvfj1eJ+05mFiMfgwDAIn6mvAsSH3iW92WW90I+iimLZJjBVX/iDnFO7
+ +1ixS3Poz1gV2tBhGXqEjfrAqp/PAklcCdLpbg07L7oXzcVtO2KhbtCCyFAVV8wJJG4f kA== 
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 398veu10x8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Jun 2021 10:01:38 -0400
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15IDXYKo028789;
+        Fri, 18 Jun 2021 13:35:25 GMT
+Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
+        by ppma03dal.us.ibm.com with ESMTP id 394mjantaj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Jun 2021 13:35:25 +0000
+Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
+        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15IDZOmD20971892
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 18 Jun 2021 13:35:24 GMT
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B0FD5124053;
+        Fri, 18 Jun 2021 13:35:24 +0000 (GMT)
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6BE9C124055;
+        Fri, 18 Jun 2021 13:35:24 +0000 (GMT)
+Received: from jason-laptop.ibmuc.com (unknown [9.85.129.236])
+        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri, 18 Jun 2021 13:35:24 +0000 (GMT)
+From:   "Jason J. Herne" <jjherne@linux.ibm.com>
+To:     linux-s390@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, pasic@linux.ibm.com,
+        akrowiak@linux.ibm.com, jgg@nvidia.com
+Subject: [PATCH] s390/vfio-ap: Fix module unload memory leak of matrix_dev
+Date:   Fri, 18 Jun 2021 09:35:24 -0400
+Message-Id: <20210618133524.22386-1-jjherne@linux.ibm.com>
+X-Mailer: git-send-email 2.21.1
 MIME-Version: 1.0
-References: <20210618044819.3690166-1-jingzhangos@google.com>
- <20210618044819.3690166-3-jingzhangos@google.com> <YMxEqvKyGnZinMOS@kroah.com>
- <f2616b8e-0cf8-570f-4bd3-7ef5cbcb37b0@gnu.org> <YMxYC8syYRBhbBAq@kroah.com>
-In-Reply-To: <YMxYC8syYRBhbBAq@kroah.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Fri, 18 Jun 2021 08:02:48 -0500
-Message-ID: <CAAdAUticeB2Rr8g5eywPvHGGYfsXV=mNA4mNbd4thAae9zbXWA@mail.gmail.com>
-Subject: Re: [PATCH v11 2/7] KVM: stats: Add fd-based API to read binary stats data
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Paolo Bonzini <bonzini@gnu.org>, KVM <kvm@vger.kernel.org>,
-        KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
-        David Matlack <dmatlack@google.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
-        Fuad Tabba <tabba@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: fjSSk91C9yEJ3whwbg-z7CYgn84sDl3n
+X-Proofpoint-ORIG-GUID: fjSSk91C9yEJ3whwbg-z7CYgn84sDl3n
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-18_07:2021-06-18,2021-06-18 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ lowpriorityscore=0 malwarescore=0 priorityscore=1501 adultscore=0
+ mlxlogscore=999 spamscore=0 clxscore=1015 impostorscore=0 suspectscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106180079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 18, 2021 at 3:23 AM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Fri, Jun 18, 2021 at 10:02:57AM +0200, Paolo Bonzini wrote:
-> > On 18/06/21 09:00, Greg KH wrote:
-> > > > +struct kvm_stats_header {
-> > > > + __u32 name_size;
-> > > > + __u32 count;
-> > > > + __u32 desc_offset;
-> > > > + __u32 data_offset;
-> > > > + char id[];
-> > > > +};
-> > >
-> > > You mentioned before that the size of this really is the size of the
-> > > structure + KVM_STATS_ID_MAXLEN, right?  Or is it - KVM_STATS_ID_MAXLEN?
-> > >
-> > > If so, why not put that value explicitly in:
-> > >     char id[THE_REST_OF_THE_HEADER_SPACE];
-> > >
-> > > As this is not a variable header size at all, and you can not change it
-> > > going forward, so the variable length array here feels disingenuous.
-> >
-> > It can change; the header goes up to desc_offset.  Let's rename desc_offset
-> > to header_size.
->
-> "Traditionally" the first field of a variable length structure like this
-> has the size.  So maybe this needs to be:
->
-> struct kvm_stats_header {
->         __u32 header_size;
->         __u32 name_size;
->         __u32 num_desc;
->         __u32 desc_offset;
->         __u32 data_offset;
->         char id[];
-> };
->
-> I just guessed at what "count" is as I do not remember at the moment,
-> but obviously "count" wasn't descriptive :)
->
-> Wait, what is "name_size" here for?
->
-> > > > +struct kvm_stats_desc {
-> > > > + __u32 flags;
-> > > > + __s16 exponent;
-> > > > + __u16 size;
-> > > > + __u32 offset;
-> > > > + __u32 unused;
-> > > > + char name[];
-> > > > +};
-> > >
-> > > What is the max length of name?
-> >
-> > It's name_size in the header.
->
-> So it's specified in the _previous_ header?  That feels wrong, shouldn't
-> this descriptor define what is in it?
->
-> I'm not trying to nit-pick here, I'm actually confused now.  Structures
-> that contain "headers" should have in those headers at least two things:
->         - declare the size of themselves if they are variable length
->         - declare offsets to other structures
->
-> Don't put a size in this header for the size of a later structure,
-> that's just extra complexity that is not needed.
->
-> Think of this as a stream of bytes across the wire like a hardware
-> descriptor.  We have loads of experience dealing with this with
-> protocols like USB and Greybus and PCI and the like.  Let's learn from
-> those experiences and not try to mess things up where we don't need to
-> :)
->
->
-The name_size in the header is necessary for userspace to discover the
-length of a descriptor of a KVM statistics, since the size of name[] in every
-descriptor could be different (increased) in future versions.
-One thing worth mentioning is that, for every file content, there is only one
-header, but many descriptors, that's why it makes sense to have the size of
-name[] in the header instead of in the descriptor. We don't want every
-descriptor contain the same duplicated information.
-> >
-> > > Why aren't these structures defined here in kerneldoc so that we can
-> > > understand them better?  Putting them in a .rst file guarantees they
-> > > will get out of sync, and you can always directly import the kerneldoc
-> > > into the .rst file.
-> >
-> > This is a problem in general with Documentation/virt/kvm/api.rst.  The file
-> > is organized to match the kerneldoc structs to the ioctl that they are used
-> > for, and sometimes a ioctl includes different structs for each architecture.
-> >
-> > It is probably possible to do it using :identifiers: and/or :doc:, but it
-> > would require running scripts/kernel-doc on the uAPI headers dozens of
-> > times.  That is quite expensive at 0.3s each run, but that's what you get
-> > with Perl (gcc -fsyntax-only is 20 times faster).
->
-> Is that what v4l and drm do today?  That's still safer and more
-> "obvious" than trying to keep two different files in sync which, as I
-> well know, almost impossible to do well over the _years_ in which you
-> will have to maintain these files.
->
-> Let's make it easier for everyone, put it only in one place and if
-> people want to see the documentation, they can generate it (it's
-> auto-generated on kernel.org anyway), no need to worry about multiple
-> passes or not.
->
-> thanks,
->
-> greg k-h
+vfio_ap_matrix_dev_release is shadowing the global matrix_dev with driver
+data that never gets set. So when release is called we end up not freeing
+matrix_dev. The fix is to remove the shadow variable and just free the
+global.
+
+Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_drv.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 7dc72cb718b0..6d3eea838e18 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -82,8 +82,6 @@ static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
+ 
+ static void vfio_ap_matrix_dev_release(struct device *dev)
+ {
+-	struct ap_matrix_dev *matrix_dev = dev_get_drvdata(dev);
+-
+ 	kfree(matrix_dev);
+ }
+ 
+-- 
+2.21.1
+
