@@ -2,113 +2,65 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DA3AC2B9F4
-	for <linux-s390@archiver.kernel.org>; Sat, 19 Jun 2021 13:50:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63231C2B9F4
+	for <linux-s390@archiver.kernel.org>; Sat, 19 Jun 2021 15:42:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ED2A56108D
-	for <linux-s390@archiver.kernel.org>; Sat, 19 Jun 2021 13:50:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 37FF861208
+	for <linux-s390@archiver.kernel.org>; Sat, 19 Jun 2021 15:42:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234299AbhFSNwq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 19 Jun 2021 09:52:46 -0400
-Received: from mx0a-00069f02.pphosted.com ([205.220.165.32]:49798 "EHLO
-        mx0a-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233286AbhFSNwp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 19 Jun 2021 09:52:45 -0400
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15JDfU9a001476;
-        Sat, 19 Jun 2021 13:50:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : mime-version : content-type; s=corp-2020-01-29;
- bh=fUFibJKIGfvBlh67WobNWiEPQ/LHu5d3Lu+y7hD2fNA=;
- b=h6L4Af7qXCctR1ZXd8Rb3tgtMGTATUEL8eYKKqbyVZEQNHTQa2sHcmbX4yy21AVwCRzd
- kVwBaOdyLAduFD1J3znyMj2wI40QfEYfRKuWOPu/N3WnZ2ysfOoMklqo6cMNRr6d6VOs
- ArUDbNnzrd65cF8kGilw0pZqfmEXZ+jEQ2eMx6U4MnCzgIKqviJ6CVKEfo4YSkKWfjJH
- uUT2cbcrc/74npm/uh3a3FgQKVhuYj8hVwsgt2LqvaKmwsAX4FGDVE5NItvuDtbTHe0E
- k/1idM3D7cJ0d5aBXZEJwiZWYNk4xyA7/o2LSS1/I8y6Hf5HebvNlG5+bd48I+SBHQ/w uQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by mx0b-00069f02.pphosted.com with ESMTP id 39994r0dky-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 19 Jun 2021 13:50:33 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 15JDde37184874;
-        Sat, 19 Jun 2021 13:50:32 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by userp3020.oracle.com with ESMTP id 3997wkdk0h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 19 Jun 2021 13:50:32 +0000
-Received: from userp3020.oracle.com (userp3020.oracle.com [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 15JDoVFM007727;
-        Sat, 19 Jun 2021 13:50:31 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3020.oracle.com with ESMTP id 3997wkdk0a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 19 Jun 2021 13:50:31 +0000
-Received: from abhmp0016.oracle.com (abhmp0016.oracle.com [141.146.116.22])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 15JDoTXj021041;
-        Sat, 19 Jun 2021 13:50:30 GMT
-Received: from mwanda (/102.222.70.252)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Sat, 19 Jun 2021 06:50:29 -0700
-Date:   Sat, 19 Jun 2021 16:50:21 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>,
-        Guvenc Gulce <guvenc@linux.ibm.com>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: [PATCH net-next] net/smc: Fix ENODATA tests in
- smc_nl_get_fback_stats()
-Message-ID: <YM32HV7psa+PrmbV@mwanda>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Mailer: git-send-email haha only kidding
-X-Proofpoint-ORIG-GUID: kiXXC2ODaM7vfAZsxU6dD5nASHzANwrr
-X-Proofpoint-GUID: kiXXC2ODaM7vfAZsxU6dD5nASHzANwrr
+        id S234610AbhFSPoh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 19 Jun 2021 11:44:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55768 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230334AbhFSPoh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 19 Jun 2021 11:44:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id 370D2610CC;
+        Sat, 19 Jun 2021 15:42:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1624117346;
+        bh=UEx7JsLWs3YweEcAuCrV4l6miBkaGBw2fHoihfrxjNs=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=hC74k2FyQ+ckjlmxm9myrkf8d3gHHO4MvqQjbP+U8/KpNhJAU6gt6VZgrdCp8TQw0
+         UeMl5f1dhLP4HdoqlyQXtv1xUMvik6DmtaKAJxMnPSzJj5rXwRvCVTKV6L84tBTWQy
+         c+vS7Gs/54CxUscMXDRoo7W2t5xdgIHyJMhAuSVwwdxT9QuFUQUg9vfmtocJSA0lvX
+         lGp+UeOGKaZ9Efu4wVk1ZlPhAJnSfM5tpLomXb/Nkx8WKJ6CdLBD7xx8YnNTpNXDy9
+         l5LXbCFlEQvw4NUt7osZaLoCpY/xkoExxXPeuMldc7Po3j2XBV+O8ICnZn7jT8B9qn
+         O83qxpNh/lqyw==
+Subject: Re: [GIT PULL] s390 fixes for 5.13-rc7
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <your-ad-here.call-01624097356-ext-0352@work.hours>
+References: <your-ad-here.call-01624097356-ext-0352@work.hours>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <your-ad-here.call-01624097356-ext-0352@work.hours>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.13-4
+X-PR-Tracked-Commit-Id: e73a99f3287a740a07d6618e9470f4d6cb217da8
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: e14c779adebebe4b4aeeefb3cc09f376bec966c5
+Message-Id: <162411734609.28673.12097642456413544328.pr-tracker-bot@kernel.org>
+Date:   Sat, 19 Jun 2021 15:42:26 +0000
+To:     Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-These functions return negative ENODATA but the minus sign was left out
-in the tests.
+The pull request you sent on Sat, 19 Jun 2021 12:09:16 +0200:
 
-Fixes: f0dd7bf5e330 ("net/smc: Add netlink support for SMC fallback statistics")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
----
- net/smc/smc_stats.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.13-4
 
-diff --git a/net/smc/smc_stats.c b/net/smc/smc_stats.c
-index 614013e3b574..e80e34f7ac15 100644
---- a/net/smc/smc_stats.c
-+++ b/net/smc/smc_stats.c
-@@ -393,17 +393,17 @@ int smc_nl_get_fback_stats(struct sk_buff *skb, struct netlink_callback *cb)
- 			continue;
- 		if (!skip_serv) {
- 			rc_srv = smc_nl_get_fback_details(skb, cb, k, is_srv);
--			if (rc_srv && rc_srv != ENODATA)
-+			if (rc_srv && rc_srv != -ENODATA)
- 				break;
- 		} else {
- 			skip_serv = 0;
- 		}
- 		rc_clnt = smc_nl_get_fback_details(skb, cb, k, !is_srv);
--		if (rc_clnt && rc_clnt != ENODATA) {
-+		if (rc_clnt && rc_clnt != -ENODATA) {
- 			skip_serv = 1;
- 			break;
- 		}
--		if (rc_clnt == ENODATA && rc_srv == ENODATA)
-+		if (rc_clnt == -ENODATA && rc_srv == -ENODATA)
- 			break;
- 	}
- 	mutex_unlock(&net->smc.mutex_fback_rsn);
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/e14c779adebebe4b4aeeefb3cc09f376bec966c5
+
+Thank you!
+
 -- 
-2.30.2
-
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
