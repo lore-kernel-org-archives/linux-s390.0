@@ -2,113 +2,175 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 972ACC48BDF
-	for <linux-s390@archiver.kernel.org>; Sat, 19 Jun 2021 00:47:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C224C2B9F4
+	for <linux-s390@archiver.kernel.org>; Sat, 19 Jun 2021 10:09:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6778561175
-	for <linux-s390@archiver.kernel.org>; Sat, 19 Jun 2021 00:47:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E3685601FD
+	for <linux-s390@archiver.kernel.org>; Sat, 19 Jun 2021 10:09:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233964AbhFSAtZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Jun 2021 20:49:25 -0400
-Received: from condef-06.nifty.com ([202.248.20.71]:61296 "EHLO
-        condef-06.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231819AbhFSAtZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Jun 2021 20:49:25 -0400
-Received: from conssluserg-01.nifty.com ([10.126.8.80])by condef-06.nifty.com with ESMTP id 15J0fp16018982;
-        Sat, 19 Jun 2021 09:41:51 +0900
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177]) (authenticated)
-        by conssluserg-01.nifty.com with ESMTP id 15J0fX4i023124;
-        Sat, 19 Jun 2021 09:41:34 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-01.nifty.com 15J0fX4i023124
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1624063294;
-        bh=rgoVu9s2Lg12uiAiITbRcgtOyYtubRfPM7v3On3I0M0=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=daAdGjs28g30IPWg7XdtQBylWOApwujBahnizJyGJakCPDjQPAd+6vGhq+YyQiYop
-         rCdAm+OPAS5bHGWhvMAzagNgxgKOGUS9BSqtpUCczZ7CnDPErs4xK7npr8b4K4g3Mr
-         Y5P/TeEHSwpbLiRcVM61GcNvfgHCgXj0sJJSd85+yQm793xtj91SHR3xKdQIQBCB7Y
-         TgYXtL/b5Q9n8qmvXCR8vQsGje1iPfCENW92h16GCyGIj1arcAoucJO0h2S1BJVQ2H
-         sNM5mNUHH5C+3PWTpkL7wrEARgvhayYye2qZ4gsecqkuIzPiQHCiCa348i/ypxDgO0
-         +R9AUx/GKgFbw==
-X-Nifty-SrcIP: [209.85.210.177]
-Received: by mail-pf1-f177.google.com with SMTP id g192so1317832pfb.6;
-        Fri, 18 Jun 2021 17:41:33 -0700 (PDT)
-X-Gm-Message-State: AOAM532RrL6A+xhtVPb/CEjwGLdWQG1YKnXxV/8c3KbMaKSzJNxYLmDk
-        XWi3TgER8gKu8Y8FG7LejTmZ9WfE5EuoxawfwEM=
-X-Google-Smtp-Source: ABdhPJys4dgtJ91FHTIG4s3fzPBxyjCYxPLtFM7ZixFRuX74DyHqpTXy7cs5r/zTPeXzcPfXUvTKi9eb6GtjE5+ul4g=
-X-Received: by 2002:a63:36c1:: with SMTP id d184mr12522722pga.47.1624063293183;
- Fri, 18 Jun 2021 17:41:33 -0700 (PDT)
-MIME-Version: 1.0
-References: <YMtib5hKVyNknZt3@osiris> <20210617193139.856957-1-nathan@kernel.org>
- <YMxcdv/1taBevSjP@osiris>
-In-Reply-To: <YMxcdv/1taBevSjP@osiris>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Sat, 19 Jun 2021 09:40:55 +0900
-X-Gmail-Original-Message-ID: <CAK7LNARuSmPCEy-ak0erPrPTgZdGVypBROFhtw+=3spoGoYsyw@mail.gmail.com>
-Message-ID: <CAK7LNARuSmPCEy-ak0erPrPTgZdGVypBROFhtw+=3spoGoYsyw@mail.gmail.com>
-Subject: Re: [PATCH] scripts/min-tool-version.sh: Raise minimum clang version
- to 13.0.0 for s390
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S230006AbhFSKLf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 19 Jun 2021 06:11:35 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49288 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231129AbhFSKLf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 19 Jun 2021 06:11:35 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15JA3u5k046752;
+        Sat, 19 Jun 2021 06:09:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=N5uN7fL2W8wsD4fRWosX357FzY+k/1QQqQWJ9ns8alw=;
+ b=R8crEZfwHzZaKFXP270kA4KnPdwovgHTE7NmdZt3LJtWZ26gt9ok5KMtzooKO4oSzNp0
+ xN73EJUAKSqXhkxcbmIdmGDfUcqc2xlS2Owton4oVfxygINUKNlyiZ9nT1cNdIDuZmNp
+ XwQGcr8nOginhXy8W0Dy4KLAeDkEeswcJSE1TgDPDxatp8We+LeX4369C08Co0xZXRKq
+ Bun1zeGCnFTWCChoOh03GS1BnkmmcV2KQzGNbHuB/+G878xWUDg472k2PajMCCbRJPMg
+ U9kLG9dm5v0x6WYEWsUUWj7GtARLD2HkY8dhtkYhGaVjfbfFhcuPVjXJOW3vqW/oHQeN 1w== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 399ee186dw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 19 Jun 2021 06:09:23 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15JA2t5o006515;
+        Sat, 19 Jun 2021 10:09:20 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 399878835j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 19 Jun 2021 10:09:20 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15JA9H4S32375126
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 19 Jun 2021 10:09:17 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B540F5204E;
+        Sat, 19 Jun 2021 10:09:17 +0000 (GMT)
+Received: from localhost (unknown [9.171.5.120])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 67CC152051;
+        Sat, 19 Jun 2021 10:09:17 +0000 (GMT)
+Date:   Sat, 19 Jun 2021 12:09:16 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-Next Mailing List <linux-next@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, Arnd Bergmann <arnd@arndb.de>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 fixes for 5.13-rc7
+Message-ID: <your-ad-here.call-01624097356-ext-0352@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: nqoF9TORFSUi7k1HF-uNBDQlMxIi76r5
+X-Proofpoint-ORIG-GUID: nqoF9TORFSUi7k1HF-uNBDQlMxIi76r5
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-19_09:2021-06-18,2021-06-19 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ mlxlogscore=999 lowpriorityscore=0 adultscore=0 phishscore=0
+ impostorscore=0 clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106190066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jun 18, 2021 at 5:42 PM Heiko Carstens <hca@linux.ibm.com> wrote:
->
-> On Thu, Jun 17, 2021 at 12:31:40PM -0700, Nathan Chancellor wrote:
-> > clang versions prior to the current development version of 13.0.0 cannot
-> > compile s390 after commit 3abbdfde5a65 ("s390/bitops: use register pair
-> > instead of register asm") and the s390 maintainers do not intend to work
-> > around this in the kernel. Codify this in scripts/min-tool-version.sh
-> > similar to arm64 with GCC 5.1.0 so that there are no reports of broken
-> > builds.
-> >
-> > Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-> > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> > ---
-> >
-> > This should probably go through the s390 tree with Masahiro's ack.
+Hello Linus,
 
-Acked-by: Masahiro Yamada <masahiroy@kernel.org>
+please pull s390 fixes for 5.13-rc7.
 
+Thank you,
+Vasily
 
-> Thank's a lot!
->
-> I'll add the below text to the commit message, and apply it internally
-> first:
->
-> [hca@linux.ibm.com: breaking compatibility with older clang compilers
->  is intended to finally make use of a feature which allows the
->  compiler to allocate even/odd register pairs. This is possible since
->  a very long time with gcc, but only since llvm-project commit
->  d058262b1471 ("[SystemZ] Support i128 inline asm operands.") with
->  clang. Using that feature allows to get rid of error prone register
->  asm statements, of which the above named kernel commit is only the
->  first of a larger not yet complete series]
->
-> --
-> You received this message because you are subscribed to the Google Groups "Clang Built Linux" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to clang-built-linux+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/clang-built-linux/YMxcdv/1taBevSjP%40osiris.
+The following changes since commit 614124bea77e452aa6df7a8714e8bc820b489922:
 
+  Linux 5.13-rc5 (2021-06-06 15:47:27 -0700)
 
+are available in the Git repository at:
 
--- 
-Best Regards
-Masahiro Yamada
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.13-4
+
+for you to fetch changes up to e73a99f3287a740a07d6618e9470f4d6cb217da8:
+
+  s390/ap: Fix hanging ioctl caused by wrong msg counter (2021-06-16 23:32:02 +0200)
+
+----------------------------------------------------------------
+- Fix zcrypt ioctl hang due to AP queue msg counter dropping below 0 when
+  pending requests are purged.
+
+- Two fixes for the machine check handler in the entry code.
+
+----------------------------------------------------------------
+Alexander Gordeev (2):
+      s390/mcck: fix calculation of SIE critical section size
+      s390/mcck: fix invalid KVM guest condition check
+
+Harald Freudenberger (1):
+      s390/ap: Fix hanging ioctl caused by wrong msg counter
+
+ arch/s390/kernel/entry.S       |  4 ++--
+ drivers/s390/crypto/ap_queue.c | 11 +++++++++--
+ 2 files changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index 12de7a9c85b3..9cc71ca9a88f 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -651,9 +651,9 @@ ENDPROC(stack_overflow)
+ .Lcleanup_sie_mcck:
+ 	larl	%r13,.Lsie_entry
+ 	slgr	%r9,%r13
+-	larl	%r13,.Lsie_skip
++	lghi	%r13,.Lsie_skip - .Lsie_entry
+ 	clgr	%r9,%r13
+-	jh	.Lcleanup_sie_int
++	jhe	.Lcleanup_sie_int
+ 	oi	__LC_CPU_FLAGS+7, _CIF_MCCK_GUEST
+ .Lcleanup_sie_int:
+ 	BPENTER	__SF_SIE_FLAGS(%r15),(_TIF_ISOLATE_BP|_TIF_ISOLATE_BP_GUEST)
+diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
+index ecefc25eff0c..337353c9655e 100644
+--- a/drivers/s390/crypto/ap_queue.c
++++ b/drivers/s390/crypto/ap_queue.c
+@@ -135,12 +135,13 @@ static struct ap_queue_status ap_sm_recv(struct ap_queue *aq)
+ {
+ 	struct ap_queue_status status;
+ 	struct ap_message *ap_msg;
++	bool found = false;
+ 
+ 	status = ap_dqap(aq->qid, &aq->reply->psmid,
+ 			 aq->reply->msg, aq->reply->len);
+ 	switch (status.response_code) {
+ 	case AP_RESPONSE_NORMAL:
+-		aq->queue_count--;
++		aq->queue_count = max_t(int, 0, aq->queue_count - 1);
+ 		if (aq->queue_count > 0)
+ 			mod_timer(&aq->timeout,
+ 				  jiffies + aq->request_timeout);
+@@ -150,8 +151,14 @@ static struct ap_queue_status ap_sm_recv(struct ap_queue *aq)
+ 			list_del_init(&ap_msg->list);
+ 			aq->pendingq_count--;
+ 			ap_msg->receive(aq, ap_msg, aq->reply);
++			found = true;
+ 			break;
+ 		}
++		if (!found) {
++			AP_DBF_WARN("%s unassociated reply psmid=0x%016llx on 0x%02x.%04x\n",
++				    __func__, aq->reply->psmid,
++				    AP_QID_CARD(aq->qid), AP_QID_QUEUE(aq->qid));
++		}
+ 		fallthrough;
+ 	case AP_RESPONSE_NO_PENDING_REPLY:
+ 		if (!status.queue_empty || aq->queue_count <= 0)
+@@ -232,7 +239,7 @@ static enum ap_sm_wait ap_sm_write(struct ap_queue *aq)
+ 			   ap_msg->flags & AP_MSG_FLAG_SPECIAL);
+ 	switch (status.response_code) {
+ 	case AP_RESPONSE_NORMAL:
+-		aq->queue_count++;
++		aq->queue_count = max_t(int, 1, aq->queue_count + 1);
+ 		if (aq->queue_count == 1)
+ 			mod_timer(&aq->timeout, jiffies + aq->request_timeout);
+ 		list_move_tail(&ap_msg->list, &aq->pendingq);
