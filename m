@@ -8,58 +8,59 @@ X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C673DC49EA2
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:19:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 304AEC49EA2
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:19:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AFB5161245
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:19:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B0516124B
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:19:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231956AbhFUXVQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Jun 2021 19:21:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37524 "EHLO
+        id S231992AbhFUXVW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Jun 2021 19:21:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231823AbhFUXVM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Jun 2021 19:21:12 -0400
-Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5FA3C061787
-        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 16:18:57 -0700 (PDT)
-Received: by mail-qk1-x749.google.com with SMTP id 2-20020a3709020000b02903aa9873df32so15824203qkj.15
-        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 16:18:57 -0700 (PDT)
+        with ESMTP id S231880AbhFUXVP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Jun 2021 19:21:15 -0400
+Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4897FC061766
+        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 16:19:00 -0700 (PDT)
+Received: by mail-qt1-x849.google.com with SMTP id r17-20020ac842510000b02902456ec03025so1923115qtm.3
+        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 16:19:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=rjB5gl/OyQ1mYdw8idF1qN2FUIQyyWYhNBNVDiw+uvU=;
-        b=Fx/5r3tL8gCFAJtd4rl2DAmVtq/Hcag/FqOXfbZTiumpQvK7IpCiwSoO4s2r3Pg4kG
-         DjgqzwZbw38zdRoLWEIFqajlU0HyzgooEI43aq0nXoB3xcXQkKM3CW4mob90gDiP9WK2
-         hHrDsQKAVpOhYF9U5V1S3QpzKlSx5rhNkESwPwwewApEl53L6IrVLx7uL19uIuHFuiOo
-         6lolqnl8of8SHB6qJI16xb6wkcrAAnCL9U5ewHgz0C+f0vibak7dCVxmIJY/mPLRKbjo
-         OXIV6b2Ew6sgl0PP+wDqL797jk1u3lvn2QWTbcBZRMFj+LYkj51nlwS6pHOjBj5NB8Kb
-         CkNA==
+        bh=3H4F55NU/a97Frzuudhi6AfsU/8NQIqR0g56h0PgrJ4=;
+        b=IlT5iHwHkCwvh6uYn+ad+nphzhTgSLGZUawwr+EN3103ID7mRMyLhAB2k37ebexrlg
+         mZ6YADGfLg3RWnh/8J6dPSafdaIxhryorYpO4WZ65kLsEOtEQOTo678Ff0mBKBa92+lm
+         UiPRARdH5oFaJblXeFxxmVtQ8fQLTpbZThalbfLdFxHLa8bgssAoRmkm6lrDVy82h7Rq
+         WKj7ZghR225g7nXWC/K2/Ieyhmp5V3kW22O20xS3cdvW+rgCPxLd1sdehk30r0CHfs/Q
+         cJQhZT8xOpRClWiQW98bNQtt2q3tWBvLd4NJIGEgbUUlNgcdPP7Jmw4+/8Dn+KLVCdPZ
+         J0PQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=rjB5gl/OyQ1mYdw8idF1qN2FUIQyyWYhNBNVDiw+uvU=;
-        b=On/+bP09Vg/nLgs6IQXHZLrCFdk4JOjNy0mvGspxYjo5fRXK9GPxP6eyzfsDqdEDgh
-         C6K2nqhCtVrSGljg/27/ZRqK18/B3vHSVvVE7OZ9LtSXOypAtIKMASwqBzvvE8i9cI4R
-         CNzWeG6+s/Y5719l16BOHHvh3jc/M9TDleboSoKSqbnb+BK1+1WY9BJtbIjUuII+JKdt
-         3Wx/4adjxHLK02EC9QXhMfjmaOW8tpA+Q1/K+ipF15FBZ/u6PjhtIt2+yoRx90gH1bpJ
-         T4LUriJNTDzkyWgbUvH6PQO0ro/un/Sqf4sFY/l+V2WBLlb5fV0sFfLb5B5rrg5d9NOc
-         Jd2g==
-X-Gm-Message-State: AOAM533D1aMUYs38eugbrMlrvHDMO3abJUkZyJ8BYIXL+Q1YvQ1a33Wj
-        IQoNQOXczHMNFYwX/YdQYmBwE0kCvKZTWiVjJBE=
-X-Google-Smtp-Source: ABdhPJyXTOipiZC/T1Rh2LGkpucm8jFtJ6//dT3xhNEPf1PixdbviPLfrtW8WqYG2ren4BZlrLSA6JcmNbcRdaRhqhk=
+        bh=3H4F55NU/a97Frzuudhi6AfsU/8NQIqR0g56h0PgrJ4=;
+        b=VCJrFEfBOA5DBlxOFOgB9up/3iRRNVtSX6sTMtYrqAuq5GxKl1VU2SCFnNqEZVp0wO
+         39+vd3zR8ykAjWR9kbZlb5YU3Zr8nG+IggG8KHGHrlJNQVjnJ7WHt1rpcmlhSMonX9EF
+         6+gJp7zPb6SWY/dWmvnk0uh1AuhyGHaC9OQuodqIkdfCBCPIP1d/UHjCjU4nE2V0E7pf
+         15zLA34WTv11L5NSRzdWT/nbgzLAiyDGliPd/qk9k3d8alZYgqU+MHnCuP81JPaKW/+e
+         2yCDxriu1mNXdNEep5VFPWt87414a42eIxg4vqqiMA2HXJ/LV3wMo9Nku9P1NjQssqFM
+         SG4w==
+X-Gm-Message-State: AOAM5337vzvyc/43fL31eDN9UWt9naBC6WfXwRmIl4aWuuX/oJB/yZ6a
+        xmipGdUdUHmYdAX3EQeDccIqxBoC8Npoun0/uWQ=
+X-Google-Smtp-Source: ABdhPJy/ygCGleZhe+Yae0QNHj25BZbuCifVF1OqrOy3nkTDPiBTaZQUK7dvOsZGIrxFq3N+wJdOoVd1nH+tCsLaVVU=
 X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:dfd:ebf9:4ec7:1783])
- (user=ndesaulniers job=sendgmr) by 2002:a25:aea4:: with SMTP id
- b36mr794382ybj.428.1624317536807; Mon, 21 Jun 2021 16:18:56 -0700 (PDT)
-Date:   Mon, 21 Jun 2021 16:18:21 -0700
+ (user=ndesaulniers job=sendgmr) by 2002:a25:7a84:: with SMTP id
+ v126mr752893ybc.153.1624317539374; Mon, 21 Jun 2021 16:18:59 -0700 (PDT)
+Date:   Mon, 21 Jun 2021 16:18:22 -0700
 In-Reply-To: <20210621231822.2848305-1-ndesaulniers@google.com>
-Message-Id: <20210621231822.2848305-3-ndesaulniers@google.com>
+Message-Id: <20210621231822.2848305-4-ndesaulniers@google.com>
 Mime-Version: 1.0
 References: <20210621231822.2848305-1-ndesaulniers@google.com>
 X-Mailer: git-send-email 2.32.0.288.g62a8d224e6-goog
-Subject: [PATCH v2 2/3] compiler_attributes.h: cleanups for GCC 4.9+
+Subject: [PATCH v2 3/3] Kconfig: add ARCH_WANTS_NO_INSTR+CC_HAS_NO_PROFILE_FN_ATTR,
+ depend on for GCOV and PGO
 From:   Nick Desaulniers <ndesaulniers@google.com>
 To:     Kees Cook <keescook@chromium.org>
 Cc:     Peter Zijlstra <peterz@infradead.org>,
@@ -86,50 +87,138 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Miguel Ojeda <ojeda@kernel.org>
+        Nick Desaulniers <ndesaulniers@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Since
-commit 6ec4476ac825 ("Raise gcc version requirement to 4.9")
-we no longer support building the kernel with GCC 4.8; drop the
-preprocess checks for __GNUC_MINOR__ version. It's implied that if
-__GNUC_MAJOR__ is 4, then the only supported version of __GNUC_MINOR__
-left is 9.
+We don't want compiler instrumentation to touch noinstr functions, which
+are annotated with the no_profile_instrument_function function
+attribute. Add a Kconfig test for this and make PGO and GCOV depend on
+it.
 
-Cc: Miguel Ojeda <ojeda@kernel.org>
+If an architecture is using noinstr, it should denote that via this
+Kconfig value. That makes Kconfigs that depend on noinstr able to
+express dependencies in an architecturally agnostic way.
+
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
+Link: https://lore.kernel.org/lkml/YMTn9yjuemKFLbws@hirez.programming.kicks-ass.net/
+Link: https://lore.kernel.org/lkml/YMcssV%2Fn5IBGv4f0@hirez.programming.kicks-ass.net/
+Suggested-by: Nathan Chancellor <nathan@kernel.org>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 ---
- include/linux/compiler_attributes.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Changes V1 -> V2:
+* Add ARCH_WANTS_NO_INSTR
+* Change depdendencies to be !ARCH_WANTS_NO_INSTR || CC_HAS_NO_PROFILE_FN_ATTR
+  rather than list architectures explicitly, as per Nathan.
+* s/no_profile/no_profile_instrument_function/
 
-diff --git a/include/linux/compiler_attributes.h b/include/linux/compiler_attributes.h
-index 225511b17223..84b1c970acb3 100644
---- a/include/linux/compiler_attributes.h
-+++ b/include/linux/compiler_attributes.h
-@@ -27,7 +27,7 @@
-  */
- #ifndef __has_attribute
- # define __has_attribute(x) __GCC4_has_attribute_##x
--# define __GCC4_has_attribute___assume_aligned__      (__GNUC_MINOR__ >= 9)
-+# define __GCC4_has_attribute___assume_aligned__      1
- # define __GCC4_has_attribute___copy__                0
- # define __GCC4_has_attribute___designated_init__     0
- # define __GCC4_has_attribute___externally_visible__  1
-@@ -35,8 +35,8 @@
- # define __GCC4_has_attribute___noclone__             1
- # define __GCC4_has_attribute___no_profile_instrument_function__ 0
- # define __GCC4_has_attribute___nonstring__           0
--# define __GCC4_has_attribute___no_sanitize_address__ (__GNUC_MINOR__ >= 8)
--# define __GCC4_has_attribute___no_sanitize_undefined__ (__GNUC_MINOR__ >= 9)
-+# define __GCC4_has_attribute___no_sanitize_address__ 1
-+# define __GCC4_has_attribute___no_sanitize_undefined__ 1
- # define __GCC4_has_attribute___fallthrough__         0
- #endif
+ arch/Kconfig        | 7 +++++++
+ arch/arm64/Kconfig  | 1 +
+ arch/s390/Kconfig   | 1 +
+ arch/x86/Kconfig    | 1 +
+ init/Kconfig        | 3 +++
+ kernel/gcov/Kconfig | 1 +
+ kernel/pgo/Kconfig  | 3 ++-
+ 7 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 2b4109b0edee..2113c6b3b801 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -285,6 +285,13 @@ config ARCH_THREAD_STACK_ALLOCATOR
+ config ARCH_WANTS_DYNAMIC_TASK_STRUCT
+ 	bool
  
++config ARCH_WANTS_NO_INSTR
++	bool
++	help
++	  An architecure should select this if the noinstr macro is being used on
++	  functions to denote that the toolchain should avoid instrumenting such
++	  functions and is required for correctness.
++
+ config ARCH_32BIT_OFF_T
+ 	bool
+ 	depends on !64BIT
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 9f1d8566bbf9..39bf982b06f8 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -93,6 +93,7 @@ config ARM64
+ 	select ARCH_WANT_FRAME_POINTERS
+ 	select ARCH_WANT_HUGE_PMD_SHARE if ARM64_4K_PAGES || (ARM64_16K_PAGES && !ARM64_VA_BITS_36)
+ 	select ARCH_WANT_LD_ORPHAN_WARN
++	select ARCH_WANTS_NO_INSTR
+ 	select ARCH_HAS_UBSAN_SANITIZE_ALL
+ 	select ARM_AMBA
+ 	select ARM_ARCH_TIMER
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index b4c7c34069f8..bd60310f33b9 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -117,6 +117,7 @@ config S390
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_CMPXCHG_LOCKREF
+ 	select ARCH_WANTS_DYNAMIC_TASK_STRUCT
++	select ARCH_WANTS_NO_INSTR
+ 	select ARCH_WANT_DEFAULT_BPF_JIT
+ 	select ARCH_WANT_IPC_PARSE_VERSION
+ 	select BUILDTIME_TABLE_SORT
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index da43fd046149..7d6a44bb9b0e 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -114,6 +114,7 @@ config X86
+ 	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
+ 	select ARCH_WANT_DEFAULT_BPF_JIT	if X86_64
+ 	select ARCH_WANTS_DYNAMIC_TASK_STRUCT
++	select ARCH_WANTS_NO_INSTR
+ 	select ARCH_WANT_HUGE_PMD_SHARE
+ 	select ARCH_WANT_LD_ORPHAN_WARN
+ 	select ARCH_WANTS_THP_SWAP		if X86_64
+diff --git a/init/Kconfig b/init/Kconfig
+index 1ea12c64e4c9..31397a7a45fb 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -83,6 +83,9 @@ config TOOLS_SUPPORT_RELR
+ config CC_HAS_ASM_INLINE
+ 	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
+ 
++config CC_HAS_NO_PROFILE_FN_ATTR
++	def_bool $(success,echo '__attribute__((no_profile_instrument_function)) int x();' | $(CC) -x c - -c -o /dev/null -Werror)
++
+ config CONSTRUCTORS
+ 	bool
+ 
+diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
+index 58f87a3092f3..053447183ac5 100644
+--- a/kernel/gcov/Kconfig
++++ b/kernel/gcov/Kconfig
+@@ -5,6 +5,7 @@ config GCOV_KERNEL
+ 	bool "Enable gcov-based kernel profiling"
+ 	depends on DEBUG_FS
+ 	depends on !CC_IS_CLANG || CLANG_VERSION >= 110000
++	depends on !ARCH_WANTS_NO_INSTR || CC_HAS_NO_PROFILE_FN_ATTR
+ 	select CONSTRUCTORS
+ 	default n
+ 	help
+diff --git a/kernel/pgo/Kconfig b/kernel/pgo/Kconfig
+index d2053df1111c..ce7fe04f303d 100644
+--- a/kernel/pgo/Kconfig
++++ b/kernel/pgo/Kconfig
+@@ -8,7 +8,8 @@ config PGO_CLANG
+ 	bool "Enable clang's PGO-based kernel profiling"
+ 	depends on DEBUG_FS
+ 	depends on ARCH_SUPPORTS_PGO_CLANG
+-	depends on CC_IS_CLANG && CLANG_VERSION >= 120000
++	depends on CC_IS_CLANG
++	depends on !ARCH_WANTS_NO_INSTR || CC_HAS_NO_PROFILE_FN_ATTR
+ 	help
+ 	  This option enables clang's PGO (Profile Guided Optimization) based
+ 	  code profiling to better optimize the kernel.
 -- 
 2.32.0.288.g62a8d224e6-goog
 
