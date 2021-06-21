@@ -2,130 +2,190 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE9D8C4743C
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 10:04:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44566C48BC2
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 10:10:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8EC4C60FDA
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 10:04:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2994561164
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 10:10:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229837AbhFUKHJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Jun 2021 06:07:09 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50694 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229621AbhFUKHJ (ORCPT
+        id S229641AbhFUKNE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Jun 2021 06:13:04 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:45339 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230291AbhFUKND (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Jun 2021 06:07:09 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15LA4k69039573;
-        Mon, 21 Jun 2021 06:04:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=YeQ6G+Xiv94s6yau5B40Z1/XrGaewAAJ4ZmFfwdOEgE=;
- b=jE+28dvyg6ZxmW0w2B13PT8OjHCfVgMv8RUo9mz+/ESrxay34l1s0NIGpnMWQSJxH9D1
- WrZEGhkInTLYgTwo9Y2sjuWjKX3oFPm4zziqoeoXAjoWfnbuV2PPh0C/TxXTbJATRk0M
- +4HLsoJFwAeZ+cQe7AqqllwBf0aK5m0AOMqokGmpFU3GelJpHZBYSeqLL8kUg4z7RsSH
- 4k1ot/ykgZnwEzE2WvCKtOK3vZLvVQccQEUpEpJd5HsVK1XCSGmWaUOuHGVKcv1RhmXJ
- TWQxw3ciqZdTSX/SGxeWS6VvpQmDuh5pxBnD4Cbj9expvE6Tm7dtZCPTg+DeoRM/6ipJ ZQ== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 39aqrpsnvq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Jun 2021 06:04:49 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15LA4P9l002485;
-        Mon, 21 Jun 2021 10:04:38 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 3998788eg3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Jun 2021 10:04:37 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15LA4YqK32375048
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Jun 2021 10:04:34 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9878E4204C;
-        Mon, 21 Jun 2021 10:04:34 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 314AE4203F;
-        Mon, 21 Jun 2021 10:04:34 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.30.36])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Mon, 21 Jun 2021 10:04:34 +0000 (GMT)
-Date:   Mon, 21 Jun 2021 12:04:32 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     "Jason J. Herne" <jjherne@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        akrowiak@linux.ibm.com, jgg@nvidia.com
-Subject: Re: [PATCH v2] s390/vfio-ap: Fix module unload memory leak of
- matrix_dev
-Message-ID: <20210621120432.0e6d2839.pasic@linux.ibm.com>
-In-Reply-To: <20210618171255.2025-1-jjherne@linux.ibm.com>
-References: <20210618171255.2025-1-jjherne@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        Mon, 21 Jun 2021 06:13:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1624270249;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=HOjpFOJ/4nLurltJvbob8ysv+DJPcYt2ytokui1BUB8=;
+        b=YuDs9+LSU2zyIY0cz0qySQA8oxtX56yOwf30tleKpXpl0XAXq0eZanHqh4k+c7UFFp4N+F
+        fRY2E86UORToZLAHt1PZMZhN9CG5fzmY9iEUNi+LVI1YCTGY9AQh64wPQvnlddfdZep/SQ
+        WQr6b9RxfrAvXLAPus0BtKFW7SgTmBc=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-566-icdVGsbXMDOeyTLbUV1a4w-1; Mon, 21 Jun 2021 06:10:48 -0400
+X-MC-Unique: icdVGsbXMDOeyTLbUV1a4w-1
+Received: by mail-wr1-f69.google.com with SMTP id n2-20020adfb7420000b029010e47b59f31so8171716wre.9
+        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 03:10:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=HOjpFOJ/4nLurltJvbob8ysv+DJPcYt2ytokui1BUB8=;
+        b=W6D4ZvJKTPztbet/acJUoTP6jclK1rt6q/TlS+7wcea4ngK2t7Rvwq5zovSQ0vP4Tg
+         6FTirBK4JeaNFDQdsu1Ul7io+zvn0uWY8JMUj4dHNdno2GkV67JWT3cVPGK07Off0ddK
+         7KZVv//kzfZJhou/57nHD+0nFacaLLdhP33rT5YB9h2A8Ethls+40SnSU2gtC+55pxgU
+         6PS81BngKktQmiZXmoilgL/N91874PpDH+HFFTCU9UMo0VIwG7cDGNgTjXXlwXeZnMJx
+         8rG7eOwzwJKj1VDqMdnelOojbK4rM38BFZuGLTUO7WwHiJLHwdECxrK8eDyNVBbH6MoN
+         ZPkg==
+X-Gm-Message-State: AOAM533+p/Jt287GcZ4y/XSUAFmE56ChNXHfpTeinvF5SlpQK6A11AQJ
+        sem0hsN9tkjnyEp2LfBfqdP70bMX8uT6IbdPl7vqrtZ83I6gRG4sG7D12YllsbxE87n7s4zrlss
+        iM1ScUZeSyp5Kr9wSPX5joQ==
+X-Received: by 2002:a05:600c:3b1e:: with SMTP id m30mr1586419wms.25.1624270246857;
+        Mon, 21 Jun 2021 03:10:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxZiYU5pP2UX/Meei5TISEGbiyK6Ex9W3o4xYyxK3CQqz1LrnDy0Lz+9/+Xp7/dGeQP9EEKng==
+X-Received: by 2002:a05:600c:3b1e:: with SMTP id m30mr1586395wms.25.1624270246605;
+        Mon, 21 Jun 2021 03:10:46 -0700 (PDT)
+Received: from thuth.remote.csb (pd9575fcd.dip0.t-ipconnect.de. [217.87.95.205])
+        by smtp.gmail.com with ESMTPSA id e38sm12275669wmp.4.2021.06.21.03.10.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Jun 2021 03:10:46 -0700 (PDT)
+Subject: Re: [kvm-unit-tests RFC 1/2] s390x: Add guest snippet support
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, cohuck@redhat.com
+References: <20210520094730.55759-1-frankja@linux.ibm.com>
+ <20210520094730.55759-2-frankja@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <b5171773-afb6-e148-a82f-ea78877206ce@redhat.com>
+Date:   Mon, 21 Jun 2021 12:10:45 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: oZ_td83_RAcwouGfS2-U13mHpY-kgWek
-X-Proofpoint-ORIG-GUID: oZ_td83_RAcwouGfS2-U13mHpY-kgWek
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-06-21_03:2021-06-21,2021-06-21 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
- mlxscore=0 suspectscore=0 spamscore=0 lowpriorityscore=0 mlxlogscore=999
- priorityscore=1501 malwarescore=0 adultscore=0 bulkscore=0 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2106210059
+In-Reply-To: <20210520094730.55759-2-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 18 Jun 2021 13:12:55 -0400
-"Jason J. Herne" <jjherne@linux.ibm.com> wrote:
-
-> vfio_ap_matrix_dev_release is shadowing the global matrix_dev with a NULL
-> pointer. Driver data for the matrix device is never set and so
-> dev_get_drvdata() always returns NULL. When release is called we end up
-> not freeing matrix_dev. The fix is to remove the shadow variable and get
-> the correct pointer from the device using container_of. We'll also NULL
-> the global to prevent any future use.
+On 20/05/2021 11.47, Janosch Frank wrote:
+> Snippets can be used to easily write and run guest (SIE) tests.
+> The snippet is linked into the test binaries and can therefore be
+> accessed via a ptr.
 > 
-> Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
->  drivers/s390/crypto/vfio_ap_drv.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
+>   .gitignore                |  2 ++
+>   s390x/Makefile            | 28 ++++++++++++++++++---
+>   s390x/snippets/c/cstart.S | 13 ++++++++++
+>   s390x/snippets/c/flat.lds | 51 +++++++++++++++++++++++++++++++++++++++
+>   4 files changed, 91 insertions(+), 3 deletions(-)
+>   create mode 100644 s390x/snippets/c/cstart.S
+>   create mode 100644 s390x/snippets/c/flat.lds
 > 
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-> index 7dc72cb718b0..40e66cb363d1 100644
-> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -82,9 +82,8 @@ static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
->  
->  static void vfio_ap_matrix_dev_release(struct device *dev)
->  {
-> -	struct ap_matrix_dev *matrix_dev = dev_get_drvdata(dev);
-> -
-> -	kfree(matrix_dev);
-> +	kfree(container_of(dev, struct ap_matrix_dev, device));
-> +	matrix_dev = NULL;
+> diff --git a/.gitignore b/.gitignore
+> index 784cb2dd..29d3635b 100644
+> --- a/.gitignore
+> +++ b/.gitignore
+> @@ -22,3 +22,5 @@ cscope.*
+>   /api/dirty-log
+>   /api/dirty-log-perf
+>   /s390x/*.bin
+> +/s390x/snippets/*/*.bin
+> +/s390x/snippets/*/*.gbin
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index 8de926ab..fe267011 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -75,11 +75,33 @@ OBJDIRS += lib/s390x
+>   asmlib = $(TEST_DIR)/cstart64.o $(TEST_DIR)/cpu.o
+>   
+>   FLATLIBS = $(libcflat)
+> -%.elf: %.o $(FLATLIBS) $(SRCDIR)/s390x/flat.lds $(asmlib)
+> +
+> +SNIPPET_DIR = $(TEST_DIR)/snippets
+> +
+> +# C snippets that need to be linked
+> +snippets-c =
+> +
+> +# ASM snippets that are directly compiled and converted to a *.gbin
+> +snippets-a =
 
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Could you please call this snippets-s instead of ...-a ? The -a suffix looks 
+like an archive to me otherwise.
 
-I'm not sure nulling the global here buys us anything (especially after
-the kfree()). But it does not hurt either, so I'm fine with it. Style
-wise I think vfio_ap_matrix_dev_destroy() is a better place for the
-nulling IMHO, as it is dealing with module global state.
+> +snippets = $(snippets-a)$(snippets-c)
 
-Regards,
-Halil
+Shouldn't there be a space between the two?
 
+> +snippets-o += $(patsubst %.gbin,%.o,$(snippets))
+> +
+> +$(snippets-a): $(snippets-o) $(FLATLIBS)
+> +	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
+> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
+> +
+> +$(snippets-c): $(snippets-o) $(SNIPPET_DIR)/c/cstart.o  $(FLATLIBS)
+> +	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/c/flat.lds \
+> +		$(filter %.o, $^) $(FLATLIBS)
+> +	$(OBJCOPY) -O binary $@ $@
+> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
+> +
+> +%.elf: $(snippets) %.o $(FLATLIBS) $(SRCDIR)/s390x/flat.lds $(asmlib)
+>   	$(CC) $(CFLAGS) -c -o $(@:.elf=.aux.o) \
+>   		$(SRCDIR)/lib/auxinfo.c -DPROGNAME=\"$@\"
+>   	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/flat.lds \
+> -		$(filter %.o, $^) $(FLATLIBS) $(@:.elf=.aux.o)
+> +		$(filter %.o, $^) $(FLATLIBS) $(snippets) $(@:.elf=.aux.o)
 
->  }
->  
->  static int matrix_bus_match(struct device *dev, struct device_driver *drv)
+Does this link the snippets into all elf files? ... wouldn't it be better to 
+restrict it somehow to the files that really need them?
+
+>   	$(RM) $(@:.elf=.aux.o)
+>   	@chmod a-x $@
+>   
+> @@ -93,7 +115,7 @@ FLATLIBS = $(libcflat)
+>   	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT) --no-verify --image $< -o $@
+>   
+>   arch_clean: asm_offsets_clean
+> -	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(TEST_DIR)/.*.d lib/s390x/.*.d
+> +	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(SNIPPET_DIR)/c/*.{o,elf,bin,gbin} $(SNIPPET_DIR)/.*.d $(TEST_DIR)/.*.d lib/s390x/.*.d
+>   
+>   generated-files = $(asm-offsets)
+>   $(tests:.elf=.o) $(asmlib) $(cflatobjs): $(generated-files)
+> diff --git a/s390x/snippets/c/cstart.S b/s390x/snippets/c/cstart.S
+> new file mode 100644
+> index 00000000..02a3338b
+> --- /dev/null
+> +++ b/s390x/snippets/c/cstart.S
+> @@ -0,0 +1,13 @@
+> +#include <asm/sigp.h>
+> +
+> +.section .init
+> +	.globl start
+> +start:
+> +	/* XOR all registers with themselves to clear them fully. */
+> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+> +	xgr \i,\i
+> +	.endr
+> +	/* 0x3000 is the stack page for now */
+> +	lghi	%r15, 0x4000
+> +	brasl	%r14, main
+> +	sigp    %r1, %r0, SIGP_STOP
+
+I think you should clear r0 before using it here?
+
+  Thomas
 
