@@ -2,113 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35379C4743C
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:31:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABE6CC4743C
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:35:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 100E261107
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:31:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8F3B9611BD
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:35:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231707AbhFUXd3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Jun 2021 19:33:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40318 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231672AbhFUXd2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Jun 2021 19:33:28 -0400
-Received: from mail-qk1-x731.google.com (mail-qk1-x731.google.com [IPv6:2607:f8b0:4864:20::731])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40D13C061574;
-        Mon, 21 Jun 2021 16:31:13 -0700 (PDT)
-Received: by mail-qk1-x731.google.com with SMTP id bj15so33149822qkb.11;
-        Mon, 21 Jun 2021 16:31:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=1X2SLkqMIFPd+4/wsO13rRAUrRxK8PS8uC3zU+SLBzo=;
-        b=RdgjBg2hdUEMBc1Jh+w6c4eTES+hq3dFebL8cQsIWyWrqrPQfI2S/7tnA2WkyVuUhG
-         PF0j7hwJd3oNGcls1LiHqmz8w3N/jBne5F30XiEIwOMFOTQk6GmC2zUcI4iSxDWnwuZP
-         cPJhokyr7jVMp0J3uNmkzSc6wcI60/l3l7w/xtXRsYMHrPCzVf6yP77W9Io5i7zfMrTg
-         E7lMUvCzq6ZKScI2PPcbTbhLt37Zlwt5zxHdLAI1IOKElxQu0rczu+E3lq+VbXaOMWDf
-         5IP7QyXzD45DgX6LS7cTE4ONYVo+aKEEsUNaFun3z0MdMALgOcoVcUQaVEgTIC1ClP8V
-         Dcww==
+        id S231950AbhFUXiL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Jun 2021 19:38:11 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:35147 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231883AbhFUXiK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Jun 2021 19:38:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1624318555;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=y4rj5S7DFpUC+3DesUoe15Y9dUe8dzdqWSEsCDEqvgA=;
+        b=APC7UXMuV7Au63FUsCMO9Q282eUDQEYwVP6WEwBIpcNACtEU6q35IBZpXxT0Tl1c8gRw3B
+        ZfTWWxZJEHP3vYgUhWVabQ0OkNLeM2z0aCJDGdDbUN7ynhtmi/BYFTLIMedOMPcQ0i19as
+        MYGb9+SLpvUYyhqYAANmlkVvnTJCfXc=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-190-n-0dAIZNNhSCv5sLH0p1AA-1; Mon, 21 Jun 2021 19:35:54 -0400
+X-MC-Unique: n-0dAIZNNhSCv5sLH0p1AA-1
+Received: by mail-wm1-f72.google.com with SMTP id j38-20020a05600c1c26b02901dbf7d18ff8so116235wms.8
+        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 16:35:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=1X2SLkqMIFPd+4/wsO13rRAUrRxK8PS8uC3zU+SLBzo=;
-        b=EfbbOrOJzhhxjGA084WymiQDtPnoNSyiV/hmdV2k+k9pb7MS2rFX4Ck6vqHy9NRXDB
-         2qjmS/JZo7VeCG72RqRlnLz0AEyUTowH8amp9D3Oc+8y6XZZYC0rRWCTP+AvH6ixqCcW
-         5Djmvz9mTvj0jsm9II8Sl9JkmSx+BmiX+gi2kjak62xb37yvNobrgZTGs5ZTkhS3kE3w
-         1mC8wnGJaLIe9rsQ6dexkb5Uc6jO2kVr3mmdXWIlYbZQAQVdvFTVuHENiLPIHEyXVTvy
-         0uqG7m2yeiJA35B5aSCWqtqWemAxzwpa96pGYI8nnT8aGL7il29fbXZ93b43pFT7YcK0
-         IqHA==
-X-Gm-Message-State: AOAM5300kdWX+5uQNZbPvP9/jLsgoXSLjPnjf4BFs6nhpAbrswbHnt+e
-        iodCeaxu9GXlgOWoSwvaSsXMIjbjCFWpjKK8BipzXBQx7Q1wgY/2
-X-Google-Smtp-Source: ABdhPJyqwtFlI4PPGTFm8/ZOjyVUpkHEIF4sTGl2aMywzDqBmtO+E7Q1fJIkU0al2k5TQyAkxaGJV9iIDdUE0WM1RVo=
-X-Received: by 2002:a25:6c8a:: with SMTP id h132mr815172ybc.422.1624318272474;
- Mon, 21 Jun 2021 16:31:12 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210621231822.2848305-1-ndesaulniers@google.com> <20210621231822.2848305-3-ndesaulniers@google.com>
-In-Reply-To: <20210621231822.2848305-3-ndesaulniers@google.com>
-From:   Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date:   Tue, 22 Jun 2021 01:31:01 +0200
-Message-ID: <CANiq72kQ29ZnFB9RYe=pCzZLgSu=A+cxVAdq=hLPtymbc0XAag@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] compiler_attributes.h: cleanups for GCC 4.9+
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Bill Wendling <wcw@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        Borislav Petkov <bp@alien8.de>, Martin Liska <mliska@suse.cz>,
-        Marco Elver <elver@google.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Fangrui Song <maskray@google.com>,
-        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        linux-toolchains@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=y4rj5S7DFpUC+3DesUoe15Y9dUe8dzdqWSEsCDEqvgA=;
+        b=g0nT3N0kYepHCX8sQvMcGpaB2ZCz15b3QY/t9tcrz8ipfZZR3578Ewvs/5tag2HKXm
+         BRx1HCBIPMgDE5jwhmffVuOFk9mbo0V4Zu08IR8uHJ87q4zWJeMIsEN/xuKnnVDsPiYd
+         lq8mhA9r515LDrcOpv2aqYwc3OeNmYB8fWfyNNyqfLYiRpRgKqXVLu9/rkXZYa657SU4
+         5Mutmc2HoC9Fwv0lP7N5Fawt6WdIWa2Bjb+IQ/timYR4PReJpuz2PAcfYpFm4A1okh/Z
+         PjWS+ZSXOiZ5+JDumgWtWGK4mLDLSBN0PkXQXOfj2z0r+AMZtQkzEJw9l+thBkU66orM
+         RJBQ==
+X-Gm-Message-State: AOAM53188q6LxRtXP5zuEJeqlfx2zU7aTR/mT/QAzv7ZF+llZm9bceFY
+        z9d6WfD9uFZndyPfLOHT/8DIx4GwCQVhaX5+FZedQACEhlDTEaxVezWb8+2AAQALN5He9J4MVGa
+        SUnE05tGk93p53dCmz4T/3Q==
+X-Received: by 2002:a05:6000:1c5:: with SMTP id t5mr1064342wrx.71.1624318553281;
+        Mon, 21 Jun 2021 16:35:53 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzhLPASIEPgENpXabVu2lLjBJcoZDTjIn3uO5++5JKzeF1Zgk0yuFtAQij55J0dmy/ecQX5WA==
+X-Received: by 2002:a05:6000:1c5:: with SMTP id t5mr1064334wrx.71.1624318553129;
+        Mon, 21 Jun 2021 16:35:53 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e? ([2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e])
+        by smtp.gmail.com with ESMTPSA id u15sm458337wmq.48.2021.06.21.16.35.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Jun 2021 16:35:52 -0700 (PDT)
+Subject: Re: [PATCH v12 2/7] KVM: stats: Add fd-based API to read binary stats
+ data
+To:     Jing Zhang <jingzhangos@google.com>
+Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
+        LinuxMIPS <linux-mips@vger.kernel.org>,
+        KVMPPC <kvm-ppc@vger.kernel.org>,
+        LinuxS390 <linux-s390@vger.kernel.org>,
+        Linuxkselftest <linux-kselftest@vger.kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Miguel Ojeda <ojeda@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
+        David Matlack <dmatlack@google.com>,
+        Ricardo Koller <ricarkol@google.com>,
+        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
+        Fuad Tabba <tabba@google.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+References: <20210618222709.1858088-1-jingzhangos@google.com>
+ <20210618222709.1858088-3-jingzhangos@google.com>
+ <0cde024e-a234-9a10-5157-d17ba423939e@redhat.com>
+ <CAAdAUtiL6DwJDWLLmUqct6B6n7Zaa2DyPhpwKZKb=cpRH+8+vQ@mail.gmail.com>
+ <aa1d0bd9-55cf-161a-5af9-f5abde807353@redhat.com>
+ <CAAdAUti1MreOnAXtA+jBEaq+AixmqvBEByi9G4EgDpfu63spHA@mail.gmail.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <c639c557-0e16-6938-2da5-46400ee2dd14@redhat.com>
+Date:   Tue, 22 Jun 2021 01:35:50 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
+MIME-Version: 1.0
+In-Reply-To: <CAAdAUti1MreOnAXtA+jBEaq+AixmqvBEByi9G4EgDpfu63spHA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 22, 2021 at 1:18 AM Nick Desaulniers
-<ndesaulniers@google.com> wrote:
->
-> Since
-> commit 6ec4476ac825 ("Raise gcc version requirement to 4.9")
-> we no longer support building the kernel with GCC 4.8; drop the
-> preprocess checks for __GNUC_MINOR__ version. It's implied that if
-> __GNUC_MAJOR__ is 4, then the only supported version of __GNUC_MINOR__
-> left is 9.
+On 22/06/21 00:58, Jing Zhang wrote:
+>> Pass it as an argument?
+> The num_desc can only be initialized in the same file that defines the
+> descriptor array.
+> Looks like we have to have a global variable to save that. The
+> solution would be similar
+> to have a statically defined header for each arch.
+> So, keep the header structure for each arch?
 
-Yeah, I was waiting for the raise to 5.x to remove the entire block,
-but this is of course good since we did not get that yet :-)
+Oh, sorry.  I missed that there's only one call to kvm_stats_read and 
+it's in common code.  The remaining comments are small enough that I can 
+apply them myself.  Thanks!
 
-    Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
+Paolo
 
-Cheers,
-Miguel
