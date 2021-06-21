@@ -7,84 +7,82 @@ X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 255CCC4743C
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 12:39:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DCDAC4743C
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 12:41:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 05C3A61001
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 12:39:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3209C6100A
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 12:41:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbhFUMl3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Jun 2021 08:41:29 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25268 "EHLO
+        id S229765AbhFUMnn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Jun 2021 08:43:43 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35728 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229789AbhFUMl1 (ORCPT
+        by vger.kernel.org with ESMTP id S229651AbhFUMnm (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Jun 2021 08:41:27 -0400
+        Mon, 21 Jun 2021 08:43:42 -0400
 Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15LCXMGH116697;
-        Mon, 21 Jun 2021 08:39:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15LCXNFW116775;
+        Mon, 21 Jun 2021 08:41:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
+ from : subject : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=78s6qo8GjFL+81gCTgjkYIvYIxu0KKIcas8ic2o9oII=;
- b=DCbIf0S1GW1+J6QWCerbbxdQ/I+cDLGzwrLWhNrn+/iEF1+AYxa81JD0Ef2r48rDQ9I/
- +xTfN5YjfdEnlaH8qjwCql9YG1FacNUn6bz0q6kLLGsfgHypEIdUlb00dgHjnOLRi13x
- px7CFdX+4X0NUHCBenO+zFJKBlPtenpz/0aj1i56VTFxZDKZDBYTqTfL+5HSP4inDIo8
- v+piR4RRD/BAnH2SqrbXKfg6IDTBGZcgWfQ8U3I1meqtyksE4ExY32bp3LdVolCFFT7I
- 5y9ZpLjk0ehR1+yNAtUO7mgIxm6B1NZy1MYzVisqgI86OAgnDdZjCKaXnjZDa7ueO1dT GA== 
+ bh=kNn9LSu+IL4dWx6plPrQHyI2GIW7KAdJG4lp9CfSry0=;
+ b=ellTD3fvfRyei0RG2CPLTN5pPoa9NSLhK0C3ecINSZW6sfaJXWCvX6Gxvk2qcGNsIzC0
+ BP0l3TL/y3c5Xpnwcn8YMxOpPP1igGFJOAc9zey2eILr/umYIeFh1EYGz2LQxbkY2o7T
+ Ag/s44ASMCtyoiWtn0gHifbSldmS7xRqnORNOf4OOPjX117TJFA0ATtoEnVnwakhqUfi
+ Yx+nFxuaK5hwGEi4KuC3ttlfD9//21m7F2iKv13E6KkhqMSG4MaIUh9wuBn+Tvjt599q
+ d1VSP13fuIPQWvjlvsZnGWqdN7UEyw0qJbMw6CDNR9P4o47jHtbR96JRcZsMOIC8FZF3 tA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 39ass4adwr-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39ass4agc7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Jun 2021 08:39:12 -0400
+        Mon, 21 Jun 2021 08:41:28 -0400
 Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15LCXhPa117795;
-        Mon, 21 Jun 2021 08:39:12 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 39ass4advn-1
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15LCXNnM116787;
+        Mon, 21 Jun 2021 08:41:27 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39ass4agbk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Jun 2021 08:39:12 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15LCdAYd006633;
-        Mon, 21 Jun 2021 12:39:10 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma05fra.de.ibm.com with ESMTP id 3998788fvv-1
+        Mon, 21 Jun 2021 08:41:27 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15LCdCD5029243;
+        Mon, 21 Jun 2021 12:41:26 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3998788ft8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Jun 2021 12:39:10 +0000
+        Mon, 21 Jun 2021 12:41:25 +0000
 Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15LCd81g24314170
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15LCe5qK32375274
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Jun 2021 12:39:08 GMT
+        Mon, 21 Jun 2021 12:40:05 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6E7A642041;
-        Mon, 21 Jun 2021 12:39:08 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 69C0E4204B;
+        Mon, 21 Jun 2021 12:41:23 +0000 (GMT)
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 19B2742045;
-        Mon, 21 Jun 2021 12:39:08 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 0F64142041;
+        Mon, 21 Jun 2021 12:41:23 +0000 (GMT)
 Received: from localhost.localdomain (unknown [9.145.3.195])
         by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 21 Jun 2021 12:39:08 +0000 (GMT)
-Subject: Re: [kvm-unit-tests RFC 1/2] s390x: Add guest snippet support
+        Mon, 21 Jun 2021 12:41:22 +0000 (GMT)
 To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, cohuck@redhat.com
 References: <20210520094730.55759-1-frankja@linux.ibm.com>
- <20210520094730.55759-2-frankja@linux.ibm.com>
- <b5171773-afb6-e148-a82f-ea78877206ce@redhat.com>
- <d20e7f88-dcca-67ca-17e0-7c45982aa5ff@linux.ibm.com>
- <304a297a-c366-9d61-9d13-fc1f86dd4f50@redhat.com>
+ <20210520094730.55759-3-frankja@linux.ibm.com>
+ <35c30a30-e245-e1e2-facc-4685455da575@redhat.com>
 From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <19e99dfe-6730-194b-a0c5-87455f446625@linux.ibm.com>
-Date:   Mon, 21 Jun 2021 14:39:07 +0200
+Subject: Re: [kvm-unit-tests RFC 2/2] s390x: mvpg: Add SIE mvpg test
+Message-ID: <53bfb17a-cd3d-6c39-cd06-f31d910d6232@linux.ibm.com>
+Date:   Mon, 21 Jun 2021 14:41:22 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.10.1
 MIME-Version: 1.0
-In-Reply-To: <304a297a-c366-9d61-9d13-fc1f86dd4f50@redhat.com>
+In-Reply-To: <35c30a30-e245-e1e2-facc-4685455da575@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: j9wqUyHVYsPG-aHnPKIOp9L1jbMitbEj
-X-Proofpoint-GUID: HIGpB7klqK8-XrOIiC8O_pbf8nyN8nVw
+X-Proofpoint-ORIG-GUID: utIWG0WOyGqVyFeSQXSG6O1ZbiCBw-rE
+X-Proofpoint-GUID: xSbGBthwvN_kgEQzBkgx6WnYRChIU0KR
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-06-21_06:2021-06-21,2021-06-21 signatures=0
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
@@ -96,109 +94,85 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/21/21 2:32 PM, Thomas Huth wrote:
-> On 21/06/2021 14.19, Janosch Frank wrote:
->> On 6/21/21 12:10 PM, Thomas Huth wrote:
->>> On 20/05/2021 11.47, Janosch Frank wrote:
->>>> Snippets can be used to easily write and run guest (SIE) tests.
->>>> The snippet is linked into the test binaries and can therefore be
->>>> accessed via a ptr.
->>>>
->>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->>>> ---
->>>>    .gitignore                |  2 ++
->>>>    s390x/Makefile            | 28 ++++++++++++++++++---
->>>>    s390x/snippets/c/cstart.S | 13 ++++++++++
->>>>    s390x/snippets/c/flat.lds | 51 +++++++++++++++++++++++++++++++++++++++
->>>>    4 files changed, 91 insertions(+), 3 deletions(-)
->>>>    create mode 100644 s390x/snippets/c/cstart.S
->>>>    create mode 100644 s390x/snippets/c/flat.lds
->>>>
->>>> diff --git a/.gitignore b/.gitignore
->>>> index 784cb2dd..29d3635b 100644
->>>> --- a/.gitignore
->>>> +++ b/.gitignore
->>>> @@ -22,3 +22,5 @@ cscope.*
->>>>    /api/dirty-log
->>>>    /api/dirty-log-perf
->>>>    /s390x/*.bin
->>>> +/s390x/snippets/*/*.bin
->>>> +/s390x/snippets/*/*.gbin
->>>> diff --git a/s390x/Makefile b/s390x/Makefile
->>>> index 8de926ab..fe267011 100644
->>>> --- a/s390x/Makefile
->>>> +++ b/s390x/Makefile
->>>> @@ -75,11 +75,33 @@ OBJDIRS += lib/s390x
->>>>    asmlib = $(TEST_DIR)/cstart64.o $(TEST_DIR)/cpu.o
->>>>    
->>>>    FLATLIBS = $(libcflat)
->>>> -%.elf: %.o $(FLATLIBS) $(SRCDIR)/s390x/flat.lds $(asmlib)
->>>> +
->>>> +SNIPPET_DIR = $(TEST_DIR)/snippets
->>>> +
->>>> +# C snippets that need to be linked
->>>> +snippets-c =
->>>> +
->>>> +# ASM snippets that are directly compiled and converted to a *.gbin
->>>> +snippets-a =
->>>
->>> Could you please call this snippets-s instead of ...-a ? The -a suffix looks
->>> like an archive to me otherwise.
+On 6/21/21 12:23 PM, Thomas Huth wrote:
+> On 20/05/2021 11.47, Janosch Frank wrote:
+>> Let's also check the PEI values to make sure our VSIE implementation
+>> is correct.
 >>
->> Sure
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   s390x/Makefile                  |   3 +-
+>>   s390x/mvpg-sie.c                | 139 ++++++++++++++++++++++++++++++++
+>>   s390x/snippets/c/mvpg-snippet.c |  33 ++++++++
+>>   s390x/unittests.cfg             |   3 +
+>>   4 files changed, 177 insertions(+), 1 deletion(-)
+>>   create mode 100644 s390x/mvpg-sie.c
+>>   create mode 100644 s390x/snippets/c/mvpg-snippet.c
 >>
->>>
->>>> +snippets = $(snippets-a)$(snippets-c)
->>>
->>> Shouldn't there be a space between the two?
->>
->> Yes, already fixed that a long while ago
->> I thought I had sent out a new version already, maybe that was an
->> illusion as I can't seem to find it right now.
->>
->>>
->>>> +snippets-o += $(patsubst %.gbin,%.o,$(snippets))
->>>> +
->>>> +$(snippets-a): $(snippets-o) $(FLATLIBS)
->>>> +	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
->>>> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
->>>> +
->>>> +$(snippets-c): $(snippets-o) $(SNIPPET_DIR)/c/cstart.o  $(FLATLIBS)
->>>> +	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/c/flat.lds \
->>>> +		$(filter %.o, $^) $(FLATLIBS)
->>>> +	$(OBJCOPY) -O binary $@ $@
->>>> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
->>>> +
->>>> +%.elf: $(snippets) %.o $(FLATLIBS) $(SRCDIR)/s390x/flat.lds $(asmlib)
->>>>    	$(CC) $(CFLAGS) -c -o $(@:.elf=.aux.o) \
->>>>    		$(SRCDIR)/lib/auxinfo.c -DPROGNAME=\"$@\"
->>>>    	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/flat.lds \
->>>> -		$(filter %.o, $^) $(FLATLIBS) $(@:.elf=.aux.o)
->>>> +		$(filter %.o, $^) $(FLATLIBS) $(snippets) $(@:.elf=.aux.o)
->>>
->>> Does this link the snippets into all elf files? ... wouldn't it be better to
->>> restrict it somehow to the files that really need them?
->>
->> Yes it does.
->> I'd like to avoid having to specify a makefile rule for every test that
->> uses snippets as we already have more than the mvpg one in the queue.
->>
->> So I'm having Steffen looking into a solution for this problem. My first
->> idea was to bring the used snippets into the unittests.cfg but I
->> disliked that we then would have compile instructions in another file.
->> Maybe there's a way to include that into the makefile in a clever way?
+>> diff --git a/s390x/Makefile b/s390x/Makefile
+>> index fe267011..6692cf73 100644
+>> --- a/s390x/Makefile
+>> +++ b/s390x/Makefile
+>> @@ -22,6 +22,7 @@ tests += $(TEST_DIR)/uv-guest.elf
+>>   tests += $(TEST_DIR)/sie.elf
+>>   tests += $(TEST_DIR)/mvpg.elf
+>>   tests += $(TEST_DIR)/uv-host.elf
+>> +tests += $(TEST_DIR)/mvpg-sie.elf
+>>   
+>>   tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>>   ifneq ($(HOST_KEY_DOCUMENT),)
+>> @@ -79,7 +80,7 @@ FLATLIBS = $(libcflat)
+>>   SNIPPET_DIR = $(TEST_DIR)/snippets
+>>   report_abort
+>>   # C snippets that need to be linked
+>> -snippets-c =
+>> +snippets-c = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
+>>   
+>>   # ASM snippets that are directly compiled and converted to a *.gbin
+>>   snippets-a =
+>> diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
+>> new file mode 100644
+>> index 00000000..a617704b
+>> --- /dev/nullreport_abort
+>> +++ b/s390x/mvpg-sie.c
+>> @@ -0,0 +1,139 @@
+>> +#include <libcflat.h>
+>> +#include <asm/asm-offsets.h>
+>> +#include <asm-generic/barrier.h>
+>> +#include <asm/interrupt.h>
+>> +#include <asm/pgtable.h>
+>> +#include <mmu.h>
+>> +#include <asm/page.h>
+>> +#include <asm/facility.h>
+>> +#include <asm/mem.h>
+>> +#include <asm/sigp.h>
+>> +#include <smp.h>
+>> +#include <alloc_page.h>
+>> +#include <bitops.h>
+>> +#include <vm.h>
+>> +#include <sclp.h>
+>> +#include <sie.h>
+>> +
+>> +static u8 *guest;
+>> +static u8 *guest_instr;
+>> +static struct vm vm;
+>> +
+>> +static uint8_t *src;
+>> +static uint8_t *dst;
+>> +
+>> +extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_start[];
+>> +extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_end[];
+>> +int binary_size;
+>> +
+>> +static void handle_validity(struct vm *vm)
+>> +{
+>> +	report(0, "VALIDITY: %x", vm->sblk->ipb >> 16);
+>> +}
 > 
-> I haven't tried, but maybe you could replace the $(snippets) in the last 
-> line with
-> 
->   $(wildcard snippets/$@.gbin)
-> 
-> or something similar?
-
-That starts falling apart when multiple tests use the same snippet, no?
-
-
+> Maybe rather use report_abort() in that case? Or does it make sense to 
+> continue running the other tests afterwards?
 > 
 >   Thomas
 > 
 
+Hmm, right this is not yet in the SIE lib.
