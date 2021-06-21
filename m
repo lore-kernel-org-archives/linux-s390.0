@@ -2,266 +2,209 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EF86C4743C
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 17:47:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5900C4743C
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 18:22:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1DEB3611CE
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 17:47:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BDD42606A5
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 18:22:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231566AbhFURtO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Jun 2021 13:49:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47538 "EHLO
+        id S231157AbhFUSY4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Jun 2021 14:24:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231481AbhFURtO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Jun 2021 13:49:14 -0400
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 624D3C061766
-        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 10:46:59 -0700 (PDT)
-Received: by mail-lf1-x12d.google.com with SMTP id t17so11385041lfq.0
-        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 10:46:59 -0700 (PDT)
+        with ESMTP id S231906AbhFUSYs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Jun 2021 14:24:48 -0400
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23048C061766
+        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 11:22:18 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id i1so4727372lfe.6
+        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 11:22:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=FMJXegssnqpONPLczONIAO8+jgmEKTYKlSdaRff4HUA=;
-        b=bNnoexmihOl1CcryhmVv36Rjanlk/iMAQl9bFfd16w6MuIODaXTieL65lPs2H7bZqv
-         f4O/tDRcz3FqQQQHU2/x2rEqppsTSRBVDIcu34r6zucvqCEGlw7ds3oDBKxxxd9U3EsL
-         2uYRLNUwZ0cRhWENyKTyDpB/KmIUvLAZr8XAid4Q9hSdSFw3/scA7J2S3Kj1NIWtou6Q
-         W3DlJBdFka6CzOO2Rk1prqJgmgxeF0x4EwoFNqgNwBklgsMCSt7W/OWl/rvlLreJaSrL
-         CN1sbpdr5mYRX+7OaFrBeBrpgv76v9WvPMsA4Y8e5GMCkTOTc0MY/N5AmptXL4pRTLqa
-         YU7w==
+        bh=IajW38MHwcZeFZ73RMsHWpIwYjHEkpzka+be7I9DYGw=;
+        b=NETQKlp2p/nx7Y4sEEKvaKEH1uY4lK4td2BanaBafpbIXQIoGCzZOVksCtCyBi0VP3
+         qRBlFwn+/Gx64DwKfV6NuuTCgy11IKhJtBRHJHw+NoWp0PJjx8aDjqdJFAwf9hft86AO
+         tM+eFryc9hg5P7s+JFPGb7KXNkWf2tAxPxGRd/m7XfVYQieeWwYduJvFlHV+Nw7tYrSK
+         TR7ASMVIAhHu/b18LiZkQowPpkyKElDbsSPdJWQAbQAz8k6TgY6ow6aUYfklevRk480m
+         IgM7lrbwBJYVeinVQVxmiqJNSdgdYBCq164ARz658xez/ZLzpWtYGOtahVCWU0BR2cPi
+         xw+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=FMJXegssnqpONPLczONIAO8+jgmEKTYKlSdaRff4HUA=;
-        b=ZrIrT/VHdJfIZRmxvD8jGBQ8SBE9AYYa5D1frAjw16bOPHyWn4JjV6H89PRRgVGn1M
-         fr9n4z9Of6NeFgfQnEiKBRM218MYgr05HMpBhLbcGnVGuPrQgsIUrMrbVm0uqNRaLe5t
-         KsZImOsKf6kCzwxMzUWtGMQ0EaS+b1n3hekQu+iFaXwyLtrHn+pAHF8A8wt1ti8rCgIr
-         67LnLVCVHwRuErNK1/jv11GdSAZnFx4FaQZhJ1jSU7ph6d4cLmOndmqmkwcrAxHbeWkx
-         zMgmugpGvAO2eZPUSsITyLk8XVyJEBmE/XLM0wlVr1dP/ZJ7YA3wqjN6t+e/i9d6weMx
-         x9gg==
-X-Gm-Message-State: AOAM530Hm4EHHrhavdNubL6GhlpeM9wpT3lwblW81ae9JYiKFG5ojCOP
-        hamRlideiD8QLjoWqmZGeiRlqf+WQtxQ2LHR6mUH/g==
-X-Google-Smtp-Source: ABdhPJw5v74BJ4gFYne3uXqh8PwWAuCMlEwFfkqB3Kiz6G0K+WI5o4O+lwaJJg7O9+CNG6Qd/LAnulE6vGeoMEPuXcs=
-X-Received: by 2002:a05:6512:3187:: with SMTP id i7mr6455431lfe.106.1624297617286;
- Mon, 21 Jun 2021 10:46:57 -0700 (PDT)
+        bh=IajW38MHwcZeFZ73RMsHWpIwYjHEkpzka+be7I9DYGw=;
+        b=lyBPCR4HuoLuJqpsmdvxN2IvGSkLUhAgcR71FTXeMgaDz8nF5nmpCKAXmhNtyTzUsm
+         8oyiMrFqXPsHKqAIRXEKdOyvJjI+U/QFxUvlbEkekvQec9G3kMI1Dgs9z6rQNgcu7+cm
+         hk3jCOahZzkLrVEkkafS0H90S3b5dp4YxmRfVpVuH5LLHQbzYn3XwHALOYRFGCM+CYPg
+         WGB3PdqdyxgiyC7wGNFLZ5q18hoz+KXpY2TWnyPro+31u97U2O8zRcPDp9AfPiivs+Kh
+         8xYcRbNykL9lQkgQCXTl8ao57GEqiaNkYsnKVk18zvGKDrXq4Rk6ifg3way5So6+rENA
+         ND0A==
+X-Gm-Message-State: AOAM5319mfM55XJbV6YXB+vvJ2ZVcWB+sWtktHh1wFdAd4UYEVM8WJ6Q
+        c8ZWXX1hWHk6XkvZzllhm65pPNuzkvT+dUyAxED33g==
+X-Google-Smtp-Source: ABdhPJwAM5RogoKB8aKV80+ZqYeBJUe7aVtjqMzminyyF7Q8neU/nFcivKvW7w+tSb+5Cahp27NLgUCLAWLfrcrGZCI=
+X-Received: by 2002:ac2:4438:: with SMTP id w24mr3339709lfl.73.1624299736217;
+ Mon, 21 Jun 2021 11:22:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210618222709.1858088-1-jingzhangos@google.com>
- <20210618222709.1858088-3-jingzhangos@google.com> <0cde024e-a234-9a10-5157-d17ba423939e@redhat.com>
-In-Reply-To: <0cde024e-a234-9a10-5157-d17ba423939e@redhat.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Mon, 21 Jun 2021 12:46:46 -0500
-Message-ID: <CAAdAUtiL6DwJDWLLmUqct6B6n7Zaa2DyPhpwKZKb=cpRH+8+vQ@mail.gmail.com>
-Subject: Re: [PATCH v12 2/7] KVM: stats: Add fd-based API to read binary stats data
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
+References: <20210618233023.1360185-1-ndesaulniers@google.com>
+ <20210618233023.1360185-3-ndesaulniers@google.com> <CANpmjNNK-iYXucjz7Degh1kJPF_Z_=8+2vNLtUW17x0UnfgtPg@mail.gmail.com>
+In-Reply-To: <CANpmjNNK-iYXucjz7Degh1kJPF_Z_=8+2vNLtUW17x0UnfgtPg@mail.gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 21 Jun 2021 11:22:05 -0700
+Message-ID: <CAKwvOdmxGt6nAj+dDZEPdQtXNbYb8N6y3XwoCvCD+Qazskh7zw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] Kconfig: CC_HAS_NO_PROFILE_FN_ATTR, depend on for
+ GCOV and PGO
+To:     Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
-        David Matlack <dmatlack@google.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
-        Fuad Tabba <tabba@google.com>,
-        Greg KH <gregkh@linuxfoundation.org>
+        Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Bill Wendling <wcw@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        LKML <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        Borislav Petkov <bp@alien8.de>, Martin Liska <mliska@suse.cz>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Fangrui Song <maskray@google.com>,
+        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        linux-toolchains@vger.kernel.org, Marco Elver <elver@google.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 21, 2021 at 11:54 AM Paolo Bonzini <pbonzini@redhat.com> wrote:
+On Fri, Jun 18, 2021 at 11:23 PM Marco Elver <elver@google.com> wrote:
 >
-> On 19/06/21 00:27, Jing Zhang wrote:
-> > +/**
-> > + * kvm_stats_read() - Common vm/vcpu stats read function to userspace.
->
-> Common function to read from the binary statistics file descriptor.
->
-> > + * @id: identification string of the stats
-> > + * @header: stats header for a vm or a vcpu
-> > + * @desc: start address of an array of stats descriptors for a vm or a vcpu
-> > + * @stats: start address of stats data block for a vm or a vcpu
-> > + * @size_stats: the size of stats data block pointed by @stats
-> > + * @user_buffer: start address of userspace buffer
-> > + * @size: requested read size from userspace
-> > + * @offset: the start position from which the content will be read for the
-> > + *          corresponding vm or vcp file descriptor
-> > + *
-> > + * The file content of a vm/vcpu file descriptor is now defined as below:
-> > + * +-------------+
-> > + * |   Header    |
-> > + * +-------------+
-> > + * |  id string  |
-> > + * +-------------+
-> > + * | Descriptors |
-> > + * +-------------+
-> > + * | Stats Data  |
-> > + * +-------------+
-> > + * Although this function allows userspace to read any amount of data (as long
-> > + * as in the limit) from any position, the typical usage would follow below
-> > + * steps:
-> > + * 1. Read header from offset 0. Get the offset of descriptors and stats data
-> > + *    and some other necessary information. This is a one-time work for the
-> > + *    lifecycle of the corresponding vm/vcpu stats fd.
-> > + * 2. Read id string from its offset. This is a one-time work for the lifecycle
-> > + *    of the corresponding vm/vcpu stats fd.
-> > + * 3. Read descriptors from its offset and discover all the stats by parsing
-> > + *    descriptors. This is a one-time work for the lifecycle of the
-> > + *    corresponding vm/vcpu stats fd.
-> > + * 4. Periodically read stats data from its offset using pread.
-> > + *
-> > + * Return: the number of bytes that has been successfully read
-> > + */
-> > +ssize_t kvm_stats_read(char *id, const struct kvm_stats_header *header,
-> > +                    const struct _kvm_stats_desc *desc,
-> > +                    void *stats, size_t size_stats,
-> > +                    char __user *user_buffer, size_t size, loff_t *offset)
->
->
-> You can replace the header argument with just the number of descriptors,
-> and then construct the header in the "if" statement below that copies it
-> to userspace:
->
-> const struct kvm_stats_header kvm_vm_stats_header = {
->         .name_size = KVM_STATS_NAME_SIZE,
->         .num_desc = num_desc,
-The problem is how we calculate the number of descriptors, which needs the
-size of the descriptor array for each architecture.
-Define another global variable to export the size of descriptor array?
->         .id_offset = size_header,
->         .desc_offset = size_header + KVM_STATS_NAME_SIZE,
->         .data_offset = size_header + KVM_STATS_NAME_SIZE +
->                        size_desc,
-> };
->
-> Of course size_header can be assigned with sizeof (struct kvm_stats_header).
->
-> This removes the definition of the header in each architecture.
->
-> Paolo
->
-> > +{
-> > +     ssize_t len;
-> > +     ssize_t copylen;
-> > +     ssize_t remain = size;
-> > +     size_t size_desc;
-> > +     size_t size_header;
-> > +     void *src;
-> > +     loff_t pos = *offset;
-> > +     char __user *dest = user_buffer;
+> On Sat, 19 Jun 2021 at 01:30, Nick Desaulniers <ndesaulniers@google.com> wrote:
+> >
+> > We don't want compiler instrumentation to touch noinstr functions, which
+> > are annotated with the no_profile function attribute. Add a Kconfig test
+> > for this and make PGO and GCOV depend on it.
+> >
+> > Cc: Masahiro Yamada <masahiroy@kernel.org>
+> > Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
+> > Link: https://lore.kernel.org/lkml/YMTn9yjuemKFLbws@hirez.programming.kicks-ass.net/
+> > Link: https://lore.kernel.org/lkml/YMcssV%2Fn5IBGv4f0@hirez.programming.kicks-ass.net/
+> > Suggested-by: Peter Zijlstra <peterz@infradead.org>
+> > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> > ---
+> >  init/Kconfig        | 3 +++
+> >  kernel/gcov/Kconfig | 1 +
+> >  kernel/pgo/Kconfig  | 3 ++-
+> >  3 files changed, 6 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/init/Kconfig b/init/Kconfig
+> > index 1ea12c64e4c9..540f862b40c6 100644
+> > --- a/init/Kconfig
+> > +++ b/init/Kconfig
+> > @@ -83,6 +83,9 @@ config TOOLS_SUPPORT_RELR
+> >  config CC_HAS_ASM_INLINE
+> >         def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
+> >
+> > +config CC_HAS_NO_PROFILE_FN_ATTR
+> > +       def_bool $(success,echo '__attribute__((no_profile)) int x();' | $(CC) -x c - -c -o /dev/null -Werror)
 > > +
-> > +     size_header = sizeof(*header);
-> > +     size_desc = header->num_desc * sizeof(*desc);
-> > +
-> > +     len = KVM_STATS_NAME_SIZE + size_header + size_desc + size_stats - pos;
-> > +     len = min(len, remain);
-> > +     if (len <= 0)
-> > +             return 0;
-> > +     remain = len;
-> > +
-> > +     /*
-> > +      * Copy kvm stats header.
-> > +      * The header is the first block of content userspace usually read out.
-> > +      * The pos is 0 and the copylen and remain would be the size of header.
-> > +      * The copy of the header would be skipped if offset is larger than the
-> > +      * size of header. That usually happens when userspace reads stats
-> > +      * descriptors and stats data.
-> > +      */
-> > +     copylen = size_header - pos;
-> > +     copylen = min(copylen, remain);
-> > +     if (copylen > 0) {
-> > +             src = (void *)header + pos;
-> > +             if (copy_to_user(dest, src, copylen))
-> > +                     return -EFAULT;
-> > +             remain -= copylen;
-> > +             pos += copylen;
-> > +             dest += copylen;
-> > +     }
-> > +
-> > +     /*
-> > +      * Copy kvm stats header id string.
-> > +      * The id string is unique for every vm/vcpu, which is stored in kvm
-> > +      * and kvm_vcpu structure.
-> > +      * The id string is part of the stat header from the perspective of
-> > +      * userspace, it is usually read out together with previous constant
-> > +      * header part and could be skipped for later descriptors and stats
-> > +      * data readings.
-> > +      */
-> > +     copylen = size_header + KVM_STATS_NAME_SIZE - pos;
+> >  config CONSTRUCTORS
+> >         bool
+> >
+> > diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
+> > index 58f87a3092f3..19facd4289cd 100644
+> > --- a/kernel/gcov/Kconfig
+> > +++ b/kernel/gcov/Kconfig
+> > @@ -5,6 +5,7 @@ config GCOV_KERNEL
+> >         bool "Enable gcov-based kernel profiling"
+> >         depends on DEBUG_FS
+> >         depends on !CC_IS_CLANG || CLANG_VERSION >= 110000
+> > +       depends on !X86 || (X86 && CC_HAS_NO_PROFILE_FN_ATTR)
 >
-> Should use header->id_offset instead of size_header here and in the
-> computation of src.
+> [+Cc Mark]
 >
-> > +     copylen = min(copylen, remain);
-> > +     if (copylen > 0) {
-> > +             src = id + pos - size_header;
-> > +             if (copy_to_user(dest, src, copylen))
-> > +                     return -EFAULT;
-> > +             remain -= copylen;
-> > +             pos += copylen;
-> > +             dest += copylen;
-> > +     }
-> > +
-> > +     /*
-> > +      * Copy kvm stats descriptors.
-> > +      * The descriptors copy would be skipped in the typical case that
-> > +      * userspace periodically read stats data, since the pos would be
-> > +      * greater than the end address of descriptors
-> > +      * (header->header.desc_offset + size_desc) causing copylen <= 0.
-> > +      */
-> > +     copylen = header->desc_offset + size_desc - pos;
-> > +     copylen = min(copylen, remain);
-> > +     if (copylen > 0) {
-> > +             src = (void *)desc + pos - header->desc_offset;
-> > +             if (copy_to_user(dest, src, copylen))
-> > +                     return -EFAULT;
-> > +             remain -= copylen;
-> > +             pos += copylen;
-> > +             dest += copylen;
-> > +     }
-> > +
-> > +     /* Copy kvm stats values */
-> > +     copylen = header->data_offset + size_stats - pos;
-> > +     copylen = min(copylen, remain);
-> > +     if (copylen > 0) {
-> > +             src = stats + pos - header->data_offset;
-> > +             if (copy_to_user(dest, src, copylen))
-> > +                     return -EFAULT;
-> > +             remain -= copylen;
-> > +             pos += copylen;
-> > +             dest += copylen;
-> > +     }
-> > +
-> > +     *offset = pos;
-> > +     return len;
-> > +}
+> arm64 is also starting to rely on noinstr working properly.
+
+Sure,
+Will, Catalin, other arm64 folks:
+Any thoughts on requiring GCC 7.1+/Clang 13.0+ for GCOV support?  That
+way we can better guarantee that GCOV (and eventually, PGO) don't
+touch noinstr functions?
+
+If that's ok, I'll add modify the above like:
+
++ depends on !ARM64 || (ARM64 && CC_HAS_NO_PROFILE_FN_ATTR)
+
+to the above hunk in v2.  Oh, looks like arch/s390 also uses noinstr.
+Same question applies then:
+
++ depends on !S390 || (S390 && CC_HAS_NO_PROFILE_FN_ATTR)
+
+Or, we could just do
+
++ depends on CC_HAS_NO_PROFILE_FN_ATTR
+
+Though that will penalize architectures not using noinstr, that still
+would like to use GCOV with versions of GCC older than 7.1.  Perhaps
+there are no such such users, or they should consider upgrading their
+tools to we can stick with the simpler Kconfig? Thoughts?
+
 >
+> This should probably be a 'select ARCH_HAS_GCOV_PROFILE_ALL if
+> CC_HAS_NO_PROFILE_FN_ATTR' in the relevant arch/../Kconfig.
+>
+> Alternatively, using:
+> https://lkml.kernel.org/r/YMcssV/n5IBGv4f0@hirez.programming.kicks-ass.net
+>
+> But I'd probably not overcomplicate things at this point and just use
+> ARCH_HAS_GCOV_PROFILE_ALL, because GCOV seems to be a) rarely used,
+> and b) if someone decides to selectively instrument stuff like entry
+> code, we can just say it's user error.
+>
+>
+> >         select CONSTRUCTORS
+> >         default n
+> >         help
+> > diff --git a/kernel/pgo/Kconfig b/kernel/pgo/Kconfig
+> > index d2053df1111c..26f75ac4c6c1 100644
+> > --- a/kernel/pgo/Kconfig
+> > +++ b/kernel/pgo/Kconfig
+> > @@ -8,7 +8,8 @@ config PGO_CLANG
+> >         bool "Enable clang's PGO-based kernel profiling"
+> >         depends on DEBUG_FS
+> >         depends on ARCH_SUPPORTS_PGO_CLANG
+> > -       depends on CC_IS_CLANG && CLANG_VERSION >= 120000
+> > +       depends on CC_IS_CLANG
+> > +       depends on CC_HAS_NO_PROFILE_FN_ATTR
+> >         help
+> >           This option enables clang's PGO (Profile Guided Optimization) based
+> >           code profiling to better optimize the kernel.
+> > --
+> > 2.32.0.288.g62a8d224e6-goog
+> >
+
+
+
+-- 
 Thanks,
-Jing
+~Nick Desaulniers
