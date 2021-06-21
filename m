@@ -2,213 +2,104 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A2A7C4743C
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:45:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE655C4743C
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:50:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6FDF961003
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:45:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BEBFC61153
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:50:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231707AbhFUXsI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Jun 2021 19:48:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41562 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231569AbhFUXsI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Jun 2021 19:48:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25BEA60FE9;
-        Mon, 21 Jun 2021 23:45:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624319153;
-        bh=diaiwAvN8QgNQIX3GIs2NJUIKQAsbDwsiFGinAjrQ34=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=V8BryDAVDTIMQPVGpUUTubRgwnW5TfmAmKm3zBdQE9xtGWlmtoj8t13tnrxDfXa6Z
-         8jroe7JygyrNu37Xk8xoL+EKymmY5AT82BlAbjgQgBXhQLriY3B6Izjg8MTtWdSu0t
-         xp6+pnROcXocKlZ4iPuR5E4jbn0YW3Eyd7E9xLf0gIR1QZ5R7JZ9RBkSGdU2gJR2uq
-         mi0qkzj1dXm/YQwg01ayz8v3Q0H8NM1MBFFykmQOu0cZDOISFo4RWoYXScg4uKY/2D
-         4FKdQQqyvQXUysv1iGlKffT83j7FZeMpla13bkNphZzVzCE+IadL6vPjDhDooiU96/
-         W0sKl8M2qY3ig==
-Subject: Re: [PATCH v2 3/3] Kconfig: add
- ARCH_WANTS_NO_INSTR+CC_HAS_NO_PROFILE_FN_ATTR, depend on for GCOV and PGO
-To:     Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Bill Wendling <wcw@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
-        x86@kernel.org, Borislav Petkov <bp@alien8.de>,
-        Martin Liska <mliska@suse.cz>, Marco Elver <elver@google.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Fangrui Song <maskray@google.com>, linux-doc@vger.kernel.org,
-        linux-kbuild@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        johannes.berg@intel.com, linux-toolchains@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
+        id S231707AbhFUXwe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Jun 2021 19:52:34 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39772 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231486AbhFUXwe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Jun 2021 19:52:34 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15LNXKVT065867;
+        Mon, 21 Jun 2021 19:50:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=eipUJqYEePrSLRSHzoaTR7BE/LaLdDKyMv+E8lKNlkQ=;
+ b=ckTd/4GCcTyhvTWOb2hPurcQH8I18ytvx80VJ0yZ4kvnZQ2iCKCK+xEyT1ADaiUW4JtH
+ JrC6/7AMtErWQMeNrVsikpYbXNaCCfaU++zn39j/DXmdWyiXZRXKv3HQAg9StRn5kDeQ
+ vSTiq6IifZ6nzoa+23U4c+lLe9ESgiY9SOYFTOMSkP0Zqp9XYkBu4uBB0a2AyQm/pNZb
+ 9OPBpqLV2WfbpgklqdAXvxY7TvdBBO3dqge546rrU5RSf2UMAXPZIqKnC+4vHTCsOpuo
+ MkFUTIvAc9jW3h4buON4PpNZ3iTTHqfzTvSiOKE2arjpvwuVcV6Bj+V2ZcRPzgIwLsy8 cw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39b3tp9acs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Jun 2021 19:50:19 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15LNXYZt066106;
+        Mon, 21 Jun 2021 19:50:18 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39b3tp9abu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Jun 2021 19:50:18 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15LNiql5011286;
+        Mon, 21 Jun 2021 23:50:16 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 399878rm9y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Jun 2021 23:50:16 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15LNmuV936831624
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 21 Jun 2021 23:48:56 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 02D604C050;
+        Mon, 21 Jun 2021 23:50:13 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7318C4C04A;
+        Mon, 21 Jun 2021 23:50:12 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.57.69])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Mon, 21 Jun 2021 23:50:12 +0000 (GMT)
+Date:   Tue, 22 Jun 2021 01:50:10 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>
-References: <20210621231822.2848305-1-ndesaulniers@google.com>
- <20210621231822.2848305-4-ndesaulniers@google.com>
-From:   Nathan Chancellor <nathan@kernel.org>
-Message-ID: <fbf46793-c3fc-8d59-fbb0-1a45d183c981@kernel.org>
-Date:   Mon, 21 Jun 2021 16:45:50 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH] virtio/s390: get rid of open-coded kvm hypercall
+Message-ID: <20210622015010.1f02db8d.pasic@linux.ibm.com>
+In-Reply-To: <20210621144522.1304273-1-hca@linux.ibm.com>
+References: <20210621144522.1304273-1-hca@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20210621231822.2848305-4-ndesaulniers@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 1xazjH4FP6YqL4W59pT9TAGMNfAuK883
+X-Proofpoint-GUID: b4o5pwT6SP9LqsWDlT-edFQpqIIPVi7K
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-21_14:2021-06-21,2021-06-21 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ priorityscore=1501 suspectscore=0 adultscore=0 clxscore=1011
+ impostorscore=0 spamscore=0 mlxscore=0 phishscore=0 malwarescore=0
+ lowpriorityscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2104190000 definitions=main-2106210138
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 21 Jun 2021 16:45:22 +0200
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-
-On 6/21/2021 4:18 PM, 'Nick Desaulniers' via Clang Built Linux wrote:
-> We don't want compiler instrumentation to touch noinstr functions, which
-> are annotated with the no_profile_instrument_function function
-> attribute. Add a Kconfig test for this and make PGO and GCOV depend on
-> it.
+> do_kvm_notify() and __do_kvm_notify() are an (exact) open-coded variant
+> of kvm_hypercall3(). Therefore simply make use of kvm_hypercall3(),
+> and get rid of duplicated code.
 > 
-> If an architecture is using noinstr, it should denote that via this
-> Kconfig value. That makes Kconfigs that depend on noinstr able to
-> express dependencies in an architecturally agnostic way.
-> 
-> Cc: Masahiro Yamada <masahiroy@kernel.org>
-> Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-> Link: https://lore.kernel.org/lkml/YMTn9yjuemKFLbws@hirez.programming.kicks-ass.net/
-> Link: https://lore.kernel.org/lkml/YMcssV%2Fn5IBGv4f0@hirez.programming.kicks-ass.net/
-> Suggested-by: Nathan Chancellor <nathan@kernel.org>
-> Suggested-by: Peter Zijlstra <peterz@infradead.org>
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-
-Small nit below.
-
-> ---
-> Changes V1 -> V2:
-> * Add ARCH_WANTS_NO_INSTR
-> * Change depdendencies to be !ARCH_WANTS_NO_INSTR || CC_HAS_NO_PROFILE_FN_ATTR
->    rather than list architectures explicitly, as per Nathan.
-> * s/no_profile/no_profile_instrument_function/
-> 
->   arch/Kconfig        | 7 +++++++
->   arch/arm64/Kconfig  | 1 +
->   arch/s390/Kconfig   | 1 +
->   arch/x86/Kconfig    | 1 +
->   init/Kconfig        | 3 +++
->   kernel/gcov/Kconfig | 1 +
->   kernel/pgo/Kconfig  | 3 ++-
->   7 files changed, 16 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/Kconfig b/arch/Kconfig
-> index 2b4109b0edee..2113c6b3b801 100644
-> --- a/arch/Kconfig
-> +++ b/arch/Kconfig
-> @@ -285,6 +285,13 @@ config ARCH_THREAD_STACK_ALLOCATOR
->   config ARCH_WANTS_DYNAMIC_TASK_STRUCT
->   	bool
->   
-> +config ARCH_WANTS_NO_INSTR
-> +	bool
-> +	help
-> +	  An architecure should select this if the noinstr macro is being used on
-
-Architecture
-
-> +	  functions to denote that the toolchain should avoid instrumenting such
-> +	  functions and is required for correctness.
-> +
->   config ARCH_32BIT_OFF_T
->   	bool
->   	depends on !64BIT
-> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-> index 9f1d8566bbf9..39bf982b06f8 100644
-> --- a/arch/arm64/Kconfig
-> +++ b/arch/arm64/Kconfig
-> @@ -93,6 +93,7 @@ config ARM64
->   	select ARCH_WANT_FRAME_POINTERS
->   	select ARCH_WANT_HUGE_PMD_SHARE if ARM64_4K_PAGES || (ARM64_16K_PAGES && !ARM64_VA_BITS_36)
->   	select ARCH_WANT_LD_ORPHAN_WARN
-> +	select ARCH_WANTS_NO_INSTR
->   	select ARCH_HAS_UBSAN_SANITIZE_ALL
->   	select ARM_AMBA
->   	select ARM_ARCH_TIMER
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index b4c7c34069f8..bd60310f33b9 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -117,6 +117,7 @@ config S390
->   	select ARCH_USE_BUILTIN_BSWAP
->   	select ARCH_USE_CMPXCHG_LOCKREF
->   	select ARCH_WANTS_DYNAMIC_TASK_STRUCT
-> +	select ARCH_WANTS_NO_INSTR
->   	select ARCH_WANT_DEFAULT_BPF_JIT
->   	select ARCH_WANT_IPC_PARSE_VERSION
->   	select BUILDTIME_TABLE_SORT
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index da43fd046149..7d6a44bb9b0e 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -114,6 +114,7 @@ config X86
->   	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
->   	select ARCH_WANT_DEFAULT_BPF_JIT	if X86_64
->   	select ARCH_WANTS_DYNAMIC_TASK_STRUCT
-> +	select ARCH_WANTS_NO_INSTR
->   	select ARCH_WANT_HUGE_PMD_SHARE
->   	select ARCH_WANT_LD_ORPHAN_WARN
->   	select ARCH_WANTS_THP_SWAP		if X86_64
-> diff --git a/init/Kconfig b/init/Kconfig
-> index 1ea12c64e4c9..31397a7a45fb 100644
-> --- a/init/Kconfig
-> +++ b/init/Kconfig
-> @@ -83,6 +83,9 @@ config TOOLS_SUPPORT_RELR
->   config CC_HAS_ASM_INLINE
->   	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
->   
-> +config CC_HAS_NO_PROFILE_FN_ATTR
-> +	def_bool $(success,echo '__attribute__((no_profile_instrument_function)) int x();' | $(CC) -x c - -c -o /dev/null -Werror)
-> +
->   config CONSTRUCTORS
->   	bool
->   
-> diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
-> index 58f87a3092f3..053447183ac5 100644
-> --- a/kernel/gcov/Kconfig
-> +++ b/kernel/gcov/Kconfig
-> @@ -5,6 +5,7 @@ config GCOV_KERNEL
->   	bool "Enable gcov-based kernel profiling"
->   	depends on DEBUG_FS
->   	depends on !CC_IS_CLANG || CLANG_VERSION >= 110000
-> +	depends on !ARCH_WANTS_NO_INSTR || CC_HAS_NO_PROFILE_FN_ATTR
->   	select CONSTRUCTORS
->   	default n
->   	help
-> diff --git a/kernel/pgo/Kconfig b/kernel/pgo/Kconfig
-> index d2053df1111c..ce7fe04f303d 100644
-> --- a/kernel/pgo/Kconfig
-> +++ b/kernel/pgo/Kconfig
-> @@ -8,7 +8,8 @@ config PGO_CLANG
->   	bool "Enable clang's PGO-based kernel profiling"
->   	depends on DEBUG_FS
->   	depends on ARCH_SUPPORTS_PGO_CLANG
-> -	depends on CC_IS_CLANG && CLANG_VERSION >= 120000
-> +	depends on CC_IS_CLANG
-> +	depends on !ARCH_WANTS_NO_INSTR || CC_HAS_NO_PROFILE_FN_ATTR
->   	help
->   	  This option enables clang's PGO (Profile Guided Optimization) based
->   	  code profiling to better optimize the kernel.
-> 
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
