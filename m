@@ -2,74 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 222A5C48BC2
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 19:20:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C32A9C4743C
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 19:42:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B6C961356
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 19:20:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9A2356102A
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 19:42:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230170AbhFUTWW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Jun 2021 15:22:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50278 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231495AbhFUTWT (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Jun 2021 15:22:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 186ED6135D;
-        Mon, 21 Jun 2021 19:20:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624303205;
-        bh=l9FBgRorjyY0WGNvcNv/KLuTbN+PP2BdonCV1ZyXiu0=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=BnyRcUF5e+9KJFXDZuleziIYRlhNPC81SpT3MZT8xiScTJLYtP/pbDpYIgeHMwrsa
-         ypwPs6o42wH4wU0zmSd44PpkCExZNPzITRK1ciGLJwqgEHHmEBDBGKyCd/1kmpCfQ1
-         uvuXjHbGd90G734KcJwtVP+BDS1Cpf6BNgM93Gq/9ABWhBjbcyt5FXAAOlRoS3NnYu
-         7JWINqnDyEOMwkYfoWpom2UWKh0cEmngHvcRqsuGl17myKoWKeOf58w3uzQfwKzERT
-         b3sXeFUWNUSNC3TKT/elSFLmuu8JEjpYkTg+4Olx+OBTSTWp2h63H2G9ERdEdkxY2I
-         dQbFzZrUX2cSg==
-Content-Type: text/plain; charset="utf-8"
+        id S230347AbhFUTob (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Jun 2021 15:44:31 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43790 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230222AbhFUTob (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Jun 2021 15:44:31 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15LJY43K140007;
+        Mon, 21 Jun 2021 15:42:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=tpTbAY+2SNGjxOxee8jh1frQ5eR6mnKDfmrbz8wFNlA=;
+ b=eIKO0dqY7kds6RPToVJ+mzJRstYxNBCXl8SFGwMys1hmq13DQ1Zt/nXFR7UBiCE74WiU
+ /8OkfOVJFyTj3Bvhz+MBqm3nzaGqUnNtpOzuhtPpPCd/4pC4t+ELnm5wQYFdRpapEnPL
+ tXHk0VwSSHR+DX+386aeMWkseldl77bTvKRN9G1xuM0zthGgHbyrQrHxpsysZ4EStRC+
+ f4K/kZvt7SmgGmI0QEZ/1lwZD3NMEwHVWi1ZosDDuzG6Sofc+2qS9LxwV7uFe6A8h+ft
+ AP3NWiXW3oP12jdaVgKjKzTlzb5+Ue06uusWdmlR1V/htPO8vbgjC/FYT+j5Ju2z8C5s JA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39ayjmtvby-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Jun 2021 15:42:16 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15LJZAbP145922;
+        Mon, 21 Jun 2021 15:42:15 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39ayjmtvay-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Jun 2021 15:42:15 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15LJXcJ2006046;
+        Mon, 21 Jun 2021 19:42:13 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma05fra.de.ibm.com with ESMTP id 3998788jxt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Jun 2021 19:42:13 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15LJgAdH25952556
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 21 Jun 2021 19:42:10 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5A4E2A4054;
+        Mon, 21 Jun 2021 19:42:10 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 11E26A405B;
+        Mon, 21 Jun 2021 19:42:10 +0000 (GMT)
+Received: from osiris (unknown [9.145.14.202])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 21 Jun 2021 19:42:09 +0000 (GMT)
+Date:   Mon, 21 Jun 2021 21:42:08 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Cornelia Huck <cohuck@redhat.com>
+Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH] virtio/s390: get rid of open-coded kvm hypercall
+Message-ID: <YNDrkOhjRiaBv34p@osiris>
+References: <20210621144522.1304273-1-hca@linux.ibm.com>
+ <87lf73nsqj.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] net/smc: Fix ENODATA tests in
- smc_nl_get_fback_stats()
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162430320503.6988.10664396793932851537.git-patchwork-notify@kernel.org>
-Date:   Mon, 21 Jun 2021 19:20:05 +0000
-References: <YM32HV7psa+PrmbV@mwanda>
-In-Reply-To: <YM32HV7psa+PrmbV@mwanda>
-To:     Dan Carpenter <dan.carpenter@oracle.com>
-Cc:     kgraul@linux.ibm.com, guvenc@linux.ibm.com, davem@davemloft.net,
-        kuba@kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87lf73nsqj.fsf@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: IKAMp-76W4k5MjT0MgTo-NnoAPNCMtOh
+X-Proofpoint-GUID: miWDX3LO9_vFH9H89bde_3WaO8KLONef
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-21_11:2021-06-21,2021-06-21 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
+ lowpriorityscore=0 suspectscore=0 phishscore=0 spamscore=0 malwarescore=0
+ adultscore=0 clxscore=1015 impostorscore=0 priorityscore=1501 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2106210114
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net-next.git (refs/heads/master):
-
-On Sat, 19 Jun 2021 16:50:21 +0300 you wrote:
-> These functions return negative ENODATA but the minus sign was left out
-> in the tests.
+On Mon, Jun 21, 2021 at 05:27:00PM +0200, Cornelia Huck wrote:
+> On Mon, Jun 21 2021, Heiko Carstens <hca@linux.ibm.com> wrote:
 > 
-> Fixes: f0dd7bf5e330 ("net/smc: Add netlink support for SMC fallback statistics")
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> ---
->  net/smc/smc_stats.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> > do_kvm_notify() and __do_kvm_notify() are an (exact) open-coded variant
+> > of kvm_hypercall3(). Therefore simply make use of kvm_hypercall3(),
+> > and get rid of duplicated code.
+> >
+> > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> > ---
+> >  drivers/s390/virtio/virtio_ccw.c | 30 ++++--------------------------
+> >  1 file changed, 4 insertions(+), 26 deletions(-)
+> >
+> 
+> Hm, I wonder why I didn't use kvm_hypercall3 in the first place. It's in
+> a header, and therefore should be independent of kvm being configured.
+> 
+> I don't think there's anything else virtio-ccw in flight at the moment,
+> so maybe you can apply this one directly?
 
-Here is the summary with links:
-  - [net-next] net/smc: Fix ENODATA tests in smc_nl_get_fback_stats()
-    https://git.kernel.org/netdev/net-next/c/1a1100d53f12
+Yes, sure.
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
-
+Thank you!
