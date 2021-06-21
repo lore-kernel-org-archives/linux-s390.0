@@ -2,118 +2,137 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BEB9CC49EA4
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 22:58:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43B2CC49EA2
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:18:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A68ED61164
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 22:58:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F6536023D
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:18:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232193AbhFUXAj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Jun 2021 19:00:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32942 "EHLO
+        id S231705AbhFUXVJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Jun 2021 19:21:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232231AbhFUXAh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Jun 2021 19:00:37 -0400
-Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CA4EC061766
-        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 15:58:21 -0700 (PDT)
-Received: by mail-lj1-x22f.google.com with SMTP id q23so16999030ljh.0
-        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 15:58:21 -0700 (PDT)
+        with ESMTP id S231707AbhFUXVI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Jun 2021 19:21:08 -0400
+Received: from mail-qv1-xf4a.google.com (mail-qv1-xf4a.google.com [IPv6:2607:f8b0:4864:20::f4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A05C061767
+        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 16:18:52 -0700 (PDT)
+Received: by mail-qv1-xf4a.google.com with SMTP id b2-20020a0cf0420000b029025f56d0b50dso16089357qvl.0
+        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 16:18:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=eVsPgvw6YZtv9/khL7FcPl2CChAbrBHIUpUhwR9h/bo=;
-        b=FH/W93ij16UB6P9ZMApoTm7j34Ngovg2YUq2ckZGJNfgdblozN5ZKntY1V1rAlrbQx
-         Tv1JUz3kheA+LeiAPkeTfLPb9vDUeteRtWoadPqdUAgOZlXHhEzrWHXXtWgFNk3CHH2P
-         g106EMc0MFE8EJskX/yuN+K+5HgTaQ5rsYYju0Qvkoe0Zgc8IwPMO1OEXrewgqCsl4iv
-         Qg6UhttuCVW7bBt9xwFnSYV5J4t45YoyMo/CCtoCdTL5P3Ub6OzzR1mrOPh0AT4v24pF
-         XOJebkOxiDFZF/3FudatA/mH3B1DORbChBvU1XNg8hUXadTURzA2NYudPGR7gVPNvDWZ
-         7pyg==
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=EuIcmSw5KPdPoDKod6astx8c5RujtZWXcqBmQqWg68Y=;
+        b=Rl2f+IVFqR4FXBxc4YAH9IgPYaLlI0oYo4anxkuLff4uba+ORx0p7N9irHcgqyQ+9M
+         hmodRj/mKufcXYD11r2VSZ5hDKLyMvdLLLmobp3968Q8QfOqiRIMD5DcevQhK1EJCWRO
+         n7YxcGY/61Wgt9WwsRSZ6z3H5yImCbKhYTohLAKNS6nyOkyj4osBjSTdvq78hw1W4QDD
+         gvjHiARt6uW5acWJ7Fc8Qw3tqcAV19/d9odEv831VqpKPsvASivqCZg122/+MYAhLcWF
+         fQIf8W7RIKXiSmMlSEyeiG7Yu61ytddyLALZ9ISgnTlBZNRvqmVKf3y9TnrsFOaIwbNE
+         v2Ug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=eVsPgvw6YZtv9/khL7FcPl2CChAbrBHIUpUhwR9h/bo=;
-        b=kc8fTqIG5R5Bwg7kYh3uAS+nfqksYK+dOGogHF0WDTDYsy32RzB6DUM0KL/EBTngC6
-         Ul5zIOjFrw66HUFICJTxn1oMt1j/LWqSloggf1FdQC5C74Bsqo6J9gBLS9fE23jtpbZr
-         RuTk1SvmDin42God/HtT6rcznjapZxGSduoNjWRQ8YcixuR1NTbsWU6+1iNjb3oQ4pZr
-         WNp8szXK5p9LsUudl+SNEL0LuXVnt1wjq6EoK4rjea0x0dVPRzojGW3idI5wfKze4hRq
-         uxQvI8Q/EUnxtfQdgaPCRPMBPfBhlmOaxqplQ2RhbIZDCe9ChhOQ9n688S9Km8PCp+3O
-         YQog==
-X-Gm-Message-State: AOAM531reJxHaU/styNH9QYHPNDznFfESYL2xRH/1mfU9tEsHGkqRbiL
-        JiQscWLOfnH6xcBls439kxS/GCQPHw4vi4jbEEcz1w==
-X-Google-Smtp-Source: ABdhPJzOJs9NgUC9ZiKXYdc7xSvz2B+wmeDG/p0spXP3KgLdL4+SFKbUTkdrgy+jkG55hkyBhNUiglU1Rb6f6QzRog0=
-X-Received: by 2002:a05:651c:150a:: with SMTP id e10mr455097ljf.215.1624316299083;
- Mon, 21 Jun 2021 15:58:19 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210618222709.1858088-1-jingzhangos@google.com>
- <20210618222709.1858088-3-jingzhangos@google.com> <0cde024e-a234-9a10-5157-d17ba423939e@redhat.com>
- <CAAdAUtiL6DwJDWLLmUqct6B6n7Zaa2DyPhpwKZKb=cpRH+8+vQ@mail.gmail.com> <aa1d0bd9-55cf-161a-5af9-f5abde807353@redhat.com>
-In-Reply-To: <aa1d0bd9-55cf-161a-5af9-f5abde807353@redhat.com>
-From:   Jing Zhang <jingzhangos@google.com>
-Date:   Mon, 21 Jun 2021 17:58:08 -0500
-Message-ID: <CAAdAUti1MreOnAXtA+jBEaq+AixmqvBEByi9G4EgDpfu63spHA@mail.gmail.com>
-Subject: Re: [PATCH v12 2/7] KVM: stats: Add fd-based API to read binary stats data
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, KVMARM <kvmarm@lists.cs.columbia.edu>,
-        LinuxMIPS <linux-mips@vger.kernel.org>,
-        KVMPPC <kvm-ppc@vger.kernel.org>,
-        LinuxS390 <linux-s390@vger.kernel.org>,
-        Linuxkselftest <linux-kselftest@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Mackerras <paulus@ozlabs.org>,
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=EuIcmSw5KPdPoDKod6astx8c5RujtZWXcqBmQqWg68Y=;
+        b=kO+e4yYx6zr/PDgXFAkVjRe7LVIrOLD/AJPGp4iywYsUwJ+UXwtF5x0s1jN2BBI4Xf
+         nUmbbbPUC/xhyU27moBHVXQZBsGTliQo582K66xEEdAVyvkcFAU9i1uuVXPsC2nF8kFp
+         uwPLCEP/e+y9dkdWmRLmXaLTTxHiDk7vLbFoAFH6U5RcqqMSCCKmbCn++p4NZK3BHXBU
+         nj6ogqv/4k1C/JDr0Ks35z/00dkvRDLnTPwfNCxobBrnabUpfGzSxjyytGPAdq77fMuj
+         K6U3Ua9MmZBnvB4YhR/H2Lufrx73npYW45gjsJQwtx//3OWushRoCWcFIrVurw+biioV
+         u3oQ==
+X-Gm-Message-State: AOAM531Zu65voQHr/MCpEOOfYFUpuM25sVAvyuXak79nSPzqiCNwGRN+
+        eo6vbL2tVHIc07LXouF778Ru4TfslFlR1qqj50s=
+X-Google-Smtp-Source: ABdhPJwXV3AaUVj/zGKNnPsDnVTnkVqvyKrfM+eSMD0ScbK7e4btiOXMggCYiTefAq5RSnQMsJmgFBuwAnoE5CW3OBg=
+X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:dfd:ebf9:4ec7:1783])
+ (user=ndesaulniers job=sendgmr) by 2002:a25:3749:: with SMTP id
+ e70mr789717yba.53.1624317531803; Mon, 21 Jun 2021 16:18:51 -0700 (PDT)
+Date:   Mon, 21 Jun 2021 16:18:19 -0700
+Message-Id: <20210621231822.2848305-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.32.0.288.g62a8d224e6-goog
+Subject: [PATCH v2 0/3] no_profile fn attr and Kconfig for GCOV+PGO
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Bill Wendling <wcw@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
+        x86@kernel.org, Borislav Petkov <bp@alien8.de>,
+        Martin Liska <mliska@suse.cz>, Marco Elver <elver@google.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Fangrui Song <maskray@google.com>, linux-doc@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        johannes.berg@intel.com, linux-toolchains@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Emanuele Giuseppe Esposito <eesposit@redhat.com>,
-        David Matlack <dmatlack@google.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Krish Sadhukhan <krish.sadhukhan@oracle.com>,
-        Fuad Tabba <tabba@google.com>,
-        Greg KH <gregkh@linuxfoundation.org>
+        linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 21, 2021 at 5:45 PM Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> On 21/06/21 19:46, Jing Zhang wrote:
-> >> const struct kvm_stats_header kvm_vm_stats_header = {
-> >>          .name_size = KVM_STATS_NAME_SIZE,
-> >>          .num_desc = num_desc,
-> > The problem is how we calculate the number of descriptors, which needs the
-> > size of the descriptor array for each architecture.
-> > Define another global variable to export the size of descriptor array?
->
-> Pass it as an argument?
-The num_desc can only be initialized in the same file that defines the
-descriptor array.
-Looks like we have to have a global variable to save that. The
-solution would be similar
-to have a statically defined header for each arch.
-So, keep the header structure for each arch?
->
-> Paolo
->
+The kernel has been using noinstr for correctness to politely request
+that the compiler avoid adding various forms of instrumentation to
+certain functions.
+
+GCOV and PGO can both instrument functions, yet the function attribute
+to disable such instrumentation (no_profile_instrument_function) was not
+being used to suppress such implementation. Also, clang only just
+recently gained support for no_profile_instrument_function. GCC has
+supported that since 7.1+.
+
+Add a new function annotation __no_profile that expands to
+__attribute__((__no_profile_instrument_function__)) and Kconfig values
+CC_HAS_NO_PROFILE_FN_ATTR and ARCH_WANTS_NO_INSTR. Make GCOV and PGO
+depend on either !ARCH_WANTS_NO_INSTR or CC_HAS_NO_PROFILE_FN_ATTR.
+
+Changes V1 -> V2:
+* s/no_profile/no_profile_instrument_function/
+* fix trailing double underscore on GCC 4 define, as per Fangrui+Miguel.
+* Pick up Fangrui + Miguel's reviewed-by tag.
+* Add link to GCC's doc.
+* Fix clang's doc format; will appear once clang-13 is released.
+* New cleanup patch 2/3. Orthogonal to the series, but while I'm here...
+
+Base is
+https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git/log/?h=for-next/clang/pgo.
+
+Nick Desaulniers (3):
+  compiler_attributes.h: define __no_profile, add to noinstr
+  compiler_attributes.h: cleanups for GCC 4.9+
+  Kconfig: add ARCH_WANTS_NO_INSTR+CC_HAS_NO_PROFILE_FN_ATTR, depend on
+    for GCOV and PGO
+
+ arch/Kconfig                        |  7 +++++++
+ arch/arm64/Kconfig                  |  1 +
+ arch/s390/Kconfig                   |  1 +
+ arch/x86/Kconfig                    |  1 +
+ include/linux/compiler_attributes.h | 19 ++++++++++++++++---
+ include/linux/compiler_types.h      |  2 +-
+ init/Kconfig                        |  3 +++
+ kernel/gcov/Kconfig                 |  1 +
+ kernel/pgo/Kconfig                  |  3 ++-
+ 9 files changed, 33 insertions(+), 5 deletions(-)
+
+
+base-commit: 4356bc4c0425c81e204f561acf4dd0095544a6cb
+-- 
+2.32.0.288.g62a8d224e6-goog
+
