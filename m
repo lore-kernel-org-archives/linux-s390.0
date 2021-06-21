@@ -2,146 +2,148 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FBF5C49EA2
-	for <linux-s390@archiver.kernel.org>; Sun, 20 Jun 2021 23:22:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 384FDC48BE5
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 07:23:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2826560FE9
-	for <linux-s390@archiver.kernel.org>; Sun, 20 Jun 2021 23:22:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0DDD261026
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 07:23:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230040AbhFTXYd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 20 Jun 2021 19:24:33 -0400
-Received: from mail-io1-f72.google.com ([209.85.166.72]:52182 "EHLO
-        mail-io1-f72.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229875AbhFTXYa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 20 Jun 2021 19:24:30 -0400
-Received: by mail-io1-f72.google.com with SMTP id x21-20020a5d99150000b02904e00bb129f0so5469214iol.18
-        for <linux-s390@vger.kernel.org>; Sun, 20 Jun 2021 16:22:16 -0700 (PDT)
+        id S229651AbhFUH0J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Jun 2021 03:26:09 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:39322 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229597AbhFUH0I (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Jun 2021 03:26:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1624260234;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=XMRgq2dq9kVJTZ06aFTv9LxsxXDee8st/7DFnnRNKMI=;
+        b=dudKPdGoHZ/nfXtpjl5qNjSRc77B0giKk5x57EJlS6jbT4cgSoZ7kGDS3DXS/ZtGxD9yQ4
+        YbA/BIZWege3/FHkuLVy0tZqk0q6TB47uwN4epVvJ1cLPgEk4k/0X8cDHoWiqqEuqj6ovb
+        afoVvorYl50IrxS8Wsurirat9FfiDA0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-554-jL1mSoSzMbWwwYEJy7emKQ-1; Mon, 21 Jun 2021 03:23:52 -0400
+X-MC-Unique: jL1mSoSzMbWwwYEJy7emKQ-1
+Received: by mail-wm1-f69.google.com with SMTP id i82-20020a1c22550000b02901d64e84b3c9so5074626wmi.5
+        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 00:23:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=BqnKWzwtAQvEzSaBToMPLDFYUsWkoHiliy61h2x+ZUA=;
-        b=lH5zoUm0CpwPCR6mlTDVqsp/gE/9k0Atsvb9WNUXEFPwuEmgaiTjL1AIWXUkq8yexa
-         ygFy3cMihsiM+8//Ru2FzEDF1EVAlA+weARV4cf8/9Xm9njiaxcTHI5KBFY6PV2JkPOQ
-         sjLjctpkdu4Eu92OTPtK2R55j0yji8c4xmctEIBiuS05qw8/LVNvylVVeNHY3py2r1x8
-         fd/65gvMaF2uSsjN1jzgmpnh69ExVNOsp6wI+fCZULSB1V/ASbnUTmcS94Em4R39htTJ
-         4d27xEL18qJ/qBVLbBt8hgB87iREOvvQU4mSYPv72cpWFiuQYrAWOYD8gWZiFTrnEz2A
-         /UdQ==
-X-Gm-Message-State: AOAM531RGhHA5P5XX/Evk81B5AoSUXnx19P37Wvw/UKMWq8oP6mfv15v
-        eW1+ClVPQiDfbOvaIOW692jDWD8UPmMktn/pzQ+6mrQVjpp0
-X-Google-Smtp-Source: ABdhPJyWiEMVZPD/h2RokK4V7o73QVWvvWVi7Idtwt3lT6GGw5JlKqF3+/47RIQpKsRVunqRvAKgkoohdAJANQTmcMaP3Y/372q0
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=XMRgq2dq9kVJTZ06aFTv9LxsxXDee8st/7DFnnRNKMI=;
+        b=XZv6a1nqZMqOgAaT70YgBqSwuq5G1uUgn0gl4Ih+eJLF5SQs86CdN+AKwwgHHwHrie
+         EFUsbkbF8lG1BnuBcQe6deRLORUi6r8ofSQ0qWP+swN2D/IJLMadiKrz1u7n/YMxWzV0
+         GxN1Z3VUFlRPH7gt+bylQ0nTMrdvgtg2L+KdTKyhRtuw+h5VnK0tRvDok5SFYiMX0F4X
+         3dcbSOqGgQFWh56LhCnO2NrW+XpmFHWyiiwac8j6mDUIFAkGh7WK5xJf2nqoDOZw2/16
+         5GiKQy+ZofjlKopGWUaOayjpAUku3AJywsBUsR0JIHwxDN0a16PniNypjf4XDm/jeo4t
+         fClQ==
+X-Gm-Message-State: AOAM532BnlRI18Us/tgkE+C8WtGdJn+cyVDx3SclQny10MEfqgDYnnLS
+        N7qMYL6Q3x8+oM4dD+pe+nNyXWNMY9eyUyYGuNE8wf8wagNsmmejidCiGg3+VGh8FEYFjsZM3kT
+        CTR4EMbjCgcUCVflqHR76mA==
+X-Received: by 2002:a5d:4b8d:: with SMTP id b13mr9202952wrt.147.1624260231557;
+        Mon, 21 Jun 2021 00:23:51 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy3Lar56js4Qw/UWTvkTUkug7AiZzh4z2h5/A0kNZOD2bew5P7Tki50hdqUzbtUwt/ciGAVnQ==
+X-Received: by 2002:a5d:4b8d:: with SMTP id b13mr9202936wrt.147.1624260231341;
+        Mon, 21 Jun 2021 00:23:51 -0700 (PDT)
+Received: from thuth.remote.csb (pd9575fcd.dip0.t-ipconnect.de. [217.87.95.205])
+        by smtp.gmail.com with ESMTPSA id x14sm16500110wrq.78.2021.06.21.00.23.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Jun 2021 00:23:50 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH v2] s390x: selftest: Add prefixes to fix
+ report output (was "s390x: selftest: Fix report output")
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, cohuck@redhat.com
+References: <20210610141913.61553-1-frankja@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <d8edba2f-e976-3167-abf6-e1eb15a3f481@redhat.com>
+Date:   Mon, 21 Jun 2021 09:23:50 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-X-Received: by 2002:a5d:9051:: with SMTP id v17mr565354ioq.81.1624231336038;
- Sun, 20 Jun 2021 16:22:16 -0700 (PDT)
-Date:   Sun, 20 Jun 2021 16:22:16 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000d154d905c53ad34d@google.com>
-Subject: [syzbot] general protection fault in smc_tx_sendmsg
-From:   syzbot <syzbot+5dda108b672b54141857@syzkaller.appspotmail.com>
-To:     coreteam@netfilter.org, davem@davemloft.net, dsahern@kernel.org,
-        fw@strlen.de, kadlec@netfilter.org, kgraul@linux.ibm.com,
-        kuba@kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        netfilter-devel@vger.kernel.org, pablo@netfilter.org,
-        syzkaller-bugs@googlegroups.com, yoshfuji@linux-ipv6.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210610141913.61553-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello,
+On 10/06/2021 16.19, Janosch Frank wrote:
+> To make our TAP parser (and me) happy we don't want to have two reports
+> with exactly the same wording so I added in two new prefix pushes.
+> 
+> Also moving the code inside of the region of a prefix will give us
+> more data when a problem arises.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   s390x/selftest.c | 26 ++++++++++++++++++--------
+>   1 file changed, 18 insertions(+), 8 deletions(-)
+> 
+> diff --git a/s390x/selftest.c b/s390x/selftest.c
+> index b2fe2e7b..0f099ca0 100644
+> --- a/s390x/selftest.c
+> +++ b/s390x/selftest.c
+> @@ -40,19 +40,28 @@ static void test_pgm_int(void)
+>   
+>   static void test_malloc(void)
+>   {
+> -	int *tmp = malloc(sizeof(int));
+> -	int *tmp2 = malloc(sizeof(int));
+> +	int *tmp, *tmp2;
+>   
+> +	report_prefix_push("malloc");
+> +
+> +	report_prefix_push("ptr_0");
+> +	tmp = malloc(sizeof(int));
+> +	report((uintptr_t)tmp & 0xf000000000000000ul, "allocated memory");
+>   	*tmp = 123456789;
+> +	mb();
+> +	report(*tmp == 123456789, "wrote allocated memory");
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("ptr_1");
+> +	tmp2 = malloc(sizeof(int));
+> +	report((uintptr_t)tmp2 & 0xf000000000000000ul,
+> +	       "allocated memory");
+>   	*tmp2 = 123456789;
+>   	mb();
+> +	report((*tmp2 == 123456789), "wrote allocated memory");
+> +	report_prefix_pop();
+>   
+> -	report((uintptr_t)tmp & 0xf000000000000000ul, "malloc: got vaddr");
+> -	report(*tmp == 123456789, "malloc: access works");
+> -	report((uintptr_t)tmp2 & 0xf000000000000000ul,
+> -	       "malloc: got 2nd vaddr");
+> -	report((*tmp2 == 123456789), "malloc: access works");
+> -	report(tmp != tmp2, "malloc: addresses differ");
+> +	report(tmp != tmp2, "allocated memory addresses differ");
+>   
+>   	expect_pgm_int();
+>   	configure_dat(0);
+> @@ -62,6 +71,7 @@ static void test_malloc(void)
+>   
+>   	free(tmp);
+>   	free(tmp2);
+> +	report_prefix_pop();
+>   }
+>   
+>   int main(int argc, char**argv)
+> 
 
-syzbot found the following issue on:
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 
-HEAD commit:    0c337952 Merge tag 'wireless-drivers-next-2021-06-16' of g..
-git tree:       net-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=1621de10300000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=a6380da8984033f1
-dashboard link: https://syzkaller.appspot.com/bug?extid=5dda108b672b54141857
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=121d2d20300000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=100bd768300000
-
-The issue was bisected to:
-
-commit f9006acc8dfe59e25aa75729728ac57a8d84fc32
-Author: Florian Westphal <fw@strlen.de>
-Date:   Wed Apr 21 07:51:08 2021 +0000
-
-    netfilter: arp_tables: pass table pointer via nf_hook_ops
-
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=12600fffd00000
-final oops:     https://syzkaller.appspot.com/x/report.txt?x=11600fffd00000
-console output: https://syzkaller.appspot.com/x/log.txt?x=16600fffd00000
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+5dda108b672b54141857@syzkaller.appspotmail.com
-Fixes: f9006acc8dfe ("netfilter: arp_tables: pass table pointer via nf_hook_ops")
-
-general protection fault, probably for non-canonical address 0xdffffc0000000004: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000020-0x0000000000000027]
-CPU: 1 PID: 8455 Comm: syz-executor893 Not tainted 5.13.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:smc_tx_sendmsg+0x204/0x1ba0 net/smc/smc_tx.c:157
-Code: 48 c1 ea 03 80 3c 02 00 0f 85 8b 17 00 00 49 8b 9d 08 05 00 00 48 b8 00 00 00 00 00 fc ff df 48 8d 7b 20 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 8f 17 00 00 48 63 5b 20 4c 8b
-RSP: 0018:ffffc9000164f800 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000004 RSI: ffffffff889cd6ae RDI: 0000000000000020
-RBP: ffff88801cf58000 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff889cd6a1 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff88801cf58000 R14: ffffc9000164fd90 R15: ffff88801cf58060
-FS:  0000000000ebf300(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffd43ca1328 CR3: 000000002acf2000 CR4: 00000000001506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- smc_sendmsg+0x274/0x5b0 net/smc/af_smc.c:2037
- sock_sendmsg_nosec net/socket.c:654 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:674
- ____sys_sendmsg+0x331/0x810 net/socket.c:2350
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
- __sys_sendmmsg+0x195/0x470 net/socket.c:2490
- __do_sys_sendmmsg net/socket.c:2519 [inline]
- __se_sys_sendmmsg net/socket.c:2516 [inline]
- __x64_sys_sendmmsg+0x99/0x100 net/socket.c:2516
- do_syscall_64+0x3a/0xb0 arch/x86/entry/common.c:47
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x43ee89
-Code: 28 c3 e8 2a 14 00 00 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffc82b20a58 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
-RAX: ffffffffffffffda RBX: 0000000000400488 RCX: 000000000043ee89
-RDX: 0000000000000001 RSI: 0000000020003d80 RDI: 0000000000000003
-RBP: 0000000000402e70 R08: 0000000000000000 R09: 0000000000400488
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000402f00
-R13: 0000000000000000 R14: 00000000004ac018 R15: 0000000000400488
-Modules linked in:
----[ end trace 459b28282ae53115 ]---
-RIP: 0010:smc_tx_sendmsg+0x204/0x1ba0 net/smc/smc_tx.c:157
-Code: 48 c1 ea 03 80 3c 02 00 0f 85 8b 17 00 00 49 8b 9d 08 05 00 00 48 b8 00 00 00 00 00 fc ff df 48 8d 7b 20 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 8f 17 00 00 48 63 5b 20 4c 8b
-RSP: 0018:ffffc9000164f800 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000004 RSI: ffffffff889cd6ae RDI: 0000000000000020
-RBP: ffff88801cf58000 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff889cd6a1 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff88801cf58000 R14: ffffc9000164fd90 R15: ffff88801cf58060
-FS:  0000000000ebf300(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000055b7501be298 CR3: 000000002acf2000 CR4: 00000000001506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
-syzbot can test patches for this issue, for details see:
-https://goo.gl/tpsmEJ#testing-patches
