@@ -2,161 +2,226 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7D9CC4743C
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 10:24:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39051C4743C
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 12:19:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B70EF611CE
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 10:24:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F9F061002
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 12:19:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230318AbhFUK0S (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Jun 2021 06:26:18 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:41956 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230272AbhFUK0S (ORCPT
+        id S229623AbhFUMV7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Jun 2021 08:21:59 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14778 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229610AbhFUMV7 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Jun 2021 06:26:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1624271043;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=CFP+bBW5W6kTZB9H0onGu9RL+/PFl1GSn7nOHvioNQY=;
-        b=Fapan8otEEFC1wF84YtcO7QS0heTRhj6VkUBONyUGnTdMVGu76it6JY4UG/IjNGvR7EV+Y
-        vXuEF/8VGPFQb7wxcsVoo3Gy/qEVZ8TuQHpaidG/OCeoyjlUBEyU+dtCrgZH50iI1ZyiG2
-        wm02vihjljg3FrGxXfO9vVICTPtAr6Q=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-30-6gBfS57AOG6W1zzcju0wrQ-1; Mon, 21 Jun 2021 06:24:02 -0400
-X-MC-Unique: 6gBfS57AOG6W1zzcju0wrQ-1
-Received: by mail-wr1-f71.google.com with SMTP id l13-20020adfe9cd0000b0290119a0645c8fso8258374wrn.8
-        for <linux-s390@vger.kernel.org>; Mon, 21 Jun 2021 03:24:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=CFP+bBW5W6kTZB9H0onGu9RL+/PFl1GSn7nOHvioNQY=;
-        b=sHiBPuSfcI0NB0no5NVEKUAVwd5m/Gg2xqQpPvIJgZjJ49vVG9j/2OZNbpmK2734JV
-         wUNhwLQLFBHf2TBXcmZZquzngEM5jFWnTnvTGuDo8nQaTM3PcixrgpbaZqZdenSfr8rF
-         F7XdihbMTuoYePp/ajHqR9Qas/1RaUQ9VJVDsrn9+BMLifaSlPCcNTsAhtF+L9EU/T6K
-         V9CKW0C3VETI2Sv3FRXDJiXl5DaKvRE8nueB1yavJzB0DME7Z68eZYITCh9CKmiJU0+R
-         cSzg1Cy7DLvB/jlngwJyojcQvz9SKeorw19gOlF8FR7VEJs7JZyziNvjCGHW7IHE/rWW
-         tRAw==
-X-Gm-Message-State: AOAM533CyTbIwo+/LbwdDirweL9K5EgNGzOWUikY1pzWxQNASJXlXoMf
-        E6M5arBWJSGi6nc4rf7pIEb5cd5prkJOhXrFy0YhS5sBpEXCON3k9+2KZRqn7w7q4HkrN7VYi2u
-        sPZZIjMxCh2dnxOwM/hGf7Q==
-X-Received: by 2002:a5d:6c64:: with SMTP id r4mr1804076wrz.316.1624271041229;
-        Mon, 21 Jun 2021 03:24:01 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy4D2bw8vSx5i/LERK0SCMj//6IgDg2pWN6tzwURnO51Qecma8v3T73ZrXAltoSGe9wFG8Bgg==
-X-Received: by 2002:a5d:6c64:: with SMTP id r4mr1804056wrz.316.1624271041048;
-        Mon, 21 Jun 2021 03:24:01 -0700 (PDT)
-Received: from thuth.remote.csb (pd9575fcd.dip0.t-ipconnect.de. [217.87.95.205])
-        by smtp.gmail.com with ESMTPSA id n8sm4222413wmc.45.2021.06.21.03.23.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Jun 2021 03:24:00 -0700 (PDT)
-Subject: Re: [kvm-unit-tests RFC 2/2] s390x: mvpg: Add SIE mvpg test
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+        Mon, 21 Jun 2021 08:21:59 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15LCEenw099154;
+        Mon, 21 Jun 2021 08:19:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
+ from : subject : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=LMtWQaS6HHIt12zAQWpJpipX1WwSNd/R/T5gC/2HZaI=;
+ b=Ku1k8XWtQ0OsWyUkjTc/lBjNDfuwTmgUzfe/Kq05gHZSpbAnST0r4ngFOfbeQ7Vzrfuz
+ ecy83PK6oMsw1YMrWE5L8dMGFztmjCo/SM31fbv97uoOudvFY4N3r92Ztjfg4RRMm64Z
+ JZ5j0E6McQvGOH/awH2lK4p6EFveHWhWeKXSUusRH08WFQnT+27b48vw0igjO7eAu0RE
+ hjwlht7XRMwPfOgQKRCAc4Q5TSEs4v8U9Ddk+0n+IAdpYN43rx8pJmnBl4UBFG0nWAfm
+ 9LpG3AOKhi800JxeOqRs3Ay4rsrbLUgfnvXk57cyqryvqwfvozeKfFCdPHh3B4LW7muU Pg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39atkqg5h7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Jun 2021 08:19:44 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15LCGGPA104784;
+        Mon, 21 Jun 2021 08:19:44 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39atkqg5gq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Jun 2021 08:19:44 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15LCDDFb007874;
+        Mon, 21 Jun 2021 12:19:42 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04fra.de.ibm.com with ESMTP id 399878rfu6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Jun 2021 12:19:42 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15LCJebt31654298
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 21 Jun 2021 12:19:40 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E55E042042;
+        Mon, 21 Jun 2021 12:19:39 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 94C2142041;
+        Mon, 21 Jun 2021 12:19:39 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.3.195])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 21 Jun 2021 12:19:39 +0000 (GMT)
+To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, cohuck@redhat.com
 References: <20210520094730.55759-1-frankja@linux.ibm.com>
- <20210520094730.55759-3-frankja@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <35c30a30-e245-e1e2-facc-4685455da575@redhat.com>
-Date:   Mon, 21 Jun 2021 12:23:59 +0200
+ <20210520094730.55759-2-frankja@linux.ibm.com>
+ <b5171773-afb6-e148-a82f-ea78877206ce@redhat.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests RFC 1/2] s390x: Add guest snippet support
+Message-ID: <d20e7f88-dcca-67ca-17e0-7c45982aa5ff@linux.ibm.com>
+Date:   Mon, 21 Jun 2021 14:19:38 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-In-Reply-To: <20210520094730.55759-3-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <b5171773-afb6-e148-a82f-ea78877206ce@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: -gnEwvNMDKQyn84-MxyrUEYHc2gNxwNl
+X-Proofpoint-ORIG-GUID: TnXe7-9UoDbm8tKoO0ncXCpFf22pBNOc
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-21_05:2021-06-21,2021-06-21 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ priorityscore=1501 mlxscore=0 malwarescore=0 phishscore=0 adultscore=0
+ lowpriorityscore=0 suspectscore=0 mlxlogscore=999 impostorscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106210072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 20/05/2021 11.47, Janosch Frank wrote:
-> Let's also check the PEI values to make sure our VSIE implementation
-> is correct.
+On 6/21/21 12:10 PM, Thomas Huth wrote:
+> On 20/05/2021 11.47, Janosch Frank wrote:
+>> Snippets can be used to easily write and run guest (SIE) tests.
+>> The snippet is linked into the test binaries and can therefore be
+>> accessed via a ptr.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   .gitignore                |  2 ++
+>>   s390x/Makefile            | 28 ++++++++++++++++++---
+>>   s390x/snippets/c/cstart.S | 13 ++++++++++
+>>   s390x/snippets/c/flat.lds | 51 +++++++++++++++++++++++++++++++++++++++
+>>   4 files changed, 91 insertions(+), 3 deletions(-)
+>>   create mode 100644 s390x/snippets/c/cstart.S
+>>   create mode 100644 s390x/snippets/c/flat.lds
+>>
+>> diff --git a/.gitignore b/.gitignore
+>> index 784cb2dd..29d3635b 100644
+>> --- a/.gitignore
+>> +++ b/.gitignore
+>> @@ -22,3 +22,5 @@ cscope.*
+>>   /api/dirty-log
+>>   /api/dirty-log-perf
+>>   /s390x/*.bin
+>> +/s390x/snippets/*/*.bin
+>> +/s390x/snippets/*/*.gbin
+>> diff --git a/s390x/Makefile b/s390x/Makefile
+>> index 8de926ab..fe267011 100644
+>> --- a/s390x/Makefile
+>> +++ b/s390x/Makefile
+>> @@ -75,11 +75,33 @@ OBJDIRS += lib/s390x
+>>   asmlib = $(TEST_DIR)/cstart64.o $(TEST_DIR)/cpu.o
+>>   
+>>   FLATLIBS = $(libcflat)
+>> -%.elf: %.o $(FLATLIBS) $(SRCDIR)/s390x/flat.lds $(asmlib)
+>> +
+>> +SNIPPET_DIR = $(TEST_DIR)/snippets
+>> +
+>> +# C snippets that need to be linked
+>> +snippets-c =
+>> +
+>> +# ASM snippets that are directly compiled and converted to a *.gbin
+>> +snippets-a =
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->   s390x/Makefile                  |   3 +-
->   s390x/mvpg-sie.c                | 139 ++++++++++++++++++++++++++++++++
->   s390x/snippets/c/mvpg-snippet.c |  33 ++++++++
->   s390x/unittests.cfg             |   3 +
->   4 files changed, 177 insertions(+), 1 deletion(-)
->   create mode 100644 s390x/mvpg-sie.c
->   create mode 100644 s390x/snippets/c/mvpg-snippet.c
+> Could you please call this snippets-s instead of ...-a ? The -a suffix looks 
+> like an archive to me otherwise.
+
+Sure
+
 > 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index fe267011..6692cf73 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -22,6 +22,7 @@ tests += $(TEST_DIR)/uv-guest.elf
->   tests += $(TEST_DIR)/sie.elf
->   tests += $(TEST_DIR)/mvpg.elf
->   tests += $(TEST_DIR)/uv-host.elf
-> +tests += $(TEST_DIR)/mvpg-sie.elf
->   
->   tests_binary = $(patsubst %.elf,%.bin,$(tests))
->   ifneq ($(HOST_KEY_DOCUMENT),)
-> @@ -79,7 +80,7 @@ FLATLIBS = $(libcflat)
->   SNIPPET_DIR = $(TEST_DIR)/snippets
->   report_abort
->   # C snippets that need to be linked
-> -snippets-c =
-> +snippets-c = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
->   
->   # ASM snippets that are directly compiled and converted to a *.gbin
->   snippets-a =
-> diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
-> new file mode 100644
-> index 00000000..a617704b
-> --- /dev/nullreport_abort
-> +++ b/s390x/mvpg-sie.c
-> @@ -0,0 +1,139 @@
-> +#include <libcflat.h>
-> +#include <asm/asm-offsets.h>
-> +#include <asm-generic/barrier.h>
-> +#include <asm/interrupt.h>
-> +#include <asm/pgtable.h>
-> +#include <mmu.h>
-> +#include <asm/page.h>
-> +#include <asm/facility.h>
-> +#include <asm/mem.h>
-> +#include <asm/sigp.h>
-> +#include <smp.h>
-> +#include <alloc_page.h>
-> +#include <bitops.h>
-> +#include <vm.h>
-> +#include <sclp.h>
-> +#include <sie.h>
-> +
-> +static u8 *guest;
-> +static u8 *guest_instr;
-> +static struct vm vm;
-> +
-> +static uint8_t *src;
-> +static uint8_t *dst;
-> +
-> +extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_start[];
-> +extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_end[];
-> +int binary_size;
-> +
-> +static void handle_validity(struct vm *vm)
-> +{
-> +	report(0, "VALIDITY: %x", vm->sblk->ipb >> 16);
-> +}
+>> +snippets = $(snippets-a)$(snippets-c)
+> 
+> Shouldn't there be a space between the two?
 
-Maybe rather use report_abort() in that case? Or does it make sense to 
-continue running the other tests afterwards?
+Yes, already fixed that a long while ago
+I thought I had sent out a new version already, maybe that was an
+illusion as I can't seem to find it right now.
 
-  Thomas
+> 
+>> +snippets-o += $(patsubst %.gbin,%.o,$(snippets))
+>> +
+>> +$(snippets-a): $(snippets-o) $(FLATLIBS)
+>> +	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
+>> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
+>> +
+>> +$(snippets-c): $(snippets-o) $(SNIPPET_DIR)/c/cstart.o  $(FLATLIBS)
+>> +	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/c/flat.lds \
+>> +		$(filter %.o, $^) $(FLATLIBS)
+>> +	$(OBJCOPY) -O binary $@ $@
+>> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
+>> +
+>> +%.elf: $(snippets) %.o $(FLATLIBS) $(SRCDIR)/s390x/flat.lds $(asmlib)
+>>   	$(CC) $(CFLAGS) -c -o $(@:.elf=.aux.o) \
+>>   		$(SRCDIR)/lib/auxinfo.c -DPROGNAME=\"$@\"
+>>   	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/flat.lds \
+>> -		$(filter %.o, $^) $(FLATLIBS) $(@:.elf=.aux.o)
+>> +		$(filter %.o, $^) $(FLATLIBS) $(snippets) $(@:.elf=.aux.o)
+> 
+> Does this link the snippets into all elf files? ... wouldn't it be better to 
+> restrict it somehow to the files that really need them?
+
+Yes it does.
+I'd like to avoid having to specify a makefile rule for every test that
+uses snippets as we already have more than the mvpg one in the queue.
+
+So I'm having Steffen looking into a solution for this problem. My first
+idea was to bring the used snippets into the unittests.cfg but I
+disliked that we then would have compile instructions in another file.
+Maybe there's a way to include that into the makefile in a clever way?
+
+> 
+>>   	$(RM) $(@:.elf=.aux.o)
+>>   	@chmod a-x $@
+>>   
+>> @@ -93,7 +115,7 @@ FLATLIBS = $(libcflat)
+>>   	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT) --no-verify --image $< -o $@
+>>   
+>>   arch_clean: asm_offsets_clean
+>> -	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(TEST_DIR)/.*.d lib/s390x/.*.d
+>> +	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(SNIPPET_DIR)/c/*.{o,elf,bin,gbin} $(SNIPPET_DIR)/.*.d $(TEST_DIR)/.*.d lib/s390x/.*.d
+>>   
+>>   generated-files = $(asm-offsets)
+>>   $(tests:.elf=.o) $(asmlib) $(cflatobjs): $(generated-files)
+>> diff --git a/s390x/snippets/c/cstart.S b/s390x/snippets/c/cstart.S
+>> new file mode 100644
+>> index 00000000..02a3338b
+>> --- /dev/null
+>> +++ b/s390x/snippets/c/cstart.S
+>> @@ -0,0 +1,13 @@
+>> +#include <asm/sigp.h>
+>> +
+>> +.section .init
+>> +	.globl start
+>> +start:
+>> +	/* XOR all registers with themselves to clear them fully. */
+>> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> +	xgr \i,\i
+>> +	.endr
+>> +	/* 0x3000 is the stack page for now */
+>> +	lghi	%r15, 0x4000
+>> +	brasl	%r14, main
+>> +	sigp    %r1, %r0, SIGP_STOP
+> 
+> I think you should clear r0 before using it here?
+
+Right. will fix
+
+> 
+>   Thomas
+> 
 
