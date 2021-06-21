@@ -2,199 +2,159 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE934C4743C
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 17:19:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4740FC4743C
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 17:27:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B734960FF2
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 17:19:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3012F6109E
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 17:27:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231276AbhFURVg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Jun 2021 13:21:36 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26802 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230354AbhFURVd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Jun 2021 13:21:33 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15LH3ScX030912;
-        Mon, 21 Jun 2021 13:19:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=e6h2FpKlxoU7qqe1zdHS8Jd/v5LFC72lgYo0nh9jI4k=;
- b=cnuZSHKzIW5ucrCIEUBeWJg0cTahBl0AgenyAobJait8GyqNXc7rnB7p6CUcGvNOcbHa
- ANeCTSNhUc36I+0jfmNNYsfCMe5uUI/SGbq/8VHXbrGe6P/lA1RTEVwisHJaoe7vYYAW
- BYqdZj8FZ2FtI5S4Mf2TYBHFcpcZfjGcLJDBazyYRh1VCdDtJPqG6HR8lTOR21iVxi0N
- XfAexVW+vKicN/DG7Kla37HI6OrRTlLDHjnljizQtrWNfxUzF5dJ4NuB4oLhDn7WXMJ0
- SFGEj0PCq0RjL4PuKsSpKaIJwqEgzS9VEyFGD+PIokpbDRs43WSGEXVMtIMSRm2UvpIi EA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39aw7s3wg8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Jun 2021 13:19:03 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15LH3Vw6031192;
-        Mon, 21 Jun 2021 13:19:02 -0400
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39aw7s3wfx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Jun 2021 13:19:02 -0400
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15LHCYmA031062;
-        Mon, 21 Jun 2021 17:19:01 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma01dal.us.ibm.com with ESMTP id 399879d4n5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Jun 2021 17:19:01 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15LHJ0LM24772872
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Jun 2021 17:19:00 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A48AE2805C;
-        Mon, 21 Jun 2021 17:19:00 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DA8A52805A;
-        Mon, 21 Jun 2021 17:18:57 +0000 (GMT)
-Received: from [9.171.11.231] (unknown [9.171.11.231])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTPS;
-        Mon, 21 Jun 2021 17:18:57 +0000 (GMT)
-Subject: Re: [syzbot] general protection fault in smc_tx_sendmsg
-To:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot <syzbot+5dda108b672b54141857@syzkaller.appspotmail.com>
-Cc:     coreteam@netfilter.org, davem@davemloft.net, dsahern@kernel.org,
-        fw@strlen.de, kadlec@netfilter.org, kgraul@linux.ibm.com,
-        kuba@kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        netfilter-devel@vger.kernel.org, pablo@netfilter.org,
-        syzkaller-bugs@googlegroups.com, yoshfuji@linux-ipv6.org
-References: <000000000000d154d905c53ad34d@google.com>
- <20210621175603.40ac6eaa@gmail.com>
-From:   Guvenc Gulce <guvenc@linux.ibm.com>
-Message-ID: <c8fd3740-8233-2b14-1fc9-57ecebc31ad8@linux.ibm.com>
-Date:   Mon, 21 Jun 2021 19:18:56 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-In-Reply-To: <20210621175603.40ac6eaa@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: WiqrJlTMgMYisZg0cvTXx7TxTv7-tS4s
-X-Proofpoint-GUID: BDKy6KJDKJUme5T2sWHrfKvMtF5SI7HV
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S231232AbhFUR3d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Jun 2021 13:29:33 -0400
+Received: from mail-bn8nam11on2040.outbound.protection.outlook.com ([40.107.236.40]:37889
+        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S230239AbhFUR3c (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Jun 2021 13:29:32 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=beCRsHuf6si3QTXspPO5Zvbn/7cWzGcrtzR+TYvzYm6jPIvoGnhZoMb9uTCgQlAAJ6xuJv4PY1lEXDqs4e4OZ/OsCudLnK4RcKS3rv2jvMEllWexB55HVnJy39EGlL+4TSLq7x00/S3DVDl4Lexf2rv+J5xCNE3b3tNzyd4Ui15hl8eO1MMWrcrgAyLqYEOp6sifz4M5QNLQkAEuHAmaOhoH9NbIt5Y5f9rui6jAPVvL1P61iB4+R8VyPoYymggSKh90ywauMZU2rkaE573QrK/HYydJ5AgUQR2jVzbwA9Q+ParySZyXORvHvDz4bit5umDYS6tJygzrYzDAX+ryJQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rMPIDy3Vs/Qqf4vwGtcizxdK89fYbrLHsl5mYj/ZV2c=;
+ b=AVO/RwbBCvlhX+7VMNAY5uzgpF7dxC4k59e30eoA2dbNorw/YsN2pwm8o27qBj6PF3x1TaJr2L5fXmUJBAcyro+qcVSOWRnYoe9NTbaPgCceQtE84HayaQUl6Gar7buBuYl0FBS8dVajOSrM1ZYfLWgYoxQVkdvG+DQuP+c+5XjzSAmMkPCS0PID+kAEbjseo8+HNfG5nTXj9c9atI/SQZFyBJUvHCEImJ2uwhZLK5OT1w53q6uXz32pHLdfeWBwJ54DYzZWfbISeqBZaDgRm/4k7eShyeyD/qM4VbGDXspsf3mQn8/YcCgPOij0SxGXQTASeL5rjyLgCD4AsoWtTg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rMPIDy3Vs/Qqf4vwGtcizxdK89fYbrLHsl5mYj/ZV2c=;
+ b=RGiI06zjDfQtLq+UyktUaMCVgnynVF/gCr2wKhDx6goPDJT/v+V2ao6C7fUmrdvmYvP6rHbYU1dn9eGyoCs0DphX0OX2ThGgOILGpZ8wPE1vqm+sBFIW1/qMv4LYbXDMrq2CqjX7zCwSixseeBAFRNT1cLuHVrftr3+pIJtLiuFOu7sdi5luHV1gYOWdxz7CMosp2JsPvFwzMriBTmUT9eSVr6fMy37GRIK7XKifv+hYSz6bnggNZ6Kt9yJSXy7Hl+yY7zHoJWhCaCZJ6rG1HKYty/X/qR25oLjU2+1gSFuwDc6Wrl/CcIbAcqe2yEdU0dhzqVS5vMz2DnzfdylYBA==
+Authentication-Results: de.ibm.com; dkim=none (message not signed)
+ header.d=none;de.ibm.com; dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL0PR12MB5539.namprd12.prod.outlook.com (2603:10b6:208:1c3::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.18; Mon, 21 Jun
+ 2021 17:27:16 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::3d51:a3b9:8611:684e]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::3d51:a3b9:8611:684e%8]) with mapi id 15.20.4242.023; Mon, 21 Jun 2021
+ 17:27:16 +0000
+Date:   Mon, 21 Jun 2021 14:27:14 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, Vasily Gorbik <gor@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v6 1/2] s390/vfio-ap: clean up mdev resources when remove
+ callback invoked
+Message-ID: <20210621172714.GS1002214@nvidia.com>
+References: <20210621155714.1198545-1-akrowiak@linux.ibm.com>
+ <20210621155714.1198545-2-akrowiak@linux.ibm.com>
+ <e809be5b-0b24-34dc-1eae-82b58dc54545@de.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e809be5b-0b24-34dc-1eae-82b58dc54545@de.ibm.com>
+X-Originating-IP: [47.55.113.94]
+X-ClientProxiedBy: MN2PR03CA0029.namprd03.prod.outlook.com
+ (2603:10b6:208:23a::34) To BL0PR12MB5506.namprd12.prod.outlook.com
+ (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-06-21_10:2021-06-21,2021-06-21 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
- phishscore=0 clxscore=1011 bulkscore=0 suspectscore=0 adultscore=0
- spamscore=0 lowpriorityscore=0 priorityscore=1501 malwarescore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106210101
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (47.55.113.94) by MN2PR03CA0029.namprd03.prod.outlook.com (2603:10b6:208:23a::34) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.16 via Frontend Transport; Mon, 21 Jun 2021 17:27:16 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lvNha-009kD8-L2; Mon, 21 Jun 2021 14:27:14 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 0bbdb480-3d1f-4303-b4e4-08d934d9d096
+X-MS-TrafficTypeDiagnostic: BL0PR12MB5539:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BL0PR12MB5539C63AF9AAA5F18F20CE60C20A9@BL0PR12MB5539.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: zGT1khjMNrQki38nogeyfBXAfwQoUCK//NoGyvP9C5H8+mHXXF5hzf+njMPokG0vECJROKtOY7yykHmVgZq6YRgXFhb1KXqMEAQWf5Trovu6Y+Lm4LZtCV8G0IaDZ5JBGgny9IIpCn2h23cLeSddG8U1g20Gvph77pyIITifD/VepdLN/SBYrr/jfFYYvyfkUJhkwHDEFKrGUNd1Ee5IQ0TH1MNWPx5CMC0n+Oo74ykTW3IElzrTIpMDJjuzCq7CjaNbYFR8xD/kHLXvY1Z6e+GchpXbVkuoOxUlJ+4AR0Lt4t5gbNKxiQcR/Equcxn4Uo2dKxbJTR88VaIfjgdUqynhMOWDoUExoYPxemeQnnKdPZsgL+A74sGsGQy+d4bM7T3q57ZLJRk/yYqscfGC647JUgmyMfZriiJDsZjqW0irlWlHgazSYkC/k8aDiMMkEeeTbQVukvqhtWhktuPLa8oddmFNoh71q2owLtX4QG/50nJIqAqLO2FTmS3d3fD+i8o2SxLZ0Lk+uNKHOhdFO2MDbGkf6weTuGMfePSAAvvw6s09T93n9Bzzz+d7pNkmC8vKISJMox3dVe6VEoRxhuTE1MSJ9x4MD/1N4zt3aijb407uoVFlNRdhDvzzzzOhJIX/QwNehBcWxapvYZk4P1qQzmN08iAUNx/oWWNZ1Lbdb4Rqu3VZ+eJjPfIwGLxb4sYG81nmOIv7I6nSyjKDGTr+OotEd5vCkLBgUvDsqcg=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(366004)(396003)(346002)(136003)(376002)(8936002)(2616005)(54906003)(86362001)(966005)(7416002)(33656002)(5660300002)(316002)(186003)(53546011)(4326008)(83380400001)(8676002)(478600001)(1076003)(66946007)(6916009)(66556008)(26005)(9746002)(426003)(2906002)(9786002)(38100700002)(36756003)(66476007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?KmZhHyVsD49Fhj2nzDSYsUK1YpNlxG4AZ/LMVAvBMGejOYjwt5uw0COWPXOI?=
+ =?us-ascii?Q?XfIY4/Ib3OWY4bkr4EMGGUnUAloDKubySY8/QLmjQBBxUL/hHuu/9SA0Kzts?=
+ =?us-ascii?Q?x+UljE51ohlqYE+4fD2KR9wMdS/qgsbkuCkH7dBsW61YCCfMqvo/BIC6/jzQ?=
+ =?us-ascii?Q?xEFFs/f25GBylxp2x4Rx59gYk6gBc1BhW+n/y0gJdPqCEgRfSJ/4xZnOBNHM?=
+ =?us-ascii?Q?c4qM1rrHj/5lOdrKVODlOWM7887bRbOlfVpVYIHTIl+fSEt9fqw0+el1xUKY?=
+ =?us-ascii?Q?nXT10kDcfqsORPYBVKbauEXDBbIryLKYrPaKHRNcr6w24SNYoWIfFVRRIF4j?=
+ =?us-ascii?Q?9/oJdaRPDcrYWS0n6vfRE/ZtkdubZNCzeE546T9ZkfmZLWLe2WDYx6V1aAMn?=
+ =?us-ascii?Q?Nrgi5KrBMKg8hpFV6zsYR/JAo3NQJ8hQGdLkVxXedT2Taq7c/q4k9qdSf1M7?=
+ =?us-ascii?Q?f7Qg8/yU7Rd2SoEr8jac9VlLYwR2C4EAZI8fR/lensJBWvnVQHxwlq2i3bI7?=
+ =?us-ascii?Q?cJUv7Vu0AouoihnB3cg2ggN9UlKO4XL1s2E7VApzrfwsQPn4DprxkY76Qtz0?=
+ =?us-ascii?Q?e30ftTg+FVFNTqBFWZd+WLST7owdUV1J71PjVdPsVPMeZLSfoluZkMn1LVSc?=
+ =?us-ascii?Q?UQ72PA7j+K2nLLrhM7pUxUO2vlh4DQcejlJfhqZyULCOFRP9ZSWL+c6z85/Y?=
+ =?us-ascii?Q?WyZ8b6kKWDjxLBhxkMd2zPh2xVcqYvDzfvZEAZBz2ncnAhkUBSLm5Gt++vzf?=
+ =?us-ascii?Q?jVqAUwydx4A/GKEL80itzTOPO9e94bbOa/iZaPpBRz2hPQRPO7Gxh891TsQG?=
+ =?us-ascii?Q?h6PaIIJ8uYjNMFBJCb4JUWKoPvtUyitIVcWsuI5UYZ3XKy0GdnKJyPBkWze7?=
+ =?us-ascii?Q?MggW3YNmWDO67daoj0Xo2dYvwQaNmpFSrT3fXtZ+IJOwGLcY/wVNMWDXzezI?=
+ =?us-ascii?Q?Ylc2aji/L7vNmG30r0A0hDjm25ne+UXHiiIKnYgkj2g8PUHqWkofEyrqbsES?=
+ =?us-ascii?Q?c6LaZmzHV1vsrq0UerZOc5BCQ1sNl/3I5Ry/5Mwi7szbVsyJUckTyuz9WWgi?=
+ =?us-ascii?Q?MuYEfCcobUrVRM/Y6VYTv/b/FceFsQj9ZjLyp+7sK62xs9vPv0Ypo5RSOmLJ?=
+ =?us-ascii?Q?6867TC3lAwXwGSV0jbzg7Sf0ZzhSOV0dg3feSGh2LPjbOtPtSOnjlDk6KGzo?=
+ =?us-ascii?Q?+2cvdFcSbxVCa50Dt+ohUdKXPrCCFEMMlZelVZXeM0RkwfkKiqdNDReEOdgv?=
+ =?us-ascii?Q?Mn6Wn29a1OBzPhzS1rGnKqqGKlo9M8YbN61MNcNNnQQptf3FoaQJIIF2ycp/?=
+ =?us-ascii?Q?6uYtgCTd7KO5oUdxI82swSCp?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0bbdb480-3d1f-4303-b4e4-08d934d9d096
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jun 2021 17:27:16.7784
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: rQt1Ws3fUktRWKteGSP599lLl6OcKk/I2xL4/ZdrGMmgfcT0msiF2oqOew71C6SP
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB5539
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, Jun 21, 2021 at 06:04:54PM +0200, Christian Borntraeger wrote:
+> 
+> 
+> On 21.06.21 17:57, Tony Krowiak wrote:
+> > The mdev remove callback for the vfio_ap device driver bails out with
+> > -EBUSY if the mdev is in use by a KVM guest (i.e., the KVM pointer in the
+> > struct ap_matrix_mdev is not NULL). The intended purpose was
+> > to prevent the mdev from being removed while in use. There are two
+> > problems with this scenario:
+> > 
+> > 1. Returning a non-zero return code from the remove callback does not
+> >     prevent the removal of the mdev.
+> > 
+> > 2. The KVM pointer in the struct ap_matrix_mdev will always be NULL because
+> >     the remove callback will not get invoked until the mdev fd is closed.
+> >     When the mdev fd is closed, the mdev release callback is invoked and
+> >     clears the KVM pointer from the struct ap_matrix_mdev.
+> > 
+> > Let's go ahead and remove the check for KVM in the remove callback and
+> > allow the cleanup of mdev resources to proceed.
+> > 
+> > Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> > Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+> > Cc: stable@vger.kernel.org
+> 
+> This one is already queued on
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/log/?h=fixes
+> 
+> Jason. Do you want this in stable? Then we should write a mail after
+> merging.
 
+It is fine as is, we are already at rc7, so long as it goes to some
+tree for this merge window
 
-On 21/06/2021 16:56, Pavel Skripkin wrote:
-> On Sun, 20 Jun 2021 16:22:16 -0700
-> syzbot <syzbot+5dda108b672b54141857@syzkaller.appspotmail.com> wrote:
->
->> Hello,
->>
->> syzbot found the following issue on:
->>
->> HEAD commit:    0c337952 Merge tag 'wireless-drivers-next-2021-06-16'
->> of g.. git tree:       net-next
->> console output:
->> https://syzkaller.appspot.com/x/log.txt?x=1621de10300000 kernel
->> config:  https://syzkaller.appspot.com/x/.config?x=a6380da8984033f1
->> dashboard link:
->> https://syzkaller.appspot.com/bug?extid=5dda108b672b54141857 syz
->> repro:
->> https://syzkaller.appspot.com/x/repro.syz?x=121d2d20300000 C
->> reproducer:   https://syzkaller.appspot.com/x/repro.c?x=100bd768300000
->>
->> The issue was bisected to:
->>
->> commit f9006acc8dfe59e25aa75729728ac57a8d84fc32
->> Author: Florian Westphal <fw@strlen.de>
->> Date:   Wed Apr 21 07:51:08 2021 +0000
->>
->>      netfilter: arp_tables: pass table pointer via nf_hook_ops
->>
-> I think, bisection is wrong this time :)
->
-> It should be e0e4b8fa533858532f1b9ea9c6a4660d09beb37a ("net/smc: Add SMC
-> statistics support")
->
->
-> Some debug results:
->
-> syzkaller repro just opens the socket and calls sendmsg. Ftrace log:
->
->
->   0)               |  smc_create() {
->   0)               |    smc_sock_alloc() {
->   0) + 88.493 us   |      smc_hash_sk();
->   0) ! 131.487 us  |    }
->   0) ! 189.912 us  |  }
->   0)               |  smc_sendmsg() {
->   0)   2.808 us    |    smc_tx_sendmsg();
->   0) ! 148.484 us  |  }
->
->
-> That means, that smc_buf_create() wasn't called at all, so we need to
-> check sndbuf_desc before dereferencing
->
-> Something like this should work
->
-> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-> index 075c4f4b4..e24071b12 100644
-> --- a/net/smc/smc_tx.c
-> +++ b/net/smc/smc_tx.c
-> @@ -154,7 +154,7 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
->   		goto out_err;
->   	}
->   
-> -	if (len > conn->sndbuf_desc->len)
-> +	if (conn->sndbuf_desc && len > conn->sndbuf_desc->len)
->   		SMC_STAT_RMB_TX_SIZE_SMALL(smc, !conn->lnk);
->   
->   	if (len > conn->peer_rmbe_size)
->
->
-> Thoughts?
->
->
-> +CC Guvenc Gulce
->
->
-> With regards,
-> Pavel Skripkin
-
-Thanks for analyzing the cause. Your approach would work but I would prefer that we
-check the state of the socket before doing the statistics relevant if check. This will ensure
-that smc_buf_create() was already called.
-I am testing the fix at the moment which would look like the following:
-
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 075c4f4b41cf..289025cd545a 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -154,6 +154,9 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
-                 goto out_err;
-         }
-
-+       if (sk->sk_state == SMC_INIT)
-+               return -ENOTCONN;
-+
-         if (len > conn->sndbuf_desc->len)
-                 SMC_STAT_RMB_TX_SIZE_SMALL(smc, !conn->lnk);
-
-
+Jason
