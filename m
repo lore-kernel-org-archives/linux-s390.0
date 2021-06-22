@@ -2,138 +2,153 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D5D6C48BE5
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 07:26:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1260C48BDF
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 07:36:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 20D6161026
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 07:26:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9D9F061350
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 07:36:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230008AbhFVH2a (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Jun 2021 03:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60618 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229695AbhFVH21 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Jun 2021 03:28:27 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63A58C061574;
-        Tue, 22 Jun 2021 00:26:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=ChDiBXqAGycwZ327ht94EElL6EgZhmaY+P0RC9fzg+o=; b=rJKaj++3CD7nUku99L5fJotGEg
-        uUjeh5s9rmUqKpotWRKo2zVAKEjdLH8B2uuaTM7VaE2rxjkdzh45KWQ2LopSeLxML1jCwuVCi2C+j
-        B1Jj0sD6Co17xseOWgDQ5HADsMRV5M7KJjwtwssBDr7i+UfuMrXjcWtZSsuNFrY5n/FpZ10Kat2hu
-        afrbaeew3uAsYwfV5zhX3VQq8tonNrFc2+ms2TQzRNVDzSLxdQweJhoe8Oegig4Y/kK9RbUpILRgY
-        x5qePMZvd92Es+wvM7ZUkQ9NyQHGZAPDbRh/vpGoJ+lajt7uHm7IuKpmnN3HW+WJIHtaK80rkwu/h
-        W6j5OZFA==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1lvanA-00AWLV-FD; Tue, 22 Jun 2021 07:25:59 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id D55373002C5;
-        Tue, 22 Jun 2021 09:25:58 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id C45BD2C6EEC7C; Tue, 22 Jun 2021 09:25:58 +0200 (CEST)
-Date:   Tue, 22 Jun 2021 09:25:58 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Kees Cook <keescook@chromium.org>, Bill Wendling <wcw@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
-        x86@kernel.org, Borislav Petkov <bp@alien8.de>,
-        Martin Liska <mliska@suse.cz>, Marco Elver <elver@google.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Fangrui Song <maskray@google.com>, linux-doc@vger.kernel.org,
-        linux-kbuild@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        johannes.berg@intel.com, linux-toolchains@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S229807AbhFVHiy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Jun 2021 03:38:54 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:36003 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229628AbhFVHix (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 22 Jun 2021 03:38:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1624347398;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=78AoyZGEww4eX5wQlfZVTd7MSU26Lj9OFW0KxEtUtQE=;
+        b=TzhGF+PmQvsIGHSU3c3cOWM4zNq7mqZcD11PjCVCKizIV3lmEKhRVEjic1Hu8HWyFU98Vy
+        PQ2uvqiY4xbWSRHvyqZ5untOswLxVcfcJnqRy6hHmgvuAUzcLv1Zbq9bQegBmOi5TkTYKs
+        H0Rt+akkEzR3S5zOSBrU0lefplGNCY0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-322-I4SvLXb6NES8vNrO8aS4aw-1; Tue, 22 Jun 2021 03:36:35 -0400
+X-MC-Unique: I4SvLXb6NES8vNrO8aS4aw-1
+Received: by mail-wm1-f69.google.com with SMTP id w186-20020a1cdfc30000b02901ced88b501dso406418wmg.2
+        for <linux-s390@vger.kernel.org>; Tue, 22 Jun 2021 00:36:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=78AoyZGEww4eX5wQlfZVTd7MSU26Lj9OFW0KxEtUtQE=;
+        b=B1LULycS5XvSd7WB2WlTqUi7LFj1L9fUHmrXeHlwoZbujQj/IW6/+RiDqqhBUHl9vY
+         ygpwb/R5fajb7oEiQgpJZcU6YDTFQBmjDoV9n9jvw+jYEPmLs4cNddJXnbcA5xvnz2Q4
+         GXTMQs4rtx9Cf+2XRQS09PX5dYzH4RLQ/6CuMkOxhFGpJe1+sPPJ03UUSHdkgdZggt2n
+         feKjKf0YTUByTWkdQUaRleGWGV0dx2ZYA27X0Aa3fPALf75It+2zY0ulH6310Xm7+SmL
+         C/G3DKnRlVo5HJVcQk9OUvIK+OgVrYM5OPTWVr3nNqRQ96F1bCuNgJQrzXFTRSIg1NSG
+         wDpg==
+X-Gm-Message-State: AOAM531ikVc7WtRppCPrMXvtTLyAIxLL6KgCoqYDVhVXUWy4CUA5ay0K
+        J3WqVdjrBt56yDf1jlZSB9SLUJKKkLb5yYRfv7crmnGRaDWLKddfrZFPYvQdwcx7d0EiAPlA6Su
+        OPZrDLtH4gVMINkEnYKglSofSSf7HyQTCKqdhDhtFwZX8YQ/rTXbOxXuxbwDldLbskN8RfA==
+X-Received: by 2002:adf:eb82:: with SMTP id t2mr2972082wrn.337.1624347394741;
+        Tue, 22 Jun 2021 00:36:34 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxoJfk+r77PGl9RauhygLIUoORvlmYjxRTavo4pfmYHwGkkYTTwPzciyLPGKqOafwCbcG6JMQ==
+X-Received: by 2002:adf:eb82:: with SMTP id t2mr2972065wrn.337.1624347394545;
+        Tue, 22 Jun 2021 00:36:34 -0700 (PDT)
+Received: from thuth.remote.csb (pd9575f2f.dip0.t-ipconnect.de. [217.87.95.47])
+        by smtp.gmail.com with ESMTPSA id u18sm1355827wmj.15.2021.06.22.00.36.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 22 Jun 2021 00:36:33 -0700 (PDT)
+Subject: Re: [PATCH] KVM: s390: get rid of register asm usage
+To:     Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH v2 3/3] Kconfig: add
- ARCH_WANTS_NO_INSTR+CC_HAS_NO_PROFILE_FN_ATTR, depend on for GCOV and PGO
-Message-ID: <YNGQhgKd9Ruti5qZ@hirez.programming.kicks-ass.net>
-References: <20210621231822.2848305-1-ndesaulniers@google.com>
- <20210621231822.2848305-4-ndesaulniers@google.com>
+        Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20210621140356.1210771-1-hca@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <7edaf85c-810b-e0f9-5977-6e89270f0709@redhat.com>
+Date:   Tue, 22 Jun 2021 09:36:32 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210621231822.2848305-4-ndesaulniers@google.com>
+In-Reply-To: <20210621140356.1210771-1-hca@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jun 21, 2021 at 04:18:22PM -0700, Nick Desaulniers wrote:
-> We don't want compiler instrumentation to touch noinstr functions, which
-> are annotated with the no_profile_instrument_function function
-> attribute. Add a Kconfig test for this and make PGO and GCOV depend on
-> it.
+On 21/06/2021 16.03, Heiko Carstens wrote:
+> Using register asm statements has been proven to be very error prone,
+> especially when using code instrumentation where gcc may add function
+> calls, which clobbers register contents in an unexpected way.
 > 
-> If an architecture is using noinstr, it should denote that via this
-> Kconfig value. That makes Kconfigs that depend on noinstr able to
-> express dependencies in an architecturally agnostic way.
+> Therefore get rid of register asm statements in kvm code, even though
+> there is currently nothing wrong with them. This way we know for sure
+> that this bug class won't be introduced here.
 > 
-> Cc: Masahiro Yamada <masahiroy@kernel.org>
-> Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-> Link: https://lore.kernel.org/lkml/YMTn9yjuemKFLbws@hirez.programming.kicks-ass.net/
-> Link: https://lore.kernel.org/lkml/YMcssV%2Fn5IBGv4f0@hirez.programming.kicks-ass.net/
-> Suggested-by: Nathan Chancellor <nathan@kernel.org>
-> Suggested-by: Peter Zijlstra <peterz@infradead.org>
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 > ---
-> Changes V1 -> V2:
-> * Add ARCH_WANTS_NO_INSTR
-> * Change depdendencies to be !ARCH_WANTS_NO_INSTR || CC_HAS_NO_PROFILE_FN_ATTR
->   rather than list architectures explicitly, as per Nathan.
-> * s/no_profile/no_profile_instrument_function/
+>   arch/s390/kvm/kvm-s390.c | 18 +++++++++---------
+>   1 file changed, 9 insertions(+), 9 deletions(-)
 > 
->  arch/Kconfig        | 7 +++++++
->  arch/arm64/Kconfig  | 1 +
->  arch/s390/Kconfig   | 1 +
->  arch/x86/Kconfig    | 1 +
->  init/Kconfig        | 3 +++
->  kernel/gcov/Kconfig | 1 +
->  kernel/pgo/Kconfig  | 3 ++-
->  7 files changed, 16 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/Kconfig b/arch/Kconfig
-> index 2b4109b0edee..2113c6b3b801 100644
-> --- a/arch/Kconfig
-> +++ b/arch/Kconfig
-> @@ -285,6 +285,13 @@ config ARCH_THREAD_STACK_ALLOCATOR
->  config ARCH_WANTS_DYNAMIC_TASK_STRUCT
->  	bool
->  
-> +config ARCH_WANTS_NO_INSTR
-> +	bool
-> +	help
-> +	  An architecure should select this if the noinstr macro is being used on
-> +	  functions to denote that the toolchain should avoid instrumenting such
-> +	  functions and is required for correctness.
-> +
->  config ARCH_32BIT_OFF_T
->  	bool
->  	depends on !64BIT
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 1296fc10f80c..4b7b24f07790 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -329,31 +329,31 @@ static void allow_cpu_feat(unsigned long nr)
+>   
+>   static inline int plo_test_bit(unsigned char nr)
+>   {
+> -	register unsigned long r0 asm("0") = (unsigned long) nr | 0x100;
+> +	unsigned long function = (unsigned long) nr | 0x100;
+>   	int cc;
+>   
+>   	asm volatile(
+> +		"	lgr	0,%[function]\n"
+>   		/* Parameter registers are ignored for "test bit" */
+>   		"	plo	0,0,0,0(0)\n"
+>   		"	ipm	%0\n"
+>   		"	srl	%0,28\n"
+>   		: "=d" (cc)
+> -		: "d" (r0)
+> -		: "cc");
+> +		: [function] "d" (function)
+> +		: "cc", "0");
+>   	return cc == 0;
+>   }
+>   
+>   static __always_inline void __insn32_query(unsigned int opcode, u8 *query)
+>   {
+> -	register unsigned long r0 asm("0") = 0;	/* query function */
+> -	register unsigned long r1 asm("1") = (unsigned long) query;
+> -
+>   	asm volatile(
+> -		/* Parameter regs are ignored */
+> +		"	lghi	0,0\n"
+> +		"	lgr	1,%[query]\n"
+> +		/* Parameter registers are ignored */
+>   		"	.insn	rrf,%[opc] << 16,2,4,6,0\n"
+>   		:
+> -		: "d" (r0), "a" (r1), [opc] "i" (opcode)
+> -		: "cc", "memory");
+> +		: [query] "d" ((unsigned long)query), [opc] "i" (opcode)
 
-There's also CC_HAS_WORKING_NOSANITIZE_ADDRESS in lib/Kconfig.kasan that
-might want to be hooked into this, but that can be done separately I
-suppose.
+Wouldn't it be better to keep the "a" constraint instead of "d" to avoid 
+that the compiler ever passes the "query" value in r0 ?
+Otherwise the query value might get trashed if it is passed in r0...
+
+> +		: "cc", "memory", "0", "1");
+>   }
+
+With "a" instead of "d":
+
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+
