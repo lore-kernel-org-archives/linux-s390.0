@@ -7,85 +7,85 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DD36C48BE5
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 08:21:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6285C49EA5
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 08:21:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 70F046128C
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 08:21:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85A9F6134F
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 08:21:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230509AbhFVIX7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Jun 2021 04:23:59 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25788 "EHLO
+        id S231135AbhFVIYC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Jun 2021 04:24:02 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22146 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230445AbhFVIX4 (ORCPT
+        by vger.kernel.org with ESMTP id S230503AbhFVIYA (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 22 Jun 2021 04:23:56 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15M83UZg020751;
-        Tue, 22 Jun 2021 04:21:41 -0400
+        Tue, 22 Jun 2021 04:24:00 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15M8Epqm023643;
+        Tue, 22 Jun 2021 04:21:45 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=QwKP8xw/psgaMga/txQ+lAjNisspP9u4tRIx9LvZikg=;
- b=X6+0cFUdS9YGFwvu3OKN+58i3rZal0c41w9yDCNbx0KqOtgvPxFGSqHgKiVzcf9RZksM
- e8IdaarhA9w9T/uM9MpkCepRkUD1ePga39ImXrpFKSXX8pVYl4d0IjpDh5V9B5ufKv0+
- PtCJQD974rUSjfBPdSFGu3/aWSPgyK3XbUzwhsTezRcsc13y0VH2aPzLmQ4mJvEQhF0i
- DbdA2UVjiXwVMrQm5MmaLsX2UNLyaJgAha7rRSC1eXqEKEPrDCwa/BTfR5KBmsNJSYCw
- 4q7bzFrk8DtL7YtlC9DPpxMCL5IDOBAkbKdgU5iGDMCO6IgglQDbYAM5E1a2kHStTgR4 Yg== 
+ bh=n1yjs9Odiq28YRk/MzSWSbGdVE7KrlteniojPryE4rY=;
+ b=rpmkpmNY91obY8tbHoJw+QvniupR9VTwWTUSPL1jq1hpTTWO3AoBSNoIO+YENttcNXAw
+ 2/z6RKu/uFkCsUCT/1DA6Tma/EKdmi4p9jtSNfNe1mwXreYStCIM2dbXWhivaV4tbPdW
+ tHelBmEHLnS00aR+cRF3OPyJAC/gNnhPhMPxJNjyKGwpnkogMDVBB9YqrSfglUWWwnKh
+ pDAm1Lz5wxcDPpdnSpqLNKz32QPEcxiHiFcFuQRrTxHnjjSXABHNciNhooEn7lxWvnOH
+ z6N4w33q/Uc+NlraIJuPws4C/6Dt71jotN5ckMFYLZ5aUr28D8gWzGG+QMsdkVeHtmjv xQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39b8ng5ujx-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39bc6ar5t3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Jun 2021 04:21:41 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15M83lJS021935;
-        Tue, 22 Jun 2021 04:21:41 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39b8ng5uj1-1
+        Tue, 22 Jun 2021 04:21:45 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15M8F3pd024878;
+        Tue, 22 Jun 2021 04:21:44 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39bc6ar5s3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Jun 2021 04:21:40 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15M8D9SQ016038;
-        Tue, 22 Jun 2021 08:21:38 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma05fra.de.ibm.com with ESMTP id 3998788q7a-1
+        Tue, 22 Jun 2021 04:21:44 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15M8EBDU031960;
+        Tue, 22 Jun 2021 08:21:41 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03fra.de.ibm.com with ESMTP id 3998788q3a-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Jun 2021 08:21:38 +0000
+        Tue, 22 Jun 2021 08:21:41 +0000
 Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15M8KFRo36438464
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15M8Lc1U32244028
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 22 Jun 2021 08:20:15 GMT
+        Tue, 22 Jun 2021 08:21:38 GMT
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 978D9AE051;
-        Tue, 22 Jun 2021 08:21:35 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 4C6C8AE053;
+        Tue, 22 Jun 2021 08:21:38 +0000 (GMT)
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1932DAE04D;
-        Tue, 22 Jun 2021 08:21:35 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C2FD6AE04D;
+        Tue, 22 Jun 2021 08:21:37 +0000 (GMT)
 Received: from localhost.localdomain.com (unknown [9.145.182.30])
         by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 22 Jun 2021 08:21:35 +0000 (GMT)
+        Tue, 22 Jun 2021 08:21:37 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         borntraeger@de.ibm.com, cohuck@redhat.com,
         linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         thuth@redhat.com
-Subject: [kvm-unit-tests GIT PULL 08/12] s390x: lib: fix pgtable.h
-Date:   Tue, 22 Jun 2021 10:20:38 +0200
-Message-Id: <20210622082042.13831-9-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 12/12] s390x: edat test
+Date:   Tue, 22 Jun 2021 10:20:42 +0200
+Message-Id: <20210622082042.13831-13-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210622082042.13831-1-frankja@linux.ibm.com>
 References: <20210622082042.13831-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: r7knnnYoLsU0y9GvEAg1lNwXSN8qOTHG
-X-Proofpoint-ORIG-GUID: YuDjjdtmRdtw8tb5axryxHGYFO1NdaGo
+X-Proofpoint-GUID: KxOG93nzaHKJJ7LhlZm4nxUuS01LZfL1
+X-Proofpoint-ORIG-GUID: Ly6h-yFt5lkZ9irp1MMT96lbe43VNoBO
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-06-22_04:2021-06-21,2021-06-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
- priorityscore=1501 malwarescore=0 bulkscore=0 impostorscore=0
- lowpriorityscore=0 clxscore=1015 phishscore=0 suspectscore=0 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 spamscore=0 lowpriorityscore=0 impostorscore=0
+ suspectscore=0 bulkscore=0 adultscore=0 phishscore=0 malwarescore=0
+ mlxlogscore=999 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2104190000 definitions=main-2106220050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -93,83 +93,322 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Fix pgtable.h:
-
-* SEGMENT_ENTRY_SFAA had one extra bit set
-* pmd entries don't have a length field
-* ipte does not need to clear the lower bits
- - clearing the 12 lower bits is technically incorrect, as page tables are
-   architecturally aligned to 11 bit addresses (even though the unit tests
-   allocate always one full page)
-* region table entries should use REGION_ENTRY_TL instead of *_TABLE_LENGTH
- - *_TABLE_LENGTH need to stay, because they should be used for ASCEs
+Simple EDAT test.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Message-Id: <20210611140705.553307-4-imbrenda@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Message-Id: <20210611140705.553307-8-imbrenda@linux.ibm.com>
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- lib/s390x/asm/pgtable.h | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ s390x/Makefile      |   1 +
+ s390x/edat.c        | 274 ++++++++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg |   3 +
+ 3 files changed, 278 insertions(+)
+ create mode 100644 s390x/edat.c
 
-diff --git a/lib/s390x/asm/pgtable.h b/lib/s390x/asm/pgtable.h
-index 277f3480..1a21f175 100644
---- a/lib/s390x/asm/pgtable.h
-+++ b/lib/s390x/asm/pgtable.h
-@@ -60,7 +60,7 @@
- #define SEGMENT_SHIFT			20
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 8de926ab..8820e998 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -22,6 +22,7 @@ tests += $(TEST_DIR)/uv-guest.elf
+ tests += $(TEST_DIR)/sie.elf
+ tests += $(TEST_DIR)/mvpg.elf
+ tests += $(TEST_DIR)/uv-host.elf
++tests += $(TEST_DIR)/edat.elf
  
- #define SEGMENT_ENTRY_ORIGIN		0xfffffffffffff800UL
--#define SEGMENT_ENTRY_SFAA		0xfffffffffff80000UL
-+#define SEGMENT_ENTRY_SFAA		0xfffffffffff00000UL
- #define SEGMENT_ENTRY_AV		0x0000000000010000UL
- #define SEGMENT_ENTRY_ACC		0x000000000000f000UL
- #define SEGMENT_ENTRY_F			0x0000000000000800UL
-@@ -143,7 +143,7 @@ static inline p4d_t *p4d_alloc(pgd_t *pgd, unsigned long addr)
- 	if (pgd_none(*pgd)) {
- 		p4d_t *p4d = p4d_alloc_one();
- 		pgd_val(*pgd) = __pa(p4d) | REGION_ENTRY_TT_REGION1 |
--				REGION_TABLE_LENGTH;
-+				REGION_ENTRY_TL;
- 	}
- 	return p4d_offset(pgd, addr);
- }
-@@ -163,7 +163,7 @@ static inline pud_t *pud_alloc(p4d_t *p4d, unsigned long addr)
- 	if (p4d_none(*p4d)) {
- 		pud_t *pud = pud_alloc_one();
- 		p4d_val(*p4d) = __pa(pud) | REGION_ENTRY_TT_REGION2 |
--				REGION_TABLE_LENGTH;
-+				REGION_ENTRY_TL;
- 	}
- 	return pud_offset(p4d, addr);
- }
-@@ -183,7 +183,7 @@ static inline pmd_t *pmd_alloc(pud_t *pud, unsigned long addr)
- 	if (pud_none(*pud)) {
- 		pmd_t *pmd = pmd_alloc_one();
- 		pud_val(*pud) = __pa(pmd) | REGION_ENTRY_TT_REGION3 |
--				REGION_TABLE_LENGTH;
-+				REGION_ENTRY_TL;
- 	}
- 	return pmd_offset(pud, addr);
- }
-@@ -202,15 +202,14 @@ static inline pte_t *pte_alloc(pmd_t *pmd, unsigned long addr)
- {
- 	if (pmd_none(*pmd)) {
- 		pte_t *pte = pte_alloc_one();
--		pmd_val(*pmd) = __pa(pte) | SEGMENT_ENTRY_TT_SEGMENT |
--				SEGMENT_TABLE_LENGTH;
-+		pmd_val(*pmd) = __pa(pte) | SEGMENT_ENTRY_TT_SEGMENT;
- 	}
- 	return pte_offset(pmd, addr);
- }
- 
- static inline void ipte(unsigned long vaddr, pteval_t *p_pte)
- {
--	unsigned long table_origin = (unsigned long)p_pte & PAGE_MASK;
-+	unsigned long table_origin = (unsigned long)p_pte;
- 
- 	asm volatile(
- 		"	ipte %0,%1\n"
+ tests_binary = $(patsubst %.elf,%.bin,$(tests))
+ ifneq ($(HOST_KEY_DOCUMENT),)
+diff --git a/s390x/edat.c b/s390x/edat.c
+new file mode 100644
+index 00000000..c3bee0c8
+--- /dev/null
++++ b/s390x/edat.c
+@@ -0,0 +1,274 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * EDAT test.
++ *
++ * Copyright (c) 2021 IBM Corp
++ *
++ * Authors:
++ *	Claudio Imbrenda <imbrenda@linux.ibm.com>
++ */
++#include <libcflat.h>
++#include <vmalloc.h>
++#include <asm/facility.h>
++#include <asm/interrupt.h>
++#include <mmu.h>
++#include <asm/pgtable.h>
++#include <asm-generic/barrier.h>
++
++#define PGD_PAGE_SHIFT (REGION1_SHIFT - PAGE_SHIFT)
++
++#define LC_SIZE	(2 * PAGE_SIZE)
++#define VIRT(x)	((void *)((unsigned long)(x) + (unsigned long)mem))
++
++static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));
++static unsigned int tmp[1024] __attribute__((aligned(PAGE_SIZE)));
++static void *root, *mem, *m;
++static struct lowcore *lc;
++volatile unsigned int *p;
++
++/*
++ * Check if a non-access-list protection exception happened for the given
++ * address, in the primary address space.
++ */
++static bool check_pgm_prot(void *ptr)
++{
++	union teid teid;
++
++	if (lc->pgm_int_code != PGM_INT_CODE_PROTECTION)
++		return false;
++
++	teid.val = lc->trans_exc_id;
++
++	/*
++	 * depending on the presence of the ESOP feature, the rest of the
++	 * field might or might not be meaningful when the m field is 0.
++	 */
++	if (!teid.m)
++		return true;
++	return (!teid.acc_list_prot && !teid.asce_id &&
++		(teid.addr == ((unsigned long)ptr >> PAGE_SHIFT)));
++}
++
++static void test_dat(void)
++{
++	report_prefix_push("edat off");
++	/* disable EDAT */
++	ctl_clear_bit(0, CTL0_EDAT);
++
++	/* Check some basics */
++	p[0] = 42;
++	report(p[0] == 42, "pte, r/w");
++	p[0] = 0;
++
++	/* Write protect the page and try to write, expect a fault */
++	protect_page(m, PAGE_ENTRY_P);
++	expect_pgm_int();
++	p[0] = 42;
++	unprotect_page(m, PAGE_ENTRY_P);
++	report(!p[0] && check_pgm_prot(m), "pte, ro");
++
++	/*
++	 * The FC bit (for large pages) should be ignored because EDAT is
++	 * off. We set a value and then we try to read it back again after
++	 * setting the FC bit. This way we can check if large pages were
++	 * erroneously enabled despite EDAT being off.
++	 */
++	p[0] = 42;
++	protect_dat_entry(m, SEGMENT_ENTRY_FC, pgtable_level_pmd);
++	report(p[0] == 42, "pmd, fc=1, r/w");
++	unprotect_dat_entry(m, SEGMENT_ENTRY_FC, pgtable_level_pmd);
++	p[0] = 0;
++
++	/*
++	 * Segment protection should work even with EDAT off, try to write
++	 * anyway and expect a fault
++	 */
++	protect_dat_entry(m, SEGMENT_ENTRY_P, pgtable_level_pmd);
++	expect_pgm_int();
++	p[0] = 42;
++	report(!p[0] && check_pgm_prot(m), "pmd, ro");
++	unprotect_dat_entry(m, SEGMENT_ENTRY_P, pgtable_level_pmd);
++
++	/* The FC bit should be ignored because EDAT is off, like above */
++	p[0] = 42;
++	protect_dat_entry(m, REGION3_ENTRY_FC, pgtable_level_pud);
++	report(p[0] == 42, "pud, fc=1, r/w");
++	unprotect_dat_entry(m, REGION3_ENTRY_FC, pgtable_level_pud);
++	p[0] = 0;
++
++	/*
++	 * Region1/2/3 protection should not work, because EDAT is off.
++	 * Protect the various region1/2/3 entries and write, expect the
++	 * write to be successful.
++	 */
++	protect_dat_entry(m, REGION_ENTRY_P, pgtable_level_pud);
++	p[0] = 42;
++	report(p[0] == 42, "pud, ro");
++	unprotect_dat_entry(m, REGION_ENTRY_P, pgtable_level_pud);
++	p[0] = 0;
++
++	protect_dat_entry(m, REGION_ENTRY_P, pgtable_level_p4d);
++	p[0] = 42;
++	report(p[0] == 42, "p4d, ro");
++	unprotect_dat_entry(m, REGION_ENTRY_P, pgtable_level_p4d);
++	p[0] = 0;
++
++	protect_dat_entry(m, REGION_ENTRY_P, pgtable_level_pgd);
++	p[0] = 42;
++	report(p[0] == 42, "pgd, ro");
++	unprotect_dat_entry(m, REGION_ENTRY_P, pgtable_level_pgd);
++	p[0] = 0;
++
++	report_prefix_pop();
++}
++
++static void test_edat1(void)
++{
++	report_prefix_push("edat1");
++	/* Enable EDAT */
++	ctl_set_bit(0, CTL0_EDAT);
++	p[0] = 0;
++
++	/*
++	 * Segment protection should work normally, try to write and expect
++	 * a fault.
++	 */
++	expect_pgm_int();
++	protect_dat_entry(m, SEGMENT_ENTRY_P, pgtable_level_pmd);
++	p[0] = 42;
++	report(!p[0] && check_pgm_prot(m), "pmd, ro");
++	unprotect_dat_entry(m, SEGMENT_ENTRY_P, pgtable_level_pmd);
++
++	/*
++	 * Region1/2/3 protection should work now, because EDAT is on. Try
++	 * to write anyway and expect a fault.
++	 */
++	expect_pgm_int();
++	protect_dat_entry(m, REGION_ENTRY_P, pgtable_level_pud);
++	p[0] = 42;
++	report(!p[0] && check_pgm_prot(m), "pud, ro");
++	unprotect_dat_entry(m, REGION_ENTRY_P, pgtable_level_pud);
++
++	expect_pgm_int();
++	protect_dat_entry(m, REGION_ENTRY_P, pgtable_level_p4d);
++	p[0] = 42;
++	report(!p[0] && check_pgm_prot(m), "p4d, ro");
++	unprotect_dat_entry(m, REGION_ENTRY_P, pgtable_level_p4d);
++
++	expect_pgm_int();
++	protect_dat_entry(m, REGION_ENTRY_P, pgtable_level_pgd);
++	p[0] = 42;
++	report(!p[0] && check_pgm_prot(m), "pgd, ro");
++	unprotect_dat_entry(m, REGION_ENTRY_P, pgtable_level_pgd);
++
++	/* Large pages should work */
++	p[0] = 42;
++	install_large_page(root, 0, mem);
++	report(p[0] == 42, "pmd, large");
++
++	/*
++	 * Prefixing should not work with large pages. Since the lower
++	 * addresses are mapped with small pages, which are subject to
++	 * prefixing, and the pages mapped with large pages are not subject
++	 * to prefixing, this is the resulting scenario:
++	 *
++	 * virtual 0 = real 0 -> absolute prefix_buf
++	 * virtual prefix_buf = real prefix_buf -> absolute 0
++	 * VIRT(0) -> absolute 0
++	 * VIRT(prefix_buf) -> absolute prefix_buf
++	 *
++	 * The testcase checks if the memory at virtual 0 has the same
++	 * content as the memory at VIRT(prefix_buf) and the memory at
++	 * VIRT(0) has the same content as the memory at virtual prefix_buf.
++	 * If prefixing is erroneously applied for large pages, the testcase
++	 * will therefore fail.
++	 */
++	report(!memcmp(0, VIRT(prefix_buf), LC_SIZE) &&
++		!memcmp(prefix_buf, VIRT(0), LC_SIZE),
++		"pmd, large, prefixing");
++
++	report_prefix_pop();
++}
++
++static void test_edat2(void)
++{
++	report_prefix_push("edat2");
++	p[0] = 42;
++
++	/* Huge pages should work */
++	install_huge_page(root, 0, mem);
++	report(p[0] == 42, "pud, huge");
++
++	/* Prefixing should not work with huge pages, just like large pages */
++	report(!memcmp(0, VIRT(prefix_buf), LC_SIZE) &&
++		!memcmp(prefix_buf, VIRT(0), LC_SIZE),
++		"pmd, large, prefixing");
++
++	report_prefix_pop();
++}
++
++static unsigned int setup(void)
++{
++	bool has_edat1 = test_facility(8);
++	bool has_edat2 = test_facility(78);
++	unsigned long pa, va;
++
++	if (has_edat2 && !has_edat1)
++		report_abort("EDAT2 available, but EDAT1 not available");
++
++	/* Setup DAT 1:1 mapping and memory management */
++	setup_vm();
++	root = (void *)(stctg(1) & PAGE_MASK);
++
++	/*
++	 * Get a pgd worth of virtual memory, so we can test things later
++	 * without interfering with the test code or the interrupt handler
++	 */
++	mem = alloc_vpages_aligned(BIT_ULL(PGD_PAGE_SHIFT), PGD_PAGE_SHIFT);
++	assert(mem);
++	va = (unsigned long)mem;
++
++	/* Map the first 1GB of real memory */
++	for (pa = 0; pa < SZ_1G; pa += PAGE_SIZE, va += PAGE_SIZE)
++		install_page(root, pa, (void *)va);
++
++	/*
++	 * Move the lowcore to a known non-zero location. This is needed
++	 * later to check whether prefixing is working with large pages.
++	 */
++	assert((unsigned long)&prefix_buf < SZ_2G);
++	memcpy(prefix_buf, 0, LC_SIZE);
++	set_prefix((uint32_t)(uintptr_t)prefix_buf);
++	/* Clear the old copy */
++	memset(prefix_buf, 0, LC_SIZE);
++
++	/* m will point to tmp through the new virtual mapping */
++	m = VIRT(&tmp);
++	/* p is the same as m but volatile */
++	p = (volatile unsigned int *)m;
++
++	return has_edat1 + has_edat2;
++}
++
++int main(void)
++{
++	unsigned int edat;
++
++	report_prefix_push("edat");
++	edat = setup();
++
++	test_dat();
++
++	if (edat)
++		test_edat1();
++	else
++		report_skip("EDAT not available");
++
++	if (edat >= 2)
++		test_edat2();
++	else
++		report_skip("EDAT2 not available");
++
++	report_prefix_pop();
++	return report_summary();
++}
+diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+index 9f81a608..a0ec8864 100644
+--- a/s390x/unittests.cfg
++++ b/s390x/unittests.cfg
+@@ -103,3 +103,6 @@ file = sie.elf
+ [mvpg]
+ file = mvpg.elf
+ timeout = 10
++
++[edat]
++file = edat.elf
 -- 
 2.31.1
 
