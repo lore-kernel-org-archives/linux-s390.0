@@ -2,81 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02259C2B9F4
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 16:40:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0EA7C2B9F4
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 16:49:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D53156134F
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 16:40:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D5616600D1
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 16:49:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230473AbhFVQme (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Jun 2021 12:42:34 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:42683 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230102AbhFVQmd (ORCPT
+        id S230330AbhFVQwN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Jun 2021 12:52:13 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36364 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229751AbhFVQwM (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 22 Jun 2021 12:42:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1624380016;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=se+zilMB7X1YP4dRxTYQDj5HcIOKP3pN2V5c15IDvTc=;
-        b=FVNtfa6NYvgSZUEVcmSBKWYZVu2B8XWpxweoliSren163wl836k03J/aDMrxmpley7bOL4
-        7Qas5FidmlN7XCuXHjXqRA+6XcXBQ+CK1r5Gs9gm4IzpCoHAyPEKqCnaU9uN1dahftCY4X
-        Hk/IEQ4/PEzainlx2+YEUnCT6Z2+lKI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-410-OVj-DHpuNDe-YCe4wqQoWg-1; Tue, 22 Jun 2021 12:40:15 -0400
-X-MC-Unique: OVj-DHpuNDe-YCe4wqQoWg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 535A15074F;
-        Tue, 22 Jun 2021 16:40:14 +0000 (UTC)
-Received: from localhost (ovpn-113-161.ams2.redhat.com [10.36.113.161])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A066D60C13;
-        Tue, 22 Jun 2021 16:40:10 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Tue, 22 Jun 2021 12:52:12 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15MGXH3U092752;
+        Tue, 22 Jun 2021 12:49:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=N+nCIBChoZxZTXIaXdw5uH30INWPR73VPJaaXcXTE90=;
+ b=R2kZ2zaDpAGWqukvqHrQPCQMSDUgGh5g+Z9vTu6nNn+y0nprrWwTOnkt0EKI/L+TEci8
+ 2zucgQb133/euyKJcbK6vckd/pjYAlnbnJRw5XzTOJU790htOqC0xsUlbePncr9WdxdJ
+ ZQ6A9Wa7QVI90LlyLb5fYiJKuNXCuAAAVRP5idcJwMfFklaWez3+R7rcPUyLboJ8u0+E
+ FiSh/XzSmMsSV4Wu6hGpz3FzVzn5nuQxhLqmOtlJHdH1FVVHPRF/Up/B9Sr0B8QQlQMN
+ ELoWf/aYHm4ZhZu+z5s+dzDgThjE6msKIp/bvB8gETVgTtRte+J5/MK9TO0G0ajiq6z0 9w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39bjas3dd9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Jun 2021 12:49:56 -0400
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15MGYHon095228;
+        Tue, 22 Jun 2021 12:49:55 -0400
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39bjas3dcf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Jun 2021 12:49:55 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15MGmMZc024724;
+        Tue, 22 Jun 2021 16:49:53 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06fra.de.ibm.com with ESMTP id 3997uhgvcf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Jun 2021 16:49:53 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15MGnp5d31982042
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 22 Jun 2021 16:49:51 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 51DD64C044;
+        Tue, 22 Jun 2021 16:49:51 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 076284C04E;
+        Tue, 22 Jun 2021 16:49:51 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.32.128])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 22 Jun 2021 16:49:50 +0000 (GMT)
+Subject: Re: [PATCH 0/2] KVM: s390: Enable some more facilities
+To:     Cornelia Huck <cohuck@redhat.com>,
         Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc:     KVM <kvm@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
+Cc:     KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
         Thomas Huth <thuth@redhat.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: Re: [PATCH 0/2] KVM: s390: Enable some more facilities
-In-Reply-To: <20210622143412.143369-1-borntraeger@de.ibm.com>
-Organization: Red Hat GmbH
 References: <20210622143412.143369-1-borntraeger@de.ibm.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Tue, 22 Jun 2021 18:40:08 +0200
-Message-ID: <871r8tontj.fsf@redhat.com>
+ <871r8tontj.fsf@redhat.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <f9a467ba-2730-7a41-6cc5-dc0a5c9e34fc@de.ibm.com>
+Date:   Tue, 22 Jun 2021 18:49:50 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+In-Reply-To: <871r8tontj.fsf@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: FLIG4R_DpXREgzPqvQqI1HE3v5SvsL_q
+X-Proofpoint-GUID: XhbERjjXmvlxqjAdMfZG1UPB6ZFTidmF
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-22_08:2021-06-22,2021-06-22 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 malwarescore=0 mlxlogscore=999 spamscore=0 adultscore=0
+ mlxscore=0 priorityscore=1501 phishscore=0 bulkscore=0 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106220102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 22 2021, Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-> Some more facilities that can be enabled in the future.
->
-> Christian Borntraeger (2):
->   KVM: s390: gen_facilities: allow facilities 165, 193, 194 and 196
->   KVM: s390: allow facility 192 (vector-packed-decimal-enhancement
->     facility 2)
->
->  arch/s390/kvm/kvm-s390.c         | 4 ++++
->  arch/s390/tools/gen_facilities.c | 4 ++++
->  2 files changed, 8 insertions(+)
 
-I assume we can also expect some QEMU patches sometime in the future
-that add some new features?
+On 22.06.21 18:40, Cornelia Huck wrote:
+> On Tue, Jun 22 2021, Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> 
+>> Some more facilities that can be enabled in the future.
+>>
+>> Christian Borntraeger (2):
+>>    KVM: s390: gen_facilities: allow facilities 165, 193, 194 and 196
+>>    KVM: s390: allow facility 192 (vector-packed-decimal-enhancement
+>>      facility 2)
+>>
+>>   arch/s390/kvm/kvm-s390.c         | 4 ++++
+>>   arch/s390/tools/gen_facilities.c | 4 ++++
+>>   2 files changed, 8 insertions(+)
+> 
+> I assume we can also expect some QEMU patches sometime in the future
+> that add some new features?
 
+yes. Either today or tomorrow.
