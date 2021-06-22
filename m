@@ -2,128 +2,79 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3869C2B9F4
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 16:29:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5962AC2B9F4
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 16:38:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B7A9D61027
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 16:29:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3F8CD61042
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 16:38:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229948AbhFVQbn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Jun 2021 12:31:43 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10272 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229501AbhFVQbl (ORCPT
+        id S230330AbhFVQlF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Jun 2021 12:41:05 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:36679 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230419AbhFVQlC (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 22 Jun 2021 12:31:41 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15MGKHWq160495;
-        Tue, 22 Jun 2021 12:29:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=jrQ19dvX6qTOstkz/+yCfb9mJg/TCLwStq9MinTa68M=;
- b=M9bbsWjS++C2cpQSFjxlSyBEL3hMykQFzA83oFh8I+eZWkH8RDWJ0/UsrkzmVghBx8eL
- vRmseHp3lVA2sm4bUjfn0wTq9Prq4QrLV7SZHx1iv+EHD0m7TwrLH4sNQCZwn5U1fSqi
- Yd7i1DdZke6HKTqNUorB+xYsKiaNUjQ4/TCLUoCeccrDCtVL1aOZi8B90a5mct1EDxNn
- FxYJnkgvJLIFhz3+2obGhWMayFRmoG5DnShXfClzR76G29JFIgX8KwPDieQj7G6s2zzs
- aSZDcU6KRVwXbaI39AXBNHfV22niUmrbUZS25m2bb2W+pi6hpEO3Ba71+IlrHBeK0GZp rw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39bj5sk2md-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Jun 2021 12:29:25 -0400
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15MGKK2H160822;
-        Tue, 22 Jun 2021 12:29:25 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39bj5sk2kq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Jun 2021 12:29:25 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15MGRGMb029152;
-        Tue, 22 Jun 2021 16:29:22 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3997uh9jdq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Jun 2021 16:29:22 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15MGTKJ333161666
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 22 Jun 2021 16:29:20 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5866911C04C;
-        Tue, 22 Jun 2021 16:29:20 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EF7B611C04A;
-        Tue, 22 Jun 2021 16:29:19 +0000 (GMT)
-Received: from ibm-vm (unknown [9.145.9.205])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 22 Jun 2021 16:29:19 +0000 (GMT)
-Date:   Tue, 22 Jun 2021 18:28:16 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Janosch Frank <frankja@linux.vnet.ibm.com>,
-        KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
+        Tue, 22 Jun 2021 12:41:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1624379926;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=G7ViLK53DDsNzq1tHJCi11YMXm8GNRKV0PJ0yut8RKc=;
+        b=OFsYpkkX1fvsa3Q9RcDtg/SJY/QydmKMeDBUbxavanqHKF7XHljP1GuYfkHBDROowEkXKl
+        Kvr+jOaM/d71PTj1INlAjxlNFlHVS2ptqEDLl23bD3aFKT6fwNpXo/jIof4DBIv0jT2onP
+        JxUT7CHquWLwabY0KyRjB4Hr+DeSktU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-556-r1fg8FwdPWi0xwcRuRxr4Q-1; Tue, 22 Jun 2021 12:38:44 -0400
+X-MC-Unique: r1fg8FwdPWi0xwcRuRxr4Q-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D3AD1101C8A8;
+        Tue, 22 Jun 2021 16:38:43 +0000 (UTC)
+Received: from localhost (ovpn-113-161.ams2.redhat.com [10.36.113.161])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2D3685C1A3;
+        Tue, 22 Jun 2021 16:38:40 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc:     KVM <kvm@vger.kernel.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         David Hildenbrand <david@redhat.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
-        Thomas Huth <thuth@redhat.com>
-Subject: Re: [PATCH 2/2] KVM: s390: allow facility 192
- (vector-packed-decimal-enhancement facility 2)
-Message-ID: <20210622182816.544674ee@ibm-vm>
-In-Reply-To: <20210622143412.143369-3-borntraeger@de.ibm.com>
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [PATCH 1/2] KVM: s390: gen_facilities: allow facilities 165,
+ 193, 194 and 196
+In-Reply-To: <20210622143412.143369-2-borntraeger@de.ibm.com>
+Organization: Red Hat GmbH
 References: <20210622143412.143369-1-borntraeger@de.ibm.com>
-        <20210622143412.143369-3-borntraeger@de.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+ <20210622143412.143369-2-borntraeger@de.ibm.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Tue, 22 Jun 2021 18:38:38 +0200
+Message-ID: <877dilonw1.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: sIRT-7HYvrtzeA0WHiRPvlbUt0rkDZ71
-X-Proofpoint-ORIG-GUID: yAT0TTgzhKeQxfbkjFNQqcQVvlzZqMMA
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-06-22_11:2021-06-22,2021-06-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 impostorscore=0 mlxscore=0 clxscore=1015
- lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0 mlxlogscore=999
- suspectscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2104190000 definitions=main-2106220100
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 22 Jun 2021 16:34:12 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On Tue, Jun 22 2021, Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-> pass through newer vector instructions if vector support is enabled.
-> 
+> This enables the neural NNPA, BEAR enhancement,reset DAT protection and
+> processor activity counter facilities via the cpu model.
+>
 > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
 > ---
->  arch/s390/kvm/kvm-s390.c | 4 ++++
+>  arch/s390/tools/gen_facilities.c | 4 ++++
 >  1 file changed, 4 insertions(+)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 1296fc10f80c..0d59f9331649 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -713,6 +713,10 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
-> struct kvm_enable_cap *cap)
-> set_kvm_facility(kvm->arch.model.fac_mask, 152);
-> set_kvm_facility(kvm->arch.model.fac_list, 152); }
-> +			if (test_facility(192)) {
-> +
-> set_kvm_facility(kvm->arch.model.fac_mask, 192);
-> +
-> set_kvm_facility(kvm->arch.model.fac_list, 192);
-> +			}
->  			r = 0;
->  		} else
->  			r = -EINVAL;
+
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 
