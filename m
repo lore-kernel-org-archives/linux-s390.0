@@ -2,104 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE655C4743C
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:50:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35F3FC48BDF
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 07:25:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BEBFC61153
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Jun 2021 23:50:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 23FCB61026
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Jun 2021 07:25:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231707AbhFUXwe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Jun 2021 19:52:34 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39772 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231486AbhFUXwe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Jun 2021 19:52:34 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15LNXKVT065867;
-        Mon, 21 Jun 2021 19:50:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=eipUJqYEePrSLRSHzoaTR7BE/LaLdDKyMv+E8lKNlkQ=;
- b=ckTd/4GCcTyhvTWOb2hPurcQH8I18ytvx80VJ0yZ4kvnZQ2iCKCK+xEyT1ADaiUW4JtH
- JrC6/7AMtErWQMeNrVsikpYbXNaCCfaU++zn39j/DXmdWyiXZRXKv3HQAg9StRn5kDeQ
- vSTiq6IifZ6nzoa+23U4c+lLe9ESgiY9SOYFTOMSkP0Zqp9XYkBu4uBB0a2AyQm/pNZb
- 9OPBpqLV2WfbpgklqdAXvxY7TvdBBO3dqge546rrU5RSf2UMAXPZIqKnC+4vHTCsOpuo
- MkFUTIvAc9jW3h4buON4PpNZ3iTTHqfzTvSiOKE2arjpvwuVcV6Bj+V2ZcRPzgIwLsy8 cw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39b3tp9acs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Jun 2021 19:50:19 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15LNXYZt066106;
-        Mon, 21 Jun 2021 19:50:18 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39b3tp9abu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Jun 2021 19:50:18 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15LNiql5011286;
-        Mon, 21 Jun 2021 23:50:16 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04fra.de.ibm.com with ESMTP id 399878rm9y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Jun 2021 23:50:16 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15LNmuV936831624
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Jun 2021 23:48:56 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 02D604C050;
-        Mon, 21 Jun 2021 23:50:13 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7318C4C04A;
-        Mon, 21 Jun 2021 23:50:12 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.57.69])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Mon, 21 Jun 2021 23:50:12 +0000 (GMT)
-Date:   Tue, 22 Jun 2021 01:50:10 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
+        id S230204AbhFVH1y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Jun 2021 03:27:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60478 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229695AbhFVH1x (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Jun 2021 03:27:53 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7871CC061574;
+        Tue, 22 Jun 2021 00:25:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=zxpyGwgTl2R9s7Hd1depIUm48agHvd2MrcEyfmPlz1o=; b=lR9YQ3Qx/oesvqacDNN+h1MnAn
+        DGdiIQspnV7AFoF4Z0i6UaYVkE2jUEVc63CVliwDchTN6HSlWYUCSjNoyu4obHwOObo6H7jQsy+Tm
+        LqounrKZ9OygNoaHUPauOAOoWQOhF55tfYqK9EAXBug8qyHPl3JoktZWUU6Iv2Ol/EVP15zJ6AaZ6
+        2BtjjzRf53991ce2/jMemJM6Rc6kPBhNR5NV2Shz5RlWrE4oQ6Cel3/odAW6o16Ii8mdFApwwYZuM
+        n0bs//nfilzBYEI/sPIVPcdV4L6XpJQqoojcBZgMsyWt2EdCPlLXfvI5wQynR4Bd/0Rwd+Q5+bOtg
+        +ktYWqwg==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1lvamR-00AWJy-MZ; Tue, 22 Jun 2021 07:25:14 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 95F3C30005A;
+        Tue, 22 Jun 2021 09:25:11 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 78D272C6EEC7A; Tue, 22 Jun 2021 09:25:11 +0200 (CEST)
+Date:   Tue, 22 Jun 2021 09:25:11 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Kees Cook <keescook@chromium.org>, Bill Wendling <wcw@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
+        x86@kernel.org, Borislav Petkov <bp@alien8.de>,
+        Martin Liska <mliska@suse.cz>, Marco Elver <elver@google.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Fangrui Song <maskray@google.com>, linux-doc@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        johannes.berg@intel.com, linux-toolchains@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH] virtio/s390: get rid of open-coded kvm hypercall
-Message-ID: <20210622015010.1f02db8d.pasic@linux.ibm.com>
-In-Reply-To: <20210621144522.1304273-1-hca@linux.ibm.com>
-References: <20210621144522.1304273-1-hca@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: [PATCH v2 0/3] no_profile fn attr and Kconfig for GCOV+PGO
+Message-ID: <YNGQV09E9xAvvppO@hirez.programming.kicks-ass.net>
+References: <20210621231822.2848305-1-ndesaulniers@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1xazjH4FP6YqL4W59pT9TAGMNfAuK883
-X-Proofpoint-GUID: b4o5pwT6SP9LqsWDlT-edFQpqIIPVi7K
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-06-21_14:2021-06-21,2021-06-21 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- priorityscore=1501 suspectscore=0 adultscore=0 clxscore=1011
- impostorscore=0 spamscore=0 mlxscore=0 phishscore=0 malwarescore=0
- lowpriorityscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2104190000 definitions=main-2106210138
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210621231822.2848305-1-ndesaulniers@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 21 Jun 2021 16:45:22 +0200
-Heiko Carstens <hca@linux.ibm.com> wrote:
+On Mon, Jun 21, 2021 at 04:18:19PM -0700, Nick Desaulniers wrote:
+> Nick Desaulniers (3):
+>   compiler_attributes.h: define __no_profile, add to noinstr
+>   compiler_attributes.h: cleanups for GCC 4.9+
+>   Kconfig: add ARCH_WANTS_NO_INSTR+CC_HAS_NO_PROFILE_FN_ATTR, depend on
+>     for GCOV and PGO
 
-> do_kvm_notify() and __do_kvm_notify() are an (exact) open-coded variant
-> of kvm_hypercall3(). Therefore simply make use of kvm_hypercall3(),
-> and get rid of duplicated code.
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Thanks for sorting this Nick!
 
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
