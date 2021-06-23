@@ -2,124 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63D33C48BE5
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Jun 2021 06:17:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1EF6C4743C
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Jun 2021 07:29:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 426B16101D
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Jun 2021 06:17:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB6226101D
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Jun 2021 07:29:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229844AbhFWGUM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Jun 2021 02:20:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32856 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229665AbhFWGUL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Jun 2021 02:20:11 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A630BC061766
-        for <linux-s390@vger.kernel.org>; Tue, 22 Jun 2021 23:17:54 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id g24so896708pji.4
-        for <linux-s390@vger.kernel.org>; Tue, 22 Jun 2021 23:17:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=Tz2RBdudba5q9p5CtX8u2n7Y/c2CX7BU/uPpUa5EceU=;
-        b=IfQNjiTjlHeOtyJvGTlaSnVIszGJHPIXd2ZLetG7fRg3/1qxDfxJBGaFvglBkjs0A9
-         aOMIVfHWFPggoGKFJebTQaAcngMdomXFzJAZ41RUF+nNb5iUr+j1EYwDMOdnmcyBzx+S
-         UXKJ+LYCQxpE3JB9b/Xuh6JN1PZmT/I96wE8Y=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Tz2RBdudba5q9p5CtX8u2n7Y/c2CX7BU/uPpUa5EceU=;
-        b=WOCJLrBwKJIFb4M6qGzmeYRLoNjMeBnOFqDvOVoD4L9SXyPsRWDC72IuRdzZ7Ac/+S
-         mu4dSrUqmOda0R4zqS8bbOFQrqCCzpTciVW2/JeVg3AG746LsnG5pXXRDZmF0wgHcxUX
-         RFydXk+E0o72+QMfuUb+ATs25GaLEBkHvNqMm1ZAfVglsRPC4TlMTirYS2mBP1aJO5Xw
-         vYhu/Gxho5RTwGPK1vZ/dDNFB1v4XH9NC7ufm1Kv+RkkGtWt62tx55/1898XpnSrM7yq
-         W7dwt0eMfylzHDu++i79EqPx2cFpYHXwYsaD/heysGeNGbwLgEADo05HKK6aYrFyH0OM
-         kGfg==
-X-Gm-Message-State: AOAM5334fHp7j75HCvRZmCmyy5Slf1Fbm7HPXyshfNXY4W1NL1Y8Ch9q
-        Y1IyHAahYNDR/QGSwUBDFV4DjA==
-X-Google-Smtp-Source: ABdhPJzn0CH+45cTEhcoIwl87qkwPrIemELQImLMLCSKtRYhh9WOlPotlexcZ8zGNKPJxyuXXn3TWw==
-X-Received: by 2002:a17:90b:2241:: with SMTP id hk1mr7714688pjb.97.1624429074073;
-        Tue, 22 Jun 2021 23:17:54 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id z18sm1113249pfe.214.2021.06.22.23.17.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Jun 2021 23:17:53 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        linux-arm-kernel@lists.infradead.org,
-        Nathan Chancellor <nathan@kernel.org>,
-        Fangrui Song <maskray@google.com>,
-        linux-kbuild@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Marco Elver <elver@google.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Bill Wendling <wcw@google.com>, Arnd Bergmann <arnd@arndb.de>,
-        johannes.berg@intel.com, clang-built-linux@googlegroups.com,
-        Jonathan Corbet <corbet@lwn.net>,
-        Martin Liska <mliska@suse.cz>,
-        linux-toolchains@vger.kernel.org, x86@kernel.org,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Will Deacon <will@kernel.org>
-Subject: Re: [PATCH v2 0/3] no_profile fn attr and Kconfig for GCOV+PGO
-Date:   Tue, 22 Jun 2021 23:15:50 -0700
-Message-Id: <162442894704.2888450.8087873021886781652.b4-ty@chromium.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210621231822.2848305-1-ndesaulniers@google.com>
-References: <20210621231822.2848305-1-ndesaulniers@google.com>
+        id S229864AbhFWHcM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Jun 2021 03:32:12 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10184 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229660AbhFWHcM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 23 Jun 2021 03:32:12 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15N735hj128278;
+        Wed, 23 Jun 2021 03:29:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=1PxWw8Sl+Wy2LxI9yyqwdQNB2LGT7fL5g7Xk0g2kyJg=;
+ b=FYoIoK7C2XuSM0PzWFOM1wqOASdwtTeVdAhHuMjlJCRYIFtqnJqg778sUE38dZ377FXy
+ K0H38Horq8+uYPgxS7y8mvrFFrQVJstpuy6JKmySbwvzoRTn6YbAYLOenPBBq6iH4lpc
+ lpnk6db3OxZjENPaDuFd45KlWDGD6AbU4E7EKXbSy5oySQ72+K//4VQrGs2A8bKPGsP1
+ gdqCC0UXam8tmSkXE1a4LixGynoU/dEmUi45BzVkPpNMW7/RaA9VlVqmTryU0ShAk3Ml
+ /pd2n7W8kmh/OBa7PKektYbUB5yLiQmsXOfTq63zoWNrkpS9ZdGKr6EfwGmc4NIYhNZW yA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39byp71tap-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Jun 2021 03:29:54 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15N73njI130725;
+        Wed, 23 Jun 2021 03:29:54 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39byp71t9x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Jun 2021 03:29:54 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15N7S9MR031891;
+        Wed, 23 Jun 2021 07:29:52 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3998789ttn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Jun 2021 07:29:52 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15N7SRhv33816900
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 23 Jun 2021 07:28:27 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5FAD9A404D;
+        Wed, 23 Jun 2021 07:29:49 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E79F5A4040;
+        Wed, 23 Jun 2021 07:29:48 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.77.251])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 23 Jun 2021 07:29:48 +0000 (GMT)
+Subject: Re: [PATCH 1/2] KVM: s390: gen_facilities: allow facilities 165, 193,
+ 194 and 196
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc:     KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+References: <20210622143412.143369-1-borntraeger@de.ibm.com>
+ <20210622143412.143369-2-borntraeger@de.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <804db2fe-5c69-737c-b843-2e7b698ade29@linux.ibm.com>
+Date:   Wed, 23 Jun 2021 09:29:48 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210622143412.143369-2-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: WFyuo5W7VW8FdSz-aOEdlNGFZqIR26Jk
+X-Proofpoint-ORIG-GUID: CEPvoRDdyfgcgtmfLSm-Ogo1afpkt8Rg
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-23_02:2021-06-22,2021-06-23 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
+ malwarescore=0 adultscore=0 mlxlogscore=999 clxscore=1015 spamscore=0
+ lowpriorityscore=0 impostorscore=0 mlxscore=0 priorityscore=1501
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106230041
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 21 Jun 2021 16:18:19 -0700, Nick Desaulniers wrote:
-> The kernel has been using noinstr for correctness to politely request
-> that the compiler avoid adding various forms of instrumentation to
-> certain functions.
+On 6/22/21 4:34 PM, Christian Borntraeger wrote:
+> This enables the neural NNPA, BEAR enhancement,reset DAT protection and
+> processor activity counter facilities via the cpu model.
 > 
-> GCOV and PGO can both instrument functions, yet the function attribute
-> to disable such instrumentation (no_profile_instrument_function) was not
-> being used to suppress such implementation. Also, clang only just
-> recently gained support for no_profile_instrument_function. GCC has
-> supported that since 7.1+.
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/tools/gen_facilities.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 > 
-> [...]
+> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+> index 61ce5b59b828..606324e56e4e 100644
+> --- a/arch/s390/tools/gen_facilities.c
+> +++ b/arch/s390/tools/gen_facilities.c
+> @@ -115,6 +115,10 @@ static struct facility_def facility_defs[] = {
+>  			12, /* AP Query Configuration Information */
+>  			15, /* AP Facilities Test */
+>  			156, /* etoken facility */
+> +			165, /* nnpa facility */
+> +			193, /* bear enhancement facility */
+> +			194, /* rdp enhancement facility */
+> +			196, /* processor activity instrumentation facility */
+>  			-1  /* END */
+>  		}
+>  	},
+> 
 
-Applied to for-next/clang/features, thanks!
-
-[1/3] compiler_attributes.h: define __no_profile, add to noinstr
-      https://git.kernel.org/kees/c/380d53c45ff2
-[2/3] compiler_attributes.h: cleanups for GCC 4.9+
-      https://git.kernel.org/kees/c/ae4d682dfd33
-[3/3] Kconfig: add ARCH_WANTS_NO_INSTR+CC_HAS_NO_PROFILE_FN_ATTR, depend on for GCOV and PGO
-      https://git.kernel.org/kees/c/51c2ee6d121c
-
-Note that I've tweaked the series slightly to move the PGO Kconfig change into
-the PGO patch.
-
--- 
-Kees Cook
-
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
