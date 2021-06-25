@@ -2,68 +2,69 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB53AC2B9F4
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Jun 2021 11:24:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60D9FC48BC2
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Jun 2021 11:24:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A446161466
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Jun 2021 11:24:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 465B16147F
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Jun 2021 11:24:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229974AbhFYL1C (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S229470AbhFYL1C (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Fri, 25 Jun 2021 07:27:02 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36274 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42922 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229470AbhFYL1B (ORCPT
+        by vger.kernel.org with ESMTP id S229573AbhFYL1C (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 25 Jun 2021 07:27:01 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15PBK10K009462;
-        Fri, 25 Jun 2021 07:24:40 -0400
+        Fri, 25 Jun 2021 07:27:02 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15PBEUot157812;
+        Fri, 25 Jun 2021 07:24:41 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=5paAsb/00rM0viWLvsHO3lrwBcruKvATB3KvpvtjF5o=;
- b=Vs8y696HOWplc98opPQsbBjVzHDGo3n2ckUs38UrV2DesxV3vI5Z8wY+toeguyvu4LRv
- s1DRUZ2Hw4lMiS+zWjfOcUwfT0/A0nDRXW0jfjeNMRCTIXEEJXc+CdWW3DkiOXqen1Ep
- UMDQqs6nBCHgj8IfrL+CAZ0qYA8EDVNOfAkOaXwtbk/NEJDzM1HgO+TKE+x/uMrKkf6R
- ozGLWERP9mo6p6Ois7/8s8fwM2f3afyIEh2UKYzao1N2eiy3VnZMU2xmnlulxj4n9xEv
- DjLJ4sfOeRUrAKu1U2D2nGm6frd/XZxvzuIBy2tx0O8rbZKkIvPaW4QG3/mSenF8oPMQ CA== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=fQoQloBgAjDKMAE8cxv0es2r5BFQPkUwVofnZZRAqUM=;
+ b=aPguOTjRNFeVTHoGK5VdJkl3A6v7VzQm02ms+aFIoyRlglBPn9X2B/YuSVAO1n0myB9E
+ 2Qg5xitatsL0z0Z+37iZaybxewfEATaKjPUPgeQ8vgQVUmE1vrIxFh/+yCgbTKe6wEfl
+ OP7waKEEVsfPfkWPp/FvSzh8dPyALm3l/kcSJniNEsaVEsmO2W++ZY5qgNgSlEhjHMyQ
+ LULixutLAGG+M7sDn0HS1gG4R/EVAWe+8kE3M4M09UMtf58Rq7iHfEKbwtv0yv+zBsgj
+ te8fw+wbE3sTbLSvhqbZ79OnzvqdxB/zloGbhUM4kVUKvOkDedXb3dzAcxRPmrplzNiu 7A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 39de6005pa-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39de3d0bfy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Jun 2021 07:24:39 -0400
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15PBKDI2010348;
-        Fri, 25 Jun 2021 07:24:39 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 39de6005np-1
+        Fri, 25 Jun 2021 07:24:41 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15PBFT01160215;
+        Fri, 25 Jun 2021 07:24:40 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39de3d0bfc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Jun 2021 07:24:39 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15PBMxwx023600;
-        Fri, 25 Jun 2021 11:24:37 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma01fra.de.ibm.com with ESMTP id 3998789p4h-1
+        Fri, 25 Jun 2021 07:24:40 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15PBIY8U023165;
+        Fri, 25 Jun 2021 11:24:38 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04fra.de.ibm.com with ESMTP id 399878sntd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Jun 2021 11:24:37 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15PBNAc037224790
+        Fri, 25 Jun 2021 11:24:38 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15PBN8uN32440746
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 25 Jun 2021 11:23:10 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D2F1211C04C;
-        Fri, 25 Jun 2021 11:24:34 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C11EF11C04A;
-        Fri, 25 Jun 2021 11:24:34 +0000 (GMT)
+        Fri, 25 Jun 2021 11:23:09 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D69A9AE04D;
+        Fri, 25 Jun 2021 11:24:35 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C58FFAE045;
+        Fri, 25 Jun 2021 11:24:35 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 25 Jun 2021 11:24:34 +0000 (GMT)
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 25 Jun 2021 11:24:35 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id 84EA5E07DE; Fri, 25 Jun 2021 13:24:34 +0200 (CEST)
+        id 88526E07DE; Fri, 25 Jun 2021 13:24:35 +0200 (CEST)
 From:   Christian Borntraeger <borntraeger@de.ibm.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>
 Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
@@ -74,57 +75,53 @@ Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL 0/3] KVM: s390: Features and Cleanups for 5.14
-Date:   Fri, 25 Jun 2021 13:24:31 +0200
-Message-Id: <20210625112434.12308-1-borntraeger@de.ibm.com>
+Subject: [GIT PULL 3/3] KVM: s390: allow facility 192 (vector-packed-decimal-enhancement facility 2)
+Date:   Fri, 25 Jun 2021 13:24:34 +0200
+Message-Id: <20210625112434.12308-4-borntraeger@de.ibm.com>
 X-Mailer: git-send-email 2.31.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: OjcBO9nQHwy4FNT6i6GEwGSxDs1wO2-5
-X-Proofpoint-GUID: WXC3epGgfdH8MSydB2aDVTnPyw18RmeR
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+In-Reply-To: <20210625112434.12308-1-borntraeger@de.ibm.com>
+References: <20210625112434.12308-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XwAQG7aC3OWX_YUbrALbnXZfyX8IOkTS
+X-Proofpoint-GUID: F6_E7Ai31-nRZN6aYTdaaR7ocKbdEL8y
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-06-25_03:2021-06-25,2021-06-25 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- priorityscore=1501 impostorscore=0 suspectscore=0 mlxscore=0
- lowpriorityscore=0 phishscore=0 mlxlogscore=999 adultscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 malwarescore=0 mlxlogscore=999 bulkscore=0 phishscore=0
+ spamscore=0 priorityscore=1501 mlxscore=0 suspectscore=0 impostorscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2104190000 definitions=main-2106250063
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Paolo,
+pass through newer vector instructions if vector support is enabled.
 
-only a small amount of patches for 5.14 for KVM on s390.
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-The following changes since commit 6efb943b8616ec53a5e444193dccf1af9ad627b5:
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 876fc1f7282a..f72f361d39dd 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -713,6 +713,10 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+ 				set_kvm_facility(kvm->arch.model.fac_mask, 152);
+ 				set_kvm_facility(kvm->arch.model.fac_list, 152);
+ 			}
++			if (test_facility(192)) {
++				set_kvm_facility(kvm->arch.model.fac_mask, 192);
++				set_kvm_facility(kvm->arch.model.fac_list, 192);
++			}
+ 			r = 0;
+ 		} else
+ 			r = -EINVAL;
+-- 
+2.31.1
 
-  Linux 5.13-rc1 (2021-05-09 14:17:44 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.14-1
-
-for you to fetch changes up to 1f703d2cf20464338c3d5279dddfb65ac79b8782:
-
-  KVM: s390: allow facility 192 (vector-packed-decimal-enhancement facility 2) (2021-06-23 09:35:20 +0200)
-
-----------------------------------------------------------------
-KVM: s390: Features for 5.14
-
-- new HW facilities for guests
-- make inline assembly more robust with KASAN and co
-
-----------------------------------------------------------------
-Christian Borntraeger (2):
-      KVM: s390: gen_facilities: allow facilities 165, 193, 194 and 196
-      KVM: s390: allow facility 192 (vector-packed-decimal-enhancement facility 2)
-
-Heiko Carstens (1):
-      KVM: s390: get rid of register asm usage
-
- arch/s390/kvm/kvm-s390.c         | 22 +++++++++++++---------
- arch/s390/tools/gen_facilities.c |  4 ++++
- 2 files changed, 17 insertions(+), 9 deletions(-)
