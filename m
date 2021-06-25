@@ -2,372 +2,283 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,PDS_BAD_THREAD_QP_64,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 494D5C49EA7
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Jun 2021 07:33:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC771C2B9F4
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Jun 2021 08:01:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E0CF6141B
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Jun 2021 07:33:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9A9C8613C0
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Jun 2021 08:01:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229995AbhFYHf3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Jun 2021 03:35:29 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59496 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229616AbhFYHf1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 25 Jun 2021 03:35:27 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15P7IYfD071979;
-        Fri, 25 Jun 2021 03:33:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
- from : subject : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=jdOwdoNP6+BDeqpGrBsq6XAPD2CssAu9tXPeEbqlQoo=;
- b=J5ygw4nNh1DccT9UTbcI98Bko3x8578hTaaP1YkKirzVfd6xok0mG8fHohxWbL2O9bUI
- TblIzMz1avUcnJxFotzGkktSlC9QdCBQswbczcdQ6Tx2c+N2h8RCGhsqUk6hQhclfXeY
- XN38y+G6Lgz3MnXZu1vYgsAgEL2AloX9g7ncnSBm8BSALkcK7FWgz6xHXqZ7KWboHDEp
- 4YyYPdxAaEbdocTH1g2yP10SNbGLTcsrilzzaY6mtzRoIYIOPSv+ZgiRJ48ddbWuT9fG
- hc088/r5H6aXu0COcLzBjuWzanyKTomh/5QCUyxtfPoO58co/UcDowNumgM1NIYUNWfH vQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39dan1reft-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Jun 2021 03:33:06 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15P7InX1072978;
-        Fri, 25 Jun 2021 03:33:06 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39dan1reeu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Jun 2021 03:33:06 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15P7IMsM020973;
-        Fri, 25 Jun 2021 07:33:03 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06fra.de.ibm.com with ESMTP id 3997uhhm6j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Jun 2021 07:33:03 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15P7X0OV23658960
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 25 Jun 2021 07:33:00 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 60B0F4C046;
-        Fri, 25 Jun 2021 07:33:00 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DE0294C052;
-        Fri, 25 Jun 2021 07:32:59 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.46.136])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 25 Jun 2021 07:32:59 +0000 (GMT)
-To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, cohuck@redhat.com, seiden@linux.ibm.com
-References: <20210624120152.344009-1-frankja@linux.ibm.com>
- <20210624120152.344009-4-frankja@linux.ibm.com>
- <725852b8-d24d-9429-b4bc-7c5d6a07ef63@redhat.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH 3/3] s390x: mvpg: Add SIE mvpg test
-Message-ID: <89d155aa-a9e8-676f-c972-8077509c852d@linux.ibm.com>
-Date:   Fri, 25 Jun 2021 09:32:59 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
-MIME-Version: 1.0
-In-Reply-To: <725852b8-d24d-9429-b4bc-7c5d6a07ef63@redhat.com>
-Content-Type: text/plain; charset=utf-8
+        id S230037AbhFYIDk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Jun 2021 04:03:40 -0400
+Received: from mail-eopbgr00072.outbound.protection.outlook.com ([40.107.0.72]:35557
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229878AbhFYIDj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 25 Jun 2021 04:03:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=armh.onmicrosoft.com;
+ s=selector2-armh-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uDOYX2ZynLPd7xEXNdDeKJGXM52LPXhej5n/B5a4elQ=;
+ b=Iv64HqJPe0xMtCjglYDC3iNgQkzmFrC72RmeazRj+YM6FmfbGhCK9MbshWO0p94WugrvTntXgH54vFClkPY81LNTVSmRuBy/85iexO5KInAjTN29bJnOCIWInFklDFaPPEqBY+aWfNJf2fXLvZRECl5wLRgiBRgw8xjcjOJUbQc=
+Received: from DB9PR06CA0011.eurprd06.prod.outlook.com (2603:10a6:10:1db::16)
+ by AM6PR08MB4294.eurprd08.prod.outlook.com (2603:10a6:20b:bd::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.21; Fri, 25 Jun
+ 2021 08:00:59 +0000
+Received: from DB5EUR03FT010.eop-EUR03.prod.protection.outlook.com
+ (2603:10a6:10:1db:cafe::6) by DB9PR06CA0011.outlook.office365.com
+ (2603:10a6:10:1db::16) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4264.19 via Frontend
+ Transport; Fri, 25 Jun 2021 08:00:59 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 63.35.35.123)
+ smtp.mailfrom=arm.com; vger.kernel.org; dkim=pass (signature was verified)
+ header.d=armh.onmicrosoft.com;vger.kernel.org; dmarc=pass action=none
+ header.from=arm.com;
+Received-SPF: Pass (protection.outlook.com: domain of arm.com designates
+ 63.35.35.123 as permitted sender) receiver=protection.outlook.com;
+ client-ip=63.35.35.123; helo=64aa7808-outbound-1.mta.getcheckrecipient.com;
+Received: from 64aa7808-outbound-1.mta.getcheckrecipient.com (63.35.35.123) by
+ DB5EUR03FT010.mail.protection.outlook.com (10.152.20.96) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4264.18 via Frontend Transport; Fri, 25 Jun 2021 08:00:59 +0000
+Received: ("Tessian outbound d6f95fd272ef:v96"); Fri, 25 Jun 2021 08:00:58 +0000
+X-CR-MTA-TID: 64aa7808
+Received: from e9c1d64ff3a4.1
+        by 64aa7808-outbound-1.mta.getcheckrecipient.com id 7063BBFF-0B67-4BCA-BFA4-0A1412193F6E.1;
+        Fri, 25 Jun 2021 08:00:52 +0000
+Received: from EUR05-AM6-obe.outbound.protection.outlook.com
+    by 64aa7808-outbound-1.mta.getcheckrecipient.com with ESMTPS id e9c1d64ff3a4.1
+    (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384);
+    Fri, 25 Jun 2021 08:00:52 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Bm/v9YrY/8ilWPSF/Sz/Io7TO/HWwHzdFzA8Upf9hhiaQ7xlrcfJyaJeAU7UR77YFo1selMF6VWlVGcmlAXmQXFfWaURuV8dkcXMA47xOetZIz/bbVH2TA/ywkxy4ZRJuNa2TfvKIyqIzssK91YQmTzmxPH5i6d0Vp9AzHyr7ZhdT6eamLLMVpRn3pF3kyoo5AmjZhoLlKY0a1zotSZ9UEQMt7wre2eph8OD+BfC41pJ8+ANBYm6/QtjOjVWQn1UNIS4i+/GDMEue0Z2Du/f3WJfA9Ptvhqn0TY7tqeczyNJk5IGDYytPmgyt9nQqxgQBPvxt2SlOUqFLcE07GclOg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uDOYX2ZynLPd7xEXNdDeKJGXM52LPXhej5n/B5a4elQ=;
+ b=luYbNIkgWJenA+9uu2Vn8vO10muTdClEHeBQ4Ficl1s2cSKB1t84YODbvj26W5gCn2hdnFjlC26h+7bZ2O0jaeyRSUvionYH+wxQ0GOZcU2Yszhqx9LkqWhYRs3hwNHSFi8X0YB2fmbEPzTfdNTn2NfqPIbSMJbwt4Z9+3D1JLbIksJnvJLuz9onsFSkelz3Y+Yf6PgSQyjQSAwA9OA3BK9I5x+qPTSUtKznwSVxcmTsbu5bStyusYHFeSChVqWCOrcK7sUcSvoQx9kjLw3YiKTj3KkjAoCmlLFKTXso/5QYby/dUrxjNsLBmNvRVuTqEYpeANZ1sSVoJpEtei1WgA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=arm.com; dmarc=pass action=none header.from=arm.com; dkim=pass
+ header.d=arm.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=armh.onmicrosoft.com;
+ s=selector2-armh-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uDOYX2ZynLPd7xEXNdDeKJGXM52LPXhej5n/B5a4elQ=;
+ b=Iv64HqJPe0xMtCjglYDC3iNgQkzmFrC72RmeazRj+YM6FmfbGhCK9MbshWO0p94WugrvTntXgH54vFClkPY81LNTVSmRuBy/85iexO5KInAjTN29bJnOCIWInFklDFaPPEqBY+aWfNJf2fXLvZRECl5wLRgiBRgw8xjcjOJUbQc=
+Received: from AM6PR08MB4376.eurprd08.prod.outlook.com (2603:10a6:20b:bb::21)
+ by AM6PR08MB5286.eurprd08.prod.outlook.com (2603:10a6:20b:aa::33) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4264.18; Fri, 25 Jun
+ 2021 08:00:50 +0000
+Received: from AM6PR08MB4376.eurprd08.prod.outlook.com
+ ([fe80::3452:c711:d09a:d8a1]) by AM6PR08MB4376.eurprd08.prod.outlook.com
+ ([fe80::3452:c711:d09a:d8a1%5]) with mapi id 15.20.4264.023; Fri, 25 Jun 2021
+ 08:00:49 +0000
+From:   Justin He <Justin.He@arm.com>
+To:     Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+CC:     Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Eric Biggers <ebiggers@google.com>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: RE: [PATCH 13/14] d_path: prepend_path() is unlikely to return
+ non-zero
+Thread-Topic: [PATCH 13/14] d_path: prepend_path() is unlikely to return
+ non-zero
+Thread-Index: AQHXTEjX4vA9qb1/tUuDI9sxRSQuQasklodQ
+Date:   Fri, 25 Jun 2021 08:00:49 +0000
+Message-ID: <AM6PR08MB43762B63D11A43FE84849748F7069@AM6PR08MB4376.eurprd08.prod.outlook.com>
+References: <YKRfI29BBnC255Vp@zeniv-ca.linux.org.uk>
+ <20210519004901.3829541-1-viro@zeniv.linux.org.uk>
+ <20210519004901.3829541-13-viro@zeniv.linux.org.uk>
+In-Reply-To: <20210519004901.3829541-13-viro@zeniv.linux.org.uk>
+Accept-Language: en-US, zh-CN
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: e5VmjmXLak2YOujGIiVVgT1fGTCOm9kW
-X-Proofpoint-GUID: 4ub3vDKQ10utJvXo-7RCbM0D2hdPduy5
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-06-25_02:2021-06-24,2021-06-25 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 priorityscore=1501 clxscore=1015 spamscore=0 suspectscore=0
- malwarescore=0 impostorscore=0 bulkscore=0 adultscore=0 mlxscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106250040
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ts-tracking-id: 886D45C504F6C44FB8C7700BE3801E47.0
+x-checkrecipientchecked: true
+Authentication-Results-Original: zeniv.linux.org.uk; dkim=none (message not
+ signed) header.d=none;zeniv.linux.org.uk; dmarc=none action=none
+ header.from=arm.com;
+x-originating-ip: [203.126.0.112]
+x-ms-publictraffictype: Email
+X-MS-Office365-Filtering-Correlation-Id: 78929175-ddca-4543-101f-08d937af5e6f
+x-ms-traffictypediagnostic: AM6PR08MB5286:|AM6PR08MB4294:
+X-Microsoft-Antispam-PRVS: <AM6PR08MB42944AA262E788C6D23ED46CF7069@AM6PR08MB4294.eurprd08.prod.outlook.com>
+x-checkrecipientrouted: true
+nodisclaimer: true
+x-ms-oob-tlc-oobclassifiers: OLM:660;OLM:7691;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam-Untrusted: BCL:0;
+X-Microsoft-Antispam-Message-Info-Original: GzlRZmVAeXFNGUzZJJoXVrYol9iG02rxDUb9GLxmp/2chtm80WmMGqaa0g66Z92PQ172XSaC0E6eqhoPLsz/SK1bnry3zIpzugllqFYuHzKGXxTm/IbdmrmYXxcv/JmdSjmrp/9yrQkMPHCKcnVlzjrUkTV3IXGprRYHogmNhPUK0xD5YbCJPTdBPM8EC4KhVH5VFKpX8OnV+EEOiccQNKsr4YfJs3vfX69h7K0/jT+KbvTlbF73LSsWoANhBQ3RqcKE8Hl5eZJ1N6rZGjE40cXi6O37w42brudHqZ1D23AxcvfBdJn/oTtujJjsPkNNl5285Cr4PFDC7J1YxBJIhNArworb23xRmdE10aiYdLkaya5g+fRjYDdW/iwdXZIYnFqbHhlgTtDTKyxFDSAwsYWYIZ6yabL2gWlCEkbVofxB2cPW6aSH/ntS5Qkb9BT2CYz5Ju5IOLSOju/bzzQXeCNzTEpHgZf7ZTQfd3kd/CLmjOqkmpLFhcfgPt2SFvCW97gfpMV4dlcF926IAkh5g1vii5zGxrmFeZkVAjxQ3fUrtetIA7u/qAe42QanX3bmQZaq6YrYBhyUsZTq0tDMisk0UBYmXL0Kc3efpyO1LCk=
+X-Forefront-Antispam-Report-Untrusted: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM6PR08MB4376.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39850400004)(346002)(136003)(376002)(396003)(366004)(4326008)(2906002)(86362001)(8676002)(316002)(8936002)(110136005)(54906003)(71200400001)(66446008)(76116006)(7696005)(26005)(186003)(66946007)(83380400001)(64756008)(66476007)(66556008)(6506007)(478600001)(53546011)(33656002)(52536014)(7416002)(55016002)(9686003)(38100700002)(122000001)(5660300002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?XcoyyuYqrxBARMRe1xEpn/u1odlCLi+mhjHKsyDlPF1W3XeVJYxJiH8UztFn?=
+ =?us-ascii?Q?rozOhzwtgIRuYJweWo5fQRx37ki7hR8QN7ZJ1xdp4RnvTvBNhYjEBy9NQShH?=
+ =?us-ascii?Q?fAU/S5r98ZbwNHt9WRezTgsx7w+Wu5r+Njl7BO0ROWd3+DzDOvFcyhrr4Ja5?=
+ =?us-ascii?Q?exeiDoNREWrQsjDzjzzeWHEsVdJTwFeyonhJf53nzXiYCqzU+OpwUwSz62Wi?=
+ =?us-ascii?Q?/NlGOqkGpjhj6qfdbWwYGRiNPE+XT+lExbSCp/4b/x6qF77MrpcnvTOg50ji?=
+ =?us-ascii?Q?Jv1eSG7skoPExN7lr46UEgmV2mrpE4OWK5ieml+s+UN8niGgHzfDNmAJhchN?=
+ =?us-ascii?Q?qOkd4nNqvYNE+fmcHPOjoxOFWto8fQlW4ngMqd0+jlazZCDHur5DyEcwt1p8?=
+ =?us-ascii?Q?8wXelZQmPlJY3ePlmx81U+lGSo84uv9qraVlRpa6ZRq5trZHBYCtzHLay2Cj?=
+ =?us-ascii?Q?2Xu0kOZwNqWNmMg5beViN3ISzakIZLTgrrNS87/byqn+H1VueT3jDvpZTVM0?=
+ =?us-ascii?Q?2r2BZPsGlC4q3J67IhDqGy0WKg/lUumfvyuLqwtvXBc08EfTCJP4TPzxtGTY?=
+ =?us-ascii?Q?YosQYa8rCtvWtff4BIoPAfsJjECUyceFOCjyL3RviZdF/DZkwlDSbasnsbVi?=
+ =?us-ascii?Q?1pfPsLI9NPkU7rGp971Tjwt2JJMM0ajOGsC95wxMjxQje+VYa5XgQsr372fE?=
+ =?us-ascii?Q?EXTgOtLxKmLwDh0lrdgfgykRYqjglrH1z/3K9PQGycfpw7frr2y5z7ER4K11?=
+ =?us-ascii?Q?NtMCVvf7Pp7J6jQuEXK0dPpNXFC5d/jSofzEKXedcz5o9MBxUoBkwuoC3y+3?=
+ =?us-ascii?Q?Fic8MHmeiKl2eQPUc8j0JY3OsL3yiHTJc2OS+qh0jMd+s+v5iqDY2IwlTEbt?=
+ =?us-ascii?Q?q6eSoSajnT/U0ZzW58hSUlascKoWS2KOYbsqAH7xAZEaoRDwELqwZmb3qkim?=
+ =?us-ascii?Q?l0H7OjyZwwFzzrlrPdMgF1+zuegmrl1bqiEOYfBPYCrnzhKUWcUxETXmra18?=
+ =?us-ascii?Q?HhiMZM/iyRwZ8Kljl9aqLJt44zYUEf/I3g7NFtYDnnuZ3tSeYfmyYxe+sqM1?=
+ =?us-ascii?Q?8QtWTAb09XLrkbhUuqs97AAfGERo4zYgB0mJYPToLpf0ReLySL0Z0NMBvela?=
+ =?us-ascii?Q?pKsrvGKMbxhR0FmeC6FLcUbu5S4c2YlmHatfIqpZsfTkPRRgGgpsdQ+AHtjX?=
+ =?us-ascii?Q?ZMxt/PiIylBnBGWUtJQY3m4Uj3TZUmoEltoMdfs5Z5rfuVyB5xAvW67Edz44?=
+ =?us-ascii?Q?uu59SlG6A1SvUjQI2k2PAwKniDQQaWycyYVvGIc0FoD0Y4eVZvLFIhlFNCPH?=
+ =?us-ascii?Q?TjruNXtCd02VonvUrlI0f+u1?=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR08MB5286
+Original-Authentication-Results: zeniv.linux.org.uk; dkim=none (message not signed)
+ header.d=none;zeniv.linux.org.uk; dmarc=none action=none header.from=arm.com;
+X-EOPAttributedMessage: 0
+X-MS-Exchange-Transport-CrossTenantHeadersStripped: DB5EUR03FT010.eop-EUR03.prod.protection.outlook.com
+X-MS-Office365-Filtering-Correlation-Id-Prvs: a4922bab-4f78-4708-23ab-08d937af58e7
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: q0g3a0EwM1IZAfTeDrntFSm9cDFsr5PMiacd5lrC6WvmqiqVCrW5byqllF04tmyXDq8l0JfjonZ2mggc+34QE7xNavh3f4qFC7sPJ2x+mRRYpMPKTAa9qSGKN9pMTB+Vm/4qNBtJBG/kYoAY4VTgykiqV9VHzLKIJzETjGob/R/SCajZtcsVHHXUY5UE0Wbpy76yAhef26W3I+8Z6U+MRJ8QX6Owef51VfGoDXALwJg5wxHdbQM4JLUew8G9w4JcZ54mOxuDrGdK6EtRk5v6/EOvHWZ9QY5xU9fSZzrWbhrFB2eQZbu320H7RIbddPyLEflbsBE3E3WOwlgFBipXcO2o2R6fw82PHyDbDid0Fp+gxpFLme7hrtGD0XvwnfjEuHVdRwW8MmbI3Uy2DB5i4orfENDRp/aV8Eab6eNPLroOuVN6mBPOLrBKe95uKSaJGMRRvUmFqWUISXZhQYlk+uZg/0SoEA0c6U7shW65fIgexZfc4KG52iO4+okg6q0W6nfr8o08fpdXzwjTt9LyOd+17LMtB8gPqrqX88l3yaGDvN+d/wzNjVcJQMMLbtAm0GUcF0clAj9KDA+XIX92HULCYIX5io3weW0zYZH4q98S1FRPD81HwRsikTpENZXMH4HRTHLtI4W3eU3HXHQWOw==
+X-Forefront-Antispam-Report: CIP:63.35.35.123;CTRY:IE;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:64aa7808-outbound-1.mta.getcheckrecipient.com;PTR:ec2-63-35-35-123.eu-west-1.compute.amazonaws.com;CAT:NONE;SFS:(4636009)(376002)(396003)(39850400004)(346002)(136003)(36840700001)(46966006)(5660300002)(55016002)(70586007)(450100002)(336012)(2906002)(70206006)(33656002)(36860700001)(4326008)(8676002)(316002)(8936002)(82740400003)(53546011)(356005)(6506007)(110136005)(7696005)(52536014)(81166007)(83380400001)(54906003)(478600001)(26005)(82310400003)(9686003)(186003)(47076005)(86362001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: arm.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Jun 2021 08:00:59.2627
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 78929175-ddca-4543-101f-08d937af5e6f
+X-MS-Exchange-CrossTenant-Id: f34e5979-57d9-4aaa-ad4d-b122a662184d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=f34e5979-57d9-4aaa-ad4d-b122a662184d;Ip=[63.35.35.123];Helo=[64aa7808-outbound-1.mta.getcheckrecipient.com]
+X-MS-Exchange-CrossTenant-AuthSource: DB5EUR03FT010.eop-EUR03.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR08MB4294
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/24/21 6:27 PM, Thomas Huth wrote:
-> On 24/06/2021 14.01, Janosch Frank wrote:
->> Let's also check the PEI values to make sure our VSIE implementation
->> is correct.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>   s390x/Makefile                  |   2 +
->>   s390x/mvpg-sie.c                | 150 ++++++++++++++++++++++++++++++++
->>   s390x/snippets/c/mvpg-snippet.c |  33 +++++++
->>   s390x/unittests.cfg             |   3 +
->>   4 files changed, 188 insertions(+)
->>   create mode 100644 s390x/mvpg-sie.c
->>   create mode 100644 s390x/snippets/c/mvpg-snippet.c
->>
->> diff --git a/s390x/Makefile b/s390x/Makefile
->> index ba32f4c..07af26d 100644
->> --- a/s390x/Makefile
->> +++ b/s390x/Makefile
->> @@ -23,6 +23,7 @@ tests += $(TEST_DIR)/sie.elf
->>   tests += $(TEST_DIR)/mvpg.elf
->>   tests += $(TEST_DIR)/uv-host.elf
->>   tests += $(TEST_DIR)/edat.elf
->> +tests += $(TEST_DIR)/mvpg-sie.elf
->>   
->>   tests_binary = $(patsubst %.elf,%.bin,$(tests))
->>   ifneq ($(HOST_KEY_DOCUMENT),)
->> @@ -82,6 +83,7 @@ snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
->>   
->>   # perquisites (=guests) for the snippet hosts.
->>   # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
->> +$(TEST_DIR)/mvpg-sie.elf: snippets = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
->>   
->>   $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o $(FLATLIBS)
->>   	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
->> diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
->> new file mode 100644
->> index 0000000..a18c1b0
->> --- /dev/null
->> +++ b/s390x/mvpg-sie.c
->> @@ -0,0 +1,150 @@
->> +#include <libcflat.h>
->> +#include <asm/asm-offsets.h>
->> +#include <asm-generic/barrier.h>
->> +#include <asm/interrupt.h>
->> +#include <asm/pgtable.h>
->> +#include <mmu.h>
->> +#include <asm/page.h>
->> +#include <asm/facility.h>
->> +#include <asm/mem.h>
->> +#include <asm/sigp.h>
->> +#include <smp.h>
->> +#include <alloc_page.h>
->> +#include <bitops.h>
->> +#include <vm.h>
->> +#include <sclp.h>
->> +#include <sie.h>
-> 
-> The list of headers that get included here is rather long for this file that 
-> is rather short ... e.g. do we really need such headers like sigp.h and 
-> sclp.h here?
+Hi Al
 
-sclp.h is used for the sie facility check.
-I've removed asm/sigp.h, smp.h and bitops.h
+> -----Original Message-----
+> From: Al Viro <viro@ftp.linux.org.uk> On Behalf Of Al Viro
+> Sent: Wednesday, May 19, 2021 8:49 AM
+> To: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Justin He <Justin.He@arm.com>; Petr Mladek <pmladek@suse.com>; Steven
+> Rostedt <rostedt@goodmis.org>; Sergey Senozhatsky
+> <senozhatsky@chromium.org>; Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com>; Rasmus Villemoes
+> <linux@rasmusvillemoes.dk>; Jonathan Corbet <corbet@lwn.net>; Heiko
+> Carstens <hca@linux.ibm.com>; Vasily Gorbik <gor@linux.ibm.com>; Christia=
+n
+> Borntraeger <borntraeger@de.ibm.com>; Eric W . Biederman
+> <ebiederm@xmission.com>; Darrick J. Wong <darrick.wong@oracle.com>; Peter
+> Zijlstra (Intel) <peterz@infradead.org>; Ira Weiny <ira.weiny@intel.com>;
+> Eric Biggers <ebiggers@google.com>; Ahmed S. Darwish
+> <a.darwish@linutronix.de>; open list:DOCUMENTATION <linux-
+> doc@vger.kernel.org>; Linux Kernel Mailing List <linux-
+> kernel@vger.kernel.org>; linux-s390 <linux-s390@vger.kernel.org>; linux-
+> fsdevel <linux-fsdevel@vger.kernel.org>
+> Subject: [PATCH 13/14] d_path: prepend_path() is unlikely to return non-
+> zero
+>
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> ---
+>  fs/d_path.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/fs/d_path.c b/fs/d_path.c
+> index ba629879a4bf..8a9cd44f6689 100644
+> --- a/fs/d_path.c
+> +++ b/fs/d_path.c
+> @@ -187,7 +187,7 @@ char *__d_path(const struct path *path,
+>       DECLARE_BUFFER(b, buf, buflen);
+>
+>       prepend(&b, "", 1);
+> -     if (prepend_path(path, root, &b) > 0)
+> +     if (unlikely(prepend_path(path, root, &b) > 0))
+>               return NULL;
+>       return extract_string(&b);
+>  }
+> @@ -199,7 +199,7 @@ char *d_absolute_path(const struct path *path,
+>       DECLARE_BUFFER(b, buf, buflen);
+>
+>       prepend(&b, "", 1);
+> -     if (prepend_path(path, &root, &b) > 1)
+> +     if (unlikely(prepend_path(path, &root, &b) > 1))
+>               return ERR_PTR(-EINVAL);
+>       return extract_string(&b);
+>  }
+> @@ -396,7 +396,7 @@ SYSCALL_DEFINE2(getcwd, char __user *, buf, unsigned
+> long, size)
+>               DECLARE_BUFFER(b, page, PATH_MAX);
+>
+>               prepend(&b, "", 1);
+> -             if (prepend_path(&pwd, &root, &b) > 0)
+> +             if (unlikely(prepend_path(&pwd, &root, &b) > 0))
+>                       prepend(&b, "(unreachable)", 13);
+>               rcu_read_unlock();
+>
+> --
+> 2.11.0
+I tested it with a debugging patch as follows:
+diff --git a/fs/d_path.c b/fs/d_path.c
+index aea254ac9e1f..8eecd04be7bb 100644
+--- a/fs/d_path.c
++++ b/fs/d_path.c
+@@ -210,6 +210,7 @@ static int prepend_path(const struct path *path,
+        b =3D *p;
+        read_seqbegin_or_lock(&rename_lock, &seq);
+        error =3D __prepend_path(path->dentry, real_mount(path->mnt), root,=
+ &b);
++       printk("prepend=3D%d",error);
+        if (!(seq & 1))
+                rcu_read_unlock();
+        if (need_seqretry(&rename_lock, seq)) {
 
-> 
->> +static u8 *guest;
->> +static u8 *guest_instr;
->> +static struct vm vm;
->> +
->> +static uint8_t *src;
->> +static uint8_t *dst;
->> +static uint8_t *cmp;
->> +
->> +extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_start[];
->> +extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_end[];
->> +int binary_size;
->> +
->> +static void sie(struct vm *vm)
->> +{
->> +	/* Reset icptcode so we don't trip below */
->> +	vm->sblk->icptcode = 0;
->> +
->> +	while (vm->sblk->icptcode == 0) {
->> +		sie64a(vm->sblk, &vm->save_area);
->> +		if (vm->sblk->icptcode == ICPT_VALIDITY)
->> +			assert(0);
-> 
-> 
->                  assert(vm->sblk->icptcode != ICPT_VALIDITY)
-> 
-> ?
-> 
->> +	}
->> +	vm->save_area.guest.grs[14] = vm->sblk->gg14;
->> +	vm->save_area.guest.grs[15] = vm->sblk->gg15;
->> +}
->> +
->> +static void test_mvpg_pei(void)
->> +{
->> +	uint64_t **pei_dst = (uint64_t **)((uintptr_t) vm.sblk + 0xc0);
->> +	uint64_t **pei_src = (uint64_t **)((uintptr_t) vm.sblk + 0xc8);
-> 
-> Hmm, magic values ... according to the public SA22-7095-0 from 1984, the 
-> array at offset 0xc0 is called "Interruption parameters" ... could we maybe 
-> at least use a similar name in our
-> kvm_s390_sie_block?
+Then the result seems a little different:
+root@entos-ampere-02:~# dmesg |grep prepend=3D1 |wc -l
+7417
+root@entos-ampere-02:~# dmesg |grep prepend=3D0 |wc -l
+772
 
-That's very much a thing that moved over from KVM and the reason for
-that is that the interruption parameters contain a lot of things
-especially when PV is added into the mix.
+The kernel is 5.13.0-rc2+ + this series + my '%pD' series
 
-We can now either choose to make the interruption parameters an
-interesing looking union or we define the offsets properly. I'm also not
-too happy about the VSIE PEI code using "u64 *pei_block =
-&vsie_page->scb_o->mcic;" for that.
+Any thoughts?
 
-#define SBLK_OFF_PEI_DST 0xc0
-#define SBLK_OFF_PEI_SRC 0xc8
+---
+Cheers,
+Jia He (Justin)
 
-> 
->> +	report_prefix_push("pei");
->> +
->> +	report_prefix_push("src");
->> +	memset(dst, 0, PAGE_SIZE);
->> +	protect_page(src, PAGE_ENTRY_I);
->> +	sie(&vm);
->> +	report(vm.sblk->icptcode == ICPT_PARTEXEC, "Partial execution");
->> +	report((uintptr_t)**pei_src == ((uintptr_t)vm.sblk->mso) + 0x6000 + PAGE_ENTRY_I, "PEI_SRC correct");
->> +	report((uintptr_t)**pei_dst == vm.sblk->mso + 0x5000, "PEI_DST correct");
->> +	unprotect_page(src, PAGE_ENTRY_I);
->> +	report(!memcmp(cmp, dst, PAGE_SIZE), "Destination intact");
->> +	/* Jump over the diag44 */
 
-How about:
-
-/*
- * We need to execute the diag44 which is used as a blocker behind the
- * mvpg. It makes sure we fail the tests above if the mvpg wouldn't
-* have intercepted.
-*/
-
->> +	sie(&vm);
-
-And:
-
-/* Make sure we intercepted for the diag44 and noting else */
-
->> +	assert(vm.sblk->icptcode == ICPT_INST &&
->> +	       vm.sblk->ipa == 0x8300 && vm.sblk->ipb == 0x440000);
-> 
-> Maybe add a comment about the magic values?
-
-Since these will be used extensively in the future I think it might make
-sense to introduce constants.
-
-#define SIE_ICPT_IPA_DIAG 0x8300
-
-> 
->> +	report_prefix_pop();
->> +
->> +	/* Clear PEI data for next check */
->> +	report_prefix_push("dst");
->> +	memset((uint64_t *)((uintptr_t) vm.sblk + 0xc0), 0, 16);
->> +	memset(dst, 0, PAGE_SIZE);
->> +	protect_page(dst, PAGE_ENTRY_I);
->> +	sie(&vm);
->> +	report(vm.sblk->icptcode == ICPT_PARTEXEC, "Partial execution");
->> +	report((uintptr_t)**pei_src == vm.sblk->mso + 0x6000, "PEI_SRC correct");
->> +	report((uintptr_t)**pei_dst == vm.sblk->mso + 0x5000 + PAGE_ENTRY_I, "PEI_DST correct");
->> +	/* Needed for the memcmp and general cleanup */
->> +	unprotect_page(dst, PAGE_ENTRY_I);
->> +	report(!memcmp(cmp, dst, PAGE_SIZE), "Destination intact");
->> +	report_prefix_pop();
->> +
->> +	report_prefix_pop();
->> +}
->> +
->> +static void test_mvpg(void)
->> +{
->> +	int binary_size = ((uintptr_t)_binary_s390x_snippets_c_mvpg_snippet_gbin_end -
->> +			   (uintptr_t)_binary_s390x_snippets_c_mvpg_snippet_gbin_start);
->> +
->> +	memcpy(guest, _binary_s390x_snippets_c_mvpg_snippet_gbin_start, binary_size);
->> +	memset(src, 0x42, PAGE_SIZE);
->> +	memset(dst, 0x43, PAGE_SIZE);
->> +	sie(&vm);
->> +	mb();
->> +	report(!memcmp(src, dst, PAGE_SIZE) && *dst == 0x42, "Page moved");
->> +}
->> +
->> +static void setup_guest(void)
->> +{
->> +	setup_vm();
->> +
->> +	/* Allocate 1MB as guest memory */
->> +	guest = alloc_pages(8);
->> +	/* The first two pages are the lowcore */
->> +	guest_instr = guest + PAGE_SIZE * 2;
->> +
->> +	vm.sblk = alloc_page();
->> +
->> +	vm.sblk->cpuflags = CPUSTAT_ZARCH | CPUSTAT_RUNNING;
->> +	vm.sblk->prefix = 0;
->> +	/*
->> +	 * Pageable guest with the same ASCE as the test programm, but
->> +	 * the guest memory 0x0 is offset to start at the allocated
->> +	 * guest pages and end after 1MB.
->> +	 *
->> +	 * It's not pretty but faster and easier than managing guest ASCEs.
->> +	 */
->> +	vm.sblk->mso = (u64)guest;
->> +	vm.sblk->msl = (u64)guest;
->> +	vm.sblk->ihcpu = 0xffff;
->> +
->> +	vm.sblk->crycbd = (uint64_t)alloc_page();
->> +
->> +	vm.sblk->gpsw.addr = PAGE_SIZE * 4;
->> +	vm.sblk->gpsw.mask = 0x0000000180000000ULL;
->> +	vm.sblk->ictl = ICTL_OPEREXC | ICTL_PINT;
->> +	/* Enable MVPG interpretation as we want to test KVM and not ourselves */
->> +	vm.sblk->eca = ECA_MVPGI;
->> +
->> +	src = guest + PAGE_SIZE * 6;
->> +	dst = guest + PAGE_SIZE * 5;
->> +	cmp = alloc_page();
->> +	memset(cmp, 0, PAGE_SIZE);
->> +}
->> +
->> +int main(void)
->> +{
->> +	report_prefix_push("mvpg-sie");
->> +	if (!sclp_facilities.has_sief2) {
->> +		report_skip("SIEF2 facility unavailable");
->> +		goto done;
->> +	}
->> +
->> +	setup_guest();
->> +	test_mvpg();
->> +	test_mvpg_pei();
->> +
->> +done:
->> +	report_prefix_pop();
->> +	return report_summary();
->> +
->> +}
->> diff --git a/s390x/snippets/c/mvpg-snippet.c b/s390x/snippets/c/mvpg-snippet.c
->> new file mode 100644
->> index 0000000..96b70c9
->> --- /dev/null
->> +++ b/s390x/snippets/c/mvpg-snippet.c
->> @@ -0,0 +1,33 @@
->> +#include <libcflat.h>
->> +
->> +static inline void force_exit(void)
->> +{
->> +	asm volatile("	diag	0,0,0x44\n");
->> +}
->> +
->> +static inline int mvpg(unsigned long r0, void *dest, void *src)
->> +{
->> +	register unsigned long reg0 asm ("0") = r0;
->> +	int cc;
->> +
->> +	asm volatile("	mvpg    %1,%2\n"
->> +		     "	ipm     %0\n"
->> +		     "	srl     %0,28"
->> +		     : "=&d" (cc) : "a" (dest), "a" (src), "d" (reg0)
-> 
-> Why is cc marked with "&" here?
-
-I copied that from s390x/mvpg.c
-
-> 
->   Thomas
-> 
-
+IMPORTANT NOTICE: The contents of this email and any attachments are confid=
+ential and may also be privileged. If you are not the intended recipient, p=
+lease notify the sender immediately and do not disclose the contents to any=
+ other person, use it for any purpose, or store or copy the information in =
+any medium. Thank you.
