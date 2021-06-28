@@ -2,350 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,PDS_BAD_THREAD_QP_64,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F9C9C2B9F4
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Jun 2021 05:20:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B58C9C49EB7
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Jun 2021 10:02:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 139966198A
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Jun 2021 05:20:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A156E61246
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Jun 2021 10:02:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229808AbhF1FXC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Jun 2021 01:23:02 -0400
-Received: from mail-eopbgr130048.outbound.protection.outlook.com ([40.107.13.48]:65092
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229692AbhF1FXA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 28 Jun 2021 01:23:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=armh.onmicrosoft.com;
- s=selector2-armh-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yV0lhEASvoYL2rZ7bI6BzRodqewn/SgYJUPPNmQqUcs=;
- b=nGNR5a4oJfMz5NwIWaY578R6XuimfbQ+eFfYpO2u9XWoMqqok2hSymFurdboSJvlJxevWeLQ/5wF0388+fC15uwQGXTII6ISeqMB4yT/xK3ctQdQ/WbI7UKg7IgeiJ/bR5FI/r+Slux4KHUaLtM0GRLlbjCcmB4oC6okm5wpKqo=
-Received: from DB6PR0201CA0011.eurprd02.prod.outlook.com (2603:10a6:4:3f::21)
- by PA4PR08MB6222.eurprd08.prod.outlook.com (2603:10a6:102:e9::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4264.19; Mon, 28 Jun
- 2021 05:20:31 +0000
-Received: from DB5EUR03FT016.eop-EUR03.prod.protection.outlook.com
- (2603:10a6:4:3f:cafe::6d) by DB6PR0201CA0011.outlook.office365.com
- (2603:10a6:4:3f::21) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4264.18 via Frontend
- Transport; Mon, 28 Jun 2021 05:20:31 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 63.35.35.123)
- smtp.mailfrom=arm.com; vger.kernel.org; dkim=pass (signature was verified)
- header.d=armh.onmicrosoft.com;vger.kernel.org; dmarc=pass action=none
- header.from=arm.com;
-Received-SPF: Pass (protection.outlook.com: domain of arm.com designates
- 63.35.35.123 as permitted sender) receiver=protection.outlook.com;
- client-ip=63.35.35.123; helo=64aa7808-outbound-1.mta.getcheckrecipient.com;
-Received: from 64aa7808-outbound-1.mta.getcheckrecipient.com (63.35.35.123) by
- DB5EUR03FT016.mail.protection.outlook.com (10.152.20.141) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4264.18 via Frontend Transport; Mon, 28 Jun 2021 05:20:31 +0000
-Received: ("Tessian outbound 507383c3c879:v97"); Mon, 28 Jun 2021 05:20:30 +0000
-X-CR-MTA-TID: 64aa7808
-Received: from 59ecb98be47b.1
-        by 64aa7808-outbound-1.mta.getcheckrecipient.com id 10978956-3180-406F-A9ED-169CA2533FCF.1;
-        Mon, 28 Jun 2021 05:20:25 +0000
-Received: from EUR04-VI1-obe.outbound.protection.outlook.com
-    by 64aa7808-outbound-1.mta.getcheckrecipient.com with ESMTPS id 59ecb98be47b.1
-    (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384);
-    Mon, 28 Jun 2021 05:20:25 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BZp/o8YhyilcOA6iyvqbdjVEIxkT7ac1SYocN9PeM2sLyJ2XAAHB3RJnlkf1VP+lhu5HCh0Q0hJXrD1F4lMMmH/PDP6LkpXLsoCF/8mkqk6EQevg6IBPSDOSKoEJwNuQ4qtvTCGKfoVlNFtBDPZPgopOmUicGTPgC11YaainMjRVxb0bFpxq0rgF/NU8tk66Jj7Ad61NStmSPBB37b/hUfXkRCwHAvv8dLSUFDUGQMggpTUwtAiBemBHECFouzSTtiRunkWK3xtiU24+q4kA9bMxr/eG73jST5j8UvJB/i1qGYJupkJ1xXCnv3je6A1s8EmYuLKwZZPhrbLWpe3iqw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yV0lhEASvoYL2rZ7bI6BzRodqewn/SgYJUPPNmQqUcs=;
- b=K6oK4qW2c+OBlg/RMiwtDCksMLKe/H+JDHI7laPKWsA/3fnONHysqpyD2LqUPFpf8ALLYebVpZMB737vkH8ZfdNzDJfAFt2ZGw4f/vL8HT/77drUQaODNeFXizmVr9sVPJ/JVm4gEO7uM5BSO3W3sPdepHHRfKUqXkGj5fJgvHMjYg1p1MZig/hbXfMsOFsWW/AM7fMQgolMncT+AGHE7Jd7HDGi4BgV/qzLFtc+pSQL/P2uKsS8/a6Hv1P4P47DeA/Zgh6I+X6r5gKRUejfL7YwY9HO0V+JAd3Gn5x9gaz4hs4KvY4DHmojcnHXW/Jqidb9gesS7zJjXiZFZjoCvw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=arm.com; dmarc=pass action=none header.from=arm.com; dkim=pass
- header.d=arm.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=armh.onmicrosoft.com;
- s=selector2-armh-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yV0lhEASvoYL2rZ7bI6BzRodqewn/SgYJUPPNmQqUcs=;
- b=nGNR5a4oJfMz5NwIWaY578R6XuimfbQ+eFfYpO2u9XWoMqqok2hSymFurdboSJvlJxevWeLQ/5wF0388+fC15uwQGXTII6ISeqMB4yT/xK3ctQdQ/WbI7UKg7IgeiJ/bR5FI/r+Slux4KHUaLtM0GRLlbjCcmB4oC6okm5wpKqo=
-Received: from AM6PR08MB4376.eurprd08.prod.outlook.com (2603:10a6:20b:bb::21)
- by AS8PR08MB5941.eurprd08.prod.outlook.com (2603:10a6:20b:296::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4264.20; Mon, 28 Jun
- 2021 05:20:16 +0000
-Received: from AM6PR08MB4376.eurprd08.prod.outlook.com
- ([fe80::3452:c711:d09a:d8a1]) by AM6PR08MB4376.eurprd08.prod.outlook.com
- ([fe80::3452:c711:d09a:d8a1%5]) with mapi id 15.20.4264.026; Mon, 28 Jun 2021
- 05:20:16 +0000
-From:   Justin He <Justin.He@arm.com>
-To:     Al Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-CC:     Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S232628AbhF1KFF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Jun 2021 06:05:05 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4304 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232664AbhF1KFE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 28 Jun 2021 06:05:04 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15S9Ws1F114753;
+        Mon, 28 Jun 2021 06:02:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=kyL2mVIJzs+HDFn1txhBWQuxASTtAL4NK+sQHR9/M6w=;
+ b=nlhmKcLJUCCyLIB4qbT56v44PyBoB93JSwEOFbliY1ABdDDC2qQiEBobAN7uVXxWVpG5
+ fAN+9TL1iFKJ8OcMRrCgsisK9a2F9eUT6cHPoH61tR0IY62g8uQe4VrhkNlfK2W6vMEC
+ rWgCkWNt6CgrAjmAjQaShlrvFizPefYxUtARNDx3sfZWy1JYIknD7gMqnvnisEYAOaDl
+ NzjUV7hFWg0CfClwn2aeVwqO3IFcrcYQZZwlSg7i7RQ5AMzP4jBNLdyUtM8Zx8UwnjDa
+ NFpBKv1Wp4mtyIbeRkVhYVtSw7aiHu2gzXuQNL9TLaKwineHuHP7XrwuOKQWNMHt1idD 4g== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39f9m34saf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Jun 2021 06:02:32 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15SA2TwB008458;
+        Mon, 28 Jun 2021 10:02:29 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 39duv8gq80-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Jun 2021 10:02:29 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15SA2QUG22020388
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 28 Jun 2021 10:02:26 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9BE9411CC68;
+        Mon, 28 Jun 2021 10:02:24 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5550E11CC4A;
+        Mon, 28 Jun 2021 10:02:24 +0000 (GMT)
+Received: from osiris (unknown [9.145.26.242])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 28 Jun 2021 10:02:24 +0000 (GMT)
+Date:   Mon, 28 Jun 2021 12:02:22 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc:     Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Eric Biggers <ebiggers@google.com>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>, nd <nd@arm.com>
-Subject: RE: [PATCH 07/14] d_path: lift -ENAMETOOLONG handling into callers of
- prepend_path()
-Thread-Topic: [PATCH 07/14] d_path: lift -ENAMETOOLONG handling into callers
- of prepend_path()
-Thread-Index: AQHXTEjITB/V0362t0GPPyDCrpGmgKskqplggAR2vqA=
-Date:   Mon, 28 Jun 2021 05:20:16 +0000
-Message-ID: <AM6PR08MB4376C948F728D815CA984349F7039@AM6PR08MB4376.eurprd08.prod.outlook.com>
-References: <YKRfI29BBnC255Vp@zeniv-ca.linux.org.uk>
- <20210519004901.3829541-1-viro@zeniv.linux.org.uk>
- <20210519004901.3829541-7-viro@zeniv.linux.org.uk>
- <AM6PR08MB4376E091A9A84BE1240F3989F7069@AM6PR08MB4376.eurprd08.prod.outlook.com>
-In-Reply-To: <AM6PR08MB4376E091A9A84BE1240F3989F7069@AM6PR08MB4376.eurprd08.prod.outlook.com>
-Accept-Language: en-US, zh-CN
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ts-tracking-id: 71590C80C8710745B540261F85D47A2C.0
-x-checkrecipientchecked: true
-Authentication-Results-Original: zeniv.linux.org.uk; dkim=none (message not
- signed) header.d=none;zeniv.linux.org.uk; dmarc=none action=none
- header.from=arm.com;
-x-originating-ip: [203.126.0.112]
-x-ms-publictraffictype: Email
-X-MS-Office365-Filtering-Correlation-Id: 9d0f6ca4-d3fa-48a4-c70a-08d939f47307
-x-ms-traffictypediagnostic: AS8PR08MB5941:|PA4PR08MB6222:
-X-Microsoft-Antispam-PRVS: <PA4PR08MB6222D3AA20CFF38C03DF4C8AF7039@PA4PR08MB6222.eurprd08.prod.outlook.com>
-x-checkrecipientrouted: true
-nodisclaimer: true
-x-ms-oob-tlc-oobclassifiers: OLM:6430;OLM:6430;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam-Untrusted: BCL:0;
-X-Microsoft-Antispam-Message-Info-Original: 7Vw4+zIC9z4Ee7bCCa1CX0fpWeGTlCnYACzhKbb2X6Now90Ytn8M7AXMjZQwS5cRfb1SUpuGfI2nIXIXVRT1gvgmqVAakzCpO0jvqw41PugBLztdoXwtGBhKKSRs5Vl9nqGFLgSxpY+0DGx2PWYQzsQVQIacfUL02r0aDhncd/eZiNuFS11Wwq+aCq7Y51yAQjAoQOgFWqkZdFLuQRv3BCvd2+AKdDisIaCdLb00nFPr11tSPLuG6heI9wgPibFisyhaQAzAio00tfgJgaJcvVpKLtYVp5DJMhi5eNbknubc/wtbIZUUCP5E6rq5JYvpgV/Vb/6+ledPPp8cj00fww5cVZ8CzxbDfakZm5ft8mOm0Xfrtt9NdyXIn+RJAykZ87JrnmJ8XDPPg+uNanjnuzq3w1mtdu+lS7YuwWt1Xpca5Hf8SrG5S2I3O097/qFZX2+DqY7WHNQSz1xtOf3LXg/mFjS1IhRufdA5zf7/hPjGwTx9+7/ujl1EIXs4AGhuQmiLzJDBom3nId8b39UhNY5UjkxxEl2l6XpqhAXua7hf7Rn+c+QfOErztHnNFzp5GXMkausKuK/lW7Kn6n5HJ9UenI3s7dGduE2yLs0r7KbsKutcPsuuuirI2zue6atDwzzmkex5SQmF+rn6Y6wSxA==
-X-Forefront-Antispam-Report-Untrusted: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM6PR08MB4376.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(366004)(346002)(376002)(39850400004)(396003)(52536014)(9686003)(55016002)(8676002)(71200400001)(186003)(6506007)(53546011)(5660300002)(2906002)(478600001)(86362001)(26005)(7416002)(316002)(33656002)(8936002)(122000001)(64756008)(54906003)(66446008)(110136005)(83380400001)(66476007)(66556008)(76116006)(7696005)(4326008)(66946007)(38100700002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?e9kMkj0bXE6wrCumPlPIyDw7FyRHmLsreaDGJuTpTZJeE53FY6OpEjoAqq1Z?=
- =?us-ascii?Q?OWfmQC8q3ipZXEkRlst9BYxsC9zHyzQrlfc5vuIjJ0mWwFRe0A58sWfR3Wf4?=
- =?us-ascii?Q?7Nzix9UiJmD/E8LCaJmL5B3T9Amz0AfPaAf4Ls8StemYxKg6f86I3hQWxUdk?=
- =?us-ascii?Q?rUZKQDy4baANRrYPU63rx8+bNzOUXubw05NWiixbUkPfnSgVqEQ0OmUCWpmH?=
- =?us-ascii?Q?6G5dd6qJMynQF3b1FcQm9smbIvor/4qMBq8qwf160torCLckB9hyVYdScufr?=
- =?us-ascii?Q?Kd3GxGQ+ryWAJz3CELsroz4fLHHdmbsLGRv0CFs9cca1C3J2y/RV9PohkVxx?=
- =?us-ascii?Q?y4PLbvM0WmszIsda2lLNxjpZFo+OL/leTOBPIBFQkwMJuVg1LljiCCt53ZzK?=
- =?us-ascii?Q?UOhybzoc/ir36MYJh+gYkoyNWVHvxvxJyztjuNN5NIrOgBWtCoZa3OoT/3rP?=
- =?us-ascii?Q?9YapzrGVE7kPT+nuM+xc5gEMRrwkgIfAoAjHdyUBGYMCLxZ7JUV0SDabeT2d?=
- =?us-ascii?Q?qDQWvTYQDBYjFKu/noYeh9Yo5c6u3CmcXR0qsu+n4M5DAWOFKTjq+zk8vJ75?=
- =?us-ascii?Q?BE9AU+dthQDa3af5xx0Vo5ktLn7YGIZB/KI2m6rKB1/bNwHvuGuIl7R3SkHm?=
- =?us-ascii?Q?uscHswAnr1gySs7HJ1Q/pT2fK4uOIC0I7S4VHOrlRRohWGsKSTnSVLUOgQGt?=
- =?us-ascii?Q?f3GGIxl6rhuLagNyCg67/jFuV+IF4X+6g+vEIeAlaQ/uAd5Tmo4Aoessu+tF?=
- =?us-ascii?Q?oo2ABGR/EQasLvSTYD+kRa2vaVWqVm8d+r/n7c4e40ShBi5gtlk7XmlNhxPI?=
- =?us-ascii?Q?1SFY6W4RmAkgdtTi9GN5DP2QUnMUTz3yELrMb4a+tRDlqv8XCLqqTd+fNOui?=
- =?us-ascii?Q?RAqNLnOThdoDSeeyu6OTBuyWRpqyJ3uEZo3RJmVklRe5gGaspaer82nt32hb?=
- =?us-ascii?Q?Rw14mAWOIaUCMjSbgRpnydxHhPDFHxYA263Sy9BU/j+ykMdAAYYCDKof/WxJ?=
- =?us-ascii?Q?mIYm+FwRHcdRJ/EIVIfE1XOlJq2v9GMJsnD0FdjlfoYEnAGiZNVC9SzBtDWy?=
- =?us-ascii?Q?+Tc0CFyIwpWScKaurB9fwJtYb7o3QR4zzPrVke5F9NXNCcdgd10u7tiWwTuO?=
- =?us-ascii?Q?Z3hSlsaKQPBJlIWgengKA9346f5DZgGGpRV8RKCa8LMHMNBOBUtXUn6AHASi?=
- =?us-ascii?Q?v/+TDzR3Lpu6uxklkCUexNb6c4HL4Elemc6VCcGlHn04pFO7RVimmJxgIL6E?=
- =?us-ascii?Q?nxI1/CTRlZfgzL7ifZAVZgSdVbx8M8D5ZndJuJpne7YIQ1SPV6htuo2qEV/w?=
- =?us-ascii?Q?5L6+JR1wSYxOzvrkhkwTstLK?=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH 7/9] s390: kprobes: Use is_kernel() helper
+Message-ID: <YNmeLhfWf3Rs6yRA@osiris>
+References: <20210626073439.150586-1-wangkefeng.wang@huawei.com>
+ <20210626073439.150586-8-wangkefeng.wang@huawei.com>
 MIME-Version: 1.0
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR08MB5941
-Original-Authentication-Results: zeniv.linux.org.uk; dkim=none (message not signed)
- header.d=none;zeniv.linux.org.uk; dmarc=none action=none header.from=arm.com;
-X-EOPAttributedMessage: 0
-X-MS-Exchange-Transport-CrossTenantHeadersStripped: DB5EUR03FT016.eop-EUR03.prod.protection.outlook.com
-X-MS-Office365-Filtering-Correlation-Id-Prvs: 9589beb8-1012-4093-967a-08d939f46a2c
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: BgszhnrcS3nDDwr+GW32LAwU3Kt0uIsjMof8Xa/4yyn5eElRBrizrrG8y2ECJ+8F9q8sdlGmcq4R4Fzp+56/idkJXjE6Jku90ctqSYKYSeVaflZK5ff925bHlYlhr+iSxHh6Q7O5Qi4UK/LCCKbhSSuGbLJ+zzr+uazxcWtMcaD2g//gsLiMyE/i/fCMssllWH5GDAd8m490U7NvZ15NNZjRnVcJBNG2jZb5axhJ3FkbRDd83UW4klGWoec1qYC7pVPgOIRFxMHDIpGji/JB08Cr9ctKvTXL7LWnp9++FygHSdm1EbgwQph6pQ3l3Xg5jL2FLFNetfkLkIi2aXQm5tsnrpS4PPtWdu0YHH6HHA5SQNUu0iI3unSg+x28IoIHi/zt+r2kgqhKXC1WjJ4VN4ZQSS53M58SZ3uiF+s62pEhl/lBtvwUX8oAlGvVg39RFsSoyPkTIiw3fUK5rTTtPjgWSt/gzF9a7QBQyrH30A+FVyK1wc+CeKp51g/YW1J3vnYeOjIsLuDOjbTDsWFeJAatTnhzHcVC5NmGNyW+b6LS93VbqKB00JFSkWRbORPshahsnMR8zpm26Gf6idNrFp7X/V5eh1vyYrm1uCBzWqbTUEzC3cbxDGNunuJHcztO6/Q0WmO4iOhrphBRsb3k6ElHusZyOvSGKDyC/YoLS49lnjK6h2UlRsi3uw4l220qL8efLd5OL/xoFhxLM51lvQ==
-X-Forefront-Antispam-Report: CIP:63.35.35.123;CTRY:IE;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:64aa7808-outbound-1.mta.getcheckrecipient.com;PTR:ec2-63-35-35-123.eu-west-1.compute.amazonaws.com;CAT:NONE;SFS:(4636009)(396003)(39850400004)(136003)(376002)(346002)(36840700001)(46966006)(8676002)(8936002)(110136005)(316002)(55016002)(9686003)(53546011)(7696005)(186003)(26005)(52536014)(6506007)(54906003)(478600001)(5660300002)(4326008)(450100002)(2906002)(82310400003)(83380400001)(356005)(81166007)(82740400003)(86362001)(336012)(33656002)(36860700001)(70206006)(70586007)(47076005);DIR:OUT;SFP:1101;
-X-OriginatorOrg: arm.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jun 2021 05:20:31.4178
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9d0f6ca4-d3fa-48a4-c70a-08d939f47307
-X-MS-Exchange-CrossTenant-Id: f34e5979-57d9-4aaa-ad4d-b122a662184d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=f34e5979-57d9-4aaa-ad4d-b122a662184d;Ip=[63.35.35.123];Helo=[64aa7808-outbound-1.mta.getcheckrecipient.com]
-X-MS-Exchange-CrossTenant-AuthSource: DB5EUR03FT016.eop-EUR03.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR08MB6222
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210626073439.150586-8-wangkefeng.wang@huawei.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 8I-ro_vE4lHJmKJVPRaA2OAWE_TQiwbE
+X-Proofpoint-GUID: 8I-ro_vE4lHJmKJVPRaA2OAWE_TQiwbE
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-28_07:2021-06-25,2021-06-28 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
+ mlxscore=0 mlxlogscore=770 priorityscore=1501 adultscore=0 phishscore=0
+ bulkscore=0 spamscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2106280066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Sat, Jun 26, 2021 at 03:34:37PM +0800, Kefeng Wang wrote:
+> Use is_kernel() helper instead of is_kernel_addr().
+> 
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> ---
+>  arch/s390/kernel/kprobes.c | 9 ++-------
+>  1 file changed, 2 insertions(+), 7 deletions(-)
+...
+> -static inline int is_kernel_addr(void *addr)
+> -{
+> -	return addr < (void *)_end;
+> -}
+> -
+>  static int s390_get_insn_slot(struct kprobe *p)
+>  {
+>  	/*
+> @@ -105,7 +100,7 @@ static int s390_get_insn_slot(struct kprobe *p)
+>  	 * field can be patched and executed within the insn slot.
+>  	 */
+>  	p->ainsn.insn = NULL;
+> -	if (is_kernel_addr(p->addr))
+> +	if (is_kernel(p->addr))
+>  		p->ainsn.insn = get_s390_insn_slot();
+>  	else if (is_module_addr(p->addr))
+>  		p->ainsn.insn = get_insn_slot();
+> @@ -117,7 +112,7 @@ static void s390_free_insn_slot(struct kprobe *p)
+>  {
+>  	if (!p->ainsn.insn)
+>  		return;
+> -	if (is_kernel_addr(p->addr))
+> +	if (is_kernel(p->addr))
+>  		free_s390_insn_slot(p->ainsn.insn, 0);
+>  	else
+>  		free_insn_slot(p->ainsn.insn, 0);
 
+Given that this makes sense its own, and I can't follow the discussion
+of the patch series due to missing cc, I applied this to the s390 tree
+- and also fixed up the missing unsigned long casts.
 
-> -----Original Message-----
-> From: Justin He
-> Sent: Friday, June 25, 2021 5:18 PM
-> To: Al Viro <viro@zeniv.linux.org.uk>; Linus Torvalds <torvalds@linux-
-> foundation.org>
-> Cc: Petr Mladek <pmladek@suse.com>; Steven Rostedt <rostedt@goodmis.org>;
-> Sergey Senozhatsky <senozhatsky@chromium.org>; Andy Shevchenko
-> <andriy.shevchenko@linux.intel.com>; Rasmus Villemoes
-> <linux@rasmusvillemoes.dk>; Jonathan Corbet <corbet@lwn.net>; Heiko
-> Carstens <hca@linux.ibm.com>; Vasily Gorbik <gor@linux.ibm.com>; Christia=
-n
-> Borntraeger <borntraeger@de.ibm.com>; Eric W . Biederman
-> <ebiederm@xmission.com>; Darrick J. Wong <darrick.wong@oracle.com>; Peter
-> Zijlstra (Intel) <peterz@infradead.org>; Ira Weiny <ira.weiny@intel.com>;
-> Eric Biggers <ebiggers@google.com>; Ahmed S. Darwish
-> <a.darwish@linutronix.de>; open list:DOCUMENTATION <linux-
-> doc@vger.kernel.org>; Linux Kernel Mailing List <linux-
-> kernel@vger.kernel.org>; linux-s390 <linux-s390@vger.kernel.org>; linux-
-> fsdevel <linux-fsdevel@vger.kernel.org>
-> Subject: RE: [PATCH 07/14] d_path: lift -ENAMETOOLONG handling into calle=
-rs
-> of prepend_path()
->=20
-> Hi Al
->=20
-> > -----Original Message-----
-> > From: Al Viro <viro@ftp.linux.org.uk> On Behalf Of Al Viro
-> > Sent: Wednesday, May 19, 2021 8:49 AM
-> > To: Linus Torvalds <torvalds@linux-foundation.org>
-> > Cc: Justin He <Justin.He@arm.com>; Petr Mladek <pmladek@suse.com>; Stev=
-en
-> > Rostedt <rostedt@goodmis.org>; Sergey Senozhatsky
-> > <senozhatsky@chromium.org>; Andy Shevchenko
-> > <andriy.shevchenko@linux.intel.com>; Rasmus Villemoes
-> > <linux@rasmusvillemoes.dk>; Jonathan Corbet <corbet@lwn.net>; Heiko
-> > Carstens <hca@linux.ibm.com>; Vasily Gorbik <gor@linux.ibm.com>;
-> Christian
-> > Borntraeger <borntraeger@de.ibm.com>; Eric W . Biederman
-> > <ebiederm@xmission.com>; Darrick J. Wong <darrick.wong@oracle.com>; Pet=
-er
-> > Zijlstra (Intel) <peterz@infradead.org>; Ira Weiny <ira.weiny@intel.com=
->;
-> > Eric Biggers <ebiggers@google.com>; Ahmed S. Darwish
-> > <a.darwish@linutronix.de>; open list:DOCUMENTATION <linux-
-> > doc@vger.kernel.org>; Linux Kernel Mailing List <linux-
-> > kernel@vger.kernel.org>; linux-s390 <linux-s390@vger.kernel.org>; linux=
--
-> > fsdevel <linux-fsdevel@vger.kernel.org>
-> > Subject: [PATCH 07/14] d_path: lift -ENAMETOOLONG handling into callers
-> of
-> > prepend_path()
-> >
-> > The only negative value ever returned by prepend_path() is -ENAMETOOLON=
-G
-> > and callers can recognize that situation (overflow) by looking at the
-> > sign of buflen.  Lift that into the callers; we already have the
-> > same logics (buf if buflen is non-negative, ERR_PTR(-ENAMETOOLONG)
-> > otherwise)
-> > in several places and that'll become a new primitive several commits do=
-wn
-> > the road.
-> >
-> > Make prepend_path() return 0 instead of -ENAMETOOLONG.  That makes for
-> > saner calling conventions (0/1/2/3/-ENAMETOOLONG is obnoxious) and
-> > callers actually get simpler, especially once the aforementioned
-> > primitive gets added.
-> >
-> > In prepend_path() itself we switch prepending the / (in case of
-> > empty path) to use of prepend() - no need to open-code that, compiler
-> > will do the right thing.  It's exactly the same logics as in
-> > __dentry_path().
-> >
-> > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-> > ---
-> >  fs/d_path.c | 39 +++++++++++----------------------------
-> >  1 file changed, 11 insertions(+), 28 deletions(-)
-> >
-> > diff --git a/fs/d_path.c b/fs/d_path.c
-> > index 72b8087aaf9c..327cc3744554 100644
-> > --- a/fs/d_path.c
-> > +++ b/fs/d_path.c
-> > @@ -127,8 +127,7 @@ static int prepend_path(const struct path *path,
-> >  		}
-> >  		parent =3D dentry->d_parent;
-> >  		prefetch(parent);
-> > -		error =3D prepend_name(&bptr, &blen, &dentry->d_name);
-> > -		if (error)
-> > +		if (unlikely(prepend_name(&bptr, &blen, &dentry->d_name) < 0))
-> >  			break;
-> >
-> >  		dentry =3D parent;
-> > @@ -149,12 +148,9 @@ static int prepend_path(const struct path *path,
-> >  	}
-> >  	done_seqretry(&mount_lock, m_seq);
-> >
-> > -	if (error >=3D 0 && bptr =3D=3D *buffer) {
-> > -		if (--blen < 0)
-> > -			error =3D -ENAMETOOLONG;
-> > -		else
-> > -			*--bptr =3D '/';
-> > -	}
-> > +	if (blen =3D=3D *buflen)
-> > +		prepend(&bptr, &blen, "/", 1);
-> > +
-> >  	*buffer =3D bptr;
-> >  	*buflen =3D blen;
-> >  	return error;
-> > @@ -181,16 +177,11 @@ char *__d_path(const struct path *path,
-> >  	       char *buf, int buflen)
-> >  {
-> >  	char *res =3D buf + buflen;
-> > -	int error;
-> >
-> >  	prepend(&res, &buflen, "", 1);
-> > -	error =3D prepend_path(path, root, &res, &buflen);
-> > -
-> > -	if (error < 0)
-> > -		return ERR_PTR(error);
-> > -	if (error > 0)
-> > +	if (prepend_path(path, root, &res, &buflen) > 0)
-> >  		return NULL;
-> > -	return res;
-> > +	return buflen >=3D 0 ? res : ERR_PTR(-ENAMETOOLONG);
-> >  }
-> >
-> >  char *d_absolute_path(const struct path *path,
-> > @@ -198,16 +189,11 @@ char *d_absolute_path(const struct path *path,
-> >  {
-> >  	struct path root =3D {};
-> >  	char *res =3D buf + buflen;
-> > -	int error;
-> >
-> >  	prepend(&res, &buflen, "", 1);
-> > -	error =3D prepend_path(path, &root, &res, &buflen);
-> > -
-> > -	if (error > 1)
-> > -		error =3D -EINVAL;
-> > -	if (error < 0)
-> > -		return ERR_PTR(error);
-> > -	return res;
-> > +	if (prepend_path(path, &root, &res, &buflen) > 1)
-> > +		return ERR_PTR(-EINVAL);
-> > +	return buflen >=3D 0 ? res : ERR_PTR(-ENAMETOOLONG);
->=20
-> This patch is *correct*.
-> But do you mind changing like:
-> if (buflen >=3D 0 || error =3D=3D 1)
-> 	return res;
-> else
-> 	return ERR_PTR(-ENAMETOOLONG);
->=20
-> The reason why I comment here is that I will change the
-> prepend_name in __prepend_path to prepend_name_with_len.
-> The latter will go through all the dentries recursively instead
-> of returning false if p.len<0.
-> So (error =3D=3D 1 && buflen < 0) is possible.
-Please ignore it, this is not relevant to this patch itself, I can
-draft a new patch if it is needed.
-
-Hence:
-Reviewed-by: Jia He <justin.he@arm.com>
+Thanks!
