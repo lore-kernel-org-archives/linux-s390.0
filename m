@@ -2,146 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96CBDC11F64
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Jun 2021 18:28:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA05EC11F64
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Jun 2021 20:29:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 65DAD61C7E
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Jun 2021 18:28:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 86EF961997
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Jun 2021 20:29:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232233AbhF1Sa3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Jun 2021 14:30:29 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57082 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236486AbhF1SaB (ORCPT
+        id S234182AbhF1UcB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Jun 2021 16:32:01 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34938 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S233832AbhF1UcB (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 28 Jun 2021 14:30:01 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15SIHgNO176957;
-        Mon, 28 Jun 2021 14:27:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
+        Mon, 28 Jun 2021 16:32:01 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15SK3xHh191629;
+        Mon, 28 Jun 2021 16:29:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=yhI9Htr+Isf+QMPOa+/1CcKkeoTijDFM9CPPE8eUNqY=;
- b=HVufB39nUYZcFTQ5RkjYEjlmUT4GTCaytG/FPmVwlp+5/4mzRAlaTYStogEj8g9ahzts
- zvsga3aGgolTdNIaizwotWcdvuAlcd3ZFYduXQwpm2crNa6VgvW2cTeg/CJNH9uDgUOQ
- bTbet9rvX6Jw35n/yAWmKp+SVRWnoxg35sC2GL7rxm8xdHtqg2xHA1lP4SUP+knTtgHc
- qDjlNOFTxu7PiRJHsf4AqgE2ZN3r2SByo8AdxX6xhp4Y9C+pBj2YdGWtQEO8YOuBVrXe
- 4PHclmybhnRnCyynAJHR1rxPlpzNXs3B0lx79sXgQ8Xi2+k8fXVSKwwxt+PzTWkBrQS7 jQ== 
+ bh=T/X0AWFySB1qm7I+J/JXYaQ73ERSk11h084c2j+kwVI=;
+ b=pGv/neZhrkIK/1BPXjllwBhBFMpgL/xzzv2ZWo34IY2Je0P6w11u3uuOfEWTtzY4vaeM
+ QiaInQM4W26BR2lnxZ/auDcLm3yzwDzgTpXffkJrXHd8Ew21nc51LhSi5x5SpzA88gC5
+ w9Wl6pJbWMS4bK9CkX7AkDreNWQmifOesUdJZNa4Mdl2XcTk2TePFftX6uJCHb7pbfUf
+ qOuQjZGTFOfhjVALEbSvZd28dzjP8rnlvxf2Q8LKLYSUc+VrsG7GynHtpMpcoElhIOOs
+ W2H5yZjVoUm1LZ8H6dZCv2G/BXlLdtAsMcjF/KTTk10QBJKtB2NbW0x3hK+2Kyw/9e7F Gw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39fkk0r7cq-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39fkkv2t24-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Jun 2021 14:27:34 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15SIOVHf028356;
-        Mon, 28 Jun 2021 14:27:33 -0400
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39fkk0r7c4-1
+        Mon, 28 Jun 2021 16:29:32 -0400
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15SK56Y2001551;
+        Mon, 28 Jun 2021 16:29:32 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39fkkv2t1g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Jun 2021 14:27:33 -0400
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15SIMNw1031904;
-        Mon, 28 Jun 2021 18:27:32 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma01wdc.us.ibm.com with ESMTP id 39ejyx41h2-1
+        Mon, 28 Jun 2021 16:29:32 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15SKTUhD031338;
+        Mon, 28 Jun 2021 20:29:30 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 39duv8ggea-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Jun 2021 18:27:32 +0000
-Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15SIRVpv31588682
+        Mon, 28 Jun 2021 20:29:30 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15SKTQnH33358194
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 28 Jun 2021 18:27:31 GMT
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5280D7890E;
-        Mon, 28 Jun 2021 18:27:30 +0000 (GMT)
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CC96D788E2;
-        Mon, 28 Jun 2021 18:27:27 +0000 (GMT)
-Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.148.87])
-        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Mon, 28 Jun 2021 18:27:27 +0000 (GMT)
-Subject: Re: [PATCH] s390/vfio-ap: do not use open locks during
- VFIO_GROUP_NOTIFY_SET_KVM notification
-To:     Jason Gunthorpe <jgg@nvidia.com>
+        Mon, 28 Jun 2021 20:29:26 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 24F1B4C058;
+        Mon, 28 Jun 2021 20:29:26 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 322884C050;
+        Mon, 28 Jun 2021 20:29:25 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.75.254])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Mon, 28 Jun 2021 20:29:25 +0000 (GMT)
+Date:   Mon, 28 Jun 2021 22:29:23 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
 Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
         alex.williamson@redhat.com, kwankhede@nvidia.com,
         frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
         hca@linux.ibm.com
+Subject: Re: [PATCH] s390/vfio-ap: do not use open locks during
+ VFIO_GROUP_NOTIFY_SET_KVM notification
+Message-ID: <20210628222923.21a257c8.pasic@linux.ibm.com>
+In-Reply-To: <20210625220758.80365-1-akrowiak@linux.ibm.com>
 References: <20210625220758.80365-1-akrowiak@linux.ibm.com>
- <20210628173448.GG4459@nvidia.com>
- <cc14f238-ba11-e388-06ec-027912fc313c@linux.ibm.com>
- <20210628182248.GH4459@nvidia.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <f098fc11-d328-8130-bab9-bf38e18a7400@linux.ibm.com>
-Date:   Mon, 28 Jun 2021 14:27:26 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20210628182248.GH4459@nvidia.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Nv96jAtlyoKi5Tc2FgpF9Z1TjRAVqDqe
-X-Proofpoint-ORIG-GUID: gng92e5pMiaR7jyLm9gPHSGWaVH_OnzP
+X-Proofpoint-GUID: CxEU1N4YCnkFLEJR_l64zXtq4GeWgF-v
+X-Proofpoint-ORIG-GUID: ogAhWMHvtvD9I7kNlCQWJZDuvllyqwBt
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-06-28_14:2021-06-25,2021-06-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- lowpriorityscore=0 clxscore=1015 phishscore=0 bulkscore=0 adultscore=0
- malwarescore=0 mlxscore=0 spamscore=0 impostorscore=0 priorityscore=1501
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106280118
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 spamscore=0 mlxlogscore=999 suspectscore=0
+ lowpriorityscore=0 impostorscore=0 phishscore=0 clxscore=1015 mlxscore=0
+ adultscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2104190000 definitions=main-2106280129
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Fri, 25 Jun 2021 18:07:58 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
+What is a suitable base for this patch. I've tried the usual suspects,
+but none of them worked.
 
-On 6/28/21 2:22 PM, Jason Gunthorpe wrote:
-> On Mon, Jun 28, 2021 at 02:20:55PM -0400, Tony Krowiak wrote:
->>
->> On 6/28/21 1:34 PM, Jason Gunthorpe wrote:
->>> On Fri, Jun 25, 2021 at 06:07:58PM -0400, Tony Krowiak wrote:
->>>>    static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
->>>>    {
->>>> +	mutex_lock(&matrix_dev->lock);
->>>> +	if ((matrix_mdev->kvm) && (matrix_mdev->kvm->arch.crypto.crycbd)) {
->>>>    		mutex_unlock(&matrix_dev->lock);
->>>> +		down_write(&matrix_mdev->kvm->arch.crypto.pqap_hook_rwsem);
->>>> +		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
->>>> +		up_write(&matrix_mdev->kvm->arch.crypto.pqap_hook_rwsem);
->>>> +		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
->>>>    		mutex_lock(&matrix_dev->lock);
->>>>    		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
->>>>    		kvm_put_kvm(matrix_mdev->kvm);
->>>>    		matrix_mdev->kvm = NULL;
->>>> +		mutex_unlock(&matrix_dev->lock);
->>>>    	}
->>> Doesn't a flow exit the function with matrix_dev->lock held he
+> The fix to resolve a lockdep splat while handling the
+> VFIO_GROUP_NOTIFY_SET_KVM event introduced a kvm_busy flag indicating that
+> the vfio_ap device driver is busy setting or unsetting the KVM pointer.
+> A wait queue was employed to allow functions requiring access to the KVM
+> pointer to wait for the kvm_busy flag to be cleared. For the duration of
+> the wait period, the mdev lock was unlocked then acquired again after the
+> kvm_busy flag was cleared. This got rid of the lockdep report, but didn't
+> really resolve the problem.
 
-Yes, you are correct. Stupid mistake.
+Can you please elaborate on the last point. You mean that we can have
+circular locking even after 0cc00c8d4050, but instead of getting stuck in
+on a lock we will get stuck on wait_event_cmd()? If that is it, please
+state it clearly in the description, and if you can to it in the short
+description.
 
->> How can that happen? What flow?
-> When the if isn't taken
->
->>> Write it with 'success oriented flow'
->> I'm not sure what you mean, can you clarify this statement?
-> Basically, don't write the bulk of the function under an if statement
->
-> mutex_lock(&matrix_dev->lock);
-> if (!matrix_mdev->kvm || !matrix_mdev->kvm->arch.crypto.crycbd) {
->      mutex_unlock(&matrix_dev->lock);
->      return;
-> }
-
-Sure.
-
->
-> Jason
->
-
+> 
+> This patch removes the the kvm_busy flag and wait queue as they are not
+> necessary to resolve the lockdep splat problem. The wait queue was
+> introduced to prevent changes to the matrix used to update the guest's
+> AP configuration. The idea was that whenever an adapter, domain or control
+> domain was being assigned to or unassigned from the matrix, the function
+> would wait until the group notifier function was no longer busy with the
+> KVM pointer.
+> 
+> The thing is, the KVM pointer value (matrix_mdev->kvm) is always set and
+> cleared while holding the matrix_dev->lock mutex. The assignment and
+> unassignment interfaces also lock the matrix_dev->lock mutex prior to
+> checking whether the matrix_mdev->kvm pointer is set and if so, returns
+> the -EBUSY error from the function. Consequently, there is no chance for
+> an update to the matrix to occur while the guest's AP configuration is
+> being updated.
+> 
+> Fixes: 0cc00c8d4050 ("s390/vfio-ap: fix circular lockdep when setting/clearing crypto masks")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
