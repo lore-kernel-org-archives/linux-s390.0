@@ -2,154 +2,137 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96497C11F65
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Jun 2021 09:43:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2EA7C11F65
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Jun 2021 11:55:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 795E861C9B
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Jun 2021 09:43:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9226261580
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Jun 2021 11:55:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234031AbhF3Jpz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Jun 2021 05:45:55 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14228 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233541AbhF3Jpw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 30 Jun 2021 05:45:52 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15U9X1bP131970;
-        Wed, 30 Jun 2021 05:43:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=lrR8+LlFgnmhP3OPqmREsSficOfGY2gB+Km5f1FVELA=;
- b=Y7a3mJbFEXHtLNYZyYDbEgJlGmqwHcycbIimL5WpOb8dwjFGw6HyXjo63Cq46za6kP0d
- 55sVBVd/nEetUKyTPNT2UKgzskjikdfjoVkMybzArt6fx3l36MK+VgfhhGtWkxNjI/4L
- u++4+dG7PalUfXZEOo5NaF6Fk63P1jfS+pqIP6TpYBB4pFDRhyRowagkKyt8H41Xa0N7
- 9aOHKyc1YzviIFoK3/NMs3t/g+UTzSiJxI4btyXwxaBBJ70buErDonQgyXYUg4k8EiEB
- ckVcplUW/newOkh0vC5KOG4hSRoh/Ukv33Ez5TrV6n9V9BS1CEs+Ypsnzy0nz3r68XQC zQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39gntrgnfa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Jun 2021 05:43:23 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15U9X5sR132326;
-        Wed, 30 Jun 2021 05:43:22 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39gntrgnen-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Jun 2021 05:43:22 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15U9hLTA018909;
-        Wed, 30 Jun 2021 09:43:21 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 39g91yr90s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Jun 2021 09:43:20 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15U9hI3t30933312
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 30 Jun 2021 09:43:18 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 79E3EAE059;
-        Wed, 30 Jun 2021 09:43:18 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2B80FAE068;
-        Wed, 30 Jun 2021 09:43:18 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.148.53])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 30 Jun 2021 09:43:18 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH 4/5] lib: s390x: uv: Add offset comments to
- uv_query and extend it
-To:     Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, thuth@redhat.com
-References: <20210629133322.19193-1-frankja@linux.ibm.com>
- <20210629133322.19193-5-frankja@linux.ibm.com> <87o8bnlo10.fsf@redhat.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <b4b7d415-4238-afc1-9df5-d862656ea448@linux.ibm.com>
-Date:   Wed, 30 Jun 2021 11:43:17 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S234281AbhF3L5k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Jun 2021 07:57:40 -0400
+Received: from mail-mw2nam12on2056.outbound.protection.outlook.com ([40.107.244.56]:53504
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S234148AbhF3L5k (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 30 Jun 2021 07:57:40 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=hvYYvvIoXb/XCjLRGsc/rGJD3ku7ABYAx4Oz+2B9f/j50eNiQraaslfSWlB84rKevCWtXX3wo512/QasU1Wx2IOmkt0LQlyjYOQHYDd/lduMpfrn6Z+Ii8OqdUeLAtWaTg2yc0DToh3uZWVNK8iPY/5q2oU7aDcg6seJ0YlQVE0Aj/ON/RP7rhCLERraem0trAywKSuP623VfqCCJcUB22QmNHba2uYMgF3a6mWS7OST9jvBuPA71qR41UzdjoaLSAW+OzDxx/2aisQ78R81HDc9IGxSdM7R749rdfkbbBDgKhgmwL802sSY8O+mqj3b0OIUCVtk2xNon5r6h0ZzjQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2Bc7mXc+QkbQCHTrP6MosY2JhiZl3CdTY7dIDHb05eo=;
+ b=hVK/MOpXJQN/5zpT6/c2Cydpu8MYW6B/YpTDKs/FFvIWrCmalcLsP20mw0fRjXsgHrbOEkhfH0GVdtRdA6H4LKYdgtCC+S5XSavXTG/70kO4VsfOQw1lrOIH4WF9Rm3/FrFxKBQMAKH2iyh1CMZbkPb93vXdK45Gd8gKf9nnAypXNsXNlM+4i5JmamOYvu+ONC/2EcIQgm8YVdboQrc+2XaSmsIlLVwI0vfw+b9XsJDBiJuibMLmEp/IObh/lOH2BglbNvepubtRtSPpzmYkBvKA4ZsQfsVmUoDTPuWFHmrAH7+CGl4Pz5zFqkZ5iitIaTRsl0QuAb/bd48qCPLPTQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2Bc7mXc+QkbQCHTrP6MosY2JhiZl3CdTY7dIDHb05eo=;
+ b=GTLjvMaVs7CWvyYdlP/ItuSQCL+wYyvyUMQJ2Me2dSlsEB+YJKhNKnydFY41OyEI3cGe6blc0ZuXqOYVDeUOb6WVyzmmCTFMwrHRkFCfR3iKyU3jGJwEp7nkph1b2WiftFfgyDXHp2u8b/DU3SafMEqch1GolAN20bKy5zZtOmueHVjL58cvnAarVdQKJb5Qbb3CvaxeWAOeuSNRvB94DCycfsBvA/eqM53dvNkxhkeHIsC7Mbw1cvGnRe/9ibWqJsGjADyJth0MPeWFk8NgV0yBA25aVSs74n0CJjSfItfzFQ1wG8HdsOMtftxa5y6ESlMaYEM+PduXGpIo/Bw1Ug==
+Authentication-Results: linux.ibm.com; dkim=none (message not signed)
+ header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL1PR12MB5238.namprd12.prod.outlook.com (2603:10b6:208:31e::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4264.20; Wed, 30 Jun
+ 2021 11:55:10 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::3d51:a3b9:8611:684e]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::3d51:a3b9:8611:684e%8]) with mapi id 15.20.4264.027; Wed, 30 Jun 2021
+ 11:55:10 +0000
+Date:   Wed, 30 Jun 2021 08:55:08 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     "Jason J. Herne" <jjherne@linux.ibm.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com
+Subject: Re: [PATCH] s390/vfio-ap: do not use open locks during
+ VFIO_GROUP_NOTIFY_SET_KVM notification
+Message-ID: <20210630115508.GB10820@nvidia.com>
+References: <20210625220758.80365-1-akrowiak@linux.ibm.com>
+ <a37d2816-47fc-ef6b-eb59-c5782e13ca12@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a37d2816-47fc-ef6b-eb59-c5782e13ca12@linux.ibm.com>
+X-Originating-IP: [24.114.99.247]
+X-ClientProxiedBy: BL1PR13CA0348.namprd13.prod.outlook.com
+ (2603:10b6:208:2c6::23) To BL0PR12MB5506.namprd12.prod.outlook.com
+ (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
-In-Reply-To: <87o8bnlo10.fsf@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6aeXzNKDu00Ne4jpAgIPsZTj6PPGjYN_
-X-Proofpoint-ORIG-GUID: gYyj9Xpdhb4OdRgpCjzlcsHfN1Wcf2qm
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-06-30_02:2021-06-29,2021-06-30 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- lowpriorityscore=0 suspectscore=0 priorityscore=1501 clxscore=1015
- malwarescore=0 mlxlogscore=999 impostorscore=0 mlxscore=0 spamscore=0
- phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106300062
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (24.114.99.247) by BL1PR13CA0348.namprd13.prod.outlook.com (2603:10b6:208:2c6::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4287.13 via Frontend Transport; Wed, 30 Jun 2021 11:55:10 +0000
+Received: from jgg by jggl with local (Exim 4.94)       (envelope-from <jgg@nvidia.com>)        id 1lyYo8-00030B-79; Wed, 30 Jun 2021 08:55:08 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: ba8461cb-e0ef-498a-ef6a-08d93bbde986
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5238:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BL1PR12MB52384B1984C7752BA1F35591C2019@BL1PR12MB5238.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3044;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: x9RleZ/GY3F3NmYSj4/GPzY93fwsxo7fl3XqR379/f/U3zov5JPQT9Hgfd6b9vseeIPvmdkF9hSbNRU/pHILuXbR/Jot9KYm5sDGoESYioonxB+87BgPyaIFk52mvIhWWLze8gX+iRkQx+3SJQS+2qI0YApJvMMOpEbmm5H92wsuuQR1AQwelaTqmvB93cB7MchYBMZixuPuoh4hrV1JROhSf1cgHrOjJEoezfOSZnF0VUlFrPRsqF30HqlbUmQnf0rntmuJMtA9UCwO1rS6VYJHIkE9AyGJEPAsWhFDpfhp9Tp55hDtC1sPi4kKEw+Eq/wXqetScEBB2mMZcLYRNk33plGOSWkIJqvXcBxhRMn7pS9Vr3mwjagnjBdv1dGff8KxRvVFTnw2C4gr263vNPoxh8hLpuuQeLJf9bkuuXp7UTBs6sfoF97tx27jtNjUTPqwZ0Ru7Qi8HWzUS1oaQ8ViqlryPV8dy7E5IiFum4Y1a0KbsfeGpij5Ea03BeGuVSHLfL2+/+If13+epp9EWYFOLJ98ARsMABP8dMkMLByfIJNj7zgb/9XApp0Gf6dPf898C74qIfOBET1t/9AEU/0XWbx4swUiUUY49pBFwXO34XVivYzHpCNC6Gg4keOP8xkMUhXQsjTeLFNo14/tOQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(396003)(376002)(39860400002)(346002)(366004)(2616005)(478600001)(36756003)(66556008)(8936002)(66946007)(2906002)(4744005)(26005)(66476007)(9786002)(426003)(9746002)(83380400001)(186003)(1076003)(8676002)(4326008)(5660300002)(86362001)(7416002)(38100700002)(6916009)(33656002)(316002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?3zubtLXjlKLjMAgFHpzhJ6URabiQlE8QxubaHvghELuN9FhkwALM3L4M2iuQ?=
+ =?us-ascii?Q?FLNyD0KxECWFFrYelopHLpg6D+VfH8Cni4oruqzhzv6j7NJ1S/YMIjrTAKbP?=
+ =?us-ascii?Q?xyjlyZY5rYqTv2Oqf/JBzI2WLTnN3W1k9wHh3+cWI+JG24MkznapaX8JmFmP?=
+ =?us-ascii?Q?kUzGPd2vZzthcvrwR00n6X83Owi4YSkfpILY2VlMqg66YTSb+uAPehrL+raQ?=
+ =?us-ascii?Q?fQJaaUI8frCD8RsmX9K7JtPgjn7RdqzfAX7AnesQ9mMH2LgM1xd36JTVsh2/?=
+ =?us-ascii?Q?zQE2NSzeHLzkxY68QrGMc4OauWR4aIKAWtooPlfciDGrTiqdoi8IvrHQVcT9?=
+ =?us-ascii?Q?2aF+Ar51fCWtbPaXE9LSMVWHPhJuVRQMJWf02I1fRi53A01oj/y6cF+bmnm/?=
+ =?us-ascii?Q?V06rLOHN/xR3ksQb+dGMTeLQD79qE4sMz/meQ/rth1mLAGVyGp6819b+pieB?=
+ =?us-ascii?Q?rN9Xg3vBnuEyHPir6PP0Nq4yLh/On+Z0A8SzubyFM81miYbCHL62yaIMih1H?=
+ =?us-ascii?Q?TxnjJob36SQIS3d677GI9scHjNh1/yp7anWhkzPLUq82E+1qi5/IymT+JD83?=
+ =?us-ascii?Q?obRtnGYBhbMBWxur/0mibeozUNY8ddhqYicyT7mxy8PUOQRCVznpbbXWAnBf?=
+ =?us-ascii?Q?j+fb8o6Mz8qt7DTwyUgmLX/7GliM+iKA1pkvVoxLRb5AoktmRKgkbrkIYkzH?=
+ =?us-ascii?Q?v9Mkb//Hm3nWHnEl2P7nWp4ggTlMFKbCT4J+qu2/FDqrhpnzV7Te2rLsG3bZ?=
+ =?us-ascii?Q?8NHSkfzgmO1OjEf/xlZvd5kytGHo4n+vuKl7lPaqgY/zoYwPEWJwSe2FTQwb?=
+ =?us-ascii?Q?MUVPO9n3jmPLZmeR6LuuhW5/2TxJ5PNptw68Fl8hrrY0c24leMuk5/n3URBz?=
+ =?us-ascii?Q?MEXUf6jOVDW/RS+ljxsvC4fOD2qQQ4aM06VdbBMpEgiyypFZs+9oRQym51GM?=
+ =?us-ascii?Q?sJyaYu5Fia4y/LGSCLoXBEouGQoik8gEYt7RwqIfFF4l+qsamgmyGfOnUohT?=
+ =?us-ascii?Q?zZy3/XVmZX6GIsOkZw60VBt1mvgt4lPvk+C8OFiTM3BWBCf+y/GING7o2m5t?=
+ =?us-ascii?Q?hitKAo8Vdi3NZYMXrUVL3y0hLBAglsko4ivdWqSO0slxjoTSrcNWe7w2K7dg?=
+ =?us-ascii?Q?dpSJX0Iq6XH4uJ9m8ImkIOuiDFKHImcRUnHWdM/vtzEpfnp+pKsHMfJu/8Mr?=
+ =?us-ascii?Q?C50DLeiXSlGAZXTelyZDj54yhT86IpToTgRh43h8GAn19nSJvUeAod4NiAPW?=
+ =?us-ascii?Q?uXri9nguguEfsMwvDQwq84po9yYsQjvWS6vV1k3dVeTMfeUP1mOyQAsE/UOj?=
+ =?us-ascii?Q?2B9ikpqcCDEkHUp6Sun1KHun?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ba8461cb-e0ef-498a-ef6a-08d93bbde986
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jun 2021 11:55:10.3622
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: NbRYe683+QvUr98LJYgPo/tbaRVD7iE4BobiSrEJZg4ENqBxSVDoAPfzqOTiSXPJ
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5238
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 6/30/21 11:06 AM, Cornelia Huck wrote:
-> On Tue, Jun 29 2021, Janosch Frank <frankja@linux.ibm.com> wrote:
-> 
->> The struct is getting longer, let's add offset comments so we know
->> where we change things when we add struct members.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>  lib/s390x/asm/uv.h | 33 +++++++++++++++++----------------
->>  1 file changed, 17 insertions(+), 16 deletions(-)
->>
->> diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
->> index 96a2a7e..5ff98b8 100644
->> --- a/lib/s390x/asm/uv.h
->> +++ b/lib/s390x/asm/uv.h
->> @@ -86,22 +86,23 @@ struct uv_cb_init {
->>  } __attribute__((packed))  __attribute__((aligned(8)));
->>  
->>  struct uv_cb_qui {
->> -	struct uv_cb_header header;
->> -	uint64_t reserved08;
->> -	uint64_t inst_calls_list[4];
->> -	uint64_t reserved30[2];
->> -	uint64_t uv_base_stor_len;
->> -	uint64_t reserved48;
->> -	uint64_t conf_base_phys_stor_len;
->> -	uint64_t conf_base_virt_stor_len;
->> -	uint64_t conf_virt_var_stor_len;
->> -	uint64_t cpu_stor_len;
->> -	uint32_t reserved70[3];
->> -	uint32_t max_num_sec_conf;
->> -	uint64_t max_guest_stor_addr;
->> -	uint8_t  reserved88[158 - 136];
->> -	uint16_t max_guest_cpus;
->> -	uint8_t  reserveda0[200 - 160];
->> +	struct uv_cb_header header;		/* 0x0000 */
->> +	uint64_t reserved08;			/* 0x0008 */
->> +	uint64_t inst_calls_list[4];		/* 0x0010 */
->> +	uint64_t reserved30[2];			/* 0x0030 */
->> +	uint64_t uv_base_stor_len;		/* 0x0040 */
->> +	uint64_t reserved48;			/* 0x0048 */
->> +	uint64_t conf_base_phys_stor_len;	/* 0x0050 */
->> +	uint64_t conf_base_virt_stor_len;	/* 0x0058 */
->> +	uint64_t conf_virt_var_stor_len;	/* 0x0060 */
->> +	uint64_t cpu_stor_len;			/* 0x0068 */
->> +	uint32_t reserved70[3];			/* 0x0070 */
->> +	uint32_t max_num_sec_conf;		/* 0x007c */
->> +	uint64_t max_guest_stor_addr;		/* 0x0080 */
->> +	uint8_t  reserved88[158 - 136];		/* 0x0088 */
->> +	uint16_t max_guest_cpus;		/* 0x009e */
->> +	uint64_t uv_feature_indications;	/* 0x00a0 */
->> +	uint8_t  reserveda0[200 - 168];		/* 0x00a8 */
-> 
-> Should this rather be reserveda8? The other reserveds encode their
-> position properly.
-> 
+On Tue, Jun 29, 2021 at 09:21:31AM -0400, Jason J. Herne wrote:
 
+> > +	mutex_lock(&matrix_dev->lock);
+> > -	if (matrix_mdev->kvm) {
+> > -		matrix_mdev->kvm_busy = true;
+> > +	if ((matrix_mdev->kvm) && (matrix_mdev->kvm->arch.crypto.crycbd)) {
+> >   		mutex_unlock(&matrix_dev->lock);
+> 
+> 
+> If this function cannot be entered concurrently on separate threads then I
+> think we can remove this mutex_unlock of matrix_dev->lock, 
 
-Oops
+Don't remove locking around data. If the data is written under a mutex
+it should be read under a mutex too.
+
+Jason
