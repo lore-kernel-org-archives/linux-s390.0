@@ -2,103 +2,102 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 622FFC11F64
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jul 2021 15:25:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08317C11F67
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jul 2021 15:27:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4A54D613FB
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jul 2021 15:25:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E67F4613FA
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jul 2021 15:27:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233064AbhGAP2H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jul 2021 11:28:07 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:65392 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232817AbhGAP2H (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jul 2021 11:28:07 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 161F4Q4K040717;
-        Thu, 1 Jul 2021 11:25:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=oETp4wcH8qi4tT8W+8NM0k2YuYCHdgBjcXm/KqSgA80=;
- b=cYc7fP6O4k+4NKgbvZS2DLnX58IdX8j/JjASZDelCcYLs32B8yOaZV/m59YSEOO0/kSi
- 9h2+76ELfSoddigdZEJloiZAo8ZHq96rYQlaegnPCfaeaLjIireUnCz69C7QXYBMzotw
- 42sjNHjFrDxf3v+x0tpLCPzyaiRZzwjZaSggUI8XHjgCQ92nMLqYEmDmttf6dNJgZiSa
- uewN0LlUbJMPY/iweJS63JyFgU5uHUkV1YzhM9UAjYcq4cuSVa5qVt0H2fiHrp7T8NMj
- FVxs6Bdx1y4nS7SiXTwp2fjQQ2rpRfAXKanYhlg+4V0qKH/pi+GRGLiqCGIixc7UE3C3 bQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39he8emec8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jul 2021 11:25:35 -0400
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 161F5pBZ048193;
-        Thu, 1 Jul 2021 11:25:34 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39he8emebd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jul 2021 11:25:34 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 161FFpqf008903;
-        Thu, 1 Jul 2021 15:25:32 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 39h19bgfge-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jul 2021 15:25:32 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 161FNoMC25362728
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Jul 2021 15:23:50 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4841EAE05A;
-        Thu,  1 Jul 2021 15:25:28 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AEBF1AE059;
-        Thu,  1 Jul 2021 15:25:27 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.22.223])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  1 Jul 2021 15:25:27 +0000 (GMT)
-Subject: Re: [PATCH v6 2/2] s390/vfio-ap: r/w lock for PQAP interception
- handler function pointer
-To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        jgg@nvidia.com, alex.williamson@redhat.com, kwankhede@nvidia.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com
-References: <20210621155714.1198545-1-akrowiak@linux.ibm.com>
- <20210621155714.1198545-3-akrowiak@linux.ibm.com>
- <8936a637-68cd-91f0-85da-f0fce99315cf@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <53181dcb-cabc-d6a1-3bbe-7eba298f06fe@de.ibm.com>
-Date:   Thu, 1 Jul 2021 17:25:27 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S233284AbhGAP36 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jul 2021 11:29:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46222 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232817AbhGAP36 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jul 2021 11:29:58 -0400
+Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20459C061762
+        for <linux-s390@vger.kernel.org>; Thu,  1 Jul 2021 08:27:28 -0700 (PDT)
+Received: by mail-oi1-x233.google.com with SMTP id 11so7714170oid.3
+        for <linux-s390@vger.kernel.org>; Thu, 01 Jul 2021 08:27:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=UEhd9RW/Z//Yet4PSyZVFj89an0siciakTKupP0jjUk=;
+        b=v3OXxJDVG1j62VuzMZjNsHSSpeT1teaZCCWItyiwvKSMkgQSsaRL811BqZPMmc7uMP
+         F91WhYOFkhKm5y30GSCdh7fwOirS/dtTUYhc0MMoMegpXDOqYP90ampyUTOtvtVqcL5/
+         oxvHF2o2opf7IulvvbB2bV/mBE1LxCvcmvWykWY1rS5d74Ljh12kJYpZeJGOp3qwRfEs
+         w4r2oQuvVsigwCDVo97pwLzRzIEjxGFwmuh0KAvOKlxguzhTKLMLDJcn6hFTGraVMObx
+         CKXUAx0XIppnaZB20rwfltyFlqO/A6FD2MY3NnmTxRiPbtEYZ96Ffg7vfCZMHJ8qVNiB
+         Ctsw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=UEhd9RW/Z//Yet4PSyZVFj89an0siciakTKupP0jjUk=;
+        b=jaYbwv0OEXfPJJFLL9hRGGGZkHvD6lg90evgIyFIzyZnPcyWhVl2m9AD4RiB/RdFW4
+         PSzcRDI/Ht2TcjZQVUHndAsGAqOUB7F7Ed8eibTH5JBBxdOvpRBHZB7grhuFVY41/K9b
+         69ejRLGDLGdBF7FGQ6nUpfZuYpcBFOkxzMbjym3kaFF596onGwjgD8IxzE5n3WbboNu9
+         RX3L1UpRbz4q78fZ1nad7tIJWrYg7HH4c2xxXBDL66hpEXt+9+p/84T3kxe92gf1HhR5
+         xC89emq3/lFRgFbUC+EHDwwXo5j1mc1+mGgAD/Q0hH+D+WikA9se5/uxFiF5lbpJcqnL
+         Q96A==
+X-Gm-Message-State: AOAM531VkIaIlyleOX7hMDh7/ktL+dcbepK0pOjpZzCHMVyI/hip6gCX
+        8TKl/u3baGAvLVsPBuqL+e76/w==
+X-Google-Smtp-Source: ABdhPJzyVbaQUppYRSCuQuMpUwGsXrurdANk3sq/OBkyeTgk4oBz0yyQ+0EjqnLVYcEX2yLeBdUSig==
+X-Received: by 2002:aca:4f83:: with SMTP id d125mr26685oib.117.1625153247479;
+        Thu, 01 Jul 2021 08:27:27 -0700 (PDT)
+Received: from [192.168.1.30] ([207.135.233.147])
+        by smtp.gmail.com with ESMTPSA id m3sm8928otf.12.2021.07.01.08.27.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 01 Jul 2021 08:27:26 -0700 (PDT)
+Subject: Re: [PATCH 0/2] s390/dasd patches
+To:     Stefan Haberland <sth@linux.ibm.com>
+Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Kees Cook <keescook@chromium.org>
+References: <20210701142221.3408680-1-sth@linux.ibm.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <356adced-0e30-ac75-b3d5-83eebb292816@kernel.dk>
+Date:   Thu, 1 Jul 2021 09:27:26 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <8936a637-68cd-91f0-85da-f0fce99315cf@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20210701142221.3408680-1-sth@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MOmGIV0Y-A3aZdTSZKN-1gxhbSh7WZV4
-X-Proofpoint-GUID: 2fgLdHAGspMhJI5uPIkQtrHpLqAHjBn0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-01_08:2021-07-01,2021-07-01 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 adultscore=0 mlxlogscore=999 malwarescore=0
- priorityscore=1501 mlxscore=0 bulkscore=0 spamscore=0 phishscore=0
- clxscore=1015 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2104190000 definitions=main-2107010092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 30.06.21 17:18, Tony Krowiak wrote:
-> I assumed that this patch would get queued along with the other one in this series,
-> but it looks like that was an erroneous assumption. Should this also be queued?
+On 7/1/21 8:22 AM, Stefan Haberland wrote:
+> Hi Jens,
+> 
+> please apply the following two patches that unexport a DASD symbol and improve a DASD structure.
+> 
+> 
+> Christoph Hellwig (1):
+>   dasd: unexport dasd_set_target_state
+> 
+> Kees Cook (1):
+>   s390/dasd: Avoid field over-reading memcpy()
+> 
+>  drivers/s390/block/dasd.c      | 1 -
+>  drivers/s390/block/dasd_eckd.c | 2 +-
+>  drivers/s390/block/dasd_eckd.h | 6 ++++--
+>  3 files changed, 5 insertions(+), 4 deletions(-)
 
-Sorry, this is on my todo list.
+Applied, thanks.
+
+-- 
+Jens Axboe
+
