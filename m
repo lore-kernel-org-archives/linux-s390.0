@@ -4,145 +4,119 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76F14C11F64
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jul 2021 15:44:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E21FEC11F69
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jul 2021 16:04:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 556F461407
-	for <linux-s390@archiver.kernel.org>; Thu,  1 Jul 2021 15:44:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B3A3061416
+	for <linux-s390@archiver.kernel.org>; Thu,  1 Jul 2021 16:04:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233557AbhGAPrC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 1 Jul 2021 11:47:02 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32154 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S233421AbhGAPrB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jul 2021 11:47:01 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 161FXL4e012876;
-        Thu, 1 Jul 2021 11:44:27 -0400
+        id S230125AbhGAQHJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 1 Jul 2021 12:07:09 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:5838 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230005AbhGAQHI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Jul 2021 12:07:08 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 161G3kbO018503;
+        Thu, 1 Jul 2021 12:04:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=43UWVjmq7/8olSR+8svPSjiK1548/+S6Z7TqTNBbhf0=;
- b=l7PE7+OKNLKsXHbsaR3Lmd68SRqGR42mMTvpdZlGpo04ssahzmu9GhFRZt/ZZ0RQ2bjY
- 8FEPtWhjuc1oeT0nZHIjw7PWgQZqnCJ+cajtRXTtJn2xAsVOVFCfOC5XqN69UYRcRgfh
- XlTRj1rgPTpdWKImUFL/Uy/ra9kVfaNyJf7l8OgtJgjOchzYpWyATaWX6PyBlSVDDUOR
- 4gxvtj7wjLEAFwk5GxzJ6xKazWTSFtxXVJ8/wxz//ZrnqfYPkx6y2cI7B7PJLvgndRFR
- +nFKRWhHN272J9zq8NAcj27QUC8g7sn6IaRL2R9PEmKBNlXQWhEfq1/3g6gZwscbetAG tg== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 39hed8mjcm-1
+ bh=jwpL9XXnuEroQhs6QYfgPLWjME2s+w8TJoKkzlJ32fY=;
+ b=AhuEuWqQ6u+m4d6YuV42ygHiq+X77gj2H/eaG7ERvbBtr1qN2aXTzjs3LiBRxjomQkxG
+ G6FwJZJCYxH7IorKic6W4qK58t0Y2268MGEEdxAz46HU94gPjORj+LWdoi4S6eg8i8k4
+ /KuXWC8Mhj7xRiLnLy8XY9hx1ZzkiAk31EM6ms/f6BpwakXwvoEvakWHkHD131tlliGm
+ yOm8c9UR7/dsyo+QcigtLlUKQrZ1XrTrJ4cc85eZXOzXu40KWv3fO244pa6exT7W87tY
+ 7QsZ6DVlmwbf3NRxFzsMycC8SSOQ3odWbtDjgUY5vMoMgbei7ZdsP6bSM/vryEI2BFdk NA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39hepr4sh9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jul 2021 11:44:27 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 161Fcguq000720;
-        Thu, 1 Jul 2021 15:44:25 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 39h19bgfqv-1
+        Thu, 01 Jul 2021 12:04:32 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 161G3vsn018935;
+        Thu, 1 Jul 2021 12:04:31 -0400
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39hepr4sg9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 01 Jul 2021 15:44:25 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 161Fgh8615663538
+        Thu, 01 Jul 2021 12:04:31 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 161Fv6OU024687;
+        Thu, 1 Jul 2021 16:04:29 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 39duv8hahh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 01 Jul 2021 16:04:29 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 161G4QdB22085896
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 1 Jul 2021 15:42:43 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0F0B0AE070;
-        Thu,  1 Jul 2021 15:44:22 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BC67CAE087;
-        Thu,  1 Jul 2021 15:44:21 +0000 (GMT)
+        Thu, 1 Jul 2021 16:04:26 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3D4D95206B;
+        Thu,  1 Jul 2021 16:04:26 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  1 Jul 2021 15:44:21 +0000 (GMT)
-From:   Karsten Graul <kgraul@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Guvenc Gulce <guvenc@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next] s390: iucv: Avoid field over-reading memcpy()
-Date:   Thu,  1 Jul 2021 17:44:07 +0200
-Message-Id: <20210701154407.3889397-1-kgraul@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 2B20A52065;
+        Thu,  1 Jul 2021 16:04:26 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
+        id E75E1E03CC; Thu,  1 Jul 2021 18:04:25 +0200 (CEST)
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+To:     Shuah Khan <shuah@kernel.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Zenghui Yu <yuzenghui@huawei.com>, kvm@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        vkuznets@redhat.com, wanghaibin.wang@huawei.com
+Subject: [PATCH] KVM: selftests: do not require 64GB in set_memory_region_test
+Date:   Thu,  1 Jul 2021 18:04:25 +0200
+Message-Id: <20210701160425.33666-1-borntraeger@de.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: jopWbVSmZLjOJNk56ieopXI6kTsD2lzS
-X-Proofpoint-ORIG-GUID: jopWbVSmZLjOJNk56ieopXI6kTsD2lzS
+X-Proofpoint-ORIG-GUID: MuhLx3pChNNubrKtsTco1XduxodZjQnT
+X-Proofpoint-GUID: jjk3-JYbNDcXscFbBev0D6uEDPpVW7mx
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-07-01_08:2021-07-01,2021-07-01 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 suspectscore=0 adultscore=0 mlxlogscore=790 mlxscore=0
- clxscore=1011 bulkscore=0 phishscore=0 impostorscore=0 malwarescore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107010093
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 bulkscore=0 phishscore=0 mlxlogscore=999 malwarescore=0
+ impostorscore=0 adultscore=0 clxscore=1011 mlxscore=0 lowpriorityscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107010095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+Unless the user sets overcommit_memory or has plenty of swap, the latest
+changes to the testcase will result in ENOMEM failures for hosts with
+less than 64GB RAM. As we do not use much of the allocated memory, we
+can use MAP_NORESERVE to avoid this error.
 
-In preparation for FORTIFY_SOURCE performing compile-time and run-time
-field bounds checking for memcpy(), memmove(), and memset(), avoid
-intentionally reading across neighboring array fields.
-
-Add a wrapping struct to serve as the memcpy() source so the compiler
-can perform appropriate bounds checking, avoiding this future warning:
-
-In function '__fortify_memcpy',
-    inlined from 'iucv_message_pending' at net/iucv/iucv.c:1663:4:
-./include/linux/fortify-string.h:246:4: error: call to '__read_overflow2_field' declared with attribute error: detected read beyond size of field (2nd parameter)
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Cc: Zenghui Yu <yuzenghui@huawei.com>
+Cc: vkuznets@redhat.com
+Cc: wanghaibin.wang@huawei.com
+Cc: stable@vger.kernel.org
+Fixes: 309505dd5685 ("KVM: selftests: Fix mapping length truncation in m{,un}map()")
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- net/iucv/iucv.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ tools/testing/selftests/kvm/set_memory_region_test.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index 349c6ac3313f..e6795d5a546a 100644
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -1635,14 +1635,16 @@ struct iucv_message_pending {
- 	u8  iptype;
- 	u32 ipmsgid;
- 	u32 iptrgcls;
--	union {
--		u32 iprmmsg1_u32;
--		u8  iprmmsg1[4];
--	} ln1msg1;
--	union {
--		u32 ipbfln1f;
--		u8  iprmmsg2[4];
--	} ln1msg2;
-+	struct {
-+		union {
-+			u32 iprmmsg1_u32;
-+			u8  iprmmsg1[4];
-+		} ln1msg1;
-+		union {
-+			u32 ipbfln1f;
-+			u8  iprmmsg2[4];
-+		} ln1msg2;
-+	} rmmsg;
- 	u32 res1[3];
- 	u32 ipbfln2f;
- 	u8  ippollfg;
-@@ -1660,10 +1662,10 @@ static void iucv_message_pending(struct iucv_irq_data *data)
- 		msg.id = imp->ipmsgid;
- 		msg.class = imp->iptrgcls;
- 		if (imp->ipflags1 & IUCV_IPRMDATA) {
--			memcpy(msg.rmmsg, imp->ln1msg1.iprmmsg1, 8);
-+			memcpy(msg.rmmsg, &imp->rmmsg, 8);
- 			msg.length = 8;
- 		} else
--			msg.length = imp->ln1msg2.ipbfln1f;
-+			msg.length = imp->rmmsg.ln1msg2.ipbfln1f;
- 		msg.reply_size = imp->ipbfln2f;
- 		path->handler->message_pending(path, &msg);
- 	}
+diff --git a/tools/testing/selftests/kvm/set_memory_region_test.c b/tools/testing/selftests/kvm/set_memory_region_test.c
+index d8812f27648c..d31f54ac4e98 100644
+--- a/tools/testing/selftests/kvm/set_memory_region_test.c
++++ b/tools/testing/selftests/kvm/set_memory_region_test.c
+@@ -377,7 +377,8 @@ static void test_add_max_memory_regions(void)
+ 		(max_mem_slots - 1), MEM_REGION_SIZE >> 10);
+ 
+ 	mem = mmap(NULL, (size_t)max_mem_slots * MEM_REGION_SIZE + alignment,
+-		   PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
++		   PROT_READ | PROT_WRITE,
++		   MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
+ 	TEST_ASSERT(mem != MAP_FAILED, "Failed to mmap() host");
+ 	mem_aligned = (void *)(((size_t) mem + alignment - 1) & ~(alignment - 1));
+ 
 -- 
-2.25.1
+2.31.1
 
