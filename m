@@ -2,120 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BD82C11F68
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Jul 2021 16:09:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 595B9C11F69
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Jul 2021 16:30:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3445361279
-	for <linux-s390@archiver.kernel.org>; Fri,  2 Jul 2021 16:09:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 381EE6141D
+	for <linux-s390@archiver.kernel.org>; Fri,  2 Jul 2021 16:30:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229685AbhGBQMT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 2 Jul 2021 12:12:19 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13804 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229455AbhGBQMT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Jul 2021 12:12:19 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 162G35aq110585;
-        Fri, 2 Jul 2021 12:09:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=HAiqlY+tPDpmV3CsWOuGwaS6YOetITX/IXrdESmZaxQ=;
- b=V3k7sbtyM0gOWIcRm3yP7t8+r0BXrSfrr5p3zv6kz0QwiILl0kykqkHdGDIayihJ4S0V
- 4cjY7LdFCP0mJWOXr0sIa9NuDqQUSsMKWQcWH7kpTJ0hg1Cfks680e47Tx03msJW6rDh
- IbsVVUxwZR5iyz3Aq58GXWsgQ0ikjK7JYG8un/ktCkV6rIOzsZIHagkfVDtPkJc11uFO
- paY+zmUAzhmktjaR9GV5xGrNXXj96wMTg6stqBXkuCD8Oi5jRvR4mb9TZYKdap1skAao
- 33KnH4XLZcKR/Xz9zC2MuvEg7H++EqFpT6Tb55kZjOLi4228TxMnqtiIReVGxxq7OGIL ew== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39j5yvg46s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Jul 2021 12:09:45 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 162FeB9P005525;
-        Fri, 2 Jul 2021 16:09:43 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma05fra.de.ibm.com with ESMTP id 39ft8es0jp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 02 Jul 2021 16:09:43 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 162G9bhd30081410
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 2 Jul 2021 16:09:37 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D49E152050;
-        Fri,  2 Jul 2021 16:09:37 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 8C6345204F;
-        Fri,  2 Jul 2021 16:09:37 +0000 (GMT)
-From:   Steffen Maier <maier@linux.ibm.com>
-To:     "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc:     linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH] zfcp: report port fc_security as unknown early during remote cable pull
-Date:   Fri,  2 Jul 2021 18:09:22 +0200
-Message-Id: <20210702160922.2667874-1-maier@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
+        id S230001AbhGBQdE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 2 Jul 2021 12:33:04 -0400
+Received: from foss.arm.com ([217.140.110.172]:50546 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229455AbhGBQdE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 2 Jul 2021 12:33:04 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8CD1DD6E;
+        Fri,  2 Jul 2021 09:30:31 -0700 (PDT)
+Received: from monolith.cable.virginm.net (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3D39A3F5A1;
+        Fri,  2 Jul 2021 09:30:29 -0700 (PDT)
+From:   Alexandru Elisei <alexandru.elisei@arm.com>
+To:     drjones@redhat.com, thuth@redhat.com, pbonzini@redhat.com,
+        lvivier@redhat.com, kvm-ppc@vger.kernel.org, david@redhat.com,
+        frankja@linux.ibm.com, cohuck@redhat.com, imbrenda@linux.ibm.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu
+Cc:     andre.przywara@arm.com, maz@kernel.org, vivek.gautam@arm.com
+Subject: [kvm-unit-tests RFC PATCH 0/5] arm: Add kvmtool to the runner script
+Date:   Fri,  2 Jul 2021 17:31:17 +0100
+Message-Id: <20210702163122.96110-1-alexandru.elisei@arm.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: tGK4XpK653FCDN84mAgwGaw8Se5lKLG_
-X-Proofpoint-ORIG-GUID: tGK4XpK653FCDN84mAgwGaw8Se5lKLG_
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-02_08:2021-07-02,2021-07-02 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 suspectscore=0 phishscore=0 mlxlogscore=999
- clxscore=1011 impostorscore=0 bulkscore=0 mlxscore=0 malwarescore=0
- adultscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107020086
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On remote cable pull, a zfcp_port keeps its status and only gets
-ZFCP_STATUS_PORT_LINK_TEST added. Only after an ADISC timeout,
-we would actually start port recovery and remove
-ZFCP_STATUS_COMMON_UNBLOCKED which zfcp_sysfs_port_fc_security_show()
-detected and reported as "unknown" instead of the old and possibly stale
-zfcp_port->connection_info.
+kvm-unit-tests has support for running arm64 tests under kvmtool since
+2019. However, each test had to be run manually since the runner script was
+blissfully unware of other VMMs beside qemu.
 
-Add check for ZFCP_STATUS_PORT_LINK_TEST for timely "unknown" report.
+This series aims to support running all the tests automatically with
+kvmtool, like it has always been possible to do with qemu by invoking:
 
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Fixes: a17c78460093 ("scsi: zfcp: report FC Endpoint Security in sysfs")
-Cc: <stable@vger.kernel.org> #5.7+
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
----
+$ ./run_tests.sh
 
-Martin, James, we have a small zfcp bugfix.
-Would be nice if it could still make it into v5.14-rc1 merge window,
-but I'm probably too late for that. v5.14-rc2 is fine, too.
-Applies to 5.14/scsi-staging or 5.14/scsi-queue or James' misc branch,
-or to the corresponding fixes branch(es).
+The runner script will choose kvmtool as the VMM if the tests has been
+configured with the kvmtool target.
 
- drivers/s390/scsi/zfcp_sysfs.c | 1 +
- 1 file changed, 1 insertion(+)
+I see several advantages to being able to use kvmtool alongside qemu:
 
-diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
-index 544efd4c42f0..b8cd75a872ee 100644
---- a/drivers/s390/scsi/zfcp_sysfs.c
-+++ b/drivers/s390/scsi/zfcp_sysfs.c
-@@ -487,6 +487,7 @@ static ssize_t zfcp_sysfs_port_fc_security_show(struct device *dev,
- 	if (0 == (status & ZFCP_STATUS_COMMON_OPEN) ||
- 	    0 == (status & ZFCP_STATUS_COMMON_UNBLOCKED) ||
- 	    0 == (status & ZFCP_STATUS_PORT_PHYS_OPEN) ||
-+	    0 != (status & ZFCP_STATUS_PORT_LINK_TEST) ||
- 	    0 != (status & ZFCP_STATUS_COMMON_ERP_FAILED) ||
- 	    0 != (status & ZFCP_STATUS_COMMON_ACCESS_BOXED))
- 		i = sprintf(buf, "unknown\n");
+- kvmtool is smaller and a lot easier to hack than qemu, which means it may
+  be possible for developers to prefer it over qemu when adding new
+  features to KVM. Being able to run all the tests reliably and
+  automatically is useful in the development process.
+
+- kvmtool runs all the tests faster than qemu (roughly 3 times faster on
+  4xA53s). I think this is another nice feature for development.
+
+- kvmtool does things differently than qemu: different memory layout,
+  different uart, PMU emulation is optional, etc. This makes it a good
+  testing vehicule for kvm-unit-tests.
+
+This series is an RFC for various reasons:
+
+- The migration tests work under kvmtool because when kvm-unit-tests
+  writes something to the UART (like "Now migrate the VM, then press a key
+  a key to continue...\n"), a read will return the last character that was
+  written (newline, in this case). I don't know if this is a feature or a
+  bug with the kvm-unit-tests UART mini-driver or with kvmtool, and I'm
+  investigating it.
+
+- I've tried to keep the changes as small as possible, but I would like
+  some feedback about my approach, as I am not very familiar with bash
+  scripting.
+
+- The series needs more testing. I've only tested the patches on a
+  rockpro64 with qemu and kvmtool, and on my Ryzen amd64
+  machine (qemu only, --target=kvmtool is available only for arm/arm64).
+
+TODO:
+
+- More testing, especially on powerpc and s390x which are touched in patch #2.
+- README changes to reflect kvmtool support for the runner script.
+- Figure out how to handle migration tests under kvmtool.
+
+Comments welcome and much appreciated.
+
+Alexandru Elisei (5):
+  lib: arm: Print test exit status on exit if chr-testdev is not
+    available
+  scripts: Rename run_qemu_status -> run_test_status
+  run_tests.sh: Add kvmtool support
+  scripts: Generate kvmtool standalone tests
+  configure: Ignore --erratatxt when --target=kvmtool
+
+ scripts/arch-run.bash   |  50 ++++++++++++++++--
+ scripts/runtime.bash    |  94 ++++++++++++++++++++++++++++------
+ scripts/mkstandalone.sh |   9 +++-
+ arm/run                 | 110 ++++++++++++++++++++++++----------------
+ powerpc/run             |   2 +-
+ s390x/run               |   2 +-
+ run_tests.sh            |  11 +++-
+ configure               |  26 +++++++---
+ lib/chr-testdev.h       |   1 +
+ lib/arm/io.c            |  10 +++-
+ lib/chr-testdev.c       |   5 ++
+ 11 files changed, 243 insertions(+), 77 deletions(-)
+
 -- 
-2.25.4
+2.32.0
 
