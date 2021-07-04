@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-20.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BE22C07E9D
-	for <linux-s390@archiver.kernel.org>; Sun,  4 Jul 2021 23:16:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E415AC07E9E
+	for <linux-s390@archiver.kernel.org>; Sun,  4 Jul 2021 23:16:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3224A61363
-	for <linux-s390@archiver.kernel.org>; Sun,  4 Jul 2021 23:16:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CAFF960234
+	for <linux-s390@archiver.kernel.org>; Sun,  4 Jul 2021 23:16:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233236AbhGDXSn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 4 Jul 2021 19:18:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57068 "EHLO mail.kernel.org"
+        id S232341AbhGDXSm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 4 Jul 2021 19:18:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233866AbhGDXOn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:14:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2CD2619A8;
-        Sun,  4 Jul 2021 23:10:37 +0000 (UTC)
+        id S233158AbhGDXON (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:14:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE51E61985;
+        Sun,  4 Jul 2021 23:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440239;
-        bh=OqgXGjBDzeSwIepSMpC1mu1vc1La23fkZjFRjuIvnhI=;
+        s=k20201202; t=1625440173;
+        bh=EywfHatNm1SZCrBd4brLnFKJ2Kt742Eq5XgSccTvliA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGOadvkL+g81jC1NTDjiCT/eLPwBGrbouIJD7iuMJ5y3kPpCSWHpwqEmd+rO90P9P
-         OpLpEmXXAEP8fR5aslHDfn4h2APWS606uVv9rI3Ka+ZkBQMck6FlE+a+RLkAw8tuRE
-         fjdERztLy/BRLfpfLc4EoSUrdmAdsZvADIZXSYlfGNo8Vr7AZuYnJPSEXGPNWDrb0N
-         VAzmg6GnM9UmpsCl1FKClC5NxRcNcehMSEOLyN3bzjGczHGwy+IatWAM2d8eI/1ybE
-         DY81pW8EW7+RCZON+HoimPTL4nGAdQvkVlxWRFHXDJof5q61u8yfs2EGNV1VIyhDUz
-         1sTcLowTEwHoQ==
+        b=Em8yaZmUoetNyMMYRrUuy5+KR0GQ1cPU6VVsKBf1bMXWhwWkgA+LL+WgfelIADzBd
+         D9BR+ZslNlJB9InW61CSIwntqV43x8U5sF037cmqVktFSdu3Rl1iCYHMr69n0uvz2p
+         fJU3lR7wb2CvciquXJC5DDdFz1bSpVv8iHdK6whJlP2XCwDIv82O9dOueEGrOb8H3G
+         wCBjlXeXwGVo0reizH1heAN/ILQg3UPWVjsQ/Fj6Cz98AGioweUbFcYwfvaTw8YSLw
+         JYXqzmQ7niB58KwvcMnhpTBD7Lea2CuiOyUjXSGZQsU4n/RvrOCfRmwWCQYb7Caxxc
+         mImn3ACS2GnFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
@@ -40,12 +40,12 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 47/50] KVM: s390: get rid of register asm usage
-Date:   Sun,  4 Jul 2021 19:09:35 -0400
-Message-Id: <20210704230938.1490742-47-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 67/70] KVM: s390: get rid of register asm usage
+Date:   Sun,  4 Jul 2021 19:08:00 -0400
+Message-Id: <20210704230804.1490078-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210704230938.1490742-1-sashal@kernel.org>
-References: <20210704230938.1490742-1-sashal@kernel.org>
+In-Reply-To: <20210704230804.1490078-1-sashal@kernel.org>
+References: <20210704230804.1490078-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -80,10 +80,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d08e13c6dc98..20ba8537dbcc 100644
+index 20afffd6b982..f94b4f78d4da 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -318,31 +318,31 @@ static void allow_cpu_feat(unsigned long nr)
+@@ -327,31 +327,31 @@ static void allow_cpu_feat(unsigned long nr)
  
  static inline int plo_test_bit(unsigned char nr)
  {
