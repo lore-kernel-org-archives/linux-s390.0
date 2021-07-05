@@ -2,256 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CEBCC07E98
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Jul 2021 09:37:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 512E4C07E9A
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Jul 2021 09:42:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2561A613B9
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Jul 2021 09:37:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A68C613BD
+	for <linux-s390@archiver.kernel.org>; Mon,  5 Jul 2021 09:42:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230323AbhGEJjq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Jul 2021 05:39:46 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36418 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230262AbhGEJjq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jul 2021 05:39:46 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1659XxN4131171;
-        Mon, 5 Jul 2021 05:37:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=fW2irKgha+rTv2x3G9AkxSjaUSzJY/LIZRyabvdxO8A=;
- b=E7qwExmsDhiw+OchnmxXoWV3GuCRFtxkXgjv+l1TuHdUsflYqPezO3Q8dzxlNiiBZbix
- 0Gj+LMZlMXqJKCor/6wYDWM+fRXL19cYRrXhE4PfeiyLsV3brgusZYQc5+wEqf4ldQrm
- kCLhdCVo1WgobD/io9pAQGM6I1tnxHZRQRjCxx8Kvdxjzr7s4rAAsVi16RTCMfw9lJDq
- Q1dhCQ68/xDnyY3geyh6oDtBYU4jtPWjPOjvOBxNU+j+eRgljjdSDYJ9MtVOOyG/7Pxq
- ZeboFEpSGG9A6OAhIAA5Augub1YNuxfnVhdIt9jbhAl0ABZWj0GRLv2cmAAd9p+JECN7 sw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39kukmxck0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jul 2021 05:37:09 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1659ZNwm134514;
-        Mon, 5 Jul 2021 05:37:08 -0400
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39kukmxcj6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jul 2021 05:37:08 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1659YwPi030517;
-        Mon, 5 Jul 2021 09:37:06 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03fra.de.ibm.com with ESMTP id 39jfh88cwt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jul 2021 09:37:06 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1659ZEA736438312
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 5 Jul 2021 09:35:14 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CE5B6A4055;
-        Mon,  5 Jul 2021 09:37:03 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6D447A404D;
-        Mon,  5 Jul 2021 09:37:03 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.25.73])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  5 Jul 2021 09:37:03 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH v2 3/3] s390x: mvpg: Add SIE mvpg test
-To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+        id S230446AbhGEJol (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 5 Jul 2021 05:44:41 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:57959 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230000AbhGEJok (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jul 2021 05:44:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1625478123;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=HNV9OaYdnxR15a4jV7psRkuzfog3J+Wb9pPXNeHN/OU=;
+        b=JHoe9EZn6NW1K6aw9BCFFRgypUmfEOSsOHw1dHvh9/cXXHcVtU8XRSCCv+cz4/ZZdKoWoD
+        A0ynqyfbjEUjaeiyXcBapGes9iVRBNdUE4maU5i3c7NIrf7SI+SdYdsnbqDeVLvYpuhrwU
+        akNNarqUg/O2G/yqO6dvSA8R576qhaQ=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-552-DPEk3KViMFipGMXgry9zsg-1; Mon, 05 Jul 2021 05:42:00 -0400
+X-MC-Unique: DPEk3KViMFipGMXgry9zsg-1
+Received: by mail-wm1-f69.google.com with SMTP id j38-20020a05600c1c26b02901dbf7d18ff8so9646337wms.8
+        for <linux-s390@vger.kernel.org>; Mon, 05 Jul 2021 02:42:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=HNV9OaYdnxR15a4jV7psRkuzfog3J+Wb9pPXNeHN/OU=;
+        b=S6G/AEO5J3Tccd2OkuXr0p738vHjE2I6gKubNHCbj35OFAtdnBRHSCUTRr94xmeaJh
+         OhNi4nonLyg6s0cBkv++VIphp3dEJZ/5uQxAWWGm9KybjHvh6QGNl2n+/qiociF4lxgo
+         SjoIgGPcpuGh/CFod1qZ42UpGmFn7Y4WncmfUqKANk63L/8K+23S6cjnfaZ/ruiAiLym
+         aFQVYy7B7JtAh++ClqNFRbPQltvUGX3Ow5nhbBqY73+/3NG1A1yE5zEKNTnG3PZz599Z
+         gheoyZdL+un7PaN2xubNI9snTVdeN1QyXHpa2HLjCHEvX/4Fes+sDWle4hbv2qKEi4gt
+         eqHQ==
+X-Gm-Message-State: AOAM530OMEL5HUJZ//L+tEjjOMw1GLIF22NywPWhWVe2zRHt8xAhUM5A
+        E1Fydof9UoXE6gTZ5pH9gHfXOvP9LVOKlGeyt0tqQRd/lMr+GuX2iG6+IPlUkRKlN7YHohYl9qZ
+        DDY7td2jiBDYGFOE1TteI9A==
+X-Received: by 2002:a5d:59ac:: with SMTP id p12mr14401731wrr.372.1625478119419;
+        Mon, 05 Jul 2021 02:41:59 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwROn59GNG7B7qUvOnlsTSj0bjCriNcmIjYmQhXrt9GtxEi3rru9PFkq9tYjW1KOwe9du/eQg==
+X-Received: by 2002:a5d:59ac:: with SMTP id p12mr14401716wrr.372.1625478119214;
+        Mon, 05 Jul 2021 02:41:59 -0700 (PDT)
+Received: from thuth.remote.csb (pd9575e1e.dip0.t-ipconnect.de. [217.87.94.30])
+        by smtp.gmail.com with ESMTPSA id b20sm12203150wmj.7.2021.07.05.02.41.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 Jul 2021 02:41:58 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH 3/5] lib: s390x: uv: Int type cleanup
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, cohuck@redhat.com
-References: <20210629131841.17319-1-frankja@linux.ibm.com>
- <20210629131841.17319-4-frankja@linux.ibm.com>
- <d4966f2c-89b4-94b7-0dc7-df69534c2d7a@redhat.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <8a742d45-bb49-d130-604a-da1e11150ef3@linux.ibm.com>
-Date:   Mon, 5 Jul 2021 11:37:03 +0200
+References: <20210629133322.19193-1-frankja@linux.ibm.com>
+ <20210629133322.19193-4-frankja@linux.ibm.com>
+ <d2798bf7-3018-e311-1dfb-120144fb343d@redhat.com>
+ <3876955c-24bd-2052-e634-8436f7558df4@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <b06633be-3832-7a07-37c3-1beaecd2202a@redhat.com>
+Date:   Mon, 5 Jul 2021 11:41:57 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <d4966f2c-89b4-94b7-0dc7-df69534c2d7a@redhat.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <3876955c-24bd-2052-e634-8436f7558df4@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6XYCeT2HYGLWGuAWfMQDvMEEMHVGK5qh
-X-Proofpoint-ORIG-GUID: Uuz0uNUST17ZkRKtB6OwX2cpsAaU_8Fo
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-05_05:2021-07-02,2021-07-05 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 priorityscore=1501 adultscore=0 mlxlogscore=999
- impostorscore=0 malwarescore=0 spamscore=0 clxscore=1015 suspectscore=0
- bulkscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107050048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 7/5/21 9:24 AM, Thomas Huth wrote:
-> On 29/06/2021 15.18, Janosch Frank wrote:
->> Let's also check the PEI values to make sure our VSIE implementation
->> is correct.
+On 05/07/2021 11.33, Janosch Frank wrote:
+> On 7/4/21 9:51 AM, Thomas Huth wrote:
+>> On 29/06/2021 15.33, Janosch Frank wrote:
+>>> These structs have largely been copied from the kernel so they still
+>>> have the old uint short types which we want to avoid in favor of the
+>>> uint*_t ones.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> ---
+>>>    lib/s390x/asm/uv.h | 142 +++++++++++++++++++++++----------------------
+>>>    1 file changed, 72 insertions(+), 70 deletions(-)
+>>>
+>>> diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
+>>> index dc3e02d..96a2a7e 100644
+>>> --- a/lib/s390x/asm/uv.h
+>>> +++ b/lib/s390x/asm/uv.h
+>>> @@ -12,6 +12,8 @@
+>>>    #ifndef _ASMS390X_UV_H_
+>>>    #define _ASMS390X_UV_H_
+>>>    
+>>> +#include <stdint.h>
+>>> +
+>>>    #define UVC_RC_EXECUTED		0x0001
+>>>    #define UVC_RC_INV_CMD		0x0002
+>>>    #define UVC_RC_INV_STATE	0x0003
+>>> @@ -68,73 +70,73 @@ enum uv_cmds_inst {
+>>>    };
+>>>    
+>>>    struct uv_cb_header {
+>>> -	u16 len;
+>>> -	u16 cmd;	/* Command Code */
+>>> -	u16 rc;		/* Response Code */
+>>> -	u16 rrc;	/* Return Reason Code */
+>>> +	uint16_t len;
+>>> +	uint16_t cmd;	/* Command Code */
+>>> +	uint16_t rc;	/* Response Code */
+>>> +	uint16_t rrc;	/* Return Reason Code */
+>>>    } __attribute__((packed))  __attribute__((aligned(8)));
 >>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>   s390x/Makefile                  |   2 +
->>   s390x/mvpg-sie.c                | 151 ++++++++++++++++++++++++++++++++
->>   s390x/snippets/c/mvpg-snippet.c |  33 +++++++
->>   s390x/unittests.cfg             |   3 +
->>   4 files changed, 189 insertions(+)
->>   create mode 100644 s390x/mvpg-sie.c
->>   create mode 100644 s390x/snippets/c/mvpg-snippet.c
->>
->> diff --git a/s390x/Makefile b/s390x/Makefile
->> index ba32f4c..07af26d 100644
->> --- a/s390x/Makefile
->> +++ b/s390x/Makefile
->> @@ -23,6 +23,7 @@ tests += $(TEST_DIR)/sie.elf
->>   tests += $(TEST_DIR)/mvpg.elf
->>   tests += $(TEST_DIR)/uv-host.elf
->>   tests += $(TEST_DIR)/edat.elf
->> +tests += $(TEST_DIR)/mvpg-sie.elf
->>   
->>   tests_binary = $(patsubst %.elf,%.bin,$(tests))
->>   ifneq ($(HOST_KEY_DOCUMENT),)
->> @@ -82,6 +83,7 @@ snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
->>   
->>   # perquisites (=guests) for the snippet hosts.
->>   # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
->> +$(TEST_DIR)/mvpg-sie.elf: snippets = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
->>   
->>   $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o $(FLATLIBS)
->>   	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
->> diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
->> new file mode 100644
->> index 0000000..3536c6a
->> --- /dev/null
->> +++ b/s390x/mvpg-sie.c
->> @@ -0,0 +1,151 @@
->> +#include <libcflat.h>
->> +#include <asm/asm-offsets.h>
->> +#include <asm-generic/barrier.h>
->> +#include <asm/pgtable.h>
->> +#include <mmu.h>
->> +#include <asm/page.h>
->> +#include <asm/facility.h>
->> +#include <asm/mem.h>
->> +#include <alloc_page.h>
->> +#include <vm.h>
->> +#include <sclp.h>
->> +#include <sie.h>
->> +
->> +static u8 *guest;
->> +static u8 *guest_instr;
->> +static struct vm vm;
->> +
->> +static uint8_t *src;
->> +static uint8_t *dst;
->> +static uint8_t *cmp;
->> +
->> +extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_start[];
->> +extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_end[];
->> +int binary_size;
->> +
->> +static void sie(struct vm *vm)
->> +{
->> +	/* Reset icptcode so we don't trip over it below */
->> +	vm->sblk->icptcode = 0;
->> +
->> +	while (vm->sblk->icptcode == 0) {
->> +		sie64a(vm->sblk, &vm->save_area);
->> +		if (vm->sblk->icptcode == ICPT_VALIDITY)
->> +			assert(0);
+>> Hmm, for files that are more or less a copy from the corresponding kernel
+>> header, I'm not sure whether it makes sense to convert them to the stdint.h
+>> types? It might be better to keep the kernel types so that updates to this
+>> header can be ported more easily to the kvm-unit-tests later?
 > 
-> Please replace the above two lines with:
-> 
-> 		assert(vm->sblk->icptcode != ICPT_VALIDITY);
+> sie.h contents are 90% sblk which came directly from KVM...
+> Do you really want to have exceptions for one file? Because if that's
+> the case then I see no sense in changing other things over since I
+> prefer using short types.
 
-Sure
+Completely inaccurate checks with the lib directory of the kvm-unit-tests:
 
-> 
->> +	}
->> +	vm->save_area.guest.grs[14] = vm->sblk->gg14;
->> +	vm->save_area.guest.grs[15] = vm->sblk->gg15;
->> +}
->> +
->> +static void test_mvpg_pei(void)
->> +{
->> +	uint64_t **pei_dst = (uint64_t **)((uintptr_t) vm.sblk + 0xc0);
->> +	uint64_t **pei_src = (uint64_t **)((uintptr_t) vm.sblk + 0xc8);
->> +
->> +	report_prefix_push("pei");
->> +
->> +	report_prefix_push("src");
->> +	memset(dst, 0, PAGE_SIZE);
->> +	protect_page(src, PAGE_ENTRY_I);
->> +	sie(&vm);
->> +	report(vm.sblk->icptcode == ICPT_PARTEXEC, "Partial execution");
->> +	report((uintptr_t)**pei_src == (uintptr_t)src + PAGE_ENTRY_I, "PEI_SRC correct");
->> +	report((uintptr_t)**pei_dst == (uintptr_t)dst, "PEI_DST correct");
->> +	unprotect_page(src, PAGE_ENTRY_I);
->> +	report(!memcmp(cmp, dst, PAGE_SIZE), "Destination intact");
->> +	/*
->> +	 * We need to execute the diag44 which is used as a blocker
->> +	 * behind the mvpg. It makes sure we fail the tests above if
->> +	 * the mvpg wouldn't have intercepted.
->> +	 */
->> +	sie(&vm);
->> +	/* Make sure we intercepted for the diag44 and nothing else */
->> +	assert(vm.sblk->icptcode == ICPT_INST &&
->> +	       vm.sblk->ipa == 0x8300 && vm.sblk->ipb == 0x440000);
->> +	report_prefix_pop();
->> +
->> +	/* Clear PEI data for next check */
->> +	report_prefix_push("dst");
->> +	memset((uint64_t *)((uintptr_t) vm.sblk + 0xc0), 0, 16);
->> +	memset(dst, 0, PAGE_SIZE);
->> +	protect_page(dst, PAGE_ENTRY_I);
->> +	sie(&vm);
->> +	report(vm.sblk->icptcode == ICPT_PARTEXEC, "Partial execution");
->> +	report((uintptr_t)**pei_src == (uintptr_t)src, "PEI_SRC correct");
->> +	report((uintptr_t)**pei_dst == (uintptr_t)dst + PAGE_ENTRY_I, "PEI_DST correct");
->> +	/* Needed for the memcmp and general cleanup */
->> +	unprotect_page(dst, PAGE_ENTRY_I);
->> +	report(!memcmp(cmp, dst, PAGE_SIZE), "Destination intact");
->> +	report_prefix_pop();
->> +
->> +	report_prefix_pop();
->> +}
-> 
-> Still quite a lot of magic values in above code ... any chance to introduce 
-> some #defines finally?
+$ grep -r u64 lib/ | wc -l
+234
+$ grep -r uint64 lib/ | wc -l
+245
 
-Currently not really.
-I added a comment for the diag 44 which should be enough right now. If
-needed I can add a comment to the pei variables as well.
+$ grep -r u8 lib/ | wc -l
+137
+$ grep -r uint8 lib/ | wc -l
+193
 
-> 
->> +static void test_mvpg(void)
->> +{
->> +	int binary_size = ((uintptr_t)_binary_s390x_snippets_c_mvpg_snippet_gbin_end -
->> +			   (uintptr_t)_binary_s390x_snippets_c_mvpg_snippet_gbin_start);
->> +
->> +	memcpy(guest, _binary_s390x_snippets_c_mvpg_snippet_gbin_start, binary_size);
->> +	memset(src, 0x42, PAGE_SIZE);
->> +	memset(dst, 0x43, PAGE_SIZE);
->> +	sie(&vm);
->> +	mb();
-> 
-> I think you don't need the mb() here.
+... I guess that's an indication that we do not really have a prevailing 
+style here?
+I personally prefer the stdint.h types, I'm just not sure whether it makes 
+sense to keep some headers close to the kernel or not...?
 
-Right
-
-> 
->> +	report(!memcmp(src, dst, PAGE_SIZE) && *dst == 0x42, "Page moved");
->> +}
-> 
->   Thomas
-> 
+  Thomas
 
