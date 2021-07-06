@@ -2,123 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98B5EC07E96
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 09:22:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DFA5C11F6B
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 12:03:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 71C7461995
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 09:22:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 376DE620DC
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 12:03:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230527AbhGFJZZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Jul 2021 05:25:25 -0400
-Received: from foss.arm.com ([217.140.110.172]:35456 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230515AbhGFJZZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 6 Jul 2021 05:25:25 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6667531B;
-        Tue,  6 Jul 2021 02:22:46 -0700 (PDT)
-Received: from [10.57.40.45] (unknown [10.57.40.45])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E78723F5A1;
-        Tue,  6 Jul 2021 02:22:44 -0700 (PDT)
-Subject: Re: [RFC PATCH 1/1] dma-debug: fix check_for_illegal_area() in
- debug_dma_map_sg()
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        iommu@lists.linux-foundation.org
-Cc:     linux-s390 <linux-s390@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-References: <20210705185252.4074653-1-gerald.schaefer@linux.ibm.com>
- <20210705185252.4074653-2-gerald.schaefer@linux.ibm.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <3bb87b4c-f646-20fe-7cc5-c7449432811e@arm.com>
-Date:   Tue, 6 Jul 2021 10:22:40 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S239153AbhGFMGI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Jul 2021 08:06:08 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20028 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241259AbhGFLuX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jul 2021 07:50:23 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 166BXxFJ080520;
+        Tue, 6 Jul 2021 07:47:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=31Ml+5y0bBePeWagPBybVFvajX0e8VDBdmj4/JcMdB8=;
+ b=RqUQf3rjlnvTWmAcIWyZNb8O0j+WjEad0GJVAMs+Hk/o53Rul1BX3QVkn1xNOhDghloF
+ i7z+jAlB6zCm13kqR7kKFoFkZmFjxaOv5OtaeoYS8U9YsoVcmS7yqQk8rJ2PlmDSSFqm
+ 4fEfLgl5uhOBQQZ8eUEh8mFa1RgGG2nJK25U6h/rBF6U9NEJ2ZaxYkFd14mzz+XgY+kH
+ YBA2rFXkNkqFEtvrFyOUAZlAOLn3et3sLyShbhdve0rnEZV8zeQTJIF8Ri1DzWzSaFIl
+ K+mPmBNR/AV+7E6ra5JnQVpFsMXni5g0vf479NaLFNRd4CeLQ72X0Ioc7r7T9B/MzBsR xg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39mc14ycjj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Jul 2021 07:47:42 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 166BZQtY091384;
+        Tue, 6 Jul 2021 07:47:42 -0400
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39mc14ycj2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Jul 2021 07:47:42 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 166BbxJC023029;
+        Tue, 6 Jul 2021 11:47:40 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06fra.de.ibm.com with ESMTP id 39jf5hgnhy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Jul 2021 11:47:40 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 166Bjlxf26411380
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 6 Jul 2021 11:45:47 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A0CE95204F;
+        Tue,  6 Jul 2021 11:47:36 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 48C9F52059;
+        Tue,  6 Jul 2021 11:47:36 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        kvm@vger.kernel.org (open list:KERNEL VIRTUAL MACHINE for s390
+        (KVM/s390)), linux-s390@vger.kernel.org (open list:S390),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] KVM: s390: Enable specification exception interpretation
+Date:   Tue,  6 Jul 2021 13:47:13 +0200
+Message-Id: <20210706114714.3936825-1-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20210705185252.4074653-2-gerald.schaefer@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: xP9UPiUJfQu3SBQKzGm6G_O1iZgI9csr
+X-Proofpoint-GUID: AH13xw-P3S29Jw6NCOSV9pMBV_xuRFVg
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-06_06:2021-07-02,2021-07-06 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 lowpriorityscore=0 adultscore=0 malwarescore=0 mlxlogscore=999
+ phishscore=0 impostorscore=0 mlxscore=0 spamscore=0 clxscore=1011
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107060057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2021-07-05 19:52, Gerald Schaefer wrote:
-> The following warning occurred sporadically on s390:
-> DMA-API: nvme 0006:00:00.0: device driver maps memory from kernel text or rodata [addr=0000000048cc5e2f] [len=131072]
-> WARNING: CPU: 4 PID: 825 at kernel/dma/debug.c:1083 check_for_illegal_area+0xa8/0x138
-> 
-> It is a false-positive warning, due to a broken logic in debug_dma_map_sg().
-> check_for_illegal_area() should check for overlay of sg elements with kernel
-> text or rodata. It is called with sg_dma_len(s) instead of s->length as
-> parameter. After the call to ->map_sg(), sg_dma_len() contains the length
-> of possibly combined sg elements in the DMA address space, and not the
-> individual sg element length, which would be s->length.
-> 
-> The check will then use the kernel start address of an sg element, and add
-> the DMA length for overlap check, which can result in the false-positive
-> warning because the DMA length can be larger than the actual single sg
-> element length in kernel address space.
-> 
-> In addition, the call to check_for_illegal_area() happens in the iteration
-> over mapped_ents, which will not include all individual sg elements if
-> any of them were combined in ->map_sg().
-> 
-> Fix this by using s->length instead of sg_dma_len(s). Also put the call to
-> check_for_illegal_area() in a separate loop, iterating over all the
-> individual sg elements ("nents" instead of "mapped_ents").
-> 
-> Fixes: 884d05970bfb ("dma-debug: use sg_dma_len accessor")
-> Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> ---
->   kernel/dma/debug.c | 10 ++++++----
->   1 file changed, 6 insertions(+), 4 deletions(-)
-> 
-> diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-> index 14de1271463f..d7d44b7fe7e2 100644
-> --- a/kernel/dma/debug.c
-> +++ b/kernel/dma/debug.c
-> @@ -1299,6 +1299,12 @@ void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
->   	if (unlikely(dma_debug_disabled()))
->   		return;
->   
-> +	for_each_sg(sg, s, nents, i) {
-> +		if (!PageHighMem(sg_page(s))) {
-> +			check_for_illegal_area(dev, sg_virt(s), s->length);
-> +		}
-> +	}
-> +
->   	for_each_sg(sg, s, mapped_ents, i) {
->   		entry = dma_entry_alloc();
->   		if (!entry)
-> @@ -1316,10 +1322,6 @@ void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
->   
->   		check_for_stack(dev, sg_page(s), s->offset);
+When this feature is enabled the hardware is free to interpret
+specification exceptions generated by the guest, instead of causing
+program interruption interceptions.
 
-Strictly this should probably be moved to the new loop as well, as it is 
-similarly concerned with validating the source segments rather than the 
-DMA mappings - I think with virtually-mapped stacks it might technically 
-be possible for a stack page to be physically adjacent to a "valid" page 
-such that it could get merged and overlooked if it were near the end of 
-the list, although in fairness that would probably be indicative of 
-something having gone far more fundamentally wrong. Otherwise, the 
-overall reasoning looks sound to me.
+This benefits (test) programs that generate a lot of specification
+exceptions (roughly 4x increase in exceptions/sec).
 
-Robin.
+Interceptions will occur as before if ICTL_PINT is set,
+i.e. if guest debug is enabled.
 
->   
-> -		if (!PageHighMem(sg_page(s))) {
-> -			check_for_illegal_area(dev, sg_virt(s), sg_dma_len(s));
-> -		}
-> -
->   		check_sg_segment(dev, s);
->   
->   		add_dma_entry(entry);
-> 
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+---
+I'll additionally send kvm-unit-tests for testing this feature.
+
+ arch/s390/include/asm/kvm_host.h | 1 +
+ arch/s390/kvm/kvm-s390.c         | 2 ++
+ arch/s390/kvm/vsie.c             | 2 ++
+ 3 files changed, 5 insertions(+)
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 9b4473f76e56..3a5b5084cdbe 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -244,6 +244,7 @@ struct kvm_s390_sie_block {
+ 	__u8	fpf;			/* 0x0060 */
+ #define ECB_GS		0x40
+ #define ECB_TE		0x10
++#define ECB_SPECI	0x08
+ #define ECB_SRSI	0x04
+ #define ECB_HOSTPROTINT	0x02
+ 	__u8	ecb;			/* 0x0061 */
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index b655a7d82bf0..aadd589a3755 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3200,6 +3200,8 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.sie_block->ecb |= ECB_SRSI;
+ 	if (test_kvm_facility(vcpu->kvm, 73))
+ 		vcpu->arch.sie_block->ecb |= ECB_TE;
++	if (!kvm_is_ucontrol(vcpu->kvm))
++		vcpu->arch.sie_block->ecb |= ECB_SPECI;
+ 
+ 	if (test_kvm_facility(vcpu->kvm, 8) && vcpu->kvm->arch.use_pfmfi)
+ 		vcpu->arch.sie_block->ecb2 |= ECB2_PFMFI;
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 4002a24bc43a..acda4b6fc851 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -510,6 +510,8 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 			prefix_unmapped(vsie_page);
+ 		scb_s->ecb |= ECB_TE;
+ 	}
++	/* specification exception interpretation */
++	scb_s->ecb |= scb_o->ecb & ECB_SPECI;
+ 	/* branch prediction */
+ 	if (test_kvm_facility(vcpu->kvm, 82))
+ 		scb_s->fpf |= scb_o->fpf & FPF_BPBC;
+-- 
+2.25.1
+
