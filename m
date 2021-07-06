@@ -7,57 +7,57 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B716C07E96
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 12:34:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 554ACC07E96
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 12:34:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 00C22619C8
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 12:34:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D5C2619C6
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 12:34:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232203AbhGFMgz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S232005AbhGFMgz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Tue, 6 Jul 2021 08:36:55 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7534 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6792 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241574AbhGFMUs (ORCPT
+        by vger.kernel.org with ESMTP id S241596AbhGFMUs (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jul 2021 08:20:48 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 166C3qHT177462;
-        Tue, 6 Jul 2021 08:18:09 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 166C3ce6122755;
+        Tue, 6 Jul 2021 08:18:10 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=NqvVLXvaerytO7tB98ja2rofWL74nQ0xiLEA8QSjTsA=;
- b=bUrojBWDWceTIu/B3yfB5etT253pYjEDbB7/IFHoy20JoSWUBVKBNjkYmD0jSmeVKkO+
- 9ATLJ5d0Y6pclAK8fIXRXvbFDMT+MKRXebVBNXWo7u3EA+2d/nrRpnxCoi7NOj3oCSlS
- YGYESynn1N1exwmP2lUVaqbSmm9Rt868k7gKW0R3OhFzC2FrKC5iGUbu0DHDvOHlso8j
- QQQ4bb2cp82Xd5jncQ1n5oj6goZpfEqk4jyy8KzVRmDDXf2PE+QRFu50ZUdntahYkS/2
- wjVrr2PBoEP5KR/VRqFvo+4mFJL4DGXF0pDp90FIIB42ZYdedvFLNbbd2fbCudjfa+zc Ug== 
+ bh=LZoW+GDabL/dMI9WASNWekEZihVED6F0T5LxrzU9TSM=;
+ b=LbKHOJ4mTx5T5bLAw//rcSkotdECynF88/K/a3/AWVuo3peYhJOEjf2+XJ/mxYMc0uw+
+ 7nKfQw9OVo6U76/kwF6VaDt+vj5F0iFRJOaiKcpab/tcPu1SakkTjZV9izPx6MsdY/C/
+ 1BMfwNnRZDCkZNxd6zTR8b9hk0M1hdMvU1Z0i12/EvcA6eNW0ueLpdLvMU9s07x+0Dv8
+ eVOY6gw4c4bK0SRpvEslmAwpMTEtV3hF8rub2Dv4PMIqOWiRPFwSW35N8VhjyxaTuS+2
+ 9hagXW4FcNuxeiMIgB8Rsj9nuX9UcF1JhBxC5RRqnMqRY3InUnLWkXHxvGUlEvRLuk3t Sg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39mbdwh3ga-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39mn89uj50-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Jul 2021 08:18:10 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 166C4Knw127382;
+        Tue, 6 Jul 2021 08:18:10 -0400
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39mn89uj38-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 06 Jul 2021 08:18:09 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 166C4Hb5180078;
-        Tue, 6 Jul 2021 08:18:09 -0400
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39mbdwh3f1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Jul 2021 08:18:09 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 166C2TR7025098;
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 166C2k6M012042;
         Tue, 6 Jul 2021 12:18:07 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03fra.de.ibm.com with ESMTP id 39jfh88ns7-1
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06fra.de.ibm.com with ESMTP id 39jf5hgnsd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Jul 2021 12:18:06 +0000
+        Tue, 06 Jul 2021 12:18:07 +0000
 Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 166CI4sR31982062
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 166CGDcA34275586
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 6 Jul 2021 12:18:04 GMT
+        Tue, 6 Jul 2021 12:16:13 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7E26F42056;
-        Tue,  6 Jul 2021 12:18:04 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 41CCB42052;
+        Tue,  6 Jul 2021 12:18:05 +0000 (GMT)
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 39ADF42057;
+        by IMSVA (Postfix) with ESMTP id E82434204C;
         Tue,  6 Jul 2021 12:18:04 +0000 (GMT)
 Received: from t46lp67.lnxne.boe (unknown [9.152.108.100])
         by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
@@ -66,80 +66,49 @@ From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, thuth@redhat.com, cohuck@redhat.com
-Subject: [kvm-unit-tests PATCH v2 3/5] lib: s390x: uv: Add offset comments to uv_query and extend it
-Date:   Tue,  6 Jul 2021 12:17:55 +0000
-Message-Id: <20210706121757.24070-4-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 5/5] lib: s390x: Remove left behing PGM report
+Date:   Tue,  6 Jul 2021 12:17:57 +0000
+Message-Id: <20210706121757.24070-6-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706121757.24070-1-frankja@linux.ibm.com>
 References: <20210706121757.24070-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: FZx9GzpYitTGPUGsWiRGMoROx4E6viGP
-X-Proofpoint-ORIG-GUID: DBj_zMvRjIUcVQHmSC8RvhsciOcJ6b1N
+X-Proofpoint-ORIG-GUID: jLM7wdOCAmFZwuiWcz_B3VB_IN8GzBMQ
+X-Proofpoint-GUID: xWWKHdJ65mH0I3V4ycwvfHuhrIdaRtPJ
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-07-06_06:2021-07-02,2021-07-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- impostorscore=0 clxscore=1015 mlxlogscore=999 lowpriorityscore=0
- adultscore=0 malwarescore=0 priorityscore=1501 mlxscore=0 suspectscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ suspectscore=0 priorityscore=1501 malwarescore=0 bulkscore=0 mlxscore=0
+ clxscore=1015 spamscore=0 impostorscore=0 mlxlogscore=999
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2104190000 definitions=main-2107060060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The struct is getting longer, let's add offset comments so we know
-where we change things when we add struct members.
+When I added the backtrace support I forgot to remove the PGM report.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- lib/s390x/asm/uv.h | 33 +++++++++++++++++----------------
- 1 file changed, 17 insertions(+), 16 deletions(-)
+ lib/s390x/interrupt.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-index dc3e02d..ec10d1c 100644
---- a/lib/s390x/asm/uv.h
-+++ b/lib/s390x/asm/uv.h
-@@ -84,22 +84,23 @@ struct uv_cb_init {
- } __attribute__((packed))  __attribute__((aligned(8)));
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index 109f290..785b735 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -162,9 +162,6 @@ void handle_pgm_int(struct stack_frame_int *stack)
+ 		/* Force sclp_busy to false, otherwise we will loop forever */
+ 		sclp_handle_ext();
+ 		print_pgm_info(stack);
+-		report_abort("Unexpected program interrupt: %d on cpu %d at %#lx, ilen %d\n",
+-			     lc->pgm_int_code, stap(), lc->pgm_old_psw.addr,
+-			     lc->pgm_int_id);
+ 	}
  
- struct uv_cb_qui {
--	struct uv_cb_header header;
--	u64 reserved08;
--	u64 inst_calls_list[4];
--	u64 reserved30[2];
--	u64 uv_base_stor_len;
--	u64 reserved48;
--	u64 conf_base_phys_stor_len;
--	u64 conf_base_virt_stor_len;
--	u64 conf_virt_var_stor_len;
--	u64 cpu_stor_len;
--	u32 reserved70[3];
--	u32 max_num_sec_conf;
--	u64 max_guest_stor_addr;
--	u8  reserved88[158 - 136];
--	u16 max_guest_cpus;
--	u8  reserveda0[200 - 160];
-+	struct uv_cb_header header;	/* 0x0000 */
-+	u64 reserved08;			/* 0x0008 */
-+	u64 inst_calls_list[4];		/* 0x0010 */
-+	u64 reserved30[2];		/* 0x0030 */
-+	u64 uv_base_stor_len;		/* 0x0040 */
-+	u64 reserved48;			/* 0x0048 */
-+	u64 conf_base_phys_stor_len;	/* 0x0050 */
-+	u64 conf_base_virt_stor_len;	/* 0x0058 */
-+	u64 conf_virt_var_stor_len;	/* 0x0060 */
-+	u64 cpu_stor_len;		/* 0x0068 */
-+	u32 reserved70[3];		/* 0x0070 */
-+	u32 max_num_sec_conf;		/* 0x007c */
-+	u64 max_guest_stor_addr;	/* 0x0080 */
-+	u8  reserved88[158 - 136];	/* 0x0088 */
-+	uint16_t max_guest_cpus;	/* 0x009e */
-+	u64 uv_feature_indications;	/* 0x00a0 */
-+	u8  reserveda8[200 - 168];	/* 0x00a8 */
- }  __attribute__((packed))  __attribute__((aligned(8)));
- 
- struct uv_cb_cgc {
+ 	pgm_int_expected = false;
 -- 
 2.30.2
 
