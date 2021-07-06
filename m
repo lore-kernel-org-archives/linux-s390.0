@@ -2,145 +2,194 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5AA4C07E9C
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Jul 2021 18:53:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC5CBC07E96
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 07:40:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8DBDD6197B
-	for <linux-s390@archiver.kernel.org>; Mon,  5 Jul 2021 18:53:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A721C6198D
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 07:40:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229773AbhGESzt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 5 Jul 2021 14:55:49 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:53476 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229970AbhGESzt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Jul 2021 14:55:49 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 165IZAxO082841;
-        Mon, 5 Jul 2021 14:53:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=tBLhHqmv8Xr1QxendNUR/DvIJZUmas2B18j2RZcJe90=;
- b=VNCxy8+JCw6kjy+bxizvOMve0X8Ha6lplJrGJoRB8hxmSpv2nm4NFRKPgSKvflnxggpN
- RMxvgIc46dgqUVTO2iu57KSrvx6xxJTi/7Pwat0FrGPIlogo+YA1rwnW01aK3eVowqO9
- XZ18Cvm6iN58JbDDB/ynkCTHvMO4svQirFDlhNf3AL1dKCE6TPs3XQ7tb8/O1fklsSDI
- iQsXlALN/hTLpKJqifZcatRzYGVMAv2pUNMc1bI40JrVp4OC8iddckmx2r+wWZno6ZD4
- JtnzHPReXrFtBG60HyJyRe3lwaYqUUzDPTrvvdyh/YMZNnEvjbE/j/j0UeQd94EI3P8l uA== 
+        id S230223AbhGFHnG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Jul 2021 03:43:06 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43266 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S230203AbhGFHnF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jul 2021 03:43:05 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1667YKsu161474;
+        Tue, 6 Jul 2021 03:40:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=kCLZnu8UsW+L3BWrQIy8Htz4zz+s+k7Amh3LXoHY6oU=;
+ b=l/uKoefgPKkvFgsMahx+saPhhAZZM/kwiGXuHONZBbSd/3yFAMmH5w/XYl4zCXi6Q8Y8
+ l41YL+YZosnAYeL9xp+b/Q85s31++puIXsyn6s8fyTu4Vj7a/fvgEftaauMC6d6Ao1fZ
+ BBUGVF57zCuWyymEF9Gj7npd21k+jNVlY+MQVbPeEucqRds2X71FoNgiE+hNhF9lbeXd
+ oDiE6aa3A7WhSSJBiE953j2fUA+eDnr/3npQIKMhaB9cE3xlAKot584CiMjoyEKq36cU
+ IQvmHhBA4sChj4HxtuiKs8O99dFJhrLMVDW4ulFm3LKrTojm00r1QNdymccmWrl9TMBD 7Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39m8xsmhcu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Jul 2021 03:40:27 -0400
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1667ZUEU164441;
+        Tue, 6 Jul 2021 03:40:26 -0400
 Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39m6k01j6d-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39m8xsmhca-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jul 2021 14:53:03 -0400
+        Tue, 06 Jul 2021 03:40:26 -0400
 Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 165IoBnc015081;
-        Mon, 5 Jul 2021 18:53:01 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 39jf5h8ww8-1
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1667Xk29021613;
+        Tue, 6 Jul 2021 07:40:25 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 39jf5h9470-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 05 Jul 2021 18:53:01 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 165Iqwge33423678
+        Tue, 06 Jul 2021 07:40:24 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1667eMFK32047490
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 5 Jul 2021 18:52:58 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 42ED742042;
-        Mon,  5 Jul 2021 18:52:58 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 02EEB4203F;
-        Mon,  5 Jul 2021 18:52:58 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  5 Jul 2021 18:52:57 +0000 (GMT)
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Christoph Hellwig <hch@lst.de>, <iommu@lists.linux-foundation.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Tue, 6 Jul 2021 07:40:22 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7FE844C063;
+        Tue,  6 Jul 2021 07:40:22 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 179494C064;
+        Tue,  6 Jul 2021 07:40:22 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.59.107])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  6 Jul 2021 07:40:22 +0000 (GMT)
+Subject: Re: [PATCH/RFC] KVM: selftests: introduce P44V64 for z196 and EC12
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.vnet.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-Subject: [RFC PATCH 1/1] dma-debug: fix check_for_illegal_area() in debug_dma_map_sg()
-Date:   Mon,  5 Jul 2021 20:52:52 +0200
-Message-Id: <20210705185252.4074653-2-gerald.schaefer@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210705185252.4074653-1-gerald.schaefer@linux.ibm.com>
-References: <20210705185252.4074653-1-gerald.schaefer@linux.ibm.com>
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        KVM <kvm@vger.kernel.org>
+References: <20210701153853.33063-1-borntraeger@de.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <3a7be99a-5438-cc5b-ec6e-938832e7ab5a@de.ibm.com>
+Date:   Tue, 6 Jul 2021 09:40:21 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210701153853.33063-1-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: gV9b_hflviYi124sNTpneb2U3SZKbgLQ
-X-Proofpoint-ORIG-GUID: gV9b_hflviYi124sNTpneb2U3SZKbgLQ
+X-Proofpoint-ORIG-GUID: bbelnnVMweOS_B18vhT3MgKROv8mC_A3
+X-Proofpoint-GUID: J_J43FLB47EYSzLr6EH6KiVgK4JQ3Bm2
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-05_10:2021-07-02,2021-07-05 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- spamscore=0 impostorscore=0 mlxlogscore=999 clxscore=1015 malwarescore=0
- lowpriorityscore=0 adultscore=0 bulkscore=0 phishscore=0 suspectscore=0
+ definitions=2021-07-06_02:2021-07-02,2021-07-06 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
+ malwarescore=0 phishscore=0 priorityscore=1501 spamscore=0 impostorscore=0
+ mlxlogscore=999 suspectscore=0 lowpriorityscore=0 mlxscore=0 bulkscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2107050099
+ definitions=main-2107060037
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The following warning occurred sporadically on s390:
-DMA-API: nvme 0006:00:00.0: device driver maps memory from kernel text or rodata [addr=0000000048cc5e2f] [len=131072]
-WARNING: CPU: 4 PID: 825 at kernel/dma/debug.c:1083 check_for_illegal_area+0xa8/0x138
+Paolo,
 
-It is a false-positive warning, due to a broken logic in debug_dma_map_sg().
-check_for_illegal_area() should check for overlay of sg elements with kernel
-text or rodata. It is called with sg_dma_len(s) instead of s->length as
-parameter. After the call to ->map_sg(), sg_dma_len() contains the length
-of possibly combined sg elements in the DMA address space, and not the
-individual sg element length, which would be s->length.
+since you have not yet pulled my queue for 5.14. Shall I add the two selftest patches and send a new
+pull request?
 
-The check will then use the kernel start address of an sg element, and add
-the DMA length for overlap check, which can result in the false-positive
-warning because the DMA length can be larger than the actual single sg
-element length in kernel address space.
-
-In addition, the call to check_for_illegal_area() happens in the iteration
-over mapped_ents, which will not include all individual sg elements if
-any of them were combined in ->map_sg().
-
-Fix this by using s->length instead of sg_dma_len(s). Also put the call to
-check_for_illegal_area() in a separate loop, iterating over all the
-individual sg elements ("nents" instead of "mapped_ents").
-
-Fixes: 884d05970bfb ("dma-debug: use sg_dma_len accessor")
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
----
- kernel/dma/debug.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index 14de1271463f..d7d44b7fe7e2 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -1299,6 +1299,12 @@ void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 	if (unlikely(dma_debug_disabled()))
- 		return;
- 
-+	for_each_sg(sg, s, nents, i) {
-+		if (!PageHighMem(sg_page(s))) {
-+			check_for_illegal_area(dev, sg_virt(s), s->length);
-+		}
-+	}
-+
- 	for_each_sg(sg, s, mapped_ents, i) {
- 		entry = dma_entry_alloc();
- 		if (!entry)
-@@ -1316,10 +1322,6 @@ void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 
- 		check_for_stack(dev, sg_page(s), s->offset);
- 
--		if (!PageHighMem(sg_page(s))) {
--			check_for_illegal_area(dev, sg_virt(s), sg_dma_len(s));
--		}
--
- 		check_sg_segment(dev, s);
- 
- 		add_dma_entry(entry);
--- 
-2.25.1
-
+On 01.07.21 17:38, Christian Borntraeger wrote:
+> Older machines likes z196 and zEC12 do only support 44 bits of physical
+> addresses. Make this the default and check via IBC if we are on a later
+> machine. We then add P47V64 as an additional model.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Fixes: 1bc603af73dd ("KVM: selftests: introduce P47V64 for s390x")
+> ---
+>   tools/testing/selftests/kvm/include/kvm_util.h |  3 ++-
+>   tools/testing/selftests/kvm/lib/guest_modes.c  | 16 ++++++++++++++++
+>   tools/testing/selftests/kvm/lib/kvm_util.c     |  5 +++++
+>   3 files changed, 23 insertions(+), 1 deletion(-)
+> 
+> diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
+> index 35739567189e..74d73532fce9 100644
+> --- a/tools/testing/selftests/kvm/include/kvm_util.h
+> +++ b/tools/testing/selftests/kvm/include/kvm_util.h
+> @@ -44,6 +44,7 @@ enum vm_guest_mode {
+>   	VM_MODE_P40V48_64K,
+>   	VM_MODE_PXXV48_4K,	/* For 48bits VA but ANY bits PA */
+>   	VM_MODE_P47V64_4K,
+> +	VM_MODE_P44V64_4K,
+>   	NUM_VM_MODES,
+>   };
+>   
+> @@ -61,7 +62,7 @@ enum vm_guest_mode {
+>   
+>   #elif defined(__s390x__)
+>   
+> -#define VM_MODE_DEFAULT			VM_MODE_P47V64_4K
+> +#define VM_MODE_DEFAULT			VM_MODE_P44V64_4K
+>   #define MIN_PAGE_SHIFT			12U
+>   #define ptes_per_page(page_size)	((page_size) / 16)
+>   
+> diff --git a/tools/testing/selftests/kvm/lib/guest_modes.c b/tools/testing/selftests/kvm/lib/guest_modes.c
+> index 25bff307c71f..c330f414ef96 100644
+> --- a/tools/testing/selftests/kvm/lib/guest_modes.c
+> +++ b/tools/testing/selftests/kvm/lib/guest_modes.c
+> @@ -22,6 +22,22 @@ void guest_modes_append_default(void)
+>   		}
+>   	}
+>   #endif
+> +#ifdef __s390x__
+> +	{
+> +		int kvm_fd, vm_fd;
+> +		struct kvm_s390_vm_cpu_processor info;
+> +
+> +		kvm_fd = open_kvm_dev_path_or_exit();
+> +		vm_fd = ioctl(kvm_fd, KVM_CREATE_VM, 0);
+> +		kvm_device_access(vm_fd, KVM_S390_VM_CPU_MODEL,
+> +				  KVM_S390_VM_CPU_PROCESSOR, &info, false);
+> +		close(vm_fd);
+> +		close(kvm_fd);
+> +		/* Starting with z13 we have 47bits of physical address */
+> +		if (info.ibc >= 0x30)
+> +			guest_mode_append(VM_MODE_P47V64_4K, true, true);
+> +	}
+> +#endif
+>   }
+>   
+>   void for_each_guest_mode(void (*func)(enum vm_guest_mode, void *), void *arg)
+> diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
+> index a2b732cf96ea..8606000c439e 100644
+> --- a/tools/testing/selftests/kvm/lib/kvm_util.c
+> +++ b/tools/testing/selftests/kvm/lib/kvm_util.c
+> @@ -176,6 +176,7 @@ const char *vm_guest_mode_string(uint32_t i)
+>   		[VM_MODE_P40V48_64K]	= "PA-bits:40,  VA-bits:48, 64K pages",
+>   		[VM_MODE_PXXV48_4K]	= "PA-bits:ANY, VA-bits:48,  4K pages",
+>   		[VM_MODE_P47V64_4K]	= "PA-bits:47,  VA-bits:64,  4K pages",
+> +		[VM_MODE_P44V64_4K]	= "PA-bits:44,  VA-bits:64,  4K pages",
+>   	};
+>   	_Static_assert(sizeof(strings)/sizeof(char *) == NUM_VM_MODES,
+>   		       "Missing new mode strings?");
+> @@ -194,6 +195,7 @@ const struct vm_guest_mode_params vm_guest_mode_params[] = {
+>   	{ 40, 48, 0x10000, 16 },
+>   	{  0,  0,  0x1000, 12 },
+>   	{ 47, 64,  0x1000, 12 },
+> +	{ 44, 64,  0x1000, 12 },
+>   };
+>   _Static_assert(sizeof(vm_guest_mode_params)/sizeof(struct vm_guest_mode_params) == NUM_VM_MODES,
+>   	       "Missing new mode params?");
+> @@ -282,6 +284,9 @@ struct kvm_vm *vm_create(enum vm_guest_mode mode, uint64_t phy_pages, int perm)
+>   	case VM_MODE_P47V64_4K:
+>   		vm->pgtable_levels = 5;
+>   		break;
+> +	case VM_MODE_P44V64_4K:
+> +		vm->pgtable_levels = 5;
+> +		break;
+>   	default:
+>   		TEST_FAIL("Unknown guest mode, mode: 0x%x", mode);
+>   	}
+> 
