@@ -2,61 +2,62 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE435C07E9C
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 12:34:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A2AEC07E9B
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 12:34:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D174D619C6
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 12:34:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2D3DD61C1D
+	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 12:34:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232130AbhGFMgx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Jul 2021 08:36:53 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55816 "EHLO
+        id S232191AbhGFMgz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 6 Jul 2021 08:36:55 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59074 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241538AbhGFMUr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jul 2021 08:20:47 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 166C9HmY194620;
-        Tue, 6 Jul 2021 08:18:08 -0400
+        by vger.kernel.org with ESMTP id S241564AbhGFMUs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jul 2021 08:20:48 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 166CDXoT071057;
+        Tue, 6 Jul 2021 08:18:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=2sg6cU1z0ZZtwBi4r6u+qOT0Hll+XoyJ57Awdhl5O8I=;
- b=tHz8CL4/mJZTexC4WjEqXKg7VFKlQisXV8mluQxmSAz+U+Ol+9yR6CpWXFF9D/HVv2Wv
- QNw5vTfl1eQQQx7lFZ7a2x7mArmRkTRDPVKLaJ2Gz9R9vSCzapgqG/ulkR8uXdpEUrdo
- 6WHhCBPHCqFZqxfF86Siq30un3pEDwPswqYNFjRMnOz//pBEQcEhMt/BDZ279pqScl+c
- e2nRrV2T6iJwn3i36V4NGny8CPsDlFNYeZ4ET1PVtV0UEogD1Eb1+MW4jSnbEF9tW9E1
- YXfbK7YfniEOD0OoXg6PeyMuLzeOYBIlJ+j8J3g39K+maP2RtWEyIdIQc9ejWFtAlfge wQ== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=wml/Ty3GU8DrIDTCK3W1dd71JtbURo9gM1vGjidVhFY=;
+ b=iqzBVZ8IR3q5E16jkH6o5Ha5TOUCl+qzs88akVMZa4eFL7U1JNEuPgg7sx50An8NpofA
+ KH11iBSNNCbrylbl5Tv67tbo5Tc7vzVj7ZEvIkSqBCxHTWvSklyv6BFYNdanQxQQ0F3O
+ lsUhI8zY5xuJ/eSIzqbQ1+CHnFUvnObJXBu5qekVvgU4IJlhExhcLeVi3UdRi5OFnKFM
+ G0TW35iRjC1/Y4SonXZdgnggwq5QPPwzdktKajy6gcquKcqg4gvhRBnpGllxIF7C/HYR
+ mkSZEYATSo+4uEoXcvRMjQGJLk1WirD+MTza/KuGbktKmDgE7ZBUAqAxkEsjgpzC37BS +g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39m5q1r99v-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39mq0604x8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Jul 2021 08:18:08 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 166C9lAb196463;
-        Tue, 6 Jul 2021 08:18:08 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39m5q1r98h-1
+        Tue, 06 Jul 2021 08:18:09 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 166CE9SB074993;
+        Tue, 6 Jul 2021 08:18:09 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39mq0604vs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Jul 2021 08:18:08 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 166C2imK003604;
-        Tue, 6 Jul 2021 12:18:05 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 39jfh8s863-1
+        Tue, 06 Jul 2021 08:18:09 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 166C2vTY026212;
+        Tue, 6 Jul 2021 12:18:06 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 39jfh8s87a-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Jul 2021 12:18:05 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 166CI3xw31916434
+        Tue, 06 Jul 2021 12:18:06 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 166CI4cb27459872
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 6 Jul 2021 12:18:03 GMT
+        Tue, 6 Jul 2021 12:18:04 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6845242054;
-        Tue,  6 Jul 2021 12:18:03 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 21CA242042;
+        Tue,  6 Jul 2021 12:18:04 +0000 (GMT)
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 17B2542070;
+        by IMSVA (Postfix) with ESMTP id D22C242057;
         Tue,  6 Jul 2021 12:18:03 +0000 (GMT)
 Received: from t46lp67.lnxne.boe (unknown [9.152.108.100])
         by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
@@ -65,47 +66,63 @@ From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, thuth@redhat.com, cohuck@redhat.com
-Subject: [kvm-unit-tests PATCH v2 0/5] s390x: sie and uv cleanups
-Date:   Tue,  6 Jul 2021 12:17:52 +0000
-Message-Id: <20210706121757.24070-1-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 2/5] s390x: sie: Fix sie.h integer types
+Date:   Tue,  6 Jul 2021 12:17:54 +0000
+Message-Id: <20210706121757.24070-3-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210706121757.24070-1-frankja@linux.ibm.com>
+References: <20210706121757.24070-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2lM2rv8YFqP7hJ79fzAOAtFLWTmQxMb7
-X-Proofpoint-GUID: UgKYYVDmyUSI45gQoKDlqVcjkvF-feEE
+X-Proofpoint-GUID: pA62HQ19o8Ualmk4EWfoDQCAWuHS6sKp
+X-Proofpoint-ORIG-GUID: 2-wMgoMeNkVVMPwXN_eiI3p1nUHMnGet
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-07-06_06:2021-07-02,2021-07-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- bulkscore=0 clxscore=1015 impostorscore=0 priorityscore=1501 spamscore=0
- suspectscore=0 mlxlogscore=641 lowpriorityscore=0 adultscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107060060
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ spamscore=0 lowpriorityscore=0 impostorscore=0 malwarescore=0 bulkscore=0
+ clxscore=1015 mlxscore=0 phishscore=0 mlxlogscore=999 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2107060060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The UV and SIE additions brought in some minor problems which I want
-to address now.
+Let's only use the uint*_t types.
 
-v2:
-	* Dropped UV int type patch
-	* Fixed uv_query reserved field name
-	* Fixed sie info print if
-	* Added patch to remove an old print in the pgm handler
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+---
+ lib/s390x/sie.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Janosch Frank (5):
-  s390x: sie: Add missing includes
-  s390x: sie: Fix sie.h integer types
-  lib: s390x: uv: Add offset comments to uv_query and extend it
-  lib: s390x: Print if a pgm happened while in SIE
-  lib: s390x: Remove left behing PGM report
-
- lib/s390x/asm/uv.h    | 33 +++++++++++++++++----------------
- lib/s390x/interrupt.c | 14 ++++++++------
- lib/s390x/sie.h       | 11 +++++++----
- 3 files changed, 32 insertions(+), 26 deletions(-)
-
+diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+index b4bb78c..6ba858a 100644
+--- a/lib/s390x/sie.h
++++ b/lib/s390x/sie.h
+@@ -173,9 +173,9 @@ struct kvm_s390_sie_block {
+ } __attribute__((packed));
+ 
+ struct vm_save_regs {
+-	u64 grs[16];
+-	u64 fprs[16];
+-	u32 fpc;
++	uint64_t grs[16];
++	uint64_t fprs[16];
++	uint32_t fpc;
+ };
+ 
+ /* We might be able to nestle all of this into the stack frame. But
+@@ -191,7 +191,7 @@ struct vm {
+ 	struct kvm_s390_sie_block *sblk;
+ 	struct vm_save_area save_area;
+ 	/* Ptr to first guest page */
+-	u8 *guest_mem;
++	uint8_t *guest_mem;
+ };
+ 
+ extern void sie_entry(void);
 -- 
 2.30.2
 
