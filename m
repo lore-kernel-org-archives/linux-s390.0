@@ -2,177 +2,159 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E016CC07E95
-	for <linux-s390@archiver.kernel.org>; Wed,  7 Jul 2021 12:59:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 838BEC07E95
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Jul 2021 14:03:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C96AD61CB9
-	for <linux-s390@archiver.kernel.org>; Wed,  7 Jul 2021 12:59:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 65BA661C92
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Jul 2021 14:03:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231572AbhGGNCC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 7 Jul 2021 09:02:02 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42262 "EHLO
+        id S231893AbhGGOGP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 7 Jul 2021 10:06:15 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10540 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229757AbhGGNCB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Jul 2021 09:02:01 -0400
+        by vger.kernel.org with ESMTP id S231357AbhGGOGO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Jul 2021 10:06:14 -0400
 Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 167Caola031070;
-        Wed, 7 Jul 2021 08:59:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Hu5JvV0RcwAGjdNlvIsxDjA827gyXbQEAkt5ntYd2H0=;
- b=eagdbECAXL0NwIvY6ibWscKSuH4hCvYEzeypG/xlb1XMEUSJ8GR7O/RxNZAFqRudD4Wq
- 5S2iA8xZJiBY0Y0E/puoxDrYtWMQrrNLExdJulgIIp44Lj1NO+MsXvHhlTPDVqs81p4t
- EDkypU5ER5sD0jEdKlorm2t+bwIXpQ0BGiSej4IlPBBtVqFRQV8MZJtPS+OP6Zz7qPnm
- 7GGmBibeBTQ1U200v1U4vEgA+cltTBAFxFEltW33iz/2gwmBWT/7VZhGs75PEkgItUHg
- ec7eQvwZL8Kl6l5ajZvIvOLlMZSST4cQigmFsspU9ZValHpFUQVtkjSfKUIfzQkBHSA7 oQ== 
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 167DYD7i092280;
+        Wed, 7 Jul 2021 10:03:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=4QVl43MCG/SpLaVeNLAJrrJyRbVZ2yV6iiZIupc2gAs=;
+ b=qXcCB8zP0CTipCVII8gz47s9cgMZ65VcRPPWV9JHROGvJ6NOJKiF1TaadvHZoXThOZS/
+ XKd77stVocHySwXFYI55Cb6Kd7xataGQoahdAA1LoRG7Z9FSRbCFhdpZNE5s5KSIGMUg
+ 2BlrGkvQzhNOxuUXygmByR05c0/h6rMJtMLqb1ubAtq+YEQcOY5j6mRoskZ8Z7Mk181I
+ IHy7P617vtyOaVWL7vdrauFYmBjI9bsL3xYT8ZiVwdBnqMoEWVtBpFjuJwcur3ZqExLl
+ cz8MVp0ML82hAbjSj3xOOViifVLvp82qodmv5e7Ak11leXAgQ5EY7RGda9ryjhrpyeCK mw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 39m8xttevu-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39m8xtv8r9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Jul 2021 08:59:20 -0400
+        Wed, 07 Jul 2021 10:03:33 -0400
 Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 167CariR031283;
-        Wed, 7 Jul 2021 08:59:20 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 39m8xttev7-1
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 167DZMa7098632;
+        Wed, 7 Jul 2021 10:03:33 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39m8xtv8qp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Jul 2021 08:59:20 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 167Cx6kx017019;
-        Wed, 7 Jul 2021 12:59:18 GMT
+        Wed, 07 Jul 2021 10:03:33 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 167E2eNS005320;
+        Wed, 7 Jul 2021 14:03:31 GMT
 Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 39jfh8srrk-1
+        by ppma06ams.nl.ibm.com with ESMTP id 39jf5h9sn0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 07 Jul 2021 12:59:18 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 167CvNIp31588686
+        Wed, 07 Jul 2021 14:03:31 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 167E1aPU28639570
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 7 Jul 2021 12:57:23 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 683C411C05E;
-        Wed,  7 Jul 2021 12:59:15 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 97DF811C05C;
-        Wed,  7 Jul 2021 12:59:14 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.89.68])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  7 Jul 2021 12:59:14 +0000 (GMT)
-Subject: Re: [PATCH v2] KVM: s390: Enable specification exception
- interpretation
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20210707120745.531571-1-scgl@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <1714920e-7e18-9cab-9a5d-15888b70f8ba@de.ibm.com>
-Date:   Wed, 7 Jul 2021 14:59:13 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        Wed, 7 Jul 2021 14:01:36 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 44261A4051;
+        Wed,  7 Jul 2021 14:03:28 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C0FE1A4040;
+        Wed,  7 Jul 2021 14:03:27 +0000 (GMT)
+Received: from localhost.localdomain.com (unknown [9.145.29.241])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  7 Jul 2021 14:03:27 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     pbonzini@redhat.com
+Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com
+Subject: [kvm-unit-tests GIT PULL 2/8] s390x: snippets: Add snippet compilation
+Date:   Wed,  7 Jul 2021 16:03:12 +0200
+Message-Id: <20210707140318.44255-3-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210707140318.44255-1-frankja@linux.ibm.com>
+References: <20210707140318.44255-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20210707120745.531571-1-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: hghc_jylCkHw_Yq3zKGXtVIM5szRGdaX
-X-Proofpoint-GUID: HXFIOsWbfT9L-elcAD7E1ttE9RBAf5TD
+X-Proofpoint-ORIG-GUID: BBiUp3ml5z8RgDrJu7SZ-sefIcRdEJie
+X-Proofpoint-GUID: yN1f41g7EZ4oLTumzaozXXLdAXe3G1rV
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-07-07_06:2021-07-06,2021-07-07 signatures=0
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
  malwarescore=0 phishscore=0 priorityscore=1501 spamscore=0 impostorscore=0
  mlxlogscore=999 suspectscore=0 lowpriorityscore=0 mlxscore=0 bulkscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2107070075
+ definitions=main-2107070081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+From: Steffen Eiden <seiden@linux.ibm.com>
 
+This patch provides the necessary make targets to properly compile
+snippets and link them into their associated host.
 
-On 07.07.21 14:07, Janis Schoetterl-Glausch wrote:
-> When this feature is enabled the hardware is free to interpret
-> specification exceptions generated by the guest, instead of causing
-> program interruption interceptions, but it is not required to.
-> There is no indication if this feature is available or not,
-> so we can simply set this bit and if the hardware ignores it
-> we fall back to intercept 8 handling.
-> The same applies to vSIE, we forward the guest hypervisor's bit
-> and fall back to injection if interpretation does not occur.
-> 
-> This benefits (test) programs that generate a lot of specification
-> exceptions (roughly 4x increase in exceptions/sec).
-> 
-> Interceptions will occur as before if ICTL_PINT is set,
-> i.e. if guest debug is enabled.
-> A specification exception detected on the program new PSW
-> will also always cause an interception.
-> 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> Reviewed-by: David Hildenbrand <david@redhat.com>
-> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+To define the guest-host definition, we use the make-feature
+`SECONDEXPANSION` in combination with `Target specific Variable
+Values`. The variable `snippets` has different values depending on the
+current target. This enables us to define which snippets (=guests)
+belong to which hosts. Furthermore, using the second-expansion, we can
+use `snippets` in the perquisites of the host's `%.elf` rule, which
+otherwise would be not set.
 
-Thanks, applied.
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+Acked-by: Thomas Huth <thuth@redhat.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ s390x/Makefile | 27 +++++++++++++++++++++------
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
-> ---
-> v1 -> v2
-> 	Rephrase commit message
-> 	Add comment about opting into interpretation
-> 
->   arch/s390/include/asm/kvm_host.h | 1 +
->   arch/s390/kvm/kvm-s390.c         | 5 +++++
->   arch/s390/kvm/vsie.c             | 2 ++
->   3 files changed, 8 insertions(+)
-> 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 9b4473f76e56..3a5b5084cdbe 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -244,6 +244,7 @@ struct kvm_s390_sie_block {
->   	__u8	fpf;			/* 0x0060 */
->   #define ECB_GS		0x40
->   #define ECB_TE		0x10
-> +#define ECB_SPECI	0x08
->   #define ECB_SRSI	0x04
->   #define ECB_HOSTPROTINT	0x02
->   	__u8	ecb;			/* 0x0061 */
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index b655a7d82bf0..7675b72a3ddf 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -3200,6 +3200,11 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
->   		vcpu->arch.sie_block->ecb |= ECB_SRSI;
->   	if (test_kvm_facility(vcpu->kvm, 73))
->   		vcpu->arch.sie_block->ecb |= ECB_TE;
-> +	/* no facility bit, can opt in because we do not need
-> +	 * to observe specification exception intercepts
-> +	 */
-> +	if (!kvm_is_ucontrol(vcpu->kvm))
-> +		vcpu->arch.sie_block->ecb |= ECB_SPECI;
->   
->   	if (test_kvm_facility(vcpu->kvm, 8) && vcpu->kvm->arch.use_pfmfi)
->   		vcpu->arch.sie_block->ecb2 |= ECB2_PFMFI;
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 4002a24bc43a..acda4b6fc851 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -510,6 +510,8 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->   			prefix_unmapped(vsie_page);
->   		scb_s->ecb |= ECB_TE;
->   	}
-> +	/* specification exception interpretation */
-> +	scb_s->ecb |= scb_o->ecb & ECB_SPECI;
->   	/* branch prediction */
->   	if (test_kvm_facility(vcpu->kvm, 82))
->   		scb_s->fpf |= scb_o->fpf & FPF_BPBC;
-> 
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 8820e998..ba32f4c2 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -76,11 +76,26 @@ OBJDIRS += lib/s390x
+ asmlib = $(TEST_DIR)/cstart64.o $(TEST_DIR)/cpu.o
+ 
+ FLATLIBS = $(libcflat)
+-%.elf: %.o $(FLATLIBS) $(SRCDIR)/s390x/flat.lds $(asmlib)
+-	$(CC) $(CFLAGS) -c -o $(@:.elf=.aux.o) \
+-		$(SRCDIR)/lib/auxinfo.c -DPROGNAME=\"$@\"
+-	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/flat.lds \
+-		$(filter %.o, $^) $(FLATLIBS) $(@:.elf=.aux.o)
++
++SNIPPET_DIR = $(TEST_DIR)/snippets
++snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
++
++# perquisites (=guests) for the snippet hosts.
++# $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
++
++$(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o $(FLATLIBS)
++	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
++	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
++
++$(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_asmlib) $(FLATLIBS)
++	$(CC) $(LDFLAGS) -o $@ -T $(SNIPPET_DIR)/c/flat.lds $(patsubst %.gbin,%.o,$@) $(snippet_asmlib) $(FLATLIBS)
++	$(OBJCOPY) -O binary $@ $@
++	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
++
++.SECONDEXPANSION:
++%.elf: $$(snippets) %.o $(FLATLIBS) $(SRCDIR)/s390x/flat.lds $(asmlib)
++	$(CC) $(CFLAGS) -c -o $(@:.elf=.aux.o) $(SRCDIR)/lib/auxinfo.c -DPROGNAME=\"$@\"
++	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/flat.lds $(filter %.o, $^) $(FLATLIBS) $(snippets) $(@:.elf=.aux.o)
+ 	$(RM) $(@:.elf=.aux.o)
+ 	@chmod a-x $@
+ 
+@@ -94,7 +109,7 @@ FLATLIBS = $(libcflat)
+ 	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT) --no-verify --image $< -o $@
+ 
+ arch_clean: asm_offsets_clean
+-	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(TEST_DIR)/.*.d lib/s390x/.*.d
++	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(TEST_DIR)/.*.d $(SNIPPET_DIR)/c/*.{o,gbin} $(SNIPPET_DIR)/c/.*.d lib/s390x/.*.d
+ 
+ generated-files = $(asm-offsets)
+ $(tests:.elf=.o) $(asmlib) $(cflatobjs): $(generated-files)
+-- 
+2.31.1
+
