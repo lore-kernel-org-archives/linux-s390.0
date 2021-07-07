@@ -2,136 +2,246 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8025FC07E96
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 22:43:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45BE6C07E9B
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Jul 2021 04:50:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66FA161CA7
-	for <linux-s390@archiver.kernel.org>; Tue,  6 Jul 2021 22:43:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 30E2761CB6
+	for <linux-s390@archiver.kernel.org>; Wed,  7 Jul 2021 04:50:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229935AbhGFWqX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 6 Jul 2021 18:46:23 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33486 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229753AbhGFWqW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Jul 2021 18:46:22 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 166MY5Cp039007;
-        Tue, 6 Jul 2021 18:43:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=MTLF/iktgurESX2nGHjEtGHHzr6BAtGzZtB5nv43H5U=;
- b=g5tWmnfiW2NOO90R3HvhtmDIslLUuuxKAi+Njg+8bE0YSvo1nJ+ORaaVoUV0FU3vKwXY
- C5zwT4hZidemFMu3M4ajnHw6bJbWoi3UriZaXPVo7xpK6PDMMvcBmdZumk9rfOJpAd10
- Pe2vwvRchpMH6lwCcBnF+7wzN+zlzsqDG9kkMRPLiMdfXBCdIsErj6Ko3KXr/gh9ZIPi
- JjZO6hhg1oeAYrmbpAXCQhGDH08SJP7M8h8eUejtyAphyGYZZ9Z5IxXqg2Pyp9yu3Z4D
- GyGWOmeeM6z+0fJGDsBUdwiWV5sRmbnRblIlClWUM6cxMzqTw9O8VQCtwsF0nhRQtOVf 5A== 
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39mts004dt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Jul 2021 18:43:42 -0400
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 166MbqVN024231;
-        Tue, 6 Jul 2021 22:43:41 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma04dal.us.ibm.com with ESMTP id 39jfhcd36x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Jul 2021 22:43:41 +0000
-Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 166MheMs44499414
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 6 Jul 2021 22:43:40 GMT
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 66D83B2066;
-        Tue,  6 Jul 2021 22:43:40 +0000 (GMT)
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2361CB2068;
-        Tue,  6 Jul 2021 22:43:40 +0000 (GMT)
-Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.163.230])
-        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue,  6 Jul 2021 22:43:40 +0000 (GMT)
-Subject: Re: [PATCH] s390/vfio-ap: do not use open locks during
- VFIO_GROUP_NOTIFY_SET_KVM notification
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, pasic@linux.vnet.ibm.com,
-        jjherne@linux.ibm.com
-References: <20210625220758.80365-1-akrowiak@linux.ibm.com>
- <20210628222923.21a257c8.pasic@linux.ibm.com>
- <25edecce-0795-3b00-a155-bfcc8499f1be@linux.ibm.com>
- <20210701003941.685c524c.pasic@linux.ibm.com>
- <8b742188-d8a2-cf4e-e9de-0ca6f3d829b3@linux.ibm.com>
- <20210705141348.GN4459@nvidia.com>
- <11025fe5-0751-b7ab-9250-b21c10382edd@linux.ibm.com>
- <20210706134939.GX4459@nvidia.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <f958be51-a5fd-a755-f1de-a580f9ccbace@linux.ibm.com>
-Date:   Tue, 6 Jul 2021 18:43:39 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
-MIME-Version: 1.0
-In-Reply-To: <20210706134939.GX4459@nvidia.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        id S230195AbhGGEx3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 7 Jul 2021 00:53:29 -0400
+Received: from mail-am6eur05on2056.outbound.protection.outlook.com ([40.107.22.56]:38506
+        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229989AbhGGEx2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 7 Jul 2021 00:53:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=armh.onmicrosoft.com;
+ s=selector2-armh-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7CF1slwiDkalXwfRs1Z8DupZBNxhfZEd2qyoS2z0zW4=;
+ b=xqxa0gvPIk0LcI7QIdZYGSpZhv8mQchDIApQ+UuLN12TuNA2qSEiDBztst2fXQHIbRb2ZT5DOUSwHag0TVnutNeMnblBUolqrTpnj0wtJoEdry/dAx/l4d2n/FZaMkbDyJtqozO4v2XougWm69y5d+vaHwuSZwzckImiqprju5c=
+Received: from DB6P193CA0021.EURP193.PROD.OUTLOOK.COM (2603:10a6:6:29::31) by
+ AM6PR08MB3735.eurprd08.prod.outlook.com (2603:10a6:20b:81::17) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4287.23; Wed, 7 Jul 2021 04:50:47 +0000
+Received: from DB5EUR03FT018.eop-EUR03.prod.protection.outlook.com
+ (2603:10a6:6:29:cafe::ac) by DB6P193CA0021.outlook.office365.com
+ (2603:10a6:6:29::31) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.20 via Frontend
+ Transport; Wed, 7 Jul 2021 04:50:47 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 63.35.35.123)
+ smtp.mailfrom=arm.com; vger.kernel.org; dkim=pass (signature was verified)
+ header.d=armh.onmicrosoft.com;vger.kernel.org; dmarc=pass action=none
+ header.from=arm.com;
+Received-SPF: Pass (protection.outlook.com: domain of arm.com designates
+ 63.35.35.123 as permitted sender) receiver=protection.outlook.com;
+ client-ip=63.35.35.123; helo=64aa7808-outbound-1.mta.getcheckrecipient.com;
+Received: from 64aa7808-outbound-1.mta.getcheckrecipient.com (63.35.35.123) by
+ DB5EUR03FT018.mail.protection.outlook.com (10.152.20.69) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4308.20 via Frontend Transport; Wed, 7 Jul 2021 04:50:46 +0000
+Received: ("Tessian outbound c836dc7aad98:v97"); Wed, 07 Jul 2021 04:50:46 +0000
+X-CR-MTA-TID: 64aa7808
+Received: from e0d2e8363e55.1
+        by 64aa7808-outbound-1.mta.getcheckrecipient.com id 1B6FAC8B-B3D3-4D9D-881A-D636123C7AE1.1;
+        Wed, 07 Jul 2021 04:50:39 +0000
+Received: from EUR05-DB8-obe.outbound.protection.outlook.com
+    by 64aa7808-outbound-1.mta.getcheckrecipient.com with ESMTPS id e0d2e8363e55.1
+    (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384);
+    Wed, 07 Jul 2021 04:50:39 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Iu0mnAR9P6johRMQ3/8CU/fTdI5v8V3nG3DKocLF5AcDCwGljkgmNIi2Vfod+qlGbqszVdNAcQ/4T6A9t1ygkvUpgV0qyWQCt7qAPmP1y7vubk6dRQIFhH2BhVz6Tbvip4KkpYp2RHglt3lLLZjXd1KRbskX9iUsVd7KiTAyTh0gG24o3uif4m9Z+/vtHEgdHV6NJL5MCQajKZT/eIeUsUd19ool7W0tPIvw6nsvbbSPKjx4Jdmj2UcCcv0FV32xi603Ur6ZddHw1BftmIF+rlSygjnNaIHfeTCU4eMLCINXeOHaQy8HmtSWhxrdpmMzjnRWzBvkUhZN6mXDwtoKLQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7CF1slwiDkalXwfRs1Z8DupZBNxhfZEd2qyoS2z0zW4=;
+ b=aym2OPbi1+8gYA/8i0MOrNK1s56d4fGOBJO7GlYoJOBGyRavdHCa8Ys/zZq7Kx+sjJ3RlbBOMCRapaGmUtFZhbEvSnspP/x0tppo+hTafNoezEFsxqFRaoQtmRv8XDfEbIfUEWcN0GhQ/fGE2EovL0sRHaxrSHcehUGhHX5yrvpVNxgB7KJM9rSil7B1hfXb0yV0c07Uk+wg1ijif+VYox6YLsH6G+jHGvfAdfVTHBOgMUfxwBwdBOZuG0UsyXIknasIfFU1rXPGJiWuyO3Q96LvZDM7XR0sjfGHWzCXXBnMQ0O+Q0ejy1hhSI76Xf1TAYFlCPZASglEZm4OkYt2ww==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=arm.com; dmarc=pass action=none header.from=arm.com; dkim=pass
+ header.d=arm.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=armh.onmicrosoft.com;
+ s=selector2-armh-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7CF1slwiDkalXwfRs1Z8DupZBNxhfZEd2qyoS2z0zW4=;
+ b=xqxa0gvPIk0LcI7QIdZYGSpZhv8mQchDIApQ+UuLN12TuNA2qSEiDBztst2fXQHIbRb2ZT5DOUSwHag0TVnutNeMnblBUolqrTpnj0wtJoEdry/dAx/l4d2n/FZaMkbDyJtqozO4v2XougWm69y5d+vaHwuSZwzckImiqprju5c=
+Received: from AM6PR08MB4376.eurprd08.prod.outlook.com (2603:10a6:20b:bb::21)
+ by AS8PR08MB6994.eurprd08.prod.outlook.com (2603:10a6:20b:34c::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.20; Wed, 7 Jul
+ 2021 04:50:30 +0000
+Received: from AM6PR08MB4376.eurprd08.prod.outlook.com
+ ([fe80::3452:c711:d09a:d8a1]) by AM6PR08MB4376.eurprd08.prod.outlook.com
+ ([fe80::3452:c711:d09a:d8a1%5]) with mapi id 15.20.4287.033; Wed, 7 Jul 2021
+ 04:50:30 +0000
+From:   Justin He <Justin.He@arm.com>
+To:     Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+CC:     Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Eric Biggers <ebiggers@google.com>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: RE: [PATCH 03/14] d_path: regularize handling of root dentry in
+ __dentry_path()
+Thread-Topic: [PATCH 03/14] d_path: regularize handling of root dentry in
+ __dentry_path()
+Thread-Index: AQHXTEjIzjkc7s5AukulO5MhE2mNX6s3PmiA
+Date:   Wed, 7 Jul 2021 04:50:30 +0000
+Message-ID: <AM6PR08MB43768C8B3857136097ACAAFDF71A9@AM6PR08MB4376.eurprd08.prod.outlook.com>
+References: <YKRfI29BBnC255Vp@zeniv-ca.linux.org.uk>
+ <20210519004901.3829541-1-viro@zeniv.linux.org.uk>
+ <20210519004901.3829541-3-viro@zeniv.linux.org.uk>
+In-Reply-To: <20210519004901.3829541-3-viro@zeniv.linux.org.uk>
+Accept-Language: en-US, zh-CN
 Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3Vm9dF-9DIevD65to1lZ8T0qNlDddDuV
-X-Proofpoint-GUID: 3Vm9dF-9DIevD65to1lZ8T0qNlDddDuV
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-06_13:2021-07-06,2021-07-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- lowpriorityscore=0 spamscore=0 bulkscore=0 mlxlogscore=999 malwarescore=0
- phishscore=0 priorityscore=1501 clxscore=1015 adultscore=0 impostorscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107060106
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ts-tracking-id: AFC7988C2CEEC74C9236971C6538A288.0
+x-checkrecipientchecked: true
+Authentication-Results-Original: zeniv.linux.org.uk; dkim=none (message not
+ signed) header.d=none;zeniv.linux.org.uk; dmarc=none action=none
+ header.from=arm.com;
+x-ms-publictraffictype: Email
+X-MS-Office365-Filtering-Correlation-Id: 17aa982e-cf98-43fe-2e6a-08d94102c935
+x-ms-traffictypediagnostic: AS8PR08MB6994:|AM6PR08MB3735:
+X-Microsoft-Antispam-PRVS: <AM6PR08MB37355AB73007507BE544EAEAF71A9@AM6PR08MB3735.eurprd08.prod.outlook.com>
+x-checkrecipientrouted: true
+nodisclaimer: true
+x-ms-oob-tlc-oobclassifiers: OLM:7219;OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam-Untrusted: BCL:0;
+X-Microsoft-Antispam-Message-Info-Original: S2yO+YCOiccRADhtR32gDATOnyjPccvlYohQJjLgl4uHM2poIaVKhqWruPlMDc2ixnLWlw1zi+QUqZh6GFGyOah3px1afzT51h+1uZ3wvYd+76nDYXk6PEyPN/vyN9y+EAXIaKn9eMX8Ma/tzpAFRhMxTNaH7zrXE/zVkLPz3pxaWo5qo/R2NPFI4m9HT7DeowV9ZnnkHxD5VtqMUQRw7OqRAQahkMUIL2fNPosfAXF2HQMvXp/HLjlndxtVallyfwNBIxr8TyIC20AMtZsB9RUkzlZr1yQyBaD2Z0GZj1A5W4nBe3BTxceV1F7EjPZBUA53fUGrJIp2I/80wArUJIY6C+NCJ6VoWb3eTWyd9hfk6/2evAeI7ZG4iiKEmD4Xw7670CBY2OISosP95ZQyQ25utau8MTW5vGi1W+R3SXUsHCmwwfY0V+HU3+8xw/hmoU5oXwwZOVFWRh3XhaqtorKe6GDiO6tNI9u3C7MZ7usSW6h/iIvqWkPUqKbsaiaV6juShTxEeLxNmM426icXsuGH/rscrAFg5WXLIu9tYrYQOFDWg5H2fsMlAxr1MTHHMUc26osph6KhPJRAK5EPftrElbEBQS+1XNFFmYQqwFAvgt8R7foSldwyV4ac5gFAdnK3mvqR/XC71Kh0UyAXZw==
+X-Forefront-Antispam-Report-Untrusted: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM6PR08MB4376.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(39850400004)(136003)(366004)(376002)(346002)(53546011)(66946007)(66476007)(6506007)(52536014)(76116006)(83380400001)(38100700002)(26005)(66446008)(86362001)(66556008)(64756008)(186003)(9686003)(110136005)(122000001)(478600001)(316002)(54906003)(4326008)(7696005)(8676002)(2906002)(7416002)(71200400001)(33656002)(5660300002)(8936002)(55016002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?CCZ8quxOzeNJFfnZM4pILfvHv8hxUSxsYmGqwRjMjtgm0fjgWp1dESRwSX29?=
+ =?us-ascii?Q?023E/o4rRbnbTFk5nFX9qFAt79zbDi8vDNe7xjT7oP9ULNm3u5O84OPSIeGG?=
+ =?us-ascii?Q?x0LBMv4RuSzXwSo7O+c8acJGG/+JNS2cBR4WGdOHwaWM+fJcvDQc5qkZlVbI?=
+ =?us-ascii?Q?DgZWEM1HBVMCrR4L4oykPSPxQJkzTnAvtr3vAuqPFoSXxW5Pl7Jetd0m5UqJ?=
+ =?us-ascii?Q?P5ibGQ5oVJRmvbxebkYWT4PmsqMnENhEKmqKqdD9oY9+dG8gm/5KECciBylM?=
+ =?us-ascii?Q?B2NaYylY7GtYpBOyy1K0F13sR2PgiRcqt2j/RvzQsu2QMALudzjbjMCW4bvJ?=
+ =?us-ascii?Q?4X+3/AvVVX6hWcRax6GxR82VV+1vIJg5Vh4JYT+ChUr6/49ulFKS0sW2Iuzr?=
+ =?us-ascii?Q?xSfNzN/JQExo65SPGo2/ORzjyYycdgtBg9kVmwBljUpK1wTacAoAfB/xBA5C?=
+ =?us-ascii?Q?PNnUxV+cNTaRAz+PBs3wCeV+C3907wd/y8bKAVioLdVevQKB7T0NXuBuims5?=
+ =?us-ascii?Q?xD4H7GITDqDlu3lCjE1mLbQvYcFSsMbJHjpH5IcOLhMLCOcTYaTFFrwA/QJF?=
+ =?us-ascii?Q?Bfk8qwHHsO7w5oWWJIkejIuweYXuTA/Qu683+2dzNTT3X61zxLkeqS4/UxDE?=
+ =?us-ascii?Q?io7iVPIbNMt9qPWCz+SrDJmyJBM95BsvikiJo44R7YPi1ApRT/kpYjKblFmp?=
+ =?us-ascii?Q?Okag5lZFGJ+697zjEtsQbVP9N5+/gi+snf56QjcI1+Cxy1Kghhem0Gf2gJxS?=
+ =?us-ascii?Q?n9ynVjGXeLkFZFd1p2WSv9crt4aK0oDD+4qHWhIUjosmclmXDP0XAijvqOdF?=
+ =?us-ascii?Q?sqezaSvz1pOCIfN46IeXvRuhnqEmTllq/d02hWHjW6nfeFcmvGwVJu58mW9o?=
+ =?us-ascii?Q?6K64kpy6DnHVYJPcg+IPeHyIzSCaclzxiu7/LiuxQhKXS0B/iyi5XVb8E0R7?=
+ =?us-ascii?Q?5gEyMqYU76KaRkt5NEXIAgXBdqfTqFWvVtmpt3mEo/H9PLN3B7z2G6fSCuui?=
+ =?us-ascii?Q?m0mNc6MarfOvknhB3+Pr7e8xnUSzvA6UJNNV9EzL/LmytduqcK9G/N3mDojL?=
+ =?us-ascii?Q?azv9+0CVqAmf7KgofcdB6GfKree23P07namTgvwzh0pVGDTcBAjls3RWYGH8?=
+ =?us-ascii?Q?RPf4iLnFudp/U2AcIBZsZQfqFqZmYNiwU/97EAavNvP370Vw3WRbvy5ljiDB?=
+ =?us-ascii?Q?+2dBWqjWkrL6p81ybk28RHEkId85pqvhmlHAW1H2a33vNNoy6bhE8pAnKNf1?=
+ =?us-ascii?Q?jrilfb4+FD6FIr8RPRAZ/hepdyBT+VruHVpHrNA//UDsFiI7hLBqStgXFoGn?=
+ =?us-ascii?Q?t6R7AZWOUiMIOCoAzPwCClma?=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR08MB6994
+Original-Authentication-Results: zeniv.linux.org.uk; dkim=none (message not signed)
+ header.d=none;zeniv.linux.org.uk; dmarc=none action=none header.from=arm.com;
+X-EOPAttributedMessage: 0
+X-MS-Exchange-Transport-CrossTenantHeadersStripped: DB5EUR03FT018.eop-EUR03.prod.protection.outlook.com
+X-MS-Office365-Filtering-Correlation-Id-Prvs: b2db6d39-3056-40be-9c73-08d94102bf7c
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Civy3l5ql/MGXmImmtMMnuohGE8U/qcwpPq/KErY5vBQpAwG2+tkcYVSVcAY7ADx5mGitlhxE/hl/5tSWzZzZpW4bR/XkVOdrlfB/1jEtxUB3ksTNuaf2ihYzov4DoM5WT+EWQkSIxqO9tUl5B7m+o6x0+3l9B+GOuyilIx1gPhRg2FqY8wpmIqB0yyb6E769Hhdigew0l8/TIcd195Uh58DW/iSH/xqVdMV6KBC3H1GluILfyeMzJK1TiYQrO6uFs0fZ9rmRuN3V8D4pluVowO7o/vFE+Qhq9qyT4sHwLhYw4T0BLc35/P2eBvPuS9FjYjhRAMYcjssK9x4G2nqUWdpyQ4qTYV8Sz0j1pMCTDIB0p5XXTGnF6cOHUw5KwfW4cHcMFCuz9UjPYKn6O5AVSuSqHVU2Fbqi8mBgA6zfzE2j1QzytmU4gIErnPYyn0r8RgcOxtZn3YFtRjR2GrJdZ9z3tnMHQES9E0zFZpaS6xbNBkNtEu0wH6EY8LACgHBWxMsB95xZjkeAMWOvZpyMgsC0GkIjiZsQEwVzMuHt6sva/oF/jOQT6pMkmMSRsvU7LxAvoM6zjoiyqOOWT1AWkIcykJ6SdtiZvJ0Jq3WOW0G7QK5R/nLwp0NVGW2w93b4zQvs89nVRcCUSl4t+S3jIw6POR3szAIfsda95SBmEQEXydu7G0YQkGUoXJA5HRa+CnjOExsICRBbVe5UwjtSQ==
+X-Forefront-Antispam-Report: CIP:63.35.35.123;CTRY:IE;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:64aa7808-outbound-1.mta.getcheckrecipient.com;PTR:ec2-63-35-35-123.eu-west-1.compute.amazonaws.com;CAT:NONE;SFS:(4636009)(346002)(39850400004)(376002)(136003)(396003)(46966006)(36840700001)(110136005)(26005)(55016002)(356005)(316002)(53546011)(336012)(478600001)(54906003)(186003)(33656002)(86362001)(70206006)(9686003)(81166007)(82740400003)(6506007)(7696005)(47076005)(8676002)(2906002)(83380400001)(82310400003)(36860700001)(5660300002)(52536014)(4326008)(450100002)(70586007)(8936002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: arm.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jul 2021 04:50:46.9963
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 17aa982e-cf98-43fe-2e6a-08d94102c935
+X-MS-Exchange-CrossTenant-Id: f34e5979-57d9-4aaa-ad4d-b122a662184d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=f34e5979-57d9-4aaa-ad4d-b122a662184d;Ip=[63.35.35.123];Helo=[64aa7808-outbound-1.mta.getcheckrecipient.com]
+X-MS-Exchange-CrossTenant-AuthSource: DB5EUR03FT018.eop-EUR03.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR08MB3735
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 7/6/21 9:49 AM, Jason Gunthorpe wrote:
-> On Tue, Jul 06, 2021 at 09:39:29AM -0400, Tony Krowiak wrote:
->>
->> On 7/5/21 10:13 AM, Jason Gunthorpe wrote:
->>> On Thu, Jul 01, 2021 at 10:28:52AM -0400, Tony Krowiak wrote:
->>>
->>>>> I think Jason was talking about open coding locks in general.
->>>> That may be so, but his comments were in support of his
->>>> statement that the  mutex + wait_queue did not resolve
->>>> the issue reported vai the lockdep splat because it turned
->>>> off lockdep.
->>> Rgiht, if this used to be proper locks and lockdep complained then
->>> whatever potential deadlock it found is not magically removed by going
->>> to a wait_queue. It just removes the lockdep annotations that would
->>> identify the issue early.
->>>
->>> This is why people should not open code locks, it completely defeats
->>> lockdep. That alone is merit enough for this patch.
->> When you use the phrase "open code locks", to what are you
->> specifically referring? I am confused by the use of the phrase
->> "open code" in this context because open coding, at least as
->> I understand it, has to do with data analysis.
-> "open code" here means you write the algorithm of a standard lock in
-> your own functions instead of calling the standard library.
+> -----Original Message-----
+> From: Al Viro <viro@ftp.linux.org.uk> On Behalf Of Al Viro
+> Sent: Wednesday, May 19, 2021 8:49 AM
+> To: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Justin He <Justin.He@arm.com>; Petr Mladek <pmladek@suse.com>; Steven
+> Rostedt <rostedt@goodmis.org>; Sergey Senozhatsky
+> <senozhatsky@chromium.org>; Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com>; Rasmus Villemoes
+> <linux@rasmusvillemoes.dk>; Jonathan Corbet <corbet@lwn.net>; Heiko
+> Carstens <hca@linux.ibm.com>; Vasily Gorbik <gor@linux.ibm.com>; Christia=
+n
+> Borntraeger <borntraeger@de.ibm.com>; Eric W . Biederman
+> <ebiederm@xmission.com>; Darrick J. Wong <darrick.wong@oracle.com>; Peter
+> Zijlstra (Intel) <peterz@infradead.org>; Ira Weiny <ira.weiny@intel.com>;
+> Eric Biggers <ebiggers@google.com>; Ahmed S. Darwish
+> <a.darwish@linutronix.de>; open list:DOCUMENTATION <linux-
+> doc@vger.kernel.org>; Linux Kernel Mailing List <linux-
+> kernel@vger.kernel.org>; linux-s390 <linux-s390@vger.kernel.org>; linux-
+> fsdevel <linux-fsdevel@vger.kernel.org>
+> Subject: [PATCH 03/14] d_path: regularize handling of root dentry in
+> __dentry_path()
 >
-> Testing/setting the busy and sleeping on a wait_event is exactly a
-> standard lock.
+> All path-forming primitives boil down to sequence of prepend_name()
+> on dentries encountered along the way toward root.  Each time we prepend
+> / + dentry name to the buffer.  Normally that does exactly what we want,
+> but there's a corner case when we don't call prepend_name() at all (in ca=
+se
+> of __dentry_path() that happens if we are given root dentry).  We obvious=
+ly
+> want to end up with "/", rather than "", so this corner case needs to be
+> handled.
 >
-> Ie if I write
+> __dentry_path() used to manually put '/' in the end of buffer before
+> doing anything else, to be overwritten by the first call of prepend_name(=
+)
+> if one happens and to be left in place if we don't call prepend_name() at
+> all.  That required manually checking that we had space in the buffer
+> (prepend_name() and prepend() take care of such checks themselves) and le=
+ad
+> to clumsy keeping track of return value.
 >
->     for (len = 0; str[len] != 0; len++)
->             ;
+> A better approach is to check if the main loop has added anything
+> into the buffer and prepend "/" if it hasn't.  A side benefit of using
+> prepend()
+> is that it does the right thing if we'd already run out of buffer, making
+> the overflow-handling logics simpler.
 >
-> Then I have open coded strlen()
->
-> Jason
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Reviewed-by: Jia He <justin.he@arm.com>
 
-Thanks for the explanation.
+
+--
+Cheers,
+Justin (Jia He)
 
 
+IMPORTANT NOTICE: The contents of this email and any attachments are confid=
+ential and may also be privileged. If you are not the intended recipient, p=
+lease notify the sender immediately and do not disclose the contents to any=
+ other person, use it for any purpose, or store or copy the information in =
+any medium. Thank you.
