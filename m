@@ -2,118 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E72BC07E96
-	for <linux-s390@archiver.kernel.org>; Thu,  8 Jul 2021 14:19:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A729AC07E96
+	for <linux-s390@archiver.kernel.org>; Thu,  8 Jul 2021 17:01:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 09A7561441
-	for <linux-s390@archiver.kernel.org>; Thu,  8 Jul 2021 14:19:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9065761606
+	for <linux-s390@archiver.kernel.org>; Thu,  8 Jul 2021 17:01:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231922AbhGHOWS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 8 Jul 2021 10:22:18 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49876 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229592AbhGHOWS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Jul 2021 10:22:18 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 168E3E8x106215;
-        Thu, 8 Jul 2021 10:19:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=yG5M2Svt3PiyFLv9+HYb6BhSHC4U9BWAtuNV31oNFLA=;
- b=KHos7KKRRuheuVg+LXaQuKxBnxQzR407xBu0LfDxyqLitqwiIGuz4d3tjSTDIBilGvoB
- VoMVaaX7j2dmoYjhHN84w9Yf+XffimwaDKKyI16Y/pTMcVzRNtXNMSqjnjM7PQ/RwLEU
- OE3HyB73Xqe02TS+qsEkVKzjxzREqdSorGrJ0zJ4evlHSDGyjifzLrOXXO+Cdvcr+Yig
- 5oT+S5q/HNHtbYn2z2IGeOos1iHaFpy8DP5dXndLcaZ0VIaUkVtBp5r4Cd8ExPFmP+yZ
- 8LXSO60HjFtyie4BTuSSo1S9v83NLu1ya6SSxLJAV6+VNqAgKxROMTzxqzD3TTQAhRUh Jw== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39p1ybk1k7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 08 Jul 2021 10:19:13 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 168E3Vaw016576;
-        Thu, 8 Jul 2021 14:19:11 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 39jfh8t8pf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 08 Jul 2021 14:19:11 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 168EJ8JT33816962
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 8 Jul 2021 14:19:08 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F1385A405F;
-        Thu,  8 Jul 2021 14:19:07 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 93D2CA4059;
-        Thu,  8 Jul 2021 14:19:07 +0000 (GMT)
-Received: from localhost (unknown [9.145.63.161])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu,  8 Jul 2021 14:19:07 +0000 (GMT)
-Date:   Thu, 8 Jul 2021 16:19:01 +0200
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Valentin Schneider <valentin.schneider@arm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH] s390: preempt: Fix preempt_count initialization
-Message-ID: <your-ad-here.call-01625753941-ext-9306@work.hours>
-References: <20210707163338.1623014-1-valentin.schneider@arm.com>
- <YOcI5iAZnHS9rtRT@osiris>
+        id S229600AbhGHREb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 8 Jul 2021 13:04:31 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31789 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229469AbhGHREa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Jul 2021 13:04:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1625763708;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qrTw81pAWG02uTbPb7XSSF4Zb1NaxCpE5fYNmmLl5pU=;
+        b=M9ppLJYDetXbse+Aw8sevBjyc9KGwAf01JXaHk7C/W3IbbCaD4Mct5/mbzfZTz+dr0WHZh
+        /UswW9rAqHRxRSRoPahdXMRJTR3zsh36icxkQEYc7qh9U1Tio0jQiC+2/hYDdESFmrvvN+
+        1mipZ3GeLbljrSdojNp+w3gVIkvsDKg=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-491-3aFU4YRiMzq9W2mThObTSQ-1; Thu, 08 Jul 2021 13:01:47 -0400
+X-MC-Unique: 3aFU4YRiMzq9W2mThObTSQ-1
+Received: by mail-ed1-f70.google.com with SMTP id bx13-20020a0564020b4db02903a02214fad8so1472923edb.1
+        for <linux-s390@vger.kernel.org>; Thu, 08 Jul 2021 10:01:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=qrTw81pAWG02uTbPb7XSSF4Zb1NaxCpE5fYNmmLl5pU=;
+        b=VESw4P1olXxMXkfWUT+UM3w9Iox6f4ge71faS0lj42FpUb6M9UWYg09SBpb0Ci6XH3
+         YHcVwAV6Iql0pUOuZEIM8YrxbDaISpsqM8rR16EuLZehkvmaQdbPJCuFxmzLdJHtGPXQ
+         8gtJ6E91NTJYDDSSLcMHuL2HQ3/FUF9mNr/LMZHwiF8XmJPpeiLCPNt3JckfsBg9dU86
+         cB6kO6e/Gx+5xhNFS8orL20MGuwNFFl5TijO+Ln02JgnjcXfCz2NPbg4F0cuLTCB2e9Z
+         iZF+ULdOveSs/9kGWPsRSC8yF59p+2kJ/bIRd6GaQbHeHQuzwMYcj8HdobTGLxNanI8r
+         kYmQ==
+X-Gm-Message-State: AOAM532itowhwXkpc1RYCoxij382NAgw7qX1pJlhGZgnSXR+4P4sfQH6
+        InxN8xrDbGfUnKHJtW1SF0dDuSM0fOQRmZRx9ZTU2yrOCcQujAL5RH44uuJhqxhUyG1HqzzCWUh
+        JDLv9QY1dthU2Vci3b9DLBw==
+X-Received: by 2002:aa7:d84a:: with SMTP id f10mr5208307eds.45.1625763706077;
+        Thu, 08 Jul 2021 10:01:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxTIJoVBFYN0UNaZ4TmCId++KAC/jy/ikyGen2oMBIt7ifi7GkPOYCPc1N8fllDzrANAf21Pg==
+X-Received: by 2002:aa7:d84a:: with SMTP id f10mr5208290eds.45.1625763705950;
+        Thu, 08 Jul 2021 10:01:45 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id jl10sm1231007ejc.56.2021.07.08.10.01.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 08 Jul 2021 10:01:45 -0700 (PDT)
+Subject: Re: [GIT PULL 0/2] KVM: selftests: Fixes for 5.14
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+References: <20210706083626.10941-1-borntraeger@de.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <d23a0180-8560-b50d-6dfe-17ee24400794@redhat.com>
+Date:   Thu, 8 Jul 2021 19:01:44 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YOcI5iAZnHS9rtRT@osiris>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KHMZ-n4bjk9_5UtBMnmJMnfquCidElZR
-X-Proofpoint-ORIG-GUID: KHMZ-n4bjk9_5UtBMnmJMnfquCidElZR
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-08_06:2021-07-08,2021-07-08 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
- malwarescore=0 impostorscore=0 bulkscore=0 mlxlogscore=893
- priorityscore=1501 adultscore=0 mlxscore=0 spamscore=0 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107080077
+In-Reply-To: <20210706083626.10941-1-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 08, 2021 at 04:17:10PM +0200, Heiko Carstens wrote:
-> On Wed, Jul 07, 2021 at 05:33:38PM +0100, Valentin Schneider wrote:
-> > S390's init_idle_preempt_count(p, cpu) doesn't actually let us initialize the
-> > preempt_count of the requested CPU's idle task: it unconditionally writes
-> > to the current CPU's. This clearly conflicts with idle_threads_init(),
-> > which intends to initialize *all* the idle tasks, including their
-> > preempt_count (or their CPU's, if the arch uses a per-CPU preempt_count).
-> > 
-> > Unfortunately, it seems the way s390 does things doesn't let us initialize
-> > every possible CPU's preempt_count early on, as the pages where this
-> > resides are only allocated when a CPU is brought up and are freed when it
-> > is brought down.
-> > 
-> > Let the arch-specific code set a CPU's preempt_count when its lowcore is
-> > allocated, and turn init_idle_preempt_count() into an empty stub.
-> > 
-> > Fixes: f1a0a376ca0c ("sched/core: Initialize the idle task with preemption disabled")
-> > Reported-by: Guenter Roeck <linux@roeck-us.net>
-> > Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-> > ---
-> >  arch/s390/include/asm/preempt.h | 16 ++++------------
-> >  arch/s390/kernel/setup.c        |  1 +
-> >  arch/s390/kernel/smp.c          |  1 +
-> >  3 files changed, 6 insertions(+), 12 deletions(-)
-> 
-> Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-> 
-> Vasily, can you pick this one up, please?
+On 06/07/21 10:36, Christian Borntraeger wrote:
+>    git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-5.14-1
 
-Will pick it up right away for rc1, thanks!
+Pulled, thanks.
+
+Paolo
+
