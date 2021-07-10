@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E59D2C07E99
-	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:19:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A483C11F67
+	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:23:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D2064613B5
-	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:19:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 768766140C
+	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:23:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232897AbhGJCWY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Jul 2021 22:22:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38294 "EHLO mail.kernel.org"
+        id S233350AbhGJC0e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 9 Jul 2021 22:26:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232144AbhGJCVw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:21:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 738D0613D3;
-        Sat, 10 Jul 2021 02:19:07 +0000 (UTC)
+        id S233352AbhGJCZv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:25:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B204613D4;
+        Sat, 10 Jul 2021 02:23:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883548;
-        bh=3MUwAQubY3y/cjrHEdf/E+gF3nQg7X7Zdc8REz3JAnU=;
+        s=k20201202; t=1625883786;
+        bh=b5k22aFWXR3H3b4wSw22+FAs12UBiGOtQLj3c6QFxYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cOweqfaxmwqNtyHDeXJuHY/YsK13XnvRm9xqXWYtTHHu0kvT+a/4RoDkzGc310PSj
-         SjNoZvLaIDhm8Mrvs8G0ksO5DwzbRWlVlGMy8mJqy/Xcd5GurkyZaY5lUx6GyMij/9
-         qbVG6XOjWLFnlQQ4aaKPlTTsdSHY/J6p6Nc04coxSN5R2EDF8StTY9S8fwjjX4vQEO
-         yRCoeKMZV3sPDfYXgVozlcY9D3IER5akp5Nx6rfaegGkRxJpoY2yVzc2HdEDTodvkV
-         VcuB3zd3ZO8R8WbTajfmXRbksXQ727el6rMA5QYScoXAIjjJsHgrfuoLB/HyXdpxoJ
-         HhpXqeVKqrbEw==
+        b=K5sNa8g/zzzrROSw42CWm6eM6h68grR3EIbnAxTEj8VuhOtiEl2YHHYEveCBVMhKU
+         pKP+4AF5ytxIKJmVRQM4IZ3+qVUcUtgaVM0CDLd//azfzTkjXxZDLnWus+b1HmCYbE
+         Njj/8yQvPfAvFJUB8p0Uq1jC70PxCjVI2qnStdiL7EmTAaqT1aoCMxRylym+z9KuMm
+         N2m7fakZM6SPmaHNPg5qhNYegiLnMwFjzowzBV5JTJHjUTiteVc1baGSmepRT4WaIE
+         +c2lO7N5wuHsERehedyENS3FaifAq1hSpMwkkU2GqKJUdwPmVEaV5j1/ZB0ytn8lhU
+         9/pDfuHerZo3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Valentin Vidic <vvidic@valentin-vidic.from.hr>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 058/114] s390/sclp_vt220: fix console name to match device
-Date:   Fri,  9 Jul 2021 22:16:52 -0400
-Message-Id: <20210710021748.3167666-58-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 053/104] s390/sclp_vt220: fix console name to match device
+Date:   Fri,  9 Jul 2021 22:21:05 -0400
+Message-Id: <20210710022156.3168825-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210710021748.3167666-1-sashal@kernel.org>
-References: <20210710021748.3167666-1-sashal@kernel.org>
+In-Reply-To: <20210710022156.3168825-1-sashal@kernel.org>
+References: <20210710022156.3168825-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -92,7 +92,7 @@ index 5aab59ad5688..248d134a0592 100644
  		add_preferred_console("hvc", 0, NULL);
  }
 diff --git a/drivers/s390/char/sclp_vt220.c b/drivers/s390/char/sclp_vt220.c
-index 7f4445b0f819..2f96c31e9b7b 100644
+index 047f812d1a1c..71ed1bf15598 100644
 --- a/drivers/s390/char/sclp_vt220.c
 +++ b/drivers/s390/char/sclp_vt220.c
 @@ -35,8 +35,8 @@
