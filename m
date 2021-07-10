@@ -2,43 +2,44 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-24.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 152F2C07E9E
-	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:27:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 772FBC11F72
+	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:28:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F0C9F6141A
-	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:27:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 592DB61421
+	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:28:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233288AbhGJCaS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Jul 2021 22:30:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43262 "EHLO mail.kernel.org"
+        id S234254AbhGJCbE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 9 Jul 2021 22:31:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234474AbhGJC32 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:29:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1520A61409;
-        Sat, 10 Jul 2021 02:26:33 +0000 (UTC)
+        id S234168AbhGJC3O (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:29:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AB0A6142B;
+        Sat, 10 Jul 2021 02:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883994;
-        bh=gfmQPhuheg6CmzwqvqF1tZkKqQBYwpU926EpPpZX7Ws=;
+        s=k20201202; t=1625883936;
+        bh=IxaehiJGGRFs1bfaxinZIXvUNI2hkK+ktz7VylF8d7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=si+05z4kM9U/vP7FtMtbxOx15Z6tvtPzI2gYNnbsWYZPTtF6zC6NzJlFGaqy2qF2Y
-         XKjTlDsEZGy3on9YTAXOofH1bUNzjIKFDv99c6Rwz0x5whlhFFQ/bMjA017A7vaucM
-         NdvnE9GmEC/Tp8OznuOzKILI+m02IGCMwSCfGRfFa/IUiz9Ydf/7IWYryUUSy36nZg
-         89/CjOEUjV393eZoFVIvwgzgUi6T3MW2wHI770Z+R6v0IDVjGLYIA57jMkW62lza/7
-         5UjYLDY4xDRqQO1uLBZqMc+fIlhv4AkdWZt5W1Bjr+vEEhl6gbEv85TRp5Eqz6/ts/
-         8Ra+fCQd5DvkQ==
+        b=WFuNhiUkR3dnB7U8y75Ue2OxcejBZtXOfs2ztY5P9vMPEiwSCpnmyew3+AD1sW5iD
+         z8mv/u5unP0rcam6qzoCkhQGa2CsUIeNIgUdKlCMh78oK6oItoXHSOkNHfpP1RS7vk
+         RM412gXrI2v90fDoy8QIuvJZV+uX17o8p/a7ijBTHuKF+mcdzLQNmyC+2irYh0iCED
+         UUmrVdG8lJ/ePf4Uv17ogGCHvkAjLmEN9isPu1oZ0FoAPCfkmReR9IY/M/ZaW+sPem
+         eTyi0bLTBo0OJtpe9cgdWhqpkImylra9WJa+7yFrnGDDZstLcNgQ6czT8qc3UXPFRv
+         lcDTuCawn4xrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
+Cc:     Fabrice Fontaine <fontaine.fabrice@gmail.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 70/93] s390/ipl_parm: fix program check new psw handling
-Date:   Fri,  9 Jul 2021 22:24:04 -0400
-Message-Id: <20210710022428.3169839-70-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 51/93] s390: disable SSP when needed
+Date:   Fri,  9 Jul 2021 22:23:45 -0400
+Message-Id: <20210710022428.3169839-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -50,69 +51,55 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Fabrice Fontaine <fontaine.fabrice@gmail.com>
 
-[ Upstream commit 88c2510cecb7e2b518e3c4fdf3cf0e13ebe9377c ]
+[ Upstream commit 42e8d652438f5ddf04e5dac299cb5e623d113dc0 ]
 
-The __diag308() inline asm temporarily changes the program check new
-psw to redirect a potential program check on the diag instruction.
-Restoring of the program check new psw is done in C code behind the
-inline asm.
+Though -nostdlib is passed in PURGATORY_LDFLAGS and -ffreestanding in
+KBUILD_CFLAGS_DECOMPRESSOR, -fno-stack-protector must also be passed to
+avoid linking errors related to undefined references to
+'__stack_chk_guard' and '__stack_chk_fail' if toolchain enforces
+-fstack-protector.
 
-This can be problematic, especially if the function is inlined, since
-the compiler can reorder instructions in such a way that a different
-instruction, which may result in a program check, might be executed
-before the program check new psw has been restored.
+Fixes
+ - https://gitlab.com/kubu93/buildroot/-/jobs/1247043361
 
-To avoid such a scenario move restoring into the inline asm. For
-consistency reasons move also saving of the original program check new
-psw into the inline asm.
-
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Fabrice Fontaine <fontaine.fabrice@gmail.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Reviewed-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210510053133.1220167-1-fontaine.fabrice@gmail.com
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/ipl_parm.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ arch/s390/Makefile           | 1 +
+ arch/s390/purgatory/Makefile | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/arch/s390/boot/ipl_parm.c b/arch/s390/boot/ipl_parm.c
-index f94b91d72620..c56bbf58a945 100644
---- a/arch/s390/boot/ipl_parm.c
-+++ b/arch/s390/boot/ipl_parm.c
-@@ -28,22 +28,25 @@ static inline int __diag308(unsigned long subcode, void *addr)
- 	register unsigned long _addr asm("0") = (unsigned long)addr;
- 	register unsigned long _rc asm("1") = 0;
- 	unsigned long reg1, reg2;
--	psw_t old = S390_lowcore.program_new_psw;
-+	psw_t old;
- 
- 	asm volatile(
-+		"	mvc	0(16,%[psw_old]),0(%[psw_pgm])\n"
- 		"	epsw	%0,%1\n"
--		"	st	%0,%[psw_pgm]\n"
--		"	st	%1,%[psw_pgm]+4\n"
-+		"	st	%0,0(%[psw_pgm])\n"
-+		"	st	%1,4(%[psw_pgm])\n"
- 		"	larl	%0,1f\n"
--		"	stg	%0,%[psw_pgm]+8\n"
-+		"	stg	%0,8(%[psw_pgm])\n"
- 		"	diag	%[addr],%[subcode],0x308\n"
--		"1:	nopr	%%r7\n"
-+		"1:	mvc	0(16,%[psw_pgm]),0(%[psw_old])\n"
- 		: "=&d" (reg1), "=&a" (reg2),
--		  [psw_pgm] "=Q" (S390_lowcore.program_new_psw),
-+		  "+Q" (S390_lowcore.program_new_psw),
-+		  "=Q" (old),
- 		  [addr] "+d" (_addr), "+d" (_rc)
--		: [subcode] "d" (subcode)
-+		: [subcode] "d" (subcode),
-+		  [psw_old] "a" (&old),
-+		  [psw_pgm] "a" (&S390_lowcore.program_new_psw)
- 		: "cc", "memory");
--	S390_lowcore.program_new_psw = old;
- 	return _rc;
- }
- 
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index ba94b03c8b2f..92506918da63 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -28,6 +28,7 @@ KBUILD_CFLAGS_DECOMPRESSOR += -DDISABLE_BRANCH_PROFILING -D__NO_FORTIFY
+ KBUILD_CFLAGS_DECOMPRESSOR += -fno-delete-null-pointer-checks -msoft-float
+ KBUILD_CFLAGS_DECOMPRESSOR += -fno-asynchronous-unwind-tables
+ KBUILD_CFLAGS_DECOMPRESSOR += -ffreestanding
++KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
+ KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
+diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
+index c57f8c40e992..21c4ebe29b9a 100644
+--- a/arch/s390/purgatory/Makefile
++++ b/arch/s390/purgatory/Makefile
+@@ -24,6 +24,7 @@ KBUILD_CFLAGS := -fno-strict-aliasing -Wall -Wstrict-prototypes
+ KBUILD_CFLAGS += -Wno-pointer-sign -Wno-sign-compare
+ KBUILD_CFLAGS += -fno-zero-initialized-in-bss -fno-builtin -ffreestanding
+ KBUILD_CFLAGS += -c -MD -Os -m64 -msoft-float -fno-common
++KBUILD_CFLAGS += -fno-stack-protector
+ KBUILD_CFLAGS += $(CLANG_FLAGS)
+ KBUILD_CFLAGS += $(call cc-option,-fno-PIE)
+ KBUILD_AFLAGS := $(filter-out -DCC_USING_EXPOLINE,$(KBUILD_AFLAGS))
 -- 
 2.30.2
 
