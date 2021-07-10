@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A770C11F67
-	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:24:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E01CC07E99
+	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:24:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 281C0610A6
-	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:24:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0971F613B7
+	for <linux-s390@archiver.kernel.org>; Sat, 10 Jul 2021 02:24:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233740AbhGJC1I (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 9 Jul 2021 22:27:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42628 "EHLO mail.kernel.org"
+        id S233738AbhGJC1O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 9 Jul 2021 22:27:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233393AbhGJC0j (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        id S233175AbhGJC0j (ORCPT <rfc822;linux-s390@vger.kernel.org>);
         Fri, 9 Jul 2021 22:26:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0829961400;
-        Sat, 10 Jul 2021 02:23:49 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A9AC613B7;
+        Sat, 10 Jul 2021 02:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883830;
-        bh=HhGH2nShtf085j9Q6EdZ9DG6ZWL1jEl8tbmBg7X1qpk=;
+        s=k20201202; t=1625883833;
+        bh=ZP9KQES+HDuOGeyqR9cpbVw/7pbTbMeag+0gntsBwL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=deixQP7An3FnDv7B3uWbqnPABMgBkchsgjq+mJej9kk2GfdPhtOUW5Osv+201yLRi
-         rH4JOojnTmoWRZz7u1UInPQaf7qyIySJMNZJNjhDoniyltuoNA3g9EIN4DLKRFqWQ1
-         P1eE3L1QTarKoFZPYr9ozl1Z46YQdlrnJIQ0pfnUe6N2esRxhw0YGj+WrfVu7LZDhh
-         WpxYWiEIT/mFD253aw25q6jBiAi3Ve30QyRyUCpbAiYQPj2HM9K/QwR04KfpvOTNjX
-         TGK8DyqbB25JswVpHbnT4fkvLliCFK6iASBhqWwVqFDdIiDMt9iu00+Z+1dpu+PhVw
-         1Wr93yBvJ0W4A==
+        b=SPk8em0BsH04gOfrzkLe/j5tqfmrZ/J5IZ+yo9jsNduFoAWZM2MoWoYVpaq1DedgJ
+         W+jrJAspUyP77mSrcgYsiK1ughPsYqaopX/pyFlo7SddwBRViunKpCYg5fM+R3mQbz
+         nEuo29IDjFS/te30UKGqWCcyUzUuC2x4vG3OBddEoNKBM8LIfT7/MTa/yiGImpbN2l
+         1X2gdWe0CveAzWSrVs1XjLfJDXr1qODHmvRgio7ikqT6yn2S0kxsE/nyE9D2/IBbQq
+         2+nAOdRbW++DAoIcHE5wNXq/C0SV3QTF8IoKUHha+mS5ChcAj6qtCRO87RWpcF0xu3
+         xLogY/K5IXunQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 078/104] s390/processor: always inline stap() and __load_psw_mask()
-Date:   Fri,  9 Jul 2021 22:21:30 -0400
-Message-Id: <20210710022156.3168825-78-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 080/104] s390/mem_detect: fix diag260() program check new psw handling
+Date:   Fri,  9 Jul 2021 22:21:32 -0400
+Message-Id: <20210710022156.3168825-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022156.3168825-1-sashal@kernel.org>
 References: <20210710022156.3168825-1-sashal@kernel.org>
@@ -52,44 +52,69 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 9c9a915afd90f7534c16a71d1cd44b58596fddf3 ]
+[ Upstream commit 86807f348f418a84970eebb8f9912a7eea16b497 ]
 
-s390 is the only architecture which makes use of the __no_kasan_or_inline
-attribute for two functions. Given that both stap() and __load_psw_mask()
-are very small functions they can and should be always inlined anyway.
+The __diag260() inline asm temporarily changes the program check new
+psw to redirect a potential program check on the diag instruction.
+Restoring of the program check new psw is done in C code behind the
+inline asm.
 
-Therefore get rid of __no_kasan_or_inline and always inline these
-functions.
+This can be problematic, especially if the function is inlined, since
+the compiler can reorder instructions in such a way that a different
+instruction, which may result in a program check, might be executed
+before the program check new psw has been restored.
+
+To avoid such a scenario move restoring into the inline asm. For
+consistency reasons move also saving of the original program check new
+psw into the inline asm.
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/processor.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/boot/mem_detect.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index 023a15dc25a3..dbd380d81133 100644
---- a/arch/s390/include/asm/processor.h
-+++ b/arch/s390/include/asm/processor.h
-@@ -207,7 +207,7 @@ static __always_inline unsigned long current_stack_pointer(void)
- 	return sp;
+diff --git a/arch/s390/boot/mem_detect.c b/arch/s390/boot/mem_detect.c
+index 40168e59abd3..3f093556dc3b 100644
+--- a/arch/s390/boot/mem_detect.c
++++ b/arch/s390/boot/mem_detect.c
+@@ -69,24 +69,27 @@ static int __diag260(unsigned long rx1, unsigned long rx2)
+ 	register unsigned long _ry asm("4") = 0x10; /* storage configuration */
+ 	int rc = -1;				    /* fail */
+ 	unsigned long reg1, reg2;
+-	psw_t old = S390_lowcore.program_new_psw;
++	psw_t old;
+ 
+ 	asm volatile(
++		"	mvc	0(16,%[psw_old]),0(%[psw_pgm])\n"
+ 		"	epsw	%0,%1\n"
+-		"	st	%0,%[psw_pgm]\n"
+-		"	st	%1,%[psw_pgm]+4\n"
++		"	st	%0,0(%[psw_pgm])\n"
++		"	st	%1,4(%[psw_pgm])\n"
+ 		"	larl	%0,1f\n"
+-		"	stg	%0,%[psw_pgm]+8\n"
++		"	stg	%0,8(%[psw_pgm])\n"
+ 		"	diag	%[rx],%[ry],0x260\n"
+ 		"	ipm	%[rc]\n"
+ 		"	srl	%[rc],28\n"
+-		"1:\n"
++		"1:	mvc	0(16,%[psw_pgm]),0(%[psw_old])\n"
+ 		: "=&d" (reg1), "=&a" (reg2),
+-		  [psw_pgm] "=Q" (S390_lowcore.program_new_psw),
++		  "+Q" (S390_lowcore.program_new_psw),
++		  "=Q" (old),
+ 		  [rc] "+&d" (rc), [ry] "+d" (_ry)
+-		: [rx] "d" (_rx1), "d" (_rx2)
++		: [rx] "d" (_rx1), "d" (_rx2),
++		  [psw_old] "a" (&old),
++		  [psw_pgm] "a" (&S390_lowcore.program_new_psw)
+ 		: "cc", "memory");
+-	S390_lowcore.program_new_psw = old;
+ 	return rc == 0 ? _ry : -1;
  }
  
--static __no_kasan_or_inline unsigned short stap(void)
-+static __always_inline unsigned short stap(void)
- {
- 	unsigned short cpu_address;
- 
-@@ -246,7 +246,7 @@ static inline void __load_psw(psw_t psw)
-  * Set PSW mask to specified value, while leaving the
-  * PSW addr pointing to the next instruction.
-  */
--static __no_kasan_or_inline void __load_psw_mask(unsigned long mask)
-+static __always_inline void __load_psw_mask(unsigned long mask)
- {
- 	unsigned long addr;
- 	psw_t psw;
 -- 
 2.30.2
 
