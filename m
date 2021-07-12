@@ -2,194 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 092DFC11F66
-	for <linux-s390@archiver.kernel.org>; Mon, 12 Jul 2021 17:12:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BE04C07E99
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Jul 2021 23:38:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EAE77611CC
-	for <linux-s390@archiver.kernel.org>; Mon, 12 Jul 2021 17:12:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 14ADC606A5
+	for <linux-s390@archiver.kernel.org>; Mon, 12 Jul 2021 23:38:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235573AbhGLRPW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 12 Jul 2021 13:15:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38038 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235525AbhGLRPV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 12 Jul 2021 13:15:21 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EC3CC0613E8;
-        Mon, 12 Jul 2021 10:12:33 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id a2so18940934pgi.6;
-        Mon, 12 Jul 2021 10:12:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:message-id:mime-version:subject:date:in-reply-to:cc:to
-         :references;
-        bh=d/B8JhWrn+P+yWZ6A7daQWqsVya17WmZTHfEtvqYBfI=;
-        b=hjTL7bTAdN4wcNkHBK9e23RjGwMSI3zDECVWUCkJjSvAfRPg27gXedUHbesheDmWbh
-         Cz951EsDV6FeAp8J3fWXAskm+sH81BpBYFGgUZQ1RBRZRI1zh3Vw0R6jHsMBvZ5l0hhz
-         zKazvU+1fvn+1OWHy4UanPXk9vz/2+LhUOR5KnwuAh5kfgZdhLISDqEXs67iB8s69Ywp
-         zrFiOz78XMjFd8BP5N1GjxX1ITPzIL1fG09Jy2JMPos6B2w3NJKT8soFJ24B2UORGJhF
-         EP7YJgCennpf5s5uP+uYm7y5BItu0jPfxW7CZZHWW/fOZsgZRIVvctzGsEtDdY7PKugY
-         S9mA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:message-id:mime-version:subject:date
-         :in-reply-to:cc:to:references;
-        bh=d/B8JhWrn+P+yWZ6A7daQWqsVya17WmZTHfEtvqYBfI=;
-        b=hztIfcZfmhBTDgSp6Lk5hY7JTce04BoI+5T1T/9xwouVwIaOLC8/p2RcoMyF1By2wd
-         Ezvr5O7dJOC5sZivYpWqKjre5T5eKsoZwBAYLdQAXYFcQ5v0FSmDyybX0v7lACku3CAP
-         Oarm+gNpdT4rj9gVAUGWx6kWatnO9s7NpHAojns/kOye0kQz9ashBYzjgK+vLnLeQ5lA
-         nGqNDGx1hH7W95nZplTAIL0AID+gy7AvhupJs20CDL3PrEzjcF9SD5z6eha4s9cdybmw
-         NRxtQw8Bb9RIQfBA9gZHext9XQC71G1Ng7y6xzFV3kOdA9uU+6lBpOX9bi2O5Jw8Nglk
-         fORA==
-X-Gm-Message-State: AOAM533qHwXKyp+LMCw09zeuMQj5vR3HymX94Uxr8Wq+/gTBHR5dmmLb
-        5UxdekRGSMhaPcvbOMVIGSI=
-X-Google-Smtp-Source: ABdhPJw8dktYBLoO8NebmN3gh5UlbpP9aIxWwZiONjNtgpy7m0NOs/lG3v6o29Rd6bkdRGQNPmk+UA==
-X-Received: by 2002:a63:67c5:: with SMTP id b188mr122427pgc.333.1626109952779;
-        Mon, 12 Jul 2021 10:12:32 -0700 (PDT)
-Received: from smtpclient.apple (c-24-6-216-183.hsd1.ca.comcast.net. [24.6.216.183])
-        by smtp.gmail.com with ESMTPSA id t2sm16281610pfg.73.2021.07.12.10.12.30
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 12 Jul 2021 10:12:31 -0700 (PDT)
-From:   Nadav Amit <nadav.amit@gmail.com>
-Message-Id: <442EEB37-C289-4CB5-8161-71A54A350FEE@gmail.com>
-Content-Type: multipart/signed;
-        boundary="Apple-Mail=_DFB43D18-AF75-4226-A207-864049DAB84E";
-        protocol="application/pgp-signature";
-        micalg=pgp-sha256
-Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.100.0.2.22\))
-Subject: Re: [kvm-unit-tests RFC PATCH 1/5] lib: arm: Print test exit status
- on exit if chr-testdev is not available
-Date:   Mon, 12 Jul 2021 10:12:29 -0700
-In-Reply-To: <20210712170745.wz2jewomlqchmhhb@gator>
-Cc:     Andre Przywara <andre.przywara@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Laurent Vivier <lvivier@redhat.com>, kvm-ppc@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>, cohuck@redhat.com,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        KVM <kvm@vger.kernel.org>, kvmarm@lists.cs.columbia.edu,
-        maz@kernel.org, vivek.gautam@arm.com
-To:     Andrew Jones <drjones@redhat.com>
-References: <20210702163122.96110-1-alexandru.elisei@arm.com>
- <20210702163122.96110-2-alexandru.elisei@arm.com>
- <20210712175155.7c6f8dc3@slackpad.fritz.box>
- <20210712170745.wz2jewomlqchmhhb@gator>
-X-Mailer: Apple Mail (2.3654.100.0.2.22)
+        id S230132AbhGLXlZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 12 Jul 2021 19:41:25 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:38234 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230043AbhGLXlY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 12 Jul 2021 19:41:24 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16CNY2R5155219;
+        Mon, 12 Jul 2021 19:38:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ulZMDs+iXBTD7zlMWPyz9dR2LBvAM2HZN3VduqwhmtQ=;
+ b=K0kHLQGqBQvHjd+bQ4/Fpqb8AFGQA61KcPi1aphQ1oVw2gBkmik5TV0HYd30QabDfW4C
+ OdA6OTcPa+etY66l/W2W6Ni2bhTrug/yrzu9RSWLwzU0J6DUXTJBYRYVNKIw4TpXcXvL
+ C/3FRc/jpt8GIJIG3Rt//kKFNoIh7N3MLqmeQ4v/h5XwL3uHn1L/HFTJ5e15m6PRmC8l
+ pYquHkCsBA0myK/3ITFeGsWl8rVeK5IKTwHyxkPDVKkD06P9UEVUoLfoIgNm91pc4Ig7
+ KznJ4ZasGJ763sy1vP/8KlbNDnEXsXQNucnv8rOKCw9EKm+3fhd8yXDUvC2zgSj+HAHI 5Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39qs2vhxjs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 12 Jul 2021 19:38:32 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16CNYUcl156147;
+        Mon, 12 Jul 2021 19:38:32 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39qs2vhxj7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 12 Jul 2021 19:38:32 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16CNXRiE021935;
+        Mon, 12 Jul 2021 23:38:30 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 39q3688yky-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 12 Jul 2021 23:38:29 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16CNcQVB27197698
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 12 Jul 2021 23:38:26 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6FB59AE056;
+        Mon, 12 Jul 2021 23:38:26 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6A23BAE053;
+        Mon, 12 Jul 2021 23:38:25 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.38.94])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Mon, 12 Jul 2021 23:38:25 +0000 (GMT)
+Date:   Tue, 13 Jul 2021 01:38:15 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com
+Subject: Re: [PATCH] s390/vfio-ap: do not open code locks for
+ VFIO_GROUP_NOTIFY_SET_KVM notification
+Message-ID: <20210713013815.57e8a8cb.pasic@linux.ibm.com>
+In-Reply-To: <20210707154156.297139-1-akrowiak@linux.ibm.com>
+References: <20210707154156.297139-1-akrowiak@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: CIgMDj5PHlNuppKgQ2pjdngNUNlPvsTD
+X-Proofpoint-GUID: GrPPd0Hiiyaa667Lp2Y7ATqxK_iUBbcm
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-12_14:2021-07-12,2021-07-12 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 malwarescore=0 impostorscore=0 bulkscore=0 phishscore=0
+ suspectscore=0 mlxscore=0 adultscore=0 priorityscore=1501 spamscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107120160
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed,  7 Jul 2021 11:41:56 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
---Apple-Mail=_DFB43D18-AF75-4226-A207-864049DAB84E
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;
-	charset=utf-8
+> It was pointed out during an unrelated patch review that locks should not
+> be open coded - i.e., writing the algorithm of a standard lock in a
+> function instead of using a lock from the standard library. The setting and
+> testing of the kvm_busy flag and sleeping on a wait_event is the same thing
+> a lock does. Whatever potential deadlock was found and reported via the
+> lockdep splat was not magically removed by going to a wait_queue; it just
+> removed the lockdep annotations that would identify the issue early
 
+Did you change your opinion since we last talked about it? This reads to
+me like we are deadlocky without this patch, because of the last
+sentence.
 
-
-> On Jul 12, 2021, at 10:07 AM, Andrew Jones <drjones@redhat.com> wrote:
->=20
-> On Mon, Jul 12, 2021 at 05:51:55PM +0100, Andre Przywara wrote:
->> On Fri,  2 Jul 2021 17:31:18 +0100
->> Alexandru Elisei <alexandru.elisei@arm.com> wrote:
->>=20
->> Hi,
->>=20
->>> The arm64 tests can be run under kvmtool, which doesn't emulate a
->>> chr-testdev device. In preparation for adding run script support for
->>> kvmtool, print the test exit status so the scripts can pick it up =
-and
->>> correctly mark the test as pass or fail.
->>>=20
->>> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
->>> ---
->>> lib/chr-testdev.h |  1 +
->>> lib/arm/io.c      | 10 +++++++++-
->>> lib/chr-testdev.c |  5 +++++
->>> 3 files changed, 15 insertions(+), 1 deletion(-)
->>>=20
->>> diff --git a/lib/chr-testdev.h b/lib/chr-testdev.h
->>> index ffd9a851aa9b..09b4b424670e 100644
->>> --- a/lib/chr-testdev.h
->>> +++ b/lib/chr-testdev.h
->>> @@ -11,4 +11,5 @@
->>>  */
->>> extern void chr_testdev_init(void);
->>> extern void chr_testdev_exit(int code);
->>> +extern bool chr_testdev_available(void);
->>> #endif
->>> diff --git a/lib/arm/io.c b/lib/arm/io.c
->>> index 343e10822263..9e62b571a91b 100644
->>> --- a/lib/arm/io.c
->>> +++ b/lib/arm/io.c
->>> @@ -125,7 +125,15 @@ extern void halt(int code);
->>>=20
->>> void exit(int code)
->>> {
->>> -	chr_testdev_exit(code);
->>> +	if (chr_testdev_available()) {
->>> +		chr_testdev_exit(code);
->>> +	} else {
->>> +		/*
->>> +		 * Print the test return code in the format used by =
-chr-testdev
->>> +		 * so the runner script can parse it.
->>> +		 */
->>> +		printf("\nEXIT: STATUS=3D%d\n", ((code) << 1) | 1);
->>=20
->> It's more me being clueless here rather than a problem, but where =
-does
->> this "EXIT: STATUS" line come from? In lib/chr-testdev.c I see "%dq",
->> so it this coming from QEMU (but I couldn't find it in there)?
->>=20
->> But anyways the patch looks good and matches what PPC and s390 do.
->=20
-> I invented the 'EXIT: STATUS' format for PPC, which didn't/doesn't =
-have an
-> exit code testdev. Now that it has also been adopted by s390 I guess =
-we've
-> got a kvm-unit-tests standard to follow for arm :-)
-
-I was unaware of this =E2=80=9Cstandard=E2=80=9D and I mistakenly used a =
-different format
-for x86, in case someone wants to fix it. [1]
-
-[1] =
-https://gitlab.com/kvm-unit-tests/kvm-unit-tests/-/commit/5747945371b47c51=
-cb16187a26111d06f58f06b2
-
---Apple-Mail=_DFB43D18-AF75-4226-A207-864049DAB84E
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename=signature.asc
-Content-Type: application/pgp-signature;
-	name=signature.asc
-Content-Description: Message signed with OpenPGP
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEESJL3osl5Ymx/w9I1HaAqSabaD1oFAmDsd/0ACgkQHaAqSaba
-D1qcGg//YR7HD5To5tLeXN8Sr9qEqR48YInrt1N2wDkBtgLyixAUA6PPVBfKGPA+
-pbV06doi6bj9rF1eHSF/hz2XX3KFp2Z7pmn072Rg3uNMoX857kVJtv+mcPePLsEE
-eQ7AZ2ofYf/Oo/xeQI14uoeHOLz276s962h6Vz5+dwfodFSOZ5Q4S2n3BZIkdSVJ
-Y1ieWWIlMrerYnIUYJ5yF4yG+PtUFhE7KHoXOhoDFKXlZJ/c/fHZiuA43DlrrSEl
-0ycMcKRzdgqyLE3Kd4mvi6A8kKr0piZCABGlrgGib4duoFGyUxkjgDWUqRrnebRr
-f6OR57XzMAdnic8MbqdKIvC+Z8LYbE/vOBSrKj3yvjQvXvwbIgZr5tejIutIT7jD
-EIVBbqemZ5eKPN3bqIHArNB4t+eO6kroSCgeQVQ0fcg06r/5mxow2qTSt9BQ+DdG
-gnSbSugOfdBCnVw6ZC16oR8uxRUcF3UTAfG1SyDAMC9IX9ZbMPpOo9vNhizdUrrV
-EU4sc2WVDH5qgr5LYTEm3G+iaBJd8P6JF/qa+2V6dq0UsZTB1OPTUA95zPLRubZ2
-PjfZuoxVwx9g9yPDVQaCIicO461N0o92gxfU4pYAST3tNhO1/AcELzUsphDi8eQ8
-nAOl4nmKoOVkWpEsy4YQ89o5C7R4zF1lhyfIAAcEM40rZjw8AKw=
-=tyb3
------END PGP SIGNATURE-----
-
---Apple-Mail=_DFB43D18-AF75-4226-A207-864049DAB84E--
+Regards,
+Halil
