@@ -2,141 +2,354 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDA31C07E95
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Jul 2021 17:05:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DA9DC07E95
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Jul 2021 18:06:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D263A6128D
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Jul 2021 17:05:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1C29261369
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Jul 2021 18:06:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229500AbhGMRI1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Jul 2021 13:08:27 -0400
-Received: from mail-bn7nam10on2067.outbound.protection.outlook.com ([40.107.92.67]:57185
-        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229478AbhGMRI0 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 13 Jul 2021 13:08:26 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bVjswc1nshV5ZwiJAK2vPbirySDfwtcxVeBG1CT9zAE0SRkRrV/BNZ2/Igi++ZS0vdzttoMzB5wM2Rf3qGJn6RTlyYgfQLHSH0QQK16Mrf2C/vuoVHwiz3pH6W2HXAcaNwRC6hyq9U0r71GmOndedxC/qAwXmC9hQC1bN3EYXc0e3IMw9iYIooN+BNOXaiPNRQBwleITsQ2LaGMxBsOKdx+EJ/51QiHegoiZX682pS0MxGx/0Rs3IRHmPQgIQ4mzENBlvAQlWqsUGCDuO4Ivg1MbRhHwnQeeex/Lanhk0qRRvWV9z4XFNYKLWETK4oaD60KVQD40H7ho7bKnGJYUDg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4E09XlC01CnOJbl8rPrW0J3ZpZcpK1iJBK9lnk466FU=;
- b=hXkYeuH2wDiPT0WbbieQRwcoDEQJM+ARDysyjQg+tdXQQHaHVMp9OUexXhN4lO+dF6i8mYm6F2HfMsUDo97ODw+/hx9e6Fv3t+KC6JwCaXsEzyl7QI85CtUh/9cwyGDoD11dLNcy12U4xqyv2NE0V1EwGGv8zsyxaSSuXYikbHWmWDI9fQzdhCnzNgfZckmhGJHpp7u5lwBUUPLPHXOxosQi3OLbv6+KBj5zTY8dWKZS3vn3SfdlRC26AtU55HFxhVN7+YAo33fGoU/YMd5xDsBLQySCtH7sKyMcoodMbhnp6/nm6bODHC0cqFhwKzdfFyt3RPFO1R+pWnOyrR+uvw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4E09XlC01CnOJbl8rPrW0J3ZpZcpK1iJBK9lnk466FU=;
- b=ktT+Z/jHEY4EagtHz4A5ob9omOiLhvPq4xNbr2I5v7xZH2FguXQgZfy/Pl7894Wo/3qPZpJU6MsOe5gkcHEQCuW9J4hq0roffrXCCgOtxRo9m6AtO3id0+mYimBVS/Ck4lRanzS7ljb6Yoa7ab5U8Hxaz057Ws4qJGIhYnqcaMexCN2+0wasF2mBxPrTkXmVXRIQdDNjTRFHft6H2mXEmXB4uAvt3THiB782+a5nfqhQj/r3nn9BCS7UE063EJYvkyQnZ63sNZlb09PaB1CaQV64IQ68josdxsivu2pjwk+gWHtElKTMp7bfOfc86OBZSKTGV5VMqZOyjgjI32USKg==
-Authentication-Results: linux.ibm.com; dkim=none (message not signed)
- header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL1PR12MB5143.namprd12.prod.outlook.com (2603:10b6:208:31b::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.20; Tue, 13 Jul
- 2021 17:05:35 +0000
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::d017:af2f:7049:5482]) by BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::d017:af2f:7049:5482%5]) with mapi id 15.20.4331.021; Tue, 13 Jul 2021
- 17:05:35 +0000
-Date:   Tue, 13 Jul 2021 14:05:33 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com
-Subject: Re: [PATCH] s390/vfio-ap: do not open code locks for
- VFIO_GROUP_NOTIFY_SET_KVM notification
-Message-ID: <20210713170533.GF136586@nvidia.com>
-References: <20210707154156.297139-1-akrowiak@linux.ibm.com>
- <20210713013815.57e8a8cb.pasic@linux.ibm.com>
- <5dd3cc05-f789-21a3-50c7-ee80d850a105@linux.ibm.com>
- <20210713184517.48eacee6.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210713184517.48eacee6.pasic@linux.ibm.com>
-X-ClientProxiedBy: CH0PR03CA0055.namprd03.prod.outlook.com
- (2603:10b6:610:b3::30) To BL0PR12MB5506.namprd12.prod.outlook.com
- (2603:10b6:208:1cb::22)
+        id S229771AbhGMSJA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Jul 2021 14:09:00 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61434 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229478AbhGMSJA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 13 Jul 2021 14:09:00 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16DI41p2095747;
+        Tue, 13 Jul 2021 14:06:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=rl92MyEC8DfysxSAdv/G/0FNXcFEqVMKhp3k+pW+ju4=;
+ b=S8rwqcQfiPUKvhmDzIXip5s8Qk9QgFDqPFKFTptOyxXz680jiYKYL0HVn04hOO3gtAJM
+ p/quKCiWyYx7zx4yZCKhbwCnxQXB+NmTHSQHoZK5fSHjOUBtHV5iRutEMo7ptiGMPsk9
+ FF+Lszy9fplzmKiD5ohhVEgbx9rye0Y2V3ZcNFc4Vk9fRRlKtrZS0co4dhsTtT4ENs1K
+ BQzIHK23SEemRTV2AwQqeFXijffmBRtVT/3lMsD5X7E8iUzOPDNLL+yHEiE760YTQjer
+ g0pZRUAzGawLHTTzgD5DogaCpsCSXhWVRRpu9BQVXaDk6+rHKqxMW7/QPwxJxL4lw2p5 WA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39qs2wes5p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 13 Jul 2021 14:06:10 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16DI4kvP101497;
+        Tue, 13 Jul 2021 14:06:09 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39qs2wes40-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 13 Jul 2021 14:06:09 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16DI3Rdp025550;
+        Tue, 13 Jul 2021 18:06:06 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma05fra.de.ibm.com with ESMTP id 39q368grfb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 13 Jul 2021 18:06:06 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16DI3vAt34865562
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Jul 2021 18:03:57 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 42C44A405B;
+        Tue, 13 Jul 2021 18:06:03 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D9E9DA404D;
+        Tue, 13 Jul 2021 18:06:02 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.145.48.26])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 13 Jul 2021 18:06:02 +0000 (GMT)
+Subject: Re: [PATCH] KVM: s390: generate kvm hypercall functions
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20210713145713.2815167-1-hca@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <000d14e0-d531-4aea-571c-90c59027a677@de.ibm.com>
+Date:   Tue, 13 Jul 2021 20:06:02 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (206.223.160.26) by CH0PR03CA0055.namprd03.prod.outlook.com (2603:10b6:610:b3::30) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.21 via Frontend Transport; Tue, 13 Jul 2021 17:05:34 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1m3Lqf-001TjV-Be; Tue, 13 Jul 2021 14:05:33 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 4ba60883-7b29-41d8-5cbc-08d946206e0e
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5143:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BL1PR12MB5143650B0F0A37A11322F09DC2149@BL1PR12MB5143.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: ZkHmNkTI9GVeU+SilVR0WOAOBJX0CytJl9onD+7/54acBfmspNCCfI3nAR1nYRRnqQw6d2nRe6q1iw6n5uDSgVWKbOGhSE8sAc5TZ2WuAcd3z5Pn3nGwjORg0b0YqKy76DeecptFVO/5ev+v5bDyjZBLKST8RXIDRs4UsyKxMHWsaEPeLPkOttlye1/XxiaXywvdNqbqG1v429rHRiqctCNbAuV7LUfxm+wc5wevlzcwCeMo5sio1dqEp2HJsAHL5g8KpP7NVD87HmtUvnUWKBKyVjfB66zKlKqYsyi174+5r1KsvjHmI2UyLtJSWBRhoIE3TeuaS4Xk7fgxGb2cGwO7BhgNznlPy+Qb7hJZHkw6uGwXHTnsI9SIczWewFYnj5cLZWOnVCSVJ6i7Fcl8njCUqHfbRLCHy765c0pzK/DVgVF918MG88iWeA4AUURODH4hFe8Y0HntZbkGNfZVegw97yw8nVpfupQoy0Aj3/EeQiUF4HFOBddp4nUEVO5xv5MfLt8ePKcM3EPu/JKffatdSuQWIkiK8UTQHWokGBYKWGmr1otFlUlfugyKpA9u5Vs1hJt0aOiFFBBKwJw3EvE5yAuUhJmFgCBtcIPBnSUOe7ivLC3i+a+HaVzW4j13h2khO/tNy7/dfF5iqYod+ghkRsFyQK7p/PUA5Mk9VBmMYowthZmTilY7pKhdClW+sAJWrbrl89F1elpEpLfdHw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(136003)(396003)(39860400002)(376002)(366004)(2616005)(478600001)(7416002)(186003)(2906002)(66476007)(426003)(66556008)(66946007)(38100700002)(4326008)(6916009)(8936002)(9786002)(316002)(9746002)(4744005)(1076003)(83380400001)(8676002)(86362001)(33656002)(5660300002)(26005)(36756003)(27376004);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?sALT8+CLQ3miJ5AOuiVYxEf3ptjmfXvw8NoHIe8EmNNZdOCtv/o/xBLirlX3?=
- =?us-ascii?Q?rAQyD1/9TuOh46HmLUxhZv6/xVHjDnNXFsqgGPaosflEm2Shvk3nvYItFsJk?=
- =?us-ascii?Q?UkVNtM2p7i+x/AIIqbITJ8P923jYoKQe4xbJj7iOSIKWDveiPj6CPHvuEwTp?=
- =?us-ascii?Q?Vfz3d7b6hcJGxO+nq9hQsKA26mdgP7cTcKLsdjzsCpfFZ3QHn+RWvEw1+Qmg?=
- =?us-ascii?Q?+9K0a5b/QjwB69R1yuV2q+UaGmGDNU158x0li1j+jHXMlva8ybAo3PMAH1SU?=
- =?us-ascii?Q?1c2sPwZq0L3cbCcfJgB5/hq+lA9aK3P+pVo7YkhJk3A1qlcbU1TPHVZnZ7GW?=
- =?us-ascii?Q?OM3zg37YAzA+wvM9Zlj+p6aVVy2p8XFt3qno4fSpfWSNQIQwQUfk+EHs2frI?=
- =?us-ascii?Q?EP0c5svhjhfx+7VNiYpv6Ypyis03s6QR6SAgKZ0SFEFIUJSJjDBHmBL2/9d6?=
- =?us-ascii?Q?0HV3ZY0TeZtrbVUDG+vc8fYhU3QC4yZ8n5QM/TU0BVQgU9IgMj1p6189e4/2?=
- =?us-ascii?Q?BEgrEEkAFHwk9QMx6YPY76lbNqYn8MWcQ6+MwuL8raBlX6z3CP54JAABTV2/?=
- =?us-ascii?Q?7EQx/QDHNMI1zOdkRDw3l/95rOoduJk0wFEyN87NZcNf+nrh8m5kSRijsQBo?=
- =?us-ascii?Q?WgR0zIJB0gEYQzasOj6X4GcyxVPfo9FFnRMkuPSGGcsE4tq7Va66U7a5xPE8?=
- =?us-ascii?Q?iMDJuKViWQ5oPF2h7YPpKgMp8cQHLVIM6HZFv8U3dKaDIg1cojfRMIqAALdL?=
- =?us-ascii?Q?EH0jXaYh4c2YBaN4XViHiGRgDYZiu5czuDpYkDIAsqLlpNAKHYqPALbLKIR/?=
- =?us-ascii?Q?VKDgvB5V02y9W4LxxLj+kMOK9bUCrkz4PaEIVpJUKjw+qM19BSp8p01t3l4Y?=
- =?us-ascii?Q?tiO9NbfLWrSR88etF2QRmT/uFAJRbEER9NNkFlg5ALCEWbIDmw5D6KavP6qo?=
- =?us-ascii?Q?gSSF/SbxoFh53lbX7EZK8Url+0Ks4qDoTuC0EVHNfohRgJxXixvOHY5CHseI?=
- =?us-ascii?Q?jvhqNpH3yNt5SPRd6Te+Nx6eukiq4kwYYNLDd7lL4K+Z5Z1YbVbxUDpEGRgD?=
- =?us-ascii?Q?DxOyvLtKrCUTTLmSDUG6rI8Xe/B4+MtnQf5NhHZFRZxBsbLtBCeS0nax4DEi?=
- =?us-ascii?Q?QgCHkpd3C0rkpUq13k9K4YujGN7xOsHUbxMuihHn5dBWMn5QzQHHsGtAhPky?=
- =?us-ascii?Q?T/gzP11MhQhBxq4KG3S0csEcfrq67bhN/WYlP6wAdPd7MOqusxjNoLQKBO93?=
- =?us-ascii?Q?ZChcJHETXqrg5/g15dr+IahOdTNlks8XTL9n10vbE4yGX+xECc4sE5FthcH2?=
- =?us-ascii?Q?pYLKg8RC/1+QL99ZTcYMAGHa?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4ba60883-7b29-41d8-5cbc-08d946206e0e
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jul 2021 17:05:35.0979
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: dV74SNqe8Bd4BGXGw9Q4PiHw8As0yagRlLi/pRxi1D1y0geu8D3iYYRvWrdP/98s
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5143
+In-Reply-To: <20210713145713.2815167-1-hca@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 9NHk8mO0w8EaApkDRCy-BZ-7YMW-MkqY
+X-Proofpoint-GUID: ZlpNX8c4r940NClZ8Qoy53M4DQfEploG
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-13_10:2021-07-13,2021-07-13 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 malwarescore=0 impostorscore=0 bulkscore=0 phishscore=0
+ suspectscore=0 mlxscore=0 adultscore=0 priorityscore=1501 spamscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107130114
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 13, 2021 at 06:45:17PM +0200, Halil Pasic wrote:
+On 13.07.21 16:57, Heiko Carstens wrote:
+> Generate kvm hypercall functions with a macro instead of duplicating
+> the more or less identical code seven times. This also reduces number
+> of lines of code.
+> However the main purpose is to get rid of as many as possible open
+> coded error prone register asm constructs in s390 architecture code.
+> 
+> For the only user of kvm_hypercall identical code is created
+> before/after this patch (drivers/s390/virtio/virtio_ccw.c).
+> 
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 
-> Jason may give it another try to convince us that 0cc00c8d4050 only
-> silenced lockdep, but vfio_ap remained prone to deadlocks. To my best
-> knowledge using condition variable and a mutex is one of the well known
-> ways to implement an rwlock. 
-
-The well known pattern is to use a rwsem.
-
-This:
-        wait_event_cmd(matrix_mdev->wait_for_kvm,
-                       !matrix_mdev->kvm_busy,
-                       mutex_unlock(&matrix_dev->lock),
-                       mutex_lock(&matrix_dev->lock));
-
-
-Is not really a rwsem, and is invsible to lockdep.
-
-Jason
+Thanks applied. Will queue for 5.15.
+> ---
+>   arch/s390/include/asm/kvm_para.h | 229 ++++++++++---------------------
+>   1 file changed, 73 insertions(+), 156 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/kvm_para.h b/arch/s390/include/asm/kvm_para.h
+> index cbc7c3a68e4d..df73a052760c 100644
+> --- a/arch/s390/include/asm/kvm_para.h
+> +++ b/arch/s390/include/asm/kvm_para.h
+> @@ -24,162 +24,79 @@
+>   #include <uapi/asm/kvm_para.h>
+>   #include <asm/diag.h>
+>   
+> -static inline long __kvm_hypercall0(unsigned long nr)
+> -{
+> -	register unsigned long __nr asm("1") = nr;
+> -	register long __rc asm("2");
+> -
+> -	asm volatile ("diag 2,4,0x500\n"
+> -		      : "=d" (__rc) : "d" (__nr): "memory", "cc");
+> -	return __rc;
+> -}
+> -
+> -static inline long kvm_hypercall0(unsigned long nr)
+> -{
+> -	diag_stat_inc(DIAG_STAT_X500);
+> -	return __kvm_hypercall0(nr);
+> -}
+> -
+> -static inline long __kvm_hypercall1(unsigned long nr, unsigned long p1)
+> -{
+> -	register unsigned long __nr asm("1") = nr;
+> -	register unsigned long __p1 asm("2") = p1;
+> -	register long __rc asm("2");
+> -
+> -	asm volatile ("diag 2,4,0x500\n"
+> -		      : "=d" (__rc) : "d" (__nr), "0" (__p1) : "memory", "cc");
+> -	return __rc;
+> -}
+> -
+> -static inline long kvm_hypercall1(unsigned long nr, unsigned long p1)
+> -{
+> -	diag_stat_inc(DIAG_STAT_X500);
+> -	return __kvm_hypercall1(nr, p1);
+> -}
+> -
+> -static inline long __kvm_hypercall2(unsigned long nr, unsigned long p1,
+> -			       unsigned long p2)
+> -{
+> -	register unsigned long __nr asm("1") = nr;
+> -	register unsigned long __p1 asm("2") = p1;
+> -	register unsigned long __p2 asm("3") = p2;
+> -	register long __rc asm("2");
+> -
+> -	asm volatile ("diag 2,4,0x500\n"
+> -		      : "=d" (__rc) : "d" (__nr), "0" (__p1), "d" (__p2)
+> -		      : "memory", "cc");
+> -	return __rc;
+> -}
+> -
+> -static inline long kvm_hypercall2(unsigned long nr, unsigned long p1,
+> -			       unsigned long p2)
+> -{
+> -	diag_stat_inc(DIAG_STAT_X500);
+> -	return __kvm_hypercall2(nr, p1, p2);
+> -}
+> -
+> -static inline long __kvm_hypercall3(unsigned long nr, unsigned long p1,
+> -			       unsigned long p2, unsigned long p3)
+> -{
+> -	register unsigned long __nr asm("1") = nr;
+> -	register unsigned long __p1 asm("2") = p1;
+> -	register unsigned long __p2 asm("3") = p2;
+> -	register unsigned long __p3 asm("4") = p3;
+> -	register long __rc asm("2");
+> -
+> -	asm volatile ("diag 2,4,0x500\n"
+> -		      : "=d" (__rc) : "d" (__nr), "0" (__p1), "d" (__p2),
+> -			"d" (__p3) : "memory", "cc");
+> -	return __rc;
+> -}
+> -
+> -static inline long kvm_hypercall3(unsigned long nr, unsigned long p1,
+> -			       unsigned long p2, unsigned long p3)
+> -{
+> -	diag_stat_inc(DIAG_STAT_X500);
+> -	return __kvm_hypercall3(nr, p1, p2, p3);
+> -}
+> -
+> -static inline long __kvm_hypercall4(unsigned long nr, unsigned long p1,
+> -			       unsigned long p2, unsigned long p3,
+> -			       unsigned long p4)
+> -{
+> -	register unsigned long __nr asm("1") = nr;
+> -	register unsigned long __p1 asm("2") = p1;
+> -	register unsigned long __p2 asm("3") = p2;
+> -	register unsigned long __p3 asm("4") = p3;
+> -	register unsigned long __p4 asm("5") = p4;
+> -	register long __rc asm("2");
+> -
+> -	asm volatile ("diag 2,4,0x500\n"
+> -		      : "=d" (__rc) : "d" (__nr), "0" (__p1), "d" (__p2),
+> -			"d" (__p3), "d" (__p4) : "memory", "cc");
+> -	return __rc;
+> -}
+> -
+> -static inline long kvm_hypercall4(unsigned long nr, unsigned long p1,
+> -			       unsigned long p2, unsigned long p3,
+> -			       unsigned long p4)
+> -{
+> -	diag_stat_inc(DIAG_STAT_X500);
+> -	return __kvm_hypercall4(nr, p1, p2, p3, p4);
+> -}
+> -
+> -static inline long __kvm_hypercall5(unsigned long nr, unsigned long p1,
+> -			       unsigned long p2, unsigned long p3,
+> -			       unsigned long p4, unsigned long p5)
+> -{
+> -	register unsigned long __nr asm("1") = nr;
+> -	register unsigned long __p1 asm("2") = p1;
+> -	register unsigned long __p2 asm("3") = p2;
+> -	register unsigned long __p3 asm("4") = p3;
+> -	register unsigned long __p4 asm("5") = p4;
+> -	register unsigned long __p5 asm("6") = p5;
+> -	register long __rc asm("2");
+> -
+> -	asm volatile ("diag 2,4,0x500\n"
+> -		      : "=d" (__rc) : "d" (__nr), "0" (__p1), "d" (__p2),
+> -			"d" (__p3), "d" (__p4), "d" (__p5)  : "memory", "cc");
+> -	return __rc;
+> -}
+> -
+> -static inline long kvm_hypercall5(unsigned long nr, unsigned long p1,
+> -			       unsigned long p2, unsigned long p3,
+> -			       unsigned long p4, unsigned long p5)
+> -{
+> -	diag_stat_inc(DIAG_STAT_X500);
+> -	return __kvm_hypercall5(nr, p1, p2, p3, p4, p5);
+> -}
+> -
+> -static inline long __kvm_hypercall6(unsigned long nr, unsigned long p1,
+> -			       unsigned long p2, unsigned long p3,
+> -			       unsigned long p4, unsigned long p5,
+> -			       unsigned long p6)
+> -{
+> -	register unsigned long __nr asm("1") = nr;
+> -	register unsigned long __p1 asm("2") = p1;
+> -	register unsigned long __p2 asm("3") = p2;
+> -	register unsigned long __p3 asm("4") = p3;
+> -	register unsigned long __p4 asm("5") = p4;
+> -	register unsigned long __p5 asm("6") = p5;
+> -	register unsigned long __p6 asm("7") = p6;
+> -	register long __rc asm("2");
+> -
+> -	asm volatile ("diag 2,4,0x500\n"
+> -		      : "=d" (__rc) : "d" (__nr), "0" (__p1), "d" (__p2),
+> -			"d" (__p3), "d" (__p4), "d" (__p5), "d" (__p6)
+> -		      : "memory", "cc");
+> -	return __rc;
+> -}
+> -
+> -static inline long kvm_hypercall6(unsigned long nr, unsigned long p1,
+> -			       unsigned long p2, unsigned long p3,
+> -			       unsigned long p4, unsigned long p5,
+> -			       unsigned long p6)
+> -{
+> -	diag_stat_inc(DIAG_STAT_X500);
+> -	return __kvm_hypercall6(nr, p1, p2, p3, p4, p5, p6);
+> -}
+> +#define HYPERCALL_FMT_0
+> +#define HYPERCALL_FMT_1 , "0" (r2)
+> +#define HYPERCALL_FMT_2 , "d" (r3) HYPERCALL_FMT_1
+> +#define HYPERCALL_FMT_3 , "d" (r4) HYPERCALL_FMT_2
+> +#define HYPERCALL_FMT_4 , "d" (r5) HYPERCALL_FMT_3
+> +#define HYPERCALL_FMT_5 , "d" (r6) HYPERCALL_FMT_4
+> +#define HYPERCALL_FMT_6 , "d" (r7) HYPERCALL_FMT_5
+> +
+> +#define HYPERCALL_PARM_0
+> +#define HYPERCALL_PARM_1 , unsigned long arg1
+> +#define HYPERCALL_PARM_2 HYPERCALL_PARM_1, unsigned long arg2
+> +#define HYPERCALL_PARM_3 HYPERCALL_PARM_2, unsigned long arg3
+> +#define HYPERCALL_PARM_4 HYPERCALL_PARM_3, unsigned long arg4
+> +#define HYPERCALL_PARM_5 HYPERCALL_PARM_4, unsigned long arg5
+> +#define HYPERCALL_PARM_6 HYPERCALL_PARM_5, unsigned long arg6
+> +
+> +#define HYPERCALL_REGS_0
+> +#define HYPERCALL_REGS_1						\
+> +	register unsigned long r2 asm("2") = arg1
+> +#define HYPERCALL_REGS_2						\
+> +	HYPERCALL_REGS_1;						\
+> +	register unsigned long r3 asm("3") = arg2
+> +#define HYPERCALL_REGS_3						\
+> +	HYPERCALL_REGS_2;						\
+> +	register unsigned long r4 asm("4") = arg3
+> +#define HYPERCALL_REGS_4						\
+> +	HYPERCALL_REGS_3;						\
+> +	register unsigned long r5 asm("5") = arg4
+> +#define HYPERCALL_REGS_5						\
+> +	HYPERCALL_REGS_4;						\
+> +	register unsigned long r6 asm("6") = arg5
+> +#define HYPERCALL_REGS_6						\
+> +	HYPERCALL_REGS_5;						\
+> +	register unsigned long r7 asm("7") = arg6
+> +
+> +#define HYPERCALL_ARGS_0
+> +#define HYPERCALL_ARGS_1 , arg1
+> +#define HYPERCALL_ARGS_2 HYPERCALL_ARGS_1, arg2
+> +#define HYPERCALL_ARGS_3 HYPERCALL_ARGS_2, arg3
+> +#define HYPERCALL_ARGS_4 HYPERCALL_ARGS_3, arg4
+> +#define HYPERCALL_ARGS_5 HYPERCALL_ARGS_4, arg5
+> +#define HYPERCALL_ARGS_6 HYPERCALL_ARGS_5, arg6
+> +
+> +#define GENERATE_KVM_HYPERCALL_FUNC(args)				\
+> +static inline								\
+> +long __kvm_hypercall##args(unsigned long nr HYPERCALL_PARM_##args)	\
+> +{									\
+> +	register unsigned long __nr asm("1") = nr;			\
+> +	register long __rc asm("2");					\
+> +	HYPERCALL_REGS_##args;						\
+> +									\
+> +	asm volatile (							\
+> +		"	diag	2,4,0x500\n"				\
+> +		: "=d" (__rc)						\
+> +		: "d" (__nr) HYPERCALL_FMT_##args			\
+> +		: "memory", "cc");					\
+> +	return __rc;							\
+> +}									\
+> +									\
+> +static inline								\
+> +long kvm_hypercall##args(unsigned long nr HYPERCALL_PARM_##args)	\
+> +{									\
+> +	diag_stat_inc(DIAG_STAT_X500);					\
+> +	return __kvm_hypercall##args(nr HYPERCALL_ARGS_##args);		\
+> +}
+> +
+> +GENERATE_KVM_HYPERCALL_FUNC(0)
+> +GENERATE_KVM_HYPERCALL_FUNC(1)
+> +GENERATE_KVM_HYPERCALL_FUNC(2)
+> +GENERATE_KVM_HYPERCALL_FUNC(3)
+> +GENERATE_KVM_HYPERCALL_FUNC(4)
+> +GENERATE_KVM_HYPERCALL_FUNC(5)
+> +GENERATE_KVM_HYPERCALL_FUNC(6)
+>   
+>   /* kvm on s390 is always paravirtualization enabled */
+>   static inline int kvm_para_available(void)
+> 
