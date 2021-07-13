@@ -2,135 +2,347 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 992BFC07E95
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Jul 2021 13:48:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 438D2C07E95
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Jul 2021 14:57:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B92561249
-	for <linux-s390@archiver.kernel.org>; Tue, 13 Jul 2021 13:48:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 25F2261289
+	for <linux-s390@archiver.kernel.org>; Tue, 13 Jul 2021 14:57:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236468AbhGMNu6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 13 Jul 2021 09:50:58 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3468 "EHLO
+        id S236887AbhGMPAK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 13 Jul 2021 11:00:10 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8884 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236222AbhGMNu6 (ORCPT
+        by vger.kernel.org with ESMTP id S236763AbhGMPAK (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 13 Jul 2021 09:50:58 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16DDY0A2160520;
-        Tue, 13 Jul 2021 09:48:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=EsizOuUYqgDJqD1SA7Gt1GBWWhLQK+pZApIq/X2FPt0=;
- b=f4DhsNap2KIW0/CBTL9Jx4qpOdO0cDRJE+pjdIYRAuI72RLDUtHl8iTm5+C+pCIzZr6N
- xn2afLQdDPfHz5mM2U68aHFQNr9CKBERPMKbtA3wgyYnQVgjWq2amzPKA0sXFZQ5PpZx
- sHvbU+WW9iGF/4JrlWDR3GT2FsdC9XDPe91j7V8YfxQRFcQCTRPAamKnwME3Cp1+qITL
- d1z0exy1/uzqJArltaLXB1QIwsdDOFCasux6Gv0Xdaj9sxqIa0Woh6L2tXy+GVcs9gYn
- 6xYWkgiS1VFSNZUcObY5Wq3J9BI1+cD61fSwq+G0+Vr37F6uv0cgDLDf0GQz/l/xUzgH uw== 
+        Tue, 13 Jul 2021 11:00:10 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16DEiC5T152191;
+        Tue, 13 Jul 2021 10:57:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=8InjtTwK2Gj19YVq5E6P4bRkKFdPWik/iF+YPgDio0U=;
+ b=HHQR9UuGF5xf8ylWqELyyzqPcu5dL6h2Xam6Egps0NrlFYUDhsiCd3ZTHkHdD4xf81KC
+ VQWMu2bfStJUpLDA5niEwMUDZk/hyavUWrOZJMbtpvTzsWJEkd1Y84A5G2C4ezsA3eff
+ 1IVbkHKI49IJunsQuXfzlTXN9e78HvYgIQzNLa5kuThJ6npxpHJVhrWQuzFeM9gKzxOy
+ lSmIQQ8qzZ2LCWURuWGt1V9K7hde/mffe2SZnIXDqq8dYSgKRnXRq5bMkibKEADNl9Ir
+ vO0iy/OcjTKEP4eGU+x7b943zSyWh5qhjsEPwytbupfmksYflFRtp38+SeYrv4vn5Vov IA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39qrkwtjg4-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39qs2w8h2q-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Jul 2021 09:48:06 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16DDYVZZ162068;
-        Tue, 13 Jul 2021 09:48:06 -0400
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39qrkwtjfg-1
+        Tue, 13 Jul 2021 10:57:20 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16DEik4I157416;
+        Tue, 13 Jul 2021 10:57:19 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39qs2w8h1k-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Jul 2021 09:48:06 -0400
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16DDcRLt000967;
-        Tue, 13 Jul 2021 13:48:05 GMT
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-        by ppma04dal.us.ibm.com with ESMTP id 39q36bqwj8-1
+        Tue, 13 Jul 2021 10:57:19 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16DEs4vd019810;
+        Tue, 13 Jul 2021 14:57:16 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 39q3689bhr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Jul 2021 13:48:05 +0000
-Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16DDm3wU25035152
+        Tue, 13 Jul 2021 14:57:16 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16DEvDfo31916390
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Jul 2021 13:48:03 GMT
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D239E136051;
-        Tue, 13 Jul 2021 13:48:03 +0000 (GMT)
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 83AE613605E;
-        Tue, 13 Jul 2021 13:48:02 +0000 (GMT)
-Received: from [9.85.184.30] (unknown [9.85.184.30])
-        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 13 Jul 2021 13:48:02 +0000 (GMT)
-Subject: Re: [PATCH] s390/vfio-ap: do not open code locks for
- VFIO_GROUP_NOTIFY_SET_KVM notification
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com
-References: <20210707154156.297139-1-akrowiak@linux.ibm.com>
- <20210713013815.57e8a8cb.pasic@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <5dd3cc05-f789-21a3-50c7-ee80d850a105@linux.ibm.com>
-Date:   Tue, 13 Jul 2021 09:48:01 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        Tue, 13 Jul 2021 14:57:13 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A432CA4066;
+        Tue, 13 Jul 2021 14:57:13 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4FC8BA4062;
+        Tue, 13 Jul 2021 14:57:13 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 13 Jul 2021 14:57:13 +0000 (GMT)
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH] KVM: s390: generate kvm hypercall functions
+Date:   Tue, 13 Jul 2021 16:57:13 +0200
+Message-Id: <20210713145713.2815167-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20210713013815.57e8a8cb.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: sixkAA8Q_4Pda_6ejzfhPfwcZw7HzmuJ
-X-Proofpoint-ORIG-GUID: mY_nBjNP8K7kfBpFx9cMs83BXdFgKZHd
+X-Proofpoint-ORIG-GUID: ij-scCgbljwk-ub35cFr7Hq0qk7SuQt4
+X-Proofpoint-GUID: UtY0O9LieVMLPVZWjCfixofLmt-gDcDJ
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-13_05:2021-07-13,2021-07-13 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 malwarescore=0 suspectscore=0
- impostorscore=0 phishscore=0 priorityscore=1501 spamscore=0
- mlxlogscore=999 bulkscore=0 adultscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2107130086
+ definitions=2021-07-13_07:2021-07-13,2021-07-13 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 malwarescore=0 impostorscore=0 bulkscore=0 phishscore=0
+ suspectscore=0 mlxscore=0 adultscore=0 priorityscore=1501 spamscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107130093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Generate kvm hypercall functions with a macro instead of duplicating
+the more or less identical code seven times. This also reduces number
+of lines of code.
+However the main purpose is to get rid of as many as possible open
+coded error prone register asm constructs in s390 architecture code.
 
+For the only user of kvm_hypercall identical code is created
+before/after this patch (drivers/s390/virtio/virtio_ccw.c).
 
-On 7/12/21 7:38 PM, Halil Pasic wrote:
-> On Wed,  7 Jul 2021 11:41:56 -0400
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->> It was pointed out during an unrelated patch review that locks should not
->> be open coded - i.e., writing the algorithm of a standard lock in a
->> function instead of using a lock from the standard library. The setting and
->> testing of the kvm_busy flag and sleeping on a wait_event is the same thing
->> a lock does. Whatever potential deadlock was found and reported via the
->> lockdep splat was not magically removed by going to a wait_queue; it just
->> removed the lockdep annotations that would identify the issue early
-> Did you change your opinion since we last talked about it? This reads to
-> me like we are deadlocky without this patch, because of the last
-> sentence.
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/include/asm/kvm_para.h | 229 ++++++++++---------------------
+ 1 file changed, 73 insertions(+), 156 deletions(-)
 
-The words are a direct paraphrase of Jason G's responses to my
-query regarding what he meant by open coding locks. I
-am choosing to take his word on the subject and remove the
-open coded locks.
-
-Having said that, we do not have a deadlock problem without
-this patch. If you recall, the lockdep splat occurred ONLY when
-running a Secure Execution guest in a CI environment. Since
-AP is not yet supported for SE guests, there is no danger of
-a lockdep splat occurring in a customer environment. Given
-Jason's objections to the original solution (i.e., kvm_busy flag
-and wait queue), I decided to replace the so-called open
-coded locks.
-
->
-> Regards,
-> Halil
+diff --git a/arch/s390/include/asm/kvm_para.h b/arch/s390/include/asm/kvm_para.h
+index cbc7c3a68e4d..df73a052760c 100644
+--- a/arch/s390/include/asm/kvm_para.h
++++ b/arch/s390/include/asm/kvm_para.h
+@@ -24,162 +24,79 @@
+ #include <uapi/asm/kvm_para.h>
+ #include <asm/diag.h>
+ 
+-static inline long __kvm_hypercall0(unsigned long nr)
+-{
+-	register unsigned long __nr asm("1") = nr;
+-	register long __rc asm("2");
+-
+-	asm volatile ("diag 2,4,0x500\n"
+-		      : "=d" (__rc) : "d" (__nr): "memory", "cc");
+-	return __rc;
+-}
+-
+-static inline long kvm_hypercall0(unsigned long nr)
+-{
+-	diag_stat_inc(DIAG_STAT_X500);
+-	return __kvm_hypercall0(nr);
+-}
+-
+-static inline long __kvm_hypercall1(unsigned long nr, unsigned long p1)
+-{
+-	register unsigned long __nr asm("1") = nr;
+-	register unsigned long __p1 asm("2") = p1;
+-	register long __rc asm("2");
+-
+-	asm volatile ("diag 2,4,0x500\n"
+-		      : "=d" (__rc) : "d" (__nr), "0" (__p1) : "memory", "cc");
+-	return __rc;
+-}
+-
+-static inline long kvm_hypercall1(unsigned long nr, unsigned long p1)
+-{
+-	diag_stat_inc(DIAG_STAT_X500);
+-	return __kvm_hypercall1(nr, p1);
+-}
+-
+-static inline long __kvm_hypercall2(unsigned long nr, unsigned long p1,
+-			       unsigned long p2)
+-{
+-	register unsigned long __nr asm("1") = nr;
+-	register unsigned long __p1 asm("2") = p1;
+-	register unsigned long __p2 asm("3") = p2;
+-	register long __rc asm("2");
+-
+-	asm volatile ("diag 2,4,0x500\n"
+-		      : "=d" (__rc) : "d" (__nr), "0" (__p1), "d" (__p2)
+-		      : "memory", "cc");
+-	return __rc;
+-}
+-
+-static inline long kvm_hypercall2(unsigned long nr, unsigned long p1,
+-			       unsigned long p2)
+-{
+-	diag_stat_inc(DIAG_STAT_X500);
+-	return __kvm_hypercall2(nr, p1, p2);
+-}
+-
+-static inline long __kvm_hypercall3(unsigned long nr, unsigned long p1,
+-			       unsigned long p2, unsigned long p3)
+-{
+-	register unsigned long __nr asm("1") = nr;
+-	register unsigned long __p1 asm("2") = p1;
+-	register unsigned long __p2 asm("3") = p2;
+-	register unsigned long __p3 asm("4") = p3;
+-	register long __rc asm("2");
+-
+-	asm volatile ("diag 2,4,0x500\n"
+-		      : "=d" (__rc) : "d" (__nr), "0" (__p1), "d" (__p2),
+-			"d" (__p3) : "memory", "cc");
+-	return __rc;
+-}
+-
+-static inline long kvm_hypercall3(unsigned long nr, unsigned long p1,
+-			       unsigned long p2, unsigned long p3)
+-{
+-	diag_stat_inc(DIAG_STAT_X500);
+-	return __kvm_hypercall3(nr, p1, p2, p3);
+-}
+-
+-static inline long __kvm_hypercall4(unsigned long nr, unsigned long p1,
+-			       unsigned long p2, unsigned long p3,
+-			       unsigned long p4)
+-{
+-	register unsigned long __nr asm("1") = nr;
+-	register unsigned long __p1 asm("2") = p1;
+-	register unsigned long __p2 asm("3") = p2;
+-	register unsigned long __p3 asm("4") = p3;
+-	register unsigned long __p4 asm("5") = p4;
+-	register long __rc asm("2");
+-
+-	asm volatile ("diag 2,4,0x500\n"
+-		      : "=d" (__rc) : "d" (__nr), "0" (__p1), "d" (__p2),
+-			"d" (__p3), "d" (__p4) : "memory", "cc");
+-	return __rc;
+-}
+-
+-static inline long kvm_hypercall4(unsigned long nr, unsigned long p1,
+-			       unsigned long p2, unsigned long p3,
+-			       unsigned long p4)
+-{
+-	diag_stat_inc(DIAG_STAT_X500);
+-	return __kvm_hypercall4(nr, p1, p2, p3, p4);
+-}
+-
+-static inline long __kvm_hypercall5(unsigned long nr, unsigned long p1,
+-			       unsigned long p2, unsigned long p3,
+-			       unsigned long p4, unsigned long p5)
+-{
+-	register unsigned long __nr asm("1") = nr;
+-	register unsigned long __p1 asm("2") = p1;
+-	register unsigned long __p2 asm("3") = p2;
+-	register unsigned long __p3 asm("4") = p3;
+-	register unsigned long __p4 asm("5") = p4;
+-	register unsigned long __p5 asm("6") = p5;
+-	register long __rc asm("2");
+-
+-	asm volatile ("diag 2,4,0x500\n"
+-		      : "=d" (__rc) : "d" (__nr), "0" (__p1), "d" (__p2),
+-			"d" (__p3), "d" (__p4), "d" (__p5)  : "memory", "cc");
+-	return __rc;
+-}
+-
+-static inline long kvm_hypercall5(unsigned long nr, unsigned long p1,
+-			       unsigned long p2, unsigned long p3,
+-			       unsigned long p4, unsigned long p5)
+-{
+-	diag_stat_inc(DIAG_STAT_X500);
+-	return __kvm_hypercall5(nr, p1, p2, p3, p4, p5);
+-}
+-
+-static inline long __kvm_hypercall6(unsigned long nr, unsigned long p1,
+-			       unsigned long p2, unsigned long p3,
+-			       unsigned long p4, unsigned long p5,
+-			       unsigned long p6)
+-{
+-	register unsigned long __nr asm("1") = nr;
+-	register unsigned long __p1 asm("2") = p1;
+-	register unsigned long __p2 asm("3") = p2;
+-	register unsigned long __p3 asm("4") = p3;
+-	register unsigned long __p4 asm("5") = p4;
+-	register unsigned long __p5 asm("6") = p5;
+-	register unsigned long __p6 asm("7") = p6;
+-	register long __rc asm("2");
+-
+-	asm volatile ("diag 2,4,0x500\n"
+-		      : "=d" (__rc) : "d" (__nr), "0" (__p1), "d" (__p2),
+-			"d" (__p3), "d" (__p4), "d" (__p5), "d" (__p6)
+-		      : "memory", "cc");
+-	return __rc;
+-}
+-
+-static inline long kvm_hypercall6(unsigned long nr, unsigned long p1,
+-			       unsigned long p2, unsigned long p3,
+-			       unsigned long p4, unsigned long p5,
+-			       unsigned long p6)
+-{
+-	diag_stat_inc(DIAG_STAT_X500);
+-	return __kvm_hypercall6(nr, p1, p2, p3, p4, p5, p6);
+-}
++#define HYPERCALL_FMT_0
++#define HYPERCALL_FMT_1 , "0" (r2)
++#define HYPERCALL_FMT_2 , "d" (r3) HYPERCALL_FMT_1
++#define HYPERCALL_FMT_3 , "d" (r4) HYPERCALL_FMT_2
++#define HYPERCALL_FMT_4 , "d" (r5) HYPERCALL_FMT_3
++#define HYPERCALL_FMT_5 , "d" (r6) HYPERCALL_FMT_4
++#define HYPERCALL_FMT_6 , "d" (r7) HYPERCALL_FMT_5
++
++#define HYPERCALL_PARM_0
++#define HYPERCALL_PARM_1 , unsigned long arg1
++#define HYPERCALL_PARM_2 HYPERCALL_PARM_1, unsigned long arg2
++#define HYPERCALL_PARM_3 HYPERCALL_PARM_2, unsigned long arg3
++#define HYPERCALL_PARM_4 HYPERCALL_PARM_3, unsigned long arg4
++#define HYPERCALL_PARM_5 HYPERCALL_PARM_4, unsigned long arg5
++#define HYPERCALL_PARM_6 HYPERCALL_PARM_5, unsigned long arg6
++
++#define HYPERCALL_REGS_0
++#define HYPERCALL_REGS_1						\
++	register unsigned long r2 asm("2") = arg1
++#define HYPERCALL_REGS_2						\
++	HYPERCALL_REGS_1;						\
++	register unsigned long r3 asm("3") = arg2
++#define HYPERCALL_REGS_3						\
++	HYPERCALL_REGS_2;						\
++	register unsigned long r4 asm("4") = arg3
++#define HYPERCALL_REGS_4						\
++	HYPERCALL_REGS_3;						\
++	register unsigned long r5 asm("5") = arg4
++#define HYPERCALL_REGS_5						\
++	HYPERCALL_REGS_4;						\
++	register unsigned long r6 asm("6") = arg5
++#define HYPERCALL_REGS_6						\
++	HYPERCALL_REGS_5;						\
++	register unsigned long r7 asm("7") = arg6
++
++#define HYPERCALL_ARGS_0
++#define HYPERCALL_ARGS_1 , arg1
++#define HYPERCALL_ARGS_2 HYPERCALL_ARGS_1, arg2
++#define HYPERCALL_ARGS_3 HYPERCALL_ARGS_2, arg3
++#define HYPERCALL_ARGS_4 HYPERCALL_ARGS_3, arg4
++#define HYPERCALL_ARGS_5 HYPERCALL_ARGS_4, arg5
++#define HYPERCALL_ARGS_6 HYPERCALL_ARGS_5, arg6
++
++#define GENERATE_KVM_HYPERCALL_FUNC(args)				\
++static inline								\
++long __kvm_hypercall##args(unsigned long nr HYPERCALL_PARM_##args)	\
++{									\
++	register unsigned long __nr asm("1") = nr;			\
++	register long __rc asm("2");					\
++	HYPERCALL_REGS_##args;						\
++									\
++	asm volatile (							\
++		"	diag	2,4,0x500\n"				\
++		: "=d" (__rc)						\
++		: "d" (__nr) HYPERCALL_FMT_##args			\
++		: "memory", "cc");					\
++	return __rc;							\
++}									\
++									\
++static inline								\
++long kvm_hypercall##args(unsigned long nr HYPERCALL_PARM_##args)	\
++{									\
++	diag_stat_inc(DIAG_STAT_X500);					\
++	return __kvm_hypercall##args(nr HYPERCALL_ARGS_##args);		\
++}
++
++GENERATE_KVM_HYPERCALL_FUNC(0)
++GENERATE_KVM_HYPERCALL_FUNC(1)
++GENERATE_KVM_HYPERCALL_FUNC(2)
++GENERATE_KVM_HYPERCALL_FUNC(3)
++GENERATE_KVM_HYPERCALL_FUNC(4)
++GENERATE_KVM_HYPERCALL_FUNC(5)
++GENERATE_KVM_HYPERCALL_FUNC(6)
+ 
+ /* kvm on s390 is always paravirtualization enabled */
+ static inline int kvm_para_available(void)
+-- 
+2.25.1
 
