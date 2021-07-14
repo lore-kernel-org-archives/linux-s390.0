@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-19.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F35DC47E51
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 19:42:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DEA39C47E4B
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 19:45:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5561C613D9
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 19:42:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C77C361370
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 19:45:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235485AbhGNTov (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Jul 2021 15:44:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38712 "EHLO mail.kernel.org"
+        id S236290AbhGNTsS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Jul 2021 15:48:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235270AbhGNTn1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:43:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE7CF613CF;
-        Wed, 14 Jul 2021 19:40:30 +0000 (UTC)
+        id S237971AbhGNTq4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:46:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C714B613F3;
+        Wed, 14 Jul 2021 19:42:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291631;
-        bh=I8MWdxlpoilUiaepOxNxmoIT1ZEjDxBOyK7pqD1/Bqc=;
+        s=k20201202; t=1626291777;
+        bh=BjACueZrmMy41jSblqDHRPa31XqeZiJocDVJMgODDA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZT92oEQWSwjciaa5Ezj6Qsg4WB/IxMPBlZ8CFZchEqaN4GWPF7r92uyO3sHJ31aF
-         e7jZywIPuzLouoJfgmpRV5r0HNcwyrr4PKhUDNsHuXUlcSztkqYTU2ucEmvZD8sMYw
-         VBWpnfsWFe+vorhAmzyuY1jSAkkD1kGZl+AeJOliGrkTjzKaHVBplFhCHJEcE0FPDn
-         EJ/bAMoeCEMhQzzfqXYgmPKZUl5TSh9JvYRXpHmDr97ZfFHufvOaGPB5hvGVgfAxfO
-         z5UGeNtb33A+jW8euIx8CO9lHDNrxh884dwcrP6HZhFypQIKTWK+KWwAOI0X8d5nyk
-         QXSThQAjfeuJg==
+        b=XasX9UmbmfttsLMnKjV1dqeGO6A4F1KuY+4RUxAAAKXRUmxpJSl6N5CeCzpDP5PAF
+         m1KxwL1tUUeotVMEKSGAA+VDVP4C/5SQjQ8dOpww0LSjSznjQk6ge9f1QFLwowwD22
+         jxafQ/AJmaDbObmQ4qUKddPT+CC2dA6E10+7t5WsfQi/VPMcFYcx4hmre0FzMd1ufr
+         v4LZqAaPeir1vuzMBDAlXTDdwQlzJ8KWq5P9vbFIKm0rK54zg8cMOIUja6TRWfvkuL
+         H6z7HQP0br0+Pwvpy0TtzU+q4h+kiF8xDFqP62Utq3xKu9adTrmk+AJMNq8kzPQbCJ
+         m/Bcj3QFdHDwA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 106/108] s390/traps: do not test MONITOR CALL without CONFIG_BUG
-Date:   Wed, 14 Jul 2021 15:37:58 -0400
-Message-Id: <20210714193800.52097-106-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 100/102] s390/traps: do not test MONITOR CALL without CONFIG_BUG
+Date:   Wed, 14 Jul 2021 15:40:33 -0400
+Message-Id: <20210714194036.53141-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
-References: <20210714193800.52097-1-sashal@kernel.org>
+In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
+References: <20210714194036.53141-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -69,10 +69,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-index 8dd23c703718..662f52eb7639 100644
+index db7dd59b570c..c1b8d9170ba3 100644
 --- a/arch/s390/kernel/traps.c
 +++ b/arch/s390/kernel/traps.c
-@@ -277,6 +277,8 @@ static void __init test_monitor_call(void)
+@@ -276,6 +276,8 @@ static void __init test_monitor_call(void)
  {
  	int val = 1;
  
