@@ -4,45 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2F8BC12002
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 19:45:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3AD3C47E4E
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 19:54:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DD8D2613F4
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 19:45:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BD80860240
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 19:54:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236412AbhGNTsT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Jul 2021 15:48:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38756 "EHLO mail.kernel.org"
+        id S240973AbhGNT5l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Jul 2021 15:57:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236430AbhGNTq4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:46:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F9156140F;
-        Wed, 14 Jul 2021 19:42:57 +0000 (UTC)
+        id S240375AbhGNTto (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:49:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AEEE61433;
+        Wed, 14 Jul 2021 19:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291778;
-        bh=xu4a09RyxjHjcQgsyVfU+AasF6ya7IX+aHbh4Bb+IP8=;
+        s=k20201202; t=1626291911;
+        bh=ExshhKc8xGRdXQOIpIjltfrrPGb0liSS2/ZOZLUn2Xo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bf0zJXDLPLBYmQfhOWJ+/oCwEVkta7M7bd4MQwhLFWlPtcCAybXmWRt//pipFRYQQ
-         /NwNZK+99nPbkd1tKU0ipYgUwXXON3wIF3kvsUKv89cLNWkwak91o+SdR0LPyAdvzk
-         lNh8Z8T/UOo2W4hoNo5544MQdwN+gXzNKzGrfjcAjNaQ6YZsrkbQ+OP7e2JpJNKTt1
-         ZtPUzYGBuH1ByOvtVHTbjGBIa+ORv+BnVmKJMugsnTTDlumxiWPvlvnyYS4u4VAjP1
-         yMk0owDRgmB5nyGolZU7Ia3V0iqcFMnv2FFE/2Gltm7U5yQ8TPqd37I4JbmWO6PrQb
-         T/IX0OSKASPLQ==
+        b=JtvWNiPJqXuuP6M7jhnAp7JTtUhTdyvRR1YeRSYb6pP3jyvu4b8MLGzDOTmzV1ri1
+         jw8jvSxG/EilkZwwxrc0OJ8oIQu2XcYCnkCQBs6oNDalnTgWPvYGJlRhX3lb4PothO
+         +GwhV8vvMvLH0fpzVZW1avH6AzUCEzmzo5mOv9/LJsn+CTqd+3rbHRfosbTdwrh4/+
+         JkjT0fXPoYox+j4FWDu/RaqKuK6qtw4/Q6urrNy5R3sdGpYL6EOWFZS78rqvT+foBF
+         ID0cumXlwGzHxzgwKGVdgnIJU0urO53xFHYKD27K1D4MyGyLVZ/5wfIsgz+Z0QPBm9
+         Tjco2tkRyQT/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 101/102] s390: introduce proper type handling call_on_stack() macro
-Date:   Wed, 14 Jul 2021 15:40:34 -0400
-Message-Id: <20210714194036.53141-101-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 87/88] s390: introduce proper type handling call_on_stack() macro
+Date:   Wed, 14 Jul 2021 15:43:02 -0400
+Message-Id: <20210714194303.54028-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
-References: <20210714194036.53141-1-sashal@kernel.org>
+In-Reply-To: <20210714194303.54028-1-sashal@kernel.org>
+References: <20210714194303.54028-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -82,10 +82,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 97 insertions(+)
 
 diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
-index 76c6034428be..b4d936580fbf 100644
+index ee582896b6a3..90488b0c26f6 100644
 --- a/arch/s390/include/asm/stacktrace.h
 +++ b/arch/s390/include/asm/stacktrace.h
-@@ -129,6 +129,103 @@ struct stack_frame {
+@@ -128,6 +128,103 @@ struct stack_frame {
  	r2;								\
  })
  
