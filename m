@@ -2,113 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E2B1C11F66
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 15:25:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72786C07E9A
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 17:56:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 637EF610A7
-	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 15:25:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5658C613BF
+	for <linux-s390@archiver.kernel.org>; Wed, 14 Jul 2021 17:56:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239678AbhGNP2p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Jul 2021 11:28:45 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16204 "EHLO
+        id S229738AbhGNR7n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Jul 2021 13:59:43 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:63604 "EHLO
         mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239654AbhGNP2o (ORCPT
+        by vger.kernel.org with ESMTP id S229736AbhGNR7m (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 14 Jul 2021 11:28:44 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16EF3LmR108704;
-        Wed, 14 Jul 2021 11:25:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references; s=pp1;
- bh=XAIV8edDl+vWuTri4GUkylTAefVkVrTAbXsqFw30784=;
- b=jyJFRCxdI0U7Etq5LvDXCkWRkRMxCcbpaoaAChTVY72qL4NuWTRvfN/dsqO7uFoPrQSY
- fwn9Ea8ifrFD1W5LPwsXeEqI+ytx6Pv7cp4H4OI7Nc7Abyjg/zO7cmKPLYymP0Ixz/Cb
- 4nA5cTtmcn29+eFjm48ZfXJQU9WsS9H6FmT5LTwSXjHNalpJUImdYjlNGaL360cuNzkL
- 49mUL6rCi19zhEt1jkezcEk+wzrGJcIaACwpP7drPOlyK0gypVjrUqXhsGj9WSIbHajt
- ygajG/uaswfpmh2t9/4FkKTn5qT1gCrxMGJ+EHcKG1bhxhNC2BVAHt/GrtQ0tACfUFws /A== 
+        Wed, 14 Jul 2021 13:59:42 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16EHXRe3178379;
+        Wed, 14 Jul 2021 13:56:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=i9bwBZ8IqeFc9nLc0MfjYTOu7SfcLlWpJZJth8+oVKk=;
+ b=rn2klkTmWK4W5w1hWgvYfdCWMvCSJ9wmxqUVb2PKFQZinO7ugvs41MDS103NoxOU/ZDp
+ E9L7jq43OLazgEvVYSEXBpGyf9Zr1hq1wJpK4FMidSLy/mko74DlwW2xg+a+McdaNG6R
+ KenCLYvij6LPYPkrmEOu54DOLEgBwrLaVK9e/n9+vICTs6IdfUSz1zjWUM9SnoN864yC
+ TCjyBv9SgZiKQOmJSUvaPXr1vFjPPCUjuGIA6ZqHsk13pHACiRA7Bn9jl28sSk5hKsQQ
+ 0TidVWJ3uRHuyQnFqcYEDO6gA5VY9kd5PDTVpQR3LHmYULsGpHzmuMsmJGIYhudq2uVo 4w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39sc2y61ag-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39ssmrcgqc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 14 Jul 2021 11:25:52 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16EF3Ooi108928;
-        Wed, 14 Jul 2021 11:25:51 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39sc2y61a0-1
+        Wed, 14 Jul 2021 13:56:48 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16EHYpBc187192;
+        Wed, 14 Jul 2021 13:56:48 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39ssmrcgpr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 14 Jul 2021 11:25:51 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16EFCpG3011662;
-        Wed, 14 Jul 2021 15:25:49 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 39q3689um0-1
+        Wed, 14 Jul 2021 13:56:48 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16EHmvgK012696;
+        Wed, 14 Jul 2021 17:56:46 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 39q3689vxf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 14 Jul 2021 15:25:49 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16EFNaJh33292798
+        Wed, 14 Jul 2021 17:56:46 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16EHugP832178542
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 14 Jul 2021 15:23:36 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C721DA404D;
-        Wed, 14 Jul 2021 15:25:46 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3716EA4053;
-        Wed, 14 Jul 2021 15:25:46 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.181.132])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 14 Jul 2021 15:25:46 +0000 (GMT)
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, pmorel@linux.ibm.com
-Subject: [PATCH v1 2/2] KVM: s390: Topology expose TOPOLOGY facility
-Date:   Wed, 14 Jul 2021 17:25:43 +0200
-Message-Id: <1626276343-22805-3-git-send-email-pmorel@linux.ibm.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1626276343-22805-1-git-send-email-pmorel@linux.ibm.com>
-References: <1626276343-22805-1-git-send-email-pmorel@linux.ibm.com>
+        Wed, 14 Jul 2021 17:56:43 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D3C4F11C04C;
+        Wed, 14 Jul 2021 17:56:42 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4478C11C04A;
+        Wed, 14 Jul 2021 17:56:42 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.145.81.11])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 14 Jul 2021 17:56:42 +0000 (GMT)
+Subject: Re: [PATCH] s390/vfio-ap: do not open code locks for
+ VFIO_GROUP_NOTIFY_SET_KVM notification
+To:     Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>, alex.williamson@redhat.com
+Cc:     Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        kwankhede@nvidia.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, hca@linux.ibm.com
+References: <20210707154156.297139-1-akrowiak@linux.ibm.com>
+ <20210713013815.57e8a8cb.pasic@linux.ibm.com>
+ <5dd3cc05-f789-21a3-50c7-ee80d850a105@linux.ibm.com>
+ <20210713184517.48eacee6.pasic@linux.ibm.com>
+ <20210713170533.GF136586@nvidia.com>
+ <9512a7fb-cc55-cd9b-cdf9-7c19d0567311@linux.ibm.com>
+ <20210713192138.GG136586@nvidia.com>
+ <dc18ff02-80f6-e59e-5f08-417434e74706@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <9c50fb1b-4574-0cfc-487c-64108d97ed73@de.ibm.com>
+Date:   Wed, 14 Jul 2021 19:56:42 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
+MIME-Version: 1.0
+In-Reply-To: <dc18ff02-80f6-e59e-5f08-417434e74706@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: WaSwic6vY5jXMKlr6yeYCpntcelhnZfB
-X-Proofpoint-ORIG-GUID: 3Y7C8GCaaYZaCSij0dDgHr1zUbuVLUqe
+X-Proofpoint-ORIG-GUID: ZjTRbgEzRYPzOr3ZuGsF5gBBpfwf1gEN
+X-Proofpoint-GUID: c1spNyS56X5voCqnnhZfMd5GzRcrwV1-
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-14_08:2021-07-14,2021-07-14 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
- spamscore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0 phishscore=0
- mlxlogscore=999 mlxscore=0 adultscore=0 suspectscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2107140090
+ definitions=2021-07-14_10:2021-07-14,2021-07-14 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1011
+ priorityscore=1501 impostorscore=0 adultscore=0 mlxlogscore=982
+ bulkscore=0 phishscore=0 mlxscore=0 lowpriorityscore=0 suspectscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107140105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We add the KVM extension KVM_CAP_S390_CPU_TOPOLOGY, this will
-allow the userland hypervisor to handle the interception of the
-PTF (Perform topology Function) instruction.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- arch/s390/tools/gen_facilities.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
-index 606324e56e4e..2c260eb22bae 100644
---- a/arch/s390/tools/gen_facilities.c
-+++ b/arch/s390/tools/gen_facilities.c
-@@ -112,6 +112,7 @@ static struct facility_def facility_defs[] = {
- 
- 		.name = "FACILITIES_KVM_CPUMODEL",
- 		.bits = (int[]){
-+			11, /* configuration topology facility */
- 			12, /* AP Query Configuration Information */
- 			15, /* AP Facilities Test */
- 			156, /* etoken facility */
--- 
-2.25.1
+On 14.07.21 15:25, Tony Krowiak wrote:
+> 
+>> This patch shows it works as a rwsem - look at what had to be changed
+>> to make it so and you will find some clue to where the problems are in
+>> kvm_busy version.
+>>
+>> In any event, I don't care anymore - please just get this merged, to
+>> AlexW's tree so I don't have conflicts with the rest of the ap changes
+>> for VFIO I've got queued up.
+> 
+> Christian, can you merge this with AlexW's tree? Halil suggested
+> the 'fixes' and 'cc stable' tags ought to be removed, do I need
+> to post another version or can you take those out when merging?
+
+Normally this would go via the KVM/s390 or s390 tree (as Alex did
+not want to handle s390 vfio devices).
+
+Alex, as Jason is waiting for this to be in your tree could you take
+this patch via your tree ?(please remove cc stable and Fixes for now
+I want this to settle a bit).
+
+To carry this patch in your tree with my kvm/s390 and s390 maintainer hat
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
 
