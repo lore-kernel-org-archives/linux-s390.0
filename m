@@ -2,53 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-8.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61FF6C636C9
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 22:11:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F06BCC636CB
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 22:27:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3EF946117A
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 22:11:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CD7D1613C9
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 22:27:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231964AbhGOWOs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Jul 2021 18:14:48 -0400
-Received: from mail-bn7nam10on2056.outbound.protection.outlook.com ([40.107.92.56]:9601
-        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231871AbhGOWOr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 15 Jul 2021 18:14:47 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QjzovEptQ1Kx11El65RBKQnSULZKQaTU+7AqLOprQUmJWTvDywTUFlBmK5DiqRxapCiEbODcPyWyFYbtSP/Qrr6qK7kxwA/rZndtt77NAhfjeZDzJzGsbGF08p4VlT1jVmvBF8sL1krXw7s9kfzKF50WI5oqIoWEDTpKbVPkGiXskh6MZQPYsdqehNyFSNlopBUnXGILwK8yUwJkAvOIK3mPYMjeURl7BIz7+NPTmdeeIfrl+EYevKCi1A0MEDzVMDVWrjLR0lBwT9VTpTQ9hm0l5gLQ9MdJiN0bXej2iiKcOl3zP70mPbR25tWb5X5G/Xy5zATm/q3p4QweOxv0+w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MRa6WL/7Sz7cBATAupIJCezZXUKpeypA3CUH9nnfBsc=;
- b=PfL2BTG5TPp68wA3fC3mtu/MP5EWmKUb3Ff3PwacT+4bi5q7R41ciVo8cts1nf2wQPzHIZ2seUOcXug25sL2R+e+VN4NZO+NtA1UN5/ENS2R6ARo3aoqdrjaD8tTDEAsmTukMY/fB5BUqt0ZKEAlWfWfb+y/jxYQeA3hN0WfN1Xtp6HHCgypgiDw4NTGyyp2tnythycxGB6LTamqAeyUzvGyTEKx2PeND6uJv96yBXTvux9PEaHOdPo7bI0YRf28WZsGqFL72T3521oRlPxBrdTDNzZ7CtvAxM8hXJPMKrZKjZCou+MOumQM1UrYBOqrL6JPrMsXmT2mgOKFBR1Rsw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MRa6WL/7Sz7cBATAupIJCezZXUKpeypA3CUH9nnfBsc=;
- b=tGhJuuE6Knh6p8e3erQs1W7OsAKpZl1mdcbeJr+MX39n8qItiZkvkoRYCnloIzGA14waWsacp8AXpRpa1PdrDQb5xdTh9qcpSD15aDLnZaifAh1aWYviwmPEZWSY99qB08senv7ZjelO7l5zH8mziRmFNQXzp8fJgvp2Uwxy17JOsBJWcyGh3wuU/HEtAQYY4jERkq9jfr7tivsiNz2OjbTa2e9lhajxbgU1adgOEcyDLZyyp82fUcpFR51j3XbIAmy0LX7xppHGIh4yapw5U/VtmrhpmifhRPDAdMOigC7yaXtDwhayblDlbmruHVSGdR/TOZ9j5wqCDp3YbzJQhg==
-Authentication-Results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL1PR12MB5078.namprd12.prod.outlook.com (2603:10b6:208:313::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.22; Thu, 15 Jul
- 2021 22:11:51 +0000
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::d017:af2f:7049:5482]) by BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::d017:af2f:7049:5482%5]) with mapi id 15.20.4331.024; Thu, 15 Jul 2021
- 22:11:51 +0000
-Date:   Thu, 15 Jul 2021 19:11:49 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
+        id S231547AbhGOWaq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Jul 2021 18:30:46 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:30267 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230143AbhGOWap (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 15 Jul 2021 18:30:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626388071;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=CLA8eO2Mn4hxr+cJbgc910e8VN/wkTHNL7BaNmCYSD0=;
+        b=CZseuO4VjGJ+qQf/Rw1LhVWGrKLWUBZQ8kZuBJ1P/GQJTWgaixX4F/8gGi1HJHnn2gdIxo
+        d4jQG+N4/eUR+upugTRhyL+A3gKyJUDs/30Ml3E6FiqMZXr9UrCUAPpMMKzAZpgToVTynk
+        xH6yvu5Uym90YwjBaJB4rFHFNXssnLM=
+Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
+ [209.85.167.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-565-lHkseTPrO_Kz_F268PGfhw-1; Thu, 15 Jul 2021 18:27:50 -0400
+X-MC-Unique: lHkseTPrO_Kz_F268PGfhw-1
+Received: by mail-oi1-f199.google.com with SMTP id l189-20020acabbc60000b02901f566a77bb8so4889399oif.7
+        for <linux-s390@vger.kernel.org>; Thu, 15 Jul 2021 15:27:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=CLA8eO2Mn4hxr+cJbgc910e8VN/wkTHNL7BaNmCYSD0=;
+        b=oyEtmHQ7wa2exmbjMpBNo6NhTEIPt4xpSjqdDyGGoVc62kJyxmxCFblAJlmJtY+PTz
+         UL7MtYIy6qn3IrcqFbmitHgxN8MDh9ZfkDVzaduesml1reHagrZtV4erh3FsRBgCbJoj
+         psmuYRN8umcVk99BRQwvvxGWx6rMr8jlu/+uRk8MGOueqkLl7wqTQMS4KZlrGDRSX+7E
+         zLQ3UNZO0ERCNGGdrgkRwV38NujYhABG9K3eS6nuZ/svuWNh4fXpo5tUA7TlKHAohWro
+         urncyZy4oxUzlHyAzLt4WUeVdCYdWpU+gftZTKK7kBkO8Gwf3D9FZDMKgF2sl0qIHW8C
+         FgXA==
+X-Gm-Message-State: AOAM5326sobZMKyd+ezDdzeoGVYcZd8Bz1+bjGqxp2GdG+mfkHHnl0lM
+        0kCV4epx5pY2fQY/CmtO7Rk6fgpgZvlWsaPzoMB9vcAYnfsgMknCsgzR8Cl2MmX2iuv2O9bKM5W
+        eqt4Zy7XbHesSpnOJJ9si2w==
+X-Received: by 2002:a9d:5e15:: with SMTP id d21mr5845727oti.280.1626388069903;
+        Thu, 15 Jul 2021 15:27:49 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyp8ZblGgPS0JAdEwOCHdvHkA3HueEV2SZpBhta6Fuh8EOKxxl4birTsJK3gicGUmZGOxesYw==
+X-Received: by 2002:a9d:5e15:: with SMTP id d21mr5845703oti.280.1626388069722;
+        Thu, 15 Jul 2021 15:27:49 -0700 (PDT)
+Received: from redhat.com ([198.99.80.109])
+        by smtp.gmail.com with ESMTPSA id v203sm1565993oib.37.2021.07.15.15.27.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Jul 2021 15:27:49 -0700 (PDT)
+Date:   Thu, 15 Jul 2021 16:27:47 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
 Cc:     David Airlie <airlied@linux.ie>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
@@ -82,126 +95,86 @@ Cc:     David Airlie <airlied@linux.ie>,
         Yishai Hadas <yishaih@nvidia.com>
 Subject: Re: [PATCH 09/13] vfio/pci: Reorganize VFIO_DEVICE_PCI_HOT_RESET to
  use the device set
-Message-ID: <20210715221149.GJ543781@nvidia.com>
+Message-ID: <20210715162747.4186b482.alex.williamson@redhat.com>
+In-Reply-To: <20210715221149.GJ543781@nvidia.com>
 References: <0-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
- <9-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
- <20210715150055.474f535f.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210715150055.474f535f.alex.williamson@redhat.com>
-X-ClientProxiedBy: YT1PR01CA0005.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01::18)
- To BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+        <9-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
+        <20210715150055.474f535f.alex.williamson@redhat.com>
+        <20210715221149.GJ543781@nvidia.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (206.223.160.26) by YT1PR01CA0005.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01::18) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.21 via Frontend Transport; Thu, 15 Jul 2021 22:11:50 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1m49a9-002sbh-74; Thu, 15 Jul 2021 19:11:49 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 2ffc67c4-ba7b-4274-9d79-08d947dd8ba9
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5078:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BL1PR12MB507897DF81B77B1C1F91D789C2129@BL1PR12MB5078.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 0QQIHEyJEcDYD1VDKW8jMBeCzikFy01FFLn5sbD2PoSDxIN798ZU6Key7P+pPnwgiSDOFhRu9NJQngqUL7hCIkQZFEiOz0laRu2PgSebB7muJQdFnbbx2YoXRYQ8dB1ZQHqNDNDqbBDcAmOVPZYWUDVZpWWYE3UVgs1Tu1NP1aBis5MVeQfyQH5m68bGM/bAgpVJ38gKaxWHA6K1PZfzPdXAioUjjaffV8BIEs540BHyj2tXuLvoe5ulweeNxzc055nnlnmpKMwe9S8E/T2t32dXUjvHHrUboXUfmngEslGdC3L8VqHofZwHReZ31fN9VJFDor0e/jF/RJsJnD2Pn3LWK+1a0/ukaLHOSNHRD8bXT/o18K0eNyMXqC/v5mosN7Kw2A1QaWJHJxVnQACkdXMIdThZNGfVtnZY337bSRKIKXZ9HtNq1QfirM8+ICVm5o0ZxtA6RloVt3phXYSgSIYnwH6aU2EFHWz2HiKus8Y468xkxNdJIYlFBus4z+0IdZLiHeyPue3EPQeE+n/l0A4i1ohNDHFPAGGnddNlHwcoRLdWBDtC1kzSp8fylci5l6knFFDWS0r55doQCtKqwA2Ivv5OBE2lqlDW5pg2u/RRHmhXZ1krHIWVV/P+/FwHZZVtWvudQ8Hi6jItS/GdNnauqolQt705MJF+hUFefTdZfxRnBJkOopLpoZmvz0/5
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(396003)(39860400002)(346002)(366004)(136003)(86362001)(316002)(54906003)(6916009)(26005)(33656002)(426003)(2616005)(66476007)(2906002)(7416002)(7406005)(1076003)(66556008)(5660300002)(38100700002)(8676002)(4326008)(8936002)(9746002)(9786002)(186003)(83380400001)(36756003)(478600001)(107886003)(66946007)(27376004);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?VyfpNAPsL9Z1ZYGGu1s5XN6lsWuAZHOHZdIHseT0JRJB7MeSP66itwDLzfsr?=
- =?us-ascii?Q?Pm1Lh+OewfF83bk2nxGUl5Q0/g9mAysf6iAVXl5s3zhAUObAL/f8zpgen2oj?=
- =?us-ascii?Q?rHgBXzbbAIREtEqusIikEubn3CJ9CO01THUzJfk/4KLGgJjjGnk471Ay61Xw?=
- =?us-ascii?Q?jSMgHaLZG2y6aobi3JQxGeAJqktF050A8nwXz4g1b1bMTnzaaIUAo3g1mF6a?=
- =?us-ascii?Q?44R3QInZNYiArXPEWrQeYJxobKpUsH4PPpjLDaITzvvUURJwH7M1ukDa/JzJ?=
- =?us-ascii?Q?JOvlkHsBwVMEPQY9OyibkDtZKYR4CzsGpTxw9v6/q8aXEiWO6PBhm8u6UTom?=
- =?us-ascii?Q?NVBzSRRkTg+YWwsr3fUOoOJDPUvZ4AWrZkLmTNenZFkqRIntOXHDUkIPktDJ?=
- =?us-ascii?Q?4NLfpFn40ETgsuYTLfQFg0Hm77c5PYHq8AYJTAnJTC0ItMq0SrT6ExOlV4sB?=
- =?us-ascii?Q?J8RJ5SLCiUrx0ylIdruATsHnHnVskcbuah2fDbi9BJG+U1xDutErflqc9uXQ?=
- =?us-ascii?Q?/U3E4+u3FKy3tzSPIg4bttNBxzMyOt24lJ008PttHb2gvmSp/uOjQPdOyZXL?=
- =?us-ascii?Q?SKc5SQui/hNil66DDWVXI2+hk4VfI/PPp7SaGOAm72m/+ficMyztSu1DRzO+?=
- =?us-ascii?Q?a8ncsgwvkSJhdlKbiBt7fWiV0CNbXsSrMwOMF1is4syotSw9DgAfbiw9nxnd?=
- =?us-ascii?Q?x1Hakiz9qVrbJQbJov0mGrAQiEaeQpaGGcg4ZFM2930ebGXqNzPNN3Xggulq?=
- =?us-ascii?Q?7Y3GfKx1wRDXH91trUa80yOHsg4/QrkSElhg/TJyhiilPzGuZZMwzWGqXLvR?=
- =?us-ascii?Q?MMMYI45DibKjhgaIIZgmv0h6On6HWnkKdF43FIdVh1Myc0i+8JX6sOOs8Jh4?=
- =?us-ascii?Q?gomU19SEcf8yBykrbt50fiK34a1Pz6kU0n/3yEGRoe4w79KUjWUfJfk5fC+Z?=
- =?us-ascii?Q?ajZUbkhIDqzidvtUEab58CJsq/1Sh/3WKaCkjrEnnRlQCJbghgBY+YbpK8aK?=
- =?us-ascii?Q?ZucS8/ySENap8di4jBDpNT0LjRVTG7qJMn9Ow711HpsGkb6kNjzDa1zGTgx3?=
- =?us-ascii?Q?HNjxiB+KeT6gzrx1axvvhuwgRx6At92hvMYeWO/5w8cbbzIDNuFKu4mqad9H?=
- =?us-ascii?Q?SuKfL408BoRo5BNBx6bD4zyTx/VFTNXnOA/YLbOiw7AokjNZvCeWPQtf014K?=
- =?us-ascii?Q?AI8z+Rdif9cGEsoUPI/+gekBZWUCHQKNOytJAhdXN3HZkl6LDKpRhSuQMMzV?=
- =?us-ascii?Q?tjSx8dlAglm9WlOLuSocycrymuwXewkZjSMj6yJXuwNmyD2KcDFX6dso9d7Q?=
- =?us-ascii?Q?ma++UjY05SYI9qUWImpXPC6A?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2ffc67c4-ba7b-4274-9d79-08d947dd8ba9
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jul 2021 22:11:51.1326
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: cH4AuLJO/ysHm0qh5ICYmLCC9C0V3Ngyrpv61JsVO6E2ZE3NUMdG7xxBY5h5S0W4
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5078
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 15, 2021 at 03:00:55PM -0600, Alex Williamson wrote:
-> On Wed, 14 Jul 2021 21:20:38 -0300
-> Jason Gunthorpe <jgg@nvidia.com> wrote:
-> > +/*
-> > + * We need to get memory_lock for each device, but devices can share mmap_lock,
-> > + * therefore we need to zap and hold the vma_lock for each device, and only then
-> > + * get each memory_lock.
-> > + */
-> > +static int vfio_hot_reset_device_set(struct vfio_pci_device *vdev,
-> > +				     struct vfio_pci_group_info *groups)
-> > +{
-> > +	struct vfio_device_set *dev_set = vdev->vdev.dev_set;
-> > +	struct vfio_pci_device *cur_mem =
-> > +		list_first_entry(&dev_set->device_list, struct vfio_pci_device,
-> > +				 vdev.dev_set_list);
+On Thu, 15 Jul 2021 19:11:49 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
+
+> On Thu, Jul 15, 2021 at 03:00:55PM -0600, Alex Williamson wrote:
+> > On Wed, 14 Jul 2021 21:20:38 -0300
+> > Jason Gunthorpe <jgg@nvidia.com> wrote:  
+> > > +/*
+> > > + * We need to get memory_lock for each device, but devices can share mmap_lock,
+> > > + * therefore we need to zap and hold the vma_lock for each device, and only then
+> > > + * get each memory_lock.
+> > > + */
+> > > +static int vfio_hot_reset_device_set(struct vfio_pci_device *vdev,
+> > > +				     struct vfio_pci_group_info *groups)
+> > > +{
+> > > +	struct vfio_device_set *dev_set = vdev->vdev.dev_set;
+> > > +	struct vfio_pci_device *cur_mem =
+> > > +		list_first_entry(&dev_set->device_list, struct vfio_pci_device,
+> > > +				 vdev.dev_set_list);  
+> > 
+> > We shouldn't be looking at the list outside of the lock, if the first
+> > entry got removed we'd break our unwind code.
+> >   
+> > > +	struct vfio_pci_device *cur_vma;
+> > > +	struct vfio_pci_device *cur;
+> > > +	bool is_mem = true;
+> > > +	int ret;
+> > >  
+> > > -	if (pci_dev_driver(pdev) != &vfio_pci_driver) {
+> > > -		vfio_device_put(device);
+> > > -		return -EBUSY;
+> > > +	mutex_lock(&dev_set->lock);  
+> >         ^^^^^^^^^^^^^^^^^^^^^^^^^^^  
 > 
-> We shouldn't be looking at the list outside of the lock, if the first
-> entry got removed we'd break our unwind code.
+> Oh, righto, this is an oopsie!
 > 
-> > +	struct vfio_pci_device *cur_vma;
-> > +	struct vfio_pci_device *cur;
-> > +	bool is_mem = true;
-> > +	int ret;
-> >  
-> > -	if (pci_dev_driver(pdev) != &vfio_pci_driver) {
-> > -		vfio_device_put(device);
-> > -		return -EBUSY;
-> > +	mutex_lock(&dev_set->lock);
->         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Oh, righto, this is an oopsie!
-
-> > +	list_for_each_entry(cur, &dev_set->device_list, vdev.dev_set_list)
-> > +		up_write(&cur->memory_lock);
-> > +	mutex_unlock(&dev_set->lock);
-> > +
-> > +	return ret;
+> > > +	list_for_each_entry(cur, &dev_set->device_list, vdev.dev_set_list)
+> > > +		up_write(&cur->memory_lock);
+> > > +	mutex_unlock(&dev_set->lock);
+> > > +
+> > > +	return ret;  
+> > 
+> > 
+> > Isn't the above section actually redundant to below, ie. we could just
+> > fall through after the pci_reset_bus()?  Thanks,  
 > 
+> It could, but I thought it was less confusing this way due to how
+> oddball the below is:
 > 
-> Isn't the above section actually redundant to below, ie. we could just
-> fall through after the pci_reset_bus()?  Thanks,
+> > > +err_undo:
+> > > +	list_for_each_entry(cur, &dev_set->device_list, vdev.dev_set_list) {
+> > > +		if (cur == cur_mem)
+> > > +			is_mem = false;
+> > > +		if (cur == cur_vma)
+> > > +			break;
+> > > +		if (is_mem)
+> > > +			up_write(&cur->memory_lock);
+> > > +		else
+> > > +			mutex_unlock(&cur->vma_lock);
+> > > +	}  
+> 
+> But either works, do want it switch in v2?
 
-It could, but I thought it was less confusing this way due to how
-oddball the below is:
-
-> > +err_undo:
-> > +	list_for_each_entry(cur, &dev_set->device_list, vdev.dev_set_list) {
-> > +		if (cur == cur_mem)
-> > +			is_mem = false;
-> > +		if (cur == cur_vma)
-> > +			break;
-> > +		if (is_mem)
-> > +			up_write(&cur->memory_lock);
-> > +		else
-> > +			mutex_unlock(&cur->vma_lock);
-> > +	}
-
-But either works, do want it switch in v2?
-
+Yeah, I think the simpler version just adds to the confusion of what
+this oddball logic does.  It already handles all cases, up to and
+including success, so let's give it more exercise by always using it.
 Thanks,
-Jason
+
+Alex
+
