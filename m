@@ -2,110 +2,168 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4F22C12002
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 03:16:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1C3CC07E96
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 03:49:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B1F4661374
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 03:16:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 945B260FEB
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 03:49:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232846AbhGODSy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 14 Jul 2021 23:18:54 -0400
-Received: from foss.arm.com ([217.140.110.172]:45938 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230495AbhGODSx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 14 Jul 2021 23:18:53 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 470411042;
-        Wed, 14 Jul 2021 20:16:01 -0700 (PDT)
-Received: from entos-ampere-02.shanghai.arm.com (entos-ampere-02.shanghai.arm.com [10.169.214.103])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 6865B3F7D8;
-        Wed, 14 Jul 2021 20:15:58 -0700 (PDT)
-From:   Jia He <justin.he@arm.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@infradead.org>, nd@arm.com,
-        Jia He <justin.he@arm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S234181AbhGODwF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 14 Jul 2021 23:52:05 -0400
+Received: from mail-bn8nam08on2071.outbound.protection.outlook.com ([40.107.100.71]:58368
+        "EHLO NAM04-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S232773AbhGODwE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 14 Jul 2021 23:52:04 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=n0gfSoP/4C249BMFC0ON1VABdhydQCfZQ5OQLqwSrd2kMuFr5pv3Jf1ZAUjDrEOYdHeRd8cW5DYt26DLnzerUv8eyXUmMWAIrwyk3B9Io7c9LIpzzCW+/Uh+ha66XS+V5zDvY8pUjTwV34fmd8aDNovXroqUHgxm5gWoSrSSssdbZoQAF+F97l7YrIck5YH0H0VkALkk2HOeBW0df7cFTF27Pkg3wkXJ+Nixyqw6MbIgoMXzii9lycqzbhQ0uGCYVqDo+0alUeiiNBrwnUj74DwQMDuT1CEkSn5sHYYmLeAsSmFpEF79MtWrTXnYA8/u2PoLTFnwigxKJTAWlEekfA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0sWWtisFvIMjOSkzRFvjoJlbQkVUZQ+K2FpZnFmQS2I=;
+ b=j3hDapAiiAvf8/OC0DfEKJjjLpNMiOVMHuTzIuFcRgMhX0QTlqnT7pA2HgSsAdWmdK9LvBZWexQa+D2cv7LZ5wyDewufvv0FU5ibTXMw6fIlGOZniJoc3s+BAMILJrzuGYStWCU9LTHTdrpdbACZkttLWgT7LpMKJGuXwNCWXIJE/gHVDHVk9qxRZYADPdDhFhgAZfmbpKevTJPJXRJj/zpKZV6mTJxEvU4lpF52nVqN1GJoE8+H3QwsWtfH55TlNgDuMJKDmGted2cd1BrD6Us4NyJg0VVe2g8MfQf/86qZyp1Lw6wRGfhP2hBV1Chh/ahpYIqy1YLLmGJ+V4Szgw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.34) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0sWWtisFvIMjOSkzRFvjoJlbQkVUZQ+K2FpZnFmQS2I=;
+ b=F+PhbOpV7EVJfPf3ylo2P5m3CUxMrPnZfJL65VSoiVx/TF8SUvPZ5whgk5tR8AGDGzDouqRToG4KwfkEcJKgh4d9iZCc/2/CBEFbmCBLfza7GBe4ig/7XBB6AHYt8JG5nCL0Rh6+6SrK9nQJ5GW0mcTIy6RHn4DmskBJfWk5edDRizbxxRDkHEEd+um6Dz3T1Iq58jiBn5Mlq5jrds3FJCqtKYBwseKeCIfi+caIpDC4TX9fJkFgNueNRRH7ZXpQ0WbnWMcqtYRdYqyKzYJt95Bt7/AOCLMd9tvjzBLKxdIvmN/TN9UzsB5zOtAP3NDdfTvm8xmVz7Pj4QvaB1MzGA==
+Received: from DM6PR13CA0068.namprd13.prod.outlook.com (2603:10b6:5:134::45)
+ by DM5PR12MB1147.namprd12.prod.outlook.com (2603:10b6:3:79::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.23; Thu, 15 Jul
+ 2021 03:49:10 +0000
+Received: from DM6NAM11FT058.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:134:cafe::59) by DM6PR13CA0068.outlook.office365.com
+ (2603:10b6:5:134::45) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4352.9 via Frontend
+ Transport; Thu, 15 Jul 2021 03:49:10 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
+ smtp.mailfrom=nvidia.com; vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.34; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.34) by
+ DM6NAM11FT058.mail.protection.outlook.com (10.13.172.216) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4331.21 via Frontend Transport; Thu, 15 Jul 2021 03:49:10 +0000
+Received: from localhost (172.20.187.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 15 Jul
+ 2021 03:49:08 +0000
+Date:   Thu, 15 Jul 2021 06:49:05 +0300
+From:   Leon Romanovsky <leonro@nvidia.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+CC:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: [PATCH RFC 01/13] s390/hmcdrv: remove the redundant directory path in format string
-Date:   Thu, 15 Jul 2021 11:15:21 +0800
-Message-Id: <20210715031533.9553-2-justin.he@arm.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210715031533.9553-1-justin.he@arm.com>
-References: <20210715031533.9553-1-justin.he@arm.com>
+        Cornelia Huck <cohuck@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        <dri-devel@lists.freedesktop.org>,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        "Harald Freudenberger" <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        <intel-gfx@lists.freedesktop.org>,
+        <intel-gvt-dev@lists.freedesktop.org>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        "Joonas Lahtinen" <joonas.lahtinen@linux.intel.com>,
+        <kvm@vger.kernel.org>, "Kirti Wankhede" <kwankhede@nvidia.com>,
+        <linux-doc@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        "Peter Oberparleiter" <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>
+Subject: Re: [PATCH 02/13] vfio: Introduce a vfio_uninit_group_dev() API call
+Message-ID: <YO+wMbZ2TWscTynr@unreal>
+References: <0-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
+ <2-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <2-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
+X-Originating-IP: [172.20.187.5]
+X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: b3f9b869-c0d2-4b03-1e91-08d94743811f
+X-MS-TrafficTypeDiagnostic: DM5PR12MB1147:
+X-Microsoft-Antispam-PRVS: <DM5PR12MB114707BABD943402020C3F34BD129@DM5PR12MB1147.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:7219;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: NIZzDydBOWn4etqen3ycusuy+uDalEMlB8z1DfgNbMvQkY0g71bCZ//UoNFJrOlCD2FzkZpdIRKGxBOPh6xYe9aYTZpx7dpDJzOXinH0yMOsIIdyIqTAeERenipstPKtyEwmoM3KG/Awxgmvlde0VaTga+dkV36oItw312/jkHLLWFiQy5iDmA72kG1gtb2pIqY5vtdYf/CbIyeesfagFQv7kZzkE8BFeeG8t9rVsv8VFZ4MchP2B6gxGypvzRo3wTlN6G2uUOw4Y6h7cALBkE8ZT4eQ5PLxYICbOB9wW3eaiaEWiTXjG4bGIFDWXt4F8n56+WVXxwcQ7yVbg6rOqutBOE9//QALO+/q6+WGWIYPnm1yC+gyx6ND/FiWXK08rjXsq3XnjwmT74iLX4oTV7IVrmud/FA4i6veRr/gkPZsjg2tHfnWv9KwjFCTF3X3U7R5PKpCF6KekhFxUowOaefy5EhyIZgVHU7+HzWPmHU2B6nu9P81nfNxvTyXeDdkQmap9VoUWCQ9wzloyRXm5805zgdGljc2+LiajiNxFQQDP1ukbo2dxPCFnBTLRK+mkx/0KIY9rEVi1ruw+clkDmB8A5R2+cOtPHz3TfVAUHR05sX6Wzc4ArA4vruLIm/Beufk7ND/Aa/QxEm9mHn9KXwT3XcNYPsYp1p3UzG/11mrGDQQcQNY9+Ftma1cuBOPuZOWWy6x4xq+xLgQVt0Lk/s7aLSco5mCWXat9eeB4fkH/h3uXN+6kXvQ0VjhTLLv
+X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(7916004)(396003)(136003)(376002)(39860400002)(346002)(36840700001)(46966006)(6862004)(107886003)(34020700004)(33716001)(5660300002)(82310400003)(82740400003)(426003)(70206006)(9686003)(7406005)(26005)(16526019)(7416002)(4326008)(83380400001)(356005)(6636002)(70586007)(336012)(316002)(6666004)(47076005)(7636003)(2906002)(8676002)(86362001)(186003)(36860700001)(36906005)(478600001)(54906003)(8936002)(67856001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jul 2021 03:49:10.3257
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: b3f9b869-c0d2-4b03-1e91-08d94743811f
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT058.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1147
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-After the behavior of '%pD' is changed to print the full path of file,
-it would be better to use '%pD' instead of hard coding the parent
-mountpoint.
+On Wed, Jul 14, 2021 at 09:20:31PM -0300, Jason Gunthorpe wrote:
+> From: Max Gurtovoy <mgurtovoy@nvidia.com>
+> 
+> This pairs with vfio_init_group_dev() and allows undoing any state that is
+> stored in the vfio_device unrelated to registration. Add appropriately
+> placed calls to all the drivers.
+> 
+> The following patch will use this to add pre-registration state for the
+> device set.
+> 
+> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  Documentation/driver-api/vfio.rst            |  4 ++-
+>  drivers/vfio/fsl-mc/vfio_fsl_mc.c            |  6 +++--
+>  drivers/vfio/mdev/vfio_mdev.c                | 13 +++++++---
+>  drivers/vfio/pci/vfio_pci.c                  |  6 +++--
+>  drivers/vfio/platform/vfio_platform_common.c |  7 +++--
+>  drivers/vfio/vfio.c                          |  5 ++++
+>  include/linux/vfio.h                         |  1 +
+>  samples/vfio-mdev/mbochs.c                   |  2 ++
+>  samples/vfio-mdev/mdpy.c                     | 25 ++++++++++--------
+>  samples/vfio-mdev/mtty.c                     | 27 ++++++++++++--------
+>  10 files changed, 64 insertions(+), 32 deletions(-)
 
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Jia He <justin.he@arm.com>
----
- drivers/s390/char/hmcdrv_dev.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+<...>
 
-diff --git a/drivers/s390/char/hmcdrv_dev.c b/drivers/s390/char/hmcdrv_dev.c
-index 20e9cd542e03..cdde75508c8a 100644
---- a/drivers/s390/char/hmcdrv_dev.c
-+++ b/drivers/s390/char/hmcdrv_dev.c
-@@ -137,7 +137,7 @@ static int hmcdrv_dev_open(struct inode *inode, struct file *fp)
- 	if (rc)
- 		module_put(THIS_MODULE);
- 
--	pr_debug("open file '/dev/%pD' with return code %d\n", fp, rc);
-+	pr_debug("open file '%pD' with return code %d\n", fp, rc);
- 	return rc;
- }
- 
-@@ -146,7 +146,7 @@ static int hmcdrv_dev_open(struct inode *inode, struct file *fp)
-  */
- static int hmcdrv_dev_release(struct inode *inode, struct file *fp)
- {
--	pr_debug("closing file '/dev/%pD'\n", fp);
-+	pr_debug("closing file '%pD'\n", fp);
- 	kfree(fp->private_data);
- 	fp->private_data = NULL;
- 	hmcdrv_ftp_shutdown();
-@@ -231,7 +231,7 @@ static ssize_t hmcdrv_dev_read(struct file *fp, char __user *ubuf,
- 	retlen = hmcdrv_dev_transfer((char *) fp->private_data,
- 				     *pos, ubuf, len);
- 
--	pr_debug("read from file '/dev/%pD' at %lld returns %zd/%zu\n",
-+	pr_debug("read from file '%pD' at %lld returns %zd/%zu\n",
- 		 fp, (long long) *pos, retlen, len);
- 
- 	if (retlen > 0)
-@@ -248,7 +248,7 @@ static ssize_t hmcdrv_dev_write(struct file *fp, const char __user *ubuf,
- {
- 	ssize_t retlen;
- 
--	pr_debug("writing file '/dev/%pD' at pos. %lld with length %zd\n",
-+	pr_debug("writing file '%pD' at pos. %lld with length %zd\n",
- 		 fp, (long long) *pos, len);
- 
- 	if (!fp->private_data) { /* first expect a cmd write */
-@@ -272,7 +272,7 @@ static ssize_t hmcdrv_dev_write(struct file *fp, const char __user *ubuf,
- 	if (retlen > 0)
- 		*pos += retlen;
- 
--	pr_debug("write to file '/dev/%pD' returned %zd\n", fp, retlen);
-+	pr_debug("write to file '%pD' returned %zd\n", fp, retlen);
- 
- 	return retlen;
- }
--- 
-2.17.1
+> @@ -674,6 +675,7 @@ static int vfio_fsl_mc_remove(struct fsl_mc_device *mc_dev)
+>  
+>  	dprc_remove_devices(mc_dev, NULL, 0);
+>  	vfio_fsl_uninit_device(vdev);
+> +	vfio_uninit_group_dev(&vdev->vdev);
 
+This is wrong place, the _uninit_ should be after vfio_fsl_mc_reflck_put().
+
+>  	vfio_fsl_mc_reflck_put(vdev->reflck);
+>  
+>  	kfree(vdev);
