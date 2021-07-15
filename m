@@ -2,275 +2,152 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91FB5C07E96
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 11:31:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64ADDC07E96
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 11:31:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 779A4613BA
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 11:31:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 418D06128B
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 11:31:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241007AbhGOLeD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Jul 2021 07:34:03 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18690 "EHLO
+        id S240960AbhGOLem (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Jul 2021 07:34:42 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42848 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240679AbhGOLeD (ORCPT
+        by vger.kernel.org with ESMTP id S232053AbhGOLem (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 15 Jul 2021 07:34:03 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16FB4DCi021895;
-        Thu, 15 Jul 2021 07:31:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=PT2VRFC0bvxJ7ZFlYOE4rXKAGKIW9hD4oWtRidMVgvs=;
- b=eOHk0h0YJVrphn+ygPCAsYSkEb7PIkE1slsCGS7rQZwHJV+2R+bYn9VPLSkmvxgl3msU
- OTaFkRLH8sOAV1axwoPEGvfAlAK9g0+18SO8rzctc3cnGVhZrLsJ9Mk0qxUA/ZCQpo79
- 7SG3i6RpSc318+UTNx7h27tDHRrVNFmHjmh1o3gJUtsoH/2RhZVSfwV29UwR6GnHxq88
- tZvfJZrhOtaO5YgDacE4Sk8nPjcN1VH7+/3lsmPbMkv/z7S4O5ySsPBobxrDe6XoGZve
- kGd80N6nj3fd5XbRfdNx9x+aHpGVs9xXoJGQh1z664RkZeN2PRPxreSxCGE0ZAZxU5MJ 3Q== 
+        Thu, 15 Jul 2021 07:34:42 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16FB7rST123877;
+        Thu, 15 Jul 2021 07:31:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=wCXl4FvOWveYn9wbajsePCiSohZfjrdllQOmsbMAstE=;
+ b=X9EUIvIIf/XPVyEPzC6kUdsJeL6N8OfxKTRQ9AhX7+1geLLeQGsyMdMW1pYpX58UfhiK
+ BNE74VgP5pKuE4cif0gJ0weeXMKA5KjdGFhSKFrTBEGt4yIYI83xRfskb6rBdQUGtj/K
+ ob9+03zMVw545PC5dflUHRthiCtg2F66Ilx9s1Sd04Srk533Z85Y8aOuxYA2NU0Knjc7
+ py+3P52OpUF7dmDEsOj2Lt88EbPr34yGk3DTKyzjlulY3PKUPZKSanUwL0DnqPYplkPJ
+ xLZhR3YHPS2hc2JyFD/lCHK24tMx8u4BPWix05PGt6Nz46wu/KD+JUMtW++XMB4i3ZRq WQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39sph48h84-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39ssjyhyjr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Jul 2021 07:31:09 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16FB5RWx026854;
-        Thu, 15 Jul 2021 07:31:08 -0400
+        Thu, 15 Jul 2021 07:31:47 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16FBMtUI029606;
+        Thu, 15 Jul 2021 07:31:47 -0400
 Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39sph48h79-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39ssjyhyj2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Jul 2021 07:31:08 -0400
+        Thu, 15 Jul 2021 07:31:46 -0400
 Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16FBShBZ003711;
-        Thu, 15 Jul 2021 11:31:05 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 39q368a7m9-1
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16FBSgUJ003708;
+        Thu, 15 Jul 2021 11:31:44 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 39q368a7mh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Jul 2021 11:31:05 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16FBV2LO23593268
+        Thu, 15 Jul 2021 11:31:44 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16FBTVNP30540124
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 15 Jul 2021 11:31:02 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 91E67AE055;
-        Thu, 15 Jul 2021 11:31:02 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 127B2AE056;
-        Thu, 15 Jul 2021 11:31:02 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.77.125])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 15 Jul 2021 11:31:01 +0000 (GMT)
-Subject: Re: [PATCH v1 1/2] s390x: KVM: accept STSI for CPU topology
- information
-To:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com
-References: <1626276343-22805-1-git-send-email-pmorel@linux.ibm.com>
- <1626276343-22805-2-git-send-email-pmorel@linux.ibm.com>
- <db788a8c-99a9-6d99-07ab-b49e953d91a2@redhat.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <95950432-6a59-3112-bbb4-c652289e4597@linux.ibm.com>
-Date:   Thu, 15 Jul 2021 13:31:01 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-MIME-Version: 1.0
-In-Reply-To: <db788a8c-99a9-6d99-07ab-b49e953d91a2@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        Thu, 15 Jul 2021 11:29:31 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 49A77A4051;
+        Thu, 15 Jul 2021 11:31:41 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 94562A4053;
+        Thu, 15 Jul 2021 11:31:39 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.60.220])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Thu, 15 Jul 2021 11:31:39 +0000 (GMT)
+Date:   Thu, 15 Jul 2021 13:31:36 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com
+Subject: Re: [PATCH] s390/vfio-ap: do not open code locks for
+ VFIO_GROUP_NOTIFY_SET_KVM notification
+Message-ID: <20210715133136.420c40b0.pasic@linux.ibm.com>
+In-Reply-To: <20210713170533.GF136586@nvidia.com>
+References: <20210707154156.297139-1-akrowiak@linux.ibm.com>
+        <20210713013815.57e8a8cb.pasic@linux.ibm.com>
+        <5dd3cc05-f789-21a3-50c7-ee80d850a105@linux.ibm.com>
+        <20210713184517.48eacee6.pasic@linux.ibm.com>
+        <20210713170533.GF136586@nvidia.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=US-ASCII
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: AaqaYQ35L_kQ50270Mqovk18QZtBro1p
-X-Proofpoint-ORIG-GUID: swozs1uhfWJxEgjEFGoY9CduE4-f6mcr
+X-Proofpoint-GUID: M7C7Qdb47fVnIGoCjIeERrfNdMs9JJ_q
+X-Proofpoint-ORIG-GUID: rda3AXTI5-RzYAVZKYePuPDir_dZqCuO
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-07-15_07:2021-07-14,2021-07-15 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=999 priorityscore=1501 clxscore=1015 spamscore=0
- lowpriorityscore=0 mlxscore=0 bulkscore=0 suspectscore=0 adultscore=0
- phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2104190000 definitions=main-2107150081
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ malwarescore=0 adultscore=0 spamscore=0 impostorscore=0 clxscore=1015
+ lowpriorityscore=0 priorityscore=1501 mlxscore=0 phishscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107150081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, 13 Jul 2021 14:05:33 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
+> On Tue, Jul 13, 2021 at 06:45:17PM +0200, Halil Pasic wrote:
+> 
+> > Jason may give it another try to convince us that 0cc00c8d4050 only
+> > silenced lockdep, but vfio_ap remained prone to deadlocks. To my best
+> > knowledge using condition variable and a mutex is one of the well known
+> > ways to implement an rwlock.   
+> 
+> The well known pattern is to use a rwsem.
 
-On 7/15/21 10:51 AM, David Hildenbrand wrote:
-> On 14.07.21 17:25, Pierre Morel wrote:
->> STSI(15.1.x) gives information on the CPU configuration topology.
->> Let's accept the interception of STSI with the function code 15 and
->> let the userland part of the hypervisor handle it.
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   arch/s390/kvm/priv.c | 11 ++++++++++-
->>   1 file changed, 10 insertions(+), 1 deletion(-)
->>
->> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
->> index 9928f785c677..4ab5f8b7780e 100644
->> --- a/arch/s390/kvm/priv.c
->> +++ b/arch/s390/kvm/priv.c
->> @@ -856,7 +856,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
->>       if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
->>           return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
->> -    if (fc > 3) {
->> +    if (fc > 3 && fc != 15) {
->>           kvm_s390_set_psw_cc(vcpu, 3);
->>           return 0;
->>       }
->> @@ -893,6 +893,15 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
->>               goto out_no_data;
->>           handle_stsi_3_2_2(vcpu, (void *) mem);
->>           break;
->> +    case 15:
->> +        if (sel1 != 1 || sel2 < 2 || sel2 > 6)
->> +            goto out_no_data;
->> +        if (vcpu->kvm->arch.user_stsi) {
->> +            insert_stsi_usr_data(vcpu, operand2, ar, fc, sel1, sel2);
->> +            return -EREMOTE;
->> +        }
->> +        kvm_s390_set_psw_cc(vcpu, 3);
->> +        return 0;
->>       }
->>       if (kvm_s390_pv_cpu_is_protected(vcpu)) {
->>           memcpy((void *)sida_origin(vcpu->arch.sie_block), (void *)mem,
->>
-> 
-> 1. Setting GPRS to 0
-> 
-> I was wondering why we have the "vcpu->run->s.regs.gprs[0] = 0;"
-> for existing fc 1,2,3 in case we set cc=0.
-> 
-> Looking at the doc, all I find is:
-> 
-> "CC 0: Requested configuration-level number placed in
-> general register 0 or requested SYSIB informa-
-> tion stored"
-> 
-> But I don't find where it states that we are supposed to set
-> general register 0 to 0. Wouldn't we also have to do it for
-> fc=15 or for none?
+I think you are missing the point. We are discussing whether
+this qualifies for stable, i.e. if 0cc00c8d4050 is really broken
+like the patch description says.
 
+Using  a readers-writers lock (as a primitive) to implement a
+a readers-writers lock is a fallacy, so I guess you wanted to
+say that when a readers-writers lock is needed in the kernel the
+obvious choices are rw_semaphore and/or rwlock_t (depending on the
+spin).
 
-It is only needed for fc 0, I do not see any reference to register 0 
-being set on output for other function code.
+What I wanted to say is using a condition variable and a mutex is
+not per-see wrong, because one can even implement an readers-writers
+lock with it. For reference see https://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock
 
 
 > 
-> If fc 1,2,3 and 15 are to be handled equally, I suggest the following:
-> 
-> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-> index 9928f785c677..6eb86fa58b0b 100644
-> --- a/arch/s390/kvm/priv.c
-> +++ b/arch/s390/kvm/priv.c
-> @@ -893,17 +893,23 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
->                          goto out_no_data;
->                  handle_stsi_3_2_2(vcpu, (void *) mem);
->                  break;
-> +       case 15:
-> +               if (sel1 != 1 || sel2 < 2 || sel2 > 6)
-> +                       goto out_no_data;
-> +               break;
->          }
-> -       if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-> -               memcpy((void *)sida_origin(vcpu->arch.sie_block), (void 
-> *)mem,
-> -                      PAGE_SIZE);
-> -               rc = 0;
-> -       } else {
-> -               rc = write_guest(vcpu, operand2, ar, (void *)mem, 
-> PAGE_SIZE);
-> -       }
-> -       if (rc) {
-> -               rc = kvm_s390_inject_prog_cond(vcpu, rc);
-> -               goto out;
-> +       if (mem) {
-> +               if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-> +                       memcpy((void *)sida_origin(vcpu->arch.sie_block),
-> +                              (void *)mem, PAGE_SIZE);
-> +               } else {
-> +                       rc = write_guest(vcpu, operand2, ar, (void *)mem,
-> +                                        PAGE_SIZE);
-> +                       if (rc) {
-> +                               rc = kvm_s390_inject_prog_cond(vcpu, rc);
-> +                               goto out;
-> +                       }
-> +               }
->          }
->          if (vcpu->kvm->arch.user_stsi) {
->                  insert_stsi_usr_data(vcpu, operand2, ar, fc, sel1, sel2);
+> This:
+>         wait_event_cmd(matrix_mdev->wait_for_kvm,
+>                        !matrix_mdev->kvm_busy,
+>                        mutex_unlock(&matrix_dev->lock),
+>                        mutex_lock(&matrix_dev->lock));
 > 
 > 
-> 2. maximum-MNest facility
-> 
-> "
-> 1. If the maximum-MNest facility is installed and
-> selector 2 exceeds the nonzero model-depen-
-> dent maximum-selector-2 value."
-> 
-> 2. If the maximum-MNest facility is not installed and
-> selector 2 is not specified as two.
-> "
-> 
-> We will we be handling the presence/absence of the maximum-MNest facility
-> (for our guest?) in QEMU, corect?
-
-Yes
-
-> 
-> I do wonder if we should just let any fc=15 go to user space let the whole
-> sel1 / sel2 checking be handled there. I don't think it's a fast path 
-> after all.
-> But no strong opinion.
-
-We can, here it is only tested about values that are always false and 
-not depending on MNEST.
-sel 1 is always 1
-sel 2 can only be valid between 2 and 6
-
-> 
-> How do we identify availability of maximum-MNest facility?
+> Is not really a rwsem, and is invsible to lockdep.
 > 
 
-With SCLP.
-Here is no test on MNEST
+I agree. But this is not a proof of a problem that qualifies to be fixed
+using the stable process as documented in 
+https://github.com/torvalds/linux/blob/master/Documentation/process/stable-kernel-rules.rst
 
-> 
-> 3. User space awareness
-> 
-> How can user space identify that we actually forward these intercepts?
-> How can it enable them? The old KVM_CAP_S390_USER_STSI capability
-> is not sufficient.
-> 
-> I do wonder if we want KVM_CAP_S390_USER_STSI_15 or sth like that to change
-> the behavior once enabled by user space.
-> 
+I'm in favor of rewriting this to use rw_semaphore. I'm not in favor
+of proclaiming this a fix for stable, because for that you first have
+to prove that you fix a real problem.
 
-Userland can check the configuration toplogy facility to see if the 
-STSI-15 is available.
-Sorry about the old commit message in the next patch it does not make 
-things clear.
+I hope we are on the same page.
 
-Configuration topology facility, 11, enables function code 15 in the 
-STSI instruction.
-
-> 
-> 4. Without vcpu->kvm->arch.user_stsi, we indicate cc=0 to our guest,
-> also for fc 1,2,3. Is that actually what we want? (or do we simply not care
-> because the guest is not supposed to use stsi?)
-> 
-
-Without the user_stsi, the information is gathered in the kernel.
-For what can be gathered.
-Patch e44fc8c9dab215ac0e from Ekaterina Tumanova introduced post 
-handlers for STSI in user space.
-
-Only what need to be done in userspace is checking the user_stsi.
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+Regards,
+Halil 
