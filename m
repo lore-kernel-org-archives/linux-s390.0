@@ -7,35 +7,35 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F232CC49EA7
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 16:46:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3A96C47E5B
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 16:46:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D42EF611AC
-	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 16:46:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5CCF61285
+	for <linux-s390@archiver.kernel.org>; Thu, 15 Jul 2021 16:46:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235312AbhGOQtT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 15 Jul 2021 12:49:19 -0400
-Received: from ale.deltatee.com ([204.191.154.188]:50060 "EHLO
+        id S235472AbhGOQtX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 15 Jul 2021 12:49:23 -0400
+Received: from ale.deltatee.com ([204.191.154.188]:50126 "EHLO
         ale.deltatee.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234059AbhGOQtG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Jul 2021 12:49:06 -0400
+        with ESMTP id S234129AbhGOQtH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Jul 2021 12:49:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=deltatee.com; s=20200525; h=Subject:MIME-Version:References:In-Reply-To:
         Message-Id:Date:Cc:To:From:content-disposition;
-        bh=bxYuYkexdgjCkkzv9UnzPxUCVLmS0/r9pZcrAxTBVsI=; b=Lss1AvtDz5LUXxNmZLvnEi5Xde
-        zNsqlgc9Jfm+oTis6ayJermYtPQlSU7FExSZG7YxLDzVUAjV3EZgudpLjdA49a+pQ5IoaupAkmrUj
-        MBmKsrcgEudrKKHqygKF9x1/h8OG9HCtnZ6ksLTzwkUmB6vGkrWUyKuQf2SwXUyj9EiP/h+4XMAeI
-        5942GhQ+bqkXDDvcsqx0b0E0wzNh4Dd0L/rKgGWHjBE4F1pg1VHlpxUpnp+SnapV7KhBrAH+jRe0k
-        I5aj2hsoE9K9+DtJ37q/EQ4CjTJYY8q+bja6l5RiGMwjgqR841ENJ51Mn9zbG5mhOaFhmV7ciE2YO
-        VNuGxQPg==;
+        bh=j6Pr/OuRQ0FDOA0vFikKAhizbVvYkzaBamOZP0pmeEg=; b=Dkn3q4LV3x6P2TnAQ4dHbiy0gT
+        dHrqGIqsYfANtr88cB4SDDmwoDAm+3uMXwwUMCZ5FDoIEaICaRygRCgjZCR1YWHKgaDLwGd7pcIds
+        LPRHC56e5Ne+6AJEfCgMVy5UwvTjTaLVsU9csxkrEf4u+SsNzIhl19BpCNJzR+mGxBoNX+XpJZ1Th
+        hwJWkb9pyr1rz6+CFF31AEDrthTPJGyTTUWW58QveoemPsYFHnAnEhW+LulIW1Nl3aByuE69itje2
+        t2Vw4QfVY/ws9zJK0WYtD95XW1HBnPxc3TFddZSrjQawxAgva8UCldcIeIcd0Pt4xkD5WIL0MUWWt
+        wyEWisGw==;
 Received: from cgy1-donard.priv.deltatee.com ([172.16.1.31])
         by ale.deltatee.com with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1m44Ux-0001ye-4e; Thu, 15 Jul 2021 10:46:08 -0600
+        id 1m44V0-0001yc-48; Thu, 15 Jul 2021 10:46:11 -0600
 Received: from gunthorp by cgy1-donard.priv.deltatee.com with local (Exim 4.92)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1m44Up-0001nl-Il; Thu, 15 Jul 2021 10:45:59 -0600
+        id 1m44Uo-0001nW-Ns; Thu, 15 Jul 2021 10:45:58 -0600
 From:   Logan Gunthorpe <logang@deltatee.com>
 To:     linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
@@ -49,23 +49,21 @@ Cc:     Christoph Hellwig <hch@lst.de>,
         Stephen Bates <sbates@raithlin.com>,
         Martin Oliveira <martin.oliveira@eideticom.com>,
         Logan Gunthorpe <logang@deltatee.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Date:   Thu, 15 Jul 2021 10:45:42 -0600
-Message-Id: <20210715164544.6827-15-logang@deltatee.com>
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Geoff Levand <geoff@infradead.org>
+Date:   Thu, 15 Jul 2021 10:45:37 -0600
+Message-Id: <20210715164544.6827-10-logang@deltatee.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20210715164544.6827-1-logang@deltatee.com>
 References: <20210715164544.6827-1-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 172.16.1.31
-X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org, xen-devel@lists.xenproject.org, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, sbates@raithlin.com, martin.oliveira@eideticom.com, logang@deltatee.com, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com, schnelle@linux.ibm.com, tsbogend@alpha.franken.de, mpe@ellerman.id.au
+X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org, xen-devel@lists.xenproject.org, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, sbates@raithlin.com, martin.oliveira@eideticom.com, logang@deltatee.com, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, geoff@infradead.org
 X-SA-Exim-Mail-From: gunthorp@deltatee.com
-Subject: [PATCH v1 14/16] x86/amd_gart: return error code from gart_map_sg()
+Subject: [PATCH v1 09/16] powerpc/iommu: return error code from .map_sg() ops
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
 Precedence: bulk
@@ -76,84 +74,85 @@ From: Martin Oliveira <martin.oliveira@eideticom.com>
 
 The .map_sg() op now expects an error code instead of zero on failure.
 
-So make __dma_map_cont() return a valid errno (which is then propagated
-to gart_map_sg() via dma_map_cont()) and return it in case of failure.
+Propagate the error up if vio_dma_iommu_map_sg() fails.
 
-Also, return -EINVAL in case of invalid nents.
+ppc_iommu_map_sg() may fail either because of iommu_range_alloc() or
+because of tbl->it_ops->set(). The former only supports returning an
+error with DMA_MAPPING_ERROR and an examination of the latter indicates
+that it may return arch-specific errors (for example,
+tce_buildmulti_pSeriesLP()). Hence, coalesce all of those errors into
+-EINVAL;
 
 Signed-off-by: Martin Oliveira <martin.oliveira@eideticom.com>
 Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Geoff Levand <geoff@infradead.org>
 ---
- arch/x86/kernel/amd_gart_64.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ arch/powerpc/kernel/iommu.c             | 4 ++--
+ arch/powerpc/platforms/ps3/system-bus.c | 2 +-
+ arch/powerpc/platforms/pseries/vio.c    | 5 +++--
+ 3 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kernel/amd_gart_64.c b/arch/x86/kernel/amd_gart_64.c
-index 9ac696487b13..46aea9a4f26b 100644
---- a/arch/x86/kernel/amd_gart_64.c
-+++ b/arch/x86/kernel/amd_gart_64.c
-@@ -331,7 +331,7 @@ static int __dma_map_cont(struct device *dev, struct scatterlist *start,
- 	int i;
+diff --git a/arch/powerpc/kernel/iommu.c b/arch/powerpc/kernel/iommu.c
+index 2af89a5e379f..bd0ed618bfa5 100644
+--- a/arch/powerpc/kernel/iommu.c
++++ b/arch/powerpc/kernel/iommu.c
+@@ -473,7 +473,7 @@ int ppc_iommu_map_sg(struct device *dev, struct iommu_table *tbl,
+ 	BUG_ON(direction == DMA_NONE);
  
- 	if (iommu_start == -1)
--		return -1;
-+		return -ENOMEM;
- 
- 	for_each_sg(start, s, nelems, i) {
- 		unsigned long pages, addr;
-@@ -380,13 +380,13 @@ static int gart_map_sg(struct device *dev, struct scatterlist *sg, int nents,
- 		       enum dma_data_direction dir, unsigned long attrs)
- {
- 	struct scatterlist *s, *ps, *start_sg, *sgmap;
--	int need = 0, nextneed, i, out, start;
-+	int need = 0, nextneed, i, out, start, ret;
- 	unsigned long pages = 0;
- 	unsigned int seg_size;
- 	unsigned int max_seg_size;
- 
- 	if (nents == 0)
+ 	if ((nelems == 0) || !tbl)
 -		return 0;
 +		return -EINVAL;
  
- 	out		= 0;
- 	start		= 0;
-@@ -414,8 +414,9 @@ static int gart_map_sg(struct device *dev, struct scatterlist *sg, int nents,
- 			if (!iommu_merge || !nextneed || !need || s->offset ||
- 			    (s->length + seg_size > max_seg_size) ||
- 			    (ps->offset + ps->length) % PAGE_SIZE) {
--				if (dma_map_cont(dev, start_sg, i - start,
--						 sgmap, pages, need) < 0)
-+				ret = dma_map_cont(dev, start_sg, i - start,
-+						   sgmap, pages, need);
-+				if (ret < 0)
- 					goto error;
- 				out++;
- 
-@@ -432,7 +433,8 @@ static int gart_map_sg(struct device *dev, struct scatterlist *sg, int nents,
- 		pages += iommu_num_pages(s->offset, s->length, PAGE_SIZE);
- 		ps = s;
+ 	outs = s = segstart = &sglist[0];
+ 	outcount = 1;
+@@ -599,7 +599,7 @@ int ppc_iommu_map_sg(struct device *dev, struct iommu_table *tbl,
+ 		if (s == outs)
+ 			break;
  	}
--	if (dma_map_cont(dev, start_sg, i - start, sgmap, pages, need) < 0)
-+	ret = dma_map_cont(dev, start_sg, i - start, sgmap, pages, need);
-+	if (ret < 0)
- 		goto error;
- 	out++;
- 	flush_gart();
-@@ -458,7 +460,7 @@ static int gart_map_sg(struct device *dev, struct scatterlist *sg, int nents,
- 	iommu_full(dev, pages << PAGE_SHIFT, dir);
- 	for_each_sg(sg, s, nents, i)
- 		s->dma_address = DMA_MAPPING_ERROR;
+-	return 0;
++	return -EINVAL;
+ }
+ 
+ 
+diff --git a/arch/powerpc/platforms/ps3/system-bus.c b/arch/powerpc/platforms/ps3/system-bus.c
+index 1a5665875165..c54eb46f0cfb 100644
+--- a/arch/powerpc/platforms/ps3/system-bus.c
++++ b/arch/powerpc/platforms/ps3/system-bus.c
+@@ -663,7 +663,7 @@ static int ps3_ioc0_map_sg(struct device *_dev, struct scatterlist *sg,
+ 			   unsigned long attrs)
+ {
+ 	BUG();
+-	return 0;
++	return -EINVAL;
+ }
+ 
+ static void ps3_sb_unmap_sg(struct device *_dev, struct scatterlist *sg,
+diff --git a/arch/powerpc/platforms/pseries/vio.c b/arch/powerpc/platforms/pseries/vio.c
+index e00f3725ec96..e31e59c54f30 100644
+--- a/arch/powerpc/platforms/pseries/vio.c
++++ b/arch/powerpc/platforms/pseries/vio.c
+@@ -560,7 +560,8 @@ static int vio_dma_iommu_map_sg(struct device *dev, struct scatterlist *sglist,
+ 	for_each_sg(sglist, sgl, nelems, count)
+ 		alloc_size += roundup(sgl->length, IOMMU_PAGE_SIZE(tbl));
+ 
+-	if (vio_cmo_alloc(viodev, alloc_size))
++	ret = vio_cmo_alloc(viodev, alloc_size);
++	if (ret)
+ 		goto out_fail;
+ 	ret = ppc_iommu_map_sg(dev, tbl, sglist, nelems, dma_get_mask(dev),
+ 			direction, attrs);
+@@ -577,7 +578,7 @@ static int vio_dma_iommu_map_sg(struct device *dev, struct scatterlist *sglist,
+ 	vio_cmo_dealloc(viodev, alloc_size);
+ out_fail:
+ 	atomic_inc(&viodev->cmo.allocs_failed);
 -	return 0;
 +	return ret;
  }
  
- /* allocate and map a coherent mapping */
+ static void vio_dma_iommu_unmap_sg(struct device *dev,
 -- 
 2.20.1
 
