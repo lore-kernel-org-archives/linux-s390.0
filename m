@@ -2,153 +2,170 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AEA3C636CA
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Jul 2021 07:12:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2086AC636CB
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Jul 2021 08:24:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EA851613E9
-	for <linux-s390@archiver.kernel.org>; Fri, 16 Jul 2021 07:12:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 07B59613ED
+	for <linux-s390@archiver.kernel.org>; Fri, 16 Jul 2021 08:24:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231728AbhGPHP1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 16 Jul 2021 03:15:27 -0400
-Received: from mga11.intel.com ([192.55.52.93]:52773 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229930AbhGPHPZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 16 Jul 2021 03:15:25 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10046"; a="207663283"
-X-IronPort-AV: E=Sophos;i="5.84,244,1620716400"; 
-   d="asc'?scan'208";a="207663283"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2021 00:12:29 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.84,244,1620716400"; 
-   d="asc'?scan'208";a="495951551"
-Received: from zhen-hp.sh.intel.com (HELO zhen-hp) ([10.239.160.143])
-  by FMSMGA003.fm.intel.com with ESMTP; 16 Jul 2021 00:12:21 -0700
-Date:   Fri, 16 Jul 2021 14:50:57 +0800
-From:   Zhenyu Wang <zhenyuw@linux.intel.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S237231AbhGPI1j (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 16 Jul 2021 04:27:39 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29638 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S237504AbhGPI1i (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 16 Jul 2021 04:27:38 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16G82sot034778;
+        Fri, 16 Jul 2021 04:24:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=8Of+ionZ0K44S7zzH2G1wGenaNNg9cYQDtiQ0dQz6+E=;
+ b=BMc79y1KhhQKUFZbOrAhtcEP61wGvhCcKpBh3YItmYniaHy7RinkekOStAMhwPcVbV8g
+ tA8KdxQW6CmdQCUDo7HXnXeBDvsxeO1Bxcn4vmR46+BPBqB7+8Ctzlwih1eoet+d/O4e
+ U7lnzCYwkCmnuQ2N7TeXEVQB0tNbOBoSC9rb2wWdVRh2ThxQaLFsKo3f4ZcKX5kegGXy
+ lsJ/BZHBXKo8Vpdp79tRxovqbQ5nmEvbTtQHpKKZhzPMbI6YKxeWxAqOAKu0r38O+7Ex
+ 7l5jIUCj1b6+Lwrw1Hy8lrhsFTfLuxB+ksipWyRyg3640fKq4qgCXYb8/oO8DK9d7iju gA== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39tw3vn83n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 16 Jul 2021 04:24:15 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16G8EkKq007904;
+        Fri, 16 Jul 2021 08:24:13 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 39s3p78tv5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 16 Jul 2021 08:24:13 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16G8OAou20840890
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 16 Jul 2021 08:24:10 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 167C84C04A;
+        Fri, 16 Jul 2021 08:24:10 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2C04E4C04E;
+        Fri, 16 Jul 2021 08:24:09 +0000 (GMT)
+Received: from sig-9-145-73-130.uk.ibm.com (unknown [9.145.73.130])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 16 Jul 2021 08:24:09 +0000 (GMT)
+Message-ID: <352f2a35d62399fce1dca0ce1158974ecda3904c.camel@linux.ibm.com>
+Subject: Re: [PATCH v1 10/16] s390/pci: return error code from
+ s390_dma_map_sg()
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Logan Gunthorpe <logang@deltatee.com>,
+        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+        iommu@lists.linux-foundation.org, linux-parisc@vger.kernel.org,
+        xen-devel@lists.xenproject.org
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Stephen Bates <sbates@raithlin.com>,
+        Martin Oliveira <martin.oliveira@eideticom.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>
-Subject: Re: [PATCH 12/13] vfio/gvt: Fix open/close when multiple device FDs
- are open
-Message-ID: <20210716065057.GA13928@zhen-hp.sh.intel.com>
-Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
-References: <0-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
- <12-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
-Content-Disposition: inline
-In-Reply-To: <12-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Date:   Fri, 16 Jul 2021 10:24:08 +0200
+In-Reply-To: <20210715164544.6827-11-logang@deltatee.com>
+References: <20210715164544.6827-1-logang@deltatee.com>
+         <20210715164544.6827-11-logang@deltatee.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Au675VXZyfEIxm3kG5FUCjrWY9DzzlcG
+X-Proofpoint-ORIG-GUID: Au675VXZyfEIxm3kG5FUCjrWY9DzzlcG
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-16_02:2021-07-16,2021-07-16 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 mlxlogscore=999 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 mlxscore=0 spamscore=0 clxscore=1011 adultscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107160048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On 2021.07.14 21:20:41 -0300, Jason Gunthorpe wrote:
-> The user can open multiple device FDs if it likes, however the open
-> function calls vfio_register_notifier() on device global state. Calling
-> vfio_register_notifier() twice will trigger a WARN_ON from
-> notifier_chain_register() and the first close will wrongly delete the
-> notifier and more.
->=20
-> Since these really want the new open/close_device() semantics just change
-> the function over.
->=20
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+On Thu, 2021-07-15 at 10:45 -0600, Logan Gunthorpe wrote:
+> From: Martin Oliveira <martin.oliveira@eideticom.com>
+> 
+> The .map_sg() op now expects an error code instead of zero on failure.
+> 
+> So propagate the error from __s390_dma_map_sg() up.
+> 
+> Signed-off-by: Martin Oliveira <martin.oliveira@eideticom.com>
+> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+> Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
 > ---
->  drivers/gpu/drm/i915/gvt/kvmgt.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/=
-kvmgt.c
-> index 1ac98f8aba31e6..7efa386449d104 100644
-> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> @@ -885,7 +885,7 @@ static int intel_vgpu_group_notifier(struct notifier_=
-block *nb,
->  	return NOTIFY_OK;
+>  arch/s390/pci/pci_dma.c | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
+> index ebc9a49523aa..c78b02012764 100644
+> --- a/arch/s390/pci/pci_dma.c
+> +++ b/arch/s390/pci/pci_dma.c
+> @@ -487,7 +487,7 @@ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
+>  	unsigned int max = dma_get_max_seg_size(dev);
+>  	unsigned int size = s->offset + s->length;
+>  	unsigned int offset = s->offset;
+> -	int count = 0, i;
+> +	int count = 0, i, ret;
+>  
+>  	for (i = 1; i < nr_elements; i++) {
+>  		s = sg_next(s);
+> @@ -497,8 +497,9 @@ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
+>  
+>  		if (s->offset || (size & ~PAGE_MASK) ||
+>  		    size + s->length > max) {
+> -			if (__s390_dma_map_sg(dev, start, size,
+> -					      &dma->dma_address, dir))
+> +			ret = __s390_dma_map_sg(dev, start, size,
+> +						&dma->dma_address, dir);
+> +			if (ret)
+>  				goto unmap;
+>  
+>  			dma->dma_address += offset;
+> @@ -511,7 +512,8 @@ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
+>  		}
+>  		size += s->length;
+>  	}
+> -	if (__s390_dma_map_sg(dev, start, size, &dma->dma_address, dir))
+> +	ret = __s390_dma_map_sg(dev, start, size, &dma->dma_address, dir);
+> +	if (ret)
+>  		goto unmap;
+>  
+>  	dma->dma_address += offset;
+> @@ -523,7 +525,7 @@ static int s390_dma_map_sg(struct device *dev, struct scatterlist *sg,
+>  		s390_dma_unmap_pages(dev, sg_dma_address(s), sg_dma_len(s),
+>  				     dir, attrs);
+>  
+> -	return 0;
+> +	return ret;
 >  }
-> =20
-> -static int intel_vgpu_open(struct mdev_device *mdev)
-> +static int intel_vgpu_open_device(struct mdev_device *mdev)
->  {
->  	struct intel_vgpu *vgpu =3D mdev_get_drvdata(mdev);
->  	struct kvmgt_vdev *vdev =3D kvmgt_vdev(vgpu);
-> @@ -1004,7 +1004,7 @@ static void __intel_vgpu_release(struct intel_vgpu =
-*vgpu)
->  	vgpu->handle =3D 0;
->  }
-> =20
-> -static void intel_vgpu_release(struct mdev_device *mdev)
-> +static void intel_vgpu_close_device(struct mdev_device *mdev)
->  {
->  	struct intel_vgpu *vgpu =3D mdev_get_drvdata(mdev);
-> =20
-> @@ -1753,8 +1753,8 @@ static struct mdev_parent_ops intel_vgpu_ops =3D {
->  	.create			=3D intel_vgpu_create,
->  	.remove			=3D intel_vgpu_remove,
-> =20
-> -	.open			=3D intel_vgpu_open,
-> -	.release		=3D intel_vgpu_release,
-> +	.open_device		=3D intel_vgpu_open_device,
-> +	.close_device		=3D intel_vgpu_close_device,
-> =20
->  	.read			=3D intel_vgpu_read,
->  	.write			=3D intel_vgpu_write,
+>  
+>  static void s390_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
 
-Looks ok to me. Thanks!
+So the error codes we return are -ENOMEM if allocating a DMA
+translation entry fails and -EINVAL if the DMA translation table hasn't
+been initialized or the caller tries to map 0 sized memory. Are these
+error codes that you would expect? If yes then this change looks good
+to me.
 
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
---k+w/mQv8wyuph6w0
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCYPEsTAAKCRCxBBozTXgY
-Jx7CAJwL3rjxtO0hmyVLloknYXTNq4Pl4gCcC95wG37YNR4DYMf5Ns1jbuH5Nqk=
-=WTLJ
------END PGP SIGNATURE-----
-
---k+w/mQv8wyuph6w0--
