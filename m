@@ -5,29 +5,29 @@ X-Spam-Level:
 X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CF94C12002
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 14:59:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BEBEC07E9B
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 15:12:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 26D2F6124B
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 14:59:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 36590611C1
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 15:12:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241436AbhGSOTB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Jul 2021 10:19:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53816 "EHLO mail.kernel.org"
+        id S244425AbhGSObg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Jul 2021 10:31:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241449AbhGSOSg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:18:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDEDE6113C;
-        Mon, 19 Jul 2021 14:59:14 +0000 (UTC)
+        id S243260AbhGSO2z (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:28:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDD5F6113C;
+        Mon, 19 Jul 2021 15:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706755;
-        bh=0BY0t4Fzco4r9Lcj0qjm7oed1hpxVchJqiMpRyJiHt4=;
+        s=korg; t=1626707312;
+        bh=t9NECPz7Nz0z405eePNMuJD4AM3HotzLTkVBP5Emu4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c7TdZPYalY2S3qgMx17VGOjNQay6aVhDNJDzD5vnC1WHXC1+TqCxDmm9dh0zdlYNt
-         9VhSxRVBV3YSABXNjD3XSbdUMo+jahrCH9pamG3j+8+9ofiWcdZLfSceKOKiv1v5B6
-         KYp4KkUDEMPM4BED5jsLmW4ttSegp0mJx2ZdkPoc=
+        b=aRp7df9tySd+iaVUxcZjGXsEW6zdvJqbppAe57y49b4w7BY+k6mNPU0nwH+Pd/ad6
+         FgPtW1l8Np1kqVc7nHfO9u/1ddzmGlJkUosZYXbFTbFV4LIQkmhGjAzqDkLvKlXtl4
+         Hpa3TP3b0fwN9cocgnlmd/s197wZo/id//00FXSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         linux-s390@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 085/188] s390: appldata depends on PROC_SYSCTL
-Date:   Mon, 19 Jul 2021 16:51:09 +0200
-Message-Id: <20210719144932.849873918@linuxfoundation.org>
+Subject: [PATCH 4.9 110/245] s390: appldata depends on PROC_SYSCTL
+Date:   Mon, 19 Jul 2021 16:50:52 +0200
+Message-Id: <20210719144943.975482821@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,10 +76,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 9bdaeb38a768..7466e034e1fc 100644
+index 1c4a595e8224..1dff52abc786 100644
 --- a/arch/s390/Kconfig
 +++ b/arch/s390/Kconfig
-@@ -834,7 +834,7 @@ config CMM_IUCV
+@@ -833,7 +833,7 @@ config CMM_IUCV
  config APPLDATA_BASE
  	def_bool n
  	prompt "Linux - VM Monitor Stream, base infrastructure"
