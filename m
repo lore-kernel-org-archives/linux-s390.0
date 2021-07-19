@@ -2,91 +2,104 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 195ADC12002
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 04:42:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F1CEC12002
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 11:42:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E099D610C7
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 04:42:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 630876112D
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 11:42:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229777AbhGSEo7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Jul 2021 00:44:59 -0400
-Received: from mga18.intel.com ([134.134.136.126]:32088 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229512AbhGSEo6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 19 Jul 2021 00:44:58 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10049"; a="198252346"
-X-IronPort-AV: E=Sophos;i="5.84,251,1620716400"; 
-   d="scan'208";a="198252346"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jul 2021 21:41:59 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.84,251,1620716400"; 
-   d="scan'208";a="493864743"
-Received: from lkp-server01.sh.intel.com (HELO a467b34d8c10) ([10.239.97.150])
-  by fmsmga004.fm.intel.com with ESMTP; 18 Jul 2021 21:41:57 -0700
-Received: from kbuild by a467b34d8c10 with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1m5L6K-0000Yo-IJ; Mon, 19 Jul 2021 04:41:56 +0000
-Date:   Mon, 19 Jul 2021 12:41:41 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Thomas Richter <tmricht@linux.ibm.com>
-Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        id S236236AbhGSLCJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Jul 2021 07:02:09 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:51436 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236150AbhGSLCI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 19 Jul 2021 07:02:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626694967;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=QFvbmLxaTL7ZR1JOPuD7J5PG0/Wd11FgMA0Fpfbp4YU=;
+        b=HAYwfsC0Y+00Ol+8lPEM6etNBnJlGnDTv5s3voXOvPTwyynuvmWiLCKRtSwYlVVbnEOmUq
+        42lFcTwxgmxj2Fn0Ag3v9ZNIoEwD3YNEmOAa8YaVgZCqN711cJMJw1NSkuRV+i85wO7cIJ
+        mApLeIOq+w1Lb9QOCN0sjg7eYe1FIA0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-209-_ZipgJfiNrK0MGH1D7bbcA-1; Mon, 19 Jul 2021 07:42:44 -0400
+X-MC-Unique: _ZipgJfiNrK0MGH1D7bbcA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E555C1023F4F;
+        Mon, 19 Jul 2021 11:42:39 +0000 (UTC)
+Received: from localhost (ovpn-112-158.ams2.redhat.com [10.36.112.158])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2379719C79;
+        Mon, 19 Jul 2021 11:42:31 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        linux-s390@vger.kernel.org
-Subject: [PATCH] s390/cpumf: fix semicolon.cocci warnings
-Message-ID: <20210719044141.GA142696@68f9098639ea>
-References: <202107191217.k6Ejp4Bd-lkp@intel.com>
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        dri-devel@lists.freedesktop.org,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Cc:     "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>
+Subject: Re: [PATCH 01/13] vfio/samples: Remove module get/put
+In-Reply-To: <1-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
+Organization: Red Hat GmbH
+References: <1-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Mon, 19 Jul 2021 13:42:29 +0200
+Message-ID: <875yx6bkd6.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202107191217.k6Ejp4Bd-lkp@intel.com>
-X-Patchwork-Hint: ignore
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: kernel test robot <lkp@intel.com>
+On Wed, Jul 14 2021, Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-arch/s390/kernel/perf_cpum_cf.c:748:2-3: Unneeded semicolon
+> The patch to move the get/put to core and the patch to convert the samples
+> to use vfio_device crossed in a way that this was missed. When both
+> patches are together the samples do not need their own get/put.
+>
+> Fixes: 437e41368c01 ("vfio/mdpy: Convert to use vfio_register_group_dev()")
+> Fixes: 681c1615f891 ("vfio/mbochs: Convert to use vfio_register_group_dev()")
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  samples/vfio-mdev/mbochs.c | 4 ----
+>  samples/vfio-mdev/mdpy.c   | 4 ----
+>  2 files changed, 8 deletions(-)
 
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
- Remove unneeded semicolon.
-
-Generated by: scripts/coccinelle/misc/semicolon.cocci
-
-Fixes: a029a4eab39e ("s390/cpumf: Allow concurrent access for CPU Measurement Counter Facility")
-CC: Thomas Richter <tmricht@linux.ibm.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: kernel test robot <lkp@intel.com>
----
-
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
-head:   2734d6c1b1a089fb593ef6a23d4b70903526fe0c
-commit: a029a4eab39e4bf542907a3263773fce3d48c983 s390/cpumf: Allow concurrent access for CPU Measurement Counter Facility
-:::::: branch date: 7 hours ago
-:::::: commit date: 2 weeks ago
-
- perf_cpum_cf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/arch/s390/kernel/perf_cpum_cf.c
-+++ b/arch/s390/kernel/perf_cpum_cf.c
-@@ -745,7 +745,7 @@ static int __init cpumf_pmu_init(void)
- 	if (!cf_dbg) {
- 		pr_err("Registration of s390dbf(cpum_cf) failed\n");
- 		return -ENOMEM;
--	};
-+	}
- 	debug_register_view(cf_dbg, &debug_sprintf_view);
- 
- 	cpumf_pmu.attr_groups = cpumf_cf_event_group();
