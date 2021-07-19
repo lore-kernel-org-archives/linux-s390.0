@@ -2,141 +2,207 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC2FCC12002
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 12:11:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71D75C07E9B
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 12:12:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9006D60200
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 12:11:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 559FC60200
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 12:12:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236828AbhGSLbR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Jul 2021 07:31:17 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:44016 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236571AbhGSLbQ (ORCPT
+        id S236831AbhGSLbT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Jul 2021 07:31:19 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1380 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S236829AbhGSLbT (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 19 Jul 2021 07:31:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626696716;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=G1Xy0AbFqsZfGDz+B87vNsKwwBJawGt2nxYjtNqQM/w=;
-        b=alyaFATM3+pMezAEGcDiSvYDbatr40FQN2Hol+LvFTGqu2BaUAoyMBWQaO6ncVBEeB6Wz9
-        nJo3uGxlgGl0OLvx419pMMZAmkIYrIYTwC+Hj1P6z9QOwX6Q5Vvq9rBJ+dZf+qPsaMfAGq
-        uv5DuHTgPZ8ew6hg46Od+mzWaiKFNxE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-234-veFfpL9MN0G9o4CHFvx0YA-1; Mon, 19 Jul 2021 08:11:52 -0400
-X-MC-Unique: veFfpL9MN0G9o4CHFvx0YA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 007B3100CCC2;
-        Mon, 19 Jul 2021 12:11:49 +0000 (UTC)
-Received: from localhost (ovpn-112-158.ams2.redhat.com [10.36.112.158])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4229318F0A;
-        Mon, 19 Jul 2021 12:11:40 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-Cc:     "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>
-Subject: Re: [PATCH 02/13] vfio: Introduce a vfio_uninit_group_dev() API call
-In-Reply-To: <2-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
-Organization: Red Hat GmbH
-References: <2-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Mon, 19 Jul 2021 14:11:38 +0200
-Message-ID: <8735sabj0l.fsf@redhat.com>
+        Mon, 19 Jul 2021 07:31:19 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16JC4ST6194535;
+        Mon, 19 Jul 2021 08:11:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=IbwvhhQ3m/v8Z9ZwaQawHv93yzco477LrN3X2MVHuBs=;
+ b=XiJJr3Oqa9mcw4Zgu79/s54sACNwPIVi5WEZMiWHT1PRfgELHkjq9o1ZOg2lJGpoghHP
+ W36sQoEe7HYxiTdA1Z4KsLysjCkAgXo29Eqmr12JD4HivQ83QNzCcwB53tik8mgsoh02
+ 4BHm9+Yexc0b4PaJfSJA4X4mhn9fmDfaU7fTpr/Q9R3PXs0+vToyeJZUwq/1J9GCjDCx
+ LZSZdjzNbMzzsJco38PCsFeTlaH9gd1k+ka4CqSV8ClV0YxF2grYaUk+8+qBFeNw9C3Y
+ dazBvwCi5fFpXBhBeam/nEfTisPp1dfkhaLbB3+oGUXB7phQAp8HRq+aaMS6zuHqEJrq JQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39w91hgdk9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Jul 2021 08:11:53 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16JC4chc195676;
+        Mon, 19 Jul 2021 08:11:53 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39w91hgdjd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Jul 2021 08:11:52 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16JC2Vtu016802;
+        Mon, 19 Jul 2021 12:11:51 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 39upu88prp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Jul 2021 12:11:51 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16JCBmx924904012
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 19 Jul 2021 12:11:48 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C303C11C0E1;
+        Mon, 19 Jul 2021 12:11:48 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 77BF311C0D9;
+        Mon, 19 Jul 2021 12:11:48 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Jul 2021 12:11:48 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Bjorn Helgaas <bhelgaas@google.com>
+Cc:     linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH] PCI: Move pci_dev_is/assign_added() to pci.h
+Date:   Mon, 19 Jul 2021 14:11:48 +0200
+Message-Id: <20210719121148.2403239-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: iVz62Q30GlTNsZVqNUE9lREkTHvZX6iA
+X-Proofpoint-GUID: jiSA7etyPQeuxkqsjh2oPwDQkktdY5vB
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-19_05:2021-07-16,2021-07-19 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
+ malwarescore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0 bulkscore=0
+ adultscore=0 impostorscore=0 lowpriorityscore=0 clxscore=1015 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2107190069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 14 2021, Jason Gunthorpe <jgg@nvidia.com> wrote:
+The helper function pci_dev_is_added() from drivers/pci/pci.h is used in
+PCI arch code of both s390 and powerpc leading to awkward relative
+includes. Move it to the global include/linux/pci.h and get rid of these
+includes just for that one function.
 
-> From: Max Gurtovoy <mgurtovoy@nvidia.com>
->
-> This pairs with vfio_init_group_dev() and allows undoing any state that is
-> stored in the vfio_device unrelated to registration. Add appropriately
-> placed calls to all the drivers.
->
-> The following patch will use this to add pre-registration state for the
-> device set.
->
-> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  Documentation/driver-api/vfio.rst            |  4 ++-
->  drivers/vfio/fsl-mc/vfio_fsl_mc.c            |  6 +++--
->  drivers/vfio/mdev/vfio_mdev.c                | 13 +++++++---
->  drivers/vfio/pci/vfio_pci.c                  |  6 +++--
->  drivers/vfio/platform/vfio_platform_common.c |  7 +++--
->  drivers/vfio/vfio.c                          |  5 ++++
->  include/linux/vfio.h                         |  1 +
->  samples/vfio-mdev/mbochs.c                   |  2 ++
->  samples/vfio-mdev/mdpy.c                     | 25 ++++++++++--------
->  samples/vfio-mdev/mtty.c                     | 27 ++++++++++++--------
->  10 files changed, 64 insertions(+), 32 deletions(-)
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+ arch/powerpc/platforms/powernv/pci-sriov.c |  3 ---
+ arch/powerpc/platforms/pseries/setup.c     |  1 -
+ arch/s390/pci/pci_sysfs.c                  |  2 --
+ drivers/pci/hotplug/acpiphp_glue.c         |  1 -
+ drivers/pci/pci.h                          | 15 ---------------
+ include/linux/pci.h                        | 13 +++++++++++++
+ 6 files changed, 13 insertions(+), 22 deletions(-)
 
-(...)
-
-> diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-> index e81b875b4d87b4..cf264d0bf11053 100644
-> --- a/samples/vfio-mdev/mbochs.c
-> +++ b/samples/vfio-mdev/mbochs.c
-> @@ -558,6 +558,7 @@ static int mbochs_probe(struct mdev_device *mdev)
->  	return 0;
->  
->  err_mem:
-> +	vfio_uninit_group_dev(&mdev_state->vdev);
->  	kfree(mdev_state->vconfig);
->  	kfree(mdev_state);
->  	return ret;
-> @@ -571,6 +572,7 @@ static void mbochs_remove(struct mdev_device *mdev)
->  	vfio_unregister_group_dev(&mdev_state->vdev);
->  	kfree(mdev_state->pages);
->  	kfree(mdev_state->vconfig);
-> +	vfio_uninit_group_dev(&mdev_state->vdev);
-
-Does the location of the uninit vs the kfree matter? Even if not, it
-might be good to keep it consistent.
-
->  	kfree(mdev_state);
->  }
->  
+diff --git a/arch/powerpc/platforms/powernv/pci-sriov.c b/arch/powerpc/platforms/powernv/pci-sriov.c
+index 28aac933a439..2e0ca5451e85 100644
+--- a/arch/powerpc/platforms/powernv/pci-sriov.c
++++ b/arch/powerpc/platforms/powernv/pci-sriov.c
+@@ -9,9 +9,6 @@
+ 
+ #include "pci.h"
+ 
+-/* for pci_dev_is_added() */
+-#include "../../../../drivers/pci/pci.h"
+-
+ /*
+  * The majority of the complexity in supporting SR-IOV on PowerNV comes from
+  * the need to put the MMIO space for each VF into a separate PE. Internally
+diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
+index 631a0d57b6cd..17585ec9f955 100644
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -74,7 +74,6 @@
+ #include <asm/hvconsole.h>
+ 
+ #include "pseries.h"
+-#include "../../../../drivers/pci/pci.h"
+ 
+ DEFINE_STATIC_KEY_FALSE(shared_processor);
+ EXPORT_SYMBOL_GPL(shared_processor);
+diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
+index 6e2450c2b9c1..8dbe54ef8f8e 100644
+--- a/arch/s390/pci/pci_sysfs.c
++++ b/arch/s390/pci/pci_sysfs.c
+@@ -13,8 +13,6 @@
+ #include <linux/stat.h>
+ #include <linux/pci.h>
+ 
+-#include "../../../drivers/pci/pci.h"
+-
+ #include <asm/sclp.h>
+ 
+ #define zpci_attr(name, fmt, member)					\
+diff --git a/drivers/pci/hotplug/acpiphp_glue.c b/drivers/pci/hotplug/acpiphp_glue.c
+index f031302ad401..4cb963f88183 100644
+--- a/drivers/pci/hotplug/acpiphp_glue.c
++++ b/drivers/pci/hotplug/acpiphp_glue.c
+@@ -38,7 +38,6 @@
+ #include <linux/slab.h>
+ #include <linux/acpi.h>
+ 
+-#include "../pci.h"
+ #include "acpiphp.h"
+ 
+ static LIST_HEAD(bridge_list);
+diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
+index 93dcdd431072..a159cd0f6f05 100644
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -383,21 +383,6 @@ static inline bool pci_dev_is_disconnected(const struct pci_dev *dev)
+ 	return dev->error_state == pci_channel_io_perm_failure;
+ }
+ 
+-/* pci_dev priv_flags */
+-#define PCI_DEV_ADDED 0
+-#define PCI_DPC_RECOVERED 1
+-#define PCI_DPC_RECOVERING 2
+-
+-static inline void pci_dev_assign_added(struct pci_dev *dev, bool added)
+-{
+-	assign_bit(PCI_DEV_ADDED, &dev->priv_flags, added);
+-}
+-
+-static inline bool pci_dev_is_added(const struct pci_dev *dev)
+-{
+-	return test_bit(PCI_DEV_ADDED, &dev->priv_flags);
+-}
+-
+ #ifdef CONFIG_PCIEAER
+ #include <linux/aer.h>
+ 
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 540b377ca8f6..b3b7bafa17e5 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -507,6 +507,19 @@ struct pci_dev {
+ 	unsigned long	priv_flags;	/* Private flags for the PCI driver */
+ };
+ 
++/* pci_dev priv_flags */
++#define PCI_DEV_ADDED 0
++
++static inline void pci_dev_assign_added(struct pci_dev *dev, bool added)
++{
++	assign_bit(PCI_DEV_ADDED, &dev->priv_flags, added);
++}
++
++static inline bool pci_dev_is_added(const struct pci_dev *dev)
++{
++	return test_bit(PCI_DEV_ADDED, &dev->priv_flags);
++}
++
+ static inline struct pci_dev *pci_physfn(struct pci_dev *dev)
+ {
+ #ifdef CONFIG_PCI_IOV
+-- 
+2.25.1
 
