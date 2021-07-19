@@ -2,107 +2,94 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B435CC12002
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 14:52:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CF94C12002
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 14:59:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9D3F061002
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 14:52:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 26D2F6124B
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 14:59:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241017AbhGSOLg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Jul 2021 10:11:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:25815 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241260AbhGSOJk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:09:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626706210;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=4+c2mimUJxS/GfqKAMPDQnAMd4K+lxrp07r5+X88g/E=;
-        b=LYU400GzjNex+/htbOm3+6q3o+oVAJO3SPI1kB8DtVrquYNzhIeSzJRQOtbpw99SkyMl0m
-        AP/5Fow38NfEz7k5AwpOtcTq+e7/05OLFIwzBPKy/AXh5AKHwyvxO4yLULcLla27vkLOod
-        h4nA5ddS7vli53sOEACU0rYQLcVOZnM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-587-i1pU7SFlN4-XnU6s5O2Fxg-1; Mon, 19 Jul 2021 10:47:52 -0400
-X-MC-Unique: i1pU7SFlN4-XnU6s5O2Fxg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4BA6BC73A1;
-        Mon, 19 Jul 2021 14:47:48 +0000 (UTC)
-Received: from localhost (ovpn-112-158.ams2.redhat.com [10.36.112.158])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 727BE5D9DC;
-        Mon, 19 Jul 2021 14:47:40 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S241436AbhGSOTB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Jul 2021 10:19:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53816 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S241449AbhGSOSg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:18:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DDEDE6113C;
+        Mon, 19 Jul 2021 14:59:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626706755;
+        bh=0BY0t4Fzco4r9Lcj0qjm7oed1hpxVchJqiMpRyJiHt4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=c7TdZPYalY2S3qgMx17VGOjNQay6aVhDNJDzD5vnC1WHXC1+TqCxDmm9dh0zdlYNt
+         9VhSxRVBV3YSABXNjD3XSbdUMo+jahrCH9pamG3j+8+9ofiWcdZLfSceKOKiv1v5B6
+         KYp4KkUDEMPM4BED5jsLmW4ttSegp0mJx2ZdkPoc=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-Cc:     "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>
-Subject: Re: [PATCH 12/13] vfio/gvt: Fix open/close when multiple device FDs
- are open
-In-Reply-To: <12-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
-Organization: Red Hat GmbH
-References: <12-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Mon, 19 Jul 2021 16:47:38 +0200
-Message-ID: <87lf629x85.fsf@redhat.com>
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 085/188] s390: appldata depends on PROC_SYSCTL
+Date:   Mon, 19 Jul 2021 16:51:09 +0200
+Message-Id: <20210719144932.849873918@linuxfoundation.org>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 14 2021, Jason Gunthorpe <jgg@nvidia.com> wrote:
+From: Randy Dunlap <rdunlap@infradead.org>
 
-> The user can open multiple device FDs if it likes, however the open
-> function calls vfio_register_notifier() on device global state. Calling
-> vfio_register_notifier() twice will trigger a WARN_ON from
-> notifier_chain_register() and the first close will wrongly delete the
-> notifier and more.
->
-> Since these really want the new open/close_device() semantics just change
-> the function over.
->
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/gpu/drm/i915/gvt/kvmgt.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+[ Upstream commit 5d3516b3647621d5a1180672ea9e0817fb718ada ]
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+APPLDATA_BASE should depend on PROC_SYSCTL instead of PROC_FS.
+Building with PROC_FS but not PROC_SYSCTL causes a build error,
+since appldata_base.c uses data and APIs from fs/proc/proc_sysctl.c.
+
+arch/s390/appldata/appldata_base.o: in function `appldata_generic_handler':
+appldata_base.c:(.text+0x192): undefined reference to `sysctl_vals'
+
+Fixes: c185b783b099 ("[S390] Remove config options.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210528002420.17634-1-rdunlap@infradead.org
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 9bdaeb38a768..7466e034e1fc 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -834,7 +834,7 @@ config CMM_IUCV
+ config APPLDATA_BASE
+ 	def_bool n
+ 	prompt "Linux - VM Monitor Stream, base infrastructure"
+-	depends on PROC_FS
++	depends on PROC_SYSCTL
+ 	help
+ 	  This provides a kernel interface for creating and updating z/VM APPLDATA
+ 	  monitor records. The monitor records are updated at certain time
+-- 
+2.30.2
+
+
 
