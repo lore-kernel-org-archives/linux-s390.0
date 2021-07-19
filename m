@@ -7,27 +7,27 @@ X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CE38C07E95
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 15:32:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF42FC12002
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 15:40:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2665D61222
-	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 15:32:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CDDDD6120A
+	for <linux-s390@archiver.kernel.org>; Mon, 19 Jul 2021 15:40:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238047AbhGSOva (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 19 Jul 2021 10:51:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60798 "EHLO mail.kernel.org"
+        id S245724AbhGSO7C (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 19 Jul 2021 10:59:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245550AbhGSOmU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:42:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4052961220;
-        Mon, 19 Jul 2021 15:21:54 +0000 (UTC)
+        id S245319AbhGSO6O (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:58:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1F746023D;
+        Mon, 19 Jul 2021 15:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708114;
-        bh=61cQvRtPBtakNCorV+hFqGGwLwM5xr6E6MACEefiO2Y=;
+        s=korg; t=1626708953;
+        bh=SQN+3Kulvivgnq/wgeiUCuPyJFYyEXXhyjhCJeuXMio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bY5h8IdOYRsO9H1pVlt/ve2sk2Nwtmt/JtDp/tGSpsujOia7hVO58ZA+mRPZ+dD15
-         xYk4ngGiYsQDsDI7Uz3a4HeusiEMh9hFcwt3YW8Ki751wXISURkaxc595QoBenvIyi
-         s2Bw7Elv2jPZSfCK5AEH/6XJRRW6lwObjz0UtilQ=
+        b=sKne27s7zJSgVxdMsaIacx8rftdC8plecNsXrgF35+HWF7eb3afjIBH41vXTGsHhQ
+         ZLZmh3UtekkH3P6zDvCKGW5B5w0+FRa1oJGsnYmt4HyDdVfdUxafXQzaYRvpl1PV7+
+         puvtcudb2Kn8Dql0fRBaRzP8oEu4+HPxEy2kenRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         linux-s390@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 142/315] s390: appldata depends on PROC_SYSCTL
-Date:   Mon, 19 Jul 2021 16:50:31 +0200
-Message-Id: <20210719144947.561359487@linuxfoundation.org>
+Subject: [PATCH 4.19 196/421] s390: appldata depends on PROC_SYSCTL
+Date:   Mon, 19 Jul 2021 16:50:07 +0200
+Message-Id: <20210719144953.187732532@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,10 +76,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 49fb6614ea8c..8dbadad1117c 100644
+index 9a9c7a6fe925..ce4c3b659f70 100644
 --- a/arch/s390/Kconfig
 +++ b/arch/s390/Kconfig
-@@ -892,7 +892,7 @@ config CMM_IUCV
+@@ -867,7 +867,7 @@ config CMM_IUCV
  config APPLDATA_BASE
  	def_bool n
  	prompt "Linux - VM Monitor Stream, base infrastructure"
