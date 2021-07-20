@@ -2,67 +2,53 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E11BFC07E95
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jul 2021 22:02:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAF9CC636C8
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jul 2021 22:50:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C7ACD6113A
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jul 2021 22:02:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A53D161165
+	for <linux-s390@archiver.kernel.org>; Tue, 20 Jul 2021 22:50:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231196AbhGTVVg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jul 2021 17:21:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49578 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231319AbhGTVVG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 20 Jul 2021 17:21:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626818493;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=DGxLxC73Q30FLZh4kHloeV2LTAZ2CJRDqzZBDuBEMfM=;
-        b=Ty6BN3NVh1tbncLXYO5K+ZGbp3ho5S8x+Hry/Nlf+J2EDkFSAFfLt4jbi3QTpiBM9zALCR
-        owCtdHz5w6tODcx7oUteVm1faC9NtzB0HQyDwr4LgKQCDL2gBPIeVy6gY+06lqzLZx3HB3
-        r3azSQQqPJPHLyYTHwl31Vj7CZvtG9E=
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com
- [209.85.167.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-260-Ti5i8kNTMhCrQk50a4B7Yw-1; Tue, 20 Jul 2021 18:01:32 -0400
-X-MC-Unique: Ti5i8kNTMhCrQk50a4B7Yw-1
-Received: by mail-oi1-f198.google.com with SMTP id f205-20020acacfd60000b02901f424a672b7so415449oig.18
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jul 2021 15:01:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=DGxLxC73Q30FLZh4kHloeV2LTAZ2CJRDqzZBDuBEMfM=;
-        b=rE1yW0iwY1yX9TyHQv7EzkLPqElkcFQI6on/A6JQncN75on8H7d1v6PSeaANGG1lKW
-         GVt97dVw1AQ/ZM2aCbCKWW52QBUIqH3VajoGJE0De19IIICSHZAm88JzFChoE66Z4nqF
-         +Xp0DI3zKIm/y0QYc42GIeKuDM7R8HTaHSg6KWOT6ffWbpwAMwafzLkV9+0GO3J0Crdv
-         JirP3H4ByBzBCgLaG5GJ/MJBXSXH6ebqGnKJT2CgtOUeRUPoZw2MQDRWyyGSuO+WlixR
-         vwrYTzz5j0sC/Nzc1xItkKZ8mdmP578YXptI05xffjgdoWI60mK4OtZ8p839Xocy6ttD
-         Tpfw==
-X-Gm-Message-State: AOAM532+PZkQaMbzxQvH9jneZRXb3OAsOleUR3YXNHrCV0YRXF1IIFOa
-        NKuYJa+mdOoW5ZF8fnDfAW1cUJKKc2tTnsVQkBnyAQja1IZJLdG1yU9DySvByxHisTvpcd4E6Dt
-        tyCVXv3/44jkJSaYlbAdtnQ==
-X-Received: by 2002:a05:6808:aa3:: with SMTP id r3mr18166276oij.133.1626818491799;
-        Tue, 20 Jul 2021 15:01:31 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwuyDIfTXjm5YKo9TBgR+HrFk2cZEkVnlsdeNA/JOY8RcUjz3Wmb8/jGMHDDitpmXWLkurNEg==
-X-Received: by 2002:a05:6808:aa3:: with SMTP id r3mr18166225oij.133.1626818491525;
-        Tue, 20 Jul 2021 15:01:31 -0700 (PDT)
-Received: from redhat.com ([198.99.80.109])
-        by smtp.gmail.com with ESMTPSA id q187sm259680oif.2.2021.07.20.15.01.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jul 2021 15:01:30 -0700 (PDT)
-Date:   Tue, 20 Jul 2021 16:01:27 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
+        id S231173AbhGTWKC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 20 Jul 2021 18:10:02 -0400
+Received: from mail-dm6nam11on2076.outbound.protection.outlook.com ([40.107.223.76]:7008
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231679AbhGTWJU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 20 Jul 2021 18:09:20 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=c0xx9U4ljDSuzVXDf2FTdiFzD2n27NxvPtp2YWNMavkXnHnj7hvTfWP2AjD/Q2gzVGLJw8TlONYPjZpeF0w4VX19BuwTELl0kbZV2QKMbTrP8v6vP+131d13dMa01ohDrh7GMkPNP5aYi+sxOhlcD5NpztWpIl2fS7Oy8evgbQ2wiG0p2NlkoIAyEn2v4BbwidKGgZI/JpRb4AR6yM8yqIQb22G51vEoIcPXDBptdpz5RBRZB86+WEOviunJkdi7F402+dlwAa5fLgMuDK/eBe3Qb7hyxxYkqdQdrCd5iJcT3EK/OB6dhYmYTIB5jru2rTZHwPS1atcfew4ac/rVFg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=cEzZa841vkeBoC2mxG/NMGrzpkXdRWDE4qhF5crkf3M=;
+ b=XAzQAR9ug/xqBMGerkJioTYojxTvtzDv6ENn1CEzmvDmKGtU2XjOrYYCDONmE54Bal3JEWqy0z/r8rj8Mi4EaOVUDxS1WW6Rwlw54V74M0a2HNpUzxGFWvtwi5RWgLdibKWMNcSv8ePO7ffa82HCwfh7NS/gEyujSQWbeu4U3dg95k9kkaPF9/qNysHbzY3n2crLNGL4p0O9VJpebaUCrP+Q2bLIGsKm+Pr0h4Am+lEElL2ef1k73Mknxnvf4/mmh0gjw9GVE7UvEy6Oxm6DbRWD9fdfCzYUO9axEElrnQBUNBIw5YuWtV4efzU1kTQ+M5yGpbg5l4HqHrAcBYMSwA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=cEzZa841vkeBoC2mxG/NMGrzpkXdRWDE4qhF5crkf3M=;
+ b=PQF0uLxHdqWTKdmgDzVnbX0/VGjfFrkW//h6oMm8zT1SdEefOrEuPiukiM8kHxCHQ5xKCiRLr8KdAXBHOa78wTZ7nkap83xGfW96DQyrv8jCeSewe+jOTnM8VOKoZayNXLrhapzGCqN5qrWA6kgG6Uum3wA0HMadyRdQNOG8QtXSOAeaXROexODKJ1I4wY0lcZA9y1317Jo5X1zDzDyRGICZPsoIpwlSHgQH+7pAwjPuoXbD8j4skIKp7SWw1quWNFYJADoq4CWk5ZSqvBdu/vYqsLT+e2JCzwtOhgAGy3HJScYLpxTVA0X3vGutorwQ1y0DZiiGTKisN1DvKT9HPg==
+Authentication-Results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL1PR12MB5093.namprd12.prod.outlook.com (2603:10b6:208:309::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.24; Tue, 20 Jul
+ 2021 22:49:56 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::d017:af2f:7049:5482]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::d017:af2f:7049:5482%5]) with mapi id 15.20.4331.034; Tue, 20 Jul 2021
+ 22:49:56 +0000
+Date:   Tue, 20 Jul 2021 19:49:55 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
 Cc:     David Airlie <airlied@linux.ie>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
@@ -96,150 +82,128 @@ Cc:     David Airlie <airlied@linux.ie>,
         Zhenyu Wang <zhenyuw@linux.intel.com>
 Subject: Re: [PATCH v2 02/14] vfio/mbochs: Fix missing error unwind in
  mbochs_probe()
-Message-ID: <20210720160127.17bf3c19.alex.williamson@redhat.com>
-In-Reply-To: <2-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
+Message-ID: <20210720224955.GD1117491@nvidia.com>
 References: <0-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
-        <2-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+ <2-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
+ <20210720160127.17bf3c19.alex.williamson@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210720160127.17bf3c19.alex.williamson@redhat.com>
+X-ClientProxiedBy: BL1PR13CA0127.namprd13.prod.outlook.com
+ (2603:10b6:208:2bb::12) To BL0PR12MB5506.namprd12.prod.outlook.com
+ (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (142.162.113.129) by BL1PR13CA0127.namprd13.prod.outlook.com (2603:10b6:208:2bb::12) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4352.14 via Frontend Transport; Tue, 20 Jul 2021 22:49:56 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1m5yYl-005FvT-GW; Tue, 20 Jul 2021 19:49:55 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 7e149845-a2b7-42d8-af5d-08d94bd0b215
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5093:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BL1PR12MB5093002E4432772CED8815FAC2E29@BL1PR12MB5093.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: izSsyVeA01tMbZ9LxfYyca9ju7t7qPT/SkFHz/Sl0j0wKP5NBy8nDkxtafo8429B/Y0wNYvUICYKaTxHoQdA1NJcBby6XHhWMn8pGJ9rMylCPz6iykqD5nia71KHek2r0sPQwcdodrpQnm54LMoLR4Iqn4xW3NZEChuQNIJjoHctj2TQ9abMFzvAqxkarQQLrQdTtZ1f+AQ4yiSdpKkLdKS1Et/SzKX3TctYq+FIsbArOTLv8D42BZDcCFV4SM7Zg9o0XjTLvRa6WqRfcI1cnZw3LUYJ6iRrGpsiRBlF56vaDzxD5X6nTdBo7y7+i32YROH5DZKrIY/5V7W2r3viiTI9YQ4Q08iTtWMU43BVKpLa4dBYL9xqYuLMTM8qVJTv/pOKAr0J7UX4Gd0VhO16nv/IDsuccoyOP4/wPcuMDtCpNXDwDIQEmoz6hdK2Pkw8f9XB25Puj3kNocWO3zvnvYwFldMmvg5Wyt1Rg7WQe1aH8GKgGNUlQRuoim39JkOhMa6xFrXoGI59w1fcKzqr+aXHq4NlRQ0lDJZR2+X7WzoTJzLrx1ivQ0RnaiIHfwL5Fb4yguggRwmaIFe/V593BAVjKzszlGP/2+qjDzxxQaoXYm1VodLWt1yELsETM98M1YlWdSWQhyVKaONLisjf9g==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(136003)(39860400002)(376002)(366004)(346002)(7406005)(7416002)(38100700002)(5660300002)(36756003)(6916009)(26005)(83380400001)(2906002)(1076003)(33656002)(86362001)(9746002)(66476007)(66946007)(8936002)(186003)(8676002)(2616005)(426003)(54906003)(316002)(66556008)(478600001)(9786002)(4326008);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?6voRhEnl9cUve/9Gf1xKFyVnrrkcTJ4oDBhyDqSDt7lsc5PSA4jjkr7LpshN?=
+ =?us-ascii?Q?+wQVlZDIS9g4lVJyMDwGJefYZtKwZzmNVLfbfdchSoEpLWtDy+bbKznKBvNf?=
+ =?us-ascii?Q?E9FwIAz7m+WEvGJdxynxA1/z7N8G0RukAP3EkGZzBxMPJcIJWuFPacos2CVF?=
+ =?us-ascii?Q?qju3nzfAJvjKYQ/1a9aic8GlXjSOUZjKJIqL1VZnzx8oZ9bBwPIYxdd+rVPB?=
+ =?us-ascii?Q?on15VU0srb85L8z6NaV3K5mhfWWSiD4u1BCQyBqQH51vYA97ydYSYX9jWRjD?=
+ =?us-ascii?Q?hmWne5HKUNR8aTW4VHTjb2dZJd71LS8Ny428xlTQPRhirvpS3T3cRKqGc4oI?=
+ =?us-ascii?Q?YDH7a/dY0dqqprEYCVZ6A5z8NAJZy4Q8IG7nJA/JGV+Lar9ThwAjUTW1FFvh?=
+ =?us-ascii?Q?c92jhU0vzSBsdiUlDNYIs6yxe8icGAbuFupfqx/5B8QlR+pLMvGaoL8/gktm?=
+ =?us-ascii?Q?cY0AZqXInkOwo0CuVQdqA7L8KdBjBkzTHwr/wl5DqbFuFYbg4IBRHLMZxwmb?=
+ =?us-ascii?Q?OMfF/B+A+quWw23i3f7esRX3UAxHewCsv/svoaZhA9iwphv+cjxvkMPLFyna?=
+ =?us-ascii?Q?WKfrhwa/QUBbTe+86rnX+5SyPFmqNq92veAapAccPw275yS9sXg9vwjBZ1kn?=
+ =?us-ascii?Q?zLI0ZMxggWa8fcynWAv8W+U6otLDzyHD5cQ8scwaZ27u69awlz4LEenajPgn?=
+ =?us-ascii?Q?Ooi7BAfMcflsQyfBOnLOZtU4L20bQhY0CIcHkEWVPZj13TWC4dcX6f3qiv9j?=
+ =?us-ascii?Q?lWEUMLbbUwQGxR/CkuVyb9d5P3MuFgEHeaYjh7A/2kWkAWIEahvzSUx/9641?=
+ =?us-ascii?Q?kqsTqAQ35e8SQ3XzH88jWbkMPKmks2Cmd0zdFuknvZZhVpfMJUwUD8zWRmqq?=
+ =?us-ascii?Q?PJN75d/9nI25OIYPUuFy+uSg3EyfPqo0AXcoOqxIEccPCiBKoiB2AYYNnjwb?=
+ =?us-ascii?Q?njUlquTXm6pkBH+7h/UeU3wZCuJRZA+QdNLtALmEl9DAQQkc0DIQJ0t4RjYz?=
+ =?us-ascii?Q?pM5R2SgvB2rm7wrAIlBDr9tuK9J30AQ6TTcZSVEWQQV3E0GxS3IZStRXfXZX?=
+ =?us-ascii?Q?qI8MqMvFiIli2Wc4O7ddKLakfzDvlfxslMsoggTdEwX0mPU3l2cuvhrQrZ7W?=
+ =?us-ascii?Q?XhTv//1jG5jWlifFq/aHqN36tGi2wOHYONG+odN4J5H7fgLWatyG+F191ubE?=
+ =?us-ascii?Q?oj6RKX6F0YZYWHtTpluSv3ouuJ+x1pasNijJVr+PBuGI+eCuE8UTp1LSH8WQ?=
+ =?us-ascii?Q?gWOAMmQho8GCg6ALW8Jpkcw7CUlW/s5QPB5jLrBvmn4js6qAQ068jcbWC9ef?=
+ =?us-ascii?Q?ZZT4Na8XCekWBOlDVgKslBSs?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7e149845-a2b7-42d8-af5d-08d94bd0b215
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jul 2021 22:49:56.5529
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: +ULIbNaI/rq0lQXSR/MjpYJwcaIUYXJVinwrAmjUEfjP9jIiIHwD3CNeQ2gr513w
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 20 Jul 2021 14:42:48 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
+On Tue, Jul 20, 2021 at 04:01:27PM -0600, Alex Williamson wrote:
+> On Tue, 20 Jul 2021 14:42:48 -0300
+> Jason Gunthorpe <jgg@nvidia.com> wrote:
+> 
+> > Compared to mbochs_remove() two cases are missing from the
+> > vfio_register_group_dev() unwind. Add them in.
+> > 
+> > Fixes: 681c1615f891 ("vfio/mbochs: Convert to use vfio_register_group_dev()")
+> > Reported-by: Cornelia Huck <cohuck@redhat.com>
+> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> >  samples/vfio-mdev/mbochs.c | 7 +++++--
+> >  1 file changed, 5 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
+> > index e81b875b4d87b4..501845b08c0974 100644
+> > +++ b/samples/vfio-mdev/mbochs.c
+> > @@ -553,11 +553,14 @@ static int mbochs_probe(struct mdev_device *mdev)
+> >  
+> >  	ret = vfio_register_group_dev(&mdev_state->vdev);
+> >  	if (ret)
+> > -		goto err_mem;
+> > +		goto err_bytes;
+> >  	dev_set_drvdata(&mdev->dev, mdev_state);
+> >  	return 0;
+> >  
+> > +err_bytes:
+> > +	mbochs_used_mbytes -= mdev_state->type->mbytes;
+> >  err_mem:
+> > +	kfree(mdev_state->pages);
+> >  	kfree(mdev_state->vconfig);
+> >  	kfree(mdev_state);
+> >  	return ret;
+> > @@ -567,8 +570,8 @@ static void mbochs_remove(struct mdev_device *mdev)
+> >  {
+> >  	struct mdev_state *mdev_state = dev_get_drvdata(&mdev->dev);
+> >  
+> > -	mbochs_used_mbytes -= mdev_state->type->mbytes;
+> >  	vfio_unregister_group_dev(&mdev_state->vdev);
+> > +	mbochs_used_mbytes -= mdev_state->type->mbytes;
+> >  	kfree(mdev_state->pages);
+> >  	kfree(mdev_state->vconfig);
+> >  	kfree(mdev_state);
+> 
+> Hmm, doesn't this suggest we need another atomic conversion?  (untested)
 
-> Compared to mbochs_remove() two cases are missing from the
-> vfio_register_group_dev() unwind. Add them in.
-> 
-> Fixes: 681c1615f891 ("vfio/mbochs: Convert to use vfio_register_group_dev()")
-> Reported-by: Cornelia Huck <cohuck@redhat.com>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  samples/vfio-mdev/mbochs.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-> index e81b875b4d87b4..501845b08c0974 100644
-> --- a/samples/vfio-mdev/mbochs.c
-> +++ b/samples/vfio-mdev/mbochs.c
-> @@ -553,11 +553,14 @@ static int mbochs_probe(struct mdev_device *mdev)
->  
->  	ret = vfio_register_group_dev(&mdev_state->vdev);
->  	if (ret)
-> -		goto err_mem;
-> +		goto err_bytes;
->  	dev_set_drvdata(&mdev->dev, mdev_state);
->  	return 0;
->  
-> +err_bytes:
-> +	mbochs_used_mbytes -= mdev_state->type->mbytes;
->  err_mem:
-> +	kfree(mdev_state->pages);
->  	kfree(mdev_state->vconfig);
->  	kfree(mdev_state);
->  	return ret;
-> @@ -567,8 +570,8 @@ static void mbochs_remove(struct mdev_device *mdev)
+Sure why not, I can add this as another patch
+
+> @@ -567,11 +573,11 @@ static void mbochs_remove(struct mdev_device *mdev)
 >  {
 >  	struct mdev_state *mdev_state = dev_get_drvdata(&mdev->dev);
 >  
 > -	mbochs_used_mbytes -= mdev_state->type->mbytes;
 >  	vfio_unregister_group_dev(&mdev_state->vdev);
-> +	mbochs_used_mbytes -= mdev_state->type->mbytes;
 >  	kfree(mdev_state->pages);
 >  	kfree(mdev_state->vconfig);
 >  	kfree(mdev_state);
+> +	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
 
-Hmm, doesn't this suggest we need another atomic conversion?  (untested)
+This should be up after the vfio_unregister_group_dev(), it is a use after free?
 
-diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-index e81b875b4d87..842819e29c6b 100644
---- a/samples/vfio-mdev/mbochs.c
-+++ b/samples/vfio-mdev/mbochs.c
-@@ -129,7 +129,7 @@ static dev_t		mbochs_devt;
- static struct class	*mbochs_class;
- static struct cdev	mbochs_cdev;
- static struct device	mbochs_dev;
--static int		mbochs_used_mbytes;
-+static atomic_t		mbochs_avail_mbytes;
- static const struct vfio_device_ops mbochs_dev_ops;
- 
- struct vfio_region_info_ext {
-@@ -511,14 +511,19 @@ static int mbochs_probe(struct mdev_device *mdev)
- 		&mbochs_types[mdev_get_type_group_id(mdev)];
- 	struct device *dev = mdev_dev(mdev);
- 	struct mdev_state *mdev_state;
-+	int avail_mbytes = atomic_read(&mbochs_avail_mbytes);
- 	int ret = -ENOMEM;
- 
--	if (type->mbytes + mbochs_used_mbytes > max_mbytes)
--		return -ENOMEM;
-+	do {
-+		if (avail_mbytes < type->mbytes)
-+			return ret;
-+	} while (!atomic_try_cmpxchg(&mbochs_avail_mbytes, &avail_mbytes,
-+				     avail_mbytes - type->mbytes));
- 
- 	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
- 	if (mdev_state == NULL)
--		return -ENOMEM;
-+		goto err_resv;
-+
- 	vfio_init_group_dev(&mdev_state->vdev, &mdev->dev, &mbochs_dev_ops);
- 
- 	mdev_state->vconfig = kzalloc(MBOCHS_CONFIG_SPACE_SIZE, GFP_KERNEL);
-@@ -549,8 +554,6 @@ static int mbochs_probe(struct mdev_device *mdev)
- 	mbochs_create_config_space(mdev_state);
- 	mbochs_reset(mdev_state);
- 
--	mbochs_used_mbytes += type->mbytes;
--
- 	ret = vfio_register_group_dev(&mdev_state->vdev);
- 	if (ret)
- 		goto err_mem;
-@@ -558,8 +561,11 @@ static int mbochs_probe(struct mdev_device *mdev)
- 	return 0;
- 
- err_mem:
-+	kfree(mdev_state->pages);
- 	kfree(mdev_state->vconfig);
- 	kfree(mdev_state);
-+err_resv:
-+	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
- 	return ret;
- }
- 
-@@ -567,11 +573,11 @@ static void mbochs_remove(struct mdev_device *mdev)
- {
- 	struct mdev_state *mdev_state = dev_get_drvdata(&mdev->dev);
- 
--	mbochs_used_mbytes -= mdev_state->type->mbytes;
- 	vfio_unregister_group_dev(&mdev_state->vdev);
- 	kfree(mdev_state->pages);
- 	kfree(mdev_state->vconfig);
- 	kfree(mdev_state);
-+	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
- }
- 
- static ssize_t mbochs_read(struct vfio_device *vdev, char __user *buf,
-@@ -1351,7 +1357,7 @@ static ssize_t available_instances_show(struct mdev_type *mtype,
- {
- 	const struct mbochs_type *type =
- 		&mbochs_types[mtype_get_type_group_id(mtype)];
--	int count = (max_mbytes - mbochs_used_mbytes) / type->mbytes;
-+	int count = atomic_read(&mbochs_avail_mbytes) / type->mbytes;
- 
- 	return sprintf(buf, "%d\n", count);
- }
-@@ -1460,6 +1466,8 @@ static int __init mbochs_dev_init(void)
- 	if (ret)
- 		goto err_class;
- 
-+	atomic_set(&mbochs_avail_mbytes, max_mbytes);
-+
- 	ret = mdev_register_device(&mbochs_dev, &mdev_fops);
- 	if (ret)
- 		goto err_device;
-
+Jason
