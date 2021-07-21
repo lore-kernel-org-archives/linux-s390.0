@@ -2,180 +2,168 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51192C07E9B
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jul 2021 22:55:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 744A1C07E9B
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 06:06:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2AABA6101E
-	for <linux-s390@archiver.kernel.org>; Tue, 20 Jul 2021 22:55:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 50C416024A
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 06:06:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231357AbhGTWPE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 20 Jul 2021 18:15:04 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47476 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231727AbhGTWOX (ORCPT
+        id S233349AbhGUFZV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jul 2021 01:25:21 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50232 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233167AbhGUFZU (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 20 Jul 2021 18:14:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626821696;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=JPmMSBIIRpMLR6pnHriNECIPx7e3cs1ugIoacnqy1RY=;
-        b=cZvV1wtlzB1tQHzp2rAi7NWJwzWb3a0fquf0sv6MDm+7zSNVhwudaHpEWhYsaTHtlM4KhO
-        8akgwPnl0JK/x60Hx6gBkmh0XC5Y9qnmIZ5cRRWBRPqQNbwxA/xb8pgdyu+1ceWoX/M6B6
-        tVgEm8OM/Rc6V+8BohX+5aFrer0heBE=
-Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
- [209.85.161.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-321-peRX8rdwN224MSDu-VxEgQ-1; Tue, 20 Jul 2021 18:54:54 -0400
-X-MC-Unique: peRX8rdwN224MSDu-VxEgQ-1
-Received: by mail-oo1-f72.google.com with SMTP id k13-20020a4ad10d0000b029025ec20a413eso254655oor.11
-        for <linux-s390@vger.kernel.org>; Tue, 20 Jul 2021 15:54:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=JPmMSBIIRpMLR6pnHriNECIPx7e3cs1ugIoacnqy1RY=;
-        b=MKr6ft9XyzdAYsU7S22k/npoovHCPkoL2mD159aBLxUXw6kJNWUELsk8nG7TDA91Os
-         453/NKSNjaSvTdWTDMIf7OLK/4kzLB2yQ6RU8eYqIfZM54hpwVnMnkjiX5gEICW7IG3i
-         TzpRimXIGbZmHrpmKa9VNa5JKd2s19rjwmMApER6S02m8mMjG430O+hDyNLJ2eITaRPk
-         tByn1bm9Df7LLEm62VrAeLQHkgpoBKLRQGr2jCYuRHtbleZQQIpohK6ICQ32oUiuvOlP
-         spL3HfwaGdU8s9BqyB8t+eb6BZyTy8wQQMVJrtHdov9uAwq2KYzWWheOzYV8g2f0d+Zp
-         lUkw==
-X-Gm-Message-State: AOAM532IVprRWRhvCUTAJX/oOi7yL0lQVGstWV96QkWKNKvilGb9JP9c
-        oc+QddfKd2EA2r7L3Z1ZUAB7E6EMYLu63hrCgQH/u8tu2PUq5BpgdQTBDJewWWp812mTyxnHiP/
-        jODIbgYOn/1KWJrnb9N8TeQ==
-X-Received: by 2002:a9d:4b02:: with SMTP id q2mr13197556otf.52.1626821694108;
-        Tue, 20 Jul 2021 15:54:54 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx7ncl7zRpBxXCyp5ocCnM/u43LPRAaepFBcKVNjugNChC0csQAeVdr5AwkuCzyfA5+QlRtnQ==
-X-Received: by 2002:a9d:4b02:: with SMTP id q2mr13197528otf.52.1626821693761;
-        Tue, 20 Jul 2021 15:54:53 -0700 (PDT)
-Received: from redhat.com ([198.99.80.109])
-        by smtp.gmail.com with ESMTPSA id l196sm3275801oib.14.2021.07.20.15.54.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jul 2021 15:54:53 -0700 (PDT)
-Date:   Tue, 20 Jul 2021 16:54:51 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>
-Subject: Re: [PATCH v2 02/14] vfio/mbochs: Fix missing error unwind in
- mbochs_probe()
-Message-ID: <20210720165451.625dddd4.alex.williamson@redhat.com>
-In-Reply-To: <20210720224955.GD1117491@nvidia.com>
-References: <0-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
-        <2-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
-        <20210720160127.17bf3c19.alex.williamson@redhat.com>
-        <20210720224955.GD1117491@nvidia.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        Wed, 21 Jul 2021 01:25:20 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16L63SoA052214;
+        Wed, 21 Jul 2021 02:05:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=FjdZBfMp0ZIfjDi71zgzEcY5ZulQp++qwteT5R4B/oU=;
+ b=f3eo8c66IycGmpF6xAFrJE/KwvGkwOSxKsFuuBxdMGWP/M3M0nYK5NFeeY9J8PGjIoeX
+ irIer9LMYAk//X7o+P/BNGul5SlhVemrvfPMYZXA3Rfto25j/Li0e7T+H39Qdcv3Z9p0
+ Sxas0Deq2MCiek1gvyJ5s05RHK03Pd5t9RRhXc+1an0l4c+/fgSkV8Q7kM5znd1eKqQ8
+ ZcTNzepcHk6uMoM/wKu6A/u5WowE0T8cUr2wtPN/FxxfU3Cob0+NLvQDYywqqZ6yZJ4H
+ Q32TYiotKwpNyXiPL4rLiVY7SqO9O68O3ECe8gjE/C197VkNUk2pounALSieUbfL+iwp IA== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39xdbc8vn9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 21 Jul 2021 02:05:48 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16L63I5l026526;
+        Wed, 21 Jul 2021 06:05:46 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06fra.de.ibm.com with ESMTP id 39upfh90qa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 21 Jul 2021 06:05:46 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16L65iO320644162
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 21 Jul 2021 06:05:44 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 29F9452054;
+        Wed, 21 Jul 2021 06:05:44 +0000 (GMT)
+Received: from [9.145.54.186] (unknown [9.145.54.186])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 876BE5204E;
+        Wed, 21 Jul 2021 06:05:43 +0000 (GMT)
+Subject: Re: [PATCH net-next v2 16/31] qeth: use ndo_siocdevprivate
+To:     Arnd Bergmann <arnd@kernel.org>, netdev@vger.kernel.org
+Cc:     Christoph Hellwig <hch@lst.de>, Arnd Bergmann <arnd@arndb.de>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>
+References: <20210720144638.2859828-1-arnd@kernel.org>
+ <20210720144638.2859828-17-arnd@kernel.org>
+From:   Julian Wiedmann <jwi@linux.ibm.com>
+Message-ID: <ef625966-9ff3-5daf-889b-232e420d9e65@linux.ibm.com>
+Date:   Wed, 21 Jul 2021 09:05:43 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20210720144638.2859828-17-arnd@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: tD72lntOvXh-7LCdIYB_CmmdYwUkKGGK
+X-Proofpoint-GUID: tD72lntOvXh-7LCdIYB_CmmdYwUkKGGK
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-21_04:2021-07-21,2021-07-21 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=999 spamscore=0 lowpriorityscore=0 mlxscore=0 bulkscore=0
+ malwarescore=0 adultscore=0 suspectscore=0 phishscore=0 impostorscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107210027
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 20 Jul 2021 19:49:55 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
-
-> On Tue, Jul 20, 2021 at 04:01:27PM -0600, Alex Williamson wrote:
-> > On Tue, 20 Jul 2021 14:42:48 -0300
-> > Jason Gunthorpe <jgg@nvidia.com> wrote:
-> >   
-> > > Compared to mbochs_remove() two cases are missing from the
-> > > vfio_register_group_dev() unwind. Add them in.
-> > > 
-> > > Fixes: 681c1615f891 ("vfio/mbochs: Convert to use vfio_register_group_dev()")
-> > > Reported-by: Cornelia Huck <cohuck@redhat.com>
-> > > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> > >  samples/vfio-mdev/mbochs.c | 7 +++++--
-> > >  1 file changed, 5 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-> > > index e81b875b4d87b4..501845b08c0974 100644
-> > > +++ b/samples/vfio-mdev/mbochs.c
-> > > @@ -553,11 +553,14 @@ static int mbochs_probe(struct mdev_device *mdev)
-> > >  
-> > >  	ret = vfio_register_group_dev(&mdev_state->vdev);
-> > >  	if (ret)
-> > > -		goto err_mem;
-> > > +		goto err_bytes;
-> > >  	dev_set_drvdata(&mdev->dev, mdev_state);
-> > >  	return 0;
-> > >  
-> > > +err_bytes:
-> > > +	mbochs_used_mbytes -= mdev_state->type->mbytes;
-> > >  err_mem:
-> > > +	kfree(mdev_state->pages);
-> > >  	kfree(mdev_state->vconfig);
-> > >  	kfree(mdev_state);
-> > >  	return ret;
-> > > @@ -567,8 +570,8 @@ static void mbochs_remove(struct mdev_device *mdev)
-> > >  {
-> > >  	struct mdev_state *mdev_state = dev_get_drvdata(&mdev->dev);
-> > >  
-> > > -	mbochs_used_mbytes -= mdev_state->type->mbytes;
-> > >  	vfio_unregister_group_dev(&mdev_state->vdev);
-> > > +	mbochs_used_mbytes -= mdev_state->type->mbytes;
-> > >  	kfree(mdev_state->pages);
-> > >  	kfree(mdev_state->vconfig);
-> > >  	kfree(mdev_state);  
-> > 
-> > Hmm, doesn't this suggest we need another atomic conversion?  (untested)  
+On 20.07.21 17:46, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> Sure why not, I can add this as another patch
+> qeth has both standard MII ioctls and custom SIOCDEVPRIVATE ones,
+> all of which work correctly with compat user space.
 > 
-> > @@ -567,11 +573,11 @@ static void mbochs_remove(struct mdev_device *mdev)
-> >  {
-> >  	struct mdev_state *mdev_state = dev_get_drvdata(&mdev->dev);
-> >  
-> > -	mbochs_used_mbytes -= mdev_state->type->mbytes;
-> >  	vfio_unregister_group_dev(&mdev_state->vdev);
-> >  	kfree(mdev_state->pages);
-> >  	kfree(mdev_state->vconfig);
-> >  	kfree(mdev_state);
-> > +	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);  
+> Move the private ones over to the new ndo_siocdevprivate callback.
 > 
-> This should be up after the vfio_unregister_group_dev(), it is a use after free?
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
 
-Oops, yep.  That or get the mbochs_type so we can mirror the _probe
-setup.  Same on the _probe unwind, but we've already got type->mbytes
-there.  Thanks,
+your get_maintainers scripting seems broken, adding the usual suspects.
 
-Alex
+>  drivers/s390/net/qeth_core.h      |  5 ++++-
+>  drivers/s390/net/qeth_core_main.c | 35 ++++++++++++++++++++++---------
+>  drivers/s390/net/qeth_l3_main.c   |  6 +++---
+>  3 files changed, 32 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+> index f4d554ea0c93..89fd7432dbec 100644
+> --- a/drivers/s390/net/qeth_core.h
+> +++ b/drivers/s390/net/qeth_core.h
+> @@ -790,7 +790,8 @@ struct qeth_discipline {
+>  	void (*remove) (struct ccwgroup_device *);
+>  	int (*set_online)(struct qeth_card *card, bool carrier_ok);
+>  	void (*set_offline)(struct qeth_card *card);
+> -	int (*do_ioctl)(struct net_device *dev, struct ifreq *rq, int cmd);
+> +	int (*do_ioctl)(struct net_device *dev, struct ifreq *rq,
+> +			void __user *data, int cmd);
+>  	int (*control_event_handler)(struct qeth_card *card,
+>  					struct qeth_ipa_cmd *cmd);
+>  };
+> @@ -1124,6 +1125,8 @@ int qeth_do_send_packet(struct qeth_card *card, struct qeth_qdio_out_q *queue,
+>  			unsigned int offset, unsigned int hd_len,
+>  			int elements_needed);
+>  int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+> +int qeth_siocdevprivate(struct net_device *dev, struct ifreq *rq,
+> +			void __user *data, int cmd);
+>  void qeth_dbf_longtext(debug_info_t *id, int level, char *text, ...);
+>  int qeth_configure_cq(struct qeth_card *, enum qeth_cq);
+>  int qeth_hw_trap(struct qeth_card *, enum qeth_diags_trap_action);
+> diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+> index 62f88ccbd03f..be19cfd05136 100644
+> --- a/drivers/s390/net/qeth_core_main.c
+> +++ b/drivers/s390/net/qeth_core_main.c
+> @@ -6672,21 +6672,42 @@ struct qeth_card *qeth_get_card_by_busid(char *bus_id)
+>  }
+>  EXPORT_SYMBOL_GPL(qeth_get_card_by_busid);
+>  
+> -int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+> +int qeth_siocdevprivate(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd)
+>  {
+>  	struct qeth_card *card = dev->ml_priv;
+> -	struct mii_ioctl_data *mii_data;
+>  	int rc = 0;
+>  
+>  	switch (cmd) {
+>  	case SIOC_QETH_ADP_SET_SNMP_CONTROL:
+> -		rc = qeth_snmp_command(card, rq->ifr_ifru.ifru_data);
+> +		rc = qeth_snmp_command(card, data);
+>  		break;
+>  	case SIOC_QETH_GET_CARD_TYPE:
+>  		if ((IS_OSD(card) || IS_OSM(card) || IS_OSX(card)) &&
+>  		    !IS_VM_NIC(card))
+>  			return 1;
+>  		return 0;
+> +	case SIOC_QETH_QUERY_OAT:
+> +		rc = qeth_query_oat_command(card, data);
+> +		break;
+> +	default:
+> +		if (card->discipline->do_ioctl)
+> +			rc = card->discipline->do_ioctl(dev, rq, data, cmd);
+> +		else
+> +			rc = -EOPNOTSUPP;
+> +	}
+> +	if (rc)
+> +		QETH_CARD_TEXT_(card, 2, "ioce%x", rc);
+> +	return rc;
+> +}
+> +EXPORT_SYMBOL_GPL(qeth_siocdevprivate);
+> +
 
+Looks like you missed to wire this up in our netdev_ops structs.
