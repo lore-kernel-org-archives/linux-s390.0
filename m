@@ -2,114 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1149C12002
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 09:01:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC273C07E9B
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 09:27:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D529F6113C
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 09:01:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9CF360231
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 09:27:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236157AbhGUIVE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jul 2021 04:21:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52614 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235157AbhGUIJb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 21 Jul 2021 04:09:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB3716101E;
-        Wed, 21 Jul 2021 08:49:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626857378;
-        bh=bcbxbbHsQ9pjoa1FEe7JjQkgcYlrPgFnuJKkff5giIk=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=UBI145vRvDXfYUHg/f12v6/FLXGE1Mkna3ptF/OjspFE9Pl0dF8yp23fOgv9k/GIS
-         sogcuooVWZg8cLcnwdnrhBCnLSeakIC6BzZGVA+yLWNmvN3rLJDr0dC510kQAvchnG
-         FgKGq6P3kQGh+Tpzs+4hb1W+qMujfva/LcexD3tllz2GsZPcuDEtbIMEVc5GDjtHh4
-         yNfa9C2rJvEo5+s5nDx7Y3O9yMF+bxM8DQW22a5yiT3busyyPb9SlyXEuhwyWzac+F
-         Naxk9+uXxVMUSff6winepuIUeh+cvRzcl8EWA7j9gQ3bljkEhI4QdV15agsdNHgCFF
-         QfRGw1Nsx3kaA==
-Received: by mail-wr1-f44.google.com with SMTP id f9so1267712wrq.11;
-        Wed, 21 Jul 2021 01:49:38 -0700 (PDT)
-X-Gm-Message-State: AOAM53151+HrQkdPfw5CM75k/kBlyThMsHdRSL6iKegVqnUPnchHhaJw
-        32Bixb11ctP7UjklNQStx0fFtCvJ1VblImGrfU4=
-X-Google-Smtp-Source: ABdhPJxGxblIpkvuc/A470zotEk+ImLn63w5P8jXMhCHNlZ5sVMSsNifNuHYnRozD2q/w9aIWiTuq1IAgMSQKwJTg90=
-X-Received: by 2002:a5d:438c:: with SMTP id i12mr41570814wrq.99.1626857377493;
- Wed, 21 Jul 2021 01:49:37 -0700 (PDT)
+        id S236247AbhGUIq2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jul 2021 04:46:28 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:43784 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235410AbhGUIgi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 21 Jul 2021 04:36:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626859016;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=MJtKyFTywIFWH7233aawpmyXc1XqpQHAbqfePIQjf/o=;
+        b=KuNTiWpDbzPc7V4y+CJM5ZNTyoqGyhbbCtPAFKFkDkuVSjtzYlKgPtOdb06KOTBWxl/uPc
+        Slbb4EGm3QSdpiKThBbKf+G4U5s/rFlCuHIKI3878xUjoQgqYm+yveOmCeSWDQ/e95IP7g
+        2AYd199Ltz2R+B65G0IMZsPX72400hg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-517--XzGeVWxNbiTFPXxKtPpHA-1; Wed, 21 Jul 2021 05:16:52 -0400
+X-MC-Unique: -XzGeVWxNbiTFPXxKtPpHA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 39961804141;
+        Wed, 21 Jul 2021 09:16:48 +0000 (UTC)
+Received: from localhost (ovpn-112-135.ams2.redhat.com [10.36.112.135])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 796352C016;
+        Wed, 21 Jul 2021 09:16:40 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        dri-devel@lists.freedesktop.org,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Cc:     "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: Re: [PATCH v2 02/14] vfio/mbochs: Fix missing error unwind in
+ mbochs_probe()
+In-Reply-To: <2-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
+Organization: Red Hat GmbH
+References: <2-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Wed, 21 Jul 2021 11:16:38 +0200
+Message-ID: <87czrc81s9.fsf@redhat.com>
 MIME-Version: 1.0
-References: <20210720144638.2859828-1-arnd@kernel.org> <20210720144638.2859828-17-arnd@kernel.org>
- <ef625966-9ff3-5daf-889b-232e420d9e65@linux.ibm.com>
-In-Reply-To: <ef625966-9ff3-5daf-889b-232e420d9e65@linux.ibm.com>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Wed, 21 Jul 2021 10:49:21 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a1iOn4pzHXmd+NQnXpmqV9ebF5TdPb7_yUEutkeOgCGtg@mail.gmail.com>
-Message-ID: <CAK8P3a1iOn4pzHXmd+NQnXpmqV9ebF5TdPb7_yUEutkeOgCGtg@mail.gmail.com>
-Subject: Re: [PATCH net-next v2 16/31] qeth: use ndo_siocdevprivate
-To:     Julian Wiedmann <jwi@linux.ibm.com>
-Cc:     Networking <netdev@vger.kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Arnd Bergmann <arnd@arndb.de>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 21, 2021 at 8:06 AM Julian Wiedmann <jwi@linux.ibm.com> wrote:
+On Tue, Jul 20 2021, Jason Gunthorpe <jgg@nvidia.com> wrote:
+
+> Compared to mbochs_remove() two cases are missing from the
+> vfio_register_group_dev() unwind. Add them in.
 >
-> On 20.07.21 17:46, Arnd Bergmann wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
-> >
-> > qeth has both standard MII ioctls and custom SIOCDEVPRIVATE ones,
-> > all of which work correctly with compat user space.
-> >
-> > Move the private ones over to the new ndo_siocdevprivate callback.
-> >
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
->
-> your get_maintainers scripting seems broken, adding the usual suspects.
+> Fixes: 681c1615f891 ("vfio/mbochs: Convert to use vfio_register_group_dev()")
+> Reported-by: Cornelia Huck <cohuck@redhat.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  samples/vfio-mdev/mbochs.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
 
-Right, I ran the wrong script for sending.
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
-> > -int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-> > +int qeth_siocdevprivate(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd)
-> >  {
-> >       struct qeth_card *card = dev->ml_priv;
-> > -     struct mii_ioctl_data *mii_data;
-> >       int rc = 0;
-> >
-> >       switch (cmd) {
-> >       case SIOC_QETH_ADP_SET_SNMP_CONTROL:
-> > -             rc = qeth_snmp_command(card, rq->ifr_ifru.ifru_data);
-> > +             rc = qeth_snmp_command(card, data);
-> >               break;
-> >       case SIOC_QETH_GET_CARD_TYPE:
-> >               if ((IS_OSD(card) || IS_OSM(card) || IS_OSX(card)) &&
-> >                   !IS_VM_NIC(card))
-> >                       return 1;
-> >               return 0;
-> > +     case SIOC_QETH_QUERY_OAT:
-> > +             rc = qeth_query_oat_command(card, data);
-> > +             break;
-> > +     default:
-> > +             if (card->discipline->do_ioctl)
-> > +                     rc = card->discipline->do_ioctl(dev, rq, data, cmd);
-> > +             else
-> > +                     rc = -EOPNOTSUPP;
-> > +     }
-> > +     if (rc)
-> > +             QETH_CARD_TEXT_(card, 2, "ioce%x", rc);
-> > +     return rc;
-> > +}
-> > +EXPORT_SYMBOL_GPL(qeth_siocdevprivate);
-> > +
->
-> Looks like you missed to wire this up in our netdev_ops structs.
-
-Fixed now, thanks! I've gone through the other patches as well
-to see if I made the same mistake elsewhere, but it appears this
-one was the only time here.
-
-       Arnd
