@@ -2,320 +2,185 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B1A4C636C9
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 13:27:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A95BAC12002
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 14:46:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3322D61244
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 13:27:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8824B61221
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 14:46:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237799AbhGUMqW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jul 2021 08:46:22 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:26528 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237773AbhGUMqW (ORCPT
+        id S238364AbhGUOFa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jul 2021 10:05:30 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9598 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232977AbhGUOF3 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 21 Jul 2021 08:46:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626874018;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nxbue+MLWJvvQ8pF8b05EKI2JgsXvT5iNg1fbAjEN3I=;
-        b=ZxwMRavHdIJwd0UtYjKwlkOwavj5SqfkC6HugnybR8vKChbYqjOjiGrTJXcYIArZMNv8Nt
-        cq8hJqLgukHDxwSGOXx1ZfShZKwnR3ztVXNPvZBjKjRKrGu461q5LvPr+U5QFUiP9cxD2y
-        uqxhB3ZyWOuxBgCKjFoMT/rUSvzZXmU=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-384-8byc5rNeMdWgtmJCH_YRzA-1; Wed, 21 Jul 2021 09:26:56 -0400
-X-MC-Unique: 8byc5rNeMdWgtmJCH_YRzA-1
-Received: by mail-wr1-f70.google.com with SMTP id o10-20020a05600002cab02901426384855aso1012322wry.11
-        for <linux-s390@vger.kernel.org>; Wed, 21 Jul 2021 06:26:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=nxbue+MLWJvvQ8pF8b05EKI2JgsXvT5iNg1fbAjEN3I=;
-        b=fXEa/m0+s0rNg3wVMeLrGvOtwhqwDvSAIKy20bj9TwWEoeVUKwRR+jfO6jgqq0tdhK
-         3EOOlzrlKpPWluSHht+FDqD+lIGVQwxBYtdJu32PPSe2ZTx0/duK2foSAoY+AqTf7uIH
-         veu97Bx3RrdywNINh6yC+5E9dLe8F2rW312qruzOB7DHoAqj7XA81c3YyOJzgINkU9DW
-         1Y8xfsw1hHfly+nbfaqy0pKb7ZPxT8I+j6R4/gXebBpDy3wQoAb2XDlibd2Yjsf8UoGJ
-         BpNqbEDHeF+p8mG5G5xjekgyXmqipQnz65xI1Z34jvOBZLGKBu/LwppDL2MQ4LcljTsR
-         6Jig==
-X-Gm-Message-State: AOAM531FhlTvwNGWxF8ciAX7rhQgLbNOkqJjo4Qzlf72E4O46pZn+dIR
-        WXZL6ZsF0vMcwSLx3LMM5EObe4yaFkR1lCOLodoU9cTQXXqt5+vSnga1nNaLWnuZm9o7IaoOZqY
-        2FOFzXXMhCuydzFyoG55M77Tb9C/dbGoQ8ZdgH2LEbK5N+/0ulyogRitd5k2hJJRY+8qpQA==
-X-Received: by 2002:adf:e4c3:: with SMTP id v3mr42497496wrm.362.1626874015595;
-        Wed, 21 Jul 2021 06:26:55 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzF1s9vsANbI81ZKdzcRt3/xvn/ljvrrk3zUkmrYEwYf8f0XJZJw/fByAxopNe+R5KbgSt/9A==
-X-Received: by 2002:adf:e4c3:: with SMTP id v3mr42497467wrm.362.1626874015352;
-        Wed, 21 Jul 2021 06:26:55 -0700 (PDT)
-Received: from thuth.remote.csb (p5791d597.dip0.t-ipconnect.de. [87.145.213.151])
-        by smtp.gmail.com with ESMTPSA id o7sm31442351wrv.72.2021.07.21.06.26.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 21 Jul 2021 06:26:54 -0700 (PDT)
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20210706115459.372749-1-scgl@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH] s390x: Add specification exception test
-Message-ID: <18803632-6a9c-5999-2a8a-d4501a0a77d8@redhat.com>
-Date:   Wed, 21 Jul 2021 15:26:53 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        Wed, 21 Jul 2021 10:05:29 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16LEXGE6016086;
+        Wed, 21 Jul 2021 10:46:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=idOSKcIpSGAJCFkAxhVfxNrXuZDZVWjSg4IXQKAQfKE=;
+ b=Zvd1yKxfs0V2BAD32UYslyzCjxyZQupea4xRTwXP/DNmFaLTCfLyykyQ90YXJ3vI89Mb
+ wc/X+fts0l8tWZOXiYAPk3QDrVUiPqUMj779KZZ09GTosmCf2xbfyp5AX2eG6neqMA9/
+ z1j7YKgK3bKnOuVXJWh7JkhBT3/cMUZkZGYV1sdSEnjw4rcH81qoS91YxW5lRyDaaIKL
+ eheUWMxRZ3sx6vB7CDjcEM3EvBCIdYqwcLXyOtGfweuxRrCflWlUO7ulAO9d4Uz8Rivp
+ zJKF42RWdIvmEoGvlxn1Te3X5VABDt5xMox1AMWElNenHZI2YRoaAspXjzS4kyefNz6H 2g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39xkeemes9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 21 Jul 2021 10:46:03 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16LEXlQs018761;
+        Wed, 21 Jul 2021 10:46:02 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39xkeemek3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 21 Jul 2021 10:46:02 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16LEhiTh023345;
+        Wed, 21 Jul 2021 14:45:57 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 39upu89xn4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 21 Jul 2021 14:45:57 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16LEjsqO30540110
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 21 Jul 2021 14:45:54 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2899E42045;
+        Wed, 21 Jul 2021 14:45:54 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1378C42042;
+        Wed, 21 Jul 2021 14:45:53 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.34.151])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Wed, 21 Jul 2021 14:45:52 +0000 (GMT)
+Date:   Wed, 21 Jul 2021 16:45:50 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com, david@redhat.com
+Subject: Re: [PATCH 2/2] s390/vfio-ap: replace open coded locks for
+ VFIO_GROUP_NOTIFY_SET_KVM notification
+Message-ID: <20210721164550.5402fe1c.pasic@linux.ibm.com>
+In-Reply-To: <20210719193503.793910-3-akrowiak@linux.ibm.com>
+References: <20210719193503.793910-1-akrowiak@linux.ibm.com>
+        <20210719193503.793910-3-akrowiak@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20210706115459.372749-1-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: tOr7mkqCo33hLxPXSEAClv6pfQtjgpgP
+X-Proofpoint-ORIG-GUID: F0wvlLJxm9y82zazex2Nac9ePluYyTaj
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-21_09:2021-07-21,2021-07-21 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
+ priorityscore=1501 mlxlogscore=999 mlxscore=0 suspectscore=0
+ lowpriorityscore=0 impostorscore=0 spamscore=0 adultscore=0 malwarescore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107210084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 06/07/2021 13.54, Janis Schoetterl-Glausch wrote:
-> Generate specification exceptions and check that they occur.
-> Also generate specification exceptions during a transaction,
-> which results in another interruption code.
-> With the iterations argument one can check if specification
-> exception interpretation occurs, e.g. by using a high value and
-> checking that the debugfs counters are substantially lower.
-> The argument is also useful for estimating the performance benefit
-> of interpretation.
+On Mon, 19 Jul 2021 15:35:03 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+
+> It was pointed out during an unrelated patch review that locks should not
+
+[..]
+
+> -static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev,
+> +				   struct kvm *kvm)
+>  {
+> -	/*
+> -	 * If the KVM pointer is in the process of being set, wait until the
+> -	 * process has completed.
+> -	 */
+> -	wait_event_cmd(matrix_mdev->wait_for_kvm,
+> -		       !matrix_mdev->kvm_busy,
+> -		       mutex_unlock(&matrix_dev->lock),
+> -		       mutex_lock(&matrix_dev->lock));
+> -
+> -	if (matrix_mdev->kvm) {
+
+We used to check if matrix_mdev->kvm is null, but ...
+
+> -		matrix_mdev->kvm_busy = true;
+> -		mutex_unlock(&matrix_dev->lock);
+> -
+> -		if (matrix_mdev->kvm->arch.crypto.crycbd) {
+> -			down_write(&matrix_mdev->kvm->arch.crypto.pqap_hook_rwsem);
+> -			matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+> -			up_write(&matrix_mdev->kvm->arch.crypto.pqap_hook_rwsem);
+> -
+> -			kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+> -		}
+> +	if (kvm->arch.crypto.crycbd) {
+
+... now we just try to dereference it. And ..
+
+> +		down_write(&kvm->arch.crypto.pqap_hook_rwsem);
+> +		kvm->arch.crypto.pqap_hook = NULL;
+> +		up_write(&kvm->arch.crypto.pqap_hook_rwsem);
 > 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> ---
->   s390x/Makefile           |   1 +
->   lib/s390x/asm/arch_def.h |   1 +
->   s390x/spec_ex.c          | 344 +++++++++++++++++++++++++++++++++++++++
->   s390x/unittests.cfg      |   3 +
->   4 files changed, 349 insertions(+)
->   create mode 100644 s390x/spec_ex.c
+> +		mutex_lock(&kvm->lock);
+>  		mutex_lock(&matrix_dev->lock);
+> +
+> +		kvm_arch_crypto_clear_masks(kvm);
+>  		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+> -		kvm_put_kvm(matrix_mdev->kvm);
+> +		kvm_put_kvm(kvm);
+>  		matrix_mdev->kvm = NULL;
+> -		matrix_mdev->kvm_busy = false;
+> -		wake_up_all(&matrix_mdev->wait_for_kvm);
+> +
+> +		mutex_unlock(&kvm->lock);
+> +		mutex_unlock(&matrix_dev->lock);
+>  	}
+>  }
 > 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 8820e99..be100d3 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -23,6 +23,7 @@ tests += $(TEST_DIR)/sie.elf
->   tests += $(TEST_DIR)/mvpg.elf
->   tests += $(TEST_DIR)/uv-host.elf
->   tests += $(TEST_DIR)/edat.elf
-> +tests += $(TEST_DIR)/spec_ex.elf
->   
->   tests_binary = $(patsubst %.elf,%.bin,$(tests))
->   ifneq ($(HOST_KEY_DOCUMENT),)
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 15cf7d4..7cb0b92 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -229,6 +229,7 @@ static inline uint64_t stctg(int cr)
->   	return value;
->   }
->   
-> +#define CTL0_TRANSACT_EX_CTL	(63 -  8)
->   #define CTL0_LOW_ADDR_PROT	(63 - 35)
->   #define CTL0_EDAT		(63 - 40)
->   #define CTL0_IEP		(63 - 43)
-> diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
-> new file mode 100644
-> index 0000000..2e05bfb
-> --- /dev/null
-> +++ b/s390x/spec_ex.c
-> @@ -0,0 +1,344 @@
 
-Please add a short comment header at the top of the file with some 
-information on what it is all about, and license information (e.g. a 
-SPDX-License-Identifier)
+[..]
 
-> +#include <stdlib.h>
-> +#include <htmintrin.h>
-> +#include <libcflat.h>
-> +#include <asm/barrier.h>
-> +#include <asm/interrupt.h>
-> +#include <asm/facility.h>
-> +
-> +struct lowcore *lc = (struct lowcore *) 0;
-> +
-> +static bool expect_early;
-> +static struct psw expected_early_pgm_psw;
-> +static struct psw fixup_early_pgm_psw;
-> +
-> +static void fixup_early_pgm_ex(void)
+> @@ -1363,14 +1323,11 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+>  {
+>  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> 
+> -	mutex_lock(&matrix_dev->lock);
+> -	vfio_ap_mdev_unset_kvm(matrix_mdev);
+> -	mutex_unlock(&matrix_dev->lock);
+> -
 
-Could you please add a comment in front of this function with a description 
-why this is required / good for?
+.. before access to the matrix_mdev->kvm used to be protected by
+the matrix_dev->lock ...
 
-> +{
-> +	if (expect_early) {
-> +		report(expected_early_pgm_psw.mask == lc->pgm_old_psw.mask
-> +		       && expected_early_pgm_psw.addr == lc->pgm_old_psw.addr,
-> +		       "Early program new PSW as expected");
-> +		expect_early = false;
-> +	}
-> +	lc->pgm_old_psw = fixup_early_pgm_psw;
-> +}
-> +
-> +static void lpsw(uint64_t psw)
-> +{
-> +	uint32_t *high, *low;
-> +	uint64_t r0 = 0, r1 = 0;
-> +
-> +	high = (uint32_t *) &fixup_early_pgm_psw.mask;
-> +	low = high + 1;
-> +
-> +	asm volatile (
-> +		"	epsw	%0,%1\n"
-> +		"	st	%0,%[high]\n"
-> +		"	st	%1,%[low]\n"
+>  	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+>  				 &matrix_mdev->iommu_notifier);
+>  	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+>  				 &matrix_mdev->group_notifier);
+> +	vfio_ap_mdev_unset_kvm(matrix_mdev, matrix_mdev->kvm);
 
-What's all this magic with high and low good for? Looks like high and low 
-are not used afterwards anymore?
+... but it is not any more. BTW I don't think the code is guaranteed
+to fetch ->kvm just once.
 
-> +		"	larl	%0,nop%=\n"
-> +		"	stg	%0,%[addr]\n"
-> +		"	lpsw	%[psw]\n"
-> +		"nop%=:	nop\n"
-> +		: "+&r"(r0), "+&a"(r1), [high] "=&R"(*high), [low] "=&R"(*low)
+Can you please explain why can we get away with being more
+lax when dealing with matrix_mdev->kvm?
 
-... also not sure why you need the "&" modifiers here?
+Regards,
+Halil
 
-> +		, [addr] "=&R"(fixup_early_pgm_psw.addr)
-> +		: [psw] "Q"(psw)
-> +		: "cc", "memory"
-> +	);
-> +}
-> +
-> +static void psw_bit_31_32_are_1_0(void)
-> +{
-> +	uint64_t bad_psw = 0x000800015eadbeef;
-> +
-> +	//bit 12 gets inverted when extending to 128-bit PSW
-
-I'd prefer a space after the "//"
-
-> +	expected_early_pgm_psw.mask = 0x0000000100000000;
-> +	expected_early_pgm_psw.addr = 0x000000005eadbeef;
-> +	expect_early = true;
-> +	lpsw(bad_psw);
-> +}
-> +
-> +static void bad_alignment(void)
-> +{
-> +	uint32_t words[5] = {0, 0, 0};
-> +	uint32_t (*bad_aligned)[4];
-> +
-> +	register uint64_t r1 asm("6");
-> +	register uint64_t r2 asm("7");
-> +	if (((uintptr_t)&words[0]) & 0xf) {
-> +		bad_aligned = (uint32_t (*)[4])&words[0];
-> +	} else {
-> +		bad_aligned = (uint32_t (*)[4])&words[1];
-> +	}
-> +	asm volatile ("lpq %0,%2"
-> +		      : "=r"(r1), "=r"(r2)
-> +		      : "T"(*bad_aligned)
-> +	);
-> +}
-> +
-> +static void not_even(void)
-> +{
-> +	uint64_t quad[2];
-> +
-> +	register uint64_t r1 asm("7");
-> +	register uint64_t r2 asm("8");
-> +	asm volatile (".insn	rxy,0xe3000000008f,%0,%2" //lpq %0,%2
-> +		      : "=r"(r1), "=r"(r2)
-> +		      : "T"(quad)
-> +	);
-> +}
-> +
-> +struct spec_ex_trigger {
-> +	const char *name;
-> +	void (*func)(void);
-> +	bool transactable;
-> +	void (*fixup)(void);
-> +};
-> +
-> +static const struct spec_ex_trigger spec_ex_triggers[] = {
-> +	{ "psw_bit_31_32_are_1_0", &psw_bit_31_32_are_1_0, false, &fixup_early_pgm_ex},
-> +	{ "bad_alignment", &bad_alignment, true, NULL},
-> +	{ "not_even", &not_even, true, NULL},
-> +	{ NULL, NULL, true, NULL},
-> +};
-> +
-> +struct args {
-> +	uint64_t iterations;
-> +	uint64_t max_retries;
-> +	uint64_t suppress_info;
-> +	uint64_t max_failures;
-> +	bool diagnose;
-> +};
-> +
-> +static void test_spec_ex(struct args *args,
-> +			 const struct spec_ex_trigger *trigger)
-> +{
-> +	uint16_t expected_pgm = PGM_INT_CODE_SPECIFICATION;
-> +	uint16_t pgm;
-> +	unsigned int i;
-> +
-> +	register_pgm_cleanup_func(trigger->fixup);
-> +	for (i = 0; i < args->iterations; i++) {
-> +		expect_pgm_int();
-> +		trigger->func();
-> +		pgm = clear_pgm_int();
-> +		if (pgm != expected_pgm) {
-> +			report(0,
-> +			"Program interrupt: expected(%d) == received(%d)",
-> +			expected_pgm,
-> +			pgm);
-> +			return;
-> +		}
-> +	}
-
-Maybe it would be nice to "unregister" the cleanup function at the end with 
-register_pgm_cleanup_func(NULL) ?
-
-> +	report(1,
-> +	"Program interrupt: always expected(%d) == received(%d)",
-> +	expected_pgm,
-> +	expected_pgm);
-> +}
-> +
-> +#define TRANSACTION_COMPLETED 4
-> +#define TRANSACTION_MAX_RETRIES 5
-> +
-> +static int __attribute__((nonnull))
-
-Not sure whether that attribute makes much sense with a static function? ... 
-the compiler has information about the implementation details here, so it 
-should be able to see that e.g. trigger must be non-NULL anyway?
-
-> +with_transaction(void (*trigger)(void), struct __htm_tdb *diagnose)
-> +{
-> +	int cc;
-> +
-> +	cc = __builtin_tbegin(diagnose);
-> +	if (cc == _HTM_TBEGIN_STARTED) {
-> +		trigger();
-> +		__builtin_tend();
-> +		return -TRANSACTION_COMPLETED;
-> +	} else {
-> +		return -cc;
-> +	}
-> +}
-[...]
-
-  Thomas
-
-
-
+[..]
