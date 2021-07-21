@@ -2,350 +2,222 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58B40C12002
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 15:44:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86FD4C636C9
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 16:17:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 419126120A
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 15:44:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 716A06120E
+	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 16:17:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238315AbhGUPDn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jul 2021 11:03:43 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37654 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238276AbhGUPDm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 21 Jul 2021 11:03:42 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16LFhvB0071598;
-        Wed, 21 Jul 2021 11:44:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=r3gzbbIhvW8DSTquo2fcEuKogGbN+OM2iE9mhjS35yo=;
- b=O+WuoNGtuRamukOxtJWtFRBdo9/OWkWwssojQFLEYcFsYtoCjIOxBuKhLK4Fw5puxxcO
- B5TQ1/Y24/rD52lfPLbcmcEQokB1IAWqPV81m+wwjP9vFO3zZcOYia/CKU7rGPDTXpPj
- tI7gFrbEsa+/yZ+Ts+m0dkE+8KBiQjlO+1I1UQBrOzBhI7xSINmDD0OBnq1g7mDnOPb6
- 1QpMENpbG0vqn2kaU1Q0ShK0U/r/NXeC1ww4OM5/AWTMCCmblNvh+kIDe2qvFUwB9YyB
- gQcBCqA517/jEbvvTwDWhZiL1JoLVhbVZuB7DrrMa6sQp8WLAYZX5iGj+mLl1rYMSf+g iQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39xpfv808t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jul 2021 11:44:19 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16LFi7iL072801;
-        Wed, 21 Jul 2021 11:44:18 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39xpfv8089-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jul 2021 11:44:18 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16LFhIaH003365;
-        Wed, 21 Jul 2021 15:44:16 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06fra.de.ibm.com with ESMTP id 39upfh96ja-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 21 Jul 2021 15:44:16 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16LFfnTh27132230
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 21 Jul 2021 15:41:49 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1C4164C040;
-        Wed, 21 Jul 2021 15:44:13 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9BAED4C044;
-        Wed, 21 Jul 2021 15:44:12 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.84.14])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 21 Jul 2021 15:44:12 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH] s390x: Add specification exception test
-To:     Thomas Huth <thuth@redhat.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20210706115459.372749-1-scgl@linux.ibm.com>
- <18803632-6a9c-5999-2a8a-d4501a0a77d8@redhat.com>
-From:   Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>
-Message-ID: <9bf3313e-0d96-1312-550a-0d1662d50130@linux.vnet.ibm.com>
-Date:   Wed, 21 Jul 2021 17:44:12 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S232733AbhGUPgs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 21 Jul 2021 11:36:48 -0400
+Received: from mail-bn7nam10on2084.outbound.protection.outlook.com ([40.107.92.84]:57985
+        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S232014AbhGUPgr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 21 Jul 2021 11:36:47 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=EcSZ0Ef8r9uK2O3wKazLprdTxxW/UZQgYkB0+6Wjqm00D1/RHq4V4/Ut5RI/13KxqKxTwzbQo0WgjhdlWV01PXvhCdHm7nsSAIvVMeiNvz8BqgPitSumwJG6RBp9C2hJC+wXWGm6QVjlpfyIsLBK8krbcml+2FTZtNKo2iP9fdAl5KamwYBHGS4wFhhtZ/RZb2Wt2WcRi0N1sVa73fIy3tJp/5CMvEhhbv7dHjwRwHhUn6yQICr26Re3XDwRV1D8O9/9Vj3nfvs4opFnp5YHzxTy5h4MC1ntnvHWXhOJA/ghnaq4M4KYNxL+Q41Aer6kBZlmWXCNk7lBVB57BjadXQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=N8ZX6AXCZyWeTuh8CM3rz6v4t1ulLfOoWsAdKIbI2/o=;
+ b=g5GQPJiBpfLUhKt1PYb0E3gzaclN4ch9CoSoKIt4A+Q+i6H6jjyNzJrksap763jQxAbDIOatUXAJt7ctanrwSqhbJJpqzs6+TZQPVNst5jrv3ERhFLsThxEVd0XG5qnqnPZSC69wsWJd592i8uvGDo5O/uLVCAlHofoGvXLE9IPuyjQqGY40b13IMXo5SS5C99RLIA9EXIdDTWI/aV1JXOpDUjS6S/D+iYBLhwrJJ8eNDVqvxfnOf0y7bR9557ZWzgCGLnspbO9rMVsNX0SD8wbUL2mQtz/6+MaDCfwx5NxrpuHTmMyUzGb6fzmWO+B1aQmcQ8Q7EEKQMHRYyGU0/w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.36) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=N8ZX6AXCZyWeTuh8CM3rz6v4t1ulLfOoWsAdKIbI2/o=;
+ b=DV1PdQFEKAibkB00YB6fcqjvrlzr3u55Pc6kemSocZCS0BcE7IHg2kgb5L2Q0e8bXZQrA89wiwW5Q8ujn4qpNwQ7yllP9f/+f4o3ddAQ4lqBMzqnuR8EuweDYs8y5EBIYVHv9AFCGvrPiqh4o16LG9d8k2usaojpL7v7lrtX+u9OWqohymRgOvkXZFCA1cwPDteukukltsoavt5hRIeYl9mEL8psqdVa3mekniQSw0hhdZvSNH69i1GddL3gC5pYhoU6XuyQmBKNQym1+0qUC2qdKBMnRfJ8mVClbCdhMH8ExX+gCPExjefB0egDzigYR65jzXqx48WfVgeZ0eRscA==
+Received: from MWHPR11CA0016.namprd11.prod.outlook.com (2603:10b6:301:1::26)
+ by DM6PR12MB3225.namprd12.prod.outlook.com (2603:10b6:5:188::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.29; Wed, 21 Jul
+ 2021 16:17:22 +0000
+Received: from CO1NAM11FT003.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:301:1:cafe::69) by MWHPR11CA0016.outlook.office365.com
+ (2603:10b6:301:1::26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4352.24 via Frontend
+ Transport; Wed, 21 Jul 2021 16:17:22 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.36)
+ smtp.mailfrom=nvidia.com; vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.36 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.36; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.36) by
+ CO1NAM11FT003.mail.protection.outlook.com (10.13.175.93) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4352.24 via Frontend Transport; Wed, 21 Jul 2021 16:17:21 +0000
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 21 Jul
+ 2021 16:17:21 +0000
+Received: from vdi.nvidia.com (172.20.187.6) by mail.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Wed, 21 Jul 2021 16:17:17 +0000
+From:   Yishai Hadas <yishaih@nvidia.com>
+To:     <bhelgaas@google.com>, <corbet@lwn.net>,
+        <alex.williamson@redhat.com>, <diana.craciun@oss.nxp.com>,
+        <kwankhede@nvidia.com>, <eric.auger@redhat.com>,
+        <masahiroy@kernel.org>, <michal.lkml@markovi.net>
+CC:     <linux-pci@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+        <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <linux-kbuild@vger.kernel.org>, <mgurtovoy@nvidia.com>,
+        <jgg@nvidia.com>, <yishaih@nvidia.com>, <maorg@nvidia.com>,
+        <leonro@nvidia.com>
+Subject: [PATCH 00/12] Introduce vfio_pci_core subsystem
+Date:   Wed, 21 Jul 2021 19:15:57 +0300
+Message-ID: <20210721161609.68223-1-yishaih@nvidia.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-In-Reply-To: <18803632-6a9c-5999-2a8a-d4501a0a77d8@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: a4lmdGHJbx8MpIEHKqG1HPK2tGjB4cMP
-X-Proofpoint-GUID: cXbj-ULiK-6lWeZpIkkDrohs82ChtFaI
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-21_09:2021-07-21,2021-07-21 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- adultscore=0 priorityscore=1501 phishscore=0 mlxlogscore=999
- suspectscore=0 spamscore=0 impostorscore=0 mlxscore=0 clxscore=1015
- bulkscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107210090
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 2d668e02-2b88-4e23-aeee-08d94c63051f
+X-MS-TrafficTypeDiagnostic: DM6PR12MB3225:
+X-Microsoft-Antispam-PRVS: <DM6PR12MB3225729DD2641CDAD286D20EC3E39@DM6PR12MB3225.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: n7oU9+mzjm2y/97oIng6C7QotAa1eTXWhqGcyDgYtTwqf5Ra7uNPNJXB103hgFAYKaPj+AWIi4T8LxpuoRTHp780XjftCvUfMyU/BwJWb2zZNkKNWH2S9IDpHWMxZ4OHBO1IhbWyCHfnd0uYCAwysVlRpszu5lMfGOb2pHQ1wakcaEqAUStYi1cVY0+39FEy9Yk2CBy+geGVl+cxCaOr04o2KCNSkTTa5SAowfC6WPsWMCZfnwUjp/V/oXsfXmgQdrq9D3sGlESrDgtRp+uHreqXDDN3XqzD4bLO/h1y7LWzEk7YZmRTZYCr5mCRha8LyTbeRdBw3ZHACi8evhEO4J4nq2WEOz78p+Ud7w8yBlrgD5IS+7NkH1zg+0Xu5fTZ3SAm17j+77pmzEqng9Xe9B+WmUQgrbVMDwYqMKcpNiLHrBSSfvZ2cqLdxNTnRRqJw1RjS3ILaz3H3NigYWaZydLCSbed0UzwOyQhlJEF6krMwgVpmMSbma8yhTdXB7ISXWz2f649gAud7/PT3WBZk/zAuoa6naqYWsZnhabnDEDQWcApxoqJNLbtq7kDpjTLKA9+n744naA2tssUPpPUTVdYoZ5WTikEgTkAtWcvxIrs1ag99IMTYw6iHfsuPzWve2Ng0MAyiUfqbwC0wcu8kZzAAcmFrpi/oj7QQxG07B/5rcR9I75nmlRHJ5Dgq1Mp2bf+jRHoy2k48t5STdFi6xeUzjHFBV7jwH7Nekd2MD0rgSgqELnRTddQ2752ZxdXhPZBVNhXcE7V1RXhAoUQG62r8h1409u9jwWcHtFDKCA9ikNq5cKd35DxlZpRf+0mDy9SYKRPvQBtsSdiS3V+oeTD3bQcPc85eu8BnH/f42Y=
+X-Forefront-Antispam-Report: CIP:216.228.112.36;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid05.nvidia.com;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(186003)(36906005)(336012)(8936002)(110136005)(54906003)(7696005)(82310400003)(36860700001)(2616005)(6666004)(508600001)(7416002)(316002)(426003)(5660300002)(26005)(8676002)(2906002)(107886003)(4326008)(86362001)(70206006)(83380400001)(7636003)(966005)(36756003)(356005)(1076003)(47076005)(70586007)(2101003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jul 2021 16:17:21.9902
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2d668e02-2b88-4e23-aeee-08d94c63051f
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.36];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT003.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3225
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 7/21/21 3:26 PM, Thomas Huth wrote:
-> On 06/07/2021 13.54, Janis Schoetterl-Glausch wrote:
->> Generate specification exceptions and check that they occur.
->> Also generate specification exceptions during a transaction,
->> which results in another interruption code.
->> With the iterations argument one can check if specification
->> exception interpretation occurs, e.g. by using a high value and
->> checking that the debugfs counters are substantially lower.
->> The argument is also useful for estimating the performance benefit
->> of interpretation.
->>
->> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->> ---
->>   s390x/Makefile           |   1 +
->>   lib/s390x/asm/arch_def.h |   1 +
->>   s390x/spec_ex.c          | 344 +++++++++++++++++++++++++++++++++++++++
->>   s390x/unittests.cfg      |   3 +
->>   4 files changed, 349 insertions(+)
->>   create mode 100644 s390x/spec_ex.c
->>
->> diff --git a/s390x/Makefile b/s390x/Makefile
->> index 8820e99..be100d3 100644
->> --- a/s390x/Makefile
->> +++ b/s390x/Makefile
->> @@ -23,6 +23,7 @@ tests += $(TEST_DIR)/sie.elf
->>   tests += $(TEST_DIR)/mvpg.elf
->>   tests += $(TEST_DIR)/uv-host.elf
->>   tests += $(TEST_DIR)/edat.elf
->> +tests += $(TEST_DIR)/spec_ex.elf
->>     tests_binary = $(patsubst %.elf,%.bin,$(tests))
->>   ifneq ($(HOST_KEY_DOCUMENT),)
->> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
->> index 15cf7d4..7cb0b92 100644
->> --- a/lib/s390x/asm/arch_def.h
->> +++ b/lib/s390x/asm/arch_def.h
->> @@ -229,6 +229,7 @@ static inline uint64_t stctg(int cr)
->>       return value;
->>   }
->>   +#define CTL0_TRANSACT_EX_CTL    (63 -  8)
->>   #define CTL0_LOW_ADDR_PROT    (63 - 35)
->>   #define CTL0_EDAT        (63 - 40)
->>   #define CTL0_IEP        (63 - 43)
->> diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
->> new file mode 100644
->> index 0000000..2e05bfb
->> --- /dev/null
->> +++ b/s390x/spec_ex.c
->> @@ -0,0 +1,344 @@
-> 
-> Please add a short comment header at the top of the file with some information on what it is all about, and license information (e.g. a SPDX-License-Identifier)
-> 
->> +#include <stdlib.h>
->> +#include <htmintrin.h>
->> +#include <libcflat.h>
->> +#include <asm/barrier.h>
->> +#include <asm/interrupt.h>
->> +#include <asm/facility.h>
->> +
->> +struct lowcore *lc = (struct lowcore *) 0;
->> +
->> +static bool expect_early;
->> +static struct psw expected_early_pgm_psw;
->> +static struct psw fixup_early_pgm_psw;
->> +
->> +static void fixup_early_pgm_ex(void)
-> 
-> Could you please add a comment in front of this function with a description why this is required / good for?
+Prologue:
 
-Sure, how about:
+This is the second series of three to send the "mlx5_vfio_pci" driver
+that has been discussed on the list for a while now. It comes on top of
+the first series (i.e. Reorganize reflck to support splitting vfio_pci)
+that was sent already and pending merge [1].
 
-/* The standard program exception handler cannot deal with invalid old PSWs,
- * especially not invalid instruction addresses, as in that case one cannot
- * find the instruction following the faulting one from the old PSW.
- */
+ - Split vfio_pci into vfio_pci/vfio_pci_core and provide infrastructure
+   for non-generic VFIO PCI drivers.
+ - The new driver mlx5_vfio_pci that is a full implementation of
+   suspend/resume functionality for mlx5 devices.
 
-I'll also change some names since something like this is necessary for all
-exceptions caused by invalid PSWs, not just the early ones:
+A preview of all the patches can be seen here:
+https://github.com/jgunthorpe/linux/commits/mlx5_vfio_pci
 
-static void fixup_invalid_psw(void)
-> 
->> +{
->> +    if (expect_early) {
->> +        report(expected_early_pgm_psw.mask == lc->pgm_old_psw.mask
->> +               && expected_early_pgm_psw.addr == lc->pgm_old_psw.addr,
->> +               "Early program new PSW as expected");
->> +        expect_early = false;
->> +    }
->> +    lc->pgm_old_psw = fixup_early_pgm_psw;
->> +}
->> +
->> +static void lpsw(uint64_t psw)
->> +{
->> +    uint32_t *high, *low;
->> +    uint64_t r0 = 0, r1 = 0;
->> +
->> +    high = (uint32_t *) &fixup_early_pgm_psw.mask;
->> +    low = high + 1;
->> +
->> +    asm volatile (
->> +        "    epsw    %0,%1\n"
->> +        "    st    %0,%[high]\n"
->> +        "    st    %1,%[low]\n"
-> 
-> What's all this magic with high and low good for? Looks like high and low are not used afterwards anymore?
+[1] https://lore.kernel.org/dri-devel/0-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com/T/#t
+=====================
 
-Seems like the easiest way to store both halves of the current mask into the global fixup PSW.
-> 
->> +        "    larl    %0,nop%=\n"
->> +        "    stg    %0,%[addr]\n"
->> +        "    lpsw    %[psw]\n"
->> +        "nop%=:    nop\n"
->> +        : "+&r"(r0), "+&a"(r1), [high] "=&R"(*high), [low] "=&R"(*low)
-> 
-> ... also not sure why you need the "&" modifiers here?
+From Max Gurtovoy:
+====================
+This series splits the vfio_pci driver into two parts, a PCI driver and
+a subsystem driver that will also be library of code. The main PCI
+driver, vfio_pci.ko, will remain as before and it will use the library
+module vfio_pci_core.ko to help create the vfio_device.
 
-r0, r1 are stored into before reading psw, also there are implied input registers for the
-memory output operands. To be honest, I didn't care to figure out the minimal '&' usage,
-it's just test code after all.
-> 
->> +        , [addr] "=&R"(fixup_early_pgm_psw.addr)
->> +        : [psw] "Q"(psw)
->> +        : "cc", "memory"
->> +    );
->> +}
->> +
->> +static void psw_bit_31_32_are_1_0(void)
->> +{
->> +    uint64_t bad_psw = 0x000800015eadbeef;
->> +
->> +    //bit 12 gets inverted when extending to 128-bit PSW
-> 
-> I'd prefer a space after the "//"
-> 
->> +    expected_early_pgm_psw.mask = 0x0000000100000000;
->> +    expected_early_pgm_psw.addr = 0x000000005eadbeef;
->> +    expect_early = true;
->> +    lpsw(bad_psw);
->> +}
->> +
->> +static void bad_alignment(void)
->> +{
->> +    uint32_t words[5] = {0, 0, 0};
->> +    uint32_t (*bad_aligned)[4];
->> +
->> +    register uint64_t r1 asm("6");
->> +    register uint64_t r2 asm("7");
->> +    if (((uintptr_t)&words[0]) & 0xf) {
->> +        bad_aligned = (uint32_t (*)[4])&words[0];
->> +    } else {
->> +        bad_aligned = (uint32_t (*)[4])&words[1];
->> +    }
->> +    asm volatile ("lpq %0,%2"
->> +              : "=r"(r1), "=r"(r2)
->> +              : "T"(*bad_aligned)
->> +    );
->> +}
->> +
->> +static void not_even(void)
->> +{
->> +    uint64_t quad[2];
->> +
->> +    register uint64_t r1 asm("7");
->> +    register uint64_t r2 asm("8");
->> +    asm volatile (".insn    rxy,0xe3000000008f,%0,%2" //lpq %0,%2
->> +              : "=r"(r1), "=r"(r2)
->> +              : "T"(quad)
->> +    );
->> +}
->> +
->> +struct spec_ex_trigger {
->> +    const char *name;
->> +    void (*func)(void);
->> +    bool transactable;
->> +    void (*fixup)(void);
->> +};
->> +
->> +static const struct spec_ex_trigger spec_ex_triggers[] = {
->> +    { "psw_bit_31_32_are_1_0", &psw_bit_31_32_are_1_0, false, &fixup_early_pgm_ex},
->> +    { "bad_alignment", &bad_alignment, true, NULL},
->> +    { "not_even", &not_even, true, NULL},
->> +    { NULL, NULL, true, NULL},
->> +};
->> +
->> +struct args {
->> +    uint64_t iterations;
->> +    uint64_t max_retries;
->> +    uint64_t suppress_info;
->> +    uint64_t max_failures;
->> +    bool diagnose;
->> +};
->> +
->> +static void test_spec_ex(struct args *args,
->> +             const struct spec_ex_trigger *trigger)
->> +{
->> +    uint16_t expected_pgm = PGM_INT_CODE_SPECIFICATION;
->> +    uint16_t pgm;
->> +    unsigned int i;
->> +
->> +    register_pgm_cleanup_func(trigger->fixup);
->> +    for (i = 0; i < args->iterations; i++) {
->> +        expect_pgm_int();
->> +        trigger->func();
->> +        pgm = clear_pgm_int();
->> +        if (pgm != expected_pgm) {
->> +            report(0,
->> +            "Program interrupt: expected(%d) == received(%d)",
->> +            expected_pgm,
->> +            pgm);
->> +            return;
->> +        }
->> +    }
-> 
-> Maybe it would be nice to "unregister" the cleanup function at the end with register_pgm_cleanup_func(NULL) ?
+This series is intended to solve the issues that were raised in the
+previous attempts for extending vfio-pci for device specific
+functionality:
 
-Yeah, I think I'll also move them just before and after the trigger->func().
-> 
->> +    report(1,
->> +    "Program interrupt: always expected(%d) == received(%d)",
->> +    expected_pgm,
->> +    expected_pgm);
->> +}
->> +
->> +#define TRANSACTION_COMPLETED 4
->> +#define TRANSACTION_MAX_RETRIES 5
->> +
->> +static int __attribute__((nonnull))
-> 
-> Not sure whether that attribute makes much sense with a static function? ... the compiler has information about the implementation details here, so it should be able to see that e.g. trigger must be non-NULL anyway?
+1. https://lore.kernel.org/kvm/20200518024202.13996-1-yan.y.zhao@intel.com
+   by Yan Zhao
+2. https://lore.kernel.org/kvm/20210702095849.1610-1-shameerali.kolothum.thodi@huawei.com
+   by Longfang Liu
 
-One isn't supposed to pass NULL to __builtin_tbegin via a variable, only via a constant.
-I didn't want to deal with that constraint, so that's what the nonnull is there for.
-Maybe I should add a comment?
-> 
->> +with_transaction(void (*trigger)(void), struct __htm_tdb *diagnose)
->> +{
->> +    int cc;
->> +
->> +    cc = __builtin_tbegin(diagnose);
->> +    if (cc == _HTM_TBEGIN_STARTED) {
->> +        trigger();
->> +        __builtin_tend();
->> +        return -TRANSACTION_COMPLETED;
->> +    } else {
->> +        return -cc;
->> +    }
->> +}
-> [...]
-> 
->  Thomas
-> 
-Thank you for your comments.
+Also to support proposed future changes to virtio and other common
+protocols to support migration:
+
+https://lists.oasis-open.org/archives/virtio-comment/202106/msg00044.html
+
+This subsystem framework will also ease adding new device specific
+functionality to VFIO devices in the future by allowing another module
+to provide the pci_driver that can setup a number of details before
+registering to the VFIO subsystem, such as injecting its own operations.
+
+This series also extends the "driver_override" mechanism. A flag is
+added for PCI drivers that will declare themselves as "driver_override"
+capable which sends their match table to the modules.alias file but
+otherwise leaves them outside of the normal driver core auto-binding
+world, like vfio_pci.
+
+In order to get the best match for "driver_override" drivers, one can
+create a userspace program to inspect the modules.alias, an example can
+be found at:
+
+https://github.com/maxgurtovoy/linux_tools/blob/main/vfio/bind_vfio_pci_driver.py
+
+Which finds the 'best match' according to a simple algorithm: "the
+driver with the fewest '*' matches wins."
+
+For example, the vfio-pci driver will match to any pci device. So it
+will have the maximal '*' matches.
+
+In case we are looking for a match to a mlx5 based device, we'll have a
+match to vfio-pci.ko and mlx5-vfio-pci.ko. We'll prefer mlx5-vfio-pci.ko
+since it will have less '*' matches (probably vendor and device IDs will
+match). This will work in the future for NVMe/Virtio devices that can
+match according to a class code or other criteria.
+
+Yishai
+
+
+Jason Gunthorpe (2):
+  vfio: Use select for eventfd
+  vfio: Use kconfig if XX/endif blocks instead of repeating 'depends on'
+
+Max Gurtovoy (9):
+  vfio/pci: Rename vfio_pci.c to vfio_pci_core.c
+  vfio/pci: Rename vfio_pci_private.h to vfio_pci_core.h
+  vfio/pci: Rename vfio_pci_device to vfio_pci_core_device
+  vfio/pci: Rename ops functions to fit core namings
+  vfio/pci: Include vfio header in vfio_pci_core.h
+  vfio/pci: Split the pci_driver code out of vfio_pci_core.c
+  vfio/pci: Move igd initialization to vfio_pci.c
+  PCI: Add a PCI_ID_F_VFIO_DRIVER_OVERRIDE flag to struct pci_device_id
+  vfio/pci: Introduce vfio_pci_core.ko
+
+Yishai Hadas (1):
+  vfio/pci: Move module parameters to vfio_pci.c
+
+ Documentation/PCI/pci.rst                     |    1 +
+ drivers/pci/pci-driver.c                      |   25 +-
+ drivers/vfio/Kconfig                          |   29 +-
+ drivers/vfio/fsl-mc/Kconfig                   |    3 +-
+ drivers/vfio/mdev/Kconfig                     |    1 -
+ drivers/vfio/pci/Kconfig                      |   39 +-
+ drivers/vfio/pci/Makefile                     |    8 +-
+ drivers/vfio/pci/vfio_pci.c                   | 2238 +----------------
+ drivers/vfio/pci/vfio_pci_config.c            |   70 +-
+ drivers/vfio/pci/vfio_pci_core.c              | 2138 ++++++++++++++++
+ drivers/vfio/pci/vfio_pci_igd.c               |   19 +-
+ drivers/vfio/pci/vfio_pci_intrs.c             |   42 +-
+ drivers/vfio/pci/vfio_pci_rdwr.c              |   18 +-
+ drivers/vfio/pci/vfio_pci_zdev.c              |    4 +-
+ drivers/vfio/platform/Kconfig                 |    6 +-
+ drivers/vfio/platform/reset/Kconfig           |    4 +-
+ include/linux/mod_devicetable.h               |    7 +
+ include/linux/pci.h                           |   27 +
+ .../linux/vfio_pci_core.h                     |   89 +-
+ scripts/mod/devicetable-offsets.c             |    1 +
+ scripts/mod/file2alias.c                      |    8 +-
+ 21 files changed, 2496 insertions(+), 2281 deletions(-)
+ create mode 100644 drivers/vfio/pci/vfio_pci_core.c
+ rename drivers/vfio/pci/vfio_pci_private.h => include/linux/vfio_pci_core.h (56%)
+
+-- 
+2.18.1
 
