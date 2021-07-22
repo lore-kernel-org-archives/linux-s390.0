@@ -2,38 +2,29 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5634C63799
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 12:51:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 511D5C63798
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 12:59:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8C5C061369
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 12:51:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 353D361370
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 12:59:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231939AbhGVMKp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jul 2021 08:10:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33480 "EHLO mail.kernel.org"
+        id S231925AbhGVMTT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jul 2021 08:19:19 -0400
+Received: from verein.lst.de ([213.95.11.211]:33984 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232049AbhGVMJD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Jul 2021 08:09:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C5356135B;
-        Thu, 22 Jul 2021 12:49:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626958178;
-        bh=Lb/DGS9E/FUSMtSHAOCH5rcc8a7ucnqACx5B/SB9r64=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DlDQQcJWBtu8uGwZq7CjQmNgX2T8xiLFz36rrnffGFNmyFcUbDzmYO8Dh1wVzhQBj
-         mXfyYN6rNAtyWUhbW+eOeaAzsVBPOcm5/g36yS1ZuD3Y8G6hbwWT+q5xi4L4Q7G7uv
-         7MB6QaWeQInRe7HQtjzXXBdvuhQlK9V4yt29fc+frxRGN8Po290okXM214yrvvxv0s
-         31IA+WAE0UQD5EilOPMtZz59mPbvNLCaeeNh22wHNjOWOrT2hS70tkXDkJUVmbY+fQ
-         4Dt+2v4eU/DdXKOkQoEVP3549Vc2kQ2Df5tw3ubn4NIgoLCPnr7hNUn1jxPJxJXRmG
-         HoHVd+rT8j/Pw==
-From:   Arnd Bergmann <arnd@kernel.org>
-To:     linux-arch@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
+        id S231840AbhGVMTM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 22 Jul 2021 08:19:12 -0400
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id DF90B67373; Thu, 22 Jul 2021 14:59:41 +0200 (CEST)
+Date:   Thu, 22 Jul 2021 14:59:41 +0200
+From:   Christoph Hellwig <hch@lst.de>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
         Al Viro <viro@zeniv.linux.org.uk>,
         Anton Ivanov <anton.ivanov@cambridgegreys.com>,
@@ -57,85 +48,22 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
         linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
         uclinux-h8-devel@lists.sourceforge.jp
-Subject: [PATCH v3 8/9] asm-generic: remove extra strn{cpy_from,len}_user declarations
-Date:   Thu, 22 Jul 2021 14:48:13 +0200
-Message-Id: <20210722124814.778059-9-arnd@kernel.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210722124814.778059-1-arnd@kernel.org>
-References: <20210722124814.778059-1-arnd@kernel.org>
+Subject: Re: [PATCH v3 1/9] asm-generic/uaccess.h: remove
+ __strncpy_from_user/__strnlen_user
+Message-ID: <20210722125941.GA26225@lst.de>
+References: <20210722124814.778059-1-arnd@kernel.org> <20210722124814.778059-2-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210722124814.778059-2-arnd@kernel.org>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+Looks good,
 
-As these are now in asm-generic, it's no longer necessary to
-declare them in the architecture.
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/arc/include/asm/uaccess.h     | 5 -----
- arch/hexagon/include/asm/uaccess.h | 6 ------
- arch/um/include/asm/uaccess.h      | 5 +----
- 3 files changed, 1 insertion(+), 15 deletions(-)
-
-diff --git a/arch/arc/include/asm/uaccess.h b/arch/arc/include/asm/uaccess.h
-index 754a23f26736..783bfdb3bfa3 100644
---- a/arch/arc/include/asm/uaccess.h
-+++ b/arch/arc/include/asm/uaccess.h
-@@ -667,11 +667,6 @@ extern unsigned long arc_clear_user_noinline(void __user *to,
- #define __clear_user(d, n)		arc_clear_user_noinline(d, n)
- #endif
- 
--extern long strncpy_from_user(char *dst, const char __user *src, long count);
--#define strncpy_from_user(d, s, n)	strncpy_from_user(d, s, n)
--extern long strnlen_user(const char __user *src, long n);
--#define strnlen_user(s, n)		strnlen_user(s, n)
--
- #include <asm/segment.h>
- #include <asm-generic/uaccess.h>
- 
-diff --git a/arch/hexagon/include/asm/uaccess.h b/arch/hexagon/include/asm/uaccess.h
-index d950df12d8c5..ef5bfef8d490 100644
---- a/arch/hexagon/include/asm/uaccess.h
-+++ b/arch/hexagon/include/asm/uaccess.h
-@@ -57,12 +57,6 @@ unsigned long raw_copy_to_user(void __user *to, const void *from,
- __kernel_size_t __clear_user_hexagon(void __user *dest, unsigned long count);
- #define __clear_user(a, s) __clear_user_hexagon((a), (s))
- 
--extern long strnlen_user(const char __user *src, long n);
--#define strnlen_user strnlen_user
--
--extern long strncpy_from_user(char *dst, const char __user *src, long n)
--#define strncpy_from_user strncpy_from_user
--
- #include <asm-generic/uaccess.h>
- 
- 
-diff --git a/arch/um/include/asm/uaccess.h b/arch/um/include/asm/uaccess.h
-index 3bf209f683f8..191ef36dd543 100644
---- a/arch/um/include/asm/uaccess.h
-+++ b/arch/um/include/asm/uaccess.h
-@@ -23,16 +23,13 @@
- 
- extern unsigned long raw_copy_from_user(void *to, const void __user *from, unsigned long n);
- extern unsigned long raw_copy_to_user(void __user *to, const void *from, unsigned long n);
--extern long strncpy_from_user(char *dst, const char __user *src, long count);
--extern long strnlen_user(const void __user *str, long len);
- extern unsigned long __clear_user(void __user *mem, unsigned long len);
- static inline int __access_ok(unsigned long addr, unsigned long size);
- 
- /* Teach asm-generic/uaccess.h that we have C functions for these. */
- #define __access_ok __access_ok
- #define __clear_user __clear_user
--#define strnlen_user strnlen_user
--#define strncpy_from_user strncpy_from_user
-+
- #define INLINE_COPY_FROM_USER
- #define INLINE_COPY_TO_USER
- 
--- 
-2.29.2
-
+Note that the uml version has a minor conflict with my pending set_fs()
+removal for uml, but that should be easy to resolve.
