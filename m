@@ -2,180 +2,181 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+X-Spam-Status: No, score=-15.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E59FC63797
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 09:28:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40D26C63799
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 12:49:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1534360C41
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 09:28:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1DFF66136E
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 12:49:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231377AbhGVIrh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jul 2021 04:47:37 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:33071 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231376AbhGVIrg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Jul 2021 04:47:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626946091;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=caunD6WBo1XAHcQhMhOqrgWHallFQMHiPgjwSWOB4fg=;
-        b=aDP0zHYdRpoWdWSnEXKM6GkxZJswIk9Pi6U8B8EckkojsR4PXk2AMDy1X5WkLkiH324CEv
-        D3rC+/SX00XwS6igPNaxu76g/42QK2uQNwXD87PJxd9cQdV6tgZaLO1gXwZvEIVxab19pL
-        0v6CXuQRMustuuCng1yOCgWA9V9vjJc=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-492-OG4VuS8vNpevgLUgmHbgGg-1; Thu, 22 Jul 2021 05:28:08 -0400
-X-MC-Unique: OG4VuS8vNpevgLUgmHbgGg-1
-Received: by mail-wr1-f70.google.com with SMTP id i12-20020adffc0c0000b0290140ab4d8389so2232604wrr.10
-        for <linux-s390@vger.kernel.org>; Thu, 22 Jul 2021 02:28:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=caunD6WBo1XAHcQhMhOqrgWHallFQMHiPgjwSWOB4fg=;
-        b=fCKp2fes6SNtbSln4JFOs0TOOwN2F6kNGnQws5JTQgbdzdA/c62EYBWdb7vBM7hCaZ
-         PeD3UztiYd2DBZ8/Z22bPavw1JUWNMdKZKfjbdQDp3m54OnOGTGjrurt/lE8Ph3jM/Sy
-         kNh/46+AmAGQBUH9Pznv5Ogf+zp2obBjaiS6xp0WzUV9LQeRVsu4tff2vM+scdudqHWn
-         BdeYqIg7SyQgFcox+3s6jy4pDw9i0d/mx5PhQlpX/RyTvPL/HJyzfHYyQ9XsyH/VOqL4
-         EQIOzma2QhMT9LqHMe+MtPG75IYrekT6YOlM8FLqaSS6htVQ1s7ZZLNQILltJvpzKhgg
-         EFBA==
-X-Gm-Message-State: AOAM531zEYKVKpVrKNdiXe8BTbx8Xe4fpgqqmPsOyckwR2mxpEKm1iG5
-        dvM6jufeUB2DFyiKJloQjoU+f603PEgp6VLQ3Z1ma1nyJrFl20kmpPV6sZEgHniL72s1ms30X/t
-        zY9SUTGoQZaXKfurJIabrC+ED8fIuOJqDstkFLoY8Ao9Syb4C1CFNf7VUgbro+2aAw8Xtsg==
-X-Received: by 2002:adf:eb4c:: with SMTP id u12mr48930647wrn.111.1626946087127;
-        Thu, 22 Jul 2021 02:28:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy7qEZuQMFJaccMc+yDMrFgFAX3BPD4rQhg/6jaiTrWYa3o98JI+tj1Q4/VvrDgcYk2nAWs4A==
-X-Received: by 2002:adf:eb4c:: with SMTP id u12mr48930623wrn.111.1626946086932;
-        Thu, 22 Jul 2021 02:28:06 -0700 (PDT)
-Received: from thuth.remote.csb (pd9e83f5d.dip0.t-ipconnect.de. [217.232.63.93])
-        by smtp.gmail.com with ESMTPSA id 140sm24964988wmb.43.2021.07.22.02.28.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 22 Jul 2021 02:28:06 -0700 (PDT)
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20210706115724.372901-1-scgl@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH] s390x: Add specification exception
- interception test
-Message-ID: <709f6326-efcb-d359-bfac-59a162473c91@redhat.com>
-Date:   Thu, 22 Jul 2021 11:28:05 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        id S231931AbhGVMI0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jul 2021 08:08:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60728 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231838AbhGVMIS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 22 Jul 2021 08:08:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B77A61285;
+        Thu, 22 Jul 2021 12:48:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626958132;
+        bh=PX46ntR2F8mhtnTnqk6z0maUFKW3hKlsYGyDxWq8nt8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=uI8fZsAnCujH8W7YiEBRgCAjHShI6gE1mvUR0l57R+InmBX0WanZ/uw9vRAOln3Z8
+         nGIW49oPfs3Z0oGoceXArCb+pcxtHVC7BDgIPVu7ZQgOSXVYcpE0fh0cemOAHYvVRq
+         FKI2JY1Q7ji5J3em2CfLjWBtEWHTWOWxHMmXXgWyndwrPSlVntSikFKkr25MPmfWRd
+         v73iMcJt52+PkD+rdPNKZ3PKisAXpGa6fQ8OZroEymMb7Gi2et/DUC63IcI09aav3H
+         3ECp+pAFmA7kucS8vsrWJ92J66Z8gjShxT5O7vJdnqnBEe0ThenTNBxBPkUxQ1dKDS
+         brNKF2Qpg7HWw==
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     linux-arch@vger.kernel.org
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Brian Cain <bcain@codeaurora.org>,
+        Chris Zankel <chris@zankel.net>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Christoph Hellwig <hch@lst.de>, Guo Ren <guoren@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>, Jeff Dike <jdike@addtoit.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Michal Simek <monstr@monstr.eu>,
+        Richard Weinberger <richard@nod.at>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        uclinux-h8-devel@lists.sourceforge.jp
+Subject: [PATCH v3 0/6] asm-generic: strncpy_from_user/strnlen_user cleanup
+Date:   Thu, 22 Jul 2021 14:48:05 +0200
+Message-Id: <20210722124814.778059-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-In-Reply-To: <20210706115724.372901-1-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 06/07/2021 13.57, Janis Schoetterl-Glausch wrote:
-> Check that specification exceptions cause intercepts when
-> specification exception interpretation is off.
-> Check that specification exceptions caused by program new PSWs
-> cause interceptions.
-> We cannot assert that non program new PSW specification exceptions
-> are interpreted because whether interpretation occurs or not is
-> configuration dependent.
-> 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> ---
-> The patch is based on the following patch sets by Janosch:
-> [kvm-unit-tests PATCH 0/5] s390x: sie and uv cleanups
-> [kvm-unit-tests PATCH v2 0/3] s390x: Add snippet support
-> 
->   s390x/Makefile             |  2 +
->   lib/s390x/sie.h            |  1 +
->   s390x/snippets/c/spec_ex.c | 13 ++++++
->   s390x/spec_ex-sie.c        | 91 ++++++++++++++++++++++++++++++++++++++
->   s390x/unittests.cfg        |  3 ++
->   5 files changed, 110 insertions(+)
->   create mode 100644 s390x/snippets/c/spec_ex.c
->   create mode 100644 s390x/spec_ex-sie.c
-> 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 07af26d..b1b6536 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -24,6 +24,7 @@ tests += $(TEST_DIR)/mvpg.elf
->   tests += $(TEST_DIR)/uv-host.elf
->   tests += $(TEST_DIR)/edat.elf
->   tests += $(TEST_DIR)/mvpg-sie.elf
-> +tests += $(TEST_DIR)/spec_ex-sie.elf
->   
->   tests_binary = $(patsubst %.elf,%.bin,$(tests))
->   ifneq ($(HOST_KEY_DOCUMENT),)
-> @@ -84,6 +85,7 @@ snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
->   # perquisites (=guests) for the snippet hosts.
->   # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
->   $(TEST_DIR)/mvpg-sie.elf: snippets = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
-> +$(TEST_DIR)/spec_ex-sie.elf: snippets = $(SNIPPET_DIR)/c/spec_ex.gbin
->   
->   $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o $(FLATLIBS)
->   	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
-> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
-> index 6ba858a..a3b8623 100644
-> --- a/lib/s390x/sie.h
-> +++ b/lib/s390x/sie.h
-> @@ -98,6 +98,7 @@ struct kvm_s390_sie_block {
->   	uint8_t		fpf;			/* 0x0060 */
->   #define ECB_GS		0x40
->   #define ECB_TE		0x10
-> +#define ECB_SPECI	0x08
->   #define ECB_SRSI	0x04
->   #define ECB_HOSTPROTINT	0x02
->   	uint8_t		ecb;			/* 0x0061 */
-> diff --git a/s390x/snippets/c/spec_ex.c b/s390x/snippets/c/spec_ex.c
-> new file mode 100644
-> index 0000000..f2daab5
-> --- /dev/null
-> +++ b/s390x/snippets/c/spec_ex.c
+From: Arnd Bergmann <arnd@arndb.de>
 
-Please add a short header comment with the basic idea here + license 
-information (e.g. SPDX identifier). Also in the other new file that you 
-introduce in this patch.
+I had run into some regressions for the previous version of this
+series, the new version is based on v5.14-rc2 instead.
 
-> @@ -0,0 +1,13 @@
-> +#include <stdint.h>
-> +#include <asm/arch_def.h>
-> +
-> +__attribute__((section(".text"))) int main(void)
-> +{
-> +	uint64_t bad_psw = 0;
-> +	struct psw *pgm_new = (struct psw *)464;
+These two functions appear to be unnecessarily different between
+architectures, and the asm-generic version is a bit questionable,
+even for NOMMU architectures.
 
-Is it possible to use the lib/s390x/asm/arch_def.h in snippets? If so, I'd 
-vote for using &lowcore->pgm_new_psw instead of the magic number 464.
+Clean this up to just use the generic library version for anything
+that uses the generic version today. I've expanded on the patch
+descriptions a little, as suggested by Christoph Hellwig, but I
+suspect a more detailed review would uncover additional problems
+with the custom versions that are getting removed.
 
-> +	pgm_new->mask = 1UL << (63 - 12); //invalid program new PSW
+I ended up adding patches for csky and microblaze as they had the
+same implementation that I removed elsewhere, these are now gone
+as well.
 
-Please add a space after the //
-(also in the other spots in this patch)
+If I hear no objections from architecture maintainers or new
+build regressions, I'll queue these up in the asm-generic tree
+for 5.15.
 
-> +	pgm_new->addr = 0xdeadbeef;
+       Arnd
 
-Are we testing the mask or the addr here? If we're testing the mask, I'd 
-rather use an even addr here to make sure that we do not trap because of the 
-uneven address. Or do we just don't care?
+Link: https://lore.kernel.org/linux-arch/20210515101803.924427-1-arnd@kernel.org/
 
-> +	asm volatile ("lpsw %0" :: "Q"(bad_psw));
-> +	return 0;
-> +}
+Arnd Bergmann (9):
+  asm-generic/uaccess.h: remove __strncpy_from_user/__strnlen_user
+  h8300: remove stale strncpy_from_user
+  hexagon: use generic strncpy/strnlen from_user
+  arc: use generic strncpy/strnlen from_user
+  csky: use generic strncpy/strnlen from_user
+  microblaze: use generic strncpy/strnlen from_user
+  asm-generic: uaccess: remove inline strncpy_from_user/strnlen_user
+  asm-generic: remove extra strn{cpy_from,len}_user declarations
+  asm-generic: reverse GENERIC_{STRNCPY_FROM,STRNLEN}_USER symbols
 
-  Thomas
+ arch/alpha/Kconfig                        |   2 -
+ arch/arc/include/asm/uaccess.h            |  72 -------------
+ arch/arc/mm/extable.c                     |  12 ---
+ arch/arm/Kconfig                          |   2 -
+ arch/arm64/Kconfig                        |   2 -
+ arch/csky/include/asm/uaccess.h           |   6 --
+ arch/csky/lib/usercopy.c                  | 102 ------------------
+ arch/h8300/kernel/h8300_ksyms.c           |   2 -
+ arch/h8300/lib/Makefile                   |   2 +-
+ arch/h8300/lib/strncpy.S                  |  35 ------
+ arch/hexagon/include/asm/uaccess.h        |  31 ------
+ arch/hexagon/kernel/hexagon_ksyms.c       |   1 -
+ arch/hexagon/mm/Makefile                  |   2 +-
+ arch/hexagon/mm/strnlen_user.S            | 126 ----------------------
+ arch/ia64/Kconfig                         |   2 +
+ arch/m68k/Kconfig                         |   2 -
+ arch/microblaze/include/asm/uaccess.h     |  19 +---
+ arch/microblaze/kernel/microblaze_ksyms.c |   3 -
+ arch/microblaze/lib/uaccess_old.S         |  90 ----------------
+ arch/mips/Kconfig                         |   2 +
+ arch/nds32/Kconfig                        |   2 -
+ arch/nios2/Kconfig                        |   2 -
+ arch/openrisc/Kconfig                     |   2 -
+ arch/parisc/Kconfig                       |   2 +-
+ arch/powerpc/Kconfig                      |   2 -
+ arch/riscv/Kconfig                        |   2 -
+ arch/s390/Kconfig                         |   2 +
+ arch/sh/Kconfig                           |   2 -
+ arch/sparc/Kconfig                        |   2 -
+ arch/um/Kconfig                           |   2 +
+ arch/um/include/asm/uaccess.h             |   5 +-
+ arch/um/kernel/skas/uaccess.c             |  14 ++-
+ arch/x86/Kconfig                          |   2 -
+ arch/xtensa/Kconfig                       |   3 +-
+ arch/xtensa/include/asm/uaccess.h         |   3 +-
+ include/asm-generic/uaccess.h             |  52 ++-------
+ lib/Kconfig                               |  10 +-
+ 37 files changed, 43 insertions(+), 581 deletions(-)
+ delete mode 100644 arch/h8300/lib/strncpy.S
+ delete mode 100644 arch/hexagon/mm/strnlen_user.S
 
+-- 
+2.29.2
+
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com> 
+Cc: Al Viro <viro@zeniv.linux.org.uk> 
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com> 
+Cc: Brian Cain <bcain@codeaurora.org> 
+Cc: Chris Zankel <chris@zankel.net> 
+Cc: Christian Borntraeger <borntraeger@de.ibm.com> 
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Guo Ren <guoren@kernel.org> 
+Cc: Heiko Carstens <hca@linux.ibm.com> 
+Cc: Helge Deller <deller@gmx.de> 
+Cc: Jeff Dike <jdike@addtoit.com> 
+Cc: Linus Walleij <linus.walleij@linaro.org> 
+Cc: Max Filippov <jcmvbkbc@gmail.com> 
+Cc: Michal Simek <monstr@monstr.eu> 
+Cc: Richard Weinberger <richard@nod.at> 
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de> 
+Cc: Vasily Gorbik <gor@linux.ibm.com> 
+Cc: Vineet Gupta <vgupta@synopsys.com> 
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp> 
+Cc: linux-arch@vger.kernel.org 
+Cc: linux-csky@vger.kernel.org 
+Cc: linux-hexagon@vger.kernel.org 
+Cc: linux-ia64@vger.kernel.org 
+Cc: linux-kernel@vger.kernel.org 
+Cc: linux-mips@vger.kernel.org 
+Cc: linux-parisc@vger.kernel.org 
+Cc: linux-s390@vger.kernel.org 
+Cc: linux-snps-arc@lists.infradead.org 
+Cc: linux-um@lists.infradead.org 
+Cc: linux-xtensa@linux-xtensa.org 
+Cc: uclinux-h8-devel@lists.sourceforge.jp 
