@@ -2,174 +2,180 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-18.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CEAFC6377D
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 09:22:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E59FC63797
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 09:28:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F1A546109F
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 09:22:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1534360C41
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 09:28:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231196AbhGVIlk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jul 2021 04:41:40 -0400
-Received: from mail-bn8nam12on2071.outbound.protection.outlook.com ([40.107.237.71]:19681
-        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231187AbhGVIlk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Jul 2021 04:41:40 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UWtd0WOIVAj4TGzDa+3jsL7Xv0Z2ytypnBRwos3HfCdL06XU8dVBuapbmxK/kkmpXbhW1vTJRdlDOLtAZ1nSyW2jAehaxiEVoa6LWBeF5yq3Y28xVUpommTbWnFfxyu+qHddGmiOIgVV2rpVew5ECb9/OO/mo4p/oQSsAXN2JSpK27vAwLCI46b2K7s84w2FjQb4AqbBCPMCTjog56UgxOXUi4vgLgtgcf890SH6ZO09bsneH3u/D4l8y5GyUCZQJkBNsh1uywNKJof0Cjv5ZPdnlg8L+tI2FoyNBrA1xfo4Tf3+PLB5nqKMJH32fQKiFoa+mdzMre+rqKmVF2OSXA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+TGgA2NyhK2Z6USgy9AbNzK5mA5JEL+wRR6WtBAFimU=;
- b=WvaiNoapJqW6J7PBPw3Z5b7Pl/obFmVkU5kGEuxyup+QeY9sOkTe+s2JJ11HfPK1s5zZOezma/sUPmjg9knyYM/fwtKtqwJev3wJijcG0VakYnfNfGtyKn4VegZJoZOZvc7RYYTWFk/2JuP9H72t7v2nGWI2313alVH6damiIunEOxij07261j+tztnDPNTbZLMtZAnVqK68/d3uX8TGDytoTt9JzShpUkDJmC/wriRZafhSJFjW/3u5H1LCuoWj+/nQgyO4bfbLbEh1lJfbbkZuAmc0BcFFHiILVJq18ZkXZAEw4lcxhvLIFNJe59Rzgc4KLKzh2r9GK2vLN969Ug==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.34) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+TGgA2NyhK2Z6USgy9AbNzK5mA5JEL+wRR6WtBAFimU=;
- b=l0UE+n9+hNAXeuS+DgnFpbcNlrCgI+Q7NZpDfR0fcX9tKg/TdBqiZJ4BIpgK8+n4XIbuARqSiSCZhJ+MoFQwzThwSKuGsRJowAMms7xusPbWkHng/12zuT7fkWX3gc1GDEjx1eh5CkMaWJJ3T7pDozKtyBoail3cjX6nIFcSWdJ4EZ0qG8IPIsUXMZxjjENA63LGsCbRgXRa4ZKCGt6mJNDa3tzw9zVC9hCiA6Ph2MwajqMplr+HqBwhBUXTrTEAYnSxneCx/boMgm02v+xdZFFGfCYVvX42jlHXgIVd764iTsNldGrlhwhvhqPJvXWf7Bw5fUXls1zPpVxCwsyXYA==
-Received: from MWHPR20CA0029.namprd20.prod.outlook.com (2603:10b6:300:ed::15)
- by MN2PR12MB2974.namprd12.prod.outlook.com (2603:10b6:208:c1::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4352.25; Thu, 22 Jul
- 2021 09:22:14 +0000
-Received: from CO1NAM11FT042.eop-nam11.prod.protection.outlook.com
- (2603:10b6:300:ed:cafe::f8) by MWHPR20CA0029.outlook.office365.com
- (2603:10b6:300:ed::15) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4352.25 via Frontend
- Transport; Thu, 22 Jul 2021 09:22:13 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
- smtp.mailfrom=nvidia.com; redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.34; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.34) by
- CO1NAM11FT042.mail.protection.outlook.com (10.13.174.250) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4352.24 via Frontend Transport; Thu, 22 Jul 2021 09:22:13 +0000
-Received: from [172.27.12.30] (172.20.187.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 22 Jul
- 2021 09:22:08 +0000
-Subject: Re: [PATCH 12/12] vfio/pci: Introduce vfio_pci_core.ko
-To:     Yishai Hadas <yishaih@nvidia.com>,
-        Leon Romanovsky <leonro@kernel.org>
-CC:     <bhelgaas@google.com>, <corbet@lwn.net>,
-        <alex.williamson@redhat.com>, <diana.craciun@oss.nxp.com>,
-        <kwankhede@nvidia.com>, <eric.auger@redhat.com>,
-        <masahiroy@kernel.org>, <michal.lkml@markovi.net>,
-        <linux-pci@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <linux-kbuild@vger.kernel.org>, <jgg@nvidia.com>,
-        <maorg@nvidia.com>
-References: <20210721161609.68223-1-yishaih@nvidia.com>
- <20210721161609.68223-13-yishaih@nvidia.com> <YPhb6o06fX+/FiTY@unreal>
- <0b8db422-749d-9d93-6b3b-957259f3d0cb@nvidia.com>
-From:   Max Gurtovoy <mgurtovoy@nvidia.com>
-Message-ID: <b7c19435-5abb-c5fd-383c-d0ebad11db31@nvidia.com>
-Date:   Thu, 22 Jul 2021 12:22:05 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+        id S231377AbhGVIrh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jul 2021 04:47:37 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:33071 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231376AbhGVIrg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 22 Jul 2021 04:47:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626946091;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=caunD6WBo1XAHcQhMhOqrgWHallFQMHiPgjwSWOB4fg=;
+        b=aDP0zHYdRpoWdWSnEXKM6GkxZJswIk9Pi6U8B8EckkojsR4PXk2AMDy1X5WkLkiH324CEv
+        D3rC+/SX00XwS6igPNaxu76g/42QK2uQNwXD87PJxd9cQdV6tgZaLO1gXwZvEIVxab19pL
+        0v6CXuQRMustuuCng1yOCgWA9V9vjJc=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-492-OG4VuS8vNpevgLUgmHbgGg-1; Thu, 22 Jul 2021 05:28:08 -0400
+X-MC-Unique: OG4VuS8vNpevgLUgmHbgGg-1
+Received: by mail-wr1-f70.google.com with SMTP id i12-20020adffc0c0000b0290140ab4d8389so2232604wrr.10
+        for <linux-s390@vger.kernel.org>; Thu, 22 Jul 2021 02:28:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=caunD6WBo1XAHcQhMhOqrgWHallFQMHiPgjwSWOB4fg=;
+        b=fCKp2fes6SNtbSln4JFOs0TOOwN2F6kNGnQws5JTQgbdzdA/c62EYBWdb7vBM7hCaZ
+         PeD3UztiYd2DBZ8/Z22bPavw1JUWNMdKZKfjbdQDp3m54OnOGTGjrurt/lE8Ph3jM/Sy
+         kNh/46+AmAGQBUH9Pznv5Ogf+zp2obBjaiS6xp0WzUV9LQeRVsu4tff2vM+scdudqHWn
+         BdeYqIg7SyQgFcox+3s6jy4pDw9i0d/mx5PhQlpX/RyTvPL/HJyzfHYyQ9XsyH/VOqL4
+         EQIOzma2QhMT9LqHMe+MtPG75IYrekT6YOlM8FLqaSS6htVQ1s7ZZLNQILltJvpzKhgg
+         EFBA==
+X-Gm-Message-State: AOAM531zEYKVKpVrKNdiXe8BTbx8Xe4fpgqqmPsOyckwR2mxpEKm1iG5
+        dvM6jufeUB2DFyiKJloQjoU+f603PEgp6VLQ3Z1ma1nyJrFl20kmpPV6sZEgHniL72s1ms30X/t
+        zY9SUTGoQZaXKfurJIabrC+ED8fIuOJqDstkFLoY8Ao9Syb4C1CFNf7VUgbro+2aAw8Xtsg==
+X-Received: by 2002:adf:eb4c:: with SMTP id u12mr48930647wrn.111.1626946087127;
+        Thu, 22 Jul 2021 02:28:07 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy7qEZuQMFJaccMc+yDMrFgFAX3BPD4rQhg/6jaiTrWYa3o98JI+tj1Q4/VvrDgcYk2nAWs4A==
+X-Received: by 2002:adf:eb4c:: with SMTP id u12mr48930623wrn.111.1626946086932;
+        Thu, 22 Jul 2021 02:28:06 -0700 (PDT)
+Received: from thuth.remote.csb (pd9e83f5d.dip0.t-ipconnect.de. [217.232.63.93])
+        by smtp.gmail.com with ESMTPSA id 140sm24964988wmb.43.2021.07.22.02.28.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 22 Jul 2021 02:28:06 -0700 (PDT)
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20210706115724.372901-1-scgl@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH] s390x: Add specification exception
+ interception test
+Message-ID: <709f6326-efcb-d359-bfac-59a162473c91@redhat.com>
+Date:   Thu, 22 Jul 2021 11:28:05 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <0b8db422-749d-9d93-6b3b-957259f3d0cb@nvidia.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210706115724.372901-1-scgl@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-X-Originating-IP: [172.20.187.5]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 48cfaa95-c3a8-4d88-e5fa-08d94cf230db
-X-MS-TrafficTypeDiagnostic: MN2PR12MB2974:
-X-Microsoft-Antispam-PRVS: <MN2PR12MB29747B3958A5DA1BE343CF9FDEE49@MN2PR12MB2974.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: ASvWfhW0Dms8jY9SkVLM4W42n/gnTYMzpWthtM4mJ+0vWFeqAQqVR1s+OaespoQb9vLa1lynKupNAEPfB3dFQORqVperknu2xDorDVPMc4oVECrHVENpHjigRxQEGE22ze3j3hp8jE0FNUSMqB4n9r92On39jDFNMcnrMqryNnE1JyYzPsYCmchl3tMZ94MxdNYwilm8+WLXAuOBmz7p1PW2Vuz4hKRX2zvFoahiPNwR5kyyTjxAbjp6tIupnemar/5AhPEoN3YH07ODg2koq5dZv+MAa3kn+5LzAs9PRe90dBkEbCzRAJtaNAA0BuF9t0ZALASjQgEXDZBKAi/FzkAPQsZ5tWBGO4mzKthNjF79m5ZndyO0c14HoHozLGGWKixBtr/ljJo9fauJeuyajCstWy4AqrA2AI8tGGOH+LZ9iehTNCy9exUwjW6BnBbeotUQgzZ/6ZFoq6LY4wf0QuZE4fQhNGZTGPwF5iTAknaapHdGZcIz8fKHjHtqxi2Smswx2gJXFbhrQQUHUPV9xxNX540akBOWewxpOGsS5x35bHyX9OiIaLOrQwEnN/8EO+wRx/EaT/m9fFvmYEQzVHTRGpcL9/fx1MZEju3yYSD3IY68lwl5qS8KdrK7POh3/HqzWLSjiDYE7EG6vKWLKL8jPSTKQuIOyZguQIfWcfgyf7BinJq5Zs2UCivtd1i8lV2/RB8w5f4aPfLtFsFFir+dAoHb5k+2ot/Wl5u4VjU=
-X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(36860700001)(356005)(508600001)(82310400003)(36756003)(186003)(7636003)(36906005)(2616005)(16526019)(8676002)(26005)(53546011)(107886003)(16576012)(4326008)(83380400001)(8936002)(336012)(47076005)(2906002)(86362001)(31696002)(316002)(70206006)(31686004)(6666004)(54906003)(5660300002)(7416002)(70586007)(426003)(110136005)(43740500002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Jul 2021 09:22:13.4150
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 48cfaa95-c3a8-4d88-e5fa-08d94cf230db
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT042.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB2974
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 06/07/2021 13.57, Janis Schoetterl-Glausch wrote:
+> Check that specification exceptions cause intercepts when
+> specification exception interpretation is off.
+> Check that specification exceptions caused by program new PSWs
+> cause interceptions.
+> We cannot assert that non program new PSW specification exceptions
+> are interpreted because whether interpretation occurs or not is
+> configuration dependent.
+> 
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> ---
+> The patch is based on the following patch sets by Janosch:
+> [kvm-unit-tests PATCH 0/5] s390x: sie and uv cleanups
+> [kvm-unit-tests PATCH v2 0/3] s390x: Add snippet support
+> 
+>   s390x/Makefile             |  2 +
+>   lib/s390x/sie.h            |  1 +
+>   s390x/snippets/c/spec_ex.c | 13 ++++++
+>   s390x/spec_ex-sie.c        | 91 ++++++++++++++++++++++++++++++++++++++
+>   s390x/unittests.cfg        |  3 ++
+>   5 files changed, 110 insertions(+)
+>   create mode 100644 s390x/snippets/c/spec_ex.c
+>   create mode 100644 s390x/spec_ex-sie.c
+> 
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index 07af26d..b1b6536 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -24,6 +24,7 @@ tests += $(TEST_DIR)/mvpg.elf
+>   tests += $(TEST_DIR)/uv-host.elf
+>   tests += $(TEST_DIR)/edat.elf
+>   tests += $(TEST_DIR)/mvpg-sie.elf
+> +tests += $(TEST_DIR)/spec_ex-sie.elf
+>   
+>   tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>   ifneq ($(HOST_KEY_DOCUMENT),)
+> @@ -84,6 +85,7 @@ snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
+>   # perquisites (=guests) for the snippet hosts.
+>   # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
+>   $(TEST_DIR)/mvpg-sie.elf: snippets = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
+> +$(TEST_DIR)/spec_ex-sie.elf: snippets = $(SNIPPET_DIR)/c/spec_ex.gbin
+>   
+>   $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o $(FLATLIBS)
+>   	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
+> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+> index 6ba858a..a3b8623 100644
+> --- a/lib/s390x/sie.h
+> +++ b/lib/s390x/sie.h
+> @@ -98,6 +98,7 @@ struct kvm_s390_sie_block {
+>   	uint8_t		fpf;			/* 0x0060 */
+>   #define ECB_GS		0x40
+>   #define ECB_TE		0x10
+> +#define ECB_SPECI	0x08
+>   #define ECB_SRSI	0x04
+>   #define ECB_HOSTPROTINT	0x02
+>   	uint8_t		ecb;			/* 0x0061 */
+> diff --git a/s390x/snippets/c/spec_ex.c b/s390x/snippets/c/spec_ex.c
+> new file mode 100644
+> index 0000000..f2daab5
+> --- /dev/null
+> +++ b/s390x/snippets/c/spec_ex.c
 
-On 7/22/2021 12:06 PM, Yishai Hadas wrote:
-> On 7/21/2021 8:39 PM, Leon Romanovsky wrote:
->> On Wed, Jul 21, 2021 at 07:16:09PM +0300, Yishai Hadas wrote:
->>> From: Max Gurtovoy <mgurtovoy@nvidia.com>
->>>
->>> Now that vfio_pci has been split into two source modules, one focusing
->>> on the "struct pci_driver" (vfio_pci.c) and a toolbox library of code
->>> (vfio_pci_core.c), complete the split and move them into two different
->>> kernel modules.
->>>
->>> As before vfio_pci.ko continues to present the same interface under
->>> sysfs and this change will have no functional impact.
->>>
->>> Splitting into another module and adding exports allows creating new HW
->>> specific VFIO PCI drivers that can implement device specific
->>> functionality, such as VFIO migration interfaces or specialized device
->>> requirements.
->>>
->>> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
->>> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
->>> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
->>> ---
->>>   drivers/vfio/pci/Kconfig                      | 30 ++++++++------
->>>   drivers/vfio/pci/Makefile                     |  8 ++--
->>>   drivers/vfio/pci/vfio_pci.c                   | 14 ++-----
->>>   drivers/vfio/pci/vfio_pci_config.c            |  2 +-
->>>   drivers/vfio/pci/vfio_pci_core.c              | 41 
->>> ++++++++++++++++---
->>>   drivers/vfio/pci/vfio_pci_igd.c               |  2 +-
->>>   drivers/vfio/pci/vfio_pci_intrs.c             |  2 +-
->>>   drivers/vfio/pci/vfio_pci_rdwr.c              |  2 +-
->>>   drivers/vfio/pci/vfio_pci_zdev.c              |  2 +-
->>>   .../pci => include/linux}/vfio_pci_core.h     |  2 -
->>>   10 files changed, 66 insertions(+), 39 deletions(-)
->>>   rename {drivers/vfio/pci => include/linux}/vfio_pci_core.h (99%)
->> <...>
->>
->>> -#include "vfio_pci_core.h"
->>> +#include <linux/vfio_pci_core.h>
->>> +
->>> +#define DRIVER_VERSION  "0.2"
->> <...>
->>
->>> +MODULE_VERSION(DRIVER_VERSION);
->> Please don't add driver versions to the upstream kernel, they useless.
->>
->> Thanks
->
-> This just preserves the code for driver/module version that was in 
-> vfio_pci.ko before the split.
->
-> However,  this can be removed in V2 if we may need to have.
+Please add a short header comment with the basic idea here + license 
+information (e.g. SPDX identifier). Also in the other new file that you 
+introduce in this patch.
 
-Right, we already agreed to preserve vfio_pci versioning scheme and 
-we'll not add it to new mlx5_vfio_pci or future drivers.
+> @@ -0,0 +1,13 @@
+> +#include <stdint.h>
+> +#include <asm/arch_def.h>
+> +
+> +__attribute__((section(".text"))) int main(void)
+> +{
+> +	uint64_t bad_psw = 0;
+> +	struct psw *pgm_new = (struct psw *)464;
 
+Is it possible to use the lib/s390x/asm/arch_def.h in snippets? If so, I'd 
+vote for using &lowcore->pgm_new_psw instead of the magic number 464.
 
->
-> Yishai
->
+> +	pgm_new->mask = 1UL << (63 - 12); //invalid program new PSW
+
+Please add a space after the //
+(also in the other spots in this patch)
+
+> +	pgm_new->addr = 0xdeadbeef;
+
+Are we testing the mask or the addr here? If we're testing the mask, I'd 
+rather use an even addr here to make sure that we do not trap because of the 
+uneven address. Or do we just don't care?
+
+> +	asm volatile ("lpsw %0" :: "Q"(bad_psw));
+> +	return 0;
+> +}
+
+  Thomas
+
