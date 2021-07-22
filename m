@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 923B0C63799
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD383C6379A
 	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 13:04:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B8C160FE9
+	by mail.kernel.org (Postfix) with ESMTP id 92A4761285
 	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 13:04:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232072AbhGVMX7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jul 2021 08:23:59 -0400
-Received: from verein.lst.de ([213.95.11.211]:34159 "EHLO verein.lst.de"
+        id S232112AbhGVMYC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jul 2021 08:24:02 -0400
+Received: from verein.lst.de ([213.95.11.211]:34185 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232122AbhGVMWz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Jul 2021 08:22:55 -0400
+        id S232085AbhGVMXH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 22 Jul 2021 08:23:07 -0400
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id 951C768CFE; Thu, 22 Jul 2021 15:02:41 +0200 (CEST)
-Date:   Thu, 22 Jul 2021 15:02:41 +0200
+        id 1804968D05; Thu, 22 Jul 2021 15:03:40 +0200 (CEST)
+Date:   Thu, 22 Jul 2021 15:03:39 +0200
 From:   Christoph Hellwig <hch@lst.de>
 To:     Arnd Bergmann <arnd@kernel.org>
 Cc:     linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
@@ -48,24 +48,32 @@ Cc:     linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
         linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
         uclinux-h8-devel@lists.sourceforge.jp
-Subject: Re: [PATCH v3 8/9] asm-generic: remove extra
- strn{cpy_from,len}_user declarations
-Message-ID: <20210722130241.GH26225@lst.de>
-References: <20210722124814.778059-1-arnd@kernel.org> <20210722124814.778059-9-arnd@kernel.org>
+Subject: Re: [PATCH v3 9/9] asm-generic: reverse
+ GENERIC_{STRNCPY_FROM,STRNLEN}_USER symbols
+Message-ID: <20210722130339.GI26225@lst.de>
+References: <20210722124814.778059-1-arnd@kernel.org> <20210722124814.778059-10-arnd@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210722124814.778059-9-arnd@kernel.org>
+In-Reply-To: <20210722124814.778059-10-arnd@kernel.org>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 22, 2021 at 02:48:13PM +0200, Arnd Bergmann wrote:
+On Thu, Jul 22, 2021 at 02:48:14PM +0200, Arnd Bergmann wrote:
 > From: Arnd Bergmann <arnd@arndb.de>
 > 
-> As these are now in asm-generic, it's no longer necessary to
-> declare them in the architecture.
+> Most architectures do not need a custom implementation, and in most
+> cases the generic implementation is preferred, so change the polariy
+> on these Kconfig symbols to require architectures to select them when
+> they provide their own version.
+> 
+> The new name is CONFIG_ARCH_HAS_{STRNCPY_FROM,STRNLEN}_USER.
+> 
+> The remaining architectures at the moment are: ia64, mips, parisc,
+> s390, um and xtensa. We should probably convert these as well, but
+> I was not sure how far to take this series.
 
 Looks good,
 
