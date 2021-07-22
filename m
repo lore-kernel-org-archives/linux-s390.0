@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-20.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF76AC63799
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 12:49:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E90CBC6379C
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 12:49:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CAAC16136D
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 12:49:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7F8D261369
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 12:49:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231960AbhGVMId (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jul 2021 08:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60808 "EHLO mail.kernel.org"
+        id S231994AbhGVMIh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jul 2021 08:08:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231910AbhGVMI0 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Jul 2021 08:08:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 315F061358;
-        Thu, 22 Jul 2021 12:48:53 +0000 (UTC)
+        id S231971AbhGVMIf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 22 Jul 2021 08:08:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A72DD61364;
+        Thu, 22 Jul 2021 12:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626958138;
-        bh=2OoIl2Wd/QvZGg10KzfAX7UXvogvE9tKMxysyn7xw0I=;
+        s=k20201202; t=1626958150;
+        bh=65tsEwW3CSKPEMHE16jlRd63QonTaTSPGaWpCNuisBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJhwBQzCwfR7BNUpi5PyutoZEFrNsalZCQLjHBp6+IX0t7r6V3tttMQMiWyBWhaq2
-         riKgOLCZM2T2JCFAVl7B4dMEeOTZmXMmwknnNCfWwKe2x6cb+ZW1BCC2NEeS61MdQR
-         g2225FyJUKhPalxpLKBuD6RYUkK6ggpH+fnvO1q3YpQVCTNIVn9124gfm5Qmw/fP5b
-         tRIBMtsFmHlct/utf5j/61K8DBLE8QQfeCJPwuwgIj2+xrciM2C6TNRUjb0V72h9yj
-         RtE/63m0mmO8LEIFBHrZluRFc4frhJCBBxg4cEFGzUTvIelzilFY/RIgP95ohrLm55
-         4LWjS8IW9/l0g==
+        b=Umcn3aLdmT58YL25nQIdnojBjQ0tfYBM41/WDsdS4dXmBGYMjrkkDTPCWjF/reSIX
+         wtiHyhC8LTgCD/Ekg4z8p52KSPagGnExoOvySs1pJOdYjwAVlp5aYzkXpxMrK7vUzV
+         mFcbj+edq2DS8NNCU4yUnnnefDBrPz/XYjyobnB77tc7YOgFGNlfI8UP+tmAFaHN46
+         yHXT41GcFDbZCJfGypi8G8DOsdDRA88nY83zsQRLeDJsizmzeIiVUPdsohzuFHPrrk
+         y6QhM3j3X6ow4iG+90w9dmFSgURM6lBybCHHlN/PK7+hb2yxdz3PCWUUw89+2W79o8
+         ekpwk10Ct+RKQ==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     linux-arch@vger.kernel.org
 Cc:     Arnd Bergmann <arnd@arndb.de>,
@@ -57,9 +57,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
         linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
         uclinux-h8-devel@lists.sourceforge.jp
-Subject: [PATCH v3 1/9] asm-generic/uaccess.h: remove __strncpy_from_user/__strnlen_user
-Date:   Thu, 22 Jul 2021 14:48:06 +0200
-Message-Id: <20210722124814.778059-2-arnd@kernel.org>
+Subject: [PATCH v3 3/9] hexagon: use generic strncpy/strnlen from_user
+Date:   Thu, 22 Jul 2021 14:48:08 +0200
+Message-Id: <20210722124814.778059-4-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210722124814.778059-1-arnd@kernel.org>
 References: <20210722124814.778059-1-arnd@kernel.org>
@@ -71,326 +71,237 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-This is a preparation for changing over architectures to the
-generic implementation one at a time. As there are no callers
-of either __strncpy_from_user() or __strnlen_user(), fold these
-into the strncpy_from_user() and strnlen_user() functions to make
-each implementation independent of the others.
-
-Many of these implementations have known bugs, but the intention
-here is to not change behavior at all and stay compatible with
-those bugs for the moment.
+Remove the hexagon implementation of strncpy/strnlen and instead use
+the generic version.  The hexagon version reads the data twice for
+strncpy() by doing an extra strnlen(), and it apparently lacks a check
+for user_addr_max().
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arc/include/asm/uaccess.h     | 14 ++++++++++----
- arch/csky/include/asm/uaccess.h    |  8 ++++----
- arch/csky/lib/usercopy.c           | 14 ++++++++++----
- arch/hexagon/include/asm/uaccess.h | 22 +++++++++++++---------
- arch/um/include/asm/uaccess.h      |  8 ++++----
- arch/um/kernel/skas/uaccess.c      | 14 ++++++++++----
- include/asm-generic/uaccess.h      | 28 +++++++++++-----------------
- 7 files changed, 62 insertions(+), 46 deletions(-)
+ arch/hexagon/Kconfig                |   2 +
+ arch/hexagon/include/asm/uaccess.h  |  33 +-------
+ arch/hexagon/kernel/hexagon_ksyms.c |   1 -
+ arch/hexagon/mm/Makefile            |   2 +-
+ arch/hexagon/mm/strnlen_user.S      | 126 ----------------------------
+ 5 files changed, 5 insertions(+), 159 deletions(-)
+ delete mode 100644 arch/hexagon/mm/strnlen_user.S
 
-diff --git a/arch/arc/include/asm/uaccess.h b/arch/arc/include/asm/uaccess.h
-index ea40ec7f6cae..3476348f361e 100644
---- a/arch/arc/include/asm/uaccess.h
-+++ b/arch/arc/include/asm/uaccess.h
-@@ -661,6 +661,9 @@ __arc_strncpy_from_user(char *dst, const char __user *src, long count)
- 	long res = 0;
- 	char val;
- 
-+	if (!access_ok(src, 1))
-+		return -EFAULT;
-+
- 	if (count == 0)
- 		return 0;
- 
-@@ -693,6 +696,9 @@ static inline long __arc_strnlen_user(const char __user *s, long n)
- 	long res, tmp1, cnt;
- 	char val;
- 
-+	if (!access_ok(s, 1))
-+		return 0;
-+
- 	__asm__ __volatile__(
- 	"	mov %2, %1			\n"
- 	"1:	ldb.ab  %3, [%0, 1]		\n"
-@@ -724,8 +730,8 @@ static inline long __arc_strnlen_user(const char __user *s, long n)
- #define INLINE_COPY_FROM_USER
- 
- #define __clear_user(d, n)		__arc_clear_user(d, n)
--#define __strncpy_from_user(d, s, n)	__arc_strncpy_from_user(d, s, n)
--#define __strnlen_user(s, n)		__arc_strnlen_user(s, n)
-+#define strncpy_from_user(d, s, n)	__arc_strncpy_from_user(d, s, n)
-+#define strnlen_user(s, n)		__arc_strnlen_user(s, n)
- #else
- extern unsigned long arc_clear_user_noinline(void __user *to,
- 		unsigned long n);
-@@ -734,8 +740,8 @@ extern long arc_strncpy_from_user_noinline (char *dst, const char __user *src,
- extern long arc_strnlen_user_noinline(const char __user *src, long n);
- 
- #define __clear_user(d, n)		arc_clear_user_noinline(d, n)
--#define __strncpy_from_user(d, s, n)	arc_strncpy_from_user_noinline(d, s, n)
--#define __strnlen_user(s, n)		arc_strnlen_user_noinline(s, n)
-+#define strncpy_from_user(d, s, n)	arc_strncpy_from_user_noinline(d, s, n)
-+#define strnlen_user(s, n)		arc_strnlen_user_noinline(s, n)
- 
- #endif
- 
-diff --git a/arch/csky/include/asm/uaccess.h b/arch/csky/include/asm/uaccess.h
-index ac83823fc437..e17c02a6709f 100644
---- a/arch/csky/include/asm/uaccess.h
-+++ b/arch/csky/include/asm/uaccess.h
-@@ -209,11 +209,11 @@ unsigned long raw_copy_to_user(void *to, const void *from, unsigned long n);
- unsigned long __clear_user(void __user *to, unsigned long n);
- #define __clear_user __clear_user
- 
--long __strncpy_from_user(char *dst, const char *src, long count);
--#define __strncpy_from_user __strncpy_from_user
-+long strncpy_from_user(char *dst, const char *src, long count);
-+#define strncpy_from_user strncpy_from_user
- 
--long __strnlen_user(const char *s, long n);
--#define __strnlen_user __strnlen_user
-+long strnlen_user(const char *s, long n);
-+#define strnlen_user strnlen_user
- 
- #include <asm/segment.h>
- #include <asm-generic/uaccess.h>
-diff --git a/arch/csky/lib/usercopy.c b/arch/csky/lib/usercopy.c
-index c5d394a0ae78..938b750d2fb1 100644
---- a/arch/csky/lib/usercopy.c
-+++ b/arch/csky/lib/usercopy.c
-@@ -163,11 +163,14 @@ EXPORT_SYMBOL(raw_copy_to_user);
-  * If @count is smaller than the length of the string, copies @count bytes
-  * and returns @count.
-  */
--long __strncpy_from_user(char *dst, const char *src, long count)
-+long strncpy_from_user(char *dst, const char *src, long count)
- {
- 	long res, faultres;
- 	int tmp;
- 
-+	if (!access_ok(src, 1))
-+		return -EFAULT;
-+
- 	__asm__ __volatile__(
- 	"       cmpnei  %3, 0           \n"
- 	"       bf      4f              \n"
-@@ -198,7 +201,7 @@ long __strncpy_from_user(char *dst, const char *src, long count)
- 
- 	return res;
- }
--EXPORT_SYMBOL(__strncpy_from_user);
-+EXPORT_SYMBOL(strncpy_from_user);
- 
- /*
-  * strnlen_user: - Get the size of a string in user space.
-@@ -211,10 +214,13 @@ EXPORT_SYMBOL(__strncpy_from_user);
-  * On exception, returns 0.
-  * If the string is too long, returns a value greater than @n.
-  */
--long __strnlen_user(const char *s, long n)
-+long strnlen_user(const char *s, long n)
- {
- 	unsigned long res, tmp;
- 
-+	if (!access_ok(src, 1))
-+		return -EFAULT;
-+
- 	__asm__ __volatile__(
- 	"       cmpnei  %1, 0           \n"
- 	"       bf      3f              \n"
-@@ -242,7 +248,7 @@ long __strnlen_user(const char *s, long n)
- 
- 	return res;
- }
--EXPORT_SYMBOL(__strnlen_user);
-+EXPORT_SYMBOL(strnlen_user);
- 
- /*
-  * __clear_user: - Zero a block of memory in user space, with less checking.
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index e5a852080730..3bf4845fed4b 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -19,6 +19,8 @@ config HEXAGON
+ 	# GENERIC_ALLOCATOR is used by dma_alloc_coherent()
+ 	select GENERIC_ALLOCATOR
+ 	select GENERIC_IRQ_SHOW
++	select GENERIC_STRNCPY_FROM_USER
++	select GENERIC_STRNLEN_USER
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_TRACEHOOK
+ 	select NEED_SG_DMA_LENGTH
 diff --git a/arch/hexagon/include/asm/uaccess.h b/arch/hexagon/include/asm/uaccess.h
-index c1019a736ff1..59aa3a50744f 100644
+index 59aa3a50744f..d950df12d8c5 100644
 --- a/arch/hexagon/include/asm/uaccess.h
 +++ b/arch/hexagon/include/asm/uaccess.h
-@@ -57,23 +57,27 @@ unsigned long raw_copy_to_user(void __user *to, const void *from,
+@@ -57,42 +57,13 @@ unsigned long raw_copy_to_user(void __user *to, const void *from,
  __kernel_size_t __clear_user_hexagon(void __user *dest, unsigned long count);
  #define __clear_user(a, s) __clear_user_hexagon((a), (s))
  
--#define __strncpy_from_user(dst, src, n) hexagon_strncpy_from_user(dst, src, n)
-+extern long __strnlen_user(const char __user *src, long n);
- 
--/*  get around the ifndef in asm-generic/uaccess.h  */
--#define __strnlen_user __strnlen_user
-+static inline strnlen_user(const char __user *src, long n)
-+{
-+        if (!access_ok(src, 1))
-+		return 0;
- 
 -extern long __strnlen_user(const char __user *src, long n);
-+	return __strnlen_user(src, n);
-+}
-+/*  get around the ifndef in asm-generic/uaccess.h  */
-+#define strnlen_user strnlen_user
+-
+-static inline strnlen_user(const char __user *src, long n)
+-{
+-        if (!access_ok(src, 1))
+-		return 0;
+-
+-	return __strnlen_user(src, n);
+-}
+-/*  get around the ifndef in asm-generic/uaccess.h  */
++extern long strnlen_user(const char __user *src, long n);
+ #define strnlen_user strnlen_user
  
--static inline long hexagon_strncpy_from_user(char *dst, const char __user *src,
--					     long n);
-+static inline long strncpy_from_user(char *dst, const char __user *src, long n);
-+#define strncpy_from_user strncpy_from_user
+-static inline long strncpy_from_user(char *dst, const char __user *src, long n);
++extern long strncpy_from_user(char *dst, const char __user *src, long n)
+ #define strncpy_from_user strncpy_from_user
  
  #include <asm-generic/uaccess.h>
  
- /*  Todo:  an actual accelerated version of this.  */
--static inline long hexagon_strncpy_from_user(char *dst, const char __user *src,
--					     long n)
-+static inline long strncpy_from_user(char *dst, const char __user *src, long n)
- {
--	long res = __strnlen_user(src, n);
-+	long res = strnlen_user(src, n);
- 
- 	if (unlikely(!res))
- 		return -EFAULT;
-diff --git a/arch/um/include/asm/uaccess.h b/arch/um/include/asm/uaccess.h
-index fe66d659acad..3bf209f683f8 100644
---- a/arch/um/include/asm/uaccess.h
-+++ b/arch/um/include/asm/uaccess.h
-@@ -23,16 +23,16 @@
- 
- extern unsigned long raw_copy_from_user(void *to, const void __user *from, unsigned long n);
- extern unsigned long raw_copy_to_user(void __user *to, const void *from, unsigned long n);
--extern long __strncpy_from_user(char *dst, const char __user *src, long count);
--extern long __strnlen_user(const void __user *str, long len);
-+extern long strncpy_from_user(char *dst, const char __user *src, long count);
-+extern long strnlen_user(const void __user *str, long len);
- extern unsigned long __clear_user(void __user *mem, unsigned long len);
- static inline int __access_ok(unsigned long addr, unsigned long size);
- 
- /* Teach asm-generic/uaccess.h that we have C functions for these. */
- #define __access_ok __access_ok
- #define __clear_user __clear_user
--#define __strnlen_user __strnlen_user
--#define __strncpy_from_user __strncpy_from_user
-+#define strnlen_user strnlen_user
-+#define strncpy_from_user strncpy_from_user
- #define INLINE_COPY_FROM_USER
- #define INLINE_COPY_TO_USER
- 
-diff --git a/arch/um/kernel/skas/uaccess.c b/arch/um/kernel/skas/uaccess.c
-index 6c76df96e858..fc2c7e961e72 100644
---- a/arch/um/kernel/skas/uaccess.c
-+++ b/arch/um/kernel/skas/uaccess.c
-@@ -189,11 +189,14 @@ static int strncpy_chunk_from_user(unsigned long from, int len, void *arg)
- 	return 0;
- }
- 
--long __strncpy_from_user(char *dst, const char __user *src, long count)
-+long strncpy_from_user(char *dst, const char __user *src, long count)
- {
- 	long n;
- 	char *ptr = dst;
- 
-+	if (!access_ok(src, 1))
-+		return -EFAULT;
-+
- 	if (uaccess_kernel()) {
- 		strncpy(dst, (__force void *) src, count);
- 		return strnlen(dst, count);
-@@ -205,7 +208,7 @@ long __strncpy_from_user(char *dst, const char __user *src, long count)
- 		return -EFAULT;
- 	return strnlen(dst, count);
- }
--EXPORT_SYMBOL(__strncpy_from_user);
-+EXPORT_SYMBOL(strncpy_from_user);
- 
- static int clear_chunk(unsigned long addr, int len, void *unused)
- {
-@@ -236,10 +239,13 @@ static int strnlen_chunk(unsigned long str, int len, void *arg)
- 	return 0;
- }
- 
--long __strnlen_user(const void __user *str, long len)
-+long strnlen_user(const void __user *str, long len)
- {
- 	int count = 0, n;
- 
-+	if (!access_ok(src, 1))
-+		return -EFAULT;
-+
- 	if (uaccess_kernel())
- 		return strnlen((__force char*)str, len) + 1;
- 
-@@ -248,7 +254,7 @@ long __strnlen_user(const void __user *str, long len)
- 		return count + 1;
- 	return 0;
- }
--EXPORT_SYMBOL(__strnlen_user);
-+EXPORT_SYMBOL(strnlen_user);
- 
- /**
-  * arch_futex_atomic_op_inuser() - Atomic arithmetic operation with constant
-diff --git a/include/asm-generic/uaccess.h b/include/asm-generic/uaccess.h
-index a0b2f270dddc..2f8a5d3bbd57 100644
---- a/include/asm-generic/uaccess.h
-+++ b/include/asm-generic/uaccess.h
-@@ -246,11 +246,15 @@ extern int __get_user_bad(void) __attribute__((noreturn));
- /*
-  * Copy a null terminated string from userspace.
-  */
--#ifndef __strncpy_from_user
-+#ifndef strncpy_from_user
- static inline long
--__strncpy_from_user(char *dst, const char __user *src, long count)
-+strncpy_from_user(char *dst, const char __user *src, long count)
- {
- 	char *tmp;
-+
-+	if (!access_ok(src, 1))
-+		return -EFAULT;
-+
- 	strncpy(dst, (const char __force *)src, count);
- 	for (tmp = dst; *tmp && count > 0; tmp++, count--)
- 		;
-@@ -258,24 +262,12 @@ __strncpy_from_user(char *dst, const char __user *src, long count)
- }
- #endif
- 
--static inline long
--strncpy_from_user(char *dst, const char __user *src, long count)
+-/*  Todo:  an actual accelerated version of this.  */
+-static inline long strncpy_from_user(char *dst, const char __user *src, long n)
 -{
--	if (!access_ok(src, 1))
--		return -EFAULT;
--	return __strncpy_from_user(dst, src, count);
--}
+-	long res = strnlen_user(src, n);
 -
-+#ifndef strnlen_user
- /*
-  * Return the size of a string (including the ending 0)
-  *
-  * Return 0 on exception, a value greater than N if too long
+-	if (unlikely(!res))
+-		return -EFAULT;
+-
+-	if (res > n) {
+-		long left = raw_copy_from_user(dst, src, n);
+-		if (unlikely(left))
+-			memset(dst + (n - left), 0, left);
+-		return n;
+-	} else {
+-		long left = raw_copy_from_user(dst, src, res);
+-		if (unlikely(left))
+-			memset(dst + (res - left), 0, left);
+-		return res-1;
+-	}
+-}
+ 
+ #endif
+diff --git a/arch/hexagon/kernel/hexagon_ksyms.c b/arch/hexagon/kernel/hexagon_ksyms.c
+index 35545a7386a0..ec56ce2d92a2 100644
+--- a/arch/hexagon/kernel/hexagon_ksyms.c
++++ b/arch/hexagon/kernel/hexagon_ksyms.c
+@@ -15,7 +15,6 @@ EXPORT_SYMBOL(__clear_user_hexagon);
+ EXPORT_SYMBOL(raw_copy_from_user);
+ EXPORT_SYMBOL(raw_copy_to_user);
+ EXPORT_SYMBOL(iounmap);
+-EXPORT_SYMBOL(__strnlen_user);
+ EXPORT_SYMBOL(__vmgetie);
+ EXPORT_SYMBOL(__vmsetie);
+ EXPORT_SYMBOL(__vmyield);
+diff --git a/arch/hexagon/mm/Makefile b/arch/hexagon/mm/Makefile
+index 893838499591..49911a906fd0 100644
+--- a/arch/hexagon/mm/Makefile
++++ b/arch/hexagon/mm/Makefile
+@@ -4,4 +4,4 @@
+ #
+ 
+ obj-y := init.o ioremap.o uaccess.o vm_fault.o cache.o
+-obj-y += copy_to_user.o copy_from_user.o strnlen_user.o vm_tlb.o
++obj-y += copy_to_user.o copy_from_user.o vm_tlb.o
+diff --git a/arch/hexagon/mm/strnlen_user.S b/arch/hexagon/mm/strnlen_user.S
+deleted file mode 100644
+index 4b5574a7cc9c..000000000000
+--- a/arch/hexagon/mm/strnlen_user.S
++++ /dev/null
+@@ -1,126 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- * User string length functions for kernel
+- *
+- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
 - */
--#ifndef __strnlen_user
--#define __strnlen_user(s, n) (strnlen((s), (n)) + 1)
--#endif
+-
+-#define isrc	r0
+-#define max	r1	/*  Do not change!  */
+-
+-#define end	r2
+-#define tmp1	r3
+-
+-#define obo	r6	/*  off-by-one  */
+-#define start	r7
+-#define mod8	r8
+-#define dbuf    r15:14
+-#define dcmp	r13:12
 -
 -/*
-+ *
-  * Unlike strnlen, strnlen_user includes the nul terminator in
-  * its returned count. Callers should check for a returned value
-  * greater than N as an indication the string is too long.
-@@ -284,8 +276,10 @@ static inline long strnlen_user(const char __user *src, long n)
- {
- 	if (!access_ok(src, 1))
- 		return 0;
--	return __strnlen_user(src, n);
-+
-+	return strnlen(src, n) + 1;
- }
-+#endif
- 
- /*
-  * Zero Userspace
+- * The vector mask version of this turned out *really* badly.
+- * The hardware loop version also turned out *really* badly.
+- * Seems straight pointer arithmetic basically wins here.
+- */
+-
+-#define fname __strnlen_user
+-
+-	.text
+-	.global fname
+-	.type fname, @function
+-	.p2align 5  /*  why?  */
+-fname:
+-	{
+-		mod8 = and(isrc,#7);
+-		end = add(isrc,max);
+-		start = isrc;
+-	}
+-	{
+-		P0 = cmp.eq(mod8,#0);
+-		mod8 = and(end,#7);
+-		dcmp = #0;
+-		if (P0.new) jump:t dw_loop;	/*  fire up the oven  */
+-	}
+-
+-alignment_loop:
+-fail_1:	{
+-		tmp1 = memb(start++#1);
+-	}
+-	{
+-		P0 = cmp.eq(tmp1,#0);
+-		if (P0.new) jump:nt exit_found;
+-		P1 = cmp.gtu(end,start);
+-		mod8 = and(start,#7);
+-	}
+-	{
+-		if (!P1) jump exit_error;  /*  hit the end  */
+-		P0 = cmp.eq(mod8,#0);
+-	}
+-	{
+-		if (!P0) jump alignment_loop;
+-	}
+-
+-
+-
+-dw_loop:
+-fail_2:	{
+-		dbuf = memd(start);
+-		obo = add(start,#1);
+-	}
+-	{
+-		P0 = vcmpb.eq(dbuf,dcmp);
+-	}
+-	{
+-		tmp1 = P0;
+-		P0 = cmp.gtu(end,start);
+-	}
+-	{
+-		tmp1 = ct0(tmp1);
+-		mod8 = and(end,#7);
+-		if (!P0) jump end_check;
+-	}
+-	{
+-		P0 = cmp.eq(tmp1,#32);
+-		if (!P0.new) jump:nt exit_found;
+-		if (!P0.new) start = add(obo,tmp1);
+-	}
+-	{
+-		start = add(start,#8);
+-		jump dw_loop;
+-	}	/*  might be nice to combine these jumps...   */
+-
+-
+-end_check:
+-	{
+-		P0 = cmp.gt(tmp1,mod8);
+-		if (P0.new) jump:nt exit_error;	/*  neverfound!  */
+-		start = add(obo,tmp1);
+-	}
+-
+-exit_found:
+-	{
+-		R0 = sub(start,isrc);
+-		jumpr R31;
+-	}
+-
+-exit_error:
+-	{
+-		R0 = add(max,#1);
+-		jumpr R31;
+-	}
+-
+-	/*  Uh, what does the "fixup" return here?  */
+-	.falign
+-fix_1:
+-	{
+-		R0 = #0;
+-		jumpr R31;
+-	}
+-
+-	.size fname,.-fname
+-
+-
+-.section __ex_table,"a"
+-.long fail_1,fix_1
+-.long fail_2,fix_1
+-.previous
 -- 
 2.29.2
 
