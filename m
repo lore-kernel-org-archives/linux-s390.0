@@ -2,65 +2,331 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A96E7C6377A
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 20:54:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5867CC63797
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 07:33:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9436C6113C
-	for <linux-s390@archiver.kernel.org>; Wed, 21 Jul 2021 20:54:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4097B61260
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 07:33:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229783AbhGUUOG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 21 Jul 2021 16:14:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59908 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229738AbhGUUOG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 21 Jul 2021 16:14:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 9923861009;
-        Wed, 21 Jul 2021 20:54:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626900882;
-        bh=GYGNogGu+jhewfWZhRoGPpIWczxpITQfjsoJjB/iBw4=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=VY1sRhuQdxzlODEUTbCRdrNZyW6UbAmAYMEm5siw5GgCkKlrdruyDaW16NrKRD59l
-         2YKIovtBguTsek+u8wwms5gs1pa9mw1slOYdiPzFM8e/ef5lTUV2q9deAzrgcwzpx+
-         a+DXtSOIxbo3J1D6xB6w0AqSEtrxyQ2UPhR0+6SMz7kIxXWzR+cHChhbJ3L+xPAMR0
-         uktMRlYVwYCAyL8H69ZfCCL/mW8Kc8+m4CptWwoDqepYfWSPRvNV3kvnc3pWQfag+O
-         E3vU4ki3nUBRbPDNQOAkD3uBZmfNH755Cj1faN58noA1iwNGh5sAdLvUXn6xtMPhrh
-         uanka3IqHEnUA==
-Subject: Re: [GIT PULL] s390 updates for 5.14-rc3
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <YPhrv8YEX7pVo73Y@osiris>
-References: <YPhrv8YEX7pVo73Y@osiris>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <YPhrv8YEX7pVo73Y@osiris>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.14-3
-X-PR-Tracked-Commit-Id: 0cde560a8bfc3cb790715f39d4535129cca9e6ae
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 3d5895cd351757f69c9a66fb5fc8cf19f454d773
-Message-Id: <162690088248.6812.4345152659534973031.pr-tracker-bot@kernel.org>
-Date:   Wed, 21 Jul 2021 20:54:42 +0000
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+        id S230100AbhGVGwp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jul 2021 02:52:45 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45794 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230137AbhGVGwo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 22 Jul 2021 02:52:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626939199;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=iUQfBRYvpFMtW0v+U77M8R0BJXxFR56ll5egnHL77Lg=;
+        b=ewEXjMUWMV05LntQ5rUoSUYHbuQJr/1dz+jK98qXPexvW/paH8KxRyF4dqdVvWzJSaggA9
+        m7tezpfDx2RYj7kgfa8eNBvAz5pavO2c2FTVVzhGi7JGVKejw14/PvKGf4Mj95woPXbiSK
+        6KfOz5pQ8RArO287R8M2hKIlzBm/Ecg=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-479-7gtTSTn2OhS07PctLk0YEw-1; Thu, 22 Jul 2021 03:33:17 -0400
+X-MC-Unique: 7gtTSTn2OhS07PctLk0YEw-1
+Received: by mail-wm1-f69.google.com with SMTP id m6-20020a05600c4f46b0290205f5e73b37so1201507wmq.3
+        for <linux-s390@vger.kernel.org>; Thu, 22 Jul 2021 00:33:17 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=iUQfBRYvpFMtW0v+U77M8R0BJXxFR56ll5egnHL77Lg=;
+        b=a7yU65g5/qMWjBvysyrivIDfeeLfsV3qaGr9VHpXAcUPsNIAxddfKCzXDa+UVcAjW7
+         gPFI3B9f+5iSsYdeJ1UrsRMKLFOIiIyorP4WF324aq7WhWkm0zvLeSmB28TdPUpONnCT
+         H6L+Zs1cw66UiCt2n2H3lHCqs+wtxUJYv6PUXNi3a/dWpIJnl5Qyd2gk4O0zQa5KJeiB
+         W3xoVSoB3+MA2mGEoIreFQtBTYk0jOqV1NsOGhnH0nWjMdXVXcgofZMO5Ge2+lwhUVF6
+         Yy1b6sgw2Jx1ez6tKE7EPI2PuwkbzjxZ+aqO8KpWddcDBtSonbvf9EABwmwTp2LiaCz2
+         0XsA==
+X-Gm-Message-State: AOAM53032F+jOT4ujRmSja9CwVGS6f33vj7CQQxbWGKy7o0+0BnInd22
+        88L4DeJxogxOTOwQY/E8LU5AHsaPvYrXUdeR2N01DO+s7Y0XKuhV40C39BuMu7unEYr2aYtRlxp
+        0bhlg+7hzba2kuw3K76Ay4Hxr2HVDU/aFP0LEQkeeWPZQP6+5BZ92VeDYr4rmql1iTUQ8qA==
+X-Received: by 2002:a05:600c:4c96:: with SMTP id g22mr7504326wmp.70.1626939196211;
+        Thu, 22 Jul 2021 00:33:16 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzsogsTiFg/8QnartLbcf+gQldgIKHTGCWGBb1qyVqEA3t1NcO+0KaRJgLVSV2J5ysK99KmlA==
+X-Received: by 2002:a05:600c:4c96:: with SMTP id g22mr7504291wmp.70.1626939195878;
+        Thu, 22 Jul 2021 00:33:15 -0700 (PDT)
+Received: from thuth.remote.csb (pd9e83f5d.dip0.t-ipconnect.de. [217.232.63.93])
+        by smtp.gmail.com with ESMTPSA id r17sm1795916wmq.13.2021.07.22.00.33.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 22 Jul 2021 00:33:15 -0700 (PDT)
+To:     Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20210706115459.372749-1-scgl@linux.ibm.com>
+ <18803632-6a9c-5999-2a8a-d4501a0a77d8@redhat.com>
+ <9bf3313e-0d96-1312-550a-0d1662d50130@linux.vnet.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH] s390x: Add specification exception test
+Message-ID: <4e589450-fa63-d755-5e4c-7082b899bdf5@redhat.com>
+Date:   Thu, 22 Jul 2021 09:33:14 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
+MIME-Version: 1.0
+In-Reply-To: <9bf3313e-0d96-1312-550a-0d1662d50130@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Wed, 21 Jul 2021 20:47:27 +0200:
+On 21/07/2021 17.44, Janis Schoetterl-Glausch wrote:
+> On 7/21/21 3:26 PM, Thomas Huth wrote:
+>> On 06/07/2021 13.54, Janis Schoetterl-Glausch wrote:
+>>> Generate specification exceptions and check that they occur.
+>>> Also generate specification exceptions during a transaction,
+>>> which results in another interruption code.
+>>> With the iterations argument one can check if specification
+>>> exception interpretation occurs, e.g. by using a high value and
+>>> checking that the debugfs counters are substantially lower.
+>>> The argument is also useful for estimating the performance benefit
+>>> of interpretation.
+>>>
+>>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+>>> ---
+>>>    s390x/Makefile           |   1 +
+>>>    lib/s390x/asm/arch_def.h |   1 +
+>>>    s390x/spec_ex.c          | 344 +++++++++++++++++++++++++++++++++++++++
+>>>    s390x/unittests.cfg      |   3 +
+>>>    4 files changed, 349 insertions(+)
+>>>    create mode 100644 s390x/spec_ex.c
+>>>
+>>> diff --git a/s390x/Makefile b/s390x/Makefile
+>>> index 8820e99..be100d3 100644
+>>> --- a/s390x/Makefile
+>>> +++ b/s390x/Makefile
+>>> @@ -23,6 +23,7 @@ tests += $(TEST_DIR)/sie.elf
+>>>    tests += $(TEST_DIR)/mvpg.elf
+>>>    tests += $(TEST_DIR)/uv-host.elf
+>>>    tests += $(TEST_DIR)/edat.elf
+>>> +tests += $(TEST_DIR)/spec_ex.elf
+>>>      tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>>>    ifneq ($(HOST_KEY_DOCUMENT),)
+>>> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+>>> index 15cf7d4..7cb0b92 100644
+>>> --- a/lib/s390x/asm/arch_def.h
+>>> +++ b/lib/s390x/asm/arch_def.h
+>>> @@ -229,6 +229,7 @@ static inline uint64_t stctg(int cr)
+>>>        return value;
+>>>    }
+>>>    +#define CTL0_TRANSACT_EX_CTL    (63 -  8)
+>>>    #define CTL0_LOW_ADDR_PROT    (63 - 35)
+>>>    #define CTL0_EDAT        (63 - 40)
+>>>    #define CTL0_IEP        (63 - 43)
+>>> diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
+>>> new file mode 100644
+>>> index 0000000..2e05bfb
+>>> --- /dev/null
+>>> +++ b/s390x/spec_ex.c
+>>> @@ -0,0 +1,344 @@
+>>
+>> Please add a short comment header at the top of the file with some information on what it is all about, and license information (e.g. a SPDX-License-Identifier)
+>>
+>>> +#include <stdlib.h>
+>>> +#include <htmintrin.h>
+>>> +#include <libcflat.h>
+>>> +#include <asm/barrier.h>
+>>> +#include <asm/interrupt.h>
+>>> +#include <asm/facility.h>
+>>> +
+>>> +struct lowcore *lc = (struct lowcore *) 0;
+>>> +
+>>> +static bool expect_early;
+>>> +static struct psw expected_early_pgm_psw;
+>>> +static struct psw fixup_early_pgm_psw;
+>>> +
+>>> +static void fixup_early_pgm_ex(void)
+>>
+>> Could you please add a comment in front of this function with a description why this is required / good for?
+> 
+> Sure, how about:
+> 
+> /* The standard program exception handler cannot deal with invalid old PSWs,
+>   * especially not invalid instruction addresses, as in that case one cannot
+>   * find the instruction following the faulting one from the old PSW.
+>   */
+> 
+> I'll also change some names since something like this is necessary for all
+> exceptions caused by invalid PSWs, not just the early ones:
+> 
+> static void fixup_invalid_psw(void)
+>>
+>>> +{
+>>> +    if (expect_early) {
+>>> +        report(expected_early_pgm_psw.mask == lc->pgm_old_psw.mask
+>>> +               && expected_early_pgm_psw.addr == lc->pgm_old_psw.addr,
+>>> +               "Early program new PSW as expected");
+>>> +        expect_early = false;
+>>> +    }
+>>> +    lc->pgm_old_psw = fixup_early_pgm_psw;
+>>> +}
+>>> +
+>>> +static void lpsw(uint64_t psw)
+>>> +{
+>>> +    uint32_t *high, *low;
+>>> +    uint64_t r0 = 0, r1 = 0;
+>>> +
+>>> +    high = (uint32_t *) &fixup_early_pgm_psw.mask;
+>>> +    low = high + 1;
+>>> +
+>>> +    asm volatile (
+>>> +        "    epsw    %0,%1\n"
+>>> +        "    st    %0,%[high]\n"
+>>> +        "    st    %1,%[low]\n"
+>>
+>> What's all this magic with high and low good for? Looks like high and low are not used afterwards anymore?
+> 
+> Seems like the easiest way to store both halves of the current mask into the global fixup PSW.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.14-3
+Ok, thanks, now I got it. But I think it would be easier to understand if 
+you'd only pass the address of fixup_early_pgm_psw.mask to the assembly code 
+and then do e.g. a "st %1,4(%[mask])" instead.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/3d5895cd351757f69c9a66fb5fc8cf19f454d773
+>>> +        "    larl    %0,nop%=\n"
+>>> +        "    stg    %0,%[addr]\n"
+>>> +        "    lpsw    %[psw]\n"
+>>> +        "nop%=:    nop\n"
+>>> +        : "+&r"(r0), "+&a"(r1), [high] "=&R"(*high), [low] "=&R"(*low)
+>>
+>> ... also not sure why you need the "&" modifiers here?
+> 
+> r0, r1 are stored into before reading psw, also there are implied input registers for the
+> memory output operands. To be honest, I didn't care to figure out the minimal '&' usage,
+> it's just test code after all.
 
-Thank you!
+Ok, fair point, makes sense now, too.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+>>> +        , [addr] "=&R"(fixup_early_pgm_psw.addr)
+>>> +        : [psw] "Q"(psw)
+>>> +        : "cc", "memory"
+>>> +    );
+>>> +}
+>>> +
+>>> +static void psw_bit_31_32_are_1_0(void)
+>>> +{
+>>> +    uint64_t bad_psw = 0x000800015eadbeef;
+>>> +
+>>> +    //bit 12 gets inverted when extending to 128-bit PSW
+>>
+>> I'd prefer a space after the "//"
+>>
+>>> +    expected_early_pgm_psw.mask = 0x0000000100000000;
+>>> +    expected_early_pgm_psw.addr = 0x000000005eadbeef;
+>>> +    expect_early = true;
+>>> +    lpsw(bad_psw);
+>>> +}
+>>> +
+>>> +static void bad_alignment(void)
+>>> +{
+>>> +    uint32_t words[5] = {0, 0, 0};
+>>> +    uint32_t (*bad_aligned)[4];
+>>> +
+>>> +    register uint64_t r1 asm("6");
+>>> +    register uint64_t r2 asm("7");
+>>> +    if (((uintptr_t)&words[0]) & 0xf) {
+>>> +        bad_aligned = (uint32_t (*)[4])&words[0];
+>>> +    } else {
+>>> +        bad_aligned = (uint32_t (*)[4])&words[1];
+>>> +    }
+>>> +    asm volatile ("lpq %0,%2"
+>>> +              : "=r"(r1), "=r"(r2)
+>>> +              : "T"(*bad_aligned)
+>>> +    );
+>>> +}
+>>> +
+>>> +static void not_even(void)
+>>> +{
+>>> +    uint64_t quad[2];
+>>> +
+>>> +    register uint64_t r1 asm("7");
+>>> +    register uint64_t r2 asm("8");
+>>> +    asm volatile (".insn    rxy,0xe3000000008f,%0,%2" //lpq %0,%2
+>>> +              : "=r"(r1), "=r"(r2)
+>>> +              : "T"(quad)
+>>> +    );
+>>> +}
+>>> +
+>>> +struct spec_ex_trigger {
+>>> +    const char *name;
+>>> +    void (*func)(void);
+>>> +    bool transactable;
+>>> +    void (*fixup)(void);
+>>> +};
+>>> +
+>>> +static const struct spec_ex_trigger spec_ex_triggers[] = {
+>>> +    { "psw_bit_31_32_are_1_0", &psw_bit_31_32_are_1_0, false, &fixup_early_pgm_ex},
+>>> +    { "bad_alignment", &bad_alignment, true, NULL},
+>>> +    { "not_even", &not_even, true, NULL},
+>>> +    { NULL, NULL, true, NULL},
+>>> +};
+>>> +
+>>> +struct args {
+>>> +    uint64_t iterations;
+>>> +    uint64_t max_retries;
+>>> +    uint64_t suppress_info;
+>>> +    uint64_t max_failures;
+>>> +    bool diagnose;
+>>> +};
+>>> +
+>>> +static void test_spec_ex(struct args *args,
+>>> +             const struct spec_ex_trigger *trigger)
+>>> +{
+>>> +    uint16_t expected_pgm = PGM_INT_CODE_SPECIFICATION;
+>>> +    uint16_t pgm;
+>>> +    unsigned int i;
+>>> +
+>>> +    register_pgm_cleanup_func(trigger->fixup);
+>>> +    for (i = 0; i < args->iterations; i++) {
+>>> +        expect_pgm_int();
+>>> +        trigger->func();
+>>> +        pgm = clear_pgm_int();
+>>> +        if (pgm != expected_pgm) {
+>>> +            report(0,
+>>> +            "Program interrupt: expected(%d) == received(%d)",
+>>> +            expected_pgm,
+>>> +            pgm);
+>>> +            return;
+>>> +        }
+>>> +    }
+>>
+>> Maybe it would be nice to "unregister" the cleanup function at the end with register_pgm_cleanup_func(NULL) ?
+> 
+> Yeah, I think I'll also move them just before and after the trigger->func().
+>>
+>>> +    report(1,
+>>> +    "Program interrupt: always expected(%d) == received(%d)",
+>>> +    expected_pgm,
+>>> +    expected_pgm);
+>>> +}
+>>> +
+>>> +#define TRANSACTION_COMPLETED 4
+>>> +#define TRANSACTION_MAX_RETRIES 5
+>>> +
+>>> +static int __attribute__((nonnull))
+>>
+>> Not sure whether that attribute makes much sense with a static function? ... the compiler has information about the implementation details here, so it should be able to see that e.g. trigger must be non-NULL anyway?
+> 
+> One isn't supposed to pass NULL to __builtin_tbegin via a variable, only via a constant.
+> I didn't want to deal with that constraint, so that's what the nonnull is there for.
+> Maybe I should add a comment?
+
+Yes, that would be helpful.
+
+  Thomas
+
