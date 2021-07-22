@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FBCFC6377D
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 13:01:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B8C6C63793
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 13:04:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EB29861287
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 13:01:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 825D361287
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 13:04:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232076AbhGVMVD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jul 2021 08:21:03 -0400
-Received: from verein.lst.de ([213.95.11.211]:34104 "EHLO verein.lst.de"
+        id S231944AbhGVMXe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jul 2021 08:23:34 -0400
+Received: from verein.lst.de ([213.95.11.211]:34134 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232087AbhGVMU7 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Jul 2021 08:20:59 -0400
+        id S232042AbhGVMVg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 22 Jul 2021 08:21:36 -0400
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id EB11868C4E; Thu, 22 Jul 2021 15:01:31 +0200 (CEST)
-Date:   Thu, 22 Jul 2021 15:01:31 +0200
+        id 2F23368C7B; Thu, 22 Jul 2021 15:02:09 +0200 (CEST)
+Date:   Thu, 22 Jul 2021 15:02:09 +0200
 From:   Christoph Hellwig <hch@lst.de>
 To:     Arnd Bergmann <arnd@kernel.org>
 Cc:     linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
@@ -47,27 +47,37 @@ Cc:     linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
         linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        uclinux-h8-devel@lists.sourceforge.jp
-Subject: Re: [PATCH v3 6/9] microblaze: use generic strncpy/strnlen
- from_user
-Message-ID: <20210722130131.GF26225@lst.de>
-References: <20210722124814.778059-1-arnd@kernel.org> <20210722124814.778059-7-arnd@kernel.org>
+        uclinux-h8-devel@lists.sourceforge.jp,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v3 7/9] asm-generic: uaccess: remove inline
+ strncpy_from_user/strnlen_user
+Message-ID: <20210722130209.GG26225@lst.de>
+References: <20210722124814.778059-1-arnd@kernel.org> <20210722124814.778059-8-arnd@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210722124814.778059-7-arnd@kernel.org>
+In-Reply-To: <20210722124814.778059-8-arnd@kernel.org>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 22, 2021 at 02:48:11PM +0200, Arnd Bergmann wrote:
+On Thu, Jul 22, 2021 at 02:48:12PM +0200, Arnd Bergmann wrote:
 > From: Arnd Bergmann <arnd@arndb.de>
 > 
-> Remove the microblaze implemenation of strncpy/strnlen and instead use
-> the generic versions.  The microblaze version is fairly slow because it
-> always does byte accesses even for aligned data, and it lacks a checks
-> for user_addr_max().
+> The inline version is used on three NOMMU architectures and is
+> particularly inefficient when it scans the string one byte at a time
+> twice. It also lacks a check for user_addr_max(), but this is
+> probably ok on NOMMU targets.
+> 
+> Consolidate the asm-generic implementation with the library version
+> that is used everywhere else.  This version is generalized enough to
+> work efficiently on both MMU and NOMMU targets, and using the
+> same code everywhere reduces the potential for subtle bugs.
+> 
+> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
 Looks good,
 
