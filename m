@@ -2,331 +2,363 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-27.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5867CC63797
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 07:33:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86C7CC64995
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 08:46:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4097B61260
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 07:33:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 640C661351
+	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 08:46:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230100AbhGVGwp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jul 2021 02:52:45 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45794 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230137AbhGVGwo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Jul 2021 02:52:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626939199;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=iUQfBRYvpFMtW0v+U77M8R0BJXxFR56ll5egnHL77Lg=;
-        b=ewEXjMUWMV05LntQ5rUoSUYHbuQJr/1dz+jK98qXPexvW/paH8KxRyF4dqdVvWzJSaggA9
-        m7tezpfDx2RYj7kgfa8eNBvAz5pavO2c2FTVVzhGi7JGVKejw14/PvKGf4Mj95woPXbiSK
-        6KfOz5pQ8RArO287R8M2hKIlzBm/Ecg=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-479-7gtTSTn2OhS07PctLk0YEw-1; Thu, 22 Jul 2021 03:33:17 -0400
-X-MC-Unique: 7gtTSTn2OhS07PctLk0YEw-1
-Received: by mail-wm1-f69.google.com with SMTP id m6-20020a05600c4f46b0290205f5e73b37so1201507wmq.3
-        for <linux-s390@vger.kernel.org>; Thu, 22 Jul 2021 00:33:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=iUQfBRYvpFMtW0v+U77M8R0BJXxFR56ll5egnHL77Lg=;
-        b=a7yU65g5/qMWjBvysyrivIDfeeLfsV3qaGr9VHpXAcUPsNIAxddfKCzXDa+UVcAjW7
-         gPFI3B9f+5iSsYdeJ1UrsRMKLFOIiIyorP4WF324aq7WhWkm0zvLeSmB28TdPUpONnCT
-         H6L+Zs1cw66UiCt2n2H3lHCqs+wtxUJYv6PUXNi3a/dWpIJnl5Qyd2gk4O0zQa5KJeiB
-         W3xoVSoB3+MA2mGEoIreFQtBTYk0jOqV1NsOGhnH0nWjMdXVXcgofZMO5Ge2+lwhUVF6
-         Yy1b6sgw2Jx1ez6tKE7EPI2PuwkbzjxZ+aqO8KpWddcDBtSonbvf9EABwmwTp2LiaCz2
-         0XsA==
-X-Gm-Message-State: AOAM53032F+jOT4ujRmSja9CwVGS6f33vj7CQQxbWGKy7o0+0BnInd22
-        88L4DeJxogxOTOwQY/E8LU5AHsaPvYrXUdeR2N01DO+s7Y0XKuhV40C39BuMu7unEYr2aYtRlxp
-        0bhlg+7hzba2kuw3K76Ay4Hxr2HVDU/aFP0LEQkeeWPZQP6+5BZ92VeDYr4rmql1iTUQ8qA==
-X-Received: by 2002:a05:600c:4c96:: with SMTP id g22mr7504326wmp.70.1626939196211;
-        Thu, 22 Jul 2021 00:33:16 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzsogsTiFg/8QnartLbcf+gQldgIKHTGCWGBb1qyVqEA3t1NcO+0KaRJgLVSV2J5ysK99KmlA==
-X-Received: by 2002:a05:600c:4c96:: with SMTP id g22mr7504291wmp.70.1626939195878;
-        Thu, 22 Jul 2021 00:33:15 -0700 (PDT)
-Received: from thuth.remote.csb (pd9e83f5d.dip0.t-ipconnect.de. [217.232.63.93])
-        by smtp.gmail.com with ESMTPSA id r17sm1795916wmq.13.2021.07.22.00.33.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 22 Jul 2021 00:33:15 -0700 (PDT)
-To:     Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20210706115459.372749-1-scgl@linux.ibm.com>
- <18803632-6a9c-5999-2a8a-d4501a0a77d8@redhat.com>
- <9bf3313e-0d96-1312-550a-0d1662d50130@linux.vnet.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH] s390x: Add specification exception test
-Message-ID: <4e589450-fa63-d755-5e4c-7082b899bdf5@redhat.com>
-Date:   Thu, 22 Jul 2021 09:33:14 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        id S231334AbhGVIFb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 22 Jul 2021 04:05:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55882 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231189AbhGVIFZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 22 Jul 2021 04:05:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A43AE6128C;
+        Thu, 22 Jul 2021 08:45:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626943559;
+        bh=iHEKpKP05yPtSDo0WVw13tR4OsPIw3x7iurEQu7Pc7Q=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=d2l4V14jYNVya/romP2w2ezg4x2LnX47K9dLSJmCxQOKyIqkdonEoIsuSyzycFfD4
+         aHamBXJweC7B8K4Qi3lPBaud6oc7vHctb7fViEzj6oXWZWpeL9VSuOZpThr23TyNei
+         Kh7xAATxCTMeB2NBX21iFqK668swZChaCi9FSwpo=
+Date:   Thu, 22 Jul 2021 10:45:55 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     kernel@pengutronix.de,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>, Alex Elder <elder@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Alison Schofield <alison.schofield@intel.com>,
+        Allen Hubbe <allenbh@gmail.com>,
+        Andreas Noever <andreas.noever@gmail.com>,
+        Andy Gross <agross@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Ben Widawsky <ben.widawsky@intel.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bodo Stroesser <bostroesser@gmail.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Dexuan Cui <decui@microsoft.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Farman <farman@linux.ibm.com>,
+        Finn Thain <fthain@linux-m68k.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Frank Li <lznuaa@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Geoff Levand <geoff@infradead.org>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>, Ira Weiny <ira.weiny@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Jason Wang <jasowang@redhat.com>,
+        Jens Taprogge <jens.taprogge@taprogge.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Joey Pabalan <jpabalanb@gmail.com>,
+        Johan Hovold <johan@kernel.org>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Johannes Thumshirn <morbidrsa@gmail.com>,
+        Jon Mason <jdmason@kudzu.us>, Juergen Gross <jgross@suse.com>,
+        Julien Grall <jgrall@amazon.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Kirti Wankhede <kwankhede@nvidia.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Lee Jones <lee.jones@linaro.org>, Len Brown <lenb@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Manohar Vanga <manohar.vanga@gmail.com>,
+        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Mark Gross <mgross@linux.intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Martyn Welch <martyn@welchs.me.uk>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Maxime Ripard <mripard@kernel.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Maxim Levitsky <maximlevitsky@gmail.com>,
+        Michael Buesch <m@bues.ch>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michael Jamet <michael.jamet@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Moritz Fischer <mdf@kernel.org>,
+        Ohad Ben-Cohen <ohad@wizery.com>,
+        Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
+        Rich Felker <dalias@libc.org>,
+        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        Rob Herring <robh@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Samuel Holland <samuel@sholland.org>,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        SeongJae Park <sjpark@amazon.de>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Stefan Richter <stefanr@s5r6.in-berlin.de>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sven Van Asbroeck <TheSven73@gmail.com>,
+        Takashi Iwai <tiwai@suse.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thorsten Scherer <t.scherer@eckelmann.de>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Tom Rix <trix@redhat.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, Wu Hao <hao.wu@intel.com>,
+        Yehezkel Bernat <YehezkelShB@gmail.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Yufen Yu <yuyufen@huawei.com>, alsa-devel@alsa-project.org,
+        dmaengine@vger.kernel.org, greybus-dev@lists.linaro.org,
+        industrypack-devel@lists.sourceforge.net, kvm@vger.kernel.org,
+        linux1394-devel@lists.sourceforge.net, linux-acpi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-cxl@vger.kernel.org,
+        linux-fpga@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-i3c@lists.infradead.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-media@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-ntb@googlegroups.com, linux-parisc@vger.kernel.org,
+        linux-pci@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-sh@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-staging@lists.linux.dev, linux-sunxi@lists.linux.dev,
+        linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org, nvdimm@lists.linux.dev,
+        platform-driver-x86@vger.kernel.org, sparclinux@vger.kernel.org,
+        target-devel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v4 0/5] bus: Make remove callback return void
+Message-ID: <YPkwQwf0dUKnGA7L@kroah.com>
+References: <20210713193522.1770306-1-u.kleine-koenig@pengutronix.de>
+ <YPfyZen4Y0uDKqDT@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <9bf3313e-0d96-1312-550a-0d1662d50130@linux.vnet.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <YPfyZen4Y0uDKqDT@kroah.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 21/07/2021 17.44, Janis Schoetterl-Glausch wrote:
-> On 7/21/21 3:26 PM, Thomas Huth wrote:
->> On 06/07/2021 13.54, Janis Schoetterl-Glausch wrote:
->>> Generate specification exceptions and check that they occur.
->>> Also generate specification exceptions during a transaction,
->>> which results in another interruption code.
->>> With the iterations argument one can check if specification
->>> exception interpretation occurs, e.g. by using a high value and
->>> checking that the debugfs counters are substantially lower.
->>> The argument is also useful for estimating the performance benefit
->>> of interpretation.
->>>
->>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->>> ---
->>>    s390x/Makefile           |   1 +
->>>    lib/s390x/asm/arch_def.h |   1 +
->>>    s390x/spec_ex.c          | 344 +++++++++++++++++++++++++++++++++++++++
->>>    s390x/unittests.cfg      |   3 +
->>>    4 files changed, 349 insertions(+)
->>>    create mode 100644 s390x/spec_ex.c
->>>
->>> diff --git a/s390x/Makefile b/s390x/Makefile
->>> index 8820e99..be100d3 100644
->>> --- a/s390x/Makefile
->>> +++ b/s390x/Makefile
->>> @@ -23,6 +23,7 @@ tests += $(TEST_DIR)/sie.elf
->>>    tests += $(TEST_DIR)/mvpg.elf
->>>    tests += $(TEST_DIR)/uv-host.elf
->>>    tests += $(TEST_DIR)/edat.elf
->>> +tests += $(TEST_DIR)/spec_ex.elf
->>>      tests_binary = $(patsubst %.elf,%.bin,$(tests))
->>>    ifneq ($(HOST_KEY_DOCUMENT),)
->>> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
->>> index 15cf7d4..7cb0b92 100644
->>> --- a/lib/s390x/asm/arch_def.h
->>> +++ b/lib/s390x/asm/arch_def.h
->>> @@ -229,6 +229,7 @@ static inline uint64_t stctg(int cr)
->>>        return value;
->>>    }
->>>    +#define CTL0_TRANSACT_EX_CTL    (63 -  8)
->>>    #define CTL0_LOW_ADDR_PROT    (63 - 35)
->>>    #define CTL0_EDAT        (63 - 40)
->>>    #define CTL0_IEP        (63 - 43)
->>> diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
->>> new file mode 100644
->>> index 0000000..2e05bfb
->>> --- /dev/null
->>> +++ b/s390x/spec_ex.c
->>> @@ -0,0 +1,344 @@
->>
->> Please add a short comment header at the top of the file with some information on what it is all about, and license information (e.g. a SPDX-License-Identifier)
->>
->>> +#include <stdlib.h>
->>> +#include <htmintrin.h>
->>> +#include <libcflat.h>
->>> +#include <asm/barrier.h>
->>> +#include <asm/interrupt.h>
->>> +#include <asm/facility.h>
->>> +
->>> +struct lowcore *lc = (struct lowcore *) 0;
->>> +
->>> +static bool expect_early;
->>> +static struct psw expected_early_pgm_psw;
->>> +static struct psw fixup_early_pgm_psw;
->>> +
->>> +static void fixup_early_pgm_ex(void)
->>
->> Could you please add a comment in front of this function with a description why this is required / good for?
+On Wed, Jul 21, 2021 at 12:09:41PM +0200, Greg Kroah-Hartman wrote:
+> On Tue, Jul 13, 2021 at 09:35:17PM +0200, Uwe Kleine-K�nig wrote:
+> > Hello,
+> > 
+> > this is v4 of the final patch set for my effort to make struct
+> > bus_type::remove return void.
+> > 
+> > The first four patches contain cleanups that make some of these
+> > callbacks (more obviously) always return 0. They are acked by the
+> > respective maintainers. Bjorn Helgaas explicitly asked to include the
+> > pci patch (#1) into this series, so Greg taking this is fine. I assume
+> > the s390 people are fine with Greg taking patches #2 to #4, too, they
+> > didn't explicitly said so though.
+> > 
+> > The last patch actually changes the prototype and so touches quite some
+> > drivers and has the potential to conflict with future developments, so I
+> > consider it beneficial to put these patches into next soon. I expect
+> > that it will be Greg who takes the complete series, he already confirmed
+> > via irc (for v2) to look into this series.
+> > 
+> > The only change compared to v3 is in the fourth patch where I modified a
+> > few more drivers to fix build failures. Some of them were found by build
+> > bots (thanks!), some of them I found myself using a regular expression
+> > search. The newly modified files are:
+> > 
+> >  arch/sparc/kernel/vio.c
+> >  drivers/nubus/bus.c
+> >  drivers/sh/superhyway/superhyway.c
+> >  drivers/vlynq/vlynq.c
+> >  drivers/zorro/zorro-driver.c
+> >  sound/ac97/bus.c
+> > 
+> > Best regards
+> > Uwe
 > 
-> Sure, how about:
-> 
-> /* The standard program exception handler cannot deal with invalid old PSWs,
->   * especially not invalid instruction addresses, as in that case one cannot
->   * find the instruction following the faulting one from the old PSW.
->   */
-> 
-> I'll also change some names since something like this is necessary for all
-> exceptions caused by invalid PSWs, not just the early ones:
-> 
-> static void fixup_invalid_psw(void)
->>
->>> +{
->>> +    if (expect_early) {
->>> +        report(expected_early_pgm_psw.mask == lc->pgm_old_psw.mask
->>> +               && expected_early_pgm_psw.addr == lc->pgm_old_psw.addr,
->>> +               "Early program new PSW as expected");
->>> +        expect_early = false;
->>> +    }
->>> +    lc->pgm_old_psw = fixup_early_pgm_psw;
->>> +}
->>> +
->>> +static void lpsw(uint64_t psw)
->>> +{
->>> +    uint32_t *high, *low;
->>> +    uint64_t r0 = 0, r1 = 0;
->>> +
->>> +    high = (uint32_t *) &fixup_early_pgm_psw.mask;
->>> +    low = high + 1;
->>> +
->>> +    asm volatile (
->>> +        "    epsw    %0,%1\n"
->>> +        "    st    %0,%[high]\n"
->>> +        "    st    %1,%[low]\n"
->>
->> What's all this magic with high and low good for? Looks like high and low are not used afterwards anymore?
-> 
-> Seems like the easiest way to store both halves of the current mask into the global fixup PSW.
+> Now queued up.  I can go make a git tag that people can pull from after
+> 0-day is finished testing this to verify all is good, if others need it.
 
-Ok, thanks, now I got it. But I think it would be easier to understand if 
-you'd only pass the address of fixup_early_pgm_psw.mask to the assembly code 
-and then do e.g. a "st %1,4(%[mask])" instead.
+Ok, here's a tag that any other subsystem can pull from if they want
+these changes in their tree before 5.15-rc1 is out.  I might pull it
+into my char-misc-next tree as well just to keep that tree sane as it
+seems to pick up new busses on a regular basis...
 
->>> +        "    larl    %0,nop%=\n"
->>> +        "    stg    %0,%[addr]\n"
->>> +        "    lpsw    %[psw]\n"
->>> +        "nop%=:    nop\n"
->>> +        : "+&r"(r0), "+&a"(r1), [high] "=&R"(*high), [low] "=&R"(*low)
->>
->> ... also not sure why you need the "&" modifiers here?
-> 
-> r0, r1 are stored into before reading psw, also there are implied input registers for the
-> memory output operands. To be honest, I didn't care to figure out the minimal '&' usage,
-> it's just test code after all.
+thanks,
 
-Ok, fair point, makes sense now, too.
+greg k-h
 
->>> +        , [addr] "=&R"(fixup_early_pgm_psw.addr)
->>> +        : [psw] "Q"(psw)
->>> +        : "cc", "memory"
->>> +    );
->>> +}
->>> +
->>> +static void psw_bit_31_32_are_1_0(void)
->>> +{
->>> +    uint64_t bad_psw = 0x000800015eadbeef;
->>> +
->>> +    //bit 12 gets inverted when extending to 128-bit PSW
->>
->> I'd prefer a space after the "//"
->>
->>> +    expected_early_pgm_psw.mask = 0x0000000100000000;
->>> +    expected_early_pgm_psw.addr = 0x000000005eadbeef;
->>> +    expect_early = true;
->>> +    lpsw(bad_psw);
->>> +}
->>> +
->>> +static void bad_alignment(void)
->>> +{
->>> +    uint32_t words[5] = {0, 0, 0};
->>> +    uint32_t (*bad_aligned)[4];
->>> +
->>> +    register uint64_t r1 asm("6");
->>> +    register uint64_t r2 asm("7");
->>> +    if (((uintptr_t)&words[0]) & 0xf) {
->>> +        bad_aligned = (uint32_t (*)[4])&words[0];
->>> +    } else {
->>> +        bad_aligned = (uint32_t (*)[4])&words[1];
->>> +    }
->>> +    asm volatile ("lpq %0,%2"
->>> +              : "=r"(r1), "=r"(r2)
->>> +              : "T"(*bad_aligned)
->>> +    );
->>> +}
->>> +
->>> +static void not_even(void)
->>> +{
->>> +    uint64_t quad[2];
->>> +
->>> +    register uint64_t r1 asm("7");
->>> +    register uint64_t r2 asm("8");
->>> +    asm volatile (".insn    rxy,0xe3000000008f,%0,%2" //lpq %0,%2
->>> +              : "=r"(r1), "=r"(r2)
->>> +              : "T"(quad)
->>> +    );
->>> +}
->>> +
->>> +struct spec_ex_trigger {
->>> +    const char *name;
->>> +    void (*func)(void);
->>> +    bool transactable;
->>> +    void (*fixup)(void);
->>> +};
->>> +
->>> +static const struct spec_ex_trigger spec_ex_triggers[] = {
->>> +    { "psw_bit_31_32_are_1_0", &psw_bit_31_32_are_1_0, false, &fixup_early_pgm_ex},
->>> +    { "bad_alignment", &bad_alignment, true, NULL},
->>> +    { "not_even", &not_even, true, NULL},
->>> +    { NULL, NULL, true, NULL},
->>> +};
->>> +
->>> +struct args {
->>> +    uint64_t iterations;
->>> +    uint64_t max_retries;
->>> +    uint64_t suppress_info;
->>> +    uint64_t max_failures;
->>> +    bool diagnose;
->>> +};
->>> +
->>> +static void test_spec_ex(struct args *args,
->>> +             const struct spec_ex_trigger *trigger)
->>> +{
->>> +    uint16_t expected_pgm = PGM_INT_CODE_SPECIFICATION;
->>> +    uint16_t pgm;
->>> +    unsigned int i;
->>> +
->>> +    register_pgm_cleanup_func(trigger->fixup);
->>> +    for (i = 0; i < args->iterations; i++) {
->>> +        expect_pgm_int();
->>> +        trigger->func();
->>> +        pgm = clear_pgm_int();
->>> +        if (pgm != expected_pgm) {
->>> +            report(0,
->>> +            "Program interrupt: expected(%d) == received(%d)",
->>> +            expected_pgm,
->>> +            pgm);
->>> +            return;
->>> +        }
->>> +    }
->>
->> Maybe it would be nice to "unregister" the cleanup function at the end with register_pgm_cleanup_func(NULL) ?
-> 
-> Yeah, I think I'll also move them just before and after the trigger->func().
->>
->>> +    report(1,
->>> +    "Program interrupt: always expected(%d) == received(%d)",
->>> +    expected_pgm,
->>> +    expected_pgm);
->>> +}
->>> +
->>> +#define TRANSACTION_COMPLETED 4
->>> +#define TRANSACTION_MAX_RETRIES 5
->>> +
->>> +static int __attribute__((nonnull))
->>
->> Not sure whether that attribute makes much sense with a static function? ... the compiler has information about the implementation details here, so it should be able to see that e.g. trigger must be non-NULL anyway?
-> 
-> One isn't supposed to pass NULL to __builtin_tbegin via a variable, only via a constant.
-> I didn't want to deal with that constraint, so that's what the nonnull is there for.
-> Maybe I should add a comment?
+-----------------------------------
 
-Yes, that would be helpful.
 
-  Thomas
+The following changes since commit 2734d6c1b1a089fb593ef6a23d4b70903526fe0c:
 
+  Linux 5.14-rc2 (2021-07-18 14:13:49 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git tags/bus_remove_return_void-5.15
+
+for you to fetch changes up to fc7a6209d5710618eb4f72a77cd81b8d694ecf89:
+
+  bus: Make remove callback return void (2021-07-21 11:53:42 +0200)
+
+----------------------------------------------------------------
+Bus: Make remove callback return void tag
+
+Tag for other trees/branches to pull from in order to have a stable
+place to build off of if they want to add new busses for 5.15.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+----------------------------------------------------------------
+Uwe Kleine-K�nig (5):
+      PCI: endpoint: Make struct pci_epf_driver::remove return void
+      s390/cio: Make struct css_driver::remove return void
+      s390/ccwgroup: Drop if with an always false condition
+      s390/scm: Make struct scm_driver::remove return void
+      bus: Make remove callback return void
+
+ arch/arm/common/locomo.c                  | 3 +--
+ arch/arm/common/sa1111.c                  | 4 +---
+ arch/arm/mach-rpc/ecard.c                 | 4 +---
+ arch/mips/sgi-ip22/ip22-gio.c             | 3 +--
+ arch/parisc/kernel/drivers.c              | 5 ++---
+ arch/powerpc/platforms/ps3/system-bus.c   | 3 +--
+ arch/powerpc/platforms/pseries/ibmebus.c  | 3 +--
+ arch/powerpc/platforms/pseries/vio.c      | 3 +--
+ arch/s390/include/asm/eadm.h              | 2 +-
+ arch/sparc/kernel/vio.c                   | 4 +---
+ drivers/acpi/bus.c                        | 3 +--
+ drivers/amba/bus.c                        | 4 +---
+ drivers/base/auxiliary.c                  | 4 +---
+ drivers/base/isa.c                        | 4 +---
+ drivers/base/platform.c                   | 4 +---
+ drivers/bcma/main.c                       | 6 ++----
+ drivers/bus/sunxi-rsb.c                   | 4 +---
+ drivers/cxl/core.c                        | 3 +--
+ drivers/dax/bus.c                         | 4 +---
+ drivers/dma/idxd/sysfs.c                  | 4 +---
+ drivers/firewire/core-device.c            | 4 +---
+ drivers/firmware/arm_scmi/bus.c           | 4 +---
+ drivers/firmware/google/coreboot_table.c  | 4 +---
+ drivers/fpga/dfl.c                        | 4 +---
+ drivers/hid/hid-core.c                    | 4 +---
+ drivers/hid/intel-ish-hid/ishtp/bus.c     | 4 +---
+ drivers/hv/vmbus_drv.c                    | 5 +----
+ drivers/hwtracing/intel_th/core.c         | 4 +---
+ drivers/i2c/i2c-core-base.c               | 5 +----
+ drivers/i3c/master.c                      | 4 +---
+ drivers/input/gameport/gameport.c         | 3 +--
+ drivers/input/serio/serio.c               | 3 +--
+ drivers/ipack/ipack.c                     | 4 +---
+ drivers/macintosh/macio_asic.c            | 4 +---
+ drivers/mcb/mcb-core.c                    | 4 +---
+ drivers/media/pci/bt8xx/bttv-gpio.c       | 3 +--
+ drivers/memstick/core/memstick.c          | 3 +--
+ drivers/mfd/mcp-core.c                    | 3 +--
+ drivers/misc/mei/bus.c                    | 4 +---
+ drivers/misc/tifm_core.c                  | 3 +--
+ drivers/mmc/core/bus.c                    | 4 +---
+ drivers/mmc/core/sdio_bus.c               | 4 +---
+ drivers/net/netdevsim/bus.c               | 3 +--
+ drivers/ntb/core.c                        | 4 +---
+ drivers/ntb/ntb_transport.c               | 4 +---
+ drivers/nubus/bus.c                       | 6 ++----
+ drivers/nvdimm/bus.c                      | 3 +--
+ drivers/pci/endpoint/pci-epf-core.c       | 7 ++-----
+ drivers/pci/pci-driver.c                  | 3 +--
+ drivers/pcmcia/ds.c                       | 4 +---
+ drivers/platform/surface/aggregator/bus.c | 4 +---
+ drivers/platform/x86/wmi.c                | 4 +---
+ drivers/pnp/driver.c                      | 3 +--
+ drivers/rapidio/rio-driver.c              | 4 +---
+ drivers/rpmsg/rpmsg_core.c                | 7 ++-----
+ drivers/s390/block/scm_drv.c              | 4 +---
+ drivers/s390/cio/ccwgroup.c               | 6 +-----
+ drivers/s390/cio/chsc_sch.c               | 3 +--
+ drivers/s390/cio/css.c                    | 7 +++----
+ drivers/s390/cio/css.h                    | 2 +-
+ drivers/s390/cio/device.c                 | 9 +++------
+ drivers/s390/cio/eadm_sch.c               | 4 +---
+ drivers/s390/cio/scm.c                    | 5 +++--
+ drivers/s390/cio/vfio_ccw_drv.c           | 3 +--
+ drivers/s390/crypto/ap_bus.c              | 4 +---
+ drivers/scsi/scsi_debug.c                 | 3 +--
+ drivers/sh/superhyway/superhyway.c        | 8 ++------
+ drivers/siox/siox-core.c                  | 4 +---
+ drivers/slimbus/core.c                    | 4 +---
+ drivers/soc/qcom/apr.c                    | 4 +---
+ drivers/spi/spi.c                         | 4 +---
+ drivers/spmi/spmi.c                       | 3 +--
+ drivers/ssb/main.c                        | 4 +---
+ drivers/staging/fieldbus/anybuss/host.c   | 4 +---
+ drivers/staging/greybus/gbphy.c           | 4 +---
+ drivers/target/loopback/tcm_loop.c        | 5 ++---
+ drivers/thunderbolt/domain.c              | 4 +---
+ drivers/tty/serdev/core.c                 | 4 +---
+ drivers/usb/common/ulpi.c                 | 4 +---
+ drivers/usb/serial/bus.c                  | 4 +---
+ drivers/usb/typec/bus.c                   | 4 +---
+ drivers/vdpa/vdpa.c                       | 4 +---
+ drivers/vfio/mdev/mdev_driver.c           | 4 +---
+ drivers/virtio/virtio.c                   | 3 +--
+ drivers/vlynq/vlynq.c                     | 4 +---
+ drivers/vme/vme.c                         | 4 +---
+ drivers/xen/xenbus/xenbus.h               | 2 +-
+ drivers/xen/xenbus/xenbus_probe.c         | 4 +---
+ drivers/zorro/zorro-driver.c              | 3 +--
+ include/linux/device/bus.h                | 2 +-
+ include/linux/pci-epf.h                   | 2 +-
+ sound/ac97/bus.c                          | 6 ++----
+ sound/aoa/soundbus/core.c                 | 4 +---
+ 93 files changed, 107 insertions(+), 263 deletions(-)
