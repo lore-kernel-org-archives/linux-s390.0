@@ -2,124 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8EA6C432BE
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 16:27:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6394CC4320A
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 17:25:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CED4C60E9C
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 16:27:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4269C60EB4
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 17:25:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229713AbhGWPrO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jul 2021 11:47:14 -0400
-Received: from outbound-smtp17.blacknight.com ([46.22.139.234]:56497 "EHLO
-        outbound-smtp17.blacknight.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229492AbhGWPrO (ORCPT
+        id S231373AbhGWQpI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jul 2021 12:45:08 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59318 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231166AbhGWQpI (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Jul 2021 11:47:14 -0400
-X-Greylist: delayed 367 seconds by postgrey-1.27 at vger.kernel.org; Fri, 23 Jul 2021 11:47:14 EDT
-Received: from mail.blacknight.com (pemlinmail04.blacknight.ie [81.17.254.17])
-        by outbound-smtp17.blacknight.com (Postfix) with ESMTPS id 086FF1C4C46
-        for <linux-s390@vger.kernel.org>; Fri, 23 Jul 2021 17:21:39 +0100 (IST)
-Received: (qmail 20456 invoked from network); 23 Jul 2021 16:21:38 -0000
-Received: from unknown (HELO techsingularity.net) (mgorman@techsingularity.net@[84.203.17.255])
-  by 81.17.254.9 with ESMTPSA (AES256-SHA encrypted, authenticated); 23 Jul 2021 16:21:38 -0000
-Date:   Fri, 23 Jul 2021 17:21:37 +0100
-From:   Mel Gorman <mgorman@techsingularity.net>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     peterz@infradead.org, bristot@redhat.com, bsegall@google.com,
-        dietmar.eggemann@arm.com, joshdon@google.com,
-        juri.lelli@redhat.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux@rasmusvillemoes.dk, mgorman@suse.de, mingo@kernel.org,
-        rostedt@goodmis.org, valentin.schneider@arm.com,
-        vincent.guittot@linaro.org
-Subject: Re: [PATCH 1/1] sched/fair: improve yield_to vs fairness
-Message-ID: <20210723162137.GY3809@techsingularity.net>
-References: <YIlXQ43b6+7sUl+f@hirez.programming.kicks-ass.net>
- <20210707123402.13999-1-borntraeger@de.ibm.com>
- <20210707123402.13999-2-borntraeger@de.ibm.com>
- <20210723093523.GX3809@techsingularity.net>
- <ddb81bc9-1429-c392-adac-736e23977c84@de.ibm.com>
+        Fri, 23 Jul 2021 12:45:08 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16NH4Xtb141333;
+        Fri, 23 Jul 2021 13:25:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=4fiIJ040t0eMXX2fU4CGCFRsRNnfNkAuXyjTAhbPuJ0=;
+ b=om7p6PN59Bck0/x/fG8XADNGmzH9ASSu+HN1w2EAVTQPxlOTSXyid4pctcwoAj1bFdW4
+ QOQGSSMyzQePbDaikhMFntb3YI1Y0/ey43TCKmSLOBmIAcazqw6iy/Q9VIdC4pzhmuzL
+ tmUdtcEXNEGJ/+B9fXd393N1EJpi7aPoBz+GurI2fqvIGHgWGQXPjIzY3TZMCGhBOL9O
+ FdEdpV3JdeCYPrTRcOvTgo641C2DosGf25SfPxNBABXNo7Is6/6UCNL5nCPKKP6pu6vi
+ 30ID6TE5TqpLyckeE5Q9pPT5CcwW/PqoI+BoaWEl7alQfCKkFcp39DfKYmf+L8hQA1zd Zg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a017thgwr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Jul 2021 13:25:41 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16NH4ajY141733;
+        Fri, 23 Jul 2021 13:25:40 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a017thgw1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Jul 2021 13:25:40 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16NHHjE0026095;
+        Fri, 23 Jul 2021 17:25:38 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 39vng72sfd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Jul 2021 17:25:38 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16NHPZlx28049678
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 23 Jul 2021 17:25:35 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 935FA52050;
+        Fri, 23 Jul 2021 17:25:35 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.8.87])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 4AC995204E;
+        Fri, 23 Jul 2021 17:25:35 +0000 (GMT)
+Date:   Fri, 23 Jul 2021 19:25:29 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        thuth@redhat.com, cohuck@redhat.com
+Subject: Re: [kvm-unit-tests PATCH 5/5] lib: s390x: Print if a pgm happened
+ while in SIE
+Message-ID: <20210723192529.3dcca78b@p-imbrenda>
+In-Reply-To: <20210629133322.19193-6-frankja@linux.ibm.com>
+References: <20210629133322.19193-1-frankja@linux.ibm.com>
+        <20210629133322.19193-6-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <ddb81bc9-1429-c392-adac-736e23977c84@de.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: LENLWiVdtQH9ViBMGZ5T4uaouVeDwONQ
+X-Proofpoint-GUID: rMovdXwtpTQlZE7Wv1qH7bMuniydocmq
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-23_09:2021-07-23,2021-07-23 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ lowpriorityscore=0 adultscore=0 suspectscore=0 phishscore=0
+ priorityscore=1501 mlxscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0
+ malwarescore=0 clxscore=1011 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2104190000 definitions=main-2107230102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jul 23, 2021 at 02:36:21PM +0200, Christian Borntraeger wrote:
-> > sched: Do not select highest priority task to run if it should be skipped
-> > 
-> > <SNIP>
-> >
-> > index 44c452072a1b..ddc0212d520f 100644
-> > --- a/kernel/sched/fair.c
-> > +++ b/kernel/sched/fair.c
-> > @@ -4522,7 +4522,8 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
-> >   			se = second;
-> >   	}
-> > -	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
-> > +	if (cfs_rq->next &&
-> > +	    (cfs_rq->skip == left || wakeup_preempt_entity(cfs_rq->next, left) < 1)) {
-> >   		/*
-> >   		 * Someone really wants this to run. If it's not unfair, run it.
-> >   		 */
-> > 
+On Tue, 29 Jun 2021 13:33:22 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
+
+> For debugging it helps if you know if the PGM happened while being in
+> SIE or not.
 > 
-> I do see a reduction in ignored yields, but from a performance aspect for my
-> testcases this patch does not provide a benefit, while the the simple
-> 	curr->vruntime += sysctl_sched_min_granularity;
-> does.
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-I'm still not a fan because vruntime gets distorted. From the docs
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-   Small detail: on "ideal" hardware, at any time all tasks would have the same
-   p->se.vruntime value --- i.e., tasks would execute simultaneously and no task
-   would ever get "out of balance" from the "ideal" share of CPU time
+I agree with Conny regarding the style, unless you want to extend the
+SIE printf to provide more information (maybe about the guest?)
 
-If yield_to impacts this "ideal share" then it could have other
-consequences.
-
-I think your patch may be performing better in your test case because every
-"wrong" task selected that is not the yield_to target gets penalised and
-so the yield_to target gets pushed up the list.
-
-> I still think that your approach is probably the cleaner one, any chance to improve this
-> somehow?
+> ---
+>  lib/s390x/interrupt.c | 17 ++++++++++++++---
+>  1 file changed, 14 insertions(+), 3 deletions(-)
 > 
+> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> index b627942..76015b1 100644
+> --- a/lib/s390x/interrupt.c
+> +++ b/lib/s390x/interrupt.c
+> @@ -141,10 +141,21 @@ static void print_int_regs(struct
+> stack_frame_int *stack) static void print_pgm_info(struct
+> stack_frame_int *stack) 
+>  {
+> +	bool in_sie;
+> +
+> +	in_sie = (lc->pgm_old_psw.addr >= (uintptr_t)sie_entry &&
+> +		  lc->pgm_old_psw.addr <= (uintptr_t)sie_exit);
+> +
+>  	printf("\n");
+> -	printf("Unexpected program interrupt: %d on cpu %d at %#lx,
+> ilen %d\n",
+> -	       lc->pgm_int_code, stap(), lc->pgm_old_psw.addr,
+> -	       lc->pgm_int_id);
+> +	if (!in_sie)
+> +		printf("Unexpected program interrupt: %d on cpu %d
+> at %#lx, ilen %d\n",
+> +		       lc->pgm_int_code, stap(),
+> lc->pgm_old_psw.addr,
+> +		       lc->pgm_int_id);
+> +	else
+> +		printf("Unexpected program interrupt in SIE: %d on
+> cpu %d at %#lx, ilen %d\n",
+> +		       lc->pgm_int_code, stap(),
+> lc->pgm_old_psw.addr,
+> +		       lc->pgm_int_id);
+> +
+>  	print_int_regs(stack);
+>  	dump_stack();
+>  	report_summary();
 
-Potentially. The patch was a bit off because while it noticed that skip
-was not being obeyed, the fix was clumsy and isolated. The current flow is
-
-1. pick se == left as the candidate
-2. try pick a different se if the "ideal" candidate is a skip candidate
-3. Ignore the se update if next or last are set
-
-Step 3 looks off because it ignores skip if next or last buddies are set
-and I don't think that was intended. Can you try this?
-
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 44c452072a1b..d56f7772a607 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4522,12 +4522,12 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
- 			se = second;
- 	}
- 
--	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
-+	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, se) < 1) {
- 		/*
- 		 * Someone really wants this to run. If it's not unfair, run it.
- 		 */
- 		se = cfs_rq->next;
--	} else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, left) < 1) {
-+	} else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, se) < 1) {
- 		/*
- 		 * Prefer last buddy, try to return the CPU to a preempted task.
- 		 */
