@@ -7,35 +7,35 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6281CC43216
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABEC4C19F33
 	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 17:50:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4B06660EFD
+	by mail.kernel.org (Postfix) with ESMTP id 8927160F02
 	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 17:50:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232148AbhGWRJv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jul 2021 13:09:51 -0400
-Received: from ale.deltatee.com ([204.191.154.188]:50562 "EHLO
+        id S232226AbhGWRJw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jul 2021 13:09:52 -0400
+Received: from ale.deltatee.com ([204.191.154.188]:50578 "EHLO
         ale.deltatee.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229686AbhGWRJr (ORCPT
+        with ESMTP id S231698AbhGWRJr (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Jul 2021 13:09:47 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=deltatee.com; s=20200525; h=Subject:MIME-Version:References:In-Reply-To:
         Message-Id:Date:Cc:To:From:content-disposition;
-        bh=BqE/2wCCjH4FvfGKjQ09Cv01+9Px9vk9cMsrkFQoCn0=; b=I0NqDGyFiHeU4vQIrAHeYz9/OX
-        RnbsqrIWWArueD4reUWEXhXjdCxttxJixLpASD8WyFe9J/cv5ALJGHTdtEm6rCwvD6eoT0PfxJzsr
-        pcY28iGg92alpdU6jVLWb/XcJgUHIs3QrSGvqLxCQlTa9o9xJY06Nj7nHY8vPpcwinKgjHdFtNIq2
-        FA2Za3AhlhPpxgT0kGWLvtBXvp55hycTfrI6RyTL4xPeplXhvfYGbCzgbF54Qc25rW+h9eSFC7wgi
-        mF4zGD5pQcmZnzHMpGu/QiTAdDpsHWqS6g1Zw2GAPcveTb8Yqm0bB4pmSZdV192zGGh9aaF0WUgVz
-        tsjKiQ7g==;
+        bh=x3KSnhFQmhq0kDAcj69QIXa3ZhZHzFN2nEhizdLNjiI=; b=M3qmRbqsKCC+FKzgIYDrT251SH
+        Nzml0wv2K48qt2sJXjzM1DxP/eDRfrPjJ9bdzaj0HtsiKgS7pahyju0brznWg3AUJX+JatcVTcM4g
+        0wsnuMo5aYzvw314Ri5RUkrtzSp9HF/aXGG5ksmYAYRZ5BAnS1pC0gSFfSU2XiRUXllDLfF/3xgcP
+        YUj9pjNTYWDHh8iHeimXsNZzv//XPnvhiWZXPpnRGhPZv18QuImLyc5EfuRCj99XGEoFia3P4JxFW
+        zRK7JfICPO6TzZ/eLMEo6IcVqpEkBhDIJpDj5PqWbAxQ3M83go6+8pynIzl/aD4Jy3LIvtXsBIgDO
+        p3nGybYg==;
 Received: from cgy1-donard.priv.deltatee.com ([172.16.1.31])
         by ale.deltatee.com with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1m6zJN-0005Li-Sn; Fri, 23 Jul 2021 11:50:14 -0600
+        id 1m6zJQ-0005Lg-RK; Fri, 23 Jul 2021 11:50:17 -0600
 Received: from gunthorp by cgy1-donard.priv.deltatee.com with local (Exim 4.92)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1m6zJK-0005qb-OJ; Fri, 23 Jul 2021 11:50:10 -0600
+        id 1m6zJN-0005rT-EK; Fri, 23 Jul 2021 11:50:13 -0600
 From:   Logan Gunthorpe <logang@deltatee.com>
 To:     linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
@@ -49,8 +49,8 @@ Cc:     Christoph Hellwig <hch@lst.de>,
         Stephen Bates <sbates@raithlin.com>,
         Martin Oliveira <martin.oliveira@eideticom.com>,
         Logan Gunthorpe <logang@deltatee.com>
-Date:   Fri, 23 Jul 2021 11:49:49 -0600
-Message-Id: <20210723175008.22410-3-logang@deltatee.com>
+Date:   Fri, 23 Jul 2021 11:50:07 -0600
+Message-Id: <20210723175008.22410-21-logang@deltatee.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20210723175008.22410-1-logang@deltatee.com>
 References: <20210723175008.22410-1-logang@deltatee.com>
@@ -59,36 +59,39 @@ Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 172.16.1.31
 X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org, xen-devel@lists.xenproject.org, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, sbates@raithlin.com, martin.oliveira@eideticom.com, logang@deltatee.com
 X-SA-Exim-Mail-From: gunthorp@deltatee.com
-Subject: [PATCH v2 02/21] dma-direct: Return appropriate error code from dma_direct_map_sg()
+Subject: [PATCH v2 20/21] dma-mapping: return error code from dma_dummy_map_sg()
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Now that the map_sg() op expects error codes instead of return zero on
-error, convert dma_direct_map_sg() to return an error code. Per the
-documentation for dma_map_sgtable(), -EIO is returned due to an
-DMA_MAPPING_ERROR with unknown cause.
+From: Martin Oliveira <martin.oliveira@eideticom.com>
 
+The .map_sg() op now expects an error code instead of zero on failure.
+
+The only errno to return is -EINVAL in the case when DMA is not
+supported.
+
+Signed-off-by: Martin Oliveira <martin.oliveira@eideticom.com>
 Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
- kernel/dma/direct.c | 2 +-
+ kernel/dma/dummy.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index f737e3347059..f33ceb68aef2 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -411,7 +411,7 @@ int dma_direct_map_sg(struct device *dev, struct scatterlist *sgl, int nents,
- 
- out_unmap:
- 	dma_direct_unmap_sg(dev, sgl, i, dir, attrs | DMA_ATTR_SKIP_CPU_SYNC);
+diff --git a/kernel/dma/dummy.c b/kernel/dma/dummy.c
+index eacd4c5b10bf..b492d59ac77e 100644
+--- a/kernel/dma/dummy.c
++++ b/kernel/dma/dummy.c
+@@ -22,7 +22,7 @@ static int dma_dummy_map_sg(struct device *dev, struct scatterlist *sgl,
+ 		int nelems, enum dma_data_direction dir,
+ 		unsigned long attrs)
+ {
 -	return 0;
-+	return -EIO;
++	return -EINVAL;
  }
  
- dma_addr_t dma_direct_map_resource(struct device *dev, phys_addr_t paddr,
+ static int dma_dummy_supported(struct device *hwdev, u64 mask)
 -- 
 2.20.1
 
