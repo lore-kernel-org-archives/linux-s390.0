@@ -2,223 +2,239 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95778C4338F
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 14:26:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2F10C4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 14:38:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6FA0D60EB1
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 14:26:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B7B4C60EB5
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 14:38:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235369AbhGWNqI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jul 2021 09:46:08 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20134 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233666AbhGWNqH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Jul 2021 09:46:07 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16NEKTEe191630;
-        Fri, 23 Jul 2021 10:26:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=3Spo8q7XmHT8k9bDd30RKxErqWuR5QT5w15Nadhhdj8=;
- b=K+d3wRkZj6r4jc2Vw9/VHWPVnAq7dtlsRMmyYxywzW12l7rCUrSkz7TVAAuIg9rO0eN4
- B/ZvlusM5aF9XaYx5ISPumjKpykfngfiCEk/xm3JUX4ytwLB8dbISr+ofzjCa41XqfgL
- lv4NuZPSmTuqnEisitQp/VQKl/0/WeeOf4dJHzhP/Pts4+7OlXnKUnIhmqId+VmGNW8F
- RrDkd7WJlFXp8pFmk1dQkP633ahgahqWIfUvSPqjSWSxV9Z2qgsG09+ZJ3SZvjIkWzVf
- gMKNIAB302gGg6vRjngeRUXDeQJGVIEUPv++S6C6QR9J9UPqf35y3vKdoI+/e0T6JLeE Dw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39yyetr3xt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Jul 2021 10:26:39 -0400
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16NEKikE193061;
-        Fri, 23 Jul 2021 10:26:39 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39yyetr3wu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Jul 2021 10:26:38 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16NEKlPS015763;
-        Fri, 23 Jul 2021 14:26:36 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma05fra.de.ibm.com with ESMTP id 39upu89w7a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Jul 2021 14:26:36 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16NEQXYJ26345854
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 23 Jul 2021 14:26:33 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 20AA9AE055;
-        Fri, 23 Jul 2021 14:26:33 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2972CAE04D;
-        Fri, 23 Jul 2021 14:26:32 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.6.217])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Fri, 23 Jul 2021 14:26:32 +0000 (GMT)
-Date:   Fri, 23 Jul 2021 16:26:25 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com, david@redhat.com
-Subject: Re: [PATCH 2/2] s390/vfio-ap: replace open coded locks for
- VFIO_GROUP_NOTIFY_SET_KVM notification
-Message-ID: <20210723162625.59cead27.pasic@linux.ibm.com>
-In-Reply-To: <c3b80f79-6795-61ce-2dd1-f4cc7110e417@linux.ibm.com>
-References: <20210719193503.793910-1-akrowiak@linux.ibm.com>
-        <20210719193503.793910-3-akrowiak@linux.ibm.com>
-        <20210721164550.5402fe1c.pasic@linux.ibm.com>
-        <c3b80f79-6795-61ce-2dd1-f4cc7110e417@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S235351AbhGWN5n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jul 2021 09:57:43 -0400
+Received: from mail-bn8nam11on2068.outbound.protection.outlook.com ([40.107.236.68]:53414
+        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S233665AbhGWN5m (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 23 Jul 2021 09:57:42 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Ks/MwgjWPlG/oBjExD9jq1GPAPfmtC1JJgj6w5oRT/WtJp5Hs9SYYX8bGKbtlR2IF6zjjblVkiusp1fqc7O8Y5fT0jIeXg5a9hp/MYmkf4D9BFEtd6Z00+jVzV0AsGAylNIZr1iPOfAGVJQw+5rXYYxFBQ8ZrVzlqwQmOzb06XB1XNm/RgNTW+WQfWnQmNFYB3v7E4CJZpA5N+mjhwrJ7xF5r5MrPIYsDMyZUcc1bVLtojQfrtTVuluLostV873xQ6qlKOgOlTnbKEvq8EU6ngbUhGVVy/fDNcnrH9zsqJ8Cu2e7Rgta4XwK+KJrWeHD+Dh2qQssGRmlf19nDcLAOw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=IMUOF5y0l/BAN/lslmWX4zK20mhdCrNLrk5pBsBtkTw=;
+ b=VxDeNCO7fdzSlgGuiJxULPMym1Te9tA9qH1vI3cU4aEZNloXbSOYda/HMzqp0nFAP0OOSBXCgej8/C4A9pS2q6hJ0E4GyitSjPNKMBfUqRryNI2imeyR/qObSnKtjwCfRkv57C4OZlEy1gpvWMOgjgfEZ3RQkOBWaaYnbJa5iZI5ARhJaz+a13GuGTo5wXt3HEZ+Xd5MxPcXHVSjNPO2Wn1eHIIrvYtO19gzcpbu82znfxvMQ5d8UxVhTv8ZymnjTdNSAXKU8ZWizq/PopcKjZz97PkVaLN82RFAmRDtZqkbSzTYpakyhvY2nh98b3o05ZpkgYae7IwBKQo7c6S81w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=IMUOF5y0l/BAN/lslmWX4zK20mhdCrNLrk5pBsBtkTw=;
+ b=C5eYSLE7s2LpoEbxMlEuk0fg3LpTAqydZjxZmP0mle7BL21ugvH+ye/sq73+oVP3x/wTD6HA9UXXr2tkRPM+fshz7UIhkWWHXf1Pk8U4iwRSAZ9X/NipvaJIWwWm1TprxV+hOsACgZQlTN66tX65zEFF4p+5Ni27kgFg/fcEG0vTuy7jRTWfaFc3Qlw1fT7KOUK3V+XZ86RnBLtTxR7vv0rkc74u/Z50lcpT14l5wx5qi/Q8Uk0OHyV0CHcG3gNjzxT3GEiRo9Q+GIe4Jdlji4R4kMHxsN50wtm+bRCgcAJWnyKfCA/U/0zsV4x5ljdOmnbVqjy/rDi3U5ApQehqcA==
+Authentication-Results: lst.de; dkim=none (message not signed)
+ header.d=none;lst.de; dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL1PR12MB5240.namprd12.prod.outlook.com (2603:10b6:208:319::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4352.28; Fri, 23 Jul
+ 2021 14:38:13 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::d017:af2f:7049:5482]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::d017:af2f:7049:5482%4]) with mapi id 15.20.4352.029; Fri, 23 Jul 2021
+ 14:38:12 +0000
+Date:   Fri, 23 Jul 2021 11:38:11 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        dri-devel@lists.freedesktop.org,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: Re: [PATCH v2 04/14] vfio: Provide better generic support for
+ open/release vfio_device_ops
+Message-ID: <20210723143811.GA1672295@nvidia.com>
+References: <0-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
+ <4-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
+ <20210723073914.GC864@lst.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210723073914.GC864@lst.de>
+X-ClientProxiedBy: BL0PR02CA0077.namprd02.prod.outlook.com
+ (2603:10b6:208:51::18) To BL0PR12MB5506.namprd12.prod.outlook.com
+ (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: m4ymPi2y4JFMoQVTobtmf4UV69Szicgs
-X-Proofpoint-ORIG-GUID: olJ_G38DjWZtccgGW2vk6j5N1c0FGCMT
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-23_08:2021-07-23,2021-07-23 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- mlxlogscore=999 priorityscore=1501 clxscore=1015 adultscore=0 mlxscore=0
- lowpriorityscore=0 bulkscore=0 phishscore=0 spamscore=0 impostorscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107230083
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (142.162.113.129) by BL0PR02CA0077.namprd02.prod.outlook.com (2603:10b6:208:51::18) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4352.24 via Frontend Transport; Fri, 23 Jul 2021 14:38:12 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1m6wJX-007Atx-Ab; Fri, 23 Jul 2021 11:38:11 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: be181b7b-9ca3-4536-17b4-08d94de77fb3
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5240:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BL1PR12MB52405EF79365EA502BD6157AC2E59@BL1PR12MB5240.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:5516;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 1tz/Evf4o6rfquhlWxk0GWdeyCdDV6wQNsRgriqYqv+YWa6uEUCIAHqG+iIoIntbYftCpor4hj3DhVuN0oI1ufLKfNoIEmJqqJF327obHwai4mInRsk0VbXgduXNTpQyIlwWrHK4Gg29WrkxlTqw1mbjsg/KsUQlatdoEaJAXgmESHg12RP/BTGgw6YOO/NTi7cv8yc0y3OYTbEPX+bJ1izKKoYsKnKTLXt/VCZ43cX3D0WA5XnhejS/EE7JvOwQZ0L61abpQ72wEM/6cg5sMLAsBrOnVDkiOSfEzkurQYOehy/Mt1bSInsaDJ4ewx+cq9ZOw7UOnHIE/AGXPK8vbI5ftg2Pt3kyxrb7z0d3OtnCI6Vqpb2LiDX3JQNBz6tZnR0oTWLvFAopMQTrPd8bwNhpQWXrxQ9J5DVY4Vxjn6opp3esOUssAqVkn2CoMLDbwnBaqLO7k/Ug0I4E5PPZSLELzZLBzX62PZ0w7eST58hQ4kJ+yT2BMSOYFeoZ3qBziHbVWpmlb7uO5hdKvs6EkJGU1zdysGcl9h1tTbswmEs8cUW/X8ZKZNF2rEviVf6N5cuRRjZyE01M8R82G6+pQ5+I8fHqY6Esll4BNKQbvf8j/Rj72sNPleV97KrXG0IqnxzyMtES9bvgZx0LZfrNTFckam54Nqz2T7OAL//x/NdmyznBx35tY+vP8niWixvm
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(39860400002)(366004)(346002)(396003)(376002)(36756003)(2906002)(2616005)(186003)(7406005)(6916009)(54906003)(86362001)(7416002)(33656002)(66946007)(8936002)(26005)(8676002)(5660300002)(1076003)(83380400001)(4326008)(9786002)(66556008)(316002)(478600001)(426003)(66476007)(38100700002)(9746002)(41533002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?A7Trh6+xMMDI7FmkhpoKMEOds/JCp6Q6/bTKKahLij7k0FyNPcWDuQoaRkTs?=
+ =?us-ascii?Q?jLYqXjZAwzO0QlhwmqmCQbmb6x4KIIo+vXWvPwnxC+bpBEjJm+j+Kaf33S89?=
+ =?us-ascii?Q?FY0M7iSmVNKJCvjETUs1oXbfa6yXBlEPcvhkdAUwC7OFf/oo/edZGDJ1HWDk?=
+ =?us-ascii?Q?wtxTQxftGO0ubmLPULk1KcacK53lZA3IyyUaEEg+vT8HQzjgGzgHWb9V9D0B?=
+ =?us-ascii?Q?fxml/YpPsW/HDGINR4Jx6KJCyd+FArbp2ic5wcrZdsSpVj5CBZNtK87dbm90?=
+ =?us-ascii?Q?BoA3dVFtXqgQrL+vJyIs219Bjc1I8WKwgiTLSDZvvw3M9Rl0tFPsijucnfVn?=
+ =?us-ascii?Q?uVuoH2g6FcFe5Lcu1wV8tiOo4NvVb6K9UASNBJO1d0+fPz9MC4L0Cy2+HimX?=
+ =?us-ascii?Q?jxmX/3iQgcFi+qhIXvzyEeqBG8mSXxFG0R1AY/FKogEoxEYZM26wa+O3bByy?=
+ =?us-ascii?Q?M5bzH45iNAoBTWPla4t84w+w6NeApHzaU06quapQufZToHWcRL2Nv+efz1EW?=
+ =?us-ascii?Q?PFyhfX3CUhQgov9FFuW8oy1kto9jKmTEhFy43th5iLMJllCC1Ygz3uRlNv5r?=
+ =?us-ascii?Q?y3SGSH8ByymUmukm5IGUiY1rZZK/Y5D7W+rudeqNXZ41ENKlxqZrXFhu8i8P?=
+ =?us-ascii?Q?6ii2/YsReH9rqh/RpcgEw5XCJo66upTuyDe7yL89HmnBVReUQ1ZupKa/23s/?=
+ =?us-ascii?Q?dz2by1ZyzCPrZJgD+NjQ31bv7QI5CNAsAqSbSK9EuZ88vCOYE3hp4mUbWaEd?=
+ =?us-ascii?Q?oMFpHf1XRRNSv8Rjl/Mc1aILXwfxT+ZSOZBrmuAH0wg6u5QscMfLU1ESDMiJ?=
+ =?us-ascii?Q?v3+IhWB8wEpVSWXu2k3XI/K9/Y2fqsQrnXNchl8um2rGfr3ip8UTEw+tkjI1?=
+ =?us-ascii?Q?72hHHan36dxSqpoVF9zr6mhlc/hHA0EBKFejWWR3wk9LTsmZVWPet0tO95R9?=
+ =?us-ascii?Q?01JsiHrPVSZK2xOe2+z4p6qfDPq8TXuzHlvdevZBTTvj91N3cSPBa2RYJ9AX?=
+ =?us-ascii?Q?IiClOxX3DhjQ6XxGqVr0S6s70y4DxmL5Awhrerf15BVaUyC7xHsUiiFD6XPl?=
+ =?us-ascii?Q?qM1qtFrz8ROgxwf9CNW/awF4sZLrGHeAOnSFubsKFjCxweElDao+Nflbdaze?=
+ =?us-ascii?Q?52yvS5Tg2m7kyJ+1sgR7G64nKPCw/H2Kk8B9jyHvvuyHoRWHJgaTSaku3iH6?=
+ =?us-ascii?Q?iVdhXddCphTFZ3LF42aeZcxvEHjHXTL721KU3M1QgMXkIVEvWhkD6R2PIG27?=
+ =?us-ascii?Q?VscLKNpbeZ84paA/mP7p/56wNgYuP9rPAFvco3fneBhmNB9Ujcrfi9vdyMh9?=
+ =?us-ascii?Q?Xul8Hg6SSlyiWEMceU1lweos?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: be181b7b-9ca3-4536-17b4-08d94de77fb3
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jul 2021 14:38:12.8826
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: NcrPMzXg+dYA6i1u3uYaV4t4RuSm8DEXCvAGucuFGGk5ZJHcz7JJKLQbEK0KuJ0Y
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5240
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 22 Jul 2021 09:09:26 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+On Fri, Jul 23, 2021 at 09:39:14AM +0200, Christoph Hellwig wrote:
 
-> On 7/21/21 10:45 AM, Halil Pasic wrote:
-> > On Mon, 19 Jul 2021 15:35:03 -0400
-> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> >  
-> >> It was pointed out during an unrelated patch review that locks should not  
-> > [..]
-> >  
-> >> -static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
-> >> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev,
-> >> +				   struct kvm *kvm)
-> >>   {
-> >> -	/*
-> >> -	 * If the KVM pointer is in the process of being set, wait until the
-> >> -	 * process has completed.
-> >> -	 */
-> >> -	wait_event_cmd(matrix_mdev->wait_for_kvm,
-> >> -		       !matrix_mdev->kvm_busy,
-> >> -		       mutex_unlock(&matrix_dev->lock),
-> >> -		       mutex_lock(&matrix_dev->lock));
-> >> -
-> >> -	if (matrix_mdev->kvm) {  
-> > We used to check if matrix_mdev->kvm is null, but ...
-> >  
-> >> -		matrix_mdev->kvm_busy = true;
-> >> -		mutex_unlock(&matrix_dev->lock);
-> >> -
-> >> -		if (matrix_mdev->kvm->arch.crypto.crycbd) {
-> >> -			down_write(&matrix_mdev->kvm->arch.crypto.pqap_hook_rwsem);
-> >> -			matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
-> >> -			up_write(&matrix_mdev->kvm->arch.crypto.pqap_hook_rwsem);
-> >> -
-> >> -			kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-> >> -		}
-> >> +	if (kvm->arch.crypto.crycbd) {  
-> > ... now we just try to dereference it. And ..  
-> 
-> We used to check matrix_mdev->kvm, now the kvm pointer is passed into
-> the function; however, having said that, the pointer passed in should be
-> checked before de-referencing it.
-> 
-> >  
-> >> +		down_write(&kvm->arch.crypto.pqap_hook_rwsem);
-> >> +		kvm->arch.crypto.pqap_hook = NULL;
-> >> +		up_write(&kvm->arch.crypto.pqap_hook_rwsem);
-> >>
-> >> +		mutex_lock(&kvm->lock);
-> >>   		mutex_lock(&matrix_dev->lock);
-> >> +
-> >> +		kvm_arch_crypto_clear_masks(kvm);
-> >>   		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
-> >> -		kvm_put_kvm(matrix_mdev->kvm);
-> >> +		kvm_put_kvm(kvm);
-> >>   		matrix_mdev->kvm = NULL;
-> >> -		matrix_mdev->kvm_busy = false;
-> >> -		wake_up_all(&matrix_mdev->wait_for_kvm);
-> >> +
-> >> +		mutex_unlock(&kvm->lock);
-> >> +		mutex_unlock(&matrix_dev->lock);
-> >>   	}
-> >>   }
-> >>  
-> > [..]
-> >  
-> >> @@ -1363,14 +1323,11 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
-> >>   {
-> >>   	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> >>
-> >> -	mutex_lock(&matrix_dev->lock);
-> >> -	vfio_ap_mdev_unset_kvm(matrix_mdev);
-> >> -	mutex_unlock(&matrix_dev->lock);
-> >> -  
-> > .. before access to the matrix_mdev->kvm used to be protected by
-> > the matrix_dev->lock ...
-> >  
-> >>   	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-> >>   				 &matrix_mdev->iommu_notifier);
-> >>   	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
-> >>   				 &matrix_mdev->group_notifier);
-> >> +	vfio_ap_mdev_unset_kvm(matrix_mdev, matrix_mdev->kvm);  
-> > ... but it is not any more. BTW I don't think the code is guaranteed
-> > to fetch ->kvm just once.  
-> 
-> There are a couple of things to point out here:
-> 1. The vfio_ap_mdev_unset_kvm function() is the only place where the
->      matrix_mdev->kvm pointer is cleared. That function is called here
->      as well as by the group notifier callback for VFIO_GROUP_NOTIFY_SET_KVM
->      events. If you notice in the code above, the group notifier is 
-> unregistered
->      before calling the unset function, so either the notifier will have 
-> already
->      been invoked and the pointer cleared (which is why you are correct
->      that the KVM pointer passed in needs to get checked in the unset 
-> function),
->      or will get cleared here.
+> This looks unessecarily complicated.  We can just try to load first
+> and then store it under the same lock, e.g.:
 
-Hm, vfio_unregister_notifier() indeed seems to guarantee, that by the
-time it returns no notifer is running. I didn't know that. But this
-blocking notifier chain uses an rwsem. So mutual exclusion with
-vfio_ap_mdev_open() is guaranteed, than it is indeed guaranteed. A quick
-glance at the code didn't tell me if vfio/mdev guarantees that. 
+Yes indeed, I went with this:
 
-I mean it would make sense to me to make the init and the cleanup
-mutually exclusive, but I'm reluctant to just assume it is like that.
-Can you please point me into the right direction?
+int vfio_assign_device_set(struct vfio_device *device, void *set_id)
+{
+	unsigned long idx = (unsigned long)set_id;
+	struct vfio_device_set *new_dev_set;
+	struct vfio_device_set *dev_set;
+
+	if (WARN_ON(!set_id))
+		return -EINVAL;
+
+	/*
+	 * Atomically acquire a singleton object in the xarray for this set_id
+	 */
+	xa_lock(&vfio_device_set_xa);
+	dev_set = xa_load(&vfio_device_set_xa, idx);
+	if (dev_set)
+		goto found_get_ref;
+	xa_unlock(&vfio_device_set_xa);
+
+	new_dev_set = kzalloc(sizeof(*new_dev_set), GFP_KERNEL);
+	if (!new_dev_set)
+		return -ENOMEM;
+	mutex_init(&new_dev_set->lock);
+	new_dev_set->set_id = set_id;
+
+	xa_lock(&vfio_device_set_xa);
+	dev_set = __xa_cmpxchg(&vfio_device_set_xa, idx, NULL, new_dev_set,
+			       GFP_KERNEL);
+	if (!dev_set) {
+		dev_set = new_dev_set;
+		goto found_get_ref;
+	}
+
+	kfree(new_dev_set);
+	if (xa_is_err(dev_set)) {
+		xa_unlock(&vfio_device_set_xa);
+		return xa_err(dev_set);
+	}
+
+found_get_ref:
+	dev_set->device_count++;
+	xa_unlock(&vfio_device_set_xa);
+	device->dev_set = dev_set;
+	return 0;
+}
+
+I'm also half inclined to delete the xa_load() since I think the
+common case here is to need the allocate...
+
+> 	xa_lock(&vfio_device_set_xa);
+> 	set = xa_load(&vfio_device_set_xa, idx);
+> 	if (set) {
+> 		kfree(new);
+> 		goto found;
+> 	}
+> 	err = xa_err(__xa_store(&vfio_device_set_xa, idx, new, GFP_KERNEL));
+
+AIUI this is subtly racy:
 
 
-> 2. The release callback is invoked when the mdev fd is closed by userspace.
->      The remove callback is the only place where the matrix_mdev is 
-> freed. The
->      remove callback is not called until the mdev fd is released, so it 
-> is guaranteed
->      the matrix_mdev will exist when the release callback is invoked.
-> 3. The matrix_dev->lock is then taken in the vfio_ap_mdev_unset_kvm function
->      before doing any operations that modify the matrix_mdev.
+  CPU1                               CPU2
+xa_lock()
+ xa_load() == NULL
+ xa_store()
+   __xas_nomem()
+     xa_unlock()
+                                 xa_lock()
+                                  xa_load() == NULL
+                                  xa_store()
+                                   __xas_nomem()
+                                    xa_unlock()
+                                     kmem_cache_alloc()
+      kmem_cache_alloc()
+     xa_lock()
+   [idx] = new1
+xa_unlock()
+                                    xa_lock()
+                                   [idx] = new2    // Woops, lost new1!
+                                 xa_unlock()
 
-Yeah but both the reader, and the writer needs to use the same lock to
-have the protected by the lock type of situation. That is why I asked
-about the place where you read matrix_mdev members outside the
-matrix_dev->lock.
+The hidden xa unlock is really tricky.
 
-Regards,
-Halil
+The __xa_cmpxchg is safe against this.
+
+Jason
