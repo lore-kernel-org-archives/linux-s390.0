@@ -2,275 +2,194 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89AB9C43216
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 20:08:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43AC1C4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 05:51:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 73F3960EB8
-	for <linux-s390@archiver.kernel.org>; Thu, 22 Jul 2021 20:08:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B28360E8B
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 05:51:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230425AbhGVT2H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 22 Jul 2021 15:28:07 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49686 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230079AbhGVT2G (ORCPT
+        id S233628AbhGWFLR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jul 2021 01:11:17 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49274 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231949AbhGWFLR (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Jul 2021 15:28:06 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16MK5slh171246;
-        Thu, 22 Jul 2021 16:07:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=pxAZategEXP9Z9IUmmXjkgKFL8QhCxHo+LvV20yfc2o=;
- b=fjjJhSDax+UCFsdpimc9E3TVazmtoFisK7o63Z+aHnuQ10h7P4+U6pvjKZwoioVpTMHE
- 3prsevvG27k8JeTXrgUpGjNwXCkR3ltK2BKT6W5/ln2pRbAdWSYnPsjTgH8K+KGJTsbv
- Y/ptFbQEjeTvs6oOFWslY/BLY8YsxBBnnydeqd4O+hPIxB+2LG28ogaJaQoH5F/GbdQX
- UucM8ZgGNnfKCKOOxhZqN5WD9tnFwX//42CGw1akKWTaVkDOJBWpUVYIgF9jarMzLcrI
- 2uVAsnYSDggZtLauY4Udme6XGd76gkt46EvqDithPRcBoF5qOEpryZ18nDPM1W7SQlW8 tQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39yf64rkbk-1
+        Fri, 23 Jul 2021 01:11:17 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16N5aPQV039717;
+        Fri, 23 Jul 2021 01:51:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=XkZ3m0PigwT5WyRPg6Lt98un09CnDDNjG2ReWBa7yCQ=;
+ b=AXzBLmP6qNsPlrAwS7I9oGm+TMsdG5ySnXn17dpRUk/xzWPLCT0mJUQEXNELOq6po+ob
+ 183ynsuo1uJKG/f8J8XAJqQDmwniuqpvVHG5eDrvNAIhPSu9YoZZKBHAeOHstIYLnXWd
+ xqvzSmG0ETHzPNnqgHrNtgyKDIxAkEF+UzWXseM3aWtGIaWkEAtwQ4xciTFqg1SekOEy
+ nXB1sUxL78ayCzbuE0Z3SamcCKG5/HLTyDYTsX1uAuYmJ/ikqG5AjDn/FmvqOVOMfOFl
+ x0OWV+3k3dcSaNpggRimUZ4IUG2k7GEH4IHm/A9ok2q1BpjOOmzgpwNU3jHvmUDE5ZG6 Yg== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 39yq0w1cbm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Jul 2021 16:07:41 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16MK6B6e178946;
-        Thu, 22 Jul 2021 16:07:39 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39yf64rk9n-1
+        Fri, 23 Jul 2021 01:51:29 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16N5pBV8032258;
+        Fri, 23 Jul 2021 05:51:28 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 39xhx4917w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Jul 2021 16:07:39 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16MK2eIe004461;
-        Thu, 22 Jul 2021 20:07:36 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 39upu8anje-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 22 Jul 2021 20:07:36 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16MK7XZU23265788
+        Fri, 23 Jul 2021 05:51:27 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16N5pO3c17891682
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 22 Jul 2021 20:07:33 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 47BAFA405D;
-        Thu, 22 Jul 2021 20:07:33 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 114A4A4059;
-        Thu, 22 Jul 2021 20:07:32 +0000 (GMT)
-Received: from osiris (unknown [9.145.157.138])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu, 22 Jul 2021 20:07:31 +0000 (GMT)
-Date:   Thu, 22 Jul 2021 22:07:30 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Johannes Berg <johannes@sipsolutions.net>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Brian Cain <bcain@codeaurora.org>,
-        Chris Zankel <chris@zankel.net>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Christoph Hellwig <hch@lst.de>, Guo Ren <guoren@kernel.org>,
-        Helge Deller <deller@gmx.de>, Jeff Dike <jdike@addtoit.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Michal Simek <monstr@monstr.eu>,
-        Richard Weinberger <richard@nod.at>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        linux-csky@vger.kernel.org,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        linux-ia64@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
+        Fri, 23 Jul 2021 05:51:24 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CD84542042;
+        Fri, 23 Jul 2021 05:51:24 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5141F4203F;
+        Fri, 23 Jul 2021 05:51:24 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.145.25.128])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 23 Jul 2021 05:51:24 +0000 (GMT)
+Subject: Re: [PATCH v2 0/4] Fix restricted DMA vs swiotlb_exit()
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     Will Deacon <will@kernel.org>, iommu@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Claire Chang <tientzu@chromium.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Nathan Chancellor <nathan@kernel.org>,
         linux-s390 <linux-s390@vger.kernel.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
-        "moderated list:H8/300 ARCHITECTURE" 
-        <uclinux-h8-devel@lists.sourceforge.jp>
-Subject: Re: [PATCH v3 9/9] asm-generic: reverse GENERIC_{STRNCPY_FROM,
- STRNLEN}_USER symbols
-Message-ID: <YPnQAksI2+YBivHb@osiris>
-References: <20210722124814.778059-1-arnd@kernel.org>
- <20210722124814.778059-10-arnd@kernel.org>
- <29adc1c164805e355b37d1d4668ebda9fb7fa872.camel@sipsolutions.net>
- <CAK8P3a0xZAHknG8_kc62aaKrKdzD-QwQYHT61_wTbFDYADu-zw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a0xZAHknG8_kc62aaKrKdzD-QwQYHT61_wTbFDYADu-zw@mail.gmail.com>
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+References: <20210720133826.9075-1-will@kernel.org>
+ <57e37ef9-c055-d6a6-2244-2c7dd243b5c1@de.ibm.com>
+ <20210723031252.655d6a83.pasic@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <62da6479-a000-0b1a-d251-c4e27616fbc2@de.ibm.com>
+Date:   Fri, 23 Jul 2021 07:51:24 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
+In-Reply-To: <20210723031252.655d6a83.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: zBJG7-Su11TnE7WjI2sRjsyypGmhBA3s
-X-Proofpoint-GUID: 8rZiWLuXZ3udsmjyLVYaHJJmySsc38wu
+X-Proofpoint-GUID: JDL3fP8eBNYXkkJGbBGOgcZFzzxpE9S3
+X-Proofpoint-ORIG-GUID: JDL3fP8eBNYXkkJGbBGOgcZFzzxpE9S3
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-22_12:2021-07-22,2021-07-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
- mlxlogscore=999 mlxscore=0 adultscore=0 spamscore=0 clxscore=1011
- priorityscore=1501 phishscore=0 suspectscore=0 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107220131
+ definitions=2021-07-22_16:2021-07-22,2021-07-22 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 mlxlogscore=999 priorityscore=1501 suspectscore=0
+ bulkscore=0 phishscore=0 clxscore=1015 adultscore=0 mlxscore=0
+ malwarescore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107230031
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 22, 2021 at 04:01:39PM +0200, Arnd Bergmann wrote:
-> On Thu, Jul 22, 2021 at 3:57 PM Johannes Berg <johannes@sipsolutions.net> wrote:
-> >
-> > >
-> > > The remaining architectures at the moment are: ia64, mips, parisc,
-> > > s390, um and xtensa. We should probably convert these as well, but
-> >
-> > I'm not sure it makes sense to convert um, the implementation uses
-> > strncpy(), and that should use the libc implementation, which is tuned
-> > for the actual hardware that the binary is running on, so performance
-> > wise that might be better.
-> >
-> > OTOH, maybe this is all in the noise given the huge syscall overhead in
-> > um, so maybe unifying it would make more sense.
+
+
+On 23.07.21 03:12, Halil Pasic wrote:
+> On Thu, 22 Jul 2021 21:22:58 +0200
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 > 
-> Right, makes sense. I suppose if we end up converting mips and s390,
-> we should just do arch/um and the others as well for consistency, even
-> if that adds some overhead.
+>> On 20.07.21 15:38, Will Deacon wrote:
+>>> Hi again, folks,
+>>>
+>>> This is version two of the patch series I posted yesterday:
+>>>
+>>>     https://lore.kernel.org/r/20210719123054.6844-1-will@kernel.org
+>>>
+>>> The only changes since v1 are:
+>>>
+>>>     * Squash patches 2 and 3, amending the commit message accordingly
+>>>     * Add Reviewed-by and Tested-by tags from Christoph and Claire (thanks!)
+>>>
+>>> I'd usually leave it a bit longer between postings, but since this fixes
+>>> issues with patches in -next I thought I'd spin a new version immediately.
+>>>
+>>> Cheers,
+>>
+>> FWIW, I just bisected virtio-errors with secure execution mode
+>> qemu-system-s390x: virtio-serial-bus: Unexpected port id 4205794771 for device virtio-serial0.0
+>>
+>> to
+>> commit 903cd0f315fe426c6a64c54ed389de0becb663dc
+>> Author: Claire Chang <tientzu@chromium.org>
+>> Date:   Thu Jun 24 23:55:20 2021 +0800
+>>
+>>        swiotlb: Use is_swiotlb_force_bounce for swiotlb data bouncing
+>>
+>> Unfortunately this patch series does NOT fix this issue, so it seems that even more
+>> things are broken.
+>>
+>> Any idea what else might be broken?
+> 
+> I've done some debugging, and I think I know what is going on. Since
+> that commit we need to set force_swiotlb before the swiotlb itself is
+> initialized. So the patch below should fix the problem.
+> 
+> --------------------8<-------------------------------------
+> 
+> From: Halil Pasic <pasic@linux.ibm.com>
+> Date: Fri, 23 Jul 2021 02:57:06 +0200
+> Subject: [PATCH 1/1] s390/pv: fix the forcing of the swiotlb
+> 
+> Since commit 903cd0f315fe ("swiotlb: Use is_swiotlb_force_bounce for
+> swiotlb data bouncing") if code sets swiotlb_force it needs to do so
+> before the swiotlb is initialised. Otherwise
+> io_tlb_default_mem->force_bounce will not get set to true, and devices
+> that use (the default) swiotlb will not bounce  despite switolb_force
+> having the value of SWIOTLB_FORCE.
+> 
+> Let us restore swiotlb functionality for PV by fulfilling this new
+> requirement.
+> 
+I would add:
+Fixes: 903cd0f315fe ("swiotlb: Use is_swiotlb_force_bounce for swiotlb data bouncing")
+as this patch breaks things
+and
+Fixes: 64e1f0c531d1 ("s390/mm: force swiotlb for protected virtualization")
 
-Feel free to add the s390 patch below on top of your series. However
-one question: the strncpy_from_user() prototype now comes everywhere
-without the __must_check attribute. Is there any reason for that?
+to make the s390 init code more robust in case people start backporting things.
 
-At least for s390 I want to keep that.
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 
-From 03ad679909af58e1dc6864f47ce67210f0534c39 Mon Sep 17 00:00:00 2001
-From: Heiko Carstens <hca@linux.ibm.com>
-Date: Thu, 22 Jul 2021 21:48:18 +0200
-Subject: [PATCH] s390: use generic strncpy/strnlen from_user
+I can confirm that this fixes the problem. This also makes sense codewise.
 
-The s390 variant of strncpy_from_user() is slightly faster than the
-generic variant, however convert to the generic variant now to follow
-most if not all other architectures.
+Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Converting to the generic variant was already considered a couple of
-years ago. See commit f5c8b9601036 ("s390/uaccess: use sane length for
-__strncpy_from_user()").
+Konrad, Heiko, Vasily, any preference which tree this goes? I think s390
+would be easiest, but that requires that the patches in the swiotlb tree have
+fixed commit IDs.
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/Kconfig               |  2 --
- arch/s390/include/asm/uaccess.h | 18 ++----------
- arch/s390/lib/uaccess.c         | 52 ---------------------------------
- 3 files changed, 2 insertions(+), 70 deletions(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index f4f39087cad0..a0e2130f0100 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -75,8 +75,6 @@ config S390
- 	select ARCH_HAS_SET_MEMORY
- 	select ARCH_HAS_STRICT_KERNEL_RWX
- 	select ARCH_HAS_STRICT_MODULE_RWX
--	select ARCH_HAS_STRNCPY_FROM_USER
--	select ARCH_HAS_STRNLEN_USER
- 	select ARCH_HAS_SYSCALL_WRAPPER
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
- 	select ARCH_HAS_VDSO_DATA
-diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
-index 2316f2440881..9ed9aa37e836 100644
---- a/arch/s390/include/asm/uaccess.h
-+++ b/arch/s390/include/asm/uaccess.h
-@@ -233,23 +233,9 @@ raw_copy_in_user(void __user *to, const void __user *from, unsigned long n);
- /*
-  * Copy a null terminated string from userspace.
-  */
-+long __must_check strncpy_from_user(char *dst, const char __user *src, long count);
- 
--long __strncpy_from_user(char *dst, const char __user *src, long count);
--
--static inline long __must_check
--strncpy_from_user(char *dst, const char __user *src, long count)
--{
--	might_fault();
--	return __strncpy_from_user(dst, src, count);
--}
--
--unsigned long __must_check __strnlen_user(const char __user *src, unsigned long count);
--
--static inline unsigned long strnlen_user(const char __user *src, unsigned long n)
--{
--	might_fault();
--	return __strnlen_user(src, n);
--}
-+long __must_check strnlen_user(const char __user *src, long count);
- 
- /*
-  * Zero Userspace
-diff --git a/arch/s390/lib/uaccess.c b/arch/s390/lib/uaccess.c
-index 7ec8b1fa0f08..94ca99bde59d 100644
---- a/arch/s390/lib/uaccess.c
-+++ b/arch/s390/lib/uaccess.c
-@@ -338,55 +338,3 @@ unsigned long __clear_user(void __user *to, unsigned long size)
- 	return clear_user_xc(to, size);
- }
- EXPORT_SYMBOL(__clear_user);
--
--static inline unsigned long strnlen_user_srst(const char __user *src,
--					      unsigned long size)
--{
--	unsigned long tmp1, tmp2;
--
--	asm volatile(
--		"   lghi  0,0\n"
--		"   la    %2,0(%1)\n"
--		"   la    %3,0(%0,%1)\n"
--		"   slgr  %0,%0\n"
--		"   sacf  256\n"
--		"0: srst  %3,%2\n"
--		"   jo    0b\n"
--		"   la    %0,1(%3)\n"	/* strnlen_user results includes \0 */
--		"   slgr  %0,%1\n"
--		"1: sacf  768\n"
--		EX_TABLE(0b,1b)
--		: "+a" (size), "+a" (src), "=a" (tmp1), "=a" (tmp2)
--		:
--		: "cc", "memory", "0");
--	return size;
--}
--
--unsigned long __strnlen_user(const char __user *src, unsigned long size)
--{
--	if (unlikely(!size))
--		return 0;
--	return strnlen_user_srst(src, size);
--}
--EXPORT_SYMBOL(__strnlen_user);
--
--long __strncpy_from_user(char *dst, const char __user *src, long size)
--{
--	size_t done, len, offset, len_str;
--
--	if (unlikely(size <= 0))
--		return 0;
--	done = 0;
--	do {
--		offset = (size_t)src & (L1_CACHE_BYTES - 1);
--		len = min(size - done, L1_CACHE_BYTES - offset);
--		if (copy_from_user(dst, src, len))
--			return -EFAULT;
--		len_str = strnlen(dst, len);
--		done += len_str;
--		src += len_str;
--		dst += len_str;
--	} while ((len_str == len) && (done < size));
--	return done;
--}
--EXPORT_SYMBOL(__strncpy_from_user);
--- 
-2.25.1
-
+> ---
+>   arch/s390/mm/init.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index 8ac710de1ab1..07bbee9b7320 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -186,9 +186,9 @@ static void pv_init(void)
+>   		return;
+>   
+>   	/* make sure bounce buffers are shared */
+> +	swiotlb_force = SWIOTLB_FORCE;
+>   	swiotlb_init(1);
+>   	swiotlb_update_mem_attributes();
+> -	swiotlb_force = SWIOTLB_FORCE;
+>   }
+>   
+>   void __init mem_init(void)
+> 
