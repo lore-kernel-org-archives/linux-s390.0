@@ -2,26 +2,25 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EBD3C4320A
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 07:39:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 938F7C432BE
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 07:44:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E82B60E91
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 07:39:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 716B260EBD
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 07:44:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233752AbhGWG7F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jul 2021 02:59:05 -0400
-Received: from verein.lst.de ([213.95.11.211]:37374 "EHLO verein.lst.de"
+        id S233205AbhGWHEJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jul 2021 03:04:09 -0400
+Received: from verein.lst.de ([213.95.11.211]:37407 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233704AbhGWG7F (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Jul 2021 02:59:05 -0400
+        id S229799AbhGWHEJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 23 Jul 2021 03:04:09 -0400
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id A557367373; Fri, 23 Jul 2021 09:39:36 +0200 (CEST)
-Date:   Fri, 23 Jul 2021 09:39:36 +0200
+        id D948467373; Fri, 23 Jul 2021 09:44:36 +0200 (CEST)
+Date:   Fri, 23 Jul 2021 09:44:35 +0200
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jason Gunthorpe <jgg@nvidia.com>
 Cc:     David Airlie <airlied@linux.ie>,
@@ -56,18 +55,30 @@ Cc:     David Airlie <airlied@linux.ie>,
         Max Gurtovoy <mgurtovoy@nvidia.com>,
         Yishai Hadas <yishaih@nvidia.com>,
         Zhenyu Wang <zhenyuw@linux.intel.com>
-Subject: Re: [PATCH v2 05/14] vfio/samples: Delete useless open/close
-Message-ID: <20210723073936.GD864@lst.de>
-References: <0-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com> <5-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
+Subject: Re: [PATCH v2 06/14] vfio/fsl: Move to the device set
+ infrastructure
+Message-ID: <20210723074435.GA2795@lst.de>
+References: <0-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com> <6-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
+In-Reply-To: <6-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Looks good,
+On Tue, Jul 20, 2021 at 02:42:52PM -0300, Jason Gunthorpe wrote:
+>  	.write		= vfio_fsl_mc_write,
+> @@ -625,13 +526,15 @@ static int vfio_fsl_mc_probe(struct fsl_mc_device *mc_dev)
+>  	vdev->mc_dev = mc_dev;
+>  	mutex_init(&vdev->igate);
+>  
+> +	ret = vfio_assign_device_set(&vdev->vdev, is_fsl_mc_bus_dprc(mc_dev) ?
+> +							  &mc_dev->dev :
+> +							  mc_dev->dev.parent);
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+A good old if/else would be much cleaner here.  But do we even need
+the else part?  Assingning &mc_dev->dev is equivalent to the default
+per-device set anyway, isn't it?
+
