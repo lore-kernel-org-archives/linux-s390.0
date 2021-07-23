@@ -4,24 +4,24 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83B84C4338F
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 08:14:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82189C4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 08:14:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F9CE60F02
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 08:14:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 690DF60F12
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 08:14:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234365AbhGWHds (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jul 2021 03:33:48 -0400
-Received: from verein.lst.de ([213.95.11.211]:37570 "EHLO verein.lst.de"
+        id S234386AbhGWHeV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jul 2021 03:34:21 -0400
+Received: from verein.lst.de ([213.95.11.211]:37585 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234361AbhGWHds (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Jul 2021 03:33:48 -0400
+        id S234328AbhGWHeV (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 23 Jul 2021 03:34:21 -0400
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id 2B9A267373; Fri, 23 Jul 2021 10:14:20 +0200 (CEST)
-Date:   Fri, 23 Jul 2021 10:14:18 +0200
+        id 684DC67373; Fri, 23 Jul 2021 10:14:53 +0200 (CEST)
+Date:   Fri, 23 Jul 2021 10:14:53 +0200
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jason Gunthorpe <jgg@nvidia.com>
 Cc:     David Airlie <airlied@linux.ie>,
@@ -56,32 +56,18 @@ Cc:     David Airlie <airlied@linux.ie>,
         Max Gurtovoy <mgurtovoy@nvidia.com>,
         Yishai Hadas <yishaih@nvidia.com>,
         Zhenyu Wang <zhenyuw@linux.intel.com>
-Subject: Re: [PATCH v2 13/14] vfio/gvt: Fix open/close when multiple device
- FDs are open
-Message-ID: <20210723081418.GG2795@lst.de>
-References: <0-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com> <13-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
+Subject: Re: [PATCH v2 14/14] vfio: Remove struct vfio_device_ops
+ open/release
+Message-ID: <20210723081453.GH2795@lst.de>
+References: <0-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com> <14-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <13-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
+In-Reply-To: <14-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
-
-On Tue, Jul 20, 2021 at 02:42:59PM -0300, Jason Gunthorpe wrote:
-> The user can open multiple device FDs if it likes, however the open
-> function calls vfio_register_notifier() on device global state. Calling
-> vfio_register_notifier() twice will trigger a WARN_ON from
-> notifier_chain_register() and the first close will wrongly delete the
-> notifier and more.
-> 
-> Since these really want the new open/close_device() semantics just change
-> the function over.
-> 
-> Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
 Looks good,
 
