@@ -2,129 +2,223 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD9C4C432BE
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 14:13:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95778C4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 14:26:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A0F3E60EBC
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 14:13:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6FA0D60EB1
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 14:26:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235426AbhGWNdP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jul 2021 09:33:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37592 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235351AbhGWNdO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Jul 2021 09:33:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CFE260EB4;
-        Fri, 23 Jul 2021 14:13:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627049628;
-        bh=QgLmm2XRufothnct/WX05Q/Y83SO/A7cPrA4WDrlc8k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gkDLA6Cvk6Ikx41NWvbc+zbdWRVBk8VvLFaBXxyiWbeU6V+W/u51mmoaZyiylAOtt
-         xvJgGQxYOvLwgl5hg/pmU2EYO713wnpWPPc7ArAh+f7NUvjvYsnyEX5/o1feoq2sJk
-         mi8ERMg/A8VEI90ErG68hSRqAWyWYor9NxXkEVzPRpIFQJkdoM39jOvkaHRVTqh84g
-         YwKFz71FrlZI/kSFBCJnx39SCt1GV8eTCdU5u2MFXi5WozjI3F0xP5jmBqtjPEIQpE
-         DIk9jukwFtXmTkclIWzaOF0hbFmdJ9j+NvxgJ+m3o3XJpcqQGqi5hPpKcA6/+PWS9Z
-         v7DMl5rYwyzfA==
-Date:   Fri, 23 Jul 2021 17:13:44 +0300
-From:   Leon Romanovsky <leon@kernel.org>
-To:     Max Gurtovoy <mgurtovoy@nvidia.com>
-Cc:     Yishai Hadas <yishaih@nvidia.com>, bhelgaas@google.com,
-        corbet@lwn.net, alex.williamson@redhat.com,
-        diana.craciun@oss.nxp.com, kwankhede@nvidia.com,
-        eric.auger@redhat.com, masahiroy@kernel.org,
-        michal.lkml@markovi.net, linux-pci@vger.kernel.org,
-        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kbuild@vger.kernel.org,
-        jgg@nvidia.com, maorg@nvidia.com
-Subject: Re: [PATCH 12/12] vfio/pci: Introduce vfio_pci_core.ko
-Message-ID: <YPrOmLs9dZaEe7Th@unreal>
-References: <20210721161609.68223-1-yishaih@nvidia.com>
- <20210721161609.68223-13-yishaih@nvidia.com>
- <YPhb6o06fX+/FiTY@unreal>
- <0b8db422-749d-9d93-6b3b-957259f3d0cb@nvidia.com>
- <b7c19435-5abb-c5fd-383c-d0ebad11db31@nvidia.com>
+        id S235369AbhGWNqI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jul 2021 09:46:08 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20134 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233666AbhGWNqH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 23 Jul 2021 09:46:07 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16NEKTEe191630;
+        Fri, 23 Jul 2021 10:26:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=3Spo8q7XmHT8k9bDd30RKxErqWuR5QT5w15Nadhhdj8=;
+ b=K+d3wRkZj6r4jc2Vw9/VHWPVnAq7dtlsRMmyYxywzW12l7rCUrSkz7TVAAuIg9rO0eN4
+ B/ZvlusM5aF9XaYx5ISPumjKpykfngfiCEk/xm3JUX4ytwLB8dbISr+ofzjCa41XqfgL
+ lv4NuZPSmTuqnEisitQp/VQKl/0/WeeOf4dJHzhP/Pts4+7OlXnKUnIhmqId+VmGNW8F
+ RrDkd7WJlFXp8pFmk1dQkP633ahgahqWIfUvSPqjSWSxV9Z2qgsG09+ZJ3SZvjIkWzVf
+ gMKNIAB302gGg6vRjngeRUXDeQJGVIEUPv++S6C6QR9J9UPqf35y3vKdoI+/e0T6JLeE Dw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39yyetr3xt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Jul 2021 10:26:39 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16NEKikE193061;
+        Fri, 23 Jul 2021 10:26:39 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39yyetr3wu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Jul 2021 10:26:38 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16NEKlPS015763;
+        Fri, 23 Jul 2021 14:26:36 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma05fra.de.ibm.com with ESMTP id 39upu89w7a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 23 Jul 2021 14:26:36 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16NEQXYJ26345854
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 23 Jul 2021 14:26:33 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 20AA9AE055;
+        Fri, 23 Jul 2021 14:26:33 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2972CAE04D;
+        Fri, 23 Jul 2021 14:26:32 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.6.217])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Fri, 23 Jul 2021 14:26:32 +0000 (GMT)
+Date:   Fri, 23 Jul 2021 16:26:25 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com, david@redhat.com
+Subject: Re: [PATCH 2/2] s390/vfio-ap: replace open coded locks for
+ VFIO_GROUP_NOTIFY_SET_KVM notification
+Message-ID: <20210723162625.59cead27.pasic@linux.ibm.com>
+In-Reply-To: <c3b80f79-6795-61ce-2dd1-f4cc7110e417@linux.ibm.com>
+References: <20210719193503.793910-1-akrowiak@linux.ibm.com>
+        <20210719193503.793910-3-akrowiak@linux.ibm.com>
+        <20210721164550.5402fe1c.pasic@linux.ibm.com>
+        <c3b80f79-6795-61ce-2dd1-f4cc7110e417@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <b7c19435-5abb-c5fd-383c-d0ebad11db31@nvidia.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: m4ymPi2y4JFMoQVTobtmf4UV69Szicgs
+X-Proofpoint-ORIG-GUID: olJ_G38DjWZtccgGW2vk6j5N1c0FGCMT
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-23_08:2021-07-23,2021-07-23 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=999 priorityscore=1501 clxscore=1015 adultscore=0 mlxscore=0
+ lowpriorityscore=0 bulkscore=0 phishscore=0 spamscore=0 impostorscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107230083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 22, 2021 at 12:22:05PM +0300, Max Gurtovoy wrote:
-> 
-> On 7/22/2021 12:06 PM, Yishai Hadas wrote:
-> > On 7/21/2021 8:39 PM, Leon Romanovsky wrote:
-> > > On Wed, Jul 21, 2021 at 07:16:09PM +0300, Yishai Hadas wrote:
-> > > > From: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > > > 
-> > > > Now that vfio_pci has been split into two source modules, one focusing
-> > > > on the "struct pci_driver" (vfio_pci.c) and a toolbox library of code
-> > > > (vfio_pci_core.c), complete the split and move them into two different
-> > > > kernel modules.
-> > > > 
-> > > > As before vfio_pci.ko continues to present the same interface under
-> > > > sysfs and this change will have no functional impact.
-> > > > 
-> > > > Splitting into another module and adding exports allows creating new HW
-> > > > specific VFIO PCI drivers that can implement device specific
-> > > > functionality, such as VFIO migration interfaces or specialized device
-> > > > requirements.
-> > > > 
-> > > > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > > > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> > > > Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
-> > > > ---
-> > > >   drivers/vfio/pci/Kconfig                      | 30 ++++++++------
-> > > >   drivers/vfio/pci/Makefile                     |  8 ++--
-> > > >   drivers/vfio/pci/vfio_pci.c                   | 14 ++-----
-> > > >   drivers/vfio/pci/vfio_pci_config.c            |  2 +-
-> > > >   drivers/vfio/pci/vfio_pci_core.c              | 41
-> > > > ++++++++++++++++---
-> > > >   drivers/vfio/pci/vfio_pci_igd.c               |  2 +-
-> > > >   drivers/vfio/pci/vfio_pci_intrs.c             |  2 +-
-> > > >   drivers/vfio/pci/vfio_pci_rdwr.c              |  2 +-
-> > > >   drivers/vfio/pci/vfio_pci_zdev.c              |  2 +-
-> > > >   .../pci => include/linux}/vfio_pci_core.h     |  2 -
-> > > >   10 files changed, 66 insertions(+), 39 deletions(-)
-> > > >   rename {drivers/vfio/pci => include/linux}/vfio_pci_core.h (99%)
-> > > <...>
-> > > 
-> > > > -#include "vfio_pci_core.h"
-> > > > +#include <linux/vfio_pci_core.h>
-> > > > +
-> > > > +#define DRIVER_VERSION  "0.2"
-> > > <...>
-> > > 
-> > > > +MODULE_VERSION(DRIVER_VERSION);
-> > > Please don't add driver versions to the upstream kernel, they useless.
-> > > 
-> > > Thanks
-> > 
-> > This just preserves the code for driver/module version that was in
-> > vfio_pci.ko before the split.
-> > 
-> > However,  this can be removed in V2 if we may need to have.
-> 
-> Right, we already agreed to preserve vfio_pci versioning scheme and we'll
-> not add it to new mlx5_vfio_pci or future drivers.
+On Thu, 22 Jul 2021 09:09:26 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-There is nothing to preserve, instead of keeping this useless code, just
-delete it.
-
-https://lore.kernel.org/ksummit-discuss/CA+55aFx9A=5cc0QZ7CySC4F2K7eYaEfzkdYEc9JaNgCcV25=rg@mail.gmail.com/
-
-Thanks
-
+> On 7/21/21 10:45 AM, Halil Pasic wrote:
+> > On Mon, 19 Jul 2021 15:35:03 -0400
+> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> >  
+> >> It was pointed out during an unrelated patch review that locks should not  
+> > [..]
+> >  
+> >> -static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+> >> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev,
+> >> +				   struct kvm *kvm)
+> >>   {
+> >> -	/*
+> >> -	 * If the KVM pointer is in the process of being set, wait until the
+> >> -	 * process has completed.
+> >> -	 */
+> >> -	wait_event_cmd(matrix_mdev->wait_for_kvm,
+> >> -		       !matrix_mdev->kvm_busy,
+> >> -		       mutex_unlock(&matrix_dev->lock),
+> >> -		       mutex_lock(&matrix_dev->lock));
+> >> -
+> >> -	if (matrix_mdev->kvm) {  
+> > We used to check if matrix_mdev->kvm is null, but ...
+> >  
+> >> -		matrix_mdev->kvm_busy = true;
+> >> -		mutex_unlock(&matrix_dev->lock);
+> >> -
+> >> -		if (matrix_mdev->kvm->arch.crypto.crycbd) {
+> >> -			down_write(&matrix_mdev->kvm->arch.crypto.pqap_hook_rwsem);
+> >> -			matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+> >> -			up_write(&matrix_mdev->kvm->arch.crypto.pqap_hook_rwsem);
+> >> -
+> >> -			kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+> >> -		}
+> >> +	if (kvm->arch.crypto.crycbd) {  
+> > ... now we just try to dereference it. And ..  
 > 
+> We used to check matrix_mdev->kvm, now the kvm pointer is passed into
+> the function; however, having said that, the pointer passed in should be
+> checked before de-referencing it.
 > 
-> > 
-> > Yishai
-> > 
+> >  
+> >> +		down_write(&kvm->arch.crypto.pqap_hook_rwsem);
+> >> +		kvm->arch.crypto.pqap_hook = NULL;
+> >> +		up_write(&kvm->arch.crypto.pqap_hook_rwsem);
+> >>
+> >> +		mutex_lock(&kvm->lock);
+> >>   		mutex_lock(&matrix_dev->lock);
+> >> +
+> >> +		kvm_arch_crypto_clear_masks(kvm);
+> >>   		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+> >> -		kvm_put_kvm(matrix_mdev->kvm);
+> >> +		kvm_put_kvm(kvm);
+> >>   		matrix_mdev->kvm = NULL;
+> >> -		matrix_mdev->kvm_busy = false;
+> >> -		wake_up_all(&matrix_mdev->wait_for_kvm);
+> >> +
+> >> +		mutex_unlock(&kvm->lock);
+> >> +		mutex_unlock(&matrix_dev->lock);
+> >>   	}
+> >>   }
+> >>  
+> > [..]
+> >  
+> >> @@ -1363,14 +1323,11 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+> >>   {
+> >>   	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> >>
+> >> -	mutex_lock(&matrix_dev->lock);
+> >> -	vfio_ap_mdev_unset_kvm(matrix_mdev);
+> >> -	mutex_unlock(&matrix_dev->lock);
+> >> -  
+> > .. before access to the matrix_mdev->kvm used to be protected by
+> > the matrix_dev->lock ...
+> >  
+> >>   	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> >>   				 &matrix_mdev->iommu_notifier);
+> >>   	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+> >>   				 &matrix_mdev->group_notifier);
+> >> +	vfio_ap_mdev_unset_kvm(matrix_mdev, matrix_mdev->kvm);  
+> > ... but it is not any more. BTW I don't think the code is guaranteed
+> > to fetch ->kvm just once.  
+> 
+> There are a couple of things to point out here:
+> 1. The vfio_ap_mdev_unset_kvm function() is the only place where the
+>  Â Â Â  matrix_mdev->kvm pointer is cleared. That function is called here
+>  Â Â Â  as well as by the group notifier callback for VFIO_GROUP_NOTIFY_SET_KVM
+>  Â Â Â  events. If you notice in the code above, the group notifier is 
+> unregistered
+>  Â Â Â  before calling the unset function, so either the notifier will have 
+> already
+>  Â Â Â  been invoked and the pointer cleared (which is why you are correct
+>  Â Â Â  that the KVM pointer passed in needs to get checked in the unset 
+> function),
+>  Â Â Â  or will get cleared here.
+
+Hm, vfio_unregister_notifier() indeed seems to guarantee, that by the
+time it returns no notifer is running. I didn't know that. But this
+blocking notifier chain uses an rwsem. So mutual exclusion with
+vfio_ap_mdev_open() is guaranteed, than it is indeed guaranteed. A quick
+glance at the code didn't tell me if vfio/mdev guarantees that. 
+
+I mean it would make sense to me to make the init and the cleanup
+mutually exclusive, but I'm reluctant to just assume it is like that.
+Can you please point me into the right direction?
+
+
+> 2. The release callback is invoked when the mdev fd is closed by userspace.
+>  Â Â Â  The remove callback is the only place where the matrix_mdev is 
+> freed. The
+>  Â Â Â  remove callback is not called until the mdev fd is released, so it 
+> is guaranteed
+>  Â Â Â  the matrix_mdev will exist when the release callback is invoked.
+> 3. The matrix_dev->lock is then taken in the vfio_ap_mdev_unset_kvm function
+>  Â Â Â  before doing any operations that modify the matrix_mdev.
+
+Yeah but both the reader, and the writer needs to use the same lock to
+have the protected by the lock type of situation. That is why I asked
+about the place where you read matrix_mdev members outside the
+matrix_dev->lock.
+
+Regards,
+Halil
