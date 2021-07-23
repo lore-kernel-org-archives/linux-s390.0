@@ -2,119 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82A89C4338F
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 17:25:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E736DC4320E
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 17:25:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6B7F460E8F
-	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 17:25:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D121060E8F
+	for <linux-s390@archiver.kernel.org>; Fri, 23 Jul 2021 17:25:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231675AbhGWQpQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 23 Jul 2021 12:45:16 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14904 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231430AbhGWQpO (ORCPT
+        id S231373AbhGWQpV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 23 Jul 2021 12:45:21 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:9690 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231696AbhGWQpR (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Jul 2021 12:45:14 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16NH2hlF190869;
-        Fri, 23 Jul 2021 13:25:47 -0400
+        Fri, 23 Jul 2021 12:45:17 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16NH4954171595;
+        Fri, 23 Jul 2021 13:25:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=eNnJ/5emcfnDBhrk4JIebYFYPC+yNW2Sd3g+5A51fNA=;
- b=GROCmspVHU0yyLrG9sgsLCAWo1cfDyRNQ0M7dDRdaobFvGlUOr1mfgppuCr8mI0x5tS+
- whSg5KPtHKkNN6pQKKH7QD7r1mM/0HXMVoQpUdFL2HXN9s3qU9UUrC5hoTCw60mK9dMq
- Eaj/pRGl10n6sP/HsT1NT1NfZaP1fxP4X+thGBVc1FKVcnoYRVfg22iHPOPH4UjDIlyJ
- cSPB3NUse8FmI83eiTmsOC7n8uxANmgPqpU+x2m7pSwCNsosSBYKcZM519Pe0jtI3U4D
- 4KgWZi7LTVfGJkZyLo8Yh562I4qcdx+Xgb0Bjc3Znome9lMHssHnZ6qq8VX/S/+0PbF5 mw== 
+ bh=RDwa7RLYZVX2NFHPuUDzfT/PvsTIs9K+t1zBdNQ7xQU=;
+ b=NSAsWFr5bv2PFfiOaNxI8kjnz8qHS3QGN+5MTi2vIKrrNYg9YwmPW3KRlKu3P2jO0ZxF
+ FcuIl+/fyotf81RU2ZVvhs/cptMa3Jm/Ppzm2k5vwAnbWI8M19A2E5p3IHpkMaXQyO1L
+ Nl4UFHAiXmcsyET2LT82K5Qd0H+IVh/Yt0J1nIDC6EsDu7le+MRyJBbO+016AjD4ZrnH
+ l7UqF3/oH/Ek1IGNqg/qbBuIjCFdk5TGT8WPV0zI8osW7Qi/VV2SYx1riWEjG5BsHIO5
+ YxWpwXp/zg6cK0M096BX0Zhrm7uI18uFcxEnR+DreUyM2Eu//XzGay/EO7CjjzbAPsLE OA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a014h1t25-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a00h3k9vc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Jul 2021 13:25:47 -0400
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16NHKjl2062979;
-        Fri, 23 Jul 2021 13:25:47 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a014h1t1q-1
+        Fri, 23 Jul 2021 13:25:50 -0400
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16NH4vpV175091;
+        Fri, 23 Jul 2021 13:25:50 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a00h3k9uj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Jul 2021 13:25:47 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16NHJOAD027221;
-        Fri, 23 Jul 2021 17:25:45 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04fra.de.ibm.com with ESMTP id 39upu89x7q-1
+        Fri, 23 Jul 2021 13:25:50 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16NHJJsW002726;
+        Fri, 23 Jul 2021 17:25:47 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 39upu8b5sb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 23 Jul 2021 17:25:45 +0000
+        Fri, 23 Jul 2021 17:25:47 +0000
 Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16NHPgUe20971786
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16NHPjNf35455440
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 23 Jul 2021 17:25:42 GMT
+        Fri, 23 Jul 2021 17:25:45 GMT
 Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9B4FC52057;
-        Fri, 23 Jul 2021 17:25:42 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 20A9F52059;
+        Fri, 23 Jul 2021 17:25:45 +0000 (GMT)
 Received: from p-imbrenda (unknown [9.145.8.87])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 55E1052050;
-        Fri, 23 Jul 2021 17:25:42 +0000 (GMT)
-Date:   Fri, 23 Jul 2021 19:10:33 +0200
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id CA77852050;
+        Fri, 23 Jul 2021 17:25:44 +0000 (GMT)
+Date:   Fri, 23 Jul 2021 19:15:52 +0200
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
-        thuth@redhat.com, cohuck@redhat.com
-Subject: Re: [kvm-unit-tests PATCH 1/5] s390x: sie: Add missing includes
-Message-ID: <20210723191033.65e8c3b5@p-imbrenda>
-In-Reply-To: <20210629133322.19193-2-frankja@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>
+Cc:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+Subject: Re: [kvm-unit-tests PATCH 3/5] lib: s390x: uv: Int type cleanup
+Message-ID: <20210723191552.66fd67c9@p-imbrenda>
+In-Reply-To: <b06633be-3832-7a07-37c3-1beaecd2202a@redhat.com>
 References: <20210629133322.19193-1-frankja@linux.ibm.com>
-        <20210629133322.19193-2-frankja@linux.ibm.com>
+        <20210629133322.19193-4-frankja@linux.ibm.com>
+        <d2798bf7-3018-e311-1dfb-120144fb343d@redhat.com>
+        <3876955c-24bd-2052-e634-8436f7558df4@linux.ibm.com>
+        <b06633be-3832-7a07-37c3-1beaecd2202a@redhat.com>
 Organization: IBM
 X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KJgWMdIi5oMEBaqQNkSbjZRJ68UpXymj
-X-Proofpoint-ORIG-GUID: 2rUjP39kdaoebrPvRuSK9c-Fj9WVO7wv
+X-Proofpoint-ORIG-GUID: l9ojKsFiZTO6BmBoD9jQhdzOdlSRYiki
+X-Proofpoint-GUID: dIlncc5ZqeSejpWC_5tigwy958xEvCij
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-07-23_09:2021-07-23,2021-07-23 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
- mlxlogscore=999 spamscore=0 clxscore=1015 priorityscore=1501 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2107230102
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 priorityscore=1501 malwarescore=0
+ phishscore=0 bulkscore=0 clxscore=1015 mlxscore=0 spamscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107230102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 29 Jun 2021 13:33:18 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On Mon, 5 Jul 2021 11:41:57 +0200
+Thomas Huth <thuth@redhat.com> wrote:
 
-> arch_def.h is needed for struct psw.
-> stdint.h is needed for the uint*_t types.
+[snip]
+
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> ---
->  lib/s390x/sie.h | 3 +++
->  1 file changed, 3 insertions(+)
+> Completely inaccurate checks with the lib directory of the
+> kvm-unit-tests:
 > 
-> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
-> index db30d61..b4bb78c 100644
-> --- a/lib/s390x/sie.h
-> +++ b/lib/s390x/sie.h
-> @@ -2,6 +2,9 @@
->  #ifndef _S390X_SIE_H_
->  #define _S390X_SIE_H_
->  
-> +#include <stdint.h>
-> +#include <asm/arch_def.h>
-> +
->  #define CPUSTAT_STOPPED    0x80000000
->  #define CPUSTAT_WAIT       0x10000000
->  #define CPUSTAT_ECALL_PEND 0x08000000
+> $ grep -r u64 lib/ | wc -l
+> 234
+> $ grep -r uint64 lib/ | wc -l
+> 245
+> 
+> $ grep -r u8 lib/ | wc -l
+> 137
+> $ grep -r uint8 lib/ | wc -l
+> 193
+> 
+> ... I guess that's an indication that we do not really have a
+> prevailing style here?
+> I personally prefer the stdint.h types, I'm just not sure whether it
+> makes sense to keep some headers close to the kernel or not...?
+> 
+>   Thomas
+> 
+
+I agree, the project as a whole needs to decide the policy regarding
+stdint.h types. Do we want them always? only for stuff that doesn't
+need synchronization with the kernel? or maybe we just don't care?
+
+I don't care which way we go, but I think we need to decide on one way
+to go.
 
