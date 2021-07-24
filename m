@@ -2,81 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F0F6C4320E
-	for <linux-s390@archiver.kernel.org>; Sat, 24 Jul 2021 06:29:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8022C4320E
+	for <linux-s390@archiver.kernel.org>; Sat, 24 Jul 2021 09:45:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 677A060EB0
-	for <linux-s390@archiver.kernel.org>; Sat, 24 Jul 2021 06:29:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D76860E90
+	for <linux-s390@archiver.kernel.org>; Sat, 24 Jul 2021 09:45:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230077AbhGXFtB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 24 Jul 2021 01:49:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51794 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229926AbhGXFsw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 24 Jul 2021 01:48:52 -0400
-X-Greylist: delayed 399 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 23 Jul 2021 23:29:24 PDT
-Received: from mail.sf-mail.de (mail.sf-mail.de [IPv6:2a01:4f8:1c17:6fae:616d:6c69:616d:6c69])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F53FC061760
-        for <linux-s390@vger.kernel.org>; Fri, 23 Jul 2021 23:29:24 -0700 (PDT)
-Received: (qmail 29130 invoked from network); 24 Jul 2021 06:21:54 -0000
-Received: from p548c622d.dip0.t-ipconnect.de ([::ffff:84.140.98.45]:48018 HELO daneel.sf-tec.de) (auth=eike@sf-mail.de)
-        by mail.sf-mail.de (Qsmtpd 0.38dev) with (TLS_AES_256_GCM_SHA384 encrypted) ESMTPSA
-        for <linux-kernel@vger.kernel.org>; Sat, 24 Jul 2021 08:21:54 +0200
-From:   Rolf Eike Beer <eike-kernel@sf-tec.de>
-To:     linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-        iommu@lists.linux-foundation.org, linux-parisc@vger.kernel.org,
-        xen-devel@lists.xenproject.org,
-        Logan Gunthorpe <logang@deltatee.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Stephen Bates <sbates@raithlin.com>,
-        Martin Oliveira <martin.oliveira@eideticom.com>,
-        Logan Gunthorpe <logang@deltatee.com>
-Subject: Re: [PATCH v2 21/21] dma-mapping: Disallow .map_sg operations from returning zero on error
-Date:   Sat, 24 Jul 2021 08:22:28 +0200
-Message-ID: <2591613.mvXUDI8C0e@daneel.sf-tec.de>
-In-Reply-To: <20210723175008.22410-22-logang@deltatee.com>
-References: <20210723175008.22410-1-logang@deltatee.com> <20210723175008.22410-22-logang@deltatee.com>
+        id S235041AbhGXJEd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 24 Jul 2021 05:04:33 -0400
+Received: from mail-vs1-f45.google.com ([209.85.217.45]:33790 "EHLO
+        mail-vs1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234867AbhGXJEc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 24 Jul 2021 05:04:32 -0400
+Received: by mail-vs1-f45.google.com with SMTP id j19so2481829vso.0;
+        Sat, 24 Jul 2021 02:45:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=keAmZ2CPCYhvSQ4mOFSu6xYJjSpZyH/RHb87AkV/yrs=;
+        b=R/IP32YKksYg5gZWhO3ZZEs8inZlz2wkXLlM1kl027VKqG/fRFquq9pnP/r9mRx6Uu
+         9NhN6sziKpC/mzGB2CgjFPLmuV4e4SzslFUlLEBTed+13wleyVk3eqhDzCVSvAL2lWQY
+         1OgmrvaZeto+2C9ulNM2aGVjc4D/+aTMW3SXDrFJNs5mUhVib24SR8e/JTU1y2q/cumC
+         Mhveb8cyQmXg/ph+4KJVPLhC4FuCTLiU30Gw0+HSwq99RirGh5RhGhIZ7rdcRKeCRJog
+         VdUdqrA6yp2CipcNDGMwOd192CzsVcreWzbsDbJfV9FVjBTsQ9z4FPCPFaloc3xHztrv
+         eIqA==
+X-Gm-Message-State: AOAM532al6VzDfm6Gk3RUBeoqmH3MAi3+VLsuewibiZbhSjS+hBlwate
+        ZSv9Sn8GJL2SfioJ7rwYj6gqg97X56VTszEh0KE=
+X-Google-Smtp-Source: ABdhPJx/VMaxoCtidt2JUmSZoVwy1uJ8nMQedSbWMl9RC/U3GJflf2tGEudtsRyYEnzq9MLjJYaEo+n0/LkpOXoH+rA=
+X-Received: by 2002:a05:6102:2828:: with SMTP id ba8mr7652479vsb.18.1627119902711;
+ Sat, 24 Jul 2021 02:45:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart11795432.O9o76ZdvQC"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+References: <20210722124814.778059-1-arnd@kernel.org> <20210722124814.778059-10-arnd@kernel.org>
+In-Reply-To: <20210722124814.778059-10-arnd@kernel.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Sat, 24 Jul 2021 11:44:51 +0200
+Message-ID: <CAMuHMdWjZWMtXqyLWPsCvNphoc2ZHut+UiwLuqDtG7Vir0OR2A@mail.gmail.com>
+Subject: Re: [PATCH v3 9/9] asm-generic: reverse GENERIC_{STRNCPY_FROM,STRNLEN}_USER
+ symbols
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Linux-Arch <linux-arch@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Brian Cain <bcain@codeaurora.org>,
+        Chris Zankel <chris@zankel.net>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Christoph Hellwig <hch@lst.de>, Guo Ren <guoren@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>, Jeff Dike <jdike@addtoit.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Michal Simek <monstr@monstr.eu>,
+        Richard Weinberger <richard@nod.at>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        linux-csky@vger.kernel.org,
+        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        arcml <linux-snps-arc@lists.infradead.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>,
+        "moderated list:H8/300 ARCHITECTURE" 
+        <uclinux-h8-devel@lists.sourceforge.jp>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---nextPart11795432.O9o76ZdvQC
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+On Thu, Jul 22, 2021 at 2:50 PM Arnd Bergmann <arnd@kernel.org> wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> Most architectures do not need a custom implementation, and in most
+> cases the generic implementation is preferred, so change the polariy
+> on these Kconfig symbols to require architectures to select them when
+> they provide their own version.
+>
+> The new name is CONFIG_ARCH_HAS_{STRNCPY_FROM,STRNLEN}_USER.
+>
+> The remaining architectures at the moment are: ia64, mips, parisc,
+> s390, um and xtensa. We should probably convert these as well, but
+> I was not sure how far to take this series.
+>
+> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+> Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Helge Deller <deller@gmx.de>
+> Cc: Jeff Dike <jdike@addtoit.com>
+> Cc: Max Filippov <jcmvbkbc@gmail.com>
+> Cc: Richard Weinberger <richard@nod.at>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: linux-ia64@vger.kernel.org
+> Cc: linux-mips@vger.kernel.org
+> Cc: linux-parisc@vger.kernel.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-um@lists.infradead.org
+> Cc: linux-xtensa@linux-xtensa.org
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Am Freitag, 23. Juli 2021, 19:50:08 CEST schrieb Logan Gunthorpe:
-> Now that all the .map_sg operations have been converted to returning
-> proper error codes, drop the code to handle a zero return value,
-> add a warning if a zero is returned and update the comment for the
-> map_sg operation.
+>  arch/m68k/Kconfig                 |  2 --
 
-I see no comment being touched here.
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Eike
---nextPart11795432.O9o76ZdvQC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+Gr{oetje,eeting}s,
 
------BEGIN PGP SIGNATURE-----
+                        Geert
 
-iF0EABECAB0WIQSaYVDeqwKa3fTXNeNcpIk+abn8TgUCYPuxpAAKCRBcpIk+abn8
-TmEXAJ4y9fSVV7pgh2KPWXQ4YaTcwXP08ACgkfbFqKsGtxv2IZPJJiPcxo/F4Bg=
-=swGr
------END PGP SIGNATURE-----
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---nextPart11795432.O9o76ZdvQC--
-
-
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
