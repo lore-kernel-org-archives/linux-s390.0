@@ -2,130 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8022C4320E
-	for <linux-s390@archiver.kernel.org>; Sat, 24 Jul 2021 09:45:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72E85C4338F
+	for <linux-s390@archiver.kernel.org>; Sat, 24 Jul 2021 13:24:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8D76860E90
-	for <linux-s390@archiver.kernel.org>; Sat, 24 Jul 2021 09:45:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A10760E98
+	for <linux-s390@archiver.kernel.org>; Sat, 24 Jul 2021 13:24:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235041AbhGXJEd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 24 Jul 2021 05:04:33 -0400
-Received: from mail-vs1-f45.google.com ([209.85.217.45]:33790 "EHLO
-        mail-vs1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234867AbhGXJEc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 24 Jul 2021 05:04:32 -0400
-Received: by mail-vs1-f45.google.com with SMTP id j19so2481829vso.0;
-        Sat, 24 Jul 2021 02:45:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=keAmZ2CPCYhvSQ4mOFSu6xYJjSpZyH/RHb87AkV/yrs=;
-        b=R/IP32YKksYg5gZWhO3ZZEs8inZlz2wkXLlM1kl027VKqG/fRFquq9pnP/r9mRx6Uu
-         9NhN6sziKpC/mzGB2CgjFPLmuV4e4SzslFUlLEBTed+13wleyVk3eqhDzCVSvAL2lWQY
-         1OgmrvaZeto+2C9ulNM2aGVjc4D/+aTMW3SXDrFJNs5mUhVib24SR8e/JTU1y2q/cumC
-         Mhveb8cyQmXg/ph+4KJVPLhC4FuCTLiU30Gw0+HSwq99RirGh5RhGhIZ7rdcRKeCRJog
-         VdUdqrA6yp2CipcNDGMwOd192CzsVcreWzbsDbJfV9FVjBTsQ9z4FPCPFaloc3xHztrv
-         eIqA==
-X-Gm-Message-State: AOAM532al6VzDfm6Gk3RUBeoqmH3MAi3+VLsuewibiZbhSjS+hBlwate
-        ZSv9Sn8GJL2SfioJ7rwYj6gqg97X56VTszEh0KE=
-X-Google-Smtp-Source: ABdhPJx/VMaxoCtidt2JUmSZoVwy1uJ8nMQedSbWMl9RC/U3GJflf2tGEudtsRyYEnzq9MLjJYaEo+n0/LkpOXoH+rA=
-X-Received: by 2002:a05:6102:2828:: with SMTP id ba8mr7652479vsb.18.1627119902711;
- Sat, 24 Jul 2021 02:45:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210722124814.778059-1-arnd@kernel.org> <20210722124814.778059-10-arnd@kernel.org>
-In-Reply-To: <20210722124814.778059-10-arnd@kernel.org>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Sat, 24 Jul 2021 11:44:51 +0200
-Message-ID: <CAMuHMdWjZWMtXqyLWPsCvNphoc2ZHut+UiwLuqDtG7Vir0OR2A@mail.gmail.com>
-Subject: Re: [PATCH v3 9/9] asm-generic: reverse GENERIC_{STRNCPY_FROM,STRNLEN}_USER
- symbols
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Linux-Arch <linux-arch@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Brian Cain <bcain@codeaurora.org>,
-        Chris Zankel <chris@zankel.net>,
+        id S231970AbhGXMnb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 24 Jul 2021 08:43:31 -0400
+Received: from verein.lst.de ([213.95.11.211]:40790 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230449AbhGXMnb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 24 Jul 2021 08:43:31 -0400
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id 7AB6467373; Sat, 24 Jul 2021 15:24:00 +0200 (CEST)
+Date:   Sat, 24 Jul 2021 15:24:00 +0200
+From:   Christoph Hellwig <hch@lst.de>
+To:     Vineeth Vijayan <vneethv@linux.ibm.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Eric Farman <farman@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Christoph Hellwig <hch@lst.de>, Guo Ren <guoren@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>, Jeff Dike <jdike@addtoit.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Michal Simek <monstr@monstr.eu>,
-        Richard Weinberger <richard@nod.at>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        linux-csky@vger.kernel.org,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        arcml <linux-snps-arc@lists.infradead.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
-        "moderated list:H8/300 ARCHITECTURE" 
-        <uclinux-h8-devel@lists.sourceforge.jp>
-Content-Type: text/plain; charset="UTF-8"
+        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Tarun Gupta <targupta@nvidia.com>
+Subject: Re: s390 common I/O layer locking
+Message-ID: <20210724132400.GA19006@lst.de>
+References: <0-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com> <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com> <20210428190949.4360afb7.cohuck@redhat.com> <20210428172008.GV1370958@nvidia.com> <20210429135855.443b7a1b.cohuck@redhat.com> <20210429181347.GA3414759@nvidia.com> <20210430143140.378904bf.cohuck@redhat.com> <20210430171908.GD1370958@nvidia.com> <20210503125440.0acd7c1f.cohuck@redhat.com> <292442e8-3b1a-56c4-b974-05e8b358ba64@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <292442e8-3b1a-56c4-b974-05e8b358ba64@linux.ibm.com>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 22, 2021 at 2:50 PM Arnd Bergmann <arnd@kernel.org> wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> Most architectures do not need a custom implementation, and in most
-> cases the generic implementation is preferred, so change the polariy
-> on these Kconfig symbols to require architectures to select them when
-> they provide their own version.
->
-> The new name is CONFIG_ARCH_HAS_{STRNCPY_FROM,STRNLEN}_USER.
->
-> The remaining architectures at the moment are: ia64, mips, parisc,
-> s390, um and xtensa. We should probably convert these as well, but
-> I was not sure how far to take this series.
->
-> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-> Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: Jeff Dike <jdike@addtoit.com>
-> Cc: Max Filippov <jcmvbkbc@gmail.com>
-> Cc: Richard Weinberger <richard@nod.at>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: linux-ia64@vger.kernel.org
-> Cc: linux-mips@vger.kernel.org
-> Cc: linux-parisc@vger.kernel.org
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-um@lists.infradead.org
-> Cc: linux-xtensa@linux-xtensa.org
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+On Tue, May 04, 2021 at 05:10:42PM +0200, Vineeth Vijayan wrote:
+>> For the css bus, we need locking for the event callbacks; for irq, this
+>> may interact with the subchannel lock and likely needs some care.
+>>
+>> I also looked at the other busses in the common I/O layer: scm looks
+>> good at a glance, ccwgroup and ccw have locking for online/offline; the
+>> other callbacks for the ccw drivers probably need to take the device
+>> lock as well.
+>>
+>> Common I/O layer maintainers, does that look right?
+>>
+> I just had a quick glance on the CIO layer drivers. And at first look, you 
+> are right.
+> It looks likewe need modifications in the event callbacks (referring css 
+> here)
+> Let me go thoughthis thoroughly and update.
 
->  arch/m68k/Kconfig                 |  2 --
-
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Did this go anywhere?
