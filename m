@@ -6,66 +6,58 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72E85C4338F
-	for <linux-s390@archiver.kernel.org>; Sat, 24 Jul 2021 13:24:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFD4FC4320E
+	for <linux-s390@archiver.kernel.org>; Sun, 25 Jul 2021 06:07:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4A10760E98
-	for <linux-s390@archiver.kernel.org>; Sat, 24 Jul 2021 13:24:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7BE0B60F26
+	for <linux-s390@archiver.kernel.org>; Sun, 25 Jul 2021 06:07:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231970AbhGXMnb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 24 Jul 2021 08:43:31 -0400
-Received: from verein.lst.de ([213.95.11.211]:40790 "EHLO verein.lst.de"
+        id S230073AbhGYF1V (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 25 Jul 2021 01:27:21 -0400
+Received: from verein.lst.de ([213.95.11.211]:41944 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230449AbhGXMnb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 24 Jul 2021 08:43:31 -0400
+        id S229460AbhGYF1V (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 25 Jul 2021 01:27:21 -0400
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id 7AB6467373; Sat, 24 Jul 2021 15:24:00 +0200 (CEST)
-Date:   Sat, 24 Jul 2021 15:24:00 +0200
+        id 0DC2267373; Sun, 25 Jul 2021 08:07:48 +0200 (CEST)
+Date:   Sun, 25 Jul 2021 08:07:47 +0200
 From:   Christoph Hellwig <hch@lst.de>
-To:     Vineeth Vijayan <vneethv@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Tarun Gupta <targupta@nvidia.com>
-Subject: Re: s390 common I/O layer locking
-Message-ID: <20210724132400.GA19006@lst.de>
-References: <0-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com> <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com> <20210428190949.4360afb7.cohuck@redhat.com> <20210428172008.GV1370958@nvidia.com> <20210429135855.443b7a1b.cohuck@redhat.com> <20210429181347.GA3414759@nvidia.com> <20210430143140.378904bf.cohuck@redhat.com> <20210430171908.GD1370958@nvidia.com> <20210503125440.0acd7c1f.cohuck@redhat.com> <292442e8-3b1a-56c4-b974-05e8b358ba64@linux.ibm.com>
+To:     Logan Gunthorpe <logang@deltatee.com>
+Cc:     linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+        iommu@lists.linux-foundation.org, linux-parisc@vger.kernel.org,
+        xen-devel@lists.xenproject.org, Christoph Hellwig <hch@lst.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Stephen Bates <sbates@raithlin.com>,
+        Martin Oliveira <martin.oliveira@eideticom.com>
+Subject: Re: [PATCH v2 01/21] dma-mapping: Allow map_sg() ops to return
+ negative error codes
+Message-ID: <20210725060747.GA10852@lst.de>
+References: <20210723175008.22410-1-logang@deltatee.com> <20210723175008.22410-2-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <292442e8-3b1a-56c4-b974-05e8b358ba64@linux.ibm.com>
+In-Reply-To: <20210723175008.22410-2-logang@deltatee.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 04, 2021 at 05:10:42PM +0200, Vineeth Vijayan wrote:
->> For the css bus, we need locking for the event callbacks; for irq, this
->> may interact with the subchannel lock and likely needs some care.
->>
->> I also looked at the other busses in the common I/O layer: scm looks
->> good at a glance, ccwgroup and ccw have locking for online/offline; the
->> other callbacks for the ccw drivers probably need to take the device
->> lock as well.
->>
->> Common I/O layer maintainers, does that look right?
->>
-> I just had a quick glance on the CIO layer drivers. And at first look, you 
-> are right.
-> It looks likewe need modifications in the event callbacks (referring css 
-> here)
-> Let me go thoughthis thoroughly and update.
+> +int dma_map_sgtable(struct device *dev, struct sg_table *sgt,
+> +		    enum dma_data_direction dir, unsigned long attrs)
+> +{
+> +	int nents;
+> +
+> +	nents = __dma_map_sg_attrs(dev, sgt->sgl, sgt->orig_nents, dir, attrs);
+> +	if (nents == 0)
+> +		return -EIO;
+> +	else if (nents < 0) {
+> +		if (WARN_ON_ONCE(nents != -EINVAL && nents != -ENOMEM &&
+> +				 nents != -EIO))
+> +			return -EIO;
 
-Did this go anywhere?
+I think this validation of the errnos needs to go into __dma_map_sg_attrs,
+so that we catch it for the classic dma_map_sg callers as well.
