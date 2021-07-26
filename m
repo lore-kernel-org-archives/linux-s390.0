@@ -2,252 +2,189 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39719C4338F
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Jul 2021 17:02:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62CAAC4338F
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Jul 2021 18:42:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 169A560F51
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Jul 2021 17:02:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4591560F5D
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Jul 2021 18:42:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233991AbhGZQVn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Jul 2021 12:21:43 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52960 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242182AbhGZQTe (ORCPT
+        id S231959AbhGZSBf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Jul 2021 14:01:35 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4856 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231912AbhGZSBe (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 26 Jul 2021 12:19:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1627318802;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=AZLSNcMxQ4xlEdY2svWL5I1k/39Nv5ohWiPhxMYTfxA=;
-        b=dOqm6bhXdutNLOnv1eiE/qlQB83lEjmtGWijRgjSn1/Og0yM624w4GC71MRbjIsX0I4jLK
-        7x4Ppss4fI0UamHKuPhus1fA1dQkAe0kBn/WRB+RpJ6Fi9wRSv0eZ1ilfAYB/JCxd6HI9q
-        wL/gW75CtfATq0ADqyDvO+1lmcEp1IQ=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-473-bGIkbg1lNyqs954zKWmuvw-1; Mon, 26 Jul 2021 13:00:01 -0400
-X-MC-Unique: bGIkbg1lNyqs954zKWmuvw-1
-Received: by mail-ej1-f71.google.com with SMTP id e8-20020a1709060808b02904f7606bd58fso783097ejd.11
-        for <linux-s390@vger.kernel.org>; Mon, 26 Jul 2021 10:00:00 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=AZLSNcMxQ4xlEdY2svWL5I1k/39Nv5ohWiPhxMYTfxA=;
-        b=QUe/eil1vqcylmJPloujUnDRYOa+hj/54YT5yWVUzaEyR6uOU6OxV2FrxJcVSnA9uE
-         2Je3j4jwUwfs8L5m7DvRfngnlQs/CVYe0Jfn7oIrg61+E4quPYOfzUZXSOCfT3brda+y
-         zQohpEt5LA62Lp2hNh+1QZru2L1jzXLojZsLzoUbp+LoMfHF580YmfsogYV+bN9Tl4qw
-         i+GfV6jM4Jw5OHroifM67UDOgTbyxmAJPnxRULHX1MRgVp4SrhsylWKGJM7BGES2K6ft
-         5MDFG5718rXCEevj1TIdY03YFGYERABZRHjidBE5zgYFYzyEO44qEPC2/rfq1i2gklxQ
-         roQw==
-X-Gm-Message-State: AOAM531zVt9Ygrmd3piG4RoBBMpr87LbE2PNvmMlgVuTAnVaoOagEzuA
-        9WQ65WlCq2Pn5yOemtU2/E+toRTdwEDUzcJABF4v4zzrmRhO7/RKgVXAMaD2cBanalp+xrji2XM
-        EkZxeSLcIdNV/V1WF4DIgaw==
-X-Received: by 2002:a17:906:abc9:: with SMTP id kq9mr3881569ejb.420.1627318799871;
-        Mon, 26 Jul 2021 09:59:59 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz1ptFha15jOjnukiq1LqzJS/fHkpLf03gXleyoj/QgiZm7EdUZyI6AzrrsUGnK9UFquGTmrg==
-X-Received: by 2002:a17:906:abc9:: with SMTP id kq9mr3881552ejb.420.1627318799644;
-        Mon, 26 Jul 2021 09:59:59 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e? ([2001:b07:6468:f312:5e2c:eb9a:a8b6:fd3e])
-        by smtp.gmail.com with ESMTPSA id cm1sm64038edb.68.2021.07.26.09.59.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 26 Jul 2021 09:59:59 -0700 (PDT)
-Subject: Re: [PATCH] KVM: s390: restore old debugfs names
-To:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        KVM <kvm@vger.kernel.org>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Jing Zhang <jingzhangos@google.com>
-References: <20210726150108.5603-1-borntraeger@de.ibm.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <d73836d5-9ae8-43ca-6163-72798a01ac4e@redhat.com>
-Date:   Mon, 26 Jul 2021 18:59:57 +0200
+        Mon, 26 Jul 2021 14:01:34 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16QIc0vb050909;
+        Mon, 26 Jul 2021 14:41:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=/drKpJyCSOdSQ/VwlZaz++Z20EYgiAUy2f+BWfPUf68=;
+ b=JGkwSJ/yMJf0q0sZn7nyj5FEK2/A0SH8qQ8MRokODf9H1pXpS+XT5Rs6vtAI3e7CX0rJ
+ YOhhWj5C5N+r92rgjD5KiA1Wwonk/YNI5RUqAHI6R0nK2WXMvPZaVMJc6wdy3WGklinq
+ dmLl9MMyWPKYgUASbTzZoj49I07hkJwTunAeB/0FrI6jsRlbWLybHC7QtpZIe/vyPE1a
+ eW9PlQFNq/FcX2eJOPuK9YhXpThXUP+G1oWI+K3WrxZYb0dsnGEjeQ7YkCvBKN3OM91d
+ T+6XorrELvCLJO/omNexIrW6r18lvAIEe7E29RS/FaRRywV0uvRh51ygya/Axz67LzG+ Jw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a225grnxu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Jul 2021 14:41:21 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16QIcO6W052309;
+        Mon, 26 Jul 2021 14:41:21 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a225grnw3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Jul 2021 14:41:21 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16QIXPjI028222;
+        Mon, 26 Jul 2021 18:41:18 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3a0ag897n2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Jul 2021 18:41:18 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16QIccfx20840798
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 26 Jul 2021 18:38:38 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5CD3D5204E;
+        Mon, 26 Jul 2021 18:41:16 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.145.6.229])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id B41755204F;
+        Mon, 26 Jul 2021 18:41:15 +0000 (GMT)
+Subject: Re: [PATCH 1/1] sched/fair: improve yield_to vs fairness
+To:     Mel Gorman <mgorman@techsingularity.net>
+Cc:     peterz@infradead.org, bristot@redhat.com, bsegall@google.com,
+        dietmar.eggemann@arm.com, joshdon@google.com,
+        juri.lelli@redhat.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux@rasmusvillemoes.dk, mgorman@suse.de, mingo@kernel.org,
+        rostedt@goodmis.org, valentin.schneider@arm.com,
+        vincent.guittot@linaro.org
+References: <YIlXQ43b6+7sUl+f@hirez.programming.kicks-ass.net>
+ <20210707123402.13999-1-borntraeger@de.ibm.com>
+ <20210707123402.13999-2-borntraeger@de.ibm.com>
+ <20210723093523.GX3809@techsingularity.net>
+ <ddb81bc9-1429-c392-adac-736e23977c84@de.ibm.com>
+ <20210723162137.GY3809@techsingularity.net>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <1acd7520-bd4b-d43d-302a-8dcacf6defa5@de.ibm.com>
+Date:   Mon, 26 Jul 2021 20:41:15 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210726150108.5603-1-borntraeger@de.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20210723162137.GY3809@techsingularity.net>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: FEClkrWfQx1pS3l0oXxxkQDYMkmMdcW0
+X-Proofpoint-ORIG-GUID: 35pKIn3gVvjRB9kT4CTsZ-7vjpSZ9IK8
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-26_12:2021-07-26,2021-07-26 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 phishscore=0 impostorscore=0 mlxscore=0 adultscore=0
+ malwarescore=0 priorityscore=1501 mlxlogscore=999 clxscore=1015
+ spamscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2107260108
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 26/07/21 17:01, Christian Borntraeger wrote:
-> commit bc9e9e672df9 ("KVM: debugfs: Reuse binary stats descriptors")
-> did replace the old definitions with the binary ones. While doing that
-> it missed that some files are names different than the counters. This
-> is especially important for kvm_stat which does have special handling
-> for counters named instruction_*.
+
+
+On 23.07.21 18:21, Mel Gorman wrote:
+> On Fri, Jul 23, 2021 at 02:36:21PM +0200, Christian Borntraeger wrote:
+>>> sched: Do not select highest priority task to run if it should be skipped
+>>>
+>>> <SNIP>
+>>>
+>>> index 44c452072a1b..ddc0212d520f 100644
+>>> --- a/kernel/sched/fair.c
+>>> +++ b/kernel/sched/fair.c
+>>> @@ -4522,7 +4522,8 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
+>>>    			se = second;
+>>>    	}
+>>> -	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
+>>> +	if (cfs_rq->next &&
+>>> +	    (cfs_rq->skip == left || wakeup_preempt_entity(cfs_rq->next, left) < 1)) {
+>>>    		/*
+>>>    		 * Someone really wants this to run. If it's not unfair, run it.
+>>>    		 */
+>>>
+>>
+>> I do see a reduction in ignored yields, but from a performance aspect for my
+>> testcases this patch does not provide a benefit, while the the simple
+>> 	curr->vruntime += sysctl_sched_min_granularity;
+>> does.
 > 
-> Fixes: commit bc9e9e672df9 ("KVM: debugfs: Reuse binary stats descriptors")
-> CC: Jing Zhang <jingzhangos@google.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
->   arch/s390/include/asm/kvm_host.h | 18 +++++++++---------
->   arch/s390/kvm/diag.c             | 18 +++++++++---------
->   arch/s390/kvm/kvm-s390.c         | 18 +++++++++---------
->   3 files changed, 27 insertions(+), 27 deletions(-)
+> I'm still not a fan because vruntime gets distorted. From the docs
 > 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 3a5b5084cdbe..f1a202327ebd 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -446,15 +446,15 @@ struct kvm_vcpu_stat {
->   	u64 instruction_sigp_init_cpu_reset;
->   	u64 instruction_sigp_cpu_reset;
->   	u64 instruction_sigp_unknown;
-> -	u64 diagnose_10;
-> -	u64 diagnose_44;
-> -	u64 diagnose_9c;
-> -	u64 diagnose_9c_ignored;
-> -	u64 diagnose_9c_forward;
-> -	u64 diagnose_258;
-> -	u64 diagnose_308;
-> -	u64 diagnose_500;
-> -	u64 diagnose_other;
-> +	u64 instruction_diagnose_10;
-> +	u64 instruction_diagnose_44;
-> +	u64 instruction_diagnose_9c;
-> +	u64 diag_9c_ignored;
-> +	u64 diag_9c_forward;
-> +	u64 instruction_diagnose_258;
-> +	u64 instruction_diagnose_308;
-> +	u64 instruction_diagnose_500;
-> +	u64 instruction_diagnose_other;
->   	u64 pfault_sync;
->   };
->   
-> diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-> index 02c146f9e5cd..807fa9da1e72 100644
-> --- a/arch/s390/kvm/diag.c
-> +++ b/arch/s390/kvm/diag.c
-> @@ -24,7 +24,7 @@ static int diag_release_pages(struct kvm_vcpu *vcpu)
->   
->   	start = vcpu->run->s.regs.gprs[(vcpu->arch.sie_block->ipa & 0xf0) >> 4];
->   	end = vcpu->run->s.regs.gprs[vcpu->arch.sie_block->ipa & 0xf] + PAGE_SIZE;
-> -	vcpu->stat.diagnose_10++;
-> +	vcpu->stat.instruction_diagnose_10++;
->   
->   	if (start & ~PAGE_MASK || end & ~PAGE_MASK || start >= end
->   	    || start < 2 * PAGE_SIZE)
-> @@ -74,7 +74,7 @@ static int __diag_page_ref_service(struct kvm_vcpu *vcpu)
->   
->   	VCPU_EVENT(vcpu, 3, "diag page reference parameter block at 0x%llx",
->   		   vcpu->run->s.regs.gprs[rx]);
-> -	vcpu->stat.diagnose_258++;
-> +	vcpu->stat.instruction_diagnose_258++;
->   	if (vcpu->run->s.regs.gprs[rx] & 7)
->   		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
->   	rc = read_guest(vcpu, vcpu->run->s.regs.gprs[rx], rx, &parm, sizeof(parm));
-> @@ -145,7 +145,7 @@ static int __diag_page_ref_service(struct kvm_vcpu *vcpu)
->   static int __diag_time_slice_end(struct kvm_vcpu *vcpu)
->   {
->   	VCPU_EVENT(vcpu, 5, "%s", "diag time slice end");
-> -	vcpu->stat.diagnose_44++;
-> +	vcpu->stat.instruction_diagnose_44++;
->   	kvm_vcpu_on_spin(vcpu, true);
->   	return 0;
->   }
-> @@ -169,7 +169,7 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
->   	int tid;
->   
->   	tid = vcpu->run->s.regs.gprs[(vcpu->arch.sie_block->ipa & 0xf0) >> 4];
-> -	vcpu->stat.diagnose_9c++;
-> +	vcpu->stat.instruction_diagnose_9c++;
->   
->   	/* yield to self */
->   	if (tid == vcpu->vcpu_id)
-> @@ -192,7 +192,7 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
->   		VCPU_EVENT(vcpu, 5,
->   			   "diag time slice end directed to %d: yield forwarded",
->   			   tid);
-> -		vcpu->stat.diagnose_9c_forward++;
-> +		vcpu->stat.diag_9c_forward++;
->   		return 0;
+>     Small detail: on "ideal" hardware, at any time all tasks would have the same
+>     p->se.vruntime value --- i.e., tasks would execute simultaneously and no task
+>     would ever get "out of balance" from the "ideal" share of CPU time
+> 
+> If yield_to impacts this "ideal share" then it could have other
+> consequences.
+> 
+> I think your patch may be performing better in your test case because every
+> "wrong" task selected that is not the yield_to target gets penalised and
+> so the yield_to target gets pushed up the list.
+> 
+>> I still think that your approach is probably the cleaner one, any chance to improve this
+>> somehow?
+>>
+> 
+> Potentially. The patch was a bit off because while it noticed that skip
+> was not being obeyed, the fix was clumsy and isolated. The current flow is
+> 
+> 1. pick se == left as the candidate
+> 2. try pick a different se if the "ideal" candidate is a skip candidate
+> 3. Ignore the se update if next or last are set
+> 
+> Step 3 looks off because it ignores skip if next or last buddies are set
+> and I don't think that was intended. Can you try this?
+> 
+> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> index 44c452072a1b..d56f7772a607 100644
+> --- a/kernel/sched/fair.c
+> +++ b/kernel/sched/fair.c
+> @@ -4522,12 +4522,12 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
+>   			se = second;
 >   	}
 >   
-> @@ -203,7 +203,7 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
->   	return 0;
->   no_yield:
->   	VCPU_EVENT(vcpu, 5, "diag time slice end directed to %d: ignored", tid);
-> -	vcpu->stat.diagnose_9c_ignored++;
-> +	vcpu->stat.diag_9c_ignored++;
->   	return 0;
->   }
->   
-> @@ -213,7 +213,7 @@ static int __diag_ipl_functions(struct kvm_vcpu *vcpu)
->   	unsigned long subcode = vcpu->run->s.regs.gprs[reg] & 0xffff;
->   
->   	VCPU_EVENT(vcpu, 3, "diag ipl functions, subcode %lx", subcode);
-> -	vcpu->stat.diagnose_308++;
-> +	vcpu->stat.instruction_diagnose_308++;
->   	switch (subcode) {
->   	case 3:
->   		vcpu->run->s390_reset_flags = KVM_S390_RESET_CLEAR;
-> @@ -245,7 +245,7 @@ static int __diag_virtio_hypercall(struct kvm_vcpu *vcpu)
->   {
->   	int ret;
->   
-> -	vcpu->stat.diagnose_500++;
-> +	vcpu->stat.instruction_diagnose_500++;
->   	/* No virtio-ccw notification? Get out quickly. */
->   	if (!vcpu->kvm->arch.css_support ||
->   	    (vcpu->run->s.regs.gprs[1] != KVM_S390_VIRTIO_CCW_NOTIFY))
-> @@ -299,7 +299,7 @@ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu)
->   	case 0x500:
->   		return __diag_virtio_hypercall(vcpu);
->   	default:
-> -		vcpu->stat.diagnose_other++;
-> +		vcpu->stat.instruction_diagnose_other++;
->   		return -EOPNOTSUPP;
->   	}
->   }
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 7675b72a3ddf..01925ef78518 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -163,15 +163,15 @@ const struct _kvm_stats_desc kvm_vcpu_stats_desc[] = {
->   	STATS_DESC_COUNTER(VCPU, instruction_sigp_init_cpu_reset),
->   	STATS_DESC_COUNTER(VCPU, instruction_sigp_cpu_reset),
->   	STATS_DESC_COUNTER(VCPU, instruction_sigp_unknown),
-> -	STATS_DESC_COUNTER(VCPU, diagnose_10),
-> -	STATS_DESC_COUNTER(VCPU, diagnose_44),
-> -	STATS_DESC_COUNTER(VCPU, diagnose_9c),
-> -	STATS_DESC_COUNTER(VCPU, diagnose_9c_ignored),
-> -	STATS_DESC_COUNTER(VCPU, diagnose_9c_forward),
-> -	STATS_DESC_COUNTER(VCPU, diagnose_258),
-> -	STATS_DESC_COUNTER(VCPU, diagnose_308),
-> -	STATS_DESC_COUNTER(VCPU, diagnose_500),
-> -	STATS_DESC_COUNTER(VCPU, diagnose_other),
-> +	STATS_DESC_COUNTER(VCPU, instruction_diagnose_10),
-> +	STATS_DESC_COUNTER(VCPU, instruction_diagnose_44),
-> +	STATS_DESC_COUNTER(VCPU, instruction_diagnose_9c),
-> +	STATS_DESC_COUNTER(VCPU, diag_9c_ignored),
-> +	STATS_DESC_COUNTER(VCPU, diag_9c_forward),
-> +	STATS_DESC_COUNTER(VCPU, instruction_diagnose_258),
-> +	STATS_DESC_COUNTER(VCPU, instruction_diagnose_308),
-> +	STATS_DESC_COUNTER(VCPU, instruction_diagnose_500),
-> +	STATS_DESC_COUNTER(VCPU, instruction_diagnose_other),
->   	STATS_DESC_COUNTER(VCPU, pfault_sync)
->   };
->   static_assert(ARRAY_SIZE(kvm_vcpu_stats_desc) ==
+> -	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
+> +	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, se) < 1) {
+>   		/*
+>   		 * Someone really wants this to run. If it's not unfair, run it.
+>   		 */
+>   		se = cfs_rq->next;
+> -	} else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, left) < 1) {
+> +	} else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, se) < 1) {
+>   		/*
+>   		 * Prefer last buddy, try to return the CPU to a preempted task.
+>   		 */
 > 
 
-Queued, thanks.
+This one alone does not seem to make a difference. Neither in ignored yield, nor
+in performance.
 
-Paolo
+Your first patch does really help in terms of ignored yields when
+all threads are pinned to one host CPU. After that we do have no ignored yield
+it seems. But it does not affect the performance of my testcase.
+I did some more experiments and I removed the wakeup_preempt_entity checks in
+pick_next_entity - assuming that this will result in source always being stopped
+and target always being picked. But still, no performance difference.
+As soon as I play with vruntime I do see a difference (but only without the cpu cgroup
+controller). I will try to better understand the scheduler logic and do some more
+testing. If you have anything that I should test, let me know.
 
+Christian
