@@ -2,114 +2,254 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E94E6C4320E
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Jul 2021 08:56:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDFE9C432BE
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Jul 2021 15:01:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CF02260F52
-	for <linux-s390@archiver.kernel.org>; Mon, 26 Jul 2021 08:56:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9E5D960F0F
+	for <linux-s390@archiver.kernel.org>; Mon, 26 Jul 2021 15:01:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232343AbhGZIPl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 26 Jul 2021 04:15:41 -0400
-Received: from mout.gmx.net ([212.227.15.19]:52713 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232041AbhGZIPj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 26 Jul 2021 04:15:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1627289727;
-        bh=WkWs2yjbuB7rMLWgvsxBc4/Z976NwWWIEDiSOgTN55I=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=E7jOP/dwH1+3UHoNaSbTx2XDQRxAN5F8L7jEpZmRIgESVf9ne0KM7xfW0ObhH8vkT
-         ABXz8dsUiPiO1dwu3MUYUkMNesxVe0Yk5ji3YVzpNZGn/BfZ3uPtXbOes3Ed2hx1cN
-         YAlh6MXWhHfFt0OlfJQAeFIRfElfQswmhjdssuBY=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.20.59] ([92.116.128.43]) by mail.gmx.net (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MHG8g-1lugpy469A-00DFk8; Mon, 26
- Jul 2021 10:55:27 +0200
-Subject: Re: [PATCH v3 9/9] asm-generic: reverse
- GENERIC_{STRNCPY_FROM,STRNLEN}_USER symbols
-To:     Arnd Bergmann <arnd@kernel.org>, linux-arch@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Brian Cain <bcain@codeaurora.org>,
-        Chris Zankel <chris@zankel.net>,
+        id S234797AbhGZOVE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 26 Jul 2021 10:21:04 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46004 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234778AbhGZOU6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 26 Jul 2021 10:20:58 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16QEXKgZ144035;
+        Mon, 26 Jul 2021 11:01:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=OffdIqJ+r+X2rMyjYweT1j0nDqkUu9wy0qgWcF//4ZU=;
+ b=fL/p3N8B2i3+z+DaXv/4iU26fAahvOwCZFyTGgEQlphn3HYoSebOF4a4LLHX42J6yX8P
+ bjduw6UR6My7B7u3DqsZ6CvU5ofGcY8SRB7CmrNDUr8HEkop7HjLFaIbZDZkUaPhi+PI
+ FapUh7ernsCG1stMjwpCtNl98MlN01o8aI4EBZIH4dqM3FDQ8R1T4RcGv4wUy9c+/90W
+ AVdBAki2UrPuVw3wILGfdUMFpl88R2yl5EJRfFDTNa0HztUCv8A/fVd+vqlzr3gZNnyC
+ Y/DfdcleJJ4jESbIhamQY7Hrrr1tX33+mFZP0nkwM+LEPpYKZmYfejudCCOfpzNdI6nm sA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a1vvenyev-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Jul 2021 11:01:23 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16QEXMQ3144374;
+        Mon, 26 Jul 2021 11:01:23 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a1vvenycr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Jul 2021 11:01:23 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16QEri0G021425;
+        Mon, 26 Jul 2021 15:01:13 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3a0a4hh4n2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 26 Jul 2021 15:01:13 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16QF1AU714483834
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 26 Jul 2021 15:01:10 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 01DC852052;
+        Mon, 26 Jul 2021 15:01:10 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id D9DAC5204E;
+        Mon, 26 Jul 2021 15:01:09 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
+        id 84878E0228; Mon, 26 Jul 2021 17:01:09 +0200 (CEST)
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+To:     KVM <kvm@vger.kernel.org>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Christoph Hellwig <hch@lst.de>, Guo Ren <guoren@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Michal Simek <monstr@monstr.eu>,
-        Richard Weinberger <richard@nod.at>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        uclinux-h8-devel@lists.sourceforge.jp
-References: <20210722124814.778059-1-arnd@kernel.org>
- <20210722124814.778059-10-arnd@kernel.org>
-From:   Helge Deller <deller@gmx.de>
-Message-ID: <b89d9932-7498-edd2-0369-227ce17bcba6@gmx.de>
-Date:   Mon, 26 Jul 2021 10:55:17 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Jing Zhang <jingzhangos@google.com>
+Subject: [PATCH] KVM: s390: restore old debugfs names
+Date:   Mon, 26 Jul 2021 17:01:08 +0200
+Message-Id: <20210726150108.5603-1-borntraeger@de.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-In-Reply-To: <20210722124814.778059-10-arnd@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:kdIeDnlaRuH2T6rYGVMcZI1y8GGtOS/nCSrzGPNZ3OUQY5MU47B
- 5CBoPs+/Yybus1lp3BFr1TFHG7JdG2o5Hk/+MOXzTPoZvzj/YZ/cz0YWZjRIVcPlnwe88YM
- WDlT2nlwI7uszkXCcyqKqCixlXZhA3YZdT580q2WrQJMaYRDbQNCq2HCRZf0EsBm4LR75i3
- BHhYUoKB70JevsBXEfP+w==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:t7OOfsjhfdM=:cPmtJv3NWFJm9d/RuoNb+/
- Ou4Bbj6nA8Q23PNuEt+UCFyyraXkWNdlDMwrkBg6/uFHrFY5gewiHslDKOPvwvPZ4QoBcNuDT
- 8bh8p1CqRqBNHsASvkEW+aJWm7j9TC8kTFOu4TqiRXvTqGCDIZxCBbYk3f4lF/KmzuVlpr0Du
- E6C7Nzp0ITty3fkhOUAZ7wUXr3fIAjaxGFOEos4Wax/D/96hS2a6wrxxpOtPW0jHf8YZSnTSW
- +ywaHc1qBSckC2nArgXnml3LmH/tsv8FS8c8fz5NB7haNTuVB2mlV0T1Vj4jUSZlFG40Gwuh+
- Qrs/0c1D57oh8kEVO16Yxgp9ls6PVKeBRbaiSNH6omxp9zKHT1mUSR523x7yUMgOqnIwFCvQm
- Me+mKB5Jup/it+POvsUV+NExWuf1EU1Q6I3aIWzXucxBkrfZ8sNKgj9/ZrGi4s5deIMCkm4jD
- WaWwGwylSRBIWBpcPDH0v0u+AcyK6mHWrvLsuJgLfVQZ5MtFihjQ7IUGh9k2b0pB61aSNX6Ja
- aUKIE1tfVrDqxg6QPCBlKIYbOglFx3Of70KtfGF8Y17PfXUSYPqmIeU6f6rsvThB99NrFTtHg
- UuNp7rNTATgACIDJvcPung6RI/RTVo7xMb5KnslJrTw9tyOlK9c2QiI4u0GzBTGGhI8sB+xEQ
- jccA0NGTg7ONUDj1qS8/RGqjPZqiAucjd60cgrD9OBfKsNeFwDYDDjlfg22beeNTYtcRRGsU/
- cwWoNxvInEN7Q5ES0wOBjYvb7zo04AJRFD5+mjf/YJhtmoSZpHSjHRKmLuE8O3jTocx33DzoS
- l3W3ypaoWe9H/E/AKrwcePngCJNADVH5MLl1qd1trF5lrhH1mRqrIzmYoSrFiehrBph0pN1BH
- etTVyfghR0rL7vavgTnKsreSpMyl3W3flVYYrL1VFrOZOaFlu4o/STXYiDOLTuais8R4uHZ9m
- rx7BDIdUVUu2cfGdCxzn72+/DIL+wTIkX3hYLkdhLbb0ILsnNCRr3C7E2s1DdY1NyblFsxj3/
- LgqPcJqCPQLSSnri/QeHDporOJ+A2BTzG1/uoMuWJameE3z/JlSz+68zDXDri1c2g98Ia8/zM
- mym0OeKhYLafNgyhfcmFszob94nhnmC8BqG
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: DbsYLbRn8XLx27Qdf3g4BV2j_Ln3feHu
+X-Proofpoint-ORIG-GUID: KWkUJCbuhz-unTOkD1T6MAx_QwKdbKDe
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-26_06:2021-07-26,2021-07-26 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ mlxscore=0 lowpriorityscore=0 malwarescore=0 mlxlogscore=999 bulkscore=0
+ adultscore=0 impostorscore=0 phishscore=0 clxscore=1015 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2107260082
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 7/22/21 2:48 PM, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> Most architectures do not need a custom implementation, and in most
-> cases the generic implementation is preferred, so change the polariy
-> on these Kconfig symbols to require architectures to select them when
-> they provide their own version.
->
-> The new name is CONFIG_ARCH_HAS_{STRNCPY_FROM,STRNLEN}_USER.
->
-> The remaining architectures at the moment are: ia64, mips, parisc,
-> s390, um and xtensa. We should probably convert these as well, but
-> I was not sure how far to take this series.
+commit bc9e9e672df9 ("KVM: debugfs: Reuse binary stats descriptors")
+did replace the old definitions with the binary ones. While doing that
+it missed that some files are names different than the counters. This
+is especially important for kvm_stat which does have special handling
+for counters named instruction_*.
 
-Acked-by: Helge Deller <deller@gmx.de> # parisc
+Fixes: commit bc9e9e672df9 ("KVM: debugfs: Reuse binary stats descriptors")
+CC: Jing Zhang <jingzhangos@google.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/include/asm/kvm_host.h | 18 +++++++++---------
+ arch/s390/kvm/diag.c             | 18 +++++++++---------
+ arch/s390/kvm/kvm-s390.c         | 18 +++++++++---------
+ 3 files changed, 27 insertions(+), 27 deletions(-)
 
-Thanks!
-Helge
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 3a5b5084cdbe..f1a202327ebd 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -446,15 +446,15 @@ struct kvm_vcpu_stat {
+ 	u64 instruction_sigp_init_cpu_reset;
+ 	u64 instruction_sigp_cpu_reset;
+ 	u64 instruction_sigp_unknown;
+-	u64 diagnose_10;
+-	u64 diagnose_44;
+-	u64 diagnose_9c;
+-	u64 diagnose_9c_ignored;
+-	u64 diagnose_9c_forward;
+-	u64 diagnose_258;
+-	u64 diagnose_308;
+-	u64 diagnose_500;
+-	u64 diagnose_other;
++	u64 instruction_diagnose_10;
++	u64 instruction_diagnose_44;
++	u64 instruction_diagnose_9c;
++	u64 diag_9c_ignored;
++	u64 diag_9c_forward;
++	u64 instruction_diagnose_258;
++	u64 instruction_diagnose_308;
++	u64 instruction_diagnose_500;
++	u64 instruction_diagnose_other;
+ 	u64 pfault_sync;
+ };
+ 
+diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+index 02c146f9e5cd..807fa9da1e72 100644
+--- a/arch/s390/kvm/diag.c
++++ b/arch/s390/kvm/diag.c
+@@ -24,7 +24,7 @@ static int diag_release_pages(struct kvm_vcpu *vcpu)
+ 
+ 	start = vcpu->run->s.regs.gprs[(vcpu->arch.sie_block->ipa & 0xf0) >> 4];
+ 	end = vcpu->run->s.regs.gprs[vcpu->arch.sie_block->ipa & 0xf] + PAGE_SIZE;
+-	vcpu->stat.diagnose_10++;
++	vcpu->stat.instruction_diagnose_10++;
+ 
+ 	if (start & ~PAGE_MASK || end & ~PAGE_MASK || start >= end
+ 	    || start < 2 * PAGE_SIZE)
+@@ -74,7 +74,7 @@ static int __diag_page_ref_service(struct kvm_vcpu *vcpu)
+ 
+ 	VCPU_EVENT(vcpu, 3, "diag page reference parameter block at 0x%llx",
+ 		   vcpu->run->s.regs.gprs[rx]);
+-	vcpu->stat.diagnose_258++;
++	vcpu->stat.instruction_diagnose_258++;
+ 	if (vcpu->run->s.regs.gprs[rx] & 7)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+ 	rc = read_guest(vcpu, vcpu->run->s.regs.gprs[rx], rx, &parm, sizeof(parm));
+@@ -145,7 +145,7 @@ static int __diag_page_ref_service(struct kvm_vcpu *vcpu)
+ static int __diag_time_slice_end(struct kvm_vcpu *vcpu)
+ {
+ 	VCPU_EVENT(vcpu, 5, "%s", "diag time slice end");
+-	vcpu->stat.diagnose_44++;
++	vcpu->stat.instruction_diagnose_44++;
+ 	kvm_vcpu_on_spin(vcpu, true);
+ 	return 0;
+ }
+@@ -169,7 +169,7 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
+ 	int tid;
+ 
+ 	tid = vcpu->run->s.regs.gprs[(vcpu->arch.sie_block->ipa & 0xf0) >> 4];
+-	vcpu->stat.diagnose_9c++;
++	vcpu->stat.instruction_diagnose_9c++;
+ 
+ 	/* yield to self */
+ 	if (tid == vcpu->vcpu_id)
+@@ -192,7 +192,7 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
+ 		VCPU_EVENT(vcpu, 5,
+ 			   "diag time slice end directed to %d: yield forwarded",
+ 			   tid);
+-		vcpu->stat.diagnose_9c_forward++;
++		vcpu->stat.diag_9c_forward++;
+ 		return 0;
+ 	}
+ 
+@@ -203,7 +203,7 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
+ 	return 0;
+ no_yield:
+ 	VCPU_EVENT(vcpu, 5, "diag time slice end directed to %d: ignored", tid);
+-	vcpu->stat.diagnose_9c_ignored++;
++	vcpu->stat.diag_9c_ignored++;
+ 	return 0;
+ }
+ 
+@@ -213,7 +213,7 @@ static int __diag_ipl_functions(struct kvm_vcpu *vcpu)
+ 	unsigned long subcode = vcpu->run->s.regs.gprs[reg] & 0xffff;
+ 
+ 	VCPU_EVENT(vcpu, 3, "diag ipl functions, subcode %lx", subcode);
+-	vcpu->stat.diagnose_308++;
++	vcpu->stat.instruction_diagnose_308++;
+ 	switch (subcode) {
+ 	case 3:
+ 		vcpu->run->s390_reset_flags = KVM_S390_RESET_CLEAR;
+@@ -245,7 +245,7 @@ static int __diag_virtio_hypercall(struct kvm_vcpu *vcpu)
+ {
+ 	int ret;
+ 
+-	vcpu->stat.diagnose_500++;
++	vcpu->stat.instruction_diagnose_500++;
+ 	/* No virtio-ccw notification? Get out quickly. */
+ 	if (!vcpu->kvm->arch.css_support ||
+ 	    (vcpu->run->s.regs.gprs[1] != KVM_S390_VIRTIO_CCW_NOTIFY))
+@@ -299,7 +299,7 @@ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu)
+ 	case 0x500:
+ 		return __diag_virtio_hypercall(vcpu);
+ 	default:
+-		vcpu->stat.diagnose_other++;
++		vcpu->stat.instruction_diagnose_other++;
+ 		return -EOPNOTSUPP;
+ 	}
+ }
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 7675b72a3ddf..01925ef78518 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -163,15 +163,15 @@ const struct _kvm_stats_desc kvm_vcpu_stats_desc[] = {
+ 	STATS_DESC_COUNTER(VCPU, instruction_sigp_init_cpu_reset),
+ 	STATS_DESC_COUNTER(VCPU, instruction_sigp_cpu_reset),
+ 	STATS_DESC_COUNTER(VCPU, instruction_sigp_unknown),
+-	STATS_DESC_COUNTER(VCPU, diagnose_10),
+-	STATS_DESC_COUNTER(VCPU, diagnose_44),
+-	STATS_DESC_COUNTER(VCPU, diagnose_9c),
+-	STATS_DESC_COUNTER(VCPU, diagnose_9c_ignored),
+-	STATS_DESC_COUNTER(VCPU, diagnose_9c_forward),
+-	STATS_DESC_COUNTER(VCPU, diagnose_258),
+-	STATS_DESC_COUNTER(VCPU, diagnose_308),
+-	STATS_DESC_COUNTER(VCPU, diagnose_500),
+-	STATS_DESC_COUNTER(VCPU, diagnose_other),
++	STATS_DESC_COUNTER(VCPU, instruction_diagnose_10),
++	STATS_DESC_COUNTER(VCPU, instruction_diagnose_44),
++	STATS_DESC_COUNTER(VCPU, instruction_diagnose_9c),
++	STATS_DESC_COUNTER(VCPU, diag_9c_ignored),
++	STATS_DESC_COUNTER(VCPU, diag_9c_forward),
++	STATS_DESC_COUNTER(VCPU, instruction_diagnose_258),
++	STATS_DESC_COUNTER(VCPU, instruction_diagnose_308),
++	STATS_DESC_COUNTER(VCPU, instruction_diagnose_500),
++	STATS_DESC_COUNTER(VCPU, instruction_diagnose_other),
+ 	STATS_DESC_COUNTER(VCPU, pfault_sync)
+ };
+ static_assert(ARRAY_SIZE(kvm_vcpu_stats_desc) ==
+-- 
+2.31.1
+
