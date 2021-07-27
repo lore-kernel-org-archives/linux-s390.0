@@ -2,208 +2,194 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 217C9C4338F
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 07:00:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8E1DC4338F
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 12:26:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 018686113A
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 07:00:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4CD861042
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 12:26:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235409AbhG0HAM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jul 2021 03:00:12 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34628 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235471AbhG0HAI (ORCPT
+        id S231981AbhG0M0X (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jul 2021 08:26:23 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57242 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231945AbhG0M0X (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 27 Jul 2021 03:00:08 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16R6i5br083563;
-        Tue, 27 Jul 2021 02:59:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
+        Tue, 27 Jul 2021 08:26:23 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16RCA1nU112067;
+        Tue, 27 Jul 2021 08:26:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
+ from : subject : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=FiVabGtfjDnbtifvF/XqkM9qnKY88Q2VXsum59GwZGo=;
- b=P79yPCxHP+laYTtJrD09z1yfgvdV70oOGk6AlZzwf7AgPFwsxOok7xM89Wl8Mkukyee9
- FvCYlXFYiIkOVjrN47hievvEjU0XZZInZXvK9uglpuPWsbljnkUxL+xkctnGe4gN7+NG
- h6DSsnRivIGTZl9ZwSRY3fyjpnpoBWYt0FSa8SiB0KNNyKNTVQbrpsV4pObH0ZCnxJP7
- E8/eIHEubwHyJ73dhn/0cbTOU8AVhuZvey5u+Xpxx4JlxhSI0gDpx2MkWJH+4Q1KSHwk
- mjvNHxG7q2DZF+mnq48jmCHd1man4VIhPeXH3DBxElrotlo+yezTg1tVdRnCFDu7oAvn oQ== 
+ bh=6El7g2TSjD0AEc/u1X7g2qrGcACjAj8mtV94oT2TxSY=;
+ b=ruZnAv8f8HECW5w7/MP9lZ9Q3bGB8YJA298T8vQyuyrCFIt5UMV5Byr+Ky5LtRQCLzdj
+ Ukm8RcIqTtStRSQhVwNSlOzl5yM8Togep1yJFxqIxc4CRWW9NT+0XyviOEVasVOn6itG
+ GVTzJ2NlDYIHZGmetixK6EloWa/nP7pVInPs+1ufrphu7IyD2nx3Nr/8z7nbf+Ovm/kg
+ k1jnShFOSVLYDx5Ezts441sXSu6ungNy0+RRCaZzhzPM12VRvGGefILeAOCUuApNIkUb
+ AXoBkKq5SVTmUHB3Pp7kOGZOQ3mx35ltp0PdV3v29gU6jfpe6m/8/VkTmDSIemFFaH/a iw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a2d4p0h5m-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a2hhns2uw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 02:59:25 -0400
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16R6iDZS084722;
-        Tue, 27 Jul 2021 02:59:24 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a2d4p0h31-1
+        Tue, 27 Jul 2021 08:26:21 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16RCA77P113101;
+        Tue, 27 Jul 2021 08:26:21 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a2hhns2u3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 02:59:22 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16R62w77002265;
-        Tue, 27 Jul 2021 06:59:20 GMT
+        Tue, 27 Jul 2021 08:26:21 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16RCPWvD006723;
+        Tue, 27 Jul 2021 12:26:19 GMT
 Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 3a235yg7kw-1
+        by ppma05fra.de.ibm.com with ESMTP id 3a235pr8pj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 06:59:20 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16R6uePl27787764
+        Tue, 27 Jul 2021 12:26:19 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16RCNdhw21758408
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 27 Jul 2021 06:56:41 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7678A4203F;
-        Tue, 27 Jul 2021 06:59:17 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C47F542047;
-        Tue, 27 Jul 2021 06:59:16 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.145.165.137])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 27 Jul 2021 06:59:16 +0000 (GMT)
-Subject: Re: [PATCH 1/1] sched/fair: improve yield_to vs fairness
-To:     Mel Gorman <mgorman@techsingularity.net>
-Cc:     peterz@infradead.org, bristot@redhat.com, bsegall@google.com,
-        dietmar.eggemann@arm.com, joshdon@google.com,
-        juri.lelli@redhat.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux@rasmusvillemoes.dk, mgorman@suse.de, mingo@kernel.org,
-        rostedt@goodmis.org, valentin.schneider@arm.com,
-        vincent.guittot@linaro.org
-References: <YIlXQ43b6+7sUl+f@hirez.programming.kicks-ass.net>
- <20210707123402.13999-1-borntraeger@de.ibm.com>
- <20210707123402.13999-2-borntraeger@de.ibm.com>
- <20210723093523.GX3809@techsingularity.net>
- <ddb81bc9-1429-c392-adac-736e23977c84@de.ibm.com>
- <20210723162137.GY3809@techsingularity.net>
- <1acd7520-bd4b-d43d-302a-8dcacf6defa5@de.ibm.com>
- <20210726193232.GZ3809@techsingularity.net>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <d4a8e694-a014-1532-9829-f1594f7c6d86@de.ibm.com>
-Date:   Tue, 27 Jul 2021 08:59:16 +0200
+        Tue, 27 Jul 2021 12:23:39 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 20D7BAE045;
+        Tue, 27 Jul 2021 12:26:16 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 99457AE055;
+        Tue, 27 Jul 2021 12:26:15 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.20.110])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 27 Jul 2021 12:26:15 +0000 (GMT)
+To:     Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>,
+        David Hildenbrand <david@redhat.com>
+Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+References: <20210706115459.372749-1-scgl@linux.ibm.com>
+ <87v95jet9d.fsf@redhat.com>
+ <e5a5fa4a-c5c4-e3f8-3229-9c8e70dffb45@linux.vnet.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH] s390x: Add specification exception test
+Message-ID: <70c1bf40-644d-dfa2-e256-2065ede545bb@linux.ibm.com>
+Date:   Tue, 27 Jul 2021 14:26:15 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210726193232.GZ3809@techsingularity.net>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
+In-Reply-To: <e5a5fa4a-c5c4-e3f8-3229-9c8e70dffb45@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Jx2Fh_BmAj2jGHXNRIKpYHEiX0rnAWKv
-X-Proofpoint-GUID: SxmirhP_T-CJuWM4Ye5s7G2NZVr1dNVp
+X-Proofpoint-GUID: q-ADN7C_kizON6UGCkGVoHhbHLJJFNdh
+X-Proofpoint-ORIG-GUID: 0N51fKi8lMu8Pv8OULttBgGLVFhgNpyj
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-27_04:2021-07-27,2021-07-27 signatures=0
+ definitions=2021-07-27_07:2021-07-27,2021-07-27 signatures=0
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- impostorscore=0 phishscore=0 priorityscore=1501 suspectscore=0
- adultscore=0 bulkscore=0 clxscore=1015 mlxscore=0 mlxlogscore=999
- spamscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2107270038
+ suspectscore=0 mlxlogscore=999 bulkscore=0 adultscore=0 mlxscore=0
+ clxscore=1015 impostorscore=0 malwarescore=0 priorityscore=1501
+ spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2107270071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 26.07.21 21:32, Mel Gorman wrote:
-> On Mon, Jul 26, 2021 at 08:41:15PM +0200, Christian Borntraeger wrote:
->>> Potentially. The patch was a bit off because while it noticed that skip
->>> was not being obeyed, the fix was clumsy and isolated. The current flow is
->>>
->>> 1. pick se == left as the candidate
->>> 2. try pick a different se if the "ideal" candidate is a skip candidate
->>> 3. Ignore the se update if next or last are set
->>>
->>> Step 3 looks off because it ignores skip if next or last buddies are set
->>> and I don't think that was intended. Can you try this?
->>>
->>> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
->>> index 44c452072a1b..d56f7772a607 100644
->>> --- a/kernel/sched/fair.c
->>> +++ b/kernel/sched/fair.c
->>> @@ -4522,12 +4522,12 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
->>>    			se = second;
->>>    	}
->>> -	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
->>> +	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, se) < 1) {
->>>    		/*
->>>    		 * Someone really wants this to run. If it's not unfair, run it.
->>>    		 */
->>>    		se = cfs_rq->next;
->>> -	} else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, left) < 1) {
->>> +	} else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, se) < 1) {
->>>    		/*
->>>    		 * Prefer last buddy, try to return the CPU to a preempted task.
->>>    		 */
->>>
+On 7/9/21 4:22 PM, Janis Schoetterl-Glausch wrote:
+> On 7/9/21 11:22 AM, Cornelia Huck wrote:
+>> On Tue, Jul 06 2021, Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
 >>
->> This one alone does not seem to make a difference. Neither in ignored yield, nor
->> in performance.
+>>> Generate specification exceptions and check that they occur.
+>>> Also generate specification exceptions during a transaction,
+>>> which results in another interruption code.
+>>> With the iterations argument one can check if specification
+>>> exception interpretation occurs, e.g. by using a high value and
+>>> checking that the debugfs counters are substantially lower.
+>>> The argument is also useful for estimating the performance benefit
+>>> of interpretation.
+>>>
+>>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+>>> ---
+>>>  s390x/Makefile           |   1 +
+>>>  lib/s390x/asm/arch_def.h |   1 +
+>>>  s390x/spec_ex.c          | 344 +++++++++++++++++++++++++++++++++++++++
+>>>  s390x/unittests.cfg      |   3 +
+>>>  4 files changed, 349 insertions(+)
+>>>  create mode 100644 s390x/spec_ex.c
 >>
->> Your first patch does really help in terms of ignored yields when
->> all threads are pinned to one host CPU.
+>> (...)
+>>
+>>> +static void lpsw(uint64_t psw)
+>>
+>> Maybe call this load_psw(), as you do a bit more than a simple lpsw?
 > 
-> Ok, that tells us something. It implies, but does not prove, that the
-> block above that handles skip is failing either the entity_before()
-> test or the wakeup_preempt_entity() test. To what degree that should be
-> relaxed when cfs_rq->next is !NULL is harder to determine.
+> [...]
 > 
->> After that we do have no ignored yield
->> it seems. But it does not affect the performance of my testcase.
+>> The indentation looks a bit funny here.
 > 
-> Ok, this is the first patch. The second patch is not improving ignored
-> yields at all so the above paragraph still applies. It would be nice
-> if you could instrument with trace_printk when cfs->rq_next is valid
-> whether it's the entity_before() check that is preventing the skip or
-> wakeup_preempt_entity. Would that be possible?
-
-I will try that.
+> [...]
 > 
-> I still think the second patch is right independent of it helping your
-> test case because it makes no sense to me at all that the task after the
-> skip candidate is ignored if there is a next or last buddy.
-
-I agree.  This patch makes sense to me as a bug fix.
-And I think also the first patch makes sense on its own.
+>> Here as well.
 > 
->> I did some more experiments and I removed the wakeup_preempt_entity checks in
->> pick_next_entity - assuming that this will result in source always being stopped
->> and target always being picked. But still, no performance difference.
->> As soon as I play with vruntime I do see a difference (but only without the cpu cgroup
->> controller). I will try to better understand the scheduler logic and do some more
->> testing. If you have anything that I should test, let me know.
+> Ok, will fix.
+>>
+>>> +}
+>>
+>> (...)
+>>
+>>> +#define report_info_if(cond, fmt, ...)			\
+>>> +	do {						\
+>>> +		if (cond) {				\
+>>> +			report_info(fmt, ##__VA_ARGS__);\
+>>> +		}					\
+>>> +	} while (0)
+>>
+>> I'm wondering whether such a wrapper function could be generally useful.
 >>
 > 
-> The fact that vruntime tricks only makes a difference when cgroups are
-> involved is interesting. Can you describe roughly what how the cgroup
-> is configured? 
-
-Its the other way around. My vruntime patch ONLY helps WITHOUT the cpu cgroup controller.
-In other words this example on a 16CPU host (resulting in 4x overcommitment)
-time ( for ((d=0; d<16; d++)) ; do cgexec -g cpu:test$d qemu-system-s390x -enable-kvm -kernel /root/REPOS/kvm-unit-tests/s390x/diag9c.elf  -smp 4 -nographic -nodefaults -device sclpconsole,chardev=c2 -chardev file,path=/tmp/log$d.log,id=c2  & done; wait)
-does NOT benefit from the vruntime patch, but when I remove the "cgexec -g cpu:test$d" it does:
-time ( for ((d=0; d<16; d++)) ; do qemu-system-s390x -enable-kvm -kernel /root/REPOS/kvm-unit-tests/s390x/diag9c.elf  -smp 4 -nographic -nodefaults -device sclpconsole,chardev=c2 -chardev file,path=/tmp/log$d.log,id=c2  & done; wait)
-  
-
-Similarly, does your config have CONFIG_SCHED_AUTOGROUP
-> or CONFIG_FAIR_GROUP_SCHED set? I assume FAIR_GROUP_SCHED must be and
-
-Yes, both are set.
-> I wonder if the impact of your patch is dropping groups of tasks in
-> priority as opposed to individual tasks. I'm not that familiar with how
-> groups are handled in terms of how they are prioritised unfortunately.
+> I've found 9 occurrences with:
+> find . -type f \( -name "*.c" -o -name "*.h" \) -exec awk '/if\s*\(.*/{i=2;f=$0} /report_info/ && i>0{print FILENAME, NR-1 ":" f;r=4} r>1{print FILENAME, NR ":" $0;r--} r==1{print "--";r=0} {i--}' '{}' \;
 > 
-> I'm still hesitant to consider the vruntime hammer in case it causes
-> fairness problems when vruntime is no longer reflecting time spent on
-> the CPU.
 
-I understand your concerns. What about subtracting the same amount of
-vruntime from the target as we add on the yielder? Would that result in
-quicker rebalancing while still keeping everything in order?
-The reason why I am asking is that initially we
-realized that setting some tunables lower, e.g.
-kernel.sched_latency_ns = 2000000
-kernel.sched_migration_cost_ns = 100000
-makes things faster in a similar fashion. And that also works with cgroups.
-But ideally we find a solution without changing tuneables.
+Looking at the occurrences below most of those also do other things in
+the conditional branches so for 90% we can't do a straight forward replace.
+
+Nevertheless I see some value in it and the 6 lines won't hurt us, so
+please create a separate patch for this and put the maintainers for the
+other arches and Paolo on CC for that patch so they know the new wrapper
+will be available.
+
+Also I'd like having report_fail("Message"); and report_pass("Message");
+functions instead of report(0, "Message"); and report(1, "Message"); ...
+Those at least are straight forward replacements.
+
+
+> ./lib/s390x/css_lib.c 177:      if (cc) {
+> ./lib/s390x/css_lib.c 178:              report_info("stsch: updating sch %08x failed with cc=%d",
+> ./lib/s390x/css_lib.c 179:                          schid, cc);
+> ./lib/s390x/css_lib.c 180:              return false;
+> --
+> ./lib/s390x/css_lib.c 183:      if (!(pmcw->flags & PMCW_ENABLE)) {
+> ./lib/s390x/css_lib.c 184:              report_info("stsch: sch %08x not enabled", schid);
+> ./lib/s390x/css_lib.c 185:              return false;
+> ./lib/s390x/css_lib.c 186:      }
+> --
+> ./lib/s390x/css_lib.c 207:      if (cc) {
+> ./lib/s390x/css_lib.c 208:              report_info("stsch: sch %08x failed with cc=%d", schid, cc);
+> ./lib/s390x/css_lib.c 209:              return cc;
+> ./lib/s390x/css_lib.c 210:      }
+> --
+> ./lib/s390x/css_lib.c 213:      if ((pmcw->flags & (PMCW_ISC_MASK | PMCW_ENABLE)) == flags) {
+> ./lib/s390x/css_lib.c 214:              report_info("stsch: sch %08x already enabled", schid);
+> ./lib/s390x/css_lib.c 215:              return 0;
+> ./lib/s390x/css_lib.c 216:      }
+> --
+> ./lib/s390x/css_lib.c 269:      if (cc) {
+> ./lib/s390x/css_lib.c 270:              report_info("stsch: sch %08x failed with cc=%d", schid, cc);
+> ./lib/s390x/css_lib.c 271:              return false;
+> ./lib/s390x/css_lib.c 272:      }
+> --
+[...]
