@@ -2,225 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C81FC4320A
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 13:48:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2D1DC4338F
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 14:31:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 185D161AA5
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 13:48:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B2AA461AE4
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 14:31:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236843AbhG0NsI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jul 2021 09:48:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46736 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236975AbhG0Nq1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 27 Jul 2021 09:46:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2E1D61AA8;
-        Tue, 27 Jul 2021 13:46:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627393587;
-        bh=gBgBZAebDtJXSKWPcxqP0vNXivcofN4bdSs/nzHkjyQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aCynIkpi7eoqDG56P8ZjOXC/eEBoSD5j9p0gIJ6IsDRJENHvZZaoDxMbwnypMPV1R
-         11MQBrLKP4OANvXzfUhA/QzkwxNDk0oSxgvJxfuwLw8mNpFKLan/gdFuuWz84pN/jU
-         qnHFs5N2gnk3oiE5z4yfIitArVHrzuSZ0xF+gDRN+PNqcWzNyUBIM6RUnivJp2JbcQ
-         LiubyUn/7Ortk/BfndD0Ma1OdxB31IqPzS12xbiGzdCwbDD6Nyk0G/7yx27A4blQxg
-         KMGMjSslJea5duASgwARzZznHRPUyphXOyjwEVxmiGI1FZhatDUFTbaye/nbMEewcM
-         C0D3jyNo3l3Jw==
-From:   Arnd Bergmann <arnd@kernel.org>
-To:     netdev@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: [PATCH net-next v3 16/31] qeth: use ndo_siocdevprivate
-Date:   Tue, 27 Jul 2021 15:45:02 +0200
-Message-Id: <20210727134517.1384504-17-arnd@kernel.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210727134517.1384504-1-arnd@kernel.org>
-References: <20210727134517.1384504-1-arnd@kernel.org>
+        id S236537AbhG0Obb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jul 2021 10:31:31 -0400
+Received: from outbound-smtp17.blacknight.com ([46.22.139.234]:43445 "EHLO
+        outbound-smtp17.blacknight.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232503AbhG0Obb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 27 Jul 2021 10:31:31 -0400
+Received: from mail.blacknight.com (pemlinmail01.blacknight.ie [81.17.254.10])
+        by outbound-smtp17.blacknight.com (Postfix) with ESMTPS id 27B511C421E
+        for <linux-s390@vger.kernel.org>; Tue, 27 Jul 2021 15:31:30 +0100 (IST)
+Received: (qmail 27122 invoked from network); 27 Jul 2021 14:31:29 -0000
+Received: from unknown (HELO techsingularity.net) (mgorman@techsingularity.net@[84.203.17.255])
+  by 81.17.254.9 with ESMTPSA (AES256-SHA encrypted, authenticated); 27 Jul 2021 14:31:29 -0000
+Date:   Tue, 27 Jul 2021 15:31:28 +0100
+From:   Mel Gorman <mgorman@techsingularity.net>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>, bristot@redhat.com,
+        bsegall@google.com, dietmar.eggemann@arm.com, joshdon@google.com,
+        juri.lelli@redhat.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux@rasmusvillemoes.dk, mgorman@suse.de, mingo@kernel.org,
+        rostedt@goodmis.org, valentin.schneider@arm.com,
+        vincent.guittot@linaro.org
+Subject: Re: [PATCH 1/1] sched/fair: improve yield_to vs fairness
+Message-ID: <20210727143128.GA3809@techsingularity.net>
+References: <YIlXQ43b6+7sUl+f@hirez.programming.kicks-ass.net>
+ <20210707123402.13999-1-borntraeger@de.ibm.com>
+ <20210707123402.13999-2-borntraeger@de.ibm.com>
+ <20210723093523.GX3809@techsingularity.net>
+ <YQALDHw7Cr+vbeqN@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <YQALDHw7Cr+vbeqN@hirez.programming.kicks-ass.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Tue, Jul 27, 2021 at 03:33:00PM +0200, Peter Zijlstra wrote:
+> On Fri, Jul 23, 2021 at 10:35:23AM +0100, Mel Gorman wrote:
+> > diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> > index 44c452072a1b..ddc0212d520f 100644
+> > --- a/kernel/sched/fair.c
+> > +++ b/kernel/sched/fair.c
+> > @@ -4522,7 +4522,8 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
+> >  			se = second;
+> >  	}
+> >  
+> > -	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
+> > +	if (cfs_rq->next &&
+> > +	    (cfs_rq->skip == left || wakeup_preempt_entity(cfs_rq->next, left) < 1)) {
+> >  		/*
+> >  		 * Someone really wants this to run. If it's not unfair, run it.
+> >  		 */
+> 
+> With a little more context this function reads like:
+> 
+> 	se = left;
+> 
+> 	if (cfs_rq->skip && cfs_rq->skip == se) {
+> 		...
+> +		if (cfs_rq->next && (cfs_rq->skip == left || ...))
+> 
+> If '...' doesn't change @left (afaict it doesn't), then your change (+)
+> is equivalent to '&& true', or am I reading things wrong?
 
-qeth has both standard MII ioctls and custom SIOCDEVPRIVATE ones,
-all of which work correctly with compat user space.
+You're not reading it wrong although the patch is clumsy and may introduce
+unfairness that gets incrementally worse if there was repeated yields to
+the same task. A second patch was posted that does
 
-Move the private ones over to the new ndo_siocdevprivate callback.
+-       if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
++       if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, se) < 1) {
 
-Cc: Julian Wiedmann <jwi@linux.ibm.com>
-Cc: Karsten Graul <kgraul@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/s390/net/qeth_core.h      |  5 ++++-
- drivers/s390/net/qeth_core_main.c | 35 ++++++++++++++++++++++---------
- drivers/s390/net/qeth_l2_main.c   |  1 +
- drivers/s390/net/qeth_l3_main.c   |  8 ++++---
- 4 files changed, 35 insertions(+), 14 deletions(-)
+i.e. if the skip hint picks a second alternative then next or last buddies
+should be compared to the second alternative and not "left". It doesn't
+help indicating that the skip hint is not obeyed because "second" failed
+the entity_before() or wakeup_preempt_entity() checks. I'm waiting on a
+trace to see which check dominates.
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index c17031519900..535a60b3946d 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -771,7 +771,8 @@ struct qeth_discipline {
- 	void (*remove) (struct ccwgroup_device *);
- 	int (*set_online)(struct qeth_card *card, bool carrier_ok);
- 	void (*set_offline)(struct qeth_card *card);
--	int (*do_ioctl)(struct net_device *dev, struct ifreq *rq, int cmd);
-+	int (*do_ioctl)(struct net_device *dev, struct ifreq *rq,
-+			void __user *data, int cmd);
- 	int (*control_event_handler)(struct qeth_card *card,
- 					struct qeth_ipa_cmd *cmd);
- };
-@@ -1085,6 +1086,8 @@ int qeth_setadpparms_set_access_ctrl(struct qeth_card *card,
- 				     enum qeth_ipa_isolation_modes mode);
- 
- int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
-+int qeth_siocdevprivate(struct net_device *dev, struct ifreq *rq,
-+			void __user *data, int cmd);
- void qeth_dbf_longtext(debug_info_t *id, int level, char *text, ...);
- int qeth_configure_cq(struct qeth_card *, enum qeth_cq);
- int qeth_hw_trap(struct qeth_card *, enum qeth_diags_trap_action);
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 7f486212c6aa..5b973f377504 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -6590,21 +6590,42 @@ static struct ccwgroup_driver qeth_core_ccwgroup_driver = {
- 	.shutdown = qeth_core_shutdown,
- };
- 
--int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-+int qeth_siocdevprivate(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd)
- {
- 	struct qeth_card *card = dev->ml_priv;
--	struct mii_ioctl_data *mii_data;
- 	int rc = 0;
- 
- 	switch (cmd) {
- 	case SIOC_QETH_ADP_SET_SNMP_CONTROL:
--		rc = qeth_snmp_command(card, rq->ifr_ifru.ifru_data);
-+		rc = qeth_snmp_command(card, data);
- 		break;
- 	case SIOC_QETH_GET_CARD_TYPE:
- 		if ((IS_OSD(card) || IS_OSM(card) || IS_OSX(card)) &&
- 		    !IS_VM_NIC(card))
- 			return 1;
- 		return 0;
-+	case SIOC_QETH_QUERY_OAT:
-+		rc = qeth_query_oat_command(card, data);
-+		break;
-+	default:
-+		if (card->discipline->do_ioctl)
-+			rc = card->discipline->do_ioctl(dev, rq, data, cmd);
-+		else
-+			rc = -EOPNOTSUPP;
-+	}
-+	if (rc)
-+		QETH_CARD_TEXT_(card, 2, "ioce%x", rc);
-+	return rc;
-+}
-+EXPORT_SYMBOL_GPL(qeth_siocdevprivate);
-+
-+int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-+{
-+	struct qeth_card *card = dev->ml_priv;
-+	struct mii_ioctl_data *mii_data;
-+	int rc = 0;
-+
-+	switch (cmd) {
- 	case SIOCGMIIPHY:
- 		mii_data = if_mii(rq);
- 		mii_data->phy_id = 0;
-@@ -6617,14 +6638,8 @@ int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
- 			mii_data->val_out = qeth_mdio_read(dev,
- 				mii_data->phy_id, mii_data->reg_num);
- 		break;
--	case SIOC_QETH_QUERY_OAT:
--		rc = qeth_query_oat_command(card, rq->ifr_ifru.ifru_data);
--		break;
- 	default:
--		if (card->discipline->do_ioctl)
--			rc = card->discipline->do_ioctl(dev, rq, cmd);
--		else
--			rc = -EOPNOTSUPP;
-+		return -EOPNOTSUPP;
- 	}
- 	if (rc)
- 		QETH_CARD_TEXT_(card, 2, "ioce%x", rc);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 7fe0f1aea3cb..d50d3cba238e 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -837,6 +837,7 @@ static const struct net_device_ops qeth_l2_netdev_ops = {
- 	.ndo_validate_addr	= qeth_l2_validate_addr,
- 	.ndo_set_rx_mode	= qeth_l2_set_rx_mode,
- 	.ndo_do_ioctl		= qeth_do_ioctl,
-+	.ndo_siocdevprivate	= qeth_siocdevprivate,
- 	.ndo_set_mac_address    = qeth_l2_set_mac_address,
- 	.ndo_vlan_rx_add_vid	= qeth_l2_vlan_rx_add_vid,
- 	.ndo_vlan_rx_kill_vid   = qeth_l2_vlan_rx_kill_vid,
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 7cc59f4f046c..d7a895372f19 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1512,7 +1512,7 @@ static int qeth_l3_arp_flush_cache(struct qeth_card *card)
- 	return rc;
- }
- 
--static int qeth_l3_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-+static int qeth_l3_do_ioctl(struct net_device *dev, struct ifreq *rq, void __user *data, int cmd)
- {
- 	struct qeth_card *card = dev->ml_priv;
- 	struct qeth_arp_cache_entry arp_entry;
-@@ -1532,13 +1532,13 @@ static int qeth_l3_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
- 			rc = -EPERM;
- 			break;
- 		}
--		rc = qeth_l3_arp_query(card, rq->ifr_ifru.ifru_data);
-+		rc = qeth_l3_arp_query(card, data);
- 		break;
- 	case SIOC_QETH_ARP_ADD_ENTRY:
- 	case SIOC_QETH_ARP_REMOVE_ENTRY:
- 		if (!capable(CAP_NET_ADMIN))
- 			return -EPERM;
--		if (copy_from_user(&arp_entry, rq->ifr_data, sizeof(arp_entry)))
-+		if (copy_from_user(&arp_entry, data, sizeof(arp_entry)))
- 			return -EFAULT;
- 
- 		arp_cmd = (cmd == SIOC_QETH_ARP_ADD_ENTRY) ?
-@@ -1842,6 +1842,7 @@ static const struct net_device_ops qeth_l3_netdev_ops = {
- 	.ndo_validate_addr	= eth_validate_addr,
- 	.ndo_set_rx_mode	= qeth_l3_set_rx_mode,
- 	.ndo_do_ioctl		= qeth_do_ioctl,
-+	.ndo_siocdevprivate	= qeth_siocdevprivate,
- 	.ndo_fix_features	= qeth_fix_features,
- 	.ndo_set_features	= qeth_set_features,
- 	.ndo_tx_timeout		= qeth_tx_timeout,
-@@ -1857,6 +1858,7 @@ static const struct net_device_ops qeth_l3_osa_netdev_ops = {
- 	.ndo_validate_addr	= eth_validate_addr,
- 	.ndo_set_rx_mode	= qeth_l3_set_rx_mode,
- 	.ndo_do_ioctl		= qeth_do_ioctl,
-+	.ndo_siocdevprivate	= qeth_siocdevprivate,
- 	.ndo_fix_features	= qeth_fix_features,
- 	.ndo_set_features	= qeth_set_features,
- 	.ndo_tx_timeout		= qeth_tx_timeout,
+That said, I'm still undecided on how to approach this. None of the
+proposed patches on their own helps but the options are
+
+1. Strictly obey the next buddy if the skip hint is the same se as left
+   (first patch which I'm not very happy with even if it helped the
+   test case)
+
+2. My second patch which compares next/last with "second" if the skip
+   hint skips "left". This may be a sensible starting point no matter
+   what
+
+3. Relaxing how "second" is selected if next or last buddies are set
+
+4. vruntime tricks even if it punishes fairness for the task yielding
+   the CPU. The advantage of this approach is if there are multiple tasks
+   ahead of the task being yielded to then yield_to task will become
+   "left" very quickly regardless of any buddy-related hints.
+
+I don't know what "3" would look like yet, it might be very fragile but
+lets see what the tracing says. Otherwise, testing 2+4 might be worthwhile
+to see if the combination helps Christian's test case when the cpu cgroup
+is involved.
+
 -- 
-2.29.2
-
+Mel Gorman
+SUSE Labs
