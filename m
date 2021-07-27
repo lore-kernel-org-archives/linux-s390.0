@@ -2,119 +2,181 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2D1DC4338F
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 14:31:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E0BCC4320A
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 14:50:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B2AA461AE4
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 14:31:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC69D619F8
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 14:50:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236537AbhG0Obb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jul 2021 10:31:31 -0400
-Received: from outbound-smtp17.blacknight.com ([46.22.139.234]:43445 "EHLO
-        outbound-smtp17.blacknight.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232503AbhG0Obb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 27 Jul 2021 10:31:31 -0400
-Received: from mail.blacknight.com (pemlinmail01.blacknight.ie [81.17.254.10])
-        by outbound-smtp17.blacknight.com (Postfix) with ESMTPS id 27B511C421E
-        for <linux-s390@vger.kernel.org>; Tue, 27 Jul 2021 15:31:30 +0100 (IST)
-Received: (qmail 27122 invoked from network); 27 Jul 2021 14:31:29 -0000
-Received: from unknown (HELO techsingularity.net) (mgorman@techsingularity.net@[84.203.17.255])
-  by 81.17.254.9 with ESMTPSA (AES256-SHA encrypted, authenticated); 27 Jul 2021 14:31:29 -0000
-Date:   Tue, 27 Jul 2021 15:31:28 +0100
-From:   Mel Gorman <mgorman@techsingularity.net>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Christian Borntraeger <borntraeger@de.ibm.com>, bristot@redhat.com,
-        bsegall@google.com, dietmar.eggemann@arm.com, joshdon@google.com,
-        juri.lelli@redhat.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux@rasmusvillemoes.dk, mgorman@suse.de, mingo@kernel.org,
-        rostedt@goodmis.org, valentin.schneider@arm.com,
-        vincent.guittot@linaro.org
-Subject: Re: [PATCH 1/1] sched/fair: improve yield_to vs fairness
-Message-ID: <20210727143128.GA3809@techsingularity.net>
-References: <YIlXQ43b6+7sUl+f@hirez.programming.kicks-ass.net>
- <20210707123402.13999-1-borntraeger@de.ibm.com>
- <20210707123402.13999-2-borntraeger@de.ibm.com>
- <20210723093523.GX3809@techsingularity.net>
- <YQALDHw7Cr+vbeqN@hirez.programming.kicks-ass.net>
+        id S232589AbhG0Ouy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jul 2021 10:50:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36020 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236881AbhG0Ott (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 27 Jul 2021 10:49:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 190B261AFF;
+        Tue, 27 Jul 2021 14:49:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1627397365;
+        bh=czPyPIxu2PTKCugBK9YtQzlToUphKkxEXLs4PNmX7jg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=S5U4Sw6RZr+k+Bx+qsSik83rWJ1gJ3J+Xnjocua3sMYzOKHbVYjQfC9+EelM8p+bs
+         4yYTcFQ7ggj7/9L/nDbgjY7ayt505P/zljlokLVPofqFMQrEvNVfoW9HMuU4TqA0Co
+         TdN+v3mbVV1heJZaRF5cU7QERPA97113HBKPcg2JvNFknquwsyW9tlVacdjnIMqXSX
+         giQafSwRthQmNq0eRh7VJskmn2tjqTQ0Upx5ScJFTxOr6ZLAaYFUTQjrmyn933A70S
+         74C6f/8vRnm4eN8EXBJeJORsy9hMmPFHVQgiyP9SqQifHV6cf8WoTCKh6RQ+RTwTdh
+         dqfKPOvYSQEWw==
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Feng Tang <feng.tang@intel.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-api@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH v5 1/6] kexec: move locking into do_kexec_load
+Date:   Tue, 27 Jul 2021 16:48:54 +0200
+Message-Id: <20210727144859.4150043-2-arnd@kernel.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210727144859.4150043-1-arnd@kernel.org>
+References: <20210727144859.4150043-1-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <YQALDHw7Cr+vbeqN@hirez.programming.kicks-ass.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 27, 2021 at 03:33:00PM +0200, Peter Zijlstra wrote:
-> On Fri, Jul 23, 2021 at 10:35:23AM +0100, Mel Gorman wrote:
-> > diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-> > index 44c452072a1b..ddc0212d520f 100644
-> > --- a/kernel/sched/fair.c
-> > +++ b/kernel/sched/fair.c
-> > @@ -4522,7 +4522,8 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
-> >  			se = second;
-> >  	}
-> >  
-> > -	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
-> > +	if (cfs_rq->next &&
-> > +	    (cfs_rq->skip == left || wakeup_preempt_entity(cfs_rq->next, left) < 1)) {
-> >  		/*
-> >  		 * Someone really wants this to run. If it's not unfair, run it.
-> >  		 */
-> 
-> With a little more context this function reads like:
-> 
-> 	se = left;
-> 
-> 	if (cfs_rq->skip && cfs_rq->skip == se) {
-> 		...
-> +		if (cfs_rq->next && (cfs_rq->skip == left || ...))
-> 
-> If '...' doesn't change @left (afaict it doesn't), then your change (+)
-> is equivalent to '&& true', or am I reading things wrong?
+From: Arnd Bergmann <arnd@arndb.de>
 
-You're not reading it wrong although the patch is clumsy and may introduce
-unfairness that gets incrementally worse if there was repeated yields to
-the same task. A second patch was posted that does
+The locking is the same between the native and compat version of
+sys_kexec_load(), so it can be done in the common implementation
+to reduce duplication.
 
--       if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
-+       if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, se) < 1) {
+Co-developed-by: Eric Biederman <ebiederm@xmission.com>
+Co-developed-by: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ kernel/kexec.c | 44 ++++++++++++++++----------------------------
+ 1 file changed, 16 insertions(+), 28 deletions(-)
 
-i.e. if the skip hint picks a second alternative then next or last buddies
-should be compared to the second alternative and not "left". It doesn't
-help indicating that the skip hint is not obeyed because "second" failed
-the entity_before() or wakeup_preempt_entity() checks. I'm waiting on a
-trace to see which check dominates.
-
-That said, I'm still undecided on how to approach this. None of the
-proposed patches on their own helps but the options are
-
-1. Strictly obey the next buddy if the skip hint is the same se as left
-   (first patch which I'm not very happy with even if it helped the
-   test case)
-
-2. My second patch which compares next/last with "second" if the skip
-   hint skips "left". This may be a sensible starting point no matter
-   what
-
-3. Relaxing how "second" is selected if next or last buddies are set
-
-4. vruntime tricks even if it punishes fairness for the task yielding
-   the CPU. The advantage of this approach is if there are multiple tasks
-   ahead of the task being yielded to then yield_to task will become
-   "left" very quickly regardless of any buddy-related hints.
-
-I don't know what "3" would look like yet, it might be very fragile but
-lets see what the tracing says. Otherwise, testing 2+4 might be worthwhile
-to see if the combination helps Christian's test case when the cpu cgroup
-is involved.
-
+diff --git a/kernel/kexec.c b/kernel/kexec.c
+index c82c6c06f051..9c7aef8f4bb6 100644
+--- a/kernel/kexec.c
++++ b/kernel/kexec.c
+@@ -110,6 +110,17 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
+ 	unsigned long i;
+ 	int ret;
+ 
++	/*
++	 * Because we write directly to the reserved memory region when loading
++	 * crash kernels we need a mutex here to prevent multiple crash kernels
++	 * from attempting to load simultaneously, and to prevent a crash kernel
++	 * from loading over the top of a in use crash kernel.
++	 *
++	 * KISS: always take the mutex.
++	 */
++	if (!mutex_trylock(&kexec_mutex))
++		return -EBUSY;
++
+ 	if (flags & KEXEC_ON_CRASH) {
+ 		dest_image = &kexec_crash_image;
+ 		if (kexec_crash_image)
+@@ -121,7 +132,8 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
+ 	if (nr_segments == 0) {
+ 		/* Uninstall image */
+ 		kimage_free(xchg(dest_image, NULL));
+-		return 0;
++		ret = 0;
++		goto out_unlock;
+ 	}
+ 	if (flags & KEXEC_ON_CRASH) {
+ 		/*
+@@ -134,7 +146,7 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
+ 
+ 	ret = kimage_alloc_init(&image, entry, nr_segments, segments, flags);
+ 	if (ret)
+-		return ret;
++		goto out_unlock;
+ 
+ 	if (flags & KEXEC_PRESERVE_CONTEXT)
+ 		image->preserve_context = 1;
+@@ -171,6 +183,8 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
+ 		arch_kexec_protect_crashkres();
+ 
+ 	kimage_free(image);
++out_unlock:
++	mutex_unlock(&kexec_mutex);
+ 	return ret;
+ }
+ 
+@@ -247,21 +261,8 @@ SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
+ 		((flags & KEXEC_ARCH_MASK) != KEXEC_ARCH_DEFAULT))
+ 		return -EINVAL;
+ 
+-	/* Because we write directly to the reserved memory
+-	 * region when loading crash kernels we need a mutex here to
+-	 * prevent multiple crash  kernels from attempting to load
+-	 * simultaneously, and to prevent a crash kernel from loading
+-	 * over the top of a in use crash kernel.
+-	 *
+-	 * KISS: always take the mutex.
+-	 */
+-	if (!mutex_trylock(&kexec_mutex))
+-		return -EBUSY;
+-
+ 	result = do_kexec_load(entry, nr_segments, segments, flags);
+ 
+-	mutex_unlock(&kexec_mutex);
+-
+ 	return result;
+ }
+ 
+@@ -301,21 +302,8 @@ COMPAT_SYSCALL_DEFINE4(kexec_load, compat_ulong_t, entry,
+ 			return -EFAULT;
+ 	}
+ 
+-	/* Because we write directly to the reserved memory
+-	 * region when loading crash kernels we need a mutex here to
+-	 * prevent multiple crash  kernels from attempting to load
+-	 * simultaneously, and to prevent a crash kernel from loading
+-	 * over the top of a in use crash kernel.
+-	 *
+-	 * KISS: always take the mutex.
+-	 */
+-	if (!mutex_trylock(&kexec_mutex))
+-		return -EBUSY;
+-
+ 	result = do_kexec_load(entry, nr_segments, ksegments, flags);
+ 
+-	mutex_unlock(&kexec_mutex);
+-
+ 	return result;
+ }
+ #endif
 -- 
-Mel Gorman
-SUSE Labs
+2.29.2
+
