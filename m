@@ -2,178 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA156C4338F
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 18:57:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38F28C4320A
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 19:17:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D116E60F6E
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 18:57:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A7F260FE4
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 19:17:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230334AbhG0S52 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jul 2021 14:57:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54538 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230182AbhG0S51 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Jul 2021 14:57:27 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A702DC061760
-        for <linux-s390@vger.kernel.org>; Tue, 27 Jul 2021 11:57:27 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id j1so991675pjv.3
-        for <linux-s390@vger.kernel.org>; Tue, 27 Jul 2021 11:57:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=from:to:cc:subject:references:date:in-reply-to:message-id
-         :user-agent:mime-version;
-        bh=NXlwJruXkpJ+yuRr3Ny47qE4ejJcWzcd0hJXzdTUy1o=;
-        b=H7UwOW/t/LEWHiQpFLro/pe3jEtcPO0eJPaadtLJ3pnvkadLizFuOiiY+oM8G9HD+P
-         Ocs++ENNM0TOk1oXv1vAS0WRHRKyItKZqj0gCjto78xvLekO7HX2suQDKD/hSpzsM3Xm
-         7DU1hLmwDBgTtzdkX9E5JOnVfwjWf1Xr6Gd6U8e17NZ6vRcUoUZ3UqsEZxgcSbszjN7X
-         PRoH+KWuLkOFv+6F1Bx+m+vtMT6tjucX+A7OSrtQCmrnYWOb2gy0/V0LMEdZnue7x/85
-         yArY/k1okB0FmJMpAlnf2PcM5WTrvfiMI+ArAsxb2sPRB5EONRckb9G3MJD59gPfNVzW
-         9+5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:references:date:in-reply-to
-         :message-id:user-agent:mime-version;
-        bh=NXlwJruXkpJ+yuRr3Ny47qE4ejJcWzcd0hJXzdTUy1o=;
-        b=LibJmBzgg3SBR5B6/mM1o7QMrZxxG58D6HvWgPXv9fqH0pzssl8om6a0dyNVzuDC0h
-         RPDbjg9ScbsqbknVDlAVdPnzlIgPCCmw+C2qNQJNClPATrrBKNRTTCSvnlIACxKmwf15
-         x2nS+r88Mr4np5F8x/Yf5J80sk5AnmeEWWeI48awpMSvHFZ/wEf97GhLieVojpSENYPt
-         v2rtY6tXgvxHLleUildPtqmSmxZq9E4Xfj6VIuG8Tm0IhXceseoNrwFp//u7he79/7Hp
-         idpJQJ2iQu22yPoAd1BcQsaOOIXiM8FIfW6QjEOt876nJa44vi9p62vAsBMS4cg3WYZl
-         IJew==
-X-Gm-Message-State: AOAM533y3E6478/TZWgD+jwEU2cQtNPzLg2BzQKNn/ajZktWfCb0rfAX
-        ChDbjbaP2b8MBMSSvjX/znp7XA==
-X-Google-Smtp-Source: ABdhPJzApcwZYWTEiTKzL5ZYv6E437W4sjpRLKR2IvWjZoE088wEQSwVMWXYyUTq+9+qN1FFpbpyRQ==
-X-Received: by 2002:a63:f241:: with SMTP id d1mr24813648pgk.424.1627412246933;
-        Tue, 27 Jul 2021 11:57:26 -0700 (PDT)
-Received: from bsegall-glaptop.localhost (c-73-71-82-80.hsd1.ca.comcast.net. [73.71.82.80])
-        by smtp.gmail.com with ESMTPSA id il2sm3338495pjb.29.2021.07.27.11.57.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jul 2021 11:57:25 -0700 (PDT)
-From:   Benjamin Segall <bsegall@google.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Mel Gorman <mgorman@techsingularity.net>, peterz@infradead.org,
-        bristot@redhat.com, dietmar.eggemann@arm.com, joshdon@google.com,
-        juri.lelli@redhat.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux@rasmusvillemoes.dk, mgorman@suse.de, mingo@kernel.org,
-        rostedt@goodmis.org, valentin.schneider@arm.com,
-        vincent.guittot@linaro.org
-Subject: Re: [PATCH 1/1] sched/fair: improve yield_to vs fairness
-References: <YIlXQ43b6+7sUl+f@hirez.programming.kicks-ass.net>
-        <20210707123402.13999-1-borntraeger@de.ibm.com>
-        <20210707123402.13999-2-borntraeger@de.ibm.com>
-        <20210723093523.GX3809@techsingularity.net>
-        <ddb81bc9-1429-c392-adac-736e23977c84@de.ibm.com>
-        <20210723162137.GY3809@techsingularity.net>
-        <1acd7520-bd4b-d43d-302a-8dcacf6defa5@de.ibm.com>
-Date:   Tue, 27 Jul 2021 11:57:13 -0700
-In-Reply-To: <1acd7520-bd4b-d43d-302a-8dcacf6defa5@de.ibm.com> (Christian
-        Borntraeger's message of "Mon, 26 Jul 2021 20:41:15 +0200")
-Message-ID: <xm2635rza8l2.fsf@google.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.2 (gnu/linux)
+        id S231873AbhG0TRQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jul 2021 15:17:16 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16170 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229945AbhG0TRO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 27 Jul 2021 15:17:14 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16RJCSEB017230;
+        Tue, 27 Jul 2021 15:16:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=S9WrCfkjSuekFZGHC4uhqiuih4pXzbHlc84xouUPS30=;
+ b=XtVP3aKZR9Z1pNXNGsp2zrrSA1oIVqlmYRUJPfycxAbVOkY5aZf+STUn9HLRwdindj3l
+ KayU7gSPFJF6TUFinKMIcypSlccNbLBBnSnc5ruZiyqnwmDoIislOsDVW4Te5vaOGJgZ
+ b7kywMaOLrCGDMZRY+uKUt0OzvUQ34KEsan0jAdmN9/yBt+/+HMJBKo75rsn7qBS8mun
+ gUQarU41NbCVnlybtddgQtb3CoZX8pZTDN0LmYM7pXhSRrMOgI/YBhMS1NwBf8j2iz9x
+ emQXUe5DEH1yYeh2sRn1AWomHCowoydRrg2Gdsd2bZqQNw5BzKMv2r6i+GFg1iZ0otVG Dg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a2qtvg9j2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Jul 2021 15:16:01 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16RJFBjg028792;
+        Tue, 27 Jul 2021 15:16:00 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a2qtvg9h1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Jul 2021 15:16:00 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16RIumuQ029158;
+        Tue, 27 Jul 2021 19:15:58 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04fra.de.ibm.com with ESMTP id 3a235kgdeu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 27 Jul 2021 19:15:58 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16RJFthW28377476
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 27 Jul 2021 19:15:55 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EF014A405F;
+        Tue, 27 Jul 2021 19:15:54 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BD9DBA4057;
+        Tue, 27 Jul 2021 19:15:53 +0000 (GMT)
+Received: from osiris (unknown [9.145.19.157])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 27 Jul 2021 19:15:53 +0000 (GMT)
+Date:   Tue, 27 Jul 2021 21:15:52 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Feng Tang <feng.tang@intel.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v5 4/6] mm: simplify compat numa syscalls
+Message-ID: <YQBbaNqfBzX+pf1t@osiris>
+References: <20210727144859.4150043-1-arnd@kernel.org>
+ <20210727144859.4150043-5-arnd@kernel.org>
+ <YQBB9yteAwtG2xyp@osiris>
+ <CAK8P3a3itgCyc4jDBodTOcwG+XXsDYspZqQVBmy88cGXevY5Yw@mail.gmail.com>
+ <YQBSpxZR4P/Phpf1@osiris>
+ <CAK8P3a0WT36Lg4nRBWx_kqb9yKj0mHx8gTdzCsDfrx1tQSEqbA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a0WT36Lg4nRBWx_kqb9yKj0mHx8gTdzCsDfrx1tQSEqbA@mail.gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: -XM2aaOHmahf3GNtvPV0YNUK2TjKX7f3
+X-Proofpoint-ORIG-GUID: TkiykJPEd5k1niuESQpMFCol9mhqnTsf
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-27_13:2021-07-27,2021-07-27 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
+ adultscore=0 clxscore=1015 malwarescore=0 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 mlxscore=0 mlxlogscore=984 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2107270113
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Christian Borntraeger <borntraeger@de.ibm.com> writes:
+On Tue, Jul 27, 2021 at 08:49:40PM +0200, Arnd Bergmann wrote:
+> On Tue, Jul 27, 2021 at 8:38 PM Heiko Carstens <hca@linux.ibm.com> wrote:
+> >
+> > -268  common    mbind                   sys_mbind                       compat_sys_mbind
+> > -269  common    get_mempolicy           sys_get_mempolicy               compat_sys_get_mempolicy
+> > -270  common    set_mempolicy           sys_set_mempolicy               compat_sys_set_mempolicy
+> > +268  common    mbind                   sys_mbind                       sys_mbind
+> > +269  common    get_mempolicy           sys_get_mempolicy               sys_get_mempolicy
+> > +270  common    set_mempolicy           sys_set_mempolicy               sys_set_mempolicy
+> >
+> > would remove compat_ptr() conversion from nmask above if I'm not mistaken.
+> 
+> Maybe I'm misremembering how compat syscalls work on s390. Doesn't
+> SYSCALL_DEFINEx(sys_mbind) still create two entry points __s390x_sys_mbind()
+> and __s390_sys_mbind() with different argument conversion (__SC_CAST vs
+> __SC_COMPAT_CAST)? I thought that was the whole point of the macros.
 
-> On 23.07.21 18:21, Mel Gorman wrote:
->> On Fri, Jul 23, 2021 at 02:36:21PM +0200, Christian Borntraeger wrote:
->>>> sched: Do not select highest priority task to run if it should be skipped
->>>>
->>>> <SNIP>
->>>>
->>>> index 44c452072a1b..ddc0212d520f 100644
->>>> --- a/kernel/sched/fair.c
->>>> +++ b/kernel/sched/fair.c
->>>> @@ -4522,7 +4522,8 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
->>>>    			se = second;
->>>>    	}
->>>> -	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
->>>> +	if (cfs_rq->next &&
->>>> +	    (cfs_rq->skip == left || wakeup_preempt_entity(cfs_rq->next, left) < 1)) {
->>>>    		/*
->>>>    		 * Someone really wants this to run. If it's not unfair, run it.
->>>>    		 */
->>>>
->>>
->>> I do see a reduction in ignored yields, but from a performance aspect for my
->>> testcases this patch does not provide a benefit, while the the simple
->>> 	curr->vruntime += sysctl_sched_min_granularity;
->>> does.
->> I'm still not a fan because vruntime gets distorted. From the docs
->>     Small detail: on "ideal" hardware, at any time all tasks would have the
->> same
->>     p->se.vruntime value --- i.e., tasks would execute simultaneously and no task
->>     would ever get "out of balance" from the "ideal" share of CPU time
->> If yield_to impacts this "ideal share" then it could have other
->> consequences.
->> I think your patch may be performing better in your test case because every
->> "wrong" task selected that is not the yield_to target gets penalised and
->> so the yield_to target gets pushed up the list.
->> 
->>> I still think that your approach is probably the cleaner one, any chance to improve this
->>> somehow?
->>>
->> Potentially. The patch was a bit off because while it noticed that skip
->> was not being obeyed, the fix was clumsy and isolated. The current flow is
->> 1. pick se == left as the candidate
->> 2. try pick a different se if the "ideal" candidate is a skip candidate
->> 3. Ignore the se update if next or last are set
->> Step 3 looks off because it ignores skip if next or last buddies are set
->> and I don't think that was intended. Can you try this?
->> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
->> index 44c452072a1b..d56f7772a607 100644
->> --- a/kernel/sched/fair.c
->> +++ b/kernel/sched/fair.c
->> @@ -4522,12 +4522,12 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
->>   			se = second;
->>   	}
->>   -	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
->> +	if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, se) < 1) {
->>   		/*
->>   		 * Someone really wants this to run. If it's not unfair, run it.
->>   		 */
->>   		se = cfs_rq->next;
->> -	} else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, left) < 1) {
->> +	} else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, se) < 1) {
->>   		/*
->>   		 * Prefer last buddy, try to return the CPU to a preempted task.
->>   		 */
->> 
->
-> This one alone does not seem to make a difference. Neither in ignored yield, nor
-> in performance.
->
-> Your first patch does really help in terms of ignored yields when
-> all threads are pinned to one host CPU. After that we do have no ignored yield
-> it seems. But it does not affect the performance of my testcase.
-> I did some more experiments and I removed the wakeup_preempt_entity checks in
-> pick_next_entity - assuming that this will result in source always being stopped
-> and target always being picked. But still, no performance difference.
-> As soon as I play with vruntime I do see a difference (but only without the cpu cgroup
-> controller). I will try to better understand the scheduler logic and do some more
-> testing. If you have anything that I should test, let me know.
->
-> Christian
-
-If both yielder and target are in the same cpu cgroup or the cpu cgroup
-is disabled (ie, if cfs_rq_of(p->se) matches), you could try
-
-if (p->se.vruntime > rq->curr->se.vruntime)
-	swap(p->se.vruntime, rq->curr->se.vruntime)
-
-as well as the existing buddy flags, as an entirely fair vruntime boost
-to the target.
-
-For when they aren't direct siblings, you /could/ use find_matching_se,
-but it's much less clear that's desirable, since it would yield vruntime
-for the entire hierarchy to the target's hierarchy.
+You are remembering correctly, probably because you implemented it ;)
+I totally forgot - sorry for the noise!
