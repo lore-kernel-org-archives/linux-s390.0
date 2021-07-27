@@ -2,82 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F18A2C43216
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 15:15:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53E23C432BE
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 16:34:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D38C661B26
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 15:15:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D5FE61B24
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 16:34:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236732AbhG0PP3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jul 2021 11:15:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59102 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232633AbhG0PP1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Jul 2021 11:15:27 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A97FC061757;
-        Tue, 27 Jul 2021 08:15:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=4JdE/aW6odLJdtfdNjxa/S0U0ePQHRA8MXvplpff6bM=; b=dBVptD61D5ANUSUouTM0t/zwCr
-        hQb89/AeDjkTjJ62t5BB3e6J9KJ5f1cTMzIrf1ugfiCbudRMBVEOgweNq2oME/ThYwLnwq95hjCwP
-        cfLhsa5xuolDjO3WxLHM7i8cVYScLHXI72C21lVChwvGg0dbnLkLk0aOkiXHG9H8xaeTXqK6iju+6
-        37pNYEiAG/RJUsfl05zRYM3mjjLrPEYwrnD1VAVA5AL2hCrdaXxNARoR7CRRNcItBSDq+juzm/WHD
-        mKOtTTAUmKuJGVMSpV0woMW7rbZo+g3TZvDNpRhhupubuqvfyAbaxq+gdWiEHwin800v0Aob1T4VL
-        mxOSBJfA==;
-Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1m8OiU-00F89m-Un; Tue, 27 Jul 2021 15:10:39 +0000
-Date:   Tue, 27 Jul 2021 16:09:58 +0100
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Feng Tang <feng.tang@intel.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-api@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v5 6/6] arch: remove compat_alloc_user_space
-Message-ID: <YQAhxgdPHt8xndEM@infradead.org>
-References: <20210727144859.4150043-1-arnd@kernel.org>
- <20210727144859.4150043-7-arnd@kernel.org>
+        id S229529AbhG0QeZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jul 2021 12:34:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:53087 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229732AbhG0QeZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 27 Jul 2021 12:34:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1627403664;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=eSN3zUa+aSMFbTfiTDoY4ts+MsujN4ZIL3irtZSd5cc=;
+        b=D1XjgNSvzxja2cmLdIWKgjEofGAQfrKLNKIy/L3f9rrWrXHN6gah7WYIEt19O0MV/YRxnf
+        Euuf81S6uwP7b6A7YObKSmaffMsBbdsR31INQ9PM3IA7pQQpOHHkmNDz2nZEsuM5f56T/T
+        3eVJ5Xwjxi2NpWxX2EX11veVItHBLtQ=
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
+ [209.85.166.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-594-pfPJVr9ZMV-XVUTPQ5rGsw-1; Tue, 27 Jul 2021 12:34:23 -0400
+X-MC-Unique: pfPJVr9ZMV-XVUTPQ5rGsw-1
+Received: by mail-io1-f69.google.com with SMTP id k24-20020a6bef180000b02904a03acf5d82so11410104ioh.23
+        for <linux-s390@vger.kernel.org>; Tue, 27 Jul 2021 09:34:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=eSN3zUa+aSMFbTfiTDoY4ts+MsujN4ZIL3irtZSd5cc=;
+        b=WvnD3xXYk82T4I6IVp7NuZWajui6WffyPGcThdACwRA9AfmcgS80idzdkg25JfK9AL
+         vH1x6gubpJEtpySvTQWrlymXD7Lwr1vjL9slFhdW+/QoSAqlMbn/QgE7Y3ha8hBnBlbS
+         KGxwRPSMvg0TSY0468Zq4hA3nAGH0QzzTZ79B0WRg8YLcnbX0M4CVOfZKFngMggAYc7x
+         x48Ehu7xUSjgSv4yFxXdpDXRBHQQ7o8adqzBMRhRE7LcTPZOIHSwDgDg6wtzA8aX4rGG
+         EQLp2JMgjrBSnS272fwBYnRvIOOYqgHMNOnCUL3jOSxzrA91ezywxLLk2uveDVPh+7da
+         1tSg==
+X-Gm-Message-State: AOAM530ZSdM4i3bfMx8wgTyuDsrNRx9+0biFybuB8oOKlcuLW+bT4ZSA
+        zvAi5d525mcr7s3evPbog9tIgYH+aU2LxVf/gOUBx0CwjQezURhtgx1g9ecvtJp2fsXwporZqA8
+        tt5XsCB15F5Pu8GaLTP+5uA==
+X-Received: by 2002:a5d:878d:: with SMTP id f13mr5846923ion.83.1627403662581;
+        Tue, 27 Jul 2021 09:34:22 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyNDLuiJUlkwcG5wDeSXc83uop3QQ8klnj9cewIBJA3vjAmH06hqKaz8ZuEyt2S7VEnZ31d5w==
+X-Received: by 2002:a5d:878d:: with SMTP id f13mr5846896ion.83.1627403662311;
+        Tue, 27 Jul 2021 09:34:22 -0700 (PDT)
+Received: from redhat.com ([198.49.6.230])
+        by smtp.gmail.com with ESMTPSA id f7sm2156386ils.42.2021.07.27.09.34.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Jul 2021 09:34:21 -0700 (PDT)
+Date:   Tue, 27 Jul 2021 10:34:18 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Yishai Hadas <yishaih@nvidia.com>
+Cc:     <bhelgaas@google.com>, <corbet@lwn.net>,
+        <diana.craciun@oss.nxp.com>, <kwankhede@nvidia.com>,
+        <eric.auger@redhat.com>, <masahiroy@kernel.org>,
+        <michal.lkml@markovi.net>, <linux-pci@vger.kernel.org>,
+        <linux-doc@vger.kernel.org>, <kvm@vger.kernel.org>,
+        <linux-s390@vger.kernel.org>, <linux-kbuild@vger.kernel.org>,
+        <mgurtovoy@nvidia.com>, <jgg@nvidia.com>, <maorg@nvidia.com>,
+        <leonro@nvidia.com>
+Subject: Re: [PATCH 09/12] PCI: Add a PCI_ID_F_VFIO_DRIVER_OVERRIDE flag to
+ struct pci_device_id
+Message-ID: <20210727103418.2d059863.alex.williamson@redhat.com>
+In-Reply-To: <20210721161609.68223-10-yishaih@nvidia.com>
+References: <20210721161609.68223-1-yishaih@nvidia.com>
+        <20210721161609.68223-10-yishaih@nvidia.com>
+Organization: Red Hat
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210727144859.4150043-7-arnd@kernel.org>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-finally!
+On Wed, 21 Jul 2021 19:16:06 +0300
+Yishai Hadas <yishaih@nvidia.com> wrote:
 
-Looks good,
+> From: Max Gurtovoy <mgurtovoy@nvidia.com>
+> 
+> The new flag field is be used to allow PCI drivers to signal the core code
+> during driver matching and when generating the modules.alias information.
+> 
+> The first use will be to define a VFIO flag that indicates the PCI driver
+> is a VFIO driver.
+> 
+> VFIO drivers have a few special properties compared to normal PCI drivers:
+>  - They do not automatically bind. VFIO drivers are used to swap out the
+>    normal driver for a device and convert the PCI device to the VFIO
+>    subsystem.
+> 
+>    The admin must make this choice and following the current uAPI this is
+>    usually done by using the driver_override sysfs.
+> 
+>  - The modules.alias includes the IDs of the VFIO PCI drivers, prefixing
+>    them with 'vfio_pci:' instead of the normal 'pci:'.
+> 
+>    This allows the userspace machinery that switches devices to VFIO to
+>    know what kernel drivers support what devices and allows it to trigger
+>    the proper device_override.
+> 
+> As existing tools do not recognize the "vfio_pci:" mod-alias prefix this
+> keeps todays behavior the same. VFIO remains on the side, is never
+> autoloaded and can only be activated by direct admin action.
+> 
+> This patch is the infrastructure to provide the information in the
+> modules.alias to userspace and enable the only PCI VFIO driver. Later
+> series introduce additional HW specific VFIO PCI drivers.
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+I don't really understand why we're combining the above "special
+properties" into a single flag.  For instance, why wouldn't we create a
+flag that just indicates a match entry is only for driver override?  Or
+if we're only using this for full wildcard matches, we could detect
+that even without a flag.
+
+Then, how does the "vfio_pci:" alias extend to other drivers?  Is this
+expected to be the only driver that would use an alias ever or would
+other drivers use new bits of the flag?  Seems some documentation is
+necessary; the comment on PCI_DRIVER_OVERRIDE_DEVICE_VFIO doesn't
+really help, "This macro is used to create a struct pci_device_id that
+matches a specific device", then we proceed to use it with PCI_ANY_ID.
+
+vfio-pci has always tried (as much as possible) to be "just another
+PCI" driver to avoid all the nasty issues that used to exist with
+legacy KVM device assignment, so I cringe at seeing these vfio specific
+hooks in PCI-core.  Thanks,
+
+Alex
+
