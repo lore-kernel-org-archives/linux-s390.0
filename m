@@ -2,120 +2,164 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C25F5C4320E
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 20:42:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65427C432BE
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 21:54:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ADABD60FC4
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 20:42:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3EB2160F91
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 21:54:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231414AbhG0Umh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jul 2021 16:42:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50666 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230425AbhG0Umg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 27 Jul 2021 16:42:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6DC060FA0;
-        Tue, 27 Jul 2021 20:42:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627418555;
-        bh=d4JjFlDfF7N2eBt3m9sdZRk+eRhA4ZhBMt2Pq1TZ0cw=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=ZKlOgZHSGjAmEnyaCwMuVKafYPWKeXil2Iiwo9tfWrDpXPrP+nIx5u3FkbHHx9hE7
-         f/+uSzSaAFLY8z0zPS4rMNMGD3DTUb7OLkYFi3ipPjtLYS72UjSrIEZWHsniKmxxZK
-         Le59cWQyoKcdNBRC2NnQPaYKcr4Sl5SxpzzeT6TBVgHinsKuWcX4k1BjDbOE4supyn
-         HiZ19DR0bU/awUHcX41Rjheo1w+obLAaQrJ8Rjja+UBSy51OODPf7/DV6wZKbPG4vd
-         wTF3Um9UkJV8uDOE8zSUVipLRKY8TGL5cXoV09GMyL2Tz2E7xssC3kDmiC7uClw3Me
-         O9bSVwy2lubCA==
-Received: by mail-wm1-f48.google.com with SMTP id m38-20020a05600c3b26b02902161fccabf1so2791363wms.2;
-        Tue, 27 Jul 2021 13:42:35 -0700 (PDT)
-X-Gm-Message-State: AOAM532e/tUB7+Yevh5XKbWHbmLJ44fqx2jx8R5yJ6m8/z1ANBb4cKI8
-        EgRq50X0XEK5e2xk7awNte+MLSMqp1CiNR3aWK8=
-X-Google-Smtp-Source: ABdhPJzIeHa1hycZO5ufjXaaYbpY3YdQw4oHXjfZp2KwEfMcEIfJ5hSLrfTaLF7iY7hnR3dqnN2Y1Sv0AKkyrN9dOFM=
-X-Received: by 2002:a7b:c2fa:: with SMTP id e26mr6005968wmk.84.1627418543998;
- Tue, 27 Jul 2021 13:42:23 -0700 (PDT)
+        id S232867AbhG0Vyq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jul 2021 17:54:46 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:52692 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232573AbhG0Vyp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 27 Jul 2021 17:54:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1627422884;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=yvQTTkfcrLZXncADcYnW+DivOnY4gH65JuSHhZAqY0g=;
+        b=PmvpKcbuTVo2muCBKzE98eYpyc9a14nD0jfH7CqJxsdTpXd98fPhnwLVTZ7D4nf2Q95NhQ
+        Nc2lqrldlAq9BMGDUxivQm//HMagSt/DfUJZgx3qtz6sin5sXcJ7RNSSwkoKgAnHspftm2
+        jF8B9BZ4AvINlqaOmKPTa9wrxLa4ulg=
+Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
+ [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-180-5Be43rM6MMyGqqDJYmDGag-1; Tue, 27 Jul 2021 17:54:43 -0400
+X-MC-Unique: 5Be43rM6MMyGqqDJYmDGag-1
+Received: by mail-oi1-f200.google.com with SMTP id b7-20020aca67470000b029025c7e6f8b64so374774oiy.6
+        for <linux-s390@vger.kernel.org>; Tue, 27 Jul 2021 14:54:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=yvQTTkfcrLZXncADcYnW+DivOnY4gH65JuSHhZAqY0g=;
+        b=PIlrLi4L0SW/JtUL68IdvRu/D3LoOST52kr07108mThPxzfJue5n3QnrIuHHH/REO9
+         EawB+En3U0zTT7VFF2dTrvgJgNv+W6kD4i3teQjib2OCH4wz+U5rOd8ijFsHfZmpjNdV
+         jNnNLViPVdxySPR58jn9wIX1MgMMs2jRpTJtH5ZO08CvDxi7DsUveKIo3cRvl8VKNtmC
+         iAJFhQEkmqm89GZr5/Y6/nuUSR/ArgCexmuVAYaBTsQ96xaPfjyZfVHlVqOMvhL8PngY
+         Br2/nK4PlxSgcDVQPbs0BSKF2kEmrroPfSEPM9wpNAkkKBo6zHCOgaBT9HwIdMRzeU6u
+         4ikg==
+X-Gm-Message-State: AOAM533uWB/XHb4bQHuVz19Cq/Ku+q7kC1H4cGnMBhsUnjm0FE/f3cik
+        d0d0uLdTSYw3sdPxbiaPiW4fj7Zz1PTfX4b4Sw4/b1AM4coxkEWSCkv6DoInCMTEJgVGFsh46r8
+        C0IdA8Xk+gUjtG3RrxDF2QQ==
+X-Received: by 2002:a54:4895:: with SMTP id r21mr16001756oic.30.1627422882833;
+        Tue, 27 Jul 2021 14:54:42 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJynpzSiqfgKibVjl4PLtaAutE2wTvwDVL90lKptkcJX811Umoi4U6iHgANFR9Wxyyt55EglfQ==
+X-Received: by 2002:a54:4895:: with SMTP id r21mr16001747oic.30.1627422882560;
+        Tue, 27 Jul 2021 14:54:42 -0700 (PDT)
+Received: from redhat.com ([198.99.80.109])
+        by smtp.gmail.com with ESMTPSA id m19sm731736otp.55.2021.07.27.14.54.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Jul 2021 14:54:42 -0700 (PDT)
+Date:   Tue, 27 Jul 2021 15:54:40 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Yishai Hadas <yishaih@nvidia.com>
+Cc:     <bhelgaas@google.com>, <corbet@lwn.net>,
+        <diana.craciun@oss.nxp.com>, <kwankhede@nvidia.com>,
+        <eric.auger@redhat.com>, <masahiroy@kernel.org>,
+        <michal.lkml@markovi.net>, <linux-pci@vger.kernel.org>,
+        <linux-doc@vger.kernel.org>, <kvm@vger.kernel.org>,
+        <linux-s390@vger.kernel.org>, <linux-kbuild@vger.kernel.org>,
+        <mgurtovoy@nvidia.com>, <jgg@nvidia.com>, <maorg@nvidia.com>,
+        <leonro@nvidia.com>
+Subject: Re: [PATCH 12/12] vfio/pci: Introduce vfio_pci_core.ko
+Message-ID: <20210727155440.680ee22e.alex.williamson@redhat.com>
+In-Reply-To: <20210721161609.68223-13-yishaih@nvidia.com>
+References: <20210721161609.68223-1-yishaih@nvidia.com>
+        <20210721161609.68223-13-yishaih@nvidia.com>
+Organization: Red Hat
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <20210727144859.4150043-1-arnd@kernel.org> <YQAfa6iObAwwIpzb@infradead.org>
- <20210727131017.f151a81fc69db8f45f81a2b3@linux-foundation.org>
-In-Reply-To: <20210727131017.f151a81fc69db8f45f81a2b3@linux-foundation.org>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Tue, 27 Jul 2021 22:42:07 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a2S4Oct4+a8u=ottrW1b+iRf-tRSJb0DvaLNR3CZARmTQ@mail.gmail.com>
-Message-ID: <CAK8P3a2S4Oct4+a8u=ottrW1b+iRf-tRSJb0DvaLNR3CZARmTQ@mail.gmail.com>
-Subject: Re: [PATCH v5 0/6] compat: remove compat_alloc_user_space
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 27, 2021 at 10:11 PM Andrew Morton
-<akpm@linux-foundation.org> wrote:
->
-> On Tue, 27 Jul 2021 15:59:55 +0100 Christoph Hellwig <hch@infradead.org> wrote:
->
-> > On Tue, Jul 27, 2021 at 04:48:53PM +0200, Arnd Bergmann wrote:
-> > > Since these patches are now all that remains, it would be nice to
-> > > merge it all through Andrew's Linux-mm tree, which is already based
-> > > on top of linux-next.
-> >
-> > Is it?
->
-> the -mm tree is structured as
->
-> <90% of stuff>
-> linux-next.patch
-> <the other 10% of stuff>
->
-> So things like Arnd's series which have a dependency on linux-next
-> material get added to the "other 10%" and are merged behind the
-> linux-next material and all is good.
->
-> If possible I'll queue things ahead of linux-next.patch.  Those few
-> things which have dependencies on linux-next material get sent to Linus
-> after the required linux-next material is merged into mainline.
+On Wed, 21 Jul 2021 19:16:09 +0300
+Yishai Hadas <yishaih@nvidia.com> wrote:
 
-The first five patches in my series should apply cleanly on mainline
-kernels and make sense by themselves, the last patch is the one that
-depends on this series as well as another series in the netdev tree,
-so that has to go behind linux-next.
+> From: Max Gurtovoy <mgurtovoy@nvidia.com>
+> 
+> Now that vfio_pci has been split into two source modules, one focusing
+> on the "struct pci_driver" (vfio_pci.c) and a toolbox library of code
+> (vfio_pci_core.c), complete the split and move them into two different
+> kernel modules.
+> 
+> As before vfio_pci.ko continues to present the same interface under
+> sysfs and this change will have no functional impact.
+> 
+> Splitting into another module and adding exports allows creating new HW
+> specific VFIO PCI drivers that can implement device specific
+> functionality, such as VFIO migration interfaces or specialized device
+> requirements.
+> 
+> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+> ---
+>  drivers/vfio/pci/Kconfig                      | 30 ++++++++------
+>  drivers/vfio/pci/Makefile                     |  8 ++--
+>  drivers/vfio/pci/vfio_pci.c                   | 14 ++-----
+>  drivers/vfio/pci/vfio_pci_config.c            |  2 +-
+>  drivers/vfio/pci/vfio_pci_core.c              | 41 ++++++++++++++++---
+>  drivers/vfio/pci/vfio_pci_igd.c               |  2 +-
+>  drivers/vfio/pci/vfio_pci_intrs.c             |  2 +-
+>  drivers/vfio/pci/vfio_pci_rdwr.c              |  2 +-
+>  drivers/vfio/pci/vfio_pci_zdev.c              |  2 +-
+>  .../pci => include/linux}/vfio_pci_core.h     |  2 -
+>  10 files changed, 66 insertions(+), 39 deletions(-)
+>  rename {drivers/vfio/pci => include/linux}/vfio_pci_core.h (99%)
+> 
+> diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
+> index afdab7d71e98..18898ae49919 100644
+> --- a/drivers/vfio/pci/Kconfig
+> +++ b/drivers/vfio/pci/Kconfig
+> @@ -1,19 +1,31 @@
+>  # SPDX-License-Identifier: GPL-2.0-only
+> -config VFIO_PCI
+> +config VFIO_PCI_CORE
+>  	tristate "VFIO support for PCI devices"
+>  	depends on PCI
+>  	depends on MMU
+>  	select VFIO_VIRQFD
+>  	select IRQ_BYPASS_MANAGER
+>  	help
+> -	  Support for the PCI VFIO bus driver.  This is required to make
+> -	  use of PCI drivers using the VFIO framework.
+> +	  Support for using PCI devices with VFIO.
+> +
+> +if VFIO_PCI_CORE
+> +config VFIO_PCI_MMAP
+> +	def_bool y if !S390
+> +
+> +config VFIO_PCI_INTX
+> +	def_bool y if !S390
+> +
+> +config VFIO_PCI
+> +	tristate "Generic VFIO support for any PCI device"
+> +	help
+> +	  Support for the generic PCI VFIO bus driver which can connect any
+> +	  PCI device to the VFIO framework.
+>  
+>  	  If you don't know what to do here, say N.
+>  
 
-I suppose I could also merge the first five through my asm-generic tree
-and send you the last one if you prefer, but then again two of the patches
-are actually memory management stuff.
+I'm still not happy with how this is likely to break users and even
+downstreams when upgrading to a Kconfig with this change.  A previously
+selected VFIO_PCI comes out disabled unless the user is keen enough to
+enable VFIO_PCI_CORE.  I think I'd prefer to sacrifice the purity of
+the menus to pull VFIO_PCI out of the if block and have it select
+VFIO_PCI_CORE.  Thanks,
 
-         Arnd
+Alex
+
