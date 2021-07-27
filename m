@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E90F0C19F33
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 14:50:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA5FAC4338F
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 14:50:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C596C61A3D
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 14:50:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CE24C61A3D
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 14:50:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237165AbhG0Ou4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jul 2021 10:50:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36102 "EHLO mail.kernel.org"
+        id S237187AbhG0Ou5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jul 2021 10:50:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236909AbhG0Ott (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        id S236864AbhG0Ott (ORCPT <rfc822;linux-s390@vger.kernel.org>);
         Tue, 27 Jul 2021 10:49:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F238F61B05;
-        Tue, 27 Jul 2021 14:49:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3559861AFD;
+        Tue, 27 Jul 2021 14:49:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1627397371;
-        bh=uEwQ9C0cLg3IwMIORY/37dlh5O4fu4jNkU/FjsRvIrE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kj/IVvXy3JHWkqM0XFNYDPQdxSxj8JggLNuER9Hto8/iywRcIWO4ntU+1XOU+vznN
-         nwEKRsA+VKIKup4+NtVyRDYRpls5U2TXGCwqj3BJNmiv5sKmAucefRYvBWnZGg/gWZ
-         c82xtneZYpDFHr8DZcbROOlVG3lPysp9nfW3etc11bBGulX+P5auZXokAklC34LE09
-         zwwS/wKlWBr3BJYnxmJQmo/nNvm9893oVZ0YfCEUg2WJgjbqKzN5nBIr50IymV9mHv
-         xGRSVKAvWuWMXXuS4LWxtdDEitvbuLrJU8AGGYaPMslKu0GUWYCUOcXlo8lTk6GhMM
-         d1I9fnI2UDWGQ==
+        s=k20201202; t=1627397359;
+        bh=Tjiwf4/hYWXFn9aUgPpl3D0HHZbelU5u+FTy8tvX/BA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Jm0Ghr4DY8S8DbJUMOgzNYNZ9TpUDawl2m4udsOCvZu6uErY0ceZK1ugOzDu5GYfU
+         FcpYwKuxA6AjAy3zyCgVACtAq/UWFPG3mNHsh8tFDA5zWzInxHIu8o0jJfWh5vuzLj
+         ++JkgaoWIL8JM41Ld9ZSmOyhjlGS5DRNjCGi0qceKIOC/UT+DuY98htxeqdY7x3FKV
+         40uaxkb5SA6kv5iFRlvbFCA5wazm8JgMVhL91/E5GnpKc2GEeZREYLyo0ppxHTqLHX
+         HXWc8AwqP3FWNXks7HkSQo4WKwHmUdrLF/lKZgKuXzZvtIgXac3yNPJy/etARITDNG
+         3IhheeU5vs0Kw==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     Andrew Morton <akpm@linux-foundation.org>
 Cc:     Arnd Bergmann <arnd@arndb.de>,
@@ -58,12 +58,10 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
         linux-api@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH v5 2/6] kexec: avoid compat_alloc_user_space
-Date:   Tue, 27 Jul 2021 16:48:55 +0200
-Message-Id: <20210727144859.4150043-3-arnd@kernel.org>
+Subject: [PATCH v5 0/6] compat: remove compat_alloc_user_space
+Date:   Tue, 27 Jul 2021 16:48:53 +0200
+Message-Id: <20210727144859.4150043-1-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210727144859.4150043-1-arnd@kernel.org>
-References: <20210727144859.4150043-1-arnd@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -72,147 +70,128 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-kimage_alloc_init() expects a __user pointer, so compat_sys_kexec_load()
-uses compat_alloc_user_space() to convert the layout and put it back
-onto the user space caller stack.
+Going through compat_alloc_user_space() to convert indirect system call
+arguments tends to add complexity compared to handling the native and
+compat logic in the same code.
 
-Moving the user space access into the syscall handler directly actually
-makes the code simpler, as the conversion for compat mode can now be
-done on kernel memory.
+Out of the other remaining callers, the linux-media series went into
+v5.14, and the network ioctl handling is now fixed in net-next, so
+these are the last remaining users, and I now include the final
+patch to remove the definitions as well.
 
-Co-developed-by: Eric Biederman <ebiederm@xmission.com>
-Co-developed-by: Christoph Hellwig <hch@infradead.org>
-Link: https://lore.kernel.org/lkml/YPbtsU4GX6PL7%2F42@infradead.org/
-Link: https://lore.kernel.org/lkml/m1y2cbzmnw.fsf@fess.ebiederm.org/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Since these patches are now all that remains, it would be nice to
+merge it all through Andrew's Linux-mm tree, which is already based
+on top of linux-next.
+
+       Arnd
 ---
- kernel/kexec.c | 61 +++++++++++++++++++++-----------------------------
- 1 file changed, 25 insertions(+), 36 deletions(-)
 
-diff --git a/kernel/kexec.c b/kernel/kexec.c
-index 9c7aef8f4bb6..b5e40f069768 100644
---- a/kernel/kexec.c
-+++ b/kernel/kexec.c
-@@ -19,26 +19,9 @@
- 
- #include "kexec_internal.h"
- 
--static int copy_user_segment_list(struct kimage *image,
--				  unsigned long nr_segments,
--				  struct kexec_segment __user *segments)
--{
--	int ret;
--	size_t segment_bytes;
--
--	/* Read in the segments */
--	image->nr_segments = nr_segments;
--	segment_bytes = nr_segments * sizeof(*segments);
--	ret = copy_from_user(image->segment, segments, segment_bytes);
--	if (ret)
--		ret = -EFAULT;
--
--	return ret;
--}
--
- static int kimage_alloc_init(struct kimage **rimage, unsigned long entry,
- 			     unsigned long nr_segments,
--			     struct kexec_segment __user *segments,
-+			     struct kexec_segment *segments,
- 			     unsigned long flags)
- {
- 	int ret;
-@@ -58,10 +41,8 @@ static int kimage_alloc_init(struct kimage **rimage, unsigned long entry,
- 		return -ENOMEM;
- 
- 	image->start = entry;
--
--	ret = copy_user_segment_list(image, nr_segments, segments);
--	if (ret)
--		goto out_free_image;
-+	image->nr_segments = nr_segments;
-+	memcpy(image->segment, segments, nr_segments * sizeof(*segments));
- 
- 	if (kexec_on_panic) {
- 		/* Enable special crash kernel control page alloc policy. */
-@@ -104,7 +85,7 @@ static int kimage_alloc_init(struct kimage **rimage, unsigned long entry,
- }
- 
- static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
--		struct kexec_segment __user *segments, unsigned long flags)
-+		struct kexec_segment *segments, unsigned long flags)
- {
- 	struct kimage **dest_image, *image;
- 	unsigned long i;
-@@ -250,7 +231,8 @@ static inline int kexec_load_check(unsigned long nr_segments,
- SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
- 		struct kexec_segment __user *, segments, unsigned long, flags)
- {
--	int result;
-+	struct kexec_segment *ksegments;
-+	unsigned long result;
- 
- 	result = kexec_load_check(nr_segments, flags);
- 	if (result)
-@@ -261,7 +243,12 @@ SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
- 		((flags & KEXEC_ARCH_MASK) != KEXEC_ARCH_DEFAULT))
- 		return -EINVAL;
- 
--	result = do_kexec_load(entry, nr_segments, segments, flags);
-+	ksegments = memdup_user(segments, nr_segments * sizeof(ksegments[0]));
-+	if (IS_ERR(ksegments))
-+		return PTR_ERR(ksegments);
-+
-+	result = do_kexec_load(entry, nr_segments, ksegments, flags);
-+	kfree(ksegments);
- 
- 	return result;
- }
-@@ -273,7 +260,7 @@ COMPAT_SYSCALL_DEFINE4(kexec_load, compat_ulong_t, entry,
- 		       compat_ulong_t, flags)
- {
- 	struct compat_kexec_segment in;
--	struct kexec_segment out, __user *ksegments;
-+	struct kexec_segment *ksegments;
- 	unsigned long i, result;
- 
- 	result = kexec_load_check(nr_segments, flags);
-@@ -286,24 +273,26 @@ COMPAT_SYSCALL_DEFINE4(kexec_load, compat_ulong_t, entry,
- 	if ((flags & KEXEC_ARCH_MASK) == KEXEC_ARCH_DEFAULT)
- 		return -EINVAL;
- 
--	ksegments = compat_alloc_user_space(nr_segments * sizeof(out));
-+	ksegments = kmalloc_array(nr_segments, sizeof(ksegments[0]),
-+			GFP_KERNEL);
-+	if (!ksegments)
-+		return -ENOMEM;
-+
- 	for (i = 0; i < nr_segments; i++) {
- 		result = copy_from_user(&in, &segments[i], sizeof(in));
- 		if (result)
--			return -EFAULT;
-+			goto fail;
- 
--		out.buf   = compat_ptr(in.buf);
--		out.bufsz = in.bufsz;
--		out.mem   = in.mem;
--		out.memsz = in.memsz;
--
--		result = copy_to_user(&ksegments[i], &out, sizeof(out));
--		if (result)
--			return -EFAULT;
-+		ksegments[i].buf   = compat_ptr(in.buf);
-+		ksegments[i].bufsz = in.bufsz;
-+		ksegments[i].mem   = in.mem;
-+		ksegments[i].memsz = in.memsz;
- 	}
- 
- 	result = do_kexec_load(entry, nr_segments, ksegments, flags);
- 
-+fail:
-+	kfree(ksegments);
- 	return result;
- }
- #endif
+Changes in v4:
+
+- Rebase on top of net-next
+- Split up and improve the kexec patch based on Christoph's suggestions
+- Include final patch to remove compat_alloc_user_space
+- Cc compat architecture maintainers
+
+Link: https://lore.kernel.org/lkml/20210720150950.3669610-1-arnd@kernel.org/
+
+Changes in v3:
+
+- fix whitespace as pointed out by Christoph Hellwig
+- minor build fixes
+- rebase to v5.13-rc1
+
+Link: https://lore.kernel.org/lkml/20210517203343.3941777-1-arnd@kernel.org/
+
+Changes in v2:
+
+- address review comments from Christoph Hellwig
+- split syscall removal into a separate patch
+- replace __X32_COND_SYSCALL() with individual macros for x32
+
+Link: https://lore.kernel.org/lkml/20201208150614.GA15765@infradead.org/
+
+Arnd Bergmann (6):
+  kexec: move locking into do_kexec_load
+  kexec: avoid compat_alloc_user_space
+  mm: simplify compat_sys_move_pages
+  mm: simplify compat numa syscalls
+  compat: remove some compat entry points
+  arch: remove compat_alloc_user_space
+
+ arch/arm64/include/asm/compat.h           |   5 -
+ arch/arm64/include/asm/uaccess.h          |  11 --
+ arch/arm64/include/asm/unistd32.h         |  10 +-
+ arch/arm64/lib/Makefile                   |   2 +-
+ arch/arm64/lib/copy_in_user.S             |  77 ---------
+ arch/mips/cavium-octeon/octeon-memcpy.S   |   2 -
+ arch/mips/include/asm/compat.h            |   8 -
+ arch/mips/include/asm/uaccess.h           |  26 ---
+ arch/mips/kernel/syscalls/syscall_n32.tbl |  10 +-
+ arch/mips/kernel/syscalls/syscall_o32.tbl |  10 +-
+ arch/mips/lib/memcpy.S                    |  11 --
+ arch/parisc/include/asm/compat.h          |   6 -
+ arch/parisc/include/asm/uaccess.h         |   2 -
+ arch/parisc/kernel/syscalls/syscall.tbl   |   8 +-
+ arch/parisc/lib/memcpy.c                  |   9 -
+ arch/powerpc/include/asm/compat.h         |  16 --
+ arch/powerpc/kernel/syscalls/syscall.tbl  |  10 +-
+ arch/s390/include/asm/compat.h            |  10 --
+ arch/s390/include/asm/uaccess.h           |   3 -
+ arch/s390/kernel/syscalls/syscall.tbl     |  10 +-
+ arch/s390/lib/uaccess.c                   |  63 -------
+ arch/sparc/include/asm/compat.h           |  19 ---
+ arch/sparc/kernel/process_64.c            |   2 +-
+ arch/sparc/kernel/signal32.c              |  12 +-
+ arch/sparc/kernel/signal_64.c             |   8 +-
+ arch/sparc/kernel/syscalls/syscall.tbl    |  10 +-
+ arch/x86/entry/syscalls/syscall_32.tbl    |   4 +-
+ arch/x86/entry/syscalls/syscall_64.tbl    |   2 +-
+ arch/x86/include/asm/compat.h             |  13 --
+ arch/x86/include/asm/uaccess_64.h         |   7 -
+ include/linux/compat.h                    |  39 +----
+ include/linux/uaccess.h                   |  10 --
+ include/uapi/asm-generic/unistd.h         |  10 +-
+ kernel/compat.c                           |  21 ---
+ kernel/kexec.c                            | 103 +++++-------
+ kernel/sys_ni.c                           |   5 -
+ mm/mempolicy.c                            | 196 +++++-----------------
+ mm/migrate.c                              |  50 +++---
+ 38 files changed, 175 insertions(+), 645 deletions(-)
+ delete mode 100644 arch/arm64/lib/copy_in_user.S
+
 -- 
 2.29.2
 
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: x86@kernel.org
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-api@vger.kernel.org
+Cc: linux-mm@kvack.org
