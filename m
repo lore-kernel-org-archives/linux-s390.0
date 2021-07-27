@@ -2,141 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38F28C4320A
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 19:17:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DC64C4338F
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 20:00:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1A7F260FE4
-	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 19:17:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 81A7460F9B
+	for <linux-s390@archiver.kernel.org>; Tue, 27 Jul 2021 20:00:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231873AbhG0TRQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jul 2021 15:17:16 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16170 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229945AbhG0TRO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 27 Jul 2021 15:17:14 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16RJCSEB017230;
-        Tue, 27 Jul 2021 15:16:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=S9WrCfkjSuekFZGHC4uhqiuih4pXzbHlc84xouUPS30=;
- b=XtVP3aKZR9Z1pNXNGsp2zrrSA1oIVqlmYRUJPfycxAbVOkY5aZf+STUn9HLRwdindj3l
- KayU7gSPFJF6TUFinKMIcypSlccNbLBBnSnc5ruZiyqnwmDoIislOsDVW4Te5vaOGJgZ
- b7kywMaOLrCGDMZRY+uKUt0OzvUQ34KEsan0jAdmN9/yBt+/+HMJBKo75rsn7qBS8mun
- gUQarU41NbCVnlybtddgQtb3CoZX8pZTDN0LmYM7pXhSRrMOgI/YBhMS1NwBf8j2iz9x
- emQXUe5DEH1yYeh2sRn1AWomHCowoydRrg2Gdsd2bZqQNw5BzKMv2r6i+GFg1iZ0otVG Dg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a2qtvg9j2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 15:16:01 -0400
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16RJFBjg028792;
-        Tue, 27 Jul 2021 15:16:00 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a2qtvg9h1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 15:16:00 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16RIumuQ029158;
-        Tue, 27 Jul 2021 19:15:58 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04fra.de.ibm.com with ESMTP id 3a235kgdeu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 27 Jul 2021 19:15:58 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16RJFthW28377476
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 27 Jul 2021 19:15:55 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EF014A405F;
-        Tue, 27 Jul 2021 19:15:54 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BD9DBA4057;
-        Tue, 27 Jul 2021 19:15:53 +0000 (GMT)
-Received: from osiris (unknown [9.145.19.157])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 27 Jul 2021 19:15:53 +0000 (GMT)
-Date:   Tue, 27 Jul 2021 21:15:52 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Feng Tang <feng.tang@intel.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>, Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v5 4/6] mm: simplify compat numa syscalls
-Message-ID: <YQBbaNqfBzX+pf1t@osiris>
-References: <20210727144859.4150043-1-arnd@kernel.org>
- <20210727144859.4150043-5-arnd@kernel.org>
- <YQBB9yteAwtG2xyp@osiris>
- <CAK8P3a3itgCyc4jDBodTOcwG+XXsDYspZqQVBmy88cGXevY5Yw@mail.gmail.com>
- <YQBSpxZR4P/Phpf1@osiris>
- <CAK8P3a0WT36Lg4nRBWx_kqb9yKj0mHx8gTdzCsDfrx1tQSEqbA@mail.gmail.com>
+        id S229681AbhG0UAU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 27 Jul 2021 16:00:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40750 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231204AbhG0UAO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 27 Jul 2021 16:00:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id ED0CF60FA0;
+        Tue, 27 Jul 2021 20:00:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1627416014;
+        bh=7gbluUXqRRDrRRn0YT85HoIea0afHl4fXkBq3wS8myc=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=ZuKh0QZIr0bo4IkkVxJ+KGIS7CN6C3qN0vMjFXehfb5lPWADe0PwPwsnk1qMM5vvO
+         HlWCTVM4ZzSaJEPtmoNUa1vsliz463WcrdCQN1lkHHswUKgaNNtq29styVqu3BjN7r
+         JYjOpWXSrkVvfQxj9Ek6rU+aJOXdBkncGx3bb9Y1mzLSX2u2tkkakG1hfNRYcUUq4e
+         inTy+HHa8/MPQbmrfH3/IPLKgDL9lIMIjHc7+pUM2DHjS9wtjN7iT01LHakbA2lpny
+         sQF0HUZcKsDMvVwqgSaSNCqv1JR5iOvrYNY91Aq7W+oxmNXRaUF211VLnU6VOI+NyL
+         UUZx8tXVJZbzw==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a0WT36Lg4nRBWx_kqb9yKj0mHx8gTdzCsDfrx1tQSEqbA@mail.gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -XM2aaOHmahf3GNtvPV0YNUK2TjKX7f3
-X-Proofpoint-ORIG-GUID: TkiykJPEd5k1niuESQpMFCol9mhqnTsf
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-27_13:2021-07-27,2021-07-27 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
- adultscore=0 clxscore=1015 malwarescore=0 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 mlxscore=0 mlxlogscore=984 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2107270113
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v3 00/31] ndo_ioctl rework
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162741601391.17427.11630081272562695042.git-patchwork-notify@kernel.org>
+Date:   Tue, 27 Jul 2021 20:00:13 +0000
+References: <20210727134517.1384504-1-arnd@kernel.org>
+In-Reply-To: <20210727134517.1384504-1-arnd@kernel.org>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kuba@kernel.org, davem@davemloft.net, arnd@arndb.de,
+        j.vosburgh@gmail.com, vfalico@gmail.com, andy@greyhouse.net,
+        rajur@chelsio.com, t.sailer@alumni.ethz.ch, jreuter@yaina.de,
+        jpr@f6fbb.org, jes@trained-monkey.org, khc@pm.waw.pl,
+        kevin.curtis@farsite.co.uk, qiang.zhao@nxp.com, ms@dev.tdt.de,
+        kvalo@codeaurora.org, j@w1.fi, jwi@linux.ibm.com,
+        kgraul@linux.ibm.com, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        roopa@nvidia.com, nikolay@nvidia.com, steffen.klassert@secunet.com,
+        herbert@gondor.apana.org.au, courmisch@gmail.com, andrew@lunn.ch,
+        hch@lst.de, linux-parisc@vger.kernel.org,
+        linux-hams@vger.kernel.org, linux-hippi@sunsite.dk,
+        linux-ppp@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-x25@vger.kernel.org, linux-wireless@vger.kernel.org,
+        linux-s390@vger.kernel.org, bridge@lists.linux-foundation.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 27, 2021 at 08:49:40PM +0200, Arnd Bergmann wrote:
-> On Tue, Jul 27, 2021 at 8:38 PM Heiko Carstens <hca@linux.ibm.com> wrote:
-> >
-> > -268  common    mbind                   sys_mbind                       compat_sys_mbind
-> > -269  common    get_mempolicy           sys_get_mempolicy               compat_sys_get_mempolicy
-> > -270  common    set_mempolicy           sys_set_mempolicy               compat_sys_set_mempolicy
-> > +268  common    mbind                   sys_mbind                       sys_mbind
-> > +269  common    get_mempolicy           sys_get_mempolicy               sys_get_mempolicy
-> > +270  common    set_mempolicy           sys_set_mempolicy               sys_set_mempolicy
-> >
-> > would remove compat_ptr() conversion from nmask above if I'm not mistaken.
-> 
-> Maybe I'm misremembering how compat syscalls work on s390. Doesn't
-> SYSCALL_DEFINEx(sys_mbind) still create two entry points __s390x_sys_mbind()
-> and __s390_sys_mbind() with different argument conversion (__SC_CAST vs
-> __SC_COMPAT_CAST)? I thought that was the whole point of the macros.
+Hello:
 
-You are remembering correctly, probably because you implemented it ;)
-I totally forgot - sorry for the noise!
+This series was applied to netdev/net-next.git (refs/heads/master):
+
+On Tue, 27 Jul 2021 15:44:46 +0200 you wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> This series is a follow-up to the series for removing
+> compat_alloc_user_space() and copy_in_user() that has now
+> been merged.
+> 
+> I wanted to be sure I address all the ways that 'struct ifreq' is used
+> in device drivers through .ndo_do_ioctl, originally to prove that
+> my approach of changing the struct definition was correct, but then
+> I discarded that approach and went on anyway.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,v3,01/31] net: split out SIOCDEVPRIVATE handling from dev_ioctl
+    https://git.kernel.org/netdev/net-next/c/b9067f5dc4a0
+  - [net-next,v3,02/31] staging: rtlwifi: use siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/89939e890605
+  - [net-next,v3,03/31] staging: wlan-ng: use siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/3343c49a959d
+  - [net-next,v3,04/31] hostap: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/3f3fa5340745
+  - [net-next,v3,05/31] bridge: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/561d8352818f
+  - [net-next,v3,06/31] phonet: use siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/4747c1a8bc50
+  - [net-next,v3,07/31] tulip: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/029a4fef6b22
+  - [net-next,v3,08/31] bonding: use siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/232ec98ec35d
+  - [net-next,v3,09/31] appletalk: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/dbecb011eb78
+  - [net-next,v3,10/31] hamachi: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/99b78a37a371
+  - [net-next,v3,11/31] tehuti: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/32d05468c462
+  - [net-next,v3,12/31] eql: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/d92f7b59d32b
+  - [net-next,v3,13/31] fddi: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/043393d8b478
+  - [net-next,v3,14/31] net: usb: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/ef1b5b0c30bc
+  - [net-next,v3,15/31] slip/plip: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/76b5878cffab
+  - [net-next,v3,16/31] qeth: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/18787eeebd71
+  - [net-next,v3,17/31] cxgb3: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/ebb4a911e09a
+  - [net-next,v3,18/31] hamradio: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/25ec92fbdd23
+  - [net-next,v3,19/31] airo: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/ae6af0120dda
+  - [net-next,v3,20/31] ip_tunnel: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/3e7a1c7c561e
+  - [net-next,v3,21/31] hippi: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/81a68110a22a
+  - [net-next,v3,22/31] sb1000: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/cc0aa831a0d9
+  - [net-next,v3,23/31] ppp: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/34f7cac07c4e
+  - [net-next,v3,24/31] wan: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/73d74f61a559
+  - [net-next,v3,25/31] wan: cosa: remove dead cosa_net_ioctl() function
+    https://git.kernel.org/netdev/net-next/c/8fb75b79cd98
+  - [net-next,v3,26/31] dev_ioctl: pass SIOCDEVPRIVATE data separately
+    https://git.kernel.org/netdev/net-next/c/a554bf96b49d
+  - [net-next,v3,27/31] dev_ioctl: split out ndo_eth_ioctl
+    https://git.kernel.org/netdev/net-next/c/a76053707dbf
+  - [net-next,v3,28/31] net: split out ndo_siowandev ioctl
+    https://git.kernel.org/netdev/net-next/c/ad7eab2ab014
+  - [net-next,v3,29/31] net: socket: return changed ifreq from SIOCDEVPRIVATE
+    https://git.kernel.org/netdev/net-next/c/88fc023f7de2
+  - [net-next,v3,30/31] net: bridge: move bridge ioctls out of .ndo_do_ioctl
+    https://git.kernel.org/netdev/net-next/c/ad2f99aedf8f
+  - [net-next,v3,31/31] net: bonding: move ioctl handling to private ndo operation
+    https://git.kernel.org/netdev/net-next/c/3d9d00bd1885
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
