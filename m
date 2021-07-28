@@ -2,158 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4E33C4338F
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 12:56:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57245C43214
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 13:08:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE0A660C41
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 12:56:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3FE9960F9E
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 13:08:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235263AbhG1M44 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 08:56:56 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15024 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234256AbhG1M4z (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Jul 2021 08:56:55 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SCipZe113910;
-        Wed, 28 Jul 2021 08:56:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=uDII4y8NUZgDl9hIMjhswCs5sld4I6xc+AICO2QZhPg=;
- b=deS2cQn3s5+UV1o1XHCEju38J8GMVZMph9NVIFjlNi1923hcEkLDFLOV38s5NjTE34k2
- 41SLBULkZpqLtxlzDUzWbPjIl62p3QPXSIxXA/5zMIYSb1EfdSENTxg8+KbWjSJAgJMW
- UiPx1CKQsN5WbcNF98XsZ8HsoV9QY/KefJt/DEERAGWdiy7HUhaR2qxCIB5I3J5V0nb5
- 3qy08SOlLuL7yyM6SGuKxVfjeLtoGVEGyvs5OnOTxeDp6Ir6RfopuG5gLJFqiTza/icd
- OkCiZNPsJ0TYAUVyrCpVLTb/B33uMY+OOiVTFnzHlqJ5Kwcr+9Ouy8lXl6973Xrq5Mtk lA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a37gprd6v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 08:56:54 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SCitRe114034;
-        Wed, 28 Jul 2021 08:56:54 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a37gprd5j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 08:56:53 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SCqZuI001661;
-        Wed, 28 Jul 2021 12:56:51 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3a235kh2mw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 12:56:51 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SCunP030081482
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Jul 2021 12:56:49 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4109D4C04E;
-        Wed, 28 Jul 2021 12:56:49 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CF95F4C062;
-        Wed, 28 Jul 2021 12:56:48 +0000 (GMT)
-Received: from t46lp67.lnxne.boe (unknown [9.152.108.100])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 28 Jul 2021 12:56:48 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, thuth@redhat.com, cohuck@redhat.com
-Subject: [kvm-unit-tests PATCH v2] s390x: Add SPDX and header comments for s390x/* and lib/s390x/*
-Date:   Wed, 28 Jul 2021 12:56:43 +0000
-Message-Id: <20210728125643.80840-1-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210728101328.51646-2-frankja@linux.ibm.com>
-References: <20210728101328.51646-2-frankja@linux.ibm.com>
+        id S236472AbhG1NIz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 09:08:55 -0400
+Received: from mout.kundenserver.de ([217.72.192.73]:59181 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236409AbhG1NIa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Jul 2021 09:08:30 -0400
+Received: from mail-wr1-f49.google.com ([209.85.221.49]) by
+ mrelayeu.kundenserver.de (mreue107 [213.165.67.113]) with ESMTPSA (Nemesis)
+ id 1N1xZX-1nAMXg0eU5-012GVn; Wed, 28 Jul 2021 15:08:25 +0200
+Received: by mail-wr1-f49.google.com with SMTP id r2so2494812wrl.1;
+        Wed, 28 Jul 2021 06:08:24 -0700 (PDT)
+X-Gm-Message-State: AOAM530LP6x5d7utXqUEbeeqt/XXl8lsKRXLE4rbHhR0V70QVPVUOnrU
+        IjrbdySFFgl9x1oZv/q4PIuea6rYr5kd+1eFohQ=
+X-Google-Smtp-Source: ABdhPJxxfv5Wc+SHhdsDE/NGqS8JZjtCDRKxpejCmw8fSUu1pUblkMW8vqXlfFC6WPm8N6ImE4zLbL7TYQIjJuw7+SI=
+X-Received: by 2002:a5d:44c7:: with SMTP id z7mr21469709wrr.286.1627477704695;
+ Wed, 28 Jul 2021 06:08:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: InJ0LgrB_H4Fhh-UqYTIO8qEuR8aTEXN
-X-Proofpoint-ORIG-GUID: 4Y8vr_w-5h7dJGG9TFjYCD-VJGOZprn0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-28_07:2021-07-27,2021-07-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- bulkscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0 spamscore=0
- priorityscore=1501 adultscore=0 malwarescore=0 mlxlogscore=999
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2107280071
+References: <20210721161609.68223-1-yishaih@nvidia.com> <20210721161609.68223-13-yishaih@nvidia.com>
+ <20210727155440.680ee22e.alex.williamson@redhat.com> <20210727230941.GL1721383@nvidia.com>
+ <20210728054306.GA3421@lst.de> <20210728120326.GQ1721383@nvidia.com>
+ <20210728122956.GA27111@lst.de> <20210728124755.GR1721383@nvidia.com>
+In-Reply-To: <20210728124755.GR1721383@nvidia.com>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Wed, 28 Jul 2021 15:08:08 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a21ah=+x29jycWZBoTGA1RzfYz4qar9usvCa_hU85k=7g@mail.gmail.com>
+Message-ID: <CAK8P3a21ah=+x29jycWZBoTGA1RzfYz4qar9usvCa_hU85k=7g@mail.gmail.com>
+Subject: Re: [PATCH 12/12] vfio/pci: Introduce vfio_pci_core.ko
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Jonathan Corbet <corbet@lwn.net>, diana.craciun@oss.nxp.com,
+        kwankhede@nvidia.com, Eric Auger <eric.auger@redhat.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        linux-pci <linux-pci@vger.kernel.org>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        kvm list <kvm@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        mgurtovoy@nvidia.com, maorg@nvidia.com, leonro@nvidia.com
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:VfrdqH+8hRfWWBCUeeCLzTKee5aiFfVqonRsF0cPxyHpJ27hjjW
+ napliTyiM232iU/b2h7piQKIzmMmiu7xfzuBeJZZmgCIv2l0dQdGsOGfnIQAKUWxDOfk6vG
+ fQRBZ/tLptHxvILO0wzGVrQ9kHzLmnxLZXR7+mMM3anAyTNikyoKsAmPBKcXeGjwZbRfSsG
+ f4G7ykKBzoesUsQVIeJ6w==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:eWfNL6UrdeU=:ampkA+bFoDa2sBzpiNamAZ
+ zoWNZc90Y/wXqG+ZIuxUIDsFuNUlXxTk40/6eLdYbQ8W5xKOiWLFWtsfzXj0FvDgwhTCxEhVV
+ Qf6ozj4bizaXHvOese38gPx6lwZO2aU5zr+OGUZWJL6sSTPVoSpDX2SK4qeFYkHY+VXL4Mcdj
+ MUZaRhC32cvyr4/KdLgoILrgdZMgip4hcvO6y0k2ZqhptmfB7ZH3woAIG9zWg98piJHpcD+hA
+ cIGqG2SA/4XpReAEg1fyG+9rTFlPfepHd7eVJXLCuhIC/Cfyj6pw+ez1QyvCbBIgofOpuLndp
+ fZ49fGUeApxixHsC1i/gtt5FWxQJtIepsoyYDzsxGPJZJxgRWI4rhJbysCzMn1yU+65rx9k+p
+ m9f908CAg/7jRGFDrBeid01FC4PKWtjI5vxuNRKv8l/Ylc4lCc2sZLXFLpwoDcjDEMXL4eQ0r
+ K6nsL1iXJSCnb2ECESD8kHPZPtAowh55pUp7Qu7O4qLTiu74LXXZT8AyIfNbdcvd6PSLfPAwk
+ jMQoJdJ6O72eQAsRuJ+Wr6hmh81DXi/bsUdHvuTplgmOwN0Jb1CAXGXiiOKJ1/N1QhOVIXV5u
+ w8H9byVP/hvEbsGN0B+d3jp3p5Y+BmhMXIPukbnO/W3vqXr3iBz6YxNO2LvJ4fVh4Pqls1UJH
+ Qkj+1B3BtCZbGaChjPGEdjI0wz8PtSFJSJkpU8O9fz/HSnpDNI8xDGcyZt3ABzeCRUvzIxFZf
+ f3oUVXzgydQzG67vHycIWIBcM90VHvR5G2Pn4Z50u0/G3HNBCeu7OF4epJhF7+fniM6L277Wa
+ rxgXCXWE5BrrzS9wE0Zn6Om4YhOoV6pfRBfOLBWA03xwDqh2s4oBmz4cC+ujWRAVKWyLr5U4x
+ k7KRksKC7h03RoKVTW8pC6yeVJJbHGTrEA1bf0jccH+6oX6m6xMKo04lnodUcoe9L6srv6Xjy
+ S/uFWCmR8XK4IOBPeSYprX+lgh+TSRfBv5QBeSi7eUAxav5rwg7eo
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Seems like I missed adding them.
+On Wed, Jul 28, 2021 at 2:47 PM Jason Gunthorpe <jgg@nvidia.com> wrote:
+>
+> On Wed, Jul 28, 2021 at 02:29:56PM +0200, Christoph Hellwig wrote:
+>
+> > So not really an issue here.  VFIO_PCI_CORE really is underlying
+> > infrastructure a user should not care about.
+>
+> So then we can write it like below? Unfortunately it deletes the nice
+> menu structure that groups all the PCI drivers together like platform
+> (and mdev in future). Not sure this loss is worth the backwards compat
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
+I think you can get back some structure by adding a 'menu "VFIO PCI drivers"'
+and 'endmenu' around it.
 
-Dropped the sieve.c change.
+> @@ -17,6 +15,7 @@ config VFIO_PCI_INTX
+>
+>  config VFIO_PCI
+>         tristate "Generic VFIO support for any PCI device"
+> +       select VFIO_PCI_CORE
+>         help
+>           Support for the generic PCI VFIO bus driver which can connect any
+>           PCI device to the VFIO framework.
+> @@ -50,6 +49,7 @@ endif
+>  config MLX5_VFIO_PCI
+>         tristate "VFIO support for MLX5 PCI devices"
+>         depends on MLX5_CORE
+> +       select VFIO_PCI_CORE
+>         help
 
----
- lib/s390x/uv.c   |  9 +++++++++
- s390x/mvpg-sie.c |  9 +++++++++
- s390x/sie.c      | 10 ++++++++++
- 3 files changed, 28 insertions(+)
+These two now have to get a 'depends on MMU' if they don't already inherit
+that from elsewhere.
 
-diff --git a/lib/s390x/uv.c b/lib/s390x/uv.c
-index 0d8c141c..fd9de944 100644
---- a/lib/s390x/uv.c
-+++ b/lib/s390x/uv.c
-@@ -1,3 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Ultravisor related functionality
-+ *
-+ * Copyright 2020 IBM Corp.
-+ *
-+ * Authors:
-+ *    Janosch Frank <frankja@linux.ibm.com>
-+ */
- #include <libcflat.h>
- #include <bitops.h>
- #include <alloc.h>
-diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
-index 9bcd15a2..5e70f591 100644
---- a/s390x/mvpg-sie.c
-+++ b/s390x/mvpg-sie.c
-@@ -1,3 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Tests mvpg SIE partial execution intercepts.
-+ *
-+ * Copyright 2021 IBM Corp.
-+ *
-+ * Authors:
-+ *    Janosch Frank <frankja@linux.ibm.com>
-+ */
- #include <libcflat.h>
- #include <asm/asm-offsets.h>
- #include <asm-generic/barrier.h>
-diff --git a/s390x/sie.c b/s390x/sie.c
-index cfc746f3..134d3c4f 100644
---- a/s390x/sie.c
-+++ b/s390x/sie.c
-@@ -1,3 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Tests SIE diagnose intercepts.
-+ * Mainly used as a template for SIE tests.
-+ *
-+ * Copyright 2021 IBM Corp.
-+ *
-+ * Authors:
-+ *    Janosch Frank <frankja@linux.ibm.com>
-+ */
- #include <libcflat.h>
- #include <asm/asm-offsets.h>
- #include <asm/arch_def.h>
--- 
-2.30.2
-
+       Arnd
