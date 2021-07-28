@@ -2,80 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1814C41537
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 13:24:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4E5CC4338F
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 13:25:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8DFDF61019
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 13:24:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A37B26054F
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 13:25:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236235AbhG1NYR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 09:24:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51930 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233315AbhG1NYR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Jul 2021 09:24:17 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A77F2C061757;
-        Wed, 28 Jul 2021 06:24:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=wyV5oHahoyFyDlkMKSruinnsahdkugSgLawjHfbEEjQ=; b=CxvZX41K0o1QkS+QNIrwd0eOBe
-        mqQ6PrksWIat6lXJKZPun+q1pAOQx0xLcn0dXI0f5/QwQmDJVibY4qE3c7TAdHgsIiPO3KhQic7GW
-        1eyfOJ6+e5m0vdD3PZ+UIsWjdf71Rv+qjxbud/TVWu09HUCIEgoxhatZ/TSoyrl9g8w0xVsK0qnJb
-        Ssgb2vj86C8FXbvbGsNNF9o/MH3FUfh7M9nUfPwhEPmwHvq/+B3ENaQ00GINALSLZBrB8jUNO3eAN
-        ZD343FSM3tMyDXd6949QP8wSOuEJ0mt327HB6lpEtnWhWjFhF6Z9hGOLbHanuC9ie9QiNGCSpAJVM
-        Xwq8/NVQ==;
-Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1m8jWV-00G5AN-CH; Wed, 28 Jul 2021 13:23:16 +0000
-Date:   Wed, 28 Jul 2021 14:22:59 +0100
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Tom Lendacky <thomas.lendacky@amd.com>
-Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-graphics-maintainer@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
-        Andi Kleen <ak@linux.intel.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 02/11] x86/sev: Add an x86 version of prot_guest_has()
-Message-ID: <YQFaM7nOhD2d6SUQ@infradead.org>
-References: <cover.1627424773.git.thomas.lendacky@amd.com>
- <b3e929a77303dd47fd2adc2a1011009d3bfcee20.1627424774.git.thomas.lendacky@amd.com>
+        id S235325AbhG1NZ6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 09:25:58 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57340 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233315AbhG1NZ5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Jul 2021 09:25:57 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SD4VA7051580;
+        Wed, 28 Jul 2021 09:25:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=tETwx1HiJFqXuGJxZwBIxosNjZsPUYQELVSzXv+VzDw=;
+ b=WdFv8PhZHH66sbdbCBAhkwodgmb84JpSMzz4ee67JZwPEClsdQj/eu+iThna/P77uxBr
+ x2pu344AGy7MVsxRnzTh3zo3WGhdjlml+Y2Whaj2PzNJEVOnGOfqTnXXR5NN4l+SyqD/
+ ZVGK3XCvElwVJZe0Ecy/H5a2ZY0c0yFVl38+M86odiNIuTS0QVC3GElXT+ebd2XUshXs
+ 6fdJTHjY5VrOFY75BQh6esNDbRNziuJV/eBFMq3np8mRFf2/H/NW9PDg5HwFSmlXatZ/
+ AO7emElrVtNb1QF6p4MoD9xtjJtffVWjoZE3jbR2upD/BVS9GReE/6lnSfyEf6gVwPDm eA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a372wahd0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Jul 2021 09:25:55 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SD4WoV051683;
+        Wed, 28 Jul 2021 09:25:55 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a372wahbv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Jul 2021 09:25:55 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SD88O2026644;
+        Wed, 28 Jul 2021 13:25:53 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3a235krq03-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Jul 2021 13:25:53 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SDN8cC26345868
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 28 Jul 2021 13:23:08 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DCB20A4060;
+        Wed, 28 Jul 2021 13:25:50 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 77B13A405C;
+        Wed, 28 Jul 2021 13:25:50 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.9.194])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 28 Jul 2021 13:25:50 +0000 (GMT)
+Date:   Wed, 28 Jul 2021 15:25:48 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        thuth@redhat.com, cohuck@redhat.com
+Subject: Re: [kvm-unit-tests PATCH v2] s390x: Add SPDX and header comments
+ for s390x/* and lib/s390x/*
+Message-ID: <20210728152548.6cf880d7@p-imbrenda>
+In-Reply-To: <20210728125643.80840-1-frankja@linux.ibm.com>
+References: <20210728101328.51646-2-frankja@linux.ibm.com>
+        <20210728125643.80840-1-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b3e929a77303dd47fd2adc2a1011009d3bfcee20.1627424774.git.thomas.lendacky@amd.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: _71ffqBGe9WdfapVMohUmxnw5VaoLdbo
+X-Proofpoint-GUID: y4yV236b8bMnvRxhJOdtklCqNkAt51gu
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-28_08:2021-07-27,2021-07-28 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 malwarescore=0 priorityscore=1501 phishscore=0
+ mlxscore=0 impostorscore=0 bulkscore=0 spamscore=0 suspectscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2107140000 definitions=main-2107280074
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 27, 2021 at 05:26:05PM -0500, Tom Lendacky via iommu wrote:
-> Introduce an x86 version of the prot_guest_has() function. This will be
-> used in the more generic x86 code to replace vendor specific calls like
-> sev_active(), etc.
-> 
-> While the name suggests this is intended mainly for guests, it will
-> also be used for host memory encryption checks in place of sme_active().
-> 
-> The amd_prot_guest_has() function does not use EXPORT_SYMBOL_GPL for the
-> same reasons previously stated when changing sme_active(), sev_active and
+On Wed, 28 Jul 2021 12:56:43 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-None of that applies here as none of the callers get pulled into
-random macros.  The only case of that is sme_me_mask through
-sme_mask, but that's not something this series replaces as far as I can
-tell.
+> Seems like I missed adding them.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+> ---
+> 
+> Dropped the sieve.c change.
+> 
+> ---
+>  lib/s390x/uv.c   |  9 +++++++++
+>  s390x/mvpg-sie.c |  9 +++++++++
+>  s390x/sie.c      | 10 ++++++++++
+>  3 files changed, 28 insertions(+)
+> 
+> diff --git a/lib/s390x/uv.c b/lib/s390x/uv.c
+> index 0d8c141c..fd9de944 100644
+> --- a/lib/s390x/uv.c
+> +++ b/lib/s390x/uv.c
+> @@ -1,3 +1,12 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Ultravisor related functionality
+> + *
+> + * Copyright 2020 IBM Corp.
+> + *
+> + * Authors:
+> + *    Janosch Frank <frankja@linux.ibm.com>
+> + */
+>  #include <libcflat.h>
+>  #include <bitops.h>
+>  #include <alloc.h>
+> diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
+> index 9bcd15a2..5e70f591 100644
+> --- a/s390x/mvpg-sie.c
+> +++ b/s390x/mvpg-sie.c
+> @@ -1,3 +1,12 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Tests mvpg SIE partial execution intercepts.
+> + *
+> + * Copyright 2021 IBM Corp.
+> + *
+> + * Authors:
+> + *    Janosch Frank <frankja@linux.ibm.com>
+> + */
+>  #include <libcflat.h>
+>  #include <asm/asm-offsets.h>
+>  #include <asm-generic/barrier.h>
+> diff --git a/s390x/sie.c b/s390x/sie.c
+> index cfc746f3..134d3c4f 100644
+> --- a/s390x/sie.c
+> +++ b/s390x/sie.c
+> @@ -1,3 +1,13 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Tests SIE diagnose intercepts.
+> + * Mainly used as a template for SIE tests.
+> + *
+> + * Copyright 2021 IBM Corp.
+> + *
+> + * Authors:
+> + *    Janosch Frank <frankja@linux.ibm.com>
+> + */
+>  #include <libcflat.h>
+>  #include <asm/asm-offsets.h>
+>  #include <asm/arch_def.h>
+
