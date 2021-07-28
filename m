@@ -7,133 +7,144 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA437C432BE
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:27:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DD2AC4320A
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:27:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 93E0960F02
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:27:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A61A60F02
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:27:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237212AbhG1O1d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 10:27:33 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36482 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S236830AbhG1O0s (ORCPT
+        id S237256AbhG1O1f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 10:27:35 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59836 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237004AbhG1O0r (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Jul 2021 10:26:48 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SENP62062293;
-        Wed, 28 Jul 2021 10:26:46 -0400
+        Wed, 28 Jul 2021 10:26:47 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SENQKf052799;
+        Wed, 28 Jul 2021 10:26:45 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=7DuPp8TxLsWof8nza982Nvo7LfNGYAbpOl0+1+ZyoYQ=;
- b=JLt1jzNtcDnAOao+iPYCVj0H7Gwy5PaIGzXRyIPPHw7RcmQ7Y9PFwvCofG8zfooAiZiz
- 4nZBcSTKx6C0BRXa/sg2rY4RCucffcLUpUzVdhzX0bxv/oRl6JX5bgeECEh6/PJ2WBqo
- R8CwtRY7YoPnfj8amt6QA/sz9L1bU7C/o/c/thif8HZ7GSoEErRdC1d1MUnYT/BoX8+C
- 8D+k9Rmt7IajbjdIPwnav9Wy9C+SgmVxdHpy0KeFCpQkEI8Fm+sTfyVyvSGrGa0MBAeY
- DiMmy3FktLSGrnk4W87lQKU/s/HArOHH/KioPNpiMM7tiW5dAkxPtRuepnL3BFYleIrJ uQ== 
+ bh=LmVmIyaPaE6xRsJjyoEEql0PPQ+iwGSHiWosbZfTE20=;
+ b=hpqYA8fLF2JrLBmPdZcMwhlwWzcUEE8dR8S00wghRNzj0KdMu9OqBVgYs/MDdnWrUPsJ
+ DZEoIkgA7Z3zCvIUIBprqDGDxG7fA3ifarkGbXOmoxtsJ5Hih8eYi/LuS9I6qsD3XVMc
+ SMnqly0sGtk0iihL2L87uEt9gIE2t19xvGys9BGP+23swO9NlLm3glY2GTMt8Nz5e4sT
+ bNK34J7VRzcsnWqv7xeWnHVXjHZa8xLCpwf2qyIwN4MY/6mhEWpGGQM6wBHd+6zsaTzE
+ fb2E6abm3DNMHn9N3VtLVwzJwU9ayHeXgbDJWhibB1i1xhnb7zdTYh7SvFxCH6h5DhnR mg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a37xmj39u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 10:26:46 -0400
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SENRek062468;
-        Wed, 28 Jul 2021 10:26:45 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a37xmj38k-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a38tere2d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 28 Jul 2021 10:26:45 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SEJOKt011091;
-        Wed, 28 Jul 2021 14:26:44 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3a235kh4h0-1
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SEPfDB060770;
+        Wed, 28 Jul 2021 10:26:45 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a38tere0v-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 14:26:43 +0000
+        Wed, 28 Jul 2021 10:26:45 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SEJge5017962;
+        Wed, 28 Jul 2021 14:26:42 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma01fra.de.ibm.com with ESMTP id 3a235krqrm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Jul 2021 14:26:42 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SEQebr31719884
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SENxOp30474576
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Jul 2021 14:26:40 GMT
+        Wed, 28 Jul 2021 14:23:59 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 982B2A405E;
-        Wed, 28 Jul 2021 14:26:40 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 3BF49A4053;
+        Wed, 28 Jul 2021 14:26:39 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 42658A405B;
-        Wed, 28 Jul 2021 14:26:40 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id CD783A4055;
+        Wed, 28 Jul 2021 14:26:38 +0000 (GMT)
 Received: from localhost.localdomain (unknown [9.145.9.194])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 28 Jul 2021 14:26:40 +0000 (GMT)
+        Wed, 28 Jul 2021 14:26:38 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com,
         thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 08/13] KVM: s390: pv: add export before import
-Date:   Wed, 28 Jul 2021 16:26:26 +0200
-Message-Id: <20210728142631.41860-9-imbrenda@linux.ibm.com>
+Subject: [PATCH v2 05/13] KVM: s390: pv: handle secure storage exceptions for normal guests
+Date:   Wed, 28 Jul 2021 16:26:23 +0200
+Message-Id: <20210728142631.41860-6-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210728142631.41860-1-imbrenda@linux.ibm.com>
 References: <20210728142631.41860-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: c0Uhz6dfoXplTVJ9ozP7hjgzcj4QA_dn
-X-Proofpoint-GUID: PTMMP7NHE1iHynscC2AVpdc-RXAsBLZz
+X-Proofpoint-GUID: X7Ic9V76maBm8WnQNEVEJeCITWC3v-XC
+X-Proofpoint-ORIG-GUID: ajgT3PwTdSlG2semFiR595t1FoukduSi
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-07-28_08:2021-07-27,2021-07-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- bulkscore=0 adultscore=0 lowpriorityscore=0 suspectscore=0 mlxscore=0
- impostorscore=0 mlxlogscore=999 malwarescore=0 priorityscore=1501
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 priorityscore=1501 impostorscore=0 spamscore=0
+ clxscore=1015 mlxlogscore=898 mlxscore=0 phishscore=0 adultscore=0
+ suspectscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2107140000 definitions=main-2107280079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Due to upcoming changes, it will be possible to temporarily have
-multiple protected VMs in the same address space, although only one
-will be actually active.
+With upcoming patches, normal guests might touch secure pages.
 
-In that scenario, it is necessary to perform an export of every page
-that is to be imported, since the hardware does not allow a page
-belonging to a protected guest to be imported into a different
-protected guest.
+This patch extends the existing exception handler to convert the pages
+to non secure also when the exception is triggered by a normal guest.
 
-This also applies to pages that are shared, and thus accessible by the
-host.
+This can happen for example when a secure guest reboots; the first
+stage of a secure guest is non secure, and in general a secure guest
+can reboot into non-secure mode.
+
+If the secure memory of the previous boot has not been cleared up
+completely yet, a non-secure guest might touch secure memory, which
+will need to be handled properly.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kernel/uv.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/s390/mm/fault.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index 9cfd7979648c..1e67a26184b6 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -241,6 +241,12 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
- 	return rc;
- }
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index eb68b4f36927..b89d625ea2ec 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -767,6 +767,7 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 	struct vm_area_struct *vma;
+ 	struct mm_struct *mm;
+ 	struct page *page;
++	struct gmap *gmap;
+ 	int rc;
  
-+static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_struct *mm)
-+{
-+	return uvcb->cmd != UVC_CMD_UNPIN_PAGE_SHARED &&
-+		atomic_read(&mm->context.is_protected) > 1;
-+}
-+
- /*
-  * Requests the Ultravisor to make a page accessible to a guest.
-  * If it's brought in the first time, it will be cleared. If
-@@ -284,6 +290,8 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+ 	/*
+@@ -796,6 +797,16 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 	}
  
- 	lock_page(page);
- 	ptep = get_locked_pte(gmap->mm, uaddr, &ptelock);
-+	if (should_export_before_import(uvcb, gmap->mm))
-+		uv_convert_from_secure(page_to_phys(page));
- 	rc = make_secure_pte(ptep, uaddr, page, uvcb);
- 	pte_unmap_unlock(ptep, ptelock);
- 	unlock_page(page);
+ 	switch (get_fault_type(regs)) {
++	case GMAP_FAULT:
++		gmap = (struct gmap *)S390_lowcore.gmap;
++		/*
++		 * Very unlikely, but if it happens, simply try again.
++		 * The next attempt will trigger a different exception.
++		 */
++		addr = __gmap_translate(gmap, addr);
++		if (addr == -EFAULT)
++			break;
++		fallthrough;
+ 	case USER_FAULT:
+ 		mm = current->mm;
+ 		mmap_read_lock(mm);
+@@ -824,7 +835,6 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 		if (rc)
+ 			BUG();
+ 		break;
+-	case GMAP_FAULT:
+ 	default:
+ 		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
+ 		WARN_ON_ONCE(1);
 -- 
 2.31.1
 
