@@ -7,318 +7,183 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FFF3C43214
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:26:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82478C4320E
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:26:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1747F60F59
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:26:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D52060F5E
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:26:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237034AbhG1O04 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 10:26:56 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63206 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237033AbhG1O0t (ORCPT
+        id S237157AbhG1O07 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 10:26:59 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46734 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237040AbhG1O0u (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Jul 2021 10:26:49 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SENTKU053170;
+        Wed, 28 Jul 2021 10:26:50 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SENPRb002083;
         Wed, 28 Jul 2021 10:26:48 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=q2+ZRHctcJ7jhto6/pVchmadB2QvFB8R79tzUGuvWqo=;
- b=BhsKxMcmusBFhMngVor8wmvpvtYQnAw0jXO/iJHUM1D1yt3RZxZJ2N44oHYiIH/9YlHU
- 57MyGjR43KYDaXjxbEzE9TXjWcP/wkoOO+tqYE+s6zsA5zthg5rMHFyeUrQylBaVIb6o
- U0RMUXmz0jn2JOeMQjxSCpRuZxPEwDSJH4jHNTutRhs/1pAY427CW8oLWpOoWz7jT54d
- enQf0xJ8rwtggpVJSZjeqY0jvi7DBx1Udztjb+PwMwBUrUCjZ9FKD/lSP+s5i0Ja3a3F
- HpupbFy8p7VRsXxWacwxaZ/ttnYy5Y+tU05Oc+oWndDMjpllWi1sphjw5vl8j0wYfxdS WQ== 
+ bh=cIgkzIddy+YiMaF1fvXCQPdnkZYFB4QPuMcg2h36EeE=;
+ b=PIR28Mdwlt4IVyQOSjgLYIF8dWFYL6rprIb0YPiPHHN1jvTyboU7Aut3WkZ8aMlV+ZpE
+ KXVoLYJ3odYpEcTV1iiKAvzSjSQwcGjO1bJO00NL/4IEkph6tGBdR8GMk8sRrukAdNXF
+ iVJuMyOPd0YpcBIhHu8SoLdWi9fzehKKIkz+x1ye9SW64uUHAy77rIQdXe7EcC8sI30W
+ mDU3XBPntfaiBLzvj6rKWPKSHO+r2tDnErht8XQ+M6bve9LNXvkJ1xSCA8u/qCpeG1+3
+ IPVeBXb/80/q3oXrX1oOPg3mj8piKlZKXncnNvrack8MwVusAqXoCvrvPApDBoxeD9K+ pA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a38tere3k-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a38u4rbfq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 10:26:47 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SENQHk052844;
-        Wed, 28 Jul 2021 10:26:47 -0400
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a38tere2h-1
+        Wed, 28 Jul 2021 10:26:48 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SENR4O002254;
+        Wed, 28 Jul 2021 10:26:48 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a38u4rbew-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 10:26:47 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SEIBxq013749;
-        Wed, 28 Jul 2021 14:26:45 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma02fra.de.ibm.com with ESMTP id 3a235xrr15-1
+        Wed, 28 Jul 2021 10:26:48 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SEIk6b007180;
+        Wed, 28 Jul 2021 14:26:46 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03fra.de.ibm.com with ESMTP id 3a235krqsp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 14:26:44 +0000
+        Wed, 28 Jul 2021 14:26:45 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SEQfKg22741430
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SEQgvw28901714
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Jul 2021 14:26:41 GMT
+        Wed, 28 Jul 2021 14:26:42 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 266F8A404D;
-        Wed, 28 Jul 2021 14:26:41 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7E5BBA405B;
+        Wed, 28 Jul 2021 14:26:42 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B3519A4040;
-        Wed, 28 Jul 2021 14:26:40 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 292B3A405F;
+        Wed, 28 Jul 2021 14:26:42 +0000 (GMT)
 Received: from localhost.localdomain (unknown [9.145.9.194])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 28 Jul 2021 14:26:40 +0000 (GMT)
+        Wed, 28 Jul 2021 14:26:42 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com,
         thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 09/13] KVM: s390: pv: lazy destroy for reboot
-Date:   Wed, 28 Jul 2021 16:26:27 +0200
-Message-Id: <20210728142631.41860-10-imbrenda@linux.ibm.com>
+Subject: [PATCH v2 12/13] KVM: s390: pv: add OOM notifier for lazy destroy
+Date:   Wed, 28 Jul 2021 16:26:30 +0200
+Message-Id: <20210728142631.41860-13-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210728142631.41860-1-imbrenda@linux.ibm.com>
 References: <20210728142631.41860-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: g4ukjABwInXLLauQCExbhHWuoMRzSysN
-X-Proofpoint-ORIG-GUID: mxF2w_jNmCiq8pd0gL6BwxRVO67rsE3G
+X-Proofpoint-GUID: Z-6nkw2e_w2NfXx2-1A_3BWkUY5D8_k7
+X-Proofpoint-ORIG-GUID: SO5W6wIGuUFApF9hsFvFdfEvCCUjQrkh
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-07-28_08:2021-07-27,2021-07-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 priorityscore=1501 impostorscore=0 spamscore=0
- clxscore=1015 mlxlogscore=999 mlxscore=0 phishscore=0 adultscore=0
- suspectscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 bulkscore=0 clxscore=1015 mlxscore=0 malwarescore=0
+ mlxlogscore=920 spamscore=0 priorityscore=1501 adultscore=0 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2107140000 definitions=main-2107280079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Until now, destroying a protected guest was an entirely synchronous
-operation that could potentially take a very long time, depending on
-the size of the guest, due to the time needed to clean up the address
-space from protected pages.
+Add a per-VM OOM notifier for lazy destroy.
 
-This patch implements a lazy destroy mechanism, that allows a protected
-guest to reboot significantly faster than previously.
+When a protected VM is undergoing deferred teardown, register an OOM
+notifier. This allows an OOM situation to be handled by just waiting a
+little.
 
-This is achieved by clearing the pages of the old guest in background.
-In case of reboot, the new guest will be able to run in the same
-address space almost immediately.
+The background cleanup deferred destroy process will now keep a running
+tally of the amount of pages freed. The asynchronous OOM notifier will
+check the number of pages freed before and after waiting. The OOM
+notifier will wait 10ms, and then report the number of pages freed by
+the deferred destroy mechanism during that time.
 
-The old protected guest is then only destroyed when all of its memory has
-been destroyed or otherwise made non protected.
+If at least 1024 pages have already been freed in the current OOM
+situation, no action is taken by the OOM notifier and no wait is
+performed. This avoids excessive waiting times in case many VMs are
+being destroyed at the same time, once enough memory has been freed.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c |   6 +-
- arch/s390/kvm/kvm-s390.h |   2 +-
- arch/s390/kvm/pv.c       | 129 ++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 131 insertions(+), 6 deletions(-)
+ arch/s390/kvm/pv.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b655a7d82bf0..238297a7bb46 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2281,7 +2281,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 
- 		r = kvm_s390_cpus_to_pv(kvm, &cmd->rc, &cmd->rrc);
- 		if (r)
--			kvm_s390_pv_deinit_vm(kvm, &dummy, &dummy);
-+			kvm_s390_pv_deinit_vm_deferred(kvm, &dummy, &dummy);
- 
- 		/* we need to block service interrupts from now on */
- 		set_bit(IRQ_PEND_EXT_SERVICE, &kvm->arch.float_int.masked_irqs);
-@@ -2300,7 +2300,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		 */
- 		if (r)
- 			break;
--		r = kvm_s390_pv_deinit_vm(kvm, &cmd->rc, &cmd->rrc);
-+		r = kvm_s390_pv_deinit_vm_deferred(kvm, &cmd->rc, &cmd->rrc);
- 
- 		/* no need to block service interrupts any more */
- 		clear_bit(IRQ_PEND_EXT_SERVICE, &kvm->arch.float_int.masked_irqs);
-@@ -2829,7 +2829,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
- 	 * complaining we do not use kvm_s390_pv_is_protected.
- 	 */
- 	if (kvm_s390_pv_get_handle(kvm))
--		kvm_s390_pv_deinit_vm(kvm, &rc, &rrc);
-+		kvm_s390_pv_deinit_vm_deferred(kvm, &rc, &rrc);
- 	debug_unregister(kvm->arch.dbf);
- 	free_page((unsigned long)kvm->arch.sie_page2);
- 	if (!kvm_is_ucontrol(kvm))
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 9fad25109b0d..d2380f5e7e1f 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -211,7 +211,7 @@ static inline int kvm_s390_user_cpu_state_ctrl(struct kvm *kvm)
- /* implemented in pv.c */
- int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
- int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
--int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc);
-+int kvm_s390_pv_deinit_vm_deferred(struct kvm *kvm, u16 *rc, u16 *rrc);
- int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc);
- int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
- 			      u16 *rrc);
 diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 52e7d15a6dc7..8c37850dbbcf 100644
+index 088b94512af3..390b57307f24 100644
 --- a/arch/s390/kvm/pv.c
 +++ b/arch/s390/kvm/pv.c
-@@ -14,8 +14,17 @@
- #include <asm/mman.h>
+@@ -15,8 +15,12 @@
  #include <linux/pagewalk.h>
  #include <linux/sched/mm.h>
-+#include <linux/kthread.h>
+ #include <linux/kthread.h>
++#include <linux/delay.h>
++#include <linux/oom.h>
  #include "kvm-s390.h"
  
-+struct deferred_priv {
-+	struct mm_struct *mm;
-+	unsigned long old_table;
-+	u64 handle;
-+	void *stor_var;
-+	unsigned long stor_base;
-+};
++#define KVM_S390_PV_LAZY_DESTROY_OOM_NOTIFY_PRIORITY	70
 +
- int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
- {
- 	int cc = 0;
-@@ -207,7 +216,7 @@ static int kvm_s390_pv_replace_asce(struct kvm *kvm)
- }
+ struct deferred_priv {
+ 	struct mm_struct *mm;
+ 	bool has_mm;
+@@ -24,6 +28,8 @@ struct deferred_priv {
+ 	u64 handle;
+ 	void *stor_var;
+ 	unsigned long stor_base;
++	unsigned long n_pages_freed;
++	struct notifier_block oom_nb;
+ };
  
- /* this should not fail, but if it does, we must not free the donated memory */
--int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
-+static int kvm_s390_pv_deinit_vm_now(struct kvm *kvm, u16 *rc, u16 *rrc)
- {
- 	int cc;
- 
-@@ -235,6 +244,122 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+ static int lazy_destroy = 1;
+@@ -249,6 +255,24 @@ static int kvm_s390_pv_deinit_vm_now(struct kvm *kvm, u16 *rc, u16 *rrc)
  	return cc ? -EIO : 0;
  }
  
-+static int kvm_s390_pv_destroy_vm_thread(void *priv)
++static int kvm_s390_pv_oom_notify(struct notifier_block *nb,
++				  unsigned long dummy, void *parm)
 +{
-+	struct deferred_priv *p = priv;
-+	u16 rc, rrc;
-+	int r;
++	unsigned long *freed = parm;
++	unsigned long free_before;
++	struct deferred_priv *p;
 +
-+	/* Clear all the pages as long as we are not the only users of the mm */
-+	s390_uv_destroy_range(p->mm, 1, 0, TASK_SIZE_MAX);
-+	/*
-+	 * If we were the last user of the mm, synchronously free (and clear
-+	 * if needed) all pages.
-+	 * Otherwise simply decrease the reference counter; in this case we
-+	 * have already cleared all pages.
-+	 */
-+	mmput(p->mm);
++	if (*freed > 1024)
++		return NOTIFY_OK;
 +
-+	r = uv_cmd_nodata(p->handle, UVC_CMD_DESTROY_SEC_CONF, &rc, &rrc);
-+	WARN_ONCE(r, "protvirt destroy vm failed rc %x rrc %x", rc, rrc);
-+	if (r) {
-+		mmdrop(p->mm);
-+		return r;
-+	}
-+	atomic_dec(&p->mm->context.is_protected);
-+	mmdrop(p->mm);
++	p = container_of(nb, struct deferred_priv, oom_nb);
++	free_before = READ_ONCE(p->n_pages_freed);
++	msleep(20);
++	*freed += READ_ONCE(p->n_pages_freed) - free_before;
 +
-+	/*
-+	 * Intentional leak in case the destroy secure VM call fails. The
-+	 * call should never fail if the hardware is not broken.
-+	 */
-+	free_pages(p->stor_base, get_order(uv_info.guest_base_stor_len));
-+	free_pages(p->old_table, CRST_ALLOC_ORDER);
-+	vfree(p->stor_var);
-+	kfree(p);
-+	return 0;
++	return NOTIFY_OK;
 +}
 +
-+static int deferred_destroy(struct kvm *kvm, struct deferred_priv *priv, u16 *rc, u16 *rrc)
-+{
-+	struct task_struct *t;
-+
-+	priv->stor_var = kvm->arch.pv.stor_var;
-+	priv->stor_base = kvm->arch.pv.stor_base;
-+	priv->handle = kvm_s390_pv_get_handle(kvm);
-+	priv->old_table = (unsigned long)kvm->arch.gmap->table;
-+	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
-+
-+	if (kvm_s390_pv_replace_asce(kvm))
-+		goto fail;
-+
-+	t = kthread_create(kvm_s390_pv_destroy_vm_thread, priv,
-+			   "kvm_s390_pv_destroy_vm_thread");
-+	if (IS_ERR_OR_NULL(t))
-+		goto fail;
-+
-+	memset(&kvm->arch.pv, 0, sizeof(kvm->arch.pv));
-+	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM DEFERRED %d", t->pid);
-+	wake_up_process(t);
-+	/*
-+	 * no actual UVC is performed at this point, just return a successful
-+	 * rc value to make userspace happy, and an arbitrary rrc
-+	 */
-+	*rc = 1;
-+	*rrc = 42;
-+
-+	return 0;
-+
-+fail:
-+	kfree(priv);
-+	return kvm_s390_pv_deinit_vm_now(kvm, rc, rrc);
-+}
-+
-+/*  Clear the first 2GB of guest memory, to avoid prefix issues after reboot */
-+static void kvm_s390_clear_2g(struct kvm *kvm)
-+{
-+	struct kvm_memory_slot *slot;
-+	struct kvm_memslots *slots;
-+	unsigned long lim;
-+	int idx;
-+
-+	idx = srcu_read_lock(&kvm->srcu);
-+
-+	slots = kvm_memslots(kvm);
-+	kvm_for_each_memslot(slot, slots) {
-+		if (slot->base_gfn >= (SZ_2G / PAGE_SIZE))
-+			continue;
-+		if (slot->base_gfn + slot->npages > (SZ_2G / PAGE_SIZE))
-+			lim = slot->userspace_addr + SZ_2G - slot->base_gfn * PAGE_SIZE;
-+		else
-+			lim = slot->userspace_addr + slot->npages * PAGE_SIZE;
-+		s390_uv_destroy_range(kvm->mm, 1, slot->userspace_addr, lim);
-+	}
-+
-+	srcu_read_unlock(&kvm->srcu, idx);
-+}
-+
-+int kvm_s390_pv_deinit_vm_deferred(struct kvm *kvm, u16 *rc, u16 *rrc)
-+{
-+	struct deferred_priv *priv;
-+
-+	priv = kmalloc(sizeof(*priv), GFP_KERNEL | __GFP_ZERO);
-+	if (!priv)
-+		return kvm_s390_pv_deinit_vm_now(kvm, rc, rrc);
-+
-+	mmgrab(kvm->mm);
-+	if (mmget_not_zero(kvm->mm)) {
-+		kvm_s390_clear_2g(kvm);
-+	} else {
-+		/* No deferred work to do */
-+		mmdrop(kvm->mm);
-+		kfree(priv);
-+		return kvm_s390_pv_deinit_vm_now(kvm, rc, rrc);
-+	}
-+	priv->mm = kvm->mm;
-+	return deferred_destroy(kvm, priv, rc, rrc);
-+}
-+
- int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+ static int kvm_s390_pv_destroy_vm_thread(void *priv)
  {
- 	struct uv_cb_cgc uvcb = {
-@@ -268,7 +393,7 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- 	atomic_inc(&kvm->mm->context.is_protected);
- 	if (cc) {
- 		if (uvcb.header.rc & UVC_RC_NEED_DESTROY) {
--			kvm_s390_pv_deinit_vm(kvm, &dummy, &dummy);
-+			kvm_s390_pv_deinit_vm_now(kvm, &dummy, &dummy);
- 		} else {
- 			atomic_dec(&kvm->mm->context.is_protected);
- 			kvm_s390_pv_dealloc_vm(kvm);
+ 	struct destroy_page_lazy *lazy, *next;
+@@ -256,12 +280,20 @@ static int kvm_s390_pv_destroy_vm_thread(void *priv)
+ 	u16 rc, rrc;
+ 	int r;
+ 
++	p->oom_nb.priority = KVM_S390_PV_LAZY_DESTROY_OOM_NOTIFY_PRIORITY;
++	p->oom_nb.notifier_call = kvm_s390_pv_oom_notify;
++	r = register_oom_notifier(&p->oom_nb);
++
+ 	list_for_each_entry_safe(lazy, next, &p->mm->context.deferred_list, list) {
+ 		list_del(&lazy->list);
+ 		s390_uv_destroy_pfns(lazy->count, lazy->pfns);
++		WRITE_ONCE(p->n_pages_freed, p->n_pages_freed + lazy->count + 1);
+ 		free_page(__pa(lazy));
+ 	}
+ 
++	if (!r)
++		unregister_oom_notifier(&p->oom_nb);
++
+ 	if (p->has_mm) {
+ 		/* Clear all the pages as long as we are not the only users of the mm */
+ 		s390_uv_destroy_range(p->mm, 1, 0, TASK_SIZE_MAX);
 -- 
 2.31.1
 
