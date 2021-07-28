@@ -8,73 +8,75 @@ X-Spam-Status: No, score=-18.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBA14C4338F
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 10:34:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDBA7C4338F
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 10:36:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9561060EB2
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 10:34:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C6DF760C3F
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 10:36:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232584AbhG1KeS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 06:34:18 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45205 "EHLO
+        id S232671AbhG1Kgp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 06:36:45 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:45206 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232094AbhG1KeS (ORCPT
+        by vger.kernel.org with ESMTP id S232514AbhG1Kgo (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Jul 2021 06:34:18 -0400
+        Wed, 28 Jul 2021 06:36:44 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1627468456;
+        s=mimecast20190719; t=1627468603;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=hAcSWafNguMvEGYesVLx4c2+nv9O4pUOypF8+s9U8vw=;
-        b=RYz79oA9xeXvGJgyxLYx0hrjQtt9IH7fV4+X1CfmVzSjPg1bHh+R42FZkRFPsJMaR7S6Xz
-        f98RlxmNJr4Fh/BTtGC8vGIIkTvKLqWHY1p+xhG9SNhQAckZncrGw1bPddNuHrVyhNlB2U
-        BOLaZl1TM9W/yWV15sVFL0RzkVYHAVQ=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-555-gIFyM08COWWlhok4QncE3A-1; Wed, 28 Jul 2021 06:34:15 -0400
-X-MC-Unique: gIFyM08COWWlhok4QncE3A-1
-Received: by mail-wr1-f72.google.com with SMTP id l7-20020a5d48070000b0290153b1557952so767213wrq.16
-        for <linux-s390@vger.kernel.org>; Wed, 28 Jul 2021 03:34:14 -0700 (PDT)
+        bh=K5E+mRYTtCZ4PA0EOVCSF1LV9sJDASpy6oSHxKe9/wo=;
+        b=IJRzkjRgZYfKY5feNnAHOZ3ebvWlGHXWqGF10HjRDV8LsxLPGfAPuzQnyxnvJBU2Pq49PX
+        QI7+m8cqTEfbJA4WUjHaTJpkHRAZX8V/fHRFc9um1AoiPVf6UWTW+Bthpf9jr+59V6xRZm
+        zWlMWfz5tMGkpV6dbZhyK/vfvDe2HQ8=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-382-TMEkOpgfPsSpb-LnrKAP7w-1; Wed, 28 Jul 2021 06:36:41 -0400
+X-MC-Unique: TMEkOpgfPsSpb-LnrKAP7w-1
+Received: by mail-wr1-f71.google.com with SMTP id l7-20020a5d48070000b0290153b1557952so770151wrq.16
+        for <linux-s390@vger.kernel.org>; Wed, 28 Jul 2021 03:36:41 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=hAcSWafNguMvEGYesVLx4c2+nv9O4pUOypF8+s9U8vw=;
-        b=fKX9bQ9tY0273mKTTeFgBLvKLCqKrEqgb5ewsvYJpP9EADnHP5TRnv+vJMBqhnUNFT
-         7+l0yaOfxysjH8Wr4h6+5bUZsiEm5jj3YdQvy/lfiD2vqCnMY6fh16htXFTOuSGyVp69
-         NFsCwvxXx/6BgmTnbwwRoN63CFT00LcQ0nc1sMHyY9SuCSPepZFj4sAU8GxZ6GRyToe9
-         pe8ftRKaMiOpyO/nGNlbhRZfPgi+Av6AYz8ihEeQltDBH00Gi3VvlBkWqXEs0sk1Gu81
-         ZkukH0WBhfiYI5KzDpE3g+4ypdMjuVaZ0CR1ciQ2x3jDOYmne6dW5pOQKzUFNl1aVrwf
-         wXrg==
-X-Gm-Message-State: AOAM5322PfaJSG8ze77LI1Q2BeZ6f2CC2BwhR1qIOI7cV5OVjOo2F0J9
-        UEczLjFsDm2v+07MoEbAiSyIabZZaRZptYRjnJHEYS5CWwhaz/ff6Ke0i6VSneW3wFCMUHBiiSO
-        x0g7LB1yaMtP26TFghYCDTw==
-X-Received: by 2002:a1c:20ce:: with SMTP id g197mr8823294wmg.46.1627468454083;
-        Wed, 28 Jul 2021 03:34:14 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwhIx2/y5YYSvM37fbLL/GIWOnAVcoWk2GZD97Ng8SibdgZi5hprMteZXzq2lID6AARxMdEjA==
-X-Received: by 2002:a1c:20ce:: with SMTP id g197mr8823274wmg.46.1627468453857;
-        Wed, 28 Jul 2021 03:34:13 -0700 (PDT)
+        bh=K5E+mRYTtCZ4PA0EOVCSF1LV9sJDASpy6oSHxKe9/wo=;
+        b=WxgcnZC0aRu3z6M1nbYaCvAaTkNPKRWdZCixONcTBDcIXAUNePO1j6lckoSCXezCZw
+         jVrxqSOl3hZTBRM/WUVzdGtCFAB1ks5N63BoEZ6hKl8GcVb5L+YEkIVOP4Q1SSkZVQkS
+         Q+XTmj4SxU2MjpQMhBdWvvgn/BkYp0npyQbAphpDfBym8qSOWpHbBh7EmiTr34wV8NZ9
+         227vaUmgh/+HK0nhfKMDRe/W9XBR6pA61AFNmWNqjEfwZupV+KSVGK5bL7FzGpjnnjPX
+         c946Gzc1xB+2pmxZBHg2evBykNkQFEiDsVXgyzmkJw3lrDCPkZ7JFsBGROCLCx6yUWMn
+         1gbw==
+X-Gm-Message-State: AOAM530U+i5TXMVD2Dyge6MvDokKwtyuuwaT68nrD/73Uquu8EXxGljA
+        JS0a+urmrX/mxna9yGczuc569IZOfAB+nsBBEFM+1dV84wrdFFo3Dto1a+UHMXwxRSziIHCPd3Y
+        LzzXaXoGOWAwLIV/7pPSEJg==
+X-Received: by 2002:adf:c803:: with SMTP id d3mr29892729wrh.345.1627468600385;
+        Wed, 28 Jul 2021 03:36:40 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyKpYiIngNIrO9iIW+3eUICC+4NU5UgG19LqyY41jjO+pAVTmwHURy0Od/7oixw3MPNVjS4qg==
+X-Received: by 2002:adf:c803:: with SMTP id d3mr29892712wrh.345.1627468600250;
+        Wed, 28 Jul 2021 03:36:40 -0700 (PDT)
 Received: from thuth.remote.csb (p5791d475.dip0.t-ipconnect.de. [87.145.212.117])
-        by smtp.gmail.com with ESMTPSA id z17sm3075227wrt.47.2021.07.28.03.34.13
+        by smtp.gmail.com with ESMTPSA id f2sm5982427wrq.69.2021.07.28.03.36.39
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 28 Jul 2021 03:34:13 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH 3/3] s390x: Fix my mail address in the
- headers
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, cohuck@redhat.com
+        Wed, 28 Jul 2021 03:36:39 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH 1/3] s390x: Add SPDX and header comments
+ for s390x/* and lib/s390x/*
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        cohuck@redhat.com
 References: <20210728101328.51646-1-frankja@linux.ibm.com>
- <20210728101328.51646-4-frankja@linux.ibm.com>
+ <20210728101328.51646-2-frankja@linux.ibm.com>
+ <20210728123221.7ca90b35@p-imbrenda>
 From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <ce5bd14b-70bc-6290-be1e-f8e617219851@redhat.com>
-Date:   Wed, 28 Jul 2021 12:34:12 +0200
+Message-ID: <d5c31cc5-0645-aa91-374e-c668b37e1150@redhat.com>
+Date:   Wed, 28 Jul 2021 12:36:38 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <20210728101328.51646-4-frankja@linux.ibm.com>
+In-Reply-To: <20210728123221.7ca90b35@p-imbrenda>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -82,98 +84,41 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 28/07/2021 12.13, Janosch Frank wrote:
-> I used the wrong one once and then copied it over...
+On 28/07/2021 12.32, Claudio Imbrenda wrote:
+> On Wed, 28 Jul 2021 10:13:26 +0000
+> Janosch Frank <frankja@linux.ibm.com> wrote:
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->   lib/s390x/asm/mem.h | 2 +-
->   lib/s390x/mmu.h     | 2 +-
->   lib/s390x/stack.c   | 2 +-
->   s390x/gs.c          | 2 +-
->   s390x/iep.c         | 2 +-
->   s390x/vector.c      | 2 +-
->   6 files changed, 6 insertions(+), 6 deletions(-)
+>> Seems like I missed adding them.
+>>
+>> The s390x/sieve.c one is a bit of a head scratcher since it came with
+>> the first commit but I assume it's lpgl2-only since that's what the
+>> COPYRIGHT file said then.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   lib/s390x/uv.c   |  9 +++++++++
+>>   s390x/mvpg-sie.c |  9 +++++++++
+>>   s390x/sie.c      | 10 ++++++++++
+>>   x86/sieve.c      |  5 +++++
+>>   4 files changed, 33 insertions(+)
+[...]
+>> diff --git a/x86/sieve.c b/x86/sieve.c
+>> index 8150f2d9..b89d5f80 100644
+>> --- a/x86/sieve.c
+>> +++ b/x86/sieve.c
+>> @@ -1,3 +1,8 @@
+>> +/* SPDX-License-Identifier: LGPL-2.0-only */
 > 
-> diff --git a/lib/s390x/asm/mem.h b/lib/s390x/asm/mem.h
-> index 1963cef7..40b22b63 100644
-> --- a/lib/s390x/asm/mem.h
-> +++ b/lib/s390x/asm/mem.h
-> @@ -3,7 +3,7 @@
->    * Physical memory management related functions and definitions.
->    *
->    * Copyright IBM Corp. 2018
-> - * Author(s): Janosch Frank <frankja@de.ibm.com>
-> + * Author(s): Janosch Frank <frankja@linux.ibm.com>
->    */
->   #ifndef _ASMS390X_MEM_H_
->   #define _ASMS390X_MEM_H_
-> diff --git a/lib/s390x/mmu.h b/lib/s390x/mmu.h
-> index ab35d782..15f88e4f 100644
-> --- a/lib/s390x/mmu.h
-> +++ b/lib/s390x/mmu.h
-> @@ -5,7 +5,7 @@
->    * Copyright (c) 2018 IBM Corp
->    *
->    * Authors:
-> - *	Janosch Frank <frankja@de.ibm.com>
-> + *	Janosch Frank <frankja@linux.ibm.com>
->    */
->   #ifndef _S390X_MMU_H_
->   #define _S390X_MMU_H_
-> diff --git a/lib/s390x/stack.c b/lib/s390x/stack.c
-> index 4cf80dae..e714e07c 100644
-> --- a/lib/s390x/stack.c
-> +++ b/lib/s390x/stack.c
-> @@ -8,7 +8,7 @@
->    * Authors:
->    *  Thomas Huth <thuth@redhat.com>
->    *  David Hildenbrand <david@redhat.com>
-> - *  Janosch Frank <frankja@de.ibm.com>
-> + *  Janosch Frank <frankja@linux.ibm.com>
->    */
->   #include <libcflat.h>
->   #include <stack.h>
-> diff --git a/s390x/gs.c b/s390x/gs.c
-> index a017a97d..7567bb78 100644
-> --- a/s390x/gs.c
-> +++ b/s390x/gs.c
-> @@ -6,7 +6,7 @@
->    *
->    * Authors:
->    *    Martin Schwidefsky <schwidefsky@de.ibm.com>
-> - *    Janosch Frank <frankja@de.ibm.com>
-> + *    Janosch Frank <frankja@linux.ibm.com>
->    */
->   #include <libcflat.h>
->   #include <asm/page.h>
-> diff --git a/s390x/iep.c b/s390x/iep.c
-> index 906c77b3..8d5e044b 100644
-> --- a/s390x/iep.c
-> +++ b/s390x/iep.c
-> @@ -5,7 +5,7 @@
->    * Copyright (c) 2018 IBM Corp
->    *
->    * Authors:
-> - *	Janosch Frank <frankja@de.ibm.com>
-> + *	Janosch Frank <frankja@linux.ibm.com>
->    */
->   #include <libcflat.h>
->   #include <vmalloc.h>
-> diff --git a/s390x/vector.c b/s390x/vector.c
-> index fdb0eee2..c8c14e33 100644
-> --- a/s390x/vector.c
-> +++ b/s390x/vector.c
-> @@ -5,7 +5,7 @@
->    * Copyright 2018 IBM Corp.
->    *
->    * Authors:
-> - *    Janosch Frank <frankja@de.ibm.com>
-> + *    Janosch Frank <frankja@linux.ibm.com>
->    */
->   #include <libcflat.h>
->   #include <asm/page.h>
-> 
+> do you really need to fix something in the x86 directory? (even though
+> it is also used on other archs)
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+I just realized that s390x/sieve.c is just a symlink, not a copy of the file :-)
+
+> maybe you can split out this as a separate patch, so s390x stuff is
+> more self contained, and others can then discuss the sieve.c patch
+> separately if needed?
+
+That might make sense, indeed.
+
+  Thomas
 
