@@ -2,146 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FF30C4338F
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 13:43:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D373C4338F
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:26:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5865460EC0
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 13:43:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6663E60F59
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:26:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235397AbhG1NnO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 09:43:14 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43760 "EHLO
+        id S237075AbhG1O0y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 10:26:54 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31608 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235314AbhG1NnO (ORCPT
+        by vger.kernel.org with ESMTP id S236976AbhG1O0p (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Jul 2021 09:43:14 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SDXoqn128509;
-        Wed, 28 Jul 2021 09:43:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=H2yNMS1D+GRLF/AUuNQuhT8RlaBua7StLFaTOY1jVsw=;
- b=p+vPhRbGAyw6CowI36EGGNWrOAnEPUzVFwbA8fLRYgvDDYf1V2LZbaG14MhsWzN36Qky
- wF/kvQ90O/AxLCpsRdjsPfQTnXg1XemupLtnGe16AZq78KpNqNuxtmFdGnhEqaRJCfVl
- W9hGNpTmiyQuGz3nn8KGAlOTFt6+eeoGxbER8ughJnb51e/a1XuQU58zNaj4M8dkDo76
- xanmMkdDbAeEMi8sJmZAVyXotZX08lQeXeQb6lPi+FwtD8ZqFb/31xtJU5NH9iePui63
- GeDrCLZkX2Yiodhn/R55MuM/oZpTSfoCB/EZucJlBQTksdnIFFhX57IOdjoPHm4w2sus Yg== 
+        Wed, 28 Jul 2021 10:26:45 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SENRY2042272;
+        Wed, 28 Jul 2021 10:26:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=hvAOTiEKaEgvFj0kPp3Kt/7BfN6vnah/Lx98H8heYGo=;
+ b=KZeTNDQv7RhCwpggu9N3aVWFREBSaIkq9VmobF6nSgQsNDJs49VjZ+J7iB45JdS7/gsq
+ 9CCXeUleYtTEal8BzcUaOG27wcm7BsdJkYv9fyxZiZ8kwoS4eTb2aLb3TsQtE/o22N1F
+ C8tzBHD7zTOXEy5d/UPvZPuCkLDdF++Q1OMOxAsnaq2NwSj01gkbXZYPzkkN9Bkw4KxX
+ O5xumTlAWSvcTJ4DrUGJZp4cRcr+cjHNH7/sfAy/a/URKxWhCw7+QULpt079f3olp5DK
+ agfj+3w74KAUPNIRtWK+oHCGijRcVyWi11POo0++1WwnqLOnIuWi+lsgoQqxmKMdoy5T Jg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a377bb2cs-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a38cthnmr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 09:43:09 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SDXqoU128660;
-        Wed, 28 Jul 2021 09:43:08 -0400
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a377bb2c7-1
+        Wed, 28 Jul 2021 10:26:43 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SENQKh042178;
+        Wed, 28 Jul 2021 10:26:42 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a38cthnkx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 09:43:08 -0400
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SDSTfc008025;
-        Wed, 28 Jul 2021 13:43:07 GMT
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-        by ppma04dal.us.ibm.com with ESMTP id 3a235pc4ky-1
+        Wed, 28 Jul 2021 10:26:42 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SEJDH7024351;
+        Wed, 28 Jul 2021 14:26:40 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3a235yh4k0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 13:43:07 +0000
-Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
-        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SDh6F833095976
+        Wed, 28 Jul 2021 14:26:40 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SEQaxf25886980
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Jul 2021 13:43:06 GMT
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 135BA6A054;
-        Wed, 28 Jul 2021 13:43:06 +0000 (GMT)
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5A4696A058;
-        Wed, 28 Jul 2021 13:43:04 +0000 (GMT)
-Received: from cpe-172-100-181-211.stny.res.rr.com (unknown [9.77.143.250])
-        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Wed, 28 Jul 2021 13:43:04 +0000 (GMT)
-Subject: Re: [PATCH 2/2] s390/vfio-ap: replace open coded locks for
- VFIO_GROUP_NOTIFY_SET_KVM notification
-To:     Halil Pasic <pasic@linux.ibm.com>, Jason Gunthorpe <jgg@nvidia.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com, david@redhat.com,
-        pbonzini@redhat.com, David Hildenbrand <david@redhat.com>,
-        frankja@linux.ibm.com, imbrenda@linux.ibm.com
-References: <20210719193503.793910-1-akrowiak@linux.ibm.com>
- <20210719193503.793910-3-akrowiak@linux.ibm.com>
- <20210721164550.5402fe1c.pasic@linux.ibm.com>
- <c3b80f79-6795-61ce-2dd1-f4cc7110e417@linux.ibm.com>
- <20210723162625.59cead27.pasic@linux.ibm.com>
- <5380652f-e68f-bbd0-10c0-c7d541065843@linux.ibm.com>
- <20210726223628.4d7759bf.pasic@linux.ibm.com>
- <20210726220317.GA1721383@nvidia.com>
- <20210727004329.3bcc7d4f.pasic@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <a5eeac87-069d-171b-5558-3e99e7bda539@linux.ibm.com>
-Date:   Wed, 28 Jul 2021 09:43:03 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        Wed, 28 Jul 2021 14:26:37 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D4BB0A405D;
+        Wed, 28 Jul 2021 14:26:36 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6ACFEA4053;
+        Wed, 28 Jul 2021 14:26:36 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.9.194])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 28 Jul 2021 14:26:36 +0000 (GMT)
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2 00/13] KVM: s390: pv: implement lazy destroy
+Date:   Wed, 28 Jul 2021 16:26:18 +0200
+Message-Id: <20210728142631.41860-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-In-Reply-To: <20210727004329.3bcc7d4f.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: J4CNyl775TrIyC91pzqarvdtJXqcGreK
-X-Proofpoint-ORIG-GUID: MfBEXE31ktBTrbZRs-sEW6NsopN7z9lB
+X-Proofpoint-ORIG-GUID: iZSBioiGCCgkctBGdC9NOTFXxvz_znRv
+X-Proofpoint-GUID: esy9GRG-S1MbUUYnatQ5Ov9nHA3MBnai
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-07-28_08:2021-07-27,2021-07-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1015 adultscore=0 impostorscore=0 lowpriorityscore=0 bulkscore=0
- phishscore=0 mlxlogscore=999 spamscore=0 mlxscore=0 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2107280076
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
+ priorityscore=1501 mlxlogscore=999 adultscore=0 suspectscore=0
+ malwarescore=0 clxscore=1011 impostorscore=0 bulkscore=0
+ lowpriorityscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2107140000 definitions=main-2107280079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Previously, when a protected VM was rebooted or when it was shut down,
+its memory was made unprotected, and then the protected VM itself was
+destroyed. Looping over the whole address space can take some time,
+considering the overhead of the various Ultravisor Calls (UVCs). This
+means that a reboot or a shutdown would take a potentially long amount
+of time, depending on the amount of used memory.
 
+This patchseries implements a deferred destroy mechanism for protected
+guests. When a protected guest is destroyed, its memory is cleared in
+background, allowing the guest to restart or terminate significantly
+faster than before.
 
-On 7/26/21 6:43 PM, Halil Pasic wrote:
-> On Mon, 26 Jul 2021 19:03:17 -0300
-> Jason Gunthorpe <jgg@nvidia.com> wrote:
->
->>> You may end up with open and close running interleaved. What I'
->>> trying to say is, to my best knowledge, normally there is no
->>> you have to close it before you open it again rule for files.
->> This is an existing bug in this driver, I've fixed in the reflck series.
->>
->> open_device/close_device will not run concurrently, or out of order,
->> afer it is fixed.
-> Well if that is the case then provided your fix precedes this patch:
->
-> Acked-by: Halil Pasic <pasic@linux.ibm.com>
->
-> I'm not entirely happy with this. I did not thoroughly investigate the
-> implications of reversing the locking order of the vfio-ap lock (driver
-> global) and the kvm lock (guest specific). I will trust Tony and hope
-> our KVM maintainers will scream if this is bad from interference and
-> delay perspective.
+There are 2 possibilities when a protected VM is torn down:
+* it still has an address space associated (reboot case)
+* it does not have an address space anymore (shutdown case)
 
-This solution was suggested by Jason G and it does in fact resolve
-the lockdep splat encountered when starting an SE guest with
-access to crypto resources. There is a chance that the KVM lock
-can get held while waiting for the lock on the matrix_dev->mutex,
-but this does not seem like a grave concern to me. That would
-only happen during VFIO_GROUP_NOTIFY_SET_KVM notification - either
-when the guest is being started or terminated, or when the mdev
-fd is opened or closed. According to Jason, once he integrates his reflck
-series, the open/close will happen only once.
+For the reboot case, the reference count of the mm is increased, and
+then a background thread is started to clean up. Once the thread went
+through the whole address space, the protected VM is actually
+destroyed.
 
-I've copied the KVM maintainers on this response, so hopefully one of
-them will provide some input.
+For the shutdown case, a list of pages to be destroyed is formed when
+the mm is torn down. Instead of just unmapping the pages when the
+address space is being torn down, they are also set aside. Later when
+KVM cleans up the VM, a thread is started to clean up the pages from
+the list.
 
->
-> Regards,
-> Halil
+This means that the same address space can have memory belonging to
+more than one protected guest, although only one will be running, the
+others will in fact not even have any CPUs.
+
+When a guest is destroyed, its memory still counts towards its memory
+control group until it's actually freed (I tested this experimentally)
+
+When the system runs out of memory, if a guest has terminated and its
+memory is being cleaned asynchronously, the OOM killer will wait a
+little and then see if memory has been freed. This has the practical
+effect of slowing down memory allocations when the system is out of
+memory to give the cleanup thread time to cleanup and free memory, and
+avoid an actual OOM situation.
+
+v1->v2
+* rebased on a more recent kernel
+* improved/expanded some patch descriptions
+* improves/expanded some comments
+* added patch 1, which prevents stall notification when the system is
+  under heavy load.
+* rename some members of struct deferred_priv to improve readability
+* avoid an use-after-free bug of the struct mm in case of shutdown
+* add missing return when lazy destroy is disabled
+* add support for OOM notifier
+
+Claudio Imbrenda (13):
+  KVM: s390: pv: avoid stall notifications for some UVCs
+  KVM: s390: pv: leak the ASCE page when destroy fails
+  KVM: s390: pv: properly handle page flags for protected guests
+  KVM: s390: pv: handle secure storage violations for protected guests
+  KVM: s390: pv: handle secure storage exceptions for normal guests
+  KVM: s390: pv: refactor s390_reset_acc
+  KVM: s390: pv: usage counter instead of flag
+  KVM: s390: pv: add export before import
+  KVM: s390: pv: lazy destroy for reboot
+  KVM: s390: pv: extend lazy destroy to handle shutdown
+  KVM: s390: pv: module parameter to fence lazy destroy
+  KVM: s390: pv: add OOM notifier for lazy destroy
+  KVM: s390: pv: add support for UV feature bits
+
+ arch/s390/include/asm/gmap.h        |   5 +-
+ arch/s390/include/asm/mmu.h         |   3 +
+ arch/s390/include/asm/mmu_context.h |   2 +
+ arch/s390/include/asm/pgtable.h     |  16 +-
+ arch/s390/include/asm/uv.h          |  26 ++-
+ arch/s390/kernel/uv.c               | 144 ++++++++++++++-
+ arch/s390/kvm/kvm-s390.c            |   6 +-
+ arch/s390/kvm/kvm-s390.h            |   2 +-
+ arch/s390/kvm/pv.c                  | 272 ++++++++++++++++++++++++++--
+ arch/s390/mm/fault.c                |  22 ++-
+ arch/s390/mm/gmap.c                 |  86 ++++++---
+ 11 files changed, 530 insertions(+), 54 deletions(-)
+
+-- 
+2.31.1
 
