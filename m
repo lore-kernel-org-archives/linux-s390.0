@@ -2,117 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78AAFC4338F
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 08:07:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3ED7C4338F
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 10:14:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5BAB160F41
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 08:07:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AF66560F9D
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 10:14:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235012AbhG1IHO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 04:07:14 -0400
-Received: from szxga03-in.huawei.com ([45.249.212.189]:12324 "EHLO
-        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234508AbhG1IHO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Jul 2021 04:07:14 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4GZR3673wVz7yfB;
-        Wed, 28 Jul 2021 16:02:26 +0800 (CST)
-Received: from dggpemm500001.china.huawei.com (7.185.36.107) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Wed, 28 Jul 2021 16:07:10 +0800
-Received: from localhost.localdomain.localdomain (10.175.113.25) by
- dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Wed, 28 Jul 2021 16:07:09 +0800
-From:   Kefeng Wang <wangkefeng.wang@huawei.com>
-To:     <arnd@arndb.de>, <linux-arch@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-        <rostedt@goodmis.org>, <mingo@redhat.com>, <davem@davemloft.net>,
-        <ast@kernel.org>, <ryabinin.a.a@gmail.com>
-CC:     <mpe@ellerman.id.au>, <benh@kernel.crashing.org>,
-        <paulus@samba.org>, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        <linux-s390@vger.kernel.org>, <iommu@lists.linux-foundation.org>,
-        <bpf@vger.kernel.org>
-Subject: [PATCH v2 0/7] sections: Unify kernel sections range check and use
-Date:   Wed, 28 Jul 2021 16:13:13 +0800
-Message-ID: <20210728081320.20394-1-wangkefeng.wang@huawei.com>
-X-Mailer: git-send-email 2.26.2
+        id S235538AbhG1KOD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 06:14:03 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50250 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231392AbhG1KOC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Jul 2021 06:14:02 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SACAiS180220;
+        Wed, 28 Jul 2021 06:14:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=4Ec2Ipp4q4Zjo75NudHiXKCPdi5YpgtaJTD6jZRngN8=;
+ b=a3Bx5JI3TFheQcJ5iMcemXFl6i2FNnpD71vUpBdxqUeZzU+lio0MdtFYyC37Svx7gaS/
+ X5wV/mVT2ZPcCbmfI/eODGPph/2GP0DZIErFGDwq7LYTqCl1yZzNbzR4v/g1PENnpEfM
+ RgX5m9ZBXZHHJ96ACeJID+99wcpGnFXdnN1qwhukIGoATEeDdvb8iubsmojklU11tkHn
+ Wvb03IC2bYU1+yB04gmDkzObyhdxSJhW/bNTBPqPGOa48Xorb5jlXNyQysvcYbEuVReI
+ 7GlmacilfKUtFl7n4Yg/y5qExj83bMhr0z+8I/RxKTJvLBObxYk17COvWxTP+lxV8VTJ UQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a34vdrhw0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Jul 2021 06:14:00 -0400
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SAD2Ux184919;
+        Wed, 28 Jul 2021 06:14:00 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a34vdrhvc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Jul 2021 06:14:00 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SACeAT025045;
+        Wed, 28 Jul 2021 10:13:58 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 3a235m0yf0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Jul 2021 10:13:58 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SABH5e29753836
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 28 Jul 2021 10:11:17 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1ECBD4C044;
+        Wed, 28 Jul 2021 10:13:56 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B63414C040;
+        Wed, 28 Jul 2021 10:13:55 +0000 (GMT)
+Received: from t46lp67.lnxne.boe (unknown [9.152.108.100])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 28 Jul 2021 10:13:55 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+Subject: [kvm-unit-tests PATCH 0/3] s390x: SPDX and header comment fixes
+Date:   Wed, 28 Jul 2021 10:13:25 +0000
+Message-Id: <20210728101328.51646-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.113.25]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemm500001.china.huawei.com (7.185.36.107)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: lyxQgY3WBMkbaHIY676NClZBNjpiT4FI
+X-Proofpoint-ORIG-GUID: QeIiKrJ5Kz84l1cFt326EdgZ6t1vqBso
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-28_07:2021-07-27,2021-07-28 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=999 adultscore=0 spamscore=0 impostorscore=0 clxscore=1015
+ phishscore=0 mlxscore=0 malwarescore=0 lowpriorityscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2107280056
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There are three head files(kallsyms.h, kernel.h and sections.h) which
-include the kernel sections range check, let's make some cleanup and
-unify them.
+Since the snippet support was included right before my vacation I
+forgot to add proper SPDX statements and header comments to a few
+files.
 
-1. cleanup arch specific text/data check and fix address boundary check
-   in kallsyms.h
-2. make all the basic/core kernel range check function into sections.h
-3. update all the callers, and use the helper in sections.h to simplify
-   the code
+And while I'm at it I'll also fix my mail address in the author lists.
 
-After this series, we have 5 APIs about kernel sections range check in
-sections.h
+Janosch Frank (3):
+  s390x: Add SPDX and header comments for s390x/* and lib/s390x/*
+  s390x: Add SPDX and header comments for the snippets folder
+  s390x: Fix my mail address in the headers
 
- * is_kernel_core_data()	--- come from core_kernel_data() in kernel.h
- * is_kernel_rodata()		--- already in sections.h
- * is_kernel_text()		--- come from kallsyms.h
- * is_kernel_inittext()		--- come from kernel.h and kallsyms.h
- * is_kernel()			--- come from kallsyms.h
-
-
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-arch@vger.kernel.org 
-Cc: iommu@lists.linux-foundation.org
-Cc: bpf@vger.kernel.org 
-
-v2:
-- add ACK/RW to patch2, and drop inappropriate fix tag
-- keep 'core' to check kernel data, suggestted by Steven Rostedt
-  <rostedt@goodmis.org>, rename is_kernel_data() to is_kernel_core_data()
-- drop patch8 which is merged
-- drop patch9 which is resend independently
-
-v1:
-https://lore.kernel.org/linux-arch/20210626073439.150586-1-wangkefeng.wang@huawei.com
-
-Kefeng Wang (7):
-  kallsyms: Remove arch specific text and data check
-  kallsyms: Fix address-checks for kernel related range
-  sections: Move and rename core_kernel_data() to is_kernel_core_data()
-  sections: Move is_kernel_inittext() into sections.h
-  kallsyms: Rename is_kernel() and is_kernel_text()
-  sections: Add new is_kernel() and is_kernel_text()
-  powerpc/mm: Use is_kernel_text() and is_kernel_inittext() helper
-
- arch/powerpc/mm/pgtable_32.c   |  7 +---
- arch/x86/kernel/unwind_orc.c   |  2 +-
- arch/x86/net/bpf_jit_comp.c    |  2 +-
- include/asm-generic/sections.h | 71 ++++++++++++++++++++++++++--------
- include/linux/kallsyms.h       | 21 +++-------
- include/linux/kernel.h         |  2 -
- kernel/cfi.c                   |  2 +-
- kernel/extable.c               | 33 ++--------------
- kernel/locking/lockdep.c       |  3 --
- kernel/trace/ftrace.c          |  2 +-
- mm/kasan/report.c              |  2 +-
- net/sysctl_net.c               |  2 +-
- 12 files changed, 72 insertions(+), 77 deletions(-)
+ lib/s390x/asm/mem.h             |  2 +-
+ lib/s390x/mmu.h                 |  2 +-
+ lib/s390x/stack.c               |  2 +-
+ lib/s390x/uv.c                  |  9 +++++++++
+ s390x/gs.c                      |  2 +-
+ s390x/iep.c                     |  2 +-
+ s390x/mvpg-sie.c                |  9 +++++++++
+ s390x/sie.c                     | 10 ++++++++++
+ s390x/snippets/c/cstart.S       |  9 +++++++++
+ s390x/snippets/c/mvpg-snippet.c |  9 +++++++++
+ s390x/vector.c                  |  2 +-
+ x86/sieve.c                     |  5 +++++
+ 12 files changed, 57 insertions(+), 6 deletions(-)
 
 -- 
-2.26.2
+2.30.2
 
