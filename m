@@ -2,144 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F85AC4320A
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:27:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 041D4C4338F
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:35:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1372B60F5E
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:27:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D27F660F91
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:35:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236993AbhG1O1h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 10:27:37 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17266 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236977AbhG1O0p (ORCPT
+        id S236837AbhG1Ofp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 10:35:45 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49499 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236667AbhG1Ofo (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Jul 2021 10:26:45 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SENN8A021105;
-        Wed, 28 Jul 2021 10:26:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=38gFOKTrICW/O1vPT+e3nGr/ypCZAcQ7LGuzZZqEV8Y=;
- b=PBgMWLiGdfYVD6PzDXd8A0/vZBDcNxH10MMW8YB80iCRDhX1B7kswmQHq6hU9bDDmzER
- 80kB5GeK20fM0q1+MPJg/9evrByHyWFPJu+OyYynTB8rolCl/NdhMNUYOEykd7TXbwqv
- 4ZVHCKj+wVdtkyRBE+Rk92xCWE2cZbyXV0bhMekT5kWM8YqOETKs9QF/9hm9lT7ycabf
- lzfLq2Y6xccdR+4eNQ/oCrOZFFDVVy67yFKSgIpqG6ZmxbCqwPclXDu81MLRudCk2ai9
- zdMtFG03gzr6scZKAtmPZv04YrVmG6dHMezlgjtveDjew5N9AJwBXNsoSYobTTpnZGZu 6A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a35rb6ebw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 10:26:43 -0400
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SENsxj022885;
-        Wed, 28 Jul 2021 10:26:43 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a35rb6eb3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 10:26:43 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SEJ6aM011264;
-        Wed, 28 Jul 2021 14:26:40 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06fra.de.ibm.com with ESMTP id 3a235kgr58-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 14:26:40 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SEQbR230736860
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Jul 2021 14:26:37 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 51DBAA4057;
-        Wed, 28 Jul 2021 14:26:37 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E486FA4065;
-        Wed, 28 Jul 2021 14:26:36 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.9.194])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 28 Jul 2021 14:26:36 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 01/13] KVM: s390: pv: avoid stall notifications for some UVCs
-Date:   Wed, 28 Jul 2021 16:26:19 +0200
-Message-Id: <20210728142631.41860-2-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210728142631.41860-1-imbrenda@linux.ibm.com>
-References: <20210728142631.41860-1-imbrenda@linux.ibm.com>
+        Wed, 28 Jul 2021 10:35:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1627482941;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Ns4+hvb10pCv09UW5xpgn10rDpJ/aUkX8DQEOdyq8JY=;
+        b=IfaZdKaXnSgLTo5YAIGQ+ZNt1lreaUakh64ESLzCW7jKwnPPF1mVFqmV++JhUaSY160Mxd
+        AuuBIi0ZhQo3+waaoowvqsyBZ/rR5x6JjDR4adJ6TAoco0A5xD2YT73Z9nX76fd7alg8p3
+        26ZXVKgm6jtyl8V/J7IZH0NI0kcU7EE=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-62-M_3NmVKsPnuZMIStzAI0bg-1; Wed, 28 Jul 2021 10:35:40 -0400
+X-MC-Unique: M_3NmVKsPnuZMIStzAI0bg-1
+Received: by mail-wm1-f70.google.com with SMTP id 132-20020a1c018a0000b029025005348905so1006032wmb.7
+        for <linux-s390@vger.kernel.org>; Wed, 28 Jul 2021 07:35:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Ns4+hvb10pCv09UW5xpgn10rDpJ/aUkX8DQEOdyq8JY=;
+        b=RJzWl244URiC0TjPNsz2vcl5cYCWwl4tGKVjZ/kiviELUTC0ssVpp11Q6XAds/dzYI
+         6suwzThNek0O33gYJwVbOl3Oszpk0Mkzyhes0MSfMSFJKPG6it4Awl5ZEiXbVfakmI7G
+         F/nAiywpJpMR/euStEuQwnXE2QRaVZUJTmBdXBYhxkfQpF7oUMF+vjgin9CFnrC84if4
+         XMgkOrxlcR81U/fA2k9TmxrMMhvj49dtnwANGMPds/l0KyfS4HTGiTBLYSB4cA9ztoT0
+         NIErkx63K/gJ9VpRpeTwb4a+jq7JTuSOFEo1OwI64gRZLSfGk+aSsWBJRXV8B1gkVrZO
+         3eSw==
+X-Gm-Message-State: AOAM532vgkDd+XihezV9TVg5Ws4owzuOtnS3SaJvToW6z41G1hXYaWVt
+        tDwOCDI152C4IHSNQ+76SiAKheMnrGQIfkj7ZCszO1Zp0wk+r1xPSPxlD8N+wve9qYKtYz06Jjt
+        t1A6ELfTRUUNVUxfUzOg4PA==
+X-Received: by 2002:a05:600c:206:: with SMTP id 6mr9915961wmi.137.1627482938593;
+        Wed, 28 Jul 2021 07:35:38 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxhTb5ddWwmkLn/CH3sMlITeGS1cEIPUQGu9uQ0XfoNZUun5nGZqs9ljS4qYZVOiACLgBqPBg==
+X-Received: by 2002:a05:600c:206:: with SMTP id 6mr9915951wmi.137.1627482938459;
+        Wed, 28 Jul 2021 07:35:38 -0700 (PDT)
+Received: from thuth.remote.csb (p5791d475.dip0.t-ipconnect.de. [87.145.212.117])
+        by smtp.gmail.com with ESMTPSA id y19sm6033618wma.21.2021.07.28.07.35.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 28 Jul 2021 07:35:37 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH v2] s390x: Add SPDX and header comments for
+ s390x/* and lib/s390x/*
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, cohuck@redhat.com
+References: <20210728101328.51646-2-frankja@linux.ibm.com>
+ <20210728125643.80840-1-frankja@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <23050302-247b-11f6-249b-d9ead3a9bea3@redhat.com>
+Date:   Wed, 28 Jul 2021 16:35:37 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: SEkbtfQ3kIXHROiIromPa2DXfBf-bk8q
-X-Proofpoint-GUID: pjtvj0adBZWtOQzEl3a15SQaRcURU-sr
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-28_08:2021-07-27,2021-07-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 spamscore=0 clxscore=1015 malwarescore=0 mlxlogscore=999
- impostorscore=0 priorityscore=1501 adultscore=0 mlxscore=0 suspectscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2107280079
+In-Reply-To: <20210728125643.80840-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Improve make_secure_pte to avoid stalls when the system is heavily
-overcommitted. This was especially problematic in kvm_s390_pv_unpack,
-because of the loop over all pages that needed unpacking.
+On 28/07/2021 14.56, Janosch Frank wrote:
+> Seems like I missed adding them.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+> 
+> Dropped the sieve.c change.
+> 
+> ---
+>   lib/s390x/uv.c   |  9 +++++++++
+>   s390x/mvpg-sie.c |  9 +++++++++
+>   s390x/sie.c      | 10 ++++++++++
+>   3 files changed, 28 insertions(+)
 
-Also fix kvm_s390_pv_init_vm to avoid stalls when the system is heavily
-overcommitted.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/kernel/uv.c | 11 ++++++++---
- arch/s390/kvm/pv.c    |  2 +-
- 2 files changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index aeb0a15bcbb7..fd0faa51c1bb 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -196,11 +196,16 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
- 	if (!page_ref_freeze(page, expected))
- 		return -EBUSY;
- 	set_bit(PG_arch_1, &page->flags);
--	rc = uv_call(0, (u64)uvcb);
-+	rc = __uv_call(0, (u64)uvcb);
- 	page_ref_unfreeze(page, expected);
--	/* Return -ENXIO if the page was not mapped, -EINVAL otherwise */
--	if (rc)
-+	/*
-+	 * Return -ENXIO if the page was not mapped, -EINVAL for other errors.
-+	 * If busy or partially completed, return -EAGAIN.
-+	 */
-+	if (rc == 1)
- 		rc = uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
-+	else if (rc > 1)
-+		rc = -EAGAIN;
- 	return rc;
- }
- 
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index c8841f476e91..e007df11a2fe 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -196,7 +196,7 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- 	uvcb.conf_base_stor_origin = (u64)kvm->arch.pv.stor_base;
- 	uvcb.conf_virt_stor_origin = (u64)kvm->arch.pv.stor_var;
- 
--	cc = uv_call(0, (u64)&uvcb);
-+	cc = uv_call_sched(0, (u64)&uvcb);
- 	*rc = uvcb.header.rc;
- 	*rrc = uvcb.header.rrc;
- 	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
--- 
-2.31.1
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 
