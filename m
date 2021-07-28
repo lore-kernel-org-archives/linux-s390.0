@@ -7,251 +7,139 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B316C04FE3
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:27:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F85AC4320A
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:27:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ED90D60F5E
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:27:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1372B60F5E
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 14:27:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236978AbhG1O1g (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 10:27:36 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17762 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236990AbhG1O0q (ORCPT
+        id S236993AbhG1O1h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 10:27:37 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17266 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236977AbhG1O0p (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Jul 2021 10:26:46 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SENP7u121010;
-        Wed, 28 Jul 2021 10:26:44 -0400
+        Wed, 28 Jul 2021 10:26:45 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SENN8A021105;
+        Wed, 28 Jul 2021 10:26:43 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=zRARswOCjfDNJE4ETUhQBE/2kItXVvYXi0udcYPz0jE=;
- b=GerxaKxdpWhUnpoJRnWSKrpYoUQF3MhjmAc1ClEHRykAVHc1UOrOyL5DfgMNUw3IbeNI
- 58LDoSeYvGYoil3PS5v2cjYXXjwWrH20Qu7qPlJ1BRifv8TTqsPlUhyjIvbI5IeVjl13
- UZ6wG24gAmij2lxUNt2dWr1ar2/2/Z862CKdB3uLr1XPSLWBK1Sckfog2D1h+X1Txo9F
- Z4B2vP99/y1WxcdIlu/LRTacZ+ZGvH1d1mVc+YWSDKF5IiNAIs7C2KITCOu+IdVFd3AB
- ps5B0XDHKxvLeVkNN+dM8HjAGJYVb+r6J1MGQjdpL9r2AE1gr+2fvkWdSRqPxVMK11xj 4g== 
+ bh=38gFOKTrICW/O1vPT+e3nGr/ypCZAcQ7LGuzZZqEV8Y=;
+ b=PBgMWLiGdfYVD6PzDXd8A0/vZBDcNxH10MMW8YB80iCRDhX1B7kswmQHq6hU9bDDmzER
+ 80kB5GeK20fM0q1+MPJg/9evrByHyWFPJu+OyYynTB8rolCl/NdhMNUYOEykd7TXbwqv
+ 4ZVHCKj+wVdtkyRBE+Rk92xCWE2cZbyXV0bhMekT5kWM8YqOETKs9QF/9hm9lT7ycabf
+ lzfLq2Y6xccdR+4eNQ/oCrOZFFDVVy67yFKSgIpqG6ZmxbCqwPclXDu81MLRudCk2ai9
+ zdMtFG03gzr6scZKAtmPZv04YrVmG6dHMezlgjtveDjew5N9AJwBXNsoSYobTTpnZGZu 6A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a372wcdg1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 10:26:44 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SENSAF121354;
-        Wed, 28 Jul 2021 10:26:43 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a372wcdfg-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a35rb6ebw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 28 Jul 2021 10:26:43 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SEJ7XQ010878;
-        Wed, 28 Jul 2021 14:26:42 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3a235kh4gw-1
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SENsxj022885;
+        Wed, 28 Jul 2021 10:26:43 -0400
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a35rb6eb3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 14:26:41 +0000
+        Wed, 28 Jul 2021 10:26:43 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SEJ6aM011264;
+        Wed, 28 Jul 2021 14:26:40 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06fra.de.ibm.com with ESMTP id 3a235kgr58-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 28 Jul 2021 14:26:40 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SENuKP28049794
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SEQbR230736860
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Jul 2021 14:23:56 GMT
+        Wed, 28 Jul 2021 14:26:37 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4A87DA4057;
-        Wed, 28 Jul 2021 14:26:38 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D54CDA405E;
+        by IMSVA (Postfix) with ESMTP id 51DBAA4057;
         Wed, 28 Jul 2021 14:26:37 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E486FA4065;
+        Wed, 28 Jul 2021 14:26:36 +0000 (GMT)
 Received: from localhost.localdomain (unknown [9.145.9.194])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 28 Jul 2021 14:26:37 +0000 (GMT)
+        Wed, 28 Jul 2021 14:26:36 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com,
         thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 03/13] KVM: s390: pv: properly handle page flags for protected guests
-Date:   Wed, 28 Jul 2021 16:26:21 +0200
-Message-Id: <20210728142631.41860-4-imbrenda@linux.ibm.com>
+Subject: [PATCH v2 01/13] KVM: s390: pv: avoid stall notifications for some UVCs
+Date:   Wed, 28 Jul 2021 16:26:19 +0200
+Message-Id: <20210728142631.41860-2-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210728142631.41860-1-imbrenda@linux.ibm.com>
 References: <20210728142631.41860-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: BjyeDm_drukMKVL6R2M4ub_CXdoGYQuN
-X-Proofpoint-GUID: AUgPFigM1CKIScAAanHgyA448ij1rwD3
+X-Proofpoint-ORIG-GUID: SEkbtfQ3kIXHROiIromPa2DXfBf-bk8q
+X-Proofpoint-GUID: pjtvj0adBZWtOQzEl3a15SQaRcURU-sr
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-07-28_08:2021-07-27,2021-07-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 malwarescore=0 priorityscore=1501 phishscore=0
- mlxscore=0 impostorscore=0 bulkscore=0 spamscore=0 suspectscore=0
- mlxlogscore=972 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2107140000 definitions=main-2107280079
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 spamscore=0 clxscore=1015 malwarescore=0 mlxlogscore=999
+ impostorscore=0 priorityscore=1501 adultscore=0 mlxscore=0 suspectscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2107280079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Introduce variants of the convert and destroy page functions that also
-clear the PG_arch_1 bit used to mark them as secure pages.
+Improve make_secure_pte to avoid stalls when the system is heavily
+overcommitted. This was especially problematic in kvm_s390_pv_unpack,
+because of the loop over all pages that needed unpacking.
 
-These new functions can only be called on pages for which a reference
-is already being held.
+Also fix kvm_s390_pv_init_vm to avoid stalls when the system is heavily
+overcommitted.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h |  9 ++++++---
- arch/s390/include/asm/uv.h      | 10 ++++++++--
- arch/s390/kernel/uv.c           | 34 ++++++++++++++++++++++++++++++++-
- arch/s390/mm/gmap.c             |  4 +++-
- 4 files changed, 50 insertions(+), 7 deletions(-)
+ arch/s390/kernel/uv.c | 11 ++++++++---
+ arch/s390/kvm/pv.c    |  2 +-
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index dcac7b2df72c..0f1af2232ebe 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1074,8 +1074,9 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
- 	pte_t res;
- 
- 	res = ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
-+	/* At this point the reference through the mapping is still present */
- 	if (mm_is_protected(mm) && pte_present(res))
--		uv_convert_from_secure(pte_val(res) & PAGE_MASK);
-+		uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
- 	return res;
- }
- 
-@@ -1091,8 +1092,9 @@ static inline pte_t ptep_clear_flush(struct vm_area_struct *vma,
- 	pte_t res;
- 
- 	res = ptep_xchg_direct(vma->vm_mm, addr, ptep, __pte(_PAGE_INVALID));
-+	/* At this point the reference through the mapping is still present */
- 	if (mm_is_protected(vma->vm_mm) && pte_present(res))
--		uv_convert_from_secure(pte_val(res) & PAGE_MASK);
-+		uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
- 	return res;
- }
- 
-@@ -1116,8 +1118,9 @@ static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm,
- 	} else {
- 		res = ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
- 	}
-+	/* At this point the reference through the mapping is still present */
- 	if (mm_is_protected(mm) && pte_present(res))
--		uv_convert_from_secure(pte_val(res) & PAGE_MASK);
-+		uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
- 	return res;
- }
- 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 12c5f006c136..bbd51aa94d05 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -351,8 +351,9 @@ static inline int is_prot_virt_host(void)
- }
- 
- int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb);
--int uv_destroy_page(unsigned long paddr);
-+int uv_destroy_owned_page(unsigned long paddr);
- int uv_convert_from_secure(unsigned long paddr);
-+int uv_convert_owned_from_secure(unsigned long paddr);
- int gmap_convert_to_secure(struct gmap *gmap, unsigned long gaddr);
- 
- void setup_uv(void);
-@@ -362,7 +363,7 @@ void adjust_to_uv_max(unsigned long *vmax);
- static inline void setup_uv(void) {}
- static inline void adjust_to_uv_max(unsigned long *vmax) {}
- 
--static inline int uv_destroy_page(unsigned long paddr)
-+static inline int uv_destroy_owned_page(unsigned long paddr)
- {
- 	return 0;
- }
-@@ -371,6 +372,11 @@ static inline int uv_convert_from_secure(unsigned long paddr)
- {
- 	return 0;
- }
-+
-+static inline int uv_convert_owned_from_secure(unsigned long paddr)
-+{
-+	return 0;
-+}
- #endif
- 
- #if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) || IS_ENABLED(CONFIG_KVM)
 diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index fd0faa51c1bb..5a6ac965f379 100644
+index aeb0a15bcbb7..fd0faa51c1bb 100644
 --- a/arch/s390/kernel/uv.c
 +++ b/arch/s390/kernel/uv.c
-@@ -115,7 +115,7 @@ static int uv_pin_shared(unsigned long paddr)
-  *
-  * @paddr: Absolute host address of page to be destroyed
-  */
--int uv_destroy_page(unsigned long paddr)
-+static int uv_destroy_page(unsigned long paddr)
- {
- 	struct uv_cb_cfs uvcb = {
- 		.header.cmd = UVC_CMD_DESTR_SEC_STOR,
-@@ -135,6 +135,22 @@ int uv_destroy_page(unsigned long paddr)
- 	return 0;
+@@ -196,11 +196,16 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
+ 	if (!page_ref_freeze(page, expected))
+ 		return -EBUSY;
+ 	set_bit(PG_arch_1, &page->flags);
+-	rc = uv_call(0, (u64)uvcb);
++	rc = __uv_call(0, (u64)uvcb);
+ 	page_ref_unfreeze(page, expected);
+-	/* Return -ENXIO if the page was not mapped, -EINVAL otherwise */
+-	if (rc)
++	/*
++	 * Return -ENXIO if the page was not mapped, -EINVAL for other errors.
++	 * If busy or partially completed, return -EAGAIN.
++	 */
++	if (rc == 1)
+ 		rc = uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
++	else if (rc > 1)
++		rc = -EAGAIN;
+ 	return rc;
  }
  
-+/*
-+ * The caller must already hold a reference to the page
-+ */
-+int uv_destroy_owned_page(unsigned long paddr)
-+{
-+	struct page *page = phys_to_page(paddr);
-+	int rc;
-+
-+	get_page(page);
-+	rc = uv_destroy_page(paddr);
-+	if (!rc)
-+		clear_bit(PG_arch_1, &page->flags);
-+	put_page(page);
-+	return rc;
-+}
-+
- /*
-  * Requests the Ultravisor to encrypt a guest page and make it
-  * accessible to the host for paging (export).
-@@ -154,6 +170,22 @@ int uv_convert_from_secure(unsigned long paddr)
- 	return 0;
- }
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index c8841f476e91..e007df11a2fe 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -196,7 +196,7 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+ 	uvcb.conf_base_stor_origin = (u64)kvm->arch.pv.stor_base;
+ 	uvcb.conf_virt_stor_origin = (u64)kvm->arch.pv.stor_var;
  
-+/*
-+ * The caller must already hold a reference to the page
-+ */
-+int uv_convert_owned_from_secure(unsigned long paddr)
-+{
-+	struct page *page = phys_to_page(paddr);
-+	int rc;
-+
-+	get_page(page);
-+	rc = uv_convert_from_secure(paddr);
-+	if (!rc)
-+		clear_bit(PG_arch_1, &page->flags);
-+	put_page(page);
-+	return rc;
-+}
-+
- /*
-  * Calculate the expected ref_count for a page that would otherwise have no
-  * further pins. This was cribbed from similar functions in other places in
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 9bb2c7512cd5..de679facc720 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2678,8 +2678,10 @@ static int __s390_reset_acc(pte_t *ptep, unsigned long addr,
- {
- 	pte_t pte = READ_ONCE(*ptep);
- 
-+	/* There is a reference through the mapping */
- 	if (pte_present(pte))
--		WARN_ON_ONCE(uv_destroy_page(pte_val(pte) & PAGE_MASK));
-+		WARN_ON_ONCE(uv_destroy_owned_page(pte_val(pte) & PAGE_MASK));
-+
- 	return 0;
- }
- 
+-	cc = uv_call(0, (u64)&uvcb);
++	cc = uv_call_sched(0, (u64)&uvcb);
+ 	*rc = uvcb.header.rc;
+ 	*rrc = uvcb.header.rrc;
+ 	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
 -- 
 2.31.1
 
