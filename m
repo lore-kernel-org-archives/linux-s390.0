@@ -2,223 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F275C4338F
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 11:51:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F0E6C4338F
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 11:56:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1AD8860EBB
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 11:51:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DAAA260F93
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 11:56:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234537AbhG1LvD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 07:51:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58546 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234835AbhG1LvD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Jul 2021 07:51:03 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBEE7C061757;
-        Wed, 28 Jul 2021 04:51:00 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id l18so2168567wrv.5;
-        Wed, 28 Jul 2021 04:51:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=yp5cWmb4AkxFKBl8NuqRHF/Fj+1O+kz07eQ9B1cFrTM=;
-        b=rjufznQpIgT9Y4X5wATRAu5BDsSd6HgqZ5d9ZbD1tV5XqwI37bp4dlZn7sEU3roUWH
-         clGVPK5HZt0ibEg3n3rnQO/LLfCGXNB1z/OcJviBqX5BnDvPAT6ovSqtf2GG9z+b2bf5
-         hNRMQ5K1GU2t5utAkiIOYPFplsyDtoOtGyLrHrE0gjJStx3UlTxodAu66P1SUyVqHuRo
-         M6T6x8SRy36Ns7u7LeNWzv4QGHqMLlVM5YZOdZC2fd6M+9vcopSschELbxKP610fuQ0E
-         cnkAxdbpF2osQv7uYuvrxQu8i8zU9T8kP5ggNwdog+ispko+yCugJr87oZyjOacGVREA
-         620A==
+        id S234822AbhG1L4s (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 07:56:48 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52528 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234537AbhG1L4s (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Jul 2021 07:56:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1627473406;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/XaRRTboc70MUCyM0TQteUnofxTwGl2oCgNNxgCYL0w=;
+        b=HSWbQfPM+oMOgocyMrVHsboKe/KBPgiYgd6eY6+iB0tpd9d14xCOUdCPNUGje0MWyfPvlf
+        od5vQIgsecLysMN/zn+Qi4XpNdV+3XZo46ZbCwuPPJk2VrXhn41CuZimB28q5qotCz5/zD
+        CPfJZp13YAZIjPr52/OkPhDicV3fdi0=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-591-0pTFrDS6ORuhBvpAtOAJ3w-1; Wed, 28 Jul 2021 07:56:44 -0400
+X-MC-Unique: 0pTFrDS6ORuhBvpAtOAJ3w-1
+Received: by mail-wr1-f69.google.com with SMTP id d10-20020a056000114ab02901537f048363so854547wrx.8
+        for <linux-s390@vger.kernel.org>; Wed, 28 Jul 2021 04:56:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=yp5cWmb4AkxFKBl8NuqRHF/Fj+1O+kz07eQ9B1cFrTM=;
-        b=QPuryN1fLc/VPu6yEAvogl5fia8uovJAdD5soyvzbh84n3HUPMW+hTkIgVHJtGMrE1
-         nKQ2jii29LcsxjHkisvumT1oAy2ADr1pz5KqxEzu5jHoMij+kNTiIBxwT8VLZiIEjnZp
-         7mOdcvzPrbNAaMPE3XlRqsNZmE+RJ0MYwPs5X8F3fXxjK2ZzYVk9i4VTyklWjqIJTqCg
-         6zcMSr6WQrv5MYAvttKw3SNWXQwlXfl9AfaaV8biVmyeEyU9yx6cxUwkWrDD63AV30xY
-         ZE9SbLvjy/vIu8YhoD/NK3JrU6c1YMlquXYJDov8lJu/LKPfWFjJgRzl7Hg5CBQzxCZ3
-         k6tA==
-X-Gm-Message-State: AOAM530Ia0096yhmBDQwaQ+HSKaF4EE/BOpyfIV1bBc8AtuXPKqRweLr
-        e58feEfqg/+IXQMk5+0JKt0=
-X-Google-Smtp-Source: ABdhPJxnFTfpGwAmyL+B5BY1p5oMjCoBMdD/Omxoq7nc4R8MHgQpLQLkqKXCOPeVLSKKDmRSYkfgVw==
-X-Received: by 2002:adf:d1c7:: with SMTP id b7mr22336082wrd.108.1627473059546;
-        Wed, 28 Jul 2021 04:50:59 -0700 (PDT)
-Received: from ?IPv6:2a02:908:1252:fb60:6a5d:b580:2891:cbac? ([2a02:908:1252:fb60:6a5d:b580:2891:cbac])
-        by smtp.gmail.com with ESMTPSA id q72sm7758671wme.14.2021.07.28.04.50.57
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=/XaRRTboc70MUCyM0TQteUnofxTwGl2oCgNNxgCYL0w=;
+        b=EwxvK31UbX4nQhdAyf9OKxeLy78tEKXfHUl/FYxE29cbgxEpLCbm9J8lt9Ue3zs4YY
+         3L31fsRlrK/xGaou2vr5Po/TL26VPGijADSswt0pHeV9GkJT9rN2HUb7dXJtiJ6HT7Lb
+         oJR4i/V97LmCQf2AZ1dIBEeIlRSn+8b69yyxvF/S2ij9RNrGBa4Q3VYCtkST1quayNpm
+         98vClnqZ9kwNFnoqwmw+H6/Rp21nh6GmJJtWuGr4VoReyW7Qp39XMQagswPuBZVVTfOg
+         P63cK62Sr65Tk0jDwakGKlEeKxJsPCEoulsnHMpZJbjkpuYuovyvwEFCn3Pv0ZjNmKaK
+         cLqQ==
+X-Gm-Message-State: AOAM531TvwGjuI/EZN29cZMzK+C3Ko0w/H4gtFLQEvzSl10otHZlHM8m
+        zeK8VUYiWuLWO2toqvWIHbq8mWe7wDqIBjzbz9xGQG82s61DzNL7U08frxziw7ezEw58F50y78N
+        PY8THrDZUN7p1pV/4/Ao7wA==
+X-Received: by 2002:a05:600c:88a:: with SMTP id l10mr1874081wmp.78.1627473403538;
+        Wed, 28 Jul 2021 04:56:43 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwzorpSuliVsG4NQ0s7BaFDu+gPHUAXbzulsOoPrbAqQKRZIKFJsvzbR5rPxJnHpBC1yStYWg==
+X-Received: by 2002:a05:600c:88a:: with SMTP id l10mr1874066wmp.78.1627473403297;
+        Wed, 28 Jul 2021 04:56:43 -0700 (PDT)
+Received: from thuth.remote.csb (p5791d475.dip0.t-ipconnect.de. [87.145.212.117])
+        by smtp.gmail.com with ESMTPSA id q22sm5971323wmc.16.2021.07.28.04.56.42
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 28 Jul 2021 04:50:59 -0700 (PDT)
-Subject: Re: [PATCH 00/11] Implement generic prot_guest_has() helper function
-To:     Tom Lendacky <thomas.lendacky@amd.com>,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-graphics-maintainer@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org
-Cc:     Sathyanarayanan Kuppuswamy 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        David Airlie <airlied@linux.ie>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Andi Kleen <ak@linux.intel.com>, Baoquan He <bhe@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Joerg Roedel <joro@8bytes.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>, Dave Young <dyoung@redhat.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Daniel Vetter <daniel@ffwll.ch>
-References: <cover.1627424773.git.thomas.lendacky@amd.com>
-From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <ckoenig.leichtzumerken@gmail.com>
-Message-ID: <5cd35ae7-a7ff-eca4-5d2a-f0dad94e1d7a@gmail.com>
-Date:   Wed, 28 Jul 2021 13:50:57 +0200
+        Wed, 28 Jul 2021 04:56:42 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH 1/3] s390x: Add SPDX and header comments
+ for s390x/* and lib/s390x/*
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        cohuck@redhat.com
+References: <20210728101328.51646-1-frankja@linux.ibm.com>
+ <20210728101328.51646-2-frankja@linux.ibm.com>
+ <20210728123221.7ca90b35@p-imbrenda>
+ <d5c31cc5-0645-aa91-374e-c668b37e1150@redhat.com>
+ <2e391a1a-54d4-8713-4a93-104a6b4cfaf1@linux.ibm.com>
+ <d1c3e9f0-57c0-e941-3e3f-94a897ace177@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <32e8624e-4dd9-0c39-fe65-87f1ba0a4b24@redhat.com>
+Date:   Wed, 28 Jul 2021 13:56:41 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <cover.1627424773.git.thomas.lendacky@amd.com>
+In-Reply-To: <d1c3e9f0-57c0-e941-3e3f-94a897ace177@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Am 28.07.21 um 00:26 schrieb Tom Lendacky:
-> This patch series provides a generic helper function, prot_guest_has(),
-> to replace the sme_active(), sev_active(), sev_es_active() and
-> mem_encrypt_active() functions.
->
-> It is expected that as new protected virtualization technologies are
-> added to the kernel, they can all be covered by a single function call
-> instead of a collection of specific function calls all called from the
-> same locations.
->
-> The powerpc and s390 patches have been compile tested only. Can the
-> folks copied on this series verify that nothing breaks for them.
+On 28/07/2021 13.41, Janosch Frank wrote:
+> On 7/28/21 1:36 PM, Janosch Frank wrote:
+>> On 7/28/21 12:36 PM, Thomas Huth wrote:
+>>> On 28/07/2021 12.32, Claudio Imbrenda wrote:
+>>>> On Wed, 28 Jul 2021 10:13:26 +0000
+>>>> Janosch Frank <frankja@linux.ibm.com> wrote:
+>>>>
+>>>>> Seems like I missed adding them.
+>>>>>
+>>>>> The s390x/sieve.c one is a bit of a head scratcher since it came with
+>>>>> the first commit but I assume it's lpgl2-only since that's what the
+>>>>> COPYRIGHT file said then.
+>>>>>
+>>>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>>>> ---
+>>>>>    lib/s390x/uv.c   |  9 +++++++++
+>>>>>    s390x/mvpg-sie.c |  9 +++++++++
+>>>>>    s390x/sie.c      | 10 ++++++++++
+>>>>>    x86/sieve.c      |  5 +++++
+>>>>>    4 files changed, 33 insertions(+)
+>>> [...]
+>>>>> diff --git a/x86/sieve.c b/x86/sieve.c
+>>>>> index 8150f2d9..b89d5f80 100644
+>>>>> --- a/x86/sieve.c
+>>>>> +++ b/x86/sieve.c
+>>>>> @@ -1,3 +1,8 @@
+>>>>> +/* SPDX-License-Identifier: LGPL-2.0-only */
+>>>>
+>>>> do you really need to fix something in the x86 directory? (even though
+>>>> it is also used on other archs)
+>>>
+>>> I just realized that s390x/sieve.c is just a symlink, not a copy of the file :-)
+>>
+>> You're not the only one...
+>>
+>>>
+>>>> maybe you can split out this as a separate patch, so s390x stuff is
+>>>> more self contained, and others can then discuss the sieve.c patch
+>>>> separately if needed?
+>>>
+>>> That might make sense, indeed.
+>>
+>> Yup will do
+> 
+> On second thought I'm just gonna drop that hunk since x86 doesn't really
+> have SPDX or header comments for most of their files anyway.
 
-As GPU driver dev I'm only one end user of this, but at least from the 
-high level point of view that makes totally sense to me.
+That's fine, too. We can still add them there later.
 
-Feel free to add an Acked-by: Christian König <christian.koenig@amd.com>.
-
-We could run that through the AMD GPU unit tests, but I fear we actually 
-don't test on a system with SEV/SME active.
-
-Going to raise that on our team call today.
-
-Regards,
-Christian.
-
->
-> Cc: Andi Kleen <ak@linux.intel.com>
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Cc: Baoquan He <bhe@redhat.com>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: Daniel Vetter <daniel@ffwll.ch>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: Dave Young <dyoung@redhat.com>
-> Cc: David Airlie <airlied@linux.ie>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Joerg Roedel <joro@8bytes.org>
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Cc: Maxime Ripard <mripard@kernel.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: VMware Graphics <linux-graphics-maintainer@vmware.com>
-> Cc: Will Deacon <will@kernel.org>
->
-> ---
->
-> Patches based on:
->    https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git master
->    commit 79e920060fa7 ("Merge branch 'WIP/fixes'")
->
-> Tom Lendacky (11):
->    mm: Introduce a function to check for virtualization protection
->      features
->    x86/sev: Add an x86 version of prot_guest_has()
->    powerpc/pseries/svm: Add a powerpc version of prot_guest_has()
->    x86/sme: Replace occurrences of sme_active() with prot_guest_has()
->    x86/sev: Replace occurrences of sev_active() with prot_guest_has()
->    x86/sev: Replace occurrences of sev_es_active() with prot_guest_has()
->    treewide: Replace the use of mem_encrypt_active() with
->      prot_guest_has()
->    mm: Remove the now unused mem_encrypt_active() function
->    x86/sev: Remove the now unused mem_encrypt_active() function
->    powerpc/pseries/svm: Remove the now unused mem_encrypt_active()
->      function
->    s390/mm: Remove the now unused mem_encrypt_active() function
->
->   arch/Kconfig                               |  3 ++
->   arch/powerpc/include/asm/mem_encrypt.h     |  5 --
->   arch/powerpc/include/asm/protected_guest.h | 30 +++++++++++
->   arch/powerpc/platforms/pseries/Kconfig     |  1 +
->   arch/s390/include/asm/mem_encrypt.h        |  2 -
->   arch/x86/Kconfig                           |  1 +
->   arch/x86/include/asm/kexec.h               |  2 +-
->   arch/x86/include/asm/mem_encrypt.h         | 13 +----
->   arch/x86/include/asm/protected_guest.h     | 27 ++++++++++
->   arch/x86/kernel/crash_dump_64.c            |  4 +-
->   arch/x86/kernel/head64.c                   |  4 +-
->   arch/x86/kernel/kvm.c                      |  3 +-
->   arch/x86/kernel/kvmclock.c                 |  4 +-
->   arch/x86/kernel/machine_kexec_64.c         | 19 +++----
->   arch/x86/kernel/pci-swiotlb.c              |  9 ++--
->   arch/x86/kernel/relocate_kernel_64.S       |  2 +-
->   arch/x86/kernel/sev.c                      |  6 +--
->   arch/x86/kvm/svm/svm.c                     |  3 +-
->   arch/x86/mm/ioremap.c                      | 16 +++---
->   arch/x86/mm/mem_encrypt.c                  | 60 +++++++++++++++-------
->   arch/x86/mm/mem_encrypt_identity.c         |  3 +-
->   arch/x86/mm/pat/set_memory.c               |  3 +-
->   arch/x86/platform/efi/efi_64.c             |  9 ++--
->   arch/x86/realmode/init.c                   |  8 +--
->   drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c    |  4 +-
->   drivers/gpu/drm/drm_cache.c                |  4 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_drv.c        |  4 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_msg.c        |  6 +--
->   drivers/iommu/amd/init.c                   |  7 +--
->   drivers/iommu/amd/iommu.c                  |  3 +-
->   drivers/iommu/amd/iommu_v2.c               |  3 +-
->   drivers/iommu/iommu.c                      |  3 +-
->   fs/proc/vmcore.c                           |  6 +--
->   include/linux/mem_encrypt.h                |  4 --
->   include/linux/protected_guest.h            | 37 +++++++++++++
->   kernel/dma/swiotlb.c                       |  4 +-
->   36 files changed, 218 insertions(+), 104 deletions(-)
->   create mode 100644 arch/powerpc/include/asm/protected_guest.h
->   create mode 100644 arch/x86/include/asm/protected_guest.h
->   create mode 100644 include/linux/protected_guest.h
->
+  Thomas
 
