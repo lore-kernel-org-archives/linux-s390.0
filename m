@@ -2,259 +2,162 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD95EC4338F
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 14:23:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36BC8C4338F
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 14:24:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C879A60F4A
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 14:23:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 223D060F4B
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 14:24:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237253AbhG2OXX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Jul 2021 10:23:23 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59112 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S237230AbhG2OXW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 29 Jul 2021 10:23:22 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16TELIpL009812;
-        Thu, 29 Jul 2021 10:23:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=0wtuviCVVbDvRJSEfyU6j5ZKWYQlA32Ei9z0+u1374U=;
- b=L1hm800iGI2AciTmVTItC5HD5ZbBgFgcmJjc6bllSVrH6tzoRByneiWP3a27pXf7QGam
- u7xFlr5uZP3SbvNZt+ecvU18e49FJzP/GSI3E5ifGHPGwgF9GyFjHe79LP/REwHh7v/D
- TJDcDu+AR7/2+hfg0uU4OE5xOo9skz55/V0n1S5JCLg9iINfpPFJx1T4E3VtpLARNB1y
- fm8KM3lJZP3Qo7qqh4rWjYfY/eHJLLRkSiGSUdsRU6TNPdS0agRIHGb9dToOycgboqzs
- I4SxFI+WbALp3FerBYC9o1rxUnQ/0HxdhJGsNi/G+0JHKhbDeajjFAV4zvL1j9XpoLl+ 5w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a3shaamby-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 29 Jul 2021 10:23:18 -0400
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16TELOuY010534;
-        Thu, 29 Jul 2021 10:23:18 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a3shaamb1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 29 Jul 2021 10:23:17 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16TEDHpx020370;
-        Thu, 29 Jul 2021 14:23:16 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04fra.de.ibm.com with ESMTP id 3a235kh5je-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 29 Jul 2021 14:23:16 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16TEND9F27197812
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 29 Jul 2021 14:23:13 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 682DEA4072;
-        Thu, 29 Jul 2021 14:23:13 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2AD9FA405E;
-        Thu, 29 Jul 2021 14:23:13 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.1.151])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 29 Jul 2021 14:23:13 +0000 (GMT)
-Date:   Thu, 29 Jul 2021 16:21:40 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
-        thuth@redhat.com, cohuck@redhat.com
-Subject: Re: [kvm-unit-tests PATCH 3/4] s390x: lib: sie: Add struct vm
- (de)initialization functions
-Message-ID: <20210729162140.2475d3d6@p-imbrenda>
-In-Reply-To: <20210729134803.183358-4-frankja@linux.ibm.com>
-References: <20210729134803.183358-1-frankja@linux.ibm.com>
-        <20210729134803.183358-4-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        id S237349AbhG2OYn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Jul 2021 10:24:43 -0400
+Received: from mail-dm6nam08on2062.outbound.protection.outlook.com ([40.107.102.62]:53936
+        "EHLO NAM04-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S234975AbhG2OYm (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Jul 2021 10:24:42 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=oBPOZblI+D9q77pDFBSyLNHXzTrAz5IsLvp2O2F8c60Kl6isOKWXRrwlt1ZJxP3/O9ABpgyEyl210S07fUIJqdg6MUASfOl2zQ7DfbQdSdD3TJlTnn+soHx0lrQjWn4H/IsE1EHvsgYyFzAgj8m0mJ3BVcF7oNBEz++uZmFT/XcoMJeCanhq68znsaTFif9wI3z7l1YU2grMOV8MsDw2aIqKlHFCIqr/zXgvsvGeteEuII2MzBvf8t1W6U6EANqJK972jsXpjU4+bZPZmFvuJLYuQ2RJyRTlCPTp6TR+QOrt8uxMMiv2OCB/wN0Vg/GqSubLzK0Z70Sxszll2sv+Kw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HxOGcG2LsSuPhPcirirqQ/LcY/hiKUspD1DVlba2L3c=;
+ b=TGC1W3GPQplOEI5Vu2rfdFM4EFWQu+dpNHlxxgTIHstcNsVx0E3Famfug+SaKINOZc8CI27DVXnchwAStUX9Y0Wxm5SfMO7U2e1HDnEyzPlh4Ui+GvlPX7pO37ejeNDoyL47nyZAQPcbY9nAN60RQ5ghlApHSr58+Cc53i+hdnnWsKAOUPh4Ql6MS1mxDKj5Gc90fOAB/vpFZ2/E3nKLKarwRsM0xwZf7f2ykK/J0UEH4duD2JYU8D3/JRZxMFaIrmkgelAem7yS+kwF7IIiMSrt9SmLdSH1YvBiNKQQUckxrDqczNrXV2y125ykG+cUCvXSioaga4XWmm4S3+mONQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HxOGcG2LsSuPhPcirirqQ/LcY/hiKUspD1DVlba2L3c=;
+ b=LIvpt20J02/WWVx2KsVWfVez16+ttvk4SPIxCg8AldfS1gQBEvUPs21El1F7ZZw72jymteXfSvkaKTKHdDouFQLMyVqLaIyECNno18DfU8UrRC0LdGZQ9hBN87q29w6BBNuiu43RoIZlFfQ8drIWnNQBz/d1QmlQIzU6wVunksA=
+Authentication-Results: linutronix.de; dkim=none (message not signed)
+ header.d=none;linutronix.de; dmarc=none action=none header.from=amd.com;
+Received: from DM4PR12MB5229.namprd12.prod.outlook.com (2603:10b6:5:398::12)
+ by DM4PR12MB5296.namprd12.prod.outlook.com (2603:10b6:5:39d::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.19; Thu, 29 Jul
+ 2021 14:24:38 +0000
+Received: from DM4PR12MB5229.namprd12.prod.outlook.com
+ ([fe80::73:2581:970b:3208]) by DM4PR12MB5229.namprd12.prod.outlook.com
+ ([fe80::73:2581:970b:3208%3]) with mapi id 15.20.4373.020; Thu, 29 Jul 2021
+ 14:24:38 +0000
+Subject: Re: [PATCH 02/11] x86/sev: Add an x86 version of prot_guest_has()
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-graphics-maintainer@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        Andi Kleen <ak@linux.intel.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+References: <cover.1627424773.git.thomas.lendacky@amd.com>
+ <b3e929a77303dd47fd2adc2a1011009d3bfcee20.1627424774.git.thomas.lendacky@amd.com>
+ <YQFaM7nOhD2d6SUQ@infradead.org>
+From:   Tom Lendacky <thomas.lendacky@amd.com>
+Message-ID: <9f371091-7f73-8f60-e537-166984c650c1@amd.com>
+Date:   Thu, 29 Jul 2021 09:24:34 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
+In-Reply-To: <YQFaM7nOhD2d6SUQ@infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ODWtN_uCyyDiZZWDSalByXGI1NjFC22f
-X-Proofpoint-GUID: 3v4mojOp8NVJ7FL90U0pOt1LcFDEFDbA
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-29_10:2021-07-29,2021-07-29 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
- impostorscore=0 mlxlogscore=999 phishscore=0 priorityscore=1501
- suspectscore=0 mlxscore=0 spamscore=0 clxscore=1015 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2107290089
+X-ClientProxiedBy: SA9PR13CA0158.namprd13.prod.outlook.com
+ (2603:10b6:806:28::13) To DM4PR12MB5229.namprd12.prod.outlook.com
+ (2603:10b6:5:398::12)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from office-ryzen.texastahm.com (67.79.209.213) by SA9PR13CA0158.namprd13.prod.outlook.com (2603:10b6:806:28::13) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.9 via Frontend Transport; Thu, 29 Jul 2021 14:24:36 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c51be881-a8ee-4f10-1d19-08d9529c9870
+X-MS-TrafficTypeDiagnostic: DM4PR12MB5296:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <DM4PR12MB5296FD585C0C26204D6AB48BECEB9@DM4PR12MB5296.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: g8YoiZL9oeNXf2hggdEMEReQ+f+DiLp2r9FTfxn88t2YLUE3pWUNn8K9VtxgI8iolh3GEkoas+UVQIrSlwwsn0ddWqksQBUcCLc4Uzf6H5rqzpW5qSn3OUEU7heA2gQpwQchJ/M19G+awOq+zZRXLe/2h5RbYxk931+1rw4HdoHwWoMSiGKwq+M1Jo/zWiDQvzLS4Kymdi27/i4xNFaGO/3NdVa4f2HkR3bWK8Npg4xGKFk3D9GV9PLQF6rTDrNk4pm2Z3HJJW7dxn29XFfNYIvhvkyYoeWKrzNgEMqGPktb27iDoOkEdvbGZDCOvEfusrO0GCbZrnqxrRiT/fDS1VQg6BU+Jql0WSzrT8jGbM0+bIzhtM9uIheXwtYjd5NlULBUjxcOdNLm/vHUDMSl24DqKpvBDHkaF31ZatgpoIKTudS+qRgeXy/onmmD0u7oIrZXGV3F/WJZAgXOZRkW/JsJIyE6WBIqmxAfHBPazdIeruy0Gs6bslyx9jWuHbX4JprQGnbAbbii71eN07uJ1TTYpUtj2M/P7OGEd1HcAoqjNDli+R7sOf+12ENRM0/tm4w6UF1XN3jjLJVwlG+A36O+bO9nvyJlIMmZKNKmSNbDnZtUwruXFh+x1i4No1RYrXFgyNIoqsiVN/cetcApGCTZ7xHqcxe6y1raQ1GK19K5lIaQncIMmHmhZztRCPInZdsbdwihBrS2ZVlEdkrhB7N+rO8CFWLP1X9/idqL/1c=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB5229.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(396003)(376002)(39860400002)(346002)(366004)(5660300002)(6486002)(4744005)(31696002)(38100700002)(36756003)(6916009)(478600001)(6512007)(31686004)(316002)(8676002)(26005)(8936002)(4326008)(7416002)(6506007)(956004)(2906002)(66476007)(66946007)(86362001)(53546011)(66556008)(186003)(54906003)(2616005)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?WDdDZ1VyMGZLZGtueGNoY1o0TTBwTEUyNnhuc3NiOFF1QVQ5QnlZN3FWS3g1?=
+ =?utf-8?B?dDlqSzZsWkdIdTFIWUVMc1NxaVptTStJMENLbERqQkg4eTdkOGlXeHFEckpH?=
+ =?utf-8?B?VTF0aWljYXlKTW9QVkc3YWRlMHN6Z005MW5VSm9aYmErVjBHWmdxY3N2ZHpL?=
+ =?utf-8?B?V0p5VE5WUVBnMTdlbkx2VHNDNDZlUDAxTW5adUxuVGRoMi9tNzdTTVk5bU5L?=
+ =?utf-8?B?c05WdVRpUDZuMllJYjFmVkZLUmh4REVtVHVXTXQ1elhjbVlreVR2WlcyWkJp?=
+ =?utf-8?B?NUVzQURpNytGa2VpcXJ0OEoyVVg0NzM3TmZZdXAyQ1FORnpCV2taUlNiVnZQ?=
+ =?utf-8?B?R1U1RTREbVV3bkEwRTFkcU0rdE5mVnpmQkVRMnAxb2U5OXdsVXNrSTJnNjQz?=
+ =?utf-8?B?T21oWU5Sb21aeE1KckRnaFJvVGJPZWY3Y0J6ZmkzSzRjd1BEWjltS055OGFz?=
+ =?utf-8?B?V285VEdqalN6TmhCcmM4NlFLYlZZOXJMOTZaN0luNW9Scm9VTjRVYTVXYU4x?=
+ =?utf-8?B?MU1FZGxXRktjYzdseHF0WElkbU5EMU9yNE9DdFlkMGczMzlGQnQ0V1RzMkpp?=
+ =?utf-8?B?NWFRRlFYK0JwTG40SHhkS3VIOHltUXlVSG41N2h6UkVBOW93WWMrRE9KL0g2?=
+ =?utf-8?B?SXQwVWRCZGVvRUE0YytDVzdYWmJKTnRmYm01SHZudnhHZmQyTHRJbEhlRmow?=
+ =?utf-8?B?NWVSKzN0TmtFSk1zWmxqRTZoOG5GWDdhZFpBNTBPY1VUOTR6eXEzQTZmNytt?=
+ =?utf-8?B?VnRGSjZtUlBIOGpFZStSUVA0VkN3dm5MS3BTTnBFSzNUK1NJUWtyaDhsV1ZY?=
+ =?utf-8?B?eGd1ZHVkbnh4MEJPS3RxY3FLQzNLakoyL0lERW9UVzV3dlFxYnFpY0RIdTZR?=
+ =?utf-8?B?QzZtbTVETTNUQnNQSytZVS8ySnVEQmFEczdzeUkvSkxlUEU5SkhaWTJGQUh6?=
+ =?utf-8?B?MktRVkFObjFtdkhTdnNvRlkwVUZzZUxNSFhDaFdtTzVHWmJtS2E4a29JUVEy?=
+ =?utf-8?B?NnYvaFhtMDhyOVltNTBlNDJwMWg5MmFCUXpjVjRkWCtZR1F5aE81VHpFclp0?=
+ =?utf-8?B?ejFnWGJVM2g1Q0hMSVRSTWxDNkNwNGxsWVdrYnA3eUdaUGZ2dlZ4TEtoNXo2?=
+ =?utf-8?B?OTVPNDE5YjQvZFU4alFmeUg5Q3kwRGxoUjBkZjJiOFFPNkl2OTBkWmt0ZExN?=
+ =?utf-8?B?c3l6TEI0RkdvZnpSZzJPMTNzYXJnRUUza0pRUzFmcWhERk1zZVRSVktlYUZQ?=
+ =?utf-8?B?MjZHNTdtL1A1MkxSUmN4bm1IZzNQaCt6WmpXSUlDWGxQUm9BVk1sUGE4b0RS?=
+ =?utf-8?B?QUcweUozYjVpeG5jZ01lUTMxeGd0WVd2bkduZmNCM0RxNWNhdk4rNzlSMENl?=
+ =?utf-8?B?Q1lEMGthSzVSYmNxNmg0TUFTdU45TGtOMGpkc0JReVlzTi9SZFE1aWJSUWds?=
+ =?utf-8?B?YVFZQnVRQ1UrYld4S1BtVTQyc0hoVEJqdlBYOEtZaWx2dHBvUW53bU9GYUNH?=
+ =?utf-8?B?TUc3V0d4WWltS0FDcytocVpHdDVPRyttVGtzUXoxTHl3aTNXWW55WlpDOXEw?=
+ =?utf-8?B?RnZnU1RSOVFpNUNuNGsrSyt3VjhEMERpb280a3Bud1FTME5yZEtwV0x0dERP?=
+ =?utf-8?B?Q0YwbVVwL1Q4bElrM3owdSt5dUUraTdDaU8zRi9DWWRQaWx1Q0tsTzNHVkh1?=
+ =?utf-8?B?RXhYbTlsbVlKRjVHMkJvZE01alRWdFdsREJmV2ZlaTU3enJud2NIMnVCNTVO?=
+ =?utf-8?Q?q4A8SyjXWCqV9AOU5580L5phdBMDoaGT3lNqj8e?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c51be881-a8ee-4f10-1d19-08d9529c9870
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB5229.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jul 2021 14:24:37.8233
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: x1yJKZYpE3WkuJiRwixNSm6zZLvrS6IgOGEpCjzchdd6GSdW+MSbiMQLNDM2RswlYPSEsW5kcYKeKwZNqRb27Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5296
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 29 Jul 2021 13:48:02 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> Before I start copying the same code over and over lets move this into
-> the library.
+On 7/28/21 8:22 AM, Christoph Hellwig wrote:
+> On Tue, Jul 27, 2021 at 05:26:05PM -0500, Tom Lendacky via iommu wrote:
+>> Introduce an x86 version of the prot_guest_has() function. This will be
+>> used in the more generic x86 code to replace vendor specific calls like
+>> sev_active(), etc.
+>>
+>> While the name suggests this is intended mainly for guests, it will
+>> also be used for host memory encryption checks in place of sme_active().
+>>
+>> The amd_prot_guest_has() function does not use EXPORT_SYMBOL_GPL for the
+>> same reasons previously stated when changing sme_active(), sev_active and
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  lib/s390x/sie.c  | 30 ++++++++++++++++++++++++++++++
->  lib/s390x/sie.h  |  3 +++
->  s390x/mvpg-sie.c | 18 ++----------------
->  s390x/sie.c      | 19 +++----------------
->  4 files changed, 38 insertions(+), 32 deletions(-)
+> None of that applies here as none of the callers get pulled into
+> random macros.  The only case of that is sme_me_mask through
+> sme_mask, but that's not something this series replaces as far as I can
+> tell.
+
+Ok, let me make sure of that and I'll change to EXPORT_SYMBOL_GPL if
+that's the case.
+
+Thanks,
+Tom
+
 > 
-> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
-> index 9107519f..ec0c4867 100644
-> --- a/lib/s390x/sie.c
-> +++ b/lib/s390x/sie.c
-> @@ -11,6 +11,9 @@
->  #include <asm/barrier.h>
->  #include <libcflat.h>
->  #include <sie.h>
-> +#include <asm/page.h>
-> +#include <libcflat.h>
-> +#include <alloc_page.h>
->  
->  static bool validity_expected;
->  static uint16_t vir;
-> @@ -39,3 +42,30 @@ void sie_handle_validity(struct vm *vm)
->  		report_abort("VALIDITY: %x", vir);
->  	validity_expected = false;
->  }
-> +
-> +/* Initializes the struct vm members like the SIE control block. */
-> +void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t
-> guest_mem_len) +{
-> +	vm->sblk = alloc_page();
-> +	memset(vm->sblk, 0, PAGE_SIZE);
-
-you can skip the memset, the page allocator always zeroes the page,
-unless you explicitly pass FLAG_DONTZERO
-
-regardless of that:
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> +	vm->sblk->cpuflags = CPUSTAT_ZARCH | CPUSTAT_RUNNING;
-> +	vm->sblk->ihcpu = 0xffff;
-> +	vm->sblk->prefix = 0;
-> +
-> +	/* Guest memory chunks are always 1MB */
-> +	assert(!(guest_mem_len & ~HPAGE_MASK));
-> +	/* Currently MSO/MSL is the easiest option */
-> +	vm->sblk->mso = (uint64_t)guest_mem;
-> +	vm->sblk->msl = (uint64_t)guest_mem + ((guest_mem_len - 1) &
-> HPAGE_MASK); +
-> +	/* CRYCB needs to be in the first 2GB */
-> +	vm->crycb = alloc_pages_flags(0, AREA_DMA31);
-> +	vm->sblk->crycbd = (uint32_t)(uintptr_t)vm->crycb;
-> +}
-> +
-> +/* Frees the memory that was gathered on initialization */
-> +void sie_guest_destroy(struct vm *vm)
-> +{
-> +	free_page(vm->crycb);
-> +	free_page(vm->sblk);
-> +}
-> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
-> index 7ff98d2d..946bd164 100644
-> --- a/lib/s390x/sie.h
-> +++ b/lib/s390x/sie.h
-> @@ -190,6 +190,7 @@ struct vm_save_area {
->  struct vm {
->  	struct kvm_s390_sie_block *sblk;
->  	struct vm_save_area save_area;
-> +	uint8_t *crycb;				/* Crypto
-> Control Block */ /* Ptr to first guest page */
->  	uint8_t *guest_mem;
->  };
-> @@ -200,5 +201,7 @@ extern void sie64a(struct kvm_s390_sie_block
-> *sblk, struct vm_save_area *save_ar void sie_expect_validity(void);
->  void sie_check_validity(uint16_t vir_exp);
->  void sie_handle_validity(struct vm *vm);
-> +void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t
-> guest_mem_len); +void sie_guest_destroy(struct vm *vm);
->  
->  #endif /* _S390X_SIE_H_ */
-> diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
-> index 2ac91eec..71ae4f88 100644
-> --- a/s390x/mvpg-sie.c
-> +++ b/s390x/mvpg-sie.c
-> @@ -110,22 +110,7 @@ static void setup_guest(void)
->  	/* The first two pages are the lowcore */
->  	guest_instr = guest + PAGE_SIZE * 2;
->  
-> -	vm.sblk = alloc_page();
-> -
-> -	vm.sblk->cpuflags = CPUSTAT_ZARCH | CPUSTAT_RUNNING;
-> -	vm.sblk->prefix = 0;
-> -	/*
-> -	 * Pageable guest with the same ASCE as the test programm,
-> but
-> -	 * the guest memory 0x0 is offset to start at the allocated
-> -	 * guest pages and end after 1MB.
-> -	 *
-> -	 * It's not pretty but faster and easier than managing guest
-> ASCEs.
-> -	 */
-> -	vm.sblk->mso = (u64)guest;
-> -	vm.sblk->msl = (u64)guest;
-> -	vm.sblk->ihcpu = 0xffff;
-> -
-> -	vm.sblk->crycbd = (uint64_t)alloc_page();
-> +	sie_guest_create(&vm, (uint64_t)guest, HPAGE_SIZE);
->  
->  	vm.sblk->gpsw.addr = PAGE_SIZE * 4;
->  	vm.sblk->gpsw.mask = 0x0000000180000000ULL;
-> @@ -150,6 +135,7 @@ int main(void)
->  	setup_guest();
->  	test_mvpg();
->  	test_mvpg_pei();
-> +	sie_guest_destroy(&vm);
->  
->  done:
->  	report_prefix_pop();
-> diff --git a/s390x/sie.c b/s390x/sie.c
-> index 5c798a9e..9cb9b055 100644
-> --- a/s390x/sie.c
-> +++ b/s390x/sie.c
-> @@ -84,22 +84,7 @@ static void setup_guest(void)
->  	/* The first two pages are the lowcore */
->  	guest_instr = guest + PAGE_SIZE * 2;
->  
-> -	vm.sblk = alloc_page();
-> -
-> -	vm.sblk->cpuflags = CPUSTAT_ZARCH | CPUSTAT_RUNNING;
-> -	vm.sblk->prefix = 0;
-> -	/*
-> -	 * Pageable guest with the same ASCE as the test programm,
-> but
-> -	 * the guest memory 0x0 is offset to start at the allocated
-> -	 * guest pages and end after 1MB.
-> -	 *
-> -	 * It's not pretty but faster and easier than managing guest
-> ASCEs.
-> -	 */
-> -	vm.sblk->mso = (u64)guest;
-> -	vm.sblk->msl = (u64)guest;
-> -	vm.sblk->ihcpu = 0xffff;
-> -
-> -	vm.sblk->crycbd = (uint64_t)alloc_page();
-> +	sie_guest_create(&vm, (uint64_t)guest, HPAGE_SIZE);
->  }
->  
->  int main(void)
-> @@ -112,6 +97,8 @@ int main(void)
->  
->  	setup_guest();
->  	test_diags();
-> +	sie_guest_destroy(&vm);
-> +
->  done:
->  	report_prefix_pop();
->  	return report_summary();
-
