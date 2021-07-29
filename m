@@ -7,42 +7,39 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07BA1C4338F
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:35:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45CC7C4320E
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:35:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E78CB61042
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:35:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 32A9860F5E
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:35:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234498AbhG2WfD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Jul 2021 18:35:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37786 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233789AbhG2Wez (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 18:34:55 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 671EDC0613D3;
-        Thu, 29 Jul 2021 15:34:51 -0700 (PDT)
-Message-ID: <20210729222542.674391354@linutronix.de>
+        id S233900AbhG2WfE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Jul 2021 18:35:04 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:49186 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233946AbhG2We6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 18:34:58 -0400
+Message-ID: <20210729222542.779791738@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1627598089;
+        s=2020; t=1627598093;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=UY7Ttb1P2PDak4c/kzI03Rybi1or7W0j7rcPz99XUrY=;
-        b=Z0n2tOH7NXyi18R9oRGhVy1yctQl8ykx4HTIBIG0FHdMF/YvgKi/EpCAIzZakxfu5+8Aka
-        1hPbwtOVrE8uR6Gkd/ml/r8nXrcb9db6jnoVbEMQdQFDy2CLfABOvPPAN1kqdpSGVm1s8F
-        RuKNFoJb/HCV1gDayY85O8lXUZKSS8ydVVBSDMSWiZWUIa0Fo38wUp0QvPdn7hFOBNe+px
-        b0XiS2O4hGE0h3F4vH+RhcqLgOSQuK/uW+ZbAk1PTcp7oJlBNmKEjwYrG3XFa+rFLuLCKJ
-        By0zK7E9pFgcEI9w5tKYSH6/YljT1bOPH91vQC5H5tID7aEjeCQLsmrxtqsC0A==
+        bh=uXX28HYY446PuapxidtNu2nqv20CLiE7a8IJmT71Jlg=;
+        b=k1QpCMhStWNPBZzmK5e6NGQuEeVINZ+PG5u0Dq0h4iLGawOZoZweHpM8EVE/dhTLanHlyL
+        esO0WXVzGILcpb3tt6cI1TFKUkuI3Y11ZPgaagqOhkUecr5Yj4454PXjqt63WC2ieK/IcP
+        J5Is0LJCtyxIM8OpDL1crQpt+e9XqFvGEnl1WDuJWIaAnW8zqWmYAAxAgCN+mQP6qCIr+V
+        Z76yKPQ534VH9r3cFYq1IjfYwkj25ZZzyRckCc7q8waYozF0tIqJ1s7PwbHeu9hVX82arH
+        fVbi6hYd9tX/13tbenOpnL4sWCPU5XdnRYCL7dvYuImvM/C1dgUNlybOv9+/Zw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1627598089;
+        s=2020e; t=1627598093;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=UY7Ttb1P2PDak4c/kzI03Rybi1or7W0j7rcPz99XUrY=;
-        b=PuYcN3v0OZK4yT/dFu588ZKJ5xmX+Lo0rVvKzO1LrVq8zoy+ywQInBvjgoGBdgv/pQL3WV
-        2MdWZ/6qP7JOOmBg==
-Date:   Thu, 29 Jul 2021 23:51:46 +0200
+        bh=uXX28HYY446PuapxidtNu2nqv20CLiE7a8IJmT71Jlg=;
+        b=AUDZZ5yyToY3/ouqtEsRMstTXJN8tdr4OXGz7PY7miRjdijmmjF0snwv/USboisu5FaSSE
+        OWIbbU/n4VT0YkCg==
+Date:   Thu, 29 Jul 2021 23:51:48 +0200
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Alex Williamson <alex.williamson@redhat.com>,
@@ -56,7 +53,7 @@ Cc:     Alex Williamson <alex.williamson@redhat.com>,
         Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [patch V2 07/19] PCI/MSI: Use msi_mask_irq() in pci_msi_shutdown()
+Subject: [patch V2 09/19] genirq: Provide IRQCHIP_AFFINITY_PRE_STARTUP
 References: <20210729215139.889204656@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,25 +62,58 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-No point in using the raw write function from shutdown. Preparatory change
-to introduce proper serialization for the msi_desc::masked cache.
+From: Thomas Gleixner <tglx@linutronix.de>
 
+X86 IO/APIC and MSI interrupts (when used without interrupts remapping)
+require that the affinity setup on startup is done before the interrupt is
+enabled for the first time as the non-remapped operation mode cannot safely
+migrate enabled interrupts from arbitrary contexts. Provide a new irq chip
+flag which allows affected hardware to request this.
+
+This has to be opt-in because there have been reports in the past that some
+interrupt chips cannot handle affinity setting before startup.
+
+Fixes: 18404756765c ("genirq: Expose default irq affinity mask (take 3)")
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
----
-V2: New patch
----
- drivers/pci/msi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Marc Zyngier <maz@kernel.org>
 
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -961,7 +961,7 @@ static void pci_msi_shutdown(struct pci_
+---
+ include/linux/irq.h |    2 ++
+ kernel/irq/chip.c   |    5 ++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+--- a/include/linux/irq.h
++++ b/include/linux/irq.h
+@@ -569,6 +569,7 @@ struct irq_chip {
+  * IRQCHIP_SUPPORTS_NMI:              Chip can deliver NMIs, only for root irqchips
+  * IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND:  Invokes __enable_irq()/__disable_irq() for wake irqs
+  *                                    in the suspend path if they are in disabled state
++ * IRQCHIP_AFFINITY_PRE_STARTUP:      Default affinity update before startup
+  */
+ enum {
+ 	IRQCHIP_SET_TYPE_MASKED			= (1 <<  0),
+@@ -581,6 +582,7 @@ enum {
+ 	IRQCHIP_SUPPORTS_LEVEL_MSI		= (1 <<  7),
+ 	IRQCHIP_SUPPORTS_NMI			= (1 <<  8),
+ 	IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND	= (1 <<  9),
++	IRQCHIP_AFFINITY_PRE_STARTUP		= (1 << 10),
+ };
  
- 	/* Return the device with MSI unmasked as initial states */
- 	mask = msi_mask(desc->msi_attrib.multi_cap);
--	__pci_msi_desc_mask_irq(desc, mask, 0);
-+	msi_mask_irq(desc, mask, 0);
- 
- 	/* Restore dev->irq to its default pin-assertion IRQ */
- 	dev->irq = desc->msi_attrib.default_irq;
+ #include <linux/irqdesc.h>
+--- a/kernel/irq/chip.c
++++ b/kernel/irq/chip.c
+@@ -265,8 +265,11 @@ int irq_startup(struct irq_desc *desc, b
+ 	} else {
+ 		switch (__irq_startup_managed(desc, aff, force)) {
+ 		case IRQ_STARTUP_NORMAL:
++			if (d->chip->flags & IRQCHIP_AFFINITY_PRE_STARTUP)
++				irq_setup_affinity(desc);
+ 			ret = __irq_startup(desc);
+-			irq_setup_affinity(desc);
++			if (!(d->chip->flags & IRQCHIP_AFFINITY_PRE_STARTUP))
++				irq_setup_affinity(desc);
+ 			break;
+ 		case IRQ_STARTUP_MANAGED:
+ 			irq_do_set_affinity(d, aff, false);
+
 
