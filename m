@@ -7,35 +7,35 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0E7AC25AEB
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8470C25AE6
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8388861090
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C1E2E60F42
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234498AbhG2UQm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S234537AbhG2UQm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Thu, 29 Jul 2021 16:16:42 -0400
-Received: from ale.deltatee.com ([204.191.154.188]:59442 "EHLO
+Received: from ale.deltatee.com ([204.191.154.188]:59478 "EHLO
         ale.deltatee.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233216AbhG2UQJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 16:16:09 -0400
+        with ESMTP id S233273AbhG2UQL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 16:16:11 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=deltatee.com; s=20200525; h=Subject:MIME-Version:References:In-Reply-To:
         Message-Id:Date:Cc:To:From:content-disposition;
-        bh=vIIfMW9o269S9AHsb2MNe2Vf6XnVZ9UtVyZ/8uq4vWQ=; b=pvcMAeHtGOhCkwJfMz++0wQ5Uw
-        Y3kwQ4dlzAQ+6ZrifXAoDgEfkkesRB/JLsZCpDcuJ/7TB05/eRsnQwojqMd71nqPfSCYoE6zcv6TG
-        Ll8zh3Q/kj40gKF6yXcKtURjOqLKFnjFg0Z/xohKx5fQpGyM0p58StsdQP2UwaUZ4CIMmCF/sWkVb
-        33uTQDeU8Mx9R+kpJM6drAJ7pZtr3DEtW0i5jnaOLUO0S8G3mkrqGvX1djm0eCwFQ4EElBCMQ2xoz
-        pF234qIFdoZ1yc334c1G/lSjmZ4GYHDyHRq5qoXDZSUPeBQi3c+TOCarI729wL095AwRs2nkKyqqR
-        nYu7j3qQ==;
+        bh=3+NKDp2q/0zHzVVwq3INd+w6NURPV4dE2hTg9/0ITMI=; b=OAsOqNptAFqz7ht2gGLe+fKNkN
+        afDvfEj3zeW9zPgG0qWcEcE9wlLmDSYL85QoO8TgnEWXRF0cFS1SxJL0P2x6FNz8bkfgtr50lIoro
+        6NBcPcKqDRmsmgDVRzLy+D6IKa8mkq91+s5hOgCuL9nQGrogvFlY65BWYTh6XQsjV4xMlWoDFNNTt
+        RXgkNvWiqAupSHXfu1J8U8DfHfK8jRBxipCV1nbbK7WEgwzUwFPWpF0/V8qKrFN+TrHgXMHQe328C
+        D8SL2GNPbqtflFoGqbAzN2fcTNhQ834PMkcgcBzlMxFACHWKZCDJYJgnFCRB6vjtCbi2yEAqf0i/3
+        lEI0LnDQ==;
 Received: from cgy1-donard.priv.deltatee.com ([172.16.1.31])
         by ale.deltatee.com with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1m9CRj-0008VO-Od; Thu, 29 Jul 2021 14:16:01 -0600
+        id 1m9CRn-0008VM-Nk; Thu, 29 Jul 2021 14:16:04 -0600
 Received: from gunthorp by cgy1-donard.priv.deltatee.com with local (Exim 4.92)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1m9CRU-0001Tk-AT; Thu, 29 Jul 2021 14:15:44 -0600
+        id 1m9CRU-0001Te-3R; Thu, 29 Jul 2021 14:15:44 -0600
 From:   Logan Gunthorpe <logang@deltatee.com>
 To:     linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
@@ -49,49 +49,81 @@ Cc:     Christoph Hellwig <hch@lst.de>,
         Stephen Bates <sbates@raithlin.com>,
         Martin Oliveira <martin.oliveira@eideticom.com>,
         Logan Gunthorpe <logang@deltatee.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Date:   Thu, 29 Jul 2021 14:15:25 -0600
-Message-Id: <20210729201539.5602-8-logang@deltatee.com>
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>
+Date:   Thu, 29 Jul 2021 14:15:23 -0600
+Message-Id: <20210729201539.5602-6-logang@deltatee.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20210729201539.5602-1-logang@deltatee.com>
 References: <20210729201539.5602-1-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 172.16.1.31
-X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org, xen-devel@lists.xenproject.org, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, sbates@raithlin.com, martin.oliveira@eideticom.com, logang@deltatee.com, linux@armlinux.org.uk, tsbogend@alpha.franken.de
+X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org, xen-devel@lists.xenproject.org, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, sbates@raithlin.com, martin.oliveira@eideticom.com, logang@deltatee.com, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com
 X-SA-Exim-Mail-From: gunthorp@deltatee.com
-Subject: [PATCH v3 07/21] ARM/dma-mapping: don't set failed sg dma_address to DMA_MAPPING_ERROR
+Subject: [PATCH v3 05/21] alpha: return error code from alpha_pci_map_sg()
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Setting the ->dma_address to DMA_MAPPING_ERROR is not part of the
-->map_sg calling convention, so remove it.
+From: Martin Oliveira <martin.oliveira@eideticom.com>
 
-Link: https://lore.kernel.org/linux-mips/20210716063241.GC13345@lst.de/
-Suggested-by: Christoph Hellwig <hch@lst.de>
+The .map_sg() op now expects an error code instead of zero on failure.
+
+pci_map_single_1() can fail for different reasons, but since the only
+supported type of error return is DMA_MAPPING_ERROR, we coalesce those
+errors into EIO.
+
+ENOMEM is returned when no page tables can be allocated.
+
+Signed-off-by: Martin Oliveira <martin.oliveira@eideticom.com>
 Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
 ---
- arch/arm/mm/dma-mapping.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/alpha/kernel/pci_iommu.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
-index 113b9cb3701b..4b61541853ea 100644
---- a/arch/arm/mm/dma-mapping.c
-+++ b/arch/arm/mm/dma-mapping.c
-@@ -1632,7 +1632,6 @@ static int __iommu_map_sg(struct device *dev, struct scatterlist *sg, int nents,
- 	for (i = 1; i < nents; i++) {
- 		s = sg_next(s);
+diff --git a/arch/alpha/kernel/pci_iommu.c b/arch/alpha/kernel/pci_iommu.c
+index 35d7b3096d6e..21f9ac101324 100644
+--- a/arch/alpha/kernel/pci_iommu.c
++++ b/arch/alpha/kernel/pci_iommu.c
+@@ -649,7 +649,9 @@ static int alpha_pci_map_sg(struct device *dev, struct scatterlist *sg,
+ 		sg->dma_address
+ 		  = pci_map_single_1(pdev, SG_ENT_VIRT_ADDRESS(sg),
+ 				     sg->length, dac_allowed);
+-		return sg->dma_address != DMA_MAPPING_ERROR;
++		if (sg->dma_address == DMA_MAPPING_ERROR)
++			return -EIO;
++		return 1;
+ 	}
  
--		s->dma_address = DMA_MAPPING_ERROR;
- 		s->dma_length = 0;
+ 	start = sg;
+@@ -685,8 +687,10 @@ static int alpha_pci_map_sg(struct device *dev, struct scatterlist *sg,
+ 	if (out < end)
+ 		out->dma_length = 0;
  
- 		if (s->offset || (size & ~PAGE_MASK) || size + s->length > max) {
+-	if (out - start == 0)
++	if (out - start == 0) {
+ 		printk(KERN_WARNING "pci_map_sg failed: no entries?\n");
++		return -ENOMEM;
++	}
+ 	DBGA("pci_map_sg: %ld entries\n", out - start);
+ 
+ 	return out - start;
+@@ -699,7 +703,7 @@ static int alpha_pci_map_sg(struct device *dev, struct scatterlist *sg,
+ 	   entries.  Unmap them now.  */
+ 	if (out > start)
+ 		pci_unmap_sg(pdev, start, out - start, dir);
+-	return 0;
++	return -ENOMEM;
+ }
+ 
+ /* Unmap a set of streaming mode DMA translations.  Again, cpu read
 -- 
 2.20.1
 
