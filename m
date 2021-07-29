@@ -3,39 +3,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45BFDC00144
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7AAEC19F38
 	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2AACF60F23
+	by mail.kernel.org (Postfix) with ESMTP id BEA6560F5E
 	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233908AbhG2UQX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Jul 2021 16:16:23 -0400
-Received: from ale.deltatee.com ([204.191.154.188]:59102 "EHLO
+        id S233925AbhG2UQY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Jul 2021 16:16:24 -0400
+Received: from ale.deltatee.com ([204.191.154.188]:59116 "EHLO
         ale.deltatee.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232322AbhG2UP5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 16:15:57 -0400
+        with ESMTP id S232487AbhG2UP6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 16:15:58 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=deltatee.com; s=20200525; h=Subject:MIME-Version:Message-Id:Date:Cc:To:From
-        :references:content-disposition:in-reply-to;
-        bh=7rAmHnoYgxgYjh3HpXE3zIryStVPnDAXEkL4Vf4StFI=; b=L5MNdXu2RkyJTJf1U2kRvC9rdG
-        Fi2zQ1Jo3u1ckG/sUDTfnnmRyNWyUMZVsCZU5ucjiSE8C7rbOZzmh1mIa+nIyi3p3yQ8QIqp8/8xs
-        cM2jhkuv4pfRuvlROkJ6z1cv/rfzQGi+rw77mVN27FJvbTmHpYWyID7OpgY0TpEjoXxQB12zUEd2r
-        qyL1Zv3YKYpHBX2i1FpWwa4P7p3I9m48iblFE7zjLA4rM23n63DmfJ4gAgeBygMx7BL4dr76mc0ma
-        v5/O9IEdo/7kZsErHJx4AGKvqOqjGEMEdx65oFZOavjAfDwmsYJuN/6fgpzQ96CduuqfEm7ibrvmU
-        gsRgMH7A==;
+        d=deltatee.com; s=20200525; h=Subject:MIME-Version:References:In-Reply-To:
+        Message-Id:Date:Cc:To:From:content-disposition;
+        bh=/xaVvtLmcUu039UJFO4qpFCPm3zd9EnehJHJPiaD5YM=; b=FeUD6Lr0B6ovEC33GCpqn+9LEy
+        0hk8FWsPd/l2LIXUGdAH+LpdZ1H1Uf2aUgGx9XsMHZa9Yn4r89BdnEVdXEa7mILvrPwhQ7b70ydcR
+        4PXusPTxVwHjfJZ4qwE9S00tg6SPbtx5oz8UolyzAhMvZM/carIYgtIRp0K4hMNRVZl0sZTONoLLM
+        9iNF0fjknv7t7G8k94xYwrNxZed9o0X+CROHPwOAEUiCIqfMNwaZlzvDPSsvigGp8tuUWqV6pveMT
+        +yf7ok1iTiaPDnBjAgYjZEPHdH/ggUmkQbk4h2HG05J3IdOZhTxJTJyNc5Sqo6OMZcSwK/9vOc7Cd
+        5mbjp9iw==;
 Received: from cgy1-donard.priv.deltatee.com ([172.16.1.31])
         by ale.deltatee.com with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1m9CRW-0008VK-N8; Thu, 29 Jul 2021 14:15:48 -0600
+        id 1m9CRX-0008VN-5W; Thu, 29 Jul 2021 14:15:48 -0600
 Received: from gunthorp by cgy1-donard.priv.deltatee.com with local (Exim 4.92)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1m9CRT-0001TQ-GA; Thu, 29 Jul 2021 14:15:43 -0600
+        id 1m9CRT-0001TY-TD; Thu, 29 Jul 2021 14:15:43 -0600
 From:   Logan Gunthorpe <logang@deltatee.com>
 To:     linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
@@ -48,121 +48,123 @@ Cc:     Christoph Hellwig <hch@lst.de>,
         Robin Murphy <robin.murphy@arm.com>,
         Stephen Bates <sbates@raithlin.com>,
         Martin Oliveira <martin.oliveira@eideticom.com>,
-        Logan Gunthorpe <logang@deltatee.com>
-Date:   Thu, 29 Jul 2021 14:15:18 -0600
-Message-Id: <20210729201539.5602-1-logang@deltatee.com>
+        Logan Gunthorpe <logang@deltatee.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>
+Date:   Thu, 29 Jul 2021 14:15:21 -0600
+Message-Id: <20210729201539.5602-4-logang@deltatee.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210729201539.5602-1-logang@deltatee.com>
+References: <20210729201539.5602-1-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 172.16.1.31
-X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org, xen-devel@lists.xenproject.org, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, sbates@raithlin.com, martin.oliveira@eideticom.com, logang@deltatee.com
+X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org, xen-devel@lists.xenproject.org, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, sbates@raithlin.com, martin.oliveira@eideticom.com, logang@deltatee.com, joro@8bytes.org, will@kernel.org
 X-SA-Exim-Mail-From: gunthorp@deltatee.com
-Subject: [PATCH v3 00/21] .map_sg() error cleanup
+Subject: [PATCH v3 03/21] iommu: Return full error code from iommu_map_sg[_atomic]()
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi,
+Convert to ssize_t return code so the return code from __iommu_map()
+can be returned all the way down through dma_iommu_map_sg().
 
-This v3 of the series is spun out and expanded from my work to add
-P2PDMA support to DMA map operations[1]. v2 is at [2]. The main changes
-in v1 are to more carefully define the meaning of the error codes for
-dma_map_sgtable().
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Will Deacon <will@kernel.org>
+---
+ drivers/iommu/iommu.c | 15 +++++++--------
+ include/linux/iommu.h | 22 +++++++++++-----------
+ 2 files changed, 18 insertions(+), 19 deletions(-)
 
-The P2PDMA work requires distinguishing different error conditions in
-a map_sg operation. dma_map_sgtable() already allows for returning an
-error code (where as dma_map_sg() is only allowed to return zero)
-however, it currently only returns -EINVAL when a .map_sg() call returns
-zero.
-
-This series cleans up all .map_sg() implementations to return appropriate
-error codes. After the cleanup, dma_map_sg() will still return zero,
-however dma_map_sgtable() will pass the error code from the .map_sg()
-call. Thanks go to Martn Oliveira for doing a lot of the cleanup of the
-obscure implementations.
-
-The patch set is based off of v5.14-rc2 and a git repo can be found
-here:
-
-  https://github.com/sbates130272/linux-p2pmem map_sg_err_cleanup_v2
-
-Thanks,
-
-Logan
-
-[1] https://lore.kernel.org/linux-block/20210513223203.5542-1-logang@deltatee.com/
-[2] https://lore.kernel.org/linux-mips/20210723175008.22410-1-logang@deltatee.com/
-
---
-
-Changes in v3:
-  - Move the validation of errnos into __dma_map_sg_attrs() (Per
-    Christoph)
-  - Fix the out of date commit message in patch 21 (Per Eike)
-Changes in v2:
-  - Attempt to define the meanings of the errors returned by
-    dma_map_sgtable() and restrict the valid return codes of
-    .map_sg implementations. (Per Christoph)
-  - Change dma_map_sgtable() to EXPORT_SYMBOL_GPL() (Per Christoph)
-  - Add patches to remove the erroneous setting of sg->dma_address
-    to DMA_MAP_ERROR in a few .map_sg(0 implementations. (Per
-    Christoph).
-
---
-
-Logan Gunthorpe (10):
-  dma-mapping: Allow map_sg() ops to return negative error codes
-  dma-direct: Return appropriate error code from dma_direct_map_sg()
-  iommu: Return full error code from iommu_map_sg[_atomic]()
-  dma-iommu: Return error code from iommu_dma_map_sg()
-  ARM/dma-mapping: don't set failed sg dma_address to DMA_MAPPING_ERROR
-  powerpc/iommu: don't set failed sg dma_address to DMA_MAPPING_ERROR
-  s390/pci: don't set failed sg dma_address to DMA_MAPPING_ERROR
-  sparc/iommu: don't set failed sg dma_address to DMA_MAPPING_ERROR
-  x86/amd_gart: don't set failed sg dma_address to DMA_MAPPING_ERROR
-  dma-mapping: Disallow .map_sg operations from returning zero on error
-
-Martin Oliveira (11):
-  alpha: return error code from alpha_pci_map_sg()
-  ARM/dma-mapping: return error code from .map_sg() ops
-  ia64/sba_iommu: return error code from sba_map_sg_attrs()
-  MIPS/jazzdma: return error code from jazz_dma_map_sg()
-  powerpc/iommu: return error code from .map_sg() ops
-  s390/pci: return error code from s390_dma_map_sg()
-  sparc/iommu: return error codes from .map_sg() ops
-  parisc: return error code from .map_sg() ops
-  xen: swiotlb: return error code from xen_swiotlb_map_sg()
-  x86/amd_gart: return error code from gart_map_sg()
-  dma-mapping: return error code from dma_dummy_map_sg()
-
- arch/alpha/kernel/pci_iommu.c           | 10 ++-
- arch/arm/mm/dma-mapping.c               | 26 +++++---
- arch/ia64/hp/common/sba_iommu.c         |  6 +-
- arch/mips/jazz/jazzdma.c                |  2 +-
- arch/powerpc/kernel/iommu.c             |  6 +-
- arch/powerpc/platforms/ps3/system-bus.c |  2 +-
- arch/powerpc/platforms/pseries/vio.c    |  5 +-
- arch/s390/pci/pci_dma.c                 | 13 ++--
- arch/sparc/kernel/iommu.c               |  6 +-
- arch/sparc/kernel/pci_sun4v.c           |  6 +-
- arch/sparc/mm/iommu.c                   |  2 +-
- arch/x86/kernel/amd_gart_64.c           | 18 +++---
- drivers/iommu/dma-iommu.c               | 23 ++++---
- drivers/iommu/iommu.c                   | 15 +++--
- drivers/parisc/ccio-dma.c               |  2 +-
- drivers/parisc/sba_iommu.c              |  2 +-
- drivers/xen/swiotlb-xen.c               |  2 +-
- include/linux/dma-map-ops.h             |  5 +-
- include/linux/dma-mapping.h             | 35 +++--------
- include/linux/iommu.h                   | 22 +++----
- kernel/dma/direct.c                     |  2 +-
- kernel/dma/dummy.c                      |  2 +-
- kernel/dma/mapping.c                    | 82 ++++++++++++++++++++++---
- 23 files changed, 177 insertions(+), 117 deletions(-)
-
-
-base-commit: ff1176468d368232b684f75e82563369208bc371
---
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 5419c4b9f27a..bf971b4e34aa 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -2567,9 +2567,9 @@ size_t iommu_unmap_fast(struct iommu_domain *domain,
+ }
+ EXPORT_SYMBOL_GPL(iommu_unmap_fast);
+ 
+-static size_t __iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+-			     struct scatterlist *sg, unsigned int nents, int prot,
+-			     gfp_t gfp)
++static ssize_t __iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
++		struct scatterlist *sg, unsigned int nents, int prot,
++		gfp_t gfp)
+ {
+ 	const struct iommu_ops *ops = domain->ops;
+ 	size_t len = 0, mapped = 0;
+@@ -2610,19 +2610,18 @@ static size_t __iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+ 	/* undo mappings already done */
+ 	iommu_unmap(domain, iova, mapped);
+ 
+-	return 0;
+-
++	return ret;
+ }
+ 
+-size_t iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+-		    struct scatterlist *sg, unsigned int nents, int prot)
++ssize_t iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
++		     struct scatterlist *sg, unsigned int nents, int prot)
+ {
+ 	might_sleep();
+ 	return __iommu_map_sg(domain, iova, sg, nents, prot, GFP_KERNEL);
+ }
+ EXPORT_SYMBOL_GPL(iommu_map_sg);
+ 
+-size_t iommu_map_sg_atomic(struct iommu_domain *domain, unsigned long iova,
++ssize_t iommu_map_sg_atomic(struct iommu_domain *domain, unsigned long iova,
+ 		    struct scatterlist *sg, unsigned int nents, int prot)
+ {
+ 	return __iommu_map_sg(domain, iova, sg, nents, prot, GFP_ATOMIC);
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 32d448050bf7..9369458ba1bd 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -414,11 +414,11 @@ extern size_t iommu_unmap(struct iommu_domain *domain, unsigned long iova,
+ extern size_t iommu_unmap_fast(struct iommu_domain *domain,
+ 			       unsigned long iova, size_t size,
+ 			       struct iommu_iotlb_gather *iotlb_gather);
+-extern size_t iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+-			   struct scatterlist *sg,unsigned int nents, int prot);
+-extern size_t iommu_map_sg_atomic(struct iommu_domain *domain,
+-				  unsigned long iova, struct scatterlist *sg,
+-				  unsigned int nents, int prot);
++extern ssize_t iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
++		struct scatterlist *sg, unsigned int nents, int prot);
++extern ssize_t iommu_map_sg_atomic(struct iommu_domain *domain,
++				   unsigned long iova, struct scatterlist *sg,
++				   unsigned int nents, int prot);
+ extern phys_addr_t iommu_iova_to_phys(struct iommu_domain *domain, dma_addr_t iova);
+ extern void iommu_set_fault_handler(struct iommu_domain *domain,
+ 			iommu_fault_handler_t handler, void *token);
+@@ -679,18 +679,18 @@ static inline size_t iommu_unmap_fast(struct iommu_domain *domain,
+ 	return 0;
+ }
+ 
+-static inline size_t iommu_map_sg(struct iommu_domain *domain,
+-				  unsigned long iova, struct scatterlist *sg,
+-				  unsigned int nents, int prot)
++static inline ssize_t iommu_map_sg(struct iommu_domain *domain,
++				   unsigned long iova, struct scatterlist *sg,
++				   unsigned int nents, int prot)
+ {
+-	return 0;
++	return -ENODEV;
+ }
+ 
+-static inline size_t iommu_map_sg_atomic(struct iommu_domain *domain,
++static inline ssize_t iommu_map_sg_atomic(struct iommu_domain *domain,
+ 				  unsigned long iova, struct scatterlist *sg,
+ 				  unsigned int nents, int prot)
+ {
+-	return 0;
++	return -ENODEV;
+ }
+ 
+ static inline void iommu_flush_iotlb_all(struct iommu_domain *domain)
+-- 
 2.20.1
+
