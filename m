@@ -7,35 +7,35 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD99DC25AF0
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B16EBC19F35
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8D63760F46
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 956D860F4B
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234027AbhG2UQ1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S234029AbhG2UQ1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Thu, 29 Jul 2021 16:16:27 -0400
-Received: from ale.deltatee.com ([204.191.154.188]:59138 "EHLO
+Received: from ale.deltatee.com ([204.191.154.188]:59186 "EHLO
         ale.deltatee.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232672AbhG2UP7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 16:15:59 -0400
+        with ESMTP id S232769AbhG2UQA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 16:16:00 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=deltatee.com; s=20200525; h=Subject:MIME-Version:References:In-Reply-To:
         Message-Id:Date:Cc:To:From:content-disposition;
-        bh=SvEzwpNxmVfyllnMOG86hKyCuFZgCTrDE53Ra6OCzdU=; b=WiNvtwJWsvaWnq8SYmDQL8Ejad
-        kH1OHkO85WUX8V6h92JFJR4xzaBqNooRZC0dTcIQp+I0ka90sKEZo9dxN8NsH82EZJEy/3xG7TAWh
-        /sXbBOqrMxoadkyNfMXimu8pd4Agw8sVOzNLOSstc8uNoV9t6HvaGetGv0LeTxzfEXWU9iU6/cWGy
-        w4tLTaS+Fq7Pp4bbmhNN3Bz4G1KCh3RZ96+TBQ3yzo+FtsWXDlffmD/JEOHEGhiGj+bTKS3UxB/lf
-        7OUmTUn9JsDjcIpVl7kARu3aX9kwjXt6JGCGiMse2DWCpu72hJcFNV7zOEnDl4AZ+N6YF/CyfpBQY
-        tTCEnQog==;
+        bh=1Ac+kLf3m7NLdDW/VFqzSvvzNcJRkR+YtO34l2sNfsw=; b=CYpOEPkfDJsDZ19VVFUGJc08Hl
+        wVyQ1auEMhFw3oG+P80C7VLasUNFa3YF3QP87IB+GtXwAyNyDAtXLiRs0WKNLvPAfMYKCjwgaxoUF
+        xAYZu6F/j92HpUia8nEPJd0FBfaIXKdpUTDsjxnagjFHQ07zPNxKhTGah4dv+0uoZ5qaD0ZyJVVvq
+        d8+MXykLHtmVVquaqIwBQ7+/DBw/Ai6GbAoiZnr/ymhywWpfp3K69RNFSzMTThgf3ugmo4v7Z3sr3
+        oTfHb88CIGWF8sKLlRTWbMSEy/CEd56V/KXV4n6Fqsyvn6oP62OrUmlpQv36B4t10Aytm4gA2hg8x
+        5z6w0R3A==;
 Received: from cgy1-donard.priv.deltatee.com ([172.16.1.31])
         by ale.deltatee.com with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1m9CRb-0008VN-JL; Thu, 29 Jul 2021 14:15:52 -0600
+        id 1m9CRc-0008VK-Sm; Thu, 29 Jul 2021 14:15:53 -0600
 Received: from gunthorp by cgy1-donard.priv.deltatee.com with local (Exim 4.92)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1m9CRV-0001UE-W9; Thu, 29 Jul 2021 14:15:46 -0600
+        id 1m9CRW-0001UK-B0; Thu, 29 Jul 2021 14:15:46 -0600
 From:   Logan Gunthorpe <logang@deltatee.com>
 To:     linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
@@ -49,59 +49,59 @@ Cc:     Christoph Hellwig <hch@lst.de>,
         Stephen Bates <sbates@raithlin.com>,
         Martin Oliveira <martin.oliveira@eideticom.com>,
         Logan Gunthorpe <logang@deltatee.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>
-Date:   Thu, 29 Jul 2021 14:15:35 -0600
-Message-Id: <20210729201539.5602-18-logang@deltatee.com>
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Date:   Thu, 29 Jul 2021 14:15:37 -0600
+Message-Id: <20210729201539.5602-20-logang@deltatee.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20210729201539.5602-1-logang@deltatee.com>
 References: <20210729201539.5602-1-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 172.16.1.31
-X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org, xen-devel@lists.xenproject.org, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, sbates@raithlin.com, martin.oliveira@eideticom.com, logang@deltatee.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, jgross@suse.com, sstabellini@kernel.org
+X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org, xen-devel@lists.xenproject.org, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, sbates@raithlin.com, martin.oliveira@eideticom.com, logang@deltatee.com, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com, schnelle@linux.ibm.com, tsbogend@alpha.franken.de, mpe@ellerman.id.au
 X-SA-Exim-Mail-From: gunthorp@deltatee.com
-Subject: [PATCH v3 17/21] xen: swiotlb: return error code from xen_swiotlb_map_sg()
+Subject: [PATCH v3 19/21] x86/amd_gart: don't set failed sg dma_address to DMA_MAPPING_ERROR
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Martin Oliveira <martin.oliveira@eideticom.com>
+Setting the ->dma_address to DMA_MAPPING_ERROR is not part of
+the ->map_sg calling convention, so remove it.
 
-The .map_sg() op now expects an error code instead of zero on failure.
-
-xen_swiotlb_map_sg() may only fail if xen_swiotlb_map_page() fails, but
-xen_swiotlb_map_page() only supports returning errors as
-DMA_MAPPING_ERROR. So coalesce all errors into EIO per the documentation
-for dma_map_sgtable().
-
-Signed-off-by: Martin Oliveira <martin.oliveira@eideticom.com>
+Link: https://lore.kernel.org/linux-mips/20210716063241.GC13345@lst.de/
+Suggested-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
 ---
- drivers/xen/swiotlb-xen.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/amd_gart_64.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
-index 24d11861ac7d..85d58b720a24 100644
---- a/drivers/xen/swiotlb-xen.c
-+++ b/drivers/xen/swiotlb-xen.c
-@@ -509,7 +509,7 @@ xen_swiotlb_map_sg(struct device *dev, struct scatterlist *sgl, int nelems,
- out_unmap:
- 	xen_swiotlb_unmap_sg(dev, sgl, i, dir, attrs | DMA_ATTR_SKIP_CPU_SYNC);
- 	sg_dma_len(sgl) = 0;
--	return 0;
-+	return -EIO;
+diff --git a/arch/x86/kernel/amd_gart_64.c b/arch/x86/kernel/amd_gart_64.c
+index 46aea9a4f26b..ed837383de5c 100644
+--- a/arch/x86/kernel/amd_gart_64.c
++++ b/arch/x86/kernel/amd_gart_64.c
+@@ -458,8 +458,6 @@ static int gart_map_sg(struct device *dev, struct scatterlist *sg, int nents,
+ 		panic("dma_map_sg: overflow on %lu pages\n", pages);
+ 
+ 	iommu_full(dev, pages << PAGE_SHIFT, dir);
+-	for_each_sg(sg, s, nents, i)
+-		s->dma_address = DMA_MAPPING_ERROR;
+ 	return ret;
  }
  
- static void
 -- 
 2.20.1
 
