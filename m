@@ -5,41 +5,41 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8656C4338F
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:35:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0507C4320A
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:35:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AF3BB60F4B
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:35:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 88C8C60F5E
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:35:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234745AbhG2WfV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Jul 2021 18:35:21 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:49312 "EHLO
+        id S235022AbhG2WfX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Jul 2021 18:35:23 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:49294 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233789AbhG2WfK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 18:35:10 -0400
-Message-ID: <20210729222543.203905260@linutronix.de>
+        with ESMTP id S234650AbhG2WfI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 18:35:08 -0400
+Message-ID: <20210729222543.151522318@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1627598105;
+        s=2020; t=1627598103;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=uZuaut2JpvGfn2gpCKX+rCbymLOSgSIekmfYPWe2CMk=;
-        b=nqOaLIUOaTou1DdTA5UvWBfb6j3F1E4jjCsClod7GaYzSXZ4LA/RTex8nTet6F44vLEoPi
-        P/wrf2wzvGC6kTvQO5rkJJl/kVPeuqhGHeBMORRTYYffUaVF6z9FALexoQo1Tpc+IXPNi6
-        lOFgbKV7fSj4cvLAfqUy0zClZk3Z49K6o62bIaRsyiQOQbs71sAQfEf5tSrRct7umuDii8
-        QfAXTpiptOzUFqOSL9SYWacCITKpmjIcWsQp/dBeVBhvnrOWXpNSn74YVuFugN+ElhkbKN
-        uoJinNE56XZ6srDKlBLuU/XEt0FrJfh2giY/AXAgy+oNyLgTsLVIqD1DZuj3Gg==
+        bh=4d6jpf7VvfSCC5wDxxTlQqDwmyplaLXi1z26YEo5c+g=;
+        b=k6cqmo7oDAI9dn6SAtLHM3xOJ7YfIzaMmn0zYmaLHw8+p+JOOHFdrCAr6dsrZHxEA1JlJX
+        sbJYdL2Uarh0flzsFzbUZB/4/VnJ8zAiY579QdYjtC+9mxCKr7QCbrQzvd7FUr85XHQMld
+        /xHqtjAm9EFpYv6MizgR7Kk12Q9N1XWQH+AYSQSJdUPv8KTTRk+j1P2hylaYrpuquAroVF
+        oBkcEq1m8m05yWIvLjcgYAMHMA3aWVVlMyLbfXs+VaOX8nMau77j/mI97WP5lJ5lNCwNOe
+        DoJjfS/7jdplfOJ3rAFwF/FoLMcqV0Ac1qLStBZy2h1LkSiA9EINHchL02tS3A==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1627598105;
+        s=2020e; t=1627598103;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=uZuaut2JpvGfn2gpCKX+rCbymLOSgSIekmfYPWe2CMk=;
-        b=QlTuqPb25LezbZyhxPwNdR0kY61X5X2sJJGk373lsnIIUq02gvWjIcWoq38Ge2Yke+qGCq
-        3Mf6AI2iHqpBJbBg==
-Date:   Thu, 29 Jul 2021 23:51:56 +0200
+        bh=4d6jpf7VvfSCC5wDxxTlQqDwmyplaLXi1z26YEo5c+g=;
+        b=qlyKSNm+nB2ii1MzIVL8ZeVE1LmzcDswofdWBSGQHuwVaSpjYrZgbOWS9UizJCyT5ohuVH
+        7cFjIru2/Z4UjLBQ==
+Date:   Thu, 29 Jul 2021 23:51:55 +0200
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Alex Williamson <alex.williamson@redhat.com>,
@@ -53,7 +53,7 @@ Cc:     Alex Williamson <alex.williamson@redhat.com>,
         Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [patch V2 17/19] PCI/MSI: Cleanup msi_mask()
+Subject: [patch V2 16/19] PCI/MSI: Deobfuscate virtual MSI-X
 References: <20210729215139.889204656@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,86 +62,85 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-msi_mask() is calculating the possible mask bits for MSI per vector
-masking.
+Handling of virtual MSI-X is obfuscated by letting pci_msix_desc_addr()
+return NULL and checking the pointer.
 
-Rename it to msi_multi_mask() and hand the MSI descriptor pointer into it
-to simplify the call sites.
+Just use msi_desc::msi_attrib.is_virtual at the call sites and get rid of
+that pointer check.
+
+No functional change.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
 V2: New patch
 ---
- drivers/pci/msi.c |   25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ drivers/pci/msi.c |   25 ++++++++-----------------
+ 1 file changed, 8 insertions(+), 17 deletions(-)
 
 --- a/drivers/pci/msi.c
 +++ b/drivers/pci/msi.c
-@@ -129,14 +129,6 @@ void __weak arch_restore_msi_irqs(struct
- 	return default_restore_msi_irqs(dev);
- }
+@@ -166,11 +166,7 @@ static void msi_mask_irq(struct msi_desc
  
--static inline __attribute_const__ u32 msi_mask(unsigned x)
--{
--	/* Don't shift by >= width of type */
--	if (x >= 5)
--		return 0xffffffff;
--	return (1 << (1 << x)) - 1;
--}
--
- /*
-  * PCI 2.3 does not specify mask bits for each MSI interrupt.  Attempting to
-  * mask all MSI interrupts by clearing the MSI enable bit does not work
-@@ -211,6 +203,14 @@ static void msi_set_mask_bit(struct irq_
- 	}
- }
- 
-+static inline __attribute_const__ u32 msi_multi_mask(struct msi_desc *desc)
-+{
-+	/* Don't shift by >= width of type */
-+	if (desc->msi_attrib.multi_cap >= 5)
-+		return 0xffffffff;
-+	return (1 << (1 << desc->msi_attrib.multi_cap)) - 1;
-+}
-+
- /**
-  * pci_msi_mask_irq - Generic IRQ chip callback to mask PCI/MSI interrupts
-  * @data:	pointer to irqdata associated to that interrupt
-@@ -419,8 +419,7 @@ static void __pci_restore_msi_state(stru
- 	arch_restore_msi_irqs(dev);
- 
- 	pci_read_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS, &control);
--	msi_mask_irq(entry, msi_mask(entry->msi_attrib.multi_cap),
--		     entry->msi_mask);
-+	msi_mask_irq(entry, msi_multi_mask(entry), entry->msi_mask);
- 	control &= ~PCI_MSI_FLAGS_QSIZE;
- 	control |= (entry->msi_attrib.multiple << 4) | PCI_MSI_FLAGS_ENABLE;
- 	pci_write_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS, control);
-@@ -642,7 +641,7 @@ static int msi_capability_init(struct pc
- 		return -ENOMEM;
- 
- 	/* All MSIs are unmasked by default; mask them all */
--	mask = msi_mask(entry->msi_attrib.multi_cap);
-+	mask = msi_multi_mask(entry);
- 	msi_mask_irq(entry, mask, mask);
- 
- 	list_add_tail(&entry->list, dev_to_msi_list(&dev->dev));
-@@ -938,7 +937,6 @@ EXPORT_SYMBOL(pci_msi_vec_count);
- static void pci_msi_shutdown(struct pci_dev *dev)
+ static void __iomem *pci_msix_desc_addr(struct msi_desc *desc)
  {
- 	struct msi_desc *desc;
--	u32 mask;
+-	if (desc->msi_attrib.is_virtual)
+-		return NULL;
+-
+-	return desc->mask_base +
+-		desc->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE;
++	return desc->mask_base + desc->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE;
+ }
  
- 	if (!pci_msi_enable || !dev || !dev->msi_enabled)
- 		return;
-@@ -951,8 +949,7 @@ static void pci_msi_shutdown(struct pci_
- 	dev->msi_enabled = 0;
+ /*
+@@ -182,14 +178,10 @@ static void __iomem *pci_msix_desc_addr(
+  */
+ static u32 __pci_msix_desc_mask_irq(struct msi_desc *desc, u32 flag)
+ {
++	void __iomem *desc_addr = pci_msix_desc_addr(desc);
+ 	u32 ctrl = desc->msix_ctrl;
+-	void __iomem *desc_addr;
+-
+-	if (pci_msi_ignore_mask)
+-		return 0;
  
- 	/* Return the device with MSI unmasked as initial states */
--	mask = msi_mask(desc->msi_attrib.multi_cap);
--	msi_mask_irq(desc, mask, 0);
-+	msi_mask_irq(desc, msi_multi_mask(desc), 0);
+-	desc_addr = pci_msix_desc_addr(desc);
+-	if (!desc_addr)
++	if (pci_msi_ignore_mask || desc->msi_attrib.is_virtual)
+ 		return 0;
  
- 	/* Restore dev->irq to its default pin-assertion IRQ */
- 	dev->irq = desc->msi_attrib.default_irq;
+ 	ctrl &= ~PCI_MSIX_ENTRY_CTRL_MASKBIT;
+@@ -256,10 +248,8 @@ void __pci_read_msi_msg(struct msi_desc
+ 	if (entry->msi_attrib.is_msix) {
+ 		void __iomem *base = pci_msix_desc_addr(entry);
+ 
+-		if (!base) {
+-			WARN_ON(1);
++		if (WARN_ON_ONCE(entry->msi_attrib.is_virtual))
+ 			return;
+-		}
+ 
+ 		msg->address_lo = readl(base + PCI_MSIX_ENTRY_LOWER_ADDR);
+ 		msg->address_hi = readl(base + PCI_MSIX_ENTRY_UPPER_ADDR);
+@@ -292,7 +282,7 @@ void __pci_write_msi_msg(struct msi_desc
+ 		void __iomem *base = pci_msix_desc_addr(entry);
+ 		bool unmasked = !(entry->msix_ctrl & PCI_MSIX_ENTRY_CTRL_MASKBIT);
+ 
+-		if (!base)
++		if (entry->msi_attrib.is_virtual)
+ 			goto skip;
+ 
+ 		/*
+@@ -744,9 +734,10 @@ static int msix_setup_entries(struct pci
+ 		entry->msi_attrib.default_irq	= dev->irq;
+ 		entry->mask_base		= base;
+ 
+-		addr = pci_msix_desc_addr(entry);
+-		if (addr)
++		if (!entry->msi_attrib.is_virtual) {
++			addr = pci_msix_desc_addr(entry);
+ 			entry->msix_ctrl = readl(addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
++		}
+ 
+ 		list_add_tail(&entry->list, dev_to_msi_list(&dev->dev));
+ 		if (masks)
 
