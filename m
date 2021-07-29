@@ -2,168 +2,169 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7FCEC4320E
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 12:44:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC140C4338F
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 13:29:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9EFDF60F0F
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 12:44:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9454760184
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 13:29:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237264AbhG2Mod (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Jul 2021 08:44:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35422 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237236AbhG2Moc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 08:44:32 -0400
-Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF92FC061765
-        for <linux-s390@vger.kernel.org>; Thu, 29 Jul 2021 05:44:28 -0700 (PDT)
-Received: by mail-qt1-x82b.google.com with SMTP id m11so3795707qtx.7
-        for <linux-s390@vger.kernel.org>; Thu, 29 Jul 2021 05:44:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=REukLMYHB9mfVFO1/bdDCKtlszA1rKroqNl1QPX1pLU=;
-        b=BDIdGkUehfGKUuxsy+fvkDkr2GBCODc7I8zNcJ8SRMTrosiAzd9wV8k4ho+9DmoVTN
-         ZgZpaPFz7rYUXgm3Bnd50vGzEYEK+sYhEMHsoUgf3j65MNdadi6mEO5UCXCGxYCi7qgX
-         WFQcsZIJ2Fu8s/P9vhc/OdXyMBvqwLC7WP0Iwa+/QtOk7YrcQNVx6G9CqL2RRUSlnYx+
-         k+NmAzUBe1pYR9aFm77nsezouOeWql6Zc5QqwXSsoTfMq7LS2fboyKrpB9zlkED9oWMI
-         qlKDmSAP2MAK0Brfbz6z46cmYAxkk12/imrm0s0s2JWDb0U311Dnmemk3PmuxKxEui7s
-         sudg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=REukLMYHB9mfVFO1/bdDCKtlszA1rKroqNl1QPX1pLU=;
-        b=kVdXW1yVfoYANDfL3bwR7w4nFV4GRBJz+NXsM/Z8CALFYmnkcSDXLnzOWMooxsl7e6
-         z4l2m0AmNVtJGAyjkMx6Cm9aGLPOGY4ofOYkwLinFXoMR7kDFcY8UYNDDlvCMShCIXXz
-         C/SOghrBL+XnMuq68xIF/YoILD5MId+TldTm1jyvwinto4lKTXLWsC4L/z7rUjY6AvjN
-         5yGrlUKnRWg1Bid6v0tOv3iH1sNeFDnuaBG5RaZtWjkjkcll65KnZnCD4iODPsXt9hK1
-         082umk0uCQQq16B1627Z1mnr/ToB2ZUzX+JoXyba1TQv6zwriASsW3Kl/cl5EfDMMJmm
-         pSMA==
-X-Gm-Message-State: AOAM532VqR/E5lw1RwrYHypMf/oYC4KNni+hhqs3q0xC0mJX1rOA08re
-        ddwaETpAF2cicCwveYE80US37IhwfHVTfLyE0BAU3Q==
-X-Google-Smtp-Source: ABdhPJx8p5Gioov6LW3dMuKZCxQ7H3nKyaoIEb0t3AIauct+JwrIEuRpWs9dp5K8G8EOr4CSz9yHAnha7BrG6YV+cpk=
-X-Received: by 2002:a05:622a:10d:: with SMTP id u13mr4063224qtw.369.1627562667841;
- Thu, 29 Jul 2021 05:44:27 -0700 (PDT)
+        id S237785AbhG2N3c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Jul 2021 09:29:32 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15098 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237752AbhG2N3L (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Jul 2021 09:29:11 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16TDSLcK064929;
+        Thu, 29 Jul 2021 09:29:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=UlOZAV3njL9WgqZBD8YgjqqBRmlVJi6DL813I4lx2rE=;
+ b=Z5b5nnjjaXk8iHz+dsjeJlcmsHWgHWcnUCZucaOA0C/jfGMOXZcthS0F5fpzKnaQWnne
+ w79U0ITFzJpubb8axxMHj8KkpCUt8LDTwOoJoOJm6TcZ+9WcNJn3XAOOOSPIpZMtvUwo
+ HpDDMskuUgK5LvBi+Lc3ndlbHWBOQRrohk+c0G5OPyb9xgyujSpSaMbMSJe4SyaQcFYl
+ 9Uyfa8JLsX9siovWKwqN3Llr81Ya5SKA7gRzQKN4Cj1wjzgfNCiMVuOPuB8Zwr2h7eUP
+ IMgFzzUOgpKqppqvyIAAZ15QaqkRmzO0wjEKAv7Ib+vE1a6vuVE5p21kgHTI377IzVtz uA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a3w8cr0nu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 29 Jul 2021 09:29:07 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16TDSwQE072095;
+        Thu, 29 Jul 2021 09:29:07 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a3w8cr0n3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 29 Jul 2021 09:29:06 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16TDIh3H017669;
+        Thu, 29 Jul 2021 13:29:04 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03fra.de.ibm.com with ESMTP id 3a235ks4ht-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 29 Jul 2021 13:29:04 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16TDT0pO27001110
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 29 Jul 2021 13:29:01 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C923DA4060;
+        Thu, 29 Jul 2021 13:29:00 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5AE63A405C;
+        Thu, 29 Jul 2021 13:29:00 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.1.151])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 29 Jul 2021 13:29:00 +0000 (GMT)
+Date:   Thu, 29 Jul 2021 15:22:05 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Cornelia Huck <cohuck@redhat.com>
+Cc:     kvm@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 01/13] KVM: s390: pv: avoid stall notifications for
+ some UVCs
+Message-ID: <20210729152205.73d39a65@p-imbrenda>
+In-Reply-To: <87h7gd2y5c.fsf@redhat.com>
+References: <20210728142631.41860-1-imbrenda@linux.ibm.com>
+        <20210728142631.41860-2-imbrenda@linux.ibm.com>
+        <87h7gd2y5c.fsf@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <20210728190254.3921642-1-hca@linux.ibm.com> <20210728190254.3921642-3-hca@linux.ibm.com>
-In-Reply-To: <20210728190254.3921642-3-hca@linux.ibm.com>
-From:   Alexander Potapenko <glider@google.com>
-Date:   Thu, 29 Jul 2021 14:43:51 +0200
-Message-ID: <CAG_fn=VS_WFjL+qjm79Jvq5M0KaNScvX2vCw=aNxPx14Hffa0A@mail.gmail.com>
-Subject: Re: [PATCH 2/4] kfence: add function to mask address bits
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Marco Elver <elver@google.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        kasan-dev <kasan-dev@googlegroups.com>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: SxWz63jsLsS7B6Gg-v2kr-IWBqk9ZxJu
+X-Proofpoint-ORIG-GUID: OPLqKlrIQPiVMfVwBdLbob15-vblMzzr
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-29_10:2021-07-29,2021-07-29 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ priorityscore=1501 mlxscore=0 impostorscore=0 adultscore=0 phishscore=0
+ mlxlogscore=999 suspectscore=0 lowpriorityscore=0 malwarescore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2107290084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 28, 2021 at 9:03 PM Heiko Carstens <hca@linux.ibm.com> wrote:
->
-> From: Sven Schnelle <svens@linux.ibm.com>
->
-> s390 only reports the page address during a translation fault.
-> To make the kfence unit tests pass, add a function that might
-> be implemented by architectures to mask out address bits.
->
-> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  mm/kfence/kfence_test.c | 13 ++++++++++++-
->  1 file changed, 12 insertions(+), 1 deletion(-)
->
-> diff --git a/mm/kfence/kfence_test.c b/mm/kfence/kfence_test.c
-> index 942cbc16ad26..eb6307c199ea 100644
-> --- a/mm/kfence/kfence_test.c
-> +++ b/mm/kfence/kfence_test.c
-> @@ -23,8 +23,15 @@
->  #include <linux/tracepoint.h>
->  #include <trace/events/printk.h>
->
-> +#include <asm/kfence.h>
-> +
->  #include "kfence.h"
->
-> +/* May be overridden by <asm/kfence.h>. */
-> +#ifndef arch_kfence_test_address
-> +#define arch_kfence_test_address(addr) (addr)
-> +#endif
-> +
->  /* Report as observed from console. */
->  static struct {
->         spinlock_t lock;
-> @@ -82,6 +89,7 @@ static const char *get_access_type(const struct expect_=
-report *r)
->  /* Check observed report matches information in @r. */
->  static bool report_matches(const struct expect_report *r)
->  {
-> +       unsigned long addr =3D (unsigned long)r->addr;
->         bool ret =3D false;
->         unsigned long flags;
->         typeof(observed.lines) expect;
-> @@ -131,22 +139,25 @@ static bool report_matches(const struct expect_repo=
-rt *r)
->         switch (r->type) {
->         case KFENCE_ERROR_OOB:
->                 cur +=3D scnprintf(cur, end - cur, "Out-of-bounds %s at",=
- get_access_type(r));
-> +               addr =3D arch_kfence_test_address(addr);
+On Thu, 29 Jul 2021 12:49:03 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Can we normalize addr once before (or after) this switch?
+> On Wed, Jul 28 2021, Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
+> 
+> > Improve make_secure_pte to avoid stalls when the system is heavily
+> > overcommitted. This was especially problematic in
+> > kvm_s390_pv_unpack, because of the loop over all pages that needed
+> > unpacking.
+> >
+> > Also fix kvm_s390_pv_init_vm to avoid stalls when the system is
+> > heavily overcommitted.
+> >
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > ---
+> >  arch/s390/kernel/uv.c | 11 ++++++++---
+> >  arch/s390/kvm/pv.c    |  2 +-
+> >  2 files changed, 9 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> > index aeb0a15bcbb7..fd0faa51c1bb 100644
+> > --- a/arch/s390/kernel/uv.c
+> > +++ b/arch/s390/kernel/uv.c
+> > @@ -196,11 +196,16 @@ static int make_secure_pte(pte_t *ptep,
+> > unsigned long addr, if (!page_ref_freeze(page, expected))
+> >  		return -EBUSY;
+> >  	set_bit(PG_arch_1, &page->flags);
+> > -	rc = uv_call(0, (u64)uvcb);
+> > +	rc = __uv_call(0, (u64)uvcb);
+> >  	page_ref_unfreeze(page, expected);
+> > -	/* Return -ENXIO if the page was not mapped, -EINVAL
+> > otherwise */
+> > -	if (rc)
+> > +	/*
+> > +	 * Return -ENXIO if the page was not mapped, -EINVAL for
+> > other errors.
+> > +	 * If busy or partially completed, return -EAGAIN.
+> > +	 */
+> > +	if (rc == 1)
+> >  		rc = uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+> > +	else if (rc > 1)
+> > +		rc = -EAGAIN;
+> >  	return rc;
+> >  }  
+> 
+> Possibly dumb question: when does the call return > 1?
 
->                 break;
->         case KFENCE_ERROR_UAF:
->                 cur +=3D scnprintf(cur, end - cur, "Use-after-free %s at"=
-, get_access_type(r));
-> +               addr =3D arch_kfence_test_address(addr);
->                 break;
->         case KFENCE_ERROR_CORRUPTION:
->                 cur +=3D scnprintf(cur, end - cur, "Corrupted memory at")=
-;
->                 break;
->         case KFENCE_ERROR_INVALID:
->                 cur +=3D scnprintf(cur, end - cur, "Invalid %s at", get_a=
-ccess_type(r));
-> +               addr =3D arch_kfence_test_address(addr);
->                 break;
->         case KFENCE_ERROR_INVALID_FREE:
->                 cur +=3D scnprintf(cur, end - cur, "Invalid free of");
->                 break;
->         }
->
-> -       cur +=3D scnprintf(cur, end - cur, " 0x%p", (void *)r->addr);
-> +       cur +=3D scnprintf(cur, end - cur, " 0x%p", (void *)addr);
->
->         spin_lock_irqsave(&observed.lock, flags);
->         if (!report_available())
-> --
-> 2.25.1
->
+this is exactly what Janosch meant :)
 
+the next version will have #defines for the 4 possible CC values.
 
---=20
-Alexander Potapenko
-Software Engineer
+in short:
+0 OK
+1 error
+2 busy (nothing done, try again)
+3 partial (something done but not all, try again)
 
-Google Germany GmbH
-Erika-Mann-Stra=C3=9Fe, 33
-80636 M=C3=BCnchen
+> gmap_make_secure() will do a wait_on_page_writeback() for -EAGAIN, is
+> that always the right thing to do?
 
-Gesch=C3=A4ftsf=C3=BChrer: Paul Manicle, Halimah DeLaine Prado
-Registergericht und -nummer: Hamburg, HRB 86891
-Sitz der Gesellschaft: Hamburg
+it's the easiest way to get to a place where we will be able to
+reschedule if needed.
+
+wait_on_page_writeback will probably do nothing in that case because
+the page is not in writeback.
+
+(a few minutes later)
+
+actually I have checked, it seems that the -EAGAIN gets eventually
+propagated to places where it's not checked properly!
+
+this will need some more fixing
+
