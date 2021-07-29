@@ -2,143 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-24.8 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40FEFC4338F
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 07:49:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7714C4338F
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 09:53:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1FFD560F6B
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 07:49:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B07E561054
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 09:53:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234805AbhG2HtM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Jul 2021 03:49:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49734 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234673AbhG2HtJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 03:49:09 -0400
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D68B8C061765
-        for <linux-s390@vger.kernel.org>; Thu, 29 Jul 2021 00:49:06 -0700 (PDT)
-Received: by mail-wr1-x436.google.com with SMTP id c16so5665982wrp.13
-        for <linux-s390@vger.kernel.org>; Thu, 29 Jul 2021 00:49:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=L6N0ezTtWFmQj4Q9ef8/0d56n3pMY70Zf97no+qDSJA=;
-        b=tjwxZwURHTWvWkFtjs1Jrg/NcpQ+H2TF5AQKGqyhFX+fc1TzDSMl36rHNr9bRnoaCh
-         B+GT81ypvW+IJ5L45witNhgXDu0m98Tlk9L++fA6GdfaNIHvesS2SSjg2iuLH5H/pt6Y
-         Xeg6g6AMMwR2Gzyg+SpI7BHxnOX9v9yyayq+FTjFLG6TYaFU2tZ8oLmkx2BBDkhbXbuA
-         qj+ze7iXB/npWV+/yui2jOoeylqH85O3xk7SZDvmQ/n2mZ99Yr8sWyAaxmkbvqWulXTc
-         B27qEVfN1GadYAppW4+XErOv/JRb6+4UrYth2NwPUU2ao8+0s3idaEKPmQo2SxmB2s9h
-         G5wA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=L6N0ezTtWFmQj4Q9ef8/0d56n3pMY70Zf97no+qDSJA=;
-        b=NGp9Rf9wQmBNmUsfX5vHQOFbaTd0N/t0pEyyHkOV/REwqXxXAuhSrgZzRVfBxbhB16
-         0QEcKyQaw6G48TYikbiGAUWoy5tO8LObydtuob7vLvCQvhpChoYY+gibx6zRGaInxHY2
-         lSdWUtbBJBLv6ZQYPsd6W7IQ+eDrmVQBtc4Ao3WSWF0c/csBkY9jmp2TX9dOmhjcSwy/
-         OJG7qqlZ35jzuTifng4Wq2RyMusLTfoYFk2eBCj8RVIndQ1Sq0gA+BBpj3+RZRcrDtXk
-         Y2QpKlJaAIER1zQbe69GsMgtyF8M60LnCYrosJb0b2MefjYSf4ANcGl2KqqLBVyFpulA
-         gIlw==
-X-Gm-Message-State: AOAM530B2j4EdsTL4A3SCSJ4fJgp9lSNw/Q093v7VSewRd1/dFofGqn6
-        yHfj3iHh5472hTBWq9ciQ2JpYQ==
-X-Google-Smtp-Source: ABdhPJzbR1HACnZZJBDhiL2ARbrJnGx5sYQIaYtEWpSvBcN3z0ditxTzHS+Wuapzs4HhC7B1gYUdMQ==
-X-Received: by 2002:adf:de8a:: with SMTP id w10mr3331505wrl.61.1627544945144;
-        Thu, 29 Jul 2021 00:49:05 -0700 (PDT)
-Received: from elver.google.com ([2a00:79e0:15:13:377:4a06:5280:39bf])
-        by smtp.gmail.com with ESMTPSA id k186sm9573131wme.45.2021.07.29.00.49.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Jul 2021 00:49:04 -0700 (PDT)
-Date:   Thu, 29 Jul 2021 09:48:58 +0200
-From:   Marco Elver <elver@google.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Alexander Potapenko <glider@google.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        kasan-dev@googlegroups.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/4] kfence: add function to mask address bits
-Message-ID: <YQJdarx6XSUQ1tFZ@elver.google.com>
-References: <20210728190254.3921642-1-hca@linux.ibm.com>
- <20210728190254.3921642-3-hca@linux.ibm.com>
+        id S235314AbhG2JxI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Jul 2021 05:53:08 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3108 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235058AbhG2JxI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Jul 2021 05:53:08 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16T9YOfF159856;
+        Thu, 29 Jul 2021 05:53:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=EErjgagjsOJ6351tBtBEsNPRFPR8zetcAG7oNhArlUg=;
+ b=XxR4iBRm9xjhGhqBPYKpFH9sLBiTM7j1kUqklpLT+bNBTA07U2UIUdXjCpncAOQQsMPX
+ rivHngBr7jTzTwomKVIdhTD1IHCITvGFS32svqA84djUtlbQ0c61BzdyTxfCFzdXHlkR
+ yCx7hQ3n6JHKJp8BCbbe1IQBwOdy/ZZtR5omUttJZYp7MtQK8C7bybgHfI7VRXL6C6nf
+ Flerjz5qMuvd6mjjkhmyyyDTGql48GaxlGBsg5EDbZ6cMVjhtv/GhAbizKMNau7YFiS7
+ E1qJrpYj/uJ1fjcZsjd0hZsuGTL1XMVoPH1SjQBieOPgmd2ocjY/GKTHP9R2X8UDW14t UA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a3fajubck-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 29 Jul 2021 05:53:04 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16T9p5SZ075549;
+        Thu, 29 Jul 2021 05:53:04 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a3fajubbg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 29 Jul 2021 05:53:03 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16T9r2KO023078;
+        Thu, 29 Jul 2021 09:53:02 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3a235khm4g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 29 Jul 2021 09:53:02 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16T9qws524576418
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 29 Jul 2021 09:52:59 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E09BD11C04A;
+        Thu, 29 Jul 2021 09:52:58 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6455911C05B;
+        Thu, 29 Jul 2021 09:52:58 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.155.135])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 29 Jul 2021 09:52:58 +0000 (GMT)
+Subject: Re: [PATCH v2 13/13] KVM: s390: pv: add support for UV feature bits
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20210728142631.41860-1-imbrenda@linux.ibm.com>
+ <20210728142631.41860-14-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <4d26ba27-e235-8f2b-c59c-01d3e0691453@linux.ibm.com>
+Date:   Thu, 29 Jul 2021 11:52:58 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210728190254.3921642-3-hca@linux.ibm.com>
-User-Agent: Mutt/2.0.5 (2021-01-21)
+In-Reply-To: <20210728142631.41860-14-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6YtK1rKxqZZS73Q75O_o-FDQQSAYiX0I
+X-Proofpoint-ORIG-GUID: zqcN2IzNl4fE_BQ9HO6WIS3_a1mglA3N
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-29_09:2021-07-27,2021-07-29 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 malwarescore=0 adultscore=0 impostorscore=0 mlxlogscore=999
+ priorityscore=1501 mlxscore=0 clxscore=1011 bulkscore=0 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2107290061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 28, 2021 at 09:02PM +0200, Heiko Carstens wrote:
-> From: Sven Schnelle <svens@linux.ibm.com>
+On 7/28/21 4:26 PM, Claudio Imbrenda wrote:
+> Add support for Ultravisor feature bits, and take advantage of the
+> functionality advertised to speed up the lazy destroy mechanism.
+
+UV feature bit support is already merged please fix the description and
+subject.
+
 > 
-> s390 only reports the page address during a translation fault.
-> To make the kfence unit tests pass, add a function that might
-> be implemented by architectures to mask out address bits.
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  arch/s390/kernel/uv.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-
-I noticed this breaks on x86 if CONFIG_KFENCE_KUNIT_TEST=m, because x86
-conditionally declares some asm functions if !MODULE.
-
-I think the below is the simplest to fix, and if you agree, please carry
-it as a patch in this series before this patch.
-
-With the below, you can add to this patch:
-
-	Reviewed-by: Marco Elver <elver@google.com>
-
-Thanks,
--- Marco
-
------- >8 ------
-
-From: Marco Elver <elver@google.com>
-Date: Wed, 28 Jul 2021 21:57:41 +0200
-Subject: [PATCH] kfence, x86: only define helpers if !MODULE
-
-x86's <asm/tlbflush.h> only declares non-module accessible functions
-(such as flush_tlb_one_kernel) if !MODULE.
-
-In preparation of including <asm/kfence.h> from the KFENCE test module,
-only define the helpers if !MODULE to avoid breaking the build with
-CONFIG_KFENCE_KUNIT_TEST=m.
-
-Signed-off-by: Marco Elver <elver@google.com>
----
- arch/x86/include/asm/kfence.h | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/arch/x86/include/asm/kfence.h b/arch/x86/include/asm/kfence.h
-index 05b48b33baf0..ff5c7134a37a 100644
---- a/arch/x86/include/asm/kfence.h
-+++ b/arch/x86/include/asm/kfence.h
-@@ -8,6 +8,8 @@
- #ifndef _ASM_X86_KFENCE_H
- #define _ASM_X86_KFENCE_H
- 
-+#ifndef MODULE
-+
- #include <linux/bug.h>
- #include <linux/kfence.h>
- 
-@@ -66,4 +68,6 @@ static inline bool kfence_protect_page(unsigned long addr, bool protect)
- 	return true;
- }
- 
-+#endif /* !MODULE */
-+
- #endif /* _ASM_X86_KFENCE_H */
--- 
-2.32.0.554.ge1b32706d8-goog
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index f0af49b09a91..6ec3d7338ec8 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -290,7 +290,8 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
+>  
+>  static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_struct *mm)
+>  {
+> -	return uvcb->cmd != UVC_CMD_UNPIN_PAGE_SHARED &&
+> +	return !test_bit_inv(BIT_UV_FEAT_MISC, &uv_info.uv_feature_indications) &&
+> +		uvcb->cmd != UVC_CMD_UNPIN_PAGE_SHARED &&
+>  		atomic_read(&mm->context.is_protected) > 1;
+>  }
+>  
+> 
 
