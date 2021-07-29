@@ -2,51 +2,50 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7618AC4338F
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 00:49:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39C54C432BE
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 00:49:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3D28B6023B
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 00:49:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E7556023B
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 00:49:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232904AbhG2Ate (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 20:49:34 -0400
+        id S232837AbhG2Atf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 20:49:35 -0400
 Received: from mail-bn8nam12on2079.outbound.protection.outlook.com ([40.107.237.79]:35584
         "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232837AbhG2Atd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Jul 2021 20:49:33 -0400
+        id S232890AbhG2Ate (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Jul 2021 20:49:34 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=NfSjX/KI7dAa2J/UMJXIGB/3HNnhPXImMbUGhkX6NkDyfcTcyr67YzWcNXXCqOQnjvDeud07HQtbZsBCxVgP5ucGzog66v0jx+Y2bxy+SRyTMLdJHJrAHG23NOU8cByrlSSYaGChQ5Kipf91p6YRKzMM7L44qohisXWe4d3oBL9gOkTdIVU6Z7n82AAyFj5yRqZSDAzTN5kuFFVjhEPrFr20FtGDy3Ez11Ej8Sb6fkAkvyGItTCwc13MvYLDkvAjRugVH4tmhhap2QuQapiXtxpPeJO8pKTzOrB3qZmK4Swft7S8g0daFLhPXXkSVmGFcvDK2i6Qp69thOJIBcP8Ow==
+ b=Rq4gWNdHPMtKAECuN7dSDiftvEsrVJ2hhYLYKZDEZZ8VKK9AZGzl8glmEgoC7zxQkYCEID0vuzPHu0+U3RSZ7PfTx+w0I+EozfGpDm8wt8TG+uKNQ4TTJbnKCljiGG7jkPOOTJKGzjamwJmACDIY/S5RjH+BEa+/Esg7dl4vqHqGWRePPowc1d6LZ1TsFwVdGP5yngAJcU9xlhUnmlJCrX7Cesa4/8PsnHF79BXTDRfk+tOyl4J5moQxiqsed1MwR4z3dgkyINZhLHi6Ej8r1tVnyZ6sUu+MHYLhXNiDz1DkR7M7/13pzALBKCh7Nt7onvDH2RoA0YufjIVchA7InA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=aU3f9OuiUdmchkw+GXAfx5H8S4/WIy0aiIG/duzDst8=;
- b=kb0iOsuJfZksmx81YlMLrUrMgVdUV/JTSSPu/aRSoLxBFVA0mqJLvqj0fjzh3NmsccEie8jdSv9yB2gRBGrOb0+EC+jrJnwzKLZ6ltjF+n0PvLONt6iRAtaqLdBCM5E8kjPLL1Qt73nlBl9nydU15nyl+/7XJvQws6CXjT1m36ujEy2Q4J18IAxoQH2InbyY9+MgQU3zymj9pD73WSOCFj/lvbRoD3XGtMByenfvTSeZ5h1GHBB197ZGff4M3ktMHtAHiu/yvDTpiwgUv6pd1nLtGMou1BSrELGCjsgMsxUPlDeiw4VFvNASzCKCbLM1W9WX9ERAIbtOpj30QirxOA==
+ bh=Paf/jTYWkw1MmiuskqweN6CvR3s/4SLmYIiKg28mD5c=;
+ b=QR2rFL2S4obuk27PjnBiQCudp/K1EMiJWsPd2v3HyhflIuBpW5eaftAqvGfvxr8B+1NTxuMRwHeZFQ1pHBNbx6zPyhZTdegrmnN4D/MUnl9pcoQkAm9UgTzFWYAqKlMf0XPCdPSd3JsIzPbI7PjQy2e9yf5kfOY/D75zn0N7vW1hhkgYhQu2HRYLSYiljp4qFLoBrLJXOv2riEadxGDW5lOZlmNellJQhyhfM8OYR9fsyUAatnvL7XGgbAJu7FXuEg+SEyqx50WWGmBiMHrJmbzUFME4mGESDjgaAMZSbm/h4a4e1yIs9gvv05skAbqAEE5QM20bjIf3kqnDaZA1nQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=aU3f9OuiUdmchkw+GXAfx5H8S4/WIy0aiIG/duzDst8=;
- b=W4QqdZicHJqfPJKiIYgq9d7QGVonp4FSPlcPvJDzQbib7d18Wbfl8m2+0dR54bXyMp8GaY1GwkiJ0Nm9+yYJirapx+Br+Y4lm+xc3WKvadh0NiLay5liD+7ynTjf7TETasQzfMlAtfpCYptIpnH/vsFDng3evsr8V1i5QG8uQsvhsadyM4+gp5+M5YjcvYb3PJe+rC5oyD7//ftyCa2LwXhlS/XsAZq/OFxdL0xydVXi+9o0S/6R86b9+3qPi+dMq91U6+kdoR5Dudd6f4NSHfX5ABu2Kq2/3mMqx4YmaXA7NGWLqZjWcpwF9iv5fpkzWR8fL5GXZyVJwXHnY50eyw==
+ bh=Paf/jTYWkw1MmiuskqweN6CvR3s/4SLmYIiKg28mD5c=;
+ b=J1q711OKIEeTzITjICo0PAOXw3m6QryfyoKLRP8CxLwC9930u4tLa+TROh7ykswtcKtQuopenNWrOK66ohSUnU/GfbJZJ8dVj5BEuoAoV8ipT4mJ6FDDHZj+KSk3n08V2IYCTx6qQvzcEwlyZp/l3qD9i/uedsSjlVBnJomMYHaSgoKc2XI7gQ9rzdqh27fSaBZbop2I4PkzXWWu7t7tEMxHpYN4U+Lrv3fNpuHkSxc+SKLC57BO1XcBI5H+6SZhcr4AAQSRUxQZtEbPcPPol+2yIvGid7jXQV2BjFoRHtu8fcvlq1xK1hjThlkAsKYWqNe9SAjPkmKcRx26dB3XoA==
 Authentication-Results: linux.ie; dkim=none (message not signed)
  header.d=none;linux.ie; dmarc=none action=none header.from=nvidia.com;
 Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
  by BL1PR12MB5160.namprd12.prod.outlook.com (2603:10b6:208:311::11) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.20; Thu, 29 Jul
- 2021 00:49:26 +0000
+ 2021 00:49:25 +0000
 Received: from BL0PR12MB5506.namprd12.prod.outlook.com
  ([fe80::d017:af2f:7049:5482]) by BL0PR12MB5506.namprd12.prod.outlook.com
  ([fe80::d017:af2f:7049:5482%5]) with mapi id 15.20.4373.019; Thu, 29 Jul 2021
- 00:49:26 +0000
+ 00:49:25 +0000
 From:   Jason Gunthorpe <jgg@nvidia.com>
 To:     David Airlie <airlied@linux.ie>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
@@ -80,170 +79,166 @@ Cc:     "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
         Max Gurtovoy <mgurtovoy@nvidia.com>,
         Yishai Hadas <yishaih@nvidia.com>,
         Zhenyu Wang <zhenyuw@linux.intel.com>
-Subject: [PATCH v3 02/14] vfio/mbochs: Fix missing error unwind of mbochs_used_mbytes
-Date:   Wed, 28 Jul 2021 21:49:11 -0300
-Message-Id: <2-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
-In-Reply-To: <0-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
-References: 
+Subject: [PATCH v3 00/14] Provide core infrastructure for managing open/release
+Date:   Wed, 28 Jul 2021 21:49:09 -0300
+Message-Id: <0-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: YT1PR01CA0042.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:2e::11) To BL0PR12MB5506.namprd12.prod.outlook.com
+X-ClientProxiedBy: YTBPR01CA0030.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b01:14::43) To BL0PR12MB5506.namprd12.prod.outlook.com
  (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (206.223.160.26) by YT1PR01CA0042.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:2e::11) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.18 via Frontend Transport; Thu, 29 Jul 2021 00:49:25 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1m8uEl-009pmj-PB; Wed, 28 Jul 2021 21:49:23 -0300
+Received: from mlx.ziepe.ca (206.223.160.26) by YTBPR01CA0030.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:14::43) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.18 via Frontend Transport; Thu, 29 Jul 2021 00:49:25 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1m8uEl-009pmd-MG; Wed, 28 Jul 2021 21:49:23 -0300
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 6daf7576-f776-4ea4-3842-08d9522ab66f
+X-MS-Office365-Filtering-Correlation-Id: ad08860f-caa8-44b9-ea12-08d9522ab662
 X-MS-TrafficTypeDiagnostic: BL1PR12MB5160:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BL1PR12MB5160FDB4A2A073F45FC7FCC4C2EB9@BL1PR12MB5160.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
+X-Microsoft-Antispam-PRVS: <BL1PR12MB5160FD9D7EB54DF5EDBCD2BEC2EB9@BL1PR12MB5160.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: YrqAnGt9HLPaQbUgU6RaZinRdr9SYUGnQeEYv1k+KyXb0z4L+Ov1qZVLMZ48+7/kgmNghGfbzz/joKA/xvUQrpYFev2LN0UxP7PF55WUvlMNVHc3E9b8+Xm7a9YDZRRJvgrov4j+hXyUQsmFVxvTPxKsdd3+2XWxBEItnjThPL6GdGdjEoogpfwWs5f4evfl3ZZnPnUHQJDFVB8gZf32G3CFCkCaEDK9VG89zVflmolZsKkwOMrFhByq70gszqut2dgKRw+UBz0/0zV7T1doweEsyRuSi8KatlBEf4+voTQre4RE/7rNb7mmi6oQE30OoJaT76OCJzfjT54va/iULxgPEjf5QAodtuRKsmiIEkjtYMDPtGRZ/iLGxK6sn/WtRowIqxmdmxPpF2Y7L3STQSsy0lfTI+EWTJEvaYO9QVS1LEjEvUM2LPnqi1FXuZq7GiSXj64zKpvEJ/1LKMTwEhX2FvseXvORUAIxHbZ6zQQhyCWxYTy3syRUuvbtv7ecPDQ38OrfjSD3FuThWDI95yyMIU5nBB+nOTfsrVn1XBpklcxAdKaGF/DZnqjt3JFuzIfSkk1CnQ436zk+QVDEAY3apICA/m/k3iUDVFVM54ZlGrXihHhNR4C7V6RUaKsYPbaD1cxadPKIAWfoU5xPT7Pwh9K4v0U1OZ80ljEdg+RxB0BalSW/rJwy9zncn29UCnNK/Ec7TulFcQQaVcKS5Q==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(396003)(376002)(366004)(39860400002)(346002)(8936002)(86362001)(2906002)(6666004)(426003)(921005)(8676002)(2616005)(5660300002)(316002)(186003)(7406005)(7416002)(54906003)(110136005)(26005)(66946007)(66556008)(66476007)(36756003)(9786002)(9746002)(4326008)(83380400001)(478600001)(38100700002)(4216001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: RdFQuRbJMf95weNFF0w7rOMot7C3ZfPpST3foZJHKBi+4WALyn5ShBbmyaoe8gP0usnzh2gnYlQjZmvYUWPbIm3AUCGO9YZJwXnrVJM1+op08oUwkDVpX6YS/dVDu34hmGgBu47GXQbYsLp++P5ClTqen2do6lFHQ1jRcMBPjO6DAhEIJMf0xLsd4jAN3o1TM3YbbEiNvV1beVDq9/Wsgf8jXAvQwqwwA6T9jo+x2m7E7KQS9bzmL/qrU7VPGDSy56820zClOMHUk5AR47fzUQ+pwkNcjJRPmPQDrJwmN+RUMzKQMW4YX0G9K99vKC6lCAe0alTDrsHQs4GToQiw/Bq1GwYS3sLTtBZqkLsRQ1gSajmtosXgwPjLsMjNGENRR4GL1SdReCQk9a3GIBFJL+jeeO5fmpGJvbW0r+zrlik8ouxcKS4JaQwxt86HU1Lg58ccNYgnKzkvs4FZtD7bC7Rcudmb2yEUTgaz0UayUOBxfJqqnX/voT2u+wSCmuOPOeasr0okrD/XNuFaotDI3hrlpP8mICJCu++Q5GWsC5q6GCG4FOqFMsYm1Azx8YJwMZpZZEM6wfYFNZ/t0EyhsyPIXQEp/pHAcNu+dmcPqj51ABON703cE0aidGyWEKEfAugu027ruuSpFd1gWU024TFe7+B9ueoisTDnfzUy5aS0y4Ciw0/Q64wYzglQRXCUloZOJl+SjfhUNuQOD24gk8QETM/MUThD9A5PZwpRGwBOV80GzdTadh13bab/98oWDNfXStDbk/13+KYdKTOaebLvAjx5awy+K78DxV19aJYm/o1ouCML0bZkTArEFnyc/GLW2VDut59aCOckJ7U4sg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(396003)(376002)(366004)(39860400002)(346002)(8936002)(86362001)(2906002)(6666004)(426003)(921005)(8676002)(2616005)(5660300002)(316002)(186003)(7406005)(7416002)(54906003)(110136005)(26005)(66946007)(66556008)(66476007)(36756003)(9786002)(9746002)(4326008)(83380400001)(966005)(478600001)(38100700002)(4216001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?v6xLb1zWkrZZahMpFF+b5tdxUmMXBcrr9LJcP2iltY4O6/3FS3MFAr8CNJXN?=
- =?us-ascii?Q?0s2s8G6K8oU/t8CaBdpbQGs5PiFVI8+K0JfCY5Wo5Ea20m2/LjYgrjseDAQ1?=
- =?us-ascii?Q?qVoyKcUnTMHeioQE545XsY5rglUXPPTY3OShp1ihJqiJcTELaHQ0RRG/7CUv?=
- =?us-ascii?Q?2tTCAVy6Kw+dFdW7hwDuo1x6xmJLyiIZfnQZzoEn4fosEO3VPyqvdqqnzD8a?=
- =?us-ascii?Q?nsRtZMF2glEwd/biHJA6dyCLJlTfyBfnHbhE7ZSuq4HPmtlCUhwbPCBrchSn?=
- =?us-ascii?Q?pK2dJQ42jRK11h+jsSohDPgYJaDO/z/4ZaF9tXdRVF9gOlrTfPKRLEhmireA?=
- =?us-ascii?Q?cIuJtvcRsIThIIF08GX9kldwuc0lF6jw9w55Ypkdm0KCIemjqdCZhGdAlvfK?=
- =?us-ascii?Q?iKLBaOAg1vqIBG5Eg18iALXsRuS2qBq2Z5V/fGGrmfS6y4DeRtHCjJQQWNzL?=
- =?us-ascii?Q?3FGr8OGZPXtxY7Fguo1RS18bF7RxRgmYVSUQpxVhAsEppdQ9Dl20WY0Yln9H?=
- =?us-ascii?Q?NddACwYw5bfyNp1IRiyDcjjcLgC02km0DiOUjzf+8XwLDdgNHtwxHNMPSfnA?=
- =?us-ascii?Q?LTHs/gImZR8XDvdhDef7rff0UwLwsAoYBwvHN6SpmBv4UIhrJm6X+63sToSf?=
- =?us-ascii?Q?29BKvcDUJiypYka/50NuSl0kmqLVO9RUBNP6l+YetpPn6MqpJlceVsOWgBpJ?=
- =?us-ascii?Q?SwH9B6Fw4B/KuwS4t+lKy3OocN+1EhUMbB1trknMhyD2Sio2W78NGkl9OmDu?=
- =?us-ascii?Q?Yb2vcmrcSm+OBd6amN2ewArQqDaann+vjse5MnYI2QmZoYmkvWdVVMFFSTV0?=
- =?us-ascii?Q?BuqbGGpJZrJ5BahxbFZg6zuEhtq0pnry4HaKKNwxqa9dmDGWz5SXKjUXnTjw?=
- =?us-ascii?Q?/m5Np4EqKZGGjw7l0lQjLcVgIStyuvvkHi5cfFMnCxOBRyRINLOe4vpktPUA?=
- =?us-ascii?Q?uUCp2VvuJ+lq/bg1u+9nE7IZgNvR6+0p5Q8x+LjObhJXqGpnIOugDMaZFU8m?=
- =?us-ascii?Q?vbbpXY5bPqquKkgirnKl3fKbhhCByC6QNaePJQa39eBzWRxC9TEjCl4YNKWE?=
- =?us-ascii?Q?To9T7AfxfBKWfkNXvFGishqGyqcyv032G7Md20GeEJDBhRNAqvQltKQMLcUX?=
- =?us-ascii?Q?cPHaX9DOgxLdueJ5XqzcfwjG4z2x1dF83nF7m6khG3D/DudFjPkOYkjNiRhx?=
- =?us-ascii?Q?B80u2R8cwra20uVQwPkdm+sOvC8I0JSsUiI3ZOlRBdScEXPDomCYx/JXjXdY?=
- =?us-ascii?Q?/i2XGEgoXmOo/Xdx6LcavXtECHEZH5lfjuaF9AtL38rBuLZ1MN3X9YYmZnuU?=
- =?us-ascii?Q?vKU566utlhdaZORwB2bmWMOd?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?MC+EkU5vlU3+0ScxUnj5xro7wYoFH9vSusD1/HCVZu3ufpKmgDn2eBixSSAf?=
+ =?us-ascii?Q?p0xWniyhAbnC0Mp2q+8eO4V2vFJ9iiTEsB87wW2cWBgsI9wZ+wuq0CpaZtgD?=
+ =?us-ascii?Q?0MOA49y5h64+jbzpqlsplxis/Vwx10QPOpmm59B+Nvi+AlLcS4Z0V1kcM3a3?=
+ =?us-ascii?Q?vk0R1vjFQ5wgo1ZvdgWMDv5dTGGWrWDgVrBIQhDlCZx83w9rNlNzqTNwK4s0?=
+ =?us-ascii?Q?V6E+lLo+XywKglPZbR2yVuxGAa1VzDjVpGio7gDjJ2XziBbnIGO7Rk73g9Ce?=
+ =?us-ascii?Q?4qJTX5tFYZzWigtJiMqJrdINbelrMl4WA6qsKx6q8OXsUEfPMH+GdHHe/WqT?=
+ =?us-ascii?Q?L96t4UIViWLNW4FYXI3YOhiGXtv+X5qfxH3+beoe5N2SzRMJnJlZHBYZswZD?=
+ =?us-ascii?Q?WkxzC4wh3A2q1xnTaaDMQx4T5sTZ5IGJyV4xIPSCO+/XB4iaB1upcQatvbwF?=
+ =?us-ascii?Q?m2wVAEOfjCFYdMxiGKsty2Adg+HA8Rw2UMEHWlwUf5KeeKoyneUgiYoj9lST?=
+ =?us-ascii?Q?iPj/z9duRwriXYLGdw3igDjXbaBIRqEBcoBmpyhJb+2biDuSe+hcKCwOtzyp?=
+ =?us-ascii?Q?uNDHM/fLKV97CYEgNsj8nTAo+DHZnnRqkUBwyQ3bvvC8xk6yiUuqwF5pMa49?=
+ =?us-ascii?Q?ie66Yz2tgof6zmMg7AsIL53EZRqDLgQ5Arx/zRTK3zYHgYoc1nqq0yMm6p+m?=
+ =?us-ascii?Q?8LAyYXman3nlZBq2ela+KJCEAe8zyXwXYcvSaqSsZeyPKqH7w+mjtD80K7O3?=
+ =?us-ascii?Q?5XUoa4D82mZ0dp6onKCTB4aO5c8OZSgzSlQQQS2b8fDDSlLsHibLDST4B+P4?=
+ =?us-ascii?Q?PyYbWn1OYq8rGzPCumD1fjT+9w6XBTAI7WQat7WCgq5xb5x5dpT8p1B23ocF?=
+ =?us-ascii?Q?wC0HdTP4MgCWLs3o9Kq3K2Df1KYUMOc/zWoQClR7AwS02ECdB7sh0Zuf8K+n?=
+ =?us-ascii?Q?YQlDjbF+GJJ+wDgsAU+wZx5CgMuVD+qxv/NrpkYMWqOsL7o9sZ1lGky5QAtX?=
+ =?us-ascii?Q?tihNb/og6ZSrDz9KWbuEc5OirqPGELYeDI3DxTXp6u4Wf7kJfr34BU7Z4Kgz?=
+ =?us-ascii?Q?G7QRNJ8PgUPEOF+wVYOCj+o5dnWaJPUpR4eu6VKKOfleYC2mT8YNGuu2yjLu?=
+ =?us-ascii?Q?NQJfXDxoRDyzUmj3zARy6KvNvv8/k2os9beVlR9D+jKjnGEJswfrVRb6KYVg?=
+ =?us-ascii?Q?HkgQ8idiUuQRiXKFC/Ur5736p/wONoRsbtEf3n4/GcXQyzzv4pEtTsmD7W22?=
+ =?us-ascii?Q?PhWdeMU0Sxx9sXAMTeCqr2uEuy6zTDTY7lsSN/uxEfahx3AVYoeb6lXgZVpT?=
+ =?us-ascii?Q?WioKAjtVgh8I47urUy8GD347?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6daf7576-f776-4ea4-3842-08d9522ab66f
+X-MS-Exchange-CrossTenant-Network-Message-Id: ad08860f-caa8-44b9-ea12-08d9522ab662
 X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jul 2021 00:49:25.7659
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jul 2021 00:49:25.4334
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: z/NvBt8GiacMZ+bXmcFSetcC7VmO4wOH73xFJTBgNeMV5IhNNQtLfomTamQoI5/k
+X-MS-Exchange-CrossTenant-UserPrincipalName: jDiCXB0nJul1NzL8YVnc+1OK6W7ZBBDDtQkfPZMMti5orGGoPG8rP/JaG6Rn8QiP
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5160
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Convert mbochs to use an atomic scheme for this like mtty was changed
-into. The atomic fixes various race conditions with probing. Add the
-missing error unwind. Also add the missing kfree of mdev_state->pages.
+This is in support of Max's series to split vfio-pci. For that to work the
+reflck concept embedded in vfio-pci needs to be sharable across all of the
+new VFIO PCI drivers which motivated re-examining how this is
+implemented.
 
-Fixes: 681c1615f891 ("vfio/mbochs: Convert to use vfio_register_group_dev()")
-Reported-by: Cornelia Huck <cohuck@redhat.com>
-Co-developed-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- samples/vfio-mdev/mbochs.c | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+Another significant issue is how the VFIO PCI core includes code like:
 
-diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-index e81b875b4d87b4..a12b1fc94ed402 100644
---- a/samples/vfio-mdev/mbochs.c
-+++ b/samples/vfio-mdev/mbochs.c
-@@ -129,7 +129,7 @@ static dev_t		mbochs_devt;
- static struct class	*mbochs_class;
- static struct cdev	mbochs_cdev;
- static struct device	mbochs_dev;
--static int		mbochs_used_mbytes;
-+static atomic_t mbochs_avail_mbytes;
- static const struct vfio_device_ops mbochs_dev_ops;
- 
- struct vfio_region_info_ext {
-@@ -507,18 +507,22 @@ static int mbochs_reset(struct mdev_state *mdev_state)
- 
- static int mbochs_probe(struct mdev_device *mdev)
- {
-+	int avail_mbytes = atomic_read(&mbochs_avail_mbytes);
- 	const struct mbochs_type *type =
- 		&mbochs_types[mdev_get_type_group_id(mdev)];
- 	struct device *dev = mdev_dev(mdev);
- 	struct mdev_state *mdev_state;
- 	int ret = -ENOMEM;
- 
--	if (type->mbytes + mbochs_used_mbytes > max_mbytes)
--		return -ENOMEM;
-+	do {
-+		if (avail_mbytes < type->mbytes)
-+			return -ENOSPC;
-+	} while (!atomic_try_cmpxchg(&mbochs_avail_mbytes, &avail_mbytes,
-+				     avail_mbytes - type->mbytes));
- 
- 	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
- 	if (mdev_state == NULL)
--		return -ENOMEM;
-+		goto err_avail;
- 	vfio_init_group_dev(&mdev_state->vdev, &mdev->dev, &mbochs_dev_ops);
- 
- 	mdev_state->vconfig = kzalloc(MBOCHS_CONFIG_SPACE_SIZE, GFP_KERNEL);
-@@ -549,17 +553,17 @@ static int mbochs_probe(struct mdev_device *mdev)
- 	mbochs_create_config_space(mdev_state);
- 	mbochs_reset(mdev_state);
- 
--	mbochs_used_mbytes += type->mbytes;
--
- 	ret = vfio_register_group_dev(&mdev_state->vdev);
- 	if (ret)
- 		goto err_mem;
- 	dev_set_drvdata(&mdev->dev, mdev_state);
- 	return 0;
--
- err_mem:
-+	kfree(mdev_state->pages);
- 	kfree(mdev_state->vconfig);
- 	kfree(mdev_state);
-+err_avail:
-+	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
- 	return ret;
- }
- 
-@@ -567,8 +571,8 @@ static void mbochs_remove(struct mdev_device *mdev)
- {
- 	struct mdev_state *mdev_state = dev_get_drvdata(&mdev->dev);
- 
--	mbochs_used_mbytes -= mdev_state->type->mbytes;
- 	vfio_unregister_group_dev(&mdev_state->vdev);
-+	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
- 	kfree(mdev_state->pages);
- 	kfree(mdev_state->vconfig);
- 	kfree(mdev_state);
-@@ -1351,7 +1355,7 @@ static ssize_t available_instances_show(struct mdev_type *mtype,
- {
- 	const struct mbochs_type *type =
- 		&mbochs_types[mtype_get_type_group_id(mtype)];
--	int count = (max_mbytes - mbochs_used_mbytes) / type->mbytes;
-+	int count = atomic_read(&mbochs_avail_mbytes) / type->mbytes;
- 
- 	return sprintf(buf, "%d\n", count);
- }
-@@ -1433,6 +1437,8 @@ static int __init mbochs_dev_init(void)
- {
- 	int ret = 0;
- 
-+	atomic_set(&mbochs_avail_mbytes, max_mbytes);
-+
- 	ret = alloc_chrdev_region(&mbochs_devt, 0, MINORMASK + 1, MBOCHS_NAME);
- 	if (ret < 0) {
- 		pr_err("Error: failed to register mbochs_dev, err: %d\n", ret);
+   if (pci_dev_driver(pdev) != &vfio_pci_driver)
+
+Which is not scalable if there are going to be multiple different driver
+types.
+
+This series takes the approach of moving the "reflck" mechanism into the
+core code as a "device set". Each vfio_device driver can specify how
+vfio_devices are grouped into the set using a key and the set comes along
+with a set-global mutex. The core code manages creating per-device set
+memory and associating it with each vfio_device.
+
+In turn this allows the core code to provide an open/close_device()
+operation that is called only for the first/last FD, and is called under
+the global device set lock.
+
+Review of all the drivers show that they are either already open coding
+the first/last semantic or are buggy and missing it. All drivers are
+migrated/fixed to the new open/close_device ops and the unused per-FD
+open()/release() ops are deleted.
+
+The special behavior of PCI around the bus/slot "reset group" is recast in
+terms of the device set which conslidates the reflck, eliminates two
+touches of pci_dev_driver(), and allows the reset mechanism to share
+across all VFIO PCI drivers. PCI is changed to acquire devices directly
+from the device set instead of trying to work backwards from the struct
+pci_device.
+
+Overall a few minor bugs are squashed and quite a bit of code is removed
+through consolidation.
+
+v3:
+ - Atomic conversion of mbochs_used_mbytes
+ - Add missing vfio_uninit_group_dev in error unwind of mbochs
+ - Reorganize vfio_assign_device_set()
+ - Move the dev_set_list hunks to the introduction of the dev_set
+ - Use if instead of ?: in fsl
+ - Add a comment about the whole bus reset in vfio_pci_probe()
+ - Rename vfio_pci_check_all_devices_bound() to
+   vfio_pci_is_device_in_set()
+ - Move logic from vfio_pci_try_bus_reset() into vfio_pci_find_reset_target()
+v2: https://lore.kernel.org/r/0-v2-b6a5582525c9+ff96-vfio_reflck_jgg@nvidia.com
+ - Reorder fsl and mbochs vfio_uninit_group_dev
+ - Fix missing error unwind in mbochs
+ - Return 0 from mdev open_device if there is no op
+ - Fix style for else {}
+ - Spelling fix for singleton
+ - Acquire cur_mem under lock
+ - Always use error unwind flow for vfio_pci_check_all_devices_bound()
+v1: https://lore.kernel.org/r/0-v1-eaf3ccbba33c+1add0-vfio_reflck_jgg@nvidia.com
+
+Jason Gunthorpe (12):
+  vfio/samples: Remove module get/put
+  vfio/mbochs: Fix missing error unwind of mbochs_used_mbytes
+  vfio: Provide better generic support for open/release vfio_device_ops
+  vfio/samples: Delete useless open/close
+  vfio/fsl: Move to the device set infrastructure
+  vfio/platform: Use open_device() instead of open coding a refcnt
+    scheme
+  vfio/pci: Change vfio_pci_try_bus_reset() to use the dev_set
+  vfio/pci: Reorganize VFIO_DEVICE_PCI_HOT_RESET to use the device set
+  vfio/mbochs: Fix close when multiple device FDs are open
+  vfio/ap,ccw: Fix open/close when multiple device FDs are open
+  vfio/gvt: Fix open/close when multiple device FDs are open
+  vfio: Remove struct vfio_device_ops open/release
+
+Max Gurtovoy (1):
+  vfio: Introduce a vfio_uninit_group_dev() API call
+
+Yishai Hadas (1):
+  vfio/pci: Move to the device set infrastructure
+
+ Documentation/driver-api/vfio.rst             |   4 +-
+ drivers/gpu/drm/i915/gvt/kvmgt.c              |   8 +-
+ drivers/s390/cio/vfio_ccw_ops.c               |   8 +-
+ drivers/s390/crypto/vfio_ap_ops.c             |   8 +-
+ drivers/vfio/fsl-mc/vfio_fsl_mc.c             | 159 +-----
+ drivers/vfio/fsl-mc/vfio_fsl_mc_intr.c        |   6 +-
+ drivers/vfio/fsl-mc/vfio_fsl_mc_private.h     |   7 -
+ drivers/vfio/mdev/vfio_mdev.c                 |  31 +-
+ drivers/vfio/pci/vfio_pci.c                   | 487 +++++++-----------
+ drivers/vfio/pci/vfio_pci_private.h           |   7 -
+ drivers/vfio/platform/vfio_platform_common.c  |  86 ++--
+ drivers/vfio/platform/vfio_platform_private.h |   1 -
+ drivers/vfio/vfio.c                           | 144 +++++-
+ include/linux/mdev.h                          |   9 +-
+ include/linux/vfio.h                          |  26 +-
+ samples/vfio-mdev/mbochs.c                    |  40 +-
+ samples/vfio-mdev/mdpy.c                      |  40 +-
+ samples/vfio-mdev/mtty.c                      |  40 +-
+ 18 files changed, 468 insertions(+), 643 deletions(-)
+
 -- 
 2.32.0
 
