@@ -2,695 +2,248 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15488C4338F
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 21:26:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7618AC4338F
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 00:49:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DDCA861039
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jul 2021 21:26:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D28B6023B
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 00:49:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231865AbhG1V0b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jul 2021 17:26:31 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45672 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231784AbhG1V0a (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Jul 2021 17:26:30 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16SK9t3g115015;
-        Wed, 28 Jul 2021 17:26:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=SuYxz0Qd8dniNSsnC0i5/EYjxRVG47KhdzXEr1eZvuo=;
- b=UrsGV3uAmhJP3MGaERunhlG8LHMal6ooL/LpBoUVhYkOJb6AvdPzTBUu5Q3DOWKubiwK
- SGM+Z2WUv5c1zyST7v24T1XhXMFNjTzU5bu/nWW0Q3tyAm4jRfkKJikCqqFmhpsT2uT7
- E27Jr625xKkM5o+F78jX/OcpKOPCAxTCc6t7SwTNVmFztNfn+XETcBIEPNB8M/B012us
- cylD2GldEWs7vFDOJSayJnRh51AumdEqOKYJynqouqj4kPsCRpY+OMVF3axSQTKC3etV
- ruwriVvJ9zMAfUqHlh7RU1i/GuOC4+fmZhJbfs4X+4ZqpVnPpvZSydNPyuzriRNO9x5q yw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a3970t9p4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 17:26:02 -0400
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16SLQ1HU092048;
-        Wed, 28 Jul 2021 17:26:02 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a3970t9nk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 17:26:01 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16SJmvdj008925;
-        Wed, 28 Jul 2021 21:26:00 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 3a235m1a3c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 28 Jul 2021 21:25:59 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16SLPucK30409156
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 28 Jul 2021 21:25:56 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A0C3FAE045;
-        Wed, 28 Jul 2021 21:25:56 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2C20DAE056;
-        Wed, 28 Jul 2021 21:25:56 +0000 (GMT)
-Received: from vm.lan (unknown [9.145.77.113])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 28 Jul 2021 21:25:56 +0000 (GMT)
-From:   Ilya Leoshkevich <iii@linux.ibm.com>
-To:     Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 2/2] s390/ftrace: implement hotpatching
-Date:   Wed, 28 Jul 2021 23:25:46 +0200
-Message-Id: <20210728212546.128248-3-iii@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210728212546.128248-1-iii@linux.ibm.com>
-References: <20210728212546.128248-1-iii@linux.ibm.com>
-MIME-Version: 1.0
+        id S232904AbhG2Ate (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jul 2021 20:49:34 -0400
+Received: from mail-bn8nam12on2079.outbound.protection.outlook.com ([40.107.237.79]:35584
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S232837AbhG2Atd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Jul 2021 20:49:33 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=NfSjX/KI7dAa2J/UMJXIGB/3HNnhPXImMbUGhkX6NkDyfcTcyr67YzWcNXXCqOQnjvDeud07HQtbZsBCxVgP5ucGzog66v0jx+Y2bxy+SRyTMLdJHJrAHG23NOU8cByrlSSYaGChQ5Kipf91p6YRKzMM7L44qohisXWe4d3oBL9gOkTdIVU6Z7n82AAyFj5yRqZSDAzTN5kuFFVjhEPrFr20FtGDy3Ez11Ej8Sb6fkAkvyGItTCwc13MvYLDkvAjRugVH4tmhhap2QuQapiXtxpPeJO8pKTzOrB3qZmK4Swft7S8g0daFLhPXXkSVmGFcvDK2i6Qp69thOJIBcP8Ow==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=aU3f9OuiUdmchkw+GXAfx5H8S4/WIy0aiIG/duzDst8=;
+ b=kb0iOsuJfZksmx81YlMLrUrMgVdUV/JTSSPu/aRSoLxBFVA0mqJLvqj0fjzh3NmsccEie8jdSv9yB2gRBGrOb0+EC+jrJnwzKLZ6ltjF+n0PvLONt6iRAtaqLdBCM5E8kjPLL1Qt73nlBl9nydU15nyl+/7XJvQws6CXjT1m36ujEy2Q4J18IAxoQH2InbyY9+MgQU3zymj9pD73WSOCFj/lvbRoD3XGtMByenfvTSeZ5h1GHBB197ZGff4M3ktMHtAHiu/yvDTpiwgUv6pd1nLtGMou1BSrELGCjsgMsxUPlDeiw4VFvNASzCKCbLM1W9WX9ERAIbtOpj30QirxOA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=aU3f9OuiUdmchkw+GXAfx5H8S4/WIy0aiIG/duzDst8=;
+ b=W4QqdZicHJqfPJKiIYgq9d7QGVonp4FSPlcPvJDzQbib7d18Wbfl8m2+0dR54bXyMp8GaY1GwkiJ0Nm9+yYJirapx+Br+Y4lm+xc3WKvadh0NiLay5liD+7ynTjf7TETasQzfMlAtfpCYptIpnH/vsFDng3evsr8V1i5QG8uQsvhsadyM4+gp5+M5YjcvYb3PJe+rC5oyD7//ftyCa2LwXhlS/XsAZq/OFxdL0xydVXi+9o0S/6R86b9+3qPi+dMq91U6+kdoR5Dudd6f4NSHfX5ABu2Kq2/3mMqx4YmaXA7NGWLqZjWcpwF9iv5fpkzWR8fL5GXZyVJwXHnY50eyw==
+Authentication-Results: linux.ie; dkim=none (message not signed)
+ header.d=none;linux.ie; dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL1PR12MB5160.namprd12.prod.outlook.com (2603:10b6:208:311::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.20; Thu, 29 Jul
+ 2021 00:49:26 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::d017:af2f:7049:5482]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::d017:af2f:7049:5482%5]) with mapi id 15.20.4373.019; Thu, 29 Jul 2021
+ 00:49:26 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        dri-devel@lists.freedesktop.org,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Cc:     "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: [PATCH v3 02/14] vfio/mbochs: Fix missing error unwind of mbochs_used_mbytes
+Date:   Wed, 28 Jul 2021 21:49:11 -0300
+Message-Id: <2-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
+In-Reply-To: <0-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
+References: 
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: oCeuVszPmJ0Nf7M63msLpcusf6Wr7FLX
-X-Proofpoint-ORIG-GUID: fkIO8SsbtpZfW-NAGXWGiowEGjYu9xEN
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-28_10:2021-07-27,2021-07-28 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 suspectscore=0 clxscore=1015 bulkscore=0 spamscore=0
- malwarescore=0 adultscore=0 impostorscore=0 mlxscore=0 mlxlogscore=999
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2107280113
+Content-Type: text/plain
+X-ClientProxiedBy: YT1PR01CA0042.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b01:2e::11) To BL0PR12MB5506.namprd12.prod.outlook.com
+ (2603:10b6:208:1cb::22)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (206.223.160.26) by YT1PR01CA0042.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:2e::11) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.18 via Frontend Transport; Thu, 29 Jul 2021 00:49:25 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1m8uEl-009pmj-PB; Wed, 28 Jul 2021 21:49:23 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 6daf7576-f776-4ea4-3842-08d9522ab66f
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5160:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BL1PR12MB5160FDB4A2A073F45FC7FCC4C2EB9@BL1PR12MB5160.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YrqAnGt9HLPaQbUgU6RaZinRdr9SYUGnQeEYv1k+KyXb0z4L+Ov1qZVLMZ48+7/kgmNghGfbzz/joKA/xvUQrpYFev2LN0UxP7PF55WUvlMNVHc3E9b8+Xm7a9YDZRRJvgrov4j+hXyUQsmFVxvTPxKsdd3+2XWxBEItnjThPL6GdGdjEoogpfwWs5f4evfl3ZZnPnUHQJDFVB8gZf32G3CFCkCaEDK9VG89zVflmolZsKkwOMrFhByq70gszqut2dgKRw+UBz0/0zV7T1doweEsyRuSi8KatlBEf4+voTQre4RE/7rNb7mmi6oQE30OoJaT76OCJzfjT54va/iULxgPEjf5QAodtuRKsmiIEkjtYMDPtGRZ/iLGxK6sn/WtRowIqxmdmxPpF2Y7L3STQSsy0lfTI+EWTJEvaYO9QVS1LEjEvUM2LPnqi1FXuZq7GiSXj64zKpvEJ/1LKMTwEhX2FvseXvORUAIxHbZ6zQQhyCWxYTy3syRUuvbtv7ecPDQ38OrfjSD3FuThWDI95yyMIU5nBB+nOTfsrVn1XBpklcxAdKaGF/DZnqjt3JFuzIfSkk1CnQ436zk+QVDEAY3apICA/m/k3iUDVFVM54ZlGrXihHhNR4C7V6RUaKsYPbaD1cxadPKIAWfoU5xPT7Pwh9K4v0U1OZ80ljEdg+RxB0BalSW/rJwy9zncn29UCnNK/Ec7TulFcQQaVcKS5Q==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(396003)(376002)(366004)(39860400002)(346002)(8936002)(86362001)(2906002)(6666004)(426003)(921005)(8676002)(2616005)(5660300002)(316002)(186003)(7406005)(7416002)(54906003)(110136005)(26005)(66946007)(66556008)(66476007)(36756003)(9786002)(9746002)(4326008)(83380400001)(478600001)(38100700002)(4216001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?v6xLb1zWkrZZahMpFF+b5tdxUmMXBcrr9LJcP2iltY4O6/3FS3MFAr8CNJXN?=
+ =?us-ascii?Q?0s2s8G6K8oU/t8CaBdpbQGs5PiFVI8+K0JfCY5Wo5Ea20m2/LjYgrjseDAQ1?=
+ =?us-ascii?Q?qVoyKcUnTMHeioQE545XsY5rglUXPPTY3OShp1ihJqiJcTELaHQ0RRG/7CUv?=
+ =?us-ascii?Q?2tTCAVy6Kw+dFdW7hwDuo1x6xmJLyiIZfnQZzoEn4fosEO3VPyqvdqqnzD8a?=
+ =?us-ascii?Q?nsRtZMF2glEwd/biHJA6dyCLJlTfyBfnHbhE7ZSuq4HPmtlCUhwbPCBrchSn?=
+ =?us-ascii?Q?pK2dJQ42jRK11h+jsSohDPgYJaDO/z/4ZaF9tXdRVF9gOlrTfPKRLEhmireA?=
+ =?us-ascii?Q?cIuJtvcRsIThIIF08GX9kldwuc0lF6jw9w55Ypkdm0KCIemjqdCZhGdAlvfK?=
+ =?us-ascii?Q?iKLBaOAg1vqIBG5Eg18iALXsRuS2qBq2Z5V/fGGrmfS6y4DeRtHCjJQQWNzL?=
+ =?us-ascii?Q?3FGr8OGZPXtxY7Fguo1RS18bF7RxRgmYVSUQpxVhAsEppdQ9Dl20WY0Yln9H?=
+ =?us-ascii?Q?NddACwYw5bfyNp1IRiyDcjjcLgC02km0DiOUjzf+8XwLDdgNHtwxHNMPSfnA?=
+ =?us-ascii?Q?LTHs/gImZR8XDvdhDef7rff0UwLwsAoYBwvHN6SpmBv4UIhrJm6X+63sToSf?=
+ =?us-ascii?Q?29BKvcDUJiypYka/50NuSl0kmqLVO9RUBNP6l+YetpPn6MqpJlceVsOWgBpJ?=
+ =?us-ascii?Q?SwH9B6Fw4B/KuwS4t+lKy3OocN+1EhUMbB1trknMhyD2Sio2W78NGkl9OmDu?=
+ =?us-ascii?Q?Yb2vcmrcSm+OBd6amN2ewArQqDaann+vjse5MnYI2QmZoYmkvWdVVMFFSTV0?=
+ =?us-ascii?Q?BuqbGGpJZrJ5BahxbFZg6zuEhtq0pnry4HaKKNwxqa9dmDGWz5SXKjUXnTjw?=
+ =?us-ascii?Q?/m5Np4EqKZGGjw7l0lQjLcVgIStyuvvkHi5cfFMnCxOBRyRINLOe4vpktPUA?=
+ =?us-ascii?Q?uUCp2VvuJ+lq/bg1u+9nE7IZgNvR6+0p5Q8x+LjObhJXqGpnIOugDMaZFU8m?=
+ =?us-ascii?Q?vbbpXY5bPqquKkgirnKl3fKbhhCByC6QNaePJQa39eBzWRxC9TEjCl4YNKWE?=
+ =?us-ascii?Q?To9T7AfxfBKWfkNXvFGishqGyqcyv032G7Md20GeEJDBhRNAqvQltKQMLcUX?=
+ =?us-ascii?Q?cPHaX9DOgxLdueJ5XqzcfwjG4z2x1dF83nF7m6khG3D/DudFjPkOYkjNiRhx?=
+ =?us-ascii?Q?B80u2R8cwra20uVQwPkdm+sOvC8I0JSsUiI3ZOlRBdScEXPDomCYx/JXjXdY?=
+ =?us-ascii?Q?/i2XGEgoXmOo/Xdx6LcavXtECHEZH5lfjuaF9AtL38rBuLZ1MN3X9YYmZnuU?=
+ =?us-ascii?Q?vKU566utlhdaZORwB2bmWMOd?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6daf7576-f776-4ea4-3842-08d9522ab66f
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jul 2021 00:49:25.7659
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: z/NvBt8GiacMZ+bXmcFSetcC7VmO4wOH73xFJTBgNeMV5IhNNQtLfomTamQoI5/k
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5160
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-s390 allows hotpatching the mask of a conditional jump instruction.
-Make use of this feature in order to avoid the expensive stop_machine()
-call.
+Convert mbochs to use an atomic scheme for this like mtty was changed
+into. The atomic fixes various race conditions with probing. Add the
+missing error unwind. Also add the missing kfree of mdev_state->pages.
 
-The new trampolines are split in 3 stages:
-
-- A first stage is a 6-byte relative conditional long branch located at
-  each function's entry point. Its offset always points to the second
-  stage for the corresponding function, and its mask is either all 0s
-  (ftrace off) or all 1s (ftrace on). The code for flipping the mask is
-  borrowed from ftrace_{enable,disable}_ftrace_graph_caller. After
-  flipping, ftrace_arch_code_modify_post_process() syncs with all the
-  other CPUs by sending SIGPs.
-
-- Second stages for vmlinux are stored in a separate part of the .text
-  section reserved by the linker script, and in dynamically allocated
-  memory for modules. This prevents the icache pollution. The total
-  size of second stages is about 1.5% of that of the kernel image.
-
-  Putting second stages in the .bss section is possible and decreases
-  the size of the non-compressed vmlinux, but splits the kernel 1:1
-  mapping, which is a bad tradeoff.
-
-  Each second stage contains a call to the third stage, a pointer to
-  the part of the intercepted function right after the first stage, and
-  a pointer to an interceptor function (e.g. ftrace_caller).
-
-  Second stages are 8-byte aligned for the future direct calls
-  implementation.
-
-- There are only two copies of the third stage: in the .text section
-  for vmlinux and in dynamically allocated memory for modules. It can be
-  an expoline, which is relatively large, so inlining it into each
-  second stage is prohibitively expensive.
-
-As a result of this organization, phoronix-test-suite with ftrace off
-does not show any performance degradation.
-
-At least a couple things are missing right now, but can be implemented
-separately later:
-
-- Expoline version of the third stage is supported only for z10+.
-  Implementing it for earlier machines is possible, but is relatively
-  complicated due to the lack of available registers.
-
-- On z15+ trampolines may use a BIC instruction, which loads an address
-  from memory and jumps to it.
-
-Suggested-by: Sven Schnelle <svens@linux.ibm.com>
-Suggested-by: Vasily Gorbik <gor@linux.ibm.com>
-Co-developed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Fixes: 681c1615f891 ("vfio/mbochs: Convert to use vfio_register_group_dev()")
+Reported-by: Cornelia Huck <cohuck@redhat.com>
+Co-developed-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- arch/s390/include/asm/ftrace.h     |  46 +------
- arch/s390/include/asm/ftrace.lds.h |  21 +++
- arch/s390/include/asm/module.h     |   8 ++
- arch/s390/kernel/ftrace.c          | 207 ++++++++++++++++++++++++++---
- arch/s390/kernel/ftrace.h          |  24 ++++
- arch/s390/kernel/module.c          |  45 +++++++
- arch/s390/kernel/vmlinux.lds.S     |   2 +
- 7 files changed, 296 insertions(+), 57 deletions(-)
- create mode 100644 arch/s390/include/asm/ftrace.lds.h
- create mode 100644 arch/s390/kernel/ftrace.h
+ samples/vfio-mdev/mbochs.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/arch/s390/include/asm/ftrace.h b/arch/s390/include/asm/ftrace.h
-index 345cbe982a8b..e8b460f39c58 100644
---- a/arch/s390/include/asm/ftrace.h
-+++ b/arch/s390/include/asm/ftrace.h
-@@ -18,7 +18,6 @@
- void ftrace_caller(void);
+diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
+index e81b875b4d87b4..a12b1fc94ed402 100644
+--- a/samples/vfio-mdev/mbochs.c
++++ b/samples/vfio-mdev/mbochs.c
+@@ -129,7 +129,7 @@ static dev_t		mbochs_devt;
+ static struct class	*mbochs_class;
+ static struct cdev	mbochs_cdev;
+ static struct device	mbochs_dev;
+-static int		mbochs_used_mbytes;
++static atomic_t mbochs_avail_mbytes;
+ static const struct vfio_device_ops mbochs_dev_ops;
  
- extern char ftrace_graph_caller_end;
--extern unsigned long ftrace_plt;
- extern void *ftrace_func;
+ struct vfio_region_info_ext {
+@@ -507,18 +507,22 @@ static int mbochs_reset(struct mdev_state *mdev_state)
  
- struct dyn_arch_ftrace { };
-@@ -31,10 +30,11 @@ struct dyn_arch_ftrace { };
- 
- struct module;
- struct dyn_ftrace;
--/*
-- * Either -mhotpatch or -mnop-mcount is used - no explicit init is required
-- */
--static inline int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec) { return 0; }
-+
-+bool ftrace_need_init_nop(void);
-+#define ftrace_need_init_nop ftrace_need_init_nop
-+
-+int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec);
- #define ftrace_init_nop ftrace_init_nop
- 
- static inline unsigned long ftrace_call_adjust(unsigned long addr)
-@@ -42,42 +42,6 @@ static inline unsigned long ftrace_call_adjust(unsigned long addr)
- 	return addr;
- }
- 
--struct ftrace_insn {
--	u16 opc;
--	s32 disp;
--} __packed;
--
--static inline void ftrace_generate_nop_insn(struct ftrace_insn *insn)
--{
--#ifdef CONFIG_FUNCTION_TRACER
--	/* brcl 0,0 */
--	insn->opc = 0xc004;
--	insn->disp = 0;
--#endif
--}
--
--static inline int is_ftrace_nop(struct ftrace_insn *insn)
--{
--#ifdef CONFIG_FUNCTION_TRACER
--	if (insn->disp == 0)
--		return 1;
--#endif
--	return 0;
--}
--
--static inline void ftrace_generate_call_insn(struct ftrace_insn *insn,
--					     unsigned long ip)
--{
--#ifdef CONFIG_FUNCTION_TRACER
--	unsigned long target;
--
--	/* brasl r0,ftrace_caller */
--	target = is_module_addr((void *) ip) ? ftrace_plt : FTRACE_ADDR;
--	insn->opc = 0xc005;
--	insn->disp = (target - ip) / 2;
--#endif
--}
--
- /*
-  * Even though the system call numbers are identical for s390/s390x a
-  * different system call table is used for compat tasks. This may lead
-diff --git a/arch/s390/include/asm/ftrace.lds.h b/arch/s390/include/asm/ftrace.lds.h
-new file mode 100644
-index 000000000000..90b3d86227ca
---- /dev/null
-+++ b/arch/s390/include/asm/ftrace.lds.h
-@@ -0,0 +1,21 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef DIV_ROUND_UP
-+#define DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
-+#endif
-+
-+#define SIZEOF_MCOUNT_LOC_ENTRY 8
-+#define SIZEOF_FTRACE_HOTPATCH_TRAMPOLINE 24
-+#define FTRACE_HOTPATCH_TRAMPOLINES_SIZE(n)                                    \
-+	DIV_ROUND_UP(SIZEOF_FTRACE_HOTPATCH_TRAMPOLINE * (n),                  \
-+		     SIZEOF_MCOUNT_LOC_ENTRY)
-+
-+#ifdef CONFIG_FUNCTION_TRACER
-+#define FTRACE_HOTPATCH_TRAMPOLINES_TEXT                                       \
-+	. = ALIGN(8);                                                          \
-+	__ftrace_hotpatch_trampolines_start = .;                               \
-+	. = . + FTRACE_HOTPATCH_TRAMPOLINES_SIZE(__stop_mcount_loc -           \
-+						 __start_mcount_loc);          \
-+	__ftrace_hotpatch_trampolines_end = .;
-+#else
-+#define FTRACE_HOTPATCH_TRAMPOLINES_TEXT
-+#endif
-diff --git a/arch/s390/include/asm/module.h b/arch/s390/include/asm/module.h
-index 71e57b8af757..9f1eea15872c 100644
---- a/arch/s390/include/asm/module.h
-+++ b/arch/s390/include/asm/module.h
-@@ -28,6 +28,14 @@ struct mod_arch_specific {
- 	int nsyms;
- 	/* Additional symbol information (got and plt offsets). */
- 	struct mod_arch_syminfo *syminfo;
-+#ifdef CONFIG_FUNCTION_TRACER
-+	/* Start of memory reserved for ftrace hotpatch trampolines. */
-+	struct ftrace_hotpatch_trampoline *trampolines_start;
-+	/* End of memory reserved for ftrace hotpatch trampolines. */
-+	struct ftrace_hotpatch_trampoline *trampolines_end;
-+	/* Next unused ftrace hotpatch trampoline slot. */
-+	struct ftrace_hotpatch_trampoline *next_trampoline;
-+#endif /* CONFIG_FUNCTION_TRACER */
- };
- 
- #endif /* _ASM_S390_MODULE_H */
-diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
-index 2d8f595d9196..5d3fa255533a 100644
---- a/arch/s390/kernel/ftrace.c
-+++ b/arch/s390/kernel/ftrace.c
-@@ -18,8 +18,11 @@
- #include <trace/syscall.h>
- #include <asm/asm-offsets.h>
- #include <asm/cacheflush.h>
-+#include <asm/ftrace.lds.h>
-+#include <asm/nospec-branch.h>
- #include <asm/set_memory.h>
- #include "entry.h"
-+#include "ftrace.h"
- 
- /*
-  * To generate function prologue either gcc's hotpatch feature (since gcc 4.8)
-@@ -41,7 +44,115 @@
-  */
- 
- void *ftrace_func __read_mostly = ftrace_stub;
--unsigned long ftrace_plt;
-+struct ftrace_insn {
-+	u16 opc;
-+	s32 disp;
-+} __packed;
-+
-+asm(
-+	"ftrace_shared_hotpatch_trampoline_br:\n"
-+	"	lmg	%r0,%r1,2(%r1)\n"
-+	"	br	%r1\n"
-+	"ftrace_shared_hotpatch_trampoline_br_end:\n"
-+);
-+
-+#ifdef CONFIG_EXPOLINE
-+asm(
-+	"ftrace_shared_hotpatch_trampoline_exrl:\n"
-+	"	lmg	%r0,%r1,2(%r1)\n"
-+	"	.insn	ril,0xc60000000000,%r0,0f\n" /* exrl */
-+	"	j	.\n"
-+	"0:	br	%r1\n"
-+	"ftrace_shared_hotpatch_trampoline_exrl_end:\n"
-+);
-+#endif /* CONFIG_EXPOLINE */
-+
-+#ifdef CONFIG_MODULES
-+static char *ftrace_plt;
-+
-+asm(
-+	"	.data\n"
-+	"ftrace_plt_template:\n"
-+	"	basr	%r1,%r0\n"
-+	"	lg	%r1,0f-.(%r1)\n"
-+	"	br	%r1\n"
-+	"0:	.quad	ftrace_caller\n"
-+	"ftrace_plt_template_end:\n"
-+	"	.previous\n"
-+);
-+#endif /* CONFIG_MODULES */
-+
-+static const char *ftrace_shared_hotpatch_trampoline(const char **end)
-+{
-+#ifdef CONFIG_EXPOLINE
-+	if (!nospec_disable) {
-+		if (test_facility(18)) {
-+			if (end)
-+				*end = ftrace_shared_hotpatch_trampoline_exrl_end;
-+			return ftrace_shared_hotpatch_trampoline_exrl;
-+		}
-+		return NULL;
-+	}
-+#endif /* CONFIG_EXPOLINE */
-+	if (end)
-+		*end = ftrace_shared_hotpatch_trampoline_br_end;
-+	return ftrace_shared_hotpatch_trampoline_br;
-+}
-+
-+bool ftrace_need_init_nop(void)
-+{
-+	return ftrace_shared_hotpatch_trampoline(NULL);
-+}
-+
-+int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec)
-+{
-+	static struct ftrace_hotpatch_trampoline *next_vmlinux_trampoline =
-+		__ftrace_hotpatch_trampolines_start;
-+	static const char orig[6] = { 0xc0, 0x04, 0x00, 0x00, 0x00, 0x00 };
-+	static struct ftrace_hotpatch_trampoline *trampoline;
-+	struct ftrace_hotpatch_trampoline **next_trampoline;
-+	struct ftrace_hotpatch_trampoline *trampolines_end;
-+	struct ftrace_hotpatch_trampoline tmp;
-+	struct ftrace_insn *insn;
-+	const char *shared;
-+	s32 disp;
-+
-+	BUILD_BUG_ON(sizeof(struct ftrace_hotpatch_trampoline) !=
-+		     SIZEOF_FTRACE_HOTPATCH_TRAMPOLINE);
-+
-+	next_trampoline = &next_vmlinux_trampoline;
-+	trampolines_end = __ftrace_hotpatch_trampolines_end;
-+	shared = ftrace_shared_hotpatch_trampoline(NULL);
-+#ifdef CONFIG_MODULES
-+	if (mod) {
-+		next_trampoline = &mod->arch.next_trampoline;
-+		trampolines_end = mod->arch.trampolines_end;
-+		shared = ftrace_plt;
-+	}
-+#endif
-+
-+	if (WARN_ON_ONCE(*next_trampoline >= trampolines_end))
-+		return -ENOMEM;
-+	trampoline = (*next_trampoline)++;
-+
-+	/* Check for the compiler-generated fentry nop (brcl 0, .). */
-+	if (WARN_ON_ONCE(memcmp((const void *)rec->ip, &orig, sizeof(orig))))
-+		return -EINVAL;
-+
-+	/* Generate the trampoline. */
-+	tmp.brasl_opc = 0xc015; /* brasl %r1, shared */
-+	tmp.brasl_disp = (shared - (const char *)&trampoline->brasl_opc) / 2;
-+	tmp.interceptor = FTRACE_ADDR;
-+	tmp.rest_of_intercepted_function = rec->ip + sizeof(struct ftrace_insn);
-+	s390_kernel_write(trampoline, &tmp, sizeof(tmp));
-+
-+	/* Generate a jump to the trampoline. */
-+	disp = ((char *)trampoline - (char *)rec->ip) / 2;
-+	insn = (struct ftrace_insn *)rec->ip;
-+	s390_kernel_write(&insn->disp, &disp, sizeof(disp));
-+
-+	return 0;
-+}
- 
- int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
- 		       unsigned long addr)
-@@ -49,11 +160,45 @@ int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
- 	return 0;
- }
- 
-+static void ftrace_generate_nop_insn(struct ftrace_insn *insn)
-+{
-+	/* brcl 0,0 */
-+	insn->opc = 0xc004;
-+	insn->disp = 0;
-+}
-+
-+static void ftrace_generate_call_insn(struct ftrace_insn *insn,
-+				      unsigned long ip)
-+{
-+	unsigned long target;
-+
-+	/* brasl r0,ftrace_caller */
-+	target = FTRACE_ADDR;
-+#ifdef CONFIG_MODULES
-+	if (is_module_addr((void *)ip))
-+		target = (unsigned long)ftrace_plt;
-+#endif /* CONFIG_MODULES */
-+	insn->opc = 0xc005;
-+	insn->disp = (target - ip) / 2;
-+}
-+
-+static void brcl_disable(void *brcl)
-+{
-+	u8 op = 0x04; /* set mask field to zero */
-+
-+	s390_kernel_write((char *)brcl + 1, &op, sizeof(op));
-+}
-+
- int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
- 		    unsigned long addr)
+ static int mbochs_probe(struct mdev_device *mdev)
  {
- 	struct ftrace_insn orig, new, old;
++	int avail_mbytes = atomic_read(&mbochs_avail_mbytes);
+ 	const struct mbochs_type *type =
+ 		&mbochs_types[mdev_get_type_group_id(mdev)];
+ 	struct device *dev = mdev_dev(mdev);
+ 	struct mdev_state *mdev_state;
+ 	int ret = -ENOMEM;
  
-+	if (ftrace_shared_hotpatch_trampoline(NULL)) {
-+		brcl_disable((void *)rec->ip);
-+		return 0;
-+	}
-+
- 	if (copy_from_kernel_nofault(&old, (void *) rec->ip, sizeof(old)))
- 		return -EFAULT;
- 	/* Replace ftrace call with a nop. */
-@@ -67,10 +212,22 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
- 	return 0;
- }
+-	if (type->mbytes + mbochs_used_mbytes > max_mbytes)
+-		return -ENOMEM;
++	do {
++		if (avail_mbytes < type->mbytes)
++			return -ENOSPC;
++	} while (!atomic_try_cmpxchg(&mbochs_avail_mbytes, &avail_mbytes,
++				     avail_mbytes - type->mbytes));
  
-+static void brcl_enable(void *brcl)
-+{
-+	u8 op = 0xf4; /* set mask field to all ones */
-+
-+	s390_kernel_write((char *)brcl + 1, &op, sizeof(op));
-+}
-+
- int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
- {
- 	struct ftrace_insn orig, new, old;
+ 	mdev_state = kzalloc(sizeof(struct mdev_state), GFP_KERNEL);
+ 	if (mdev_state == NULL)
+-		return -ENOMEM;
++		goto err_avail;
+ 	vfio_init_group_dev(&mdev_state->vdev, &mdev->dev, &mbochs_dev_ops);
  
-+	if (ftrace_shared_hotpatch_trampoline(NULL)) {
-+		brcl_enable((void *)rec->ip);
-+		return 0;
-+	}
-+
- 	if (copy_from_kernel_nofault(&old, (void *) rec->ip, sizeof(old)))
- 		return -EFAULT;
- 	/* Replace nop with an ftrace call. */
-@@ -95,22 +252,44 @@ int __init ftrace_dyn_arch_init(void)
- 	return 0;
- }
+ 	mdev_state->vconfig = kzalloc(MBOCHS_CONFIG_SPACE_SIZE, GFP_KERNEL);
+@@ -549,17 +553,17 @@ static int mbochs_probe(struct mdev_device *mdev)
+ 	mbochs_create_config_space(mdev_state);
+ 	mbochs_reset(mdev_state);
  
-+void arch_ftrace_update_code(int command)
-+{
-+	if (ftrace_shared_hotpatch_trampoline(NULL))
-+		ftrace_modify_all_code(command);
-+	else
-+		ftrace_run_stop_machine(command);
-+}
-+
-+static void __ftrace_sync(void *dummy)
-+{
-+}
-+
-+int ftrace_arch_code_modify_post_process(void)
-+{
-+	if (ftrace_shared_hotpatch_trampoline(NULL)) {
-+		/* Send SIGP to the other CPUs, so they see the new code. */
-+		smp_call_function(__ftrace_sync, NULL, 1);
-+	}
-+	return 0;
-+}
-+
- #ifdef CONFIG_MODULES
- 
- static int __init ftrace_plt_init(void)
- {
--	unsigned int *ip;
-+	const char *start, *end;
- 
--	ftrace_plt = (unsigned long) module_alloc(PAGE_SIZE);
-+	ftrace_plt = module_alloc(PAGE_SIZE);
- 	if (!ftrace_plt)
- 		panic("cannot allocate ftrace plt\n");
--	ip = (unsigned int *) ftrace_plt;
--	ip[0] = 0x0d10e310; /* basr 1,0; lg 1,10(1); br 1 */
--	ip[1] = 0x100a0004;
--	ip[2] = 0x07f10000;
--	ip[3] = FTRACE_ADDR >> 32;
--	ip[4] = FTRACE_ADDR & 0xffffffff;
--	set_memory_ro(ftrace_plt, 1);
-+
-+	start = ftrace_shared_hotpatch_trampoline(&end);
-+	if (!start) {
-+		start = ftrace_plt_template;
-+		end = ftrace_plt_template_end;
-+	}
-+	memcpy(ftrace_plt, start, end - start);
-+	set_memory_ro((unsigned long)ftrace_plt, 1);
- 	return 0;
- }
- device_initcall(ftrace_plt_init);
-@@ -147,17 +326,13 @@ NOKPROBE_SYMBOL(prepare_ftrace_return);
-  */
- int ftrace_enable_ftrace_graph_caller(void)
- {
--	u8 op = 0x04; /* set mask field to zero */
+-	mbochs_used_mbytes += type->mbytes;
 -
--	s390_kernel_write(__va(ftrace_graph_caller)+1, &op, sizeof(op));
-+	brcl_disable(__va(ftrace_graph_caller));
+ 	ret = vfio_register_group_dev(&mdev_state->vdev);
+ 	if (ret)
+ 		goto err_mem;
+ 	dev_set_drvdata(&mdev->dev, mdev_state);
  	return 0;
- }
- 
- int ftrace_disable_ftrace_graph_caller(void)
- {
--	u8 op = 0xf4; /* set mask field to all ones */
 -
--	s390_kernel_write(__va(ftrace_graph_caller)+1, &op, sizeof(op));
-+	brcl_enable(__va(ftrace_graph_caller));
- 	return 0;
+ err_mem:
++	kfree(mdev_state->pages);
+ 	kfree(mdev_state->vconfig);
+ 	kfree(mdev_state);
++err_avail:
++	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
+ 	return ret;
  }
  
-diff --git a/arch/s390/kernel/ftrace.h b/arch/s390/kernel/ftrace.h
-new file mode 100644
-index 000000000000..7f75a9616406
---- /dev/null
-+++ b/arch/s390/kernel/ftrace.h
-@@ -0,0 +1,24 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _FTRACE_H
-+#define _FTRACE_H
-+
-+#include <asm/types.h>
-+
-+struct ftrace_hotpatch_trampoline {
-+	u16 brasl_opc;
-+	s32 brasl_disp;
-+	s16: 16;
-+	u64 rest_of_intercepted_function;
-+	u64 interceptor;
-+} __packed;
-+
-+extern struct ftrace_hotpatch_trampoline __ftrace_hotpatch_trampolines_start[];
-+extern struct ftrace_hotpatch_trampoline __ftrace_hotpatch_trampolines_end[];
-+extern const char ftrace_shared_hotpatch_trampoline_br[];
-+extern const char ftrace_shared_hotpatch_trampoline_br_end[];
-+extern const char ftrace_shared_hotpatch_trampoline_exrl[];
-+extern const char ftrace_shared_hotpatch_trampoline_exrl_end[];
-+extern const char ftrace_plt_template[];
-+extern const char ftrace_plt_template_end[];
-+
-+#endif /* _FTRACE_H */
-diff --git a/arch/s390/kernel/module.c b/arch/s390/kernel/module.c
-index 4055f1c49814..b01ba460b7ca 100644
---- a/arch/s390/kernel/module.c
-+++ b/arch/s390/kernel/module.c
-@@ -14,6 +14,7 @@
- #include <linux/elf.h>
- #include <linux/vmalloc.h>
- #include <linux/fs.h>
-+#include <linux/ftrace.h>
- #include <linux/string.h>
- #include <linux/kernel.h>
- #include <linux/kasan.h>
-@@ -23,6 +24,8 @@
- #include <asm/alternative.h>
- #include <asm/nospec-branch.h>
- #include <asm/facility.h>
-+#include <asm/ftrace.lds.h>
-+#include <asm/set_memory.h>
- 
- #if 0
- #define DEBUGP printk
-@@ -48,6 +51,13 @@ void *module_alloc(unsigned long size)
- 	return p;
- }
- 
-+#ifdef CONFIG_FUNCTION_TRACER
-+void module_arch_cleanup(struct module *mod)
-+{
-+	module_memfree(mod->arch.trampolines_start);
-+}
-+#endif
-+
- void module_arch_freeing_init(struct module *mod)
+@@ -567,8 +571,8 @@ static void mbochs_remove(struct mdev_device *mdev)
  {
- 	if (is_livepatch_module(mod) &&
-@@ -466,6 +476,30 @@ int apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab,
- 				    write);
+ 	struct mdev_state *mdev_state = dev_get_drvdata(&mdev->dev);
+ 
+-	mbochs_used_mbytes -= mdev_state->type->mbytes;
+ 	vfio_unregister_group_dev(&mdev_state->vdev);
++	atomic_add(mdev_state->type->mbytes, &mbochs_avail_mbytes);
+ 	kfree(mdev_state->pages);
+ 	kfree(mdev_state->vconfig);
+ 	kfree(mdev_state);
+@@ -1351,7 +1355,7 @@ static ssize_t available_instances_show(struct mdev_type *mtype,
+ {
+ 	const struct mbochs_type *type =
+ 		&mbochs_types[mtype_get_type_group_id(mtype)];
+-	int count = (max_mbytes - mbochs_used_mbytes) / type->mbytes;
++	int count = atomic_read(&mbochs_avail_mbytes) / type->mbytes;
+ 
+ 	return sprintf(buf, "%d\n", count);
  }
+@@ -1433,6 +1437,8 @@ static int __init mbochs_dev_init(void)
+ {
+ 	int ret = 0;
  
-+#ifdef CONFIG_FUNCTION_TRACER
-+static int module_alloc_ftrace_hotpatch_trampolines(struct module *me,
-+						    const Elf_Shdr *s)
-+{
-+	char *start, *end;
-+	int numpages;
-+	size_t size;
++	atomic_set(&mbochs_avail_mbytes, max_mbytes);
 +
-+	size = FTRACE_HOTPATCH_TRAMPOLINES_SIZE(s->sh_size);
-+	numpages = DIV_ROUND_UP(size, PAGE_SIZE);
-+	start = module_alloc(numpages * PAGE_SIZE);
-+	if (!start)
-+		return -ENOMEM;
-+	set_memory_ro((unsigned long)start, numpages);
-+	end = start + size;
-+
-+	me->arch.trampolines_start = (struct ftrace_hotpatch_trampoline *)start;
-+	me->arch.trampolines_end = (struct ftrace_hotpatch_trampoline *)end;
-+	me->arch.next_trampoline = me->arch.trampolines_start;
-+
-+	return 0;
-+}
-+#endif /* CONFIG_FUNCTION_TRACER */
-+
- int module_finalize(const Elf_Ehdr *hdr,
- 		    const Elf_Shdr *sechdrs,
- 		    struct module *me)
-@@ -473,6 +507,9 @@ int module_finalize(const Elf_Ehdr *hdr,
- 	const Elf_Shdr *s;
- 	char *secstrings, *secname;
- 	void *aseg;
-+#ifdef CONFIG_FUNCTION_TRACER
-+	int ret;
-+#endif
- 
- 	if (IS_ENABLED(CONFIG_EXPOLINE) &&
- 	    !nospec_disable && me->arch.plt_size) {
-@@ -507,6 +544,14 @@ int module_finalize(const Elf_Ehdr *hdr,
- 		if (IS_ENABLED(CONFIG_EXPOLINE) &&
- 		    (str_has_prefix(secname, ".s390_return")))
- 			nospec_revert(aseg, aseg + s->sh_size);
-+
-+#ifdef CONFIG_FUNCTION_TRACER
-+		if (!strcmp(FTRACE_CALLSITE_SECTION, secname)) {
-+			ret = module_alloc_ftrace_hotpatch_trampolines(me, s);
-+			if (ret < 0)
-+				return ret;
-+		}
-+#endif /* CONFIG_FUNCTION_TRACER */
- 	}
- 
- 	jump_label_apply_nops(me);
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index b18288d26ca8..b6caa810af3a 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -5,6 +5,7 @@
- 
- #include <asm/thread_info.h>
- #include <asm/page.h>
-+#include <asm/ftrace.lds.h>
- 
- /*
-  * Put .bss..swapper_pg_dir as the first thing in .bss. This will
-@@ -46,6 +47,7 @@ SECTIONS
- 		KPROBES_TEXT
- 		IRQENTRY_TEXT
- 		SOFTIRQENTRY_TEXT
-+		FTRACE_HOTPATCH_TRAMPOLINES_TEXT
- 		*(.text.*_indirect_*)
- 		*(.fixup)
- 		*(.gnu.warning)
+ 	ret = alloc_chrdev_region(&mbochs_devt, 0, MINORMASK + 1, MBOCHS_NAME);
+ 	if (ret < 0) {
+ 		pr_err("Error: failed to register mbochs_dev, err: %d\n", ret);
 -- 
-2.31.1
+2.32.0
 
