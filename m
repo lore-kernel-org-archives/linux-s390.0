@@ -2,128 +2,160 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8470C25AE6
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7976EC4338F
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:34:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C1E2E60F42
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 20:16:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 529F660F4B
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:34:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234537AbhG2UQm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Jul 2021 16:16:42 -0400
-Received: from ale.deltatee.com ([204.191.154.188]:59478 "EHLO
-        ale.deltatee.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233273AbhG2UQL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 16:16:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=deltatee.com; s=20200525; h=Subject:MIME-Version:References:In-Reply-To:
-        Message-Id:Date:Cc:To:From:content-disposition;
-        bh=3+NKDp2q/0zHzVVwq3INd+w6NURPV4dE2hTg9/0ITMI=; b=OAsOqNptAFqz7ht2gGLe+fKNkN
-        afDvfEj3zeW9zPgG0qWcEcE9wlLmDSYL85QoO8TgnEWXRF0cFS1SxJL0P2x6FNz8bkfgtr50lIoro
-        6NBcPcKqDRmsmgDVRzLy+D6IKa8mkq91+s5hOgCuL9nQGrogvFlY65BWYTh6XQsjV4xMlWoDFNNTt
-        RXgkNvWiqAupSHXfu1J8U8DfHfK8jRBxipCV1nbbK7WEgwzUwFPWpF0/V8qKrFN+TrHgXMHQe328C
-        D8SL2GNPbqtflFoGqbAzN2fcTNhQ834PMkcgcBzlMxFACHWKZCDJYJgnFCRB6vjtCbi2yEAqf0i/3
-        lEI0LnDQ==;
-Received: from cgy1-donard.priv.deltatee.com ([172.16.1.31])
-        by ale.deltatee.com with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <gunthorp@deltatee.com>)
-        id 1m9CRn-0008VM-Nk; Thu, 29 Jul 2021 14:16:04 -0600
-Received: from gunthorp by cgy1-donard.priv.deltatee.com with local (Exim 4.92)
-        (envelope-from <gunthorp@deltatee.com>)
-        id 1m9CRU-0001Te-3R; Thu, 29 Jul 2021 14:15:44 -0600
-From:   Logan Gunthorpe <logang@deltatee.com>
-To:     linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-        iommu@lists.linux-foundation.org, linux-parisc@vger.kernel.org,
-        xen-devel@lists.xenproject.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Stephen Bates <sbates@raithlin.com>,
-        Martin Oliveira <martin.oliveira@eideticom.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>
-Date:   Thu, 29 Jul 2021 14:15:23 -0600
-Message-Id: <20210729201539.5602-6-logang@deltatee.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210729201539.5602-1-logang@deltatee.com>
-References: <20210729201539.5602-1-logang@deltatee.com>
+        id S232671AbhG2Weq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Jul 2021 18:34:46 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:49056 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229707AbhG2Weq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 18:34:46 -0400
+Message-ID: <20210729222542.344136412@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1627598080;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:  references:references;
+        bh=RUg7tFwxeXr+VQq+Rk54Zo4rNFwgWvVbGs+FETqcpGc=;
+        b=v/V6sFKxNS7wkJnFjx1m1UKY6VIyqRNxfaAzeezZcb0a2/cgjl621ydMKMnGMKNqAq4t+E
+        FQxOH5NoSowRlSBpkdNVvOcRNxb9068youWaUFHmbw0daG+AXLI7Qw019zeVZcm/wGDmGc
+        K2sEZh5snqL+6RL8RzCbOgdy0XGiKVjIhZhZyUrytvXwH9kcm9xrvRBb66Oml70I/RqDsK
+        O8AeK39Vbgl6P7mFm7KzXEVPGiGBZLEPMnmfVRXN6xx1zC8tGY18eBukW58HTZCjvv4rzr
+        LDpCy6CNk3jtXrU3ECr7vXX8Rhz978io0VnO2jQx93QWYzW6UQYRE4VMDwPufg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1627598080;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:  references:references;
+        bh=RUg7tFwxeXr+VQq+Rk54Zo4rNFwgWvVbGs+FETqcpGc=;
+        b=qsVaEGKJ8uJ0I8xtbnhOcO0+zAnZtuYkUKzaHduCQ5tMiiuvKZTwwg5GRtm1iEBBKP4qx3
+        zbn8NYlav4McN5Aw==
+Date:   Thu, 29 Jul 2021 23:51:40 +0200
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+        Kevin Tian <kevin.tian@intel.com>,
+        Marc Zyngier <maz@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        x86@kernel.org, linux-s390@vger.kernel.org,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [patch V2 01/19] PCI/MSI: Enable and mask MSI-X early
+References: <20210729215139.889204656@linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 172.16.1.31
-X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org, xen-devel@lists.xenproject.org, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, sbates@raithlin.com, martin.oliveira@eideticom.com, logang@deltatee.com, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com
-X-SA-Exim-Mail-From: gunthorp@deltatee.com
-Subject: [PATCH v3 05/21] alpha: return error code from alpha_pci_map_sg()
-X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
-X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
+Content-Type: text/plain; charset=UTF-8
+Content-transfer-encoding: 8-bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Martin Oliveira <martin.oliveira@eideticom.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-The .map_sg() op now expects an error code instead of zero on failure.
+The ordering of MSI-X enable in hardware is dysfunctional:
 
-pci_map_single_1() can fail for different reasons, but since the only
-supported type of error return is DMA_MAPPING_ERROR, we coalesce those
-errors into EIO.
+ 1) MSI-X is disabled in the control register
+ 2) Various setup functions
+ 3) pci_msi_setup_msi_irqs() is invoked which ends up accessing
+    the MSI-X table entries
+ 4) MSI-X is enabled and masked in the control register with the
+    comment that enabling is required for some hardware to access
+    the MSI-X table
 
-ENOMEM is returned when no page tables can be allocated.
+Step #4 obviously contradicts #3. The history of this is an issue with the
+NIU hardware. When #4 was introduced the table access actually happened in
+msix_program_entries() which was invoked after enabling and masking MSI-X.
 
-Signed-off-by: Martin Oliveira <martin.oliveira@eideticom.com>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
+This was changed in commit d71d6432e105 ("PCI/MSI: Kill redundant call of
+irq_set_msi_desc() for MSI-X interrupts") which removed the table write
+from msix_program_entries().
+
+Interestingly enough nobody noticed and either NIU still works or it did
+not get any testing with a kernel 3.19 or later.
+
+Nevertheless this is inconsistent and there is no reason why MSI-X can't be
+enabled and masked in the control register early on, i.e. move step #4
+above to step #1. This preserves the NIU workaround and has no side effects
+on other hardware.
+
+Fixes: d71d6432e105 ("PCI/MSI: Kill redundant call of irq_set_msi_desc() for MSI-X interrupts")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ashok Raj <ashok.raj@intel.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 ---
- arch/alpha/kernel/pci_iommu.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/pci/msi.c |   28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/arch/alpha/kernel/pci_iommu.c b/arch/alpha/kernel/pci_iommu.c
-index 35d7b3096d6e..21f9ac101324 100644
---- a/arch/alpha/kernel/pci_iommu.c
-+++ b/arch/alpha/kernel/pci_iommu.c
-@@ -649,7 +649,9 @@ static int alpha_pci_map_sg(struct device *dev, struct scatterlist *sg,
- 		sg->dma_address
- 		  = pci_map_single_1(pdev, SG_ENT_VIRT_ADDRESS(sg),
- 				     sg->length, dac_allowed);
--		return sg->dma_address != DMA_MAPPING_ERROR;
-+		if (sg->dma_address == DMA_MAPPING_ERROR)
-+			return -EIO;
-+		return 1;
- 	}
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -772,18 +772,25 @@ static int msix_capability_init(struct p
+ 	u16 control;
+ 	void __iomem *base;
  
- 	start = sg;
-@@ -685,8 +687,10 @@ static int alpha_pci_map_sg(struct device *dev, struct scatterlist *sg,
- 	if (out < end)
- 		out->dma_length = 0;
+-	/* Ensure MSI-X is disabled while it is set up */
+-	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
++	/*
++	 * Some devices require MSI-X to be enabled before the MSI-X
++	 * registers can be accessed.  Mask all the vectors to prevent
++	 * interrupts coming in before they're fully set up.
++	 */
++	pci_msix_clear_and_set_ctrl(dev, 0, PCI_MSIX_FLAGS_MASKALL |
++				    PCI_MSIX_FLAGS_ENABLE);
  
--	if (out - start == 0)
-+	if (out - start == 0) {
- 		printk(KERN_WARNING "pci_map_sg failed: no entries?\n");
-+		return -ENOMEM;
+ 	pci_read_config_word(dev, dev->msix_cap + PCI_MSIX_FLAGS, &control);
+ 	/* Request & Map MSI-X table region */
+ 	base = msix_map_region(dev, msix_table_size(control));
+-	if (!base)
+-		return -ENOMEM;
++	if (!base) {
++		ret = -ENOMEM;
++		goto out_disable;
 +	}
- 	DBGA("pci_map_sg: %ld entries\n", out - start);
  
- 	return out - start;
-@@ -699,7 +703,7 @@ static int alpha_pci_map_sg(struct device *dev, struct scatterlist *sg,
- 	   entries.  Unmap them now.  */
- 	if (out > start)
- 		pci_unmap_sg(pdev, start, out - start, dir);
--	return 0;
-+	return -ENOMEM;
+ 	ret = msix_setup_entries(dev, base, entries, nvec, affd);
+ 	if (ret)
+-		return ret;
++		goto out_disable;
+ 
+ 	ret = pci_msi_setup_msi_irqs(dev, nvec, PCI_CAP_ID_MSIX);
+ 	if (ret)
+@@ -794,14 +801,6 @@ static int msix_capability_init(struct p
+ 	if (ret)
+ 		goto out_free;
+ 
+-	/*
+-	 * Some devices require MSI-X to be enabled before we can touch the
+-	 * MSI-X registers.  We need to mask all the vectors to prevent
+-	 * interrupts coming in before they're fully set up.
+-	 */
+-	pci_msix_clear_and_set_ctrl(dev, 0,
+-				PCI_MSIX_FLAGS_MASKALL | PCI_MSIX_FLAGS_ENABLE);
+-
+ 	msix_program_entries(dev, entries);
+ 
+ 	ret = populate_msi_sysfs(dev);
+@@ -836,6 +835,9 @@ static int msix_capability_init(struct p
+ out_free:
+ 	free_msi_irqs(dev);
+ 
++out_disable:
++	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
++
+ 	return ret;
  }
  
- /* Unmap a set of streaming mode DMA translations.  Again, cpu read
--- 
-2.20.1
+
 
