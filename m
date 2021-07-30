@@ -2,127 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C18EC432BE
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 10:47:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5F60C432BE
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 13:33:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E59CE60524
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 10:47:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 891EF60F4A
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 13:33:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238539AbhG3Krs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Jul 2021 06:47:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41022 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238487AbhG3Krr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Jul 2021 06:47:47 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0633C0613CF;
-        Fri, 30 Jul 2021 03:47:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=WD2Ag4JED4QIsvoIQN/gUdEl19MyG+gX26ckt/2TnRM=; b=wNjsq2UUJjLuncBCL1YsnTrm0
-        YXYmurFWsXKUm2L2J6I/ypUlXwg6ahaMW1adauhejdybPNoV1znnmnxnBQE7zBZc3hiHNA70er0TI
-        QnYpssBHkV8KBet2y5hmFMhE39l0DvuwgvbgZ0fqc5k0GCfAVD82AU47p5lagEFMKX6EwrPmcUuQf
-        0RzJNbNT94GC9OKKBbbhwI8Po+HCAFRODBNYzP5zCse901ce9un9gcI6vTyY548AnZny/xjNRDv6s
-        Lb108Ee4PLeZUMVJX0zUdAchyPz3c4fqfDYw0Cckeo3R8jGRFEZmHnrutm/pKoieeyzfQfhmhr16V
-        0fey8HIUw==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:46754)
-        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1m9Q2U-0002GT-LV; Fri, 30 Jul 2021 11:46:50 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1m9Q2N-0008Nd-T1; Fri, 30 Jul 2021 11:46:43 +0100
-Date:   Fri, 30 Jul 2021 11:46:43 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Len Brown <lenb@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Will Deacon <will@kernel.org>, devicetree@vger.kernel.org,
-        kvmarm@lists.cs.columbia.edu, linux-acpi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-mm@kvack.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        x86@kernel.org
-Subject: Re: [PATCH] memblock: make memblock_find_in_range method private
-Message-ID: <20210730104643.GG22278@shell.armlinux.org.uk>
-References: <20210730104039.7047-1-rppt@kernel.org>
+        id S238988AbhG3NdV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Jul 2021 09:33:21 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20520 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238979AbhG3NdV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 30 Jul 2021 09:33:21 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16UD4JRt083591;
+        Fri, 30 Jul 2021 09:33:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=UJPQ9VbDNI1euybHi4NIJ6hXWWUgW7x0UOukPqMkAzI=;
+ b=VK3ng8HuyO/qImuua2YfEQW7OF8V1rwMmQoBYX6XT/8lYmKFwchUeM4HxNMe7L0HhGB0
+ WciZooGopAnutB67g0SMdJxOkqffLMqb06uyTctr70uaPwxDfnxvAsoY5RsD/cbUm07f
+ ucXdpdKiSa0s2nCxQxBaVmurNqJdV2UPBK1zdKxWRujxgnQuFThzGh3UXaw+v26cHOGT
+ QzhnGcyulikgVZXNJ5RcPpsR98hEwIaFiq7Je69bbdu7qsdVPi/gDrhozUdktF3Tf1KQ
+ unLJ7IhCk3mDdiEwVzZ6GIhcooZ+HCRmT3BbelPiiHQ9G+n2Vhhxm5ZDfszVW9yR1FWw qg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a4g23mp4k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Jul 2021 09:33:15 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16UD5U6e095868;
+        Fri, 30 Jul 2021 09:33:14 -0400
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a4g23mp42-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Jul 2021 09:33:14 -0400
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16UDT2ki003953;
+        Fri, 30 Jul 2021 13:33:13 GMT
+Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
+        by ppma03dal.us.ibm.com with ESMTP id 3a235tw37w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Jul 2021 13:33:13 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16UDXBqC10027386
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 30 Jul 2021 13:33:12 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CBFC06A051;
+        Fri, 30 Jul 2021 13:33:11 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 532C06A064;
+        Fri, 30 Jul 2021 13:33:10 +0000 (GMT)
+Received: from cpe-172-100-181-211.stny.res.rr.com (unknown [9.77.143.250])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Fri, 30 Jul 2021 13:33:10 +0000 (GMT)
+Subject: Re: [PATCH 2/2] s390/vfio-ap: replace open coded locks for
+ VFIO_GROUP_NOTIFY_SET_KVM notification
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com, david@redhat.com,
+        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com
+References: <20210719193503.793910-1-akrowiak@linux.ibm.com>
+ <20210719193503.793910-3-akrowiak@linux.ibm.com>
+ <20210721164550.5402fe1c.pasic@linux.ibm.com>
+ <c3b80f79-6795-61ce-2dd1-f4cc7110e417@linux.ibm.com>
+ <20210723162625.59cead27.pasic@linux.ibm.com>
+ <5380652f-e68f-bbd0-10c0-c7d541065843@linux.ibm.com>
+ <20210726223628.4d7759bf.pasic@linux.ibm.com>
+ <20210726220317.GA1721383@nvidia.com>
+ <20210727004329.3bcc7d4f.pasic@linux.ibm.com>
+ <a5eeac87-069d-171b-5558-3e99e7bda539@linux.ibm.com>
+ <20210728214257.5e5c28c4.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <8e0b4b16-ce45-449e-4849-29919da3a70f@linux.ibm.com>
+Date:   Fri, 30 Jul 2021 09:33:09 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210730104039.7047-1-rppt@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+In-Reply-To: <20210728214257.5e5c28c4.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 5qCbVJV3xaAXmeXxXzIkkudf94U1v6hF
+X-Proofpoint-ORIG-GUID: SJpn8fi77RYkL1W3rrjNxRcCagEKb78y
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-30_05:2021-07-30,2021-07-30 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ malwarescore=0 mlxlogscore=999 clxscore=1015 priorityscore=1501 mlxscore=0
+ bulkscore=0 suspectscore=0 spamscore=0 lowpriorityscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
+ definitions=main-2107300085
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jul 30, 2021 at 01:40:39PM +0300, Mike Rapoport wrote:
-> diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
-> index f97eb2371672..1f8ef9fd5215 100644
-> --- a/arch/arm/kernel/setup.c
-> +++ b/arch/arm/kernel/setup.c
-> @@ -1012,31 +1012,25 @@ static void __init reserve_crashkernel(void)
->  		unsigned long long lowmem_max = __pa(high_memory - 1) + 1;
->  		if (crash_max > lowmem_max)
->  			crash_max = lowmem_max;
-> -		crash_base = memblock_find_in_range(CRASH_ALIGN, crash_max,
-> -						    crash_size, CRASH_ALIGN);
-> +
-> +		crash_base = memblock_phys_alloc_range(crash_size, CRASH_ALIGN,
-> +						       CRASH_ALIGN, crash_max);
->  		if (!crash_base) {
->  			pr_err("crashkernel reservation failed - No suitable area found.\n");
->  			return;
->  		}
->  	} else {
-> +		unsigned long long crash_max = crash_base + crash_size;
->  		unsigned long long start;
->  
-> -		start = memblock_find_in_range(crash_base,
-> -					       crash_base + crash_size,
-> -					       crash_size, SECTION_SIZE);
-> +		start = memblock_phys_alloc_range(crash_size, SECTION_SIZE,
-> +						  crash_base, crash_max);
->  		if (start != crash_base) {
-> -			pr_err("crashkernel reservation failed - memory is in use.\n");
-> +			pr_err("crashkernel reservation failed - No suitable area found.\n");
 
-This change to the error message is incorrect. In this code block, we
-are trying to get the exact specified memory block - it is not about
-there being "no suitable area" - the requested memory block is not
-available. So, the original message carries the exact correct meaning.
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+On 7/28/21 3:42 PM, Halil Pasic wrote:
+> On Wed, 28 Jul 2021 09:43:03 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> This solution was suggested by Jason G and it does in fact resolve
+>> the lockdep splat encountered when starting an SE guest with
+>> access to crypto resources. There is a chance that the KVM lock
+>> can get held while waiting for the lock on the matrix_dev->mutex,
+>> but this does not seem like a grave concern to me.
+> Yes I agree. I was thinking along the lines: matrix modifications
+> via the sysfs take the matrix_dev->lock so the level of contention
+> may depend on what userspace is doing...
+
+The probe/remove functions also take the matrix_dev->lock
+as does the handle_pqap() function. In any case, while all of
+those are possible, in our implementation of AP queue
+pass-through, the two functions that take the KVM lock
+are invoked when the guest is starting or shutting down,
+or when the mdev is hot plugged/unplugged. For the cases of
+guest startup/shutdown, it would seem that holding the
+kvm->lock while waiting for the matrix_dev->lock shouldn't
+be a big problem since the guest will either not be fully up
+yet or on its way down. I suppose the hot plug/unplug case
+could potentially cause the guest vcpus to pause while processing,
+but how often do you anticipate a hot plug to take place?
+
+>
+> Regards,
+> Halil
+
