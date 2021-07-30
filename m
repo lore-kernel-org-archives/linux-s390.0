@@ -2,176 +2,597 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CC27C43216
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 09:51:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A61AC43214
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 10:41:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3334860230
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 09:51:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EBC2A61055
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 10:41:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238317AbhG3Jvw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Jul 2021 05:51:52 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21702 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S238223AbhG3Jvv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 30 Jul 2021 05:51:51 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16U9Wma0032673;
-        Fri, 30 Jul 2021 05:49:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=RYVrVB0Cv2/R3lfmKnDGtLWGBHS277MIQR61B43z3uM=;
- b=dGwRHMW+dV44draTp+TTntVOVZQoJjo0X1i/5LdgoAcqjM8JLU7lkDxlZoaKCMUKaNvy
- M+ZjKdhpw34/vrKYLtUjIcBj6RIwv6+gThIzOeXw63W5RhwZ8jEpeJ8lUJRSg2zz7PKT
- zOASTY1gTLrCWIjcz6bYSEGewtcDHLwf8Fzcaot81sFOXT7yz2HvFqBZo3EV+0ejZ807
- GKQxJOKRmMFhInRW8OmWGMh92ydIzQl4xBQTCE6PhqZ4pcTf9HFmQHnHKz/7RK4PlcBW
- De6pJGr9HrSc0qCw+yczs0r3u8j6/ghV1t4+xXF8c6L5aVgh19eC+7GvSO/OXLM2ZsPF Kw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a4e9j1cme-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Jul 2021 05:49:24 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16U9WmsP032691;
-        Fri, 30 Jul 2021 05:49:23 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a4e9j1ckr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Jul 2021 05:49:23 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16U9lRKT013772;
-        Fri, 30 Jul 2021 09:49:21 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06fra.de.ibm.com with ESMTP id 3a235kjwrx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Jul 2021 09:49:21 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16U9kYNh23789872
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 30 Jul 2021 09:46:34 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ABB9742052;
-        Fri, 30 Jul 2021 09:49:17 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 77B664203F;
-        Fri, 30 Jul 2021 09:49:16 +0000 (GMT)
-Received: from osiris (unknown [9.145.161.212])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 30 Jul 2021 09:49:16 +0000 (GMT)
-Date:   Fri, 30 Jul 2021 11:49:15 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
+        id S238510AbhG3KlJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Jul 2021 06:41:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54906 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238452AbhG3KlH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 30 Jul 2021 06:41:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 028E360F9B;
+        Fri, 30 Jul 2021 10:40:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1627641662;
+        bh=GfOrhA2w3zKI9vqsogOEJPppMgXQOpW9iwfTRqGZ3g8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=dNLxC8eONYH1J1yzxXVIZo3NpKSLsn5F801hHnJay1CxCiOW2+0vFCj+2N3+ED73e
+         TCiA962lQhdlf9+ib02ChqWD2JLiCnPD2xXR5FkjgjjfAzQch6zgBE1Bttro68Ajlc
+         G6ZBvpKs4SPbloKx4SEk7zkzk5z1GaTtU/siehEzgqnnjJtSfKJBjnnnAgm/HsydRW
+         oNdosCWGkrZk1xrHcYqXSzG8okO18W9jI3YRWZL/TzFV3dGe4A+5kkRXU9HLWMYWBl
+         MFolz/mWrOU+oWDlZc/NM9BYbPs/BsDajVpN59WIzxqQI30mA3+qXNos2KjMt1HlsV
+         RIWpon2icxNHQ==
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Albert Ou <aou@eecs.berkeley.edu>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Len Brown <lenb@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        Mike Rapoport <rppt@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Feng Tang <feng.tang@intel.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Will Deacon <will@kernel.org>, devicetree@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu, linux-acpi@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-api@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v5 0/6] compat: remove compat_alloc_user_space
-Message-ID: <YQPLG20V3dmOfq3a@osiris>
-References: <20210727144859.4150043-1-arnd@kernel.org>
+        linux-mips@vger.kernel.org, linux-mm@kvack.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Subject: [PATCH] memblock: make memblock_find_in_range method private
+Date:   Fri, 30 Jul 2021 13:40:39 +0300
+Message-Id: <20210730104039.7047-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210727144859.4150043-1-arnd@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: zR7p1uPVJVzE85QHjW8aYnuNusoUj_ko
-X-Proofpoint-GUID: cr8jFOyeRsqaNkR-GlUmXQX1PdWeweCa
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-30_05:2021-07-29,2021-07-30 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=697 impostorscore=0 suspectscore=0 adultscore=0 spamscore=0
- priorityscore=1501 mlxscore=0 clxscore=1015 phishscore=0 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2107300057
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 27, 2021 at 04:48:53PM +0200, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> Going through compat_alloc_user_space() to convert indirect system call
-> arguments tends to add complexity compared to handling the native and
-> compat logic in the same code.
-> 
-> Out of the other remaining callers, the linux-media series went into
-> v5.14, and the network ioctl handling is now fixed in net-next, so
-> these are the last remaining users, and I now include the final
-> patch to remove the definitions as well.
-> 
-> Since these patches are now all that remains, it would be nice to
-> merge it all through Andrew's Linux-mm tree, which is already based
-> on top of linux-next.
-...
-> 
-> Arnd Bergmann (6):
->   kexec: move locking into do_kexec_load
->   kexec: avoid compat_alloc_user_space
->   mm: simplify compat_sys_move_pages
->   mm: simplify compat numa syscalls
->   compat: remove some compat entry points
->   arch: remove compat_alloc_user_space
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Our CI reports this with linux-next and running strace selftest in
-compat mode:
+There are a lot of uses of memblock_find_in_range() along with
+memblock_reserve() from the times memblock allocation APIs did not exist.
 
-Unable to handle kernel pointer dereference in virtual kernel address space
-Failing address: 0000038003e7c000 TEID: 0000038003e7c803
-Fault in home space mode while using kernel ASCE.
-AS:00000001fb388007 R3:000000008021c007 S:0000000082142000 P:0000000000000400 
-Oops: 0011 ilc:3 [#1] SMP 
-CPU: 0 PID: 1017495 Comm: get_mempolicy Tainted: G           OE     5.14.0-20210730.rc3.git0.4ccc9e2db7ac.300.fc34.s390x+next #1
-Hardware name: IBM 2827 H66 708 (LPAR)
-Krnl PSW : 0704e00180000000 00000001f9f11000 (compat_put_bitmap+0x48/0xd0)
-           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
-Krnl GPRS: 0000000000810000 0000000000000000 000000007d9df1c0 0000038003e7c008
-           0000000000000004 000000007d9df1c4 0000038003e7be40 0000000000010000
-           0000000000008000 0000000000000000 0000000000000390 00000000000001c8
-           000000020d6ea000 000002aa00401a48 00000001fa0a85fa 0000038003e7bd50
-Krnl Code: 00000001f9f10ff4: a7bb0001            aghi    %r11,1
-           00000001f9f10ff8: 41303008            la      %r3,8(%r3)
-          #00000001f9f10ffc: 41502004            la      %r5,4(%r2)
-          >00000001f9f11000: e3103ff8ff04        lg      %r1,-8(%r3)
-           00000001f9f11006: 5010f0a4            st      %r1,164(%r15)
-           00000001f9f1100a: a50e0081            llilh   %r0,129
-           00000001f9f1100e: c8402000f0a4        mvcos   0(%r2),164(%r15),%r4
-           00000001f9f11014: 1799                xr      %r9,%r9
-Call Trace:
- [<00000001f9f11000>] compat_put_bitmap+0x48/0xd0 
- [<00000001fa0a85fa>] kernel_get_mempolicy+0x102/0x178 
- [<00000001fa0a86b0>] __s390_sys_get_mempolicy+0x40/0x50 
- [<00000001fa92be30>] __do_syscall+0x1c0/0x1e8 
- [<00000001fa939148>] system_call+0x78/0xa0 
-Last Breaking-Event-Address:
- [<0000038003e7bc00>] 0x38003e7bc00
-Kernel panic - not syncing: Fatal exception: panic_on_oops
+memblock_find_in_range() is the very core of memblock allocations, so any
+future changes to its internal behaviour would mandate updates of all the
+users outside memblock.
 
-Note: I did not try to bisect this, since it looks to me like this
-patch series causes the problem. Also, please don't get confused with
-the kernel version name. The date encoded is the build date, not the
-linux-next version.
-linux-next commit 4ccc9e2db7ac ("Add linux-next specific files for
-20210729") was used to build the kernel (s390 defconfig).
+Replace the calls to memblock_find_in_range() with an equivalent calls to
+memblock_phys_alloc() and memblock_phys_alloc_range() and make
+memblock_find_in_range() private method of memblock.
+
+This simplifies the callers, ensures that (unlikely) errors in
+memblock_reserve() are handled and improves maintainability of
+memblock_find_in_range().
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ arch/arm/kernel/setup.c           | 20 +++++---------
+ arch/arm64/kvm/hyp/reserved_mem.c |  9 +++----
+ arch/arm64/mm/init.c              | 36 ++++++++-----------------
+ arch/mips/kernel/setup.c          | 14 +++++-----
+ arch/riscv/mm/init.c              | 44 ++++++++++---------------------
+ arch/s390/kernel/setup.c          | 10 ++++---
+ arch/x86/kernel/aperture_64.c     |  5 ++--
+ arch/x86/mm/init.c                | 21 +++++++++------
+ arch/x86/mm/numa.c                |  5 ++--
+ arch/x86/mm/numa_emulation.c      |  5 ++--
+ arch/x86/realmode/init.c          |  2 +-
+ drivers/acpi/tables.c             |  5 ++--
+ drivers/base/arch_numa.c          |  5 +---
+ drivers/of/of_reserved_mem.c      | 12 ++++++---
+ include/linux/memblock.h          |  2 --
+ mm/memblock.c                     |  2 +-
+ 16 files changed, 79 insertions(+), 118 deletions(-)
+
+diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+index f97eb2371672..1f8ef9fd5215 100644
+--- a/arch/arm/kernel/setup.c
++++ b/arch/arm/kernel/setup.c
+@@ -1012,31 +1012,25 @@ static void __init reserve_crashkernel(void)
+ 		unsigned long long lowmem_max = __pa(high_memory - 1) + 1;
+ 		if (crash_max > lowmem_max)
+ 			crash_max = lowmem_max;
+-		crash_base = memblock_find_in_range(CRASH_ALIGN, crash_max,
+-						    crash_size, CRASH_ALIGN);
++
++		crash_base = memblock_phys_alloc_range(crash_size, CRASH_ALIGN,
++						       CRASH_ALIGN, crash_max);
+ 		if (!crash_base) {
+ 			pr_err("crashkernel reservation failed - No suitable area found.\n");
+ 			return;
+ 		}
+ 	} else {
++		unsigned long long crash_max = crash_base + crash_size;
+ 		unsigned long long start;
+ 
+-		start = memblock_find_in_range(crash_base,
+-					       crash_base + crash_size,
+-					       crash_size, SECTION_SIZE);
++		start = memblock_phys_alloc_range(crash_size, SECTION_SIZE,
++						  crash_base, crash_max);
+ 		if (start != crash_base) {
+-			pr_err("crashkernel reservation failed - memory is in use.\n");
++			pr_err("crashkernel reservation failed - No suitable area found.\n");
+ 			return;
+ 		}
+ 	}
+ 
+-	ret = memblock_reserve(crash_base, crash_size);
+-	if (ret < 0) {
+-		pr_warn("crashkernel reservation failed - memory is in use (0x%lx)\n",
+-			(unsigned long)crash_base);
+-		return;
+-	}
+-
+ 	pr_info("Reserving %ldMB of memory at %ldMB for crashkernel (System RAM: %ldMB)\n",
+ 		(unsigned long)(crash_size >> 20),
+ 		(unsigned long)(crash_base >> 20),
+diff --git a/arch/arm64/kvm/hyp/reserved_mem.c b/arch/arm64/kvm/hyp/reserved_mem.c
+index d654921dd09b..578670e3f608 100644
+--- a/arch/arm64/kvm/hyp/reserved_mem.c
++++ b/arch/arm64/kvm/hyp/reserved_mem.c
+@@ -92,12 +92,10 @@ void __init kvm_hyp_reserve(void)
+ 	 * this is unmapped from the host stage-2, and fallback to PAGE_SIZE.
+ 	 */
+ 	hyp_mem_size = hyp_mem_pages << PAGE_SHIFT;
+-	hyp_mem_base = memblock_find_in_range(0, memblock_end_of_DRAM(),
+-					      ALIGN(hyp_mem_size, PMD_SIZE),
+-					      PMD_SIZE);
++	hyp_mem_base = memblock_phys_alloc(ALIGN(hyp_mem_size, PMD_SIZE),
++					   PMD_SIZE);
+ 	if (!hyp_mem_base)
+-		hyp_mem_base = memblock_find_in_range(0, memblock_end_of_DRAM(),
+-						      hyp_mem_size, PAGE_SIZE);
++		hyp_mem_base = memblock_phys_alloc(hyp_mem_size, PAGE_SIZE);
+ 	else
+ 		hyp_mem_size = ALIGN(hyp_mem_size, PMD_SIZE);
+ 
+@@ -105,7 +103,6 @@ void __init kvm_hyp_reserve(void)
+ 		kvm_err("Failed to reserve hyp memory\n");
+ 		return;
+ 	}
+-	memblock_reserve(hyp_mem_base, hyp_mem_size);
+ 
+ 	kvm_info("Reserved %lld MiB at 0x%llx\n", hyp_mem_size >> 20,
+ 		 hyp_mem_base);
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index 8490ed2917ff..d566478a06dd 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -74,6 +74,7 @@ phys_addr_t arm64_dma_phys_limit __ro_after_init;
+ static void __init reserve_crashkernel(void)
+ {
+ 	unsigned long long crash_base, crash_size;
++	unsigned long crash_max = arm64_dma_phys_limit;
+ 	int ret;
+ 
+ 	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
+@@ -84,33 +85,18 @@ static void __init reserve_crashkernel(void)
+ 
+ 	crash_size = PAGE_ALIGN(crash_size);
+ 
+-	if (crash_base == 0) {
+-		/* Current arm64 boot protocol requires 2MB alignment */
+-		crash_base = memblock_find_in_range(0, arm64_dma_phys_limit,
+-				crash_size, SZ_2M);
+-		if (crash_base == 0) {
+-			pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
+-				crash_size);
+-			return;
+-		}
+-	} else {
+-		/* User specifies base address explicitly. */
+-		if (!memblock_is_region_memory(crash_base, crash_size)) {
+-			pr_warn("cannot reserve crashkernel: region is not memory\n");
+-			return;
+-		}
++	/* User specifies base address explicitly. */
++	if (crash_base)
++		crash_max = crash_base + crash_size;
+ 
+-		if (memblock_is_region_reserved(crash_base, crash_size)) {
+-			pr_warn("cannot reserve crashkernel: region overlaps reserved memory\n");
+-			return;
+-		}
+-
+-		if (!IS_ALIGNED(crash_base, SZ_2M)) {
+-			pr_warn("cannot reserve crashkernel: base address is not 2MB aligned\n");
+-			return;
+-		}
++	/* Current arm64 boot protocol requires 2MB alignment */
++	crash_base = memblock_phys_alloc_range(crash_size, SZ_2M,
++					       crash_base, crash_max);
++	if (!crash_base) {
++		pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
++			crash_size);
++		return;
+ 	}
+-	memblock_reserve(crash_base, crash_size);
+ 
+ 	pr_info("crashkernel reserved: 0x%016llx - 0x%016llx (%lld MB)\n",
+ 		crash_base, crash_base + crash_size, crash_size >> 20);
+diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
+index 23a140327a0b..f979adfd4fc2 100644
+--- a/arch/mips/kernel/setup.c
++++ b/arch/mips/kernel/setup.c
+@@ -452,8 +452,9 @@ static void __init mips_parse_crashkernel(void)
+ 		return;
+ 
+ 	if (crash_base <= 0) {
+-		crash_base = memblock_find_in_range(CRASH_ALIGN, CRASH_ADDR_MAX,
+-							crash_size, CRASH_ALIGN);
++		crash_base = memblock_phys_alloc_range(crash_size, CRASH_ALIGN,
++						       CRASH_ALIGN,
++						       CRASH_ADDR_MAX);
+ 		if (!crash_base) {
+ 			pr_warn("crashkernel reservation failed - No suitable area found.\n");
+ 			return;
+@@ -461,8 +462,9 @@ static void __init mips_parse_crashkernel(void)
+ 	} else {
+ 		unsigned long long start;
+ 
+-		start = memblock_find_in_range(crash_base, crash_base + crash_size,
+-						crash_size, 1);
++		start = memblock_phys_alloc_range(crash_size, 1,
++						  crash_base,
++						  crash_base + crash_size);
+ 		if (start != crash_base) {
+ 			pr_warn("Invalid memory region reserved for crash kernel\n");
+ 			return;
+@@ -656,10 +658,6 @@ static void __init arch_mem_init(char **cmdline_p)
+ 	mips_reserve_vmcore();
+ 
+ 	mips_parse_crashkernel();
+-#ifdef CONFIG_KEXEC
+-	if (crashk_res.start != crashk_res.end)
+-		memblock_reserve(crashk_res.start, resource_size(&crashk_res));
+-#endif
+ 	device_tree_init();
+ 
+ 	/*
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index a14bf3910eec..88649337c568 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -812,38 +812,22 @@ static void __init reserve_crashkernel(void)
+ 
+ 	crash_size = PAGE_ALIGN(crash_size);
+ 
+-	if (crash_base == 0) {
+-		/*
+-		 * Current riscv boot protocol requires 2MB alignment for
+-		 * RV64 and 4MB alignment for RV32 (hugepage size)
+-		 */
+-		crash_base = memblock_find_in_range(search_start, search_end,
+-						    crash_size, PMD_SIZE);
+-
+-		if (crash_base == 0) {
+-			pr_warn("crashkernel: couldn't allocate %lldKB\n",
+-				crash_size >> 10);
+-			return;
+-		}
+-	} else {
+-		/* User specifies base address explicitly. */
+-		if (!memblock_is_region_memory(crash_base, crash_size)) {
+-			pr_warn("crashkernel: requested region is not memory\n");
+-			return;
+-		}
+-
+-		if (memblock_is_region_reserved(crash_base, crash_size)) {
+-			pr_warn("crashkernel: requested region is reserved\n");
+-			return;
+-		}
+-
++	if (crash_base) {
++		search_start = crash_base;
++		search_end = crash_base + crash_size;
++	}
+ 
+-		if (!IS_ALIGNED(crash_base, PMD_SIZE)) {
+-			pr_warn("crashkernel: requested region is misaligned\n");
+-			return;
+-		}
++	/*
++	 * Current riscv boot protocol requires 2MB alignment for
++	 * RV64 and 4MB alignment for RV32 (hugepage size)
++	 */
++	crash_base = memblock_phys_alloc_range(crash_size, PMD_SIZE,
++					       search_start, search_end);
++	if (crash_base == 0) {
++		pr_warn("crashkernel: couldn't allocate %lldKB\n",
++			crash_size >> 10);
++		return;
+ 	}
+-	memblock_reserve(crash_base, crash_size);
+ 
+ 	pr_info("crashkernel: reserved 0x%016llx - 0x%016llx (%lld MB)\n",
+ 		crash_base, crash_base + crash_size, crash_size >> 20);
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index ff0f9e838916..3d9efee0f43c 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -626,8 +626,9 @@ static void __init reserve_crashkernel(void)
+ 			return;
+ 		}
+ 		low = crash_base ?: low;
+-		crash_base = memblock_find_in_range(low, high, crash_size,
+-						    KEXEC_CRASH_MEM_ALIGN);
++		crash_base = memblock_phys_alloc_range(crash_size,
++						       KEXEC_CRASH_MEM_ALIGN,
++						       low, high);
+ 	}
+ 
+ 	if (!crash_base) {
+@@ -636,14 +637,15 @@ static void __init reserve_crashkernel(void)
+ 		return;
+ 	}
+ 
+-	if (register_memory_notifier(&kdump_mem_nb))
++	if (register_memory_notifier(&kdump_mem_nb)) {
++		memblock_free(crash_base, crash_size);
+ 		return;
++	}
+ 
+ 	if (!OLDMEM_BASE && MACHINE_IS_VM)
+ 		diag10_range(PFN_DOWN(crash_base), PFN_DOWN(crash_size));
+ 	crashk_res.start = crash_base;
+ 	crashk_res.end = crash_base + crash_size - 1;
+-	memblock_remove(crash_base, crash_size);
+ 	pr_info("Reserving %lluMB of memory at %lluMB "
+ 		"for crashkernel (System RAM: %luMB)\n",
+ 		crash_size >> 20, crash_base >> 20,
+diff --git a/arch/x86/kernel/aperture_64.c b/arch/x86/kernel/aperture_64.c
+index 294ed4392a0e..10562885f5fc 100644
+--- a/arch/x86/kernel/aperture_64.c
++++ b/arch/x86/kernel/aperture_64.c
+@@ -109,14 +109,13 @@ static u32 __init allocate_aperture(void)
+ 	 * memory. Unfortunately we cannot move it up because that would
+ 	 * make the IOMMU useless.
+ 	 */
+-	addr = memblock_find_in_range(GART_MIN_ADDR, GART_MAX_ADDR,
+-				      aper_size, aper_size);
++	addr = memblock_phys_alloc_range(aper_size, aper_size,
++					 GART_MIN_ADDR, GART_MAX_ADDR);
+ 	if (!addr) {
+ 		pr_err("Cannot allocate aperture memory hole [mem %#010lx-%#010lx] (%uKB)\n",
+ 		       addr, addr + aper_size - 1, aper_size >> 10);
+ 		return 0;
+ 	}
+-	memblock_reserve(addr, aper_size);
+ 	pr_info("Mapping aperture over RAM [mem %#010lx-%#010lx] (%uKB)\n",
+ 		addr, addr + aper_size - 1, aper_size >> 10);
+ 	register_nosave_region(addr >> PAGE_SHIFT,
+diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
+index 75ef19aa8903..1152a29ce109 100644
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -26,6 +26,7 @@
+ #include <asm/pti.h>
+ #include <asm/text-patching.h>
+ #include <asm/memtype.h>
++#include <xen/xen.h>
+ 
+ /*
+  * We need to define the tracepoints somewhere, and tlb.c
+@@ -127,14 +128,12 @@ __ref void *alloc_low_pages(unsigned int num)
+ 		unsigned long ret = 0;
+ 
+ 		if (min_pfn_mapped < max_pfn_mapped) {
+-			ret = memblock_find_in_range(
++			ret = memblock_phys_alloc_range(
++					PAGE_SIZE * num, PAGE_SIZE,
+ 					min_pfn_mapped << PAGE_SHIFT,
+-					max_pfn_mapped << PAGE_SHIFT,
+-					PAGE_SIZE * num , PAGE_SIZE);
++					max_pfn_mapped << PAGE_SHIFT);
+ 		}
+-		if (ret)
+-			memblock_reserve(ret, PAGE_SIZE * num);
+-		else if (can_use_brk_pgt)
++		if (!ret && can_use_brk_pgt)
+ 			ret = __pa(extend_brk(PAGE_SIZE * num, PAGE_SIZE));
+ 
+ 		if (!ret)
+@@ -610,9 +609,15 @@ static void __init memory_map_top_down(unsigned long map_start,
+ 	unsigned long addr;
+ 	unsigned long mapped_ram_size = 0;
+ 
++	real_end = ALIGN_DOWN(map_end, PMD_SIZE);
++
+ 	/* xen has big range in reserved near end of ram, skip it at first.*/
+-	addr = memblock_find_in_range(map_start, map_end, PMD_SIZE, PMD_SIZE);
+-	real_end = addr + PMD_SIZE;
++	if (xen_domain()) {
++		addr = memblock_phys_alloc_range(PMD_SIZE, PMD_SIZE,
++						 map_start, map_end);
++		memblock_free(addr, PMD_SIZE);
++		real_end = addr + PMD_SIZE;
++	}
+ 
+ 	/* step_size need to be small so pgt_buf from BRK could cover it */
+ 	step_size = PMD_SIZE;
+diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
+index e94da744386f..a1b5c71099e6 100644
+--- a/arch/x86/mm/numa.c
++++ b/arch/x86/mm/numa.c
+@@ -376,15 +376,14 @@ static int __init numa_alloc_distance(void)
+ 	cnt++;
+ 	size = cnt * cnt * sizeof(numa_distance[0]);
+ 
+-	phys = memblock_find_in_range(0, PFN_PHYS(max_pfn_mapped),
+-				      size, PAGE_SIZE);
++	phys = memblock_phys_alloc_range(size, PAGE_SIZE, 0,
++					 PFN_PHYS(max_pfn_mapped));
+ 	if (!phys) {
+ 		pr_warn("Warning: can't allocate distance table!\n");
+ 		/* don't retry until explicitly reset */
+ 		numa_distance = (void *)1LU;
+ 		return -ENOMEM;
+ 	}
+-	memblock_reserve(phys, size);
+ 
+ 	numa_distance = __va(phys);
+ 	numa_distance_cnt = cnt;
+diff --git a/arch/x86/mm/numa_emulation.c b/arch/x86/mm/numa_emulation.c
+index 87d77cc52f86..737491b13728 100644
+--- a/arch/x86/mm/numa_emulation.c
++++ b/arch/x86/mm/numa_emulation.c
+@@ -447,13 +447,12 @@ void __init numa_emulation(struct numa_meminfo *numa_meminfo, int numa_dist_cnt)
+ 	if (numa_dist_cnt) {
+ 		u64 phys;
+ 
+-		phys = memblock_find_in_range(0, PFN_PHYS(max_pfn_mapped),
+-					      phys_size, PAGE_SIZE);
++		phys = memblock_phys_alloc_range(phys_size, PAGE_SIZE, 0,
++						 PFN_PHYS(max_pfn_mapped));
+ 		if (!phys) {
+ 			pr_warn("NUMA: Warning: can't allocate copy of distance table, disabling emulation\n");
+ 			goto no_emu;
+ 		}
+-		memblock_reserve(phys, phys_size);
+ 		phys_dist = __va(phys);
+ 
+ 		for (i = 0; i < numa_dist_cnt; i++)
+diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
+index 6534c92d0f83..31b5856010cb 100644
+--- a/arch/x86/realmode/init.c
++++ b/arch/x86/realmode/init.c
+@@ -28,7 +28,7 @@ void __init reserve_real_mode(void)
+ 	WARN_ON(slab_is_available());
+ 
+ 	/* Has to be under 1M so we can execute real-mode AP code. */
+-	mem = memblock_find_in_range(0, 1<<20, size, PAGE_SIZE);
++	mem = memblock_phys_alloc_range(size, PAGE_SIZE, 0, 1<<20);
+ 	if (!mem)
+ 		pr_info("No sub-1M memory is available for the trampoline\n");
+ 	else
+diff --git a/drivers/acpi/tables.c b/drivers/acpi/tables.c
+index a37a1532a575..f9383736fa0f 100644
+--- a/drivers/acpi/tables.c
++++ b/drivers/acpi/tables.c
+@@ -583,8 +583,8 @@ void __init acpi_table_upgrade(void)
+ 	}
+ 
+ 	acpi_tables_addr =
+-		memblock_find_in_range(0, ACPI_TABLE_UPGRADE_MAX_PHYS,
+-				       all_tables_size, PAGE_SIZE);
++		memblock_phys_alloc_range(all_tables_size, PAGE_SIZE,
++					  0, ACPI_TABLE_UPGRADE_MAX_PHYS);
+ 	if (!acpi_tables_addr) {
+ 		WARN_ON(1);
+ 		return;
+@@ -599,7 +599,6 @@ void __init acpi_table_upgrade(void)
+ 	 * Both memblock_reserve and e820__range_add (via arch_reserve_mem_area)
+ 	 * works fine.
+ 	 */
+-	memblock_reserve(acpi_tables_addr, all_tables_size);
+ 	arch_reserve_mem_area(acpi_tables_addr, all_tables_size);
+ 
+ 	/*
+diff --git a/drivers/base/arch_numa.c b/drivers/base/arch_numa.c
+index 4cc4e117727d..46c503486e96 100644
+--- a/drivers/base/arch_numa.c
++++ b/drivers/base/arch_numa.c
+@@ -279,13 +279,10 @@ static int __init numa_alloc_distance(void)
+ 	int i, j;
+ 
+ 	size = nr_node_ids * nr_node_ids * sizeof(numa_distance[0]);
+-	phys = memblock_find_in_range(0, PFN_PHYS(max_pfn),
+-				      size, PAGE_SIZE);
++	phys = memblock_phys_alloc_range(size, PAGE_SIZE, 0, PFN_PHYS(max_pfn));
+ 	if (WARN_ON(!phys))
+ 		return -ENOMEM;
+ 
+-	memblock_reserve(phys, size);
+-
+ 	numa_distance = __va(phys);
+ 	numa_distance_cnt = nr_node_ids;
+ 
+diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
+index fd3964d24224..59c1390cdf42 100644
+--- a/drivers/of/of_reserved_mem.c
++++ b/drivers/of/of_reserved_mem.c
+@@ -33,18 +33,22 @@ static int __init early_init_dt_alloc_reserved_memory_arch(phys_addr_t size,
+ 	phys_addr_t *res_base)
+ {
+ 	phys_addr_t base;
++	int err = 0;
+ 
+ 	end = !end ? MEMBLOCK_ALLOC_ANYWHERE : end;
+ 	align = !align ? SMP_CACHE_BYTES : align;
+-	base = memblock_find_in_range(start, end, size, align);
++	base = memblock_phys_alloc_range(size, align, start, end);
+ 	if (!base)
+ 		return -ENOMEM;
+ 
+ 	*res_base = base;
+-	if (nomap)
+-		return memblock_mark_nomap(base, size);
++	if (nomap) {
++		err = memblock_mark_nomap(base, size);
++		if (err)
++			memblock_free(base, size);
++	}
+ 
+-	return memblock_reserve(base, size);
++	return err;
+ }
+ 
+ /*
+diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+index 4a53c3ca86bd..b066024c62e3 100644
+--- a/include/linux/memblock.h
++++ b/include/linux/memblock.h
+@@ -99,8 +99,6 @@ void memblock_discard(void);
+ static inline void memblock_discard(void) {}
+ #endif
+ 
+-phys_addr_t memblock_find_in_range(phys_addr_t start, phys_addr_t end,
+-				   phys_addr_t size, phys_addr_t align);
+ void memblock_allow_resize(void);
+ int memblock_add_node(phys_addr_t base, phys_addr_t size, int nid);
+ int memblock_add(phys_addr_t base, phys_addr_t size);
+diff --git a/mm/memblock.c b/mm/memblock.c
+index de7b553baa50..28a813d9e955 100644
+--- a/mm/memblock.c
++++ b/mm/memblock.c
+@@ -315,7 +315,7 @@ static phys_addr_t __init_memblock memblock_find_in_range_node(phys_addr_t size,
+  * Return:
+  * Found address on success, 0 on failure.
+  */
+-phys_addr_t __init_memblock memblock_find_in_range(phys_addr_t start,
++static phys_addr_t __init_memblock memblock_find_in_range(phys_addr_t start,
+ 					phys_addr_t end, phys_addr_t size,
+ 					phys_addr_t align)
+ {
+
+base-commit: ff1176468d368232b684f75e82563369208bc371
+-- 
+2.28.0
+
