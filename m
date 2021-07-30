@@ -2,96 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,FSL_HELO_FAKE,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C492DC4338F
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 14:54:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B41EC4320A
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 22:34:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A65AB60F4A
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 14:54:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4DF3360F94
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 22:34:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239362AbhG3OyU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Jul 2021 10:54:20 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:22915 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239370AbhG3OyT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 30 Jul 2021 10:54:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1627656854;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=vP9UshPvbz8YoLOzWnPB+DZvElzHipfy18IZoTE1sak=;
-        b=RvAKA3pG65uQRioUXTUJhPgVgjQuJyzVBV5PlJxV3qBgopcGiQK1RBr3G0lANDu+8cBHRF
-        myZRnWSt16MuFUKf7U4QLVPOT17Ipim4zotYm9be9qygh2AUuuqcaxO1U2VDpcYdS5zoBc
-        HkgUF5vOej+yHacRlLqZcDR37yhBF6A=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-190-9awi2ValNKe4AXbNKZvhlA-1; Fri, 30 Jul 2021 10:54:13 -0400
-X-MC-Unique: 9awi2ValNKe4AXbNKZvhlA-1
-Received: by mail-wr1-f69.google.com with SMTP id r17-20020adfda510000b02901526f76d738so3309700wrl.0
-        for <linux-s390@vger.kernel.org>; Fri, 30 Jul 2021 07:54:13 -0700 (PDT)
+        id S233310AbhG3Wev (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Jul 2021 18:34:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51570 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233243AbhG3Wes (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Jul 2021 18:34:48 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90212C0613D3
+        for <linux-s390@vger.kernel.org>; Fri, 30 Jul 2021 15:34:42 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id l19so17340155pjz.0
+        for <linux-s390@vger.kernel.org>; Fri, 30 Jul 2021 15:34:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=2B8bmMK1MWV0IKBzZFhJ4QQnRCCDWLQwwtmcrrRzShw=;
+        b=UfW+Uyhy937lSOvlfCbvzUSHfPBdVvhcTOaILHqlmzjEQeZkE7CJS1pDjY85yLeTrk
+         ZUbJvCXGnG9V4YR8YvLqiCoHxoAuC0RJHo8xznM5u3dhr6dkJI9BNq9mI/HgcDxL19UV
+         T0+Bsg6O2a3etVDRUOMu6je3JU33B5pFqiYpolqwzc84ASrmmPyryuwH24+FPODl2NK0
+         /jswqbw3cLYGC3s8tw+3+64iNj05CofMOCHjsjPmhNsSGF6fZGX5s2X6UpkAmOT82yEf
+         KD+vMh5N6wzurqnoLV7GP3bDuQRiamzrkbH5J6wxueQVfjy9YKlsV1lqKUCTBLbTMy1G
+         tbIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=vP9UshPvbz8YoLOzWnPB+DZvElzHipfy18IZoTE1sak=;
-        b=plT4K0aDUmfEhlSaSoZX413cd4o6j3o5DUnjC+HBhaeAMfgW25nLVvd1CIon1tBjbQ
-         MZgMyy2xoyLi+QPcthmAYE+edAwtNQcfx4s0IOylgMp6whHQBtT9cwHWqmc+XnMBO9XZ
-         rpctthhpHchVYf3JC9YbyUfcTQRQQtJNRnQRDJsOtP3RPLFiecUgR5yi2niJPVmta/tN
-         IsP5nA5k1EqNH7nn1TgWKXcDmwW8wh5pVnJYTFLTy4F5xmwhMwDIPRg6xYV4C6apvYAZ
-         pbZqck5i2xDIH2AW8eQdRhi9nq1J7qWHdbOKzP7nqT3g63RjaAxVx7SH5CJO+hjWlEv3
-         IfUQ==
-X-Gm-Message-State: AOAM53134jnE2wUDlOTIeYsQ9E7CGxn+E18A5FJgwloLq50828fk5OsC
-        7ijcJc9cT3OuydXglvX2GAlcsZVh/HuLe6s0NPfJAVqr9tvKfiDhNL/NutVfyV/5WdaSIZIz5M/
-        J6qLyDSVe5k5M42vpOqk0cA==
-X-Received: by 2002:a05:600c:2319:: with SMTP id 25mr3365326wmo.27.1627656852148;
-        Fri, 30 Jul 2021 07:54:12 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxnhYLRVeborZsaIV3naK2XsDF7jWBJ/fPAzAWtBaZX12E6P4p3lC1/JDHRJsKDlmjzoAiQKg==
-X-Received: by 2002:a05:600c:2319:: with SMTP id 25mr3365312wmo.27.1627656852014;
-        Fri, 30 Jul 2021 07:54:12 -0700 (PDT)
-Received: from thuth.remote.csb (p5791d280.dip0.t-ipconnect.de. [87.145.210.128])
-        by smtp.gmail.com with ESMTPSA id d15sm2105209wri.39.2021.07.30.07.54.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 30 Jul 2021 07:54:11 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH 4/4] lib: s390x: sie: Move sie function
- into library
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, cohuck@redhat.com
-References: <20210729134803.183358-1-frankja@linux.ibm.com>
- <20210729134803.183358-5-frankja@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <d6f15c93-3b9a-6a95-4d6b-db8d9c513bd2@redhat.com>
-Date:   Fri, 30 Jul 2021 16:54:10 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=2B8bmMK1MWV0IKBzZFhJ4QQnRCCDWLQwwtmcrrRzShw=;
+        b=Sdu51XboVRHTUgOA2UqNdLp4vJn4lHgkwhXVy0ZteKEsO4SNu3r2XfweaLCC8xqZPQ
+         eaBPRGnMdsBvUvSUH1yKpfXkygOrBTaU0HJFuIpfOtevDQ0zNZbgwbVZBchsb9JJX4aa
+         SZ3/U/XJhyiOc2koacOLCJxzT5Bt6qYOVk05mSulAHus88scX3gu1A8UyKxlTWqrfYe+
+         CuvmPDlAAFhhiJyIzs0/TqAXlw9VrUMF/LNMK3ACcjO+5shjNe2SvSwkxBE56/8TWPcE
+         jEhTXhkKimunK9gN98hp8ms+FDh0uNbepxfWpdeLkCGohIk0Hrr9xo5ySaX1NvW+XXoC
+         odfw==
+X-Gm-Message-State: AOAM533C0/UDW60w14KRPEymVpdjrWL6KhDazWRdlHj8AQeJ/nVH7/3n
+        Nq3g/7o7hlfzTjEcy3BDglayfFCIr7pIhg==
+X-Google-Smtp-Source: ABdhPJzSqN3B7Go3MtNjE9VY5h0clk+hYXj3ladZ5/S+PnXE8W92M9c05HKB4nGF1ekuX4eoULgjrQ==
+X-Received: by 2002:a17:90b:1bcc:: with SMTP id oa12mr5239612pjb.113.1627684481796;
+        Fri, 30 Jul 2021 15:34:41 -0700 (PDT)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id b184sm3525033pfg.72.2021.07.30.15.34.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Jul 2021 15:34:41 -0700 (PDT)
+Date:   Fri, 30 Jul 2021 22:34:37 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-graphics-maintainer@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        Borislav Petkov <bp@alien8.de>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Sathyanarayanan Kuppuswamy 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Will Deacon <will@kernel.org>, Dave Young <dyoung@redhat.com>,
+        Baoquan He <bhe@redhat.com>
+Subject: Re: [PATCH 07/11] treewide: Replace the use of mem_encrypt_active()
+ with prot_guest_has()
+Message-ID: <YQR+ffO92gMfGDbs@google.com>
+References: <cover.1627424773.git.thomas.lendacky@amd.com>
+ <029791b24c6412f9427cfe6ec598156c64395964.1627424774.git.thomas.lendacky@amd.com>
 MIME-Version: 1.0
-In-Reply-To: <20210729134803.183358-5-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <029791b24c6412f9427cfe6ec598156c64395964.1627424774.git.thomas.lendacky@amd.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 29/07/2021 15.48, Janosch Frank wrote:
-> Time to deduplicate more code.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->   lib/s390x/sie.c  | 13 +++++++++++++
->   lib/s390x/sie.h  |  1 +
->   s390x/mvpg-sie.c | 13 -------------
->   s390x/sie.c      | 17 -----------------
->   4 files changed, 14 insertions(+), 30 deletions(-)
+On Tue, Jul 27, 2021, Tom Lendacky wrote:
+> @@ -451,7 +450,7 @@ void __init mem_encrypt_free_decrypted_mem(void)
+>  	 * The unused memory range was mapped decrypted, change the encryption
+>  	 * attribute from decrypted to encrypted before freeing it.
+>  	 */
+> -	if (mem_encrypt_active()) {
+> +	if (sme_me_mask) {
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Any reason this uses sme_me_mask?  The helper it calls, __set_memory_enc_dec(),
+uses prot_guest_has(PATTR_MEM_ENCRYPT) so I assume it's available?
+
+>  		r = set_memory_encrypted(vaddr, npages);
+>  		if (r) {
+>  			pr_warn("failed to free unused decrypted pages\n");
 
