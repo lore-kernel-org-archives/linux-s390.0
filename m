@@ -2,278 +2,176 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2821C432BE
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:35:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CC27C43216
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 09:51:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CAF5B60F4B
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jul 2021 22:35:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3334860230
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 09:51:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235257AbhG2Wfw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Jul 2021 18:35:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37844 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234445AbhG2WfQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jul 2021 18:35:16 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78AE3C0617A0;
-        Thu, 29 Jul 2021 15:35:10 -0700 (PDT)
-Message-ID: <20210729222543.311207034@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1627598108;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=0EFERMseOgGp4ED8VGrniueRywqbBbmEkuB4rNqG78M=;
-        b=iK0/YPv7B6vrRwygNr/aWJnd4VVkL1ZKn2kQxcI/dQnLtz4ft5VuCOlaqUc0kIiEGBJBBN
-        GugXI1BpHhXUee/zOtQ3QYIkQtoADzIgpO66fLYCUXA99uL/eVGkBU8+FjaNVFSDh90xOx
-        ttbd4eCIlG4LzZPnOdODCjUZEAUmpm+A5ttd92ox6GYtcI6rILn2yd0kYasy8M2/MzGZlQ
-        dfb4A1+oNObxX+o9RjZR7UwxskIYDhgotxxjBsMZqaUjFq4GsXZMIsJSGzhxRk56UP4dbb
-        G+YAA0m5fmB2uw21y2YeLNLkVrTZio7gl7BtTbjZmL4b7s52vrzu9mgn4SGYXw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1627598108;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=0EFERMseOgGp4ED8VGrniueRywqbBbmEkuB4rNqG78M=;
-        b=rAEPIoE0COfVWKBOWFxx8T9/cGARQwv/RBsWXCm3fq8hcG1iXWzNzYxnWm4W/QkhcApOdC
-        uLZsHfb3XCaAhiCA==
-Date:   Thu, 29 Jul 2021 23:51:58 +0200
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
+        id S238317AbhG3Jvw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Jul 2021 05:51:52 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21702 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S238223AbhG3Jvv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 30 Jul 2021 05:51:51 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16U9Wma0032673;
+        Fri, 30 Jul 2021 05:49:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=RYVrVB0Cv2/R3lfmKnDGtLWGBHS277MIQR61B43z3uM=;
+ b=dGwRHMW+dV44draTp+TTntVOVZQoJjo0X1i/5LdgoAcqjM8JLU7lkDxlZoaKCMUKaNvy
+ M+ZjKdhpw34/vrKYLtUjIcBj6RIwv6+gThIzOeXw63W5RhwZ8jEpeJ8lUJRSg2zz7PKT
+ zOASTY1gTLrCWIjcz6bYSEGewtcDHLwf8Fzcaot81sFOXT7yz2HvFqBZo3EV+0ejZ807
+ GKQxJOKRmMFhInRW8OmWGMh92ydIzQl4xBQTCE6PhqZ4pcTf9HFmQHnHKz/7RK4PlcBW
+ De6pJGr9HrSc0qCw+yczs0r3u8j6/ghV1t4+xXF8c6L5aVgh19eC+7GvSO/OXLM2ZsPF Kw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a4e9j1cme-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Jul 2021 05:49:24 -0400
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16U9WmsP032691;
+        Fri, 30 Jul 2021 05:49:23 -0400
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a4e9j1ckr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Jul 2021 05:49:23 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16U9lRKT013772;
+        Fri, 30 Jul 2021 09:49:21 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06fra.de.ibm.com with ESMTP id 3a235kjwrx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Jul 2021 09:49:21 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16U9kYNh23789872
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 30 Jul 2021 09:46:34 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ABB9742052;
+        Fri, 30 Jul 2021 09:49:17 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 77B664203F;
+        Fri, 30 Jul 2021 09:49:16 +0000 (GMT)
+Received: from osiris (unknown [9.145.161.212])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 30 Jul 2021 09:49:16 +0000 (GMT)
+Date:   Fri, 30 Jul 2021 11:49:15 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-        Kevin Tian <kevin.tian@intel.com>,
-        Marc Zyngier <maz@kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        x86@kernel.org, linux-s390@vger.kernel.org,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [patch V2 19/19] PCI/MSI: Use new mask/unmask functions
-References: <20210729215139.889204656@linutronix.de>
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Feng Tang <feng.tang@intel.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-api@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v5 0/6] compat: remove compat_alloc_user_space
+Message-ID: <YQPLG20V3dmOfq3a@osiris>
+References: <20210727144859.4150043-1-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210727144859.4150043-1-arnd@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zR7p1uPVJVzE85QHjW8aYnuNusoUj_ko
+X-Proofpoint-GUID: cr8jFOyeRsqaNkR-GlUmXQX1PdWeweCa
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-30_05:2021-07-29,2021-07-30 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=697 impostorscore=0 suspectscore=0 adultscore=0 spamscore=0
+ priorityscore=1501 mlxscore=0 clxscore=1015 phishscore=0 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2107300057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Switch the PCI/MSI core to use the new mask/unmask functions. No functional
-change.
+On Tue, Jul 27, 2021 at 04:48:53PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> Going through compat_alloc_user_space() to convert indirect system call
+> arguments tends to add complexity compared to handling the native and
+> compat logic in the same code.
+> 
+> Out of the other remaining callers, the linux-media series went into
+> v5.14, and the network ioctl handling is now fixed in net-next, so
+> these are the last remaining users, and I now include the final
+> patch to remove the definitions as well.
+> 
+> Since these patches are now all that remains, it would be nice to
+> merge it all through Andrew's Linux-mm tree, which is already based
+> on top of linux-next.
+...
+> 
+> Arnd Bergmann (6):
+>   kexec: move locking into do_kexec_load
+>   kexec: avoid compat_alloc_user_space
+>   mm: simplify compat_sys_move_pages
+>   mm: simplify compat numa syscalls
+>   compat: remove some compat entry points
+>   arch: remove compat_alloc_user_space
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
----
-V2: New patch
----
- drivers/pci/msi.c |  102 +++++++++++-------------------------------------------
- 1 file changed, 21 insertions(+), 81 deletions(-)
+Our CI reports this with linux-next and running strace selftest in
+compat mode:
 
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -135,74 +135,6 @@ void __weak arch_restore_msi_irqs(struct
-  * reliably as devices without an INTx disable bit will then generate a
-  * level IRQ which will never be cleared.
-  */
--static void __pci_msi_desc_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
--{
--	raw_spinlock_t *lock = &desc->dev->msi_lock;
--	unsigned long flags;
--
--	if (pci_msi_ignore_mask || !desc->msi_attrib.maskbit)
--		return;
--
--	raw_spin_lock_irqsave(lock, flags);
--	desc->msi_mask &= ~mask;
--	desc->msi_mask |= flag;
--	pci_write_config_dword(msi_desc_to_pci_dev(desc), desc->mask_pos,
--			       desc->msi_mask);
--	raw_spin_unlock_irqrestore(lock, flags);
--}
--
--static void msi_mask_irq(struct msi_desc *desc, u32 mask, u32 flag)
--{
--	__pci_msi_desc_mask_irq(desc, mask, flag);
--}
--
--static void __iomem *pci_msix_desc_addr(struct msi_desc *desc)
--{
--	return desc->mask_base + desc->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE;
--}
--
--/*
-- * This internal function does not flush PCI writes to the device.
-- * All users must ensure that they read from the device before either
-- * assuming that the device state is up to date, or returning out of this
-- * file.  This saves a few milliseconds when initialising devices with lots
-- * of MSI-X interrupts.
-- */
--static u32 __pci_msix_desc_mask_irq(struct msi_desc *desc, u32 flag)
--{
--	void __iomem *desc_addr = pci_msix_desc_addr(desc);
--	u32 ctrl = desc->msix_ctrl;
--
--	if (pci_msi_ignore_mask || desc->msi_attrib.is_virtual)
--		return 0;
--
--	ctrl &= ~PCI_MSIX_ENTRY_CTRL_MASKBIT;
--	if (ctrl & PCI_MSIX_ENTRY_CTRL_MASKBIT)
--		ctrl |= PCI_MSIX_ENTRY_CTRL_MASKBIT;
--
--	writel(ctrl, desc_addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
--
--	return ctrl;
--}
--
--static void msix_mask_irq(struct msi_desc *desc, u32 flag)
--{
--	desc->msix_ctrl = __pci_msix_desc_mask_irq(desc, flag);
--}
--
--static void msi_set_mask_bit(struct irq_data *data, u32 flag)
--{
--	struct msi_desc *desc = irq_data_get_msi_desc(data);
--
--	if (desc->msi_attrib.is_msix) {
--		msix_mask_irq(desc, flag);
--		readl(desc->mask_base);		/* Flush write to device */
--	} else {
--		unsigned offset = data->irq - desc->irq;
--		msi_mask_irq(desc, 1 << offset, flag << offset);
--	}
--}
--
- static inline __attribute_const__ u32 msi_multi_mask(struct msi_desc *desc)
- {
- 	/* Don't shift by >= width of type */
-@@ -234,6 +166,11 @@ static inline void pci_msi_unmask(struct
- 	pci_msi_update_mask(desc, mask, 0);
- }
- 
-+static inline void __iomem *pci_msix_desc_addr(struct msi_desc *desc)
-+{
-+	return desc->mask_base + desc->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE;
-+}
-+
- /*
-  * This internal function does not flush PCI writes to the device.  All
-  * users must ensure that they read from the device before either assuming
-@@ -289,7 +226,9 @@ static void __pci_msi_unmask_desc(struct
-  */
- void pci_msi_mask_irq(struct irq_data *data)
- {
--	msi_set_mask_bit(data, 1);
-+	struct msi_desc *desc = irq_data_get_msi_desc(data);
-+
-+	__pci_msi_mask_desc(desc, BIT(data->irq - desc->irq));
- }
- EXPORT_SYMBOL_GPL(pci_msi_mask_irq);
- 
-@@ -299,7 +238,9 @@ EXPORT_SYMBOL_GPL(pci_msi_mask_irq);
-  */
- void pci_msi_unmask_irq(struct irq_data *data)
- {
--	msi_set_mask_bit(data, 0);
-+	struct msi_desc *desc = irq_data_get_msi_desc(data);
-+
-+	__pci_msi_unmask_desc(desc, BIT(data->irq - desc->irq));
- }
- EXPORT_SYMBOL_GPL(pci_msi_unmask_irq);
- 
-@@ -352,7 +293,8 @@ void __pci_write_msi_msg(struct msi_desc
- 		/* Don't touch the hardware now */
- 	} else if (entry->msi_attrib.is_msix) {
- 		void __iomem *base = pci_msix_desc_addr(entry);
--		bool unmasked = !(entry->msix_ctrl & PCI_MSIX_ENTRY_CTRL_MASKBIT);
-+		u32 ctrl = entry->msix_ctrl;
-+		bool unmasked = !(ctrl & PCI_MSIX_ENTRY_CTRL_MASKBIT);
- 
- 		if (entry->msi_attrib.is_virtual)
- 			goto skip;
-@@ -366,14 +308,14 @@ void __pci_write_msi_msg(struct msi_desc
- 		 * undefined."
- 		 */
- 		if (unmasked)
--			__pci_msix_desc_mask_irq(entry, PCI_MSIX_ENTRY_CTRL_MASKBIT);
-+			pci_msix_write_vector_ctrl(entry, ctrl | PCI_MSIX_ENTRY_CTRL_MASKBIT);
- 
- 		writel(msg->address_lo, base + PCI_MSIX_ENTRY_LOWER_ADDR);
- 		writel(msg->address_hi, base + PCI_MSIX_ENTRY_UPPER_ADDR);
- 		writel(msg->data, base + PCI_MSIX_ENTRY_DATA);
- 
- 		if (unmasked)
--			__pci_msix_desc_mask_irq(entry, 0);
-+			pci_msix_write_vector_ctrl(entry, ctrl);
- 
- 		/* Ensure that the writes are visible in the device */
- 		readl(base + PCI_MSIX_ENTRY_DATA);
-@@ -491,7 +433,7 @@ static void __pci_restore_msi_state(stru
- 	arch_restore_msi_irqs(dev);
- 
- 	pci_read_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS, &control);
--	msi_mask_irq(entry, msi_multi_mask(entry), entry->msi_mask);
-+	pci_msi_update_mask(entry, 0, 0);
- 	control &= ~PCI_MSI_FLAGS_QSIZE;
- 	control |= (entry->msi_attrib.multiple << 4) | PCI_MSI_FLAGS_ENABLE;
- 	pci_write_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS, control);
-@@ -522,7 +464,7 @@ static void __pci_restore_msix_state(str
- 
- 	arch_restore_msi_irqs(dev);
- 	for_each_pci_msi_entry(entry, dev)
--		msix_mask_irq(entry, entry->msix_ctrl);
-+		pci_msix_write_vector_ctrl(entry, entry->msix_ctrl);
- 
- 	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL, 0);
- }
-@@ -704,7 +646,6 @@ static int msi_capability_init(struct pc
- {
- 	struct msi_desc *entry;
- 	int ret;
--	unsigned mask;
- 
- 	pci_msi_set_enable(dev, 0);	/* Disable MSI during set up */
- 
-@@ -713,8 +654,7 @@ static int msi_capability_init(struct pc
- 		return -ENOMEM;
- 
- 	/* All MSIs are unmasked by default; mask them all */
--	mask = msi_multi_mask(entry);
--	msi_mask_irq(entry, mask, mask);
-+	pci_msi_mask(entry, msi_multi_mask(entry));
- 
- 	list_add_tail(&entry->list, dev_to_msi_list(&dev->dev));
- 
-@@ -741,7 +681,7 @@ static int msi_capability_init(struct pc
- 	return 0;
- 
- err:
--	msi_mask_irq(entry, mask, 0);
-+	pci_msi_unmask(entry, msi_multi_mask(entry));
- 	free_msi_irqs(dev);
- 	return ret;
- }
-@@ -1021,7 +961,7 @@ static void pci_msi_shutdown(struct pci_
- 	dev->msi_enabled = 0;
- 
- 	/* Return the device with MSI unmasked as initial states */
--	msi_mask_irq(desc, msi_multi_mask(desc), 0);
-+	pci_msi_unmask(desc, msi_multi_mask(desc));
- 
- 	/* Restore dev->irq to its default pin-assertion IRQ */
- 	dev->irq = desc->msi_attrib.default_irq;
-@@ -1107,7 +1047,7 @@ static void pci_msix_shutdown(struct pci
- 
- 	/* Return the device with MSI-X masked as initial states */
- 	for_each_pci_msi_entry(entry, dev)
--		__pci_msix_desc_mask_irq(entry, 1);
-+		pci_msix_mask(entry);
- 
- 	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
- 	pci_intx_for_msi(dev, 1);
+Unable to handle kernel pointer dereference in virtual kernel address space
+Failing address: 0000038003e7c000 TEID: 0000038003e7c803
+Fault in home space mode while using kernel ASCE.
+AS:00000001fb388007 R3:000000008021c007 S:0000000082142000 P:0000000000000400 
+Oops: 0011 ilc:3 [#1] SMP 
+CPU: 0 PID: 1017495 Comm: get_mempolicy Tainted: G           OE     5.14.0-20210730.rc3.git0.4ccc9e2db7ac.300.fc34.s390x+next #1
+Hardware name: IBM 2827 H66 708 (LPAR)
+Krnl PSW : 0704e00180000000 00000001f9f11000 (compat_put_bitmap+0x48/0xd0)
+           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+Krnl GPRS: 0000000000810000 0000000000000000 000000007d9df1c0 0000038003e7c008
+           0000000000000004 000000007d9df1c4 0000038003e7be40 0000000000010000
+           0000000000008000 0000000000000000 0000000000000390 00000000000001c8
+           000000020d6ea000 000002aa00401a48 00000001fa0a85fa 0000038003e7bd50
+Krnl Code: 00000001f9f10ff4: a7bb0001            aghi    %r11,1
+           00000001f9f10ff8: 41303008            la      %r3,8(%r3)
+          #00000001f9f10ffc: 41502004            la      %r5,4(%r2)
+          >00000001f9f11000: e3103ff8ff04        lg      %r1,-8(%r3)
+           00000001f9f11006: 5010f0a4            st      %r1,164(%r15)
+           00000001f9f1100a: a50e0081            llilh   %r0,129
+           00000001f9f1100e: c8402000f0a4        mvcos   0(%r2),164(%r15),%r4
+           00000001f9f11014: 1799                xr      %r9,%r9
+Call Trace:
+ [<00000001f9f11000>] compat_put_bitmap+0x48/0xd0 
+ [<00000001fa0a85fa>] kernel_get_mempolicy+0x102/0x178 
+ [<00000001fa0a86b0>] __s390_sys_get_mempolicy+0x40/0x50 
+ [<00000001fa92be30>] __do_syscall+0x1c0/0x1e8 
+ [<00000001fa939148>] system_call+0x78/0xa0 
+Last Breaking-Event-Address:
+ [<0000038003e7bc00>] 0x38003e7bc00
+Kernel panic - not syncing: Fatal exception: panic_on_oops
 
+Note: I did not try to bisect this, since it looks to me like this
+patch series causes the problem. Also, please don't get confused with
+the kernel version name. The date encoded is the build date, not the
+linux-next version.
+linux-next commit 4ccc9e2db7ac ("Add linux-next specific files for
+20210729") was used to build the kernel (s390 defconfig).
