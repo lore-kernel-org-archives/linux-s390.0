@@ -2,113 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,FSL_HELO_FAKE,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B41EC4320A
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 22:34:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E76BEC4320A
+	for <linux-s390@archiver.kernel.org>; Sat, 31 Jul 2021 02:07:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4DF3360F94
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Jul 2021 22:34:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BFB496069E
+	for <linux-s390@archiver.kernel.org>; Sat, 31 Jul 2021 02:07:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233310AbhG3Wev (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Jul 2021 18:34:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51570 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233243AbhG3Wes (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Jul 2021 18:34:48 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90212C0613D3
-        for <linux-s390@vger.kernel.org>; Fri, 30 Jul 2021 15:34:42 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id l19so17340155pjz.0
-        for <linux-s390@vger.kernel.org>; Fri, 30 Jul 2021 15:34:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=2B8bmMK1MWV0IKBzZFhJ4QQnRCCDWLQwwtmcrrRzShw=;
-        b=UfW+Uyhy937lSOvlfCbvzUSHfPBdVvhcTOaILHqlmzjEQeZkE7CJS1pDjY85yLeTrk
-         ZUbJvCXGnG9V4YR8YvLqiCoHxoAuC0RJHo8xznM5u3dhr6dkJI9BNq9mI/HgcDxL19UV
-         T0+Bsg6O2a3etVDRUOMu6je3JU33B5pFqiYpolqwzc84ASrmmPyryuwH24+FPODl2NK0
-         /jswqbw3cLYGC3s8tw+3+64iNj05CofMOCHjsjPmhNsSGF6fZGX5s2X6UpkAmOT82yEf
-         KD+vMh5N6wzurqnoLV7GP3bDuQRiamzrkbH5J6wxueQVfjy9YKlsV1lqKUCTBLbTMy1G
-         tbIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=2B8bmMK1MWV0IKBzZFhJ4QQnRCCDWLQwwtmcrrRzShw=;
-        b=Sdu51XboVRHTUgOA2UqNdLp4vJn4lHgkwhXVy0ZteKEsO4SNu3r2XfweaLCC8xqZPQ
-         eaBPRGnMdsBvUvSUH1yKpfXkygOrBTaU0HJFuIpfOtevDQ0zNZbgwbVZBchsb9JJX4aa
-         SZ3/U/XJhyiOc2koacOLCJxzT5Bt6qYOVk05mSulAHus88scX3gu1A8UyKxlTWqrfYe+
-         CuvmPDlAAFhhiJyIzs0/TqAXlw9VrUMF/LNMK3ACcjO+5shjNe2SvSwkxBE56/8TWPcE
-         jEhTXhkKimunK9gN98hp8ms+FDh0uNbepxfWpdeLkCGohIk0Hrr9xo5ySaX1NvW+XXoC
-         odfw==
-X-Gm-Message-State: AOAM533C0/UDW60w14KRPEymVpdjrWL6KhDazWRdlHj8AQeJ/nVH7/3n
-        Nq3g/7o7hlfzTjEcy3BDglayfFCIr7pIhg==
-X-Google-Smtp-Source: ABdhPJzSqN3B7Go3MtNjE9VY5h0clk+hYXj3ladZ5/S+PnXE8W92M9c05HKB4nGF1ekuX4eoULgjrQ==
-X-Received: by 2002:a17:90b:1bcc:: with SMTP id oa12mr5239612pjb.113.1627684481796;
-        Fri, 30 Jul 2021 15:34:41 -0700 (PDT)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id b184sm3525033pfg.72.2021.07.30.15.34.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Jul 2021 15:34:41 -0700 (PDT)
-Date:   Fri, 30 Jul 2021 22:34:37 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Tom Lendacky <thomas.lendacky@amd.com>
-Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-graphics-maintainer@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
-        Borislav Petkov <bp@alien8.de>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sathyanarayanan Kuppuswamy 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Will Deacon <will@kernel.org>, Dave Young <dyoung@redhat.com>,
-        Baoquan He <bhe@redhat.com>
-Subject: Re: [PATCH 07/11] treewide: Replace the use of mem_encrypt_active()
- with prot_guest_has()
-Message-ID: <YQR+ffO92gMfGDbs@google.com>
-References: <cover.1627424773.git.thomas.lendacky@amd.com>
- <029791b24c6412f9427cfe6ec598156c64395964.1627424774.git.thomas.lendacky@amd.com>
+        id S235245AbhGaCHt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Jul 2021 22:07:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59836 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231335AbhGaCHt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 30 Jul 2021 22:07:49 -0400
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1DB560EFD;
+        Sat, 31 Jul 2021 02:07:42 +0000 (UTC)
+Date:   Fri, 30 Jul 2021 22:07:41 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Ilya Leoshkevich <iii@linux.ibm.com>
+Cc:     Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 1/2] ftrace: Introduce ftrace_need_init_nop()
+Message-ID: <20210730220741.4da6fdf6@oasis.local.home>
+In-Reply-To: <20210728212546.128248-2-iii@linux.ibm.com>
+References: <20210728212546.128248-1-iii@linux.ibm.com>
+        <20210728212546.128248-2-iii@linux.ibm.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <029791b24c6412f9427cfe6ec598156c64395964.1627424774.git.thomas.lendacky@amd.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 27, 2021, Tom Lendacky wrote:
-> @@ -451,7 +450,7 @@ void __init mem_encrypt_free_decrypted_mem(void)
->  	 * The unused memory range was mapped decrypted, change the encryption
->  	 * attribute from decrypted to encrypted before freeing it.
->  	 */
-> -	if (mem_encrypt_active()) {
-> +	if (sme_me_mask) {
+On Wed, 28 Jul 2021 23:25:45 +0200
+Ilya Leoshkevich <iii@linux.ibm.com> wrote:
 
-Any reason this uses sme_me_mask?  The helper it calls, __set_memory_enc_dec(),
-uses prot_guest_has(PATTR_MEM_ENCRYPT) so I assume it's available?
+> Implementing live patching on s390 requires each function's prologue to
+> contain a very special kind of nop, which gcc and clang don't generate.
+> However, the current code assumes that if CC_USING_NOP_MCOUNT is
+> defined, then whatever the compiler generates is good enough.
+> 
+> Move the CC_USING_NOP_MCOUNT check into the new ftrace_need_init_nop()
+> macro, that the architectures can override.
+> 
+> An alternative solution is to disable using -mnop-mcount in the
+> Makefile, however, this makes the build logic (even) more complicated
+> and forces the arch-specific code to deal with the useless __fentry__
+> symbol.
+> 
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 
->  		r = set_memory_encrypted(vaddr, npages);
->  		if (r) {
->  			pr_warn("failed to free unused decrypted pages\n");
+I'm fine with this patch, and also you taking it in via the s390 tree.
+
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+
+-- Steve
+
+
+> ---
+>  include/linux/ftrace.h | 16 ++++++++++++++++
+>  kernel/trace/ftrace.c  |  4 ++--
+>  2 files changed, 18 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
+> index a69f363b61bf..f1ea8988a045 100644
+> --- a/include/linux/ftrace.h
+> +++ b/include/linux/ftrace.h
+> @@ -643,6 +643,22 @@ static inline int ftrace_disable_ftrace_graph_caller(void) { return 0; }
+>  extern int ftrace_make_nop(struct module *mod,
+>  			   struct dyn_ftrace *rec, unsigned long addr);
+>  
+> +/**
+> + * ftrace_need_init_nop - return whether nop call sites should be initialized
+> + *
+> + * Normally the compiler's -mnop-mcount generates suitable nops, so we don't
+> + * need to call ftrace_init_nop() if the code is built with that flag.
+> + * Architectures where this is not always the case may define their own
+> + * condition.
+> + *
+> + * Return must be:
+> + *  0       if ftrace_init_nop() should be called
+> + *  Nonzero if ftrace_init_nop() should not be called
+> + */
+> +
+> +#ifndef ftrace_need_init_nop
+> +#define ftrace_need_init_nop() (!__is_defined(CC_USING_NOP_MCOUNT))
+> +#endif
+>  
+>  /**
+>   * ftrace_init_nop - initialize a nop call site
+> diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+> index 7b180f61e6d3..7efbc8aaf7f6 100644
+> --- a/kernel/trace/ftrace.c
+> +++ b/kernel/trace/ftrace.c
+> @@ -3100,6 +3100,7 @@ ops_references_rec(struct ftrace_ops *ops, struct dyn_ftrace *rec)
+>  
+>  static int ftrace_update_code(struct module *mod, struct ftrace_page *new_pgs)
+>  {
+> +	bool init_nop = ftrace_need_init_nop();
+>  	struct ftrace_page *pg;
+>  	struct dyn_ftrace *p;
+>  	u64 start, stop;
+> @@ -3138,8 +3139,7 @@ static int ftrace_update_code(struct module *mod, struct ftrace_page *new_pgs)
+>  			 * Do the initial record conversion from mcount jump
+>  			 * to the NOP instructions.
+>  			 */
+> -			if (!__is_defined(CC_USING_NOP_MCOUNT) &&
+> -			    !ftrace_nop_initialize(mod, p))
+> +			if (init_nop && !ftrace_nop_initialize(mod, p))
+>  				break;
+>  
+>  			update_cnt++;
 
