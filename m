@@ -2,108 +2,147 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2325DC43214
-	for <linux-s390@archiver.kernel.org>; Mon,  2 Aug 2021 15:55:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B2E4C4338F
+	for <linux-s390@archiver.kernel.org>; Mon,  2 Aug 2021 16:32:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 03DFE61104
-	for <linux-s390@archiver.kernel.org>; Mon,  2 Aug 2021 15:55:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1996261050
+	for <linux-s390@archiver.kernel.org>; Mon,  2 Aug 2021 16:32:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235291AbhHBPzq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 Aug 2021 11:55:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54854 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233995AbhHBPzp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 2 Aug 2021 11:55:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3008461107;
-        Mon,  2 Aug 2021 15:55:25 +0000 (UTC)
-Date:   Mon, 2 Aug 2021 16:55:22 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Masahiro Yamada <masahiroy@kernel.org>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ley Foon Tan <ley.foon.tan@intel.com>, x86@kernel.org,
-        linux-mips@vger.kernel.org, sparclinux@vger.kernel.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Nick Hu <nickhu@andestech.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mike Rapoport <rppt@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-riscv@lists.infradead.org, YiFei Zhu <yifeifz2@illinois.edu>,
-        Greentime Hu <green.hu@gmail.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Michal Simek <monstr@monstr.eu>, Helge Deller <deller@gmx.de>,
-        linux-sh@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Guo Ren <guoren@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Richard Weinberger <richard@nod.at>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Rich Felker <dalias@libc.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        linux-s390@vger.kernel.org,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        linux-um@lists.infradead.org,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Brian Cain <bcain@codeaurora.org>, linux-csky@vger.kernel.org,
-        Stafford Horne <shorne@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Chris Zankel <chris@zankel.net>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        linux-snps-arc@lists.infradead.org,
-        Jonas Bonn <jonas@southpole.se>, linux-parisc@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-kernel@vger.kernel.org, Vincent Chen <deanbo422@gmail.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org
-Subject: Re: [PATCH 2/3] trace: refactor TRACE_IRQFLAGS_SUPPORT in Kconfig
-Message-ID: <20210802155521.GI18685@arm.com>
-References: <20210731052233.4703-1-masahiroy@kernel.org>
- <20210731052233.4703-2-masahiroy@kernel.org>
+        id S232709AbhHBQc2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 Aug 2021 12:32:28 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46214 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232664AbhHBQc1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Aug 2021 12:32:27 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 172GSf3n119024;
+        Mon, 2 Aug 2021 12:32:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=GtLTfRBHosk2HT8mQPlaf8TOULtvJoT93/CHLSAgRUk=;
+ b=NmotiHD/tgKQkp+hKuavQhWXHz28YvZbZHlotnijlO7Gd22EXx2oJeO/rZYG2wF6HTxu
+ 6hZ9vpz53KrUYx9K1tYCiagd++6T9QdF8s3NHURcaT3DpcLrgHM9ff2NhTz74u8tzf43
+ FmolZxHk5R06bo/7VP2i6kaBf1BKNgSzKsYnrL8rC5C4D0c1sjlE1xZ9Xi6mVcGPAH7e
+ NKB6y0bmvXWmXeGbdwfxOkPUoF+x0Ak5wJBw4YUdVnncl+Cg6whYp3D+Fe5b2boKoeg0
+ JhESBFX06NKZ+sGag1LUsGT5EYcy1T8swOTbdAx9nMC7MVLHnrIlqJKFMFO6lkCa3qdA lA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a6ke11qn9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 Aug 2021 12:32:16 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 172GU5Dh124259;
+        Mon, 2 Aug 2021 12:32:15 -0400
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a6ke11qmv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 Aug 2021 12:32:15 -0400
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 172GLUsi020455;
+        Mon, 2 Aug 2021 16:32:14 GMT
+Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
+        by ppma02wdc.us.ibm.com with ESMTP id 3a4x5bcudy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 Aug 2021 16:32:14 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 172GWD6Y38600986
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 2 Aug 2021 16:32:13 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 92CA72806A;
+        Mon,  2 Aug 2021 16:32:13 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D02BE28060;
+        Mon,  2 Aug 2021 16:32:12 +0000 (GMT)
+Received: from cpe-172-100-181-211.stny.res.rr.com (unknown [9.77.143.250])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Mon,  2 Aug 2021 16:32:12 +0000 (GMT)
+Subject: Re: [PATCH 0/2] s390/vfio-ap: do not open code locks for
+ VFIO_GROUP_NOTIFY_SET_KVM notification
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com, david@redhat.com,
+        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com
+References: <20210719193503.793910-1-akrowiak@linux.ibm.com>
+ <3f45fe31-6666-ac87-3a98-dd942b5dfb3c@linux.ibm.com>
+ <20210802155355.22b98789.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <6f37ef28-3cce-2f4f-3173-2c1e916900cc@linux.ibm.com>
+Date:   Mon, 2 Aug 2021 12:32:12 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
+In-Reply-To: <20210802155355.22b98789.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WiTV7pKfkeqiIUP4XlEuJXFQBEoIPWBv
+X-Proofpoint-GUID: h2CbDX1y9GhcFqqssswQlGyr2SDFkHIF
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210731052233.4703-2-masahiroy@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-02_07:2021-08-02,2021-08-02 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 adultscore=0
+ clxscore=1015 malwarescore=0 priorityscore=1501 spamscore=0 suspectscore=0
+ mlxscore=0 bulkscore=0 impostorscore=0 phishscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
+ definitions=main-2108020104
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Jul 31, 2021 at 02:22:32PM +0900, Masahiro Yamada wrote:
-> Make architectures select TRACE_IRQFLAGS_SUPPORT instead of
-> having many defines.
-> 
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 
-For arm64:
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+On 8/2/21 9:53 AM, Halil Pasic wrote:
+> On Mon, 2 Aug 2021 09:10:26 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> PING!
+>>
+>> This patch will pre-req version 17 of a patch series I have waiting in
+>> the wings,
+>> so I'd like to get this one merged ASAP. In particular, if a KVM
+>> maintainer can
+>> take a look at the comments concerning the taking of the kvm->lock
+>> before the
+>> matrix_mdev->lock it would be greatly appreciated. Those comments begin with
+>> Message ID <20210727004329.3bcc7d4f.pasic@linux.ibm.com> from Halil Pasic.
+> As far as I'm concerned, we can move forward with this. Was this
+> supposed to go in via Alex's tree?
+
+I am not certain, Christian queued the previous patches related to
+this on:
+
+
+https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/log/?h=fixes
+
+Jason G., since this will need to be integrated with your other patches,
+where should this be queued?
+
+>
+>> On 7/19/21 3:35 PM, Tony Krowiak wrote:
+>>> This series is actually only comprised of a single patch to replace the
+>>> open coded locks used during VFIO_GROUP_NOTIFY_SET_KVM notification. The
+>>> first patch is included because it is a pre-req slotted to be merged but is
+>>> not yet available in the kernel.
+>>>
+>>> Tony Krowiak (2):
+>>>     s390/vfio-ap: r/w lock for PQAP interception handler function pointer
+>>>     s390/vfio-ap: replace open coded locks for VFIO_GROUP_NOTIFY_SET_KVM
+>>>       notification
+>>>
+>>>    arch/s390/include/asm/kvm_host.h      |   8 +-
+>>>    arch/s390/kvm/kvm-s390.c              |  28 +++++-
+>>>    arch/s390/kvm/priv.c                  |  10 +-
+>>>    drivers/s390/crypto/vfio_ap_ops.c     | 127 +++++++++-----------------
+>>>    drivers/s390/crypto/vfio_ap_private.h |   4 +-
+>>>    5 files changed, 77 insertions(+), 100 deletions(-)
+>>>   
+
