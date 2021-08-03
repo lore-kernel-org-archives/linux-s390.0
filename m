@@ -2,251 +2,300 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32164C3F6A3
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 14:16:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 686A4C432BE
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 14:17:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1EE0260F94
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 14:16:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4D18160BD3
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 14:17:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236457AbhHCOQv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Aug 2021 10:16:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54814 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236205AbhHCOQs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 10:16:48 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3671AC061757;
-        Tue,  3 Aug 2021 07:16:37 -0700 (PDT)
+        id S236507AbhHCORS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Aug 2021 10:17:18 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:56868 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236448AbhHCORR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 10:17:17 -0400
 From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1628000193;
+        s=2020; t=1628000225;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Qkfc7lxCqn4p3B20wjfjiLsyLpuZIa2kIlbDitBY8sw=;
-        b=fStBYY9cDOofnMkMc6JUcZVYcNWx/eg2N05Pb/o7ef6JJTcTG48t+GioJgBl+eXKMJGEgi
-        TVCeDR+EwHJjgdulnpLwVy12sseYnaixefw5o14vk+2PAOm/LUlJHLssIOZ+nJyuRxaM3r
-        fCCG5ZeBAdz/Q3kIzOJQstWW7ST+mFehWQwEJk+hKZizcoepZD/zOgz+f7GO7oZ2MtK2DY
-        wm7slubFVtLqvtY6o7cEl9ZIw3mvJ35go7HuaiPxyi+ESejsT+e0qaP6D0Fis4EUqsKcRu
-        JGNGT0BYA9PAUGHVfsb3cVOtZwFCr59O6V6ObVy+T4OF395mknhLgwpLJFiGUg==
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Uaki9fQLj1MkzriRH3NHbpRwMmzcJeDXfssyd8zuEL8=;
+        b=jTpIscGhO1q1MqzCg/lGFpXa0f2WnTrlFD2fGlSMBNGkKAJOrbXKxYEz8kUP+011c/tv+T
+        evrt/I+nnXE9jNB8+NgMuEAqGuIrLUTVl+r9X+nIiRBHjGHRjGucyk4JKAerZhu55Bh3J/
+        LSecTW9WsD70fTuN73Ios0hH0BnYz+ISmqAmh+YGYfw8GrlyPqdj0qwTVpLBcJCMl7POc9
+        t96wUWHk+Uk+4HSEZyQagZ7O+IPCUURPN+HnF7owkJycL8lpMUiC3ROUzHHsbhTy1GisAd
+        aKpF3hu3HPnsqte+pcAF9gctwTds/gTX8e4eUwrRJKu4YLxIaGp5Mcmw32+tBA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1628000193;
+        s=2020e; t=1628000225;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Qkfc7lxCqn4p3B20wjfjiLsyLpuZIa2kIlbDitBY8sw=;
-        b=pGmFmcj1u+vX59p9gWCClfCslb9a1WxY2Pwa8q+HwkfzdAY6X/r9JgYaxIXaCJOpPNDW2W
-        rceMZSe2cSwuwVDA==
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Uaki9fQLj1MkzriRH3NHbpRwMmzcJeDXfssyd8zuEL8=;
+        b=L1FswKe+W/s5X2YasHc3pAv8CcS+EfMoNt1AS4HiYEpY2uukc4icAHmZkQWmOaB2hZ+NjD
+        xNLlu9yKnMb6f0Cw==
 To:     linux-kernel@vger.kernel.org
 Cc:     tglx@linutronix.de, Peter Zijlstra <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Amit Kucheria <amitk@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Ben Segall <bsegall@google.com>,
-        Borislav Petkov <bp@alien8.de>, cgroups@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        coresight@lists.linaro.org,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Gonglei <arei.gonglei@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jason Wang <jasowang@redhat.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Jiri Kosina <jikos@kernel.org>, Jiri Olsa <jolsa@redhat.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Karol Herbst <karolherbst@gmail.com>,
-        Karsten Graul <kgraul@linux.ibm.com>, kvm-ppc@vger.kernel.org,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Len Brown <lenb@kernel.org>, Len Brown <len.brown@intel.com>,
-        Leo Yan <leo.yan@linaro.org>, linux-acpi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-edac@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-pm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-raid@vger.kernel.org,
-        linux-s390@vger.kernel.org, live-patching@vger.kernel.org,
-        Mark Gross <mgross@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        Mike Travis <mike.travis@hpe.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Namhyung Kim <namhyung@kernel.org>, netdev@vger.kernel.org,
-        nouveau@lists.freedesktop.org,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Pekka Paalanen <ppaalanen@gmail.com>,
-        Petr Mladek <pmladek@suse.com>,
-        platform-driver-x86@vger.kernel.org,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>, rcu@vger.kernel.org,
-        Robin Holt <robinmholt@gmail.com>, Song Liu <song@kernel.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Steve Wahl <steve.wahl@hpe.com>,
-        Stuart Hayes <stuart.w.hayes@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Tejun Heo <tj@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Tony Luck <tony.luck@intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        virtualization@lists.linux-foundation.org, x86@kernel.org,
-        Zefan Li <lizefan.x@bytedance.com>,
-        Zhang Rui <rui.zhang@intel.com>
-Subject: [PATCH 00/38] Replace deprecated CPU-hotplug
-Date:   Tue,  3 Aug 2021 16:15:43 +0200
-Message-Id: <20210803141621.780504-1-bigeasy@linutronix.de>
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 04/38] s390: Replace deprecated CPU-hotplug functions.
+Date:   Tue,  3 Aug 2021 16:15:47 +0200
+Message-Id: <20210803141621.780504-5-bigeasy@linutronix.de>
+In-Reply-To: <20210803141621.780504-1-bigeasy@linutronix.de>
+References: <20210803141621.780504-1-bigeasy@linutronix.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This is a tree wide replacement of the deprecated CPU hotplug functions
-which are only wrappers around the actual functions.
+The functions get_online_cpus() and put_online_cpus() have been
+deprecated during the CPU hotplug rework. They map directly to
+cpus_read_lock() and cpus_read_unlock().
 
-Each patch is independent and can be picked up by the relevant maintainer.
+Replace deprecated CPU-hotplug functions with the official version.
+The behavior remains unchanged.
 
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Amit Kucheria <amitk@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: cgroups@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: coresight@lists.linaro.org
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Gonglei <arei.gonglei@huawei.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Julian Wiedmann <jwi@linux.ibm.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Karol Herbst <karolherbst@gmail.com>
-Cc: Karsten Graul <kgraul@linux.ibm.com>
-Cc: kvm-ppc@vger.kernel.org
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Len Brown <len.brown@intel.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: linux-acpi@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-doc@vger.kernel.org
-Cc: linux-edac@vger.kernel.org
-Cc: linux-hwmon@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-mips@vger.kernel.org
-Cc: linux-mm@kvack.org
-Cc: linux-pm@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-raid@vger.kernel.org
 Cc: linux-s390@vger.kernel.org
-Cc: live-patching@vger.kernel.org
-Cc: Mark Gross <mgross@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Mike Travis <mike.travis@hpe.com>
-Cc: Miroslav Benes <mbenes@suse.cz>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: nouveau@lists.freedesktop.org
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Pekka Paalanen <ppaalanen@gmail.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: platform-driver-x86@vger.kernel.org
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: rcu@vger.kernel.org
-Cc: Robin Holt <robinmholt@gmail.com>
-Cc: Song Liu <song@kernel.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Steve Wahl <steve.wahl@hpe.com>
-Cc: Stuart Hayes <stuart.w.hayes@gmail.com>
-Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
 Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: virtualization@lists.linux-foundation.org
-Cc: x86@kernel.org
-Cc: Zefan Li <lizefan.x@bytedance.com>
-Cc: Zhang Rui <rui.zhang@intel.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ arch/s390/hypfs/hypfs_diag0c.c  | 10 +++++-----
+ arch/s390/kernel/diag.c         |  4 ++--
+ arch/s390/kernel/irq.c          |  4 ++--
+ arch/s390/kernel/perf_cpum_cf.c |  4 ++--
+ arch/s390/kernel/processor.c    |  4 ++--
+ arch/s390/kernel/smp.c          |  8 ++++----
+ arch/s390/kernel/topology.c     |  4 ++--
+ arch/s390/mm/maccess.c          |  4 ++--
+ 8 files changed, 21 insertions(+), 21 deletions(-)
 
-Sebastian
+diff --git a/arch/s390/hypfs/hypfs_diag0c.c b/arch/s390/hypfs/hypfs_diag0c.c
+index 6c43d2ba20797..5cd3d8478ac18 100644
+--- a/arch/s390/hypfs/hypfs_diag0c.c
++++ b/arch/s390/hypfs/hypfs_diag0c.c
+@@ -33,12 +33,12 @@ static void *diag0c_store(unsigned int *count)
+ 	unsigned int cpu_count, cpu, i;
+ 	void **cpu_vec;
+=20
+-	get_online_cpus();
++	cpus_read_lock();
+ 	cpu_count =3D num_online_cpus();
+ 	cpu_vec =3D kmalloc_array(num_possible_cpus(), sizeof(*cpu_vec),
+ 				GFP_KERNEL);
+ 	if (!cpu_vec)
+-		goto fail_put_online_cpus;
++		goto fail_unlock_cpus;
+ 	/* Note: Diag 0c needs 8 byte alignment and real storage */
+ 	diag0c_data =3D kzalloc(struct_size(diag0c_data, entry, cpu_count),
+ 			      GFP_KERNEL | GFP_DMA);
+@@ -54,13 +54,13 @@ static void *diag0c_store(unsigned int *count)
+ 	on_each_cpu(diag0c_fn, cpu_vec, 1);
+ 	*count =3D cpu_count;
+ 	kfree(cpu_vec);
+-	put_online_cpus();
++	cpus_read_unlock();
+ 	return diag0c_data;
+=20
+ fail_kfree_cpu_vec:
+ 	kfree(cpu_vec);
+-fail_put_online_cpus:
+-	put_online_cpus();
++fail_unlock_cpus:
++	cpus_read_unlock();
+ 	return ERR_PTR(-ENOMEM);
+ }
+=20
+diff --git a/arch/s390/kernel/diag.c b/arch/s390/kernel/diag.c
+index a3f47464c3f17..4c2ac7ceef94a 100644
+--- a/arch/s390/kernel/diag.c
++++ b/arch/s390/kernel/diag.c
+@@ -59,7 +59,7 @@ static int show_diag_stat(struct seq_file *m, void *v)
+ 	unsigned long n =3D (unsigned long) v - 1;
+ 	int cpu, prec, tmp;
+=20
+-	get_online_cpus();
++	cpus_read_lock();
+ 	if (n =3D=3D 0) {
+ 		seq_puts(m, "         ");
+=20
+@@ -78,7 +78,7 @@ static int show_diag_stat(struct seq_file *m, void *v)
+ 		}
+ 		seq_printf(m, "    %s\n", diag_map[n-1].name);
+ 	}
+-	put_online_cpus();
++	cpus_read_unlock();
+ 	return 0;
+ }
+=20
+diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+index 234d085257eb1..3a3145c4a3ba4 100644
+--- a/arch/s390/kernel/irq.c
++++ b/arch/s390/kernel/irq.c
+@@ -228,7 +228,7 @@ int show_interrupts(struct seq_file *p, void *v)
+ 	int index =3D *(loff_t *) v;
+ 	int cpu, irq;
+=20
+-	get_online_cpus();
++	cpus_read_lock();
+ 	if (index =3D=3D 0) {
+ 		seq_puts(p, "           ");
+ 		for_each_online_cpu(cpu)
+@@ -258,7 +258,7 @@ int show_interrupts(struct seq_file *p, void *v)
+ 		seq_putc(p, '\n');
+ 	}
+ out:
+-	put_online_cpus();
++	cpus_read_unlock();
+ 	return 0;
+ }
+=20
+diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_c=
+f.c
+index d7dc36ec0a60e..2e3bb633acf6c 100644
+--- a/arch/s390/kernel/perf_cpum_cf.c
++++ b/arch/s390/kernel/perf_cpum_cf.c
+@@ -1138,7 +1138,7 @@ static long cfset_ioctl(struct file *file, unsigned i=
+nt cmd, unsigned long arg)
+ {
+ 	int ret;
+=20
+-	get_online_cpus();
++	cpus_read_lock();
+ 	mutex_lock(&cfset_ctrset_mutex);
+ 	switch (cmd) {
+ 	case S390_HWCTR_START:
+@@ -1155,7 +1155,7 @@ static long cfset_ioctl(struct file *file, unsigned i=
+nt cmd, unsigned long arg)
+ 		break;
+ 	}
+ 	mutex_unlock(&cfset_ctrset_mutex);
+-	put_online_cpus();
++	cpus_read_unlock();
+ 	return ret;
+ }
+=20
+diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
+index 82df39b17bb55..d8089a79b3f65 100644
+--- a/arch/s390/kernel/processor.c
++++ b/arch/s390/kernel/processor.c
+@@ -210,7 +210,7 @@ static inline void *c_update(loff_t *pos)
+=20
+ static void *c_start(struct seq_file *m, loff_t *pos)
+ {
+-	get_online_cpus();
++	cpus_read_lock();
+ 	return c_update(pos);
+ }
+=20
+@@ -222,7 +222,7 @@ static void *c_next(struct seq_file *m, void *v, loff_t=
+ *pos)
+=20
+ static void c_stop(struct seq_file *m, void *v)
+ {
+-	put_online_cpus();
++	cpus_read_unlock();
+ }
+=20
+ const struct seq_operations cpuinfo_op =3D {
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 8984711f72ede..b18cab79c370a 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -793,7 +793,7 @@ static int __smp_rescan_cpus(struct sclp_core_info *inf=
+o, bool early)
+ 	u16 core_id;
+ 	int nr, i;
+=20
+-	get_online_cpus();
++	cpus_read_lock();
+ 	mutex_lock(&smp_cpu_state_mutex);
+ 	nr =3D 0;
+ 	cpumask_xor(&avail, cpu_possible_mask, cpu_present_mask);
+@@ -816,7 +816,7 @@ static int __smp_rescan_cpus(struct sclp_core_info *inf=
+o, bool early)
+ 		nr +=3D smp_add_core(&info->core[i], &avail, configured, early);
+ 	}
+ 	mutex_unlock(&smp_cpu_state_mutex);
+-	put_online_cpus();
++	cpus_read_unlock();
+ 	return nr;
+ }
+=20
+@@ -1055,7 +1055,7 @@ static ssize_t cpu_configure_store(struct device *dev,
+ 		return -EINVAL;
+ 	if (val !=3D 0 && val !=3D 1)
+ 		return -EINVAL;
+-	get_online_cpus();
++	cpus_read_lock();
+ 	mutex_lock(&smp_cpu_state_mutex);
+ 	rc =3D -EBUSY;
+ 	/* disallow configuration changes of online cpus and cpu 0 */
+@@ -1104,7 +1104,7 @@ static ssize_t cpu_configure_store(struct device *dev,
+ 	}
+ out:
+ 	mutex_unlock(&smp_cpu_state_mutex);
+-	put_online_cpus();
++	cpus_read_unlock();
+ 	return rc ? rc : count;
+ }
+ static DEVICE_ATTR(configure, 0644, cpu_configure_show, cpu_configure_stor=
+e);
+diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
+index 26aa2614ee352..d2458a29618fa 100644
+--- a/arch/s390/kernel/topology.c
++++ b/arch/s390/kernel/topology.c
+@@ -406,7 +406,7 @@ static ssize_t dispatching_store(struct device *dev,
+ 	if (val !=3D 0 && val !=3D 1)
+ 		return -EINVAL;
+ 	rc =3D 0;
+-	get_online_cpus();
++	cpus_read_lock();
+ 	mutex_lock(&smp_cpu_state_mutex);
+ 	if (cpu_management =3D=3D val)
+ 		goto out;
+@@ -417,7 +417,7 @@ static ssize_t dispatching_store(struct device *dev,
+ 	topology_expect_change();
+ out:
+ 	mutex_unlock(&smp_cpu_state_mutex);
+-	put_online_cpus();
++	cpus_read_unlock();
+ 	return rc ? rc : count;
+ }
+ static DEVICE_ATTR_RW(dispatching);
+diff --git a/arch/s390/mm/maccess.c b/arch/s390/mm/maccess.c
+index a0f54bd5e98ab..9663ce3625bcd 100644
+--- a/arch/s390/mm/maccess.c
++++ b/arch/s390/mm/maccess.c
+@@ -228,7 +228,7 @@ void *xlate_dev_mem_ptr(phys_addr_t addr)
+ 	void *bounce =3D (void *) addr;
+ 	unsigned long size;
+=20
+-	get_online_cpus();
++	cpus_read_lock();
+ 	preempt_disable();
+ 	if (is_swapped(addr)) {
+ 		size =3D PAGE_SIZE - (addr & ~PAGE_MASK);
+@@ -237,7 +237,7 @@ void *xlate_dev_mem_ptr(phys_addr_t addr)
+ 			memcpy_absolute(bounce, (void *) addr, size);
+ 	}
+ 	preempt_enable();
+-	put_online_cpus();
++	cpus_read_unlock();
+ 	return bounce;
+ }
+=20
+--=20
+2.32.0
 
