@@ -2,143 +2,215 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45599C4338F
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 09:29:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25AE9C432BE
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 09:45:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1B79A60F94
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 09:29:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0D6F960F8F
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 09:45:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234816AbhHCJ3Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Aug 2021 05:29:16 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21978 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S234506AbhHCJ3P (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 05:29:15 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17393GN0031484;
-        Tue, 3 Aug 2021 05:29:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : from : to : cc
- : references : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=UILdCH9TbqXhalafFZPDT3vaUsZmTFhkVUnO9SjA1X0=;
- b=PZIRkwRgPxZVB6+ENEKsVVg6h5pfiekRRcodccQd2wlAQHgaPoiUqJUDuNxfPUNDonls
- BD1fkoL39Q5DGEqRLzYvKU3qqbPUwq9HCoGEpfnOOJdX1X6lHCiKLTMg3Wu49SNTq9i8
- q7/cV0dvePL60IPFjK4E9ZfoXz1wHEpGRHEshZB3sRRD7NU90Vt3LgGlr54wAgztY4bW
- DXZ3772LcmRoangAb131lH9pP6zRzGVUMdZ6vySrP8U4Djb8aUNPJhXufbue19s5yb8t
- IBq6QaaBaXd31TzT+Q4lHHvVJB0d74dH1owjctGIsqNSfo/k6CBtuJcF48VrmXKfaEio 1w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a72321p5m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Aug 2021 05:29:03 -0400
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1739S7L7125676;
-        Tue, 3 Aug 2021 05:29:03 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a72321p50-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Aug 2021 05:29:03 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1739Rf7X026178;
-        Tue, 3 Aug 2021 09:29:01 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma05fra.de.ibm.com with ESMTP id 3a4x58e3mh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Aug 2021 09:29:01 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1739SveI13238650
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 3 Aug 2021 09:28:57 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9D2EAA4072;
-        Tue,  3 Aug 2021 09:28:57 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 25DB9A4064;
-        Tue,  3 Aug 2021 09:28:57 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.75.95])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  3 Aug 2021 09:28:57 +0000 (GMT)
-Subject: Re: [PATCH v3 3/3] s390x: optimization of the check for CPU topology
- change
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, cohuck@redhat.com, david@redhat.com,
-        thuth@redhat.com, imbrenda@linux.ibm.com, gor@linux.ibm.com
-References: <1627979206-32663-1-git-send-email-pmorel@linux.ibm.com>
- <1627979206-32663-4-git-send-email-pmorel@linux.ibm.com>
- <YQkBfal/OiI2y1lA@osiris>
- <b91ce49f-c73b-bdd2-2389-8313f4baf46c@linux.ibm.com>
-Message-ID: <a9a236c0-d248-6be5-883b-c21744d106ea@linux.ibm.com>
-Date:   Tue, 3 Aug 2021 11:28:56 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        id S235193AbhHCJpJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Aug 2021 05:45:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44192 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235157AbhHCJpJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 05:45:09 -0400
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37C1CC061764
+        for <linux-s390@vger.kernel.org>; Tue,  3 Aug 2021 02:44:57 -0700 (PDT)
+Received: by mail-ed1-x533.google.com with SMTP id g21so8937450edb.4
+        for <linux-s390@vger.kernel.org>; Tue, 03 Aug 2021 02:44:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-powerpc-org.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=7ArTaS55GcHRrlg8uUcqb0/VYMv30LO+TcruGsLFfOA=;
+        b=nneisuAfVkRQwNF4jkMM3S1DtCT6ZpBiwI/1yDvRZehpiYxoqROz3bsi/IoEPLpKyd
+         xxYtdUxI5AUFsvWpnWsW4VtrS1REX+NU2X4KhDcQVUfGNLY1Zpz/Ub7T43jzhs4mtanz
+         7mICSo5yZQJ2uQ+SbUsLuZ8AK/c318a9X5Qed4ZfRsOcVQY8vpHH+afBNrn1sV9xrbsr
+         LF4tcKPQxxCnFpqDHBFrI9ttcK2wtfbiUtlj+8gUtRqtaztnfyGM8F06axoGMsSJCUbk
+         8XgQjvEUFQOh+PaunyKWjeGTmxGqvAxdDZqjcaOeZ30GR3HdFULQN0ZIe9vZcPK3/sWV
+         MQzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
+         :message-id:subject:to:cc;
+        bh=7ArTaS55GcHRrlg8uUcqb0/VYMv30LO+TcruGsLFfOA=;
+        b=oLgiwzjam7V+CrxoS73M8BAsn/G4IV+NU/I+aJHVdtJ+cJKdP/G6IIynrAsMVQNfQ+
+         roYmQH0B7ytT81s/VywjcWAJ3bDknq1tzPEfVoD77BMXTpXzlC01a+rffwppXlXp/z9S
+         hY8cSYwTmUswbX/zNvcDggzyaLgziXdSBvgQo0yFADyIPSxEQdYp1RbtMX/BNcJE07oa
+         KWKyrEBNGBhXKhld1c1JVjiCM9eLNWAXRiTjwatzhFHpN2sv5zYfNuWbCMneSWRmijv+
+         1rAR60I63AsjX1WPm2DYQU320h9jHV3Q3dCxb95OToiaNbLw5xGRhncUhDn5tPZ0sKJF
+         5OmQ==
+X-Gm-Message-State: AOAM532fKVHBfBLNgo4j+bLpb9W89K5WcwFrWSWdFqX/zxCEnpW7nxsI
+        U/7XE7/XNUSYM/7bGH9JqisiIAnfdnKd5VUUPKeXFg==
+X-Google-Smtp-Source: ABdhPJwiDRUWz8PbJ85/X6g/6bE/DA8L0p3jb1n24/i0E5m+g8kBV8qWpyTyCwUsN/CKVlU0ERzbNXb12Kz0b7pPzsk=
+X-Received: by 2002:aa7:de92:: with SMTP id j18mr24304786edv.141.1627983895787;
+ Tue, 03 Aug 2021 02:44:55 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <b91ce49f-c73b-bdd2-2389-8313f4baf46c@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: mJ8rvJHq_yohVcKJQoqyPjvtS2cQUpHg
-X-Proofpoint-ORIG-GUID: P84lBv9HCnT072TERb52I71CdIo5k0Jo
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-03_02:2021-08-03,2021-08-03 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 mlxscore=0 clxscore=1015 impostorscore=0 spamscore=0
- mlxlogscore=999 malwarescore=0 bulkscore=0 priorityscore=1501 adultscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108030062
+Received: by 2002:a50:2486:0:0:0:0:0 with HTTP; Tue, 3 Aug 2021 02:44:55 -0700 (PDT)
+X-Originating-IP: [5.35.57.254]
+In-Reply-To: <20210803082553.25194-1-yajun.deng@linux.dev>
+References: <20210803082553.25194-1-yajun.deng@linux.dev>
+From:   Denis Kirjanov <kda@linux-powerpc.org>
+Date:   Tue, 3 Aug 2021 12:44:55 +0300
+Message-ID: <CAOJe8K0_v0SHY913pnCHKZ9WUdNGOJ2nbagsr5t=ytiJ-Y3rrQ@mail.gmail.com>
+Subject: Re: [PATCH net-next] net: Modify sock_set_keepalive() for more scenarios
+To:     Yajun Deng <yajun.deng@linux.dev>
+Cc:     davem@davemloft.net, kuba@kernel.org,
+        mathew.j.martineau@linux.intel.com, matthieu.baerts@tessares.net,
+        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        bpf@vger.kernel.org, mptcp@lists.linux.dev,
+        linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
+        linux-s390@vger.kernel.org, linux-nfs@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 8/3/21, Yajun Deng <yajun.deng@linux.dev> wrote:
+> Add 2nd parameter in sock_set_keepalive(), let the caller decide
+> whether to set. This can be applied to more scenarios.
 
+It makes sense to send the patch within a context of other scenarios
 
-On 8/3/21 10:57 AM, Pierre Morel wrote:
-> 
-> 
-> On 8/3/21 10:42 AM, Heiko Carstens wrote:
->> On Tue, Aug 03, 2021 at 10:26:46AM +0200, Pierre Morel wrote:
->>> Now that the PTF instruction is interpreted by the SIE we can optimize
->>> the arch_update_cpu_topology callback to check if there is a real need
->>> to update the topology by using the PTF instruction.
->>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>> ---
->>>   arch/s390/kernel/topology.c | 3 +++
->>>   1 file changed, 3 insertions(+)
->>>
->>> diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
->>> index 26aa2614ee35..741cb447e78e 100644
->>> --- a/arch/s390/kernel/topology.c
->>> +++ b/arch/s390/kernel/topology.c
->>> @@ -322,6 +322,9 @@ int arch_update_cpu_topology(void)
->>>       struct device *dev;
->>>       int cpu, rc;
->>> +    if (!ptf(PTF_CHECK))
->>> +        return 0;
->>> +
->>
->> We have a timer which checks if topology changed and then triggers a
->> call to arch_update_cpu_topology() via rebuild_sched_domains().
->> With this change topology changes would get lost.
-> 
-> For my understanding, if PTF check return 0 it means that there are no 
-> topology changes.
-> So they could not get lost.
-> 
-> What did I miss?
-> 
-> 
-I missed that PTF clears the MCTR... and only one of the two calls will 
-return 1 while we need both to return 1...
-
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+>
+> Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+> ---
+>  include/net/sock.h    |  2 +-
+>  net/core/filter.c     |  4 +---
+>  net/core/sock.c       | 10 ++++------
+>  net/mptcp/sockopt.c   |  4 +---
+>  net/rds/tcp_listen.c  |  2 +-
+>  net/smc/af_smc.c      |  2 +-
+>  net/sunrpc/xprtsock.c |  2 +-
+>  7 files changed, 10 insertions(+), 16 deletions(-)
+>
+> diff --git a/include/net/sock.h b/include/net/sock.h
+> index ff1be7e7e90b..0aae26159549 100644
+> --- a/include/net/sock.h
+> +++ b/include/net/sock.h
+> @@ -2772,7 +2772,7 @@ int sock_set_timestamping(struct sock *sk, int
+> optname,
+>
+>  void sock_enable_timestamps(struct sock *sk);
+>  void sock_no_linger(struct sock *sk);
+> -void sock_set_keepalive(struct sock *sk);
+> +void sock_set_keepalive(struct sock *sk, bool valbool);
+>  void sock_set_priority(struct sock *sk, u32 priority);
+>  void sock_set_rcvbuf(struct sock *sk, int val);
+>  void sock_set_mark(struct sock *sk, u32 val);
+> diff --git a/net/core/filter.c b/net/core/filter.c
+> index faf29fd82276..41b2bf140b89 100644
+> --- a/net/core/filter.c
+> +++ b/net/core/filter.c
+> @@ -4769,9 +4769,7 @@ static int _bpf_setsockopt(struct sock *sk, int level,
+> int optname,
+>  			ret = sock_bindtoindex(sk, ifindex, false);
+>  			break;
+>  		case SO_KEEPALIVE:
+> -			if (sk->sk_prot->keepalive)
+> -				sk->sk_prot->keepalive(sk, valbool);
+> -			sock_valbool_flag(sk, SOCK_KEEPOPEN, valbool);
+> +			sock_set_keepalive(sk, !!valbool);
+>  			break;
+>  		case SO_REUSEPORT:
+>  			sk->sk_reuseport = valbool;
+> diff --git a/net/core/sock.c b/net/core/sock.c
+> index 9671c32e6ef5..7041e6355ae1 100644
+> --- a/net/core/sock.c
+> +++ b/net/core/sock.c
+> @@ -892,12 +892,12 @@ int sock_set_timestamping(struct sock *sk, int
+> optname,
+>  	return 0;
+>  }
+>
+> -void sock_set_keepalive(struct sock *sk)
+> +void sock_set_keepalive(struct sock *sk, bool valbool)
+>  {
+>  	lock_sock(sk);
+>  	if (sk->sk_prot->keepalive)
+> -		sk->sk_prot->keepalive(sk, true);
+> -	sock_valbool_flag(sk, SOCK_KEEPOPEN, true);
+> +		sk->sk_prot->keepalive(sk, valbool);
+> +	sock_valbool_flag(sk, SOCK_KEEPOPEN, valbool);
+>  	release_sock(sk);
+>  }
+>  EXPORT_SYMBOL(sock_set_keepalive);
+> @@ -1060,9 +1060,7 @@ int sock_setsockopt(struct socket *sock, int level,
+> int optname,
+>  		break;
+>
+>  	case SO_KEEPALIVE:
+> -		if (sk->sk_prot->keepalive)
+> -			sk->sk_prot->keepalive(sk, valbool);
+> -		sock_valbool_flag(sk, SOCK_KEEPOPEN, valbool);
+> +		sock_set_keepalive(sk, !!valbool);
+>  		break;
+>
+>  	case SO_OOBINLINE:
+> diff --git a/net/mptcp/sockopt.c b/net/mptcp/sockopt.c
+> index 8c03afac5ca0..879b8381055c 100644
+> --- a/net/mptcp/sockopt.c
+> +++ b/net/mptcp/sockopt.c
+> @@ -81,9 +81,7 @@ static void mptcp_sol_socket_sync_intval(struct mptcp_sock
+> *msk, int optname, in
+>  			sock_valbool_flag(ssk, SOCK_DBG, !!val);
+>  			break;
+>  		case SO_KEEPALIVE:
+> -			if (ssk->sk_prot->keepalive)
+> -				ssk->sk_prot->keepalive(ssk, !!val);
+> -			sock_valbool_flag(ssk, SOCK_KEEPOPEN, !!val);
+> +			sock_set_keepalive(ssk, !!val);
+>  			break;
+>  		case SO_PRIORITY:
+>  			ssk->sk_priority = val;
+> diff --git a/net/rds/tcp_listen.c b/net/rds/tcp_listen.c
+> index 09cadd556d1e..b69ebb3f424a 100644
+> --- a/net/rds/tcp_listen.c
+> +++ b/net/rds/tcp_listen.c
+> @@ -44,7 +44,7 @@ void rds_tcp_keepalive(struct socket *sock)
+>  	int keepidle = 5; /* send a probe 'keepidle' secs after last data */
+>  	int keepcnt = 5; /* number of unack'ed probes before declaring dead */
+>
+> -	sock_set_keepalive(sock->sk);
+> +	sock_set_keepalive(sock->sk, true);
+>  	tcp_sock_set_keepcnt(sock->sk, keepcnt);
+>  	tcp_sock_set_keepidle(sock->sk, keepidle);
+>  	/* KEEPINTVL is the interval between successive probes. We follow
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 898389611ae8..ad8f4302037f 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -68,7 +68,7 @@ static void smc_set_keepalive(struct sock *sk, int val)
+>  {
+>  	struct smc_sock *smc = smc_sk(sk);
+>
+> -	smc->clcsock->sk->sk_prot->keepalive(smc->clcsock->sk, val);
+> +	sock_set_keepalive(smc->clcsock->sk, !!val);
+>  }
+>
+>  static struct smc_hashinfo smc_v4_hashinfo = {
+> diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+> index e573dcecdd66..306a332f8d28 100644
+> --- a/net/sunrpc/xprtsock.c
+> +++ b/net/sunrpc/xprtsock.c
+> @@ -2127,7 +2127,7 @@ static void xs_tcp_set_socket_timeouts(struct rpc_xprt
+> *xprt,
+>  	spin_unlock(&xprt->transport_lock);
+>
+>  	/* TCP Keepalive options */
+> -	sock_set_keepalive(sock->sk);
+> +	sock_set_keepalive(sock->sk, true);
+>  	tcp_sock_set_keepidle(sock->sk, keepidle);
+>  	tcp_sock_set_keepintvl(sock->sk, keepidle);
+>  	tcp_sock_set_keepcnt(sock->sk, keepcnt);
+> --
+> 2.32.0
+>
+>
