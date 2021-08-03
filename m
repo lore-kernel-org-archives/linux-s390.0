@@ -2,146 +2,352 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16FCCC19F31
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 16:10:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 786CEC4338F
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 16:34:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F30D36112F
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 16:10:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5AB5960525
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 16:34:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232282AbhHCQKy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Aug 2021 12:10:54 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:58112 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231688AbhHCQKv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 12:10:51 -0400
-Date:   Tue, 3 Aug 2021 18:10:33 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1628007036;
+        id S234078AbhHCQeX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Aug 2021 12:34:23 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:33668 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233816AbhHCQeW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 12:34:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1628008451;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ZhCR89X1oG7iNKpxBHqwK160maOrSQVKgeomxdN0wRc=;
-        b=LwdXqV6TEL+jelWYIVu/L1AwkukJUhfDeR6fxf6HaCffMyf5pGalG64DdzD6SrFbnK74/x
-        PVNjb7a8JiALCQD3CJBVmxfKVnGPRCXtU70BUFy11admR5LtOLT9dQeI/ENtXdJ/CkhTdc
-        pZNvsYTpT+QPzjRhgzvNT0CjgoFJhxwmycapteSubpDkPSBjZ+FP8bxnvUSWW30Gz0Y7dW
-        1ffy1Rr5tDaLDwQ1cWTtCeME4yw92tE3YUaDago5Lw9pEtw1H1L8au8do+a32W2/sN3gs0
-        btcFKclunpFVufnMA6+fMpSDPoeRfMtyi+RFwzALyjj/jtaWzgKiRMXG8gO4tg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1628007036;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZhCR89X1oG7iNKpxBHqwK160maOrSQVKgeomxdN0wRc=;
-        b=CjGblo5JavDHAEsakSWenCqJ60bnDYFeC+TGn7n/YdarB5rRq+iJbcWjrVSzA5F0n0kDM4
-        Vc1wmHGVCRR8DGCA==
-From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, tglx@linutronix.de,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Amit Kucheria <amitk@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Ben Segall <bsegall@google.com>,
-        Borislav Petkov <bp@alien8.de>, cgroups@vger.kernel.org,
+        bh=ZC6fz0wH6LOZCoKtHBlL+gFtJ2XidB4lNAk1d1Zfen0=;
+        b=a9ZYgOtjKrdFbjzBEbY7/aTlsTofEj3MnIYL1+KlUM36VqIMYZy5jQcaJsU5Uo3QbuRZH5
+        FdU/4vq72qaDwQlcp61VqsELO08bPrkJAKTNxM7y3qgJ3Pup55ILqwSqc8EWDM92S+NFaP
+        L4RJ0QnY8H6aXS0RcnH+y//3/r2MIh8=
+Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
+ [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-562-LV7N6TWdNQKbRedS0Eoy6A-1; Tue, 03 Aug 2021 12:34:10 -0400
+X-MC-Unique: LV7N6TWdNQKbRedS0Eoy6A-1
+Received: by mail-oi1-f197.google.com with SMTP id r7-20020acaf3070000b029026241cf3dbfso6439449oih.16
+        for <linux-s390@vger.kernel.org>; Tue, 03 Aug 2021 09:34:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=ZC6fz0wH6LOZCoKtHBlL+gFtJ2XidB4lNAk1d1Zfen0=;
+        b=aueDWMBVfycWA5Cndh7mW1E3ZFYQJV/aV5Rg/KsKCe1wepvGg17353DRLpbfawfixk
+         0N8ND++1SQFiVAlTRaYPmSFn32KsSeaxU2WLgZu1wh+XufvRFJ8dgOcW/gTtVK24bCFm
+         9eTpW6FM1rRHfxFWRV/II62dWq43Cp1Z93ZEXustKLeZ3Qm2OcjDP+3Qaamq1ktwM4gl
+         RlRBmGij69/959oV8STJDfm3KCv/+M3IpzYGup1AN3e0WAt7u1AfRn/qh4DObI9Nwhx8
+         BqxBsZ+TehFugoZX+x+NxpwvGqI4W96NlXHPgu6bq4Fl888ui2h8ZJrDFxEBbVYX6vqV
+         tN/A==
+X-Gm-Message-State: AOAM533iGr3/oMLUG/jipK6X4qBeIqiNFpohu5qDZ6YfLVPfIw0y9IBb
+        8EmuuxfswO4pt41caFxhg0A7wqCsQSSJi5xSoWuSMoCtTzLZZyIXSvHPL1a108qcEju+jNoPy8J
+        a9MeCcXS8CVOcEs6ooFm7PA==
+X-Received: by 2002:a54:478e:: with SMTP id o14mr3753005oic.173.1628008449582;
+        Tue, 03 Aug 2021 09:34:09 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzFwuESI0HnE76c1/AUZG8mHAVE7uoxUNQvCdQAFpY43ILy5oWRZNuayH573kYg7XpB5z/ECQ==
+X-Received: by 2002:a54:478e:: with SMTP id o14mr3752987oic.173.1628008449364;
+        Tue, 03 Aug 2021 09:34:09 -0700 (PDT)
+Received: from redhat.com ([198.99.80.109])
+        by smtp.gmail.com with ESMTPSA id h1sm2607585otj.48.2021.08.03.09.34.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Aug 2021 09:34:09 -0700 (PDT)
+Date:   Tue, 3 Aug 2021 10:34:06 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        coresight@lists.linaro.org,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Gonglei <arei.gonglei@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jason Wang <jasowang@redhat.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Jiri Kosina <jikos@kernel.org>, Jiri Olsa <jolsa@redhat.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        John Stultz <john.stultz@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
         Jonathan Corbet <corbet@lwn.net>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Karol Herbst <karolherbst@gmail.com>,
-        Karsten Graul <kgraul@linux.ibm.com>, kvm-ppc@vger.kernel.org,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Len Brown <lenb@kernel.org>, Len Brown <len.brown@intel.com>,
-        Leo Yan <leo.yan@linaro.org>, linux-acpi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-edac@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-pm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-raid@vger.kernel.org,
-        linux-s390@vger.kernel.org, live-patching@vger.kernel.org,
-        Mark Gross <mgross@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        Mike Travis <mike.travis@hpe.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Namhyung Kim <namhyung@kernel.org>, netdev@vger.kernel.org,
-        nouveau@lists.freedesktop.org,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Pekka Paalanen <ppaalanen@gmail.com>,
-        Petr Mladek <pmladek@suse.com>,
-        platform-driver-x86@vger.kernel.org,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>, rcu@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, x86@kernel.org
-Subject: Re: [PATCH 00/38] Replace deprecated CPU-hotplug
-Message-ID: <20210803161033.vp3o34meyw3ek43z@linutronix.de>
-References: <20210803141621.780504-1-bigeasy@linutronix.de>
- <83dc5dfd-1ed0-f428-826f-fb819911fc89@redhat.com>
+        Daniel Vetter <daniel@ffwll.ch>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        dri-devel@lists.freedesktop.org,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: Re: [PATCH v3 09/14] vfio/pci: Change vfio_pci_try_bus_reset() to
+ use the dev_set
+Message-ID: <20210803103406.5e1be269.alex.williamson@redhat.com>
+In-Reply-To: <9-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
+References: <0-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
+        <9-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <83dc5dfd-1ed0-f428-826f-fb819911fc89@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2021-08-03 17:30:40 [+0200], Hans de Goede wrote:
-> Hi Sebastien,
-Hi Hans,
+On Wed, 28 Jul 2021 21:49:18 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-> On 8/3/21 4:15 PM, Sebastian Andrzej Siewior wrote:
-> > This is a tree wide replacement of the deprecated CPU hotplug functions
-> > which are only wrappers around the actual functions.
-> > 
-> > Each patch is independent and can be picked up by the relevant maintainer.
+> Keep track of all the vfio_devices that have been added to the device set
+> and use this list in vfio_pci_try_bus_reset() instead of trying to work
+> backwards from the pci_device.
 > 
-> Ok; and I take it that then also is the plan for merging these ?
+> The dev_set->lock directly prevents devices from joining/leaving the set,
+> which further implies the pci_device cannot change drivers or that the
+> vfio_device be freed, eliminating the need for get/put's.
 > 
-> FWIW I'm fine with the drivers/platform/x86 patch going upstream
-> through some other tree if its easier to keep the set together ...
-
-There is no need to keep that set together since each patch is
-independent. Please merge it through your tree.
-
-> Regards,
+> Completeness of the device set can be directly measured by checking if
+> every PCI device in the reset group is also in the device set - which
+> proves that VFIO drivers are attached to everything.
 > 
-> Hans
+> This restructuring corrects a call to pci_dev_driver() without holding the
+> device_lock() and removes a hard wiring to &vfio_pci_driver.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/vfio/pci/vfio_pci.c | 148 +++++++++++++++---------------------
+>  1 file changed, 62 insertions(+), 86 deletions(-)
+> 
+> diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+> index 5d6db93d6c680f..a1ae9a83a38621 100644
+> --- a/drivers/vfio/pci/vfio_pci.c
+> +++ b/drivers/vfio/pci/vfio_pci.c
+> @@ -404,6 +404,9 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
+>  	struct vfio_pci_ioeventfd *ioeventfd, *ioeventfd_tmp;
+>  	int i, bar;
+>  
+> +	/* For needs_reset */
+> +	lockdep_assert_held(&vdev->vdev.dev_set->lock);
+> +
+>  	/* Stop the device from further DMA */
+>  	pci_clear_master(pdev);
+>  
+> @@ -2145,7 +2148,7 @@ static struct pci_driver vfio_pci_driver = {
+>  	.err_handler		= &vfio_err_handlers,
+>  };
+>  
+> -static int vfio_pci_get_unused_devs(struct pci_dev *pdev, void *data)
+> +static int vfio_pci_try_zap_and_vma_lock_cb(struct pci_dev *pdev, void *data)
+>  {
+>  	struct vfio_devices *devs = data;
+>  	struct vfio_device *device;
+> @@ -2165,8 +2168,11 @@ static int vfio_pci_get_unused_devs(struct pci_dev *pdev, void *data)
+>  
+>  	vdev = container_of(device, struct vfio_pci_device, vdev);
+>  
+> -	/* Fault if the device is not unused */
+> -	if (device->open_count) {
+> +	/*
+> +	 * Locking multiple devices is prone to deadlock, runaway and
+> +	 * unwind if we hit contention.
+> +	 */
+> +	if (!vfio_pci_zap_and_vma_lock(vdev, true)) {
+>  		vfio_device_put(device);
+>  		return -EBUSY;
+>  	}
+> @@ -2175,112 +2181,82 @@ static int vfio_pci_get_unused_devs(struct pci_dev *pdev, void *data)
+>  	return 0;
+>  }
+>  
+> -static int vfio_pci_try_zap_and_vma_lock_cb(struct pci_dev *pdev, void *data)
+> +static int vfio_pci_is_device_in_set(struct pci_dev *pdev, void *data)
+>  {
+> -	struct vfio_devices *devs = data;
+> -	struct vfio_device *device;
+> -	struct vfio_pci_device *vdev;
+> +	struct vfio_device_set *dev_set = data;
+> +	struct vfio_device *cur;
+>  
+> -	if (devs->cur_index == devs->max_index)
+> -		return -ENOSPC;
+> +	lockdep_assert_held(&dev_set->lock);
+>  
+> -	device = vfio_device_get_from_dev(&pdev->dev);
+> -	if (!device)
+> -		return -EINVAL;
+> -
+> -	if (pci_dev_driver(pdev) != &vfio_pci_driver) {
+> -		vfio_device_put(device);
+> -		return -EBUSY;
+> -	}
+> -
+> -	vdev = container_of(device, struct vfio_pci_device, vdev);
+> +	list_for_each_entry(cur, &dev_set->device_list, dev_set_list)
+> +		if (cur->dev == &pdev->dev)
+> +			return 0;
+> +	return -EBUSY;
+> +}
+>  
+> -	/*
+> -	 * Locking multiple devices is prone to deadlock, runaway and
+> -	 * unwind if we hit contention.
+> -	 */
+> -	if (!vfio_pci_zap_and_vma_lock(vdev, true)) {
+> -		vfio_device_put(device);
+> -		return -EBUSY;
+> +/*
+> + * vfio-core considers a group to be viable and will create a vfio_device even
+> + * if some devices are bound to drivers like pci-stub or pcieport.  Here we
+> + * require all PCI devices to be inside our dev_set since that ensures they stay
+> + * put and that every driver controlling the device can co-ordinate with the
+> + * device reset.
+> + */
+> +static struct pci_dev *vfio_pci_find_reset_target(struct vfio_pci_device *vdev)
+> +{
+> +	struct vfio_device_set *dev_set = vdev->vdev.dev_set;
+> +	struct vfio_pci_device *cur;
+> +	bool needs_reset = false;
+> +
+> +	/* No VFIO device has an open device FD */
+> +	list_for_each_entry(cur, &dev_set->device_list, vdev.dev_set_list) {
+> +		if (cur->vdev.open_count)
+> +			return NULL;
+> +		needs_reset |= cur->needs_reset;
+>  	}
+> +	if (!needs_reset)
+> +		return NULL;
+>  
+> -	devs->devices[devs->cur_index++] = vdev;
+> -	return 0;
+> +	/* All PCI devices in the group to be reset need to be in our dev_set */
+> +	if (vfio_pci_for_each_slot_or_bus(
+> +		    vdev->pdev, vfio_pci_is_device_in_set, dev_set,
+> +		    !pci_probe_reset_slot(vdev->pdev->slot)))
+> +		return NULL;
+> +	return cur->pdev;
 
-Sebastian
+
+I don't understand the "reset target" aspect of this, cur->pdev is
+simply the last entry in the dev_set->devices_list...
+
+>  }
+>  
+>  /*
+>   * If a bus or slot reset is available for the provided device and:
+>   *  - All of the devices affected by that bus or slot reset are unused
+> - *    (!refcnt)
+>   *  - At least one of the affected devices is marked dirty via
+>   *    needs_reset (such as by lack of FLR support)
+> - * Then attempt to perform that bus or slot reset.  Callers are required
+> - * to hold vdev->dev_set->lock, protecting the bus/slot reset group from
+> - * concurrent opens.  A vfio_device reference is acquired for each device
+> - * to prevent unbinds during the reset operation.
+> - *
+> - * NB: vfio-core considers a group to be viable even if some devices are
+> - * bound to drivers like pci-stub or pcieport.  Here we require all devices
+> - * to be bound to vfio_pci since that's the only way we can be sure they
+> - * stay put.
+> + * Then attempt to perform that bus or slot reset.
+>   */
+>  static void vfio_pci_try_bus_reset(struct vfio_pci_device *vdev)
+>  {
+> -	struct vfio_devices devs = { .cur_index = 0 };
+> -	int i = 0, ret = -EINVAL;
+> -	bool slot = false;
+> -	struct vfio_pci_device *tmp;
+> -
+> -	if (!pci_probe_reset_slot(vdev->pdev->slot))
+> -		slot = true;
+> -	else if (pci_probe_reset_bus(vdev->pdev->bus))
+> -		return;
+> +	struct vfio_device_set *dev_set = vdev->vdev.dev_set;
+> +	struct pci_dev *to_reset;
+> +	struct vfio_pci_device *cur;
+> +	int ret;
+>  
+> -	if (vfio_pci_for_each_slot_or_bus(vdev->pdev, vfio_pci_count_devs,
+> -					  &i, slot) || !i)
+> -		return;
+> +	lockdep_assert_held(&vdev->vdev.dev_set->lock);
+>  
+> -	devs.max_index = i;
+> -	devs.devices = kcalloc(i, sizeof(struct vfio_device *), GFP_KERNEL);
+> -	if (!devs.devices)
+> +	if (pci_probe_reset_slot(vdev->pdev->slot) &&
+> +	    pci_probe_reset_bus(vdev->pdev->bus))
+>  		return;
+>  
+> -	if (vfio_pci_for_each_slot_or_bus(vdev->pdev,
+> -					  vfio_pci_get_unused_devs,
+> -					  &devs, slot))
+> -		goto put_devs;
+> -
+> -	/* Does at least one need a reset? */
+> -	for (i = 0; i < devs.cur_index; i++) {
+> -		tmp = devs.devices[i];
+> -		if (tmp->needs_reset) {
+> -			ret = pci_reset_bus(vdev->pdev);
+> -			break;
+> -		}
+> -	}
+> -
+> -put_devs:
+> -	for (i = 0; i < devs.cur_index; i++) {
+> -		tmp = devs.devices[i];
+> -
+> -		/*
+> -		 * If reset was successful, affected devices no longer need
+> -		 * a reset and we should return all the collateral devices
+> -		 * to low power.  If not successful, we either didn't reset
+> -		 * the bus or timed out waiting for it, so let's not touch
+> -		 * the power state.
+> -		 */
+> -		if (!ret) {
+> -			tmp->needs_reset = false;
+> +	to_reset = vfio_pci_find_reset_target(vdev);
+> +	if (!to_reset)
+> +		return;
+>  
+> -			if (tmp != vdev && !disable_idle_d3)
+> -				vfio_pci_set_power_state(tmp, PCI_D3hot);
+> -		}
+> +	ret = pci_reset_bus(to_reset);
+> +	if (ret)
+> +		return;
+>  
+> -		vfio_device_put(&tmp->vdev);
+> +	list_for_each_entry(cur, &dev_set->device_list, vdev.dev_set_list) {
+> +		cur->needs_reset = false;
+> +		if (cur->pdev != to_reset && !disable_idle_d3)
+> +			vfio_pci_set_power_state(cur, PCI_D3hot);
+>  	}
+
+...which means that here, I think we're putting all but whichever
+random device was last in the list into D3.  The intention was that all
+the devices except for the one we're operating on should already be in
+D3, the bus reset will put them back in D0, so we want to force them
+back to D3.
+
+I think the vfio_pci_find_reset_target() function needs to be re-worked
+to just tell us true/false that it's ok to reset the provided device,
+not to anoint an arbitrary target device.  Thanks,
+
+Alex
+
+> -
+> -	kfree(devs.devices);
+>  }
+>  
+>  static void __exit vfio_pci_cleanup(void)
+
