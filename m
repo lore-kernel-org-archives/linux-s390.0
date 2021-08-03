@@ -2,132 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4DF3C4320A
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 16:52:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3E06C4338F
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 18:05:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8E09860EE7
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 16:52:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A1F4D6105A
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 18:05:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237566AbhHCQwt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Aug 2021 12:52:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:29187 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237576AbhHCQwl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 12:52:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1628009550;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=sKtEVRvHNGT42iZNHToUtsFsYwSj6OAOl6LkhSWUXzQ=;
-        b=HLV1Uxh/gQiv/X+OpQ5B69XeaYIxGDambTtmAWr5ZJH2dj7N4Z4L/z7Yj1gnzZXn3i9R2B
-        lG9R4VggXRkMLPa9N8Q+o0v1TrFDrBkrrRBzYDyC9aUjDb8L1xpFEdVO8QbrLGotDuWGEm
-        O4cGC8S+awZQszOe82cNu04N+KI6Jbw=
-Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
- [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-251-A9W5KVbBMp68xGPacAerEw-1; Tue, 03 Aug 2021 12:52:28 -0400
-X-MC-Unique: A9W5KVbBMp68xGPacAerEw-1
-Received: by mail-oi1-f200.google.com with SMTP id r12-20020a056808210cb029025af6d05d99so8879905oiw.10
-        for <linux-s390@vger.kernel.org>; Tue, 03 Aug 2021 09:52:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=sKtEVRvHNGT42iZNHToUtsFsYwSj6OAOl6LkhSWUXzQ=;
-        b=Na/bsi9y2ap9ZmZAdoHKT3imEi1GqeTJ4YERKRH/5+99Mw/kBbOoLK8YwBaKdsURCD
-         RRoiFrU9WCA7mgwkU1q/63oL3fOEDbazaR4A73tNdBI8DhfrUNXRCJ/o8O8LDTf9vQHb
-         J56wUpsHoCLLtjiQ60FQ3P9J9f3MDB+MgDNOR5aLDFNe6fjbZ+Q8lEtrD5nzFrj2HQQo
-         YlWvi5HZN8GZxWXq1VOyhE0mmDzZO0JacWN8YlWx2eMzvvbASi3ljWSrNsuJUKJ6gwnF
-         1FIcIEeGuesBSoox2pFnqzUKwNC0x1Igmb2CRTSXR7AKa9+GybgDvzbuR+wZn6LIKlSQ
-         3Cvg==
-X-Gm-Message-State: AOAM533WC2Ps9+xwKhvy28EdTDNYDMciiju6+9ExN8buqxoNKG5EhwyD
-        KjV8fL/oowOgY0Ft+7r6MY87UvtA/j/p8kze7+Xp9H1jnpofcgJm/7m/TgZ3BueX/n/SHkkLve5
-        5TNrokLdKH+/YyBoxa2orIw==
-X-Received: by 2002:a9d:62d4:: with SMTP id z20mr16205621otk.305.1628009548262;
-        Tue, 03 Aug 2021 09:52:28 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwvKOEKD8L0w37wO357XcF+/U3bT3CXb+wzZAe9sXlApc1eVkv2cU2JtkoR7Kvj984JI4QXhg==
-X-Received: by 2002:a9d:62d4:: with SMTP id z20mr16205581otk.305.1628009548040;
-        Tue, 03 Aug 2021 09:52:28 -0700 (PDT)
-Received: from redhat.com ([198.99.80.109])
-        by smtp.gmail.com with ESMTPSA id bd20sm2365330oib.1.2021.08.03.09.52.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Aug 2021 09:52:27 -0700 (PDT)
-Date:   Tue, 3 Aug 2021 10:52:25 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
+        id S238628AbhHCSFv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Aug 2021 14:05:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52728 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233498AbhHCSFu (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 3 Aug 2021 14:05:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E36260F48;
+        Tue,  3 Aug 2021 18:05:34 +0000 (UTC)
+Date:   Tue, 3 Aug 2021 19:05:26 +0100
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>
-Subject: Re: [PATCH v3 09/14] vfio/pci: Change vfio_pci_try_bus_reset() to
- use the dev_set
-Message-ID: <20210803105225.2ee7dac2.alex.williamson@redhat.com>
-In-Reply-To: <20210803164152.GC1721383@nvidia.com>
-References: <0-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
-        <9-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
-        <20210803103406.5e1be269.alex.williamson@redhat.com>
-        <20210803164152.GC1721383@nvidia.com>
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        Ingo Molnar <mingo@redhat.com>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Len Brown <lenb@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Will Deacon <will@kernel.org>, devicetree@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu, linux-acpi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-mm@kvack.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Subject: Re: [PATCH v3] memblock: make memblock_find_in_range method private
+Message-ID: <20210803180526.GD5786@arm.com>
+References: <20210803064218.6611-1-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210803064218.6611-1-rppt@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 3 Aug 2021 13:41:52 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
-> On Tue, Aug 03, 2021 at 10:34:06AM -0600, Alex Williamson wrote:
-> > I think the vfio_pci_find_reset_target() function needs to be re-worked
-> > to just tell us true/false that it's ok to reset the provided device,
-> > not to anoint an arbitrary target device.  Thanks,  
-> 
-> Yes, though this logic is confusing, why do we need to check if any
-> device needs a reset at this point? If we are being asked to reset
-> vdev shouldn't vdev needs_reset?
-> 
-> Or is the function more of a 'synchronize pending reset' kind of
-> thing?
+On Tue, Aug 03, 2021 at 09:42:18AM +0300, Mike Rapoport wrote:
+> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+> index 8490ed2917ff..0bffd2d1854f 100644
+> --- a/arch/arm64/mm/init.c
+> +++ b/arch/arm64/mm/init.c
+> @@ -74,6 +74,7 @@ phys_addr_t arm64_dma_phys_limit __ro_after_init;
+>  static void __init reserve_crashkernel(void)
+>  {
+>  	unsigned long long crash_base, crash_size;
+> +	unsigned long long crash_max = arm64_dma_phys_limit;
+>  	int ret;
+>  
+>  	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
+> @@ -84,33 +85,18 @@ static void __init reserve_crashkernel(void)
+>  
+>  	crash_size = PAGE_ALIGN(crash_size);
+>  
+> -	if (crash_base == 0) {
+> -		/* Current arm64 boot protocol requires 2MB alignment */
+> -		crash_base = memblock_find_in_range(0, arm64_dma_phys_limit,
+> -				crash_size, SZ_2M);
+> -		if (crash_base == 0) {
+> -			pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
+> -				crash_size);
+> -			return;
+> -		}
+> -	} else {
+> -		/* User specifies base address explicitly. */
+> -		if (!memblock_is_region_memory(crash_base, crash_size)) {
+> -			pr_warn("cannot reserve crashkernel: region is not memory\n");
+> -			return;
+> -		}
+> +	/* User specifies base address explicitly. */
+> +	if (crash_base)
+> +		crash_max = crash_base + crash_size;
+>  
+> -		if (memblock_is_region_reserved(crash_base, crash_size)) {
+> -			pr_warn("cannot reserve crashkernel: region overlaps reserved memory\n");
+> -			return;
+> -		}
+> -
+> -		if (!IS_ALIGNED(crash_base, SZ_2M)) {
+> -			pr_warn("cannot reserve crashkernel: base address is not 2MB aligned\n");
+> -			return;
+> -		}
+> +	/* Current arm64 boot protocol requires 2MB alignment */
+> +	crash_base = memblock_phys_alloc_range(crash_size, SZ_2M,
+> +					       crash_base, crash_max);
+> +	if (!crash_base) {
+> +		pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
+> +			crash_size);
+> +		return;
+>  	}
+> -	memblock_reserve(crash_base, crash_size);
 
-Yes, the latter.  For instance think about a multi-function PCI device
-such as a GPU.  The functions have dramatically different capabilities,
-some might have function level reset abilities and others not.  We want
-to be able to trigger a bus reset as the last device of the set is
-released, no matter the order they're released and no matter the
-capabilities of the device we're currently processing.  Thanks,
+We'll miss a bit on debug information provided to the user in case of a
+wrong crash_base/size option on the command line. Not sure we care much,
+though the alignment would probably be useful (maybe we document it
+somewhere).
 
-Alex
+What I haven't checked is whether memblock_phys_alloc_range() aims to
+get a 2MB aligned end (size) as well. If crash_size is not 2MB aligned,
+crash_max wouldn't be either and the above could fail. We only care
+about the crash_base to be aligned but the memblock_phys_alloc_range()
+doc says that both the start and size would be aligned to this.
 
+-- 
+Catalin
