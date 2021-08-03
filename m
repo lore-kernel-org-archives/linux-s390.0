@@ -2,150 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-18.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E835C4338F
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 14:27:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DD2DC432BE
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 14:47:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 626E960BD3
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 14:27:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1CB9A61029
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 14:47:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234405AbhHCO1h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Aug 2021 10:27:37 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32478 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234328AbhHCO1h (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 10:27:37 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 173EQj0A044739;
-        Tue, 3 Aug 2021 10:27:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=f9HC1eXiOBEtngmOyC73D3WjGHKK7tuZ03fStO7djeM=;
- b=gkZFSYRChPioiiMxiWyW5NImaw8S/kTMuXRhkA1/e1p2/oxtxqMmZN5kAF5lAqj/e+1s
- VbziCqWmjLUm1Htr1AlY8x7DAnDLriSlNou8TnDhYIpDzI/iBHBsh+bBSjQiz0mgRN3F
- EjkJDsSBT0Jpd8q1S+B1eQXCBZJDrdLXBB4MEeO4ufj/R3W56oeE44wTtjVsG44olvcX
- 6wC/KGiGqkMeNTG+5//sU3NBx26JAXzCFKHLIbr4twB42VTxjtgpcw9WDDBeG2tak26o
- UZGbCLNwIpycLqq+pi9kDXXOYejSLUBc/o1bGzWX74deWZ7PnfnBmgd4A2mzG9cCceHe nw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a7341sh5e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Aug 2021 10:27:18 -0400
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 173EQlWc044937;
-        Tue, 3 Aug 2021 10:27:17 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a7341sh34-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Aug 2021 10:27:17 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 173EDxvP000789;
-        Tue, 3 Aug 2021 14:27:14 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06fra.de.ibm.com with ESMTP id 3a4wshxh5j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Aug 2021 14:27:14 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 173ERAOu29098332
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 3 Aug 2021 14:27:10 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 73CA152051;
-        Tue,  3 Aug 2021 14:27:10 +0000 (GMT)
-Received: from oc6887364776.ibm.com (unknown [9.145.164.141])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id D07BB52057;
-        Tue,  3 Aug 2021 14:27:09 +0000 (GMT)
-Subject: Re: s390 common I/O layer locking
-To:     Christoph Hellwig <hch@lst.de>, Cornelia Huck <cohuck@redhat.com>
-Cc:     Jason Gunthorpe <jgg@nvidia.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Tarun Gupta <targupta@nvidia.com>
-References: <0-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
- <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
- <20210428190949.4360afb7.cohuck@redhat.com>
- <20210428172008.GV1370958@nvidia.com>
- <20210429135855.443b7a1b.cohuck@redhat.com>
- <20210429181347.GA3414759@nvidia.com>
- <20210430143140.378904bf.cohuck@redhat.com>
- <20210430171908.GD1370958@nvidia.com>
- <20210503125440.0acd7c1f.cohuck@redhat.com>
- <292442e8-3b1a-56c4-b974-05e8b358ba64@linux.ibm.com>
- <20210724132400.GA19006@lst.de>
-From:   Vineeth Vijayan <vneethv@linux.ibm.com>
-Message-ID: <7d751173-09b2-f49e-13ac-a72129f36f74@linux.ibm.com>
-Date:   Tue, 3 Aug 2021 16:27:09 +0200
+        id S236415AbhHCOsF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Aug 2021 10:48:05 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28050 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236689AbhHCOrz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 10:47:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1628002047;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=1pQpxgCQc8toiVPwyKcWNVpCFEDp3kjB+8in0NoN4Xs=;
+        b=EgqGCicMjEhkE5GMHu8arPy2ugYCOlkDsDyYKx+8eJGgeInEsNqb65+NPIgijtTeiDa5DZ
+        8qZ8v97dHt4bbZwilU90uBCUWYTnZyDHMaENs7PR2uE/1lkWtyeV690kbYTANRQbkFsfqV
+        ZpRg+hfRe1h1w89iSMKnIfCN2bvmaww=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-81-Bj-vsMJmMXWULjqbkSta3Q-1; Tue, 03 Aug 2021 10:47:26 -0400
+X-MC-Unique: Bj-vsMJmMXWULjqbkSta3Q-1
+Received: by mail-wm1-f70.google.com with SMTP id f142-20020a1c1f940000b029025093cddc1eso1002070wmf.3
+        for <linux-s390@vger.kernel.org>; Tue, 03 Aug 2021 07:47:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=1pQpxgCQc8toiVPwyKcWNVpCFEDp3kjB+8in0NoN4Xs=;
+        b=pkb0JWOKu+yqoERKPW/Z0aiezm7OgS0DmF1Bea7A+yZrkiOXU3oymtfHFsQDZqB+2x
+         c2WSQG+lNvTrxbKNwIEA/r70ILmyF75M2aLzjqXF3RbBNrj0wKTqrlEKemWZjyxv+SuJ
+         qzCABJb9ikBTtRIgJ99Aea+oDGPmcXGszLP6Bt52vKPysO5iWjHo0HK9hmqBEEwFzE7y
+         uKdDLPQEXLJlu9Ke0Lenvd+sGscryqcZzG3Dqy2YE9JREhsgK348fSs9plWaTtgCjY4Y
+         izdQyCdPLNnbAMe9tnCPGd+tmgN1us/rq3OozG936krfbZd9JJXuGVJiH7cYE0D6tLSN
+         aHMQ==
+X-Gm-Message-State: AOAM532HeOpChX7JEmMykimYQy772FsmFj0QkTIQhcu2noHb1MoQDyC+
+        d/1lScTG8uRLhsgG0BENOYF6SGDlTqfgpTI6qbtVmKdjq0Nav0BZqOZhzpFcYOKfgJdGpVQV4lF
+        mQ6dpaAOiAm8K3bsAX3deBQ==
+X-Received: by 2002:a05:600c:1d11:: with SMTP id l17mr23386931wms.185.1628002045384;
+        Tue, 03 Aug 2021 07:47:25 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzcBnin2htwVSVxF0E3xiuluPsaaFiY7FHl64X8ylZwe0APrrZQ5sAnWY+Tr7UhWRx/ULjnKQ==
+X-Received: by 2002:a05:600c:1d11:: with SMTP id l17mr23386915wms.185.1628002045183;
+        Tue, 03 Aug 2021 07:47:25 -0700 (PDT)
+Received: from thuth.remote.csb (p5791d8a3.dip0.t-ipconnect.de. [87.145.216.163])
+        by smtp.gmail.com with ESMTPSA id x21sm2753308wmi.46.2021.08.03.07.47.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 03 Aug 2021 07:47:24 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH v2] s390x: sie: Add sie lib validity
+ handling
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, cohuck@redhat.com
+References: <20210729134803.183358-2-frankja@linux.ibm.com>
+ <20210803135739.21624-1-frankja@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <bf652d52-fc93-1aca-81d6-85b48343b171@redhat.com>
+Date:   Tue, 3 Aug 2021 16:47:23 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <20210724132400.GA19006@lst.de>
+In-Reply-To: <20210803135739.21624-1-frankja@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: k7jBW8jVtIOfO3ItdW1paqp1qcdMK2DP
-X-Proofpoint-GUID: u5s3cC-qmHn_37YAEbGxJ4ZQVbDt9kAP
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-03_03:2021-08-03,2021-08-03 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=929
- malwarescore=0 adultscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
- priorityscore=1501 impostorscore=0 phishscore=0 suspectscore=0
- clxscore=1011 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108030094
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 03/08/2021 15.57, Janosch Frank wrote:
+> Let's start off the SIE lib with validity handling code since that has
+> the least amount of dependencies to other files.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   lib/s390x/sie.c  | 40 ++++++++++++++++++++++++++++++++++++++++
+>   lib/s390x/sie.h  |  3 +++
+>   s390x/Makefile   |  1 +
+>   s390x/mvpg-sie.c |  2 +-
+>   s390x/sie.c      |  7 +------
+>   5 files changed, 46 insertions(+), 7 deletions(-)
+>   create mode 100644 lib/s390x/sie.c
+> 
+> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+> new file mode 100644
+> index 00000000..15ba407c
+> --- /dev/null
+> +++ b/lib/s390x/sie.c
+> @@ -0,0 +1,40 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Virtualization library that speeds up managing guests.
 
-On 7/24/21 3:24 PM, Christoph Hellwig wrote:
-> On Tue, May 04, 2021 at 05:10:42PM +0200, Vineeth Vijayan wrote:
-...snip...
->> I just had a quick glance on the CIO layer drivers. And at first 
->> look, you
->> are right.
->> It looks likewe need modifications in the event callbacks (referring css
->> here)
->> Let me go thoughthis thoroughly and update.
-> Did this go anywhere?
-Hello Christoph,
+Maybe something like:
 
-Thank you for this reminder. Also, my apologies for the slow reply; This 
-was one of those item which really needed this reminder :-)
+Library for managing various aspects of (nested) guests
 
-Coming to the point, The event-callbacks  are under sch->lock, which i 
-think is the right thing to do. But i also agree on your feedback about 
-the sch->driver accesses in the css_evaluate_known_subchannel() call. My 
-first impression was to add them under device_lock(). As Conny 
-mentioned, most of the drivers on the css-bus remained-stable during the 
-lifetime of the devices, and we never got this racy scenario.  And then 
-having this change with device_lock(), as you mentioned,this code-base 
-would need significant change in the sch_event callbacks. I am not sure 
-if there is a straight forward solution for this locking-issue scenario.
+?
 
-Currently, i am trying to see the "minimal" change i can work on on the 
-event-callbacks and the css_evaluate_known_subchannel() call, to make 
-sure that, this racy condition can never occur.
+Anyway:
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 
-Conny,
-
-Please do let me know if you think i am missing something here. I would 
-like to concentrate more on the sch->driver() access scenario first and 
-would like to see how it can have minimal impact on the event-callbacks. 
-especially io_subchannel_sch_event.
-
-
-Vineeth
