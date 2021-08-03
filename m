@@ -2,276 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE9DDC432BE
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 15:31:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C20EC4338F
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 15:40:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C480C60EC0
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 15:31:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 846C160F9C
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 15:40:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236888AbhHCPb1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Aug 2021 11:31:27 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43658 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236940AbhHCPbI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 11:31:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1628004657;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Ef5H/YzWjPRhpmEEex0YbOyxkXYC0ZJIajn0GIxKBlE=;
-        b=JH1Q1hIAtZPu240TrIzNHSNDtqghWCLCgiJV6UAN3559vrDlvk9ZXQBHj2zmMdL8rn3EzE
-        ntPJSnIb4iA1l/L1PRqTSA8tlIPsJ9DubscHsMGLNJ2RiC3CY9gNe8I7xNveuVFAQxmGgx
-        K7+9cYgl4vadKzFMwaAfhettZKfNf20=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-106--6f3l7rrOQO4sSMrRjF0Tw-1; Tue, 03 Aug 2021 11:30:44 -0400
-X-MC-Unique: -6f3l7rrOQO4sSMrRjF0Tw-1
-Received: by mail-ed1-f70.google.com with SMTP id c16-20020aa7d6100000b02903bc4c2a387bso10553525edr.21
-        for <linux-s390@vger.kernel.org>; Tue, 03 Aug 2021 08:30:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Ef5H/YzWjPRhpmEEex0YbOyxkXYC0ZJIajn0GIxKBlE=;
-        b=oG89ylLcRNW7GwUp92r+VMGHjsdrmpymJ+qZoaLRyCxNVMiplq9JHw5Vpa6cPz/zHn
-         +eFbax+PV5v5uCefXSptbH217rx16pakRPKQIdljBhFda602vgQ7/5gjhhHjCVfb2jYu
-         pAEMCqCXw60jshqh5L62QPun3tfwgxjabF72v45Rn7Orf+DaTlOS9Un5OCSiIuHo71Wy
-         WDUK6m4m5M6gTjGV0Rwq6m+jEtOQZsTxgT2pTV5pS2MTCxN93yoMV3Bs0Hw4gQmvCFbU
-         muPQ5tWY7nzFxNAcYdxHCcslINN9Lrn7xe2W7peGwGgTDE7OmiK6b+Uc35mP25wNuHf8
-         a1LQ==
-X-Gm-Message-State: AOAM531NdPvvyT3GQwJ/ZbHr8McBnd9MI1CAn/hySAdy3Q3Jre6TzwPU
-        XYMpOL0bdS0cjPARBldrJ3ejooZBTsjg6Qkrn53YAQVbPB884rlio+9T7a0uh2ynxAuf033ZtwT
-        my4ACjq3/v1Ocg41TyF1paA==
-X-Received: by 2002:a17:906:1da1:: with SMTP id u1mr20660423ejh.307.1628004643332;
-        Tue, 03 Aug 2021 08:30:43 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxf6rV1ZatT2GQ6a3+XcXIUCr6rut+vBVs6RfI7E2ACDBMkrHwlwXE3OZTZ7a4m4dn8RViNBQ==
-X-Received: by 2002:a17:906:1da1:: with SMTP id u1mr20660382ejh.307.1628004643075;
-        Tue, 03 Aug 2021 08:30:43 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id b17sm4094598edd.27.2021.08.03.08.30.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Aug 2021 08:30:42 -0700 (PDT)
-Subject: Re: [PATCH 00/38] Replace deprecated CPU-hotplug
-To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        linux-kernel@vger.kernel.org
-Cc:     tglx@linutronix.de, Peter Zijlstra <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Amit Kucheria <amitk@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Ben Segall <bsegall@google.com>,
-        Borislav Petkov <bp@alien8.de>, cgroups@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        coresight@lists.linaro.org,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Gonglei <arei.gonglei@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jason Wang <jasowang@redhat.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Jiri Kosina <jikos@kernel.org>, Jiri Olsa <jolsa@redhat.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Karol Herbst <karolherbst@gmail.com>,
-        Karsten Graul <kgraul@linux.ibm.com>, kvm-ppc@vger.kernel.org,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Len Brown <lenb@kernel.org>, Len Brown <len.brown@intel.com>,
-        Leo Yan <leo.yan@linaro.org>, linux-acpi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-edac@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-pm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-raid@vger.kernel.org,
-        linux-s390@vger.kernel.org, live-patching@vger.kernel.org,
-        Mark Gross <mgross@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        Mike Travis <mike.travis@hpe.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Namhyung Kim <namhyung@kernel.org>, netdev@vger.kernel.org,
-        nouveau@lists.freedesktop.org,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Pekka Paalanen <ppaalanen@gmail.com>,
-        Petr Mladek <pmladek@suse.com>,
-        platform-driver-x86@vger.kernel.org,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>, rcu@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, x86@kernel.org
+        id S236962AbhHCPkn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Aug 2021 11:40:43 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41148 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S236749AbhHCPkl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 11:40:41 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 173FYRAx171233;
+        Tue, 3 Aug 2021 11:40:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=Pqxnn6NzQVQnAE+ihFmtL6VEhFisVsHSlUk9Jr3ZR/c=;
+ b=RgVM1BU/IXNGrg2F4W0nwEy18nlL9uyU//uZVEBSGdWzt2+B46Mqu2Dn5YqGUdWYpi2h
+ ThcdDpUs+LHrWcL/dJSBsO5elWb/cUNq/qOfzjxDt/IFE2dCaX3FhaYRM5JrSbyiXN/6
+ h51tKwBykenJeGfP2i/9WZH1ayHzA7//yBEICttFnlbSrwLNEKOHpW3Y2lIhXgJMv4Pi
+ wIYp6XqVCz3r5Y/w6/sv5UOqV7Jvek180s20cN4WEObNIBCLnQmibXCOfUc/fD9rr0HV
+ HOeXjaLW+Rh9vBzF0yu2nEA3j8Na3vrTOnJUQ88bP3lietG8Cf5R4jZO3XFHf6iiMIVQ Yw== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a76d74hm6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Aug 2021 11:40:12 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 173FWfj1004372;
+        Tue, 3 Aug 2021 15:40:10 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma01fra.de.ibm.com with ESMTP id 3a4x58pk01-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 Aug 2021 15:40:10 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 173Fe75055902566
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 3 Aug 2021 15:40:07 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 712ADA407D;
+        Tue,  3 Aug 2021 15:40:05 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 24E1CA40A6;
+        Tue,  3 Aug 2021 15:40:05 +0000 (GMT)
+Received: from osiris (unknown [9.145.48.2])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue,  3 Aug 2021 15:40:05 +0000 (GMT)
+Date:   Tue, 3 Aug 2021 17:40:03 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc:     linux-kernel@vger.kernel.org, tglx@linutronix.de,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 04/38] s390: Replace deprecated CPU-hotplug functions.
+Message-ID: <YQljUzNyP81s7VtL@osiris>
 References: <20210803141621.780504-1-bigeasy@linutronix.de>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <83dc5dfd-1ed0-f428-826f-fb819911fc89@redhat.com>
-Date:   Tue, 3 Aug 2021 17:30:40 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+ <20210803141621.780504-5-bigeasy@linutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <20210803141621.780504-1-bigeasy@linutronix.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210803141621.780504-5-bigeasy@linutronix.de>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: gTZa5OiJLyzvwhI2FMIcyQefyD0sOZi5
+X-Proofpoint-GUID: gTZa5OiJLyzvwhI2FMIcyQefyD0sOZi5
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-03_04:2021-08-03,2021-08-03 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 bulkscore=0 mlxscore=0 spamscore=0 lowpriorityscore=0
+ clxscore=1011 mlxlogscore=922 impostorscore=0 suspectscore=0 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108030102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Sebastien,
-
-On 8/3/21 4:15 PM, Sebastian Andrzej Siewior wrote:
-> This is a tree wide replacement of the deprecated CPU hotplug functions
-> which are only wrappers around the actual functions.
+On Tue, Aug 03, 2021 at 04:15:47PM +0200, Sebastian Andrzej Siewior wrote:
+> The functions get_online_cpus() and put_online_cpus() have been
+> deprecated during the CPU hotplug rework. They map directly to
+> cpus_read_lock() and cpus_read_unlock().
 > 
-> Each patch is independent and can be picked up by the relevant maintainer.
-
-Ok; and I take it that then also is the plan for merging these ?
-
-FWIW I'm fine with the drivers/platform/x86 patch going upstream
-through some other tree if its easier to keep the set together ...
-
-Regards,
-
-Hans
-
-
-
+> Replace deprecated CPU-hotplug functions with the official version.
+> The behavior remains unchanged.
 > 
-> Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> Cc: Amit Kucheria <amitk@kernel.org>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Ben Segall <bsegall@google.com>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: cgroups@vger.kernel.org
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: coresight@lists.linaro.org
-> Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-> Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: Davidlohr Bueso <dave@stgolabs.net>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-> Cc: Gonglei <arei.gonglei@huawei.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Hans de Goede <hdegoede@redhat.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Herbert Xu <herbert@gondor.apana.org.au>
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: Ingo Molnar <mingo@kernel.org>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Jean Delvare <jdelvare@suse.com>
-> Cc: Jiri Kosina <jikos@kernel.org>
-> Cc: Jiri Olsa <jolsa@redhat.com>
-> Cc: Joe Lawrence <joe.lawrence@redhat.com>
-> Cc: Joel Fernandes <joel@joelfernandes.org>
-> Cc: Johannes Weiner <hannes@cmpxchg.org>
-> Cc: John Stultz <john.stultz@linaro.org>
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-> Cc: Josh Triplett <josh@joshtriplett.org>
-> Cc: Julian Wiedmann <jwi@linux.ibm.com>
-> Cc: Juri Lelli <juri.lelli@redhat.com>
-> Cc: Karol Herbst <karolherbst@gmail.com>
-> Cc: Karsten Graul <kgraul@linux.ibm.com>
-> Cc: kvm-ppc@vger.kernel.org
-> Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-> Cc: Len Brown <lenb@kernel.org>
-> Cc: Len Brown <len.brown@intel.com>
-> Cc: Leo Yan <leo.yan@linaro.org>
-> Cc: linux-acpi@vger.kernel.org
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-crypto@vger.kernel.org
-> Cc: linux-doc@vger.kernel.org
-> Cc: linux-edac@vger.kernel.org
-> Cc: linux-hwmon@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: linux-mips@vger.kernel.org
-> Cc: linux-mm@kvack.org
-> Cc: linux-pm@vger.kernel.org
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Cc: linux-raid@vger.kernel.org
 > Cc: linux-s390@vger.kernel.org
-> Cc: live-patching@vger.kernel.org
-> Cc: Mark Gross <mgross@linux.intel.com>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-> Cc: Mel Gorman <mgorman@suse.de>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Mike Leach <mike.leach@linaro.org>
-> Cc: Mike Travis <mike.travis@hpe.com>
-> Cc: Miroslav Benes <mbenes@suse.cz>
-> Cc: Namhyung Kim <namhyung@kernel.org>
-> Cc: netdev@vger.kernel.org
-> Cc: nouveau@lists.freedesktop.org
-> Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Pavel Machek <pavel@ucw.cz>
-> Cc: Pekka Paalanen <ppaalanen@gmail.com>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Petr Mladek <pmladek@suse.com>
-> Cc: platform-driver-x86@vger.kernel.org
-> Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-> Cc: rcu@vger.kernel.org
-> Cc: Robin Holt <robinmholt@gmail.com>
-> Cc: Song Liu <song@kernel.org>
-> Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> Cc: Steffen Klassert <steffen.klassert@secunet.com>
-> Cc: Stephen Boyd <sboyd@kernel.org>
-> Cc: Steven Rostedt <rostedt@goodmis.org>
-> Cc: Steve Wahl <steve.wahl@hpe.com>
-> Cc: Stuart Hayes <stuart.w.hayes@gmail.com>
-> Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-> Cc: Tejun Heo <tj@kernel.org>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Tony Luck <tony.luck@intel.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
 > Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Vincent Guittot <vincent.guittot@linaro.org>
-> Cc: Viresh Kumar <viresh.kumar@linaro.org>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: x86@kernel.org
-> Cc: Zefan Li <lizefan.x@bytedance.com>
-> Cc: Zhang Rui <rui.zhang@intel.com>
-> 
-> Sebastian
-> 
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> ---
+>  arch/s390/hypfs/hypfs_diag0c.c  | 10 +++++-----
+>  arch/s390/kernel/diag.c         |  4 ++--
+>  arch/s390/kernel/irq.c          |  4 ++--
+>  arch/s390/kernel/perf_cpum_cf.c |  4 ++--
+>  arch/s390/kernel/processor.c    |  4 ++--
+>  arch/s390/kernel/smp.c          |  8 ++++----
+>  arch/s390/kernel/topology.c     |  4 ++--
+>  arch/s390/mm/maccess.c          |  4 ++--
+>  8 files changed, 21 insertions(+), 21 deletions(-)
 
+Applied, thanks!
