@@ -2,126 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 590A5C4338F
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 08:27:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FB81C4338F
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 08:34:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4611160249
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 08:27:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 714BA60524
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 08:34:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234529AbhHCI1G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Aug 2021 04:27:06 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64736 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234375AbhHCI1F (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 04:27:05 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 173840IN169552;
-        Tue, 3 Aug 2021 04:26:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references; s=pp1;
- bh=uN9Jy/RygmPr0j2QVVcmgizp4GW3r4hPaAmCCbfhlhk=;
- b=Hgd1SO7gqRaDvFNaLMJ2Bpytxzo0sQQJPPfzORxoMC/r7l5HfFCmTaeDYT2d7ppT7a/n
- yJ62qslwaAzfx1Md7HOIazl+foIajfC+4szo9sGhXiIwaTGxdGuHqurdLCPFIdqUvyF8
- SxrRtgX5DVUH6X6XT/k6m+ZqrX/K0GyCVNPf9Np8ZAcsHVxSXy0Ra/ajgc/x2hvDmtAE
- W9lPeLy+qctPrQf7VOb72FXQjGpvqoiKtH/Y1Pyl6wdnqtoZ/21CQGOTvXbSFLe+a1VI
- vqPtAldbCgFRRS75pX25S93kU+1fAMAQfQx7fzECxa3nJeFg8TA62AwvPOn3PKB4G5Sb rg== 
+        id S234551AbhHCIeg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Aug 2021 04:34:36 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57410 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S234526AbhHCIeg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 04:34:36 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1738Xm0K001498;
+        Tue, 3 Aug 2021 04:34:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=gztNBNWGYIeoA7EMxLtqr7x1FH5dKTBCDjZWF4fFaw8=;
+ b=Fk07zDHzpbnB6AB1BGSjqTdkQmNkJ1LtlKeXuj0i+02sGZEoXCCFGRMAszf2VawT1JjE
+ j6gHcORNvcruOj6fCH51jq0U5D2GztIFKsdlmd80Bs5BLHeZeumrpeLN6KQWbVqX/MU2
+ 0ZHP9UesG7OlgZhwecDcQ/rYa0HIH3ESrLruH41xTizc7iivZbiNk5Jr0lihYYr1rQzM
+ a2N6Gd1e70SnMOPa+1n5GBVL4/hnVf42Vdiq1wCRaO0iOlr1XO4xAW22umUeZnVPZ2Ib
+ tduAY9j/oVuiBrtH1Psq3uAUATugiCtBEy6srCXp4cuT4TYa2lFTU7iNRn3wunTCnMkE QQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a5u8cf7bq-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a6keaqmhm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Aug 2021 04:26:54 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17385VtB179680;
-        Tue, 3 Aug 2021 04:26:54 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a5u8cf7ay-1
+        Tue, 03 Aug 2021 04:34:23 -0400
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1738Xukv002517;
+        Tue, 3 Aug 2021 04:34:22 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a6keaqmgw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Aug 2021 04:26:53 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1738HIia008820;
-        Tue, 3 Aug 2021 08:26:52 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 3a4wshpp41-1
+        Tue, 03 Aug 2021 04:34:22 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1738WGl2026340;
+        Tue, 3 Aug 2021 08:34:21 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3a4x58xp0q-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 Aug 2021 08:26:52 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1738QmAY44433852
+        Tue, 03 Aug 2021 08:34:20 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1738VLOb56951082
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 3 Aug 2021 08:26:48 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 90531A405E;
-        Tue,  3 Aug 2021 08:26:48 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0516BA405D;
-        Tue,  3 Aug 2021 08:26:48 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.75.95])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  3 Aug 2021 08:26:47 +0000 (GMT)
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, pmorel@linux.ibm.com
-Subject: [PATCH v3 1/3] s390x: KVM: accept STSI for CPU topology information
-Date:   Tue,  3 Aug 2021 10:26:44 +0200
-Message-Id: <1627979206-32663-2-git-send-email-pmorel@linux.ibm.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1627979206-32663-1-git-send-email-pmorel@linux.ibm.com>
-References: <1627979206-32663-1-git-send-email-pmorel@linux.ibm.com>
+        Tue, 3 Aug 2021 08:31:21 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3A07A52057;
+        Tue,  3 Aug 2021 08:34:17 +0000 (GMT)
+Received: from osiris (unknown [9.145.48.2])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id AD4AC5204F;
+        Tue,  3 Aug 2021 08:34:16 +0000 (GMT)
+Date:   Tue, 3 Aug 2021 10:34:15 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Cai Huoqing <caihuoqing@baidu.com>
+Cc:     gor@linux.ibm.com, borntraeger@de.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, cohuck@redhat.com, farman@linux.ibm.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        chaitanya.kulkarni@wdc.com, axboe@kernel.dk,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH 0/4] s390: Make use of PAGE_ALIGN/PAGE_MASK/PFN_UP helper
+ macro
+Message-ID: <YQj/h5oi9y4Zs8FR@osiris>
+References: <20210803034904.1579-1-caihuoqing@baidu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210803034904.1579-1-caihuoqing@baidu.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: yr6EgA-hxe1ozPlaPLt9WzVgf3a33Y7b
-X-Proofpoint-GUID: 1VN58dVkjlKTnda4kFo9g-UJ5gMuN3d5
+X-Proofpoint-ORIG-GUID: G1Hi1ySNKAMlvfjTJ72Esf_C_dhyaM4I
+X-Proofpoint-GUID: JvqMmm9psheAG2tkwsbY_aME3d7kkWIT
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-08-03_02:2021-08-03,2021-08-03 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- impostorscore=0 spamscore=0 mlxscore=0 phishscore=0 suspectscore=0
- lowpriorityscore=0 priorityscore=1501 adultscore=0 clxscore=1015
- malwarescore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108030055
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1011
+ lowpriorityscore=0 phishscore=0 impostorscore=0 suspectscore=0 bulkscore=0
+ spamscore=0 mlxscore=0 mlxlogscore=946 priorityscore=1501 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
+ definitions=main-2108030059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-STSI(15.1.x) gives information on the CPU configuration topology.
-Let's accept the interception of STSI with the function code 15 and
-let the userland part of the hypervisor handle it when userland
-support the CPU Topology facility.
+On Tue, Aug 03, 2021 at 11:49:00AM +0800, Cai Huoqing wrote:
+> it's a refactor to make use of PAGE_ALIGN/PAGE_MASK/PFN_UP helper macro
+> 
+> Cai Huoqing (4):
+>   s390/scm_blk: Make use of PAGE_ALIGN helper macro
+>   s390/vmcp: Make use of PFN_UP helper macro
+>   vfio-ccw: Make use of PAGE_MASK/PFN_UP helper macro
+>   s390/cio: Make use of PAGE_ALIGN helper macro
+> 
+>  drivers/s390/block/scm_blk.c   |  2 +-
+>  drivers/s390/char/vmcp.c       | 10 ++++------
+>  drivers/s390/cio/itcw.c        |  2 +-
+>  drivers/s390/cio/vfio_ccw_cp.c |  8 ++++----
+>  4 files changed, 10 insertions(+), 12 deletions(-)
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- arch/s390/kvm/priv.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 9928f785c677..8581b6881212 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -856,7 +856,8 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
- 
--	if (fc > 3) {
-+	if ((fc > 3 && fc != 15) ||
-+	    (fc == 15 && !test_kvm_facility(vcpu->kvm, 11))) {
- 		kvm_s390_set_psw_cc(vcpu, 3);
- 		return 0;
- 	}
-@@ -893,6 +894,10 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
- 			goto out_no_data;
- 		handle_stsi_3_2_2(vcpu, (void *) mem);
- 		break;
-+	case 15:
-+		trace_kvm_s390_handle_stsi(vcpu, fc, sel1, sel2, operand2);
-+		insert_stsi_usr_data(vcpu, operand2, ar, fc, sel1, sel2);
-+		return -EREMOTE;
- 	}
- 	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
- 		memcpy((void *)sida_origin(vcpu->arch.sie_block), (void *)mem,
--- 
-2.25.1
-
+I'm not willing to review or apply these patches. There is no added
+value and I doubt that anything of this has been tested, so you are
+putting the burden on other people.
