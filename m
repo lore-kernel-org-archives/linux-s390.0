@@ -2,80 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD90AC4338F
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Aug 2021 05:47:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B17B8C4338F
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Aug 2021 06:36:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 848C060F41
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Aug 2021 05:47:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FE7260EC0
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Aug 2021 06:36:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235386AbhHDFrw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Aug 2021 01:47:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43582 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235012AbhHDFrw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 4 Aug 2021 01:47:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DBC260F35;
-        Wed,  4 Aug 2021 05:47:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628056060;
-        bh=1gdAXIFEnMmmgxkAapvaJqxB+Vq0F+z7XRSiH/DqABE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tz7FyKHQV1AMtEtC+epww0ohe2WtFEph3g6Spy1b5mz6khm47prW89VVSyRhfzjLx
-         zLL8g7wB+u3lOBUwnFnlTvcwO5Rce31LNm7Y2FCf9m2ayBQ3OimThsKKAYjcd1UfGg
-         ZbBF3shZ4a9z9/PD9t9KWy4ZX9tKc4Jh6lOawyhIY632toTDhbXharRkPINL7yN5K2
-         W1Q1/fhbHhhWSUStVToCEn0GdJkSINuFzgKPs7aw/UxAYXYHbw3VHmM4HYTZ+YeW8f
-         PQH8iwS1TCEc0ecbqa44NCMYCnN716BvnwG/qLR1ZvbSMx/sziwECBwy3c/6EACTb+
-         fBmSksFmmzZ4Q==
-Date:   Wed, 4 Aug 2021 08:47:36 +0300
-From:   Leon Romanovsky <leon@kernel.org>
-To:     Yajun Deng <yajun.deng@linux.dev>
-Cc:     davem@davemloft.net, kuba@kernel.org,
-        mathew.j.martineau@linux.intel.com, matthieu.baerts@tessares.net,
-        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
-        cluster-devel@redhat.com, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org, mptcp@lists.linux.dev,
-        linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
-        linux-s390@vger.kernel.org, linux-nfs@vger.kernel.org
-Subject: Re: [PATCH net-next v2] net: Modify sock_set_keepalive() for more
- scenarios
-Message-ID: <YQop+GhJcKICdwZ0@unreal>
-References: <20210804032856.4005-1-yajun.deng@linux.dev>
+        id S234689AbhHDGgd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Aug 2021 02:36:33 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37500 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234591AbhHDGgd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Aug 2021 02:36:33 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1746YVnN136551;
+        Wed, 4 Aug 2021 02:36:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=7uhHyolhhabnaBZToujkywYbLmOYIOBSlAGjyBfoCC4=;
+ b=RQeei9YZomsmoJvR/ZPCoz4ekrSojNL3imrt7bxI761EIZ0oay8yXYr+YPHUWpAd7ePA
+ kjrv93+t12Iv6rTLFOW8NpC0nTqKLBK0XKf4DtZ6SZbrKTGaY8BePb0oP2oqQkJykVg7
+ eP2Vt6kpK7yoC5j0IWOKXr3z4u/xsmBbjmcTwK4W4WrOYtz7td69NyHC1T6JRjTdi2IM
+ NWq3kwJbWC9UsV87LgdtKTQeS30cj++56h1o7kgKmxQwQFaEj/KYNkTtiQ1JLpmQudYV
+ YD46Jqog6JasqDpuePO2XjowFunGIQrM6enyYata90S0T8iue2+GlO6frn/ZMnJ1Dxdr Bg== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a7342e5t3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Aug 2021 02:36:09 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1746BiZM013303;
+        Wed, 4 Aug 2021 06:36:07 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma05fra.de.ibm.com with ESMTP id 3a4x58fsg5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Aug 2021 06:36:06 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1746a4U755509278
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 4 Aug 2021 06:36:04 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 59C5642097;
+        Wed,  4 Aug 2021 06:36:04 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4889242083;
+        Wed,  4 Aug 2021 06:36:03 +0000 (GMT)
+Received: from [9.145.13.232] (unknown [9.145.13.232])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  4 Aug 2021 06:36:03 +0000 (GMT)
+Subject: Re: [PATCH 22/38] net/af_iucv: Replace deprecated CPU-hotplug
+ functions.
+To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        linux-kernel@vger.kernel.org
+Cc:     tglx@linutronix.de, Peter Zijlstra <peterz@infradead.org>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org
+References: <20210803141621.780504-1-bigeasy@linutronix.de>
+ <20210803141621.780504-23-bigeasy@linutronix.de>
+From:   Julian Wiedmann <jwi@linux.ibm.com>
+Message-ID: <9c86b167-c657-435e-3f23-a3e798797069@linux.ibm.com>
+Date:   Wed, 4 Aug 2021 09:36:02 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210804032856.4005-1-yajun.deng@linux.dev>
+In-Reply-To: <20210803141621.780504-23-bigeasy@linutronix.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: BVdelk-Abp68oFLz4UVuLcwpyLp9r2Ve
+X-Proofpoint-GUID: BVdelk-Abp68oFLz4UVuLcwpyLp9r2Ve
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-04_02:2021-08-03,2021-08-04 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ malwarescore=0 adultscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
+ priorityscore=1501 impostorscore=0 phishscore=0 suspectscore=0
+ clxscore=1011 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108040035
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Aug 04, 2021 at 11:28:56AM +0800, Yajun Deng wrote:
-> Add 2nd parameter in sock_set_keepalive(), let the caller decide
-> whether to set. This can be applied to more scenarios.
+On 03.08.21 17:16, Sebastian Andrzej Siewior wrote:
+> The functions get_online_cpus() and put_online_cpus() have been
+> deprecated during the CPU hotplug rework. They map directly to
+> cpus_read_lock() and cpus_read_unlock().
 > 
-> v2:
->  - add the change in fs/dlm.
+> Replace deprecated CPU-hotplug functions with the official version.
+> The behavior remains unchanged.
 > 
-> Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+> Cc: Julian Wiedmann <jwi@linux.ibm.com>
+> Cc: Karsten Graul <kgraul@linux.ibm.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: linux-s390@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 > ---
->  fs/dlm/lowcomms.c     |  2 +-
->  include/net/sock.h    |  2 +-
->  net/core/filter.c     |  4 +---
->  net/core/sock.c       | 10 ++++------
->  net/mptcp/sockopt.c   |  4 +---
->  net/rds/tcp_listen.c  |  2 +-
->  net/smc/af_smc.c      |  2 +-
->  net/sunrpc/xprtsock.c |  2 +-
->  8 files changed, 11 insertions(+), 17 deletions(-)
+>  net/iucv/iucv.c | 18 +++++++++---------
+>  1 file changed, 9 insertions(+), 9 deletions(-)
+> 
 
-1. Don't add changelogs in the commit messages and put them under --- marker.
-2. Add an explanation to the commit message WHY this change is necessary
-and HOW will it be used.
-3. Drop all your double NOT in front of values (!!val) and rely on C
-that casts int to bool naturally.
+Applied, thanks.
 
-Thanks
+I fixed up the subject to say "net/iucv: ...", as the change is in
+the iucv base-layer and not the socket code.
