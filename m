@@ -2,165 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29684C4320E
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 19:08:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7FBCC4320A
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Aug 2021 02:13:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0F97061029
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Aug 2021 19:08:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D8D360F58
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Aug 2021 02:13:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238381AbhHCTIa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Aug 2021 15:08:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56410 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239389AbhHCTIa (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 3 Aug 2021 15:08:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6758760F9C;
-        Tue,  3 Aug 2021 19:07:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628017697;
-        bh=+C3jjxLGYKPgJknmmGMOt0xrAE6Lm0yMyg9+fV845Dg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=C8zqBiAF+/8ByrtHscexhIqNJ3ZB6Q9VGNwYaOueNcmaK2iVDBJ7DZpIMyN51lRoa
-         /kdDa3fYvlvArsXTmjlHyuNAjtVH4DKC+Oco312NYeUL1Iz1dYwnmfI9MKYYGOFCf+
-         6fdAPndFlrgVFxJGXwp5I9zXWrfeCx6KfEOihedyO/RE0YoZvI8vFnE09Za7bZxbJQ
-         5kuCtIORrLGHG2vE4xsI58xJjXeJjCvuKtQyzTekCAL178KuTOc97FuEFAKt8SRvlM
-         1riAzWuQamXvHnghUF59KN2iD1n7MWJtZ/mPAM7jy2uMfj8GIHqqrCJ5AFZQQeHXLj
-         gDIpHLkooESXg==
-Date:   Tue, 3 Aug 2021 22:07:37 +0300
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Catalin Marinas <catalin.marinas@arm.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Len Brown <lenb@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Will Deacon <will@kernel.org>, devicetree@vger.kernel.org,
-        kvmarm@lists.cs.columbia.edu, linux-acpi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-mm@kvack.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        x86@kernel.org
-Subject: Re: [PATCH v3] memblock: make memblock_find_in_range method private
-Message-ID: <YQmT+Z9QhcwI43GK@kernel.org>
-References: <20210803064218.6611-1-rppt@kernel.org>
- <20210803180526.GD5786@arm.com>
+        id S234210AbhHDCNT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Aug 2021 22:13:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57688 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229892AbhHDCNL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Aug 2021 22:13:11 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6042DC06175F;
+        Tue,  3 Aug 2021 19:12:59 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id d17so1278262plr.12;
+        Tue, 03 Aug 2021 19:12:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding;
+        bh=i7/21JOa6ndS+LDgm4xtjgQFIyuj0hUBVl5kgE/wV9o=;
+        b=J5N9T0CVUgyGSnCCn1nrxNA6iQCubLwXaXXYP/kFcfDfP9MNz0vB4yWPSbsPKSD00C
+         JphfVS3W5Hv8SN+1q4hy/pf1e6/LlifGOUyKryHf0P3hP6jPYxEm4Mb1XkqIITaPQr4N
+         EtLsfsrJLz6jZ3C/YV2t08nMAg+55QW2rfDapuCNhcNT4HxtmVQOk7KksZGaqPOTcrXf
+         KNWfwYcG7mxcUyskY1e7XvooCaiNammKawCHQqJOE5x2FyyHFhHI4C70e+PI+g73pZcp
+         2Yhi0jupry2LGkpVSJ21RCgLX7uAX9Dec8Rr39bBaDBQXCT77Ns9SpWFtEUzL7kYD6FX
+         kLFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding;
+        bh=i7/21JOa6ndS+LDgm4xtjgQFIyuj0hUBVl5kgE/wV9o=;
+        b=pl8l2uWrY4ZZB51FgYhH2IpP5lYJPFMSWtiM74sv9paWAR/B6hVSLziv9E0SGhMRgR
+         tnpauLVncAI8zPT0EZQvQ9haGlvmBqV/WzKFnBNfArbGfVy/re+/giTVhVCADAw/1is0
+         IzNahLsP33AyiCT1T/3yKQn1Fcsr7YdDoccpYzkOmpPvMuqE7owecYYLhjYBmGC5+YcS
+         PnDH6vyJ09SrYICX2TrRxfStgJGJIGGbsu2Mdxs88oBDrK0ikzjiWo7nFrqB4lkzwlJO
+         43OY0AOMqJzc4trLj5aZuo48dZDdfsX95Cx+jZNB5u9g/1/ma1+oDG/AcvmpJ79iu4Bg
+         udEw==
+X-Gm-Message-State: AOAM533pRbIeuRuBuIjreARkS9rO5jqHk/4WBALm8qeoAdieyJvkJTGZ
+        6lJcYw1kRuzWasmbrUPsMJg=
+X-Google-Smtp-Source: ABdhPJw4hmMBznYzIQFFHfUx42p3lkWi+wBFXCTWgYkjWuaMuwujk9mhh3Cl3UNrSTVWmVaZ9WbGAA==
+X-Received: by 2002:a17:902:8bc4:b029:12b:8470:e29e with SMTP id r4-20020a1709028bc4b029012b8470e29emr4334561plo.2.1628043178927;
+        Tue, 03 Aug 2021 19:12:58 -0700 (PDT)
+Received: from [0.0.0.0] ([45.76.223.48])
+        by smtp.gmail.com with ESMTPSA id d17sm510457pfn.110.2021.08.03.19.12.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 03 Aug 2021 19:12:58 -0700 (PDT)
+Subject: Re: [PATCH 0/2] Fix /proc/sys/fs/nfs/nsm_use_hostnames on big endian
+ machines
+To:     Thomas Huth <thuth@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org
+Cc:     "J. Bruce Fields" <bfields@fieldses.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna.schumaker@netapp.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Iurii Zaikin <yzaikin@google.com>, linux-s390@vger.kernel.org,
+        Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+References: <20210803105937.52052-1-thuth@redhat.com>
+From:   Jia He <hejianet@gmail.com>
+Message-ID: <98549025-d163-0ce4-0a9d-9da3ee945f44@gmail.com>
+Date:   Wed, 4 Aug 2021 10:12:25 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210803180526.GD5786@arm.com>
+In-Reply-To: <20210803105937.52052-1-thuth@redhat.com>
+Content-Type: text/plain; charset=gbk; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Aug 03, 2021 at 07:05:26PM +0100, Catalin Marinas wrote:
-> On Tue, Aug 03, 2021 at 09:42:18AM +0300, Mike Rapoport wrote:
-> > diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-> > index 8490ed2917ff..0bffd2d1854f 100644
-> > --- a/arch/arm64/mm/init.c
-> > +++ b/arch/arm64/mm/init.c
-> > @@ -74,6 +74,7 @@ phys_addr_t arm64_dma_phys_limit __ro_after_init;
-> >  static void __init reserve_crashkernel(void)
-> >  {
-> >  	unsigned long long crash_base, crash_size;
-> > +	unsigned long long crash_max = arm64_dma_phys_limit;
-> >  	int ret;
-> >  
-> >  	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
-> > @@ -84,33 +85,18 @@ static void __init reserve_crashkernel(void)
-> >  
-> >  	crash_size = PAGE_ALIGN(crash_size);
-> >  
-> > -	if (crash_base == 0) {
-> > -		/* Current arm64 boot protocol requires 2MB alignment */
-> > -		crash_base = memblock_find_in_range(0, arm64_dma_phys_limit,
-> > -				crash_size, SZ_2M);
-> > -		if (crash_base == 0) {
-> > -			pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
-> > -				crash_size);
-> > -			return;
-> > -		}
-> > -	} else {
-> > -		/* User specifies base address explicitly. */
-> > -		if (!memblock_is_region_memory(crash_base, crash_size)) {
-> > -			pr_warn("cannot reserve crashkernel: region is not memory\n");
-> > -			return;
-> > -		}
-> > +	/* User specifies base address explicitly. */
-> > +	if (crash_base)
-> > +		crash_max = crash_base + crash_size;
-> >  
-> > -		if (memblock_is_region_reserved(crash_base, crash_size)) {
-> > -			pr_warn("cannot reserve crashkernel: region overlaps reserved memory\n");
-> > -			return;
-> > -		}
-> > -
-> > -		if (!IS_ALIGNED(crash_base, SZ_2M)) {
-> > -			pr_warn("cannot reserve crashkernel: base address is not 2MB aligned\n");
-> > -			return;
-> > -		}
-> > +	/* Current arm64 boot protocol requires 2MB alignment */
-> > +	crash_base = memblock_phys_alloc_range(crash_size, SZ_2M,
-> > +					       crash_base, crash_max);
-> > +	if (!crash_base) {
-> > +		pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
-> > +			crash_size);
-> > +		return;
-> >  	}
-> > -	memblock_reserve(crash_base, crash_size);
-> 
-> We'll miss a bit on debug information provided to the user in case of a
-> wrong crash_base/size option on the command line. Not sure we care much,
-> though the alignment would probably be useful (maybe we document it
-> somewhere).
 
-It is already documented:
+On 2021/8/3 18:59, Thomas Huth wrote:
+> There is an endianess problem with /proc/sys/fs/nfs/nsm_use_hostnames
+> (which can e.g. be seen on an s390x host) :
+>
+>   # modprobe lockd nsm_use_hostnames=1
+>   # cat /proc/sys/fs/nfs/nsm_use_hostnames
+>   16777216
+>
+> The nsm_use_hostnames variable is declared as "bool" which is required
+> for the correct type for the module parameter. However, this does not
+> work correctly with the entry in the /proc filesystem since this
+> currently requires "int".
+>
+> Jia He already provided patches for this problem a couple of years ago,
+> but apparently they felt through the cracks and never got merged. So
+> here's a rebased version to finally fix this issue.
+>
+> Buglink: https://bugzilla.redhat.com/show_bug.cgi?id=1764075
+>
+> Jia He (2):
+>    sysctl: introduce new proc handler proc_dobool
+>    lockd: change the proc_handler for nsm_use_hostnames
 
-Documentation/admin-guide/kdump/kdump.rst:
-   On arm64, use "crashkernel=Y[@X]".  Note that the start address of
-   the kernel, X if explicitly specified, must be aligned to 2MiB (0x200000).
- 
-> What I haven't checked is whether memblock_phys_alloc_range() aims to
-> get a 2MB aligned end (size) as well. If crash_size is not 2MB aligned,
-> crash_max wouldn't be either and the above could fail. We only care
-> about the crash_base to be aligned but the memblock_phys_alloc_range()
-> doc says that both the start and size would be aligned to this.
+Thanks for picking them up ;-)
 
-The doc lies :)
+---
+Cheers,
+Justin (Jia He)
 
-memblock_phys_alloc_range() boils down to 
-
-	for_each_free_mem_range_reverse(i, nid, flags, &this_start, &this_end,
-					NULL) {
-
-		/* clamp this_{start,end} to the user defined limits */
-
-		cand = round_down(this_end - size, align);
-		if (cand >= this_start)
-			return cand;
-	}
-
--- 
-Sincerely yours,
-Mike.
