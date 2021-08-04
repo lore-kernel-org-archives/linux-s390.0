@@ -2,161 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16AB8C4338F
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Aug 2021 10:02:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC637C43214
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Aug 2021 10:03:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F37EC61040
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Aug 2021 10:02:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B8B46601FC
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Aug 2021 10:03:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237358AbhHDKCx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Aug 2021 06:02:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46428 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237347AbhHDKCw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 4 Aug 2021 06:02:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E224061004;
-        Wed,  4 Aug 2021 10:02:34 +0000 (UTC)
-Date:   Wed, 4 Aug 2021 11:02:32 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Len Brown <lenb@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Will Deacon <will@kernel.org>, devicetree@vger.kernel.org,
-        kvmarm@lists.cs.columbia.edu, linux-acpi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-mm@kvack.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        x86@kernel.org
-Subject: Re: [PATCH v3] memblock: make memblock_find_in_range method private
-Message-ID: <20210804100231.GA4857@arm.com>
-References: <20210803064218.6611-1-rppt@kernel.org>
- <20210803180526.GD5786@arm.com>
- <YQmT+Z9QhcwI43GK@kernel.org>
+        id S237371AbhHDKDM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Aug 2021 06:03:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50186 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237381AbhHDKDI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Aug 2021 06:03:08 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B09C0617A1;
+        Wed,  4 Aug 2021 03:02:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+        Content-Type:Content-ID:Content-Description;
+        bh=38PP0nqE1Rr5Q2SngGpX8SaabB796rszA7pe5/OYcCE=; b=NZVo6Syey+ucG1T/H4GNaod0LQ
+        R3HS7TqZ5afkR+W+LPQJkznZOdAp8uReL+jaUNSYRPcVYrEd+QKJpXhyMJeIOUpxn6c6kg6oOcnrj
+        ycZVGqV90IGpgWJAdd/4RU4VedNIa+ouNFQPdggcsnOZH0MibUQDRqjnN6Klph1gOoqn8Oowgd+90
+        SKSpiLwMFkfPxHoVq1iUv+bgY8YaLlGZCl1KwsC1LwwnnIhdy0CzjMqtFV9iC0vVxrqjp46rQonBS
+        dvE79Kmj5hVeLSHgBE3iwZOdeXA8BcSCT2lsyusJ9iEyY1RsgiF6m8nRVF5xP1/KOWT5fQu+V9TFA
+        MzZrJ0rg==;
+Received: from [2a02:1205:5023:1f80:c068:bd3d:78b3:7d37] (helo=localhost)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mBDhE-005fC7-4b; Wed, 04 Aug 2021 10:00:43 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Geoff Levand <geoff@infradead.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Song Liu <song@kernel.org>, Mike Snitzer <snitzer@redhat.com>,
+        Coly Li <colyli@suse.de>, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
+        linux-block@vger.kernel.org, dm-devel@redhat.com,
+        linux-um@lists.infradead.org, ceph-devel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-raid@vger.kernel.org, linux-bcache@vger.kernel.org,
+        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH 05/15] dm-integrity: use bvec_virt
+Date:   Wed,  4 Aug 2021 11:56:24 +0200
+Message-Id: <20210804095634.460779-6-hch@lst.de>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210804095634.460779-1-hch@lst.de>
+References: <20210804095634.460779-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YQmT+Z9QhcwI43GK@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Aug 03, 2021 at 10:07:37PM +0300, Mike Rapoport wrote:
-> On Tue, Aug 03, 2021 at 07:05:26PM +0100, Catalin Marinas wrote:
-> > On Tue, Aug 03, 2021 at 09:42:18AM +0300, Mike Rapoport wrote:
-> > > diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-> > > index 8490ed2917ff..0bffd2d1854f 100644
-> > > --- a/arch/arm64/mm/init.c
-> > > +++ b/arch/arm64/mm/init.c
-> > > @@ -74,6 +74,7 @@ phys_addr_t arm64_dma_phys_limit __ro_after_init;
-> > >  static void __init reserve_crashkernel(void)
-> > >  {
-> > >  	unsigned long long crash_base, crash_size;
-> > > +	unsigned long long crash_max = arm64_dma_phys_limit;
-> > >  	int ret;
-> > >  
-> > >  	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
-> > > @@ -84,33 +85,18 @@ static void __init reserve_crashkernel(void)
-> > >  
-> > >  	crash_size = PAGE_ALIGN(crash_size);
-> > >  
-> > > -	if (crash_base == 0) {
-> > > -		/* Current arm64 boot protocol requires 2MB alignment */
-> > > -		crash_base = memblock_find_in_range(0, arm64_dma_phys_limit,
-> > > -				crash_size, SZ_2M);
-> > > -		if (crash_base == 0) {
-> > > -			pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
-> > > -				crash_size);
-> > > -			return;
-> > > -		}
-> > > -	} else {
-> > > -		/* User specifies base address explicitly. */
-> > > -		if (!memblock_is_region_memory(crash_base, crash_size)) {
-> > > -			pr_warn("cannot reserve crashkernel: region is not memory\n");
-> > > -			return;
-> > > -		}
-> > > +	/* User specifies base address explicitly. */
-> > > +	if (crash_base)
-> > > +		crash_max = crash_base + crash_size;
-> > >  
-> > > -		if (memblock_is_region_reserved(crash_base, crash_size)) {
-> > > -			pr_warn("cannot reserve crashkernel: region overlaps reserved memory\n");
-> > > -			return;
-> > > -		}
-> > > -
-> > > -		if (!IS_ALIGNED(crash_base, SZ_2M)) {
-> > > -			pr_warn("cannot reserve crashkernel: base address is not 2MB aligned\n");
-> > > -			return;
-> > > -		}
-> > > +	/* Current arm64 boot protocol requires 2MB alignment */
-> > > +	crash_base = memblock_phys_alloc_range(crash_size, SZ_2M,
-> > > +					       crash_base, crash_max);
-> > > +	if (!crash_base) {
-> > > +		pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
-> > > +			crash_size);
-> > > +		return;
-> > >  	}
-> > > -	memblock_reserve(crash_base, crash_size);
-> > 
-> > We'll miss a bit on debug information provided to the user in case of a
-> > wrong crash_base/size option on the command line. Not sure we care much,
-> > though the alignment would probably be useful (maybe we document it
-> > somewhere).
-> 
-> It is already documented:
-> 
-> Documentation/admin-guide/kdump/kdump.rst:
->    On arm64, use "crashkernel=Y[@X]".  Note that the start address of
->    the kernel, X if explicitly specified, must be aligned to 2MiB (0x200000).
+Use bvec_virt instead of open coding it.
 
-Thanks for the pointer.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/md/dm-integrity.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> > What I haven't checked is whether memblock_phys_alloc_range() aims to
-> > get a 2MB aligned end (size) as well. If crash_size is not 2MB aligned,
-> > crash_max wouldn't be either and the above could fail. We only care
-> > about the crash_base to be aligned but the memblock_phys_alloc_range()
-> > doc says that both the start and size would be aligned to this.
-> 
-> The doc lies :)
-> 
-> memblock_phys_alloc_range() boils down to 
-> 
-> 	for_each_free_mem_range_reverse(i, nid, flags, &this_start, &this_end,
-> 					NULL) {
-> 
-> 		/* clamp this_{start,end} to the user defined limits */
-> 
-> 		cand = round_down(this_end - size, align);
-> 		if (cand >= this_start)
-> 			return cand;
-> 	}
+diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
+index 20f2510db1f6..a9ea361769a7 100644
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -1819,7 +1819,7 @@ static void integrity_metadata(struct work_struct *w)
+ 				unsigned this_len;
+ 
+ 				BUG_ON(PageHighMem(biv.bv_page));
+-				tag = lowmem_page_address(biv.bv_page) + biv.bv_offset;
++				tag = bvec_virt(&biv);
+ 				this_len = min(biv.bv_len, data_to_process);
+ 				r = dm_integrity_rw_tag(ic, tag, &dio->metadata_block, &dio->metadata_offset,
+ 							this_len, dio->op == REQ_OP_READ ? TAG_READ : TAG_WRITE);
+@@ -2006,7 +2006,7 @@ static bool __journal_read_write(struct dm_integrity_io *dio, struct bio *bio,
+ 					unsigned tag_now = min(biv.bv_len, tag_todo);
+ 					char *tag_addr;
+ 					BUG_ON(PageHighMem(biv.bv_page));
+-					tag_addr = lowmem_page_address(biv.bv_page) + biv.bv_offset;
++					tag_addr = bvec_virt(&biv);
+ 					if (likely(dio->op == REQ_OP_WRITE))
+ 						memcpy(tag_ptr, tag_addr, tag_now);
+ 					else
+-- 
+2.30.2
 
-Alright, it should work then. For arm64:
-
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
