@@ -2,108 +2,197 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83B31C4338F
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 06:19:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37839C432BE
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 07:50:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 692A361004
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 06:19:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1DF0061008
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 07:50:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232749AbhHEGUA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 Aug 2021 02:20:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42534 "EHLO
+        id S238889AbhHEHuw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 Aug 2021 03:50:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229778AbhHEGT7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Aug 2021 02:19:59 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 579D3C061765;
-        Wed,  4 Aug 2021 23:19:46 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id nh14so6531106pjb.2;
-        Wed, 04 Aug 2021 23:19:46 -0700 (PDT)
+        with ESMTP id S238834AbhHEHuv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Aug 2021 03:50:51 -0400
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75E9EC0613D5
+        for <linux-s390@vger.kernel.org>; Thu,  5 Aug 2021 00:50:37 -0700 (PDT)
+Received: by mail-wr1-x433.google.com with SMTP id b13so5275524wrs.3
+        for <linux-s390@vger.kernel.org>; Thu, 05 Aug 2021 00:50:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Us8M4Gz10TOU+v1I5NsNfx0zgCQlwHS7fXqY8nkODX4=;
-        b=NmphZcKHDr5rzeeiJu0gciOePeopU2TUfYviW4P0HGDE7eQ7rlOkWulSippslpN7hI
-         KbiuY7BMkNLpA3KqdMnGptqECAiI0U+Ak9aV80XIgQ6d7TzHsqM4uDuFBN/RjTWP4dFi
-         v2wWmB7dicFmiRtF/+fN1KXwh1JHYKc7Cccp5WBNRYX1xc9WfWeQ98S5ZK3t/bQ/YWsA
-         1tn0ksVptVHOuY5mogE+aT/nGQLlOduKg9Neq8j/WElHzV63gKu4Ou+WpOPovZW8GC3S
-         lTU8D0eXfSbhbH4EHGHVR3wXlcn80rxe2kU9gIf02PVZUsle8ZWaAo8SBvhe2OpOLwMx
-         u/bg==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1Os9VBo5ol0/OE/zsUlv+66XdPO6lV3sKgplzYRLLhU=;
+        b=dthuYtFBHhD3kr3ForYIFvZSUVRL+g4AvqqJ5MqApy7GwqLEWJD3FrctTfuA/tYCpx
+         sNlgxyx8sXHQzq89b9u747HAwdEzj71m31DAEjlOG4IqiLXyya660ZghaSD7+gnKMnU7
+         CHSvH2cOEP9AnKaBxJCKZ0NlqS7ZaSFDoptZ9EgPjxRwVWbSl/2PJ56sjS6SUkW+X0O6
+         Ev2dNvflaVoteEN2KzSSdFNpcJpkxuD3jT9ftBEozrIwoGOSjpGgiyC7agZv6GyQQhpF
+         DLkjSoc0Xat8zqIdRl9NoSFJ5NLqQoX9ttPJ8DWoB97sP3VtcZzD/pkBZHXH7KMl1fKB
+         GcCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=Us8M4Gz10TOU+v1I5NsNfx0zgCQlwHS7fXqY8nkODX4=;
-        b=sA9cQNxq2I33w0ZIQSK3ezX+IhwzyK1VuFNlBJljZ97J8xbw+OOhUUcJWv04nB6Xm8
-         iq9u8t7QCNOXJLt5XEflAAjgvmvGW1aS8Ar3uM6fqQ7CbFWzVKRFSgmbleb69aPxTXqu
-         jnyYNlrz12vldMXzIdwDBPoAPhVE2/qTFLSYGH/DJO3gh/2bjFzOBBFQbtn/Xf8s1R4q
-         tmbKeqchqderb7WQsjmVXyZSwYHvGHCb8jOW6AiikqmA8/yC6gl72fyVgoGuPZqQWCYt
-         Vmy6cbMXv00QgM7rdjn5ao+1PESf0nGlkHGCr9uafBom2OBMXCuh8aaKAm+IPylVy3e8
-         b5QA==
-X-Gm-Message-State: AOAM532+g30XS73peaNKFVROyXy9XeVbRSlnEk4jOe93ALlWDSg6FoKe
-        K7n6KU/vDHLbrDZl74+m2QQPspcbt/nwiw==
-X-Google-Smtp-Source: ABdhPJylCwEmCslg5aa1nc2EitMfnv0khm5CC20SSkcpOfTgA4if26raJjt9hmbh77ooLfOKEQ2BOg==
-X-Received: by 2002:a17:90a:fef:: with SMTP id 102mr13385008pjz.148.1628144385681;
-        Wed, 04 Aug 2021 23:19:45 -0700 (PDT)
-Received: from [192.168.50.71] (ip70-175-137-120.oc.oc.cox.net. [70.175.137.120])
-        by smtp.gmail.com with ESMTPSA id l11sm5198375pfd.187.2021.08.04.23.19.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 04 Aug 2021 23:19:45 -0700 (PDT)
-Subject: Re: [PATCH 02/15] block: use bvec_virt in
- bio_integrity_{process,free}
-To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc:     Richard Weinberger <richard@nod.at>,
+        bh=1Os9VBo5ol0/OE/zsUlv+66XdPO6lV3sKgplzYRLLhU=;
+        b=dGLqyyzefDoI9BmhHArnqzA1s4XvbLTeDkF8PkOXGTUsDamQ+Z6WrIOBeNg8BBzrnT
+         Jmr4eF+mtn2leSlBio/ubKg9uOQXezU3ZPQVjFk6ZMpICyGpa8WTT7kDL76UT6krQDYS
+         fEkzbvLLiYV+QFDrZbP8OvO7wb462Z6qWiaWIk6Vq5mmFNIMO9cAl3ymBwM3KzSPO42v
+         TqlsPEmh+X7lOl537Yx9FLetCHl9UPDyfQ8iGuJeAP6r7q0snxaqcBhxeT0gAlNicsfE
+         u6wustELZeJ6uqsPky9jyCa4qUSUoql6ZrGw4xUeTjpXBhqXkGIX/Tj5AB3qY3FP3P8t
+         gs/w==
+X-Gm-Message-State: AOAM530SUVPBor5mEqCEmAbPVKRd93YTXuMNX4u6reZRqGPN07j11TrV
+        VUdlWznEzJuCbNgsVea4jtf7HQ==
+X-Google-Smtp-Source: ABdhPJw8HrMNDFxDvHEKsrTuUr73DV6B7ZEHdGYK/OgbJyv26WO2sghDmY9iYMdlRWWqluqCuDH5CA==
+X-Received: by 2002:adf:ed4f:: with SMTP id u15mr3439300wro.423.1628149836117;
+        Thu, 05 Aug 2021 00:50:36 -0700 (PDT)
+Received: from localhost.localdomain ([109.180.115.228])
+        by smtp.gmail.com with ESMTPSA id h16sm5154491wre.52.2021.08.05.00.50.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Aug 2021 00:50:35 -0700 (PDT)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     lee.jones@linaro.org
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Geoff Levand <geoff@infradead.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Song Liu <song@kernel.org>, Mike Snitzer <snitzer@redhat.com>,
-        Coly Li <colyli@suse.de>, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Phillip Lougher <phillip@squashfs.org.uk>,
-        linux-block@vger.kernel.org, dm-devel@redhat.com,
-        linux-um@lists.infradead.org, ceph-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-raid@vger.kernel.org, linux-bcache@vger.kernel.org,
-        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-References: <20210804095634.460779-1-hch@lst.de>
- <20210804095634.460779-3-hch@lst.de>
-From:   Chaitanya Kulkarni <ckulkarnilinux@gmail.com>
-Message-ID: <b1d05349-86d2-0334-436f-811600ee1578@gmail.com>
-Date:   Wed, 4 Aug 2021 23:19:45 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        Borislav Petkov <bp@alien8.de>,
+        Brian Cain <bcain@codeaurora.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Chris Zankel <chris@zankel.net>,
+        "David S . Miller" <davem@davemloft.net>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Guo Ren <guoren@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>, Ingo Molnar <mingo@redhat.com>,
+        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Jeff Dike <jdike@addtoit.com>, John Crispin <john@phrozen.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        Ley Foon Tan <ley.foon.tan@intel.com>,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Simek <monstr@monstr.eu>, openrisc@lists.librecores.org,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Richard Weinberger <richard@nod.at>,
+        Rich Felker <dalias@libc.org>, sparclinux@vger.kernel.org,
+        Stafford Horne <shorne@gmail.com>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        uclinux-h8-devel@lists.sourceforge.jp,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Will Deacon <will@kernel.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>
+Subject: [PATCH 0/3] power: reset: Convert Power-Off driver to tristate
+Date:   Thu,  5 Aug 2021 08:50:29 +0100
+Message-Id: <20210805075032.723037-1-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.32.0.605.g8dce9f2422-goog
 MIME-Version: 1.0
-In-Reply-To: <20210804095634.460779-3-hch@lst.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Provide support to compile the Power-Off driver as a module.
 
+Elliot Berman (2):
+  reboot: Export reboot_mode
+  power: reset: Enable tristate on restart power-off driver
 
-On 8/4/2021 2:56 AM, Christoph Hellwig wrote:
-> Use the bvec_virt helper to clean up the bio integrity processing a
-> little bit.
-> 
-> Signed-off-by: Christoph Hellwig<hch@lst.de>
+Lee Jones (1):
+  arch: Export machine_restart() instances so they can be called from
+    modules
 
-Looks good.
+ arch/arc/kernel/reset.c            | 1 +
+ arch/arm/kernel/reboot.c           | 1 +
+ arch/arm64/kernel/process.c        | 1 +
+ arch/csky/kernel/power.c           | 1 +
+ arch/h8300/kernel/process.c        | 1 +
+ arch/hexagon/kernel/reset.c        | 1 +
+ arch/m68k/kernel/process.c         | 1 +
+ arch/microblaze/kernel/reset.c     | 1 +
+ arch/mips/kernel/reset.c           | 1 +
+ arch/mips/lantiq/falcon/reset.c    | 1 +
+ arch/mips/sgi-ip27/ip27-reset.c    | 1 +
+ arch/nios2/kernel/process.c        | 1 +
+ arch/openrisc/kernel/process.c     | 1 +
+ arch/parisc/kernel/process.c       | 1 +
+ arch/powerpc/kernel/setup-common.c | 1 +
+ arch/riscv/kernel/reset.c          | 1 +
+ arch/s390/kernel/setup.c           | 1 +
+ arch/sh/kernel/reboot.c            | 1 +
+ arch/sparc/kernel/process_32.c     | 1 +
+ arch/sparc/kernel/reboot.c         | 1 +
+ arch/um/kernel/reboot.c            | 1 +
+ arch/x86/kernel/reboot.c           | 1 +
+ arch/xtensa/kernel/setup.c         | 1 +
+ drivers/power/reset/Kconfig        | 2 +-
+ kernel/reboot.c                    | 2 ++
+ 25 files changed, 26 insertions(+), 1 deletion(-)
 
-Reviewed-by: Chaitanya Kulkarni <kch@kernel.org>
-
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Chris Zankel <chris@zankel.net>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: James E.J. Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: John Crispin <john@phrozen.org>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Ley Foon Tan <ley.foon.tan@intel.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-um@lists.infradead.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: openrisc@lists.librecores.org
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Rich Felker <dalias@libc.org>
+Cc: sparclinux@vger.kernel.org
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: uclinux-h8-devel@lists.sourceforge.jp
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 -- 
--ck
+2.32.0.605.g8dce9f2422-goog
+
