@@ -2,163 +2,393 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F682C43214
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 09:17:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 277FAC4338F
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 11:47:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 390A0610A8
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 09:17:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 01D096112E
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 11:47:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239854AbhHEJR7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 Aug 2021 05:17:59 -0400
-Received: from elvis.franken.de ([193.175.24.41]:46948 "EHLO elvis.franken.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238328AbhHEJRy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 5 Aug 2021 05:17:54 -0400
-Received: from uucp (helo=alpha)
-        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
-        id 1mBZV8-0005ti-04; Thu, 05 Aug 2021 11:17:18 +0200
-Received: by alpha.franken.de (Postfix, from userid 1000)
-        id 92188C052F; Thu,  5 Aug 2021 11:16:03 +0200 (CEST)
-Date:   Thu, 5 Aug 2021 11:16:03 +0200
-From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Brian Cain <bcain@codeaurora.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        John Crispin <john@phrozen.org>,
-        Ley Foon Tan <ley.foon.tan@intel.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S239269AbhHELrT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 Aug 2021 07:47:19 -0400
+Received: from mail-co1nam11on2068.outbound.protection.outlook.com ([40.107.220.68]:30816
+        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S235877AbhHELrS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 5 Aug 2021 07:47:18 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=DJXfCZUzaK3XQeOg91MIXUSuz10Dems7uRrUP3MNAdXaArhAGfiv1aWVVNGvE5RGTbrW9i/Tc3sys+3ZH9q5ZtQ9PnqiDoCMltn8pCrPNXAl9sg0uhX0mj4miOkO4RaIAJlg95Yd0IDXki0+Z8vgEOSgatRmbhw1rk3O4psnCbkvEZRDym6fzrlwl5JrEfOZ/6GbjYJL4dvzdZ11/0u9irf+1B3xCiWE3r5282Phg/kDsnRba8uMBkJFWkxj2TwNPCNzu8fWKHmvOLcoxGevrn4IUiUU4s0ib8o6icdQI5Y2YDMIypfJLNGL8Wi8OPuFFK7zr3fc0+RsqvOmv9k27g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=eZUNqPZLRV11X0bz3MgrQpE1I7VjISWzljAOTtg7+xY=;
+ b=iOfad2sD0b/pA/Bv5Y3jlxeAHz131FEQv53HN1rQEdearZsQHe9jeUCxSxC0VBqUCP2zbwgVEJGOcLGM15OqRZ0e1RjSLBpELckORZrLSlDyqi2AjxKDiie59K221Z1UPQtwXtWXrXt2d/1wI28XtvL36kMu04Yp4uSNfpPKhBYiK7pTDeOpEDAz+cboDDO0qhNjI2aqa/ka/vb7ZkT6GR9LqnqSDweMh2pvyY+NNuVeCpl4WUQDMtL5DYB4VPGT74KWtQrVqXNoG9dtlff7YPKBrenT1zLKsaotUzMU05TBiA8Ei2XOv5pXz5FUdVPYKZLDFdNG56H327H3bsNvsw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=eZUNqPZLRV11X0bz3MgrQpE1I7VjISWzljAOTtg7+xY=;
+ b=pN+h4V8UQvyDYtVbDSlfNFsoFbjLQg46WaBmwPJjqJsYh0x1EzzyEqx983VTnVHABqBJMUsTWr/tAUq64Nt8ooyfkp9v2nC66lopdN3Ll/wVmQWmqQxz4/+OCwFUhrY8Et3Lu5e4GAWOvlle0MhvAPp36duFPJVZ8oj0Mwj12PSdbpJbahKWMzNuFX6sKJPZIBy6m+lrEqixnYYoX3P9iJmYGMqYQn8HA1tbNkIbKlAbjGEYjZ7xuxPF5x3HTIhWz3SAAEdua3qW/wuSNEM3KtJCgaFEOvfXojY5w23nS3AmaoHzBzrabi2KUNUKUZz8MPXqtmrn6wH1eCvWQvENkQ==
+Authentication-Results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL1PR12MB5141.namprd12.prod.outlook.com (2603:10b6:208:309::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.17; Thu, 5 Aug
+ 2021 11:47:02 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::1de1:52a9:cf66:f336]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::1de1:52a9:cf66:f336%7]) with mapi id 15.20.4394.018; Thu, 5 Aug 2021
+ 11:47:02 +0000
+Date:   Thu, 5 Aug 2021 08:47:01 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Rich Felker <dalias@libc.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.org,
-        uclinux-h8-devel@lists.sourceforge.jp,
-        linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org
-Subject: Re: [PATCH 1/3] arch: Export machine_restart() instances so they can
- be called from modules
-Message-ID: <20210805091603.GE5979@alpha.franken.de>
-References: <20210805075032.723037-1-lee.jones@linaro.org>
- <20210805075032.723037-2-lee.jones@linaro.org>
-MIME-Version: 1.0
+        Cornelia Huck <cohuck@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        dri-devel@lists.freedesktop.org,
+        Eric Auger <eric.auger@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Yishai Hadas <yishaih@nvidia.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: Re: [PATCH v3 09/14] vfio/pci: Change vfio_pci_try_bus_reset() to
+ use the dev_set
+Message-ID: <20210805114701.GC1672295@nvidia.com>
+References: <0-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
+ <9-v3-6c9e19cc7d44+15613-vfio_reflck_jgg@nvidia.com>
+ <20210803103406.5e1be269.alex.williamson@redhat.com>
+ <20210803164152.GC1721383@nvidia.com>
+ <20210803105225.2ee7dac2.alex.williamson@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210805075032.723037-2-lee.jones@linaro.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20210803105225.2ee7dac2.alex.williamson@redhat.com>
+X-ClientProxiedBy: CH0PR03CA0290.namprd03.prod.outlook.com
+ (2603:10b6:610:e6::25) To BL0PR12MB5506.namprd12.prod.outlook.com
+ (2603:10b6:208:1cb::22)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (206.223.160.26) by CH0PR03CA0290.namprd03.prod.outlook.com (2603:10b6:610:e6::25) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.15 via Frontend Transport; Thu, 5 Aug 2021 11:47:02 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1mBbq1-00DFYB-2f; Thu, 05 Aug 2021 08:47:01 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c7b4c886-ecac-44d7-a632-08d95806bd87
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5141:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BL1PR12MB51414849F60F3F95C01FF497C2F29@BL1PR12MB5141.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: apF8TpEiGAYaNig6vVvEAOvUPtl4ou8aOb9YMW9YfyjRD0wwKHOrIc2g7tuyypChuD2z8JEMKNRoKxL+lT1+UsHT2Jaqys/Hz09b8sI4K9rj1N4tWAr3agcfr+fncjP9Vx+WXla/wPCfBeHb7hr1gmUF49ZeySwFATzFhWLKV6ICxG4LMClfrBQIcn1N/m08yd1NCa6sgKaOPqoiAe5gNi7bEQrJkodTN6qIyWzh2SQMJzpAqg3T0WVnW/J7wuusMSoBL0Dxa3DTg7J3RatKIISrx61XJSlO1WKCSUJJQ4RwDJ36V8rC2cDhGCA4Q1t6CcRiGq7/9X5DKYiyoRV5AJ/wH2Cfk4WcA09G8XnZg4q0ITmDcowUB8sAc3deiFZZ3AUNPCdtmrXV2X/EVEQbS1EIrz/GMO80dTTTUIETJOq2epuKLXbsuNkJG+ye2b1fSba7xliGnphFROeIamuvcMQqQahi24eJMBux52hOb2EYLZX0Rsufkxr7Qa16sdyR1NHL5DIsSe4NUgld7bHWTBgzD2e0WKIPKRKslh2ORb+SanjsAHTgRwxQuq3BckvJP3Uyr9UIQ8BK0L1CFxK8z8bUnTcfy/zm2PX53LLTg6qL6X+8kDXs68fVUjhXBU8+X6RvIn/AOUE31H9M6OeB3Q==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(2906002)(38100700002)(1076003)(316002)(426003)(7416002)(7406005)(36756003)(83380400001)(54906003)(6916009)(8936002)(508600001)(5660300002)(8676002)(2616005)(33656002)(9786002)(66476007)(4326008)(66556008)(9746002)(26005)(86362001)(186003)(66946007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?2o3G1pmJE+Y3wikC1sjqqRROIecgAfMPpmQhFaylFYw2rIoRIca23ZntBIHU?=
+ =?us-ascii?Q?ho56Aiq37IOdE3TNwqrexSmxJzu8rxWz0Lul89S0m0w+8Z5EVdajGo5sAXxC?=
+ =?us-ascii?Q?E2LQZ4a3nXG+BMJEh7KGblHSKn4d5lQTSyVvF22+muW94FD1MOuMV8I85CAH?=
+ =?us-ascii?Q?4adLvgPdDvAEBvSnvVEev/4zuEI1nxmxgv6kZ3y3go03yjs431w0yEk1YDdY?=
+ =?us-ascii?Q?K5zd2KIMCD/inBiucWLA4HzHAqJ+OlIOdVQRoVy1l5fE3VDKYgAfxlgYbSqP?=
+ =?us-ascii?Q?8hida6sbucH//SRRVtg9Z7qomHVc0gLyvRe7Ez19oSY9pWx297hhaM+3wQch?=
+ =?us-ascii?Q?Vnd5h1fduQHifR+w+jHTQWUW05uO/nVOkue89kMkuI6N9C3TC8UtH0joXZGO?=
+ =?us-ascii?Q?uCp81tTEtUVAiktkWHgQFJ0jKRT4Fdw5zYsU5ZZwYL4vLsucifuwhh2TT55q?=
+ =?us-ascii?Q?teFDDP6pUL9wIdBetITfmAzFIZa7kktmJjdk0JYn5tF4EtZW8Haf0ao3dq+w?=
+ =?us-ascii?Q?6EAA81VhdVP+RGpEFphogxj9tPCKgIN0mT2+cMVlXsslL3HwgwBLdIKm5Nr1?=
+ =?us-ascii?Q?B978jTIEURVGsnmoLaInxR6alYY7WcS5m0tmEhMqnY/06qfoNNAYFDu4yxT0?=
+ =?us-ascii?Q?v5qFeNRT5eNzY8RDZ8Qk51fL3R1bhY0jlQ1hbEmw3a4zi9eT9zFsiI5ksHWX?=
+ =?us-ascii?Q?bp8OeWPPK5Vx0Am8Zs/gIPOpKpqRg6re9ocQ6gSxmPJ6RAidh+Ofs6E3wykY?=
+ =?us-ascii?Q?VcQQ6B/y73L/+sVVxex7kTmupOcUMYjP+nLOQi+Sqsbt21DwvaRz1iazxYmi?=
+ =?us-ascii?Q?JV6RRVeq04UZFu0GIUF9GC9QNxOQ6h2PG3CkIw/NKctxZMePiEpVTN9xfry7?=
+ =?us-ascii?Q?ozxI2BZdYSuDF3LnLsiEY7SXbdIS3XbABWlFYM+n7NDYIiR906HD5RQGUjdR?=
+ =?us-ascii?Q?Ae9wgoB7N9DzXFfPYqCB02BRlJ7pwxD/8kAzXVx6gbTEVncebs6H16k/vJLK?=
+ =?us-ascii?Q?POd3XjkWHB7J56Eed1IkOSZCgHkNFDlQ1Srpx65Flge6V1DBXpP7WbRrzjQd?=
+ =?us-ascii?Q?V2oOPLWDFHgEOnS+XWmiuwmj4bwYM6LtBPMNVM/zPAhYq4D4TM33sqG1QHTG?=
+ =?us-ascii?Q?U5NCxqt6yuVi5Gv2YSwUhExFSG1ToBN3Pk8x1x3nI4Zk+Q66cmWr9mowAHs6?=
+ =?us-ascii?Q?ulLa2IgCobtqqchhOln5oCROOoc9wnhkff5W6FOPdmsF82FMXLxWX6iDPVE8?=
+ =?us-ascii?Q?yvZMJaD6bcG3lHmYLbU85+G4YK4PM5ZoXlZoGDzwm7r3mEJdxU4BqxgSJEC+?=
+ =?us-ascii?Q?XUbM8ovQv3t3z5JKnUua+H4v?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c7b4c886-ecac-44d7-a632-08d95806bd87
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2021 11:47:02.6310
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: hrljNrt+xHpvJD3qcLGfiLeBWpw+MI5O/P+mjXsc+Y6nOIMUjhDHwQXmLmgWxMGX
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5141
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Aug 05, 2021 at 08:50:30AM +0100, Lee Jones wrote:
-> A recent attempt to convert the Power Reset Restart driver to tristate
-> failed because of the following compile error (reported once merged by
-> Stephen Rothwell via Linux Next):
+On Tue, Aug 03, 2021 at 10:52:25AM -0600, Alex Williamson wrote:
+> On Tue, 3 Aug 2021 13:41:52 -0300
+> Jason Gunthorpe <jgg@nvidia.com> wrote:
+> > On Tue, Aug 03, 2021 at 10:34:06AM -0600, Alex Williamson wrote:
+> > > I think the vfio_pci_find_reset_target() function needs to be re-worked
+> > > to just tell us true/false that it's ok to reset the provided device,
+> > > not to anoint an arbitrary target device.  Thanks,  
+> > 
+> > Yes, though this logic is confusing, why do we need to check if any
+> > device needs a reset at this point? If we are being asked to reset
+> > vdev shouldn't vdev needs_reset?
+> > 
+> > Or is the function more of a 'synchronize pending reset' kind of
+> > thing?
 > 
->   ERROR: "machine_restart" [drivers/power/reset/restart-poweroff.ko] undefined!
-> 
-> This error occurs since some of the machine_restart() instances are
-> not currently exported for use in modules.  This patch aims to rectify
-> that.
-> 
-> Cc: Vineet Gupta <vgupta@synopsys.com>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Guo Ren <guoren@kernel.org>
-> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-> Cc: Brian Cain <bcain@codeaurora.org>
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: Michal Simek <monstr@monstr.eu>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: John Crispin <john@phrozen.org>
-> Cc: Ley Foon Tan <ley.foon.tan@intel.com>
-> Cc: Jonas Bonn <jonas@southpole.se>
-> Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-> Cc: Stafford Horne <shorne@gmail.com>
-> Cc: James E.J. Bottomley <James.Bottomley@HansenPartnership.com>
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Paul Walmsley <paul.walmsley@sifive.com>
-> Cc: Palmer Dabbelt <palmer@dabbelt.com>
-> Cc: Albert Ou <aou@eecs.berkeley.edu>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: Rich Felker <dalias@libc.org>
-> Cc: David S. Miller <davem@davemloft.net>
-> Cc: Jeff Dike <jdike@addtoit.com>
-> Cc: Richard Weinberger <richard@nod.at>
-> Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: Chris Zankel <chris@zankel.net>
-> Cc: Max Filippov <jcmvbkbc@gmail.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Sebastian Reichel <sre@kernel.org>
-> Cc: linux-snps-arc@lists.infradead.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-csky@vger.kernel.org
-> Cc: uclinux-h8-devel@lists.sourceforge.jp
-> Cc: linux-hexagon@vger.kernel.org
-> Cc: linux-m68k@lists.linux-m68k.org
-> Cc: linux-mips@vger.kernel.org
-> Cc: openrisc@lists.librecores.org
-> Cc: linux-parisc@vger.kernel.org
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Cc: linux-riscv@lists.infradead.org
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-sh@vger.kernel.org
-> Cc: sparclinux@vger.kernel.org
-> Cc: linux-um@lists.infradead.org
-> Cc: linux-xtensa@linux-xtensa.org
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
-> 
-> The 2 patches this change supports have the required Acks already.
-> 
-> NB: If it's safe to omit some of these, let me know and I'll revise the patch.
-> 
->  [...]
->  arch/mips/kernel/reset.c           | 1 +
->  arch/mips/lantiq/falcon/reset.c    | 1 +
->  arch/mips/sgi-ip27/ip27-reset.c    | 1 +
+> Yes, the latter.  For instance think about a multi-function PCI device
+> such as a GPU.  The functions have dramatically different capabilities,
+> some might have function level reset abilities and others not.  We want
+> to be able to trigger a bus reset as the last device of the set is
+> released, no matter the order they're released and no matter the
+> capabilities of the device we're currently processing.  Thanks,
 
-Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+I worked on this for awhile, I think this is much clearer about what
+this algorithm is trying to do:
 
--- 
-Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
-good idea.                                                [ RFC1925, 2.3 ]
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 5d6db93d6c680f..e418bcbb68facc 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -223,7 +223,7 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_device *vdev)
+ 	}
+ }
+ 
+-static void vfio_pci_try_bus_reset(struct vfio_pci_device *vdev);
++static bool vfio_pci_dev_set_try_reset(struct vfio_device_set *dev_set);
+ static void vfio_pci_disable(struct vfio_pci_device *vdev);
+ static int vfio_pci_try_zap_and_vma_lock_cb(struct pci_dev *pdev, void *data);
+ 
+@@ -404,6 +404,9 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
+ 	struct vfio_pci_ioeventfd *ioeventfd, *ioeventfd_tmp;
+ 	int i, bar;
+ 
++	/* For needs_reset */
++	lockdep_assert_held(&vdev->vdev.dev_set->lock);
++
+ 	/* Stop the device from further DMA */
+ 	pci_clear_master(pdev);
+ 
+@@ -487,9 +490,7 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
+ out:
+ 	pci_disable_device(pdev);
+ 
+-	vfio_pci_try_bus_reset(vdev);
+-
+-	if (!disable_idle_d3)
++	if (!vfio_pci_dev_set_try_reset(vdev->vdev.dev_set) && !disable_idle_d3)
+ 		vfio_pci_set_power_state(vdev, PCI_D3hot);
+ }
+ 
+@@ -2145,36 +2146,6 @@ static struct pci_driver vfio_pci_driver = {
+ 	.err_handler		= &vfio_err_handlers,
+ };
+ 
+-static int vfio_pci_get_unused_devs(struct pci_dev *pdev, void *data)
+-{
+-	struct vfio_devices *devs = data;
+-	struct vfio_device *device;
+-	struct vfio_pci_device *vdev;
+-
+-	if (devs->cur_index == devs->max_index)
+-		return -ENOSPC;
+-
+-	device = vfio_device_get_from_dev(&pdev->dev);
+-	if (!device)
+-		return -EINVAL;
+-
+-	if (pci_dev_driver(pdev) != &vfio_pci_driver) {
+-		vfio_device_put(device);
+-		return -EBUSY;
+-	}
+-
+-	vdev = container_of(device, struct vfio_pci_device, vdev);
+-
+-	/* Fault if the device is not unused */
+-	if (device->open_count) {
+-		vfio_device_put(device);
+-		return -EBUSY;
+-	}
+-
+-	devs->devices[devs->cur_index++] = vdev;
+-	return 0;
+-}
+-
+ static int vfio_pci_try_zap_and_vma_lock_cb(struct pci_dev *pdev, void *data)
+ {
+ 	struct vfio_devices *devs = data;
+@@ -2208,79 +2179,86 @@ static int vfio_pci_try_zap_and_vma_lock_cb(struct pci_dev *pdev, void *data)
+ 	return 0;
+ }
+ 
++static int vfio_pci_is_device_in_set(struct pci_dev *pdev, void *data)
++{
++	struct vfio_device_set *dev_set = data;
++	struct vfio_device *cur;
++
++	lockdep_assert_held(&dev_set->lock);
++
++	list_for_each_entry(cur, &dev_set->device_list, dev_set_list)
++		if (cur->dev == &pdev->dev)
++			return 0;
++	return -EBUSY;
++}
++
++static bool vfio_pci_dev_set_needs_reset(struct vfio_device_set *dev_set)
++{
++	struct vfio_pci_device *cur;
++	bool needs_reset = false;
++
++	list_for_each_entry(cur, &dev_set->device_list, vdev.dev_set_list) {
++		/* No VFIO device in the set can have an open device FD */
++		if (cur->vdev.open_count)
++			return false;
++		needs_reset |= cur->needs_reset;
++	}
++	return needs_reset;
++}
++
+ /*
+- * If a bus or slot reset is available for the provided device and:
++ * If a bus or slot reset is available for the provided dev_set and:
+  *  - All of the devices affected by that bus or slot reset are unused
+- *    (!refcnt)
+  *  - At least one of the affected devices is marked dirty via
+  *    needs_reset (such as by lack of FLR support)
+- * Then attempt to perform that bus or slot reset.  Callers are required
+- * to hold vdev->dev_set->lock, protecting the bus/slot reset group from
+- * concurrent opens.  A vfio_device reference is acquired for each device
+- * to prevent unbinds during the reset operation.
+- *
+- * NB: vfio-core considers a group to be viable even if some devices are
+- * bound to drivers like pci-stub or pcieport.  Here we require all devices
+- * to be bound to vfio_pci since that's the only way we can be sure they
+- * stay put.
++ * Then attempt to perform that bus or slot reset.
++ * Returns true if the dev_set was reset.
+  */
+-static void vfio_pci_try_bus_reset(struct vfio_pci_device *vdev)
++static bool vfio_pci_dev_set_try_reset(struct vfio_device_set *dev_set)
+ {
+-	struct vfio_devices devs = { .cur_index = 0 };
+-	int i = 0, ret = -EINVAL;
+-	bool slot = false;
+-	struct vfio_pci_device *tmp;
++	struct vfio_pci_device *cur;
++	struct pci_dev *pdev;
++	int ret;
+ 
+-	if (!pci_probe_reset_slot(vdev->pdev->slot))
+-		slot = true;
+-	else if (pci_probe_reset_bus(vdev->pdev->bus))
+-		return;
++	lockdep_assert_held(&dev_set->lock);
+ 
+-	if (vfio_pci_for_each_slot_or_bus(vdev->pdev, vfio_pci_count_devs,
+-					  &i, slot) || !i)
+-		return;
++	/*
++	 * By definition all PCI devices in the dev_set share the same PCI
++	 * reset, so any pci_dev will have the same outcomes for
++	 * pci_probe_reset_*() and pci_reset_bus().
++	 */
++	pdev = list_first_entry(&dev_set->device_list, struct vfio_pci_device,
++				vdev.dev_set_list)->pdev;
+ 
+-	devs.max_index = i;
+-	devs.devices = kcalloc(i, sizeof(struct vfio_device *), GFP_KERNEL);
+-	if (!devs.devices)
+-		return;
++	/* Reset of the dev_set is possible */
++	if (pci_probe_reset_slot(pdev->slot) && pci_probe_reset_bus(pdev->bus))
++		return false;
+ 
+-	if (vfio_pci_for_each_slot_or_bus(vdev->pdev,
+-					  vfio_pci_get_unused_devs,
+-					  &devs, slot))
+-		goto put_devs;
++	if (!vfio_pci_dev_set_needs_reset(dev_set))
++		return false;
+ 
+-	/* Does at least one need a reset? */
+-	for (i = 0; i < devs.cur_index; i++) {
+-		tmp = devs.devices[i];
+-		if (tmp->needs_reset) {
+-			ret = pci_reset_bus(vdev->pdev);
+-			break;
+-		}
++	/*
++	 * vfio-core considers a group to be viable and will create a
++	 * vfio_device even if some devices are bound to drivers like pci-stub
++	 * or pcieport. Here we require all PCI devices to be inside our dev_set
++	 * since that ensures they stay put and that every driver controlling
++	 * the device can co-ordinate with the device reset.
++	 */
++	if (vfio_pci_for_each_slot_or_bus(pdev, vfio_pci_is_device_in_set,
++					  dev_set,
++					  !pci_probe_reset_slot(pdev->slot)))
++		return false;
++
++	ret = pci_reset_bus(pdev);
++	if (ret)
++		return false;
++
++	list_for_each_entry(cur, &dev_set->device_list, vdev.dev_set_list) {
++		cur->needs_reset = false;
++		if (!disable_idle_d3)
++			vfio_pci_set_power_state(cur, PCI_D3hot);
+ 	}
+-
+-put_devs:
+-	for (i = 0; i < devs.cur_index; i++) {
+-		tmp = devs.devices[i];
+-
+-		/*
+-		 * If reset was successful, affected devices no longer need
+-		 * a reset and we should return all the collateral devices
+-		 * to low power.  If not successful, we either didn't reset
+-		 * the bus or timed out waiting for it, so let's not touch
+-		 * the power state.
+-		 */
+-		if (!ret) {
+-			tmp->needs_reset = false;
+-
+-			if (tmp != vdev && !disable_idle_d3)
+-				vfio_pci_set_power_state(tmp, PCI_D3hot);
+-		}
+-
+-		vfio_device_put(&tmp->vdev);
+-	}
+-
+-	kfree(devs.devices);
++	return true;
+ }
+ 
+ static void __exit vfio_pci_cleanup(void)
