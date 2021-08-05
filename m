@@ -2,29 +2,37 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FFFBC4338F
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 17:36:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6618FC432BE
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 18:41:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 018C960F42
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 17:36:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A1C56105A
+	for <linux-s390@archiver.kernel.org>; Thu,  5 Aug 2021 18:41:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240276AbhHERgz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 Aug 2021 13:36:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
+        id S241534AbhHESlm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 Aug 2021 14:41:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239498AbhHERgz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 5 Aug 2021 13:36:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0683E610A2;
-        Thu,  5 Aug 2021 17:36:32 +0000 (UTC)
-Date:   Thu, 5 Aug 2021 18:36:25 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        id S232902AbhHESlm (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 5 Aug 2021 14:41:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0F0C60F01;
+        Thu,  5 Aug 2021 18:41:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1628188887;
+        bh=DJstyoIneDhJWe2M45tnolj4HGCE0gCrRv38Ul0FPvI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=yLSS87676hn106VIngpXBP/rOEU9YnrWCbO+LvhheiKjxKARCwKmpPaCV3EXfwCgP
+         eswsJEhyB34IGotQMI4++5xN+H6/H2Zsa8YN4zRquACi04W3hFcBWcF1DF3HWEIxIo
+         hfvqM78wNk4u3fnnSgFl6tYnBJF7uBTAQJcXiptc=
+Date:   Thu, 5 Aug 2021 20:41:23 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     Lee Jones <lee.jones@linaro.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         Vineet Gupta <vgupta@synopsys.com>,
         Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
         Yoshinori Sato <ysato@users.sourceforge.jp>,
@@ -37,7 +45,7 @@ Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         Jonas Bonn <jonas@southpole.se>,
         Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
         Stafford Horne <shorne@gmail.com>,
-        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
         Helge Deller <deller@gmx.de>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Paul Walmsley <paul.walmsley@sifive.com>,
@@ -55,7 +63,6 @@ Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
         Chris Zankel <chris@zankel.net>,
         Max Filippov <jcmvbkbc@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sebastian Reichel <sre@kernel.org>,
         linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.org,
         uclinux-h8-devel@lists.sourceforge.jp,
@@ -67,33 +74,32 @@ Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org
 Subject: Re: [PATCH 1/3] arch: Export machine_restart() instances so they can
  be called from modules
-Message-ID: <20210805173625.GH6719@arm.com>
+Message-ID: <YQww08x2whx/LIIT@kroah.com>
 References: <20210805075032.723037-1-lee.jones@linaro.org>
  <20210805075032.723037-2-lee.jones@linaro.org>
+ <20210805173625.GH6719@arm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210805075032.723037-2-lee.jones@linaro.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20210805173625.GH6719@arm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Aug 05, 2021 at 08:50:30AM +0100, Lee Jones wrote:
-> diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-> index b4bb67f17a2ca..cf89ce91d7145 100644
-> --- a/arch/arm64/kernel/process.c
-> +++ b/arch/arm64/kernel/process.c
-> @@ -212,6 +212,7 @@ void machine_restart(char *cmd)
->  	printk("Reboot failed -- System halted\n");
->  	while (1);
->  }
-> +EXPORT_SYMBOL(machine_restart);
+On Thu, Aug 05, 2021 at 06:36:25PM +0100, Catalin Marinas wrote:
+> On Thu, Aug 05, 2021 at 08:50:30AM +0100, Lee Jones wrote:
+> > diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+> > index b4bb67f17a2ca..cf89ce91d7145 100644
+> > --- a/arch/arm64/kernel/process.c
+> > +++ b/arch/arm64/kernel/process.c
+> > @@ -212,6 +212,7 @@ void machine_restart(char *cmd)
+> >  	printk("Reboot failed -- System halted\n");
+> >  	while (1);
+> >  }
+> > +EXPORT_SYMBOL(machine_restart);
+> 
+> Should we make this EXPORT_SYMBOL_GPL? I suppose it's not for general
+> use by out of tree drivers and it matches the other pm_power_off symbol
+> we export in this file.
 
-Should we make this EXPORT_SYMBOL_GPL? I suppose it's not for general
-use by out of tree drivers and it matches the other pm_power_off symbol
-we export in this file.
-
-Either way:
-
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Yes please.
