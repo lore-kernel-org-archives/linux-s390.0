@@ -2,243 +2,168 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3D52C432BE
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 13:44:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D8D7C4338F
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 15:15:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7BC4E6113C
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 13:44:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3585760560
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 15:15:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344393AbhHFNo3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 Aug 2021 09:44:29 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18604 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S244377AbhHFNo3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Aug 2021 09:44:29 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 176DWoHi044424;
-        Fri, 6 Aug 2021 09:44:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=9mDEg6x4A2drGfW+eqRTDhwomIBzZ4FHeuSSzXJt0n8=;
- b=aJUI3y2sSabihuTqfR3A/aNzxTVi4EgHEwxVCt2eYEKKncI9izzkuo/QJcLaN2jknGG/
- XhR+U0QGuGRNGKQPWI1PeGKXTQTbGyAhzFp85Peco/UplwHnZWAtuGnBafGBS4pm5Akw
- es9IDKXiRGkWnGg2fhUipzsY2yFXQaGLIJ0MQIZpTHi/B+h+a9rRnwWH6PAWDmsgyhBJ
- LTq8laRfKk3dbrJplWFHjNpWc9hRw4yrbD9wjigAix3WFb76km85C6m/eiexF0glsVWy
- hgQvocI+EzN3t273OWsDZdZZC+CdckCAGzOX8bqgxNOFQO1P4Cdwhvqq/5T/3811z7qa iw== 
+        id S234841AbhHFPQL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 Aug 2021 11:16:11 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39424 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232091AbhHFPQK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Aug 2021 11:16:10 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 176F4I3v020863;
+        Fri, 6 Aug 2021 11:15:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=syQV8uN5W9JS7Yp81CMW1qDS06SO7yI9K3N8agnRKEs=;
+ b=g2N0wrbAdEKRxRwW6pAZUyhKjtqt2aKWly1IxcC4Z+S+MpZr1UxYzMfPfR4ofbsJpzrx
+ ZACTTHp9EewrLaxFNBCwEq7tOnZIWU/tauEBvRKauOwOIhJlA3Ve5zliD/WugzwR7Hr/
+ Oyu0dHc3Qvnm3w8+hRCC5YJq6xeHqc7/XIftGq/Hk1aPU3gidngpuuRbrUo8jYT+RDjo
+ Gbxg267oNAaY1Oi05vLCXi1LQioi/QlTXUM57D8Pv2VGokIF1nDX3HUXlTe0dIWSBLns
+ VPr6xVrRtFs1C75BO5D2ZWM3i88GL2ICmJCVNrpxRrgxN15vFD3ZI1QPTwQwnDNiHvZq ZQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a859e5bcy-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a885ac215-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Aug 2021 09:44:10 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 176DXPSS048857;
-        Fri, 6 Aug 2021 09:44:10 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3a859e5bbf-1
+        Fri, 06 Aug 2021 11:15:54 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 176F4ebX028590;
+        Fri, 6 Aug 2021 11:15:54 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a885ac204-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Aug 2021 09:44:09 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 176Dc9NE004883;
-        Fri, 6 Aug 2021 13:44:08 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3a4wshw9jm-1
+        Fri, 06 Aug 2021 11:15:54 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 176F8nOW010873;
+        Fri, 6 Aug 2021 15:15:52 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3a4x58ux7w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Aug 2021 13:44:07 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 176Di3NB54919462
+        Fri, 06 Aug 2021 15:15:52 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 176FCitS51970558
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 6 Aug 2021 13:44:03 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6CD4F4203F;
-        Fri,  6 Aug 2021 13:44:03 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E9F304204C;
-        Fri,  6 Aug 2021 13:44:02 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.6.208])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  6 Aug 2021 13:44:02 +0000 (GMT)
-Date:   Fri, 6 Aug 2021 15:44:00 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     kvm@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, thuth@redhat.com, pasic@linux.ibm.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ulrich.Weigand@de.ibm.com,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v3 00/14] KVM: s390: pv: implement lazy destroy
-Message-ID: <20210806154400.2ca55563@p-imbrenda>
-In-Reply-To: <ada27c6d-4dc9-04c3-d5b9-566e65359701@redhat.com>
+        Fri, 6 Aug 2021 15:12:44 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6545611C050;
+        Fri,  6 Aug 2021 15:15:47 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BBC0311C052;
+        Fri,  6 Aug 2021 15:15:46 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.27.67])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  6 Aug 2021 15:15:46 +0000 (GMT)
+Subject: Re: [PATCH v3 01/14] KVM: s390: pv: add macros for UVC CC values
+To:     David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Ulrich.Weigand@de.ibm.com
 References: <20210804154046.88552-1-imbrenda@linux.ibm.com>
-        <86b114ef-41ea-04b6-327c-4a036f784fad@redhat.com>
-        <20210806113005.0259d53c@p-imbrenda>
-        <ada27c6d-4dc9-04c3-d5b9-566e65359701@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-Content-Type: text/plain; charset=US-ASCII
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SZSp3tXSV6TE0C5KSQqORaCJWYFb8msQ
-X-Proofpoint-ORIG-GUID: -fjOXrtC71AoXOI_pElZquJXf7snA4fb
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+ <20210804154046.88552-2-imbrenda@linux.ibm.com>
+ <f3fc81a7-ea71-56f6-16e0-e43fc36d646e@redhat.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <54a3b55e-bf05-e661-0618-7839f3d2c8dd@linux.ibm.com>
+Date:   Fri, 6 Aug 2021 17:15:46 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
+In-Reply-To: <f3fc81a7-ea71-56f6-16e0-e43fc36d646e@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: TGGl0JWygJMUpFiGCuFprQKPdR0NOyNt
+X-Proofpoint-ORIG-GUID: 3XcH6j7RSQDgLeSGg9v6VwyviDswaCVm
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-06_04:2021-08-05,2021-08-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=926
- clxscore=1015 suspectscore=0 malwarescore=0 bulkscore=0 impostorscore=0
- mlxscore=0 adultscore=0 priorityscore=1501 lowpriorityscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
- definitions=main-2108060094
+ definitions=2021-08-06_05:2021-08-05,2021-08-06 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 malwarescore=0 mlxlogscore=999 mlxscore=0 bulkscore=0
+ adultscore=0 impostorscore=0 clxscore=1015 suspectscore=0
+ priorityscore=1501 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2107140000 definitions=main-2108060104
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 6 Aug 2021 13:30:21 +0200
-David Hildenbrand <david@redhat.com> wrote:
-
-[...]
-
-> >>> When the system runs out of memory, if a guest has terminated and
-> >>> its memory is being cleaned asynchronously, the OOM killer will
-> >>> wait a little and then see if memory has been freed. This has the
-> >>> practical effect of slowing down memory allocations when the
-> >>> system is out of memory to give the cleanup thread time to
-> >>> cleanup and free memory, and avoid an actual OOM situation.  
-> >>
-> >> ... and this sound like the kind of arch MM hacks that will bite us
-> >> in the long run. Of course, I might be wrong, but already doing
-> >> excessive GFP_ATOMIC allocations or messing with the OOM killer
-> >> that  
-> > 
-> > they are GFP_ATOMIC but they should not put too much weight on the
-> > memory and can also fail without consequences, I used:
-> > 
-> > GFP_ATOMIC | __GFP_NOMEMALLOC | __GFP_NOWARN
-> > 
-> > also notice that after every page allocation a page gets freed, so
-> > this is only temporary.  
+On 8/6/21 9:26 AM, David Hildenbrand wrote:
+> On 04.08.21 17:40, Claudio Imbrenda wrote:
+>> Add macros to describe the 4 possible CC values returned by the UVC
+>> instruction.
+>>
+>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/uv.h | 5 +++++
+>>   1 file changed, 5 insertions(+)
+>>
+>> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+>> index 12c5f006c136..b35add51b967 100644
+>> --- a/arch/s390/include/asm/uv.h
+>> +++ b/arch/s390/include/asm/uv.h
+>> @@ -18,6 +18,11 @@
+>>   #include <asm/page.h>
+>>   #include <asm/gmap.h>
+>>   
+>> +#define UVC_CC_OK	0
+>> +#define UVC_CC_ERROR	1
+>> +#define UVC_CC_BUSY 	2
+>> +#define UVC_CC_PARTIAL	3
+>> +
+>>   #define UVC_RC_EXECUTED		0x0001
+>>   #define UVC_RC_INV_CMD		0x0002
+>>   #define UVC_RC_INV_STATE	0x0003
+>>
 > 
-> Correct me if I'm wrong: you're allocating unmovable pages for
-> tracking (e.g., ZONE_DMA, ZONE_NORMAL) from atomic reserves and will
-> free a movable process page, correct? Or which page will you be
-> freeing?
-
-we are transforming ALL moveable pages belonging to userspace into
-unmoveable pages. every ~500 pages one page gets actually
-allocated (unmoveable), and another (moveable) one gets freed.
-
-> > 
-> > I would not call it "messing with the OOM killer", I'm using the
-> > same interface used by virtio-baloon  
+> Do we have any users we could directly fix up? AFAIKs, most users don't 
+> really care about the cc value, only about cc vs !cc.
 > 
-> Right, and for virtio-balloon it's actually a workaround to restore
-> the original behavior of a rarely used feature: deflate-on-oom.
-> Commit da10329cb057 ("virtio-balloon: switch back to OOM handler for 
-> VIRTIO_BALLOON_F_DEFLATE_ON_OOM") tried to document why we switched
-> back from a shrinker to VIRTIO_BALLOON_F_DEFLATE_ON_OOM:
+> The only instances I was able to spot quickly:
+
+The only fix for the functions below that I would accept would be to
+check for cc 2 and 3. A cc >= UVC_CC_BUSY confuses me way too much when
+reading.
+
+But honestly for those two I'd just keep the code as is. I only asked
+Claudio to fix the code in the next patch and add this patch as it was
+not clearly visible he was dealing with a CC.
+
 > 
-> "The name "deflate on OOM" makes it pretty clear when deflation should
->   happen - after other approaches to reclaim memory failed, not while
->   reclaiming. This allows to minimize the footprint of a guest -
-> memory will only be taken out of the balloon when really needed."
 > 
-> Note some subtle differences:
+> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+> index 12c5f006c136..dd72d325f9e8 100644
+> --- a/arch/s390/include/asm/uv.h
+> +++ b/arch/s390/include/asm/uv.h
+> @@ -233,7 +233,7 @@ static inline int uv_call(unsigned long r1, unsigned 
+> long r2)
 > 
-> a) IIRC, before running into the OOM killer, will try reclaiming
->     anything  else. This is what we want for deflate-on-oom, it might
-> not be what you want for your feature (e.g., flushing other
-> processes/VMs to disk/swap instead of waiting for a single process to
-> stop).
-
-we are already reclaiming the memory of the dead secure guest.
-
-> b) Migration of movable balloon inflated pages continues working
-> because we are dealing with non-lru page migration.
+>          do {
+>                  cc = __uv_call(r1, r2);
+> -       } while (cc > 1);
+> +       } while (cc >= UVC_CC_BUSY);
+>          return cc;
+>   }
 > 
-> Will page reclaim, page migration, compaction, ... of these movable
-> LRU pages still continue working while they are sitting around
-> waiting to be cleaned up? I can see that we're grabbing an extra
-> reference when we put them onto the list, that might be a problem:
-> for example, we can most certainly not swap out these pages or write
-> them back to disk on memory pressure.
-
-this is true. on the other hand, swapping a moveable page would be even
-slower, because those pages would need to be exported and not destroyed.
-
-> >   
-> >> way for a pure (shutdown) optimization is an alarm signal. Of
-> >> course, I might be wrong.
-> >>
-> >> You should at least CC linux-mm. I'll do that right now and also CC
-> >> Michal. He might have time to have a quick glimpse at patch #11 and
-> >> #13.
-> >>
-> >> https://lkml.kernel.org/r/20210804154046.88552-12-imbrenda@linux.ibm.com
-> >> https://lkml.kernel.org/r/20210804154046.88552-14-imbrenda@linux.ibm.com
-> >>
-> >> IMHO, we should proceed with patch 1-10, as they solve a really
-> >> important problem ("slow reboots") in a nice way, whereby patch 11
-> >> handles a case that can be worked around comparatively easily by
-> >> management tools -- my 2 cents.  
-> > 
-> > how would management tools work around the issue that a shutdown can
-> > take very long?  
+> @@ -245,7 +245,7 @@ static inline int uv_call_sched(unsigned long r1, 
+> unsigned long r2)
+>          do {
+>                  cc = __uv_call(r1, r2);
+>                  cond_resched();
+> -       } while (cc > 1);
+> +       } while (cc >= UVC_CC_BUSY);
+>          return cc;
+>   }
 > 
-> The traditional approach is to wait starting a new VM on another 
-> hypervisor instead until memory has been freed up, or start it on 
-> another hypervisor. That raises the question about the target use
-> case.
 > 
-> What I don't get is that we have to pay the price for freeing up that 
-> memory. Why isn't it sufficient to keep the process running and let 
-> ordinary MM do it's thing?
-
-what price?
-
-you mean let mm do the slowest possible thing when tearing down a dead
-guest?
-
-without this, the dying guest would still take up all the memory. and
-swapping it would not be any faster (it would be slower, in fact). the
-system would OOM anyway.
-
-> Maybe you should clearly spell out what the target use case for the
-> fast shutdown (fast quitting of the process?) is?. I assume it is,
-> starting a new VM / process / whatsoever on the same host
-> immediately, and then
+> Of course, we could replace all checks for cc vs !cc with "cc != 
+> UVC_CC_OK" vs "cc == UVC_CC_OK".
 > 
-> a) Eventually slowing down other processes due heavy reclaim.
-
-for each dying guest, only one CPU is used by the reclaim; depending on
-the total load of the system, this might not even be noticeable
-
-> b) Slowing down the new process because you have to pay the price of 
-> cleaning up memory.
-
-do you prefer to OOM because the dying guest will need ages to clean up
-its memory?
-
-> I think I am missing why we need the lazy destroy at all when killing
-> a process. Couldn't you instead teach the OOM killer "hey, we're
-> currently quitting a heavy process that is just *very* slow to free
-> up memory, please wait for that before starting shooting around" ?
-
-isn't this ^ exactly what the OOM notifier does?
-
-
-another note here:
-
-when the process quits, the mm starts the tear down. at this point, the
-mm has no idea that this is a dying KVM guest, so the best it can do is
-exporting (which is significantly slower than destroy page)
-
-kvm comes into play long after the mm is gone, and at this point it
-can't do anything anymore. the memory is already gone (very slowly).
-
-if I kill -9 qemu (or if qemu segfaults), KVM will never notice until
-the mm is gone.
 
