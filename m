@@ -2,181 +2,441 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD10BC4320A
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 02:43:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE297C4338F
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 05:01:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AC25761186
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 02:43:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BBFAC60F38
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 05:01:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237088AbhHFCnx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 Aug 2021 22:43:53 -0400
-Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:43954 "EHLO
-        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232442AbhHFCnx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Aug 2021 22:43:53 -0400
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1762gR5U022355;
-        Fri, 6 Aug 2021 02:43:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : message-id : references : date : in-reply-to : content-type :
- mime-version; s=corp-2021-07-09;
- bh=ErfLZC+XW3YlM4EGPbxPKMczSnuaInT0wEK9Ur8Fnf4=;
- b=UKQXkVaDZ1yo7wbxMZCkesxk41edRuYSvHC++xL0wC/zISEucJ5gIgjS7Q9obd4tpoMy
- TCabYxV2LeOzzzAFWuegmw2npK3NpFg1irUxKYro2vh1q6yEnLK6GMJiW5rFngkTcD/i
- IqfZ+O3IX13au9sj1hlrqac+FIpALW7rns1nL6XVM6uHIvj+QuT63NSkaJhc3YbYup9O
- Gtydokfbn/A0/E8JPUc2m6vJKwymc+Wli2rCwhMCggFn0GXtK9HW8O/djdfd6hTexMyB
- HLsihght/sfYiWUrA5P4OPmjBftm8PbxoEqmQfkCUuJIu6aA0xj0Xkow3GYFo7IuqogU ug== 
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : message-id : references : date : in-reply-to : content-type :
- mime-version; s=corp-2020-01-29;
- bh=ErfLZC+XW3YlM4EGPbxPKMczSnuaInT0wEK9Ur8Fnf4=;
- b=Xd1mTkngtTb1C2ru/wzM3a0QFNcvR+1QZJbzqSRCFYSIp+yMBtaH31ng7v+Sif409xt5
- p/vNVDlyWtdChd4J96BMQ1Lqbfr2ReNrKulFhQDjPCvI0rS72p1eL930HP9mfFbdQOQA
- sUaAewfWy+loLbypfGytqAam7WfVLfH/oa0bSziCHqLjAl4YNU38elGvX/t/yQtKtPzw
- /lZWt1BuCoQ3BY+NVRFTdneT6lMjG7VOpE7STF0FIVaejHrs+r5U2GpefVFx94LxxGZf
- hsQzU2TKSJGjK7IRvgXzz0L1HBEfii7pDqr1EOa2HrVDhNGhU9vx9gLyFqqtUia4xb2q vg== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3a843pavj6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 06 Aug 2021 02:43:15 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 1762a72e059738;
-        Fri, 6 Aug 2021 02:43:14 GMT
-Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2176.outbound.protection.outlook.com [104.47.58.176])
-        by aserp3020.oracle.com with ESMTP id 3a7r4atwy7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 06 Aug 2021 02:43:14 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Tu+2xoFwAA/Sq2zNh3kAu4f+rTQ0isc02quXtsavUJNp5ddfm46Z1JiTSsKm72mKccgNf7Y5xCB0aTtL5/wGE3mvwkSgE0BzBIQENKoThQYWRf+tNch2MFlT0ApKxB59jOI+0BV32ZCjMaqKKTg5iuu1TSiGcq8gL+tKuY/9xLaNRXChB0CIWtnOAlDrKjJpoUlklbwA1DDgKB0gByWjYYB/HyjTAUSsFM+1e4C8JzH7+BWnyEBUvDo//8YfWiymSGUqmLaBvH53gOrk5eDukevQwaWN0wcNIShnATnz9K7w8XYzawb69DWluv4MqEQbww92i8lsGj1qLQijamp0Bg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ErfLZC+XW3YlM4EGPbxPKMczSnuaInT0wEK9Ur8Fnf4=;
- b=iD93Jgr8VR9qS5wCaJUFnRpdMrNKuv0+Su1oF/rqRGKKTCAwjnJnfMJX0bwErctLLXATu0thJqSHmR7hheN6AL3h6JlkdwnjOF78jMbLueOzk1IF2thfdW2BMh4Y2R4umXWoRD/PNI/Q4/IvwewgkI0pFA/bpl0FDwevCGEJ9SfkxVOBGpXN6AA2kEXd5yWG4YzfagM5jmKqmQlvAOHSWOA1IXH1EDPcAzQbcqqBLnNjmOJXjI8eam2dgIHi6Ga3jw3FYYt+KTRYyJv2xzV8ZWM8UAZnMnbwRTA+6xGvmLH0wKKnGWEClDQgGL3bAkfIVis0n7sHtLUpTrYZMCo+SQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ErfLZC+XW3YlM4EGPbxPKMczSnuaInT0wEK9Ur8Fnf4=;
- b=dtv09tI+lsT5qTxFrt6ofPbOK7kbq2deFdTwXITHVx7aA689pZq4Yz+YHrEQ4RRKVv+dCR0qT6fJqaFdwuaA6W3F3Xz5B9yZM9Chz0/ZN43ntf3xoKt8AME/ybFapt7qfoV5sYctfSSOe8f40iGzbr+SeVgBGsEl/RhtH+hYTlk=
-Authentication-Results: lst.de; dkim=none (message not signed)
- header.d=none;lst.de; dmarc=none action=none header.from=oracle.com;
-Received: from PH0PR10MB4759.namprd10.prod.outlook.com (2603:10b6:510:3d::12)
- by PH0PR10MB4552.namprd10.prod.outlook.com (2603:10b6:510:42::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.15; Fri, 6 Aug
- 2021 02:43:10 +0000
-Received: from PH0PR10MB4759.namprd10.prod.outlook.com
- ([fe80::153e:22d1:d177:d4f1]) by PH0PR10MB4759.namprd10.prod.outlook.com
- ([fe80::153e:22d1:d177:d4f1%8]) with mapi id 15.20.4373.026; Fri, 6 Aug 2021
- 02:43:10 +0000
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Jens Axboe <axboe@kernel.dk>, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Geoff Levand <geoff@infradead.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Song Liu <song@kernel.org>, Mike Snitzer <snitzer@redhat.com>,
-        Coly Li <colyli@suse.de>, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Phillip Lougher <phillip@squashfs.org.uk>,
-        linux-block@vger.kernel.org, dm-devel@redhat.com,
-        linux-um@lists.infradead.org, ceph-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-raid@vger.kernel.org, linux-bcache@vger.kernel.org,
-        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 10/15] sd: use bvec_virt
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-Message-ID: <yq1im0jguup.fsf@ca-mkp.ca.oracle.com>
-References: <20210804095634.460779-1-hch@lst.de>
-        <20210804095634.460779-11-hch@lst.de>
-Date:   Thu, 05 Aug 2021 22:43:08 -0400
-In-Reply-To: <20210804095634.460779-11-hch@lst.de> (Christoph Hellwig's
-        message of "Wed, 4 Aug 2021 11:56:29 +0200")
-Content-Type: text/plain
-X-ClientProxiedBy: BY3PR05CA0019.namprd05.prod.outlook.com
- (2603:10b6:a03:254::24) To PH0PR10MB4759.namprd10.prod.outlook.com
- (2603:10b6:510:3d::12)
+        id S242734AbhHFFCI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 Aug 2021 01:02:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41590 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231694AbhHFFCG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Aug 2021 01:02:06 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7CA0C061798;
+        Thu,  5 Aug 2021 22:01:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=JtVHbRx1QeQeLnU9RyJ2DL+ntzVZhuVwP39TUMa/A5c=; b=gbVR2+sutgeUq1KMwJzg6aw1xL
+        IHwx5tQMy6oJqwb4nUCjZo3Ge7JCFPDMkE3wQH8tgT/Cz6DTraScqU+uoLEgH+xbL49rt8qepQl3J
+        1Ta/VQEH6GMK14GrYm1K0ZZ1c0EtX4+9va58Za/hIUsXM627Qk0sVDUOh0QjLzws8ZPySEsjdRXm8
+        0y3ppKDSwLEeR3IIw5oEFHEkOllbi71z3r3FM0Ay/91RvYSvu9faoGvvxYjLAZgkb4hH0/w8lGacz
+        fTup1XL4V79u4mzIrQAzw0hqzzQ57AjPAYv692Cq+RDxvSboZA/0gdQmYPJya6lJsc8XeM0VTwowb
+        10aYFffg==;
+Received: from [2601:1c0:6280:3f0::aa0b] (helo=bombadil.infradead.org)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mBrzS-00Bdl0-Cd; Fri, 06 Aug 2021 05:01:50 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Subject: [PATCH] s390/crypto: fix all kernel-doc warnings in vfio_ap_ops.c
+Date:   Thu,  5 Aug 2021 22:01:49 -0700
+Message-Id: <20210806050149.9614-1-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from ca-mkp.ca.oracle.com (138.3.200.58) by BY3PR05CA0019.namprd05.prod.outlook.com (2603:10b6:a03:254::24) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.6 via Frontend Transport; Fri, 6 Aug 2021 02:43:10 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 3ab521f1-794f-4814-8ad9-08d95883ede2
-X-MS-TrafficTypeDiagnostic: PH0PR10MB4552:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <PH0PR10MB45526C638DFF4804D59D52F08EF39@PH0PR10MB4552.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:5236;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 2biKdQen9g36NLgMB9NpEFKwTBiWr2Gwfsgll439RF9lKoPvcUAIHYqG36JfPXDV2FR7URfRK1nZxA/q4S8f2R1Cq0iuf7KUpxau3cVA/vdXtma8p1xXEFxMCIDXuBPRewidBF3Rm9REYX+C7u0xAUrSaBo9JSUhMzhV+pmJxeFFBunCqY0nYVleyWtf+NvuaAbMDK336r+QFlfvki+ta6G+KnnuD7opZCTIfRFvogei78/S7ruqRPd+8n6RlYqyaEkD7QmGuyZcaP6e2f6+a2O9v6dktxKWCkHJMJF+F3tE1oYy0RauREtacck5QWyVbwgaehdhJ3AGIxCj0TVo+3rbT5MMJ3ty5sK+rJSL4Ab0I3K0WHCos+Nwav2x38kVNaAQjH6GKdNe6i9ng+sX6vYYCTp+V+FEYZTPJAdQKssoQiEJjoHWuFquslHepGEWNsbKRC8Yiv9A69gpL3/OMyHpTATLEYhSDVtD22Q7Afr/TdZFJmjK8J7qAUWgozTXaJAOJ6XA8Xd41JqIXGj5z/gySoIbCcj7AHkiNlytduCSrku7SOuz/0O6VzS8zXG8C/morxf2mbxk4e+/hbZxSzGNVKTQDeI2Yy6KHSWF2l2i98EczoI+HaSaMJWu+Nk3qQdmtlJh16WbltQKiHXUZRErStmEbgIy9bv8GzKKKYC0Tk+Ssej/muh6v/wHTW3sof8K9Wbi1Z6/kymdE13iRg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB4759.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(39860400002)(396003)(346002)(376002)(136003)(366004)(186003)(5660300002)(86362001)(7416002)(26005)(558084003)(2906002)(4326008)(8676002)(8936002)(956004)(38100700002)(38350700002)(66556008)(66476007)(66946007)(6916009)(55016002)(36916002)(52116002)(7696005)(316002)(478600001)(54906003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?d0IZT/r7RmhPQ3tBCdNNRIg3kRlcg/GhZwyftwygwoa8TrR+MKpsu9mJ0wzm?=
- =?us-ascii?Q?jmrB4D/QkSTeKWQto4gs8+7BePSsC5N9XppW6M1JPurDVUYlKjdWvBVEZ8O+?=
- =?us-ascii?Q?yxWwDM6XLnIjtP7uinZZWNnmHYPSV92OblVx/SVAaCo1Ql60NYYmfAnEAG46?=
- =?us-ascii?Q?cTrGRKj0s4PLIcfHLPJEYP9KpONEiH1dfN2ciCy4nafUUmIL1DxNNzL7N7oN?=
- =?us-ascii?Q?IUckk/1PgSwGorQTZI/iaxg3uerrrFmiSkTl5XPAvKFyM3uUmlFcAl2N06/B?=
- =?us-ascii?Q?WaV34m71jfzjz0WyKFC8u1WIYd511uR7qtkz/58emRw0vP5Ir0Il10RMq6AN?=
- =?us-ascii?Q?EpemLfHd5bWsKx26mkAb4+YU4F5/eeSXRt7xMqsn5XwoVcQ/YqVIoRTSMChm?=
- =?us-ascii?Q?YVeqqd+f9UjLxf9hboaZ7L4g3CXd5c6ge/T/T4h4/m9/nC3k2P5/y5uhfRs3?=
- =?us-ascii?Q?lLqv8Bd4d7h6XVrG/Dk4VZ466CUpYFycy6OeYr2q+co/0opkl+YG9NoLZ0dD?=
- =?us-ascii?Q?KY1rxRLh7l0jfoyX/maLU1V468VMwc3O7fSf8xy3PoJLHECMyio8d7zb3MwS?=
- =?us-ascii?Q?K4wFfAOxJibt8O/N4KT5yl6kxiL9HiIb8zOKf3g5Ay8evEvRLC05/RLUaXvo?=
- =?us-ascii?Q?LAUZnAFaWjX6+8VCq0YBbPSgMXYQnnJ8pSIBG7MQhDaJ5+JHV0YtGbuR0RoP?=
- =?us-ascii?Q?JEMc4MJUYQ4zpVfAg8LYBrmpYVfCesTThCc4dn46SNdXKk1Y/zHPwzzTfQnE?=
- =?us-ascii?Q?btPOrj6ue5jfGDdESAbHom840UQEUlIbYGBK8PUVndCkKKuSRcTUJfqjzesA?=
- =?us-ascii?Q?RkSnd8CO4RE/5ggCKMBku1b6+dji9bsRFn/kp2MrMg14LuWNpMZyJkg/KBm5?=
- =?us-ascii?Q?sGEq4aKxDDf7+r/LhaQPePa3n6kUcGG26t2HLKAhQrIChN9ykMDW+CQA53g3?=
- =?us-ascii?Q?fOZzGJAIWrdNQ3fsX/oNqz0uQ2XpuVvvpBthQi/l7RPEB0fUYRWr77Uceo/j?=
- =?us-ascii?Q?lsOpcE4V4k0FRYyZy27L57Ac0ujbp1TLKO5n/M6T2UFeE0oMZnrRMGIOrPL4?=
- =?us-ascii?Q?1dKwz8WyL2d7bA9YCDmROm1zfoU8aMvtMFiTZh9oxn7o5nRkd/RaIh+QE07u?=
- =?us-ascii?Q?FhJdivGDhxfyLxx6HHIUZ1rUyapGrw8MmfziJ70jCkrykkbZfSp2SsDXHsw7?=
- =?us-ascii?Q?wL3CPkKEnR4ryZHmYF958v6s0p3biSZa+xHNE1Nfy1a8mBDqhFe8+V3X/bNG?=
- =?us-ascii?Q?A35P9nCV1rh6wzry1qE9TV7AQlfqdjfHSo7xM+KL05fbY7GwbehFqoO85DVv?=
- =?us-ascii?Q?xjogAg4hxBjYzsWGGXj8gCEW?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3ab521f1-794f-4814-8ad9-08d95883ede2
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB4759.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Aug 2021 02:43:10.5688
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: bIMfiozE5/gZPJvbKZVOc6/XGo1J8J5fd+V8vLrjFhFTrpc8gokWrQp1/fKnPlW+D1+dpqw9M8aRwa5wBwhvk8RWG41ogL439Nry9Jgb1e0=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR10MB4552
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=10067 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 malwarescore=0 adultscore=0
- suspectscore=0 mlxlogscore=999 phishscore=0 spamscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
- definitions=main-2108060013
-X-Proofpoint-ORIG-GUID: CStb6cVLeKmOmbEMeQn944Xlc9AD_zxg
-X-Proofpoint-GUID: CStb6cVLeKmOmbEMeQn944Xlc9AD_zxg
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+The 0day bot reported some kernel-doc warnings in this file so clean up
+all of the kernel-doc and use proper kernel-doc formatting.
+There are no more kernel-doc errors or warnings reported in this file.
 
-Christoph,
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>
+Cc: Jason Herne <jjherne@linux.ibm.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+---
+ drivers/s390/crypto/vfio_ap_ops.c |  116 ++++++++++++----------------
+ 1 file changed, 52 insertions(+), 64 deletions(-)
 
-> Use bvec_virt instead of open coding it.
-
-bv_offset is set to 0 right above but I'm OK with bvec_virt() for the
-sake of consistency.
-
-Acked-by: Martin K. Petersen <martin.petersen@oracle.com>
-
--- 
-Martin K. Petersen	Oracle Linux Engineering
+--- linux-next-20210805.orig/drivers/s390/crypto/vfio_ap_ops.c
++++ linux-next-20210805/drivers/s390/crypto/vfio_ap_ops.c
+@@ -35,7 +35,7 @@ static int match_apqn(struct device *dev
+ }
+ 
+ /**
+- * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
++ * vfio_ap_get_queue - retrieve a queue with a specific APQN from a list
+  * @matrix_mdev: the associated mediated matrix
+  * @apqn: The queue APQN
+  *
+@@ -43,7 +43,7 @@ static int match_apqn(struct device *dev
+  * devices of the vfio_ap_drv.
+  * Verify that the APID and the APQI are set in the matrix.
+  *
+- * Returns the pointer to the associated vfio_ap_queue
++ * Return: the pointer to the associated vfio_ap_queue
+  */
+ static struct vfio_ap_queue *vfio_ap_get_queue(
+ 					struct ap_matrix_mdev *matrix_mdev,
+@@ -64,7 +64,7 @@ static struct vfio_ap_queue *vfio_ap_get
+ }
+ 
+ /**
+- * vfio_ap_wait_for_irqclear
++ * vfio_ap_wait_for_irqclear - clears the IR bit or gives up after 5 tries
+  * @apqn: The AP Queue number
+  *
+  * Checks the IRQ bit for the status of this APQN using ap_tapq.
+@@ -72,7 +72,6 @@ static struct vfio_ap_queue *vfio_ap_get
+  * Returns if ap_tapq function failed with invalid, deconfigured or
+  * checkstopped AP.
+  * Otherwise retries up to 5 times after waiting 20ms.
+- *
+  */
+ static void vfio_ap_wait_for_irqclear(int apqn)
+ {
+@@ -105,13 +104,12 @@ static void vfio_ap_wait_for_irqclear(in
+ }
+ 
+ /**
+- * vfio_ap_free_aqic_resources
++ * vfio_ap_free_aqic_resources - free vfio_ap_queue resources
+  * @q: The vfio_ap_queue
+  *
+  * Unregisters the ISC in the GIB when the saved ISC not invalid.
+- * Unpin the guest's page holding the NIB when it exist.
+- * Reset the saved_pfn and saved_isc to invalid values.
+- *
++ * Unpins the guest's page holding the NIB when it exists.
++ * Resets the saved_pfn and saved_isc to invalid values.
+  */
+ static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
+ {
+@@ -130,7 +128,7 @@ static void vfio_ap_free_aqic_resources(
+ }
+ 
+ /**
+- * vfio_ap_irq_disable
++ * vfio_ap_irq_disable - disables and clears an ap_queue interrupt
+  * @q: The vfio_ap_queue
+  *
+  * Uses ap_aqic to disable the interruption and in case of success, reset
+@@ -144,6 +142,8 @@ static void vfio_ap_free_aqic_resources(
+  *
+  * Returns if ap_aqic function failed with invalid, deconfigured or
+  * checkstopped AP.
++ *
++ * Return: &struct ap_queue_status
+  */
+ static struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
+ {
+@@ -183,9 +183,8 @@ end_free:
+ }
+ 
+ /**
+- * vfio_ap_setirq: Enable Interruption for a APQN
++ * vfio_ap_irq_enable - Enable Interruption for a APQN
+  *
+- * @dev: the device associated with the ap_queue
+  * @q:	 the vfio_ap_queue holding AQIC parameters
+  *
+  * Pin the NIB saved in *q
+@@ -197,6 +196,8 @@ end_free:
+  *
+  * Otherwise return the ap_queue_status returned by the ap_aqic(),
+  * all retry handling will be done by the guest.
++ *
++ * Return: &struct ap_queue_status
+  */
+ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
+ 						 int isc,
+@@ -253,7 +254,7 @@ static struct ap_queue_status vfio_ap_ir
+ }
+ 
+ /**
+- * handle_pqap: PQAP instruction callback
++ * handle_pqap - PQAP instruction callback
+  *
+  * @vcpu: The vcpu on which we received the PQAP instruction
+  *
+@@ -270,8 +271,8 @@ static struct ap_queue_status vfio_ap_ir
+  * We take the matrix_dev lock to ensure serialization on queues and
+  * mediated device access.
+  *
+- * Return 0 if we could handle the request inside KVM.
+- * otherwise, returns -EOPNOTSUPP to let QEMU handle the fault.
++ * Return: 0 if we could handle the request inside KVM.
++ * Otherwise, returns -EOPNOTSUPP to let QEMU handle the fault.
+  */
+ static int handle_pqap(struct kvm_vcpu *vcpu)
+ {
+@@ -426,7 +427,7 @@ struct vfio_ap_queue_reserved {
+ };
+ 
+ /**
+- * vfio_ap_has_queue
++ * vfio_ap_has_queue - determines if the AP queue containing the target in @data
+  *
+  * @dev: an AP queue device
+  * @data: a struct vfio_ap_queue_reserved reference
+@@ -443,7 +444,7 @@ struct vfio_ap_queue_reserved {
+  * - If @data contains only an apqi value, @data will be flagged as
+  *   reserved if the APQI field in the AP queue device matches
+  *
+- * Returns 0 to indicate the input to function succeeded. Returns -EINVAL if
++ * Return: 0 to indicate the input to function succeeded. Returns -EINVAL if
+  * @data does not contain either an apid or apqi.
+  */
+ static int vfio_ap_has_queue(struct device *dev, void *data)
+@@ -473,9 +474,9 @@ static int vfio_ap_has_queue(struct devi
+ }
+ 
+ /**
+- * vfio_ap_verify_queue_reserved
++ * vfio_ap_verify_queue_reserved - verifies that the AP queue containing
++ * @apid or @aqpi is reserved
+  *
+- * @matrix_dev: a mediated matrix device
+  * @apid: an AP adapter ID
+  * @apqi: an AP queue index
+  *
+@@ -492,7 +493,7 @@ static int vfio_ap_has_queue(struct devi
+  * - If only @apqi is not NULL, then there must be an AP queue device bound
+  *   to the vfio_ap driver with an APQN containing @apqi
+  *
+- * Returns 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
++ * Return: 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
+  */
+ static int vfio_ap_verify_queue_reserved(unsigned long *apid,
+ 					 unsigned long *apqi)
+@@ -536,15 +537,15 @@ vfio_ap_mdev_verify_queues_reserved_for_
+ }
+ 
+ /**
+- * vfio_ap_mdev_verify_no_sharing
++ * vfio_ap_mdev_verify_no_sharing - verifies that the AP matrix is not configured
++ *
++ * @matrix_mdev: the mediated matrix device
+  *
+  * Verifies that the APQNs derived from the cross product of the AP adapter IDs
+  * and AP queue indexes comprising the AP matrix are not configured for another
+  * mediated device. AP queue sharing is not allowed.
+  *
+- * @matrix_mdev: the mediated matrix device
+- *
+- * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
++ * Return: 0 if the APQNs are not shared; otherwise returns -EADDRINUSE.
+  */
+ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+ {
+@@ -578,7 +579,8 @@ static int vfio_ap_mdev_verify_no_sharin
+ }
+ 
+ /**
+- * assign_adapter_store
++ * assign_adapter_store - parses the APID from @buf and sets the
++ * corresponding bit in the mediated matrix device's APM
+  *
+  * @dev:	the matrix device
+  * @attr:	the mediated matrix device's assign_adapter attribute
+@@ -586,10 +588,7 @@ static int vfio_ap_mdev_verify_no_sharin
+  *		be assigned
+  * @count:	the number of bytes in @buf
+  *
+- * Parses the APID from @buf and sets the corresponding bit in the mediated
+- * matrix device's APM.
+- *
+- * Returns the number of bytes processed if the APID is valid; otherwise,
++ * Return: the number of bytes processed if the APID is valid; otherwise,
+  * returns one of the following errors:
+  *
+  *	1. -EINVAL
+@@ -666,17 +665,15 @@ done:
+ static DEVICE_ATTR_WO(assign_adapter);
+ 
+ /**
+- * unassign_adapter_store
++ * unassign_adapter_store - parses the APID from @buf and clears the
++ * corresponding bit in the mediated matrix device's APM
+  *
+  * @dev:	the matrix device
+  * @attr:	the mediated matrix device's unassign_adapter attribute
+  * @buf:	a buffer containing the adapter number (APID) to be unassigned
+  * @count:	the number of bytes in @buf
+  *
+- * Parses the APID from @buf and clears the corresponding bit in the mediated
+- * matrix device's APM.
+- *
+- * Returns the number of bytes processed if the APID is valid; otherwise,
++ * Return: the number of bytes processed if the APID is valid; otherwise,
+  * returns one of the following errors:
+  *	-EINVAL if the APID is not a number
+  *	-ENODEV if the APID it exceeds the maximum value configured for the
+@@ -740,7 +737,9 @@ vfio_ap_mdev_verify_queues_reserved_for_
+ }
+ 
+ /**
+- * assign_domain_store
++ * assign_domain_store - parses the APQI from @buf and sets the
++ * corresponding bit in the mediated matrix device's AQM
++ *
+  *
+  * @dev:	the matrix device
+  * @attr:	the mediated matrix device's assign_domain attribute
+@@ -748,10 +747,7 @@ vfio_ap_mdev_verify_queues_reserved_for_
+  *		be assigned
+  * @count:	the number of bytes in @buf
+  *
+- * Parses the APQI from @buf and sets the corresponding bit in the mediated
+- * matrix device's AQM.
+- *
+- * Returns the number of bytes processed if the APQI is valid; otherwise returns
++ * Return: the number of bytes processed if the APQI is valid; otherwise returns
+  * one of the following errors:
+  *
+  *	1. -EINVAL
+@@ -824,7 +820,8 @@ static DEVICE_ATTR_WO(assign_domain);
+ 
+ 
+ /**
+- * unassign_domain_store
++ * unassign_domain_store - parses the APQI from @buf and clears the
++ * corresponding bit in the mediated matrix device's AQM
+  *
+  * @dev:	the matrix device
+  * @attr:	the mediated matrix device's unassign_domain attribute
+@@ -832,10 +829,7 @@ static DEVICE_ATTR_WO(assign_domain);
+  *		be unassigned
+  * @count:	the number of bytes in @buf
+  *
+- * Parses the APQI from @buf and clears the corresponding bit in the
+- * mediated matrix device's AQM.
+- *
+- * Returns the number of bytes processed if the APQI is valid; otherwise,
++ * Return: the number of bytes processed if the APQI is valid; otherwise,
+  * returns one of the following errors:
+  *	-EINVAL if the APQI is not a number
+  *	-ENODEV if the APQI exceeds the maximum value configured for the system
+@@ -879,17 +873,16 @@ done:
+ static DEVICE_ATTR_WO(unassign_domain);
+ 
+ /**
+- * assign_control_domain_store
++ * assign_control_domain_store - parses the domain ID from @buf and sets
++ * the corresponding bit in the mediated matrix device's ADM
++ *
+  *
+  * @dev:	the matrix device
+  * @attr:	the mediated matrix device's assign_control_domain attribute
+  * @buf:	a buffer containing the domain ID to be assigned
+  * @count:	the number of bytes in @buf
+  *
+- * Parses the domain ID from @buf and sets the corresponding bit in the mediated
+- * matrix device's ADM.
+- *
+- * Returns the number of bytes processed if the domain ID is valid; otherwise,
++ * Return: the number of bytes processed if the domain ID is valid; otherwise,
+  * returns one of the following errors:
+  *	-EINVAL if the ID is not a number
+  *	-ENODEV if the ID exceeds the maximum value configured for the system
+@@ -937,17 +930,15 @@ done:
+ static DEVICE_ATTR_WO(assign_control_domain);
+ 
+ /**
+- * unassign_control_domain_store
++ * unassign_control_domain_store - parses the domain ID from @buf and
++ * clears the corresponding bit in the mediated matrix device's ADM
+  *
+  * @dev:	the matrix device
+  * @attr:	the mediated matrix device's unassign_control_domain attribute
+  * @buf:	a buffer containing the domain ID to be unassigned
+  * @count:	the number of bytes in @buf
+  *
+- * Parses the domain ID from @buf and clears the corresponding bit in the
+- * mediated matrix device's ADM.
+- *
+- * Returns the number of bytes processed if the domain ID is valid; otherwise,
++ * Return: the number of bytes processed if the domain ID is valid; otherwise,
+  * returns one of the following errors:
+  *	-EINVAL if the ID is not a number
+  *	-ENODEV if the ID exceeds the maximum value configured for the system
+@@ -1085,14 +1076,12 @@ static const struct attribute_group *vfi
+ };
+ 
+ /**
+- * vfio_ap_mdev_set_kvm
++ * vfio_ap_mdev_set_kvm - sets all data for @matrix_mdev that are needed
++ * to manage AP resources for the guest whose state is represented by @kvm
+  *
+  * @matrix_mdev: a mediated matrix device
+  * @kvm: reference to KVM instance
+  *
+- * Sets all data for @matrix_mdev that are needed to manage AP resources
+- * for the guest whose state is represented by @kvm.
+- *
+  * Note: The matrix_dev->lock must be taken prior to calling
+  * this function; however, the lock will be temporarily released while the
+  * guest's AP configuration is set to avoid a potential lockdep splat.
+@@ -1100,7 +1089,7 @@ static const struct attribute_group *vfi
+  * certain circumstances, will result in a circular lock dependency if this is
+  * done under the @matrix_mdev->lock.
+  *
+- * Return 0 if no other mediated matrix device has a reference to @kvm;
++ * Return: 0 if no other mediated matrix device has a reference to @kvm;
+  * otherwise, returns an -EPERM.
+  */
+ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+@@ -1131,8 +1120,8 @@ static int vfio_ap_mdev_set_kvm(struct a
+ 	return 0;
+ }
+ 
+-/*
+- * vfio_ap_mdev_iommu_notifier: IOMMU notifier callback
++/**
++ * vfio_ap_mdev_iommu_notifier - IOMMU notifier callback
+  *
+  * @nb: The notifier block
+  * @action: Action to be taken
+@@ -1141,6 +1130,7 @@ static int vfio_ap_mdev_set_kvm(struct a
+  * For an UNMAP request, unpin the guest IOVA (the NIB guest address we
+  * pinned before). Other requests are ignored.
+  *
++ * Return: for an UNMAP request, NOFITY_OK; otherwise NOTIFY_DONE.
+  */
+ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
+ 				       unsigned long action, void *data)
+@@ -1161,19 +1151,17 @@ static int vfio_ap_mdev_iommu_notifier(s
+ }
+ 
+ /**
+- * vfio_ap_mdev_unset_kvm
++ * vfio_ap_mdev_unset_kvm - performs clean-up of resources no longer needed
++ * by @matrix_mdev.
+  *
+  * @matrix_mdev: a matrix mediated device
+  *
+- * Performs clean-up of resources no longer needed by @matrix_mdev.
+- *
+  * Note: The matrix_dev->lock must be taken prior to calling
+  * this function; however, the lock will be temporarily released while the
+  * guest's AP configuration is cleared to avoid a potential lockdep splat.
+  * The kvm->lock is taken to clear the guest's AP configuration which, under
+  * certain circumstances, will result in a circular lock dependency if this is
+  * done under the @matrix_mdev->lock.
+- *
+  */
+ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+ {
