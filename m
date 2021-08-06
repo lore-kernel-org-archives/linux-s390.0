@@ -2,616 +2,485 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AC23C4338F
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 13:03:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F2D3C4338F
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 13:27:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 60BC5611CB
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 13:03:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6EF5561052
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 13:27:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343942AbhHFNDq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 Aug 2021 09:03:46 -0400
-Received: from mail-ot1-f49.google.com ([209.85.210.49]:45016 "EHLO
-        mail-ot1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343928AbhHFNDq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Aug 2021 09:03:46 -0400
-Received: by mail-ot1-f49.google.com with SMTP id o2-20020a9d22020000b0290462f0ab0800so8783904ota.11;
-        Fri, 06 Aug 2021 06:03:29 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mQZg74DqD2RRayKwo8xi/nCmcKRT5stcmPaaT9jyiYk=;
-        b=HVriXp4SeyZX1ECaexpGmZr4TxYFlvq/0ln/7ohswCvdsui9Ok91f/1bN8Oain0tgA
-         N+AutYKW1R2vyvLqRrtHtBpBmYV6lIboipRcvE+UFGzzo8ACl9Kv3wpNdRgx2KQQxV11
-         jTRzbIUpArHgldSwjluE8stDpTl2FqzgZQtueAj8omogT7ELmIL4uGwlffq1lhnNy/OO
-         I4OvGr2i2NPtqdKX4U/Qi3RPdEJjwv6cXhllN5/cvmCEfVQYGMTsUPI8/xNarNqFGFzN
-         tQ3wkmBD9PmsbA6NS3ZHJ0yGy/hVaTfKsoMPia8OEsZc2DWm1wlPwMaNeIt0izD22GS/
-         OWFQ==
-X-Gm-Message-State: AOAM530hBYXrzDcMHHsDo/3E0l5iCp8w5pFZLvBBqpxH08nrbcl0+byf
-        5H9bKAHwsjYEF0JTYFczvw6p5icW5U3xxCQXc8U=
-X-Google-Smtp-Source: ABdhPJyXq1aMvvaZ4ngrFxXupDSFJDszy9bR8Lbk1NJThFKdrvLYTJaDsYx4blvqLwricckeLCngMBoV0X2Bh3cErko=
-X-Received: by 2002:a05:6830:1f59:: with SMTP id u25mr7551053oth.321.1628255008758;
- Fri, 06 Aug 2021 06:03:28 -0700 (PDT)
+        id S243498AbhHFN1f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 Aug 2021 09:27:35 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31644 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S236885AbhHFN1f (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Aug 2021 09:27:35 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 176DLwdk104463;
+        Fri, 6 Aug 2021 09:26:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=FYcCIxb6I4WVE/UNsg4tpPyqlGMUtrxeal4K3IazEI4=;
+ b=tHXYO2h2EejBMniF27xXYAhATByHGGf0RPRe0EyJH5EJ41N3k8uUr6MHeUsc1pe5FwNN
+ a/22uvKThMRhOpCP9Mhu3J5XpF0Hgv+xDK58syYs6bX4mlObQBJF67IL6yjOkGmIArJX
+ h5+ENTJiW+FxxBv+/SK7r1psxZrYK2vaRjwIPbtcAp14ouhi3mxvVaeP2mDesy4yJozK
+ UFPRYHmGjGltlsFWQvhSHXGba8rpSKn334UlOe/T2IY4VurLe6cHk+jre0Y0y4qpz89k
+ +bII/lmUfx8yWbZLL6kWKr9NX0Y0tLVcTY1gJ80xctBcz4HhJ5y82Q5+luUViA4oexGg XA== 
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3a8r5r45gm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 06 Aug 2021 09:26:39 -0400
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 176DDRYU026951;
+        Fri, 6 Aug 2021 13:26:38 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma03wdc.us.ibm.com with ESMTP id 3a77h5udy8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 06 Aug 2021 13:26:38 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 176DQbdu48562476
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 6 Aug 2021 13:26:37 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 38726C605A;
+        Fri,  6 Aug 2021 13:26:37 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6C70FC6059;
+        Fri,  6 Aug 2021 13:26:35 +0000 (GMT)
+Received: from cpe-172-100-181-211.stny.res.rr.com (unknown [9.160.182.229])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Fri,  6 Aug 2021 13:26:35 +0000 (GMT)
+Subject: Re: [PATCH] s390/crypto: fix all kernel-doc warnings in vfio_ap_ops.c
+To:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
+Cc:     kernel test robot <lkp@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+References: <20210806050149.9614-1-rdunlap@infradead.org>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <d8f1b065-f7b2-a0f3-f87a-ffdd2f7f2781@linux.ibm.com>
+Date:   Fri, 6 Aug 2021 09:26:34 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-References: <20210802063737.22733-1-rppt@kernel.org>
-In-Reply-To: <20210802063737.22733-1-rppt@kernel.org>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Fri, 6 Aug 2021 15:03:17 +0200
-Message-ID: <CAJZ5v0gPEcEy4T8EGCMOw6w+RfU6PBV4EAU+BVHzkTuB1NUjCQ@mail.gmail.com>
-Subject: Re: [PATCH v2] memblock: make memblock_find_in_range method private
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Len Brown <lenb@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, kvmarm@lists.cs.columbia.edu,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-mips@vger.kernel.org,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        "the arch/x86 maintainers" <x86@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210806050149.9614-1-rdunlap@infradead.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 691-u3YhBAXf_wbBEkv08KevblvnyjT8
+X-Proofpoint-ORIG-GUID: 691-u3YhBAXf_wbBEkv08KevblvnyjT8
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-06_04:2021-08-05,2021-08-06 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=999 clxscore=1011 mlxscore=0 suspectscore=0 phishscore=0
+ bulkscore=0 adultscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108060092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 2, 2021 at 8:37 AM Mike Rapoport <rppt@kernel.org> wrote:
->
-> From: Mike Rapoport <rppt@linux.ibm.com>
->
-> There are a lot of uses of memblock_find_in_range() along with
-> memblock_reserve() from the times memblock allocation APIs did not exist.
->
-> memblock_find_in_range() is the very core of memblock allocations, so any
-> future changes to its internal behaviour would mandate updates of all the
-> users outside memblock.
->
-> Replace the calls to memblock_find_in_range() with an equivalent calls to
-> memblock_phys_alloc() and memblock_phys_alloc_range() and make
-> memblock_find_in_range() private method of memblock.
->
-> This simplifies the callers, ensures that (unlikely) errors in
-> memblock_reserve() are handled and improves maintainability of
-> memblock_find_in_range().
->
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
 
-For the ACPI part:
+Pardon my ignorance, but this is the first I've seen of kernel-doc 
+warnings.
+Is there a flag I can set when I build to get kernel-doc warnings? Is 
+there a tool I can run?
+Where is the kernel-doc format documented? I'd like to avoid this in the 
+future.
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
+On 8/6/21 1:01 AM, Randy Dunlap wrote:
+> The 0day bot reported some kernel-doc warnings in this file so clean up
+> all of the kernel-doc and use proper kernel-doc formatting.
+> There are no more kernel-doc errors or warnings reported in this file.
+>
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Cc: Jason Gunthorpe <jgg@nvidia.com>
+> Cc: Tony Krowiak <akrowiak@linux.ibm.com>
+> Cc: Halil Pasic <pasic@linux.ibm.com>
+> Cc: Jason Herne <jjherne@linux.ibm.com>
+> Cc: Harald Freudenberger <freude@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
 > ---
-> v2: don't change error message in arm::reserve_crashkernel(), per Russell
-> v1: https://lore.kernel.org/lkml/20210730104039.7047-1-rppt@kernel.org
+>   drivers/s390/crypto/vfio_ap_ops.c |  116 ++++++++++++----------------
+>   1 file changed, 52 insertions(+), 64 deletions(-)
 >
->  arch/arm/kernel/setup.c           | 18 +++++--------
->  arch/arm64/kvm/hyp/reserved_mem.c |  9 +++----
->  arch/arm64/mm/init.c              | 36 ++++++++-----------------
->  arch/mips/kernel/setup.c          | 14 +++++-----
->  arch/riscv/mm/init.c              | 44 ++++++++++---------------------
->  arch/s390/kernel/setup.c          | 10 ++++---
->  arch/x86/kernel/aperture_64.c     |  5 ++--
->  arch/x86/mm/init.c                | 21 +++++++++------
->  arch/x86/mm/numa.c                |  5 ++--
->  arch/x86/mm/numa_emulation.c      |  5 ++--
->  arch/x86/realmode/init.c          |  2 +-
->  drivers/acpi/tables.c             |  5 ++--
->  drivers/base/arch_numa.c          |  5 +---
->  drivers/of/of_reserved_mem.c      | 12 ++++++---
->  include/linux/memblock.h          |  2 --
->  mm/memblock.c                     |  2 +-
->  16 files changed, 78 insertions(+), 117 deletions(-)
->
-> diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
-> index f97eb2371672..67f5421b2af7 100644
-> --- a/arch/arm/kernel/setup.c
-> +++ b/arch/arm/kernel/setup.c
-> @@ -1012,31 +1012,25 @@ static void __init reserve_crashkernel(void)
->                 unsigned long long lowmem_max = __pa(high_memory - 1) + 1;
->                 if (crash_max > lowmem_max)
->                         crash_max = lowmem_max;
-> -               crash_base = memblock_find_in_range(CRASH_ALIGN, crash_max,
-> -                                                   crash_size, CRASH_ALIGN);
-> +
-> +               crash_base = memblock_phys_alloc_range(crash_size, CRASH_ALIGN,
-> +                                                      CRASH_ALIGN, crash_max);
->                 if (!crash_base) {
->                         pr_err("crashkernel reservation failed - No suitable area found.\n");
->                         return;
->                 }
->         } else {
-> +               unsigned long long crash_max = crash_base + crash_size;
->                 unsigned long long start;
->
-> -               start = memblock_find_in_range(crash_base,
-> -                                              crash_base + crash_size,
-> -                                              crash_size, SECTION_SIZE);
-> +               start = memblock_phys_alloc_range(crash_size, SECTION_SIZE,
-> +                                                 crash_base, crash_max);
->                 if (start != crash_base) {
->                         pr_err("crashkernel reservation failed - memory is in use.\n");
->                         return;
->                 }
->         }
->
-> -       ret = memblock_reserve(crash_base, crash_size);
-> -       if (ret < 0) {
-> -               pr_warn("crashkernel reservation failed - memory is in use (0x%lx)\n",
-> -                       (unsigned long)crash_base);
-> -               return;
-> -       }
-> -
->         pr_info("Reserving %ldMB of memory at %ldMB for crashkernel (System RAM: %ldMB)\n",
->                 (unsigned long)(crash_size >> 20),
->                 (unsigned long)(crash_base >> 20),
-> diff --git a/arch/arm64/kvm/hyp/reserved_mem.c b/arch/arm64/kvm/hyp/reserved_mem.c
-> index d654921dd09b..578670e3f608 100644
-> --- a/arch/arm64/kvm/hyp/reserved_mem.c
-> +++ b/arch/arm64/kvm/hyp/reserved_mem.c
-> @@ -92,12 +92,10 @@ void __init kvm_hyp_reserve(void)
->          * this is unmapped from the host stage-2, and fallback to PAGE_SIZE.
->          */
->         hyp_mem_size = hyp_mem_pages << PAGE_SHIFT;
-> -       hyp_mem_base = memblock_find_in_range(0, memblock_end_of_DRAM(),
-> -                                             ALIGN(hyp_mem_size, PMD_SIZE),
-> -                                             PMD_SIZE);
-> +       hyp_mem_base = memblock_phys_alloc(ALIGN(hyp_mem_size, PMD_SIZE),
-> +                                          PMD_SIZE);
->         if (!hyp_mem_base)
-> -               hyp_mem_base = memblock_find_in_range(0, memblock_end_of_DRAM(),
-> -                                                     hyp_mem_size, PAGE_SIZE);
-> +               hyp_mem_base = memblock_phys_alloc(hyp_mem_size, PAGE_SIZE);
->         else
->                 hyp_mem_size = ALIGN(hyp_mem_size, PMD_SIZE);
->
-> @@ -105,7 +103,6 @@ void __init kvm_hyp_reserve(void)
->                 kvm_err("Failed to reserve hyp memory\n");
->                 return;
->         }
-> -       memblock_reserve(hyp_mem_base, hyp_mem_size);
->
->         kvm_info("Reserved %lld MiB at 0x%llx\n", hyp_mem_size >> 20,
->                  hyp_mem_base);
-> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-> index 8490ed2917ff..d566478a06dd 100644
-> --- a/arch/arm64/mm/init.c
-> +++ b/arch/arm64/mm/init.c
-> @@ -74,6 +74,7 @@ phys_addr_t arm64_dma_phys_limit __ro_after_init;
->  static void __init reserve_crashkernel(void)
->  {
->         unsigned long long crash_base, crash_size;
-> +       unsigned long crash_max = arm64_dma_phys_limit;
->         int ret;
->
->         ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
-> @@ -84,33 +85,18 @@ static void __init reserve_crashkernel(void)
->
->         crash_size = PAGE_ALIGN(crash_size);
->
-> -       if (crash_base == 0) {
-> -               /* Current arm64 boot protocol requires 2MB alignment */
-> -               crash_base = memblock_find_in_range(0, arm64_dma_phys_limit,
-> -                               crash_size, SZ_2M);
-> -               if (crash_base == 0) {
-> -                       pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
-> -                               crash_size);
-> -                       return;
-> -               }
-> -       } else {
-> -               /* User specifies base address explicitly. */
-> -               if (!memblock_is_region_memory(crash_base, crash_size)) {
-> -                       pr_warn("cannot reserve crashkernel: region is not memory\n");
-> -                       return;
-> -               }
-> +       /* User specifies base address explicitly. */
-> +       if (crash_base)
-> +               crash_max = crash_base + crash_size;
->
-> -               if (memblock_is_region_reserved(crash_base, crash_size)) {
-> -                       pr_warn("cannot reserve crashkernel: region overlaps reserved memory\n");
-> -                       return;
-> -               }
-> -
-> -               if (!IS_ALIGNED(crash_base, SZ_2M)) {
-> -                       pr_warn("cannot reserve crashkernel: base address is not 2MB aligned\n");
-> -                       return;
-> -               }
-> +       /* Current arm64 boot protocol requires 2MB alignment */
-> +       crash_base = memblock_phys_alloc_range(crash_size, SZ_2M,
-> +                                              crash_base, crash_max);
-> +       if (!crash_base) {
-> +               pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
-> +                       crash_size);
-> +               return;
->         }
-> -       memblock_reserve(crash_base, crash_size);
->
->         pr_info("crashkernel reserved: 0x%016llx - 0x%016llx (%lld MB)\n",
->                 crash_base, crash_base + crash_size, crash_size >> 20);
-> diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
-> index 23a140327a0b..f979adfd4fc2 100644
-> --- a/arch/mips/kernel/setup.c
-> +++ b/arch/mips/kernel/setup.c
-> @@ -452,8 +452,9 @@ static void __init mips_parse_crashkernel(void)
->                 return;
->
->         if (crash_base <= 0) {
-> -               crash_base = memblock_find_in_range(CRASH_ALIGN, CRASH_ADDR_MAX,
-> -                                                       crash_size, CRASH_ALIGN);
-> +               crash_base = memblock_phys_alloc_range(crash_size, CRASH_ALIGN,
-> +                                                      CRASH_ALIGN,
-> +                                                      CRASH_ADDR_MAX);
->                 if (!crash_base) {
->                         pr_warn("crashkernel reservation failed - No suitable area found.\n");
->                         return;
-> @@ -461,8 +462,9 @@ static void __init mips_parse_crashkernel(void)
->         } else {
->                 unsigned long long start;
->
-> -               start = memblock_find_in_range(crash_base, crash_base + crash_size,
-> -                                               crash_size, 1);
-> +               start = memblock_phys_alloc_range(crash_size, 1,
-> +                                                 crash_base,
-> +                                                 crash_base + crash_size);
->                 if (start != crash_base) {
->                         pr_warn("Invalid memory region reserved for crash kernel\n");
->                         return;
-> @@ -656,10 +658,6 @@ static void __init arch_mem_init(char **cmdline_p)
->         mips_reserve_vmcore();
->
->         mips_parse_crashkernel();
-> -#ifdef CONFIG_KEXEC
-> -       if (crashk_res.start != crashk_res.end)
-> -               memblock_reserve(crashk_res.start, resource_size(&crashk_res));
-> -#endif
->         device_tree_init();
->
->         /*
-> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-> index a14bf3910eec..88649337c568 100644
-> --- a/arch/riscv/mm/init.c
-> +++ b/arch/riscv/mm/init.c
-> @@ -812,38 +812,22 @@ static void __init reserve_crashkernel(void)
->
->         crash_size = PAGE_ALIGN(crash_size);
->
-> -       if (crash_base == 0) {
-> -               /*
-> -                * Current riscv boot protocol requires 2MB alignment for
-> -                * RV64 and 4MB alignment for RV32 (hugepage size)
-> -                */
-> -               crash_base = memblock_find_in_range(search_start, search_end,
-> -                                                   crash_size, PMD_SIZE);
-> -
-> -               if (crash_base == 0) {
-> -                       pr_warn("crashkernel: couldn't allocate %lldKB\n",
-> -                               crash_size >> 10);
-> -                       return;
-> -               }
-> -       } else {
-> -               /* User specifies base address explicitly. */
-> -               if (!memblock_is_region_memory(crash_base, crash_size)) {
-> -                       pr_warn("crashkernel: requested region is not memory\n");
-> -                       return;
-> -               }
-> -
-> -               if (memblock_is_region_reserved(crash_base, crash_size)) {
-> -                       pr_warn("crashkernel: requested region is reserved\n");
-> -                       return;
-> -               }
-> -
-> +       if (crash_base) {
-> +               search_start = crash_base;
-> +               search_end = crash_base + crash_size;
-> +       }
->
-> -               if (!IS_ALIGNED(crash_base, PMD_SIZE)) {
-> -                       pr_warn("crashkernel: requested region is misaligned\n");
-> -                       return;
-> -               }
-> +       /*
-> +        * Current riscv boot protocol requires 2MB alignment for
-> +        * RV64 and 4MB alignment for RV32 (hugepage size)
-> +        */
-> +       crash_base = memblock_phys_alloc_range(crash_size, PMD_SIZE,
-> +                                              search_start, search_end);
-> +       if (crash_base == 0) {
-> +               pr_warn("crashkernel: couldn't allocate %lldKB\n",
-> +                       crash_size >> 10);
-> +               return;
->         }
-> -       memblock_reserve(crash_base, crash_size);
->
->         pr_info("crashkernel: reserved 0x%016llx - 0x%016llx (%lld MB)\n",
->                 crash_base, crash_base + crash_size, crash_size >> 20);
-> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-> index ff0f9e838916..3d9efee0f43c 100644
-> --- a/arch/s390/kernel/setup.c
-> +++ b/arch/s390/kernel/setup.c
-> @@ -626,8 +626,9 @@ static void __init reserve_crashkernel(void)
->                         return;
->                 }
->                 low = crash_base ?: low;
-> -               crash_base = memblock_find_in_range(low, high, crash_size,
-> -                                                   KEXEC_CRASH_MEM_ALIGN);
-> +               crash_base = memblock_phys_alloc_range(crash_size,
-> +                                                      KEXEC_CRASH_MEM_ALIGN,
-> +                                                      low, high);
->         }
->
->         if (!crash_base) {
-> @@ -636,14 +637,15 @@ static void __init reserve_crashkernel(void)
->                 return;
->         }
->
-> -       if (register_memory_notifier(&kdump_mem_nb))
-> +       if (register_memory_notifier(&kdump_mem_nb)) {
-> +               memblock_free(crash_base, crash_size);
->                 return;
-> +       }
->
->         if (!OLDMEM_BASE && MACHINE_IS_VM)
->                 diag10_range(PFN_DOWN(crash_base), PFN_DOWN(crash_size));
->         crashk_res.start = crash_base;
->         crashk_res.end = crash_base + crash_size - 1;
-> -       memblock_remove(crash_base, crash_size);
->         pr_info("Reserving %lluMB of memory at %lluMB "
->                 "for crashkernel (System RAM: %luMB)\n",
->                 crash_size >> 20, crash_base >> 20,
-> diff --git a/arch/x86/kernel/aperture_64.c b/arch/x86/kernel/aperture_64.c
-> index 294ed4392a0e..10562885f5fc 100644
-> --- a/arch/x86/kernel/aperture_64.c
-> +++ b/arch/x86/kernel/aperture_64.c
-> @@ -109,14 +109,13 @@ static u32 __init allocate_aperture(void)
->          * memory. Unfortunately we cannot move it up because that would
->          * make the IOMMU useless.
->          */
-> -       addr = memblock_find_in_range(GART_MIN_ADDR, GART_MAX_ADDR,
-> -                                     aper_size, aper_size);
-> +       addr = memblock_phys_alloc_range(aper_size, aper_size,
-> +                                        GART_MIN_ADDR, GART_MAX_ADDR);
->         if (!addr) {
->                 pr_err("Cannot allocate aperture memory hole [mem %#010lx-%#010lx] (%uKB)\n",
->                        addr, addr + aper_size - 1, aper_size >> 10);
->                 return 0;
->         }
-> -       memblock_reserve(addr, aper_size);
->         pr_info("Mapping aperture over RAM [mem %#010lx-%#010lx] (%uKB)\n",
->                 addr, addr + aper_size - 1, aper_size >> 10);
->         register_nosave_region(addr >> PAGE_SHIFT,
-> diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-> index 75ef19aa8903..1152a29ce109 100644
-> --- a/arch/x86/mm/init.c
-> +++ b/arch/x86/mm/init.c
-> @@ -26,6 +26,7 @@
->  #include <asm/pti.h>
->  #include <asm/text-patching.h>
->  #include <asm/memtype.h>
-> +#include <xen/xen.h>
->
->  /*
->   * We need to define the tracepoints somewhere, and tlb.c
-> @@ -127,14 +128,12 @@ __ref void *alloc_low_pages(unsigned int num)
->                 unsigned long ret = 0;
->
->                 if (min_pfn_mapped < max_pfn_mapped) {
-> -                       ret = memblock_find_in_range(
-> +                       ret = memblock_phys_alloc_range(
-> +                                       PAGE_SIZE * num, PAGE_SIZE,
->                                         min_pfn_mapped << PAGE_SHIFT,
-> -                                       max_pfn_mapped << PAGE_SHIFT,
-> -                                       PAGE_SIZE * num , PAGE_SIZE);
-> +                                       max_pfn_mapped << PAGE_SHIFT);
->                 }
-> -               if (ret)
-> -                       memblock_reserve(ret, PAGE_SIZE * num);
-> -               else if (can_use_brk_pgt)
-> +               if (!ret && can_use_brk_pgt)
->                         ret = __pa(extend_brk(PAGE_SIZE * num, PAGE_SIZE));
->
->                 if (!ret)
-> @@ -610,9 +609,15 @@ static void __init memory_map_top_down(unsigned long map_start,
->         unsigned long addr;
->         unsigned long mapped_ram_size = 0;
->
-> +       real_end = ALIGN_DOWN(map_end, PMD_SIZE);
-> +
->         /* xen has big range in reserved near end of ram, skip it at first.*/
-> -       addr = memblock_find_in_range(map_start, map_end, PMD_SIZE, PMD_SIZE);
-> -       real_end = addr + PMD_SIZE;
-> +       if (xen_domain()) {
-> +               addr = memblock_phys_alloc_range(PMD_SIZE, PMD_SIZE,
-> +                                                map_start, map_end);
-> +               memblock_free(addr, PMD_SIZE);
-> +               real_end = addr + PMD_SIZE;
-> +       }
->
->         /* step_size need to be small so pgt_buf from BRK could cover it */
->         step_size = PMD_SIZE;
-> diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-> index e94da744386f..a1b5c71099e6 100644
-> --- a/arch/x86/mm/numa.c
-> +++ b/arch/x86/mm/numa.c
-> @@ -376,15 +376,14 @@ static int __init numa_alloc_distance(void)
->         cnt++;
->         size = cnt * cnt * sizeof(numa_distance[0]);
->
-> -       phys = memblock_find_in_range(0, PFN_PHYS(max_pfn_mapped),
-> -                                     size, PAGE_SIZE);
-> +       phys = memblock_phys_alloc_range(size, PAGE_SIZE, 0,
-> +                                        PFN_PHYS(max_pfn_mapped));
->         if (!phys) {
->                 pr_warn("Warning: can't allocate distance table!\n");
->                 /* don't retry until explicitly reset */
->                 numa_distance = (void *)1LU;
->                 return -ENOMEM;
->         }
-> -       memblock_reserve(phys, size);
->
->         numa_distance = __va(phys);
->         numa_distance_cnt = cnt;
-> diff --git a/arch/x86/mm/numa_emulation.c b/arch/x86/mm/numa_emulation.c
-> index 87d77cc52f86..737491b13728 100644
-> --- a/arch/x86/mm/numa_emulation.c
-> +++ b/arch/x86/mm/numa_emulation.c
-> @@ -447,13 +447,12 @@ void __init numa_emulation(struct numa_meminfo *numa_meminfo, int numa_dist_cnt)
->         if (numa_dist_cnt) {
->                 u64 phys;
->
-> -               phys = memblock_find_in_range(0, PFN_PHYS(max_pfn_mapped),
-> -                                             phys_size, PAGE_SIZE);
-> +               phys = memblock_phys_alloc_range(phys_size, PAGE_SIZE, 0,
-> +                                                PFN_PHYS(max_pfn_mapped));
->                 if (!phys) {
->                         pr_warn("NUMA: Warning: can't allocate copy of distance table, disabling emulation\n");
->                         goto no_emu;
->                 }
-> -               memblock_reserve(phys, phys_size);
->                 phys_dist = __va(phys);
->
->                 for (i = 0; i < numa_dist_cnt; i++)
-> diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-> index 6534c92d0f83..31b5856010cb 100644
-> --- a/arch/x86/realmode/init.c
-> +++ b/arch/x86/realmode/init.c
-> @@ -28,7 +28,7 @@ void __init reserve_real_mode(void)
->         WARN_ON(slab_is_available());
->
->         /* Has to be under 1M so we can execute real-mode AP code. */
-> -       mem = memblock_find_in_range(0, 1<<20, size, PAGE_SIZE);
-> +       mem = memblock_phys_alloc_range(size, PAGE_SIZE, 0, 1<<20);
->         if (!mem)
->                 pr_info("No sub-1M memory is available for the trampoline\n");
->         else
-> diff --git a/drivers/acpi/tables.c b/drivers/acpi/tables.c
-> index a37a1532a575..f9383736fa0f 100644
-> --- a/drivers/acpi/tables.c
-> +++ b/drivers/acpi/tables.c
-> @@ -583,8 +583,8 @@ void __init acpi_table_upgrade(void)
->         }
->
->         acpi_tables_addr =
-> -               memblock_find_in_range(0, ACPI_TABLE_UPGRADE_MAX_PHYS,
-> -                                      all_tables_size, PAGE_SIZE);
-> +               memblock_phys_alloc_range(all_tables_size, PAGE_SIZE,
-> +                                         0, ACPI_TABLE_UPGRADE_MAX_PHYS);
->         if (!acpi_tables_addr) {
->                 WARN_ON(1);
->                 return;
-> @@ -599,7 +599,6 @@ void __init acpi_table_upgrade(void)
->          * Both memblock_reserve and e820__range_add (via arch_reserve_mem_area)
->          * works fine.
->          */
-> -       memblock_reserve(acpi_tables_addr, all_tables_size);
->         arch_reserve_mem_area(acpi_tables_addr, all_tables_size);
->
->         /*
-> diff --git a/drivers/base/arch_numa.c b/drivers/base/arch_numa.c
-> index 4cc4e117727d..46c503486e96 100644
-> --- a/drivers/base/arch_numa.c
-> +++ b/drivers/base/arch_numa.c
-> @@ -279,13 +279,10 @@ static int __init numa_alloc_distance(void)
->         int i, j;
->
->         size = nr_node_ids * nr_node_ids * sizeof(numa_distance[0]);
-> -       phys = memblock_find_in_range(0, PFN_PHYS(max_pfn),
-> -                                     size, PAGE_SIZE);
-> +       phys = memblock_phys_alloc_range(size, PAGE_SIZE, 0, PFN_PHYS(max_pfn));
->         if (WARN_ON(!phys))
->                 return -ENOMEM;
->
-> -       memblock_reserve(phys, size);
-> -
->         numa_distance = __va(phys);
->         numa_distance_cnt = nr_node_ids;
->
-> diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
-> index fd3964d24224..59c1390cdf42 100644
-> --- a/drivers/of/of_reserved_mem.c
-> +++ b/drivers/of/of_reserved_mem.c
-> @@ -33,18 +33,22 @@ static int __init early_init_dt_alloc_reserved_memory_arch(phys_addr_t size,
->         phys_addr_t *res_base)
->  {
->         phys_addr_t base;
-> +       int err = 0;
->
->         end = !end ? MEMBLOCK_ALLOC_ANYWHERE : end;
->         align = !align ? SMP_CACHE_BYTES : align;
-> -       base = memblock_find_in_range(start, end, size, align);
-> +       base = memblock_phys_alloc_range(size, align, start, end);
->         if (!base)
->                 return -ENOMEM;
->
->         *res_base = base;
-> -       if (nomap)
-> -               return memblock_mark_nomap(base, size);
-> +       if (nomap) {
-> +               err = memblock_mark_nomap(base, size);
-> +               if (err)
-> +                       memblock_free(base, size);
-> +       }
->
-> -       return memblock_reserve(base, size);
-> +       return err;
->  }
->
->  /*
-> diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-> index 4a53c3ca86bd..b066024c62e3 100644
-> --- a/include/linux/memblock.h
-> +++ b/include/linux/memblock.h
-> @@ -99,8 +99,6 @@ void memblock_discard(void);
->  static inline void memblock_discard(void) {}
->  #endif
->
-> -phys_addr_t memblock_find_in_range(phys_addr_t start, phys_addr_t end,
-> -                                  phys_addr_t size, phys_addr_t align);
->  void memblock_allow_resize(void);
->  int memblock_add_node(phys_addr_t base, phys_addr_t size, int nid);
->  int memblock_add(phys_addr_t base, phys_addr_t size);
-> diff --git a/mm/memblock.c b/mm/memblock.c
-> index de7b553baa50..28a813d9e955 100644
-> --- a/mm/memblock.c
-> +++ b/mm/memblock.c
-> @@ -315,7 +315,7 @@ static phys_addr_t __init_memblock memblock_find_in_range_node(phys_addr_t size,
->   * Return:
->   * Found address on success, 0 on failure.
->   */
-> -phys_addr_t __init_memblock memblock_find_in_range(phys_addr_t start,
-> +static phys_addr_t __init_memblock memblock_find_in_range(phys_addr_t start,
->                                         phys_addr_t end, phys_addr_t size,
->                                         phys_addr_t align)
->  {
->
-> base-commit: ff1176468d368232b684f75e82563369208bc371
-> --
-> 2.28.0
->
+> --- linux-next-20210805.orig/drivers/s390/crypto/vfio_ap_ops.c
+> +++ linux-next-20210805/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -35,7 +35,7 @@ static int match_apqn(struct device *dev
+>   }
+>   
+>   /**
+> - * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
+> + * vfio_ap_get_queue - retrieve a queue with a specific APQN from a list
+>    * @matrix_mdev: the associated mediated matrix
+>    * @apqn: The queue APQN
+>    *
+> @@ -43,7 +43,7 @@ static int match_apqn(struct device *dev
+>    * devices of the vfio_ap_drv.
+>    * Verify that the APID and the APQI are set in the matrix.
+>    *
+> - * Returns the pointer to the associated vfio_ap_queue
+> + * Return: the pointer to the associated vfio_ap_queue
+>    */
+>   static struct vfio_ap_queue *vfio_ap_get_queue(
+>   					struct ap_matrix_mdev *matrix_mdev,
+> @@ -64,7 +64,7 @@ static struct vfio_ap_queue *vfio_ap_get
+>   }
+>   
+>   /**
+> - * vfio_ap_wait_for_irqclear
+> + * vfio_ap_wait_for_irqclear - clears the IR bit or gives up after 5 tries
+>    * @apqn: The AP Queue number
+>    *
+>    * Checks the IRQ bit for the status of this APQN using ap_tapq.
+> @@ -72,7 +72,6 @@ static struct vfio_ap_queue *vfio_ap_get
+>    * Returns if ap_tapq function failed with invalid, deconfigured or
+>    * checkstopped AP.
+>    * Otherwise retries up to 5 times after waiting 20ms.
+> - *
+>    */
+>   static void vfio_ap_wait_for_irqclear(int apqn)
+>   {
+> @@ -105,13 +104,12 @@ static void vfio_ap_wait_for_irqclear(in
+>   }
+>   
+>   /**
+> - * vfio_ap_free_aqic_resources
+> + * vfio_ap_free_aqic_resources - free vfio_ap_queue resources
+>    * @q: The vfio_ap_queue
+>    *
+>    * Unregisters the ISC in the GIB when the saved ISC not invalid.
+> - * Unpin the guest's page holding the NIB when it exist.
+> - * Reset the saved_pfn and saved_isc to invalid values.
+> - *
+> + * Unpins the guest's page holding the NIB when it exists.
+> + * Resets the saved_pfn and saved_isc to invalid values.
+>    */
+>   static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
+>   {
+> @@ -130,7 +128,7 @@ static void vfio_ap_free_aqic_resources(
+>   }
+>   
+>   /**
+> - * vfio_ap_irq_disable
+> + * vfio_ap_irq_disable - disables and clears an ap_queue interrupt
+>    * @q: The vfio_ap_queue
+>    *
+>    * Uses ap_aqic to disable the interruption and in case of success, reset
+> @@ -144,6 +142,8 @@ static void vfio_ap_free_aqic_resources(
+>    *
+>    * Returns if ap_aqic function failed with invalid, deconfigured or
+>    * checkstopped AP.
+> + *
+> + * Return: &struct ap_queue_status
+>    */
+>   static struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
+>   {
+> @@ -183,9 +183,8 @@ end_free:
+>   }
+>   
+>   /**
+> - * vfio_ap_setirq: Enable Interruption for a APQN
+> + * vfio_ap_irq_enable - Enable Interruption for a APQN
+>    *
+> - * @dev: the device associated with the ap_queue
+>    * @q:	 the vfio_ap_queue holding AQIC parameters
+>    *
+>    * Pin the NIB saved in *q
+> @@ -197,6 +196,8 @@ end_free:
+>    *
+>    * Otherwise return the ap_queue_status returned by the ap_aqic(),
+>    * all retry handling will be done by the guest.
+> + *
+> + * Return: &struct ap_queue_status
+>    */
+>   static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
+>   						 int isc,
+> @@ -253,7 +254,7 @@ static struct ap_queue_status vfio_ap_ir
+>   }
+>   
+>   /**
+> - * handle_pqap: PQAP instruction callback
+> + * handle_pqap - PQAP instruction callback
+>    *
+>    * @vcpu: The vcpu on which we received the PQAP instruction
+>    *
+> @@ -270,8 +271,8 @@ static struct ap_queue_status vfio_ap_ir
+>    * We take the matrix_dev lock to ensure serialization on queues and
+>    * mediated device access.
+>    *
+> - * Return 0 if we could handle the request inside KVM.
+> - * otherwise, returns -EOPNOTSUPP to let QEMU handle the fault.
+> + * Return: 0 if we could handle the request inside KVM.
+> + * Otherwise, returns -EOPNOTSUPP to let QEMU handle the fault.
+>    */
+>   static int handle_pqap(struct kvm_vcpu *vcpu)
+>   {
+> @@ -426,7 +427,7 @@ struct vfio_ap_queue_reserved {
+>   };
+>   
+>   /**
+> - * vfio_ap_has_queue
+> + * vfio_ap_has_queue - determines if the AP queue containing the target in @data
+>    *
+>    * @dev: an AP queue device
+>    * @data: a struct vfio_ap_queue_reserved reference
+> @@ -443,7 +444,7 @@ struct vfio_ap_queue_reserved {
+>    * - If @data contains only an apqi value, @data will be flagged as
+>    *   reserved if the APQI field in the AP queue device matches
+>    *
+> - * Returns 0 to indicate the input to function succeeded. Returns -EINVAL if
+> + * Return: 0 to indicate the input to function succeeded. Returns -EINVAL if
+>    * @data does not contain either an apid or apqi.
+>    */
+>   static int vfio_ap_has_queue(struct device *dev, void *data)
+> @@ -473,9 +474,9 @@ static int vfio_ap_has_queue(struct devi
+>   }
+>   
+>   /**
+> - * vfio_ap_verify_queue_reserved
+> + * vfio_ap_verify_queue_reserved - verifies that the AP queue containing
+> + * @apid or @aqpi is reserved
+>    *
+> - * @matrix_dev: a mediated matrix device
+>    * @apid: an AP adapter ID
+>    * @apqi: an AP queue index
+>    *
+> @@ -492,7 +493,7 @@ static int vfio_ap_has_queue(struct devi
+>    * - If only @apqi is not NULL, then there must be an AP queue device bound
+>    *   to the vfio_ap driver with an APQN containing @apqi
+>    *
+> - * Returns 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
+> + * Return: 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
+>    */
+>   static int vfio_ap_verify_queue_reserved(unsigned long *apid,
+>   					 unsigned long *apqi)
+> @@ -536,15 +537,15 @@ vfio_ap_mdev_verify_queues_reserved_for_
+>   }
+>   
+>   /**
+> - * vfio_ap_mdev_verify_no_sharing
+> + * vfio_ap_mdev_verify_no_sharing - verifies that the AP matrix is not configured
+> + *
+> + * @matrix_mdev: the mediated matrix device
+>    *
+>    * Verifies that the APQNs derived from the cross product of the AP adapter IDs
+>    * and AP queue indexes comprising the AP matrix are not configured for another
+>    * mediated device. AP queue sharing is not allowed.
+>    *
+> - * @matrix_mdev: the mediated matrix device
+> - *
+> - * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
+> + * Return: 0 if the APQNs are not shared; otherwise returns -EADDRINUSE.
+>    */
+>   static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+>   {
+> @@ -578,7 +579,8 @@ static int vfio_ap_mdev_verify_no_sharin
+>   }
+>   
+>   /**
+> - * assign_adapter_store
+> + * assign_adapter_store - parses the APID from @buf and sets the
+> + * corresponding bit in the mediated matrix device's APM
+>    *
+>    * @dev:	the matrix device
+>    * @attr:	the mediated matrix device's assign_adapter attribute
+> @@ -586,10 +588,7 @@ static int vfio_ap_mdev_verify_no_sharin
+>    *		be assigned
+>    * @count:	the number of bytes in @buf
+>    *
+> - * Parses the APID from @buf and sets the corresponding bit in the mediated
+> - * matrix device's APM.
+> - *
+> - * Returns the number of bytes processed if the APID is valid; otherwise,
+> + * Return: the number of bytes processed if the APID is valid; otherwise,
+>    * returns one of the following errors:
+>    *
+>    *	1. -EINVAL
+> @@ -666,17 +665,15 @@ done:
+>   static DEVICE_ATTR_WO(assign_adapter);
+>   
+>   /**
+> - * unassign_adapter_store
+> + * unassign_adapter_store - parses the APID from @buf and clears the
+> + * corresponding bit in the mediated matrix device's APM
+>    *
+>    * @dev:	the matrix device
+>    * @attr:	the mediated matrix device's unassign_adapter attribute
+>    * @buf:	a buffer containing the adapter number (APID) to be unassigned
+>    * @count:	the number of bytes in @buf
+>    *
+> - * Parses the APID from @buf and clears the corresponding bit in the mediated
+> - * matrix device's APM.
+> - *
+> - * Returns the number of bytes processed if the APID is valid; otherwise,
+> + * Return: the number of bytes processed if the APID is valid; otherwise,
+>    * returns one of the following errors:
+>    *	-EINVAL if the APID is not a number
+>    *	-ENODEV if the APID it exceeds the maximum value configured for the
+> @@ -740,7 +737,9 @@ vfio_ap_mdev_verify_queues_reserved_for_
+>   }
+>   
+>   /**
+> - * assign_domain_store
+> + * assign_domain_store - parses the APQI from @buf and sets the
+> + * corresponding bit in the mediated matrix device's AQM
+> + *
+>    *
+>    * @dev:	the matrix device
+>    * @attr:	the mediated matrix device's assign_domain attribute
+> @@ -748,10 +747,7 @@ vfio_ap_mdev_verify_queues_reserved_for_
+>    *		be assigned
+>    * @count:	the number of bytes in @buf
+>    *
+> - * Parses the APQI from @buf and sets the corresponding bit in the mediated
+> - * matrix device's AQM.
+> - *
+> - * Returns the number of bytes processed if the APQI is valid; otherwise returns
+> + * Return: the number of bytes processed if the APQI is valid; otherwise returns
+>    * one of the following errors:
+>    *
+>    *	1. -EINVAL
+> @@ -824,7 +820,8 @@ static DEVICE_ATTR_WO(assign_domain);
+>   
+>   
+>   /**
+> - * unassign_domain_store
+> + * unassign_domain_store - parses the APQI from @buf and clears the
+> + * corresponding bit in the mediated matrix device's AQM
+>    *
+>    * @dev:	the matrix device
+>    * @attr:	the mediated matrix device's unassign_domain attribute
+> @@ -832,10 +829,7 @@ static DEVICE_ATTR_WO(assign_domain);
+>    *		be unassigned
+>    * @count:	the number of bytes in @buf
+>    *
+> - * Parses the APQI from @buf and clears the corresponding bit in the
+> - * mediated matrix device's AQM.
+> - *
+> - * Returns the number of bytes processed if the APQI is valid; otherwise,
+> + * Return: the number of bytes processed if the APQI is valid; otherwise,
+>    * returns one of the following errors:
+>    *	-EINVAL if the APQI is not a number
+>    *	-ENODEV if the APQI exceeds the maximum value configured for the system
+> @@ -879,17 +873,16 @@ done:
+>   static DEVICE_ATTR_WO(unassign_domain);
+>   
+>   /**
+> - * assign_control_domain_store
+> + * assign_control_domain_store - parses the domain ID from @buf and sets
+> + * the corresponding bit in the mediated matrix device's ADM
+> + *
+>    *
+>    * @dev:	the matrix device
+>    * @attr:	the mediated matrix device's assign_control_domain attribute
+>    * @buf:	a buffer containing the domain ID to be assigned
+>    * @count:	the number of bytes in @buf
+>    *
+> - * Parses the domain ID from @buf and sets the corresponding bit in the mediated
+> - * matrix device's ADM.
+> - *
+> - * Returns the number of bytes processed if the domain ID is valid; otherwise,
+> + * Return: the number of bytes processed if the domain ID is valid; otherwise,
+>    * returns one of the following errors:
+>    *	-EINVAL if the ID is not a number
+>    *	-ENODEV if the ID exceeds the maximum value configured for the system
+> @@ -937,17 +930,15 @@ done:
+>   static DEVICE_ATTR_WO(assign_control_domain);
+>   
+>   /**
+> - * unassign_control_domain_store
+> + * unassign_control_domain_store - parses the domain ID from @buf and
+> + * clears the corresponding bit in the mediated matrix device's ADM
+>    *
+>    * @dev:	the matrix device
+>    * @attr:	the mediated matrix device's unassign_control_domain attribute
+>    * @buf:	a buffer containing the domain ID to be unassigned
+>    * @count:	the number of bytes in @buf
+>    *
+> - * Parses the domain ID from @buf and clears the corresponding bit in the
+> - * mediated matrix device's ADM.
+> - *
+> - * Returns the number of bytes processed if the domain ID is valid; otherwise,
+> + * Return: the number of bytes processed if the domain ID is valid; otherwise,
+>    * returns one of the following errors:
+>    *	-EINVAL if the ID is not a number
+>    *	-ENODEV if the ID exceeds the maximum value configured for the system
+> @@ -1085,14 +1076,12 @@ static const struct attribute_group *vfi
+>   };
+>   
+>   /**
+> - * vfio_ap_mdev_set_kvm
+> + * vfio_ap_mdev_set_kvm - sets all data for @matrix_mdev that are needed
+> + * to manage AP resources for the guest whose state is represented by @kvm
+>    *
+>    * @matrix_mdev: a mediated matrix device
+>    * @kvm: reference to KVM instance
+>    *
+> - * Sets all data for @matrix_mdev that are needed to manage AP resources
+> - * for the guest whose state is represented by @kvm.
+> - *
+>    * Note: The matrix_dev->lock must be taken prior to calling
+>    * this function; however, the lock will be temporarily released while the
+>    * guest's AP configuration is set to avoid a potential lockdep splat.
+> @@ -1100,7 +1089,7 @@ static const struct attribute_group *vfi
+>    * certain circumstances, will result in a circular lock dependency if this is
+>    * done under the @matrix_mdev->lock.
+>    *
+> - * Return 0 if no other mediated matrix device has a reference to @kvm;
+> + * Return: 0 if no other mediated matrix device has a reference to @kvm;
+>    * otherwise, returns an -EPERM.
+>    */
+>   static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+> @@ -1131,8 +1120,8 @@ static int vfio_ap_mdev_set_kvm(struct a
+>   	return 0;
+>   }
+>   
+> -/*
+> - * vfio_ap_mdev_iommu_notifier: IOMMU notifier callback
+> +/**
+> + * vfio_ap_mdev_iommu_notifier - IOMMU notifier callback
+>    *
+>    * @nb: The notifier block
+>    * @action: Action to be taken
+> @@ -1141,6 +1130,7 @@ static int vfio_ap_mdev_set_kvm(struct a
+>    * For an UNMAP request, unpin the guest IOVA (the NIB guest address we
+>    * pinned before). Other requests are ignored.
+>    *
+> + * Return: for an UNMAP request, NOFITY_OK; otherwise NOTIFY_DONE.
+>    */
+>   static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
+>   				       unsigned long action, void *data)
+> @@ -1161,19 +1151,17 @@ static int vfio_ap_mdev_iommu_notifier(s
+>   }
+>   
+>   /**
+> - * vfio_ap_mdev_unset_kvm
+> + * vfio_ap_mdev_unset_kvm - performs clean-up of resources no longer needed
+> + * by @matrix_mdev.
+>    *
+>    * @matrix_mdev: a matrix mediated device
+>    *
+> - * Performs clean-up of resources no longer needed by @matrix_mdev.
+> - *
+>    * Note: The matrix_dev->lock must be taken prior to calling
+>    * this function; however, the lock will be temporarily released while the
+>    * guest's AP configuration is cleared to avoid a potential lockdep splat.
+>    * The kvm->lock is taken to clear the guest's AP configuration which, under
+>    * certain circumstances, will result in a circular lock dependency if this is
+>    * done under the @matrix_mdev->lock.
+> - *
+>    */
+>   static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+>   {
+
