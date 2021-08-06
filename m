@@ -8,140 +8,148 @@ X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8809CC4320A
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 07:26:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83D22C4320A
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 07:30:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6591260F0F
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 07:26:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 61DFC60F38
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 07:30:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235225AbhHFH0c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 Aug 2021 03:26:32 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24034 "EHLO
+        id S243675AbhHFHam (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 Aug 2021 03:30:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:27654 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S243085AbhHFH0c (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Aug 2021 03:26:32 -0400
+        by vger.kernel.org with ESMTP id S243751AbhHFHaY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Aug 2021 03:30:24 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1628234776;
+        s=mimecast20190719; t=1628235009;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ZmCWNcZsQzuYzmlOhaB93+dvV+Gy0mN6pPvnW6rjRRc=;
-        b=X16SQw6zUUKPhYwkVAiRJMie7R4BMNYyB4MIeHczX7MkdjINi8MCG57Rj9G/O1hvjVK+cv
-        PTL5NAWHGQOeDXBXyZpI6liCZYziceqHdTblUUmftsSw3qdvMbyTfF8KNWloKcfL0hDvOJ
-        pWMWSrxGWIu5wQUkdf3jIopqqfI0u8s=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-495--SrFSDvNNW68Dr9JGZvlww-1; Fri, 06 Aug 2021 03:26:14 -0400
-X-MC-Unique: -SrFSDvNNW68Dr9JGZvlww-1
-Received: by mail-wm1-f71.google.com with SMTP id c41-20020a05600c4a29b0290253935d0f82so3566401wmp.9
-        for <linux-s390@vger.kernel.org>; Fri, 06 Aug 2021 00:26:13 -0700 (PDT)
+        bh=/BY4t2yJmbfSKPEbLTSJy0hz6AF9n9YxHRdnbcJfERs=;
+        b=QTasJsWZTZOWt1Vh4h8C7ojHdRjdQ5uPwVkaKb8x41R0tHPo/7POEcQpeb41TFftDn1/Xv
+        QVz5UHn331GeuZp7xFOcV1cUqnb0S6KlrthLwUqdEcaBk/o/vqlJC1foruRUmqxa0DVXJA
+        s81D5kDGtEmed1Rxfxj/dJJvhXEv7cI=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-46-rvwFtBt_MO-X4D2eExq7Wg-1; Fri, 06 Aug 2021 03:30:07 -0400
+X-MC-Unique: rvwFtBt_MO-X4D2eExq7Wg-1
+Received: by mail-wm1-f69.google.com with SMTP id 21-20020a05600c0255b02902571fa93802so2723983wmj.1
+        for <linux-s390@vger.kernel.org>; Fri, 06 Aug 2021 00:30:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:organization:subject
+        h=x-gm-message-state:subject:to:cc:references:from:organization
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=ZmCWNcZsQzuYzmlOhaB93+dvV+Gy0mN6pPvnW6rjRRc=;
-        b=XQXAgPD+35jzi7Y8A74RQh2xdNc5dp4tIa2Mxinpdc1Ecg31G+rvNpaf5tGdH1lmHY
-         S5mUkqKgh9BPr+oJHVRzhArVLkhXR2u3n/iyfwBciQq74QK0OccxzlF8YHbVDbNmbAEM
-         gVEgXGCn8mXtOzAIm6gDi7bQcTtegmoX9Xell+rI6wKdaDl1t9kciSnFF2yAJRSQEbxC
-         4VknNHkS3mwpopV/7n91k1QxyGgAUFNttMnuygmG1T7/URxNTnV3e85+kbzD5U2YQUAm
-         eB9IcacRAZeM1Zq0+TYx4Ff44EBtmTOdJHnggEAYDg1NgSZIYH6oigjDlCaUTzLwt/ag
-         fEdA==
-X-Gm-Message-State: AOAM533sZFC6dupowbAaK9Hb1ivVkOzQhk9Zzoopl/zNVmhkE4MqhWoW
-        Jh6N1SlrXrz+p4dncML8yPhKf5tjShAR4qb6DqgxuUiJzMbcXNXfVpdSx0kuEHwUE9nqCDoHlLD
-        zf/dJRYkz4m3RDEJ3TMh4yA==
-X-Received: by 2002:a7b:c441:: with SMTP id l1mr1794915wmi.69.1628234772927;
-        Fri, 06 Aug 2021 00:26:12 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw1R6/lybPHP6E+xmkyFOI9O0T7/CYEHmOzYi+aT4Ky2+3mi2P/oDOj576zRfFwUsq2Vc8hog==
-X-Received: by 2002:a7b:c441:: with SMTP id l1mr1794892wmi.69.1628234772720;
-        Fri, 06 Aug 2021 00:26:12 -0700 (PDT)
+        bh=/BY4t2yJmbfSKPEbLTSJy0hz6AF9n9YxHRdnbcJfERs=;
+        b=d8kH1wuV1SQkdjGf3na0bVLNaVGYSMWuqyPK+ndPp3vAMSV4YIuBHyyvIujwFzvOFn
+         9FmvqfVzW8zpiMKcV8hOPIhz/viFWf+4H8czbCO3fLe9p039nu/pg3trnCSgGf7YrFJZ
+         HijT9B7LhOWhkMffiKGwjgyXId/howNEuR69MATNehkHyphv+V6GJHZGSg12QMii6QcT
+         Wew5KGZAL5EJK0leNDs2puwCff4a9M4yd5sePO+Bccd6Irx7oLa9L/R3WV9io8Y3yoII
+         s3DzBjgCNP1G6nkWwMXNoZwTs/Phaa32BlYlUMlAwBx5xlDcHCdM19l6cKN20aoBti6m
+         YrhA==
+X-Gm-Message-State: AOAM533ZMrsECgacIG1oXZA3dn0EEiwDAh7awRX5NCswI20dJEp7lar4
+        4oIhrDpf9GBh8vJj/kvV1F8MWnYMNke/69UHo6H0f598Cu3E3E5/UJk5vFt46pLtoGmxXDT3R9u
+        YaJNPBHp2Yn8et8/z09DGvA==
+X-Received: by 2002:a05:600c:3b94:: with SMTP id n20mr1781096wms.54.1628235005748;
+        Fri, 06 Aug 2021 00:30:05 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyVZHZyH4+bvjg65UxBPJGLejAZAJ2Ik8iYydKdbU4cBd0fD679iDO5ATxjE2sOFL4jRsl9dA==
+X-Received: by 2002:a05:600c:3b94:: with SMTP id n20mr1781075wms.54.1628235005511;
+        Fri, 06 Aug 2021 00:30:05 -0700 (PDT)
 Received: from [192.168.3.132] (p5b0c6104.dip0.t-ipconnect.de. [91.12.97.4])
-        by smtp.gmail.com with ESMTPSA id l5sm9908011wrc.90.2021.08.06.00.26.11
+        by smtp.gmail.com with ESMTPSA id b6sm10178492wrn.9.2021.08.06.00.30.04
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 06 Aug 2021 00:26:12 -0700 (PDT)
+        Fri, 06 Aug 2021 00:30:05 -0700 (PDT)
+Subject: Re: [PATCH v3 02/14] KVM: s390: pv: avoid stall notifications for
+ some UVCs
 To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com,
         thuth@redhat.com, pasic@linux.ibm.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, Ulrich.Weigand@de.ibm.com
 References: <20210804154046.88552-1-imbrenda@linux.ibm.com>
- <20210804154046.88552-2-imbrenda@linux.ibm.com>
+ <20210804154046.88552-3-imbrenda@linux.ibm.com>
 From:   David Hildenbrand <david@redhat.com>
 Organization: Red Hat
-Subject: Re: [PATCH v3 01/14] KVM: s390: pv: add macros for UVC CC values
-Message-ID: <f3fc81a7-ea71-56f6-16e0-e43fc36d646e@redhat.com>
-Date:   Fri, 6 Aug 2021 09:26:11 +0200
+Message-ID: <7ef282bb-d90f-9cbb-678b-4293790fb8c6@redhat.com>
+Date:   Fri, 6 Aug 2021 09:30:04 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210804154046.88552-2-imbrenda@linux.ibm.com>
+In-Reply-To: <20210804154046.88552-3-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 04.08.21 17:40, Claudio Imbrenda wrote:
-> Add macros to describe the 4 possible CC values returned by the UVC
-> instruction.
+> Improve make_secure_pte to avoid stalls when the system is heavily
+> overcommitted. This was especially problematic in kvm_s390_pv_unpack,
+> because of the loop over all pages that needed unpacking.
+> 
+> Also fix kvm_s390_pv_init_vm to avoid stalls when the system is heavily
+> overcommitted.
+
+I suggest splitting this change into a separate patch and adding a bit 
+more meat to the description why using the other variant is possible in 
+the called context. I was kind of surprise to find that change buried in 
+this patch.
+
+Then, you can give both patches a more descriptive patch subject.
+
 > 
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Fixes: 214d9bbcd3a672 ("s390/mm: provide memory management functions for protected KVM guests")
 > ---
->   arch/s390/include/asm/uv.h | 5 +++++
->   1 file changed, 5 insertions(+)
+>   arch/s390/kernel/uv.c | 29 +++++++++++++++++++++++------
+>   arch/s390/kvm/pv.c    |  2 +-
+>   2 files changed, 24 insertions(+), 7 deletions(-)
 > 
-> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-> index 12c5f006c136..b35add51b967 100644
-> --- a/arch/s390/include/asm/uv.h
-> +++ b/arch/s390/include/asm/uv.h
-> @@ -18,6 +18,11 @@
->   #include <asm/page.h>
->   #include <asm/gmap.h>
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index aeb0a15bcbb7..68a8fbafcb9c 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -180,7 +180,7 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
+>   {
+>   	pte_t entry = READ_ONCE(*ptep);
+>   	struct page *page;
+> -	int expected, rc = 0;
+> +	int expected, cc = 0;
 >   
-> +#define UVC_CC_OK	0
-> +#define UVC_CC_ERROR	1
-> +#define UVC_CC_BUSY 	2
-> +#define UVC_CC_PARTIAL	3
-> +
->   #define UVC_RC_EXECUTED		0x0001
->   #define UVC_RC_INV_CMD		0x0002
->   #define UVC_RC_INV_STATE	0x0003
-> 
+>   	if (!pte_present(entry))
+>   		return -ENXIO;
+> @@ -196,12 +196,25 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
+>   	if (!page_ref_freeze(page, expected))
+>   		return -EBUSY;
+>   	set_bit(PG_arch_1, &page->flags);
+> -	rc = uv_call(0, (u64)uvcb);
+> +	/*
+> +	 * If the UVC does not succeed or fail immediately, we don't want to
+> +	 * loop for long, or we might get stall notifications.
+> +	 * On the other hand, this is a complex scenario and we are holding a lot of
+> +	 * locks, so we can't easily sleep and reschedule. We try only once,
+> +	 * and if the UVC returned busy or partial completion, we return
+> +	 * -EAGAIN and we let the callers deal with it.
+> +	 */
+> +	cc = __uv_call(0, (u64)uvcb);
+>   	page_ref_unfreeze(page, expected);
+> -	/* Return -ENXIO if the page was not mapped, -EINVAL otherwise */
+> -	if (rc)
+> -		rc = uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+> -	return rc;
+> +	/*
+> +	 * Return -ENXIO if the page was not mapped, -EINVAL for other errors.
+> +	 * If busy or partially completed, return -EAGAIN.
+> +	 */
+> +	if (cc == UVC_CC_OK)
+> +		return 0;
+> +	else if (cc == UVC_CC_BUSY || cc == UVC_CC_PARTIAL)
+> +		return -EAGAIN;
+> +	return uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+>   }
 
-Do we have any users we could directly fix up? AFAIKs, most users don't 
-really care about the cc value, only about cc vs !cc.
-
-The only instances I was able to spot quickly:
-
-
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 12c5f006c136..dd72d325f9e8 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -233,7 +233,7 @@ static inline int uv_call(unsigned long r1, unsigned 
-long r2)
-
-         do {
-                 cc = __uv_call(r1, r2);
--       } while (cc > 1);
-+       } while (cc >= UVC_CC_BUSY);
-         return cc;
-  }
-
-@@ -245,7 +245,7 @@ static inline int uv_call_sched(unsigned long r1, 
-unsigned long r2)
-         do {
-                 cc = __uv_call(r1, r2);
-                 cond_resched();
--       } while (cc > 1);
-+       } while (cc >= UVC_CC_BUSY);
-         return cc;
-  }
-
-
-Of course, we could replace all checks for cc vs !cc with "cc != 
-UVC_CC_OK" vs "cc == UVC_CC_OK".
+That looks conceptually like the right thing to me.
 
 -- 
 Thanks,
