@@ -2,103 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4A0FC4338F
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 08:47:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D9D0C4338F
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 09:34:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B326660F59
-	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 08:47:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73B95611B0
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Aug 2021 09:34:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241151AbhHFIrm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 Aug 2021 04:47:42 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18362 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231572AbhHFIrl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Aug 2021 04:47:41 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1768YZLi172583;
-        Fri, 6 Aug 2021 04:47:26 -0400
+        id S244478AbhHFJfM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 Aug 2021 05:35:12 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53732 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231553AbhHFJfL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Aug 2021 05:35:11 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1769Y826107788;
+        Fri, 6 Aug 2021 05:34:55 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=ppgRYHyx08vp3ntOoPEDrsaY15wraqD6zbtQ/7JDfkk=;
- b=SwQkIj47na9WmWdyt5DhN1PmkfoGvqmewt/JvlISvySoRM1cnAPUS2w1LP1xg1eF2pWJ
- 5w+oFTQvPJNOtrB0lPTsjqivvut6SeGu2lyXXjyFalGyyKBTxZmywx7MEsBIuWrQhcgl
- EFMSpLxUwdyp8jUrveoBwiIYnVPWjeWDeL5nzO/mSlY1wAfyb8zp0Pia/go1FIazIL5J
- wPXtrnk3QHDLXjjTuPHOJm+/XEYhQ4ma595OSCb29na+2j+R7U78REmxFiL/6KFXl/3J
- gn0P5fytsmGjAVJrYoJOuDjSHIQ6CRYm1U5v8oO44ArNSXpz4hM9LFwQBcySX52+TZNS jA== 
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=3N1ANuGehQP50JYQGMKyzDGlpKf1Q5tikfCuzLVOuDY=;
+ b=EnXYc+MGpwvYLB3WwYdqN8RSjAfSjbSDrK9+U3F/6CT5QoZa1d9XvSugCNcE7cCT9LGY
+ 8itp/xxtPEm1i7sueVLtHfeZvPdncXM17P4mO9+WU/st+uZzTa4Q2cF/43fqXX0iIQ+T
+ jPh80nHBk1iMquUCvLLVCuRPNhPFbYslTXDJRZnkYgWlUwevhTvzKIuQ8UmqoGcuhwoq
+ a5dy7EpF1NXesoK8p2gnrPlDGKEE08HxEpFn8Ub2/6p6BItWPl8jEGPCd5S+8QFzo4Wy
+ RPWIOwsSb1FmLKTG3F9mA5LCihjpsynHo79ICCht4wWHX0Wqjte36qf/hSTpn5ep+PFe KA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a8k45n9a2-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a8m9ukwkj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Aug 2021 04:47:26 -0400
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1768YvV4174608;
-        Fri, 6 Aug 2021 04:47:26 -0400
+        Fri, 06 Aug 2021 05:34:55 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1769YEIv108199;
+        Fri, 6 Aug 2021 05:34:55 -0400
 Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3a8k45n99d-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3a8m9ukwk6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Aug 2021 04:47:25 -0400
+        Fri, 06 Aug 2021 05:34:55 -0400
 Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1768be2g025145;
-        Fri, 6 Aug 2021 08:47:23 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 3a4wshvw54-1
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1769VrnJ007629;
+        Fri, 6 Aug 2021 09:34:53 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3a4wshvyf8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Aug 2021 08:47:23 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1768lJjr50528652
+        Fri, 06 Aug 2021 09:34:53 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1769Ynn556361348
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 6 Aug 2021 08:47:19 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C8FA5205A;
-        Fri,  6 Aug 2021 08:47:19 +0000 (GMT)
-Received: from osiris (unknown [9.145.14.196])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 5BC9E52052;
-        Fri,  6 Aug 2021 08:47:19 +0000 (GMT)
-Date:   Fri, 6 Aug 2021 10:47:17 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
+        Fri, 6 Aug 2021 09:34:49 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ED78D4205E;
+        Fri,  6 Aug 2021 09:34:48 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8BD6B4204F;
+        Fri,  6 Aug 2021 09:34:48 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.6.208])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  6 Aug 2021 09:34:48 +0000 (GMT)
+Date:   Fri, 6 Aug 2021 11:33:25 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v1] s390/mm: remove unused cmma functions
-Message-ID: <YQz3FQVRnuZuYT3+@osiris>
-References: <20210806075430.6103-1-david@redhat.com>
+Cc:     kvm@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, thuth@redhat.com, pasic@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Ulrich.Weigand@de.ibm.com
+Subject: Re: [PATCH v3 02/14] KVM: s390: pv: avoid stall notifications for
+ some UVCs
+Message-ID: <20210806113325.51279c4c@p-imbrenda>
+In-Reply-To: <7ef282bb-d90f-9cbb-678b-4293790fb8c6@redhat.com>
+References: <20210804154046.88552-1-imbrenda@linux.ibm.com>
+        <20210804154046.88552-3-imbrenda@linux.ibm.com>
+        <7ef282bb-d90f-9cbb-678b-4293790fb8c6@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210806075430.6103-1-david@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 88DveIWrVuZQlhASRNFLsuVV0EHxwyDy
-X-Proofpoint-ORIG-GUID: 4_FU3BHFTXaTzD0GoO6RHi2ue0OQsFy9
+X-Proofpoint-GUID: PwUKpNAF2UG9b-gCw-m3CuWXIXWUCsC2
+X-Proofpoint-ORIG-GUID: pRwNuTELVZAyWv-7QB42H4KYKu7I1Wz-
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-08-06_02:2021-08-05,2021-08-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- clxscore=1015 impostorscore=0 mlxscore=0 adultscore=0 phishscore=0
- priorityscore=1501 suspectscore=0 malwarescore=0 mlxlogscore=815
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108060060
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 bulkscore=0 spamscore=0 mlxscore=0 malwarescore=0
+ priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0 clxscore=1015
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108060067
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 06, 2021 at 09:54:30AM +0200, David Hildenbrand wrote:
-> The last user of arch_set_page_states(), arch_set_page_nodat() and
-> arch_test_page_nodat() was removed in commit 394216275c7d
-> ("s390: remove broken hibernate / power management support"),
-> let's remove these functions.
-> 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  arch/s390/include/asm/page.h |  3 ---
->  arch/s390/mm/page-states.c   | 43 ------------------------------------
->  2 files changed, 46 deletions(-)
+On Fri, 6 Aug 2021 09:30:04 +0200
+David Hildenbrand <david@redhat.com> wrote:
 
-Applied, thanks.
+> On 04.08.21 17:40, Claudio Imbrenda wrote:
+> > Improve make_secure_pte to avoid stalls when the system is heavily
+> > overcommitted. This was especially problematic in
+> > kvm_s390_pv_unpack, because of the loop over all pages that needed
+> > unpacking.
+> > 
+> > Also fix kvm_s390_pv_init_vm to avoid stalls when the system is
+> > heavily overcommitted.  
+> 
+> I suggest splitting this change into a separate patch and adding a
+> bit more meat to the description why using the other variant is
+> possible in the called context. I was kind of surprise to find that
+> change buried in this patch.
+> 
+> Then, you can give both patches a more descriptive patch subject.
+
+fair enough, I'll split them
+
+> > 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > Fixes: 214d9bbcd3a672 ("s390/mm: provide memory management
+> > functions for protected KVM guests") ---
+> >   arch/s390/kernel/uv.c | 29 +++++++++++++++++++++++------
+> >   arch/s390/kvm/pv.c    |  2 +-
+> >   2 files changed, 24 insertions(+), 7 deletions(-)
+> > 
+> > diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> > index aeb0a15bcbb7..68a8fbafcb9c 100644
+> > --- a/arch/s390/kernel/uv.c
+> > +++ b/arch/s390/kernel/uv.c
+> > @@ -180,7 +180,7 @@ static int make_secure_pte(pte_t *ptep,
+> > unsigned long addr, {
+> >   	pte_t entry = READ_ONCE(*ptep);
+> >   	struct page *page;
+> > -	int expected, rc = 0;
+> > +	int expected, cc = 0;
+> >   
+> >   	if (!pte_present(entry))
+> >   		return -ENXIO;
+> > @@ -196,12 +196,25 @@ static int make_secure_pte(pte_t *ptep,
+> > unsigned long addr, if (!page_ref_freeze(page, expected))
+> >   		return -EBUSY;
+> >   	set_bit(PG_arch_1, &page->flags);
+> > -	rc = uv_call(0, (u64)uvcb);
+> > +	/*
+> > +	 * If the UVC does not succeed or fail immediately, we
+> > don't want to
+> > +	 * loop for long, or we might get stall notifications.
+> > +	 * On the other hand, this is a complex scenario and we
+> > are holding a lot of
+> > +	 * locks, so we can't easily sleep and reschedule. We try
+> > only once,
+> > +	 * and if the UVC returned busy or partial completion, we
+> > return
+> > +	 * -EAGAIN and we let the callers deal with it.
+> > +	 */
+> > +	cc = __uv_call(0, (u64)uvcb);
+> >   	page_ref_unfreeze(page, expected);
+> > -	/* Return -ENXIO if the page was not mapped, -EINVAL
+> > otherwise */
+> > -	if (rc)
+> > -		rc = uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+> > -	return rc;
+> > +	/*
+> > +	 * Return -ENXIO if the page was not mapped, -EINVAL for
+> > other errors.
+> > +	 * If busy or partially completed, return -EAGAIN.
+> > +	 */
+> > +	if (cc == UVC_CC_OK)
+> > +		return 0;
+> > +	else if (cc == UVC_CC_BUSY || cc == UVC_CC_PARTIAL)
+> > +		return -EAGAIN;
+> > +	return uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+> >   }  
+> 
+> That looks conceptually like the right thing to me.
+> 
+
