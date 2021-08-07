@@ -2,77 +2,386 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA91EC4338F
-	for <linux-s390@archiver.kernel.org>; Sat,  7 Aug 2021 08:50:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2500C4338F
+	for <linux-s390@archiver.kernel.org>; Sat,  7 Aug 2021 23:40:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8096361154
-	for <linux-s390@archiver.kernel.org>; Sat,  7 Aug 2021 08:50:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8748960F01
+	for <linux-s390@archiver.kernel.org>; Sat,  7 Aug 2021 23:40:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231576AbhHGIuY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 7 Aug 2021 04:50:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44318 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229636AbhHGIuY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 7 Aug 2021 04:50:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 14991610A6;
-        Sat,  7 Aug 2021 08:50:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628326207;
-        bh=kRuLPyTTLNEJA93l6MCV3zc+aiO70ovcN1Fcy86tiHI=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=TfmzUH9zmF7FrnPOQaXDem1ecfdIT932F1J6xHtWZd+A92Mycf/ZsOB3ywfTkPZ0r
-         5vJtv874YIQHmfDqYOjl7N56pmfTed0caYhvEKq09aigGAKd+8vh74l5bDxyRR7Nmg
-         aZ+qhShTEoTfcTnFl+5Cu8z1/FIGhJbuPLUkEfKXkFdmeAmG0eZ2vhC1rxPuGOMs2q
-         jPs5+TUhDTQNXQklSy4h9DPkMe8tCnKhz9XJqB/Aw6zkXSzqLyxhpaCn/bsqiegbZC
-         96gWejRLjtNvyEwwQZSGdvI1nIqHL8cH7Vaaq1HrXhS1x7rAgVgZbfpIC42EkIVQo2
-         hj3szk2olj6sg==
-Content-Type: text/plain; charset="utf-8"
+        id S230086AbhHGXk1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 7 Aug 2021 19:40:27 -0400
+Received: from mailgate.ics.forth.gr ([139.91.1.2]:61380 "EHLO
+        mailgate.ics.forth.gr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230101AbhHGXk1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 7 Aug 2021 19:40:27 -0400
+X-Greylist: delayed 2063 seconds by postgrey-1.27 at vger.kernel.org; Sat, 07 Aug 2021 19:40:26 EDT
+Received: from av3.ics.forth.gr (av3in.ics.forth.gr [139.91.1.77])
+        by mailgate.ics.forth.gr (8.15.2/ICS-FORTH/V10-1.8-GATE) with ESMTP id 177N5gKa095300
+        for <linux-s390@vger.kernel.org>; Sun, 8 Aug 2021 02:05:43 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; d=ics.forth.gr; s=av; c=relaxed/simple;
+        q=dns/txt; i=@ics.forth.gr; t=1628377537; x=1630969537;
+        h=From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=ehVNo9Zi6sdRJRX9bB3/TWxcekSmcVgfmBxE6YPsI3w=;
+        b=Vn8KLoierPuHI8MW2ysbxFsNs0R1/d7q+WCPqL0FP1hL8/Wqy1DjHIOGF1iDgnEp
+        ip068onKSeeJlurh58tuPFvFS6/SIMVfsQlkL4Bji7odXo3patdPYge8BN14Zna/
+        86JUWEuMBm7gNd1Cjex5BiqQdjZb+oBkuVtlt4W3SzAszGa3subTJozdpBOkcDZP
+        MIHpEk2dDINwVznQgyddcp8awdY24WmL07t3hiZI+CfyDczQWfX1COnljU/g/eH1
+        gxZcOO9ulb2C1V7eqTmtM4YSTSlF1g5f6LVE0Drv0KKMz+ptdpYNS/ke4hG9dvxx
+        2GtZ2CqaGS26bodX1D0t2w==;
+X-AuditID: 8b5b014d-b84f570000005d46-b6-610f11c161ba
+Received: from enigma.ics.forth.gr (webmail.ics.forth.gr [139.91.151.35])
+        by av3.ics.forth.gr (Symantec Messaging Gateway) with SMTP id A6.94.23878.1C11F016; Sun,  8 Aug 2021 02:05:37 +0300 (EEST)
+X-ICS-AUTH-INFO: Authenticated user:  at ics.forth.gr
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next 0/3] s390/qeth: Add bridge to switchdev LEARNING_SYNC
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162832620699.3915.7166207623966266187.git-patchwork-notify@kernel.org>
-Date:   Sat, 07 Aug 2021 08:50:06 +0000
-References: <20210806152603.375642-1-kgraul@linux.ibm.com>
-In-Reply-To: <20210806152603.375642-1-kgraul@linux.ibm.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com,
-        guvenc@linux.ibm.com, jwi@linux.ibm.com, wenjia@linux.ibm.com,
-        wintera@linux.ibm.com
+Date:   Sun, 08 Aug 2021 02:05:34 +0300
+From:   Nick Kossifidis <mick@ics.forth.gr>
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Len Brown <lenb@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Will Deacon <will@kernel.org>, devicetree@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu, linux-acpi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-mm@kvack.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        x86@kernel.org
+Subject: Re: [PATCH v2] memblock: make memblock_find_in_range method private
+Organization: FORTH
+In-Reply-To: <20210802063737.22733-1-rppt@kernel.org>
+References: <20210802063737.22733-1-rppt@kernel.org>
+Message-ID: <d0965f23c7ffb6b46a5b033fe242fc25@mailhost.ics.forth.gr>
+X-Sender: mick@mailhost.ics.forth.gr
+User-Agent: Roundcube Webmail/1.3.16
+X-Brightmail-Tracker: H4sIAAAAAAAAA02Sf1CTdRzH++559jwPy8GzseQJU7qZ5+nZzAruc1ZaavJoCnbnZWdXuMsn
+        RiFyY3LU6TkaoPxspoQ848doBR4329puDbgGbOxCiFBHt7NyHYqFCxTbEHZhEBvXHf+97v15
+        3+fz+uNDYVKDMJnKydNw6jxlrpwQ4ZXv1K191i1JUD4XHFgPDRYzAY45noS6S04cwtZ5AqZa
+        qxDctZ5B0OwdFkL95AIB1/gZIehMFgImmtoRfPFtEpjPtWDw92A/CZ237hHQ1v0ZAtuYXwgj
+        XQ0ElNscCH43Lwjhu3AJAfoWHQaeWheCq12XhdDZMCAEX69RAMGRKgzK+ATor+4VwNCPPiGU
+        urwkeC1OAdy4oCXAbqvFoO9TNwYlN1MhYh0TvrqOnS2twdlSXxvOmpvMiB3xX8fYyWAQZ923
+        PQTbd3aaZDv5AMnaL21kbe3lBGsLfU6y94eHSfbKxTmc1X/Zi9imgTfZnkYzeYA5LHr5KJeb
+        U8ipN287IlLVG8j8XzKLrn1jwLTIsa0CURRDv8j45gsrkIiS0j8gZtZvxCpQ3GKeyhhc5SjK
+        YlrCDNTfwaOM0cDU/tyDljiF0TkMsT5Or2OK9WOxnKA3MM0+d6wvo9cys6ZubKlfvILhJ5+K
+        ciK9jwkOm8goJ9CJTChwXRjluMW7v45eie2RLrpdqKzGlhx2MaG6B4Ilt2eYB3OjZNT/iUW2
+        N8r1SMIvM+WXmfLLTI0Ia0e0svAFRc77BYoPjqs1KkW22oZi/4P2d6Df7PcUHiSgkAcxFCaX
+        iS0X45VS8VHlx59w6uNZ6hO5XIEHraJweZJYrNBnSelspYb7iOPyOfX/UwEVl6wV1PNPG8mX
+        DFpTsPGQzP39TsmmO6tP2ncv6M4VzVc57696bHTs8qm+vYcOjpdmqsxZ0LohObjj6hrvdq1f
+        I/mnLPHRG5E9zh0tt1wZoeffSlOlNuklJfFTp/l/WwfzxR++W5OW8soNa2Bkxhx5eHJ3w3RN
+        +t1NCfuO+eP3q/plzZX6mYk/u3em3JwOPVp/Xl8k+Utr+urE3qSuY18nD7auxL0R0dsZ40+u
+        TpcoTX7f0EQ483RwaOjIH6fSqJQ9Z19bk/X6rnLXe2EnFbKczwxtXoFryrYatyQGHk5VR/J0
+        /Nbtgx0yWx3nuC05iGUECouyO6zpjx/+abojfGCcaps707OyWI4XqJRbNmLqAuV/e64RJK4D
+        AAA=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
-
-This series was applied to netdev/net-next.git (refs/heads/master):
-
-On Fri,  6 Aug 2021 17:26:00 +0200 you wrote:
-> Please apply the following patch series for qeth to netdev's net-next tree.
+Στις 2021-08-02 09:37, Mike Rapoport έγραψε:
+> From: Mike Rapoport <rppt@linux.ibm.com>
 > 
-> The netlink bridgeport attribute LEARNING_SYNC can be used to enable
-> qeth interfaces to report MAC addresses that are reachable via this
-> qeth interface to the attached software bridge via switchdev
-> notifiers SWITCHDEV_FDB_ADD_TO_BRIDGE and SWITCHDEV_FDB_DEL_TO_BRIDGE.
+> There are a lot of uses of memblock_find_in_range() along with
+> memblock_reserve() from the times memblock allocation APIs did not 
+> exist.
 > 
-> [...]
+> memblock_find_in_range() is the very core of memblock allocations, so 
+> any
+> future changes to its internal behaviour would mandate updates of all 
+> the
+> users outside memblock.
+> 
+> Replace the calls to memblock_find_in_range() with an equivalent calls 
+> to
+> memblock_phys_alloc() and memblock_phys_alloc_range() and make
+> memblock_find_in_range() private method of memblock.
+> 
+> This simplifies the callers, ensures that (unlikely) errors in
+> memblock_reserve() are handled and improves maintainability of
+> memblock_find_in_range().
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+> v2: don't change error message in arm::reserve_crashkernel(), per 
+> Russell
+> v1: https://lore.kernel.org/lkml/20210730104039.7047-1-rppt@kernel.org
+> 
+>  arch/arm/kernel/setup.c           | 18 +++++--------
+>  arch/arm64/kvm/hyp/reserved_mem.c |  9 +++----
+>  arch/arm64/mm/init.c              | 36 ++++++++-----------------
+>  arch/mips/kernel/setup.c          | 14 +++++-----
+>  arch/riscv/mm/init.c              | 44 ++++++++++---------------------
+>  arch/s390/kernel/setup.c          | 10 ++++---
+>  arch/x86/kernel/aperture_64.c     |  5 ++--
+>  arch/x86/mm/init.c                | 21 +++++++++------
+>  arch/x86/mm/numa.c                |  5 ++--
+>  arch/x86/mm/numa_emulation.c      |  5 ++--
+>  arch/x86/realmode/init.c          |  2 +-
+>  drivers/acpi/tables.c             |  5 ++--
+>  drivers/base/arch_numa.c          |  5 +---
+>  drivers/of/of_reserved_mem.c      | 12 ++++++---
+>  include/linux/memblock.h          |  2 --
+>  mm/memblock.c                     |  2 +-
+>  16 files changed, 78 insertions(+), 117 deletions(-)
+> 
+> diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+> index f97eb2371672..67f5421b2af7 100644
+> --- a/arch/arm/kernel/setup.c
+> +++ b/arch/arm/kernel/setup.c
+> @@ -1012,31 +1012,25 @@ static void __init reserve_crashkernel(void)
+>  		unsigned long long lowmem_max = __pa(high_memory - 1) + 1;
+>  		if (crash_max > lowmem_max)
+>  			crash_max = lowmem_max;
+> -		crash_base = memblock_find_in_range(CRASH_ALIGN, crash_max,
+> -						    crash_size, CRASH_ALIGN);
+> +
+> +		crash_base = memblock_phys_alloc_range(crash_size, CRASH_ALIGN,
+> +						       CRASH_ALIGN, crash_max);
+>  		if (!crash_base) {
+>  			pr_err("crashkernel reservation failed - No suitable area 
+> found.\n");
+>  			return;
+>  		}
+>  	} else {
+> +		unsigned long long crash_max = crash_base + crash_size;
+>  		unsigned long long start;
+> 
+> -		start = memblock_find_in_range(crash_base,
+> -					       crash_base + crash_size,
+> -					       crash_size, SECTION_SIZE);
+> +		start = memblock_phys_alloc_range(crash_size, SECTION_SIZE,
+> +						  crash_base, crash_max);
+>  		if (start != crash_base) {
+>  			pr_err("crashkernel reservation failed - memory is in use.\n");
+>  			return;
+>  		}
+>  	}
+> 
+> -	ret = memblock_reserve(crash_base, crash_size);
+> -	if (ret < 0) {
+> -		pr_warn("crashkernel reservation failed - memory is in use 
+> (0x%lx)\n",
+> -			(unsigned long)crash_base);
+> -		return;
+> -	}
+> -
+>  	pr_info("Reserving %ldMB of memory at %ldMB for crashkernel (System
+> RAM: %ldMB)\n",
+>  		(unsigned long)(crash_size >> 20),
+>  		(unsigned long)(crash_base >> 20),
+> diff --git a/arch/arm64/kvm/hyp/reserved_mem.c
+> b/arch/arm64/kvm/hyp/reserved_mem.c
+> index d654921dd09b..578670e3f608 100644
+> --- a/arch/arm64/kvm/hyp/reserved_mem.c
+> +++ b/arch/arm64/kvm/hyp/reserved_mem.c
+> @@ -92,12 +92,10 @@ void __init kvm_hyp_reserve(void)
+>  	 * this is unmapped from the host stage-2, and fallback to PAGE_SIZE.
+>  	 */
+>  	hyp_mem_size = hyp_mem_pages << PAGE_SHIFT;
+> -	hyp_mem_base = memblock_find_in_range(0, memblock_end_of_DRAM(),
+> -					      ALIGN(hyp_mem_size, PMD_SIZE),
+> -					      PMD_SIZE);
+> +	hyp_mem_base = memblock_phys_alloc(ALIGN(hyp_mem_size, PMD_SIZE),
+> +					   PMD_SIZE);
+>  	if (!hyp_mem_base)
+> -		hyp_mem_base = memblock_find_in_range(0, memblock_end_of_DRAM(),
+> -						      hyp_mem_size, PAGE_SIZE);
+> +		hyp_mem_base = memblock_phys_alloc(hyp_mem_size, PAGE_SIZE);
+>  	else
+>  		hyp_mem_size = ALIGN(hyp_mem_size, PMD_SIZE);
+> 
+> @@ -105,7 +103,6 @@ void __init kvm_hyp_reserve(void)
+>  		kvm_err("Failed to reserve hyp memory\n");
+>  		return;
+>  	}
+> -	memblock_reserve(hyp_mem_base, hyp_mem_size);
+> 
+>  	kvm_info("Reserved %lld MiB at 0x%llx\n", hyp_mem_size >> 20,
+>  		 hyp_mem_base);
+> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+> index 8490ed2917ff..d566478a06dd 100644
+> --- a/arch/arm64/mm/init.c
+> +++ b/arch/arm64/mm/init.c
+> @@ -74,6 +74,7 @@ phys_addr_t arm64_dma_phys_limit __ro_after_init;
+>  static void __init reserve_crashkernel(void)
+>  {
+>  	unsigned long long crash_base, crash_size;
+> +	unsigned long crash_max = arm64_dma_phys_limit;
+>  	int ret;
+> 
+>  	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
+> @@ -84,33 +85,18 @@ static void __init reserve_crashkernel(void)
+> 
+>  	crash_size = PAGE_ALIGN(crash_size);
+> 
+> -	if (crash_base == 0) {
+> -		/* Current arm64 boot protocol requires 2MB alignment */
+> -		crash_base = memblock_find_in_range(0, arm64_dma_phys_limit,
+> -				crash_size, SZ_2M);
+> -		if (crash_base == 0) {
+> -			pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
+> -				crash_size);
+> -			return;
+> -		}
+> -	} else {
+> -		/* User specifies base address explicitly. */
+> -		if (!memblock_is_region_memory(crash_base, crash_size)) {
+> -			pr_warn("cannot reserve crashkernel: region is not memory\n");
+> -			return;
+> -		}
+> +	/* User specifies base address explicitly. */
+> +	if (crash_base)
+> +		crash_max = crash_base + crash_size;
+> 
+> -		if (memblock_is_region_reserved(crash_base, crash_size)) {
+> -			pr_warn("cannot reserve crashkernel: region overlaps reserved 
+> memory\n");
+> -			return;
+> -		}
+> -
+> -		if (!IS_ALIGNED(crash_base, SZ_2M)) {
+> -			pr_warn("cannot reserve crashkernel: base address is not 2MB 
+> aligned\n");
+> -			return;
+> -		}
+> +	/* Current arm64 boot protocol requires 2MB alignment */
+> +	crash_base = memblock_phys_alloc_range(crash_size, SZ_2M,
+> +					       crash_base, crash_max);
+> +	if (!crash_base) {
+> +		pr_warn("cannot allocate crashkernel (size:0x%llx)\n",
+> +			crash_size);
+> +		return;
+>  	}
+> -	memblock_reserve(crash_base, crash_size);
+> 
+>  	pr_info("crashkernel reserved: 0x%016llx - 0x%016llx (%lld MB)\n",
+>  		crash_base, crash_base + crash_size, crash_size >> 20);
+> diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
+> index 23a140327a0b..f979adfd4fc2 100644
+> --- a/arch/mips/kernel/setup.c
+> +++ b/arch/mips/kernel/setup.c
+> @@ -452,8 +452,9 @@ static void __init mips_parse_crashkernel(void)
+>  		return;
+> 
+>  	if (crash_base <= 0) {
+> -		crash_base = memblock_find_in_range(CRASH_ALIGN, CRASH_ADDR_MAX,
+> -							crash_size, CRASH_ALIGN);
+> +		crash_base = memblock_phys_alloc_range(crash_size, CRASH_ALIGN,
+> +						       CRASH_ALIGN,
+> +						       CRASH_ADDR_MAX);
+>  		if (!crash_base) {
+>  			pr_warn("crashkernel reservation failed - No suitable area 
+> found.\n");
+>  			return;
+> @@ -461,8 +462,9 @@ static void __init mips_parse_crashkernel(void)
+>  	} else {
+>  		unsigned long long start;
+> 
+> -		start = memblock_find_in_range(crash_base, crash_base + crash_size,
+> -						crash_size, 1);
+> +		start = memblock_phys_alloc_range(crash_size, 1,
+> +						  crash_base,
+> +						  crash_base + crash_size);
+>  		if (start != crash_base) {
+>  			pr_warn("Invalid memory region reserved for crash kernel\n");
+>  			return;
+> @@ -656,10 +658,6 @@ static void __init arch_mem_init(char **cmdline_p)
+>  	mips_reserve_vmcore();
+> 
+>  	mips_parse_crashkernel();
+> -#ifdef CONFIG_KEXEC
+> -	if (crashk_res.start != crashk_res.end)
+> -		memblock_reserve(crashk_res.start, resource_size(&crashk_res));
+> -#endif
+>  	device_tree_init();
+> 
+>  	/*
+> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+> index a14bf3910eec..88649337c568 100644
+> --- a/arch/riscv/mm/init.c
+> +++ b/arch/riscv/mm/init.c
+> @@ -812,38 +812,22 @@ static void __init reserve_crashkernel(void)
+> 
+>  	crash_size = PAGE_ALIGN(crash_size);
+> 
+> -	if (crash_base == 0) {
+> -		/*
+> -		 * Current riscv boot protocol requires 2MB alignment for
+> -		 * RV64 and 4MB alignment for RV32 (hugepage size)
+> -		 */
+> -		crash_base = memblock_find_in_range(search_start, search_end,
+> -						    crash_size, PMD_SIZE);
+> -
+> -		if (crash_base == 0) {
+> -			pr_warn("crashkernel: couldn't allocate %lldKB\n",
+> -				crash_size >> 10);
+> -			return;
+> -		}
+> -	} else {
+> -		/* User specifies base address explicitly. */
+> -		if (!memblock_is_region_memory(crash_base, crash_size)) {
+> -			pr_warn("crashkernel: requested region is not memory\n");
+> -			return;
+> -		}
+> -
+> -		if (memblock_is_region_reserved(crash_base, crash_size)) {
+> -			pr_warn("crashkernel: requested region is reserved\n");
+> -			return;
+> -		}
+> -
+> +	if (crash_base) {
+> +		search_start = crash_base;
+> +		search_end = crash_base + crash_size;
+> +	}
+> 
+> -		if (!IS_ALIGNED(crash_base, PMD_SIZE)) {
+> -			pr_warn("crashkernel: requested region is misaligned\n");
+> -			return;
+> -		}
+> +	/*
+> +	 * Current riscv boot protocol requires 2MB alignment for
+> +	 * RV64 and 4MB alignment for RV32 (hugepage size)
+> +	 */
+> +	crash_base = memblock_phys_alloc_range(crash_size, PMD_SIZE,
+> +					       search_start, search_end);
+> +	if (crash_base == 0) {
+> +		pr_warn("crashkernel: couldn't allocate %lldKB\n",
+> +			crash_size >> 10);
+> +		return;
+>  	}
+> -	memblock_reserve(crash_base, crash_size);
+> 
+>  	pr_info("crashkernel: reserved 0x%016llx - 0x%016llx (%lld MB)\n",
+>  		crash_base, crash_base + crash_size, crash_size >> 20);
 
-Here is the summary with links:
-  - [net-next,1/3] s390/qeth: Register switchdev event handler
-    https://git.kernel.org/netdev/net-next/c/60bb1089467d
-  - [net-next,2/3] s390/qeth: Switchdev event handler
-    https://git.kernel.org/netdev/net-next/c/4e20e73e631a
-  - [net-next,3/3] s390/qeth: Update MACs of LEARNING_SYNC device
-    https://git.kernel.org/netdev/net-next/c/f7936b7b2663
+For the riscv part:
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Acked-by: Nick Kossifidis <mick@ics.forth.gr>
