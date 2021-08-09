@@ -2,120 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93FF8C4338F
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 08:49:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 012DDC4320A
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 08:49:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7757B60EB9
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 08:49:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D8ABE61004
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 08:49:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234073AbhHIIt3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Aug 2021 04:49:29 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51856 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S234030AbhHIIt2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Aug 2021 04:49:28 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1798dYKr019680;
-        Mon, 9 Aug 2021 04:49:02 -0400
+        id S234075AbhHIIta (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Aug 2021 04:49:30 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10000 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234060AbhHIIt1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Aug 2021 04:49:27 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1798YqGo045087;
+        Mon, 9 Aug 2021 04:49:05 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version; s=pp1;
- bh=P0ePVus6cr2Vttbo6o55rGCqiFf0cNA0uhesatFHGvg=;
- b=TIp5ctsxQfiMyteNvyRqE4CUheMIovyVa/5BlWePtUHpjN3qFuk4gkYRUyBB14UK6h25
- IUuQnHolvKIW6LvZWDLohj+n0NMtdcpBz7Mq3aVxDDgAS0EBGS+sBJc4pUSXKVS0s7qc
- TH6/WLChQiydjDQnZlbxkmuK7oQFNziq/PNr0nQpK23dOXLp20z3poqUJZdOf/KA9ajX
- HVOe/MNNI11ObZml+qjbSx/YGtRShFDrXfFaApPfDzXVrFFFHt0vwZ2WA/fsEA3KPFkz
- I6Fu8gJHetVMR7FFu2H7FlXxz66Yz6nX5IkbUZQaj0mlLPtbH24lOSff15XTEU9aNEUD vg== 
+ : date : message-id : in-reply-to : references; s=pp1;
+ bh=6+6ELF7atY8iBAVtsC7aXKLl3Z44aoVuUI+MvxNZEio=;
+ b=I82gQ+GupGGhq41oUwn8GUT8Xa1BJOxY+Hsgtt6h7aW3zZVUSCqjpubWSiN3UpR/Gb2B
+ LiK7Ya/0BiMNqsJU6csX0X2jvg0Jzoy5SH2sHqAhWKyQ36ayy7rT8NXxsxJ7WPWoljRK
+ UyPy/Asc5Jf1Yvw+OgjdNH+pEXchSjupeSFLtkWuq2baI1+tXHwrofdnmmZcWKS2TAGC
+ go+EahoXq03CUQcJKL6Mj14xOZmcF0J/BrE5NPBrEJll+Aa9/W6+zw2KdCBMHXKjAl99
+ B3g3LzsyviV9rYYxXQ/CyYTN+HhMx9CqzOdyZ/SQIy5Hvr7eT9afT6lX0DbSVtD3LEel hA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3aa7n01224-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3aam0kwg97-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Aug 2021 04:49:02 -0400
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1798eJiD021439;
-        Mon, 9 Aug 2021 04:49:01 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3aa7n0121t-1
+        Mon, 09 Aug 2021 04:49:05 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1798ZU1x048635;
+        Mon, 9 Aug 2021 04:49:04 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3aam0kwg7y-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Aug 2021 04:49:01 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1798m8hI009034;
-        Mon, 9 Aug 2021 08:49:00 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3a9ht8un4u-1
+        Mon, 09 Aug 2021 04:49:04 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1798m90H006407;
+        Mon, 9 Aug 2021 08:49:01 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3a9hehbp7k-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Aug 2021 08:48:59 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1798muBx34472328
+        Mon, 09 Aug 2021 08:49:00 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1798mvQZ9306520
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 9 Aug 2021 08:48:56 GMT
+        Mon, 9 Aug 2021 08:48:57 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 349A34204D;
+        by IMSVA (Postfix) with ESMTP id 27AC842047;
+        Mon,  9 Aug 2021 08:48:57 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BEEB542049;
         Mon,  9 Aug 2021 08:48:56 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CEF7B4204B;
-        Mon,  9 Aug 2021 08:48:55 +0000 (GMT)
 Received: from oc3016276355.ibm.com (unknown [9.145.151.189])
         by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  9 Aug 2021 08:48:55 +0000 (GMT)
+        Mon,  9 Aug 2021 08:48:56 +0000 (GMT)
 From:   Pierre Morel <pmorel@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
         cohuck@redhat.com, imbrenda@linux.ibm.com, david@redhat.com
-Subject: [kvm-unit-tests PATCH v1 0/4] S390x: CPU Topology Information
-Date:   Mon,  9 Aug 2021 10:48:50 +0200
-Message-Id: <1628498934-20735-1-git-send-email-pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v1 2/4] s390x: lib: Move stsi_get_fc to library
+Date:   Mon,  9 Aug 2021 10:48:52 +0200
+Message-Id: <1628498934-20735-3-git-send-email-pmorel@linux.ibm.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1628498934-20735-1-git-send-email-pmorel@linux.ibm.com>
+References: <1628498934-20735-1-git-send-email-pmorel@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rgVghRioj5_DAHytVVh1u1i8W9xFjNj0
-X-Proofpoint-ORIG-GUID: 941HX_St9Jr5QRpvCP_2Irs2wzn_15j5
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
+X-Proofpoint-GUID: Nh934kVQdRF7iqfOP7dEwLCYVdVymWKp
+X-Proofpoint-ORIG-GUID: kn6CAGjlJwy41vyttdi_TnmyBtjwVgaX
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-08-09_01:2021-08-06,2021-08-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- phishscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0 malwarescore=0
- spamscore=0 mlxlogscore=999 suspectscore=0 priorityscore=1501 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
- definitions=main-2108090069
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 clxscore=1015 mlxscore=0 bulkscore=0 adultscore=0
+ malwarescore=0 mlxlogscore=999 lowpriorityscore=0 impostorscore=0
+ phishscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108090069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When facility 11 is available inside the S390x architecture, 2 new
-instructions are available: PTF and STSI with function code 15.
+It's needed in multiple tests now.
 
-Let's check their availability in QEMU/KVM and their coherence
-with the CPU topology provided by the QEMU -smp parameter.
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ lib/s390x/asm/arch_def.h | 16 ++++++++++++++++
+ s390x/stsi.c             | 16 ----------------
+ 2 files changed, 16 insertions(+), 16 deletions(-)
 
-To run these tests successfully you will need the Linux and the QEMU
-patches:
-    https://lkml.org/lkml/2021/8/3/201
-
-    https://lists.nongnu.org/archive/html/qemu-s390x/2021-07/msg00165.html
-
-Regards,
-Pierre
-
-Pierre Morel (4):
-  s390x: lib: Add SCLP toplogy nested level
-  s390x: lib: Move stsi_get_fc to library
-  s390x: topology: check the Perform Topology Function
-  s390x: Topology: checking Configuration Topology Information
-
- lib/s390x/asm/arch_def.h |  16 +++
- lib/s390x/sclp.c         |   6 +
- lib/s390x/sclp.h         |   4 +-
- s390x/Makefile           |   1 +
- s390x/stsi.c             |  16 ---
- s390x/topology.c         | 294 +++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg      |   4 +
- 7 files changed, 324 insertions(+), 17 deletions(-)
- create mode 100644 s390x/topology.c
-
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 15cf7d48..57d7ddac 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -328,6 +328,22 @@ static inline int stsi(void *addr, int fc, int sel1, int sel2)
+ 	return cc;
+ }
+ 
++static inline unsigned long stsi_get_fc(void *addr)
++{
++	register unsigned long r0 asm("0") = 0;
++	register unsigned long r1 asm("1") = 0;
++	int cc;
++
++	asm volatile("stsi	0(%[addr])\n"
++		     "ipm	%[cc]\n"
++		     "srl	%[cc],28\n"
++		     : "+d" (r0), [cc] "=d" (cc)
++		     : "d" (r1), [addr] "a" (addr)
++		     : "cc", "memory");
++	assert(!cc);
++	return r0 >> 28;
++}
++
+ static inline int servc(uint32_t command, unsigned long sccb)
+ {
+ 	int cc;
+diff --git a/s390x/stsi.c b/s390x/stsi.c
+index 87d48047..11986d13 100644
+--- a/s390x/stsi.c
++++ b/s390x/stsi.c
+@@ -71,22 +71,6 @@ static void test_priv(void)
+ 	report_prefix_pop();
+ }
+ 
+-static inline unsigned long stsi_get_fc(void *addr)
+-{
+-	register unsigned long r0 asm("0") = 0;
+-	register unsigned long r1 asm("1") = 0;
+-	int cc;
+-
+-	asm volatile("stsi	0(%[addr])\n"
+-		     "ipm	%[cc]\n"
+-		     "srl	%[cc],28\n"
+-		     : "+d" (r0), [cc] "=d" (cc)
+-		     : "d" (r1), [addr] "a" (addr)
+-		     : "cc", "memory");
+-	assert(!cc);
+-	return r0 >> 28;
+-}
+-
+ static void test_fc(void)
+ {
+ 	report(stsi(pagebuf, 7, 0, 0) == 3, "invalid fc");
 -- 
 2.25.1
 
