@@ -2,117 +2,239 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D03A7C4338F
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 15:16:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8324C432BE
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 15:25:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B3B4860F93
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 15:16:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FD3D6103B
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 15:25:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235491AbhHIPQv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Aug 2021 11:16:51 -0400
-Received: from new4-smtp.messagingengine.com ([66.111.4.230]:53429 "EHLO
-        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233058AbhHIPQv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Aug 2021 11:16:51 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 0BD8E580E2C;
-        Mon,  9 Aug 2021 11:16:30 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 09 Aug 2021 11:16:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=1pYqGa
-        x3qSXnNTucika/IABBjCeQ22ESG6fuRy15h2s=; b=S0HfUGCCFMNYaWu6zatInR
-        6cI4qb55LV3zeq/ewdvnVH056olR0BWLNBPwfe7UJwTpogsD3fD2/cQL/wEAp3cl
-        nxKthDD4fyRdv+2IV6Qoo7dhdBFzgeh2gqTKAso7T1Evb9SnOsFh2B4zYhOUprJP
-        EO5VljpUmoAzyggHCkHjUDOSMr5LbQw2X+cN5RdswfF6B30UnI03EJSQI+SwijQ/
-        0x2Iryu5RFRJmkRZnyY1vFtTJg0yVcmKoPeCwCPPe+pHtKqp6dDUMdTjCaqRnZWY
-        FW/KwPpuZZm17f/6Rg3yrjlX9ksK1UhH8mdDL05f+6cvCMZOoEtuLDu5lYq9d2gw
-        ==
-X-ME-Sender: <xms:zEYRYbQGIB9xEo6RjeSyH3E8NY09nJwCspeVGW5W-yMjMHQNMgDsSA>
-    <xme:zEYRYcyujpQS1ixEjvubTlM3VtCQcUugk9praYbP03PyyYdFPe_jkz2UKaT4fre7x
-    Pc-hTDz3fOUwQY>
-X-ME-Received: <xmr:zEYRYQ0NPHWoCFj6XeaojIAkTME5G5A7eJHf_TENk2L322TP61EGCMHTJrfWShVJbxspvI5I1k7GnMJfPT1yRqc_qAqD2Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrjeejgdekiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtrodttddtvdenucfhrhhomhepkfguohcuufgt
-    hhhimhhmvghluceoihguohhstghhsehiughoshgthhdrohhrgheqnecuggftrfgrthhtvg
-    hrnhepgfejvefhvdegiedukeetudevgeeujeefffeffeetkeekueeuheejudeltdejuedu
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepihguoh
-    hstghhsehiughoshgthhdrohhrgh
-X-ME-Proxy: <xmx:zEYRYbCoKnFM3-wbngpBiRANyAE74_M6BRFtxmZn0MeoSG0Seer_6w>
-    <xmx:zEYRYUi3O-H3V-73BR0dBJ5TWNLcDT8xw6fD72Fr6bfl100ClsZkHQ>
-    <xmx:zEYRYfpVXnT9M1cEBDkJR9UmWcWow8uAEW-0lVAaA4aelNcO50dZfQ>
-    <xmx:zkYRYZtwN-jWS7CS3-M_vUcqkyT-ZsNniU37JzRiF6CtsFtdEXqIaQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 9 Aug 2021 11:16:27 -0400 (EDT)
-Date:   Mon, 9 Aug 2021 18:16:23 +0300
-From:   Ido Schimmel <idosch@idosch.org>
-To:     Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc:     netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Vadym Kochan <vkochan@marvell.com>,
-        Taras Chornyi <tchornyi@marvell.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
-        Lars Povlsen <lars.povlsen@microchip.com>,
-        Steen Hegelund <Steen.Hegelund@microchip.com>,
-        UNGLinuxDriver@microchip.com,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Jianbo Liu <jianbol@nvidia.com>,
-        Vlad Buslov <vladbu@nvidia.com>,
-        Bjarni Jonasson <bjarni.jonasson@microchip.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Tobias Waldekranz <tobias@waldekranz.com>,
-        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH net] net: switchdev: zero-initialize struct
- switchdev_notifier_fdb_info emitted by drivers towards the bridge
-Message-ID: <YRFGxxkNyJDxoGWu@shredder>
-References: <20210809131152.509092-1-vladimir.oltean@nxp.com>
+        id S235585AbhHIPZ3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Aug 2021 11:25:29 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45404 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S235588AbhHIPZ0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Aug 2021 11:25:26 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 179F4QlS184481;
+        Mon, 9 Aug 2021 11:25:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=92CSMFWIHVvbAZhW6mbS9BPDXlq2dgOMjfcK6Kplj80=;
+ b=iQmO+PiwE34MfB6dEHltxjD0i/5OUr4jPOkayDM8HKCxyBGMRT33tZf4VSsvUvN3FE0k
+ +gt8S4ywzapPad8dCEEn66mD8JSrLb5VJNYJ0l4u6aZRSHILqqZsqFSNflLej6+nnyGD
+ mW6Py7+CK6YeoqXl3ramN89UXETz91WHGYKX4kaihyW4WQvxCMLeZOAi5n773+xiV/na
+ /ZtMUfRrB8gbruc26hyphnKh6qYIYA5EvUdPu9LYwZeRHh3PX9lc1NFp813kWlbZWJyf
+ ZfyP0yZ4Qp9DSnyaHxuFagnL7vVbx4EgCyvqCEy1evJFlJgxWAV7zE+jOllwj9+x+0sJ fg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3aa7n0burx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 Aug 2021 11:25:05 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 179F4dWs185808;
+        Mon, 9 Aug 2021 11:25:04 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3aa7n0buqv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 Aug 2021 11:25:04 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 179FCE3r030665;
+        Mon, 9 Aug 2021 15:25:03 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma05fra.de.ibm.com with ESMTP id 3a9ht8uqws-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 Aug 2021 15:25:02 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 179FOxRU47448464
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 9 Aug 2021 15:24:59 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5C18EAE0F6;
+        Mon,  9 Aug 2021 15:24:59 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0DEE2AE0ED;
+        Mon,  9 Aug 2021 15:24:59 +0000 (GMT)
+Received: from oc3016276355.ibm.com (unknown [9.145.151.189])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  9 Aug 2021 15:24:58 +0000 (GMT)
+Subject: Re: [kvm-unit-tests PATCH v1 3/4] s390x: topology: check the Perform
+ Topology Function
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        thuth@redhat.com, kvm@vger.kernel.org, cohuck@redhat.com,
+        david@redhat.com
+References: <1628498934-20735-1-git-send-email-pmorel@linux.ibm.com>
+ <1628498934-20735-4-git-send-email-pmorel@linux.ibm.com>
+ <20210809120306.6bd78354@p-imbrenda>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <0af6723f-f8b6-18cf-73ef-535cc818468b@linux.ibm.com>
+Date:   Mon, 9 Aug 2021 17:24:58 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210809131152.509092-1-vladimir.oltean@nxp.com>
+In-Reply-To: <20210809120306.6bd78354@p-imbrenda>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: eQGFMXCB-6nk3Y-3A4TVHNqQmXEIfNdq
+X-Proofpoint-ORIG-GUID: 6wYcjCt-0eU0VpOFcZGSTsTIoU7Ui0c9
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-09_05:2021-08-06,2021-08-09 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ phishscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0 malwarescore=0
+ spamscore=0 mlxlogscore=999 suspectscore=0 priorityscore=1501 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
+ definitions=main-2108090111
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 09, 2021 at 04:11:52PM +0300, Vladimir Oltean wrote:
-> The blamed commit a new field to struct switchdev_notifier_fdb_info, but
-> did not make sure that all call paths set it to something valid. For
-> example, a switchdev driver may emit a SWITCHDEV_FDB_ADD_TO_BRIDGE
-> notifier, and since the 'is_local' flag is not set, it contains junk
-> from the stack, so the bridge might interpret those notifications as
-> being for local FDB entries when that was not intended.
-> 
-> To avoid that now and in the future, zero-initialize all
-> switchdev_notifier_fdb_info structures created by drivers such that all
-> newly added fields to not need to touch drivers again.
-> 
-> Fixes: 2c4eca3ef716 ("net: bridge: switchdev: include local flag in FDB notifications")
-> Reported-by: Ido Schimmel <idosch@idosch.org>
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
 
-Thanks
+On 8/9/21 12:03 PM, Claudio Imbrenda wrote:
+> On Mon,  9 Aug 2021 10:48:53 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> We check the PTF instruction.
+>>
+>> - We do not expect to support vertical polarization.
+>>
+>> - We do not expect the Modified Topology Change Report to be
+>> pending or not at the moment the first PTF instruction with
+>> PTF_CHECK function code is done as some code already did run
+>> a polarization change may have occur.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   s390x/Makefile      |  1 +
+>>   s390x/topology.c    | 87
+>> +++++++++++++++++++++++++++++++++++++++++++++ s390x/unittests.cfg |
+>> 3 ++ 3 files changed, 91 insertions(+)
+>>   create mode 100644 s390x/topology.c
+>>
+>> diff --git a/s390x/Makefile b/s390x/Makefile
+>> index 6565561b..c82b7dbf 100644
+>> --- a/s390x/Makefile
+>> +++ b/s390x/Makefile
+>> @@ -24,6 +24,7 @@ tests += $(TEST_DIR)/mvpg.elf
+>>   tests += $(TEST_DIR)/uv-host.elf
+>>   tests += $(TEST_DIR)/edat.elf
+>>   tests += $(TEST_DIR)/mvpg-sie.elf
+>> +tests += $(TEST_DIR)/topology.elf
+>>   
+>>   tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>>   ifneq ($(HOST_KEY_DOCUMENT),)
+>> diff --git a/s390x/topology.c b/s390x/topology.c
+>> new file mode 100644
+>> index 00000000..4146189a
+>> --- /dev/null
+>> +++ b/s390x/topology.c
+>> @@ -0,0 +1,87 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-only */
+>> +/*
+>> + * CPU Topology
+>> + *
+>> + * Copyright (c) 2021 IBM Corp
+>> + *
+>> + * Authors:
+>> + *  Pierre Morel <pmorel@linux.ibm.com>
+>> + */
+>> +
+>> +#include <libcflat.h>
+>> +#include <asm/page.h>
+>> +#include <asm/asm-offsets.h>
+>> +#include <asm/interrupt.h>
+>> +#include <asm/facility.h>
+>> +#include <smp.h>
+>> +#include <sclp.h>
+>> +
+>> +static uint8_t pagebuf[PAGE_SIZE * 2]
+>> __attribute__((aligned(PAGE_SIZE * 2))); +int machine_level;
+>> +int mnest;
+>> +
+>> +#define PTF_HORIZONTAL	0
+>> +#define PTF_VERTICAL	1
+>> +#define PTF_CHECK	2
+>> +
+>> +#define PTF_ERR_NO_REASON	0
+>> +#define PTF_ERR_ALRDY_POLARIZED	1
+>> +#define PTF_ERR_IN_PROGRESS	2
+>> +
+>> +static int ptf(unsigned long fc, unsigned long *rc)
+>> +{
+>> +	int cc;
+>> +
+>> +	asm volatile(
+>> +		"       .insn   rre,0xb9a20000,%1,%1\n"
+> 
+> I know you copied this from the kernel, but the second argument is not
+> really there according to the PoP, so maybe it's better to have this
+> instead?
+> 
+> 	.insn   rre,0xb9a20000,%1,0\n
+
+OK, thanks.
+
+> 
+>> +		"       ipm     %0\n"
+>> +		"       srl     %0,28\n"
+>> +		: "=d" (cc), "+d" (fc)
+>> +		: "d" (fc)
+>> +		: "cc");
+>> +
+>> +	*rc = fc >> 8;
+>> +	return cc;
+>> +}
+>> +
+>> +static void test_ptf(void)
+>> +{
+>> +	unsigned long rc;
+>> +	int cc;
+>> +
+>> +	report_prefix_push("Topology Report pending");
+>> +	/*
+>> +	 * At this moment the topology may already have changed
+>> +	 * since the VM has been started.
+>> +	 * However, we can test if a second PTF instruction
+>> +	 * reports that the topology did not change since the
+>> +	 * preceding PFT instruction.
+>> +	 */
+>> +	ptf(PTF_CHECK, &rc);
+>> +	cc = ptf(PTF_CHECK, &rc);
+>> +	report(cc == 0, "PTF check clear");
+>> +	cc = ptf(PTF_HORIZONTAL, &rc);
+>> +	report(cc == 2 && rc == PTF_ERR_ALRDY_POLARIZED,
+>> +	       "PTF horizontal already configured");
+>> +	cc = ptf(PTF_VERTICAL, &rc);
+>> +	report(cc == 2 && rc == PTF_ERR_NO_REASON,
+>> +	       "PTF vertical non possible");
+> 
+> *not possible
+
+Oh yes :)
+
+> 
+>> +
+>> +	report_prefix_pop();
+>> +}
+>> +
+>> +int main(int argc, char *argv[])
+>> +{
+>> +	report_prefix_push("stsi");
+> 
+> should this really be "stsi" ?
+
+No, I think CPU-Topology should be better.
+
+
+
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
