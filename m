@@ -2,101 +2,178 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 104A8C432BE
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 07:50:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 128E6C4338F
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 08:10:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EBC5B61055
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 07:50:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E10946108F
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 08:10:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233608AbhHIHuk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Aug 2021 03:50:40 -0400
-Received: from mail-vs1-f46.google.com ([209.85.217.46]:44652 "EHLO
-        mail-vs1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233614AbhHIHuh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Aug 2021 03:50:37 -0400
-Received: by mail-vs1-f46.google.com with SMTP id n22so9468509vsq.11;
-        Mon, 09 Aug 2021 00:50:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=NSkDBecKhj6XgHI95Z5g89aQzQ9wTkJ5QUH4uHs+PHw=;
-        b=j4AvqmT6q3euZhzNQNeV2rU1IuxgTu5x9UR1SjtvCwLuERUM64qGCdGqOVsFf+SLpz
-         op4C85+pT187ByCAcKsajqCUIr+2I0Tj8Y+7AoiO+3cUwEBUGCegkAFPf+vOtxPzuALr
-         JKRdhC1bShnN+FGbsekHoaUSbhkcA9IM+X5DV7FaePoHyqEvIS/TsgklchZMWnV8D30C
-         wvYHAhetPhhbCSmfhp0bn0Rhtizf6wOV6c/qqi1+7+yhG/p62sVc6QzDd+2WpftVgZ9R
-         vtdSo9P/y8byqNNW87Tin2PfOAHn87xhNiR58/K738IX9WuE/nK+QRQuetbyIfeU6yIN
-         o4Xg==
-X-Gm-Message-State: AOAM530zwSc5sA9wuUBtlNcSlXsk0dOoB+vZX2C76syLs0wRH4EwjXPj
-        ptAYMurSJfQt5NwpAwUSwEdJYH3O3lcMc6LG6sMIovZCZXHnrw==
-X-Google-Smtp-Source: ABdhPJwyzUqGggBh82zJedC1ezudY8M3CGBhbipUvvVxKcRpEZQp/J85EiOjTr/A4pLeQ3fz9QsU8e+W6uo4gY5xssg=
-X-Received: by 2002:a05:6102:d9:: with SMTP id u25mr6193125vsp.42.1628495416464;
- Mon, 09 Aug 2021 00:50:16 -0700 (PDT)
+        id S233669AbhHIIKp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Aug 2021 04:10:45 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29118 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233588AbhHIIKp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Aug 2021 04:10:45 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17984Mu5192191;
+        Mon, 9 Aug 2021 04:10:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=z/1V6zpO3b2HNkotnhSRQQdekA6mDtijQKwjLTOyvno=;
+ b=ECi1gHP/94PVzLQcRRM5I9rr09kuXRckHnWM/YiSfimrte/+D6VpsJTFxbxA3Q6delps
+ uIpsMEz2v0kWsADVJbHnGJnNzLnnpaE7Wro+6TTQi8BWvX6S/IHVH17hZOf7Qdf0dtJc
+ gmDyPrbaHaZ/msWIt+vJJMsxXCarXCYkzgOn9eaHi2AmQBisJPZfXxcQwzHcuZPgYKyW
+ BEfpsHzZuby+frc/f3Lv7I5layWmUYxVffDAgbCJzq4LJoA/al5iU+QD3/itJ8JjfCkR
+ LZLGWbuMh2p7sBfUAARqSJPL47l7DuNY3BbAmftpguMAmQc4v6I7/uQ4hRa7nWfBjDzJ og== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3aaa1qp3vc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 Aug 2021 04:10:21 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17982Gtn029942;
+        Mon, 9 Aug 2021 08:10:20 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3a9ht8k84v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 Aug 2021 08:10:20 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1798AFBw57737684
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 9 Aug 2021 08:10:16 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BDE2AA4065;
+        Mon,  9 Aug 2021 08:10:15 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3738DA4054;
+        Mon,  9 Aug 2021 08:10:15 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  9 Aug 2021 08:10:15 +0000 (GMT)
+From:   Guvenc Gulce <guvenc@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next] net/smc: Allow SMC-D 1MB DMB allocations
+Date:   Mon,  9 Aug 2021 10:10:14 +0200
+Message-Id: <20210809081014.2300149-1-guvenc@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20210809073738.200237-1-geert@linux-m68k.org>
-In-Reply-To: <20210809073738.200237-1-geert@linux-m68k.org>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Mon, 9 Aug 2021 09:50:05 +0200
-Message-ID: <CAMuHMdXdHx_7t51F+wGDa1oigJnGt4FDBYHvx58FWVv_iGVxDg@mail.gmail.com>
-Subject: Re: Build regressions/improvements in v5.14-rc4
-To:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc:     linux-um <linux-um@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Tn_C2SNlL4p4mz5L2GsUJ6-U6zk8kRoU
+X-Proofpoint-ORIG-GUID: Tn_C2SNlL4p4mz5L2GsUJ6-U6zk8kRoU
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-09_01:2021-08-06,2021-08-09 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 mlxscore=0 clxscore=1011 spamscore=0 priorityscore=1501
+ suspectscore=0 malwarescore=0 bulkscore=0 adultscore=0 impostorscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108090065
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 9, 2021 at 9:40 AM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> JFYI, when comparing v5.14-rc4[1] to v5.14-rc3[3], the summaries are:
->   - build errors: +5/-0
+From: Stefan Raspl <raspl@linux.ibm.com>
 
-  + /kisskb/src/drivers/dma/idxd/init.c: error: implicit declaration
-of function 'cpu_feature_enabled'
-[-Werror=implicit-function-declaration]:  => 805:7
-  + /kisskb/src/drivers/dma/idxd/perfmon.h: error: 'struct perf_event'
-has no member named 'pmu':  => 24:13, 35:13
-  + /kisskb/src/drivers/dma/ioat/dca.c: error: implicit declaration of
-function 'boot_cpu_has' [-Werror=implicit-function-declaration]:  =>
-74:6
-  + /kisskb/src/drivers/dma/ioat/dca.c: error: implicit declaration of
-function 'cpuid_eax' [-Werror=implicit-function-declaration]:  =>
-64:18
-  + /kisskb/src/drivers/dma/ioat/dca.c: error: implicit declaration of
-function 'cpuid_ebx' [-Werror=implicit-function-declaration]:  =>
-17:31
+Commit a3fe3d01bd0d7 ("net/smc: introduce sg-logic for RMBs") introduced
+a restriction for RMB allocations as used by SMC-R. However, SMC-D does
+not use scatter-gather lists to back its DMBs, yet it was limited by
+this restriction, still.
+This patch exempts SMC, but limits allocations to the maximum RMB/DMB
+size respectively.
 
-um-x86_64/um-allyesconfig
-(seen before on v5.14-rc2)
+Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+---
+ net/smc/smc_core.c | 31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
->   - build warnings: +3/-0
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index cd0d7c908b2a..edc8962364f3 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1752,21 +1752,30 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	return rc;
+ }
+ 
+-/* convert the RMB size into the compressed notation - minimum 16K.
++#define SMCD_DMBE_SIZES		6 /* 0 -> 16KB, 1 -> 32KB, .. 6 -> 1MB */
++#define SMCR_RMBE_SIZES		5 /* 0 -> 16KB, 1 -> 32KB, .. 5 -> 512KB */
++
++/* convert the RMB size into the compressed notation (minimum 16K, see
++ * SMCD/R_DMBE_SIZES.
+  * In contrast to plain ilog2, this rounds towards the next power of 2,
+  * so the socket application gets at least its desired sndbuf / rcvbuf size.
+  */
+-static u8 smc_compress_bufsize(int size)
++static u8 smc_compress_bufsize(int size, bool is_smcd, bool is_rmb)
+ {
++	const unsigned int max_scat = SG_MAX_SINGLE_ALLOC * PAGE_SIZE;
+ 	u8 compressed;
+ 
+ 	if (size <= SMC_BUF_MIN_SIZE)
+ 		return 0;
+ 
+-	size = (size - 1) >> 14;
+-	compressed = ilog2(size) + 1;
+-	if (compressed >= SMC_RMBE_SIZES)
+-		compressed = SMC_RMBE_SIZES - 1;
++	size = (size - 1) >> 14;  /* convert to 16K multiple */
++	compressed = min_t(u8, ilog2(size) + 1,
++			   is_smcd ? SMCD_DMBE_SIZES : SMCR_RMBE_SIZES);
++
++	if (!is_smcd && is_rmb)
++		/* RMBs are backed by & limited to max size of scatterlists */
++		compressed = min_t(u8, compressed, ilog2(max_scat >> 14));
++
+ 	return compressed;
+ }
+ 
+@@ -1982,17 +1991,12 @@ static int smcr_buf_map_usable_links(struct smc_link_group *lgr,
+ 	return rc;
+ }
+ 
+-#define SMCD_DMBE_SIZES		6 /* 0 -> 16KB, 1 -> 32KB, .. 6 -> 1MB */
+-
+ static struct smc_buf_desc *smcd_new_buf_create(struct smc_link_group *lgr,
+ 						bool is_dmb, int bufsize)
+ {
+ 	struct smc_buf_desc *buf_desc;
+ 	int rc;
+ 
+-	if (smc_compress_bufsize(bufsize) > SMCD_DMBE_SIZES)
+-		return ERR_PTR(-EAGAIN);
+-
+ 	/* try to alloc a new DMB */
+ 	buf_desc = kzalloc(sizeof(*buf_desc), GFP_KERNEL);
+ 	if (!buf_desc)
+@@ -2041,9 +2045,8 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
+ 		/* use socket send buffer size (w/o overhead) as start value */
+ 		sk_buf_size = smc->sk.sk_sndbuf / 2;
+ 
+-	for (bufsize_short = smc_compress_bufsize(sk_buf_size);
++	for (bufsize_short = smc_compress_bufsize(sk_buf_size, is_smcd, is_rmb);
+ 	     bufsize_short >= 0; bufsize_short--) {
+-
+ 		if (is_rmb) {
+ 			lock = &lgr->rmbs_lock;
+ 			buf_list = &lgr->rmbs[bufsize_short];
+@@ -2052,8 +2055,6 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
+ 			buf_list = &lgr->sndbufs[bufsize_short];
+ 		}
+ 		bufsize = smc_uncompress_bufsize(bufsize_short);
+-		if ((1 << get_order(bufsize)) > SG_MAX_SINGLE_ALLOC)
+-			continue;
+ 
+ 		/* check for reusable slot in the link group */
+ 		buf_desc = smc_buf_get_slot(bufsize_short, lock, buf_list);
+-- 
+2.25.1
 
-  + /kisskb/src/drivers/iio/test/iio-test-format.c: warning: the frame
-size of 2128 bytes is larger than 2048 bytes [-Wframe-larger-than=]:
-=> 98:1
-  + /kisskb/src/drivers/thunderbolt/test.c: warning: the frame size of
-3168 bytes is larger than 2048 bytes [-Wframe-larger-than=]:  =>
-2207:1
-  + /kisskb/src/drivers/thunderbolt/test.c: warning: the frame size of
-7192 bytes is larger than 2048 bytes [-Wframe-larger-than=]:  =>
-2367:1
-
-s390x-gcc4.9/s390-allyesconfig
-
-> [1] http://kisskb.ellerman.id.au/kisskb/branch/linus/head/c500bee1c5b2f1d59b1081ac879d73268ab0ff17/ (182 out of 189 configs)
-> [3] http://kisskb.ellerman.id.au/kisskb/branch/linus/head/ff1176468d368232b684f75e82563369208bc371/ (182 out of 189 configs)
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
