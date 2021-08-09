@@ -2,137 +2,214 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22A70C4338F
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 15:59:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74C05C432BE
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 17:50:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04BF461002
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 15:59:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 527CA60F25
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 17:50:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235525AbhHIP7w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Aug 2021 11:59:52 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7082 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235404AbhHIP7w (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Aug 2021 11:59:52 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 179FweQG081778;
-        Mon, 9 Aug 2021 11:59:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=XR2TQXV7GSOZZCMxW3wnJXB0vnxCjRLO8P1uf/pVHC4=;
- b=Q4ITKHURGCdPmOW7oPPc7CYfruGyFR+kEcJgCMT1t48dVNYbxaEF6hwFcdJi8uNTCMUJ
- kUFGfVlnW1FxwAAyufRji1hKMKTE+SMSfG/eYLWDpMYdesr07XTGJ2ff3hNLOTMt+Nwl
- ibGzbfyn991jQ5FHdvMbjeous52/xgqLM66F5/H5Oahas96n1Tk0bKJtiFpBqQad7QBk
- NUwtgdnfjg8TyyPny8u1tm76T0uJXbwXR1TFcq1UzE22zj7qz5+gTA/+C964nqTfZyOU
- I4gs2UGKwPNmMEVbsvSeVvQ8qbpDfjz5SUagff9gbYnqjmlqbptByTOLsteDa6w/53qz vw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3aax6c7udw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Aug 2021 11:59:31 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 179FxPmq084323;
-        Mon, 9 Aug 2021 11:59:31 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3aax6c7udb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Aug 2021 11:59:31 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 179Fv51R022551;
-        Mon, 9 Aug 2021 15:59:28 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3a9ht8v8qd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Aug 2021 15:59:28 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 179FuF0N57016688
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 9 Aug 2021 15:56:15 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 48E3FAE058;
-        Mon,  9 Aug 2021 15:59:25 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E779DAE057;
-        Mon,  9 Aug 2021 15:59:24 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.151.189])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  9 Aug 2021 15:59:24 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH v1 4/4] s390x: Topology: checking
- Configuration Topology Information
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        thuth@redhat.com, kvm@vger.kernel.org, cohuck@redhat.com,
-        david@redhat.com
-References: <1628498934-20735-1-git-send-email-pmorel@linux.ibm.com>
- <1628498934-20735-5-git-send-email-pmorel@linux.ibm.com>
- <20210809122212.6dbaafea@p-imbrenda>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <b33060f3-9863-0cc2-d075-0c979041e1dc@linux.ibm.com>
-Date:   Mon, 9 Aug 2021 17:59:24 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
-MIME-Version: 1.0
-In-Reply-To: <20210809122212.6dbaafea@p-imbrenda>
-Content-Type: text/plain; charset=utf-8; format=flowed
+        id S234754AbhHIRvE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Aug 2021 13:51:04 -0400
+Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:57452 "EHLO
+        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234749AbhHIRvD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Aug 2021 13:51:03 -0400
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 179HkOGq001586;
+        Mon, 9 Aug 2021 17:50:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ content-id : content-transfer-encoding : mime-version; s=corp-2021-07-09;
+ bh=3xhsy4uuZJLG4lyzGTY4jQyrr0SbaWwXY0j71VHFisk=;
+ b=IAu8UDn0O9a/FdKoEpKNHw246NOs9/t6bhWFSfAxPaJ5zv4JDbkxwUGriocdh3zKP0o+
+ s8/bFL9KvMqh/9NQn6wBdnT/+bAZdMwFRFbRWGgKvA+HrguLGVNMtMnjctoE5/8zaxac
+ yMYt7LXqFfO6w66ccSWr+0msm3adM2n/DRcGRgN1KhVywLS7rwosDLwDF0Kqh4rs0iGk
+ FYmDvKC7DUwAEQFZK+wofeTIZSktYZyK0Yg5e1rGieNMnqrjg+xc0WVkGsveT21fpW0w
+ C3umkBVbnKRSPk/neGAaGGRj8p6kaCV/vVe2pP/uNVwS/9mITsqc2Ahyad4AENGTR014 eg== 
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ content-id : content-transfer-encoding : mime-version; s=corp-2020-01-29;
+ bh=3xhsy4uuZJLG4lyzGTY4jQyrr0SbaWwXY0j71VHFisk=;
+ b=P38HoIu6gFUDO4T/IV5FsSOoNOW+EvQTUFpgkM+2V6X5S3FmuV4uwgWzBInvqS94AO3v
+ Jy2ulekEa3ZFhmHyo1qC5KiMwYl/0OTS4MjcF6qxgCfNWE3qMMOFnWZ7iMN8BjhEBc4O
+ 1aC59LKFAxh/4RGcXBCnoGtXjZqwYZHcZUjEbjmWuSd4mFbMQFU6wfeN7d2G/zIr3jTc
+ jMmVwk7kCAy7NcVvAA1OK8hxAa++ngOmc2pHI+lDupf2sQI56+PGAxToKzD7EZvQrfoT
+ nAPEP5kLfKW6vVuSGytZTGGD047b7XRiZrozcz/hr3SQcPSOSrygmKKDWFzHsd2MRvhu og== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3ab17ds996-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 09 Aug 2021 17:50:33 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 179HoS3M028155;
+        Mon, 9 Aug 2021 17:50:32 GMT
+Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2171.outbound.protection.outlook.com [104.47.57.171])
+        by aserp3030.oracle.com with ESMTP id 3aa8qrqcq1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 09 Aug 2021 17:50:32 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=hdmkTgLxTqswxv2R4LLb+xTELURE1B7vP0Nn0vhX8cGsSk32koLFefqJXtSob9mpEVmjpIL8lYCulBFpfIRI2r29Fdxt+gWvF/mIPEStyWOOIUKL9F/vfUPQSGKXfb9UmCdPHrhrdRTFXYEtPQVMpUgsMZrQHwrGplBdefxuyKLZDD/B7/NioeQ4ySKF7FuI63NLfn2aGUsvcHQ0PBbco9RDceIZFy0rVjEsqYt2UDILIZ+tauC8MSAu5YcNM+j9Yj1YPSIb0dWsVyH49lji9NwdNdU82mazsrZLwAOJGZVZDNzCareGFH4eI34JZpFS2dWY+j5Hp0c8NfrGmm2rng==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3xhsy4uuZJLG4lyzGTY4jQyrr0SbaWwXY0j71VHFisk=;
+ b=iw6OV4vZ1fd9eJ+AkwxiW4Mub6HIFS400GhMieNk+6IzKA6jQlKX3re/q/0cXRUWVPASXvsfegqYlaqaBV2GMRMsO96uoeuRpOXRnP764kiRywxhJiX0z8ECTb0nDviUG8qE2ehHj/mZ+LH2IuqZ/vQRIX3LSqk33i6N6FYbmBFTqjB2Wvw+oyrp7/FLc/rPHzv+OdloZKlINAzBLxwoua2PAcTQ1TPexrsGJzAcKZAz8+qavgAto663G91ydA81YVUrsRwWji8mKFbbqW3042zoc/vaFQ1tJxl3cMQCbBwFM7n0KnDEFQbhrtNz0r7ONcsKktFDMr8121mH7/mNDA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3xhsy4uuZJLG4lyzGTY4jQyrr0SbaWwXY0j71VHFisk=;
+ b=n3DntOE8B9d9Vqv4gKy6F+v9YX7zkVuoEu/BNxuNYmjDIPYf8PyOQq6efD9ySVbHjuc/wALws2vBGUB/8PyXHaG0c/dqgGlG9diu0t9Klm81pf92ooyOX4pBWpmDbKnIhVCmqMP9P4B8GJf/L/0BIXgOX0PCaJUrrVHd48e4+MM=
+Received: from SJ0PR10MB4688.namprd10.prod.outlook.com (2603:10b6:a03:2db::24)
+ by SJ0PR10MB5454.namprd10.prod.outlook.com (2603:10b6:a03:304::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.16; Mon, 9 Aug
+ 2021 17:50:17 +0000
+Received: from SJ0PR10MB4688.namprd10.prod.outlook.com
+ ([fe80::a8db:4fc8:ded5:e64]) by SJ0PR10MB4688.namprd10.prod.outlook.com
+ ([fe80::a8db:4fc8:ded5:e64%5]) with mapi id 15.20.4394.023; Mon, 9 Aug 2021
+ 17:50:17 +0000
+From:   Chuck Lever III <chuck.lever@oracle.com>
+To:     Thomas Huth <thuth@redhat.com>
+CC:     LKML <linux-kernel@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
+        Bruce Fields <bfields@fieldses.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna.schumaker@netapp.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Iurii Zaikin <yzaikin@google.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Jia He <hejianet@gmail.com>,
+        Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
+Subject: Re: [PATCH 0/2] Fix /proc/sys/fs/nfs/nsm_use_hostnames on big endian
+ machines
+Thread-Topic: [PATCH 0/2] Fix /proc/sys/fs/nfs/nsm_use_hostnames on big endian
+ machines
+Thread-Index: AQHXiFazbCL8ap5xPUS5u/husB93VqtrfVgA
+Date:   Mon, 9 Aug 2021 17:50:17 +0000
+Message-ID: <00D67F02-1AA6-43FD-B2F4-EC5015D59A7E@oracle.com>
+References: <20210803105937.52052-1-thuth@redhat.com>
+In-Reply-To: <20210803105937.52052-1-thuth@redhat.com>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: McexzfWcJzpKD6cgD-eqFVROK7swO2cp
-X-Proofpoint-ORIG-GUID: AQD0X0npiOBQTjwVkl0GT6tg0sFBVqHQ
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-09_05:2021-08-06,2021-08-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- priorityscore=1501 clxscore=1015 impostorscore=0 malwarescore=0
- spamscore=0 mlxscore=0 lowpriorityscore=0 mlxlogscore=999 phishscore=0
- bulkscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108090113
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=oracle.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: d23f6091-77c9-4278-9449-08d95b5e2643
+x-ms-traffictypediagnostic: SJ0PR10MB5454:
+x-microsoft-antispam-prvs: <SJ0PR10MB5454DFB73500721202CAAAA293F69@SJ0PR10MB5454.namprd10.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:7691;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: i7PBivYbZn3dCFMGu/Rj0Stck7dk0xHlVB3xXvKz6PBKH8pTm/MLT4SXWfP+pzBPsRVWiS2SLc7PLF0I8soNFlJz6Df/jsXf5OtJfVjUkb1PD0stFb5fKV5CUJMqlKR57mnpkVy2V6pS0VuRGThA+dlg5yKQKrLQ1ifCSMu6B/LnwLbXFaBNRSizLDjGrYDX/E0W8r0z1IFPqA4HDvUNJJ5jRWIcJs2PL6y/GWoWozNbYjvzJqO+b6MUAxeuIuzcGqiE7iU/44Xi4hGHcsY97X6SnBzTQn9Qp4UgXN5R0wnStI21KHd4pFKNCOyG+568oCCUv+RcvAKKeOxCIOHKLm09rnmTQHx0Oq83H8i7Oei8Tj6AihjxvpKshISrTBvDnVKwdYmihxcvItWGuuA6nGPTt8IfPx6F63xEBUkiz9KX7PeyV8po95zExyJwVkNw0NFN4Mpukx7dOuIVeZmfXgbjJtJjck5qkbTSXxq/gIVIac275sSLTkFlJqxcikYMmPl6IPKHJGwo9+czo/4wn2uknBNaTf0FFpT/hqtt4zO62w9CBDOvIZmfd3BOSamkt7CprjXPN8fKTg/GXxAsnI9ZZpVdzGAxqW8WNY3wvfBI5ZwiPRlHqmiY3FFgZTzvJva6ofLgx8BdPrE5jl9kHFSOTCzqxunyAHF/IymIvkfuM3sKnkbfrwsKdwPN2m/piClCUZcZD1r/4qvs8RO8Ln/BcY1SQAXI0DOoxDoB51k0tBZ0VYhigzEwOrnNvAReacJNOBG38eNehD35/BwCGY4/KUije3ZfoYXsxLhW+0K+wKs/KwAZs+YOPi8JMbK9lfQ0oBqVC5TmoVrhnEFdfBuJ8HScgWP+SoLE0FfKTXs=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR10MB4688.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(76116006)(8936002)(36756003)(186003)(508600001)(7416002)(91956017)(66556008)(54906003)(316002)(71200400001)(8676002)(66476007)(66446008)(966005)(66946007)(64756008)(5660300002)(6512007)(6506007)(6916009)(33656002)(53546011)(2906002)(86362001)(38100700002)(122000001)(38070700005)(4326008)(6486002)(2616005)(26005)(83380400001)(45980500001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?/nqNI/cH/6BtFlfozVfRFyG0BoyiXEm6uRb82d3+pSRq1aQKwaAWX6Eoirw9?=
+ =?us-ascii?Q?A8qeMhXY7Bum/78DtpZjfiweZmgqPhDgFwdbkVRKtXHKnw00m8QTr/3Ev6Vm?=
+ =?us-ascii?Q?dxJcz1wtqwEor7yXkrgkZtKq8A8zadZWZRfz/40JecRlNOXOFnK/abVIj5yg?=
+ =?us-ascii?Q?M99lpQ0+tJIqSZij0VBC1mOFtgcuQmcF/sPjR0MiM97300Z0L0/7QG8u6R5K?=
+ =?us-ascii?Q?/GQ38KmVS1Di2uMDOVca2ItTJGOWUuxy4vcL2Re2f/LEhmzRqC5JwUSH55N/?=
+ =?us-ascii?Q?7hzDM2GapnGW7OkOAI8PfXMU2PnAm0rYrYWFsljVpr1j+MQcs2xG4ze6ZszG?=
+ =?us-ascii?Q?mgf3bIMK437eehl9mi319fj7E6hqT1FC61bsTUuR4Yj4p7xoavUn+QHNgZvt?=
+ =?us-ascii?Q?HQxXHi/QrfuHvlhVcGWFW4ovoNHc0yQsFFjHrvGFm+bGfsqoS900x3nXYkMK?=
+ =?us-ascii?Q?r3Wm9tjpF/a1lw6zaQ0oMW7lwt/EhkDX82KLSJDYD7ieZoJRjL8gePQEV42d?=
+ =?us-ascii?Q?DuJCqyYRFyXzuvIDWR0bI3JhigLUW3QhY4LKt7S6cF0sHGRJYqah46XFedJO?=
+ =?us-ascii?Q?mxQh541wK4Vw7N0ZraeaG8dbYTlJNrMbGCub2ax+1UdgTyEa7AsK1mgiIXsb?=
+ =?us-ascii?Q?i+qCZ0DPlTL6brezJIIeipqwDouEL0AwdYfN3JLWCw3eKzwArfogLnv82fri?=
+ =?us-ascii?Q?vK39JE5vQmDHd1GiuEixa34MkN0VJoSnS1LvuG5m9p9all4XBd5jaPT5SAFp?=
+ =?us-ascii?Q?XfaPNs7rl47p1QuRbaoWQWLBhDAgJiEkRj5eTliM+Tdob0KqnUcPqoXt797r?=
+ =?us-ascii?Q?cSzO8MdRxz9WD4ktbYzE+vP5L5Uh2f1ic0us20wdk3yTpQ6BF6ALdM2jFogL?=
+ =?us-ascii?Q?zq/6BzN3KAvy7PxtaZ27CSe+7eGeqa3ryN2cJnLXSSYqkPfMX/iOyi1TVhPI?=
+ =?us-ascii?Q?ErAL1Ai6s4eYyznfmmZZyMFZpKfCzdz4XyhxOqCAENxBHF2a0VqyAqcOK0Ss?=
+ =?us-ascii?Q?y7genk/SAXdodcgnVxY8lzs9J+GMQ0roTQzAUMr/FZ1eZ4eHIIK9y5sHcLMa?=
+ =?us-ascii?Q?vbqmv3gLTO2XjpW/k/scQ57CIGLo3/n5309Fs+24Kk3HtlSWYVeF3j6qQgWn?=
+ =?us-ascii?Q?0BOBPBdLCWHV/C2eVEODXnUi+v/hwKvk4QoTsxd6v1FAQumv30OnsvkoclfY?=
+ =?us-ascii?Q?3DPz5qXjMnrkNL5N6+b0SBtfzsyejjfFFN2ni3SiD8dDta/dSrhE4EBR15aC?=
+ =?us-ascii?Q?hyP5n6RF1tQHgsYLRAGcvd8RyXYOoBn8FoclqQVqwdrmaiFHNQQGPyp0+5Oq?=
+ =?us-ascii?Q?UpPSV90Fx6+k9P9WQ9W4wv+7e4AKzdaaBrc9akpnNwlEWg=3D=3D?=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <D08953FEDCCDF24EA43539FDE271F485@namprd10.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SJ0PR10MB4688.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d23f6091-77c9-4278-9449-08d95b5e2643
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Aug 2021 17:50:17.5467
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: KA4i5kUp6T+ohJPeDxOiXdyE+hEzp4n9GJh1zxOqhgrcm7RGWdAzEXHb407ZlfmDdG+1t1N3F4OmFTURWzVSgQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB5454
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=10071 signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 phishscore=0 mlxscore=0
+ spamscore=0 adultscore=0 bulkscore=0 malwarescore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
+ definitions=main-2108090126
+X-Proofpoint-GUID: NYHpcgp8-rSSOLjDL9VjfJLN2cT_9ca3
+X-Proofpoint-ORIG-GUID: NYHpcgp8-rSSOLjDL9VjfJLN2cT_9ca3
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 8/9/21 12:22 PM, Claudio Imbrenda wrote:
-> On Mon,  9 Aug 2021 10:48:54 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> 
->> STSI with function code 15 is used to store the CPU configuration
->> topology.
->>
-...
->>   
->> +static void check_sysinfo_15_1_x(struct sysinfo_15_1_x *info)
->> +{
->> +	struct topology_container *tc, *end;
->> +	struct topology_core *cpus;
->> +	int nb_nl0 = 0, nb_nl1 = 0, nb_nl2 = 0, nb_nl3 = 0;
->> +
->> +	if (mnest > 5)
->> +		report(info->mag6 == 0, "topology level 6");
->> +	if (mnest > 4)
->> +		report(info->mag5 == nodes, "Maximum number of
->> nodes");
->> +	if (mnest > 3)
->> +		report(info->mag4 == drawers, "Maximum number of
->> drawers");
->> +	if (mnest > 2)
->> +		report(info->mag3 == books, "Maximum number of
->> book");
-> 
-> * books
+> On Aug 3, 2021, at 6:59 AM, Thomas Huth <thuth@redhat.com> wrote:
+>=20
+> There is an endianess problem with /proc/sys/fs/nfs/nsm_use_hostnames
+> (which can e.g. be seen on an s390x host) :
+>=20
+> # modprobe lockd nsm_use_hostnames=3D1
+> # cat /proc/sys/fs/nfs/nsm_use_hostnames
+> 16777216
+>=20
+> The nsm_use_hostnames variable is declared as "bool" which is required
+> for the correct type for the module parameter. However, this does not
+> work correctly with the entry in the /proc filesystem since this
+> currently requires "int".
+>=20
+> Jia He already provided patches for this problem a couple of years ago,
+> but apparently they felt through the cracks and never got merged. So
+> here's a rebased version to finally fix this issue.
+>=20
+> Buglink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1764075
+>=20
+> Jia He (2):
+>  sysctl: introduce new proc handler proc_dobool
+>  lockd: change the proc_handler for nsm_use_hostnames
+>=20
+> fs/lockd/svc.c         |  2 +-
+> include/linux/sysctl.h |  2 ++
+> kernel/sysctl.c        | 42 ++++++++++++++++++++++++++++++++++++++++++
+> 3 files changed, 45 insertions(+), 1 deletion(-)
+>=20
+> --=20
+> 2.27.0
 
-right, thanks
+To get these patches in front of our zero-day apparatus,
+I've applied them to the for-next topic branch here:
 
-...
+https://git.kernel.org/pub/scm/linux/kernel/git/cel/linux.git/log/?h=3Dfor-=
+next
 
-regards,
-Pierre
+However I haven't seen an Ack for the kernel/sysctl.c change yet.
 
--- 
-Pierre Morel
-IBM Lab Boeblingen
+
+--
+Chuck Lever
+
+
+
