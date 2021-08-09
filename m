@@ -6,72 +6,66 @@ X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
 	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E17CC432BE
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 09:20:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF837C4338F
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 10:00:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6B0C461055
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 09:20:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9C7886108C
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 10:00:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234371AbhHIJU1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Aug 2021 05:20:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36380 "EHLO mail.kernel.org"
+        id S233677AbhHIKA2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Aug 2021 06:00:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234275AbhHIJU0 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 9 Aug 2021 05:20:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 6682760041;
-        Mon,  9 Aug 2021 09:20:06 +0000 (UTC)
+        id S233710AbhHIKA1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 9 Aug 2021 06:00:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id A25A361078;
+        Mon,  9 Aug 2021 10:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628500806;
-        bh=T3oLCeB1tPopCikpPUsxfKoatEE3T0wc4XiIJej+j+M=;
+        s=k20201202; t=1628503206;
+        bh=XA+nOFFfOitAeVWCvaqWFP5rvo55hpa4rhKn4SBrmE0=;
         h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=ekw6t3pWNl5nzLUcl7TkZg3+wnPc9+4cuWzAaI/U67pznIjdkvUK0tveCOXb+Fib+
-         MSbrBdIFlJZ0qIFfAMv/Q4K4klo7jAUHYlPXL462c+AGJhveZ0eyFZQC84EHgOZzD0
-         2cl9wng1fgzseCmO3hHCm79gIsZI4TeKyhK+ktezo6l7dqF1RpuvOy5Z8g6cev86UY
-         OOccnXoG4HQWqywFSkna6N1aj2QaQGEuET+7YLpaaTst1yJh6LgSHbGTwv2NDu6aiQ
-         lH1texb3plIm039E9bQNbCBHupBro0QqHL9+iBRyNw6LzoHi7T56QYxwi4tchM80S2
-         eX7ifzI7zgLpQ==
+        b=HzWVWeog/W4GjDC5nhLmAuJiEXwK8a0rhdWRLqMh8Fmz1PSU9DycaswA/Df5XGah5
+         Vn/vA5jCYj5ddVYJa2gCVOsD3fEPaUlMfTTCV32OSm0FoDDBjXdC3C+iBbkU5S/6A7
+         bJotzoqvp8yKNZhe0MhYmH8ee5N2Wgl1OFEiJnejmvjH8/mq1P6tr8y1bu7WkVxxZD
+         yFVw67UQw54/LR69S2pZMqbjTM07Ps1zxdsxrzZrQPAXilcDRJhsiwKJQvECxbhgkG
+         gDgBscBX/sLogCkTt5GxtDKBa9ER22TojiL7aXv61cdOFeo+t8zObv/iyDBCDZEKmV
+         GnCzQY4su+Now==
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next 0/5] net/iucv: updates 2021-08-09
+Subject: Re: [PATCH net 0/2] net/smc: fixes 2021-08-09
 From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162850080638.12236.6664484571643543885.git-patchwork-notify@kernel.org>
-Date:   Mon, 09 Aug 2021 09:20:06 +0000
-References: <20210809083050.2328336-1-kgraul@linux.ibm.com>
-In-Reply-To: <20210809083050.2328336-1-kgraul@linux.ibm.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
+Message-Id: <162850320661.31628.1752242837176441727.git-patchwork-notify@kernel.org>
+Date:   Mon, 09 Aug 2021 10:00:06 +0000
+References: <20210809090557.3121288-1-guvenc@linux.ibm.com>
+In-Reply-To: <20210809090557.3121288-1-guvenc@linux.ibm.com>
+To:     Guvenc Gulce <guvenc@linux.ibm.com>
 Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com, jwi@linux.ibm.com,
-        bigeasy@linutronix.de
+        linux-s390@vger.kernel.org, hca@linux.ibm.com, kgraul@linux.ibm.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 Hello:
 
-This series was applied to netdev/net-next.git (refs/heads/master):
+This series was applied to netdev/net.git (refs/heads/master):
 
-On Mon,  9 Aug 2021 10:30:45 +0200 you wrote:
-> Please apply the following iucv patches to netdev's net-next tree.
+On Mon,  9 Aug 2021 11:05:55 +0200 you wrote:
+> Hi Dave & Jakub,
 > 
-> Remove the usage of register asm statements and replace deprecated
-> CPU-hotplug functions with the current version.
-> Use use consume_skb() instead of kfree_skb() to avoid flooding
-> dropwatch with false-positives, and 2 patches with cleanups.
+> please apply the following patch series for smc to netdev's net tree.
+> One patch fixes invalid connection counting for links and the other
+> one fixes an access to an already cleared link.
+> 
+> Thanks,
 > 
 > [...]
 
 Here is the summary with links:
-  - [net-next,1/5] net/af_iucv: support drop monitoring
-    https://git.kernel.org/netdev/net-next/c/10d6393dc471
-  - [net-next,2/5] net/af_iucv: clean up a try_then_request_module()
-    https://git.kernel.org/netdev/net-next/c/4eb9eda6ba64
-  - [net-next,3/5] net/af_iucv: remove wrappers around iucv (de-)registration
-    https://git.kernel.org/netdev/net-next/c/ff8424be8ce3
-  - [net-next,4/5] net/iucv: get rid of register asm usage
-    https://git.kernel.org/netdev/net-next/c/50348fac2921
-  - [net-next,5/5] net/iucv: Replace deprecated CPU-hotplug functions.
-    https://git.kernel.org/netdev/net-next/c/8c39ed4876d4
+  - [net,1/2] net/smc: fix wait on already cleared link
+    https://git.kernel.org/netdev/net/c/8f3d65c16679
+  - [net,2/2] net/smc: Correct smc link connection counter in case of smc client
+    https://git.kernel.org/netdev/net/c/64513d269e89
 
 You are awesome, thank you!
 --
