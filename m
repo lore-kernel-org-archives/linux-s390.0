@@ -2,196 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46E3BC4338F
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 01:42:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 104A8C432BE
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 07:50:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2577A603E7
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 01:42:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EBC5B61055
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Aug 2021 07:50:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232680AbhHIBmV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 8 Aug 2021 21:42:21 -0400
-Received: from mga12.intel.com ([192.55.52.136]:16048 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232678AbhHIBmU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 8 Aug 2021 21:42:20 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10070"; a="194200409"
-X-IronPort-AV: E=Sophos;i="5.84,305,1620716400"; 
-   d="scan'208";a="194200409"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Aug 2021 18:41:59 -0700
-X-IronPort-AV: E=Sophos;i="5.84,305,1620716400"; 
-   d="scan'208";a="670624711"
-Received: from ctrondse-mobl.amr.corp.intel.com (HELO skuppusw-mobl5.amr.corp.intel.com) ([10.212.77.4])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Aug 2021 18:41:57 -0700
-Subject: Re: [PATCH 00/11] Implement generic prot_guest_has() helper function
-To:     Tom Lendacky <thomas.lendacky@amd.com>,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-graphics-maintainer@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org
-Cc:     Borislav Petkov <bp@alien8.de>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>, Baoquan He <bhe@redhat.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dave Young <dyoung@redhat.com>,
-        David Airlie <airlied@linux.ie>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Will Deacon <will@kernel.org>
-References: <cover.1627424773.git.thomas.lendacky@amd.com>
-From:   "Kuppuswamy, Sathyanarayanan" 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Message-ID: <0d75f283-50b7-460d-3165-185cb955bd70@linux.intel.com>
-Date:   Sun, 8 Aug 2021 18:41:54 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.11.0
+        id S233608AbhHIHuk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Aug 2021 03:50:40 -0400
+Received: from mail-vs1-f46.google.com ([209.85.217.46]:44652 "EHLO
+        mail-vs1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233614AbhHIHuh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Aug 2021 03:50:37 -0400
+Received: by mail-vs1-f46.google.com with SMTP id n22so9468509vsq.11;
+        Mon, 09 Aug 2021 00:50:17 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=NSkDBecKhj6XgHI95Z5g89aQzQ9wTkJ5QUH4uHs+PHw=;
+        b=j4AvqmT6q3euZhzNQNeV2rU1IuxgTu5x9UR1SjtvCwLuERUM64qGCdGqOVsFf+SLpz
+         op4C85+pT187ByCAcKsajqCUIr+2I0Tj8Y+7AoiO+3cUwEBUGCegkAFPf+vOtxPzuALr
+         JKRdhC1bShnN+FGbsekHoaUSbhkcA9IM+X5DV7FaePoHyqEvIS/TsgklchZMWnV8D30C
+         wvYHAhetPhhbCSmfhp0bn0Rhtizf6wOV6c/qqi1+7+yhG/p62sVc6QzDd+2WpftVgZ9R
+         vtdSo9P/y8byqNNW87Tin2PfOAHn87xhNiR58/K738IX9WuE/nK+QRQuetbyIfeU6yIN
+         o4Xg==
+X-Gm-Message-State: AOAM530zwSc5sA9wuUBtlNcSlXsk0dOoB+vZX2C76syLs0wRH4EwjXPj
+        ptAYMurSJfQt5NwpAwUSwEdJYH3O3lcMc6LG6sMIovZCZXHnrw==
+X-Google-Smtp-Source: ABdhPJwyzUqGggBh82zJedC1ezudY8M3CGBhbipUvvVxKcRpEZQp/J85EiOjTr/A4pLeQ3fz9QsU8e+W6uo4gY5xssg=
+X-Received: by 2002:a05:6102:d9:: with SMTP id u25mr6193125vsp.42.1628495416464;
+ Mon, 09 Aug 2021 00:50:16 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <cover.1627424773.git.thomas.lendacky@amd.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20210809073738.200237-1-geert@linux-m68k.org>
+In-Reply-To: <20210809073738.200237-1-geert@linux-m68k.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 9 Aug 2021 09:50:05 +0200
+Message-ID: <CAMuHMdXdHx_7t51F+wGDa1oigJnGt4FDBYHvx58FWVv_iGVxDg@mail.gmail.com>
+Subject: Re: Build regressions/improvements in v5.14-rc4
+To:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc:     linux-um <linux-um@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Tom,
+On Mon, Aug 9, 2021 at 9:40 AM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> JFYI, when comparing v5.14-rc4[1] to v5.14-rc3[3], the summaries are:
+>   - build errors: +5/-0
 
-On 7/27/21 3:26 PM, Tom Lendacky wrote:
-> This patch series provides a generic helper function, prot_guest_has(),
-> to replace the sme_active(), sev_active(), sev_es_active() and
-> mem_encrypt_active() functions.
-> 
-> It is expected that as new protected virtualization technologies are
-> added to the kernel, they can all be covered by a single function call
-> instead of a collection of specific function calls all called from the
-> same locations.
-> 
-> The powerpc and s390 patches have been compile tested only. Can the
-> folks copied on this series verify that nothing breaks for them.
+  + /kisskb/src/drivers/dma/idxd/init.c: error: implicit declaration
+of function 'cpu_feature_enabled'
+[-Werror=implicit-function-declaration]:  => 805:7
+  + /kisskb/src/drivers/dma/idxd/perfmon.h: error: 'struct perf_event'
+has no member named 'pmu':  => 24:13, 35:13
+  + /kisskb/src/drivers/dma/ioat/dca.c: error: implicit declaration of
+function 'boot_cpu_has' [-Werror=implicit-function-declaration]:  =>
+74:6
+  + /kisskb/src/drivers/dma/ioat/dca.c: error: implicit declaration of
+function 'cpuid_eax' [-Werror=implicit-function-declaration]:  =>
+64:18
+  + /kisskb/src/drivers/dma/ioat/dca.c: error: implicit declaration of
+function 'cpuid_ebx' [-Werror=implicit-function-declaration]:  =>
+17:31
 
-With this patch set, select ARCH_HAS_PROTECTED_GUEST and set
-CONFIG_AMD_MEM_ENCRYPT=n, creates following error.
+um-x86_64/um-allyesconfig
+(seen before on v5.14-rc2)
 
-ld: arch/x86/mm/ioremap.o: in function `early_memremap_is_setup_data':
-arch/x86/mm/ioremap.c:672: undefined reference to `early_memremap_decrypted'
+>   - build warnings: +3/-0
 
-It looks like early_memremap_is_setup_data() is not protected with
-appropriate config.
+  + /kisskb/src/drivers/iio/test/iio-test-format.c: warning: the frame
+size of 2128 bytes is larger than 2048 bytes [-Wframe-larger-than=]:
+=> 98:1
+  + /kisskb/src/drivers/thunderbolt/test.c: warning: the frame size of
+3168 bytes is larger than 2048 bytes [-Wframe-larger-than=]:  =>
+2207:1
+  + /kisskb/src/drivers/thunderbolt/test.c: warning: the frame size of
+7192 bytes is larger than 2048 bytes [-Wframe-larger-than=]:  =>
+2367:1
 
+s390x-gcc4.9/s390-allyesconfig
 
-> 
-> Cc: Andi Kleen <ak@linux.intel.com>
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Cc: Baoquan He <bhe@redhat.com>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: Daniel Vetter <daniel@ffwll.ch>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: Dave Young <dyoung@redhat.com>
-> Cc: David Airlie <airlied@linux.ie>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Joerg Roedel <joro@8bytes.org>
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Cc: Maxime Ripard <mripard@kernel.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: VMware Graphics <linux-graphics-maintainer@vmware.com>
-> Cc: Will Deacon <will@kernel.org>
-> 
-> ---
-> 
-> Patches based on:
->    https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git master
->    commit 79e920060fa7 ("Merge branch 'WIP/fixes'")
-> 
-> Tom Lendacky (11):
->    mm: Introduce a function to check for virtualization protection
->      features
->    x86/sev: Add an x86 version of prot_guest_has()
->    powerpc/pseries/svm: Add a powerpc version of prot_guest_has()
->    x86/sme: Replace occurrences of sme_active() with prot_guest_has()
->    x86/sev: Replace occurrences of sev_active() with prot_guest_has()
->    x86/sev: Replace occurrences of sev_es_active() with prot_guest_has()
->    treewide: Replace the use of mem_encrypt_active() with
->      prot_guest_has()
->    mm: Remove the now unused mem_encrypt_active() function
->    x86/sev: Remove the now unused mem_encrypt_active() function
->    powerpc/pseries/svm: Remove the now unused mem_encrypt_active()
->      function
->    s390/mm: Remove the now unused mem_encrypt_active() function
-> 
->   arch/Kconfig                               |  3 ++
->   arch/powerpc/include/asm/mem_encrypt.h     |  5 --
->   arch/powerpc/include/asm/protected_guest.h | 30 +++++++++++
->   arch/powerpc/platforms/pseries/Kconfig     |  1 +
->   arch/s390/include/asm/mem_encrypt.h        |  2 -
->   arch/x86/Kconfig                           |  1 +
->   arch/x86/include/asm/kexec.h               |  2 +-
->   arch/x86/include/asm/mem_encrypt.h         | 13 +----
->   arch/x86/include/asm/protected_guest.h     | 27 ++++++++++
->   arch/x86/kernel/crash_dump_64.c            |  4 +-
->   arch/x86/kernel/head64.c                   |  4 +-
->   arch/x86/kernel/kvm.c                      |  3 +-
->   arch/x86/kernel/kvmclock.c                 |  4 +-
->   arch/x86/kernel/machine_kexec_64.c         | 19 +++----
->   arch/x86/kernel/pci-swiotlb.c              |  9 ++--
->   arch/x86/kernel/relocate_kernel_64.S       |  2 +-
->   arch/x86/kernel/sev.c                      |  6 +--
->   arch/x86/kvm/svm/svm.c                     |  3 +-
->   arch/x86/mm/ioremap.c                      | 16 +++---
->   arch/x86/mm/mem_encrypt.c                  | 60 +++++++++++++++-------
->   arch/x86/mm/mem_encrypt_identity.c         |  3 +-
->   arch/x86/mm/pat/set_memory.c               |  3 +-
->   arch/x86/platform/efi/efi_64.c             |  9 ++--
->   arch/x86/realmode/init.c                   |  8 +--
->   drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c    |  4 +-
->   drivers/gpu/drm/drm_cache.c                |  4 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_drv.c        |  4 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_msg.c        |  6 +--
->   drivers/iommu/amd/init.c                   |  7 +--
->   drivers/iommu/amd/iommu.c                  |  3 +-
->   drivers/iommu/amd/iommu_v2.c               |  3 +-
->   drivers/iommu/iommu.c                      |  3 +-
->   fs/proc/vmcore.c                           |  6 +--
->   include/linux/mem_encrypt.h                |  4 --
->   include/linux/protected_guest.h            | 37 +++++++++++++
->   kernel/dma/swiotlb.c                       |  4 +-
->   36 files changed, 218 insertions(+), 104 deletions(-)
->   create mode 100644 arch/powerpc/include/asm/protected_guest.h
->   create mode 100644 arch/x86/include/asm/protected_guest.h
->   create mode 100644 include/linux/protected_guest.h
-> 
+> [1] http://kisskb.ellerman.id.au/kisskb/branch/linus/head/c500bee1c5b2f1d59b1081ac879d73268ab0ff17/ (182 out of 189 configs)
+> [3] http://kisskb.ellerman.id.au/kisskb/branch/linus/head/ff1176468d368232b684f75e82563369208bc371/ (182 out of 189 configs)
 
--- 
-Sathyanarayanan Kuppuswamy
-Linux Kernel Developer
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
