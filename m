@@ -2,217 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD6C3C432BE
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 08:49:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DB8AC4320A
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 09:12:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B5262610A4
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 08:49:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E3A6B610CB
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 09:12:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237871AbhHJIti (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Aug 2021 04:49:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40246 "EHLO
+        id S237748AbhHJJNR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Aug 2021 05:13:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237569AbhHJIth (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Aug 2021 04:49:37 -0400
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F9DC061799
-        for <linux-s390@vger.kernel.org>; Tue, 10 Aug 2021 01:49:16 -0700 (PDT)
-Received: by mail-ot1-x329.google.com with SMTP id a7-20020a9d5c870000b029050333abe08aso7391768oti.13
-        for <linux-s390@vger.kernel.org>; Tue, 10 Aug 2021 01:49:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=mJvqFMrFyC5HN29/1laUi8N0RvWoYgo0Ab1qvuvHTEE=;
-        b=x7m0XTiGBYRi6EVx7ZndV6sWn8CwnRMBsgAqcmc4SWsqPUYcRyK1bdItpxlHgoorA3
-         detcIqL0uZB8zLYz217UYDQlQNmOfzmVyxL9yJI1kyGB4gY5Q/5pBqiNE1DECMiBg5BR
-         8VUI8QAjC8t2D0mmkVHzmOkmmB2PI4vwPWfJag+BNmprGnu5pXEEfeFkeCin32qb/e0d
-         F9wQOOUk2gY36MwWS4ECXYvxeEOfX2+xtjppLlcwWA87CmnTMvTrSh4ig8hfPMwA73lk
-         Lw13s01rLWtQodpnBKzUMTRKYqkARAj3hjBYNJVU8+NqU1Lr1/WwSmitXo2MUY9cwBd1
-         lqew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mJvqFMrFyC5HN29/1laUi8N0RvWoYgo0Ab1qvuvHTEE=;
-        b=FyWWjiRzBSO+O06KiyHVC5Ox30m7q/Wxwo5+bcK3LwlhA3uicyluONN+44RBEZVASt
-         czX8n8KBDJV4PwQyE5DiTLBpD0ktW/HksWkuRKuyzrLK8hdTLnYBwk11SAyVDb26Z7pa
-         fi1pGpRlIn7NT3TqMnQK2UVdYNZVPZxP5DBejmJZkytuZCE01VKnzaDRum2/FiFDmAlb
-         nrFbr7lHCRxQhRvi/kpDcvh4voXfjWYfCO5yjlj0iib88bGeYhKjUNSBpYRcMfnppjaB
-         8stpEygG7YZhczsB0FQ68gxAGP7Y03kTh1HeJo9V7fROaHeJ7ni0cusw+87YSBBmCTBY
-         Hd1Q==
-X-Gm-Message-State: AOAM531FI1ybqSthigIJly2Jno75GcV2V9n2uarxPSJkt4Xio4LQxYem
-        YAQ/cYiLHuiVi3ohUNPh4qx9qEu6WVsA9m3JWN6xZg==
-X-Google-Smtp-Source: ABdhPJypice4yN7OjjE+e0d3Oneqm+CAC/I0NkEJK16FX9j2XlM6PS8mJ3yq+sodXeKPm4zxn7YuFjieRnFMdk2n/Gw=
-X-Received: by 2002:a9d:38f:: with SMTP id f15mr18504480otf.253.1628585355309;
- Tue, 10 Aug 2021 01:49:15 -0700 (PDT)
+        with ESMTP id S232897AbhHJJNO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Aug 2021 05:13:14 -0400
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A89FC0613D3;
+        Tue, 10 Aug 2021 02:12:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=8vt89Y6r+9GV+oFHjxZBGO2/Fiby2OsZ3MlYOti3J4Y=; b=UugJXkM0/kCE0nZHIyj6L438t
+        iCcuNqHh0+zzKlCRxGss8klqt2RqaFkXhpOESSTrJxE9fbquLbrg0H7Kt6zDWE6+WT4YrMWErzNXD
+        FD5VCM/8yqJNZP7ODUXQ+nik+cFY6xf/VAoQyPxXxYMhZR5frmK1eGn7NlWHE9mXWKFTjv8xMqUs9
+        t9o1fbtAaBRWx8VYdKtkb6j4LDd2eNAvjCJOnWPuplmaCdM7VZGf4RGnnfI/irfj5t5zo3UtfLaCN
+        f9v7C+qiPBJ1ABNYQ5ey6qeKq2dgVwIOeyZpJfTQptYUpA0TFDqb88QVEOKhfEwq08hFLh3+OKvUv
+        kyDXxh3OQ==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:47142)
+        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1mDNoR-0006oG-7K; Tue, 10 Aug 2021 10:12:43 +0100
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1mDNoM-00023a-V5; Tue, 10 Aug 2021 10:12:38 +0100
+Date:   Tue, 10 Aug 2021 10:12:38 +0100
+From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
+To:     Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc:     Leon Romanovsky <leon@kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Vadym Kochan <vkochan@marvell.com>,
+        Taras Chornyi <tchornyi@marvell.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
+        Lars Povlsen <lars.povlsen@microchip.com>,
+        Steen Hegelund <Steen.Hegelund@microchip.com>,
+        "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Jianbo Liu <jianbol@nvidia.com>,
+        Vlad Buslov <vladbu@nvidia.com>,
+        Bjarni Jonasson <bjarni.jonasson@microchip.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Tobias Waldekranz <tobias@waldekranz.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Ido Schimmel <idosch@idosch.org>
+Subject: Re: [PATCH net] net: switchdev: zero-initialize struct
+ switchdev_notifier_fdb_info emitted by drivers towards the bridge
+Message-ID: <20210810091238.GB1343@shell.armlinux.org.uk>
+References: <20210809131152.509092-1-vladimir.oltean@nxp.com>
+ <YRIhwQ3ji8eqPQOQ@unreal>
+ <20210810081616.wjx6jnlh3qxqsfm2@skbuf>
 MIME-Version: 1.0
-References: <YIlXQ43b6+7sUl+f@hirez.programming.kicks-ass.net>
- <20210707123402.13999-1-borntraeger@de.ibm.com> <20210707123402.13999-2-borntraeger@de.ibm.com>
- <20210723093523.GX3809@techsingularity.net> <ddb81bc9-1429-c392-adac-736e23977c84@de.ibm.com>
- <20210723162137.GY3809@techsingularity.net> <1acd7520-bd4b-d43d-302a-8dcacf6defa5@de.ibm.com>
- <xm2635rza8l2.fsf@google.com> <d9543747-c75f-28c2-6af3-8d9a134717a6@de.ibm.com>
-In-Reply-To: <d9543747-c75f-28c2-6af3-8d9a134717a6@de.ibm.com>
-From:   Vincent Guittot <vincent.guittot@linaro.org>
-Date:   Tue, 10 Aug 2021 10:49:03 +0200
-Message-ID: <CAKfTPtCwP9cV0AQCuwUDAMPvXYdR9Bi0QMbbonCtVbFRpUv0XQ@mail.gmail.com>
-Subject: Re: [PATCH 1/1] sched/fair: improve yield_to vs fairness
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Benjamin Segall <bsegall@google.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Josh Don <joshdon@google.com>,
-        Juri Lelli <juri.lelli@redhat.com>, kvm@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-s390@vger.kernel.org,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Mel Gorman <mgorman@suse.de>, Ingo Molnar <mingo@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Valentin Schneider <valentin.schneider@arm.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210810081616.wjx6jnlh3qxqsfm2@skbuf>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 28 Jul 2021 at 18:24, Christian Borntraeger
-<borntraeger@de.ibm.com> wrote:
->
->
->
-> On 27.07.21 20:57, Benjamin Segall wrote:
-> > Christian Borntraeger <borntraeger@de.ibm.com> writes:
-> >
-> >> On 23.07.21 18:21, Mel Gorman wrote:
-> >>> On Fri, Jul 23, 2021 at 02:36:21PM +0200, Christian Borntraeger wrote:
-> >>>>> sched: Do not select highest priority task to run if it should be skipped
-> >>>>>
-> >>>>> <SNIP>
-> >>>>>
-> >>>>> index 44c452072a1b..ddc0212d520f 100644
-> >>>>> --- a/kernel/sched/fair.c
-> >>>>> +++ b/kernel/sched/fair.c
-> >>>>> @@ -4522,7 +4522,8 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
-> >>>>>                           se = second;
-> >>>>>           }
-> >>>>> - if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
-> >>>>> + if (cfs_rq->next &&
-> >>>>> +     (cfs_rq->skip == left || wakeup_preempt_entity(cfs_rq->next, left) < 1)) {
-> >>>>>                   /*
-> >>>>>                    * Someone really wants this to run. If it's not unfair, run it.
-> >>>>>                    */
-> >>>>>
-> >>>>
-> >>>> I do see a reduction in ignored yields, but from a performance aspect for my
-> >>>> testcases this patch does not provide a benefit, while the the simple
-> >>>>    curr->vruntime += sysctl_sched_min_granularity;
-> >>>> does.
-> >>> I'm still not a fan because vruntime gets distorted. From the docs
-> >>>      Small detail: on "ideal" hardware, at any time all tasks would have the
-> >>> same
-> >>>      p->se.vruntime value --- i.e., tasks would execute simultaneously and no task
-> >>>      would ever get "out of balance" from the "ideal" share of CPU time
-> >>> If yield_to impacts this "ideal share" then it could have other
-> >>> consequences.
-> >>> I think your patch may be performing better in your test case because every
-> >>> "wrong" task selected that is not the yield_to target gets penalised and
-> >>> so the yield_to target gets pushed up the list.
-> >>>
-> >>>> I still think that your approach is probably the cleaner one, any chance to improve this
-> >>>> somehow?
-> >>>>
-> >>> Potentially. The patch was a bit off because while it noticed that skip
-> >>> was not being obeyed, the fix was clumsy and isolated. The current flow is
-> >>> 1. pick se == left as the candidate
-> >>> 2. try pick a different se if the "ideal" candidate is a skip candidate
-> >>> 3. Ignore the se update if next or last are set
-> >>> Step 3 looks off because it ignores skip if next or last buddies are set
-> >>> and I don't think that was intended. Can you try this?
-> >>> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-> >>> index 44c452072a1b..d56f7772a607 100644
-> >>> --- a/kernel/sched/fair.c
-> >>> +++ b/kernel/sched/fair.c
-> >>> @@ -4522,12 +4522,12 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
-> >>>                     se = second;
-> >>>     }
-> >>>    -        if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
-> >>> +   if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, se) < 1) {
-> >>>             /*
-> >>>              * Someone really wants this to run. If it's not unfair, run it.
-> >>>              */
-> >>>             se = cfs_rq->next;
-> >>> -   } else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, left) < 1) {
-> >>> +   } else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, se) < 1) {
-> >>>             /*
-> >>>              * Prefer last buddy, try to return the CPU to a preempted task.
-> >>>              */
-> >>>
-> >>
-> >> This one alone does not seem to make a difference. Neither in ignored yield, nor
-> >> in performance.
-> >>
-> >> Your first patch does really help in terms of ignored yields when
-> >> all threads are pinned to one host CPU. After that we do have no ignored yield
-> >> it seems. But it does not affect the performance of my testcase.
-> >> I did some more experiments and I removed the wakeup_preempt_entity checks in
-> >> pick_next_entity - assuming that this will result in source always being stopped
-> >> and target always being picked. But still, no performance difference.
-> >> As soon as I play with vruntime I do see a difference (but only without the cpu cgroup
-> >> controller). I will try to better understand the scheduler logic and do some more
-> >> testing. If you have anything that I should test, let me know.
-> >>
-> >> Christian
-> >
-> > If both yielder and target are in the same cpu cgroup or the cpu cgroup
-> > is disabled (ie, if cfs_rq_of(p->se) matches), you could try
-> >
-> > if (p->se.vruntime > rq->curr->se.vruntime)
-> >       swap(p->se.vruntime, rq->curr->se.vruntime)
->
-> I tried that and it does not show the performance benefit. I then played with my
-> patch (uses different values to add) and the benefit seems to be depending on the
-> size that is being added, maybe when swapping it was just not large enough.
->
-> I have to say that this is all a bit unclear what and why performance improves.
-> It just seems that the cpu cgroup controller has a fair share of the performance
-> problems.
->
-> I also asked the performance people to run some measurements and the numbers of
-> some transactional workload under KVM was
-> baseline: 11813
-> with much smaller sched_latency_ns and sched_migration_cost_ns: 16419
+On Tue, Aug 10, 2021 at 08:16:17AM +0000, Vladimir Oltean wrote:
+> Hi Leon,
+> 
+> On Tue, Aug 10, 2021 at 09:50:41AM +0300, Leon Romanovsky wrote:
+> > > +	memset(&send_info, 0, sizeof(send_info));
+> > 
+> > This can be written simpler.
+> > struct switchdev_notifier_fdb_info send_info = {};
+> > 
+> > In all places.
+> 
+> Because the structure contains a sub-structure, I believe that a
+> compound literal initializer would require additional braces for the
+> initialization of its sub-objects too. At least I know that expressions
+> like that have attracted the attention of clang people in the past:
+> https://patchwork.ozlabs.org/project/netdev/patch/20190506202447.30907-1-natechancellor@gmail.com/
+> So I went for the 'unambiguous' path.
 
-Have you also tried to increase sched_wakeup_granularity which is used
-to decide whether we can preempt curr ?
+There's a difference between:
 
-> with cpu controller disabled: 15962
-> with cpu controller disabled + my patch: 16782
+	struct foo bar = { 0 };
 
-Your patch modifies the vruntime of the task but cgroup sched_entity
-stays unchanged. Scheduler starts to compare the vruntime of the
-sched_entity of the group before reaching your task. That's probably
-why your patch doesn't help with cgroup and will be difficult to
-extend to cgroup because the yield of the task should not impact the
-other entities in the group.
+and
 
->
-> I will be travelling the next 2 weeks, so I can continue with more debugging
-> after that.
->
-> Thanks for all the ideas and help so far.
->
-> Christian
->
-> > as well as the existing buddy flags, as an entirely fair vruntime boost
-> > to the target.
-> >
-> > For when they aren't direct siblings, you /could/ use find_matching_se,
-> > but it's much less clear that's desirable, since it would yield vruntime
-> > for the entire hierarchy to the target's hierarchy.
-> >
+	struct foo bar = { };
+
+The former tells the compiler that you wish to set the first member of
+struct foo, which will be an integer type, to zero. The latter is an
+empty initialiser where all members and sub-members of the structure
+default to a zero value.
+
+You should have no problem with the latter. You will encounter problems
+with the former if the first member of struct foo is not an integer
+type.
+
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
