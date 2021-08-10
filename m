@@ -2,134 +2,270 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 743FCC4338F
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 00:07:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 187FDC4338F
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 06:50:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 53B6C60C40
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 00:07:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EDF6B6105A
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 06:50:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237130AbhHJAH4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Aug 2021 20:07:56 -0400
-Received: from conssluserg-01.nifty.com ([210.131.2.80]:16916 "EHLO
-        conssluserg-01.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237108AbhHJAHz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Aug 2021 20:07:55 -0400
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176]) (authenticated)
-        by conssluserg-01.nifty.com with ESMTP id 17A073gm027642;
-        Tue, 10 Aug 2021 09:07:03 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-01.nifty.com 17A073gm027642
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1628554023;
-        bh=YHT1wdO9BJeEnVYWadet580A1QtIyBQoR9aiFtvfZGQ=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=qpeaZfj1S52In9OqzugDwJq7LR5sf7DfsN2Ra4D4/7Mj7Sk8kVQ+Ze4SEJu9nxAWr
-         zuOtjmoizVRjdYz+IQ1+0hk8/3F2IkCEiA2JrFs51NCRM2ZTqC5Oz6bzK7nbjxIe86
-         Z4E0Ot1qLc47QDixlLSWr2EeR9DD9eoLOPKsiB/dE4KOQ+zO2rG8SnFmK9m//xIJyL
-         IzO79wsh46l09Bdey5qYnr7xjz6Mp0DFimoh1qGoaQeyaHrOihwNammcKKBbKJDr2d
-         Q0l6y+oOFPYo0z0mNu9C0TpATi4L3yAjIbTSVJ2i+uAHpW8cmyS4JrZDGyxB7uj4bb
-         KYwCOXGXlc7XA==
-X-Nifty-SrcIP: [209.85.214.176]
-Received: by mail-pl1-f176.google.com with SMTP id j3so18531277plx.4;
-        Mon, 09 Aug 2021 17:07:03 -0700 (PDT)
-X-Gm-Message-State: AOAM531hLOgbSq7Md+AJ3QkWY66rLc67hOigjihaUpsY84xskrgxQs6F
-        qvHaWI/gIFhQlpeGGkqhjvbkS99C5g6YR9cK2tg=
-X-Google-Smtp-Source: ABdhPJz5g2UH5l3Gvz6QSJjrySe0RZ6IE4VBgrreB7tp3UOmjppEP2ZS0P89yIPjgFj+aYeVphRC5LeTe/8xavReZBE=
-X-Received: by 2002:a63:dd51:: with SMTP id g17mr282732pgj.47.1628554022572;
- Mon, 09 Aug 2021 17:07:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210806172701.3993843-1-ndesaulniers@google.com> <YQ2TGPwjvn8w4rKs@archlinux-ax161>
-In-Reply-To: <YQ2TGPwjvn8w4rKs@archlinux-ax161>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Tue, 10 Aug 2021 09:06:25 +0900
-X-Gmail-Original-Message-ID: <CAK7LNARitJhPF5sggQ_k2885TSS3VbKQ0APAE7G8ANsYxxmz1g@mail.gmail.com>
-Message-ID: <CAK7LNARitJhPF5sggQ_k2885TSS3VbKQ0APAE7G8ANsYxxmz1g@mail.gmail.com>
-Subject: Re: [PATCH v2] scripts/Makefile.clang: default to LLVM_IAS=1
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Khem Raj <raj.khem@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:SIFIVE DRIVERS" <linux-riscv@lists.infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        id S235069AbhHJGvG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Aug 2021 02:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44076 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231482AbhHJGvG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 10 Aug 2021 02:51:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E072961058;
+        Tue, 10 Aug 2021 06:50:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1628578244;
+        bh=JjReMicYs22Uk8N6pHcKsGXWWy4yMa3MVM4yZqWclpI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rmSRM6debqIguNMgoIJvU5/hS5KrulbaDN/jmM3CCB/e4Mj8Hn0Yb9QmB4xzxqzpN
+         MDrXLdQ4fsUuM7WwrBY6pUet9TV4+t8/pMTRUBkBrK6dPhRPahNuO/CnZm/gNGZpKs
+         dA3V2Hc5Px1iV0BfoiJ2erYfUOo2/Rq2cOC6YaPamNfKU6xRQJPRwng9Qdiy84B87o
+         ptYKg9IIN1W3YHm1heotEjrsc/MgxCbsu1tyYUhq+BzZaAvbAu5pLTn95Ixm6f2YHb
+         3ThByDlQ3XS1owI72yryXV88qugMv0dBn8fOoYcxyimLvFucXdIftTxfgwjtxmhjHB
+         pe3uQOS1J+WWA==
+Date:   Tue, 10 Aug 2021 09:50:41 +0300
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc:     netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Vadym Kochan <vkochan@marvell.com>,
+        Taras Chornyi <tchornyi@marvell.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
+        Lars Povlsen <lars.povlsen@microchip.com>,
+        Steen Hegelund <Steen.Hegelund@microchip.com>,
+        UNGLinuxDriver@microchip.com,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Jianbo Liu <jianbol@nvidia.com>,
+        Vlad Buslov <vladbu@nvidia.com>,
+        Bjarni Jonasson <bjarni.jonasson@microchip.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Tobias Waldekranz <tobias@waldekranz.com>,
+        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
+        linux-s390@vger.kernel.org, Ido Schimmel <idosch@idosch.org>
+Subject: Re: [PATCH net] net: switchdev: zero-initialize struct
+ switchdev_notifier_fdb_info emitted by drivers towards the bridge
+Message-ID: <YRIhwQ3ji8eqPQOQ@unreal>
+References: <20210809131152.509092-1-vladimir.oltean@nxp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210809131152.509092-1-vladimir.oltean@nxp.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Aug 7, 2021 at 4:53 AM Nathan Chancellor <nathan@kernel.org> wrote:
->
-> On Fri, Aug 06, 2021 at 10:27:01AM -0700, Nick Desaulniers wrote:
-> > LLVM_IAS=1 controls enabling clang's integrated assembler via
-> > -integrated-as. This was an explicit opt in until we could enable
-> > assembler support in Clang for more architecures. Now we have support
-> > and CI coverage of LLVM_IAS=1 for all architecures except a few more
-> > bugs affecting s390 and powerpc.
->
-> The powerpc and s390 folks have been testing with clang, I think they
-> should have been on CC for this change (done now).
->
-> > This commit flips the default from opt in via LLVM_IAS=1 to opt out via
-> > LLVM_IAS=0.  CI systems or developers that were previously doing builds
-> > with CC=clang or LLVM=1 without explicitly setting LLVM_IAS must now
-> > explicitly opt out via LLVM_IAS=0, otherwise they will be implicitly
-> > opted-in.
-> >
-> > This finally shortens the command line invocation when cross compiling
-> > with LLVM to simply:
-> >
-> > $ make ARCH=arm64 LLVM=1
-> >
-> > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
->
-> I am still not really sure how I feel about this. I would prefer not to
-> break people's builds but I suppose this is inevitabile eventually.
->
-> A little support matrix that I drafted up where based on ARCH and clang
-> version for LLVM_IAS=1 support:
->
->              | 10.x | 11.x | 12.x | 13.x | 14.x |
-> ARCH=arm     |  NO  |  NO  |  NO  |  YES |  YES |
-> ARCH=arm64   |  NO  |  YES |  YES |  YES |  YES |
-> ARCH=i386    |  YES |  YES |  YES |  YES |  YES |
-> ARCH=mips*   |  YES |  YES |  YES |  YES |  YES |
-> ARCH=powerpc |  NO  |  NO  |  NO  |  NO  |  NO  |
-> ARCH=s390    |  NO  |  NO  |  NO  |  NO  |  NO  |
-> ARCH=x86_64  |  NO  |  YES |  YES |  YES |  YES |
->
-> The main issue that I have with this change is that all of these
-> architectures work fine with CC=clang and their build commands that used
-> to work fine will not with this change, as they will have to specify
-> LLVM_IAS=0. I think that making this change for LLVM=1 makes sense but
-> changing the default for just CC=clang feels like a bit much at this
-> point in time. I would love to hear from others on this though, I am not
-> going to object much further than this.
->
-> Regardless of that concern, this patch does what it says so:
->
-> Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+On Mon, Aug 09, 2021 at 04:11:52PM +0300, Vladimir Oltean wrote:
+> The blamed commit a new field to struct switchdev_notifier_fdb_info, but
+> did not make sure that all call paths set it to something valid. For
+> example, a switchdev driver may emit a SWITCHDEV_FDB_ADD_TO_BRIDGE
+> notifier, and since the 'is_local' flag is not set, it contains junk
+> from the stack, so the bridge might interpret those notifications as
+> being for local FDB entries when that was not intended.
+> 
+> To avoid that now and in the future, zero-initialize all
+> switchdev_notifier_fdb_info structures created by drivers such that all
+> newly added fields to not need to touch drivers again.
+> 
+> Fixes: 2c4eca3ef716 ("net: bridge: switchdev: include local flag in FDB notifications")
+> Reported-by: Ido Schimmel <idosch@idosch.org>
+> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+> ---
+>  drivers/net/ethernet/marvell/prestera/prestera_switchdev.c | 2 ++
+>  drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c       | 1 +
+>  drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c      | 2 ++
+>  drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c   | 1 +
+>  drivers/net/ethernet/microchip/sparx5/sparx5_mactable.c    | 1 +
+>  drivers/net/ethernet/rocker/rocker_main.c                  | 1 +
+>  drivers/net/ethernet/rocker/rocker_ofdpa.c                 | 1 +
+>  drivers/net/ethernet/ti/am65-cpsw-switchdev.c              | 1 +
+>  drivers/net/ethernet/ti/cpsw_switchdev.c                   | 1 +
+>  drivers/s390/net/qeth_l2_main.c                            | 2 ++
+>  net/dsa/slave.c                                            | 1 +
+>  11 files changed, 14 insertions(+)
+> 
+> diff --git a/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c b/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
+> index 0b3e8f2db294..cf60e80dd3ba 100644
+> --- a/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
+> +++ b/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
+> @@ -750,6 +750,7 @@ prestera_fdb_offload_notify(struct prestera_port *port,
+>  {
+>  	struct switchdev_notifier_fdb_info send_info;
+>  
+> +	memset(&send_info, 0, sizeof(send_info));
 
+This can be written simpler.
+struct switchdev_notifier_fdb_info send_info = {};
 
-Applied to linux-kbuild.
-Thanks.
+In all places.
 
+Thanks
 
--- 
-Best Regards
-Masahiro Yamada
+>  	send_info.addr = info->addr;
+>  	send_info.vid = info->vid;
+>  	send_info.offloaded = true;
+> @@ -1146,6 +1147,7 @@ static void prestera_fdb_event(struct prestera_switch *sw,
+>  	if (!dev)
+>  		return;
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = evt->fdb_evt.data.mac;
+>  	info.vid = evt->fdb_evt.vid;
+>  	info.offloaded = true;
+> diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
+> index a6e1d4f78268..77e09397a062 100644
+> --- a/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
+> +++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
+> @@ -71,6 +71,7 @@ mlx5_esw_bridge_fdb_offload_notify(struct net_device *dev, const unsigned char *
+>  {
+>  	struct switchdev_notifier_fdb_info send_info;
+>  
+> +	memset(&send_info, 0, sizeof(send_info));
+>  	send_info.addr = addr;
+>  	send_info.vid = vid;
+>  	send_info.offloaded = true;
+> diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+> index 7e221ef01437..8a7660f2d048 100644
+> --- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+> +++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+> @@ -9086,6 +9086,7 @@ static void mlxsw_sp_rif_fid_fdb_del(struct mlxsw_sp_rif *rif, const char *mac)
+>  	if (!dev)
+>  		return;
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = mac;
+>  	info.vid = 0;
+>  	call_switchdev_notifiers(SWITCHDEV_FDB_DEL_TO_BRIDGE, dev, &info.info,
+> @@ -9137,6 +9138,7 @@ static void mlxsw_sp_rif_vlan_fdb_del(struct mlxsw_sp_rif *rif, const char *mac)
+>  	if (!dev)
+>  		return;
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = mac;
+>  	info.vid = vid;
+>  	call_switchdev_notifiers(SWITCHDEV_FDB_DEL_TO_BRIDGE, dev, &info.info,
+> diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+> index c5ef9aa64efe..f016d909bead 100644
+> --- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+> +++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+> @@ -2510,6 +2510,7 @@ mlxsw_sp_fdb_call_notifiers(enum switchdev_notifier_type type,
+>  {
+>  	struct switchdev_notifier_fdb_info info;
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = mac;
+>  	info.vid = vid;
+>  	info.offloaded = offloaded;
+> diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_mactable.c b/drivers/net/ethernet/microchip/sparx5/sparx5_mactable.c
+> index 0443f66b5550..fbc3f5e65882 100644
+> --- a/drivers/net/ethernet/microchip/sparx5/sparx5_mactable.c
+> +++ b/drivers/net/ethernet/microchip/sparx5/sparx5_mactable.c
+> @@ -279,6 +279,7 @@ static void sparx5_fdb_call_notifiers(enum switchdev_notifier_type type,
+>  {
+>  	struct switchdev_notifier_fdb_info info;
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = mac;
+>  	info.vid = vid;
+>  	info.offloaded = offloaded;
+> diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
+> index a46633606cae..49d548be9fe4 100644
+> --- a/drivers/net/ethernet/rocker/rocker_main.c
+> +++ b/drivers/net/ethernet/rocker/rocker_main.c
+> @@ -2717,6 +2717,7 @@ rocker_fdb_offload_notify(struct rocker_port *rocker_port,
+>  {
+>  	struct switchdev_notifier_fdb_info info;
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = recv_info->addr;
+>  	info.vid = recv_info->vid;
+>  	info.offloaded = true;
+> diff --git a/drivers/net/ethernet/rocker/rocker_ofdpa.c b/drivers/net/ethernet/rocker/rocker_ofdpa.c
+> index 967a634ee9ac..7d954fd24134 100644
+> --- a/drivers/net/ethernet/rocker/rocker_ofdpa.c
+> +++ b/drivers/net/ethernet/rocker/rocker_ofdpa.c
+> @@ -1824,6 +1824,7 @@ static void ofdpa_port_fdb_learn_work(struct work_struct *work)
+>  	bool learned = (lw->flags & OFDPA_OP_FLAG_LEARNED);
+>  	struct switchdev_notifier_fdb_info info;
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = lw->addr;
+>  	info.vid = lw->vid;
+>  
+> diff --git a/drivers/net/ethernet/ti/am65-cpsw-switchdev.c b/drivers/net/ethernet/ti/am65-cpsw-switchdev.c
+> index 9c29b363e9ae..81d2b1765a66 100644
+> --- a/drivers/net/ethernet/ti/am65-cpsw-switchdev.c
+> +++ b/drivers/net/ethernet/ti/am65-cpsw-switchdev.c
+> @@ -360,6 +360,7 @@ static void am65_cpsw_fdb_offload_notify(struct net_device *ndev,
+>  {
+>  	struct switchdev_notifier_fdb_info info;
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = rcv->addr;
+>  	info.vid = rcv->vid;
+>  	info.offloaded = true;
+> diff --git a/drivers/net/ethernet/ti/cpsw_switchdev.c b/drivers/net/ethernet/ti/cpsw_switchdev.c
+> index f7fb6e17dadd..446bdab06bdd 100644
+> --- a/drivers/net/ethernet/ti/cpsw_switchdev.c
+> +++ b/drivers/net/ethernet/ti/cpsw_switchdev.c
+> @@ -370,6 +370,7 @@ static void cpsw_fdb_offload_notify(struct net_device *ndev,
+>  {
+>  	struct switchdev_notifier_fdb_info info;
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = rcv->addr;
+>  	info.vid = rcv->vid;
+>  	info.offloaded = true;
+> diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+> index 2abf86c104d5..843dd4f4d8d7 100644
+> --- a/drivers/s390/net/qeth_l2_main.c
+> +++ b/drivers/s390/net/qeth_l2_main.c
+> @@ -283,6 +283,7 @@ static void qeth_l2_dev2br_fdb_flush(struct qeth_card *card)
+>  
+>  	QETH_CARD_TEXT(card, 2, "fdbflush");
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = NULL;
+>  	/* flush all VLANs: */
+>  	info.vid = 0;
+> @@ -693,6 +694,7 @@ static void qeth_l2_dev2br_fdb_notify(struct qeth_card *card, u8 code,
+>  	if (qeth_is_my_net_if_token(card, token))
+>  		return;
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = ntfy_mac;
+>  	/* don't report VLAN IDs */
+>  	info.vid = 0;
+> diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+> index 532085da8d8f..1cb7f7e56784 100644
+> --- a/net/dsa/slave.c
+> +++ b/net/dsa/slave.c
+> @@ -2298,6 +2298,7 @@ dsa_fdb_offload_notify(struct dsa_switchdev_event_work *switchdev_work)
+>  	if (!dsa_is_user_port(ds, switchdev_work->port))
+>  		return;
+>  
+> +	memset(&info, 0, sizeof(info));
+>  	info.addr = switchdev_work->addr;
+>  	info.vid = switchdev_work->vid;
+>  	info.offloaded = true;
+> -- 
+> 2.25.1
+> 
