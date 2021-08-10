@@ -2,350 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CB7FC41537
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 16:22:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3E3BC4320A
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 18:45:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E6D6060ED8
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 16:22:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9993560EB2
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 18:45:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234710AbhHJQW4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Aug 2021 12:22:56 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37234 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234331AbhHJQWz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Aug 2021 12:22:55 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17AG34o6012182;
-        Tue, 10 Aug 2021 12:22:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references; s=pp1;
- bh=HXLjn3TiI1BG+ZuSoYjVNQNM/rtVtLplTEvSlcyJOqU=;
- b=leaiETAe7Pi3/WKdORZwuEPl7zglFH9SZNxbbi21YkeQuf9JZ36JtyKK0zp5w/lRru3i
- uTIH2wLnsTwZ3TFDsMWHLfX1z36AeWoD5ucWa8MhwmEC7nYco8vkGNitiGZDsrWIDKlU
- SAhHJrvJtnuXzUkTY4OY9jvZberDXWIkt1fR8dQC4CpxDLIiI6vPuYl1k1U7upMi3plD
- oy+PUem1u2RD+XBlO6qYyvPZce5upo/+UCLTUNOb1VM+jWKTo8PAcyVFFnieZtIcQPr2
- LXhb7rueWTZF91UKiIXZ4899iLTK5gsjke9yPcW26V6VQbaLNtF2MrZwSraH9WZjF0F6 NQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3abt96wcfp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 Aug 2021 12:22:32 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17AG38Tq012723;
-        Tue, 10 Aug 2021 12:22:32 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3abt96wcfb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 Aug 2021 12:22:32 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17AGGT7j022122;
-        Tue, 10 Aug 2021 16:22:31 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06fra.de.ibm.com with ESMTP id 3abaq49j7v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 Aug 2021 16:22:30 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17AGJFOs56754618
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 Aug 2021 16:19:15 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 95142AE04D;
-        Tue, 10 Aug 2021 16:22:27 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3B9CCAE065;
-        Tue, 10 Aug 2021 16:22:27 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.176.19])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 10 Aug 2021 16:22:27 +0000 (GMT)
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        cohuck@redhat.com, imbrenda@linux.ibm.com, david@redhat.com
-Subject: [kvm-unit-tests PATCH v2 4/4] s390x: topology: Checking Configuration Topology Information
-Date:   Tue, 10 Aug 2021 18:22:24 +0200
-Message-Id: <1628612544-25130-5-git-send-email-pmorel@linux.ibm.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1628612544-25130-1-git-send-email-pmorel@linux.ibm.com>
-References: <1628612544-25130-1-git-send-email-pmorel@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: DUDgY_PPyPvrhb6UGuM726qdxz7zLv8C
-X-Proofpoint-GUID: mtzOukNHyOdMfYCXxbb8W4D6cXep2Abs
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-10_07:2021-08-10,2021-08-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 suspectscore=0 adultscore=0
- priorityscore=1501 impostorscore=0 mlxlogscore=999 malwarescore=0
- mlxscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108100103
+        id S229799AbhHJSpb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Aug 2021 14:45:31 -0400
+Received: from mga04.intel.com ([192.55.52.120]:6970 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229480AbhHJSpb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 10 Aug 2021 14:45:31 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10072"; a="213112915"
+X-IronPort-AV: E=Sophos;i="5.84,310,1620716400"; 
+   d="scan'208";a="213112915"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2021 11:45:07 -0700
+X-IronPort-AV: E=Sophos;i="5.84,310,1620716400"; 
+   d="scan'208";a="515946770"
+Received: from pdmuelle-desk2.amr.corp.intel.com (HELO skuppusw-mobl5.amr.corp.intel.com) ([10.213.166.202])
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2021 11:45:06 -0700
+Subject: Re: [PATCH 07/11] treewide: Replace the use of mem_encrypt_active()
+ with prot_guest_has()
+To:     Tom Lendacky <thomas.lendacky@amd.com>,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-graphics-maintainer@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org
+Cc:     Borislav Petkov <bp@alien8.de>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Will Deacon <will@kernel.org>, Dave Young <dyoung@redhat.com>,
+        Baoquan He <bhe@redhat.com>
+References: <cover.1627424773.git.thomas.lendacky@amd.com>
+ <029791b24c6412f9427cfe6ec598156c64395964.1627424774.git.thomas.lendacky@amd.com>
+From:   "Kuppuswamy, Sathyanarayanan" 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>
+Message-ID: <166f30d8-9abb-02de-70d8-6e97f44f85df@linux.intel.com>
+Date:   Tue, 10 Aug 2021 11:45:04 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.11.0
+MIME-Version: 1.0
+In-Reply-To: <029791b24c6412f9427cfe6ec598156c64395964.1627424774.git.thomas.lendacky@amd.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-STSI with function code 15 is used to store the CPU configuration
-topology.
 
-We check if the topology stored is coherent with the QEMU -smp
-parameters.
-The current check is done on the number of CPUs, the maximum number
-of CPUs, the number of sockets and the number of cores per sockets.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- s390x/topology.c    | 208 ++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |   1 +
- 2 files changed, 209 insertions(+)
+On 7/27/21 3:26 PM, Tom Lendacky wrote:
+> diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+> index de01903c3735..cafed6456d45 100644
+> --- a/arch/x86/kernel/head64.c
+> +++ b/arch/x86/kernel/head64.c
+> @@ -19,7 +19,7 @@
+>   #include <linux/start_kernel.h>
+>   #include <linux/io.h>
+>   #include <linux/memblock.h>
+> -#include <linux/mem_encrypt.h>
+> +#include <linux/protected_guest.h>
+>   #include <linux/pgtable.h>
+>   
+>   #include <asm/processor.h>
+> @@ -285,7 +285,7 @@ unsigned long __head __startup_64(unsigned long physaddr,
+>   	 * there is no need to zero it after changing the memory encryption
+>   	 * attribute.
+>   	 */
+> -	if (mem_encrypt_active()) {
+> +	if (prot_guest_has(PATTR_MEM_ENCRYPT)) {
+>   		vaddr = (unsigned long)__start_bss_decrypted;
+>   		vaddr_end = (unsigned long)__end_bss_decrypted;
 
-diff --git a/s390x/topology.c b/s390x/topology.c
-index a0dc3b9e..be6f5abc 100644
---- a/s390x/topology.c
-+++ b/s390x/topology.c
-@@ -17,6 +17,53 @@
- #include <sclp.h>
- 
- static int machine_level;
-+static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
-+static int mnest;
-+static long max_cpus;
-+static long cores;
-+static long sockets;
-+static long books;
-+static long drawers;
-+static long nodes;
-+static long ncpus;
-+
-+struct topology_core {
-+	unsigned char nl;
-+	unsigned char reserved0[3];
-+	unsigned char :5;
-+	unsigned char d:1;
-+	unsigned char pp:2;
-+	unsigned char type;
-+	unsigned short origin;
-+	unsigned long mask;
-+};
-+
-+struct topology_container {
-+	unsigned char nl;
-+	unsigned char reserved[6];
-+	unsigned char id;
-+};
-+
-+union topology_entry {
-+	unsigned char nl;
-+	struct topology_core cpu;
-+	struct topology_container container;
-+};
-+
-+struct sysinfo_15_1_x {
-+	unsigned char reserved0[2];
-+	unsigned short length;
-+	unsigned char mag6;
-+	unsigned char mag5;
-+	unsigned char mag4;
-+	unsigned char mag3;
-+	unsigned char mag2;
-+	unsigned char mag1;
-+	unsigned char reserved1;
-+	unsigned char mnest;
-+	unsigned char reserved2[4];
-+	union topology_entry tle[0];
-+};
- 
- #define PTF_REQ_HORIZONTAL	0
- #define PTF_REQ_VERTICAL	1
-@@ -79,10 +126,170 @@ end:
- 	report_prefix_pop();
- }
- 
-+static void check_sysinfo_15_1_x(struct sysinfo_15_1_x *info)
-+{
-+	struct topology_container *tc, *end;
-+	struct topology_core *cpus;
-+	int nb_nl0 = 0, nb_nl1 = 0, nb_nl2 = 0, nb_nl3 = 0;
-+
-+	if (mnest > 5)
-+		report(info->mag6 == 0, "topology level 6");
-+	if (mnest > 4)
-+		report(info->mag5 == nodes, "Maximum number of nodes");
-+	if (mnest > 3)
-+		report(info->mag4 == drawers, "Maximum number of drawers");
-+	if (mnest > 2)
-+		report(info->mag3 == books, "Maximum number of books");
-+
-+	/* Both levels 2 and 1 are always valid */
-+	report(info->mag2 == sockets, "Maximum number of sockets");
-+	report(info->mag1 == cores, "Maximum number of cores");
-+
-+	tc = (void *)&info->tle[0];
-+	end = (struct topology_container *)((unsigned long)info + info->length);
-+
-+	while (tc < end) {
-+		switch (tc->nl) {
-+		case 3:
-+			report_info("drawer: %d %d", tc->nl, tc->id);
-+			nb_nl3++;
-+			break;
-+		case 2:
-+			report_info("book  : %d %d", tc->nl, tc->id);
-+			nb_nl2++;
-+			break;
-+		case 1:
-+			report_info("socket: %d %d", tc->nl, tc->id);
-+			nb_nl1++;
-+			break;
-+		case 0:
-+			cpus = (struct topology_core *) tc;
-+			report_info("cpu type %02x  d: %d pp: %d", cpus->type, cpus->d, cpus->pp);
-+			report_info("origin : %04x mask %016lx", cpus->origin, cpus->mask);
-+			tc++;
-+			nb_nl0++;
-+			break;
-+		default:
-+			report_abort("Unexpected TL Entry: tle->nl: %d", tc->nl);
-+			return;
-+		}
-+		tc++;
-+	}
-+	/*
-+	 * As we accept only 1 type of CPU, and only horizontal and dedicated CPUs
-+	 * We expect max_cpus / cores CPU entries
-+	 */
-+	report(nb_nl0 ==  (1 + (ncpus - 1) / cores),
-+			  "Check count of cores: %d %ld", nb_nl0, ncpus / cores);
-+	/* We expect the same count of sockets and CPU entries */
-+	report(nb_nl1 ==  nb_nl0, "Check count of sockets");
-+	if (mnest > 2)
-+		report(nb_nl2 == nb_nl1 / sockets, "Checks count of books");
-+	if (mnest > 3)
-+		report(nb_nl3 == nb_nl2 / books, "Checks count of drawers");
-+}
-+
-+static void test_stsi(void)
-+{
-+	int ret;
-+
-+	mnest = sclp_get_stsi_parm();
-+	/* If the STSI parm is 0, the maximum MNEST for STSI is 2 */
-+	if (!mnest)
-+		mnest = 2;
-+	report_info("SCLP MNEST : %d", mnest);
-+
-+	ret = sclp_get_cpu_num();
-+	report_info("SCLP nb CPU: %d", ret);
-+
-+	ret = stsi(pagebuf, 15, 1, 2);
-+	report(!ret, "valid stsi 15.1.2");
-+	if (!ret)
-+		check_sysinfo_15_1_x((struct sysinfo_15_1_x *)pagebuf);
-+	else
-+		report_info(" ret: %d", ret);
-+
-+	if (mnest < 3) {
-+		report(stsi(pagebuf, 15, 1, 3) == 3, "invalid stsi 15.1.3");
-+	} else {
-+		report(stsi(pagebuf, 15, 1, 3) == 0, "valid stsi 15.1.3");
-+		check_sysinfo_15_1_x((struct sysinfo_15_1_x *)pagebuf);
-+	}
-+
-+	if (mnest < 4) {
-+		report(stsi(pagebuf, 15, 1, 4) == 3, "invalid stsi 15.1.4");
-+	} else {
-+		report(stsi(pagebuf, 15, 1, 4) == 0, "valid stsi 15.1.4");
-+		check_sysinfo_15_1_x((struct sysinfo_15_1_x *)pagebuf);
-+	}
-+
-+	if (mnest < 5) {
-+		report(stsi(pagebuf, 15, 1, 5) == 3, "invalid stsi 15.1.5");
-+	} else {
-+		report(stsi(pagebuf, 15, 1, 5) == 0, "valid stsi 15.1.5");
-+		check_sysinfo_15_1_x((struct sysinfo_15_1_x *)pagebuf);
-+	}
-+
-+	if (mnest < 6) {
-+		report(stsi(pagebuf, 15, 1, 6) == 3, "invalid stsi 15.1.6");
-+	} else {
-+		report(stsi(pagebuf, 15, 1, 6) == 0, "valid stsi 15.1.6");
-+		check_sysinfo_15_1_x((struct sysinfo_15_1_x *)pagebuf);
-+	}
-+}
-+
-+static void parse_topology_args(int argc, char **argv)
-+{
-+	int i;
-+
-+	for (i = 1; i < argc; i++) {
-+		if (!strcmp("-c", argv[i])) {
-+			i++;
-+			if (i >= argc)
-+				report_abort("-c (cores) needs a parameter");
-+			cores = atol(argv[i]);
-+		} else if (!strcmp("-s", argv[i])) {
-+			i++;
-+			if (i >= argc)
-+				report_abort("-s (sockets) needs a parameter");
-+			sockets = atol(argv[i]);
-+		} else if (!strcmp("-b", argv[i])) {
-+			i++;
-+			if (i >= argc)
-+				report_abort("-b (books) needs a parameter");
-+			books = atol(argv[i]);
-+		} else if (!strcmp("-d", argv[i])) {
-+			i++;
-+			if (i >= argc)
-+				report_abort("-d (drawers) needs a parameter");
-+			drawers = atol(argv[i]);
-+		} else if (!strcmp("-n", argv[i])) {
-+			i++;
-+			if (i >= argc)
-+				report_abort("-n (nodes) needs a parameter");
-+			nodes = atol(argv[i]);
-+		}
-+	}
-+	if (!cores)
-+		cores = 1;
-+	if (!sockets)
-+		sockets = 1;
-+	if (!books)
-+		books = 1;
-+	if (!drawers)
-+		drawers = 1;
-+	if (!nodes)
-+		nodes = 1;
-+	max_cpus = cores * sockets * books * drawers * nodes;
-+	ncpus = smp_query_num_cpus();
-+}
-+
- int main(int argc, char *argv[])
- {
- 	report_prefix_push("CPU Topology");
- 
-+	parse_topology_args(argc, argv);
-+
- 	if (!test_facility(11)) {
- 		report_skip("Topology facility not present");
- 		goto end;
-@@ -92,6 +299,7 @@ int main(int argc, char *argv[])
- 	report_info("Machine level %d", machine_level);
- 
- 	test_ptf();
-+	test_stsi();
- 
- end:
- 	report_prefix_pop();
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 0f84d279..390e8398 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -112,3 +112,4 @@ file = mvpg-sie.elf
- 
- [topology]
- file = topology.elf
-+extra_params=-smp 5,sockets=4,cores=4,maxcpus=16 -append "-n 5 -s 4 -c 4 -m 16"
+
+Since this change is specific to AMD, can you replace PATTR_MEM_ENCRYPT with
+prot_guest_has(PATTR_SME) || prot_guest_has(PATTR_SEV). It is not used in
+TDX.
+
 -- 
-2.25.1
-
+Sathyanarayanan Kuppuswamy
+Linux Kernel Developer
