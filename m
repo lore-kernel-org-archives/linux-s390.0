@@ -2,106 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61878C4338F
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 13:08:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB12AC4338F
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 15:01:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 42C0160F38
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 13:08:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C1D6060F02
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 15:01:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239294AbhHJNIt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Aug 2021 09:08:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44722 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238793AbhHJNIs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Aug 2021 09:08:48 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B935AC0613D3;
-        Tue, 10 Aug 2021 06:08:26 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id e19so35299192ejs.9;
-        Tue, 10 Aug 2021 06:08:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=xs/+O7rAz0hyKzsctUcio2WQZUKn46iac13X1YxyLOs=;
-        b=HCCl7rgFmcy3zKwIxkaZ/SBUd8zqPrb094075z1tmOI4VPtPFJxydk1aoQ4B2mcRJ2
-         cQbJUQDbzcm1dkhCvmLco8Me5ubngY8nbgtYF0sJ4eL85zbQyFqLGyp/ySVX1oMF/iSG
-         vbjIbxMCaeikvl+bgs/I6KvQSlwON8h6QIJ/y4JkTJzU3UePnUxBhQOh1L7I7o6lC6Va
-         ajSBOfrGIA0UG06ic10DngwwBxhWDA2POkbpQH93j60p7JEWn4jt32GvxfG2iNSy4hfj
-         yyCxV6P1vKnmRiuGGEdWGMZQPJ5OaIGrTF36KT7jCgkXxKcljAlP0sCWBR/x3nM56IYM
-         tq6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=xs/+O7rAz0hyKzsctUcio2WQZUKn46iac13X1YxyLOs=;
-        b=H3uO4uX3kTzkyDqsI6ddJbwdtQ5lQL+5yR9AaGTABOvQqiWqC6881CxtuyfW90vwKg
-         Pd0xAdu9HKfusKypLX2RTIba4WeYUe3t8Z62/85XeXxQzvHm6Jz6TIpJacgJD1ajaIAt
-         F/pHvixOkWZS0d1D+Pcn0dgDKh81sB1l7hkGe1ayWUjhgQbX5CaTGSmurI4epFQ8iSXb
-         JjD/cvQgJuA5MG991EpQBD2WYeA/9egyxS3e4R4Ze/SCuTWlYBg4RI07ZWdteNON15Il
-         rDMQwPiBRqIIK85oTQ2uY//atSLvBBxT677/Sg9TGtMdapQSnuO+hHj0h/a3q+EAFkwI
-         nltA==
-X-Gm-Message-State: AOAM531SegdyiacFQIUb8leS8bsyYS9U3zWeZTbi8FvEUBrZSiM/Rwxk
-        cb3VbqIMO/h8EQl1SNToMLE=
-X-Google-Smtp-Source: ABdhPJwUr/73rEkMhaIveh98iMIskFOJfJbfcePSx7fWzOrGY6Gd0FewqY2WalFFgiQ4kd1+ecE4PA==
-X-Received: by 2002:a17:906:dfe5:: with SMTP id lc5mr27153744ejc.20.1628600905375;
-        Tue, 10 Aug 2021 06:08:25 -0700 (PDT)
-Received: from skbuf ([188.25.144.60])
-        by smtp.gmail.com with ESMTPSA id b25sm9645288edv.9.2021.08.10.06.08.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Aug 2021 06:08:24 -0700 (PDT)
-Date:   Tue, 10 Aug 2021 16:08:21 +0300
-From:   Vladimir Oltean <olteanv@gmail.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>, netdev@vger.kernel.org,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vadym Kochan <vkochan@marvell.com>,
-        Taras Chornyi <tchornyi@marvell.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
-        Lars Povlsen <lars.povlsen@microchip.com>,
-        Steen Hegelund <Steen.Hegelund@microchip.com>,
-        UNGLinuxDriver@microchip.com,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S242421AbhHJPBc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Aug 2021 11:01:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:47366 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S239443AbhHJPBb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 10 Aug 2021 11:01:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1628607669;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RTXz3ikSpV209MnT5rDr3f83EI1kiMwH0E1+MqiJoiI=;
+        b=JxS6L892YV+I9zdIgJ8U+vG/KIWoZAl9hHw7O9lavbvMMd5Q1rKTyuF308enXUC26k36/I
+        lABiktx3Ycuaynk3npcrX8lmJuijzfZeZR42xHYSztVJFYl6oSsUOIPIOuIGicchBdqD5w
+        xgoL0p+jRYQPs7MrVoeccafZb/YzZYo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-96-gwEukTkBMOKq4Ilmjc8DwQ-1; Tue, 10 Aug 2021 11:01:04 -0400
+X-MC-Unique: gwEukTkBMOKq4Ilmjc8DwQ-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F1424801B3C;
+        Tue, 10 Aug 2021 15:01:00 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.120])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5243219CBA;
+        Tue, 10 Aug 2021 15:01:00 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Christoph Hellwig <hch@lst.de>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>,
+        Eric Farman <farman@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Jianbo Liu <jianbol@nvidia.com>,
-        Vlad Buslov <vladbu@nvidia.com>,
-        Bjarni Jonasson <bjarni.jonasson@microchip.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Tobias Waldekranz <tobias@waldekranz.com>,
-        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
-        linux-s390@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        Ido Schimmel <idosch@idosch.org>
-Subject: Re: [PATCH v2 net] net: switchdev: zero-initialize struct
- switchdev_notifier_fdb_info emitted by drivers towards the bridge
-Message-ID: <20210810130821.7gdngordzzxkpws3@skbuf>
-References: <20210810115024.1629983-1-vladimir.oltean@nxp.com>
- <dfa98bf7-cab4-4076-ef5f-880a8baa89ee@linux.ibm.com>
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Tarun Gupta <targupta@nvidia.com>
+Subject: Re: s390 common I/O layer locking
+In-Reply-To: <7d751173-09b2-f49e-13ac-a72129f36f74@linux.ibm.com>
+Organization: Red Hat GmbH
+References: <0-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
+ <7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com>
+ <20210428190949.4360afb7.cohuck@redhat.com>
+ <20210428172008.GV1370958@nvidia.com>
+ <20210429135855.443b7a1b.cohuck@redhat.com>
+ <20210429181347.GA3414759@nvidia.com>
+ <20210430143140.378904bf.cohuck@redhat.com>
+ <20210430171908.GD1370958@nvidia.com>
+ <20210503125440.0acd7c1f.cohuck@redhat.com>
+ <292442e8-3b1a-56c4-b974-05e8b358ba64@linux.ibm.com>
+ <20210724132400.GA19006@lst.de>
+ <7d751173-09b2-f49e-13ac-a72129f36f74@linux.ibm.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Tue, 10 Aug 2021 17:00:58 +0200
+Message-ID: <878s19wdhx.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dfa98bf7-cab4-4076-ef5f-880a8baa89ee@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Aug 10, 2021 at 02:41:48PM +0200, Karsten Graul wrote:
-> On 10/08/2021 13:50, Vladimir Oltean wrote:
-> > The blamed commit a new field to struct switchdev_notifier_fdb_info, but
->                   ^^^ added?
+On Tue, Aug 03 2021, Vineeth Vijayan <vneethv@linux.ibm.com> wrote:
 
-yes. but I won't send a v3 just for that. thanks for noticing.
+> On 7/24/21 3:24 PM, Christoph Hellwig wrote:
+>> On Tue, May 04, 2021 at 05:10:42PM +0200, Vineeth Vijayan wrote:
+> ...snip...
+>>> I just had a quick glance on the CIO layer drivers. And at first=20
+>>> look, you
+>>> are right.
+>>> It looks likewe need modifications in the event callbacks (referring css
+>>> here)
+>>> Let me go thoughthis thoroughly and update.
+>> Did this go anywhere?
+> Hello Christoph,
+>
+> Thank you for this reminder. Also, my apologies for the slow reply; This=
+=20
+> was one of those item which really needed this reminder :-)
+>
+> Coming to the point, The event-callbacks=C2=A0 are under sch->lock, which=
+ i=20
+> think is the right thing to do. But i also agree on your feedback about=20
+> the sch->driver accesses in the css_evaluate_known_subchannel() call. My=
+=20
+> first impression was to add them under device_lock(). As Conny=20
+> mentioned, most of the drivers on the css-bus remained-stable during the=
+=20
+> lifetime of the devices, and we never got this racy scenario.=C2=A0 And t=
+hen=20
+> having this change with device_lock(), as you mentioned,this code-base=20
+> would need significant change in the sch_event callbacks. I am not sure=20
+> if there is a straight forward solution for this locking-issue
+> scenario.
+
+Hm, I may have lost my way in the code, but I think ->sch_event is
+called _without_ the subchannel lock being held? It is only taken in
+e.g. io_subchannel_sch_event.
+
+->chp_event is called with the subchannel lock held, though.
+
+>
+> Currently, i am trying to see the "minimal" change i can work on on the=20
+> event-callbacks and the css_evaluate_known_subchannel() call, to make=20
+> sure that, this racy condition can never occur.
+>
+> Conny,
+>
+> Please do let me know if you think i am missing something here. I would=20
+> like to concentrate more on the sch->driver() access scenario first and=20
+> would like to see how it can have minimal impact on the event-callbacks.=
+=20
+> especially io_subchannel_sch_event.
+
+Given that the code changing sch->driver holds the device lock, but not
+the subchannel lock, you probably need to make sure that the device lock
+is held? It has been some time since I've done more complicated work in
+the common I/O layer, though, and I might be missing something.
+
