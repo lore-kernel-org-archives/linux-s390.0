@@ -2,73 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1799C4338F
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 08:26:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7D52C4338F
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 08:34:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 93B6B60200
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 08:26:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC5716108F
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 08:34:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237577AbhHJI1S (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Aug 2021 04:27:18 -0400
-Received: from verein.lst.de ([213.95.11.211]:35145 "EHLO verein.lst.de"
+        id S236678AbhHJIeV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Aug 2021 04:34:21 -0400
+Received: from verein.lst.de ([213.95.11.211]:35196 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232772AbhHJI1R (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Aug 2021 04:27:17 -0400
+        id S234937AbhHJIeU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 10 Aug 2021 04:34:20 -0400
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id 2F59F67373; Tue, 10 Aug 2021 10:26:48 +0200 (CEST)
-Date:   Tue, 10 Aug 2021 10:26:47 +0200
+        id AD61C67373; Tue, 10 Aug 2021 10:33:55 +0200 (CEST)
+Date:   Tue, 10 Aug 2021 10:33:55 +0200
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
         Harald Freudenberger <freude@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
         Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>
-Subject: Re: [PATCH v4 09/14] vfio/pci: Change vfio_pci_try_bus_reset() to
- use the dev_set
-Message-ID: <20210810082647.GA21036@lst.de>
-References: <0-v4-9ea22c5e6afb+1adf-vfio_reflck_jgg@nvidia.com> <9-v4-9ea22c5e6afb+1adf-vfio_reflck_jgg@nvidia.com>
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, kvm@vger.kernel.org
+Subject: Re: [PATCH v3] vfio/ap_ops: Convert to use
+ vfio_register_group_dev()
+Message-ID: <20210810083355.GB21036@lst.de>
+References: <0-v3-9f48485c5e22+3cb9-vfio_ap_jgg@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9-v4-9ea22c5e6afb+1adf-vfio_reflck_jgg@nvidia.com>
+In-Reply-To: <0-v3-9f48485c5e22+3cb9-vfio_ap_jgg@nvidia.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Looks good,
+On Fri, Aug 06, 2021 at 04:51:15PM -0300, Jason Gunthorpe wrote:
+> This is straightforward conversion, the ap_matrix_mdev is actually serving as
+> the vfio_device and we can replace all the mdev_get_drvdata()'s with a
+> simple container_of() or a dev_get_drvdata() for sysfs paths.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c     | 155 +++++++++++++++-----------
+>  drivers/s390/crypto/vfio_ap_private.h |   2 +
+>  2 files changed, 91 insertions(+), 66 deletions(-)
+> 
+> Alex,
+> 
+> This is after the reflck series and should thus go to the vfio tree. Thanks
+> 
+> v3:
+>  - Rebase ontop of the reflk patch series
+>  - Remove module get/put
+>  - Update commit message
+> v2: https://lore.kernel.org/linux-s390/6-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com/
+> v1: https://lore.kernel.org/linux-s390/6-v1-d88406ed308e+418-vfio3_jgg@nvidia.com/
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index cee5626fe0a4ef..0828c188babedf 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -24,8 +24,9 @@
+>  #define VFIO_AP_MDEV_TYPE_HWVIRT "passthrough"
+>  #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
+>  
+> -static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+> +static int vfio_ap_mdev_reset_queues(struct ap_matrix_mdev *matrix_mdev);
+>  static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
+> +static const struct vfio_device_ops vfio_ap_matrix_dev_ops;
+>  
+>  static int match_apqn(struct device *dev, const void *data)
+>  {
+> @@ -335,45 +336,59 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
+>  	matrix->adm_max = info->apxa ? info->Nd : 15;
+>  }
+>  
+> -static int vfio_ap_mdev_create(struct mdev_device *mdev)
+> +static int vfio_ap_mdev_probe(struct mdev_device *mdev)
+>  {
+>  	struct ap_matrix_mdev *matrix_mdev;
+> +	int ret;
+>  
+>  	if ((atomic_dec_if_positive(&matrix_dev->available_instances) < 0))
+>  		return -EPERM;
+>  
+>  	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
+>  	if (!matrix_mdev) {
+> -		atomic_inc(&matrix_dev->available_instances);
+> -		return -ENOMEM;
+> +		ret = -ENOMEM;
+> +		goto err_atomic;
+
+Nit: the label naming here is very strange.  Somethig like
+err_dec_avaiable would be much more descriptive.
+
+> +static struct mdev_driver vfio_ap_matrix_driver = {
+> +	.driver = {
+> +		.name = "vfio_ap_mdev",
+> +		.owner = THIS_MODULE,
+> +		.mod_name = KBUILD_MODNAME,
+
+No need to set mod_name.
+
+Otherwise looks good:
 
 Reviewed-by: Christoph Hellwig <hch@lst.de>
