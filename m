@@ -2,119 +2,217 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7D52C4338F
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 08:34:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD6C3C432BE
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 08:49:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CC5716108F
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 08:34:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5262610A4
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 08:49:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236678AbhHJIeV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Aug 2021 04:34:21 -0400
-Received: from verein.lst.de ([213.95.11.211]:35196 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234937AbhHJIeU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Aug 2021 04:34:20 -0400
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id AD61C67373; Tue, 10 Aug 2021 10:33:55 +0200 (CEST)
-Date:   Tue, 10 Aug 2021 10:33:55 +0200
-From:   Christoph Hellwig <hch@lst.de>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Tony Krowiak <akrowiak@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, kvm@vger.kernel.org
-Subject: Re: [PATCH v3] vfio/ap_ops: Convert to use
- vfio_register_group_dev()
-Message-ID: <20210810083355.GB21036@lst.de>
-References: <0-v3-9f48485c5e22+3cb9-vfio_ap_jgg@nvidia.com>
+        id S237871AbhHJIti (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Aug 2021 04:49:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40246 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237569AbhHJIth (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Aug 2021 04:49:37 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F9DC061799
+        for <linux-s390@vger.kernel.org>; Tue, 10 Aug 2021 01:49:16 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id a7-20020a9d5c870000b029050333abe08aso7391768oti.13
+        for <linux-s390@vger.kernel.org>; Tue, 10 Aug 2021 01:49:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mJvqFMrFyC5HN29/1laUi8N0RvWoYgo0Ab1qvuvHTEE=;
+        b=x7m0XTiGBYRi6EVx7ZndV6sWn8CwnRMBsgAqcmc4SWsqPUYcRyK1bdItpxlHgoorA3
+         detcIqL0uZB8zLYz217UYDQlQNmOfzmVyxL9yJI1kyGB4gY5Q/5pBqiNE1DECMiBg5BR
+         8VUI8QAjC8t2D0mmkVHzmOkmmB2PI4vwPWfJag+BNmprGnu5pXEEfeFkeCin32qb/e0d
+         F9wQOOUk2gY36MwWS4ECXYvxeEOfX2+xtjppLlcwWA87CmnTMvTrSh4ig8hfPMwA73lk
+         Lw13s01rLWtQodpnBKzUMTRKYqkARAj3hjBYNJVU8+NqU1Lr1/WwSmitXo2MUY9cwBd1
+         lqew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mJvqFMrFyC5HN29/1laUi8N0RvWoYgo0Ab1qvuvHTEE=;
+        b=FyWWjiRzBSO+O06KiyHVC5Ox30m7q/Wxwo5+bcK3LwlhA3uicyluONN+44RBEZVASt
+         czX8n8KBDJV4PwQyE5DiTLBpD0ktW/HksWkuRKuyzrLK8hdTLnYBwk11SAyVDb26Z7pa
+         fi1pGpRlIn7NT3TqMnQK2UVdYNZVPZxP5DBejmJZkytuZCE01VKnzaDRum2/FiFDmAlb
+         nrFbr7lHCRxQhRvi/kpDcvh4voXfjWYfCO5yjlj0iib88bGeYhKjUNSBpYRcMfnppjaB
+         8stpEygG7YZhczsB0FQ68gxAGP7Y03kTh1HeJo9V7fROaHeJ7ni0cusw+87YSBBmCTBY
+         Hd1Q==
+X-Gm-Message-State: AOAM531FI1ybqSthigIJly2Jno75GcV2V9n2uarxPSJkt4Xio4LQxYem
+        YAQ/cYiLHuiVi3ohUNPh4qx9qEu6WVsA9m3JWN6xZg==
+X-Google-Smtp-Source: ABdhPJypice4yN7OjjE+e0d3Oneqm+CAC/I0NkEJK16FX9j2XlM6PS8mJ3yq+sodXeKPm4zxn7YuFjieRnFMdk2n/Gw=
+X-Received: by 2002:a9d:38f:: with SMTP id f15mr18504480otf.253.1628585355309;
+ Tue, 10 Aug 2021 01:49:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0-v3-9f48485c5e22+3cb9-vfio_ap_jgg@nvidia.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+References: <YIlXQ43b6+7sUl+f@hirez.programming.kicks-ass.net>
+ <20210707123402.13999-1-borntraeger@de.ibm.com> <20210707123402.13999-2-borntraeger@de.ibm.com>
+ <20210723093523.GX3809@techsingularity.net> <ddb81bc9-1429-c392-adac-736e23977c84@de.ibm.com>
+ <20210723162137.GY3809@techsingularity.net> <1acd7520-bd4b-d43d-302a-8dcacf6defa5@de.ibm.com>
+ <xm2635rza8l2.fsf@google.com> <d9543747-c75f-28c2-6af3-8d9a134717a6@de.ibm.com>
+In-Reply-To: <d9543747-c75f-28c2-6af3-8d9a134717a6@de.ibm.com>
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+Date:   Tue, 10 Aug 2021 10:49:03 +0200
+Message-ID: <CAKfTPtCwP9cV0AQCuwUDAMPvXYdR9Bi0QMbbonCtVbFRpUv0XQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] sched/fair: improve yield_to vs fairness
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     Benjamin Segall <bsegall@google.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Josh Don <joshdon@google.com>,
+        Juri Lelli <juri.lelli@redhat.com>, kvm@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-s390@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Mel Gorman <mgorman@suse.de>, Ingo Molnar <mingo@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Valentin Schneider <valentin.schneider@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 06, 2021 at 04:51:15PM -0300, Jason Gunthorpe wrote:
-> This is straightforward conversion, the ap_matrix_mdev is actually serving as
-> the vfio_device and we can replace all the mdev_get_drvdata()'s with a
-> simple container_of() or a dev_get_drvdata() for sysfs paths.
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c     | 155 +++++++++++++++-----------
->  drivers/s390/crypto/vfio_ap_private.h |   2 +
->  2 files changed, 91 insertions(+), 66 deletions(-)
-> 
-> Alex,
-> 
-> This is after the reflck series and should thus go to the vfio tree. Thanks
-> 
-> v3:
->  - Rebase ontop of the reflk patch series
->  - Remove module get/put
->  - Update commit message
-> v2: https://lore.kernel.org/linux-s390/6-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com/
-> v1: https://lore.kernel.org/linux-s390/6-v1-d88406ed308e+418-vfio3_jgg@nvidia.com/
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index cee5626fe0a4ef..0828c188babedf 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -24,8 +24,9 @@
->  #define VFIO_AP_MDEV_TYPE_HWVIRT "passthrough"
->  #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
->  
-> -static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
-> +static int vfio_ap_mdev_reset_queues(struct ap_matrix_mdev *matrix_mdev);
->  static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
-> +static const struct vfio_device_ops vfio_ap_matrix_dev_ops;
->  
->  static int match_apqn(struct device *dev, const void *data)
->  {
-> @@ -335,45 +336,59 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
->  	matrix->adm_max = info->apxa ? info->Nd : 15;
->  }
->  
-> -static int vfio_ap_mdev_create(struct mdev_device *mdev)
-> +static int vfio_ap_mdev_probe(struct mdev_device *mdev)
->  {
->  	struct ap_matrix_mdev *matrix_mdev;
-> +	int ret;
->  
->  	if ((atomic_dec_if_positive(&matrix_dev->available_instances) < 0))
->  		return -EPERM;
->  
->  	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
->  	if (!matrix_mdev) {
-> -		atomic_inc(&matrix_dev->available_instances);
-> -		return -ENOMEM;
-> +		ret = -ENOMEM;
-> +		goto err_atomic;
+On Wed, 28 Jul 2021 at 18:24, Christian Borntraeger
+<borntraeger@de.ibm.com> wrote:
+>
+>
+>
+> On 27.07.21 20:57, Benjamin Segall wrote:
+> > Christian Borntraeger <borntraeger@de.ibm.com> writes:
+> >
+> >> On 23.07.21 18:21, Mel Gorman wrote:
+> >>> On Fri, Jul 23, 2021 at 02:36:21PM +0200, Christian Borntraeger wrote:
+> >>>>> sched: Do not select highest priority task to run if it should be skipped
+> >>>>>
+> >>>>> <SNIP>
+> >>>>>
+> >>>>> index 44c452072a1b..ddc0212d520f 100644
+> >>>>> --- a/kernel/sched/fair.c
+> >>>>> +++ b/kernel/sched/fair.c
+> >>>>> @@ -4522,7 +4522,8 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
+> >>>>>                           se = second;
+> >>>>>           }
+> >>>>> - if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
+> >>>>> + if (cfs_rq->next &&
+> >>>>> +     (cfs_rq->skip == left || wakeup_preempt_entity(cfs_rq->next, left) < 1)) {
+> >>>>>                   /*
+> >>>>>                    * Someone really wants this to run. If it's not unfair, run it.
+> >>>>>                    */
+> >>>>>
+> >>>>
+> >>>> I do see a reduction in ignored yields, but from a performance aspect for my
+> >>>> testcases this patch does not provide a benefit, while the the simple
+> >>>>    curr->vruntime += sysctl_sched_min_granularity;
+> >>>> does.
+> >>> I'm still not a fan because vruntime gets distorted. From the docs
+> >>>      Small detail: on "ideal" hardware, at any time all tasks would have the
+> >>> same
+> >>>      p->se.vruntime value --- i.e., tasks would execute simultaneously and no task
+> >>>      would ever get "out of balance" from the "ideal" share of CPU time
+> >>> If yield_to impacts this "ideal share" then it could have other
+> >>> consequences.
+> >>> I think your patch may be performing better in your test case because every
+> >>> "wrong" task selected that is not the yield_to target gets penalised and
+> >>> so the yield_to target gets pushed up the list.
+> >>>
+> >>>> I still think that your approach is probably the cleaner one, any chance to improve this
+> >>>> somehow?
+> >>>>
+> >>> Potentially. The patch was a bit off because while it noticed that skip
+> >>> was not being obeyed, the fix was clumsy and isolated. The current flow is
+> >>> 1. pick se == left as the candidate
+> >>> 2. try pick a different se if the "ideal" candidate is a skip candidate
+> >>> 3. Ignore the se update if next or last are set
+> >>> Step 3 looks off because it ignores skip if next or last buddies are set
+> >>> and I don't think that was intended. Can you try this?
+> >>> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> >>> index 44c452072a1b..d56f7772a607 100644
+> >>> --- a/kernel/sched/fair.c
+> >>> +++ b/kernel/sched/fair.c
+> >>> @@ -4522,12 +4522,12 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
+> >>>                     se = second;
+> >>>     }
+> >>>    -        if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, left) < 1) {
+> >>> +   if (cfs_rq->next && wakeup_preempt_entity(cfs_rq->next, se) < 1) {
+> >>>             /*
+> >>>              * Someone really wants this to run. If it's not unfair, run it.
+> >>>              */
+> >>>             se = cfs_rq->next;
+> >>> -   } else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, left) < 1) {
+> >>> +   } else if (cfs_rq->last && wakeup_preempt_entity(cfs_rq->last, se) < 1) {
+> >>>             /*
+> >>>              * Prefer last buddy, try to return the CPU to a preempted task.
+> >>>              */
+> >>>
+> >>
+> >> This one alone does not seem to make a difference. Neither in ignored yield, nor
+> >> in performance.
+> >>
+> >> Your first patch does really help in terms of ignored yields when
+> >> all threads are pinned to one host CPU. After that we do have no ignored yield
+> >> it seems. But it does not affect the performance of my testcase.
+> >> I did some more experiments and I removed the wakeup_preempt_entity checks in
+> >> pick_next_entity - assuming that this will result in source always being stopped
+> >> and target always being picked. But still, no performance difference.
+> >> As soon as I play with vruntime I do see a difference (but only without the cpu cgroup
+> >> controller). I will try to better understand the scheduler logic and do some more
+> >> testing. If you have anything that I should test, let me know.
+> >>
+> >> Christian
+> >
+> > If both yielder and target are in the same cpu cgroup or the cpu cgroup
+> > is disabled (ie, if cfs_rq_of(p->se) matches), you could try
+> >
+> > if (p->se.vruntime > rq->curr->se.vruntime)
+> >       swap(p->se.vruntime, rq->curr->se.vruntime)
+>
+> I tried that and it does not show the performance benefit. I then played with my
+> patch (uses different values to add) and the benefit seems to be depending on the
+> size that is being added, maybe when swapping it was just not large enough.
+>
+> I have to say that this is all a bit unclear what and why performance improves.
+> It just seems that the cpu cgroup controller has a fair share of the performance
+> problems.
+>
+> I also asked the performance people to run some measurements and the numbers of
+> some transactional workload under KVM was
+> baseline: 11813
+> with much smaller sched_latency_ns and sched_migration_cost_ns: 16419
 
-Nit: the label naming here is very strange.  Somethig like
-err_dec_avaiable would be much more descriptive.
+Have you also tried to increase sched_wakeup_granularity which is used
+to decide whether we can preempt curr ?
 
-> +static struct mdev_driver vfio_ap_matrix_driver = {
-> +	.driver = {
-> +		.name = "vfio_ap_mdev",
-> +		.owner = THIS_MODULE,
-> +		.mod_name = KBUILD_MODNAME,
+> with cpu controller disabled: 15962
+> with cpu controller disabled + my patch: 16782
 
-No need to set mod_name.
+Your patch modifies the vruntime of the task but cgroup sched_entity
+stays unchanged. Scheduler starts to compare the vruntime of the
+sched_entity of the group before reaching your task. That's probably
+why your patch doesn't help with cgroup and will be difficult to
+extend to cgroup because the yield of the task should not impact the
+other entities in the group.
 
-Otherwise looks good:
-
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+>
+> I will be travelling the next 2 weeks, so I can continue with more debugging
+> after that.
+>
+> Thanks for all the ideas and help so far.
+>
+> Christian
+>
+> > as well as the existing buddy flags, as an entirely fair vruntime boost
+> > to the target.
+> >
+> > For when they aren't direct siblings, you /could/ use find_matching_se,
+> > but it's much less clear that's desirable, since it would yield vruntime
+> > for the entire hierarchy to the target's hierarchy.
+> >
