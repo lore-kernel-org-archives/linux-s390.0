@@ -2,69 +2,68 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 477C1C4320A
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 12:42:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61878C4338F
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 13:08:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2F0ED604DC
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 12:42:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 42C0160F38
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 13:08:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240704AbhHJMmk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Aug 2021 08:42:40 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6104 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240686AbhHJMmi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Aug 2021 08:42:38 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17ACZnjb006759;
-        Tue, 10 Aug 2021 08:41:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=RHsR6aVGy+GaELvcNwuiB11e5P4OeCZdzOOLRCSalVI=;
- b=UgSXAUjX8e9BxPI3R7A8uMNgvRpfJTmyKTpNNjav7mbpqx2AIVKSleA2bj0rNFBZvFSM
- aKMuoQDRWM7UGi3LrKdC9P4scRndC+kNOI88NLYCD76sdDEOdcOaFsZWKqgWT34sillS
- JVybsByWa4Id0LaT84AC2aauGA8RwwSQs8dmqmag8PE2Nc/ZZiAZx9mEa+3q4588wf4w
- GY619hOs+QeuI7OyMVgxDfi/zZLgDAfTZwtCmxlRdjj1qSfCAgj0GZpq/ThLzRMpcPO+
- GEJPB0s+JFoALdiWWHiN6gIHTQLyj/CAfx2P5QsJrHsrNJWntpS+eiBoRcs07bNXmMWt ng== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ab8kk9qc2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 Aug 2021 08:41:55 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17ACbMF8004746;
-        Tue, 10 Aug 2021 12:41:52 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3a9ht8ne50-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 Aug 2021 12:41:52 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17ACfohE59310512
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 Aug 2021 12:41:50 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DBE1D4C050;
-        Tue, 10 Aug 2021 12:41:49 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 005204C044;
-        Tue, 10 Aug 2021 12:41:48 +0000 (GMT)
-Received: from [9.171.19.103] (unknown [9.171.19.103])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 10 Aug 2021 12:41:47 +0000 (GMT)
-Subject: Re: [PATCH v2 net] net: switchdev: zero-initialize struct
- switchdev_notifier_fdb_info emitted by drivers towards the bridge
-To:     Vladimir Oltean <vladimir.oltean@nxp.com>, netdev@vger.kernel.org,
+        id S239294AbhHJNIt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Aug 2021 09:08:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44722 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238793AbhHJNIs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Aug 2021 09:08:48 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B935AC0613D3;
+        Tue, 10 Aug 2021 06:08:26 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id e19so35299192ejs.9;
+        Tue, 10 Aug 2021 06:08:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=xs/+O7rAz0hyKzsctUcio2WQZUKn46iac13X1YxyLOs=;
+        b=HCCl7rgFmcy3zKwIxkaZ/SBUd8zqPrb094075z1tmOI4VPtPFJxydk1aoQ4B2mcRJ2
+         cQbJUQDbzcm1dkhCvmLco8Me5ubngY8nbgtYF0sJ4eL85zbQyFqLGyp/ySVX1oMF/iSG
+         vbjIbxMCaeikvl+bgs/I6KvQSlwON8h6QIJ/y4JkTJzU3UePnUxBhQOh1L7I7o6lC6Va
+         ajSBOfrGIA0UG06ic10DngwwBxhWDA2POkbpQH93j60p7JEWn4jt32GvxfG2iNSy4hfj
+         yyCxV6P1vKnmRiuGGEdWGMZQPJ5OaIGrTF36KT7jCgkXxKcljAlP0sCWBR/x3nM56IYM
+         tq6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=xs/+O7rAz0hyKzsctUcio2WQZUKn46iac13X1YxyLOs=;
+        b=H3uO4uX3kTzkyDqsI6ddJbwdtQ5lQL+5yR9AaGTABOvQqiWqC6881CxtuyfW90vwKg
+         Pd0xAdu9HKfusKypLX2RTIba4WeYUe3t8Z62/85XeXxQzvHm6Jz6TIpJacgJD1ajaIAt
+         F/pHvixOkWZS0d1D+Pcn0dgDKh81sB1l7hkGe1ayWUjhgQbX5CaTGSmurI4epFQ8iSXb
+         JjD/cvQgJuA5MG991EpQBD2WYeA/9egyxS3e4R4Ze/SCuTWlYBg4RI07ZWdteNON15Il
+         rDMQwPiBRqIIK85oTQ2uY//atSLvBBxT677/Sg9TGtMdapQSnuO+hHj0h/a3q+EAFkwI
+         nltA==
+X-Gm-Message-State: AOAM531SegdyiacFQIUb8leS8bsyYS9U3zWeZTbi8FvEUBrZSiM/Rwxk
+        cb3VbqIMO/h8EQl1SNToMLE=
+X-Google-Smtp-Source: ABdhPJwUr/73rEkMhaIveh98iMIskFOJfJbfcePSx7fWzOrGY6Gd0FewqY2WalFFgiQ4kd1+ecE4PA==
+X-Received: by 2002:a17:906:dfe5:: with SMTP id lc5mr27153744ejc.20.1628600905375;
+        Tue, 10 Aug 2021 06:08:25 -0700 (PDT)
+Received: from skbuf ([188.25.144.60])
+        by smtp.gmail.com with ESMTPSA id b25sm9645288edv.9.2021.08.10.06.08.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Aug 2021 06:08:24 -0700 (PDT)
+Date:   Tue, 10 Aug 2021 16:08:21 +0300
+From:   Vladimir Oltean <olteanv@gmail.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>, netdev@vger.kernel.org,
         Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andrew Lunn <andrew@lunn.ch>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Vivien Didelot <vivien.didelot@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
         Vadym Kochan <vkochan@marvell.com>,
         Taras Chornyi <tchornyi@marvell.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
@@ -87,57 +86,22 @@ Cc:     Andrew Lunn <andrew@lunn.ch>,
         linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
         linux-s390@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
         Ido Schimmel <idosch@idosch.org>
+Subject: Re: [PATCH v2 net] net: switchdev: zero-initialize struct
+ switchdev_notifier_fdb_info emitted by drivers towards the bridge
+Message-ID: <20210810130821.7gdngordzzxkpws3@skbuf>
 References: <20210810115024.1629983-1-vladimir.oltean@nxp.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-Message-ID: <dfa98bf7-cab4-4076-ef5f-880a8baa89ee@linux.ibm.com>
-Date:   Tue, 10 Aug 2021 14:41:48 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+ <dfa98bf7-cab4-4076-ef5f-880a8baa89ee@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20210810115024.1629983-1-vladimir.oltean@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _j8fSda4zE-t-vI3t2qAYb9FXmKJ_HIy
-X-Proofpoint-ORIG-GUID: _j8fSda4zE-t-vI3t2qAYb9FXmKJ_HIy
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-10_05:2021-08-10,2021-08-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- clxscore=1011 lowpriorityscore=0 suspectscore=0 phishscore=0 spamscore=0
- mlxscore=0 priorityscore=1501 mlxlogscore=999 adultscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
- definitions=main-2108100080
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dfa98bf7-cab4-4076-ef5f-880a8baa89ee@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/08/2021 13:50, Vladimir Oltean wrote:
-> The blamed commit a new field to struct switchdev_notifier_fdb_info, but
-                  ^^^ added?
+On Tue, Aug 10, 2021 at 02:41:48PM +0200, Karsten Graul wrote:
+> On 10/08/2021 13:50, Vladimir Oltean wrote:
+> > The blamed commit a new field to struct switchdev_notifier_fdb_info, but
+>                   ^^^ added?
 
-> did not make sure that all call paths set it to something valid. For
-> example, a switchdev driver may emit a SWITCHDEV_FDB_ADD_TO_BRIDGE
-> notifier, and since the 'is_local' flag is not set, it contains junk
-> from the stack, so the bridge might interpret those notifications as
-> being for local FDB entries when that was not intended.
-> 
-> To avoid that now and in the future, zero-initialize all
-> switchdev_notifier_fdb_info structures created by drivers such that all
-> newly added fields to not need to touch drivers again.
-> 
-> Fixes: 2c4eca3ef716 ("net: bridge: switchdev: include local flag in FDB notifications")
-> Reported-by: Ido Schimmel <idosch@idosch.org>
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-> Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-> Tested-by: Ido Schimmel <idosch@nvidia.com>
-> ---
-> v1->v2: use an empty struct initializer as opposed to memset, as
->         suggested by Leon Romanovsky
-
-For drivers/s390/net/qeth_l2_main.c :
-
-Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
-
-Thanks
+yes. but I won't send a v3 just for that. thanks for noticing.
