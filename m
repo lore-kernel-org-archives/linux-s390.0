@@ -2,216 +2,193 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02124C4320E
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 19:21:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D3B8C432BE
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 19:49:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CCECC61076
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 19:21:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 293C761008
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Aug 2021 19:49:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232140AbhHJTWP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Aug 2021 15:22:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47962 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231152AbhHJTWO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Aug 2021 15:22:14 -0400
-Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7BE6C0613C1;
-        Tue, 10 Aug 2021 12:21:51 -0700 (PDT)
-Received: by mail-oi1-x235.google.com with SMTP id bj40so640608oib.6;
-        Tue, 10 Aug 2021 12:21:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=KAarKHT0m3MJ2O9D6qLLI1k9iEOlT/tM9BSCUbuRaoM=;
-        b=Tz8cUBsx8ilYPTAqokUk3hy5ggYRuO8tc9Poy5urwAq0JoCBrzpxBYXSoEbKNUGFN5
-         LJHV7Y/Rfuuw2pMsiwoNt2CgjP5JG6SUmW4JT1oBcQLnFglpNdXmRZXFOC2TaFSSpzjv
-         xoPMLiVw6FgJbdcjqpFPvHgUgNcwTRSMaW0NENjzrP7yTjFu83k0kTdjC7xFiL5cbPed
-         NRMD14yFkha2+DR1Wkkqk/YmaAjJklYTeCdTavWo2Fb6kZr1HA7slrPG/6n8FENo0TNn
-         udeRFqfaSXzwL+15UlKeMxfUHCSioFu7eflrwGwB/h5wWwsOEtIwrZyThVK4Q6VlMzAn
-         tKUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=KAarKHT0m3MJ2O9D6qLLI1k9iEOlT/tM9BSCUbuRaoM=;
-        b=qJW328FRdmrY8V96smuTXBdJ7pht+PvE6f4XLUvFMe93nvnC1w4zLL6Ef31dTXjw2e
-         WG5L3R/woHKkPWM3gbOXJYNDZX4Sdma80KzvcPD7Q6FVAEFxXhf0LnIK4wHBQZeM39w2
-         7acQoiyWsicUFuWo4YCEVmiGznZWzmwRpKdTExuX7k5cxY40AkDWWo4JDzeFfCpCL/Ms
-         oam8jnY8WUMq4Gw+07Kjc7PgdTOPH843s67Y6egZRN2rPE+FGjJi/8uO8ZUH2ncze5UO
-         D1LdoJJ5JefqCkAoF3G6AjVt3Jwgz37k20AjLxwM/FkOzBgCaLYqTAsELOb9bzIsUTFj
-         WZlQ==
-X-Gm-Message-State: AOAM5317pXsEUad8P8kuvSqxjrhwBPUF6P9cKr8JtgvNXj7giPv++O4+
-        iTQV+aUQ/ATzYZuCyFuLR1k=
-X-Google-Smtp-Source: ABdhPJwKep9KddVoYjOL1882ESwbTAv/JqcCb93BOr2zZaD0Lh8+HcI4C99dC3rYzVoJQsss4q7qLA==
-X-Received: by 2002:aca:1b11:: with SMTP id b17mr4836676oib.158.1628623311215;
-        Tue, 10 Aug 2021 12:21:51 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j2sm1009805oia.21.2021.08.10.12.21.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Aug 2021 12:21:50 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH v3] memblock: make memblock_find_in_range method private
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        linux-mips@vger.kernel.org, linux-mm@kvack.org,
-        Will Deacon <will@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-riscv@lists.infradead.org,
-        Frank Rowand <frowand.list@gmail.com>,
-        kvmarm@lists.cs.columbia.edu, linux-s390@vger.kernel.org,
-        linux-acpi@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        x86@kernel.org, Russell King <linux@armlinux.org.uk>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>, Len Brown <lenb@kernel.org>,
-        devicetree@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        id S231686AbhHJTtZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Aug 2021 15:49:25 -0400
+Received: from mail-bn8nam12on2058.outbound.protection.outlook.com ([40.107.237.58]:32944
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S230077AbhHJTtY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 10 Aug 2021 15:49:24 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BZ+3qyej49za+0VS+FD0wQ6mn8leKkX2WPHFmxDsYkJ3C99PZj6HMFOXtTlXIfB59M7CEZs6CxLLDfLbFeE7qYhIeEdozRBnnbstqaA7e2hj6JeFZWue83dfjNO4uX1zXIIP+M1xO3+aSKP7UBdYwFWvxy7dX7qc4VEJvtgzr14bC5kDmcp0hPwOvhiQdeUNknZIqQylUPK9lhmAiEDtAHR8HuMhmWt9b0FSh5hIfeXRXeRIquwBxMoj1QiJ+2I3cn7kfVR7i2tgxjZIuYA/7wxsab52xInwOjsMGNpYSB9w8eJi+AROIRlzyaPkOvLNpVdZAouQN6H367+E2zbuDg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zh+wIW78M8BTE50i5ZnMzfjoH3JWoQ2z4zwDegZcjTw=;
+ b=KDHD2sKkMdWQ9JMKZSZCWKf9fOX2IjzvRCFn5KIcvJq9QU/vKiHqh1wtOCUdvCyQpmbMoiBcaG7a6xasYRC8oWWtfSFFWIfuqc0WsqWxweIAnNuWaMwZ5Xj3HbAwql752qIijPSazho8hJGhbERZDZ2rA3x1PtP28AqbXaz8vjQuh0wIijsNW+N3WOZnn1/m8B/3+/dac0BaahP9PSXjCWCuK2Sbg0AhAAkZhHVQtsjAbTF+D1mpme4pq0t1OT5otqpqjXKg/uDJh6dXg/MOkm8lYYvR4/V6RIE9CAPKTUA5c//m4abSaAw9ZWnorwyThbnIpWICVfK39nQ+qe/IuQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zh+wIW78M8BTE50i5ZnMzfjoH3JWoQ2z4zwDegZcjTw=;
+ b=RJ3Whm8Dil40S3MwjVoL8Ot4+SIib44VjBGVtC7vbK9LLgmdSb1XOzN/cOMTjxX+jdQjvpCVBElu3F3/rUUTir1zh9+UGitv4ZF3nm2mepQasce6vsuzSR4DEO6JQLK3W4kGGEjXW9jyUEmkD2JNkkgjbjn75FdHgV+hbHtkPAw=
+Authentication-Results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=amd.com;
+Received: from DM4PR12MB5229.namprd12.prod.outlook.com (2603:10b6:5:398::12)
+ by DM4PR12MB5213.namprd12.prod.outlook.com (2603:10b6:5:394::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.17; Tue, 10 Aug
+ 2021 19:48:57 +0000
+Received: from DM4PR12MB5229.namprd12.prod.outlook.com
+ ([fe80::73:2581:970b:3208]) by DM4PR12MB5229.namprd12.prod.outlook.com
+ ([fe80::73:2581:970b:3208%3]) with mapi id 15.20.4394.023; Tue, 10 Aug 2021
+ 19:48:57 +0000
+Subject: Re: [PATCH 07/11] treewide: Replace the use of mem_encrypt_active()
+ with prot_guest_has()
+To:     "Kuppuswamy, Sathyanarayanan" 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-graphics-maintainer@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org
+Cc:     Borislav Petkov <bp@alien8.de>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        linux-arm-kernel@lists.infradead.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        linux-kernel@vger.kernel.org, Palmer Dabbelt <palmer@dabbelt.com>
-References: <20210803064218.6611-1-rppt@kernel.org>
- <20210809190641.GA1176508@roeck-us.net> <YRLLpImNhZaLzs3z@kernel.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <7db20940-cbd9-e900-db28-774c5782601c@roeck-us.net>
-Date:   Tue, 10 Aug 2021 12:21:46 -0700
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Will Deacon <will@kernel.org>, Dave Young <dyoung@redhat.com>,
+        Baoquan He <bhe@redhat.com>
+References: <cover.1627424773.git.thomas.lendacky@amd.com>
+ <029791b24c6412f9427cfe6ec598156c64395964.1627424774.git.thomas.lendacky@amd.com>
+ <166f30d8-9abb-02de-70d8-6e97f44f85df@linux.intel.com>
+From:   Tom Lendacky <thomas.lendacky@amd.com>
+Message-ID: <4b885c52-f70a-147e-86bd-c71a8f4ef564@amd.com>
+Date:   Tue, 10 Aug 2021 14:48:54 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
-MIME-Version: 1.0
-In-Reply-To: <YRLLpImNhZaLzs3z@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <166f30d8-9abb-02de-70d8-6e97f44f85df@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: SA9PR10CA0003.namprd10.prod.outlook.com
+ (2603:10b6:806:a7::8) To DM4PR12MB5229.namprd12.prod.outlook.com
+ (2603:10b6:5:398::12)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [10.236.30.241] (165.204.77.1) by SA9PR10CA0003.namprd10.prod.outlook.com (2603:10b6:806:a7::8) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.14 via Frontend Transport; Tue, 10 Aug 2021 19:48:56 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c7519805-b04f-44e9-0267-08d95c37e478
+X-MS-TrafficTypeDiagnostic: DM4PR12MB5213:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <DM4PR12MB5213808E81BF3C9D4453E6ABECF79@DM4PR12MB5213.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: dnNi92GSpZMslhiJrfA3rObWOy/Id+q1gKm6thqBC060XYwLZe3GyzbHxgGkUNk+wdDB54v7EICc2ePegDwKUVeIDWdwhvekpABUuvATXrDiMI61I+GaorVEfOjYCHuSMlsA9wDeZL1bLmuTZKQj5IFitAjkp4VMlkr2j+wwsgt88F2tEpfBvkezJV7bb1aA5jWOE68pfUkK/1yK0sSmRc0tWOgDhAJFZsvjpKYvendWlZxekxJMIHfk2V17Redu26emXLnu5ls/D8YeTO1cJG80QslBjpzrgZi03VKK5vkzwUs+WGDYRIjqwEP+tXOVZD2vNT/vAjy9VGPROLEV45Q+OKVJxuQL+uQcvptiOmRxvYeJhvI91mt77eGnYDif0Sfstz9v1mBaglWw397KFtF5JvHE/r+tRZbhPDa+bnMrAmWd3sR6CkI2pruLC+eak1Y2sSM5JPhVwTyGV65WccTsePjRbmXt9kdt717rld973FpbqYxeuAYtPCaoTRh2DhmHCzbA6Y7MPb0XnEHyGD4EzJd51+0p3jb9mXM1eL/zDZv+uiJ8+NjnOrfaG8QnhHX6DD+eLBcbDuMyN4dV11BriDVTj6t5cyPjnE3vlu3DDhVnolDffVc963g9xuGGR/uG5ElqGjGYS7bLialLp230ItD3vgYgjpy4ZqkxpkGM58VL4Fjc0+ffnOn0qfCoRUFv4nlqzIgg63QKSHzxF50VH0SiO9vCVIdhoq0F0ay6XaI4/+X2m/9MNYK24vmA
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB5229.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(4326008)(2906002)(83380400001)(316002)(16576012)(26005)(53546011)(186003)(54906003)(508600001)(66476007)(36756003)(31696002)(86362001)(8936002)(8676002)(66556008)(921005)(66946007)(6486002)(7416002)(38100700002)(5660300002)(31686004)(2616005)(956004)(7406005)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?R01YRS8ydDdKVjY4QmV4UStDYy94VjVRS1pOeXVleGNkdDBKd0xKM2FlR0xM?=
+ =?utf-8?B?cDBMSUIxMHFHSXdURy9UY3JZVFN0VnE0NEt1cTBXU2Y3L3VoUFpVYnpWc0d4?=
+ =?utf-8?B?VndNK3FHSytDdTRkbU5YZDRGTTNTNjZzU0pFdGI3TWhPRmhlYXVMREoxSmZi?=
+ =?utf-8?B?WHpTSjBpLzFBVFBkdVl2Z0VCalIwc3J3QjB2Q1dkUjV0MFExMmRtSW5EbTUx?=
+ =?utf-8?B?cG8rMkdWOGl1TmdVTGkzRE1ZQ09XQm8zWWVxeStnYXBGcTA3NmRGS0hRNzNE?=
+ =?utf-8?B?c2w1ZlRjUmZYY1FReTZIcklnUWtGK0w3VjRYYlpYMG1JQ2NlZTEvTkhQY3BL?=
+ =?utf-8?B?SVNtU1o1TlllNTZrS3ZrbGNIK25hNXZnSG1XbE9zMk5sUEZJNlB4Z2ZtNHBi?=
+ =?utf-8?B?ODVWOGFDREtzdXptS3lvWDFnKzNQTXZubjRodExLQU0vZ05UeG9la2F0ckxi?=
+ =?utf-8?B?NXdJSTd3eEhLZEU5Vit1WWdKenVXWjhVL0IybWRnREtUM1VtaEdNNnJGV2lL?=
+ =?utf-8?B?UFNNY0ZIdWlRTXBXMzF1TStidjlYL2JHTFNJVm16SWY2OVBvRXZtYmk1djd2?=
+ =?utf-8?B?SHJ5cFdGLzg4LytKS0JrcnA5SnhNU0U5MkVXbEVjcXd4MzhPVXNXc0dmaWxX?=
+ =?utf-8?B?QWgvNldpVFRta2R0cVpPZ1dQK3U3eWMrTmlaa25MSHR3WDJCc25BL29EdytH?=
+ =?utf-8?B?WWlOK3V4UDJMSlk5WGhCRWZDajk3NUlRKzRGRnZVNmdtY2dGRmlOY1NYTlpq?=
+ =?utf-8?B?VUp1cEp5dHhjbUdNQUkrR1RpUzBUcmhDaVZLOGlDZVR6MTE3Z0I1M1c3a0t5?=
+ =?utf-8?B?Z2NQamt6Ujl1QWlwMURxUVIxdmFteE83eEljMUtFRGdzekdKUi9BMkZnam51?=
+ =?utf-8?B?bXViTjlrZWVXTHozcFpKY1lYaHVEZWJ6RVpzeG9zMnBaMHlBanc5Y1JoeCtq?=
+ =?utf-8?B?eGJReU4wcTNBbUgrT1lqMllKQ1NKRUg1OVl1UnE4VmdFSjZ4VnVOQkd3aU9W?=
+ =?utf-8?B?bkNudHhKSmJnZUVWd2Y0Ri9nc1lySkZHdEovNk1vRTdaMHhIWGU2NFNTTkhr?=
+ =?utf-8?B?NlZGNEdEQy8welBLT1cvMmcvUW5ybVIvcitXdkdETlZyc2I1NWd2T1BYbk93?=
+ =?utf-8?B?M3h6VnU1dWZnUlNDMXUzOVlOdzhENTZrK1F1bGpONm9YcVN3aWlrSSt2WHFm?=
+ =?utf-8?B?REpOSFVLQ2swL1Y2YjdJZlBsby9MVjlSZHI4aE85blBURWVlOVhOY1llSTdp?=
+ =?utf-8?B?TTJXdk5xa3JLanlBVEZhdzNTaUtJVzE4VnhORjlEcDVXam9RUmZHTTA1K2hZ?=
+ =?utf-8?B?TCtiYklYV05oNGlCNFJteHN0S1d2M0REeXNXNXBHeUNneGdRbWhESDRsNEls?=
+ =?utf-8?B?Ymw1SlZTRWoxZjVzMk5JRmxKUjZIQjVsWmZadUN5UjRtYXpzcGNxb1Y5ZElR?=
+ =?utf-8?B?Z1l4OE94OWgvSmdEcGNteEJObUFTaW1IWHVBRTkvcThMb0wxaWJBM2FydVdo?=
+ =?utf-8?B?UXpIczRZcmhzWjFGanNNbUtuWHl6TGxKSWtHTmZuWDVPTmVXaG8vc1h1VnNo?=
+ =?utf-8?B?UC9qcUJPL2tTY0dsYm5tRytaeDhjdndzZmNTZGltdWw0S3N5Q0dkZWZwN01V?=
+ =?utf-8?B?MTY0WWV1TmtERHZ6ZnlTZEE1ZitFMXRrQTF5a01WK1hDWHdDYXBOdFdtU2F3?=
+ =?utf-8?B?NUVpUFRPTGwxeEI4Ti94V0QwYXJzbEcwUktJSmpuODRGNm1mdG1tM1NqYUNG?=
+ =?utf-8?Q?fQ9evLIdYd8zEwDHlrF8On6CF1u6qb8BapODFJ7?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c7519805-b04f-44e9-0267-08d95c37e478
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB5229.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Aug 2021 19:48:57.8699
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: LkQmC0BMFabM+hD+NZCRsqRDlnlmUWZdnM+SN3S137DV+6ebAPKAIvjN9s/s+GoNlwKXx1Ivo44BngEr7cMMzw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5213
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 8/10/21 11:55 AM, Mike Rapoport wrote:
-> On Mon, Aug 09, 2021 at 12:06:41PM -0700, Guenter Roeck wrote:
->> On Tue, Aug 03, 2021 at 09:42:18AM +0300, Mike Rapoport wrote:
->>> From: Mike Rapoport <rppt@linux.ibm.com>
->>>
->>> There are a lot of uses of memblock_find_in_range() along with
->>> memblock_reserve() from the times memblock allocation APIs did not exist.
->>>
->>> memblock_find_in_range() is the very core of memblock allocations, so any
->>> future changes to its internal behaviour would mandate updates of all the
->>> users outside memblock.
->>>
->>> Replace the calls to memblock_find_in_range() with an equivalent calls to
->>> memblock_phys_alloc() and memblock_phys_alloc_range() and make
->>> memblock_find_in_range() private method of memblock.
->>>
->>> This simplifies the callers, ensures that (unlikely) errors in
->>> memblock_reserve() are handled and improves maintainability of
->>> memblock_find_in_range().
->>>
->>> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
->>
->> I see a number of crashes in next-20210806 when booting x86 images from efi.
->>
->> [    0.000000] efi: EFI v2.70 by EDK II
->> [    0.000000] efi: SMBIOS=0x1fbcc000 ACPI=0x1fbfa000 ACPI 2.0=0x1fbfa014 MEMATTR=0x1f25f018
->> [    0.000000] SMBIOS 2.8 present.
->> [    0.000000] DMI: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
->> [    0.000000] last_pfn = 0x1ff50 max_arch_pfn = 0x400000000
->> [    0.000000] x86/PAT: Configuration [0-7]: WB  WC  UC- UC  WB  WP  UC- WT
->> [    0.000000] Kernel panic - not syncing: alloc_low_pages: can not alloc memory
->> [    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.14.0-rc4-next-20210806 #1
->> [    0.000000] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
->> [    0.000000] Call Trace:
->> [    0.000000]  ? dump_stack_lvl+0x57/0x7d
->> [    0.000000]  ? panic+0xfc/0x2c6
->> [    0.000000]  ? alloc_low_pages+0x117/0x156
->> [    0.000000]  ? phys_pmd_init+0x234/0x342
->> [    0.000000]  ? phys_pud_init+0x171/0x337
->> [    0.000000]  ? __kernel_physical_mapping_init+0xec/0x276
->> [    0.000000]  ? init_memory_mapping+0x1ea/0x2aa
->> [    0.000000]  ? init_range_memory_mapping+0xdf/0x12e
->> [    0.000000]  ? init_mem_mapping+0x1e9/0x26f
->> [    0.000000]  ? setup_arch+0x5ff/0xb6d
->> [    0.000000]  ? start_kernel+0x71/0x6b4
->> [    0.000000]  ? secondary_startup_64_no_verify+0xc2/0xcb
->>
->> Bisect points to this patch. Reverting it fixes the problem. Key seems to
->> be the amount of memory configured in qemu; the problem is not seen if
->> there is 1G or more of memory, but it is seen with all test boots with
->> 512M or 256M of memory. It is also seen with almost all 32-bit efi boots.
->>
->> The problem is not seen when booting without efi.
+On 8/10/21 1:45 PM, Kuppuswamy, Sathyanarayanan wrote:
 > 
-> It looks like this change uncovered a problem in
-> x86::memory_map_top_down().
 > 
-> The allocation in alloc_low_pages() is limited by min_pfn_mapped and
-> max_pfn_mapped. The min_pfn_mapped is updated at every iteration of the
-> loop in memory_map_top_down, but there is another loop in
-> init_range_memory_mapping() that maps several regions below the current
-> min_pfn_mapped without updating this variable.
+> On 7/27/21 3:26 PM, Tom Lendacky wrote:
+>> diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+>> index de01903c3735..cafed6456d45 100644
+>> --- a/arch/x86/kernel/head64.c
+>> +++ b/arch/x86/kernel/head64.c
+>> @@ -19,7 +19,7 @@
+>>   #include <linux/start_kernel.h>
+>>   #include <linux/io.h>
+>>   #include <linux/memblock.h>
+>> -#include <linux/mem_encrypt.h>
+>> +#include <linux/protected_guest.h>
+>>   #include <linux/pgtable.h>
+>>     #include <asm/processor.h>
+>> @@ -285,7 +285,7 @@ unsigned long __head __startup_64(unsigned long
+>> physaddr,
+>>        * there is no need to zero it after changing the memory encryption
+>>        * attribute.
+>>        */
+>> -    if (mem_encrypt_active()) {
+>> +    if (prot_guest_has(PATTR_MEM_ENCRYPT)) {
+>>           vaddr = (unsigned long)__start_bss_decrypted;
+>>           vaddr_end = (unsigned long)__end_bss_decrypted;
 > 
-> The memory layout in qemu with 256M of RAM and EFI enabled, causes
-> exhaustion of the memory limited by min_pfn_mapped and max_pfn_mapped
-> before min_pfn_mapped is updated.
 > 
-> Before this commit there was unconditional "reservation" of 2M in the end
-> of the memory that moved the initial min_pfn_mapped below the memory
-> reserved by EFI. The addition of check for xen_domain() removed this
-> reservation for !XEN and made alloc_low_pages() use the range already busy
-> with EFI data.
-> 
-> The patch below moves the update of min_pfn_mapped near the update of
-> max_pfn_mapped so that every time a new range is mapped both limits will be
-> updated accordingly.
-> 
-> diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-> index 1152a29ce109..be279f6e5a0a 100644
-> --- a/arch/x86/mm/init.c
-> +++ b/arch/x86/mm/init.c
-> @@ -1,3 +1,4 @@
-> +#define DEBUG
->   #include <linux/gfp.h>
->   #include <linux/initrd.h>
->   #include <linux/ioport.h>
-> @@ -485,6 +486,7 @@ static void add_pfn_range_mapped(unsigned long start_pfn, unsigned long end_pfn)
->   	nr_pfn_mapped = clean_sort_range(pfn_mapped, E820_MAX_ENTRIES);
->   
->   	max_pfn_mapped = max(max_pfn_mapped, end_pfn);
-> +	min_pfn_mapped = min(min_pfn_mapped, start_pfn);
->   
->   	if (start_pfn < (1UL<<(32-PAGE_SHIFT)))
->   		max_low_pfn_mapped = max(max_low_pfn_mapped,
-> @@ -643,7 +645,6 @@ static void __init memory_map_top_down(unsigned long map_start,
->   		mapped_ram_size += init_range_memory_mapping(start,
->   							last_start);
->   		last_start = start;
-> -		min_pfn_mapped = last_start >> PAGE_SHIFT;
->   		if (mapped_ram_size >= step_size)
->   			step_size = get_new_step_size(step_size);
->   	}
->   
+> Since this change is specific to AMD, can you replace PATTR_MEM_ENCRYPT with
+> prot_guest_has(PATTR_SME) || prot_guest_has(PATTR_SEV). It is not used in
+> TDX.
 
-The offending patch was removed from next-20210810, but I applied the above change
-to next-20210809 and it does indeed fix the problem. If it is added as separate patch,
-please feel free to add
+This is a direct replacement for now. I think the change you're requesting
+should be done as part of the TDX support patches so it's clear why it is
+being changed.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+But, wouldn't TDX still need to do something with this shared/unencrypted
+area, though? Or since it is shared, there's actually nothing you need to
+do (the bss decrpyted section exists even if CONFIG_AMD_MEM_ENCRYPT is not
+configured)?
 
 Thanks,
-Guenter
+Tom
+
+> 
