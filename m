@@ -2,104 +2,170 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C82EAC4338F
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Aug 2021 10:36:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22BEAC432BE
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Aug 2021 12:19:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9736360560
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Aug 2021 10:36:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 00C4D6023B
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Aug 2021 12:19:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236791AbhHKKga (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Aug 2021 06:36:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:47096 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231752AbhHKKg3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Aug 2021 06:36:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1628678164;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=XIZM8cdhNJSfUJDnOLv+irfL8oNJu9keXxl/12RO/Tw=;
-        b=Qd8vrUBn7rDh9KkrfsNU/ZviCtxjHTEdgttawNeZgHhupP9hAXw9YJb7NN7t5g+/WKlp5y
-        a3u0kOFdDyQ4Wd+Sp7JH+oD101TJkY7n6ht4HdSBsLyVqcqM2nsqGaLQmv7qGyZUX5vmi6
-        ow29olKII22e4ldgg/s2nGaJn7bb86w=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-214-T9CQQ_4iPJO-DImzn8_Ltw-1; Wed, 11 Aug 2021 06:36:03 -0400
-X-MC-Unique: T9CQQ_4iPJO-DImzn8_Ltw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3B1401008063;
-        Wed, 11 Aug 2021 10:36:00 +0000 (UTC)
-Received: from localhost (unknown [10.39.192.118])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id DF43F3AA2;
-        Wed, 11 Aug 2021 10:35:51 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Jonathan Corbet <corbet@lwn.net>,
+        id S237539AbhHKMTg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Aug 2021 08:19:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53956 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237040AbhHKMTc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Aug 2021 08:19:32 -0400
+Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E13B6C061798
+        for <linux-s390@vger.kernel.org>; Wed, 11 Aug 2021 05:19:07 -0700 (PDT)
+Received: by mail-lf1-x134.google.com with SMTP id y34so5241062lfa.8
+        for <linux-s390@vger.kernel.org>; Wed, 11 Aug 2021 05:19:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=shutemov-name.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=QRfjFOudnOiwA+M7/UAaVDTJpihSFBYjea6mHo6NSYA=;
+        b=FrdABWFOYFHYVQYvsn9eIFG1XXIqUnaFBCPEPrWXTbkImjcaYqnfbbDKJbjXTj8n2z
+         XKpeeMl+HDYMaw1njH7BCzSmXb2GWH1pBn4+E1w1Zkax9zqjTCMN0ceFLpN0oNSL7p4h
+         tTOYo06jVnb3EuSp9CAkw3RajLjCGRh5DcWWOVaUC3oCLa3fiXHjMHrKiPKxkbd9MHf4
+         XWiG9YDES/j+Q6K8AbBgatHhy3Ey7EF4Mw9l8egNLjOvPiIJBkLqlDJHfGJd1OD2IwY9
+         /Dj5oeYRUTA55X3eykWwXtvq+RdRhaXu8H17iGSYXfRtDXdJr3ACYPa147h4M5kexh1Q
+         1YFg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=QRfjFOudnOiwA+M7/UAaVDTJpihSFBYjea6mHo6NSYA=;
+        b=POVlP4mIIcthvfsLn1+iWdFkBwBoas/a3Gl5a9S0o/sCUIu5oxi1VeIPIohpayYmHW
+         VetV80v+B5zGvUAGGRak7Y6hJjhZLnXr5+lkCnz+v6UDOlnAd2amT9Zo+Um4GrvcqSHn
+         5aZuOTVRyf1vt2nsTqyDjzIbJpi+LaSiWlmPKqDqex+I17JkxE6PPAXLlFo/tVtvK5WI
+         lrkMLal6CDSpMQunmyd6eZE6oJqEp0hYErrNvltMu30vWwS6HFdqVwgtmrIDShVhtyhu
+         0OMvhSHxtlyYIHLkfGecLkIoQcPHn+1udqiJC5Vv2khgvT3JpEUyUJq1oUfrbMMl/ZvC
+         jPKA==
+X-Gm-Message-State: AOAM5301xwXiNuAKPlJHGJiHf4sRL6ldXk3ebbon5rQ2XSpdu1h3b6MD
+        vX/u6yyY+yOzO4xYYcCHFAZWiA==
+X-Google-Smtp-Source: ABdhPJwYqCmmrayYkwT8dKOh/tHUuUvcGTl6bQD02skpgV77PxIfPFHOo1k2HSgXk2Z2qwWhaj6ksA==
+X-Received: by 2002:ac2:50d8:: with SMTP id h24mr4762329lfm.631.1628684346244;
+        Wed, 11 Aug 2021 05:19:06 -0700 (PDT)
+Received: from box.localdomain ([86.57.175.117])
+        by smtp.gmail.com with ESMTPSA id w7sm2337599lft.285.2021.08.11.05.19.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Aug 2021 05:19:05 -0700 (PDT)
+Received: by box.localdomain (Postfix, from userid 1000)
+        id A68EB102A2E; Wed, 11 Aug 2021 15:19:17 +0300 (+03)
+Date:   Wed, 11 Aug 2021 15:19:17 +0300
+From:   "Kirill A. Shutemov" <kirill@shutemov.name>
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     "Kuppuswamy, Sathyanarayanan" 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-graphics-maintainer@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        Borislav Petkov <bp@alien8.de>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        David Airlie <airlied@linux.ie>,
         Daniel Vetter <daniel@ffwll.ch>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-Cc:     "Raj, Ashok" <ashok.raj@intel.com>, Christoph Hellwig <hch@lst.de>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>
-Subject: Re: [PATCH v4 14/14] vfio: Remove struct vfio_device_ops open/release
-In-Reply-To: <14-v4-9ea22c5e6afb+1adf-vfio_reflck_jgg@nvidia.com>
-Organization: Red Hat GmbH
-References: <14-v4-9ea22c5e6afb+1adf-vfio_reflck_jgg@nvidia.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Wed, 11 Aug 2021 12:35:50 +0200
-Message-ID: <87r1f0uv3t.fsf@redhat.com>
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Will Deacon <will@kernel.org>, Dave Young <dyoung@redhat.com>,
+        Baoquan He <bhe@redhat.com>
+Subject: Re: [PATCH 07/11] treewide: Replace the use of mem_encrypt_active()
+ with prot_guest_has()
+Message-ID: <20210811121917.ghxi7g4mctuybhbk@box.shutemov.name>
+References: <cover.1627424773.git.thomas.lendacky@amd.com>
+ <029791b24c6412f9427cfe6ec598156c64395964.1627424774.git.thomas.lendacky@amd.com>
+ <166f30d8-9abb-02de-70d8-6e97f44f85df@linux.intel.com>
+ <4b885c52-f70a-147e-86bd-c71a8f4ef564@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4b885c52-f70a-147e-86bd-c71a8f4ef564@amd.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Aug 05 2021, Jason Gunthorpe <jgg@nvidia.com> wrote:
+On Tue, Aug 10, 2021 at 02:48:54PM -0500, Tom Lendacky wrote:
+> On 8/10/21 1:45 PM, Kuppuswamy, Sathyanarayanan wrote:
+> > 
+> > 
+> > On 7/27/21 3:26 PM, Tom Lendacky wrote:
+> >> diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+> >> index de01903c3735..cafed6456d45 100644
+> >> --- a/arch/x86/kernel/head64.c
+> >> +++ b/arch/x86/kernel/head64.c
+> >> @@ -19,7 +19,7 @@
+> >>   #include <linux/start_kernel.h>
+> >>   #include <linux/io.h>
+> >>   #include <linux/memblock.h>
+> >> -#include <linux/mem_encrypt.h>
+> >> +#include <linux/protected_guest.h>
+> >>   #include <linux/pgtable.h>
+> >>     #include <asm/processor.h>
+> >> @@ -285,7 +285,7 @@ unsigned long __head __startup_64(unsigned long
+> >> physaddr,
+> >>        * there is no need to zero it after changing the memory encryption
+> >>        * attribute.
+> >>        */
+> >> -    if (mem_encrypt_active()) {
+> >> +    if (prot_guest_has(PATTR_MEM_ENCRYPT)) {
+> >>           vaddr = (unsigned long)__start_bss_decrypted;
+> >>           vaddr_end = (unsigned long)__end_bss_decrypted;
+> > 
+> > 
+> > Since this change is specific to AMD, can you replace PATTR_MEM_ENCRYPT with
+> > prot_guest_has(PATTR_SME) || prot_guest_has(PATTR_SEV). It is not used in
+> > TDX.
+> 
+> This is a direct replacement for now.
 
-> Nothing uses this anymore, delete it.
->
-> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/vfio/mdev/vfio_mdev.c | 22 ----------------------
->  drivers/vfio/vfio.c           | 14 +-------------
->  include/linux/mdev.h          |  7 -------
->  include/linux/vfio.h          |  4 ----
->  4 files changed, 1 insertion(+), 46 deletions(-)
+With current implementation of prot_guest_has() for TDX it breaks boot for
+me.
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Looking at code agains, now I *think* the reason is accessing a global
+variable from __startup_64() inside TDX version of prot_guest_has().
 
+__startup_64() is special. If you access any global variable you need to
+use fixup_pointer(). See comment before __startup_64().
+
+I'm not sure how you get away with accessing sme_me_mask directly from
+there. Any clues? Maybe just a luck and complier generates code just right
+for your case, I donno.
+
+A separate point is that TDX version of prot_guest_has() relies on
+cpu_feature_enabled() which is not ready at this point.
+
+I think __bss_decrypted fixup has to be done if sme_me_mask is non-zero.
+Or just do it uncoditionally because it's NOP for sme_me_mask == 0.
+
+> I think the change you're requesting
+> should be done as part of the TDX support patches so it's clear why it is
+> being changed.
+> 
+> But, wouldn't TDX still need to do something with this shared/unencrypted
+> area, though? Or since it is shared, there's actually nothing you need to
+> do (the bss decrpyted section exists even if CONFIG_AMD_MEM_ENCRYPT is not
+> configured)?
+
+AFAICS, only kvmclock uses __bss_decrypted. We don't enable kvmclock in
+TDX at the moment. It may change in the future.
+
+-- 
+ Kirill A. Shutemov
