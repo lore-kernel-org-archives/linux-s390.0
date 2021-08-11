@@ -2,172 +2,237 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB1B5C43214
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Aug 2021 07:05:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D6B6C432BE
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Aug 2021 07:38:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9CF5160FC4
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Aug 2021 07:05:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0844961058
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Aug 2021 07:38:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235321AbhHKHGU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Aug 2021 03:06:20 -0400
-Received: from mail-dm6nam12on2078.outbound.protection.outlook.com ([40.107.243.78]:24205
-        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S235158AbhHKHGP (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Aug 2021 03:06:15 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RTmLssVWQAT1GE2SKl52o2tBqJ1ASUFjJkzoaQfw9D5W7vB0gyVSi9t4NtygRSIVMAjq6kkUgxoHlv7knpBmuEhFyjAiRObC+26J/26IyJSHRxxKcy1GzasZ6AFodX3Me92ox7/VMAACN0ZZEXyAmwRtJ2RPSkhEET2BS82fpv2GayPCnCGxMR66aH/0YHpy8qaoy2bIsxA9VoiIQx0vK2SdAXY6Bzuklb/ax3ao1qxB2QiMt7ktkVyJtZwrCWQ802wbpL0wlJfM0oUauYa1S6BPK+G5NsqMB+YGE7C3pkAIo0mtXSaYxyUAVSW2VWj3E2oZtz1dZ6d6jY5lJSne9w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ybaz60lPgObJjALvuFbUJNUk2hvE8HGH24rzOkrOWo4=;
- b=UKr9ofj7JeqgQxHbffrfA5G1ek0ASjPydcrfGwAKNgKXZ2eYZZH2jLijSm+7x5POnyN/SFSmGlG5WU2K/A7O2Eq0IB411yC0ToNK90pEseyc3PrnTqGFM5qm+LQSY1Hb1R7wp0r18RqHiMq5bobPe/wJXo3KASg1FtFmIexFv2adyuTMqU6ahfF37xrF3w6OB/sIzRDOndEuKSkSOlYGdbrbv2nlVm4vltbh9n+o1dQRHLd23WdWRSjrWgmY8wNnmsaztO7lwzhkF2YH7PeU5j548bOGx/L2mWFFmFVcrhgPsUPHwlRoFRp8SiVUQqhwtJcV2ALYZC+YDl3BM/1Qrg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.32) smtp.rcpttodomain=linux-foundation.org
- smtp.mailfrom=nvidia.com; dmarc=pass (p=quarantine sp=none pct=100)
- action=none header.from=nvidia.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ybaz60lPgObJjALvuFbUJNUk2hvE8HGH24rzOkrOWo4=;
- b=VC+2aAMk92IW4YjyKTahm2XESyIxuNG8QalMY2QZhwr+ZqjhPw42175JLHrpSWlpbmrHwxxe2sN1xma6vmsM/s7LVmYMy8jM1wJlIyiApy3KC1GcxAs6oX9SDlNuSpaPeSy+I0e/+7RmMN0cP0l9e9zB/zyPDZ07I4Jn3/WwsRPKD1lEuiVQCLH06yzMNIOk6um9kBsQQ258+m/WDMF6IA/3+Ups9akSg1569XBbcThNttQ9qMOEenBulRjfbynpumFBMS0fDy29zVNxiFIM1Hd6AZB8OoJWzwBEsd5w1L+uI83xnW9YRu1xisT8e1jhbnC2bd8DionMHfOiyjBrIQ==
-Received: from DM3PR03CA0017.namprd03.prod.outlook.com (2603:10b6:0:50::27) by
- BN6PR1201MB0193.namprd12.prod.outlook.com (2603:10b6:405:56::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.21; Wed, 11 Aug
- 2021 07:05:50 +0000
-Received: from DM6NAM11FT040.eop-nam11.prod.protection.outlook.com
- (2603:10b6:0:50:cafe::42) by DM3PR03CA0017.outlook.office365.com
- (2603:10b6:0:50::27) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.16 via Frontend
- Transport; Wed, 11 Aug 2021 07:05:50 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.32)
- smtp.mailfrom=nvidia.com; linux-foundation.org; dkim=none (message not
- signed) header.d=none;linux-foundation.org; dmarc=pass action=none
- header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.32 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.32; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.32) by
- DM6NAM11FT040.mail.protection.outlook.com (10.13.173.133) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4415.16 via Frontend Transport; Wed, 11 Aug 2021 07:05:50 +0000
-Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL109.nvidia.com
- (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 11 Aug
- 2021 00:05:47 -0700
-Received: from HQMAIL109.nvidia.com (172.20.187.15) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 11 Aug
- 2021 07:05:48 +0000
-Received: from sandstorm.attlocal.net (172.20.187.6) by mail.nvidia.com
- (172.20.187.15) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 11 Aug 2021 00:05:47 -0700
-From:   John Hubbard <jhubbard@nvidia.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-CC:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S235648AbhHKHih (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Aug 2021 03:38:37 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13152 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233182AbhHKHif (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 11 Aug 2021 03:38:35 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17B7WfeJ028233;
+        Wed, 11 Aug 2021 03:36:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=m+JtjjEy5TsJLd92ur6KCDzzzlMk9GDK4ppT5WWK7Q0=;
+ b=RU7eOxjOmXTZY2NqL9Q2cCuGnoWfL2JgSObPvFj5X5DUCQvy3CJr9sGoOyIHy4gs1uJS
+ zKurjIFs2AOq3JH0/9P6p/Y+jKNeXIncxqqpyBtP7qrVznqmYwdUz9+GVWQuHB4Lla05
+ VnT+CjdpRKwM+2fY+BC6RWU12bpiYjqvgKLI+EBh+VYkhM76FTA8tivMKVcKizKleVHn
+ Jo0i+rCVp/3i/ZQI1h5EMEQmO4EnsvEBL+7njB1XMu91FzPXwHS83Yqt586eIKoZh6no
+ o17X+hxzAyptv2YldcDCXHKCd7rtF4qLS9LpxW4gTUr79zYKkwn/eCRnHPQNaKQ3f8fS GA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ab8km2c1p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Aug 2021 03:36:42 -0400
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17B7XWlk030716;
+        Wed, 11 Aug 2021 03:36:41 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ab8km2c0j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Aug 2021 03:36:41 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17B7Wo1l024116;
+        Wed, 11 Aug 2021 07:36:38 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3a9ht8yjww-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Aug 2021 07:36:38 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17B7aZTb55968192
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 11 Aug 2021 07:36:35 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 38D9BAE06A;
+        Wed, 11 Aug 2021 07:36:35 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C14C5AE079;
+        Wed, 11 Aug 2021 07:36:31 +0000 (GMT)
+Received: from linux.ibm.com (unknown [9.145.154.55])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed, 11 Aug 2021 07:36:31 +0000 (GMT)
+Date:   Wed, 11 Aug 2021 10:36:29 +0300
+From:   Mike Rapoport <rppt@linux.ibm.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        linux-mips@vger.kernel.org, linux-mm@kvack.org,
+        Will Deacon <will@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-riscv@lists.infradead.org,
+        Frank Rowand <frowand.list@gmail.com>,
+        kvmarm@lists.cs.columbia.edu, linux-s390@vger.kernel.org,
+        linux-acpi@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        x86@kernel.org, Russell King <linux@armlinux.org.uk>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        LKML <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-        <linux-s390@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Matthew Wilcox <willy@infradead.org>
-Subject: [PATCH v2 2/3] mm/gup: small refactoring: simplify try_grab_page()
-Date:   Wed, 11 Aug 2021 00:05:41 -0700
-Message-ID: <20210811070542.3403116-3-jhubbard@nvidia.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210811070542.3403116-1-jhubbard@nvidia.com>
-References: <20210811070542.3403116-1-jhubbard@nvidia.com>
+        Ingo Molnar <mingo@redhat.com>, Len Brown <lenb@kernel.org>,
+        devicetree@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-arm-kernel@lists.infradead.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        linux-kernel@vger.kernel.org, Palmer Dabbelt <palmer@dabbelt.com>
+Subject: Re: [PATCH v3] memblock: make memblock_find_in_range method private
+Message-ID: <YRN9/XrHiPUMdDPJ@linux.ibm.com>
+References: <20210803064218.6611-1-rppt@kernel.org>
+ <20210809190641.GA1176508@roeck-us.net>
+ <YRLLpImNhZaLzs3z@kernel.org>
+ <7db20940-cbd9-e900-db28-774c5782601c@roeck-us.net>
 MIME-Version: 1.0
-X-NVConfidentiality: public
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 1d952777-b2b2-43ed-7b4d-08d95c9673a4
-X-MS-TrafficTypeDiagnostic: BN6PR1201MB0193:
-X-Microsoft-Antispam-PRVS: <BN6PR1201MB0193334E870564FBA7442874A8F89@BN6PR1201MB0193.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:4714;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: WvcWm3QO1yCCdMOjeUYVkDh5NKvu4ER2Dhya7XuU/E3tYJTyXOSMxudmATrZGdw2r6lAk5rbOz3JGoXpv6NCXzQ4EIQSQ4jRe/m+frYblcFCNyBcLjA5exCjb9n0j9+42SX2fTegH3lwaGemgoeKbQnISambheCBadhW0Doefu9su/H10BKyp0QjctKgxrVk6a2c7CuBUqKPs7ZsnoBJw5fuPPNH3dK18iJeNN3Mq1XAZE8jFY8Azu54gVpzRaXpGpVivcrKjE+Fx8kUksaLW3QmAj5UJIQIKjRObf+sTgaxfp9e8ZKDkBYA/6MyfFa6ROKIssrVGWJUeOj9b83AZjezqITxXxD15Docpo26j8aRilhrXyXzyk0LzYHaYQdAGTohjyYlBwD2mLTB3ReG4K0plGipa++73dTttuHL6H+gmZE+WInhFzos5wbbKOv1bOtDFOdeH8mnaV5kwTNSFGvCx+7Aa8+bwXi8+wsN6ex9Sy4VqDKhYLos9c2VmBI8gjvCkMWf4fofqYPBC9DIplFFU/BsZfNirH6K/+XRxtMCnzD1v7KIxdX/vaVDNxvirXoVAj27eDt7YIAxJETL1VmAaSVsM3O3H+HtdYMqGhvY6jAqdPg8PYRGe28Am6CWd925zjCG+Btlkcnd7vsanf0kXllqIhJh4/UOvpTiqlvByM3h0eGRiITbqK3ggFt4qPAv8yR9N6ETjpBKnIOQqQ==
-X-Forefront-Antispam-Report: CIP:216.228.112.32;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid01.nvidia.com;CAT:NONE;SFS:(4636009)(39860400002)(376002)(136003)(396003)(346002)(46966006)(36840700001)(478600001)(54906003)(426003)(1076003)(7416002)(83380400001)(47076005)(82740400003)(6916009)(2906002)(5660300002)(186003)(2616005)(36756003)(8676002)(4326008)(336012)(316002)(356005)(70206006)(7636003)(70586007)(86362001)(8936002)(6666004)(36860700001)(26005)(82310400003);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Aug 2021 07:05:50.3535
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1d952777-b2b2-43ed-7b4d-08d95c9673a4
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.32];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT040.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR1201MB0193
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7db20940-cbd9-e900-db28-774c5782601c@roeck-us.net>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: KjgETmJ2ZlBV_z9jVvzjB2ISzeMnuxs6
+X-Proofpoint-ORIG-GUID: xIQ81LmHYZOWObinE8T8p_gKjQgiq9Cz
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-11_02:2021-08-10,2021-08-11 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ clxscore=1011 lowpriorityscore=0 suspectscore=0 phishscore=0 spamscore=0
+ mlxscore=0 priorityscore=1501 mlxlogscore=999 adultscore=0 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
+ definitions=main-2108110048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-try_grab_page() does the same thing as try_grab_compound_head(...,
-refs=1, ...), just with a different API. So there is a lot of code
-duplication there.
+On Tue, Aug 10, 2021 at 12:21:46PM -0700, Guenter Roeck wrote:
+> On 8/10/21 11:55 AM, Mike Rapoport wrote:
+> > On Mon, Aug 09, 2021 at 12:06:41PM -0700, Guenter Roeck wrote:
+> > > On Tue, Aug 03, 2021 at 09:42:18AM +0300, Mike Rapoport wrote:
+> > > > From: Mike Rapoport <rppt@linux.ibm.com>
+> > > > 
+> > > > There are a lot of uses of memblock_find_in_range() along with
+> > > > memblock_reserve() from the times memblock allocation APIs did not exist.
+> > > > 
+> > > > memblock_find_in_range() is the very core of memblock allocations, so any
+> > > > future changes to its internal behaviour would mandate updates of all the
+> > > > users outside memblock.
+> > > > 
+> > > > Replace the calls to memblock_find_in_range() with an equivalent calls to
+> > > > memblock_phys_alloc() and memblock_phys_alloc_range() and make
+> > > > memblock_find_in_range() private method of memblock.
+> > > > 
+> > > > This simplifies the callers, ensures that (unlikely) errors in
+> > > > memblock_reserve() are handled and improves maintainability of
+> > > > memblock_find_in_range().
+> > > > 
+> > > > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> > > 
+> > > I see a number of crashes in next-20210806 when booting x86 images from efi.
+> > > 
+> > > [    0.000000] efi: EFI v2.70 by EDK II
+> > > [    0.000000] efi: SMBIOS=0x1fbcc000 ACPI=0x1fbfa000 ACPI 2.0=0x1fbfa014 MEMATTR=0x1f25f018
+> > > [    0.000000] SMBIOS 2.8 present.
+> > > [    0.000000] DMI: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+> > > [    0.000000] last_pfn = 0x1ff50 max_arch_pfn = 0x400000000
+> > > [    0.000000] x86/PAT: Configuration [0-7]: WB  WC  UC- UC  WB  WP  UC- WT
+> > > [    0.000000] Kernel panic - not syncing: alloc_low_pages: can not alloc memory
+> > > [    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.14.0-rc4-next-20210806 #1
+> > > [    0.000000] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+> > > [    0.000000] Call Trace:
+> > > [    0.000000]  ? dump_stack_lvl+0x57/0x7d
+> > > [    0.000000]  ? panic+0xfc/0x2c6
+> > > [    0.000000]  ? alloc_low_pages+0x117/0x156
+> > > [    0.000000]  ? phys_pmd_init+0x234/0x342
+> > > [    0.000000]  ? phys_pud_init+0x171/0x337
+> > > [    0.000000]  ? __kernel_physical_mapping_init+0xec/0x276
+> > > [    0.000000]  ? init_memory_mapping+0x1ea/0x2aa
+> > > [    0.000000]  ? init_range_memory_mapping+0xdf/0x12e
+> > > [    0.000000]  ? init_mem_mapping+0x1e9/0x26f
+> > > [    0.000000]  ? setup_arch+0x5ff/0xb6d
+> > > [    0.000000]  ? start_kernel+0x71/0x6b4
+> > > [    0.000000]  ? secondary_startup_64_no_verify+0xc2/0xcb
+> > > 
+> > > Bisect points to this patch. Reverting it fixes the problem. Key seems to
+> > > be the amount of memory configured in qemu; the problem is not seen if
+> > > there is 1G or more of memory, but it is seen with all test boots with
+> > > 512M or 256M of memory. It is also seen with almost all 32-bit efi boots.
+> > > 
+> > > The problem is not seen when booting without efi.
+> > 
+> > It looks like this change uncovered a problem in
+> > x86::memory_map_top_down().
+> > 
+> > The allocation in alloc_low_pages() is limited by min_pfn_mapped and
+> > max_pfn_mapped. The min_pfn_mapped is updated at every iteration of the
+> > loop in memory_map_top_down, but there is another loop in
+> > init_range_memory_mapping() that maps several regions below the current
+> > min_pfn_mapped without updating this variable.
+> > 
+> > The memory layout in qemu with 256M of RAM and EFI enabled, causes
+> > exhaustion of the memory limited by min_pfn_mapped and max_pfn_mapped
+> > before min_pfn_mapped is updated.
+> > 
+> > Before this commit there was unconditional "reservation" of 2M in the end
+> > of the memory that moved the initial min_pfn_mapped below the memory
+> > reserved by EFI. The addition of check for xen_domain() removed this
+> > reservation for !XEN and made alloc_low_pages() use the range already busy
+> > with EFI data.
+> > 
+> > The patch below moves the update of min_pfn_mapped near the update of
+> > max_pfn_mapped so that every time a new range is mapped both limits will be
+> > updated accordingly.
+> > 
+> > diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
+> > index 1152a29ce109..be279f6e5a0a 100644
+> > --- a/arch/x86/mm/init.c
+> > +++ b/arch/x86/mm/init.c
+> > @@ -1,3 +1,4 @@
+> > +#define DEBUG
+> >   #include <linux/gfp.h>
+> >   #include <linux/initrd.h>
+> >   #include <linux/ioport.h>
+> > @@ -485,6 +486,7 @@ static void add_pfn_range_mapped(unsigned long start_pfn, unsigned long end_pfn)
+> >   	nr_pfn_mapped = clean_sort_range(pfn_mapped, E820_MAX_ENTRIES);
+> >   	max_pfn_mapped = max(max_pfn_mapped, end_pfn);
+> > +	min_pfn_mapped = min(min_pfn_mapped, start_pfn);
+> >   	if (start_pfn < (1UL<<(32-PAGE_SHIFT)))
+> >   		max_low_pfn_mapped = max(max_low_pfn_mapped,
+> > @@ -643,7 +645,6 @@ static void __init memory_map_top_down(unsigned long map_start,
+> >   		mapped_ram_size += init_range_memory_mapping(start,
+> >   							last_start);
+> >   		last_start = start;
+> > -		min_pfn_mapped = last_start >> PAGE_SHIFT;
+> >   		if (mapped_ram_size >= step_size)
+> >   			step_size = get_new_step_size(step_size);
+> >   	}
+> 
+> The offending patch was removed from next-20210810, but I applied the above change
+> to next-20210809 and it does indeed fix the problem. If it is added as separate patch,
+> please feel free to add
+> 
+> Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-Change try_grab_page() to call try_grab_compound_head(), while keeping
-the API contract identical for callers.
+Thanks!
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
----
- mm/gup.c | 31 +++----------------------------
- 1 file changed, 3 insertions(+), 28 deletions(-)
+I wonder now about that comment saying "xen has big range in reserved near
+end of ram". Maybe it was the same issue with Xen and we can entirely drop
+the reservation of the top 2M?
 
-diff --git a/mm/gup.c b/mm/gup.c
-index 52f08e3177e9..64798d6b5043 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -208,35 +208,10 @@ static void put_compound_head(struct page *page, int refs, unsigned int flags)
-  */
- bool __must_check try_grab_page(struct page *page, unsigned int flags)
- {
--	WARN_ON_ONCE((flags & (FOLL_GET | FOLL_PIN)) == (FOLL_GET | FOLL_PIN));
-+	if (!(flags & (FOLL_GET | FOLL_PIN)))
-+		return true;
- 
--	if (flags & FOLL_GET)
--		return try_get_page(page);
--	else if (flags & FOLL_PIN) {
--		int refs = 1;
--
--		page = compound_head(page);
--
--		if (WARN_ON_ONCE(page_ref_count(page) <= 0))
--			return false;
--
--		if (hpage_pincount_available(page))
--			hpage_pincount_add(page, 1);
--		else
--			refs = GUP_PIN_COUNTING_BIAS;
--
--		/*
--		 * Similar to try_grab_compound_head(): even if using the
--		 * hpage_pincount_add/_sub() routines, be sure to
--		 * *also* increment the normal page refcount field at least
--		 * once, so that the page really is pinned.
--		 */
--		page_ref_add(page, refs);
--
--		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_ACQUIRED, 1);
--	}
--
--	return true;
-+	return try_grab_compound_head(page, 1, flags) != NULL;
- }
- 
- /**
+x86 folks, what do you say?
+
 -- 
-2.32.0
-
+Sincerely yours,
+Mike.
