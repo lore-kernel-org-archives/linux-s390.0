@@ -2,137 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1717CC4338F
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 07:56:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75A31C4338F
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 08:36:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EBF8760560
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 07:56:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A13260C3F
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 08:36:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234804AbhHLH5P (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Aug 2021 03:57:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42012 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234245AbhHLH5O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Aug 2021 03:57:14 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25CB2C061765;
-        Thu, 12 Aug 2021 00:56:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=vbzQM6aTARPCC3+R9ES/KK4HZC4Ol4Ja+NtAVkKj4Fs=; b=qZEMPMHe3mr2wd5iUcJ26aoj9t
-        Si1X+9X8oy70ughMGUzCa5MkYzM+zz0K9+CvjXyviH1HM26z+nYn2AGplJ9UnxZOTLqDq0nPtlKKJ
-        L1lW08svi+5AexRSnGoLSVrV8Nvj02ioGswnnhBkPtHJHDE86WlUCMqwzMUy8ZNSUPCo5X3AmLEp5
-        iIna5P53SiFpypNLcDUcMrG3cCSJ1DY0/P8NyXOUeefhyeU1hPyNs/5x5ZvxVX78Cd1f2+t7rNIke
-        Nuw+N1L55lLwxwVludT0GnU+5pl+ncnTl9inGlyH9G62b9bTfoT3lWCtwnAC2fKS5cqlX4iwJd/nS
-        Pc5eMnvQ==;
-Received: from [2001:4bb8:184:6215:d7d:1904:40de:694d] (helo=localhost)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mE5XV-00EJBt-5d; Thu, 12 Aug 2021 07:54:41 +0000
-From:   Christoph Hellwig <hch@lst.de>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Doug Gilbert <dgilbert@interlog.com>,
-        =?UTF-8?q?Kai=20M=C3=A4kisara?= <Kai.Makisara@kolumbus.fi>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 8/8] block: hold a request_queue reference for the lifetime of struct gendisk
-Date:   Thu, 12 Aug 2021 09:46:42 +0200
-Message-Id: <20210812074642.18592-9-hch@lst.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210812074642.18592-1-hch@lst.de>
-References: <20210812074642.18592-1-hch@lst.de>
+        id S235212AbhHLIgd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Aug 2021 04:36:33 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46524 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229956AbhHLIgc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 12 Aug 2021 04:36:32 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17C8Zohn060895;
+        Thu, 12 Aug 2021 04:36:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=FXu7enlVFhUcsDPME+78LmRZ/lauumeUT0tYKuGKGyk=;
+ b=X+KzIbxo3LsmPFtkpcCmIONBS9RomiO6EmEkW5P4UNe87bIEYDY+4uVIkuBDnRogqZ9g
+ WlQVXjR0SoQkZQfBJeUpyytMtGI2PLUjYbhnAKTPHfIFqMJDIQZW7TKGJJUC1lxvZIZi
+ uka9WgSl4olIXS/+Ky9+jcJjl+h1oAwAxB4AICisT7/gycF39038lmkBGB3r/GbwIScM
+ SaBc1CjKL0IgRA/NXjyRHBc9HbvLFlpuQLljI+z/5hkHBCQx9BwuW2JqOzUbUzhIJbMg
+ rj6042e6z3IWBQVxGe1tpSlLH1qQe6nk9wAnCEw/ZYpCYhYy32jjWUvXQLSt43DF5wWx 7w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3abrv041gv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Aug 2021 04:36:07 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17C8a7dW062246;
+        Thu, 12 Aug 2021 04:36:07 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3abrv041gb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Aug 2021 04:36:07 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17C8XwUv026584;
+        Thu, 12 Aug 2021 08:36:05 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 3acn768sfj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Aug 2021 08:36:04 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17C8Wm0115991160
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 12 Aug 2021 08:32:48 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 711944C08A;
+        Thu, 12 Aug 2021 08:36:01 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 26CDB4C0A9;
+        Thu, 12 Aug 2021 08:36:01 +0000 (GMT)
+Received: from oc3016276355.ibm.com (unknown [9.145.85.233])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 12 Aug 2021 08:36:01 +0000 (GMT)
+Subject: Re: [kvm-unit-tests PATCH v2 1/4] s390x: lib: Add SCLP toplogy nested
+ level
+To:     Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     thuth@redhat.com, kvm@vger.kernel.org, cohuck@redhat.com,
+        imbrenda@linux.ibm.com, david@redhat.com
+References: <1628612544-25130-1-git-send-email-pmorel@linux.ibm.com>
+ <1628612544-25130-2-git-send-email-pmorel@linux.ibm.com>
+ <313172a3-6074-1bc5-f0fc-c48394b6f9bc@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <3b1cb76d-d416-b91f-2a1a-28a951e97e4d@linux.ibm.com>
+Date:   Thu, 12 Aug 2021 10:36:00 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <313172a3-6074-1bc5-f0fc-c48394b6f9bc@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: AEyTs72FiKg7-zVeGa2n99BMRHk-Xi3L
+X-Proofpoint-ORIG-GUID: hPeX5EyVBajrkiyyZ-maB-OOVriwFbMN
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-12_02:2021-08-11,2021-08-12 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ adultscore=0 mlxlogscore=999 mlxscore=0 spamscore=0 clxscore=1015
+ impostorscore=0 suspectscore=0 malwarescore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108120055
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Acquire the queue ref dropped in disk_release in __blk_alloc_disk so any
-allocate gendisk always has a queue reference.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/genhd.c         | 20 +++++++-------------
- include/linux/genhd.h |  1 -
- 2 files changed, 7 insertions(+), 14 deletions(-)
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 283cf0c649e1..18600f682edb 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -544,16 +544,6 @@ static void __device_add_disk(struct device *parent, struct gendisk *disk,
- 	register_disk(parent, disk, groups);
- 	if (register_queue)
- 		blk_register_queue(disk);
--
--	/*
--	 * Take an extra ref on queue which will be put on disk_release()
--	 * so that it sticks around as long as @disk is there.
--	 */
--	if (blk_get_queue(disk->queue))
--		set_bit(GD_QUEUE_REF, &disk->state);
--	else
--		WARN_ON_ONCE(1);
--
- 	disk_add_events(disk);
- 	blk_integrity_add(disk);
- }
-@@ -1096,8 +1086,7 @@ static void disk_release(struct device *dev)
- 	disk_release_events(disk);
- 	kfree(disk->random);
- 	xa_destroy(&disk->part_tbl);
--	if (test_bit(GD_QUEUE_REF, &disk->state) && disk->queue)
--		blk_put_queue(disk->queue);
-+	blk_put_queue(disk->queue);
- 	iput(disk->part0->bd_inode);	/* frees the disk */
- }
- 
-@@ -1268,9 +1257,12 @@ struct gendisk *__alloc_disk_node(struct request_queue *q, int node_id,
- {
- 	struct gendisk *disk;
- 
-+	if (!blk_get_queue(q))
-+		return NULL;
-+
- 	disk = kzalloc_node(sizeof(struct gendisk), GFP_KERNEL, node_id);
- 	if (!disk)
--		return NULL;
-+		goto out_put_queue;
- 
- 	disk->part0 = bdev_alloc(disk, 0);
- 	if (!disk->part0)
-@@ -1297,6 +1289,8 @@ struct gendisk *__alloc_disk_node(struct request_queue *q, int node_id,
- 	iput(disk->part0->bd_inode);
- out_free_disk:
- 	kfree(disk);
-+out_put_queue:
-+	blk_put_queue(q);
- 	return NULL;
- }
- EXPORT_SYMBOL(__alloc_disk_node);
-diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-index 875be3bc8afb..e94147613d01 100644
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -149,7 +149,6 @@ struct gendisk {
- 	unsigned long state;
- #define GD_NEED_PART_SCAN		0
- #define GD_READ_ONLY			1
--#define GD_QUEUE_REF			2
- 
- 	struct mutex open_mutex;	/* open/close mutex */
- 	unsigned open_partitions;	/* number of open partitions */
+On 8/11/21 4:59 PM, Janosch Frank wrote:
+> On 8/10/21 6:22 PM, Pierre Morel wrote:
+>> The maximum CPU Topology nested level is available with the SCLP
+>> READ_INFO command inside the byte at offset 15 of the ReadInfo
+>> structure.
+>>
+>> Let's return this information to check the number of topology nested
+>> information available with the STSI 15.1.x instruction.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> 
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> 
+
+Thanks,
+Pierre
+
 -- 
-2.30.2
-
+Pierre Morel
+IBM Lab Boeblingen
