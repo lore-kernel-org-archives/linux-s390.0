@@ -2,270 +2,193 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D50AC4338F
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 09:38:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E79C4C4338F
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 10:07:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4330760560
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 09:38:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B8F9261077
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 10:07:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235218AbhHLJjK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Aug 2021 05:39:10 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62902 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235166AbhHLJjK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Aug 2021 05:39:10 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17C9Y9uc059214;
-        Thu, 12 Aug 2021 05:38:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
- from : subject : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=B4ESlgt/+Lrp/jkfBwwhu0O4mVP/rZklSNvJOeUHJ00=;
- b=JEvjBxQiKB3go/b8ZLo8hKWMxZrgmoK4/4ZKw6tbT9pftDQjSck8tXHnWniV8wPk9BjD
- C275GCcKXAmqOaHFSk0Ieofo0vAj9jZR9LjsLM1WuSohIcjp7rAYQEXaNpLXu3r6ZLLM
- J7ucEFheJy3v0ogEB3g4vOo4p6wtjoDOJoYTEhO8T6kOGKHnRDhU19csOyTkfsGdXrBq
- mv/jWP0oDU/X6fkTIGJC6wLJRAPbeODkS6K8u6+J03ToCqGvbb038VbwAbUhBWHX9JZf
- /yhi7/JQw36rS0yQ9LVKjuyjjtfchOdRgBbssXE24khyhk2Tl69yPCZ0PmH/qQipfkMx kQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3abrr6n7q9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Aug 2021 05:38:44 -0400
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17C9YCTx059457;
-        Thu, 12 Aug 2021 05:38:44 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3abrr6n7jm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Aug 2021 05:38:44 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17C9btgT017359;
-        Thu, 12 Aug 2021 09:38:40 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3acn768vk2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Aug 2021 09:38:40 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17C9ca1E54526306
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 12 Aug 2021 09:38:36 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 684DEA404D;
-        Thu, 12 Aug 2021 09:38:36 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0B1C8A405F;
-        Thu, 12 Aug 2021 09:38:36 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.58.112])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 12 Aug 2021 09:38:35 +0000 (GMT)
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     thuth@redhat.com, kvm@vger.kernel.org, cohuck@redhat.com,
-        imbrenda@linux.ibm.com, david@redhat.com
-References: <1628612544-25130-1-git-send-email-pmorel@linux.ibm.com>
- <1628612544-25130-4-git-send-email-pmorel@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2 3/4] s390x: topology: Check the Perform
- Topology Function
-Message-ID: <ae1eb2bc-8570-d114-9f45-4aaf40d23d3f@linux.ibm.com>
-Date:   Thu, 12 Aug 2021 11:38:35 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S235696AbhHLKHn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Aug 2021 06:07:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44590 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235734AbhHLKHj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Aug 2021 06:07:39 -0400
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A40D5C061798
+        for <linux-s390@vger.kernel.org>; Thu, 12 Aug 2021 03:07:13 -0700 (PDT)
+Received: by mail-lj1-x22f.google.com with SMTP id x7so9754841ljn.10
+        for <linux-s390@vger.kernel.org>; Thu, 12 Aug 2021 03:07:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=shutemov-name.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=MYArfwyoBo3dGsKUJMsxwhHgYqZKbCcsgh7gGUNtDK4=;
+        b=i5pl2dc+IIZq62s73J165t7SbTE/a6uwhQcs74jwe9KmwHHHprhV6B7adGgzY2ul5F
+         h3ad9IJiBKNdQ1Yy+0atN7ISXCxsrMGXnfmJsO6X4rAencCuDMvqer1gR8DISUT+MUdX
+         mFWLcuQYXLFjOzlL0+b+7kJuGkuB4wCN/YMkw/r+eyS6zgywYe+L6amtdlG3N+EOpGsE
+         J1HMLNEKBn3QeV3/WPSCpmI5s5ySDG9/4fJ+UJO1H5Xch03iP3WdOduEdYUt1pTqbuK7
+         XsqkYhAszn/r202BsWcaBlPgkZHQ5nFUcQEBqetJcuzusrxc9TEefXgeJD4qBlDR12PM
+         /RWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=MYArfwyoBo3dGsKUJMsxwhHgYqZKbCcsgh7gGUNtDK4=;
+        b=R7yRkkI+1vAuBxrzAkpaWRzBaEsdGWGmCWzki3h3Ltj/BwU+4zMtvDQClXXcrl6lvl
+         +zMvFD+G4KMy3rrUfKaWaqlbdDRxwwCVHglsmDOCFbS3+z2AFfCdALEp5n0z6BNgvkKV
+         nDE2fFyjQUzCJ++sbpX+RbpxhSrodfkmAVIaI3v0rISHbRbt47NX37BbZVCce2F+Ua7l
+         xkts6pqQ+TCSmc/jFpDp9rlg6xbfUuqfk9L2+HeabYwgMEUUo5WBnkDWlynB6JQ5705L
+         IMzGol2B9wVNb60FFqMywWeqbbZagSqXbChHHnmDVWiZYdUdr9k6eUhqG7zMAMqRq7j2
+         hKjQ==
+X-Gm-Message-State: AOAM532Pq6Rk7cN2pyMnumUQHxulQ+vy+8anRAWgPp8S9j+rgnLbVp5E
+        rIIflm4YcGVWSk280WX+ab7GMw==
+X-Google-Smtp-Source: ABdhPJzegmFCE5odxbsD4HArsZ9uuMjN7H8TkJnoN55vikWCUHEpo/5436B3LFAXNhCNvYbyx3Wtvw==
+X-Received: by 2002:a2e:814a:: with SMTP id t10mr2410500ljg.318.1628762831975;
+        Thu, 12 Aug 2021 03:07:11 -0700 (PDT)
+Received: from box.localdomain ([86.57.175.117])
+        by smtp.gmail.com with ESMTPSA id o8sm212528lfo.292.2021.08.12.03.07.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Aug 2021 03:07:11 -0700 (PDT)
+Received: by box.localdomain (Postfix, from userid 1000)
+        id B75B41028BC; Thu, 12 Aug 2021 13:07:24 +0300 (+03)
+Date:   Thu, 12 Aug 2021 13:07:24 +0300
+From:   "Kirill A. Shutemov" <kirill@shutemov.name>
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     "Kuppuswamy, Sathyanarayanan" 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-graphics-maintainer@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        Borislav Petkov <bp@alien8.de>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Will Deacon <will@kernel.org>, Dave Young <dyoung@redhat.com>,
+        Baoquan He <bhe@redhat.com>
+Subject: Re: [PATCH 07/11] treewide: Replace the use of mem_encrypt_active()
+ with prot_guest_has()
+Message-ID: <20210812100724.t4cdh7xbkuqgnsc3@box.shutemov.name>
+References: <cover.1627424773.git.thomas.lendacky@amd.com>
+ <029791b24c6412f9427cfe6ec598156c64395964.1627424774.git.thomas.lendacky@amd.com>
+ <166f30d8-9abb-02de-70d8-6e97f44f85df@linux.intel.com>
+ <4b885c52-f70a-147e-86bd-c71a8f4ef564@amd.com>
+ <20210811121917.ghxi7g4mctuybhbk@box.shutemov.name>
+ <0a819549-e481-c004-7da8-82ba427b13ce@amd.com>
 MIME-Version: 1.0
-In-Reply-To: <1628612544-25130-4-git-send-email-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 213GjdATOgSCM_V-7B0mtVshbOHL_Uxx
-X-Proofpoint-GUID: e3IqL7tTT1UHeKW3kEkSKmgeo4ooCJlh
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-12_03:2021-08-11,2021-08-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 bulkscore=0 spamscore=0 impostorscore=0 adultscore=0
- lowpriorityscore=0 malwarescore=0 mlxscore=0 suspectscore=0 phishscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108120061
+In-Reply-To: <0a819549-e481-c004-7da8-82ba427b13ce@amd.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 8/10/21 6:22 PM, Pierre Morel wrote:
-> We check the PTF instruction.
+On Wed, Aug 11, 2021 at 10:52:55AM -0500, Tom Lendacky wrote:
+> On 8/11/21 7:19 AM, Kirill A. Shutemov wrote:
+> > On Tue, Aug 10, 2021 at 02:48:54PM -0500, Tom Lendacky wrote:
+> >> On 8/10/21 1:45 PM, Kuppuswamy, Sathyanarayanan wrote:
+> >>>
+> >>>
+> >>> On 7/27/21 3:26 PM, Tom Lendacky wrote:
+> >>>> diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+> >>>> index de01903c3735..cafed6456d45 100644
+> >>>> --- a/arch/x86/kernel/head64.c
+> >>>> +++ b/arch/x86/kernel/head64.c
+> >>>> @@ -19,7 +19,7 @@
+> >>>>   #include <linux/start_kernel.h>
+> >>>>   #include <linux/io.h>
+> >>>>   #include <linux/memblock.h>
+> >>>> -#include <linux/mem_encrypt.h>
+> >>>> +#include <linux/protected_guest.h>
+> >>>>   #include <linux/pgtable.h>
+> >>>>     #include <asm/processor.h>
+> >>>> @@ -285,7 +285,7 @@ unsigned long __head __startup_64(unsigned long
+> >>>> physaddr,
+> >>>>        * there is no need to zero it after changing the memory encryption
+> >>>>        * attribute.
+> >>>>        */
+> >>>> -    if (mem_encrypt_active()) {
+> >>>> +    if (prot_guest_has(PATTR_MEM_ENCRYPT)) {
+> >>>>           vaddr = (unsigned long)__start_bss_decrypted;
+> >>>>           vaddr_end = (unsigned long)__end_bss_decrypted;
+> >>>
+> >>>
+> >>> Since this change is specific to AMD, can you replace PATTR_MEM_ENCRYPT with
+> >>> prot_guest_has(PATTR_SME) || prot_guest_has(PATTR_SEV). It is not used in
+> >>> TDX.
+> >>
+> >> This is a direct replacement for now.
+> > 
+> > With current implementation of prot_guest_has() for TDX it breaks boot for
+> > me.
+> > 
+> > Looking at code agains, now I *think* the reason is accessing a global
+> > variable from __startup_64() inside TDX version of prot_guest_has().
+> > 
+> > __startup_64() is special. If you access any global variable you need to
+> > use fixup_pointer(). See comment before __startup_64().
+> > 
+> > I'm not sure how you get away with accessing sme_me_mask directly from
+> > there. Any clues? Maybe just a luck and complier generates code just right
+> > for your case, I donno.
 > 
-> - We do not expect to support vertical polarization.
+> Hmm... yeah, could be that the compiler is using rip-relative addressing
+> for it because it lives in the .data section?
 
-KVM does not support vertical polarization and we don't expect it to be
-added in the future?
+I guess. It has to be fixed. It may break with complier upgrade or any
+random change around the code.
 
+BTW, does it work with clang for you?
+
+> For the static variables in mem_encrypt_identity.c I did an assembler rip
+> relative LEA, but probably could have passed physaddr to sme_enable() and
+> used a fixup_pointer() style function, instead.
+
+Sounds like a plan.
+
+> > A separate point is that TDX version of prot_guest_has() relies on
+> > cpu_feature_enabled() which is not ready at this point.
 > 
-> - We do not expect the Modified Topology Change Report to be
-> pending or not at the moment the first PTF instruction with
-> PTF_CHECK function code is done as some code already did run
-> a polarization change may have occur.
+> Does TDX have to do anything special to make memory able to be shared with
+> the hypervisor?
 
-ENOPARSE
+Yes. But there's nothing that required any changes in early boot. It
+handled in ioremap/set_memory.
 
+> You might have to use something that is available earlier
+> than cpu_feature_enabled() in that case (should you eventually support
+> kvmclock).
+
+Maybe.
+
+> > I think __bss_decrypted fixup has to be done if sme_me_mask is non-zero.
+> > Or just do it uncoditionally because it's NOP for sme_me_mask == 0.
 > 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->  s390x/Makefile      |  1 +
->  s390x/topology.c    | 99 +++++++++++++++++++++++++++++++++++++++++++++
->  s390x/unittests.cfg |  3 ++
->  3 files changed, 103 insertions(+)
->  create mode 100644 s390x/topology.c
-> 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 6565561b..c82b7dbf 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -24,6 +24,7 @@ tests += $(TEST_DIR)/mvpg.elf
->  tests += $(TEST_DIR)/uv-host.elf
->  tests += $(TEST_DIR)/edat.elf
->  tests += $(TEST_DIR)/mvpg-sie.elf
-> +tests += $(TEST_DIR)/topology.elf
->  
->  tests_binary = $(patsubst %.elf,%.bin,$(tests))
->  ifneq ($(HOST_KEY_DOCUMENT),)
-> diff --git a/s390x/topology.c b/s390x/topology.c
-> new file mode 100644
-> index 00000000..a0dc3b9e
-> --- /dev/null
-> +++ b/s390x/topology.c
-> @@ -0,0 +1,99 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * CPU Topology
-> + *
-> + * Copyright (c) 2021 IBM Corp
-> + *
-> + * Authors:
-> + *  Pierre Morel <pmorel@linux.ibm.com>
-> + */
-> +
-> +#include <libcflat.h>
-> +#include <asm/page.h>
-> +#include <asm/asm-offsets.h>
-> +#include <asm/interrupt.h>
-> +#include <asm/facility.h>
-> +#include <smp.h>
-> +#include <sclp.h>
-> +
-> +static int machine_level;
-> +
-> +#define PTF_REQ_HORIZONTAL	0
-> +#define PTF_REQ_VERTICAL	1
-> +#define PTF_REQ_CHECK		2
-> +
-> +#define PTF_ERR_NO_REASON	0
-> +#define PTF_ERR_ALRDY_POLARIZED	1
-> +#define PTF_ERR_IN_PROGRESS	2
-> +
-> +static int ptf(unsigned long fc, unsigned long *rc)
-> +{
-> +	int cc;
-> +
-> +	asm volatile(
-> +		"       .insn   rre,0xb9a20000,%1,0\n"
-> +		"       ipm     %0\n"
-> +		"       srl     %0,28\n"
-> +		: "=d" (cc), "+d" (fc)
-> +		: "d" (fc)
-> +		: "cc");
-> +
-> +	*rc = fc >> 8;
-> +	return cc;
-> +}
-> +
-> +static void test_ptf(void)
-> +{
-> +	unsigned long rc;
-> +	int cc;
-> +
-> +	report_prefix_push("Topology Report pending");
-> +	/*
-> +	 * At this moment the topology may already have changed
-> +	 * since the VM has been started.
-> +	 * However, we can test if a second PTF instruction
-> +	 * reports that the topology did not change since the
-> +	 * preceding PFT instruction.
-> +	 */
-> +	ptf(PTF_REQ_CHECK, &rc);
-> +	cc = ptf(PTF_REQ_CHECK, &rc);
-> +	report(cc == 0, "PTF check clear");
-> +
-> +	/*
-> +	 * In the LPAR we can not assume the state of the polarizatiom
+> For SNP, we'll have to additionally call the HV to update the RMP to make
+> the memory shared. But that could also be done unconditionally since the
+> early_snp_set_memory_shared() routine will check for SNP before doing
+> anything.
 
-polarization
-
-> +	 * at this moment.
-> +	 * Let's skip the tests for LPAR.
-> +	 */
-
-Any idea what happens on z/VM?
-We don't necessarily need to support z/VM but we at least need to skip
-like we do on lpar :-)
-
-Maybe also add a TODO, so we know we could improve the test?
-
-> +	if (machine_level < 3)
-> +		goto end;
-> +
-
-Add comments:
-We're always horizontally polarized in KVM.
-
-> +	cc = ptf(PTF_REQ_HORIZONTAL, &rc);
-> +	report(cc == 2 && rc == PTF_ERR_ALRDY_POLARIZED,
-> +	       "PTF horizontal already configured");
-> +
-
-KVM doesn't support vertical polarization.
-
-> +	cc = ptf(PTF_REQ_VERTICAL, &rc);
-> +	report(cc == 2 && rc == PTF_ERR_NO_REASON,
-> +	       "PTF vertical non possible");
-
-s/non/not/
-
-> +
-> +end:
-> +	report_prefix_pop();
-> +}
-> +
-> +int main(int argc, char *argv[])
-> +{
-> +	report_prefix_push("CPU Topology");
-> +
-> +	if (!test_facility(11)) {
-> +		report_skip("Topology facility not present");
-> +		goto end;
-> +	}
-> +
-> +	machine_level = stsi_get_fc();
-> +	report_info("Machine level %d", machine_level);
-> +
-> +	test_ptf();
-> +
-> +end:
-> +	report_prefix_pop();
-> +	return report_summary();
-> +}
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index 9e1802fd..0f84d279 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -109,3 +109,6 @@ file = edat.elf
->  
->  [mvpg-sie]
->  file = mvpg-sie.elf
-> +
-> +[topology]
-> +file = topology.elf
-> 
-
+-- 
+ Kirill A. Shutemov
