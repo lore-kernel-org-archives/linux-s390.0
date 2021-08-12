@@ -2,107 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93833C4320A
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 15:12:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8635FC432BE
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 15:41:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 69F6A60FBF
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 15:12:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6EF5D60D07
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Aug 2021 15:41:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237860AbhHLPNB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Aug 2021 11:13:01 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:47066 "EHLO
+        id S237981AbhHLPlx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Aug 2021 11:41:53 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49259 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231392AbhHLPNA (ORCPT
+        by vger.kernel.org with ESMTP id S237792AbhHLPlx (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Aug 2021 11:13:00 -0400
+        Thu, 12 Aug 2021 11:41:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1628781155;
+        s=mimecast20190719; t=1628782887;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=QDxZXTIpTkSWXOwwbmUOwQM8t3jJ+z44eFSGMx58n2k=;
-        b=Af8gm469JfdcDEg4U3uBHNQQov/O4d9N/b1EZCAk44SJF1wFDm1FX4VQ8t31lTId1p1C9T
-        xWHR0WhLWQtj0aBaJMWET77hy1LHXY3PkMo/PpZI728XtfEuh8U6baZopp16NAUsICJ1za
-        Dy5/p13fqOJZD2rR3cnPXqfAvhEMim0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-210-R1EPMqiGMYOL0ry8BjKPVw-1; Thu, 12 Aug 2021 11:12:31 -0400
-X-MC-Unique: R1EPMqiGMYOL0ry8BjKPVw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A494987D545;
-        Thu, 12 Aug 2021 15:12:30 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.33])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E98C610016F7;
-        Thu, 12 Aug 2021 15:12:26 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v2 1/4] s390x: lib: Add SCLP toplogy
- nested level
-In-Reply-To: <08c479b7-491a-3f21-c869-d7a76a3af4e5@linux.ibm.com>
-Organization: Red Hat GmbH
-References: <1628612544-25130-1-git-send-email-pmorel@linux.ibm.com>
- <1628612544-25130-2-git-send-email-pmorel@linux.ibm.com>
- <87czqivn1q.fsf@redhat.com>
- <08c479b7-491a-3f21-c869-d7a76a3af4e5@linux.ibm.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Thu, 12 Aug 2021 17:12:25 +0200
-Message-ID: <87a6lmvgrq.fsf@redhat.com>
+        bh=wVAySSNkRIQjjk+QH2YkijF+uGWoxw5I4DLvZClTw1U=;
+        b=D134bOSUHTTA0PBGBrfxeua3cjVaITA/aBeygqqG9zTT1sBhyUKi2w0KPInxk3bKwqOzda
+        u1EV3dEohJvWbbo8vwT6klqVzAk0hvI/pwYaAxSyJm/zBxIB/ODa88m6P0j4NYOD9d2vrb
+        uM+rN2JHSIrzqz2iA+75RisxeW/qbCg=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-142-paCbPDOsPemL6gGMHp8l0w-1; Thu, 12 Aug 2021 11:41:26 -0400
+X-MC-Unique: paCbPDOsPemL6gGMHp8l0w-1
+Received: by mail-ej1-f71.google.com with SMTP id ne21-20020a1709077b95b029057eb61c6fdfso1973957ejc.22
+        for <linux-s390@vger.kernel.org>; Thu, 12 Aug 2021 08:41:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=wVAySSNkRIQjjk+QH2YkijF+uGWoxw5I4DLvZClTw1U=;
+        b=o53FPRYJCttsQNqeI/asEkVqBPGSaHmARzPepN0idxk0+orrSlQ2G87maZUMRkY7hF
+         n84LyD7Tw0tu+UPSCulGJo+WuX7V/sN+6PbPxX6pbJNDnTJa2g27T5aRD8wXuK7PF2Sj
+         KnRF9J+gXC22Rfrgq7lBRlBKJVzQf/CbUolwZl4oT5/LswK1MmI4yUsz5RDyPcqsSEKl
+         0w6kGZTo36FrUyEANBc53DmDCzK1YzEklvfz41TQ10dr200NdlGm1jSlwdcHGzlTnNEg
+         U6Y3KrQgHV79AfD8rhDKf86F2SZBEsCRjY5gtscClisq+FJfsZ9mVixvSip3y+reQvcS
+         1Rlg==
+X-Gm-Message-State: AOAM530BMKJnEti96fA3doSYWJ/FuaXS+fFDYggaCKkAniUerRH61tKY
+        mFo4o+GzcDrQVUlBYtzVjTuU9NSUWM2BgAX+g+aJ+LBI5sbmSL403poqjnKzBwenlIVXeeOaJhR
+        e/PkVs+lUnd2/wsAR9H1N90TiBsYZcjzGOKbInmOHgBClVi4PEa9MnaXMInNJFKTpQKOEP+hwTQ
+        ==
+X-Received: by 2002:a50:ef11:: with SMTP id m17mr6095928eds.233.1628782885080;
+        Thu, 12 Aug 2021 08:41:25 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzbkauFimraFjcUcxW/s5naeDzEHblJnwTGW5kN8SFMxVNVXXtWI2AkXQ1TgeG7maJbDTkRTw==
+X-Received: by 2002:a50:ef11:: with SMTP id m17mr6095860eds.233.1628782884809;
+        Thu, 12 Aug 2021 08:41:24 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id s18sm988134ejh.12.2021.08.12.08.41.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 12 Aug 2021 08:41:24 -0700 (PDT)
+Subject: Re: [PATCH v2 1/2] KVM: Refactor kvm_arch_vcpu_fault() to return a
+ struct page pointer
+To:     David Hildenbrand <david@redhat.com>,
+        Hou Wenlong <houwenlong93@linux.alibaba.com>,
+        kvm@vger.kernel.org
+Cc:     Sean Christopherson <seanjc@google.com>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org
+References: <YRQcZqCWwVH8bCGc@google.com>
+ <1c510b24fc1d7cbae8aa4b69c0799ebd32e65b82.1628739116.git.houwenlong93@linux.alibaba.com>
+ <98adbd3c-ec6f-5689-1686-2a8a7909951a@redhat.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <d29447d4-a1b4-7f12-7bbc-8dc24cb38b72@redhat.com>
+Date:   Thu, 12 Aug 2021 17:41:22 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+In-Reply-To: <98adbd3c-ec6f-5689-1686-2a8a7909951a@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Aug 12 2021, Pierre Morel <pmorel@linux.ibm.com> wrote:
+On 12/08/21 11:04, David Hildenbrand wrote:
+> 
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> 
+> But at the same time I wonder if we should just get rid of 
+> CONFIG_KVM_S390_UCONTROL and consequently kvm_arch_vcpu_fault().
+> 
+> In practice CONFIG_KVM_S390_UCONTROL, is never enabled in any reasonable 
+> kernel build and consequently it's never tested; further, exposing the 
+> sie_block to user space allows user space to generate random SIE 
+> validity intercepts.
+> 
+> CONFIG_KVM_S390_UCONTROL feels like something that should just be 
+> maintained out of tree by someone who really needs to hack deep into hw 
+> virtualization for testing purposes etc.
 
-> On 8/12/21 2:56 PM, Cornelia Huck wrote:
->> On Tue, Aug 10 2021, Pierre Morel <pmorel@linux.ibm.com> wrote:
->> 
->>> The maximum CPU Topology nested level is available with the SCLP
->>> READ_INFO command inside the byte at offset 15 of the ReadInfo
->>> structure.
->>>
->>> Let's return this information to check the number of topology nested
->>> information available with the STSI 15.1.x instruction.
->>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
->>> ---
->>>   lib/s390x/sclp.c | 6 ++++++
->>>   lib/s390x/sclp.h | 4 +++-
->>>   2 files changed, 9 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
->>> index 9502d161..ee379ddf 100644
->>> --- a/lib/s390x/sclp.c
->>> +++ b/lib/s390x/sclp.c
->>> @@ -123,6 +123,12 @@ int sclp_get_cpu_num(void)
->>>   	return read_info->entries_cpu;
->>>   }
->>>   
->>> +int sclp_get_stsi_parm(void)
->>> +{
->>> +	assert(read_info);
->>> +	return read_info->stsi_parm;
->> 
->> Is this a generic "stsi parm", or always the concrete topology nested
->> level? IOW, is that name good, or too generic?
->
-> It is the name used in the documentation, but for now only the 3 bits 
-> 5-7 are used for the maximum value of the selector 2 of the STSI 
-> instruction allowed by the machine.
+I have no preference either way.  It should definitely have selftests, 
+but in x86 land there are some features that are not covered by QEMU and 
+were nevertheless accepted upstream with selftests.
 
-Ok.
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Paolo
 
