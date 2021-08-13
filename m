@@ -7,228 +7,227 @@ X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78896C432BE
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Aug 2021 08:50:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA871C4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Aug 2021 08:50:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 618F86103A
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Aug 2021 08:50:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4D226103E
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Aug 2021 08:50:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239664AbhHMIvI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 Aug 2021 04:51:08 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:38748 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239436AbhHMIvH (ORCPT
+        id S239721AbhHMIvK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 Aug 2021 04:51:10 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42182 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S239436AbhHMIvJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 13 Aug 2021 04:51:07 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17D8gbVl065591;
-        Fri, 13 Aug 2021 04:50:41 -0400
+        Fri, 13 Aug 2021 04:51:09 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17D8XEOW167332;
+        Fri, 13 Aug 2021 04:50:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=6sdO162hVNmxVPJGQisEY8g8iYw9Fjx9nTXyNJLHdwc=;
- b=R8fZBsysSwPtyVPzNe3aqy8ZmSKsQlGEPb0oa5cHFskMajINcW3ESYRqYzksSOs6dPGW
- aby0KmEIpgMYSx9ViSbH3eQ6uihUjKM7UgPBO7BmtrYOE/BeS9Svz1jBP1cKWzgpNP/T
- o7eJZqdDnZ28QaOBpFEHkWbFGf7lKjSGHJZZR/hrQqOFh6vR529DnC1UkzWmIk6M9Ypq
- dvWPtnVuPiqGKsimsqee63g2iixxPov2TG5KJFV/VWlB4SpaH1IQsLdmH+SKGpaXiuDY
- p73KRuJYGx9XHoyyOaeCy9cqJFj7J7n7KaTMGrYhNXQTfJ2VhDqUTcbz4sxnbFs8El0X hA== 
+ bh=JpFcudson4eYOZEAC47jTRXdDonszFVlR6giId63ims=;
+ b=Oq3a2b1jPFV0zA4l6pHjQ/UwhbhKAUSCMMLpI3w/Q2CG2QuQK5vDIJop0KD0UXYnHx6s
+ t7IYUebGbvYU8pBZvbUOsEX8qkvXzYkZKNsLXyrQE2AhPmkTovWTnLr8I+/LnvuZG/Sc
+ GQc05u5ExjzkohBVktdpaaNbT5sYPfKESwAkL2bZHQ71YH9ioL9hNfvZOBfcALVKV8gI
+ NUZ6fjcOadP4zmu4dU1UCZs7TXp60P89E9BtzETw9Ny0BOS3sbaL6a8uFW92AwZU4FtJ
+ k1J6Lv+44For0yfe+Scwj4KuMuBMerg+y6iyXdB+2yKx/aeernVtfM9E0kJ9M3BP16kX 8A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ad0qytheg-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3addp5ujmj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Aug 2021 04:50:41 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17D8gqJo071392;
-        Fri, 13 Aug 2021 04:50:40 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ad0qythdx-1
+        Fri, 13 Aug 2021 04:50:42 -0400
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17D8Y0iU169835;
+        Fri, 13 Aug 2021 04:50:42 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3addp5ujm5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Aug 2021 04:50:40 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17D8lhNT006045;
-        Fri, 13 Aug 2021 08:50:38 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma05fra.de.ibm.com with ESMTP id 3a9ht9292a-1
+        Fri, 13 Aug 2021 04:50:42 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17D8lcGX021271;
+        Fri, 13 Aug 2021 08:50:40 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3a9ht8t99s-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Aug 2021 08:50:38 +0000
+        Fri, 13 Aug 2021 08:50:40 +0000
 Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17D8oaNO56688952
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17D8lJfo55902464
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 13 Aug 2021 08:50:36 GMT
+        Fri, 13 Aug 2021 08:47:20 GMT
 Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0CDCD52071;
-        Fri, 13 Aug 2021 08:50:36 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1F09152051;
+        Fri, 13 Aug 2021 08:50:38 +0000 (GMT)
 Received: from p-imbrenda (unknown [9.145.9.6])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id C595D5205F;
-        Fri, 13 Aug 2021 08:50:35 +0000 (GMT)
-Date:   Fri, 13 Aug 2021 10:40:17 +0200
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id DA0FC5206B;
+        Fri, 13 Aug 2021 08:50:37 +0000 (GMT)
+Date:   Fri, 13 Aug 2021 10:32:40 +0200
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     Janosch Frank <frankja@linux.ibm.com>
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
         thuth@redhat.com, cohuck@redhat.com
-Subject: Re: [kvm-unit-tests PATCH 3/8] lib: s390x: Print addressing related
- exception information
-Message-ID: <20210813104017.6e669d72@p-imbrenda>
-In-Reply-To: <20210813073615.32837-4-frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 1/8] s390x: lib: Extend bitops
+Message-ID: <20210813103240.33710ea6@p-imbrenda>
+In-Reply-To: <20210813073615.32837-2-frankja@linux.ibm.com>
 References: <20210813073615.32837-1-frankja@linux.ibm.com>
-        <20210813073615.32837-4-frankja@linux.ibm.com>
+        <20210813073615.32837-2-frankja@linux.ibm.com>
 Organization: IBM
 X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: J8Yx3vcvqRybUnqshp0vJdJCksQA6LjU
-X-Proofpoint-ORIG-GUID: eUxQ8i7SzeymuijrYxmAz2sjL4yvNzcE
+X-Proofpoint-ORIG-GUID: LxEYX4PvykBAPZ75n-OtDL5wFdr51zhK
+X-Proofpoint-GUID: jeS_KxMRYh1S7WigUE5lFb69kEwz8VzO
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-13_01:2021-08-12,2021-08-13 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 mlxlogscore=999 lowpriorityscore=0 suspectscore=0
- clxscore=1015 phishscore=0 impostorscore=0 mlxscore=0 bulkscore=0
- adultscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ definitions=2021-08-13_03:2021-08-12,2021-08-13 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ lowpriorityscore=0 malwarescore=0 clxscore=1015 impostorscore=0
+ adultscore=0 phishscore=0 suspectscore=0 mlxscore=0 spamscore=0
+ priorityscore=1501 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
  scancount=1 engine=8.12.0-2107140000 definitions=main-2108130050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 13 Aug 2021 07:36:10 +0000
+On Fri, 13 Aug 2021 07:36:08 +0000
 Janosch Frank <frankja@linux.ibm.com> wrote:
 
-> Right now we only get told the kind of program exception as well as
-> the PSW at the point where it happened.
-> 
-> For addressing exceptions the PSW is not always enough so let's print
-> the TEID which contains the failing address and flags that tell us
-> more about the kind of address exception.
+> Bit setting and clearing is never bad to have.
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
->  lib/s390x/asm/arch_def.h |  4 +++
->  lib/s390x/interrupt.c    | 72
-> ++++++++++++++++++++++++++++++++++++++++ 2 files changed, 76
+>  lib/s390x/asm/bitops.h | 102
+> +++++++++++++++++++++++++++++++++++++++++ 1 file changed, 102
 > insertions(+)
 > 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 4ca02c1d..39c5ba99 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -41,6 +41,10 @@ struct psw {
->  	uint64_t	addr;
->  };
+> diff --git a/lib/s390x/asm/bitops.h b/lib/s390x/asm/bitops.h
+> index 792881ec..f5612855 100644
+> --- a/lib/s390x/asm/bitops.h
+> +++ b/lib/s390x/asm/bitops.h
+> @@ -17,6 +17,78 @@
 >  
-> +/* Let's ignore spaces we don't expect to use for now. */
-> +#define AS_PRIM				0
-> +#define AS_HOME				3
-> +
->  #define PSW_MASK_EXT			0x0100000000000000UL
->  #define PSW_MASK_IO			0x0200000000000000UL
->  #define PSW_MASK_DAT			0x0400000000000000UL
-> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-> index 01ded49d..1248bceb 100644
-> --- a/lib/s390x/interrupt.c
-> +++ b/lib/s390x/interrupt.c
-> @@ -12,6 +12,7 @@
->  #include <sclp.h>
->  #include <interrupt.h>
->  #include <sie.h>
-> +#include <asm/page.h>
+>  #define BITS_PER_LONG	64
 >  
->  static bool pgm_int_expected;
->  static bool ext_int_expected;
-> @@ -126,6 +127,73 @@ static void fixup_pgm_int(struct stack_frame_int
-> *stack) /* suppressed/terminated/completed point already at the next
-> address */ }
->  
-> +static void decode_pgm_prot(uint64_t teid)
-
-it is actually more complicated than this.
-
-if you don't want to add all the possibilities because they are
-unlikely and/or not relevant, maybe add a comment
-
-> +{
-> +	/* Low-address protection exception, 100 */
-> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) &&
-> !test_bit_inv(61, &teid)) {
-> +		printf("Type: LAP\n");
-> +		return;
-> +	}
+> +static inline unsigned long *bitops_word(unsigned long nr,
+> +					 const volatile unsigned
+> long *ptr) +{
+> +	unsigned long addr;
 > +
-> +	/* Instruction execution prevention, i.e. no-execute, 101 */
-> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) &&
-> test_bit_inv(61, &teid)) {
-> +		printf("Type: IEP\n");
-> +		return;
-> +	}
-> +
-> +	/* Standard DAT exception, 001 */
-> +	if (!test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) &&
-> test_bit_inv(61, &teid)) {
-> +		printf("Type: DAT\n");
-> +		return;
-> +	}
+> +	addr = (unsigned long)ptr + ((nr ^ (nr & (BITS_PER_LONG -
+> 1))) >> 3);
+> +	return (unsigned long *)addr;
+
+why not just 
+
+return ptr + (nr / BITS_PER_LONG);
+
 > +}
 > +
-> +static void decode_teid(uint64_t teid)
+> +static inline unsigned long bitops_mask(unsigned long nr)
 > +{
-> +	int asce_id = lc->trans_exc_id & 3;
-> +	bool dat = lc->pgm_old_psw.mask & PSW_MASK_DAT;
-> +
-> +	printf("Memory exception information:\n");
-> +	printf("TEID: %lx\n", teid);
-> +	printf("DAT: %s\n", dat ? "on" : "off");
-> +	printf("AS: %s\n", asce_id == AS_PRIM ? "Primary" : "Home");
-> +
-> +	if (lc->pgm_int_code == PGM_INT_CODE_PROTECTION)
-> +		decode_pgm_prot(teid);
-> +
-> +	/*
-> +	 * If teid bit 61 is off for these two exception the reported
-> +	 * address is unpredictable.
-> +	 */
-> +	if ((lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_ACCESS ||
-> +	     lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_VIOLATION)
-> &&
-> +	    !test_bit_inv(61, &teid)) {
-> +		printf("Address: %lx, unpredictable\n ", teid &
-> PAGE_MASK);
-> +		return;
-> +	}
-> +	printf("Address: %lx\n\n", teid & PAGE_MASK);
+> +	return 1UL << (nr & (BITS_PER_LONG - 1));
 > +}
 > +
-> +static void print_storage_exception_information(void)
+> +static inline uint64_t laog(volatile unsigned long *ptr, uint64_t
+> mask) +{
+> +	uint64_t old;
+> +
+> +	/* load and or 64bit concurrent and interlocked */
+> +	asm volatile(
+> +		"	laog	%[old],%[mask],%[ptr]\n"
+> +		: [old] "=d" (old), [ptr] "+Q" (*ptr)
+> +		: [mask] "d" (mask)
+> +		: "memory", "cc" );
+> +	return old;
+> +}
+
+do we really need the artillery (asm) here?
+is there a reason why we can't do this in C?
+
+> +static inline uint64_t lang(volatile unsigned long *ptr, uint64_t
+> mask) +{
+> +	uint64_t old;
+> +
+> +	/* load and and 64bit concurrent and interlocked */
+> +	asm volatile(
+> +		"	lang	%[old],%[mask],%[ptr]\n"
+> +		: [old] "=d" (old), [ptr] "+Q" (*ptr)
+> +		: [mask] "d" (mask)
+> +		: "memory", "cc" );
+> +	return old;
+> +}
+
+(same here as above)
+
+> +
+> +static inline void set_bit(unsigned long nr,
+> +			   const volatile unsigned long *ptr)
 > +{
-> +	switch (lc->pgm_int_code) {
-> +	case PGM_INT_CODE_PROTECTION:
-> +	case PGM_INT_CODE_PAGE_TRANSLATION:
-> +	case PGM_INT_CODE_SEGMENT_TRANSLATION:
-> +	case PGM_INT_CODE_ASCE_TYPE:
-> +	case PGM_INT_CODE_REGION_FIRST_TRANS:
-> +	case PGM_INT_CODE_REGION_SECOND_TRANS:
-> +	case PGM_INT_CODE_REGION_THIRD_TRANS:
-> +	case PGM_INT_CODE_SECURE_STOR_ACCESS:
-> +	case PGM_INT_CODE_NON_SECURE_STOR_ACCESS:
-> +	case PGM_INT_CODE_SECURE_STOR_VIOLATION:
-> +		decode_teid(lc->trans_exc_id);
-> +		break;
-> +	default:
-> +		return;
-> +	}
+> +	uint64_t mask = bitops_mask(nr);
+> +	uint64_t *addr = bitops_word(nr, ptr);
+> +
+> +	laog(addr, mask);
 > +}
 > +
->  static void print_int_regs(struct stack_frame_int *stack)
+> +static inline void set_bit_inv(unsigned long nr,
+> +			       const volatile unsigned long *ptr)
+> +{
+> +	return set_bit(nr ^ (BITS_PER_LONG - 1), ptr);
+> +}
+> +
+> +static inline void clear_bit(unsigned long nr,
+> +			     const volatile unsigned long *ptr)
+> +{
+> +	uint64_t mask = bitops_mask(nr);
+> +	uint64_t *addr = bitops_word(nr, ptr);
+> +
+> +	lang(addr, ~mask);
+> +}
+> +
+> +static inline void clear_bit_inv(unsigned long nr,
+> +				 const volatile unsigned long *ptr)
+> +{
+> +	return clear_bit(nr ^ (BITS_PER_LONG - 1), ptr);
+> +}
+> +
+> +/* non-atomic bit manipulation functions */
+> +
+>  static inline bool test_bit(unsigned long nr,
+>  			    const volatile unsigned long *ptr)
 >  {
->  	printf("\n");
-> @@ -155,6 +223,10 @@ static void print_pgm_info(struct
-> stack_frame_int *stack) lc->pgm_int_code, stap(),
-> lc->pgm_old_psw.addr, lc->pgm_int_id); print_int_regs(stack);
->  	dump_stack();
-> +
-> +	/* Dump stack doesn't end with a \n so we add it here
-> instead */
-> +	printf("\n");
-> +	print_storage_exception_information();
->  	report_summary();
->  	abort();
+> @@ -33,4 +105,34 @@ static inline bool test_bit_inv(unsigned long nr,
+>  	return test_bit(nr ^ (BITS_PER_LONG - 1), ptr);
 >  }
+>  
+> +static inline void __set_bit(unsigned long nr,
+> +			     const volatile unsigned long *ptr)
+> +{
+> +	uint64_t mask = bitops_mask(nr);
+> +	uint64_t *addr = bitops_word(nr, ptr);
+> +
+> +	*addr |= mask;
+> +}
+> +
+> +static inline void __set_bit_inv(unsigned long nr,
+> +				 const volatile unsigned long *ptr)
+> +{
+> +	return __set_bit(nr ^ (BITS_PER_LONG - 1), ptr);
+> +}
+> +
+> +static inline void __clear_bit(unsigned long nr,
+> +			       const volatile unsigned long *ptr)
+> +{
+> +	uint64_t mask = bitops_mask(nr);
+> +	uint64_t *addr = bitops_word(nr, ptr);
+> +
+> +	*addr &= ~mask;
+> +}
+> +
+> +static inline void __clear_bit_inv(unsigned long nr,
+> +				   const volatile unsigned long *ptr)
+> +{
+> +	return __clear_bit(nr ^ (BITS_PER_LONG - 1), ptr);
+> +}
+> +
+>  #endif
 
