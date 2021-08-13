@@ -7,241 +7,147 @@ X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DCC5C4338F
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Aug 2021 11:34:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC60BC4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Aug 2021 13:14:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F50961038
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Aug 2021 11:34:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9825B61038
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Aug 2021 13:14:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239604AbhHMLfD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 Aug 2021 07:35:03 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18342 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238157AbhHMLfD (ORCPT
+        id S240638AbhHMNPQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 Aug 2021 09:15:16 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47492 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S239062AbhHMNPQ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 13 Aug 2021 07:35:03 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17DBYDVT150102;
-        Fri, 13 Aug 2021 07:34:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
+        Fri, 13 Aug 2021 09:15:16 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17DD41Rg049449;
+        Fri, 13 Aug 2021 09:14:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
+ from : subject : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=49qhHYSpUgDjtGU1yGfIrGECR86Ig9vBL6TsfU7zT3Q=;
- b=ONeaIcipHd2IfVWiJcAByZa8FpwGiLLfk15nGWQqsUJ9X/1Y49m+fW8VDq/+xMsS49kX
- lcKc7OltPCplSNoVuBsoSsMOVCiqLebI2r4B6fUgE12Boe57DXfdfDwU6nJPARVhS2j1
- OM/Vk4mfGX2agK3t1x5nsSPX+WjQTxqUmOcITMtfUqSzgGcRVa5Q/M7alaqjHpecu9Fq
- jWtSrDVZIHdErin7wpOwX5an/V2W2O55zfIIrXSr+MzttViA/nL30YCh2/r818dr4EY2
- 5QgD8Q1TXx7drWXyyOOKLf99+r6YsYUGJm4Ab3lznT3/Gju0uSZWJZt6cjI72ABdN8rU 1Q== 
+ bh=myabMtQaPCdNWRfAyEij1L8HPiaNtrJE7inCLBGOUjY=;
+ b=A30uLzPMnKopfMYnASD3n5k8oUqpKnI/XwKc5JgZSIwTTBqcXShCiGxN8W9YMYzgnYPa
+ 5A5FdsgjPnXbnpNZ7+5vv75G1dHL378rj/pWV2HoEMRua6+PH0H7j6IKPeYzlY6lAiS0
+ IzTC6iwvr1oAR7frdrhWRT781lk3r1jOM7EmHx7su1a3aVMkWeTUhAXHl8Mj8gArG7CU
+ UONN7fUy+9KFZJqmGRS9I9ZIsbxm1314t0Wy/pU+OhUBByLHzHWv2HDw5Bxjp00wyWqd
+ wk6ACDgxyBWJiL9Vc3k2UMH2MKA5pwDyoF/6re8Qyvb1GdEQegg3M8bhZ3smQhppq9WT CA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ad1ky413d-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ad4qbfqef-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Aug 2021 07:34:36 -0400
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17DBYZ7w154910;
-        Fri, 13 Aug 2021 07:34:35 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ad1ky412f-1
+        Fri, 13 Aug 2021 09:14:48 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17DD4ak9052513;
+        Fri, 13 Aug 2021 09:14:48 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ad4qbfqe1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Aug 2021 07:34:35 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17DBW1CM024366;
-        Fri, 13 Aug 2021 11:34:33 GMT
+        Fri, 13 Aug 2021 09:14:47 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17DDDWKh015347;
+        Fri, 13 Aug 2021 13:14:46 GMT
 Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3abujqvtyh-1
+        by ppma03ams.nl.ibm.com with ESMTP id 3ad4kqhngn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Aug 2021 11:34:32 +0000
+        Fri, 13 Aug 2021 13:14:46 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17DBVBRc45416722
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17DDBPkn32506156
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 13 Aug 2021 11:31:11 GMT
+        Fri, 13 Aug 2021 13:11:25 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 30C98A406F;
-        Fri, 13 Aug 2021 11:34:30 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id CDEFCA4064;
+        Fri, 13 Aug 2021 13:14:43 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CEF0DA4062;
-        Fri, 13 Aug 2021 11:34:29 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 79FF1A4054;
+        Fri, 13 Aug 2021 13:14:43 +0000 (GMT)
 Received: from localhost.localdomain (unknown [9.145.158.198])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 13 Aug 2021 11:34:29 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH 3/8] lib: s390x: Print addressing related
- exception information
+        Fri, 13 Aug 2021 13:14:43 +0000 (GMT)
 To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
         thuth@redhat.com, cohuck@redhat.com
 References: <20210813073615.32837-1-frankja@linux.ibm.com>
- <20210813073615.32837-4-frankja@linux.ibm.com>
- <20210813104017.6e669d72@p-imbrenda>
+ <20210813073615.32837-6-frankja@linux.ibm.com>
+ <20210813104544.17cbbb94@p-imbrenda>
 From:   Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <4c6682cc-f4b5-2a70-167c-00af4b333c2d@linux.ibm.com>
-Date:   Fri, 13 Aug 2021 13:34:29 +0200
+Subject: Re: [kvm-unit-tests PATCH 5/8] s390x: uv-host: Explain why we set up
+ the home space and remove the space change
+Message-ID: <13df31b4-f513-8e51-071a-c2fc00fa4900@linux.ibm.com>
+Date:   Fri, 13 Aug 2021 15:14:43 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210813104017.6e669d72@p-imbrenda>
+In-Reply-To: <20210813104544.17cbbb94@p-imbrenda>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: HzpFFfcMjZYPU4IoMS9rV2OOPJ3-LuUU
-X-Proofpoint-ORIG-GUID: NzZkN8qssEoU9G-DLP2G6fGZQpeVhTTc
+X-Proofpoint-GUID: CNuAnrQof6cnHSkbROjmQb-07Ay6Cd8x
+X-Proofpoint-ORIG-GUID: FiN1Anvc9LS2Hpn-nrhmpA7516lDgI3l
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-13_03:2021-08-12,2021-08-13 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 mlxlogscore=999 mlxscore=0 adultscore=0 lowpriorityscore=0
- priorityscore=1501 suspectscore=0 clxscore=1015 phishscore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108130069
+ definitions=2021-08-13_04:2021-08-12,2021-08-13 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 adultscore=0 lowpriorityscore=0 malwarescore=0
+ spamscore=0 mlxlogscore=999 mlxscore=0 bulkscore=0 suspectscore=0
+ phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2107140000 definitions=main-2108130080
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 8/13/21 10:40 AM, Claudio Imbrenda wrote:
-> On Fri, 13 Aug 2021 07:36:10 +0000
+On 8/13/21 10:45 AM, Claudio Imbrenda wrote:
+> On Fri, 13 Aug 2021 07:36:12 +0000
 > Janosch Frank <frankja@linux.ibm.com> wrote:
 > 
->> Right now we only get told the kind of program exception as well as
->> the PSW at the point where it happened.
+>> UV home addresses don't require us to be in home space but we need to
+>> have it set up so hw/fw can use the home asce to translate home
+>> virtual addresses.
 >>
->> For addressing exceptions the PSW is not always enough so let's print
->> the TEID which contains the failing address and flags that tell us
->> more about the kind of address exception.
->>
+>> Hence we add a comment why we're setting up the home asce and remove
+>> the address space since it's unneeded.
+> 
+> oh, we actually never use it?
+
+Yes, as I said, those addresses are not relative to your PSW DAT
+settings, they are defined to be home space addresses.
+
 >> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> 
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+Thanks!
+
+> 
 >> ---
->>  lib/s390x/asm/arch_def.h |  4 +++
->>  lib/s390x/interrupt.c    | 72
->> ++++++++++++++++++++++++++++++++++++++++ 2 files changed, 76
->> insertions(+)
+>>  s390x/uv-host.c | 11 ++++++++---
+>>  1 file changed, 8 insertions(+), 3 deletions(-)
 >>
->> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
->> index 4ca02c1d..39c5ba99 100644
->> --- a/lib/s390x/asm/arch_def.h
->> +++ b/lib/s390x/asm/arch_def.h
->> @@ -41,6 +41,10 @@ struct psw {
->>  	uint64_t	addr;
->>  };
+>> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
+>> index 426a67f6..28035707 100644
+>> --- a/s390x/uv-host.c
+>> +++ b/s390x/uv-host.c
+>> @@ -444,13 +444,18 @@ static void test_clear(void)
 >>  
->> +/* Let's ignore spaces we don't expect to use for now. */
->> +#define AS_PRIM				0
->> +#define AS_HOME				3
->> +
->>  #define PSW_MASK_EXT			0x0100000000000000UL
->>  #define PSW_MASK_IO			0x0200000000000000UL
->>  #define PSW_MASK_DAT			0x0400000000000000UL
->> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
->> index 01ded49d..1248bceb 100644
->> --- a/lib/s390x/interrupt.c
->> +++ b/lib/s390x/interrupt.c
->> @@ -12,6 +12,7 @@
->>  #include <sclp.h>
->>  #include <interrupt.h>
->>  #include <sie.h>
->> +#include <asm/page.h>
->>  
->>  static bool pgm_int_expected;
->>  static bool ext_int_expected;
->> @@ -126,6 +127,73 @@ static void fixup_pgm_int(struct stack_frame_int
->> *stack) /* suppressed/terminated/completed point already at the next
->> address */ }
->>  
->> +static void decode_pgm_prot(uint64_t teid)
-> 
-> it is actually more complicated than this.
-
-I know it hurts to look at the spec :)
-
-> 
-> if you don't want to add all the possibilities because they are
-> unlikely and/or not relevant, maybe add a comment
-
-Will do!
-
-> 
->> +{
->> +	/* Low-address protection exception, 100 */
->> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) &&
->> !test_bit_inv(61, &teid)) {
->> +		printf("Type: LAP\n");
->> +		return;
->> +	}
->> +
->> +	/* Instruction execution prevention, i.e. no-execute, 101 */
->> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) &&
->> test_bit_inv(61, &teid)) {
->> +		printf("Type: IEP\n");
->> +		return;
->> +	}
->> +
->> +	/* Standard DAT exception, 001 */
->> +	if (!test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) &&
->> test_bit_inv(61, &teid)) {
->> +		printf("Type: DAT\n");
->> +		return;
->> +	}
->> +}
->> +
->> +static void decode_teid(uint64_t teid)
->> +{
->> +	int asce_id = lc->trans_exc_id & 3;
->> +	bool dat = lc->pgm_old_psw.mask & PSW_MASK_DAT;
->> +
->> +	printf("Memory exception information:\n");
->> +	printf("TEID: %lx\n", teid);
->> +	printf("DAT: %s\n", dat ? "on" : "off");
->> +	printf("AS: %s\n", asce_id == AS_PRIM ? "Primary" : "Home");
->> +
->> +	if (lc->pgm_int_code == PGM_INT_CODE_PROTECTION)
->> +		decode_pgm_prot(teid);
->> +
->> +	/*
->> +	 * If teid bit 61 is off for these two exception the reported
->> +	 * address is unpredictable.
->> +	 */
->> +	if ((lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_ACCESS ||
->> +	     lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_VIOLATION)
->> &&
->> +	    !test_bit_inv(61, &teid)) {
->> +		printf("Address: %lx, unpredictable\n ", teid &
->> PAGE_MASK);
->> +		return;
->> +	}
->> +	printf("Address: %lx\n\n", teid & PAGE_MASK);
->> +}
->> +
->> +static void print_storage_exception_information(void)
->> +{
->> +	switch (lc->pgm_int_code) {
->> +	case PGM_INT_CODE_PROTECTION:
->> +	case PGM_INT_CODE_PAGE_TRANSLATION:
->> +	case PGM_INT_CODE_SEGMENT_TRANSLATION:
->> +	case PGM_INT_CODE_ASCE_TYPE:
->> +	case PGM_INT_CODE_REGION_FIRST_TRANS:
->> +	case PGM_INT_CODE_REGION_SECOND_TRANS:
->> +	case PGM_INT_CODE_REGION_THIRD_TRANS:
->> +	case PGM_INT_CODE_SECURE_STOR_ACCESS:
->> +	case PGM_INT_CODE_NON_SECURE_STOR_ACCESS:
->> +	case PGM_INT_CODE_SECURE_STOR_VIOLATION:
->> +		decode_teid(lc->trans_exc_id);
->> +		break;
->> +	default:
->> +		return;
->> +	}
->> +}
->> +
->>  static void print_int_regs(struct stack_frame_int *stack)
+>>  static void setup_vmem(void)
 >>  {
->>  	printf("\n");
->> @@ -155,6 +223,10 @@ static void print_pgm_info(struct
->> stack_frame_int *stack) lc->pgm_int_code, stap(),
->> lc->pgm_old_psw.addr, lc->pgm_int_id); print_int_regs(stack);
->>  	dump_stack();
->> +
->> +	/* Dump stack doesn't end with a \n so we add it here
->> instead */
->> +	printf("\n");
->> +	print_storage_exception_information();
->>  	report_summary();
->>  	abort();
+>> -	uint64_t asce, mask;
+>> +	uint64_t asce;
+>>  
+>>  	setup_mmu(get_max_ram_size(), NULL);
+>> +	/*
+>> +	 * setup_mmu() will enable DAT and set the primary address
+>> +	 * space but we need to have a valid home space since UV
+>> calls
+>> +	 * take home space virtual addresses.
+>> +	 *
+>> +	 * Hence we just copy the primary asce into the home space.
+>> +	 */
+>>  	asce = stctg(1);
+>>  	lctlg(13, asce);
+>> -	mask = extract_psw_mask() | 0x0000C00000000000UL;
+>> -	load_psw_mask(mask);
 >>  }
+>>  
+>>  int main(void)
 > 
 
