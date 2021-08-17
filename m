@@ -2,138 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F07AC4338F
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Aug 2021 02:03:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC985C4338F
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Aug 2021 08:34:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 42DAD60F55
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Aug 2021 02:03:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8EC0F60F58
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Aug 2021 08:34:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233421AbhHQCDf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 Aug 2021 22:03:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42304 "EHLO mail.kernel.org"
+        id S235017AbhHQIf1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Aug 2021 04:35:27 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:49960 "EHLO mail.skyhub.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233394AbhHQCDf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 16 Aug 2021 22:03:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACF6060F4B;
-        Tue, 17 Aug 2021 02:03:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629165783;
-        bh=e+rS+LR9NfgDjAiXHol5GUKfbYmEF4q70/AUOd5kcb8=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=beFEPt13SOo0/YQjwHI9+GREGEuU2T91NSyKvJKSLLQhra97u4uLFsBHUY/4UcKzd
-         5C/t4KmYx3FLYHuoBGOb1SmhVpyaLCQg+kzUo6yCiIuUOb4LRF6H8Y5/BD8nQ2XnFe
-         GyyKLcVmCsWKFMQUn+/LVtQTNyuaq1AjOEgROpWQDjA5IoSpoyz705s2asutNxXARf
-         MJqIgDx4YFSj841+QWHYc5toBVnTNuASHy+0Pmo+lzInFLi6/JqxSeka1NvVl6Yml1
-         bdoPmK6bWZWSOGbZhzyF0ONYv8RTzAX46OAzSXd8lDGj021QINA+2T8fXDaZUtwg3u
-         P4V8y197suqqA==
-Subject: Re: [PATCH 2/7] s390: replace cc-option-yn uses with cc-option
-To:     Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Cc:     linux-kbuild@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org
-References: <20210817002109.2736222-1-ndesaulniers@google.com>
- <20210817002109.2736222-3-ndesaulniers@google.com>
-From:   Nathan Chancellor <nathan@kernel.org>
-Message-ID: <5cb6d40b-1c45-415e-47fb-a844265e7f34@kernel.org>
-Date:   Mon, 16 Aug 2021 19:03:01 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S234952AbhHQIf1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 17 Aug 2021 04:35:27 -0400
+Received: from zn.tnic (p200300ec2f1175003091845243004ed4.dip0.t-ipconnect.de [IPv6:2003:ec:2f11:7500:3091:8452:4300:4ed4])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 7C8781EC0556;
+        Tue, 17 Aug 2021 10:34:48 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1629189288;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=v4uPhgZdiiJlpwtVqNaqXelj9T6f8upihbkiEG3o50g=;
+        b=Lgjj2tnExsaUDkBXT2fdKHNrBO+BULjZeRoKzdZIjPh+qRzdb6UJ0pRCCeVAsCG4QoEACf
+        APFEJ/MU8gA2brA4kk158c9d631CrTcx57aisdeaPv8pnWvIEXNBmby5rOZ0TNBUDXUqiK
+        8l7FlEHW1jR+emE55LfUblEZ9Q1Ifp8=
+Date:   Tue, 17 Aug 2021 10:35:32 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-graphics-maintainer@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Sathyanarayanan Kuppuswamy 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH v2 04/12] powerpc/pseries/svm: Add a powerpc version of
+ prot_guest_has()
+Message-ID: <YRt01F6Mw6sB+hF8@zn.tnic>
+References: <cover.1628873970.git.thomas.lendacky@amd.com>
+ <000f627ce20c6504dd8d118d85bd69e7717b752f.1628873970.git.thomas.lendacky@amd.com>
 MIME-Version: 1.0
-In-Reply-To: <20210817002109.2736222-3-ndesaulniers@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <000f627ce20c6504dd8d118d85bd69e7717b752f.1628873970.git.thomas.lendacky@amd.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 8/16/2021 5:21 PM, 'Nick Desaulniers' via Clang Built Linux wrote:
-> cc-option-yn can be replaced with cc-option. ie.
-> Checking for support:
-> ifeq ($(call cc-option-yn,$(FLAG)),y)
-> becomes:
-> ifneq ($(call cc-option,$(FLAG)),)
+On Fri, Aug 13, 2021 at 11:59:23AM -0500, Tom Lendacky wrote:
+> Introduce a powerpc version of the prot_guest_has() function. This will
+> be used to replace the powerpc mem_encrypt_active() implementation, so
+> the implementation will initially only support the PATTR_MEM_ENCRYPT
+> attribute.
 > 
-> Checking for lack of support:
-> ifeq ($(call cc-option-yn,$(FLAG)),n)
-> becomes:
-> ifeq ($(call cc-option,$(FLAG)),)
-> 
-> This allows us to pursue removing cc-option-yn.
-> 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 > ---
->   arch/s390/Makefile | 14 +++++++-------
->   1 file changed, 7 insertions(+), 7 deletions(-)
+>  arch/powerpc/include/asm/protected_guest.h | 30 ++++++++++++++++++++++
+>  arch/powerpc/platforms/pseries/Kconfig     |  1 +
+>  2 files changed, 31 insertions(+)
+>  create mode 100644 arch/powerpc/include/asm/protected_guest.h
 > 
-> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-> index 17dc4f1ac4fa..a3cf33ad009f 100644
-> --- a/arch/s390/Makefile
-> +++ b/arch/s390/Makefile
-> @@ -70,7 +70,7 @@ cflags-y += -Wa,-I$(srctree)/arch/$(ARCH)/include
->   #
->   cflags-$(CONFIG_FRAME_POINTER) += -fno-optimize-sibling-calls
->   
-> -ifeq ($(call cc-option-yn,-mpacked-stack -mbackchain -msoft-float),y)
-> +ifneq ($(call cc-option,-mpacked-stack -mbackchain -msoft-float),)
->   cflags-$(CONFIG_PACK_STACK)  += -mpacked-stack -D__PACK_STACK
->   aflags-$(CONFIG_PACK_STACK)  += -D__PACK_STACK
->   endif
-> @@ -78,22 +78,22 @@ endif
->   KBUILD_AFLAGS_DECOMPRESSOR += $(aflags-y)
->   KBUILD_CFLAGS_DECOMPRESSOR += $(cflags-y)
->   
-> -ifeq ($(call cc-option-yn,-mstack-size=8192 -mstack-guard=128),y)
-> +ifneq ($(call cc-option,-mstack-size=8192 -mstack-guard=128),)
->   cflags-$(CONFIG_CHECK_STACK) += -mstack-size=$(STACK_SIZE)
-> -ifneq ($(call cc-option-yn,-mstack-size=8192),y)
-> +ifeq ($(call cc-option,-mstack-size=8192),)
->   cflags-$(CONFIG_CHECK_STACK) += -mstack-guard=$(CONFIG_STACK_GUARD)
->   endif
->   endif
->   
->   ifdef CONFIG_WARN_DYNAMIC_STACK
-> -  ifeq ($(call cc-option-yn,-mwarn-dynamicstack),y)
-> +  ifneq ($(call cc-option,-mwarn-dynamicstack),)
->       KBUILD_CFLAGS += -mwarn-dynamicstack
->       KBUILD_CFLAGS_DECOMPRESSOR += -mwarn-dynamicstack
->     endif
->   endif
->   
->   ifdef CONFIG_EXPOLINE
-> -  ifeq ($(call cc-option-yn,$(CC_FLAGS_MARCH) -mindirect-branch=thunk),y)
-> +  ifneq ($(call cc-option,$(CC_FLAGS_MARCH) -mindirect-branch=thunk),)
->       CC_FLAGS_EXPOLINE := -mindirect-branch=thunk
->       CC_FLAGS_EXPOLINE += -mfunction-return=thunk
->       CC_FLAGS_EXPOLINE += -mindirect-branch-table
-> @@ -104,10 +104,10 @@ ifdef CONFIG_EXPOLINE
->   endif
->   
->   ifdef CONFIG_FUNCTION_TRACER
-> -  ifeq ($(call cc-option-yn,-mfentry -mnop-mcount),n)
-> +  ifeq ($(call cc-option,-mfentry -mnop-mcount),)
->       # make use of hotpatch feature if the compiler supports it
->       cc_hotpatch	:= -mhotpatch=0,3
-> -    ifeq ($(call cc-option-yn,$(cc_hotpatch)),y)
-> +    ifneq ($(call cc-option,$(cc_hotpatch)),)
->         CC_FLAGS_FTRACE := $(cc_hotpatch)
->         KBUILD_AFLAGS	+= -DCC_USING_HOTPATCH
->         KBUILD_CFLAGS	+= -DCC_USING_HOTPATCH
-> 
+> diff --git a/arch/powerpc/include/asm/protected_guest.h b/arch/powerpc/include/asm/protected_guest.h
+> new file mode 100644
+> index 000000000000..ce55c2c7e534
+> --- /dev/null
+> +++ b/arch/powerpc/include/asm/protected_guest.h
+> @@ -0,0 +1,30 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Protected Guest (and Host) Capability checks
+> + *
+> + * Copyright (C) 2021 Advanced Micro Devices, Inc.
+> + *
+> + * Author: Tom Lendacky <thomas.lendacky@amd.com>
+> + */
+> +
+> +#ifndef _POWERPC_PROTECTED_GUEST_H
+> +#define _POWERPC_PROTECTED_GUEST_H
+> +
+> +#include <asm/svm.h>
+> +
+> +#ifndef __ASSEMBLY__
+
+Same thing here. Pls audit the whole set whether those __ASSEMBLY__
+guards are really needed and remove them if not.
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
