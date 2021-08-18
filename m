@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F34BEC00143
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 00:12:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 945B8C4320A
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 00:12:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DF67961026
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 00:12:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7948660EBC
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 00:12:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237281AbhHRANI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Aug 2021 20:13:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49220 "EHLO
+        id S237256AbhHRANJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Aug 2021 20:13:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237191AbhHRANC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Aug 2021 20:13:02 -0400
+        with ESMTP id S237210AbhHRANG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Aug 2021 20:13:06 -0400
 Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2E2DC0617AD
-        for <linux-s390@vger.kernel.org>; Tue, 17 Aug 2021 17:12:28 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id f8-20020a2585480000b02905937897e3daso997329ybn.2
-        for <linux-s390@vger.kernel.org>; Tue, 17 Aug 2021 17:12:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF804C061796
+        for <linux-s390@vger.kernel.org>; Tue, 17 Aug 2021 17:12:30 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id t101-20020a25aaee0000b0290578c0c455b2so949720ybi.13
+        for <linux-s390@vger.kernel.org>; Tue, 17 Aug 2021 17:12:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=reply-to:date:in-reply-to:message-id:mime-version:references
          :subject:from:to:cc;
-        bh=RvlRT/d0KRRmeshIggwU59tosJYpHrgSfIrmn/BlMZk=;
-        b=J/btw2kBW8CCKgSWduzZ4yNDQ9jPCNg2xPl4jCpLAdyLiwH7QtHGV1y6kjLPOR4pVE
-         ZDKjkdARZS8GmDTNnvP9LdXou+xjZuyTbyZJ3TuP5ICcsZkkW5Lr1qHUbtDSj4dhJzS7
-         ooTKH9RNJpLv9wCBmNWPbwfMvnr4qNRJXMfHRkysKURa1BJZQjPIQgg39xXByf+jp+JF
-         e1xsDX0mNvjkbpVXPm2eN3Uirkn3K3CJ0/qSGC0uZtA8TGlRNuSxpsGKtbnjhG+il1wB
-         wct3FluI01m6+RJVx2rqioJ+HJcc4nTCOnqLLKsHdDDCHGUYHFL0GppeRXBvO0D++aBa
-         W50g==
+        bh=wc2+C6r6Lzc5JqLepnjKBoA3R/oqdnaY+wA2WFQYFmk=;
+        b=jzEI2eyoLjuCiAckr9iQTqnFUXwzAh4Bi/ACxivwK6KOsY26ctm9j6orvh4F448pPb
+         b8xexsGPPAIYpwhpqZpbmxtpFVoPnNsKXQISPtnNBm0/2ryyGFAMDsHQAPkvUeB2ltPx
+         nIXoNCHbxHh6z06UUYfxKd42NrbnHGNigYvC5+elZGIC3Qjg5ghQQBat4Rx30JZFsRsa
+         Lvu96COE1hCjQpq94rCM95+H6SGRURxQyBIC6xzLPq76Nc+SxV3gXU8GXnCkwxbvoTv1
+         CXl1N4IeWINdS+i53o8pkiyjKWOUtFTjxnWmVwypp8QYBjwroTmp7dRVf29c3a4/VkuI
+         f/Dw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:reply-to:date:in-reply-to:message-id
          :mime-version:references:subject:from:to:cc;
-        bh=RvlRT/d0KRRmeshIggwU59tosJYpHrgSfIrmn/BlMZk=;
-        b=GgMUXeMY02HmtpHwj97CsomKr60yzgmzqPyEI+N2fgQfFeUWmxuXlVSxr3mmLc0E11
-         i4Iz+2llZBxpru1nkGIpGF0Qed4Q0NzfH8XR3iZgGbSMr8TBU+h6fOkwC+e9AYcEGfWt
-         0wZfcJ7mOdgCQfpb1EK4wpzhN3oaamf77udMGjMbmt8Sy56XsPYKXDvqPDPI29aprOXK
-         Vt/Oenx2qIn2Ssc/+bVm+4HQIkqkLQhXPo5fdRd6xV5uzTx7YpW7e+oad5LDflmK5Nj9
-         atX+Arvrru1fgPJBi4C5NwSAC5FbecgtNniLoBpmh0G65E0p4R21gJO93dHhg432veb9
-         uYVg==
-X-Gm-Message-State: AOAM531vSv/Ax/SOREfDX9tF2oAXZZgrNvZt/L3NqbFdqpy1St2jHSgc
-        tZEUABkI3JUKewSM3QpBllur4qhWrWI=
-X-Google-Smtp-Source: ABdhPJygpO/HYN72sXYTpl6b7jRBgWVBum0X4WlFfzX7pr8xMRy0/Av5fz2lPwqaf0O3I2LLRev0nu5RwHI=
+        bh=wc2+C6r6Lzc5JqLepnjKBoA3R/oqdnaY+wA2WFQYFmk=;
+        b=iwzEOO3swkBb653aj9sO/UEw20vc5KcwB4zLVN+KJw7acobZH26Mc8boorqLsIqnz/
+         /7Smg0sE+rcDtGOYNp5bM1cQwXXomGHz+gYrXp9/PzHcIlx5wZM1hTXJuOkZ6jwugCef
+         viJzcSRGSuwRBXb6v9GtX+dwksLTyXMYBpkXrrZyGmrmjJZt5N2wATcxy972YuzPe5MM
+         oqIq5hNSoJ+71Y2J28y645ecr9QkUb+VHO5bI4kXVVz07TztdBcLtNRBpmq/x4JPEOAa
+         KtVUEIfRwQAkVFuxTYpjxAKlfy3dfo7cz1bp0TR5XUYdFbx5lswHfL8rKRhGvwGacSg8
+         JE0g==
+X-Gm-Message-State: AOAM5336nTz33kGtfWcDg+zo7ZH8Bm1szE7CNlfpRJOsrj8LK5ZSD0BT
+        FiIrjxRhQHW9+JZKDLLpJnj9xLkCHgY=
+X-Google-Smtp-Source: ABdhPJw6f++95Q1JylrDXYmhiUqYl37K7vOLkaBu5Wdz0eJB64tcPEMCwyRm7Y5uUGuVcrpQtJ7YIbfkBgE=
 X-Received: from seanjc798194.pdx.corp.google.com ([2620:15c:90:200:158e:55a:74dd:5197])
- (user=seanjc job=sendgmr) by 2002:a25:a369:: with SMTP id d96mr7632412ybi.463.1629245547966;
- Tue, 17 Aug 2021 17:12:27 -0700 (PDT)
+ (user=seanjc job=sendgmr) by 2002:a25:3717:: with SMTP id e23mr1721295yba.66.1629245550144;
+ Tue, 17 Aug 2021 17:12:30 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Tue, 17 Aug 2021 17:12:07 -0700
+Date:   Tue, 17 Aug 2021 17:12:08 -0700
 In-Reply-To: <20210818001210.4073390-1-seanjc@google.com>
-Message-Id: <20210818001210.4073390-3-seanjc@google.com>
+Message-Id: <20210818001210.4073390-4-seanjc@google.com>
 Mime-Version: 1.0
 References: <20210818001210.4073390-1-seanjc@google.com>
 X-Mailer: git-send-email 2.33.0.rc1.237.g0d66db33f3-goog
-Subject: [PATCH 2/5] entry: rseq: Call rseq_handle_notify_resume() in tracehook_notify_resume()
+Subject: [PATCH 3/5] tools: Move x86 syscall number fallbacks to .../uapi/
 From:   Sean Christopherson <seanjc@google.com>
 To:     Russell King <linux@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
@@ -96,158 +96,38 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Invoke rseq_handle_notify_resume() from tracehook_notify_resume() now
-that the two function are always called back-to-back by architectures
-that have rseq.  The rseq helper is stubbed out for architectures that
-don't support rseq, i.e. this is a nop across the board.
+Move unistd_{32,64}.h from x86/include/asm to x86/include/uapi/asm so
+that tools/selftests that install kernel headers, e.g. KVM selftests, can
+include non-uapi tools headers, e.g. to get 'struct list_head', without
+effectively overriding the installed non-tool uapi headers.
 
-Note, tracehook_notify_resume() is horribly named and arguably does not
-belong in tracehook.h as literally every line of code in it has nothing
-to do with tracing.  But, that's been true since commit a42c6ded827d
-("move key_repace_session_keyring() into tracehook_notify_resume()")
-first usurped tracehook_notify_resume() back in 2012.  Punt cleaning that
-mess up to future patches.
+Swapping KVM's search order, e.g. to search the kernel headers before
+tool headers, is not a viable option as doing results in linux/type.h and
+other core headers getting pulled from the kernel headers, which do not
+have the kernel-internal typedefs that are used through tools, including
+many files outside of selftests/kvm's control.
 
-No functional change intended.
+Prior to commit cec07f53c398 ("perf tools: Move syscall number fallbacks
+from perf-sys.h to tools/arch/x86/include/asm/"), the handcoded numbers
+were actual fallbacks, i.e. overriding unistd_{32,64}.h from the kernel
+headers was unintentional.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/arm/kernel/signal.c     | 1 -
- arch/arm64/kernel/signal.c   | 1 -
- arch/csky/kernel/signal.c    | 4 +---
- arch/mips/kernel/signal.c    | 4 +---
- arch/powerpc/kernel/signal.c | 4 +---
- arch/s390/kernel/signal.c    | 1 -
- include/linux/tracehook.h    | 2 ++
- kernel/entry/common.c        | 4 +---
- kernel/entry/kvm.c           | 4 +---
- 9 files changed, 7 insertions(+), 18 deletions(-)
+ tools/arch/x86/include/{ => uapi}/asm/unistd_32.h | 0
+ tools/arch/x86/include/{ => uapi}/asm/unistd_64.h | 0
+ 2 files changed, 0 insertions(+), 0 deletions(-)
+ rename tools/arch/x86/include/{ => uapi}/asm/unistd_32.h (100%)
+ rename tools/arch/x86/include/{ => uapi}/asm/unistd_64.h (100%)
 
-diff --git a/arch/arm/kernel/signal.c b/arch/arm/kernel/signal.c
-index a3a38d0a4c85..9df68d139965 100644
---- a/arch/arm/kernel/signal.c
-+++ b/arch/arm/kernel/signal.c
-@@ -670,7 +670,6 @@ do_work_pending(struct pt_regs *regs, unsigned int thread_flags, int syscall)
- 				uprobe_notify_resume(regs);
- 			} else {
- 				tracehook_notify_resume(regs);
--				rseq_handle_notify_resume(NULL, regs);
- 			}
- 		}
- 		local_irq_disable();
-diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
-index 23036334f4dc..22b55db13da6 100644
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -951,7 +951,6 @@ asmlinkage void do_notify_resume(struct pt_regs *regs,
- 
- 			if (thread_flags & _TIF_NOTIFY_RESUME) {
- 				tracehook_notify_resume(regs);
--				rseq_handle_notify_resume(NULL, regs);
- 
- 				/*
- 				 * If we reschedule after checking the affinity
-diff --git a/arch/csky/kernel/signal.c b/arch/csky/kernel/signal.c
-index 312f046d452d..bc4238b9f709 100644
---- a/arch/csky/kernel/signal.c
-+++ b/arch/csky/kernel/signal.c
-@@ -260,8 +260,6 @@ asmlinkage void do_notify_resume(struct pt_regs *regs,
- 	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
- 		do_signal(regs);
- 
--	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
-+	if (thread_info_flags & _TIF_NOTIFY_RESUME)
- 		tracehook_notify_resume(regs);
--		rseq_handle_notify_resume(NULL, regs);
--	}
- }
-diff --git a/arch/mips/kernel/signal.c b/arch/mips/kernel/signal.c
-index f1e985109da0..c9b2a75563e1 100644
---- a/arch/mips/kernel/signal.c
-+++ b/arch/mips/kernel/signal.c
-@@ -906,10 +906,8 @@ asmlinkage void do_notify_resume(struct pt_regs *regs, void *unused,
- 	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
- 		do_signal(regs);
- 
--	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
-+	if (thread_info_flags & _TIF_NOTIFY_RESUME)
- 		tracehook_notify_resume(regs);
--		rseq_handle_notify_resume(NULL, regs);
--	}
- 
- 	user_enter();
- }
-diff --git a/arch/powerpc/kernel/signal.c b/arch/powerpc/kernel/signal.c
-index e600764a926c..b93b87df499d 100644
---- a/arch/powerpc/kernel/signal.c
-+++ b/arch/powerpc/kernel/signal.c
-@@ -293,10 +293,8 @@ void do_notify_resume(struct pt_regs *regs, unsigned long thread_info_flags)
- 		do_signal(current);
- 	}
- 
--	if (thread_info_flags & _TIF_NOTIFY_RESUME) {
-+	if (thread_info_flags & _TIF_NOTIFY_RESUME)
- 		tracehook_notify_resume(regs);
--		rseq_handle_notify_resume(NULL, regs);
--	}
- }
- 
- static unsigned long get_tm_stackpointer(struct task_struct *tsk)
-diff --git a/arch/s390/kernel/signal.c b/arch/s390/kernel/signal.c
-index 78ef53b29958..b307db26bf2d 100644
---- a/arch/s390/kernel/signal.c
-+++ b/arch/s390/kernel/signal.c
-@@ -537,5 +537,4 @@ void arch_do_signal_or_restart(struct pt_regs *regs, bool has_signal)
- void do_notify_resume(struct pt_regs *regs)
- {
- 	tracehook_notify_resume(regs);
--	rseq_handle_notify_resume(NULL, regs);
- }
-diff --git a/include/linux/tracehook.h b/include/linux/tracehook.h
-index 3e80c4bc66f7..2564b7434b4d 100644
---- a/include/linux/tracehook.h
-+++ b/include/linux/tracehook.h
-@@ -197,6 +197,8 @@ static inline void tracehook_notify_resume(struct pt_regs *regs)
- 
- 	mem_cgroup_handle_over_high();
- 	blkcg_maybe_throttle_current();
-+
-+	rseq_handle_notify_resume(NULL, regs);
- }
- 
- /*
-diff --git a/kernel/entry/common.c b/kernel/entry/common.c
-index bf16395b9e13..d5a61d565ad5 100644
---- a/kernel/entry/common.c
-+++ b/kernel/entry/common.c
-@@ -171,10 +171,8 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
- 		if (ti_work & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL))
- 			handle_signal_work(regs, ti_work);
- 
--		if (ti_work & _TIF_NOTIFY_RESUME) {
-+		if (ti_work & _TIF_NOTIFY_RESUME)
- 			tracehook_notify_resume(regs);
--			rseq_handle_notify_resume(NULL, regs);
--		}
- 
- 		/* Architecture specific TIF work */
- 		arch_exit_to_user_mode_work(regs, ti_work);
-diff --git a/kernel/entry/kvm.c b/kernel/entry/kvm.c
-index 049fd06b4c3d..49972ee99aff 100644
---- a/kernel/entry/kvm.c
-+++ b/kernel/entry/kvm.c
-@@ -19,10 +19,8 @@ static int xfer_to_guest_mode_work(struct kvm_vcpu *vcpu, unsigned long ti_work)
- 		if (ti_work & _TIF_NEED_RESCHED)
- 			schedule();
- 
--		if (ti_work & _TIF_NOTIFY_RESUME) {
-+		if (ti_work & _TIF_NOTIFY_RESUME)
- 			tracehook_notify_resume(NULL);
--			rseq_handle_notify_resume(NULL, NULL);
--		}
- 
- 		ret = arch_xfer_to_guest_mode_handle_work(vcpu, ti_work);
- 		if (ret)
+diff --git a/tools/arch/x86/include/asm/unistd_32.h b/tools/arch/x86/include/uapi/asm/unistd_32.h
+similarity index 100%
+rename from tools/arch/x86/include/asm/unistd_32.h
+rename to tools/arch/x86/include/uapi/asm/unistd_32.h
+diff --git a/tools/arch/x86/include/asm/unistd_64.h b/tools/arch/x86/include/uapi/asm/unistd_64.h
+similarity index 100%
+rename from tools/arch/x86/include/asm/unistd_64.h
+rename to tools/arch/x86/include/uapi/asm/unistd_64.h
 -- 
 2.33.0.rc1.237.g0d66db33f3-goog
 
