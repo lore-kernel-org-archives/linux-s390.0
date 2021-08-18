@@ -5,76 +5,76 @@ X-Spam-Level:
 X-Spam-Status: No, score=-19.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5289CC432BE
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:13:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D77FC4338F
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:24:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3417760FDA
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:13:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 831F160EB5
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:24:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229780AbhHRJNh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Aug 2021 05:13:37 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50343 "EHLO
+        id S230118AbhHRJZU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Aug 2021 05:25:20 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43548 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229822AbhHRJNh (ORCPT
+        by vger.kernel.org with ESMTP id S232879AbhHRJZS (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Aug 2021 05:13:37 -0400
+        Wed, 18 Aug 2021 05:25:18 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629277981;
+        s=mimecast20190719; t=1629278683;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=4ottHHj7zWc7J92l6pIK4Ru/1GKlXrPvFUE129DlVp0=;
-        b=KlE8vKwmLuECs7RXJuVsO4oVgczR0gBBKNxsOHiO5nC0vgTTrTusihMH17Ku0dYL9IVvhF
-        ZZ4leSjcBK91pWngQSPfpypBr9SoqMC8epijvD5weDtPW3ZuhEOchu4lHFoQvli+7Kua8t
-        oCKuO9mzznuZAb4xJEyFxyNR6HDicEg=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-85-R5bZDRIyM2-4LOxnbIjxRA-1; Wed, 18 Aug 2021 05:13:00 -0400
-X-MC-Unique: R5bZDRIyM2-4LOxnbIjxRA-1
-Received: by mail-ed1-f71.google.com with SMTP id j15-20020aa7c40f0000b02903be5fbe68a9so722968edq.2
-        for <linux-s390@vger.kernel.org>; Wed, 18 Aug 2021 02:13:00 -0700 (PDT)
+        bh=xRaF4ibqqTKL4gf4bLxzmr31/JCFub6/Guzco44M6h8=;
+        b=KhV3bFyTSHi4hTldQrn42UzE2OiaT0/7Y7Y5aTBafaVNpkkRvkDl0aUTduL9zuTiKB3+c0
+        HNtYiKxOABt2luoBcP26O658+CDS4hP3SqoLI6ao6KNztSJ9lks5VdU1wuFATar/jtMk9r
+        2/WisGsOAGUw1ifPOmAH3e1O06tqd8g=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-6-SiIoIXYnNCKpKTIEPxrDOw-1; Wed, 18 Aug 2021 05:24:42 -0400
+X-MC-Unique: SiIoIXYnNCKpKTIEPxrDOw-1
+Received: by mail-ed1-f70.google.com with SMTP id e18-20020a0564020892b02903be9702d63eso719973edy.17
+        for <linux-s390@vger.kernel.org>; Wed, 18 Aug 2021 02:24:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:to:cc:references:from:subject:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=4ottHHj7zWc7J92l6pIK4Ru/1GKlXrPvFUE129DlVp0=;
-        b=qzQel+jXkIZMWx/Bwd9rv1cva6CpEdC/p6q6TrGUY1Voex9TONoD1TYFZtWy+khhzX
-         Y1eEqTZu5fUdRIJ2y4n2VW3J9sHxE+cz4TYKZ9veQdFr3PjaUW+LbqDrRH0ryGwhNSJi
-         EBGLst23kk/szgYS96MqWw6ci07Dd1DxldB/euIh6KHH8WuVnkndnA8ZyAZ6ChVs5OiK
-         d0B7W0cCX/0MiIkMNBDJrOcCm6DlOHATW00KAj5bwl9l/ceUVEp0C/bc8Cc9MldmS75s
-         y74RvuwAdgB2gTL+hsNSLBEX8uM1US8Fk1wDds+tV1f4Jp3Q3pE7hJGNk7NGpgrCOC1p
-         dsmw==
-X-Gm-Message-State: AOAM531Rns76MfPL8FjxA9D8iVQL0lOEZr4PG/baiFRuilbJTMU2TxHU
-        DWqQZEBt4IxckyJ+V0Obr1ihGtHiOcvzORZvh6pHbCbBbRBTasJUpl9FHZ5+Gne78V9oTCaLrFA
-        hP+cTJUobzWKQIuXts2MqKw==
-X-Received: by 2002:a17:906:9be1:: with SMTP id de33mr3532567ejc.180.1629277979491;
-        Wed, 18 Aug 2021 02:12:59 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzWIz+43XuJoqExXJvuXXomY91EWFU0asL8Ii9JrcJQFA5OO0osAfU91XdLit+YY3ImytX5DA==
-X-Received: by 2002:a17:906:9be1:: with SMTP id de33mr3532550ejc.180.1629277979216;
-        Wed, 18 Aug 2021 02:12:59 -0700 (PDT)
+        bh=xRaF4ibqqTKL4gf4bLxzmr31/JCFub6/Guzco44M6h8=;
+        b=LZNpjs+GuKAZpic8QcizluCFLGAQWerc0fGJiaMCUBLxjpj9ba/YUwPDN+wPoma9Dl
+         xD9UlqdzJU7O3cki/0ivuUHhlRPS0J93zoSYmKhW/swkOM4NHxJKxipy7rJXPEUI06WE
+         IfMFg9xsmLdpveyfCv2n6XNw2Lrkvi6TASNcFfaMp85bjdjzXWISO7lFqCBIU4EGNRsw
+         ycIMNIHR3zHm+lL27AESXncF4QjLIaoqvxuaZc4cCbvwD4D/lU+qr7sv3b/EelFRqZdP
+         TgTlkTkhip7i0bIHnV53PhijzpikDtv2mg0CQWEYf8cYRumDmH2bO21LYhAldwVQwVhM
+         +XQA==
+X-Gm-Message-State: AOAM531Ktjg8nXVitd5xqO62QoFwmUfAnMl23qljH0Ss+Vhgl4aItFgj
+        w0FBxNmqqxL2/I3AEeaSQGWpaLagJbFSjNoOPKpYc/jtXYCGw3uIWM2Ic/gnZ9AiMy6faF9eOiK
+        9iuzxvma+vo+s0tQnz18/6w==
+X-Received: by 2002:a05:6402:3485:: with SMTP id v5mr8808892edc.205.1629278681027;
+        Wed, 18 Aug 2021 02:24:41 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwO505jA4aGPl6io2+Nh1IAJVCOX0AktdhZUSJw4e+bZqPYCXsHvz5GeLIm5mhlAg1LvlC4qQ==
+X-Received: by 2002:a05:6402:3485:: with SMTP id v5mr8808883edc.205.1629278680883;
+        Wed, 18 Aug 2021 02:24:40 -0700 (PDT)
 Received: from thuth.remote.csb (pd9e83070.dip0.t-ipconnect.de. [217.232.48.112])
-        by smtp.gmail.com with ESMTPSA id dg24sm2321392edb.6.2021.08.18.02.12.58
+        by smtp.gmail.com with ESMTPSA id c28sm1742579ejc.102.2021.08.18.02.24.39
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Aug 2021 02:12:58 -0700 (PDT)
+        Wed, 18 Aug 2021 02:24:40 -0700 (PDT)
 To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, cohuck@redhat.com
 References: <20210813073615.32837-1-frankja@linux.ibm.com>
- <20210813073615.32837-4-frankja@linux.ibm.com>
+ <20210813073615.32837-5-frankja@linux.ibm.com>
 From:   Thomas Huth <thuth@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH 3/8] lib: s390x: Print addressing related
- exception information
-Message-ID: <1f99e6f8-27d1-7e4a-f706-12912e84f6f4@redhat.com>
-Date:   Wed, 18 Aug 2021 11:12:57 +0200
+Subject: Re: [kvm-unit-tests PATCH 4/8] lib: s390x: Start using bitops instead
+ of magic constants
+Message-ID: <f6b4c1e2-ac05-3567-5209-be9227b39786@redhat.com>
+Date:   Wed, 18 Aug 2021 11:24:39 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <20210813073615.32837-4-frankja@linux.ibm.com>
+In-Reply-To: <20210813073615.32837-5-frankja@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -83,151 +83,69 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 13/08/2021 09.36, Janosch Frank wrote:
-> Right now we only get told the kind of program exception as well as
-> the PSW at the point where it happened.
+> TEID data is specified in the Principles of Operation as bits so it
+> makes more sens to test the bits instead of anding the mask.
 > 
-> For addressing exceptions the PSW is not always enough so let's print
-> the TEID which contains the failing address and flags that tell us
-> more about the kind of address exception.
+> We need to set -Wno-address-of-packed-member since for test bit we
+> take an address of a struct lowcore member.
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
->   lib/s390x/asm/arch_def.h |  4 +++
->   lib/s390x/interrupt.c    | 72 ++++++++++++++++++++++++++++++++++++++++
->   2 files changed, 76 insertions(+)
+>   lib/s390x/interrupt.c | 5 +++--
+>   s390x/Makefile        | 1 +
+>   2 files changed, 4 insertions(+), 2 deletions(-)
 > 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 4ca02c1d..39c5ba99 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -41,6 +41,10 @@ struct psw {
->   	uint64_t	addr;
->   };
->   
-> +/* Let's ignore spaces we don't expect to use for now. */
-> +#define AS_PRIM				0
-> +#define AS_HOME				3
-> +
->   #define PSW_MASK_EXT			0x0100000000000000UL
->   #define PSW_MASK_IO			0x0200000000000000UL
->   #define PSW_MASK_DAT			0x0400000000000000UL
 > diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-> index 01ded49d..1248bceb 100644
+> index 1248bceb..e05c212e 100644
 > --- a/lib/s390x/interrupt.c
 > +++ b/lib/s390x/interrupt.c
-> @@ -12,6 +12,7 @@
+> @@ -8,6 +8,7 @@
+>    *  David Hildenbrand <david@redhat.com>
+>    */
+>   #include <libcflat.h>
+> +#include <bitops.h>
+>   #include <asm/barrier.h>
 >   #include <sclp.h>
 >   #include <interrupt.h>
->   #include <sie.h>
-> +#include <asm/page.h>
->   
->   static bool pgm_int_expected;
->   static bool ext_int_expected;
-> @@ -126,6 +127,73 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
->   	/* suppressed/terminated/completed point already at the next address */
->   }
->   
-> +static void decode_pgm_prot(uint64_t teid)
-> +{
-> +	/* Low-address protection exception, 100 */
-> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && !test_bit_inv(61, &teid)) {
+> @@ -77,8 +78,8 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
+>   		break;
+>   	case PGM_INT_CODE_PROTECTION:
+>   		/* Handling for iep.c test case. */
+> -		if (lc->trans_exc_id & 0x80UL && lc->trans_exc_id & 0x04UL &&
+> -		    !(lc->trans_exc_id & 0x08UL))
+> +		if (test_bit_inv(56, &lc->trans_exc_id) && test_bit_inv(61, &lc->trans_exc_id) &&
+> +		    !test_bit_inv(60, &lc->trans_exc_id))
 
-Likely just a matter of taste, but I'd prefer something like:
+I'd rather prefer:
 
-	if ((teid & 0x8c) == 0x80) {
+	if ((lc->trans_exc_id & 0x8c) == 0x84)
 
-> +		printf("Type: LAP\n");
-> +		return;
-> +	}
-> +
-> +	/* Instruction execution prevention, i.e. no-execute, 101 */
-> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid)) {
-> +		printf("Type: IEP\n");
-> +		return;
-> +	}
-> +
-> +	/* Standard DAT exception, 001 */
-> +	if (!test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid)) {
-> +		printf("Type: DAT\n");
-> +		return;
-> +	}
+... or maybe you could add a helper function for these checks a la:
 
-What about 010 (key controlled protection) and 011 (access-list controlled 
-protection)? Even if we do not trigger those yet, it might make sense to add 
-them right from the start, too?
+bool check_teid_prot_cause(uint64_t teid, bool bit56, bool bit60,
+                            bool bit61)
 
-> +}
-> +
-> +static void decode_teid(uint64_t teid)
-> +{
-> +	int asce_id = lc->trans_exc_id & 3;
+then you could replace the if statement with:
 
-Why are you referencing the lc->trans_exc_id here again? It's already passed 
-as "teid" parameter.
+	if (check_teid_prot_cause(lc->trans_exc_id, 1, 0, 1))
 
-> +	bool dat = lc->pgm_old_psw.mask & PSW_MASK_DAT;
-> +
-> +	printf("Memory exception information:\n");
-> +	printf("TEID: %lx\n", teid);
-> +	printf("DAT: %s\n", dat ? "on" : "off");
-> +	printf("AS: %s\n", asce_id == AS_PRIM ? "Primary" : "Home");
+which would be way more readable, IMHO.
 
-Could "secondary" or "AR" mode really never happen here? I'd rather like to 
-see a switch-case statement here that is able to print all four modes, just 
-to avoid confusion.
+>   			/*
+>   			 * We branched to the instruction that caused
+>   			 * the exception so we can use the return
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index ef8041a6..d260b336 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -45,6 +45,7 @@ CFLAGS += -O2
+>   CFLAGS += -march=zEC12
+>   CFLAGS += -mbackchain
+>   CFLAGS += -fno-delete-null-pointer-checks
+> +CFLAGS += -Wno-address-of-packed-member
 
-> +	if (lc->pgm_int_code == PGM_INT_CODE_PROTECTION)
-> +		decode_pgm_prot(teid);
-> +
-> +	/*
-> +	 * If teid bit 61 is off for these two exception the reported
-> +	 * address is unpredictable.
-> +	 */
-> +	if ((lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_ACCESS ||
-> +	     lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_VIOLATION) &&
-> +	    !test_bit_inv(61, &teid)) {
-> +		printf("Address: %lx, unpredictable\n ", teid & PAGE_MASK);
-> +		return;
-> +	}
-> +	printf("Address: %lx\n\n", teid & PAGE_MASK);
-> +}
-> +
-> +static void print_storage_exception_information(void)
-> +{
-> +	switch (lc->pgm_int_code) {
-> +	case PGM_INT_CODE_PROTECTION:
-> +	case PGM_INT_CODE_PAGE_TRANSLATION:
-> +	case PGM_INT_CODE_SEGMENT_TRANSLATION:
-> +	case PGM_INT_CODE_ASCE_TYPE:
-> +	case PGM_INT_CODE_REGION_FIRST_TRANS:
-> +	case PGM_INT_CODE_REGION_SECOND_TRANS:
-> +	case PGM_INT_CODE_REGION_THIRD_TRANS:
-> +	case PGM_INT_CODE_SECURE_STOR_ACCESS:
-> +	case PGM_INT_CODE_NON_SECURE_STOR_ACCESS:
-> +	case PGM_INT_CODE_SECURE_STOR_VIOLATION:
-> +		decode_teid(lc->trans_exc_id);
-> +		break;
-> +	default:
-> +		return;
+I think we should avoid this since this also affects the common code, 
+doesn't it? And in common code, we might need to deal with this.
 
-I think you could drop that default case.
-
-> +	}
-> +}
-> +
->   static void print_int_regs(struct stack_frame_int *stack)
->   {
->   	printf("\n");
-> @@ -155,6 +223,10 @@ static void print_pgm_info(struct stack_frame_int *stack)
->   	       lc->pgm_int_code, stap(), lc->pgm_old_psw.addr, lc->pgm_int_id);
->   	print_int_regs(stack);
->   	dump_stack();
-> +
-> +	/* Dump stack doesn't end with a \n so we add it here instead */
-> +	printf("\n");
-> +	print_storage_exception_information();
->   	report_summary();
->   	abort();
->   }
-> 
+  Thomas
 
