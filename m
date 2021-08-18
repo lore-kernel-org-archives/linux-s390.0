@@ -2,158 +2,146 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7270C432BE
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 00:13:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BFDFC432BE
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 06:13:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9052660FD9
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 00:13:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 87EAC610A1
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 06:13:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237005AbhHRANp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Aug 2021 20:13:45 -0400
-Received: from mail-oi1-f170.google.com ([209.85.167.170]:35835 "EHLO
-        mail-oi1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237191AbhHRANo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Aug 2021 20:13:44 -0400
-Received: by mail-oi1-f170.google.com with SMTP id r26so1923905oij.2;
-        Tue, 17 Aug 2021 17:13:10 -0700 (PDT)
+        id S238736AbhHRGNn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Aug 2021 02:13:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45662 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238508AbhHRGNW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Aug 2021 02:13:22 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDB40C051776
+        for <linux-s390@vger.kernel.org>; Tue, 17 Aug 2021 23:06:06 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id y23so1140171pgi.7
+        for <linux-s390@vger.kernel.org>; Tue, 17 Aug 2021 23:06:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Bf2aGZjkA9ZdJwTs2unG/S+9qMUhCrqY/7iHdHkH31E=;
+        b=A5I0FSkL7KTi0It4kgEm27RXwjzTjYiZalV5qb+BVbRkycsgZ6clnB+HMIO88/Lahs
+         zUfCqQaTXkbN7vGog/kgYObDuP3sM9ypsYZBTKoYz0zdY2laHeTI6MGbyFuVzp/UhIbz
+         SA33K0vtCtLYBcIuPH619Gf/JvwDe9tUUYn/U=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=++h8bUGhJWF7B6yyYyoh0nKkVdcF8eCL74y7f9GeZ4Y=;
-        b=Esyhn++GGRyGardw9fIXTWifL8fvOZt6fykSP9iSa0raEb9BbTcKdmv5NsNQI0lPns
-         Xv9Y8RWR01erZS5dHw2MV+fJAfgyK91xNoZ7z9icBh+9bwO24I0gw3e2i7oWbKmPh3Ex
-         OveBjXnLV8ori/ReyC2YhPw9wGycyenqXmmbt+hGPnqc4w5jghaNQKtJP47LXDE5uGvm
-         pay1S1s07OJXsTvbhoO6mlvRzI9mPj7bEhjDWN+FLx60W9j9zJXYQ+P+tJdR2vRYkZq0
-         o5UMMROtPLkIYLdGGPSCugb8eF8hSQedA2312ZBByNie0RJODz9mo6YrlbDcMhrf+Vq5
-         sYEA==
-X-Gm-Message-State: AOAM533xuwd9jKOgJeP+qPl5jqhGHTHyjyDQPofJQLij14BtWkWXK3KO
-        VmZLCfCo6IJy2cmt7TYO3g==
-X-Google-Smtp-Source: ABdhPJyJOifM/j6dYvgpX8URevK/gXq/UxE91n+1ytfa41bf6TcZ7UPHLnQ6y0p94fi4QGOLVqhW9w==
-X-Received: by 2002:aca:b984:: with SMTP id j126mr4666629oif.32.1629245590250;
-        Tue, 17 Aug 2021 17:13:10 -0700 (PDT)
-Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id k16sm738270oor.16.2021.08.17.17.13.08
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Bf2aGZjkA9ZdJwTs2unG/S+9qMUhCrqY/7iHdHkH31E=;
+        b=GVdsj0GnBfh6B1uzUa91EEvdFduy7oLcJVIqt8Z2casiHZJs4dbUIh5x0/O9N+pRiQ
+         7R0Gn3w8XwCD8p9ZPchUOQxH3p9NKwTjuASBiOUbYMYRzM1n0RenWbgUfNdoO5dKbpQF
+         r0YZuBO6XxnF8+PnI1s7mIVFs61UkgX9lJg1h+ZMpWlRSGg+ed4akcn4vnR26dWmZJ7n
+         h1L/P66pNz1assJGivqzTShW2aE3sx1MylV34JsmpebTbaArd3xSSMsEo15+7Jn7HJCz
+         VXRcrFqsYQwifBbwS+WiMHAgP9eQsxTVY1VQK5UM/WJb21N6tMb8nAW1Hg49+dJqviKp
+         v9ZQ==
+X-Gm-Message-State: AOAM531Mw/1FXkAAAE/vd2jCIDbjTTGnzzgVAbPj4SqRQOfrPoadVVv1
+        vgB36144xUlAhIJCsn6Gz6nBwQ==
+X-Google-Smtp-Source: ABdhPJzIwbxoplLwgyMwAYMY+AYzEbGav9ejSeaA2oSrg/gnLSdaifU6G3gvCszWYv19xo6NLd4rnA==
+X-Received: by 2002:a63:101c:: with SMTP id f28mr7267532pgl.330.1629266766044;
+        Tue, 17 Aug 2021 23:06:06 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id c9sm5531358pgq.58.2021.08.17.23.06.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Aug 2021 17:13:09 -0700 (PDT)
-Received: (nullmailer pid 1094241 invoked by uid 1000);
-        Wed, 18 Aug 2021 00:13:07 -0000
-Date:   Tue, 17 Aug 2021 19:13:07 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Borislav Petkov <bp@alien8.de>, linux-mm@kvack.org,
-        linux-mips@vger.kernel.org,
-        "Kirill A . Shutemov" <kirill.shtuemov@linux.intel.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Peter Zijlstra <peterz@infradead.org>,
+        Tue, 17 Aug 2021 23:06:02 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Kees Cook <keescook@chromium.org>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Will Deacon <will@kernel.org>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Andy Lutomirski <luto@kernel.org>,
-        Nick Kossifidis <mick@ics.forth.gr>,
-        Russell King <linux@armlinux.org.uk>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Len Brown <lenb@kernel.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Rob Herring <robh+dt@kernel.org>, linux-kernel@vger.kernel.org,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        linux-acpi@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-riscv@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        linux-s390@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
-        devicetree@vger.kernel.org
-Subject: Re: [PATCH v5] memblock: make memblock_find_in_range method private
-Message-ID: <YRxQk0Cjj5yzmvBA@robh.at.kernel.org>
-References: <20210816122622.30279-1-rppt@kernel.org>
+        linux-wireless@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-staging@lists.linux.dev, linux-block@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, clang-built-linux@googlegroups.com,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        linux-hardening@vger.kernel.org
+Subject: [PATCH v2 60/63] net/af_iucv: Use struct_group() to zero struct iucv_sock region
+Date:   Tue, 17 Aug 2021 23:05:30 -0700
+Message-Id: <20210818060533.3569517-61-keescook@chromium.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210818060533.3569517-1-keescook@chromium.org>
+References: <20210818060533.3569517-1-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210816122622.30279-1-rppt@kernel.org>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2231; h=from:subject; bh=bmKbsRP16CnR5PXdPB4ZiDx9DBCysB2r4z9hIIKiJic=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBhHKMrUiy3wzC2Tbpf2LUdDadDtk7FYIB+hFtnsIrW fkTfIlqJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYRyjKwAKCRCJcvTf3G3AJkYyD/ 9ucWeKdq8Xqqc/QXVsAWFOW9NzYhLInbMDw4OW5CozZyRbnOPk352gq63xaqMFMsclZFLEMQ9TTO33 7OYOFG7yKLJH7xWiqIvXwLztLuZw+JXSioGcmPOGOtg8hAXa8jiQ1KixmMPPGspos7hxqSuEzt31Y0 tNY4L/eDOvurxWrZsBGWm1b1k5PsAc+g8zMvnFzCBDhHj7YU0n+DSqAqBOzdrAc/BDQ6WwCtZWZgHn VVMCXM0qPf/ljXYEYnUK+ZZnl/WfbDvNoDPpsLQ0zZXhIhNtT3BKEfer/GfabdgopxSGXxTV+7JLfW 4zvjCOjHDppWfw99ppMZmvMvDN3k26ttKsLH7cVJ+kxEk9IZohT1lAGOfHEd7n+qAs4B4SrYMGb0uM wnIP+9JGQlViNQCZz8651n9z1vC3LX6PQlO5oS2pjadtH/dqxOhmIw392G3ODhOfboU0ZOnPR3pfTA vv8hjA/ukE5Dt/9T5+e3XaDNef7XzWGuEJy//3iyWc+lV/f+ruPwosN4rWo7gnyIbF2CgCgdasK6ZN PvgpQFRdA0UU/KoP4B9xx0S3rtUne33iTi/VsaHcMSUoisF52ghW2rt/M1apXDnx8RSFOroKKUUTSX 3+F+WfyISvDRWznlKXQ44kQRHNtJUEKNW8cFL9JBRk7SYT4Mh7lRv9p5s4KQ==
+X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 16 Aug 2021 15:26:22 +0300, Mike Rapoport wrote:
-> From: Mike Rapoport <rppt@linux.ibm.com>
-> 
-> There are a lot of uses of memblock_find_in_range() along with
-> memblock_reserve() from the times memblock allocation APIs did not exist.
-> 
-> memblock_find_in_range() is the very core of memblock allocations, so any
-> future changes to its internal behaviour would mandate updates of all the
-> users outside memblock.
-> 
-> Replace the calls to memblock_find_in_range() with an equivalent calls to
-> memblock_phys_alloc() and memblock_phys_alloc_range() and make
-> memblock_find_in_range() private method of memblock.
-> 
-> This simplifies the callers, ensures that (unlikely) errors in
-> memblock_reserve() are handled and improves maintainability of
-> memblock_find_in_range().
-> 
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> Acked-by: Kirill A. Shutemov <kirill.shtuemov@linux.intel.com>
-> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>	# ACPI
-> Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-> Acked-by: Nick Kossifidis <mick@ics.forth.gr>			# riscv
-> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>		# arm64
-> ---
-> v5:
-> * restore the original behaviour on x86 with addition of more elaborate
->   comment; I will address the issue in memory_map_top_down() in a separate
->   series.
-> 
-> v4: https://lore.kernel.org/lkml/20210812065907.20046-1-rppt@kernel.org
-> * Add patch that prevents the crashes reported by Guenter Roeck on x86/i386
->   on QEMU with 256M or 512M of memory and EFI boot enabled.
-> * Add Acked-by and Reviewed-by, thanks everybidy!
-> 
-> v3: https://lore.kernel.org/lkml/20210803064218.6611-1-rppt@kernel.org
-> * simplify check for exact crash kerenl allocation on arm, per Rob
-> * make crash_max unsigned long long on arm64, per Rob
-> 
-> v2: https://lore.kernel.org/lkml/20210802063737.22733-1-rppt@kernel.org
-> * don't change error message in arm::reserve_crashkernel(), per Russell
-> 
-> v1: https://lore.kernel.org/lkml/20210730104039.7047-1-rppt@kernel.org
-> 
-> 
->  arch/arm/kernel/setup.c           | 20 +++++---------
->  arch/arm64/kvm/hyp/reserved_mem.c |  9 +++----
->  arch/arm64/mm/init.c              | 36 ++++++++-----------------
->  arch/mips/kernel/setup.c          | 14 +++++-----
->  arch/riscv/mm/init.c              | 44 ++++++++++---------------------
->  arch/s390/kernel/setup.c          | 10 ++++---
->  arch/x86/kernel/aperture_64.c     |  5 ++--
->  arch/x86/mm/init.c                | 23 ++++++++++------
->  arch/x86/mm/numa.c                |  5 ++--
->  arch/x86/mm/numa_emulation.c      |  5 ++--
->  arch/x86/realmode/init.c          |  2 +-
->  drivers/acpi/tables.c             |  5 ++--
->  drivers/base/arch_numa.c          |  5 +---
->  drivers/of/of_reserved_mem.c      | 12 ++++++---
->  include/linux/memblock.h          |  2 --
->  mm/memblock.c                     |  2 +-
->  16 files changed, 81 insertions(+), 118 deletions(-)
-> 
+In preparation for FORTIFY_SOURCE performing compile-time and run-time
+field bounds checking for memset(), avoid intentionally writing across
+neighboring fields.
 
-Acked-by: Rob Herring <robh@kernel.org>
+Add struct_group() to mark the region of struct iucv_sock that gets
+initialized to zero. Avoid the future warning:
+
+In function 'fortify_memset_chk',
+    inlined from 'iucv_sock_alloc' at net/iucv/af_iucv.c:476:2:
+./include/linux/fortify-string.h:199:4: warning: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
+  199 |    __write_overflow_field(p_size_field, size);
+      |    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Cc: Julian Wiedmann <jwi@linux.ibm.com>
+Cc: Karsten Graul <kgraul@linux.ibm.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: linux-s390@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ include/net/iucv/af_iucv.h | 10 ++++++----
+ net/iucv/af_iucv.c         |  2 +-
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/include/net/iucv/af_iucv.h b/include/net/iucv/af_iucv.h
+index ff06246dbbb9..df85d19fbf84 100644
+--- a/include/net/iucv/af_iucv.h
++++ b/include/net/iucv/af_iucv.h
+@@ -112,10 +112,12 @@ enum iucv_tx_notify {
+ 
+ struct iucv_sock {
+ 	struct sock		sk;
+-	char			src_user_id[8];
+-	char			src_name[8];
+-	char			dst_user_id[8];
+-	char			dst_name[8];
++	struct_group(init,
++		char		src_user_id[8];
++		char		src_name[8];
++		char		dst_user_id[8];
++		char		dst_name[8];
++	);
+ 	struct list_head	accept_q;
+ 	spinlock_t		accept_q_lock;
+ 	struct sock		*parent;
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index 18316ee3c692..9446e2771d31 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -473,7 +473,7 @@ static struct sock *iucv_sock_alloc(struct socket *sock, int proto, gfp_t prio,
+ 	atomic_set(&iucv->msg_recv, 0);
+ 	iucv->path = NULL;
+ 	iucv->sk_txnotify = afiucv_hs_callback_txnotify;
+-	memset(&iucv->src_user_id , 0, 32);
++	memset(&iucv->init, 0, sizeof(iucv->init));
+ 	if (pr_iucv)
+ 		iucv->transport = AF_IUCV_TRANS_IUCV;
+ 	else
+-- 
+2.30.2
+
