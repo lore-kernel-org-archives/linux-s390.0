@@ -8,73 +8,76 @@ X-Spam-Status: No, score=-19.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25687C4338F
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:31:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD22DC4338F
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:39:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 006C6604D7
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:31:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8A77060EBC
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:39:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231218AbhHRJbd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Aug 2021 05:31:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:57427 "EHLO
+        id S232330AbhHRJjf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Aug 2021 05:39:35 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:58417 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233150AbhHRJbZ (ORCPT
+        by vger.kernel.org with ESMTP id S232577AbhHRJjc (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Aug 2021 05:31:25 -0400
+        Wed, 18 Aug 2021 05:39:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629279051;
+        s=mimecast20190719; t=1629279535;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=i5co6SUgFv+sYfd3AIqoYyrmZWFs0jZYGZn1SyDwPzA=;
-        b=IX5d1q/4wT5zGGjsx1zHPBedYcRh16zbbd6zxMpusoq5B+SJ/lTJ5lDt0zjwg/MpJloWXU
-        gzksN1eX7jiQAjrCr+epzGmlxjc8FZ4YzSGp9ThTE6MfUY+T4Y3AIDs68Z4z8kpNFuPngt
-        ZeiMEPwQJtb/dU2fUWne1M/vscG58kQ=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-155-yKDKwS6TPJmLnXB-q3Thvw-1; Wed, 18 Aug 2021 05:30:50 -0400
-X-MC-Unique: yKDKwS6TPJmLnXB-q3Thvw-1
-Received: by mail-ed1-f70.google.com with SMTP id e3-20020a50ec830000b02903be5be2fc73so723773edr.16
-        for <linux-s390@vger.kernel.org>; Wed, 18 Aug 2021 02:30:49 -0700 (PDT)
+        bh=aXkC/Zz8d42rLoVxJCKPmI4UarBPoIcxyNVz8r4Tnas=;
+        b=GQTTB9fw4eHwpOAHbcy00YN+uwZRLfbLJLaao6avEnPvfMOGMna5Rn3pwXx+WoTgruPz/R
+        wRDduIzVwp437agkPDpi1gM1l/IrIlJxI1mkekXLsEfBTap7JPugJWTN0G8MQx+FU7RsIU
+        4dLom2bCSWy7EvHGqYYngG+rUwVHQuU=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-130-c9sjigTuOvSlND_y_cmnDw-1; Wed, 18 Aug 2021 05:38:54 -0400
+X-MC-Unique: c9sjigTuOvSlND_y_cmnDw-1
+Received: by mail-ed1-f69.google.com with SMTP id d12-20020a50fe8c0000b02903a4b519b413so744581edt.9
+        for <linux-s390@vger.kernel.org>; Wed, 18 Aug 2021 02:38:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=i5co6SUgFv+sYfd3AIqoYyrmZWFs0jZYGZn1SyDwPzA=;
-        b=qf0Z4F68dcwnF+irR9YwOzs/WvyMFMTubhGL2dMBfSbG2jGhHC/tI7l8FSHZfnSn7s
-         JIDUxsq3Zlw+T/LPTKXNglELDylic1wCOmTm93zkzdXBxTrnb78Tojzy1lZ/GVPu5lGt
-         wLfpslZXGkI3jKy40LulZycq+ZdpwtTHx/Z7KO+CsqOoViJngEd4qA3tNekRiufvmeZX
-         nxqpVOTwKc8/3PlG+Tb+bTUr7G1eZNyPr7jSkJJ85cYRjid8o/f89fG9sEKOvMX9jxmq
-         bFU3ZQK1LLRxpvXOZTwDrMh5VNeOjqBEE70WJUdesVyUM9HNomJERfx8P/0LGBo74P3C
-         an8g==
-X-Gm-Message-State: AOAM531Pm7kiIkgQvsuUediJmcA5Z4rekdylZrzLPzZpJwFy+jSh1I4G
-        cbrW/rrb4mMIf3gkajEfxsXRUjJ1WP+GChCHWwL64UtvVj6NOIJIu2m1GL45r+DvVh3Roz5h1bY
-        2LCgmiLyjTTZqB72/OfyV3g==
-X-Received: by 2002:a05:6402:4412:: with SMTP id y18mr9191915eda.364.1629279048887;
-        Wed, 18 Aug 2021 02:30:48 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxWeeuBo6KB/pXYwy7SoP5LoIwsAbzuEL2C9i4LEj2h7EFL43n1ykmf5K/Dmz15yNBIghj6jg==
-X-Received: by 2002:a05:6402:4412:: with SMTP id y18mr9191905eda.364.1629279048755;
-        Wed, 18 Aug 2021 02:30:48 -0700 (PDT)
+        bh=aXkC/Zz8d42rLoVxJCKPmI4UarBPoIcxyNVz8r4Tnas=;
+        b=Paqex1rh5Hq4u/Xjpiv6a30DckQx6ZN0yf3nlKV6sCa+1Utpt+0+gsJ3WSEmu+9ytC
+         iV4NAdgqs1ZsVhOMRQuVhGIfRjPOrH8MOJJqiOly401d15f/pLG+r/ua1s1112Wd4ERL
+         q8keVp5nUgEYCUM06MYttCFSvuNb980B/0emo9Nr5+FfLSLAGVKrJA6RIkdI4+LLDXhs
+         Dqv6yqJdGVp83RmV7dWuRv0KLBKpr+dX11UfuTi2nun/yQEGhMxpm8y4OLd+Rbzq8XC3
+         J1rjgGvKTunooGATQGhF8b4LN/qYwdgQx2mI5qFyYwk57JGteM1GfmQ1esu/e3IIh4mP
+         P8zg==
+X-Gm-Message-State: AOAM532j0NGy/l60RZnQdMCv4n58CrjENNBdeFLOZPjy3e5NZYcRciSV
+        RUnPHm6dsCY0qqWnbSeWGEgClBGL+vrWJnqcAeudTeFaRVx0JIhgS/CjNWXcLCCZ9ElXFSlfszA
+        iKGbVs1hDxU9zAjhyCDVK4Q==
+X-Received: by 2002:a17:906:4c5a:: with SMTP id d26mr9048411ejw.317.1629279533293;
+        Wed, 18 Aug 2021 02:38:53 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz0UUAy4UP24eWYAGTr4ikI15BE5LDp4nxVM35nDL6yuIvm63328asMjLa+QJp/eiw1G7q9eQ==
+X-Received: by 2002:a17:906:4c5a:: with SMTP id d26mr9048388ejw.317.1629279533051;
+        Wed, 18 Aug 2021 02:38:53 -0700 (PDT)
 Received: from thuth.remote.csb (pd9e83070.dip0.t-ipconnect.de. [217.232.48.112])
-        by smtp.gmail.com with ESMTPSA id c9sm2262703ede.40.2021.08.18.02.30.47
+        by smtp.gmail.com with ESMTPSA id br16sm1796971ejb.34.2021.08.18.02.38.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Aug 2021 02:30:48 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH 8/8] lib: s390x: uv: Add rc 0x100 query
- error handling
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, cohuck@redhat.com
-References: <20210813073615.32837-1-frankja@linux.ibm.com>
- <20210813073615.32837-9-frankja@linux.ibm.com>
+        Wed, 18 Aug 2021 02:38:52 -0700 (PDT)
+Subject: Re: [PATCH 1/2] sysctl: introduce new proc handler proc_dobool
 From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <182d9128-89a4-7ae0-1e2b-ba1df17cc706@redhat.com>
-Date:   Wed, 18 Aug 2021 11:30:46 +0200
+To:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Iurii Zaikin <yzaikin@google.com>
+Cc:     "J. Bruce Fields" <bfields@fieldses.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        linux-s390@vger.kernel.org, Jia He <hejianet@gmail.com>
+References: <20210803105937.52052-1-thuth@redhat.com>
+ <20210803105937.52052-2-thuth@redhat.com>
+Message-ID: <5e359b28-6233-a97e-a30f-0a30fa516833@redhat.com>
+Date:   Wed, 18 Aug 2021 11:38:51 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <20210813073615.32837-9-frankja@linux.ibm.com>
+In-Reply-To: <20210803105937.52052-2-thuth@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -82,30 +85,116 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 13/08/2021 09.36, Janosch Frank wrote:
-> Let's not get bitten by an extension of the query struct and handle
-> the rc 0x100 error properly which does indicate that the UV has more
-> data for us.
+On 03/08/2021 12.59, Thomas Huth wrote:
+> From: Jia He <hejianet@gmail.com>
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> This is to let bool variable could be correctly displayed in
+> big/little endian sysctl procfs. sizeof(bool) is arch dependent,
+> proc_dobool should work in all arches.
+> 
+> Suggested-by: Pan Xinhui <xinhui@linux.vnet.ibm.com>
+> Signed-off-by: Jia He <hejianet@gmail.com>
+> [thuth: rebased the patch to the current kernel version]
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
 > ---
->   lib/s390x/uv.c | 4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
+>   include/linux/sysctl.h |  2 ++
+>   kernel/sysctl.c        | 42 ++++++++++++++++++++++++++++++++++++++++++
+>   2 files changed, 44 insertions(+)
 > 
-> diff --git a/lib/s390x/uv.c b/lib/s390x/uv.c
-> index fd9de944..c5c69c47 100644
-> --- a/lib/s390x/uv.c
-> +++ b/lib/s390x/uv.c
-> @@ -49,6 +49,8 @@ int uv_setup(void)
->   	if (!test_facility(158))
->   		return 0;
+> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+> index d99ca99837de..1fa2b69c6fc3 100644
+> --- a/include/linux/sysctl.h
+> +++ b/include/linux/sysctl.h
+> @@ -48,6 +48,8 @@ typedef int proc_handler(struct ctl_table *ctl, int write, void *buffer,
+>   		size_t *lenp, loff_t *ppos);
 >   
-> -	assert(!uv_call(0, (u64)&uvcb_qui));
-> +	uv_call(0, (u64)&uvcb_qui);
+>   int proc_dostring(struct ctl_table *, int, void *, size_t *, loff_t *);
+> +int proc_dobool(struct ctl_table *table, int write, void *buffer,
+> +		size_t *lenp, loff_t *ppos);
+>   int proc_dointvec(struct ctl_table *, int, void *, size_t *, loff_t *);
+>   int proc_douintvec(struct ctl_table *, int, void *, size_t *, loff_t *);
+>   int proc_dointvec_minmax(struct ctl_table *, int, void *, size_t *, loff_t *);
+> diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+> index 272f4a272f8c..25e49b4d8049 100644
+> --- a/kernel/sysctl.c
+> +++ b/kernel/sysctl.c
+> @@ -536,6 +536,21 @@ static void proc_put_char(void **buf, size_t *size, char c)
+>   	}
+>   }
+>   
+> +static int do_proc_dobool_conv(bool *negp, unsigned long *lvalp,
+> +				int *valp,
+> +				int write, void *data)
+> +{
+> +	if (write) {
+> +		*(bool *)valp = *lvalp;
+> +	} else {
+> +		int val = *(bool *)valp;
 > +
-> +	assert(uvcb_qui.header.rc == 1 || uvcb_qui.header.rc == 0x100);
+> +		*lvalp = (unsigned long)val;
+> +		*negp = false;
+> +	}
+> +	return 0;
+> +}
+> +
+>   static int do_proc_dointvec_conv(bool *negp, unsigned long *lvalp,
+>   				 int *valp,
+>   				 int write, void *data)
+> @@ -798,6 +813,26 @@ static int do_proc_douintvec(struct ctl_table *table, int write,
+>   				   buffer, lenp, ppos, conv, data);
+>   }
+>   
+> +/**
+> + * proc_dobool - read/write a bool
+> + * @table: the sysctl table
+> + * @write: %TRUE if this is a write to the sysctl file
+> + * @buffer: the user buffer
+> + * @lenp: the size of the user buffer
+> + * @ppos: file position
+> + *
+> + * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
+> + * values from/to the user buffer, treated as an ASCII string.
+> + *
+> + * Returns 0 on success.
+> + */
+> +int proc_dobool(struct ctl_table *table, int write, void *buffer,
+> +		size_t *lenp, loff_t *ppos)
+> +{
+> +	return do_proc_dointvec(table, write, buffer, lenp, ppos,
+> +				do_proc_dobool_conv, NULL);
+> +}
+> +
+>   /**
+>    * proc_dointvec - read a vector of integers
+>    * @table: the sysctl table
+> @@ -1630,6 +1665,12 @@ int proc_dostring(struct ctl_table *table, int write,
+>   	return -ENOSYS;
+>   }
+>   
+> +int proc_dobool(struct ctl_table *table, int write,
+> +		void *buffer, size_t *lenp, loff_t *ppos)
+> +{
+> +	return -ENOSYS;
+> +}
+> +
+>   int proc_dointvec(struct ctl_table *table, int write,
+>   		  void *buffer, size_t *lenp, loff_t *ppos)
+>   {
+> @@ -3425,6 +3466,7 @@ int __init sysctl_init(void)
+>    * No sense putting this after each symbol definition, twice,
+>    * exception granted :-)
+>    */
+> +EXPORT_SYMBOL(proc_dobool);
+>   EXPORT_SYMBOL(proc_dointvec);
+>   EXPORT_SYMBOL(proc_douintvec);
+>   EXPORT_SYMBOL(proc_dointvec_jiffies);
+> 
 
-Don't you want to continue to check the return code of the uv_call() function?
+Friendly ping!
 
-  Thomas
+Luis, Kees, Iurii, could you please have a look and provide an Ack if this 
+looks ok to you?
+
+  Thanks,
+   Thomas
 
