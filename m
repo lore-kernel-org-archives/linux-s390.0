@@ -2,199 +2,270 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD22DC4338F
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:39:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01222C4338F
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:53:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8A77060EBC
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:39:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D8CAE60F35
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Aug 2021 09:53:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232330AbhHRJjf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Aug 2021 05:39:35 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:58417 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232577AbhHRJjc (ORCPT
+        id S232983AbhHRJy0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Aug 2021 05:54:26 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46286 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232797AbhHRJyW (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Aug 2021 05:39:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629279535;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=aXkC/Zz8d42rLoVxJCKPmI4UarBPoIcxyNVz8r4Tnas=;
-        b=GQTTB9fw4eHwpOAHbcy00YN+uwZRLfbLJLaao6avEnPvfMOGMna5Rn3pwXx+WoTgruPz/R
-        wRDduIzVwp437agkPDpi1gM1l/IrIlJxI1mkekXLsEfBTap7JPugJWTN0G8MQx+FU7RsIU
-        4dLom2bCSWy7EvHGqYYngG+rUwVHQuU=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-130-c9sjigTuOvSlND_y_cmnDw-1; Wed, 18 Aug 2021 05:38:54 -0400
-X-MC-Unique: c9sjigTuOvSlND_y_cmnDw-1
-Received: by mail-ed1-f69.google.com with SMTP id d12-20020a50fe8c0000b02903a4b519b413so744581edt.9
-        for <linux-s390@vger.kernel.org>; Wed, 18 Aug 2021 02:38:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=aXkC/Zz8d42rLoVxJCKPmI4UarBPoIcxyNVz8r4Tnas=;
-        b=Paqex1rh5Hq4u/Xjpiv6a30DckQx6ZN0yf3nlKV6sCa+1Utpt+0+gsJ3WSEmu+9ytC
-         iV4NAdgqs1ZsVhOMRQuVhGIfRjPOrH8MOJJqiOly401d15f/pLG+r/ua1s1112Wd4ERL
-         q8keVp5nUgEYCUM06MYttCFSvuNb980B/0emo9Nr5+FfLSLAGVKrJA6RIkdI4+LLDXhs
-         Dqv6yqJdGVp83RmV7dWuRv0KLBKpr+dX11UfuTi2nun/yQEGhMxpm8y4OLd+Rbzq8XC3
-         J1rjgGvKTunooGATQGhF8b4LN/qYwdgQx2mI5qFyYwk57JGteM1GfmQ1esu/e3IIh4mP
-         P8zg==
-X-Gm-Message-State: AOAM532j0NGy/l60RZnQdMCv4n58CrjENNBdeFLOZPjy3e5NZYcRciSV
-        RUnPHm6dsCY0qqWnbSeWGEgClBGL+vrWJnqcAeudTeFaRVx0JIhgS/CjNWXcLCCZ9ElXFSlfszA
-        iKGbVs1hDxU9zAjhyCDVK4Q==
-X-Received: by 2002:a17:906:4c5a:: with SMTP id d26mr9048411ejw.317.1629279533293;
-        Wed, 18 Aug 2021 02:38:53 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz0UUAy4UP24eWYAGTr4ikI15BE5LDp4nxVM35nDL6yuIvm63328asMjLa+QJp/eiw1G7q9eQ==
-X-Received: by 2002:a17:906:4c5a:: with SMTP id d26mr9048388ejw.317.1629279533051;
-        Wed, 18 Aug 2021 02:38:53 -0700 (PDT)
-Received: from thuth.remote.csb (pd9e83070.dip0.t-ipconnect.de. [217.232.48.112])
-        by smtp.gmail.com with ESMTPSA id br16sm1796971ejb.34.2021.08.18.02.38.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Aug 2021 02:38:52 -0700 (PDT)
-Subject: Re: [PATCH 1/2] sysctl: introduce new proc handler proc_dobool
-From:   Thomas Huth <thuth@redhat.com>
-To:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Iurii Zaikin <yzaikin@google.com>
-Cc:     "J. Bruce Fields" <bfields@fieldses.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        linux-s390@vger.kernel.org, Jia He <hejianet@gmail.com>
-References: <20210803105937.52052-1-thuth@redhat.com>
- <20210803105937.52052-2-thuth@redhat.com>
-Message-ID: <5e359b28-6233-a97e-a30f-0a30fa516833@redhat.com>
-Date:   Wed, 18 Aug 2021 11:38:51 +0200
+        Wed, 18 Aug 2021 05:54:22 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17I9X3Yk038099;
+        Wed, 18 Aug 2021 05:53:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
+ from : subject : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=fEIAiqsDSA0A3TD7pdD75X7ZnKBbo/poGUH0nr7+SLg=;
+ b=hFAFCUxe+OXTGk85GCLrakoX9+VeknCQNfkWZLvJ/tjkEyKTmz+SSDlWF1pSRCOTUSCA
+ nHtPZjayokm5l6OyqYH2nYoFZRd0PcGlCfdRhK2Tb6jdD96RxSAc6Qb7I2NAggtOSAX5
+ D2UAQM+vwggbjK/FbEYYbX0o5EL2SRfJGzDBnQlKZO9MtOG7CwV+5rotCfScA8bLSBmH
+ Bc6L508W5soHmTItdpGWazXMrlBsSUZIR3Rla3JAOkczaxnbtEOAF2kg3QZdPbQSONA3
+ x7RuS803i8VnvBBJK+rZCP1+URmcAw4FSOG0mE71eV3jBW6bOmY4qBLDdtYQbI3lEVwZ qg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3agg0a0r8e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 18 Aug 2021 05:53:46 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17I9igct081307;
+        Wed, 18 Aug 2021 05:53:46 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3agg0a0r7x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 18 Aug 2021 05:53:45 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17I9qDZ6018895;
+        Wed, 18 Aug 2021 09:53:43 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma01fra.de.ibm.com with ESMTP id 3ae5f8dfbx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 18 Aug 2021 09:53:43 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17I9rfqK53477822
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 18 Aug 2021 09:53:41 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EF726A405C;
+        Wed, 18 Aug 2021 09:53:40 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 90457A4060;
+        Wed, 18 Aug 2021 09:53:40 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.174.181])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 18 Aug 2021 09:53:40 +0000 (GMT)
+To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, cohuck@redhat.com
+References: <20210813073615.32837-1-frankja@linux.ibm.com>
+ <20210813073615.32837-4-frankja@linux.ibm.com>
+ <1f99e6f8-27d1-7e4a-f706-12912e84f6f4@redhat.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 3/8] lib: s390x: Print addressing related
+ exception information
+Message-ID: <4e5c1696-894a-e102-299b-d85e4ccac5ec@linux.ibm.com>
+Date:   Wed, 18 Aug 2021 11:53:40 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210803105937.52052-2-thuth@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <1f99e6f8-27d1-7e4a-f706-12912e84f6f4@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: sF9P5U4ax8ZProke2NI8_pU12PDHLfQo
+X-Proofpoint-GUID: h39PxjCtEBMirA506r_uyxLOyaeyOE3B
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-18_03:2021-08-17,2021-08-18 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ adultscore=0 mlxlogscore=999 phishscore=0 impostorscore=0 malwarescore=0
+ priorityscore=1501 clxscore=1015 spamscore=0 lowpriorityscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108180059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 03/08/2021 12.59, Thomas Huth wrote:
-> From: Jia He <hejianet@gmail.com>
+On 8/18/21 11:12 AM, Thomas Huth wrote:
+> On 13/08/2021 09.36, Janosch Frank wrote:
+>> Right now we only get told the kind of program exception as well as
+>> the PSW at the point where it happened.
+>>
+>> For addressing exceptions the PSW is not always enough so let's print
+>> the TEID which contains the failing address and flags that tell us
+>> more about the kind of address exception.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   lib/s390x/asm/arch_def.h |  4 +++
+>>   lib/s390x/interrupt.c    | 72 ++++++++++++++++++++++++++++++++++++++++
+>>   2 files changed, 76 insertions(+)
+>>
+>> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+>> index 4ca02c1d..39c5ba99 100644
+>> --- a/lib/s390x/asm/arch_def.h
+>> +++ b/lib/s390x/asm/arch_def.h
+>> @@ -41,6 +41,10 @@ struct psw {
+>>   	uint64_t	addr;
+>>   };
+>>   
+>> +/* Let's ignore spaces we don't expect to use for now. */
+>> +#define AS_PRIM				0
+>> +#define AS_HOME				3
+>> +
+>>   #define PSW_MASK_EXT			0x0100000000000000UL
+>>   #define PSW_MASK_IO			0x0200000000000000UL
+>>   #define PSW_MASK_DAT			0x0400000000000000UL
+>> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+>> index 01ded49d..1248bceb 100644
+>> --- a/lib/s390x/interrupt.c
+>> +++ b/lib/s390x/interrupt.c
+>> @@ -12,6 +12,7 @@
+>>   #include <sclp.h>
+>>   #include <interrupt.h>
+>>   #include <sie.h>
+>> +#include <asm/page.h>
+>>   
+>>   static bool pgm_int_expected;
+>>   static bool ext_int_expected;
+>> @@ -126,6 +127,73 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
+>>   	/* suppressed/terminated/completed point already at the next address */
+>>   }
+>>   
+>> +static void decode_pgm_prot(uint64_t teid)
+>> +{
+>> +	/* Low-address protection exception, 100 */
+>> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && !test_bit_inv(61, &teid)) {
 > 
-> This is to let bool variable could be correctly displayed in
-> big/little endian sysctl procfs. sizeof(bool) is arch dependent,
-> proc_dobool should work in all arches.
+> Likely just a matter of taste, but I'd prefer something like:
 > 
-> Suggested-by: Pan Xinhui <xinhui@linux.vnet.ibm.com>
-> Signed-off-by: Jia He <hejianet@gmail.com>
-> [thuth: rebased the patch to the current kernel version]
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->   include/linux/sysctl.h |  2 ++
->   kernel/sysctl.c        | 42 ++++++++++++++++++++++++++++++++++++++++++
->   2 files changed, 44 insertions(+)
-> 
-> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-> index d99ca99837de..1fa2b69c6fc3 100644
-> --- a/include/linux/sysctl.h
-> +++ b/include/linux/sysctl.h
-> @@ -48,6 +48,8 @@ typedef int proc_handler(struct ctl_table *ctl, int write, void *buffer,
->   		size_t *lenp, loff_t *ppos);
->   
->   int proc_dostring(struct ctl_table *, int, void *, size_t *, loff_t *);
-> +int proc_dobool(struct ctl_table *table, int write, void *buffer,
-> +		size_t *lenp, loff_t *ppos);
->   int proc_dointvec(struct ctl_table *, int, void *, size_t *, loff_t *);
->   int proc_douintvec(struct ctl_table *, int, void *, size_t *, loff_t *);
->   int proc_dointvec_minmax(struct ctl_table *, int, void *, size_t *, loff_t *);
-> diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-> index 272f4a272f8c..25e49b4d8049 100644
-> --- a/kernel/sysctl.c
-> +++ b/kernel/sysctl.c
-> @@ -536,6 +536,21 @@ static void proc_put_char(void **buf, size_t *size, char c)
->   	}
->   }
->   
-> +static int do_proc_dobool_conv(bool *negp, unsigned long *lvalp,
-> +				int *valp,
-> +				int write, void *data)
-> +{
-> +	if (write) {
-> +		*(bool *)valp = *lvalp;
-> +	} else {
-> +		int val = *(bool *)valp;
-> +
-> +		*lvalp = (unsigned long)val;
-> +		*negp = false;
-> +	}
-> +	return 0;
-> +}
-> +
->   static int do_proc_dointvec_conv(bool *negp, unsigned long *lvalp,
->   				 int *valp,
->   				 int write, void *data)
-> @@ -798,6 +813,26 @@ static int do_proc_douintvec(struct ctl_table *table, int write,
->   				   buffer, lenp, ppos, conv, data);
->   }
->   
-> +/**
-> + * proc_dobool - read/write a bool
-> + * @table: the sysctl table
-> + * @write: %TRUE if this is a write to the sysctl file
-> + * @buffer: the user buffer
-> + * @lenp: the size of the user buffer
-> + * @ppos: file position
-> + *
-> + * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
-> + * values from/to the user buffer, treated as an ASCII string.
-> + *
-> + * Returns 0 on success.
-> + */
-> +int proc_dobool(struct ctl_table *table, int write, void *buffer,
-> +		size_t *lenp, loff_t *ppos)
-> +{
-> +	return do_proc_dointvec(table, write, buffer, lenp, ppos,
-> +				do_proc_dobool_conv, NULL);
-> +}
-> +
->   /**
->    * proc_dointvec - read a vector of integers
->    * @table: the sysctl table
-> @@ -1630,6 +1665,12 @@ int proc_dostring(struct ctl_table *table, int write,
->   	return -ENOSYS;
->   }
->   
-> +int proc_dobool(struct ctl_table *table, int write,
-> +		void *buffer, size_t *lenp, loff_t *ppos)
-> +{
-> +	return -ENOSYS;
-> +}
-> +
->   int proc_dointvec(struct ctl_table *table, int write,
->   		  void *buffer, size_t *lenp, loff_t *ppos)
->   {
-> @@ -3425,6 +3466,7 @@ int __init sysctl_init(void)
->    * No sense putting this after each symbol definition, twice,
->    * exception granted :-)
->    */
-> +EXPORT_SYMBOL(proc_dobool);
->   EXPORT_SYMBOL(proc_dointvec);
->   EXPORT_SYMBOL(proc_douintvec);
->   EXPORT_SYMBOL(proc_dointvec_jiffies);
-> 
+> 	if ((teid & 0x8c) == 0x80) {
 
-Friendly ping!
+The POP states these as bits when you have a look at the ESOP section
+and I'd like to keep it the same here for easier comparison.
 
-Luis, Kees, Iurii, could you please have a look and provide an Ack if this 
-looks ok to you?
+The test_bits() are as explicit as it gets and I value that.
 
-  Thanks,
-   Thomas
+> 
+>> +		printf("Type: LAP\n");
+>> +		return;
+>> +	}
+>> +
+>> +	/* Instruction execution prevention, i.e. no-execute, 101 */
+>> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid)) {
+>> +		printf("Type: IEP\n");
+>> +		return;
+>> +	}
+>> +
+>> +	/* Standard DAT exception, 001 */
+>> +	if (!test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid)) {
+>> +		printf("Type: DAT\n");
+>> +		return;
+>> +	}
+> 
+> What about 010 (key controlled protection) and 011 (access-list controlled 
+> protection)? Even if we do not trigger those yet, it might make sense to add 
+> them right from the start, too?
+
+If I do that then I can start a whole new file "fault.c" and move these
+changes there (which I'll do now anyway). My intentions were a small
+change that covers 90% of our current exceptions (especially PV
+exceptions) to make my life easier in LPAR.
+
+If people add skey/ar code they can also add the decoding here, no? :-)
+
+> 
+>> +}
+>> +
+>> +static void decode_teid(uint64_t teid)
+>> +{
+>> +	int asce_id = lc->trans_exc_id & 3;
+> 
+> Why are you referencing the lc->trans_exc_id here again? It's already passed 
+> as "teid" parameter.
+
+Forgot to remove that
+
+> 
+>> +	bool dat = lc->pgm_old_psw.mask & PSW_MASK_DAT;
+>> +
+>> +	printf("Memory exception information:\n");
+>> +	printf("TEID: %lx\n", teid);
+>> +	printf("DAT: %s\n", dat ? "on" : "off");
+>> +	printf("AS: %s\n", asce_id == AS_PRIM ? "Primary" : "Home");
+> 
+> Could "secondary" or "AR" mode really never happen here? I'd rather like to 
+> see a switch-case statement here that is able to print all four modes, just 
+> to avoid confusion.
+
+Right now we ONLY use primary space.
+
+> 
+>> +	if (lc->pgm_int_code == PGM_INT_CODE_PROTECTION)
+>> +		decode_pgm_prot(teid);
+>> +
+>> +	/*
+>> +	 * If teid bit 61 is off for these two exception the reported
+>> +	 * address is unpredictable.
+>> +	 */
+>> +	if ((lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_ACCESS ||
+>> +	     lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_VIOLATION) &&
+>> +	    !test_bit_inv(61, &teid)) {
+>> +		printf("Address: %lx, unpredictable\n ", teid & PAGE_MASK);
+>> +		return;
+>> +	}
+>> +	printf("Address: %lx\n\n", teid & PAGE_MASK);
+>> +}
+>> +
+>> +static void print_storage_exception_information(void)
+>> +{
+>> +	switch (lc->pgm_int_code) {
+>> +	case PGM_INT_CODE_PROTECTION:
+>> +	case PGM_INT_CODE_PAGE_TRANSLATION:
+>> +	case PGM_INT_CODE_SEGMENT_TRANSLATION:
+>> +	case PGM_INT_CODE_ASCE_TYPE:
+>> +	case PGM_INT_CODE_REGION_FIRST_TRANS:
+>> +	case PGM_INT_CODE_REGION_SECOND_TRANS:
+>> +	case PGM_INT_CODE_REGION_THIRD_TRANS:
+>> +	case PGM_INT_CODE_SECURE_STOR_ACCESS:
+>> +	case PGM_INT_CODE_NON_SECURE_STOR_ACCESS:
+>> +	case PGM_INT_CODE_SECURE_STOR_VIOLATION:
+>> +		decode_teid(lc->trans_exc_id);
+>> +		break;
+>> +	default:
+>> +		return;
+> 
+> I think you could drop that default case.
+
+Yes
+
+> 
+>> +	}
+>> +}
+>> +
+>>   static void print_int_regs(struct stack_frame_int *stack)
+>>   {
+>>   	printf("\n");
+>> @@ -155,6 +223,10 @@ static void print_pgm_info(struct stack_frame_int *stack)
+>>   	       lc->pgm_int_code, stap(), lc->pgm_old_psw.addr, lc->pgm_int_id);
+>>   	print_int_regs(stack);
+>>   	dump_stack();
+>> +
+>> +	/* Dump stack doesn't end with a \n so we add it here instead */
+>> +	printf("\n");
+>> +	print_storage_exception_information();
+>>   	report_summary();
+>>   	abort();
+>>   }
+>>
+> 
 
