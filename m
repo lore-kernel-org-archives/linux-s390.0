@@ -2,156 +2,197 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D938C4338F
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Aug 2021 21:38:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1042C43216
+	for <linux-s390@archiver.kernel.org>; Thu, 19 Aug 2021 21:39:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 59F52610A0
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Aug 2021 21:38:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 87F8A610A3
+	for <linux-s390@archiver.kernel.org>; Thu, 19 Aug 2021 21:39:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234238AbhHSVje (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 Aug 2021 17:39:34 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:48643 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233890AbhHSVjd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 19 Aug 2021 17:39:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629409136;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nBzgR7XCkOLtoH5Yvb/WeoEepDn8l0sH9+YEvlAnXq8=;
-        b=BUsfa/KbICVSIWLFPOcrRjSpdB8hZwraSsI8VEWysRlQJrWhBA5+j+TYPPUcM2qIy2Q0rY
-        D9OpOnRR2EUYcEiK8sT2MScR3a3/Bqz2j9VHFuROScBiCGKVo8ZsCQ3SvdHIm61XdG4CfM
-        uEO70PwLHgH7TUz+fc1xltE1Gbf1Vuw=
-Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
- [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-40-EqncFdLfPda2DAzx8KFgzg-1; Thu, 19 Aug 2021 17:38:52 -0400
-X-MC-Unique: EqncFdLfPda2DAzx8KFgzg-1
-Received: by mail-ot1-f72.google.com with SMTP id w4-20020a9d63840000b02905175db63035so3462305otk.2
-        for <linux-s390@vger.kernel.org>; Thu, 19 Aug 2021 14:38:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=nBzgR7XCkOLtoH5Yvb/WeoEepDn8l0sH9+YEvlAnXq8=;
-        b=W/+YIH0wkRB7VSdiqR5HqURb22N0mti1cHzlVNuKwrTNlqw8K56+ECquDd2Ix54PFa
-         dYQZ8rmIJfXk/k/t1XlQi8xoPDcXZbMXQ79D6l+C15wMEd8SO1pgVlmyRLb6lphhRKQd
-         pygspPWewU7I8CYecvH6Nnk9+QvQKXuDMxazQJZ7+UbIOQi1q5KjfButK2QyUJnrjRIY
-         esDDtBv+rd3DZToNr6AKC8ydli9zJGUh2fvmQI1EJVpmm0m07OqJuruRmhb2CfkKo0yl
-         jR4UfI0LcC9qTm3K/IkP0OF6b/wwxwUY9uefhHMTelO0S5BGAU9sukA7+LXxztK85T+G
-         e6mw==
-X-Gm-Message-State: AOAM531jXYC6Klxqngg1ySXPGVAfFiUqaLSMtXllljOJesb7zg+z0Dko
-        Akab01s3JDfin8s4n9TWGkjqLuVMcLDHlWg4QhvZf6jjyxMSeczaq7SuGFlJQIX9TKJv/+3OQ/q
-        fGdaFf8zg7sdkdvaEAD4chg==
-X-Received: by 2002:a05:6830:25ce:: with SMTP id d14mr13997899otu.87.1629409131802;
-        Thu, 19 Aug 2021 14:38:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwXo86cMZwiteRgztCDTbYxT83N7YNWeCuTuo1Gafd50BVVBx8Z/pbVTsnabs0y+xWiACesDA==
-X-Received: by 2002:a05:6830:25ce:: with SMTP id d14mr13997878otu.87.1629409131629;
-        Thu, 19 Aug 2021 14:38:51 -0700 (PDT)
-Received: from redhat.com ([198.99.80.109])
-        by smtp.gmail.com with ESMTPSA id g16sm968289otr.20.2021.08.19.14.38.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Aug 2021 14:38:51 -0700 (PDT)
-Date:   Thu, 19 Aug 2021 15:38:49 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Yishai Hadas <yishaih@nvidia.com>
-Cc:     <bhelgaas@google.com>, <corbet@lwn.net>,
-        <diana.craciun@oss.nxp.com>, <kwankhede@nvidia.com>,
-        <eric.auger@redhat.com>, <masahiroy@kernel.org>,
-        <michal.lkml@markovi.net>, <linux-pci@vger.kernel.org>,
-        <linux-doc@vger.kernel.org>, <kvm@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>, <linux-kbuild@vger.kernel.org>,
-        <mgurtovoy@nvidia.com>, <jgg@nvidia.com>, <maorg@nvidia.com>,
-        <leonro@nvidia.com>
-Subject: Re: [PATCH V2 06/12] vfio/pci: Split the pci_driver code out of
- vfio_pci_core.c
-Message-ID: <20210819153849.1e1ffc83.alex.williamson@redhat.com>
-In-Reply-To: <20210819151235.6fe61269.alex.williamson@redhat.com>
-References: <20210818151606.202815-1-yishaih@nvidia.com>
-        <20210818151606.202815-7-yishaih@nvidia.com>
-        <20210819151235.6fe61269.alex.williamson@redhat.com>
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        id S235310AbhHSVjz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 Aug 2021 17:39:55 -0400
+Received: from mail.efficios.com ([167.114.26.124]:57280 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229619AbhHSVjy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Aug 2021 17:39:54 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 0AFE8378536;
+        Thu, 19 Aug 2021 17:39:17 -0400 (EDT)
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id sqgMh8PS9est; Thu, 19 Aug 2021 17:39:12 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 7F9FE3784AD;
+        Thu, 19 Aug 2021 17:39:12 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 7F9FE3784AD
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1629409152;
+        bh=5UmwxCORiN5yLIQm2BJu9shxBCOVFj1bc8s4bRqQFQo=;
+        h=Date:From:To:Message-ID:MIME-Version;
+        b=MF1eZ97b/KNT5hI9VL2d8/bJnxRVnz1puSaP8aXdbA0Yr8sbq1UW1Xnp5ROlOTAxA
+         BrBHYFiVE9fyDS+W6acYJK/dsDcXuZ5FxN6/TGgq81Ge5A7ri3UTyOOmZCNrrwpGaX
+         CaJRQA/6RdzkBds+FVqCWioAvW9dS868z5YzJqUiWVEa1eSWq/ub7V3SdNutNGYaHW
+         /BGNriEzzY77HlrWaGIlJrha5VHDUBgHaX9E9aF4RYwTeW4avIB2YHkFNmb79XRV+u
+         RMSG+xk/uZO1X64FabUncXvFyriO1d5efn0OTQ8xv/HTN1zVXC9OXfvrjvq/mcfJyu
+         98fIeMx5uJpUQ==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id gNagT47KYem3; Thu, 19 Aug 2021 17:39:12 -0400 (EDT)
+Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
+        by mail.efficios.com (Postfix) with ESMTP id 5C6F23784AA;
+        Thu, 19 Aug 2021 17:39:12 -0400 (EDT)
+Date:   Thu, 19 Aug 2021 17:39:12 -0400 (EDT)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     "Russell King, ARM Linux" <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>, gor <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Oleg Nesterov <oleg@redhat.com>, rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        paulmck <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, shuah <shuah@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-csky <linux-csky@vger.kernel.org>,
+        linux-mips@vger.kernel.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390@vger.kernel.org, KVM list <kvm@vger.kernel.org>,
+        linux-kselftest <linux-kselftest@vger.kernel.org>,
+        Peter Foley <pefoley@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Ben Gardon <bgardon@google.com>
+Message-ID: <1673583543.19718.1629409152244.JavaMail.zimbra@efficios.com>
+In-Reply-To: <20210818001210.4073390-2-seanjc@google.com>
+References: <20210818001210.4073390-1-seanjc@google.com> <20210818001210.4073390-2-seanjc@google.com>
+Subject: Re: [PATCH 1/5] KVM: rseq: Update rseq when processing
+ NOTIFY_RESUME on xfer to KVM guest
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [167.114.26.124]
+X-Mailer: Zimbra 8.8.15_GA_4101 (ZimbraWebClient - FF90 (Linux)/8.8.15_GA_4059)
+Thread-Topic: rseq: Update rseq when processing NOTIFY_RESUME on xfer to KVM guest
+Thread-Index: bvPQyLDSoOg+aSRtrktKYXzxAVZwCA==
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 19 Aug 2021 15:12:35 -0600
-Alex Williamson <alex.williamson@redhat.com> wrote:
+----- On Aug 17, 2021, at 8:12 PM, Sean Christopherson seanjc@google.com wrote:
 
-> On Wed, 18 Aug 2021 18:16:00 +0300
-> Yishai Hadas <yishaih@nvidia.com> wrote:
-> > +
-> > +static int vfio_pci_sriov_configure(struct pci_dev *pdev, int nr_virtfn)
-> > +{
-> > +	might_sleep();  
+> Invoke rseq's NOTIFY_RESUME handler when processing the flag prior to
+> transferring to a KVM guest, which is roughly equivalent to an exit to
+> userspace and processes many of the same pending actions.  While the task
+> cannot be in an rseq critical section as the KVM path is reachable only
+> via ioctl(KVM_RUN), the side effects that apply to rseq outside of a
+> critical section still apply, e.g. the CPU ID needs to be updated if the
+> task is migrated.
 > 
-> vfio_pci_core_sriov_configure() retained the might_sleep(), it
-> shouldn't be needed here.
-> 
-> > +
-> > +	if (!enable_sriov)
-> > +		return -ENOENT;
-> > +
-> > +	return vfio_pci_core_sriov_configure(pdev, nr_virtfn);
-> > +}  
-> ...
-> > @@ -509,7 +449,7 @@ static struct vfio_pci_core_device *get_pf_vdev(struct vfio_pci_core_device *vde
-> >  	if (!pf_dev)
-> >  		return NULL;
-> >  
-> > -	if (pci_dev_driver(physfn) != &vfio_pci_driver) {
-> > +	if (pci_dev_driver(physfn) != pci_dev_driver(vdev->pdev)) {  
-> 
-> I think this means that the PF and VF must use the same vfio-pci
-> "variant" driver, it's too bad we're not enabling vfio-pci to own the
-> PF while vfio-vendor-foo-pci owns the VF since our SR-IOV security
-> model remains in the core.  We can work on that later though, no loss
-> of functionality here.
-> 
-> ...
-> > @@ -1795,12 +1723,12 @@ static int vfio_pci_bus_notifier(struct notifier_block *nb,
-> >  		pci_info(vdev->pdev, "Captured SR-IOV VF %s driver_override\n",
-> >  			 pci_name(pdev));
-> >  		pdev->driver_override = kasprintf(GFP_KERNEL, "%s",
-> > -						  vfio_pci_ops.name);
-> > +						  vdev->vdev.ops->name);
-> >  	} else if (action == BUS_NOTIFY_BOUND_DRIVER &&
-> >  		   pdev->is_virtfn && physfn == vdev->pdev) {
-> >  		struct pci_driver *drv = pci_dev_driver(pdev);
-> >  
-> > -		if (drv && drv != &vfio_pci_driver)
-> > +		if (drv && drv != pci_dev_driver(vdev->pdev))
-> >  			pci_warn(vdev->pdev,
-> >  				 "VF %s bound to driver %s while PF bound to vfio-pci\n",  
-> 
-> "vfio-pci" is hardcoded in this comment.  There are a few other user
-> visible instances of this in vfio-pci-core.c as well:
-> 
-> MODULE_PARM_DESC(disable_vga, "Disable VGA resource access through vfio-pci");
+> Clearing TIF_NOTIFY_RESUME without informing rseq can lead to segfaults
+> and other badness in userspace VMMs that use rseq in combination with KVM,
+> e.g. due to the CPU ID being stale after task migration.
 
-I see this one is resolved in a later patch.  Thanks,
-
-Alex
+I agree with the problem assessment, but I would recommend a small change
+to this fix.
 
 > 
->                 ret = pci_request_selected_regions(pdev,
->                                                    1 << index, "vfio-pci");
+> Fixes: 72c3c0fe54a3 ("x86/kvm: Use generic xfer to guest work function")
+> Reported-by: Peter Foley <pefoley@google.com>
+> Bisected-by: Doug Evans <dje@google.com>
+> Cc: Shakeel Butt <shakeelb@google.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> ---
+> kernel/entry/kvm.c | 4 +++-
+> kernel/rseq.c      | 4 ++--
+> 2 files changed, 5 insertions(+), 3 deletions(-)
 > 
->                         pci_info_ratelimited(vdev->pdev,
->                                 "VF token incorrectly provided, PF not bound to vfio-pci\n");
+> diff --git a/kernel/entry/kvm.c b/kernel/entry/kvm.c
+> index 49972ee99aff..049fd06b4c3d 100644
+> --- a/kernel/entry/kvm.c
+> +++ b/kernel/entry/kvm.c
+> @@ -19,8 +19,10 @@ static int xfer_to_guest_mode_work(struct kvm_vcpu *vcpu,
+> unsigned long ti_work)
+> 		if (ti_work & _TIF_NEED_RESCHED)
+> 			schedule();
 > 
-> We should try to fix or reword as many of these as we reasonably can.
-> Thanks,
+> -		if (ti_work & _TIF_NOTIFY_RESUME)
+> +		if (ti_work & _TIF_NOTIFY_RESUME) {
+> 			tracehook_notify_resume(NULL);
+> +			rseq_handle_notify_resume(NULL, NULL);
+> +		}
 > 
-> Alex
+> 		ret = arch_xfer_to_guest_mode_handle_work(vcpu, ti_work);
+> 		if (ret)
+> diff --git a/kernel/rseq.c b/kernel/rseq.c
+> index 35f7bd0fced0..58c79a7918cd 100644
+> --- a/kernel/rseq.c
+> +++ b/kernel/rseq.c
+> @@ -236,7 +236,7 @@ static bool in_rseq_cs(unsigned long ip, struct rseq_cs
+> *rseq_cs)
+> 
+> static int rseq_ip_fixup(struct pt_regs *regs)
+> {
+> -	unsigned long ip = instruction_pointer(regs);
+> +	unsigned long ip = regs ? instruction_pointer(regs) : 0;
+> 	struct task_struct *t = current;
+> 	struct rseq_cs rseq_cs;
+> 	int ret;
+> @@ -250,7 +250,7 @@ static int rseq_ip_fixup(struct pt_regs *regs)
+> 	 * If not nested over a rseq critical section, restart is useless.
+> 	 * Clear the rseq_cs pointer and return.
+> 	 */
+> -	if (!in_rseq_cs(ip, &rseq_cs))
+> +	if (!regs || !in_rseq_cs(ip, &rseq_cs))
 
+I think clearing the thread's rseq_cs unconditionally here when regs is NULL
+is not the behavior we want when this is called from xfer_to_guest_mode_work.
+
+If we have a scenario where userspace ends up calling this ioctl(KVM_RUN)
+from within a rseq c.s., we really want a CONFIG_DEBUG_RSEQ=y kernel to
+kill this application in the rseq_syscall handler when exiting back to usermode
+when the ioctl eventually returns.
+
+However, clearing the thread's rseq_cs will prevent this from happening.
+
+So I would favor an approach where we simply do:
+
+if (!regs)
+     return 0;
+
+Immediately at the beginning of rseq_ip_fixup, before getting the instruction
+pointer, so effectively skip all side-effects of the ip fixup code. Indeed, it
+is not relevant to do any fixup here, because it is nested in a ioctl system
+call.
+
+Effectively, this would preserve the SIGSEGV behavior when this ioctl is
+erroneously called by user-space from a rseq critical section.
+
+Thanks for looking into this !
+
+Mathieu
+
+> 		return clear_rseq_cs(t);
+> 	ret = rseq_need_restart(t, rseq_cs.flags);
+> 	if (ret <= 0)
+> --
+> 2.33.0.rc1.237.g0d66db33f3-goog
+
+-- 
+Mathieu Desnoyers
+EfficiOS Inc.
+http://www.efficios.com
