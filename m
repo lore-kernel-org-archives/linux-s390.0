@@ -4,58 +4,58 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D636C4320E
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Aug 2021 23:33:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB84AC43216
+	for <linux-s390@archiver.kernel.org>; Thu, 19 Aug 2021 23:48:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 32525610D2
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Aug 2021 23:33:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B3A57610CF
+	for <linux-s390@archiver.kernel.org>; Thu, 19 Aug 2021 23:48:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236624AbhHSXef (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 Aug 2021 19:34:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56942 "EHLO
+        id S236732AbhHSXtT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 Aug 2021 19:49:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234182AbhHSXee (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Aug 2021 19:34:34 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7800C061764
-        for <linux-s390@vger.kernel.org>; Thu, 19 Aug 2021 16:33:57 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id mw10-20020a17090b4d0a00b0017b59213831so696111pjb.0
-        for <linux-s390@vger.kernel.org>; Thu, 19 Aug 2021 16:33:57 -0700 (PDT)
+        with ESMTP id S236607AbhHSXtN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Aug 2021 19:49:13 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7394C06175F
+        for <linux-s390@vger.kernel.org>; Thu, 19 Aug 2021 16:48:36 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id m24-20020a17090a7f98b0290178b1a81700so5986904pjl.4
+        for <linux-s390@vger.kernel.org>; Thu, 19 Aug 2021 16:48:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=FSqOrapu64fBYafjbU5tjcyWOc2DrNI0dbheqGMVOMc=;
-        b=qPf6yOnP+Rcz9FT3tKuWykTPcKe82BX3Np45gaPnFPSg6PdUJnLygVgfX+kzI3cJ9H
-         jtESUvUqN1Ez+DTuoTUzsGouHIoQxocdabjlXnhhXdwEIL3SL3EPMESdP1tUYWRrWW5X
-         56WH9AV8Z8I1+Dv+ob4dltRCZxxppIzcXuZZbDajZOYY+UHcUj8zqAQ2N2zC8ir+rqzQ
-         7xRIzOV9hhvssqy3laN9jfhD8920m0bpiZR1ld4i0qnlmpXy3nqZRp+SXiFRJw3tk0Cb
-         jAkYC7GX39D/8+SHQHrfwZ3zlTN2RbLaSSUFeut9erJLOEf2TnrtjesxTQV5Xd8hTAQL
-         GItQ==
+        bh=peyh3WLA8DgwuaakoXbly04TuP2J4HXY0owEUug9y1c=;
+        b=BbFJLtvxbxBG+7picsXObo5Qj8iquJ+C6Q7w5pe27YupZ7+zDXLN540+QU8HPzkPh2
+         WwzvQTknLR7mJUL2ZtsslkF86UhNT3PUimzJd1W/xc0YsfWgxj0uNN/X65pRaldPuQy1
+         Svz/l9I2+rXfrKEmbGry3ew82Uw0db0pKDxq9ukmqwtSMFXcHcAuMrcqlCqOeGH1V/uC
+         AqRS5aTXg3eyxy84gMMrOJhW6Ac+BzpVGDyg6q+eRN+OlPt5iJkRzEHzotLklvgBWCCO
+         ThS3AjXFs8AEz4pcXFmbRPSyBU/T0LhtGGlVC0DabZEeUTxAm2SIBNQHSE15qMVZvLr/
+         ceIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=FSqOrapu64fBYafjbU5tjcyWOc2DrNI0dbheqGMVOMc=;
-        b=eE9G7at03NXrAzBIO9jbA722gcGnDQe2QzUqtss0CM63M1NtX6JLm9R6YwV2o6cF4l
-         MnVGDFbZXzTklf8QVPFLbU8XkK/zt0/DgdO8VFBWQX51ZeHM2KvSv1QQqScExUmqxPUg
-         +oyYWmGcwuIxDZyHRQabnnCjUPO/35zNqLCV4nr/rva+o/Aq0qhY8tGmASemGIVws2+e
-         qRap2RJ6QpWIdZX5vf/Tz+TlZf4b1tJVkliFQBwmOusUtSvreLmany/0/hWZpu3UXIPa
-         F6s/th39QM2nsD5zM1coy/QxztL2ObnVce6aL6T1v1bWGocxU3FDF+u5zFQXGXkY7wc8
-         Q4wQ==
-X-Gm-Message-State: AOAM532HYBB1R8jDJHBnha+iDtO1sOg5IGjijEmU7nWofWVwEo/OYfjd
-        J4mOBTnx/Dv8g0/OD9WMPImjng==
-X-Google-Smtp-Source: ABdhPJyN4VYmA4QdN+DQJ6bFcB8JQlcPHEw8dvqiqzL/oaDUmvZhZqDC612NpYT8Mg6IsLybHUWCkQ==
-X-Received: by 2002:a17:90a:d686:: with SMTP id x6mr1336693pju.227.1629416036922;
-        Thu, 19 Aug 2021 16:33:56 -0700 (PDT)
+        bh=peyh3WLA8DgwuaakoXbly04TuP2J4HXY0owEUug9y1c=;
+        b=BqVj8qw7r9wo+zZRyaqKi/DCokIDKKhcGU2QlbCmI33A9MNjFkvWDXtqmBuaW+ALSK
+         YVp3w0EIX8EuHF/K73EumveIGii3TWCYSb0V7GAuU18qkL4PuORey1Td2V1uwweCNrPU
+         veARYCEoMK2tjcIvCgyXvDd61ACsahAdU+LVX4eP2iGu5ycHjop7BjeGfGMczoYeT5xn
+         2tWFWB0c1SUpDi4pz2DGXUYlrjiaPQTQLDV7LbFPLJEU0D6mo2qtj1EXUda6hy1kAEOB
+         TKHAF8suC2JDwHuhYMd8o2/nUm0sQdBpfCcS8v+nnwqNCI7b7QdTllNnU5skKd8s7hLa
+         QhPQ==
+X-Gm-Message-State: AOAM530B8GuxwfzZ0Lps6Nh8A3a9xN2bcbTHfmh6YfeOpkAuIBkv4FPE
+        ljgeAjcDYl6QKOJm0hm/kKHf5Q==
+X-Google-Smtp-Source: ABdhPJwX9PVK0tEzKb91C/ktX1nj3RcgHWNnmrdk1FjTlt3T+0IB78U5SgxuhlVnRMNmyLPH0lN5vw==
+X-Received: by 2002:a17:90b:80c:: with SMTP id bk12mr1415764pjb.134.1629416916083;
+        Thu, 19 Aug 2021 16:48:36 -0700 (PDT)
 Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id j185sm4649122pfb.86.2021.08.19.16.33.56
+        by smtp.gmail.com with ESMTPSA id a4sm4880315pfk.0.2021.08.19.16.48.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Aug 2021 16:33:56 -0700 (PDT)
-Date:   Thu, 19 Aug 2021 23:33:50 +0000
+        Thu, 19 Aug 2021 16:48:35 -0700 (PDT)
+Date:   Thu, 19 Aug 2021 23:48:29 +0000
 From:   Sean Christopherson <seanjc@google.com>
 To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 Cc:     "Russell King, ARM Linux" <linux@armlinux.org.uk>,
@@ -84,69 +84,97 @@ Cc:     "Russell King, ARM Linux" <linux@armlinux.org.uk>,
         Peter Foley <pefoley@google.com>,
         Shakeel Butt <shakeelb@google.com>,
         Ben Gardon <bgardon@google.com>
-Subject: Re: [PATCH 4/5] KVM: selftests: Add a test for KVM_RUN+rseq to
- detect task migration bugs
-Message-ID: <YR7qXvnI/AQM10gU@google.com>
+Subject: Re: [PATCH 1/5] KVM: rseq: Update rseq when processing NOTIFY_RESUME
+ on xfer to KVM guest
+Message-ID: <YR7tzZ98XC6OV2vu@google.com>
 References: <20210818001210.4073390-1-seanjc@google.com>
- <20210818001210.4073390-5-seanjc@google.com>
- <1540548616.19739.1629409956315.JavaMail.zimbra@efficios.com>
+ <20210818001210.4073390-2-seanjc@google.com>
+ <1673583543.19718.1629409152244.JavaMail.zimbra@efficios.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1540548616.19739.1629409956315.JavaMail.zimbra@efficios.com>
+In-Reply-To: <1673583543.19718.1629409152244.JavaMail.zimbra@efficios.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On Thu, Aug 19, 2021, Mathieu Desnoyers wrote:
 > ----- On Aug 17, 2021, at 8:12 PM, Sean Christopherson seanjc@google.com wrote:
+> > @@ -250,7 +250,7 @@ static int rseq_ip_fixup(struct pt_regs *regs)
+> > 	 * If not nested over a rseq critical section, restart is useless.
+> > 	 * Clear the rseq_cs pointer and return.
+> > 	 */
+> > -	if (!in_rseq_cs(ip, &rseq_cs))
+> > +	if (!regs || !in_rseq_cs(ip, &rseq_cs))
 > 
-> > Add a test to verify an rseq's CPU ID is updated correctly if the task is
-> > migrated while the kernel is handling KVM_RUN.  This is a regression test
-> > for a bug introduced by commit 72c3c0fe54a3 ("x86/kvm: Use generic xfer
-> > to guest work function"), where TIF_NOTIFY_RESUME would be cleared by KVM
-> > without updating rseq, leading to a stale CPU ID and other badness.
-> > 
-> > Signed-off-by: Sean Christopherson <seanjc@google.com>
-> > ---
+> I think clearing the thread's rseq_cs unconditionally here when regs is NULL
+> is not the behavior we want when this is called from xfer_to_guest_mode_work.
 > 
-> [...]
+> If we have a scenario where userspace ends up calling this ioctl(KVM_RUN)
+> from within a rseq c.s., we really want a CONFIG_DEBUG_RSEQ=y kernel to
+> kill this application in the rseq_syscall handler when exiting back to usermode
+> when the ioctl eventually returns.
 > 
-> > +	while (!done) {
-> > +		vcpu_run(vm, VCPU_ID);
-> > +		TEST_ASSERT(get_ucall(vm, VCPU_ID, NULL) == UCALL_SYNC,
-> > +			    "Guest failed?");
-> > +
-> > +		cpu = sched_getcpu();
-> > +		rseq_cpu = READ_ONCE(__rseq.cpu_id);
-> > +
-> > +		/*
-> > +		 * Verify rseq's CPU matches sched's CPU, and that sched's CPU
-> > +		 * is stable.  This doesn't handle the case where the task is
-> > +		 * migrated between sched_getcpu() and reading rseq, and again
-> > +		 * between reading rseq and sched_getcpu(), but in practice no
-> > +		 * false positives have been observed, while on the other hand
-> > +		 * blocking migration while this thread reads CPUs messes with
-> > +		 * the timing and prevents hitting failures on a buggy kernel.
-> > +		 */
+> However, clearing the thread's rseq_cs will prevent this from happening.
 > 
-> I think you could get a stable cpu id between sched_getcpu and __rseq_abi.cpu_id
-> if you add a pthread mutex to protect:
+> So I would favor an approach where we simply do:
 > 
-> sched_getcpu and __rseq_abi.cpu_id  reads
+> if (!regs)
+>      return 0;
 > 
-> vs
+> Immediately at the beginning of rseq_ip_fixup, before getting the instruction
+> pointer, so effectively skip all side-effects of the ip fixup code. Indeed, it
+> is not relevant to do any fixup here, because it is nested in a ioctl system
+> call.
 > 
-> sched_setaffinity calls within the migration thread.
-> 
-> Thoughts ?
+> Effectively, this would preserve the SIGSEGV behavior when this ioctl is
+> erroneously called by user-space from a rseq critical section.
 
-I tried that and couldn't reproduce the bug.  That's what I attempted to call out
-in the blurb "blocking migration while this thread reads CPUs ... prevents hitting
-failures on a buggy kernel".
+Ha, that's effectively what I implemented first, but I changed it because of the
+comment in clear_rseq_cs() that says:
 
-I considered adding arbitrary delays around the mutex to try and hit the bug, but
-I was worried that even if I got it "working" for this bug, the test would be too
-tailored to this bug and potentially miss future regression.  Letting the two
-threads run wild seemed like it would provide the best coverage, at the cost of
-potentially causing to false failures.
+  The rseq_cs field is set to NULL on preemption or signal delivery ... as well
+  as well as on top of code outside of the rseq assembly block.
+
+Which makes it sound like something might rely on clearing rseq_cs?
+
+Ah, or is it the case that rseq_cs is non-NULL if and only if userspace is in an
+rseq critical section, and because syscalls in critical sections are illegal, by
+definition clearing rseq_cs is a nop unless userspace is misbehaving.
+
+If that's true, what about explicitly checking that at NOTIFY_RESUME?  Or is it
+not worth the extra code to detect an error that will likely be caught anyways?
+
+diff --git a/kernel/rseq.c b/kernel/rseq.c
+index 35f7bd0fced0..28b8342290b0 100644
+--- a/kernel/rseq.c
++++ b/kernel/rseq.c
+@@ -282,6 +282,13 @@ void __rseq_handle_notify_resume(struct ksignal *ksig, struct pt_regs *regs)
+
+        if (unlikely(t->flags & PF_EXITING))
+                return;
++       if (!regs) {
++#ifdef CONFIG_DEBUG_RSEQ
++               if (t->rseq && rseq_get_rseq_cs(t, &rseq_cs))
++                       goto error;
++#endif
++               return;
++       }
+        ret = rseq_ip_fixup(regs);
+        if (unlikely(ret < 0))
+                goto error;
+
+> Thanks for looking into this !
+> 
+> Mathieu
+> 
+> > 		return clear_rseq_cs(t);
+> > 	ret = rseq_need_restart(t, rseq_cs.flags);
+> > 	if (ret <= 0)
+> > --
+> > 2.33.0.rc1.237.g0d66db33f3-goog
+> 
+> -- 
+> Mathieu Desnoyers
+> EfficiOS Inc.
+> http://www.efficios.com
