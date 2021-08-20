@@ -2,147 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F01B6C4338F
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:05:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B744C4320E
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:25:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D160760F39
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:05:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4F43161183
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:25:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231295AbhHTWFz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Aug 2021 18:05:55 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6966 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229760AbhHTWFy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Aug 2021 18:05:54 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17KM36vU020067;
-        Fri, 20 Aug 2021 18:05:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=1jDSUQxNlTGDTmW7UWd2Q1bW7p+I3Mrp3uwRF36kqog=;
- b=bhP+G/98G011ugeMxSlB8mc6Yp5fG6kYZKvqD5UMtGcsTfwTFGhgyeyFLepoez/nytAl
- I2SJIotLqO77vhBk25KO0e+6XWFCkkYomuHhQ8ER31rdNxqDpyaF9KH28D89Wfw5IaxE
- qf2QDOcnVKABx0g/K/HhNCPQBrbi6BnRQGhMIr5dxsR86kluD32eBjhEhrJ8NIOxn3DT
- prm5pjjX4ejvbd2pEUZczssn3lvWKWt0GUgdX1IOsvRN3S/+bClxdlv6WXmzqdlZz5dY
- o2pLSIJ4haemzmUbsYxqH2GG8gWVEle3OIkFGIUM29BMSaYUj2N/H/QSpvUT1BuNxJdh BQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3aj04u543m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Aug 2021 18:05:13 -0400
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17KM5C6d034490;
-        Fri, 20 Aug 2021 18:05:12 -0400
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3aj04u5433-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Aug 2021 18:05:12 -0400
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17KM2g0x006155;
-        Fri, 20 Aug 2021 22:05:12 GMT
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-        by ppma02wdc.us.ibm.com with ESMTP id 3ae5fgfy99-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Aug 2021 22:05:12 +0000
-Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17KM5A3s11862496
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 Aug 2021 22:05:10 GMT
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9FF8C136071;
-        Fri, 20 Aug 2021 22:05:10 +0000 (GMT)
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9E113136051;
-        Fri, 20 Aug 2021 22:05:09 +0000 (GMT)
-Received: from cpe-172-100-181-211.stny.res.rr.com (unknown [9.160.182.229])
-        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Fri, 20 Aug 2021 22:05:09 +0000 (GMT)
-Subject: Re: [PATCH 1/2] s390/vfio-ap: r/w lock for PQAP interception handler
- function pointer
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        kwankhede@nvidia.com, david@redhat.com
-References: <20210719193503.793910-1-akrowiak@linux.ibm.com>
- <20210719193503.793910-2-akrowiak@linux.ibm.com>
- <1a9f15d7-0f4d-00a0-0a8b-f1c08aa52eeb@de.ibm.com>
- <358b1052-c751-7417-1263-308b133325b6@linux.ibm.com>
- <20210819115433.76153ae4.alex.williamson@redhat.com>
- <20210819175807.GC1721383@nvidia.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <d905d1fa-2852-4fb7-5b56-4b3b12d8994f@linux.ibm.com>
-Date:   Fri, 20 Aug 2021 18:05:08 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-In-Reply-To: <20210819175807.GC1721383@nvidia.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: X9JEMAHYwhavx6CVqYp4Q58WnelX7ke7
-X-Proofpoint-GUID: wfD9yNj887O8DlV17NjrCiaZZ2ADSWf2
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S233577AbhHTWZ6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Aug 2021 18:25:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60246 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231671AbhHTWZ5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Aug 2021 18:25:57 -0400
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D37C061764
+        for <linux-s390@vger.kernel.org>; Fri, 20 Aug 2021 15:25:18 -0700 (PDT)
+Received: by mail-pf1-x436.google.com with SMTP id a21so9834037pfh.5
+        for <linux-s390@vger.kernel.org>; Fri, 20 Aug 2021 15:25:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=YqTJx2d+rK7r/727Mx+pw0RMm85LxTM+dupa4DkkVUg=;
+        b=XMJxhivK8HayiVyEBDemyRelIu51Uql4arICrgl1Xtu+OpldaIQuiN92D0dB+2PvY2
+         AoWaNBB7KO7F5FKoudHlgDL/hNd8A+FowUsdw3wL6BDm/iTL4Cc6YiTOferscwepyuQG
+         9XzUtw99s5/KFwywXDFpqMheslrF3wDRzL/P2DgSQRR0RtQLiklqmvKdqBE5L3ZAbbaZ
+         dmEsmdra+vDsgdRhVivluTSEwsP4y90ta1vlg9CE5AvtSTW6wIrc35O7x62Y6nnvox8U
+         jQS6/7VhaJmZu5wZ3xMtHYlcMetnl4hW/FqOnidhXXsmNwQLT3BkojygGTev8rmNq1ca
+         Ezdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=YqTJx2d+rK7r/727Mx+pw0RMm85LxTM+dupa4DkkVUg=;
+        b=iqnAh2g6UW0+IjhzxFbkZsWDOdv60CRq3smStGK8olarVc5jPwng9MKyeT1QGQzQvF
+         3IhG9F3kXA2oNHGkD5oafWIdglyGJnnCBIX1Px2uWDhok3/DZ/XeLX2fYsb5yRRWsDOo
+         UKV94ReHYhckqIC2gBwJSXEvOrfpTtTE6HAGTpU2Xymv4T0+06sRuHSworb68Cx1uQgr
+         AOlKaXaRLFOgRCslJw8M46KSKlgoSzK5/icvJQZDb4dQRBqpg3xgnUm2smZoFYy9XgID
+         7JYasnlSPAH9SpgDna3ZJdLrV2TK+/sGDlJr9bAxGkGbw3zGc2lDOLyAiGOg74sYkxXz
+         BY+w==
+X-Gm-Message-State: AOAM533okjhHg5OGUbUXbgiIavykFtEq4oJuzJynjpDism6inr6k5fgg
+        R3HT82AFE3Md1HBWiargC9SB0w==
+X-Google-Smtp-Source: ABdhPJyV4IjFC28xX7oRVRErRr3HUFYCEi0w5LU0UmTHa8mL37R5Jfy+NpSbOUll/e+Fp+fYUTcY5g==
+X-Received: by 2002:aa7:864e:0:b0:3e3:439b:c3fc with SMTP id a14-20020aa7864e000000b003e3439bc3fcmr9023525pfo.64.1629498318096;
+        Fri, 20 Aug 2021 15:25:18 -0700 (PDT)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id o14sm9367987pgl.85.2021.08.20.15.25.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Aug 2021 15:25:17 -0700 (PDT)
+Date:   Fri, 20 Aug 2021 22:25:11 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc:     "Russell King, ARM Linux" <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>, gor <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Oleg Nesterov <oleg@redhat.com>, rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        paulmck <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, shuah <shuah@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-csky <linux-csky@vger.kernel.org>,
+        linux-mips <linux-mips@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        KVM list <kvm@vger.kernel.org>,
+        linux-kselftest <linux-kselftest@vger.kernel.org>,
+        Peter Foley <pefoley@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Ben Gardon <bgardon@google.com>
+Subject: Re: [PATCH 4/5] KVM: selftests: Add a test for KVM_RUN+rseq to
+ detect task migration bugs
+Message-ID: <YSArx+ppjIH+6/uK@google.com>
+References: <20210818001210.4073390-1-seanjc@google.com>
+ <20210818001210.4073390-5-seanjc@google.com>
+ <1540548616.19739.1629409956315.JavaMail.zimbra@efficios.com>
+ <YR7qXvnI/AQM10gU@google.com>
+ <407716135.20250.1629484298288.JavaMail.zimbra@efficios.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-20_08:2021-08-20,2021-08-20 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 suspectscore=0 adultscore=0 mlxscore=0 lowpriorityscore=0
- phishscore=0 priorityscore=1501 clxscore=1015 mlxlogscore=999 bulkscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108200125
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <407716135.20250.1629484298288.JavaMail.zimbra@efficios.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Fri, Aug 20, 2021, Mathieu Desnoyers wrote:
+> I still really hate flakiness in tests, because then people stop caring when they
+> fail once in a while. And with the nature of rseq, a once-in-a-while failure is a
+> big deal. Let's see if we can use other tricks to ensure stability of the cpu id
+> without changing timings too much.
 
+Yeah, zero agrument regarding flaky tests.
 
-On 8/19/21 1:58 PM, Jason Gunthorpe wrote:
-> On Thu, Aug 19, 2021 at 11:54:33AM -0600, Alex Williamson wrote:
->
->> Nope.  The only requests for merges through my tree that I'm aware of
->> were [1] and what I understand was the evolution of that here now [2].
->> Maybe you're thinking of [3], which I do see in mainline where this was
->> 2/2 in that series but afaict only patch 1/2 was committed.  I guess
->> that explains why there was no respin based on comments for this patch.
->> Thanks,
-> Tony,
->
-> If you take Alex's tree from here:
->
-> https://github.com/awilliam/linux-vfio/commits/next
+> One idea would be to use a seqcount lock.
 
-I navigated to this URL and clicked the green 'Code'
-button. I was given the option to download the zip file or
-use git to checkout the code at the URL displayed
-'https://github.com/awilliam/linux-vfio.git'. I cloned the
-repo at that URL and the code was definitely not in any
-way similar to my code base. In particular, the
-arch/s390/include/asm/kvm_host.h file did not have any
-of the crypto structures.
+A sequence counter did the trick!  Thanks much!
 
-I then downloaded the zip file and expanded it. The code
-looked legitimate, but this was not a git repository, so I
-had no way to cherry-pick my patches nor format patches
-to post to this mailing list.
+> But even if we use that, I'm concerned that the very long writer critical
+> section calling sched_setaffinity would need to be alternated with a sleep to
+> ensure the read-side progresses. The sleep delay could be relatively small
+> compared to the duration of the sched_setaffinity call, e.g. ratio 1:10.
 
-Next, I tried cloning from 
-'https://github.com/awilliam/linux-vfio-next.git',
-but I was prompted for uid/pw.
+I already had an arbitrary usleep(10) to let the reader make progress between
+sched_setaffinity() calls.  Dropping it down to 1us didn't affect reproducibility,
+so I went with that to shave those precious cycles :-)  Eliminating the delay
+entirely did result in no repro, which was a nice confirmation that it's needed
+to let the reader get back into KVM_RUN.
 
-So, the question is, how to I get the linux-vfio-next repo upon which I
-can rebase my patches? I apologize for my ignorance.
-
->
-> And rebase + repost exactly the patches you need applied it would be
-> helpful.
->
-> Jason
-
+Thanks again!
