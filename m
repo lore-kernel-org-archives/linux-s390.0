@@ -2,127 +2,145 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A3A3C4320A
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:27:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1656C4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:30:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D72161166
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:27:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 93DDA61040
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:30:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234022AbhHTW1j (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Aug 2021 18:27:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60642 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232939AbhHTW1i (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Aug 2021 18:27:38 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B733C061760
-        for <linux-s390@vger.kernel.org>; Fri, 20 Aug 2021 15:27:00 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id oc2-20020a17090b1c0200b00179e56772d6so4952125pjb.4
-        for <linux-s390@vger.kernel.org>; Fri, 20 Aug 2021 15:27:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=muCZGHGXDtZhLnuzxIVauvI9vXUTWXNUIrBwCRdMVco=;
-        b=RemefsbkLF0qjalfgS/QPFy+s0vrHUCCRwLs5Nng2oRX7YN+RbFWFDzyRbXDUTFeRe
-         ZcR6b656WMkKHvh5XwIeexMOkIK6TBTyMgP20QtOJD1jsJYkiBEWihN2CVwUcoknSiZc
-         kfCOTeIeF9ja69Sxfpo9Tze/gbXlfbWjwwnjO1rkWyU9/APS4tY7lkRghKHUYYvwXaoY
-         XjV//yV1jErHSoGWkaqeUNTbYjSMDPGF7Bsh5VYUZeLtO3D4NwU7djoZEoOgIYKcigrl
-         LaQ3UiKuwPAupo+Ikjg0jO22FUEuCmAC9TlZ9LlWOAqKDqGqdS7VTnu20IUdQ2TEEMfG
-         3dxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=muCZGHGXDtZhLnuzxIVauvI9vXUTWXNUIrBwCRdMVco=;
-        b=gxC6PcaTHnu9XroS4FeF1KCnhitljcxWU+j+/aUZ/O/WMoToeOSHl+ScrkhDABCS5R
-         aJfXV3Bx/KevdSM0dm6sDK33SLWxcVXrWKGRsc7eZJ1tRKsP5Hd1XROw08aDVp4hVdDy
-         mXYOcITzCpKAp3dub26LORjWyPStlbJP43eBJ05oEhe3xwF6lspMbrjoB+/dBmJgkYl4
-         iTIbTs5RATLc/zKeNjnT4zG6au/6yenw22tSFRZxsGQJZmYx2BHY/ICjLITpreJtm4YP
-         3SQp8scM/pzxfjQkXyNlHowJ8jueev3KQHmEwlzccGNX2U3GWW+sJAu66KZ8/nzx8IzY
-         97uQ==
-X-Gm-Message-State: AOAM530r5OhM3Smgd0JHXc5GgVumvcymAvt2W7yKZqpqFp6tYeo+5FX0
-        vl1C9Ium6PA1S8HBbWoQAqf7ug==
-X-Google-Smtp-Source: ABdhPJxsP8i0TWeDLg6wsQ9UPwVK0/yOGsDuiZiCVZBbzrivtJSRk9eK8LYUFD9Zq4FE5g5ke2YZTA==
-X-Received: by 2002:a17:902:7c15:b029:12c:78ec:bb61 with SMTP id x21-20020a1709027c15b029012c78ecbb61mr18323457pll.61.1629498419309;
-        Fri, 20 Aug 2021 15:26:59 -0700 (PDT)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id s1sm4169427pfd.13.2021.08.20.15.26.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Aug 2021 15:26:58 -0700 (PDT)
-Date:   Fri, 20 Aug 2021 22:26:53 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc:     "Russell King, ARM Linux" <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>, gor <gor@linux.ibm.com>,
+        id S231608AbhHTWbb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Aug 2021 18:31:31 -0400
+Received: from mail-mw2nam12on2079.outbound.protection.outlook.com ([40.107.244.79]:35745
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231274AbhHTWba (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Aug 2021 18:31:30 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=USHCj+Bi4CVE6fyRmpwtnJ+ck58RbVJt8w/eo+52k2chOe77Cec9pHgloAA5XMpZSJofCtFkZ6N6k9MWPcxDxydaRqemXv35do0iGY29xnuIXiF9pmvh14SF2Tgw/cgMyIJRwZU/DwtaiYySHZxSq3nlbZSCjtAlW9KzzK95Rr8LGf6KbDngUtdSWdxv+JdKB/r6Cn1+6T4JE8r0l6qZYEfpD/w4koeT/xrWdh9h8bPxVS7B5Yq6KHD+NUifwcukbdCxieK5UV48jvt+D4Tr5W20kOTD31Pca5UO+MJZmxmx0DeqDaKEWwTCwaJKvgm4yfilYRhf+LtblHK1Eic2sQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Fcxb74VCHGrw9I9O2Fke7DwnF2MioTUTGbr9Xu1InH8=;
+ b=eyrpQPtMfPsFSpglllOdu2hSBZ6/iWf2Low8mQ3ngdGRzpTmBAHtaz8qScx0SA/OwhFHQW1x/R7eAq0BeUfmXEO6EgA8GTtzrNilsXWurZk20HpaigAfxDFfHY7NjiF387u3oj0uDZC7fQdnGTcQ/xzCxfJx/npqAY3O97WJDLAYjBqTdhf1F1jyaly+ylz81EoXmeJJ/okY2TvhS3oD5FjBUCe03bgDEt1eHWwC3Hffn+V7b8mdRtukDAKmn/n9zxbMDxBNGT2Pky/rQfK3/+iciseLCKlpyTQcg9szqpBB5gefpyphXMMmVdMYu8TmWwLkVCIE2Ol+cdoFdcwXTQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Fcxb74VCHGrw9I9O2Fke7DwnF2MioTUTGbr9Xu1InH8=;
+ b=DSGsLSxE0+wxjERIYu+d/yib4BMn9PUCogAEE49ugLtE0Z4tHHClxARRfRktQXNkeU3gQoYF4uNE8Z0NpEcpLk/o19/FReRLbwr84ersU6nsy+Lgght250eErDHwPl7bibEmb6kliu6lPTL+RXHwIXqvY+3TvhTi9NDbvqjoa2e1uSG9C7eAFot3XSUVqX+Dd/zQo1mRJDd8Dsj+54X58QuNVVfgMGGSQ7WubIFWjt5di6RTb6Kj+tgEID13ZdnvTNQ7cmcfPG19zfiqIxr5nI3/Tjw3L4gpkmFabQfI49Y8vIVlcTc5DJ8DShwuRXYj0g0X80Ky7Ajb3wx9dOpBCw==
+Authentication-Results: linux.ibm.com; dkim=none (message not signed)
+ header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL1PR12MB5208.namprd12.prod.outlook.com (2603:10b6:208:311::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.18; Fri, 20 Aug
+ 2021 22:30:51 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::1de1:52a9:cf66:f336]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::1de1:52a9:cf66:f336%8]) with mapi id 15.20.4436.021; Fri, 20 Aug 2021
+ 22:30:51 +0000
+Date:   Fri, 20 Aug 2021 19:30:49 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Oleg Nesterov <oleg@redhat.com>, rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        paulmck <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, shuah <shuah@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-csky <linux-csky@vger.kernel.org>,
-        linux-mips <linux-mips@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        KVM list <kvm@vger.kernel.org>,
-        linux-kselftest <linux-kselftest@vger.kernel.org>,
-        Peter Foley <pefoley@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Ben Gardon <bgardon@google.com>
-Subject: Re: [PATCH 1/5] KVM: rseq: Update rseq when processing NOTIFY_RESUME
- on xfer to KVM guest
-Message-ID: <YSAsLShyWK3xgxse@google.com>
-References: <20210818001210.4073390-1-seanjc@google.com>
- <20210818001210.4073390-2-seanjc@google.com>
- <1673583543.19718.1629409152244.JavaMail.zimbra@efficios.com>
- <YR7tzZ98XC6OV2vu@google.com>
- <1872633041.20290.1629485463253.JavaMail.zimbra@efficios.com>
-MIME-Version: 1.0
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        kwankhede@nvidia.com, david@redhat.com
+Subject: Re: [PATCH 1/2] s390/vfio-ap: r/w lock for PQAP interception handler
+ function pointer
+Message-ID: <20210820223049.GJ1721383@nvidia.com>
+References: <20210719193503.793910-1-akrowiak@linux.ibm.com>
+ <20210719193503.793910-2-akrowiak@linux.ibm.com>
+ <1a9f15d7-0f4d-00a0-0a8b-f1c08aa52eeb@de.ibm.com>
+ <358b1052-c751-7417-1263-308b133325b6@linux.ibm.com>
+ <20210819115433.76153ae4.alex.williamson@redhat.com>
+ <20210819175807.GC1721383@nvidia.com>
+ <d905d1fa-2852-4fb7-5b56-4b3b12d8994f@linux.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1872633041.20290.1629485463253.JavaMail.zimbra@efficios.com>
+In-Reply-To: <d905d1fa-2852-4fb7-5b56-4b3b12d8994f@linux.ibm.com>
+X-ClientProxiedBy: MN2PR10CA0021.namprd10.prod.outlook.com
+ (2603:10b6:208:120::34) To BL0PR12MB5506.namprd12.prod.outlook.com
+ (2603:10b6:208:1cb::22)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (142.162.113.129) by MN2PR10CA0021.namprd10.prod.outlook.com (2603:10b6:208:120::34) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4436.19 via Frontend Transport; Fri, 20 Aug 2021 22:30:51 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1mHD2H-002SJY-VT; Fri, 20 Aug 2021 19:30:49 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 17f4d5e4-78c4-4a85-51a1-08d9642a2a62
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5208:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BL1PR12MB52086984CBA79FCB0EABCEEBC2C19@BL1PR12MB5208.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:4941;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: XKkjZnu7JRPOdUNLhRcQRo2vU6/rOCk2d7HGFR8bNJzTJ9R2jEsJlPNMk2VRDmv6ddELpnhlBP+UO8+lmgkDC+bX3ybhFZmdnBp929skW9mM96Wy7YKtLIOXqBbaBIaNLVyYXzOaTTSj705nCL2AGA9NEaZcW1cjAG8XvdnaI7CmxnUFbDNy9VjWKNxwS4jGeXMU5VYGFHAtAqfjtdWk8RwcxWjv1MHRvuNtBU810m1EnB8H+L1vE8LFHaCHdHc7a2RxvEKf7SBvd+6DTQ05Uj7SffZGdM4MtFFEK9xYZ7dFEwRlQRfMCjNETz0WosCwJoXM1jw756pBz5j0j1gM0j3qlmgXdyUw+j08g91pFyXuyJa+bHvFTwk4ifHseK0Rg3IzFUBYq/xPeQphqhIBIuuYKB3sp5pnijTUJYs0A6frKDA0UaTYIj82zZM/kEuKbx7ppuN6rWGQAmEpU+6nPzPjnZGeu15cWQrt24w0JgRWciK/P0fQd5rP5heTl7/aecHaChEBh85MZFwxnnxHeW2f0OToqK+SVu3H9kI6RtUTMoEZu4xlktD84pgC2Aybr6ikH2E7eC2F6azZxKsgOrG3wONma8LH4YcTcMcoEHtIdvzeotVy4Tx4F9rvDwhJHW2v0zikXC9lt5wvTQ7UqFNFjGgdZNlTVyny8MHyymWSc0flPmT0sUE9l3gMp23igsHPcWt8vCq8IetfbDJ3Ux5JsppPULPK4e5EpWr4+B4=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(136003)(396003)(366004)(376002)(39860400002)(966005)(186003)(426003)(478600001)(316002)(26005)(86362001)(66946007)(66556008)(66476007)(36756003)(33656002)(9786002)(9746002)(4744005)(4326008)(5660300002)(2906002)(1076003)(2616005)(8936002)(54906003)(38100700002)(8676002)(6916009);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?2LlaCtCnnmboWDAG0hkdcFhlYbilGpFqrCHCuoqrODYglQMyFCipAGvpU7Dv?=
+ =?us-ascii?Q?ZyZRa9X8bA4cRXX19pyien4DQYZg0ZzNOpMN221iDNAfjs941RObAitoivHY?=
+ =?us-ascii?Q?9rldQFOXeAwaNTAla/z+xX1sLlxkoY0CnBQknM1yCmrIRJC0jj54Ai2OBukO?=
+ =?us-ascii?Q?JgqCMaYhmdIv9HVxGUr7WFKF8xhiwKHhkK13inKCL6wJBjE0ki7vD5jTycNj?=
+ =?us-ascii?Q?vSRRcnDHfO3W9rAmKcVzJsOfFCXlyYWHqJA3oza0BzSAtuMqr7wItQK4Dfze?=
+ =?us-ascii?Q?1E6WyzaIYnd2Got8hLEg9TP6zcwlDjx3FrYYA/bttP2gkIVQxVAMCnevlfZe?=
+ =?us-ascii?Q?uDF/3PI5gOEBM/uLLy4L+CYTZsC2NWfbw5H0Rv0jBMfTBq/TR+HV2cfVQTlO?=
+ =?us-ascii?Q?ty9hV+tIxhDH8pev6+1cpdCplVTe89wUUIIxH3085Z5KT/o0SPuHG6GEj9l4?=
+ =?us-ascii?Q?fmJjEa7VlEAptrRCMyIBsqP4D4moy1GW+26X1TbAxRTu8RnYZz3C42r+zxeB?=
+ =?us-ascii?Q?P94Mm4gRCymJ+z9368eKE1e7RRPcplL9EsNmx4AKtU9I+WZ/mlmzRKO+xAfg?=
+ =?us-ascii?Q?f64HsWtQQHUw8Mn4Dn/2VXzbdfvyUZzdtZ0QeGoebzVwx4Nw3cbScN3zdAQb?=
+ =?us-ascii?Q?xuGxP9Y2FAa/ubuL+ybqX0kBNkmxlyqZ/KzGHRa7ypXTEkHdSwiNPOI0eaYA?=
+ =?us-ascii?Q?+7jjkgvsGoX9DrdvsETo50LGtCjQ/LbhQWnrZAsZjEl63zAHBiabzJiAfbOv?=
+ =?us-ascii?Q?j2nOBHJNY7nMSPEzGC5RFObzfZdx8lY/vuN0ZnUWBmbUjm3ec7niFqciY9LG?=
+ =?us-ascii?Q?zOrztaPlO4EDsXBmgCy3iYW/JM7SQPbAx8lz1f5bTIMGc/FODOKizJUDvPjK?=
+ =?us-ascii?Q?z8HEi5RxIgb+dTeZGw7Pxkl62KRyaoefC6ndymz5TYPNTbKAsCsy7sTpKPdR?=
+ =?us-ascii?Q?GX7QY9Lqd+GljAI3VpoZ2VLyEPmMmIgAAN9UYXCXaWiS1ncgUjiU4Bck5SYy?=
+ =?us-ascii?Q?Kouo5gcyOfWTl3SflRxJI4XzsTmQh3j2z+o6wGQoZl84BKVIjxEPX2EMfviR?=
+ =?us-ascii?Q?4sfc31wgDqiGINaA5oWNmlqQqV2tntaEThlRnupqnr4qLEIWqJDL+nl8oDFw?=
+ =?us-ascii?Q?jjxeRrydQh0jMPW2rVI88ZS1oY1d7/pKCmcbp3ej3EJpjNMr342XtQvxA78Y?=
+ =?us-ascii?Q?drZ8XKNUcJVphFy3q7dBjwCsyu+rfkRouQxfrhGp6K5mp3D8iKHdiPG0zffE?=
+ =?us-ascii?Q?bfymJHa883kZiEqpyPn7Cxck5e28G6nuIhuKnNVMfdA3L42roCg2m56nqGA5?=
+ =?us-ascii?Q?uUY1Ze71TSSr3IXo6Nr3X2v5?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 17f4d5e4-78c4-4a85-51a1-08d9642a2a62
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Aug 2021 22:30:51.3669
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: CRM6Td58mMSKBrZQH7WMe5YHJYjV5lQK0XTKfjNEJwDXoS7PtZCKWZbzWCjMW3A5
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5208
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 20, 2021, Mathieu Desnoyers wrote:
-> Without the lazy clear scheme, a rseq c.s. would look like:
-> 
->  *                     init(rseq_cs)
->  *                     cpu = TLS->rseq::cpu_id_start
->  *   [1]               TLS->rseq::rseq_cs = rseq_cs
->  *   [start_ip]        ----------------------------
->  *   [2]               if (cpu != TLS->rseq::cpu_id)
->  *                             goto abort_ip;
->  *   [3]               <last_instruction_in_cs>
->  *   [post_commit_ip]  ----------------------------
->  *   [4]               TLS->rseq::rseq_cs = NULL
-> 
-> But as a fast-path optimization, [4] is not entirely needed because the rseq_cs
-> descriptor contains information about the instruction pointer range of the critical
-> section. Therefore, userspace can omit [4], but if the kernel never clears it, it
-> means that it will have to re-read the rseq_cs descriptor's content each time it
-> needs to check it to confirm that it is not nested over a rseq c.s..
-> 
-> So making the kernel lazily clear the rseq_cs pointer is just an optimization which
-> ensures that the kernel won't do useless work the next time it needs to check
-> rseq_cs, given that it has already validated that the userspace code is currently
-> not within the rseq c.s. currently advertised by the rseq_cs field.
+On Fri, Aug 20, 2021 at 06:05:08PM -0400, Tony Krowiak wrote:
 
-Thanks for the explanation, much appreciated!
+> So, the question is, how to I get the linux-vfio-next repo upon which I
+> can rebase my patches? I apologize for my ignorance.
+
+Get yourself a kernel git tree somehow, eg by cloning one you already
+have
+
+Then something like
+
+$ git fetch https://github.com/awilliam/linux-vfio.git next
+$ git reset --hard FETCH_HEAD
+
+Will sort it out, though there are many other varients such as adding
+a remote/etc.
+
+When you cloned it from github git checked out the wrong branch for
+you - 'git reset --hard origin/next' would fix it too.
+
+Jason
