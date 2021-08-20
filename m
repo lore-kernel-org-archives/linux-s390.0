@@ -2,194 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_2 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1EA0C4338F
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:37:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FA7AC4320A
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:41:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CD9DC61165
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:37:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 33BCD6108B
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 22:41:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231608AbhHTWiO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Aug 2021 18:38:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45182 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229451AbhHTWiO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Aug 2021 18:38:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4337E6103D;
-        Fri, 20 Aug 2021 22:37:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629499055;
-        bh=C8jz8Bv63e052+kWi1tzbvXuwOtkfdMKISfabY64RtY=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=b+V/huH+0jWmkArd1seL+iNhzD4ysWWQ9Wp/b/XT8hv9QdhQKCZ4bklEbuTsUFi6O
-         ks8z/ZU6B5ZbtwKg1Pk0SRK/snSRADjJtCUYz588rdL4wTl+tjugOyOP/WF8U9BpEi
-         Iag150ytRBI+hnBASCbQ9A05qAT/m1FRUuaT+ImfLuPbcCh29+KzAoVUHNo0IHJmmH
-         PTwq6dqIJ43jEshblvbRRHLWilgXizjdHRFe2Hz3zKj3EFuLKMvoEU0zTiWjPnuIyE
-         HIV72x5kKh8h5/2DnyC7Owuv67FvMArXkeqw9Z9CoZgCxmloyPrilEsyqZHWXvDh/x
-         Et+I9bFTtIohQ==
-Date:   Fri, 20 Aug 2021 17:37:34 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>, linux-pci@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH v3] PCI: Move pci_dev_is/assign_added() to pci.h
-Message-ID: <20210820223734.GA3366782@bjorn-Precision-5520>
+        id S240195AbhHTWm1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Aug 2021 18:42:27 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:48889 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240326AbhHTWm1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Aug 2021 18:42:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629499307;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=PMddBmsWMWI5jF8CTPkKHEEdWMRR3jjcIFCbvP295Do=;
+        b=TaCZqkAjbfXL6GoLOKK9FSfs1tMQ4pXeYufy2dKUXiyGDez+YlYF7oyf0jYgyBzyAfygY1
+        sbbCGYjMz9yN1BQoGwU0kppJJa2jWCwmk8pWlD7Isvu8b68qumRBpXpED6cqQdimguRUVI
+        jdmzlk1f4o/4VBc//uFmN2YX9rfb1OU=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-68-s1sf09_hMvuV5wJUQaxxeQ-1; Fri, 20 Aug 2021 18:41:44 -0400
+X-MC-Unique: s1sf09_hMvuV5wJUQaxxeQ-1
+Received: by mail-ot1-f70.google.com with SMTP id m32-20020a9d1d230000b02905103208125aso5547413otm.3
+        for <linux-s390@vger.kernel.org>; Fri, 20 Aug 2021 15:41:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=PMddBmsWMWI5jF8CTPkKHEEdWMRR3jjcIFCbvP295Do=;
+        b=T+s5cz5ej67oVILzqk+zyCYEH34vKRPpp3Ht/PQE2t4DoVUmQ62v37nZGsMHpucl9G
+         gW835E34VkIPYyIE9ucIEvz5xxvoudF2hFCYwfWGg4AnLHETQWCASO91mPfjWPZGeM/M
+         j9K3DTsEEGDeKrYHsggCAV9uUsbFfraRZ7+JXY7ZzywqMZh0ZCbDrbMzsZezAQPk2vhg
+         OyLsasDzQsVPEZEXlob888evpMGOZ8bueiMMsSJCnImQjM7u1GQrzUcAL4BvcYmsOtab
+         O7uGvnEcjeXprpNvB/yh435wtsPNxzIGIiMVC0o/eTLBSD2GAiFqAXZhMncRN+VYV6hx
+         9WlA==
+X-Gm-Message-State: AOAM5329ICNMUgFmXq9vmIfOQzbmhdHk+LV5bv07NCE21DkzF3XIHtrC
+        rlH/EXERR5nIcYhAf908UN/NNFwxkJ43Mg/8s3wbvwaLKBVMVySuPfSZjDXpW4KuVy7I2IdWTGP
+        HUh+a+7nRPYC4Th5QOfpxjg==
+X-Received: by 2002:a9d:7a8a:: with SMTP id l10mr19044157otn.256.1629499303769;
+        Fri, 20 Aug 2021 15:41:43 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwcFQXjKweunIGJyfApLENZn5qAh9f4tNkrZ9b1APukTQz366kMOunJGqWYj0xce16/nBRqGw==
+X-Received: by 2002:a9d:7a8a:: with SMTP id l10mr19044147otn.256.1629499303534;
+        Fri, 20 Aug 2021 15:41:43 -0700 (PDT)
+Received: from redhat.com ([198.99.80.109])
+        by smtp.gmail.com with ESMTPSA id o4sm1762132oik.49.2021.08.20.15.41.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Aug 2021 15:41:43 -0700 (PDT)
+Date:   Fri, 20 Aug 2021 16:41:42 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        kwankhede@nvidia.com, david@redhat.com
+Subject: Re: [PATCH 1/2] s390/vfio-ap: r/w lock for PQAP interception
+ handler function pointer
+Message-ID: <20210820164142.1dcea352.alex.williamson@redhat.com>
+In-Reply-To: <d905d1fa-2852-4fb7-5b56-4b3b12d8994f@linux.ibm.com>
+References: <20210719193503.793910-1-akrowiak@linux.ibm.com>
+        <20210719193503.793910-2-akrowiak@linux.ibm.com>
+        <1a9f15d7-0f4d-00a0-0a8b-f1c08aa52eeb@de.ibm.com>
+        <358b1052-c751-7417-1263-308b133325b6@linux.ibm.com>
+        <20210819115433.76153ae4.alex.williamson@redhat.com>
+        <20210819175807.GC1721383@nvidia.com>
+        <d905d1fa-2852-4fb7-5b56-4b3b12d8994f@linux.ibm.com>
+Organization: Red Hat
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210720150145.640727-1-schnelle@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 20, 2021 at 05:01:45PM +0200, Niklas Schnelle wrote:
-> The helper function pci_dev_is_added() from drivers/pci/pci.h is used in
-> PCI arch code of both s390 and powerpc leading to awkward relative
-> includes. Move it to the global include/linux/pci.h and get rid of these
-> includes just for that one function.
+On Fri, 20 Aug 2021 18:05:08 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-I agree the includes are awkward.
-
-But the arch code *using* pci_dev_is_added() seems awkward, too.
-
-AFAICS, in powerpc, pci_dev_is_added() is only used by
-pnv_pci_ioda_fixup_iov() and pseries_pci_fixup_iov_resources().  Those
-are only called from pcibios_add_device(), which is only called from
-pci_device_add().
-
-Is it even possible for pci_dev_is_added() to be true in that path?
-
-s390 uses pci_dev_is_added() in recover_store(), but I don't know what
-that is (looks like a sysfs file, but it's not documented) or why s390
-is the only arch that does this.
-
-Maybe we should make powerpc and s390 less special?
-
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
-> Since v1 (and bad v2):
-> - Fixed accidental removal of PCI_DPC_RECOVERED, PCI_DPC_RECOVERING
->   defines and also move these to include/linux/pci.h
+> On 8/19/21 1:58 PM, Jason Gunthorpe wrote:
+> > On Thu, Aug 19, 2021 at 11:54:33AM -0600, Alex Williamson wrote:
+> >  
+> >> Nope.  The only requests for merges through my tree that I'm aware of
+> >> were [1] and what I understand was the evolution of that here now [2].
+> >> Maybe you're thinking of [3], which I do see in mainline where this was
+> >> 2/2 in that series but afaict only patch 1/2 was committed.  I guess
+> >> that explains why there was no respin based on comments for this patch.
+> >> Thanks,  
+> > Tony,
+> >
+> > If you take Alex's tree from here:
+> >
+> > https://github.com/awilliam/linux-vfio/commits/next  
 > 
->  arch/powerpc/platforms/powernv/pci-sriov.c |  3 ---
->  arch/powerpc/platforms/pseries/setup.c     |  1 -
->  arch/s390/pci/pci_sysfs.c                  |  2 --
->  drivers/pci/hotplug/acpiphp_glue.c         |  1 -
->  drivers/pci/pci.h                          | 15 ---------------
->  include/linux/pci.h                        | 15 +++++++++++++++
->  6 files changed, 15 insertions(+), 22 deletions(-)
+> I navigated to this URL and clicked the green 'Code'
+> button. I was given the option to download the zip file or
+> use git to checkout the code at the URL displayed
+> 'https://github.com/awilliam/linux-vfio.git'. I cloned the
+> repo at that URL and the code was definitely not in any
+> way similar to my code base. In particular, the
+> arch/s390/include/asm/kvm_host.h file did not have any
+> of the crypto structures.
 > 
-> diff --git a/arch/powerpc/platforms/powernv/pci-sriov.c b/arch/powerpc/platforms/powernv/pci-sriov.c
-> index 28aac933a439..2e0ca5451e85 100644
-> --- a/arch/powerpc/platforms/powernv/pci-sriov.c
-> +++ b/arch/powerpc/platforms/powernv/pci-sriov.c
-> @@ -9,9 +9,6 @@
->  
->  #include "pci.h"
->  
-> -/* for pci_dev_is_added() */
-> -#include "../../../../drivers/pci/pci.h"
-> -
->  /*
->   * The majority of the complexity in supporting SR-IOV on PowerNV comes from
->   * the need to put the MMIO space for each VF into a separate PE. Internally
-> diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
-> index 631a0d57b6cd..17585ec9f955 100644
-> --- a/arch/powerpc/platforms/pseries/setup.c
-> +++ b/arch/powerpc/platforms/pseries/setup.c
-> @@ -74,7 +74,6 @@
->  #include <asm/hvconsole.h>
->  
->  #include "pseries.h"
-> -#include "../../../../drivers/pci/pci.h"
->  
->  DEFINE_STATIC_KEY_FALSE(shared_processor);
->  EXPORT_SYMBOL_GPL(shared_processor);
-> diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
-> index 6e2450c2b9c1..8dbe54ef8f8e 100644
-> --- a/arch/s390/pci/pci_sysfs.c
-> +++ b/arch/s390/pci/pci_sysfs.c
-> @@ -13,8 +13,6 @@
->  #include <linux/stat.h>
->  #include <linux/pci.h>
->  
-> -#include "../../../drivers/pci/pci.h"
-> -
->  #include <asm/sclp.h>
->  
->  #define zpci_attr(name, fmt, member)					\
-> diff --git a/drivers/pci/hotplug/acpiphp_glue.c b/drivers/pci/hotplug/acpiphp_glue.c
-> index f031302ad401..4cb963f88183 100644
-> --- a/drivers/pci/hotplug/acpiphp_glue.c
-> +++ b/drivers/pci/hotplug/acpiphp_glue.c
-> @@ -38,7 +38,6 @@
->  #include <linux/slab.h>
->  #include <linux/acpi.h>
->  
-> -#include "../pci.h"
->  #include "acpiphp.h"
->  
->  static LIST_HEAD(bridge_list);
-> diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-> index 93dcdd431072..a159cd0f6f05 100644
-> --- a/drivers/pci/pci.h
-> +++ b/drivers/pci/pci.h
-> @@ -383,21 +383,6 @@ static inline bool pci_dev_is_disconnected(const struct pci_dev *dev)
->  	return dev->error_state == pci_channel_io_perm_failure;
->  }
->  
-> -/* pci_dev priv_flags */
-> -#define PCI_DEV_ADDED 0
-> -#define PCI_DPC_RECOVERED 1
-> -#define PCI_DPC_RECOVERING 2
-> -
-> -static inline void pci_dev_assign_added(struct pci_dev *dev, bool added)
-> -{
-> -	assign_bit(PCI_DEV_ADDED, &dev->priv_flags, added);
-> -}
-> -
-> -static inline bool pci_dev_is_added(const struct pci_dev *dev)
-> -{
-> -	return test_bit(PCI_DEV_ADDED, &dev->priv_flags);
-> -}
-> -
->  #ifdef CONFIG_PCIEAER
->  #include <linux/aer.h>
->  
-> diff --git a/include/linux/pci.h b/include/linux/pci.h
-> index 540b377ca8f6..ea0e23dbc8ec 100644
-> --- a/include/linux/pci.h
-> +++ b/include/linux/pci.h
-> @@ -507,6 +507,21 @@ struct pci_dev {
->  	unsigned long	priv_flags;	/* Private flags for the PCI driver */
->  };
->  
-> +/* pci_dev priv_flags */
-> +#define PCI_DEV_ADDED 0
-> +#define PCI_DPC_RECOVERED 1
-> +#define PCI_DPC_RECOVERING 2
-> +
-> +static inline void pci_dev_assign_added(struct pci_dev *dev, bool added)
-> +{
-> +	assign_bit(PCI_DEV_ADDED, &dev->priv_flags, added);
-> +}
-> +
-> +static inline bool pci_dev_is_added(const struct pci_dev *dev)
-> +{
-> +	return test_bit(PCI_DEV_ADDED, &dev->priv_flags);
-> +}
-> +
->  static inline struct pci_dev *pci_physfn(struct pci_dev *dev)
->  {
->  #ifdef CONFIG_PCI_IOV
-> -- 
-> 2.25.1
+> I then downloaded the zip file and expanded it. The code
+> looked legitimate, but this was not a git repository, so I
+> had no way to cherry-pick my patches nor format patches
+> to post to this mailing list.
 > 
+> Next, I tried cloning from 
+> 'https://github.com/awilliam/linux-vfio-next.git',
+> but I was prompted for uid/pw.
+> 
+> So, the question is, how to I get the linux-vfio-next repo upon which I
+> can rebase my patches? I apologize for my ignorance.
+
+You can use git fetch to download the objects, ex:
+
+$ git fetch git://github.com/awilliam/linux-vfio.git next
+$ git checkout FETCH_HEAD
+
+Or you could add a remote, ex:
+
+$ git remote add vfio git://github.com/awilliam/linux-vfio.git
+$ git remote update vfio
+$ git checkout vfio/next
+
+The former might be easier and add a lot less crufty objects to your
+local tree if this is a one-off activity.  Thanks,
+
+Alex
+
