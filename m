@@ -2,346 +2,229 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F4D9C432BE
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 11:49:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C744C4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 11:58:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F7ED610A3
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 11:49:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1182E610C8
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 11:58:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238496AbhHTLuR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Aug 2021 07:50:17 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54340 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237633AbhHTLuQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Aug 2021 07:50:16 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17KBWgbo118461;
-        Fri, 20 Aug 2021 07:49:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=hd2wkh16W6Rfdc0G5ODoTbKh6aOXi/CSmLbFq20Hz/M=;
- b=htSzcOCu94TrMMcwGcc+6uZP2Y8Z1yrSIrbNib475UgkII5H6YECBwZE02KCrz82F+3E
- tnTpgP1J5xlX2cMiziHFSyFvNvmbdrsEhytKF5INeAfPpaC4gqh3Y3/IMqGVuXwbmCIC
- K0JI6HaNbskN1/KYYkKvmmOx/LDeFYpGdhL/QfER5plgfo7O8myjJ6ZN8P7QgGg7TrEq
- O8mp3Q/cCmXmjEk/Zm2oPHU2vn65H6K4BhbqUpBy8/jFsafoSqQPM1VSrCqm2grutYXR
- LIFRUo5Siq6v7Y5UymT92wG8hQ5fY6XeH+2rtVR80fRJJ2JBjwhvRDW/CHgYoUBKhlvj Jw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3aj6smfy9s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Aug 2021 07:49:39 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17KBWgTL118462;
-        Fri, 20 Aug 2021 07:49:38 -0400
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3aj6smfy99-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Aug 2021 07:49:38 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17KBgr4B028948;
-        Fri, 20 Aug 2021 11:49:36 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma02fra.de.ibm.com with ESMTP id 3ae5f8gerv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Aug 2021 11:49:36 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17KBk2RT60883282
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 Aug 2021 11:46:02 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EE283AE058;
-        Fri, 20 Aug 2021 11:49:33 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8CD20AE057;
-        Fri, 20 Aug 2021 11:49:33 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.15.193])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 20 Aug 2021 11:49:33 +0000 (GMT)
-Date:   Fri, 20 Aug 2021 13:48:25 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
-        thuth@redhat.com, cohuck@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v2 1/3] lib: s390x: Print addressing
- related exception information
-Message-ID: <20210820134825.5b0c5063@p-imbrenda>
-In-Reply-To: <20210820114000.166527-2-frankja@linux.ibm.com>
-References: <20210820114000.166527-1-frankja@linux.ibm.com>
-        <20210820114000.166527-2-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        id S238179AbhHTL6l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Aug 2021 07:58:41 -0400
+Received: from mail-eopbgr50067.outbound.protection.outlook.com ([40.107.5.67]:25139
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S238099AbhHTL6k (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Aug 2021 07:58:40 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=migV8/gDcjzP8IO0/sL1Bpphv+hOTX1pkqQhKPyVaG0xW1/5/cNBJg51uETgFlETlDQiaYjgdotrMjTQ9/N/C8P5Tj3/z/H/WDDGpQBK+nw27LoMSyxmk2pk7g4fujmCd6SmXTnRE9NskmBD+ZPEPDl6vUY1wKmF1LlFk9/EiJZFKo21RrfGilzufaGX+KvrdcWItmLye7m95yzzylQFLelUlrj3XI7BGK3KGEYNJ7DSW7jUxASa8ba5Rs5mTvJcoeXBSFYw/vJCg12yvmzMDQs9aLakdyurJOdRBjWR//8gI8UFwEFc+YkGkiT/tKNTGXbP8t+YVjX9TmXqW/O8xg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=B0VfFnOhJEXLxO3AAm/ssO+uF2DF2mIqQAZt9xvTrnE=;
+ b=EcTJsxETklyzzJ0R8uKCAX9jhhoCmd0EmUjbL6B2G/MWETHG9VVkWd4MSVvsGthpCkZvTmRET8dfKy7BN4i0z7JgCEimlBpQNrQ0Qf0nQ2gKcpIp0MbVpmxxZTkMgclMvG06Fr3cTFFOquMqJWb5QWC/QPipoqoR9LYFDDE/zt4osSSmHxx0RXZoCra2E/fLZSaokWOk4+YIghogswaUvLJOjtw+tkYfK+qJhpsfCApmi9ba2HfeofiFOaXSF06C4MDYX65KSoW2tiPKuJJBjw7sfUQ3Q/YqoUpcgkxf/+5ZRVjQ+je/9a2b/wsGXEppba76rV7xd1w3dmLP/Jg1Pg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=B0VfFnOhJEXLxO3AAm/ssO+uF2DF2mIqQAZt9xvTrnE=;
+ b=cByIaN8AfCBIyfvmxAwRyZRWi4ZhUMOywIZpn4TvLurk/+29O02/cHXGdCG63n6kQLP0zFmBy40MQFXvqxVr2BMtfDgvStFwg7NL8nh6zMgdI+Z/13F1xMzUj2NuqfbqGcQ/SGGmrIUQyXi8NQXZMGaeCZHhhhms0XZsX4Vij2I=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none header.from=nxp.com;
+Received: from VI1PR04MB5136.eurprd04.prod.outlook.com (2603:10a6:803:55::19)
+ by VI1PR0402MB3839.eurprd04.prod.outlook.com (2603:10a6:803:21::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4436.19; Fri, 20 Aug
+ 2021 11:58:00 +0000
+Received: from VI1PR04MB5136.eurprd04.prod.outlook.com
+ ([fe80::109:1995:3e6b:5bd0]) by VI1PR04MB5136.eurprd04.prod.outlook.com
+ ([fe80::109:1995:3e6b:5bd0%2]) with mapi id 15.20.4436.019; Fri, 20 Aug 2021
+ 11:57:59 +0000
+From:   Vladimir Oltean <vladimir.oltean@nxp.com>
+To:     netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Cc:     Roopa Prabhu <roopa@nvidia.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Vadym Kochan <vkochan@marvell.com>,
+        Taras Chornyi <tchornyi@marvell.com>,
+        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
+        UNGLinuxDriver@microchip.com,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Marek Behun <kabel@blackhole.sk>,
+        DENG Qingfang <dqfext@gmail.com>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        Woojung Huh <woojung.huh@microchip.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Landen Chao <Landen.Chao@mediatek.com>,
+        Claudiu Manoil <claudiu.manoil@nxp.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        George McCollister <george.mccollister@gmail.com>,
+        Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Lars Povlsen <lars.povlsen@microchip.com>,
+        Steen Hegelund <Steen.Hegelund@microchip.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Ivan Vecera <ivecera@redhat.com>,
+        Vlad Buslov <vladbu@nvidia.com>,
+        Jianbo Liu <jianbol@nvidia.com>,
+        Mark Bloch <mbloch@nvidia.com>, Roi Dayan <roid@nvidia.com>,
+        Tobias Waldekranz <tobias@waldekranz.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        linux-s390@vger.kernel.org
+Subject: [PATCH v3 net-next 0/7] Make SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE blocking
+Date:   Fri, 20 Aug 2021 14:57:39 +0300
+Message-Id: <20210820115746.3701811-1-vladimir.oltean@nxp.com>
+X-Mailer: git-send-email 2.25.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: AM0PR04CA0010.eurprd04.prod.outlook.com
+ (2603:10a6:208:122::23) To VI1PR04MB5136.eurprd04.prod.outlook.com
+ (2603:10a6:803:55::19)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: FY2fBWFIO2smQI7PuO9rIWL4MrGv3q3U
-X-Proofpoint-ORIG-GUID: gpC4kfb_rZOfvZBYRSeaQ8CuXx68ExUE
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-20_03:2021-08-20,2021-08-20 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- phishscore=0 adultscore=0 priorityscore=1501 mlxlogscore=999
- suspectscore=0 mlxscore=0 impostorscore=0 lowpriorityscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108200062
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from localhost.localdomain (188.25.144.60) by AM0PR04CA0010.eurprd04.prod.outlook.com (2603:10a6:208:122::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4436.19 via Frontend Transport; Fri, 20 Aug 2021 11:57:56 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: af9c0f02-08eb-49f0-ad67-08d963d1c15f
+X-MS-TrafficTypeDiagnostic: VI1PR0402MB3839:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <VI1PR0402MB3839B0B6481F0C358B7EE649E0C19@VI1PR0402MB3839.eurprd04.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: uTs6FqY2QBknZLEU1BHKIiMFpeLTXyvVV5MyOj+r8nG8sWIrJJGfBrxjf0nuv2Hukioqwogi24aSpYPX0Tz6LfFU8Q9nFHuDwr1LRiQUlDd0IP9VOe9JE9+T6MAm4gt98kcbM4sbmlRDDiDRTPU74CTUbdtklCJFK9xdhgtqwRG8spI098CiQ01PK9ilFiL5xf/kG1tZr/LDYJiX0MFIUN/e/qkePqXeq6Q5OFWAbTF2irX018x+ftdmXRPm1KoJ5yoQaD7T13lb19XknOdvKM2vqArnyd+ECqr0MYerXwwX/JIfkprnWCqd2+u8Ab60HRH9PyRr8S9zfE14uo3mTcdEGmGqLI/GRisdSwrg59A1jMFVxy5L8sI9kN6SRwJspAM7/qdEnr/G9w+ALqWnUXK7QhajiNra3VWTFWx0sdUEYRt0NxZw3tQ09kviNK81db8HZltg6DO8fE5QJhXyhCu+a+cEhW5bBCKaC0p2U7pjxMC3xR+pjgo16yqrVzR2mFZqH8co8c5/ly3Ytktv7U/GVv8hKInx2Fr9JILa/jZioSmLrhQOTYYHrQbL9OjfqownpqiygjkBbTNlFghJQm+YT2UyeOYVkdNosmYLk73OoDs+b1QN6upFRAm+jE7ghHDjSKnWELGnjbXKfkwdtfO0+RvdeitrhRc3O7VxZDbNoDacM17xh94RbMZsbZe3UsNsIufCGHA7cl0OgYZq7ZpakVnuZRYjJ7TDuJXAV04M2rP59DqfNrGbRzoouATzH2kGEGNAwRAUay4an8aVbQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5136.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(136003)(366004)(346002)(376002)(39860400002)(8936002)(8676002)(26005)(6506007)(6486002)(38350700002)(38100700002)(5660300002)(66574015)(66476007)(66556008)(83380400001)(1076003)(6512007)(66946007)(52116002)(7416002)(7406005)(186003)(110136005)(36756003)(54906003)(478600001)(316002)(966005)(956004)(2616005)(44832011)(6666004)(2906002)(4326008)(86362001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?8+BO1CtrXAspnGRcFSdS78nWyLbJZRAI1PF3pXox2Nks+cbXxMzQJLrPlJO4?=
+ =?us-ascii?Q?t0W3xRAups7G1OYHjAf8AEpZRy5Jhs/9Re58SqJUF8tZWtTh80JnJjo+pJCi?=
+ =?us-ascii?Q?sae3Mu1LXfmAlaYO1BeP9ujh8hQQkaRmCIQVQUoR+fieKyy0/Ef1na8Myv6i?=
+ =?us-ascii?Q?iR4ygyxsqRLCxXo7R+EZ4yqEezRtRAhc1JD1bWjk/ttJgazfjt1Wa7TKrWIo?=
+ =?us-ascii?Q?Z86GKUrPSW2ua4bh1lXKPzFUwV8OmuLN3F3jSJQdD+vYEWmtkGOA/o3R8mXu?=
+ =?us-ascii?Q?0Pf7vGLkmAxHGHVyEB5pa6VhH8U+ifbleFjktaU7PAvVmUoG7zCVpontodU3?=
+ =?us-ascii?Q?Wxsd8zGoKppM8E0rUB7nUXtji3giOx7f5x/QoMB5jplV+B9vkq4rOO/MFImG?=
+ =?us-ascii?Q?oLZELKDzkgoFJ9zm508JlsbKblWyTP9S+hoPHIW7otsu311MYKSQirpD7GYv?=
+ =?us-ascii?Q?SaHGTt0xQuWBvqX76T4Mga46/vQdMbpNEqRfjUfP2+J/w4KTYOiRk2CVLONC?=
+ =?us-ascii?Q?9gZBLuEdPRp9V1dh0j5trosa6mAGcjLucmA0m6jdoC20qOWSqVIJpX1c+Ov6?=
+ =?us-ascii?Q?+jzhAS0iHwQvu9ORU0I+F/nU+2RWmdkPTNPjI3hcVGptme70bvJxTZ5EtIDu?=
+ =?us-ascii?Q?zLRoCXtlhJPBaF40AN/yycgP3jU4LcoWg9aNEoW3ik9HDbtEFDrxXUFCG8FP?=
+ =?us-ascii?Q?2ehIPRcoL4BOriFC8pLdW2MvihRvEVH9IXXkYASlhA+yyvlPJvVHBUyrWk1B?=
+ =?us-ascii?Q?5qOvugPnnWIKgB5hq31Rf1KyHiBfaLtRdXceVtGSNBiAJ2vUG8obvQ4T6oE2?=
+ =?us-ascii?Q?lSJW7uJV4TEvbE0JXj3w1YuVK4XsM4N+ra2R4Q4dsNW6GRp1gj7El0vGGI8v?=
+ =?us-ascii?Q?vVieIMdWJrlC/eUCNqgnGOogzrOn+JpR710MfafCkRcemtT8AMR4b0+U8SeA?=
+ =?us-ascii?Q?v6zLaPWiucdZRQ2qxh0/Bs0gJAbA5/jjcqjhbTwY3FOvlJOsldx4QSGzB2yQ?=
+ =?us-ascii?Q?ut28k1cGf+PZoin8IOHDfY5o8OOpYdKT+kV8CvGcj+fGYVAPebWcqbn5t/e+?=
+ =?us-ascii?Q?LqQK68bnGGSAHWp94SEHbCscqBmkX+IRdKzpFbNa9fDoKD0ngjsOqGSUdDT4?=
+ =?us-ascii?Q?w6Ane1YtrWPZ6tLZoO0dtZ8xuAikXQhNYQVu0IPhNpds0AnSTjJZZ1CkcFhr?=
+ =?us-ascii?Q?EyH2K6jGztZkev9JbZ92kXLE6eeECuP9QiR8n0enj6A6deL/4ajlwsZXOg5C?=
+ =?us-ascii?Q?AVyI8uRCsq6quKuvbte+fDWKgs71DtsJVJI0XuW27b3cj29y80pNk2twKKuF?=
+ =?us-ascii?Q?EciN1+qnx1qeFObZok6BjdE3?=
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: af9c0f02-08eb-49f0-ad67-08d963d1c15f
+X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5136.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Aug 2021 11:57:59.6081
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: FhekU67jikgtjrmJWbxGuirewtCl4G44S24g14jVB33UX0HCtc3pXVQ11cu/E5N9Ryhnq1kgWn/InhviIlhilA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR0402MB3839
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 20 Aug 2021 11:39:58 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
+Problem statement:
 
-> Right now we only get told the kind of program exception as well as
-> the PSW at the point where it happened.
-> 
-> For addressing exceptions the PSW is not always enough so let's print
-> the TEID which contains the failing address and flags that tell us
-> more about the kind of address exception.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Any time a driver needs to create a private association between a bridge
+upper interface and use that association within its
+SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE handler, we have an issue with FDB
+entries deleted by the bridge when the port leaves. The issue is that
+all switchdev drivers schedule a work item to have sleepable context,
+and that work item can be actually scheduled after the port has left the
+bridge, which means the association might have already been broken by
+the time the scheduled FDB work item attempts to use it.
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+The solution is to modify switchdev to use its embedded SWITCHDEV_F_DEFER
+mechanism to make the FDB notifiers emitted from the fastpath be
+scheduled in sleepable context. All drivers are converted to handle
+SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE from their blocking notifier block
+handler (or register a blocking switchdev notifier handler if they
+didn't have one). This solves the aforementioned problem because the
+bridge waits for the switchdev deferred work items to finish before a
+port leaves (del_nbp calls switchdev_deferred_process), whereas a work
+item privately scheduled by the driver will obviously not be waited upon
+by the bridge, leading to the possibility of having the race.
 
-(but see a small nit below)
+This is a dependency for the "DSA FDB isolation" posted here. It was
+split out of that series hence the numbering starts directly at v2.
 
-> ---
->  lib/s390x/asm/arch_def.h |  5 +++
->  lib/s390x/fault.c        | 76 ++++++++++++++++++++++++++++++++++++++++
->  lib/s390x/fault.h        | 44 +++++++++++++++++++++++
->  lib/s390x/interrupt.c    | 29 +++++++++++++--
->  s390x/Makefile           |  1 +
->  5 files changed, 153 insertions(+), 2 deletions(-)
->  create mode 100644 lib/s390x/fault.c
->  create mode 100644 lib/s390x/fault.h
-> 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 302ef1ff..ab5a9043 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -41,6 +41,11 @@ struct psw {
->  	uint64_t	addr;
->  };
->  
-> +#define AS_PRIM				0
-> +#define AS_ACCR				1
-> +#define AS_SECN				2
-> +#define AS_HOME				3
-> +
->  #define PSW_MASK_EXT			0x0100000000000000UL
->  #define PSW_MASK_IO			0x0200000000000000UL
->  #define PSW_MASK_DAT			0x0400000000000000UL
-> diff --git a/lib/s390x/fault.c b/lib/s390x/fault.c
-> new file mode 100644
-> index 00000000..fd1490e3
-> --- /dev/null
-> +++ b/lib/s390x/fault.c
-> @@ -0,0 +1,76 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Library to decode addressing related exceptions
-> + *
-> + * Copyright 2021 IBM Corp.
-> + *
-> + * Authors:
-> + *    Janosch Frank <frankja@linux.ibm.com>
-> + */
-> +#include <libcflat.h>
-> +#include <bitops.h>
-> +#include <asm/arch_def.h>
-> +#include <asm/page.h>
-> +#include <fault.h>
-> +
-> +static struct lowcore *lc = (struct lowcore *)0x0;
-> +
-> +/* Decodes the protection exceptions we'll most likely see */
-> +static void decode_pgm_prot(uint64_t teid)
+https://patchwork.kernel.org/project/netdevbpf/cover/20210818120150.892647-1-vladimir.oltean@nxp.com/
 
-I think this is also a "print_decode_pgm_prot", but it's static
-so I guess we don't really care too much
+Changes in v3:
+- make "addr" part of switchdev_fdb_notifier_info to avoid dangling
+  pointers not watched by RCU
+- mlx5 correction
+- build fixes in the S/390 qeth driver
 
-> +{
-> +	if (prot_is_lap(teid)) {
-> +		printf("Type: LAP\n");
-> +		return;
-> +	}
-> +
-> +	if (prot_is_iep(teid)) {
-> +		printf("Type: IEP\n");
-> +		return;
-> +	}
-> +
-> +	if (prot_is_datp(teid)) {
-> +		printf("Type: DAT\n");
-> +		return;
-> +	}
-> +}
-> +
-> +void print_decode_teid(uint64_t teid)
-> +{
-> +	int asce_id = teid & 3;
-> +	bool dat = lc->pgm_old_psw.mask & PSW_MASK_DAT;
-> +
-> +	printf("Memory exception information:\n");
-> +	printf("DAT: %s\n", dat ? "on" : "off");
-> +
-> +	printf("AS: ");
-> +	switch (asce_id) {
-> +	case AS_PRIM:
-> +		printf("Primary\n");
-> +		break;
-> +	case AS_ACCR:
-> +		printf("Access Register\n");
-> +		break;
-> +	case AS_SECN:
-> +		printf("Secondary\n");
-> +		break;
-> +	case AS_HOME:
-> +		printf("Home\n");
-> +		break;
-> +	}
-> +
-> +	if (lc->pgm_int_code == PGM_INT_CODE_PROTECTION)
-> +		decode_pgm_prot(teid);
-> +
-> +	/*
-> +	 * If teid bit 61 is off for these two exception the reported
-> +	 * address is unpredictable.
-> +	 */
-> +	if ((lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_ACCESS ||
-> +	     lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_VIOLATION) &&
-> +	    !test_bit_inv(61, &teid)) {
-> +		printf("Address: %lx, unpredictable\n ", teid & PAGE_MASK);
-> +		return;
-> +	}
-> +	printf("TEID: %lx\n", teid);
-> +	printf("Address: %lx\n\n", teid & PAGE_MASK);
-> +}
-> diff --git a/lib/s390x/fault.h b/lib/s390x/fault.h
-> new file mode 100644
-> index 00000000..726da2f0
-> --- /dev/null
-> +++ b/lib/s390x/fault.h
-> @@ -0,0 +1,44 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> +/*
-> + * Headers for fault.c
-> + *
-> + * Copyright 2021 IBM Corp.
-> + *
-> + * Authors:
-> + *    Janosch Frank <frankja@linux.ibm.com>
-> + */
-> +#ifndef _S390X_FAULT_H_
-> +#define _S390X_FAULT_H_
-> +
-> +#include <bitops.h>
-> +
-> +/* Instruction execution prevention, i.e. no-execute, 101 */
-> +static inline bool prot_is_iep(uint64_t teid)
-> +{
-> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid))
-> +		return true;
-> +
-> +	return false;
-> +}
-> +
-> +/* Standard DAT exception, 001 */
-> +static inline bool prot_is_datp(uint64_t teid)
-> +{
-> +	if (!test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid))
-> +		return true;
-> +
-> +	return false;
-> +}
-> +
-> +/* Low-address protection exception, 100 */
-> +static inline bool prot_is_lap(uint64_t teid)
-> +{
-> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && !test_bit_inv(61, &teid))
-> +		return true;
-> +
-> +	return false;
-> +}
-> +
-> +void print_decode_teid(uint64_t teid);
-> +
-> +#endif /* _S390X_FAULT_H_ */
-> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-> index 01ded49d..721e6758 100644
-> --- a/lib/s390x/interrupt.c
-> +++ b/lib/s390x/interrupt.c
-> @@ -12,6 +12,8 @@
->  #include <sclp.h>
->  #include <interrupt.h>
->  #include <sie.h>
-> +#include <fault.h>
-> +#include <asm/page.h>
->  
->  static bool pgm_int_expected;
->  static bool ext_int_expected;
-> @@ -76,8 +78,7 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
->  		break;
->  	case PGM_INT_CODE_PROTECTION:
->  		/* Handling for iep.c test case. */
-> -		if (lc->trans_exc_id & 0x80UL && lc->trans_exc_id & 0x04UL &&
-> -		    !(lc->trans_exc_id & 0x08UL))
-> +		if (prot_is_iep(lc->trans_exc_id))
->  			/*
->  			 * We branched to the instruction that caused
->  			 * the exception so we can use the return
-> @@ -126,6 +127,26 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
->  	/* suppressed/terminated/completed point already at the next address */
->  }
->  
-> +static void print_storage_exception_information(void)
-> +{
-> +	switch (lc->pgm_int_code) {
-> +	case PGM_INT_CODE_PROTECTION:
-> +	case PGM_INT_CODE_PAGE_TRANSLATION:
-> +	case PGM_INT_CODE_SEGMENT_TRANSLATION:
-> +	case PGM_INT_CODE_ASCE_TYPE:
-> +	case PGM_INT_CODE_REGION_FIRST_TRANS:
-> +	case PGM_INT_CODE_REGION_SECOND_TRANS:
-> +	case PGM_INT_CODE_REGION_THIRD_TRANS:
-> +	case PGM_INT_CODE_SECURE_STOR_ACCESS:
-> +	case PGM_INT_CODE_NON_SECURE_STOR_ACCESS:
-> +	case PGM_INT_CODE_SECURE_STOR_VIOLATION:
-> +		print_decode_teid(lc->trans_exc_id);
-> +		break;
-> +	default:
-> +		return;
-> +	}
-> +}
-> +
->  static void print_int_regs(struct stack_frame_int *stack)
->  {
->  	printf("\n");
-> @@ -155,6 +176,10 @@ static void print_pgm_info(struct stack_frame_int *stack)
->  	       lc->pgm_int_code, stap(), lc->pgm_old_psw.addr, lc->pgm_int_id);
->  	print_int_regs(stack);
->  	dump_stack();
-> +
-> +	/* Dump stack doesn't end with a \n so we add it here instead */
-> +	printf("\n");
-> +	print_storage_exception_information();
->  	report_summary();
->  	abort();
->  }
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index ef8041a6..5d1a33a0 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -72,6 +72,7 @@ cflatobjs += lib/s390x/css_lib.o
->  cflatobjs += lib/s390x/malloc_io.o
->  cflatobjs += lib/s390x/uv.o
->  cflatobjs += lib/s390x/sie.o
-> +cflatobjs += lib/s390x/fault.o
->  
->  OBJDIRS += lib/s390x
->  
+Vladimir Oltean (7):
+  net: bridge: move br_fdb_replay inside br_switchdev.c
+  net: switchdev: keep the MAC address by value in struct
+    switchdev_notifier_fdb_info
+  net: switchdev: move SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE to the blocking
+    notifier chain
+  net: bridge: switchdev: make br_fdb_replay offer sleepable context to
+    consumers
+  net: switchdev: drop the atomic notifier block from
+    switchdev_bridge_port_{,un}offload
+  net: switchdev: don't assume RCU context in
+    switchdev_handle_fdb_{add,del}_to_device
+  net: dsa: handle SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE synchronously
+
+ .../ethernet/freescale/dpaa2/dpaa2-switch.c   |  75 ++++------
+ .../marvell/prestera/prestera_switchdev.c     | 104 ++++++-------
+ .../mellanox/mlx5/core/en/rep/bridge.c        |  65 +++++++--
+ .../ethernet/mellanox/mlx5/core/esw/bridge.c  |   2 +-
+ .../ethernet/mellanox/mlxsw/spectrum_router.c |   4 +-
+ .../mellanox/mlxsw/spectrum_switchdev.c       |  62 ++++++--
+ .../microchip/sparx5/sparx5_mactable.c        |   2 +-
+ .../microchip/sparx5/sparx5_switchdev.c       |  72 ++++-----
+ drivers/net/ethernet/mscc/ocelot_net.c        |   3 -
+ drivers/net/ethernet/rocker/rocker_main.c     |  67 ++++-----
+ drivers/net/ethernet/rocker/rocker_ofdpa.c    |   6 +-
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c      |   4 +-
+ drivers/net/ethernet/ti/am65-cpsw-switchdev.c |  54 +++----
+ drivers/net/ethernet/ti/cpsw_new.c            |   4 +-
+ drivers/net/ethernet/ti/cpsw_switchdev.c      |  57 ++++----
+ drivers/s390/net/qeth_l2_main.c               |  26 ++--
+ include/net/switchdev.h                       |  33 ++++-
+ net/bridge/br.c                               |   5 +-
+ net/bridge/br_fdb.c                           |  54 -------
+ net/bridge/br_private.h                       |   6 -
+ net/bridge/br_switchdev.c                     | 128 +++++++++++++---
+ net/dsa/dsa.c                                 |  15 --
+ net/dsa/dsa_priv.h                            |  15 --
+ net/dsa/port.c                                |   3 -
+ net/dsa/slave.c                               | 138 ++++++------------
+ net/switchdev/switchdev.c                     |  61 +++++++-
+ 26 files changed, 550 insertions(+), 515 deletions(-)
+
+-- 
+2.25.1
 
