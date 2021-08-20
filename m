@@ -2,179 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB84AC43216
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Aug 2021 23:48:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46060C4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 02:52:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B3A57610CF
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Aug 2021 23:48:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 26AF46108E
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 02:52:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236732AbhHSXtT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 Aug 2021 19:49:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60322 "EHLO
+        id S237618AbhHTCw5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 Aug 2021 22:52:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236607AbhHSXtN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Aug 2021 19:49:13 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7394C06175F
-        for <linux-s390@vger.kernel.org>; Thu, 19 Aug 2021 16:48:36 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id m24-20020a17090a7f98b0290178b1a81700so5986904pjl.4
-        for <linux-s390@vger.kernel.org>; Thu, 19 Aug 2021 16:48:36 -0700 (PDT)
+        with ESMTP id S237810AbhHTCwv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Aug 2021 22:52:51 -0400
+Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8964C061575;
+        Thu, 19 Aug 2021 19:52:14 -0700 (PDT)
+Received: by mail-qt1-x830.google.com with SMTP id d9so6362603qty.12;
+        Thu, 19 Aug 2021 19:52:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=peyh3WLA8DgwuaakoXbly04TuP2J4HXY0owEUug9y1c=;
-        b=BbFJLtvxbxBG+7picsXObo5Qj8iquJ+C6Q7w5pe27YupZ7+zDXLN540+QU8HPzkPh2
-         WwzvQTknLR7mJUL2ZtsslkF86UhNT3PUimzJd1W/xc0YsfWgxj0uNN/X65pRaldPuQy1
-         Svz/l9I2+rXfrKEmbGry3ew82Uw0db0pKDxq9ukmqwtSMFXcHcAuMrcqlCqOeGH1V/uC
-         AqRS5aTXg3eyxy84gMMrOJhW6Ac+BzpVGDyg6q+eRN+OlPt5iJkRzEHzotLklvgBWCCO
-         ThS3AjXFs8AEz4pcXFmbRPSyBU/T0LhtGGlVC0DabZEeUTxAm2SIBNQHSE15qMVZvLr/
-         ceIA==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=u8qviJxekZI0W9oeMNNpxswXOhMmSMq6jYU5M5DVl1Y=;
+        b=ZptjVme0tmW1VCpvcrBC2/CDLssJbqaoRo4Q3zTv2FyLpB1EZMmFxcHZevplDZTC3k
+         ZZD4v6h9cJXEPhrfRVFXHzwSRzxdmJu2wmlK+IREiu4U7Indsy85FHIFCYBIt+asOOhr
+         SHEt6lmnRXZIZF+LR/h7xVC0zG9KL4mApDQsaSX1EX712MuPJ2rDNR0leTpGBYI/Y6kg
+         mA1Jqhha+IZdmuAvD/Z9bEBSL922Yg4LA610uR3FXVuSyrUiG/DctG3viXrnMZiVPzS3
+         Y39n5znGQqn523b3OML9qLFJTDpPdi1Hu5YzglGY+RSv07az1BiNjgtgVtqIEzlHFbPA
+         9epw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=peyh3WLA8DgwuaakoXbly04TuP2J4HXY0owEUug9y1c=;
-        b=BqVj8qw7r9wo+zZRyaqKi/DCokIDKKhcGU2QlbCmI33A9MNjFkvWDXtqmBuaW+ALSK
-         YVp3w0EIX8EuHF/K73EumveIGii3TWCYSb0V7GAuU18qkL4PuORey1Td2V1uwweCNrPU
-         veARYCEoMK2tjcIvCgyXvDd61ACsahAdU+LVX4eP2iGu5ycHjop7BjeGfGMczoYeT5xn
-         2tWFWB0c1SUpDi4pz2DGXUYlrjiaPQTQLDV7LbFPLJEU0D6mo2qtj1EXUda6hy1kAEOB
-         TKHAF8suC2JDwHuhYMd8o2/nUm0sQdBpfCcS8v+nnwqNCI7b7QdTllNnU5skKd8s7hLa
-         QhPQ==
-X-Gm-Message-State: AOAM530B8GuxwfzZ0Lps6Nh8A3a9xN2bcbTHfmh6YfeOpkAuIBkv4FPE
-        ljgeAjcDYl6QKOJm0hm/kKHf5Q==
-X-Google-Smtp-Source: ABdhPJwX9PVK0tEzKb91C/ktX1nj3RcgHWNnmrdk1FjTlt3T+0IB78U5SgxuhlVnRMNmyLPH0lN5vw==
-X-Received: by 2002:a17:90b:80c:: with SMTP id bk12mr1415764pjb.134.1629416916083;
-        Thu, 19 Aug 2021 16:48:36 -0700 (PDT)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id a4sm4880315pfk.0.2021.08.19.16.48.35
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=u8qviJxekZI0W9oeMNNpxswXOhMmSMq6jYU5M5DVl1Y=;
+        b=IGy94//JK2SANweg8s0iDH3hwzK8KjfL+8GF+xj3vwXw0kFW30tcYcEIAibj9z5FWK
+         YFd1NL261xWlXKukYbNtzusXKm+E3p2EOaImsPZd74RHl8SK468HESop4C6E9UcHt17R
+         np7RR2RF5zV72JrPN0x7hnrZ32NV4rWGVAFEC/RbruDC8dvOn960cCAPQRtXU4WBrJrw
+         /5D2UgRS6d0u6UNs9dTjomsBlM3Ozw0bMkSVsIUDgWQXdaBduXBqt54tNhaAOsv+Vm2+
+         9RUkQlIIPnwn+LuChB/h6wRPb9AXPfZaXCxgUYQWRgym3WHitLbO9mtc7H/yU7LcGFSq
+         AfFQ==
+X-Gm-Message-State: AOAM531Il8nnPcD+W9qMiG0qi55OWWVJov9OqLOPztyfL35065/RJTJI
+        3XwNZouPrGw51Ptgq6vouKw=
+X-Google-Smtp-Source: ABdhPJxmUkueYQ4YkroowaJHXiGU1LyZ97m6MhoVyq6AumGLSMkTyYII/KF2lyckupUGNQngSZjMcg==
+X-Received: by 2002:aed:2029:: with SMTP id 38mr15816652qta.71.1629427933928;
+        Thu, 19 Aug 2021 19:52:13 -0700 (PDT)
+Received: from localhost.localdomain ([193.203.214.57])
+        by smtp.gmail.com with ESMTPSA id 21sm2564270qkk.51.2021.08.19.19.52.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Aug 2021 16:48:35 -0700 (PDT)
-Date:   Thu, 19 Aug 2021 23:48:29 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc:     "Russell King, ARM Linux" <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>, gor <gor@linux.ibm.com>,
+        Thu, 19 Aug 2021 19:52:13 -0700 (PDT)
+From:   jing yangyang <cgel.zte@gmail.com>
+X-Google-Original-From: jing yangyang <jing.yangyang@zte.com.cn>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Oleg Nesterov <oleg@redhat.com>, rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        paulmck <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, shuah <shuah@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-csky <linux-csky@vger.kernel.org>,
-        linux-mips@vger.kernel.org,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390@vger.kernel.org, KVM list <kvm@vger.kernel.org>,
-        linux-kselftest <linux-kselftest@vger.kernel.org>,
-        Peter Foley <pefoley@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Ben Gardon <bgardon@google.com>
-Subject: Re: [PATCH 1/5] KVM: rseq: Update rseq when processing NOTIFY_RESUME
- on xfer to KVM guest
-Message-ID: <YR7tzZ98XC6OV2vu@google.com>
-References: <20210818001210.4073390-1-seanjc@google.com>
- <20210818001210.4073390-2-seanjc@google.com>
- <1673583543.19718.1629409152244.JavaMail.zimbra@efficios.com>
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        jing yangyang <jing.yangyang@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>
+Subject: [PATCH linux-next] s390:fix Coccinelle warnings
+Date:   Thu, 19 Aug 2021 19:51:59 -0700
+Message-Id: <20210820025159.11914-1-jing.yangyang@zte.com.cn>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1673583543.19718.1629409152244.JavaMail.zimbra@efficios.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Aug 19, 2021, Mathieu Desnoyers wrote:
-> ----- On Aug 17, 2021, at 8:12 PM, Sean Christopherson seanjc@google.com wrote:
-> > @@ -250,7 +250,7 @@ static int rseq_ip_fixup(struct pt_regs *regs)
-> > 	 * If not nested over a rseq critical section, restart is useless.
-> > 	 * Clear the rseq_cs pointer and return.
-> > 	 */
-> > -	if (!in_rseq_cs(ip, &rseq_cs))
-> > +	if (!regs || !in_rseq_cs(ip, &rseq_cs))
-> 
-> I think clearing the thread's rseq_cs unconditionally here when regs is NULL
-> is not the behavior we want when this is called from xfer_to_guest_mode_work.
-> 
-> If we have a scenario where userspace ends up calling this ioctl(KVM_RUN)
-> from within a rseq c.s., we really want a CONFIG_DEBUG_RSEQ=y kernel to
-> kill this application in the rseq_syscall handler when exiting back to usermode
-> when the ioctl eventually returns.
-> 
-> However, clearing the thread's rseq_cs will prevent this from happening.
-> 
-> So I would favor an approach where we simply do:
-> 
-> if (!regs)
->      return 0;
-> 
-> Immediately at the beginning of rseq_ip_fixup, before getting the instruction
-> pointer, so effectively skip all side-effects of the ip fixup code. Indeed, it
-> is not relevant to do any fixup here, because it is nested in a ioctl system
-> call.
-> 
-> Effectively, this would preserve the SIGSEGV behavior when this ioctl is
-> erroneously called by user-space from a rseq critical section.
+WARNING !A || A && B is equivalent to !A || B
 
-Ha, that's effectively what I implemented first, but I changed it because of the
-comment in clear_rseq_cs() that says:
+This issue was detected with the help of Coccinelle.
 
-  The rseq_cs field is set to NULL on preemption or signal delivery ... as well
-  as well as on top of code outside of the rseq assembly block.
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: jing yangyang <jing.yangyang@zte.com.cn>
+---
+ arch/s390/include/asm/scsw.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Which makes it sound like something might rely on clearing rseq_cs?
+diff --git a/arch/s390/include/asm/scsw.h b/arch/s390/include/asm/scsw.h
+index a7c3ccf..754122d 100644
+--- a/arch/s390/include/asm/scsw.h
++++ b/arch/s390/include/asm/scsw.h
+@@ -691,9 +691,8 @@ static inline int scsw_tm_is_valid_pno(union scsw *scsw)
+ {
+ 	return (scsw->tm.fctl != 0) &&
+ 	       (scsw->tm.stctl & SCSW_STCTL_STATUS_PEND) &&
+-	       (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) ||
+-		 ((scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) &&
+-		  (scsw->tm.actl & SCSW_ACTL_SUSPENDED)));
++		(!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) ||
++		(scsw->tm.actl & SCSW_ACTL_SUSPENDED));
+ }
+ 
+ /**
+-- 
+1.8.3.1
 
-Ah, or is it the case that rseq_cs is non-NULL if and only if userspace is in an
-rseq critical section, and because syscalls in critical sections are illegal, by
-definition clearing rseq_cs is a nop unless userspace is misbehaving.
 
-If that's true, what about explicitly checking that at NOTIFY_RESUME?  Or is it
-not worth the extra code to detect an error that will likely be caught anyways?
-
-diff --git a/kernel/rseq.c b/kernel/rseq.c
-index 35f7bd0fced0..28b8342290b0 100644
---- a/kernel/rseq.c
-+++ b/kernel/rseq.c
-@@ -282,6 +282,13 @@ void __rseq_handle_notify_resume(struct ksignal *ksig, struct pt_regs *regs)
-
-        if (unlikely(t->flags & PF_EXITING))
-                return;
-+       if (!regs) {
-+#ifdef CONFIG_DEBUG_RSEQ
-+               if (t->rseq && rseq_get_rseq_cs(t, &rseq_cs))
-+                       goto error;
-+#endif
-+               return;
-+       }
-        ret = rseq_ip_fixup(regs);
-        if (unlikely(ret < 0))
-                goto error;
-
-> Thanks for looking into this !
-> 
-> Mathieu
-> 
-> > 		return clear_rseq_cs(t);
-> > 	ret = rseq_need_restart(t, rseq_cs.flags);
-> > 	if (ret <= 0)
-> > --
-> > 2.33.0.rc1.237.g0d66db33f3-goog
-> 
-> -- 
-> Mathieu Desnoyers
-> EfficiOS Inc.
-> http://www.efficios.com
