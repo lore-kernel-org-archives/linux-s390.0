@@ -2,44 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA7E6C4338F
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 15:54:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B8B1C4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 15:57:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C409960FE6
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 15:54:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 21F5160ED5
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 15:57:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241107AbhHTPyn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Aug 2021 11:54:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37694 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238296AbhHTPym (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Aug 2021 11:54:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 382686113B;
-        Fri, 20 Aug 2021 15:54:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629474844;
-        bh=XUKHadjj4KLvUi5ahKgSFqzY83/jwoSH1hCUCnHd2Ak=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=d0VR0IY+2a03iRbnOQ6dPo7M+P/ii3nM4u7e0HdZyvG8UBBmmh5cUQa0HwA3BOdFm
-         gphBHiG6EGwCN9QHi4FpGiY0GvrXl1iNtUbpp5pZFQOm6tBL1s79Oh6jxzKoJoP2/9
-         aR88qnSrr/3FVTYj/g+yxxTfTsRX4QfDX+7RMB5jWud87yena01v21hQNotkUmu8Di
-         rd5eHoJc0/sGbZqfa5neBUAibKA8Y0wdyVcTm+zIXJwaf3tGRBP9Yu7Dov1FzclI2A
-         IkXENrU8Gr78S2bATa4NQr/z2Qvcob8DEJUTsXh01C2JfStxd5U/+N8GOTcMm1mei+
-         3pmEUB/iP9NgA==
-Date:   Fri, 20 Aug 2021 08:54:02 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc:     netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        id S241376AbhHTP6c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Aug 2021 11:58:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56122 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241279AbhHTP6b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Aug 2021 11:58:31 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F02C061575;
+        Fri, 20 Aug 2021 08:57:53 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id s3so2406239edd.11;
+        Fri, 20 Aug 2021 08:57:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=EM1YUi8ocQKYlM2aEz0kJgbWH1K9EUbVtCUWQ0eQNV8=;
+        b=CiZdrmrVRYr2r7seS0OlIGdyZ90E6GSA+fjrBrcXR76Ggp6lyZLcoSvLGTxbkqNSqF
+         cC45er+2UeRtOlOKrZDZ23ZEdWjHPET6GcXpV/zhjxA0JtM/4iD10/ItQ+cK9YtVtzfQ
+         zeGCn5cb1wPUq518cUnz394zDjL1tpAI0pnbbCMsA1OB1dToLfNQDLhesQvfP257E0L5
+         2et/Lo5Gh5CIifpdPKvNrTIKV6CI0BJQU2sG1iITWAJ47qUEHGg98jnH5ArlwzyWnjro
+         G4+lG8ccS1K2FqfDEBcQSMfOqzjWYfFJ7XHnkPGKZjy2g4QhkBs3l5hugwyxn3oU0Ad5
+         l2/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=EM1YUi8ocQKYlM2aEz0kJgbWH1K9EUbVtCUWQ0eQNV8=;
+        b=q9wEaWEhC9WmEsAMXiDIdPMGbMZThz7u7vtOjKHjzMV2EMiBacxlwQMogJ0xXVPji5
+         aPiIQSnHEG/FOpccXh8SehYl0cKW73T16OwNgkNDjnkBpM11YLT3qjfplB1IgA6q7Yvc
+         CRKlWSOHb0jFGkCtT29+5axpgIsJCrZMR4IqVdl9Dv0jLb4yz60YzM1NsIU+lXiGhtnI
+         6TOzABTdJs785ZZ6Gncct4xT1EPJLExWj3oVRH1E5ncIHqDM7pIuLECfhsJ76MgCdiQI
+         xCx5kg5S4sCeiCXiV0eht4toWXa7/H566emJoGjYYdHamfFF2sOPZU6G5wKliXt1u2gu
+         8+Ug==
+X-Gm-Message-State: AOAM531KADg+iAegwuG5lyavPJCMgkMK17OefRI5U7Uebu6kZ+udxDT1
+        d+TFLBhd/CChRGoXgjh7Hqs=
+X-Google-Smtp-Source: ABdhPJzUpx/r9rsNlUijtCYF3Y9m9WiPra2IrMX04IGZZVxP01oWxiwZNmOfClI2Op+EX2KbgIf/Bw==
+X-Received: by 2002:a05:6402:3128:: with SMTP id dd8mr23282165edb.40.1629475072358;
+        Fri, 20 Aug 2021 08:57:52 -0700 (PDT)
+Received: from skbuf ([188.25.144.60])
+        by smtp.gmail.com with ESMTPSA id d22sm3114449ejj.47.2021.08.20.08.57.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Aug 2021 08:57:52 -0700 (PDT)
+Date:   Fri, 20 Aug 2021 18:57:49 +0300
+From:   Vladimir Oltean <olteanv@gmail.com>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>, netdev@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
         Roopa Prabhu <roopa@nvidia.com>,
         Nikolay Aleksandrov <nikolay@nvidia.com>,
         Andrew Lunn <andrew@lunn.ch>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Vivien Didelot <vivien.didelot@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
         Vadym Kochan <vkochan@marvell.com>,
         Taras Chornyi <tchornyi@marvell.com>,
         Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
@@ -76,26 +102,31 @@ Cc:     netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
         linux-s390@vger.kernel.org
 Subject: Re: [PATCH v3 net-next 3/7] net: switchdev: move
  SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE to the blocking notifier chain
-Message-ID: <20210820085402.3dfbd2a9@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20210820115746.3701811-4-vladimir.oltean@nxp.com>
+Message-ID: <20210820155749.ufb6wxgb7ujmihql@skbuf>
 References: <20210820115746.3701811-1-vladimir.oltean@nxp.com>
-        <20210820115746.3701811-4-vladimir.oltean@nxp.com>
+ <20210820115746.3701811-4-vladimir.oltean@nxp.com>
+ <20210820085402.3dfbd2a9@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210820085402.3dfbd2a9@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 20 Aug 2021 14:57:42 +0300 Vladimir Oltean wrote:
-> Currently, br_switchdev_fdb_notify() uses call_switchdev_notifiers (and
-> br_fdb_replay() open-codes the same thing). This means that drivers
-> handle the SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE events on the atomic
-> switchdev notifier block.
+On Fri, Aug 20, 2021 at 08:54:02AM -0700, Jakub Kicinski wrote:
+> On Fri, 20 Aug 2021 14:57:42 +0300 Vladimir Oltean wrote:
+> > Currently, br_switchdev_fdb_notify() uses call_switchdev_notifiers (and
+> > br_fdb_replay() open-codes the same thing). This means that drivers
+> > handle the SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE events on the atomic
+> > switchdev notifier block.
+> 
+> drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c: In function ‘sparx5_switchdev_fdb_event’:
+> drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c:453:1: warning: label ‘err_addr_alloc’ defined but not used [-Wunused-label]
+>   453 | err_addr_alloc:
+>       | ^~~~~~~~~~~~~~
 
-drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c: In function =E2=
-=80=98sparx5_switchdev_fdb_event=E2=80=99:
-drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c:453:1: warning: la=
-bel =E2=80=98err_addr_alloc=E2=80=99 defined but not used [-Wunused-label]
-  453 | err_addr_alloc:
-      | ^~~~~~~~~~~~~~
+Yeah, I noticed (too late sadly). Other than a bit of dead code it does
+not impact functionality, so that's why I didn't jump to resend until I
+got some feedback first (thanks Vlad). Do you think it's time to resend?
