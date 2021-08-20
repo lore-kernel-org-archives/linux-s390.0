@@ -2,402 +2,356 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CA03C4338F
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 11:58:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24257C4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 13:36:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 83B796108F
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 11:58:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 08394610CB
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 13:36:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240294AbhHTL7H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Aug 2021 07:59:07 -0400
-Received: from mail-db8eur05on2067.outbound.protection.outlook.com ([40.107.20.67]:24941
-        "EHLO EUR05-DB8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240246AbhHTL7B (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Aug 2021 07:59:01 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=PK59jCD5+GOgVaEuEGjA6yAiu/Jc5G50CmMq/DjuNMxmv/apP+cCEtW7CrtzxV5ad2dW9xK11knKxRVH9L+Z8/Szw2iiv8Ye/1ShSJ70mp7mt3mr/wSFCjZdeuyyVlerzCujezlslN8ZXvEnGwlEjBOwXh3wYznyZ4z83WonCvYz9rxrLZe18dtHyCP7MqZF0OvZX3rY6uUCcOikKtudkiZHngWa2NM/eJ185Ujn6ZM3VCpYf3TnvLURaC3RU+fhiu591AvW0l0FoOHHrp9jGmBp19VkKkwVbJMOcloRyn0fhiB2IkINFqy7SSCvX/cI/smhata55CEAhyRlE+UnLA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=EsvhRXyjwA+2KLhO2a/FBMdoDr5VRwW5ZoPNvj6BOnw=;
- b=FnH4bfh9huNusL4inZXqRmWaxHefXK5KPiLiwwGTnLg+adFhnJmLuzRAnwJZVPsonsb0nsKWml3fB3vD8vC1H2aSjpknWxYEzsvkq74Nz5YiVHW5TBTtLJFFS1VpwaWM20eBgQZ8ZtNeXWHkWANpvRrUBSjKtHIN4bQytT92WnC9UpEU8kj42e9b+AA205ryRXiUeMCNYVC6VJJqQ8N8Bp5ac5x4DKOVXBzDgdSD9bAHgFuqph+ZUWQkBbFTjxGpDr/qZJKmtgPEmRQP8VUkAiqPl+sD+aByRD1Q6P/fZa4KCNLBwsl3XeLWCSYxOj5SXUUdykVCQQQKOuPDe8lBZg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=EsvhRXyjwA+2KLhO2a/FBMdoDr5VRwW5ZoPNvj6BOnw=;
- b=bfe8YUXeKLnIon9/kRcRb6M4cD2Ei2xsQRDkCdghLVmziq51us36XbVBJT+n9LN2cMF1YeixDSNhqvNjxfHKssAj9hiiOIaMzgPSPBW3cn5T3l1yKzMyqaK6QSrm2zb7p9NOM6QIHbybl6zE8KDDIBBC+l3Gm6ziq65pKHgrAlg=
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=nxp.com;
-Received: from VI1PR04MB5136.eurprd04.prod.outlook.com (2603:10a6:803:55::19)
- by VI1PR0402MB3839.eurprd04.prod.outlook.com (2603:10a6:803:21::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4436.19; Fri, 20 Aug
- 2021 11:58:22 +0000
-Received: from VI1PR04MB5136.eurprd04.prod.outlook.com
- ([fe80::109:1995:3e6b:5bd0]) by VI1PR04MB5136.eurprd04.prod.outlook.com
- ([fe80::109:1995:3e6b:5bd0%2]) with mapi id 15.20.4436.019; Fri, 20 Aug 2021
- 11:58:22 +0000
-From:   Vladimir Oltean <vladimir.oltean@nxp.com>
-To:     netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     Roopa Prabhu <roopa@nvidia.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Vadym Kochan <vkochan@marvell.com>,
-        Taras Chornyi <tchornyi@marvell.com>,
-        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
-        UNGLinuxDriver@microchip.com,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Marek Behun <kabel@blackhole.sk>,
-        DENG Qingfang <dqfext@gmail.com>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Woojung Huh <woojung.huh@microchip.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Landen Chao <Landen.Chao@mediatek.com>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        George McCollister <george.mccollister@gmail.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Lars Povlsen <lars.povlsen@microchip.com>,
-        Steen Hegelund <Steen.Hegelund@microchip.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Ivan Vecera <ivecera@redhat.com>,
-        Vlad Buslov <vladbu@nvidia.com>,
-        Jianbo Liu <jianbol@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>, Roi Dayan <roid@nvidia.com>,
-        Tobias Waldekranz <tobias@waldekranz.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        linux-s390@vger.kernel.org
-Subject: [PATCH v3 net-next 7/7] net: dsa: handle SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE synchronously
-Date:   Fri, 20 Aug 2021 14:57:46 +0300
-Message-Id: <20210820115746.3701811-8-vladimir.oltean@nxp.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210820115746.3701811-1-vladimir.oltean@nxp.com>
-References: <20210820115746.3701811-1-vladimir.oltean@nxp.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: AM0PR04CA0010.eurprd04.prod.outlook.com
- (2603:10a6:208:122::23) To VI1PR04MB5136.eurprd04.prod.outlook.com
- (2603:10a6:803:55::19)
+        id S235096AbhHTNhQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Aug 2021 09:37:16 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47390 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231854AbhHTNhP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Aug 2021 09:37:15 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17KDXiuT076951;
+        Fri, 20 Aug 2021 09:36:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=mTOvqWJMDNWykTGXI6f8+I5O5JDLZ8kdjkNYJUTk+EA=;
+ b=MZgoxfIgD42bcVDygBXVJLSikXZQ9Q2TZPLxl5dMtTbmk/Ng6M4kpEZMofuPa90yNbIs
+ 7RFzG45q0/Bam6sdX1+iX5IIFmalF2SLWU3wZCW2TPSa7+wajI/X/gnHhr5E/vbC5ItZ
+ ZLGFPN3/TWKR2h3LxZ9m+2R14e11+CVqnJaQMauOYg4wNY6q9z7qkT4tdeEBjWsg/QRe
+ /GLnjnhoU4OyjPezL7c535bZxRd67/oIJ3afqY4rwnax547hg1ZBVznzq1X0DzbnJIdI
+ 3gtFeV1zihMd3C9uui+2+2KXxiWa6kiZKfNRbpsDD9klBLSqZeYnTbH1CAKR/ZKqK6vW WA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3aj04tt5rd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Aug 2021 09:36:37 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17KDYOcq082414;
+        Fri, 20 Aug 2021 09:36:37 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3aj04tt5qf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Aug 2021 09:36:36 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17KDWf8A004880;
+        Fri, 20 Aug 2021 13:36:35 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma05fra.de.ibm.com with ESMTP id 3afwrhw94c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Aug 2021 13:36:35 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17KDaWTQ53019100
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 20 Aug 2021 13:36:32 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 79E044C04E;
+        Fri, 20 Aug 2021 13:36:32 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1CA7F4C058;
+        Fri, 20 Aug 2021 13:36:32 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.86.47])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 20 Aug 2021 13:36:32 +0000 (GMT)
+Subject: Re: [kvm-unit-tests PATCH v2 1/3] lib: s390x: Print addressing
+ related exception information
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        thuth@redhat.com, cohuck@redhat.com
+References: <20210820114000.166527-1-frankja@linux.ibm.com>
+ <20210820114000.166527-2-frankja@linux.ibm.com>
+ <20210820134825.5b0c5063@p-imbrenda>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <ceb5fc98-514a-96bd-d2b4-fc434b7c999e@linux.ibm.com>
+Date:   Fri, 20 Aug 2021 15:36:31 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from localhost.localdomain (188.25.144.60) by AM0PR04CA0010.eurprd04.prod.outlook.com (2603:10a6:208:122::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4436.19 via Frontend Transport; Fri, 20 Aug 2021 11:58:19 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 1d8a81cd-6390-4e5f-5dea-08d963d1cee4
-X-MS-TrafficTypeDiagnostic: VI1PR0402MB3839:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <VI1PR0402MB38394FB376DA18E56000391FE0C19@VI1PR0402MB3839.eurprd04.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:2657;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: rXPSq7a5OUykutD3LNQEXC6VN4o6DBwi22o9ozi2vXXQ6AqCHR/p3OaoPE570o3Wkzp6vCL5/1Y9ckhahjRpJLcVXUGeZEBml+rlCaHGa8COhZINom3en4K9BBn1fsJVi2PD4P6u1vdzNgckNghLUZNN318z8JMknYDzNCDYUap8Uwr7QNApIdZ9d+IJxkU4UR6rKkgF/T7CrICuLkF9rdQlrYceMYiKHlndK1Osb461bUKjUpx+1K17MK0EHIVHWzJ5j95NHFqYBGTe4FHyrM+eLtb+VKn7THx+QOYHcSSn9QIp4kb9kpgUmQYgvAB2bIswA8g9k8DjZJ/Esaqe3r2AY7iT7lTogtQj0+p3c8jxUOB0eeOm5zAW2YTlxbvdSJaJTiAXq2fBnRIDUT46wQipU3PQgwvOeCwU83NgAgdrTCC7meLGuVqbqzzxUp8OzCKcDKf8YGmPWy4owhfxt5az4BX1D5DLvViZdf7hJLAlf2IHKA3ieJTsHcAbXglRllkpSaJCl16dZzv01Vh6Sdtaxwzgzp/2dJ0InhQOfDUdfrxCS+S4at46DvbjiNS+/6vGEVMrf/MRSwjK+bQb0ZZrTKOrFS6lncgv98vzEA+4H2lvEnklFZ8Hmqw9fzFLprcRVWNS1chKFf/sprWEJPnt5PgrfT8l87GkYW4xuQ3Qmzcitt+Pd6xE4YUzU93klryCPHRpahBVNQokWLXQKw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5136.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(136003)(366004)(346002)(376002)(39860400002)(8936002)(8676002)(26005)(6506007)(6486002)(38350700002)(38100700002)(5660300002)(66476007)(66556008)(83380400001)(1076003)(6512007)(66946007)(52116002)(7416002)(7406005)(186003)(110136005)(36756003)(54906003)(478600001)(316002)(956004)(2616005)(44832011)(6666004)(2906002)(4326008)(86362001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?WSmjlx3Sm0ugfpl54esyuN/iaMq6y9x210n+syI3QvlNUt7Ea/5Ah6Fv92zv?=
- =?us-ascii?Q?avbSbJ7UQgUGurrA3jLGXQJco/bKV+k5WShSNg68kCykozaXUfPwJVd2zY7K?=
- =?us-ascii?Q?TgqDbwh19nRih5fr3b8AiH3X17tYpfKkyvJ6pzUX9DirNedWVjexwiZxjhQ7?=
- =?us-ascii?Q?jtIUoXnU5WkYTyPNl3+3prQqjKDvo5pkuGzzh7mGmJRlr7c62iRxZtmnrtc8?=
- =?us-ascii?Q?3PjIRgjZABSN8Q8SFOQ4OdEX2kqG28DNCUysCL3lVOb/8uBmgOO6ZEJa9W5I?=
- =?us-ascii?Q?kxu8ZBtcE02GwtpWXe4JJ8eYkqni+X3HzQVqhOWN2pzzwbPljxJjKjG9Fy5X?=
- =?us-ascii?Q?Su3lpYH+xsWqo7d/8GkNwQDlNmb5W62m/jh5GEcEzVxdNViwTBLkpvwR4UxH?=
- =?us-ascii?Q?8xyKgvUgq3s0Zs0mIzukxmTt44N2qm8Y7oj/Gz4Ejs9pgLSjsySGHUniZTDk?=
- =?us-ascii?Q?tGTxoIxrLHPGOIWFw93VrDzMsb21vLmTTcmJMHDTArZa1mHqXnrpFWXf2cee?=
- =?us-ascii?Q?YalVaEUFDNcryEWTR3/69rrYbL69SsmlMrw8Q55E40iD2tYfqgwm6qGbzSml?=
- =?us-ascii?Q?dU2OJvVeV460QE7aRe8H9wJm0WT5T7x6t0T/CEXOJBikMJVHPmA6igXVXBkw?=
- =?us-ascii?Q?j5Ev8SC5pxwxCYoXRMfbgjxjoTRZye/1GfwQgun00DSuYrPs15kNBEmd3Ohs?=
- =?us-ascii?Q?I4YP8oCOzKwHiHEj7wQMeHyqOrw5vHqqadxijxJQdEHJo0tHXB7gscFieXqJ?=
- =?us-ascii?Q?sP6I4NgHJfKqzC0UQzgoSgC6nrIHXlFG1j91sRQXZ7/r9kEDvm4ZgwLLEEkA?=
- =?us-ascii?Q?d+2e8dV+vaZWF65A83WtJBtuZGUMYc20+1Qh4ZwAtoSpwpBus7G+raOZligl?=
- =?us-ascii?Q?Fc3o3MnbyEPSLVwDShPj4xtp9vi+nd4K3P2qfw17vNaJ7u6Le+HBQc1Ez0SY?=
- =?us-ascii?Q?Pfb9CF6ZXohExHdxYcNVQKH5r3+Gd4hE5BmcpNEI0pnpUeMnEOaqdQB38uRx?=
- =?us-ascii?Q?L2FLL9htPKiP2VMBfxhiWnz/1FF0SPVRiKYF8MnzIJFss9U0VHKSud/Z81/V?=
- =?us-ascii?Q?GgMZDoJ7UYiws7MbIM+7M0R6OA95984bn4OAwMH1YSEgSPkbcYsZ7O6YMiz1?=
- =?us-ascii?Q?STtv9PBFlzR/58xy0nmXq1IiIS94hvingY0NtcfqKhSBv5xXs3/fRRTiCBB5?=
- =?us-ascii?Q?ceQ4c5T00jOsEpIfIaZyjZsVjIwQM25tFl93s4s9Lgw5jUOsnysGVaBp1gZC?=
- =?us-ascii?Q?vavlW1fpHFD16MPLC7221VjbBHGCkfHDARrHcXdvMjahXCidhTjKApEi2VPU?=
- =?us-ascii?Q?YXYrj+AcYOpKwG3LjUZd4vqI?=
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1d8a81cd-6390-4e5f-5dea-08d963d1cee4
-X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5136.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Aug 2021 11:58:22.2421
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: HbYBGjee99xRlkTYa1YNQwQHvkflYHTDJDyiW5bbR0e/bvacT0AeTSREF+ksB+ah+xDoGLMU4griOnLtZJQARw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR0402MB3839
+In-Reply-To: <20210820134825.5b0c5063@p-imbrenda>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: sz8bbs4RNrPQMi0srJdYNdDa-EwdMheE
+X-Proofpoint-GUID: 9afixyrRGYbiTJN-YBP3jLm3ie-VgyzH
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-20_03:2021-08-20,2021-08-20 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 suspectscore=0 adultscore=0 mlxscore=0 lowpriorityscore=0
+ phishscore=0 priorityscore=1501 clxscore=1011 mlxlogscore=999 bulkscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108200076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Since the switchdev FDB entry notifications are now blocking and
-deferred by switchdev and not by us, switchdev will also wait for us to
-finish, which means we can proceed with our FDB isolation mechanism
-based on dp->bridge_num.
+On 8/20/21 1:48 PM, Claudio Imbrenda wrote:
+> On Fri, 20 Aug 2021 11:39:58 +0000
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+> 
+>> Right now we only get told the kind of program exception as well as
+>> the PSW at the point where it happened.
+>>
+>> For addressing exceptions the PSW is not always enough so let's print
+>> the TEID which contains the failing address and flags that tell us
+>> more about the kind of address exception.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> 
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-It also means that the ordered workqueue is no longer needed, drop it
-and simply call the driver.
+Thanks
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
----
-v2->v3: none
+> 
+> (but see a small nit below)
+> 
+>> ---
+>>  lib/s390x/asm/arch_def.h |  5 +++
+>>  lib/s390x/fault.c        | 76 ++++++++++++++++++++++++++++++++++++++++
+>>  lib/s390x/fault.h        | 44 +++++++++++++++++++++++
+>>  lib/s390x/interrupt.c    | 29 +++++++++++++--
+>>  s390x/Makefile           |  1 +
+>>  5 files changed, 153 insertions(+), 2 deletions(-)
+>>  create mode 100644 lib/s390x/fault.c
+>>  create mode 100644 lib/s390x/fault.h
+>>
+>> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+>> index 302ef1ff..ab5a9043 100644
+>> --- a/lib/s390x/asm/arch_def.h
+>> +++ b/lib/s390x/asm/arch_def.h
+>> @@ -41,6 +41,11 @@ struct psw {
+>>  	uint64_t	addr;
+>>  };
+>>  
+>> +#define AS_PRIM				0
+>> +#define AS_ACCR				1
+>> +#define AS_SECN				2
+>> +#define AS_HOME				3
+>> +
+>>  #define PSW_MASK_EXT			0x0100000000000000UL
+>>  #define PSW_MASK_IO			0x0200000000000000UL
+>>  #define PSW_MASK_DAT			0x0400000000000000UL
+>> diff --git a/lib/s390x/fault.c b/lib/s390x/fault.c
+>> new file mode 100644
+>> index 00000000..fd1490e3
+>> --- /dev/null
+>> +++ b/lib/s390x/fault.c
+>> @@ -0,0 +1,76 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-only */
+>> +/*
+>> + * Library to decode addressing related exceptions
+>> + *
+>> + * Copyright 2021 IBM Corp.
+>> + *
+>> + * Authors:
+>> + *    Janosch Frank <frankja@linux.ibm.com>
+>> + */
+>> +#include <libcflat.h>
+>> +#include <bitops.h>
+>> +#include <asm/arch_def.h>
+>> +#include <asm/page.h>
+>> +#include <fault.h>
+>> +
+>> +static struct lowcore *lc = (struct lowcore *)0x0;
+>> +
+>> +/* Decodes the protection exceptions we'll most likely see */
+>> +static void decode_pgm_prot(uint64_t teid)
+> 
+> I think this is also a "print_decode_pgm_prot", but it's static
+> so I guess we don't really care too much
 
- net/dsa/dsa.c      |  15 -------
- net/dsa/dsa_priv.h |  15 -------
- net/dsa/slave.c    | 110 ++++++++++++---------------------------------
- 3 files changed, 28 insertions(+), 112 deletions(-)
+Can do, sounds reasonable
 
-diff --git a/net/dsa/dsa.c b/net/dsa/dsa.c
-index 1dc45e40f961..b2126334387f 100644
---- a/net/dsa/dsa.c
-+++ b/net/dsa/dsa.c
-@@ -338,13 +338,6 @@ static struct packet_type dsa_pack_type __read_mostly = {
- 	.func	= dsa_switch_rcv,
- };
- 
--static struct workqueue_struct *dsa_owq;
--
--bool dsa_schedule_work(struct work_struct *work)
--{
--	return queue_work(dsa_owq, work);
--}
--
- int dsa_devlink_param_get(struct devlink *dl, u32 id,
- 			  struct devlink_param_gset_ctx *ctx)
- {
-@@ -465,11 +458,6 @@ static int __init dsa_init_module(void)
- {
- 	int rc;
- 
--	dsa_owq = alloc_ordered_workqueue("dsa_ordered",
--					  WQ_MEM_RECLAIM);
--	if (!dsa_owq)
--		return -ENOMEM;
--
- 	rc = dsa_slave_register_notifier();
- 	if (rc)
- 		goto register_notifier_fail;
-@@ -482,8 +470,6 @@ static int __init dsa_init_module(void)
- 	return 0;
- 
- register_notifier_fail:
--	destroy_workqueue(dsa_owq);
--
- 	return rc;
- }
- module_init(dsa_init_module);
-@@ -494,7 +480,6 @@ static void __exit dsa_cleanup_module(void)
- 
- 	dsa_slave_unregister_notifier();
- 	dev_remove_pack(&dsa_pack_type);
--	destroy_workqueue(dsa_owq);
- }
- module_exit(dsa_cleanup_module);
- 
-diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
-index b7a269e0513f..f759abceeb18 100644
---- a/net/dsa/dsa_priv.h
-+++ b/net/dsa/dsa_priv.h
-@@ -125,20 +125,6 @@ struct dsa_notifier_tag_8021q_vlan_info {
- 	u16 vid;
- };
- 
--struct dsa_switchdev_event_work {
--	struct dsa_switch *ds;
--	int port;
--	struct net_device *dev;
--	struct work_struct work;
--	unsigned long event;
--	/* Specific for SWITCHDEV_FDB_ADD_TO_DEVICE and
--	 * SWITCHDEV_FDB_DEL_TO_DEVICE
--	 */
--	unsigned char addr[ETH_ALEN];
--	u16 vid;
--	bool host_addr;
--};
--
- /* DSA_NOTIFIER_HSR_* */
- struct dsa_notifier_hsr_info {
- 	struct net_device *hsr;
-@@ -169,7 +155,6 @@ const struct dsa_device_ops *dsa_tag_driver_get(int tag_protocol);
- void dsa_tag_driver_put(const struct dsa_device_ops *ops);
- const struct dsa_device_ops *dsa_find_tagger_by_name(const char *buf);
- 
--bool dsa_schedule_work(struct work_struct *work);
- const char *dsa_tag_protocol_to_str(const struct dsa_device_ops *ops);
- 
- static inline int dsa_tag_protocol_overhead(const struct dsa_device_ops *ops)
-diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index 196a0e1f4294..8507e0cd2b9e 100644
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -2278,73 +2278,18 @@ static int dsa_slave_netdevice_event(struct notifier_block *nb,
- 	return NOTIFY_DONE;
- }
- 
--static void
--dsa_fdb_offload_notify(struct dsa_switchdev_event_work *switchdev_work)
-+static void dsa_fdb_offload_notify(struct net_device *dev,
-+				   const unsigned char *addr,
-+				   u16 vid)
- {
- 	struct switchdev_notifier_fdb_info info = {};
--	struct dsa_switch *ds = switchdev_work->ds;
--	struct dsa_port *dp;
--
--	if (!dsa_is_user_port(ds, switchdev_work->port))
--		return;
- 
--	ether_addr_copy(info.addr, switchdev_work->addr);
--	info.vid = switchdev_work->vid;
-+	ether_addr_copy(info.addr, addr);
-+	info.vid = vid;
- 	info.offloaded = true;
--	dp = dsa_to_port(ds, switchdev_work->port);
--	call_switchdev_notifiers(SWITCHDEV_FDB_OFFLOADED,
--				 dp->slave, &info.info, NULL);
--}
--
--static void dsa_slave_switchdev_event_work(struct work_struct *work)
--{
--	struct dsa_switchdev_event_work *switchdev_work =
--		container_of(work, struct dsa_switchdev_event_work, work);
--	struct dsa_switch *ds = switchdev_work->ds;
--	struct dsa_port *dp;
--	int err;
--
--	dp = dsa_to_port(ds, switchdev_work->port);
--
--	rtnl_lock();
--	switch (switchdev_work->event) {
--	case SWITCHDEV_FDB_ADD_TO_DEVICE:
--		if (switchdev_work->host_addr)
--			err = dsa_port_host_fdb_add(dp, switchdev_work->addr,
--						    switchdev_work->vid);
--		else
--			err = dsa_port_fdb_add(dp, switchdev_work->addr,
--					       switchdev_work->vid);
--		if (err) {
--			dev_err(ds->dev,
--				"port %d failed to add %pM vid %d to fdb: %d\n",
--				dp->index, switchdev_work->addr,
--				switchdev_work->vid, err);
--			break;
--		}
--		dsa_fdb_offload_notify(switchdev_work);
--		break;
--
--	case SWITCHDEV_FDB_DEL_TO_DEVICE:
--		if (switchdev_work->host_addr)
--			err = dsa_port_host_fdb_del(dp, switchdev_work->addr,
--						    switchdev_work->vid);
--		else
--			err = dsa_port_fdb_del(dp, switchdev_work->addr,
--					       switchdev_work->vid);
--		if (err) {
--			dev_err(ds->dev,
--				"port %d failed to delete %pM vid %d from fdb: %d\n",
--				dp->index, switchdev_work->addr,
--				switchdev_work->vid, err);
--		}
--
--		break;
--	}
--	rtnl_unlock();
- 
--	dev_put(switchdev_work->dev);
--	kfree(switchdev_work);
-+	call_switchdev_notifiers(SWITCHDEV_FDB_OFFLOADED, dev, &info.info,
-+				 NULL);
- }
- 
- static bool dsa_foreign_dev_check(const struct net_device *dev,
-@@ -2369,10 +2314,12 @@ static int dsa_slave_fdb_event(struct net_device *dev,
- 			       const struct switchdev_notifier_fdb_info *fdb_info,
- 			       unsigned long event)
- {
--	struct dsa_switchdev_event_work *switchdev_work;
- 	struct dsa_port *dp = dsa_slave_to_port(dev);
-+	const unsigned char *addr = fdb_info->addr;
- 	bool host_addr = fdb_info->is_local;
- 	struct dsa_switch *ds = dp->ds;
-+	u16 vid = fdb_info->vid;
-+	int err;
- 
- 	if (ctx && ctx != dp)
- 		return 0;
-@@ -2397,30 +2344,29 @@ static int dsa_slave_fdb_event(struct net_device *dev,
- 	if (dsa_foreign_dev_check(dev, orig_dev))
- 		host_addr = true;
- 
--	switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
--	if (!switchdev_work)
--		return -ENOMEM;
--
- 	netdev_dbg(dev, "%s FDB entry towards %s, addr %pM vid %d%s\n",
- 		   event == SWITCHDEV_FDB_ADD_TO_DEVICE ? "Adding" : "Deleting",
--		   orig_dev->name, fdb_info->addr, fdb_info->vid,
--		   host_addr ? " as host address" : "");
--
--	INIT_WORK(&switchdev_work->work, dsa_slave_switchdev_event_work);
--	switchdev_work->ds = ds;
--	switchdev_work->port = dp->index;
--	switchdev_work->event = event;
--	switchdev_work->dev = dev;
-+		   orig_dev->name, addr, vid, host_addr ? " as host address" : "");
- 
--	ether_addr_copy(switchdev_work->addr, fdb_info->addr);
--	switchdev_work->vid = fdb_info->vid;
--	switchdev_work->host_addr = host_addr;
-+	switch (event) {
-+	case SWITCHDEV_FDB_ADD_TO_DEVICE:
-+		if (host_addr)
-+			err = dsa_port_host_fdb_add(dp, addr, vid);
-+		else
-+			err = dsa_port_fdb_add(dp, addr, vid);
-+		if (!err)
-+			dsa_fdb_offload_notify(dev, addr, vid);
-+		break;
- 
--	/* Hold a reference for dsa_fdb_offload_notify */
--	dev_hold(dev);
--	dsa_schedule_work(&switchdev_work->work);
-+	case SWITCHDEV_FDB_DEL_TO_DEVICE:
-+		if (host_addr)
-+			err = dsa_port_host_fdb_del(dp, addr, vid);
-+		else
-+			err = dsa_port_fdb_del(dp, addr, vid);
-+		break;
-+	}
- 
--	return 0;
-+	return err;
- }
- 
- static int
--- 
-2.25.1
+> 
+>> +{
+>> +	if (prot_is_lap(teid)) {
+>> +		printf("Type: LAP\n");
+>> +		return;
+>> +	}
+>> +
+>> +	if (prot_is_iep(teid)) {
+>> +		printf("Type: IEP\n");
+>> +		return;
+>> +	}
+>> +
+>> +	if (prot_is_datp(teid)) {
+>> +		printf("Type: DAT\n");
+>> +		return;
+>> +	}
+>> +}
+>> +
+>> +void print_decode_teid(uint64_t teid)
+>> +{
+>> +	int asce_id = teid & 3;
+>> +	bool dat = lc->pgm_old_psw.mask & PSW_MASK_DAT;
+>> +
+>> +	printf("Memory exception information:\n");
+>> +	printf("DAT: %s\n", dat ? "on" : "off");
+>> +
+>> +	printf("AS: ");
+>> +	switch (asce_id) {
+>> +	case AS_PRIM:
+>> +		printf("Primary\n");
+>> +		break;
+>> +	case AS_ACCR:
+>> +		printf("Access Register\n");
+>> +		break;
+>> +	case AS_SECN:
+>> +		printf("Secondary\n");
+>> +		break;
+>> +	case AS_HOME:
+>> +		printf("Home\n");
+>> +		break;
+>> +	}
+>> +
+>> +	if (lc->pgm_int_code == PGM_INT_CODE_PROTECTION)
+>> +		decode_pgm_prot(teid);
+>> +
+>> +	/*
+>> +	 * If teid bit 61 is off for these two exception the reported
+>> +	 * address is unpredictable.
+>> +	 */
+>> +	if ((lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_ACCESS ||
+>> +	     lc->pgm_int_code == PGM_INT_CODE_SECURE_STOR_VIOLATION) &&
+>> +	    !test_bit_inv(61, &teid)) {
+>> +		printf("Address: %lx, unpredictable\n ", teid & PAGE_MASK);
+>> +		return;
+>> +	}
+>> +	printf("TEID: %lx\n", teid);
+>> +	printf("Address: %lx\n\n", teid & PAGE_MASK);
+>> +}
+>> diff --git a/lib/s390x/fault.h b/lib/s390x/fault.h
+>> new file mode 100644
+>> index 00000000..726da2f0
+>> --- /dev/null
+>> +++ b/lib/s390x/fault.h
+>> @@ -0,0 +1,44 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-or-later */
+>> +/*
+>> + * Headers for fault.c
+>> + *
+>> + * Copyright 2021 IBM Corp.
+>> + *
+>> + * Authors:
+>> + *    Janosch Frank <frankja@linux.ibm.com>
+>> + */
+>> +#ifndef _S390X_FAULT_H_
+>> +#define _S390X_FAULT_H_
+>> +
+>> +#include <bitops.h>
+>> +
+>> +/* Instruction execution prevention, i.e. no-execute, 101 */
+>> +static inline bool prot_is_iep(uint64_t teid)
+>> +{
+>> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid))
+>> +		return true;
+>> +
+>> +	return false;
+>> +}
+>> +
+>> +/* Standard DAT exception, 001 */
+>> +static inline bool prot_is_datp(uint64_t teid)
+>> +{
+>> +	if (!test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid))
+>> +		return true;
+>> +
+>> +	return false;
+>> +}
+>> +
+>> +/* Low-address protection exception, 100 */
+>> +static inline bool prot_is_lap(uint64_t teid)
+>> +{
+>> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && !test_bit_inv(61, &teid))
+>> +		return true;
+>> +
+>> +	return false;
+>> +}
+>> +
+>> +void print_decode_teid(uint64_t teid);
+>> +
+>> +#endif /* _S390X_FAULT_H_ */
+>> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+>> index 01ded49d..721e6758 100644
+>> --- a/lib/s390x/interrupt.c
+>> +++ b/lib/s390x/interrupt.c
+>> @@ -12,6 +12,8 @@
+>>  #include <sclp.h>
+>>  #include <interrupt.h>
+>>  #include <sie.h>
+>> +#include <fault.h>
+>> +#include <asm/page.h>
+>>  
+>>  static bool pgm_int_expected;
+>>  static bool ext_int_expected;
+>> @@ -76,8 +78,7 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
+>>  		break;
+>>  	case PGM_INT_CODE_PROTECTION:
+>>  		/* Handling for iep.c test case. */
+>> -		if (lc->trans_exc_id & 0x80UL && lc->trans_exc_id & 0x04UL &&
+>> -		    !(lc->trans_exc_id & 0x08UL))
+>> +		if (prot_is_iep(lc->trans_exc_id))
+>>  			/*
+>>  			 * We branched to the instruction that caused
+>>  			 * the exception so we can use the return
+>> @@ -126,6 +127,26 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
+>>  	/* suppressed/terminated/completed point already at the next address */
+>>  }
+>>  
+>> +static void print_storage_exception_information(void)
+>> +{
+>> +	switch (lc->pgm_int_code) {
+>> +	case PGM_INT_CODE_PROTECTION:
+>> +	case PGM_INT_CODE_PAGE_TRANSLATION:
+>> +	case PGM_INT_CODE_SEGMENT_TRANSLATION:
+>> +	case PGM_INT_CODE_ASCE_TYPE:
+>> +	case PGM_INT_CODE_REGION_FIRST_TRANS:
+>> +	case PGM_INT_CODE_REGION_SECOND_TRANS:
+>> +	case PGM_INT_CODE_REGION_THIRD_TRANS:
+>> +	case PGM_INT_CODE_SECURE_STOR_ACCESS:
+>> +	case PGM_INT_CODE_NON_SECURE_STOR_ACCESS:
+>> +	case PGM_INT_CODE_SECURE_STOR_VIOLATION:
+>> +		print_decode_teid(lc->trans_exc_id);
+>> +		break;
+>> +	default:
+>> +		return;
+>> +	}
+>> +}
+>> +
+>>  static void print_int_regs(struct stack_frame_int *stack)
+>>  {
+>>  	printf("\n");
+>> @@ -155,6 +176,10 @@ static void print_pgm_info(struct stack_frame_int *stack)
+>>  	       lc->pgm_int_code, stap(), lc->pgm_old_psw.addr, lc->pgm_int_id);
+>>  	print_int_regs(stack);
+>>  	dump_stack();
+>> +
+>> +	/* Dump stack doesn't end with a \n so we add it here instead */
+>> +	printf("\n");
+>> +	print_storage_exception_information();
+>>  	report_summary();
+>>  	abort();
+>>  }
+>> diff --git a/s390x/Makefile b/s390x/Makefile
+>> index ef8041a6..5d1a33a0 100644
+>> --- a/s390x/Makefile
+>> +++ b/s390x/Makefile
+>> @@ -72,6 +72,7 @@ cflatobjs += lib/s390x/css_lib.o
+>>  cflatobjs += lib/s390x/malloc_io.o
+>>  cflatobjs += lib/s390x/uv.o
+>>  cflatobjs += lib/s390x/sie.o
+>> +cflatobjs += lib/s390x/fault.o
+>>  
+>>  OBJDIRS += lib/s390x
+>>  
+> 
 
