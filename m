@@ -2,131 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B8B1C4338F
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 15:57:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D1F7C4338F
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 15:59:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 21F5160ED5
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 15:57:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 037ED6103C
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Aug 2021 15:59:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241376AbhHTP6c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Aug 2021 11:58:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56122 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241279AbhHTP6b (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Aug 2021 11:58:31 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F02C061575;
-        Fri, 20 Aug 2021 08:57:53 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id s3so2406239edd.11;
-        Fri, 20 Aug 2021 08:57:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=EM1YUi8ocQKYlM2aEz0kJgbWH1K9EUbVtCUWQ0eQNV8=;
-        b=CiZdrmrVRYr2r7seS0OlIGdyZ90E6GSA+fjrBrcXR76Ggp6lyZLcoSvLGTxbkqNSqF
-         cC45er+2UeRtOlOKrZDZ23ZEdWjHPET6GcXpV/zhjxA0JtM/4iD10/ItQ+cK9YtVtzfQ
-         zeGCn5cb1wPUq518cUnz394zDjL1tpAI0pnbbCMsA1OB1dToLfNQDLhesQvfP257E0L5
-         2et/Lo5Gh5CIifpdPKvNrTIKV6CI0BJQU2sG1iITWAJ47qUEHGg98jnH5ArlwzyWnjro
-         G4+lG8ccS1K2FqfDEBcQSMfOqzjWYfFJ7XHnkPGKZjy2g4QhkBs3l5hugwyxn3oU0Ad5
-         l2/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=EM1YUi8ocQKYlM2aEz0kJgbWH1K9EUbVtCUWQ0eQNV8=;
-        b=q9wEaWEhC9WmEsAMXiDIdPMGbMZThz7u7vtOjKHjzMV2EMiBacxlwQMogJ0xXVPji5
-         aPiIQSnHEG/FOpccXh8SehYl0cKW73T16OwNgkNDjnkBpM11YLT3qjfplB1IgA6q7Yvc
-         CRKlWSOHb0jFGkCtT29+5axpgIsJCrZMR4IqVdl9Dv0jLb4yz60YzM1NsIU+lXiGhtnI
-         6TOzABTdJs785ZZ6Gncct4xT1EPJLExWj3oVRH1E5ncIHqDM7pIuLECfhsJ76MgCdiQI
-         xCx5kg5S4sCeiCXiV0eht4toWXa7/H566emJoGjYYdHamfFF2sOPZU6G5wKliXt1u2gu
-         8+Ug==
-X-Gm-Message-State: AOAM531KADg+iAegwuG5lyavPJCMgkMK17OefRI5U7Uebu6kZ+udxDT1
-        d+TFLBhd/CChRGoXgjh7Hqs=
-X-Google-Smtp-Source: ABdhPJzUpx/r9rsNlUijtCYF3Y9m9WiPra2IrMX04IGZZVxP01oWxiwZNmOfClI2Op+EX2KbgIf/Bw==
-X-Received: by 2002:a05:6402:3128:: with SMTP id dd8mr23282165edb.40.1629475072358;
-        Fri, 20 Aug 2021 08:57:52 -0700 (PDT)
-Received: from skbuf ([188.25.144.60])
-        by smtp.gmail.com with ESMTPSA id d22sm3114449ejj.47.2021.08.20.08.57.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Aug 2021 08:57:52 -0700 (PDT)
-Date:   Fri, 20 Aug 2021 18:57:49 +0300
-From:   Vladimir Oltean <olteanv@gmail.com>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>, netdev@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vadym Kochan <vkochan@marvell.com>,
-        Taras Chornyi <tchornyi@marvell.com>,
-        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
-        UNGLinuxDriver@microchip.com,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Marek Behun <kabel@blackhole.sk>,
-        DENG Qingfang <dqfext@gmail.com>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Woojung Huh <woojung.huh@microchip.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Landen Chao <Landen.Chao@mediatek.com>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        George McCollister <george.mccollister@gmail.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Lars Povlsen <lars.povlsen@microchip.com>,
-        Steen Hegelund <Steen.Hegelund@microchip.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Ivan Vecera <ivecera@redhat.com>,
-        Vlad Buslov <vladbu@nvidia.com>,
-        Jianbo Liu <jianbol@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>, Roi Dayan <roid@nvidia.com>,
-        Tobias Waldekranz <tobias@waldekranz.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 net-next 3/7] net: switchdev: move
- SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE to the blocking notifier chain
-Message-ID: <20210820155749.ufb6wxgb7ujmihql@skbuf>
-References: <20210820115746.3701811-1-vladimir.oltean@nxp.com>
- <20210820115746.3701811-4-vladimir.oltean@nxp.com>
- <20210820085402.3dfbd2a9@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        id S240966AbhHTQAE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Aug 2021 12:00:04 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47992 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241039AbhHTP77 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Aug 2021 11:59:59 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17KFjXVI128518;
+        Fri, 20 Aug 2021 11:59:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=k8eET66fJzgd3wK0Dvuic+CKwmXqYog1kRzcwzhimHs=;
+ b=MB4H35kBGm9T7zbzKfUnEKG09smygBQ5OtF39rK11OhaMx9wZhj87KW7jF0nXD+yF1WG
+ R0O9kcPVjSz8dHggCL6AclG+1Lc5A2nFqh2TZjCwFdU0fwP1l4iXCwbaQXbx/O1uRKb8
+ Jsz+VxsUbixVcyPcORgFknfKTC1lwXQzEFVwcj0ZD8R23xUZzFE6GTSVo1PTBo0rucp3
+ qGuNtI3dK5W8It0q/jrqgivlkIU0Mq/C0IVL5pYUp0+pg2n3geMQpScuMfv2/ew6vBGh
+ hfVGRSrbSWL2BUG7VPdqtk2froUlIg8C2ws0cBycVGZE/YXLidG+ivAu077/KPqo0wA3 Yw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ahp9y9742-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Aug 2021 11:59:19 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17KFk36E130781;
+        Fri, 20 Aug 2021 11:59:19 -0400
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ahp9y973s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Aug 2021 11:59:19 -0400
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17KFpYPv024144;
+        Fri, 20 Aug 2021 15:59:18 GMT
+Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
+        by ppma04dal.us.ibm.com with ESMTP id 3ae5fhm1eb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Aug 2021 15:59:18 +0000
+Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
+        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17KFxGgs13042018
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 20 Aug 2021 15:59:16 GMT
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C9B6C136059;
+        Fri, 20 Aug 2021 15:59:16 +0000 (GMT)
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 61EC3136063;
+        Fri, 20 Aug 2021 15:59:15 +0000 (GMT)
+Received: from cpe-172-100-181-211.stny.res.rr.com (unknown [9.160.182.229])
+        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Fri, 20 Aug 2021 15:59:14 +0000 (GMT)
+Subject: Re: [PATCH 1/2] s390/vfio-ap: r/w lock for PQAP interception handler
+ function pointer
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        kwankhede@nvidia.com, david@redhat.com
+References: <20210719193503.793910-1-akrowiak@linux.ibm.com>
+ <20210719193503.793910-2-akrowiak@linux.ibm.com>
+ <1a9f15d7-0f4d-00a0-0a8b-f1c08aa52eeb@de.ibm.com>
+ <358b1052-c751-7417-1263-308b133325b6@linux.ibm.com>
+ <20210819115433.76153ae4.alex.williamson@redhat.com>
+ <20210819175807.GC1721383@nvidia.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <ad84bc55-07c6-2edf-bc5c-0cf3f452b60b@linux.ibm.com>
+Date:   Fri, 20 Aug 2021 11:59:14 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
+In-Reply-To: <20210819175807.GC1721383@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 4hdLupkrbgYybXS0964wGHx2lr1diald
+X-Proofpoint-GUID: mlzPpxxgaB9tj_3vN5WJapiFWMqyqXa2
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210820085402.3dfbd2a9@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-20_06:2021-08-20,2021-08-20 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
+ impostorscore=0 bulkscore=0 adultscore=0 phishscore=0 mlxlogscore=999
+ suspectscore=0 priorityscore=1501 mlxscore=0 spamscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108200087
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 20, 2021 at 08:54:02AM -0700, Jakub Kicinski wrote:
-> On Fri, 20 Aug 2021 14:57:42 +0300 Vladimir Oltean wrote:
-> > Currently, br_switchdev_fdb_notify() uses call_switchdev_notifiers (and
-> > br_fdb_replay() open-codes the same thing). This means that drivers
-> > handle the SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE events on the atomic
-> > switchdev notifier block.
-> 
-> drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c: In function ‘sparx5_switchdev_fdb_event’:
-> drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.c:453:1: warning: label ‘err_addr_alloc’ defined but not used [-Wunused-label]
->   453 | err_addr_alloc:
->       | ^~~~~~~~~~~~~~
 
-Yeah, I noticed (too late sadly). Other than a bit of dead code it does
-not impact functionality, so that's why I didn't jump to resend until I
-got some feedback first (thanks Vlad). Do you think it's time to resend?
+
+On 8/19/21 1:58 PM, Jason Gunthorpe wrote:
+> On Thu, Aug 19, 2021 at 11:54:33AM -0600, Alex Williamson wrote:
+>
+>> Nope.  The only requests for merges through my tree that I'm aware of
+>> were [1] and what I understand was the evolution of that here now [2].
+>> Maybe you're thinking of [3], which I do see in mainline where this was
+>> 2/2 in that series but afaict only patch 1/2 was committed.  I guess
+>> that explains why there was no respin based on comments for this patch.
+>> Thanks,
+> Tony,
+>
+> If you take Alex's tree from here:
+>
+> https://github.com/awilliam/linux-vfio/commits/next
+>
+> And rebase + repost exactly the patches you need applied it would be
+> helpful.
+
+Will do.
+
+>
+> Jason
+
