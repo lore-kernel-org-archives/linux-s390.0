@@ -2,124 +2,158 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7E24C4338F
-	for <linux-s390@archiver.kernel.org>; Sat, 21 Aug 2021 03:54:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 748A4C4338F
+	for <linux-s390@archiver.kernel.org>; Sat, 21 Aug 2021 09:01:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A9D1061184
-	for <linux-s390@archiver.kernel.org>; Sat, 21 Aug 2021 03:54:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4AEEC6108F
+	for <linux-s390@archiver.kernel.org>; Sat, 21 Aug 2021 09:01:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232126AbhHUDyq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Aug 2021 23:54:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47972 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229610AbhHUDyq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Aug 2021 23:54:46 -0400
-Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75009C061575;
-        Fri, 20 Aug 2021 20:54:07 -0700 (PDT)
-Received: by mail-qk1-x72a.google.com with SMTP id t66so13096990qkb.0;
-        Fri, 20 Aug 2021 20:54:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=gPVMfJmF5apelHRJsHy850+Wr5DdBmlIDaqFUXSeNXo=;
-        b=Yc0Wk8KKOSVZezqoSGs9GlVp/OUlVXPEDqWGxea9T/DaFFD3QYTjJb7HxabEJjxyjn
-         H+MlOz1JGtO/hl8iqnDLpr9Y3oprEf0CIMLKE+WPmKhx1qACS58pXM43SyMGLSISexX0
-         Qzo4hAphyRJDgVRBlQ9DG4PC6jGDtwKkySpximippebGr7W9NEfx47J9xuOi1GS3nMFe
-         NESdaXbS6W/yEjwGDbBeffZOgZO8/F7lYZbYU9/nyHTvEjwHuMH5BR1zjIe9I10DZsZM
-         QrPfQ3Y5jgSufYLmspK9PpRZxHnjkJUx9UaRl8Y5cTP9i5JWSRE7cZaU7CkY4cJbYWa9
-         kduw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=gPVMfJmF5apelHRJsHy850+Wr5DdBmlIDaqFUXSeNXo=;
-        b=rKwz5rwJF0wn8gksZjpdo3LOICpKBjTtuiZT4SRCTXQNtM7iuuC0hfwrd6j/4uXnro
-         yQwE1WdpteE4xrfO7YnkP+/qhUcyleSOCj2DOdwmhmuftljpirBWdaZnKolCcFwBfHtB
-         PL0vKzmm9Ui8g01sxat25/HjAuL7Jv/JvhHiZRf+Ek/Bo4UXWl73ug/K+82NWZwlUXd9
-         cecWp8jm92kprFhzgUEAiUBuNmzbNUkU6om+8RrQDt+3UdYyLbbv4oQNIuF1l8GR7FHH
-         SncI40Yd+rQNUU9AhXSDnFEL4u3XMBBXMZnTgA2qm7eezJn7Acd3Vran7kBxS7NO/8wt
-         +3hA==
-X-Gm-Message-State: AOAM530lBFsMcwouPoNmIbee4s+kSlJSGU58UlA330Y7v5xuRCy3T5F+
-        S5e0KkzxyJ69Spt7ILLBks5CQS38ctxunQ==
-X-Google-Smtp-Source: ABdhPJzELzGQ5lFGx2Z0651S47KN8nX/2N7WNCSjGrZPJQKp/SPBKIstJVI76apx3J/7L+fTaLkGQQ==
-X-Received: by 2002:a37:a592:: with SMTP id o140mr12060620qke.220.1629518046730;
-        Fri, 20 Aug 2021 20:54:06 -0700 (PDT)
-Received: from localhost.localdomain ([193.203.214.57])
-        by smtp.gmail.com with ESMTPSA id f12sm3434230qtj.40.2021.08.20.20.54.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Aug 2021 20:54:06 -0700 (PDT)
-From:   CGEL <cgel.zte@gmail.com>
-X-Google-Original-From: CGEL <jing.yangyang@zte.com.cn>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        id S233240AbhHUJCT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 21 Aug 2021 05:02:19 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3720 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232802AbhHUJCT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 21 Aug 2021 05:02:19 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17L8Xd6h072734;
+        Sat, 21 Aug 2021 05:01:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=/ppwdrIZvWqoBpVpD+YZrWNWlgW2mEGx190V7dl3dGc=;
+ b=Vd5fHIvUa/momlfeoh7+zEdYbeiU46c4R3QjxQ5mI7mGxqa+B266IRIDCj5jTb7GASg5
+ YGtTBkapG5hXqfJE/zCc20M5Nwu4NNEupF2hVxckYC0fULOSdNW2G7pKk8O1d2IvNeN1
+ zuZuWcUOyiLOrUSp76VctvCbEoZ8yQtjkE1WFH8VhUqgvp9ooQMpL1nUOhKSwRLhJTab
+ 1O+DHcBT111YXoiBua0c18arTGs8yvxG5fbGL2RXKjARBJ4EnolzseYGQO+2hzhsX0fW
+ Kg8UCJzGiRk/O/cpSn+4y4uObzw3jzv1K4xExCJhOydwP9qDxNuHRjKyVFaKP7gj68gO /A== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ajwmygu70-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 21 Aug 2021 05:01:38 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17L8x1nO018260;
+        Sat, 21 Aug 2021 09:01:36 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03fra.de.ibm.com with ESMTP id 3ajs48893f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 21 Aug 2021 09:01:36 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17L8vwCu27853096
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 21 Aug 2021 08:57:58 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5DFEEA4064;
+        Sat, 21 Aug 2021 09:01:32 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0C32CA4066;
+        Sat, 21 Aug 2021 09:01:32 +0000 (GMT)
+Received: from localhost (unknown [9.171.52.52])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Sat, 21 Aug 2021 09:01:31 +0000 (GMT)
+Date:   Sat, 21 Aug 2021 11:01:30 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        jing yangyang <jing.yangyang@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>
-Subject: [PATCH linux-next] s390:raw3270: Convert sysfs sprintf/snprintf family to sysfs_emit
-Date:   Fri, 20 Aug 2021 20:53:58 -0700
-Message-Id: <20210821035358.28350-1-jing.yangyang@zte.com.cn>
-X-Mailer: git-send-email 2.25.1
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 5.14-rc7
+Message-ID: <your-ad-here.call-01629536490-ext-4991@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: N9u4L4OgwVXqh1tcbfY-83dcV_CDGNEA
+X-Proofpoint-ORIG-GUID: N9u4L4OgwVXqh1tcbfY-83dcV_CDGNEA
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-21_03:2021-08-20,2021-08-21 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ clxscore=1011 spamscore=0 suspectscore=0 bulkscore=0 malwarescore=0
+ impostorscore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501
+ mlxlogscore=909 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108210050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: jing yangyang <jing.yangyang@zte.com.cn>
+Hello Linus,
 
-Fix the following coccicheck warning:
-./drivers/s390/char/raw3270.c:1066:8-16: WARNING: use scnprintf or sprintf
-./drivers/s390/char/raw3270.c:1050:8-16: WARNING:use scnprintf or sprintf
-./drivers/s390/char/raw3270.c:1058:8-16: WARNING:use scnprintf or sprintf
+please pull s390 fix for 5.14-rc7.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: jing yangyang <jing.yangyang@zte.com.cn>
----
- drivers/s390/char/raw3270.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Thank you,
+Vasily
 
-diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-index 646ec79..be8529f 100644
---- a/drivers/s390/char/raw3270.c
-+++ b/drivers/s390/char/raw3270.c
-@@ -1047,7 +1047,7 @@ struct raw3270_view *
- static ssize_t
- raw3270_model_show(struct device *dev, struct device_attribute *attr, char *buf)
+The following changes since commit 7c60610d476766e128cc4284bb6349732cbd6606:
+
+  Linux 5.14-rc6 (2021-08-15 13:40:53 -1000)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.14-5
+
+for you to fetch changes up to 2a671f77ee49f3e78997b77fdee139467ff6a598:
+
+  s390/pci: fix use after free of zpci_dev (2021-08-18 10:12:42 +0200)
+
+----------------------------------------------------------------
+s390 updates for 5.14-rc7
+
+- fix use after free of zpci_dev in pci code
+
+----------------------------------------------------------------
+Niklas Schnelle (1):
+      s390/pci: fix use after free of zpci_dev
+
+ arch/s390/pci/pci.c     | 6 ++++++
+ arch/s390/pci/pci_bus.h | 5 +++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index b0993e05affe..8fcb7ecb7225 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -560,9 +560,12 @@ static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
+ 
+ int pcibios_add_device(struct pci_dev *pdev)
  {
--	return snprintf(buf, PAGE_SIZE, "%i\n",
-+	return sysfs_emit(buf, "%i\n",
- 			((struct raw3270 *) dev_get_drvdata(dev))->model);
- }
- static DEVICE_ATTR(model, 0444, raw3270_model_show, NULL);
-@@ -1055,7 +1055,7 @@ struct raw3270_view *
- static ssize_t
- raw3270_rows_show(struct device *dev, struct device_attribute *attr, char *buf)
++	struct zpci_dev *zdev = to_zpci(pdev);
+ 	struct resource *res;
+ 	int i;
+ 
++	/* The pdev has a reference to the zdev via its bus */
++	zpci_zdev_get(zdev);
+ 	if (pdev->is_physfn)
+ 		pdev->no_vf_scan = 1;
+ 
+@@ -582,7 +585,10 @@ int pcibios_add_device(struct pci_dev *pdev)
+ 
+ void pcibios_release_device(struct pci_dev *pdev)
  {
--	return snprintf(buf, PAGE_SIZE, "%i\n",
-+	return sysfs_emit(buf, "%i\n",
- 			((struct raw3270 *) dev_get_drvdata(dev))->rows);
++	struct zpci_dev *zdev = to_zpci(pdev);
++
+ 	zpci_unmap_resources(pdev);
++	zpci_zdev_put(zdev);
  }
- static DEVICE_ATTR(rows, 0444, raw3270_rows_show, NULL);
-@@ -1063,7 +1063,7 @@ struct raw3270_view *
- static ssize_t
- raw3270_columns_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
--	return snprintf(buf, PAGE_SIZE, "%i\n",
-+	return sysfs_emit(buf, "%i\n",
- 			((struct raw3270 *) dev_get_drvdata(dev))->cols);
+ 
+ int pcibios_enable_device(struct pci_dev *pdev, int mask)
+diff --git a/arch/s390/pci/pci_bus.h b/arch/s390/pci/pci_bus.h
+index b877a97e6745..e359d2686178 100644
+--- a/arch/s390/pci/pci_bus.h
++++ b/arch/s390/pci/pci_bus.h
+@@ -22,6 +22,11 @@ static inline void zpci_zdev_put(struct zpci_dev *zdev)
+ 	kref_put(&zdev->kref, zpci_release_device);
  }
- static DEVICE_ATTR(columns, 0444, raw3270_columns_show, NULL);
--- 
-1.8.3.1
-
-
+ 
++static inline void zpci_zdev_get(struct zpci_dev *zdev)
++{
++	kref_get(&zdev->kref);
++}
++
+ int zpci_alloc_domain(int domain);
+ void zpci_free_domain(int domain);
+ int zpci_setup_bus_resources(struct zpci_dev *zdev,
