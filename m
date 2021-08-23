@@ -2,111 +2,270 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E2E0C4338F
-	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 14:06:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E5A4C432BE
+	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 14:14:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3A3FA61206
-	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 14:06:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4EB39613AC
+	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 14:14:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229627AbhHWOGt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 Aug 2021 10:06:49 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54418 "EHLO
+        id S229774AbhHWOPG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 Aug 2021 10:15:06 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55982 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229518AbhHWOGs (ORCPT
+        by vger.kernel.org with ESMTP id S229743AbhHWOPF (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 23 Aug 2021 10:06:48 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17NE2ubY109623;
-        Mon, 23 Aug 2021 10:05:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        Mon, 23 Aug 2021 10:15:05 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17NE4Ob8052048;
+        Mon, 23 Aug 2021 10:12:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=bOin9H3/j8g9XbLCcxMtctZkDI1hAxdofJouD39ZKKs=;
- b=Uj3MpLREZFTwpPG7riHPRe9kkdBOnR/AzPJTZR846c00HxqOOlyaDbEONKv0YrsHy4x9
- B6BzEw/hdskdSJQ46JAaTcE0h65qT0jbEikRsWbDc9fIgTGbwEJuqr6QH8wY+/22qRiw
- IGKaXjYYMRukF0azjsr/DUsYlBHHyB/NuZldV31nLho7JpwH/IZtKTOL4meLf/L4mGAI
- zFxqwo5dCrcLkG/Zio50CzOXrtP7DWCwEEuyG/euSK6tfbowBnFEV6IaMnnY0kyo01XQ
- WNBYRPMH0W+6lZrc0e5+H8G3fR9TVvlPyJC/HaWhiHFJLSKALu/9ZJ+dgKE2lAUMUUlf bg== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3amamgw2fw-1
+ bh=JP+rIuvE43NRXIUI5Kb+ogg0I/5LxIIHeZ4VT3NOJSI=;
+ b=HdCP5dSGypid2RyIbAPUCk3pVDYhTdLu+iuqc1SPqEUlq9/SvNF/R0tU6SvZ55CNVBES
+ rE2CCE83XX5njzTOZ2UqRVeBiZjfwprMW6Brh46ayzEXBZJY0FkCgFoxpjX3fNFXKNaO
+ L5kMaEvRafRrAgjXuQ59jfxc1PZsSxUusjIqRQxMjrJ6Aq/4z26WcoeUW+BU9qVUQvUV
+ ATj63FSo1ncLrS47cjKQeUGyfXXDvbf3tCux3hmnc3b4Flq2wDIY6vKG1rVGFwMNdQKH
+ OoOHLDT1nwkL8Rm2aWiD+/Ag1htYp3WmD/H3VYKw9BwAcB+J5fVPbfgIlUyBXxghgKPl JQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3am1eva1g9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Aug 2021 10:05:55 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17NE3eWQ012401;
-        Mon, 23 Aug 2021 14:05:52 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3ajs48bcvh-1
+        Mon, 23 Aug 2021 10:12:50 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17NE4VX8052901;
+        Mon, 23 Aug 2021 10:12:49 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3am1eva1f1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Aug 2021 14:05:52 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17NE5nQo23855460
+        Mon, 23 Aug 2021 10:12:49 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17NE3PHm014202;
+        Mon, 23 Aug 2021 14:12:47 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 3ajs48ucq0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Aug 2021 14:12:46 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17NEChTt39780754
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 23 Aug 2021 14:05:49 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5975F4C044;
-        Mon, 23 Aug 2021 14:05:49 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D36274C046;
-        Mon, 23 Aug 2021 14:05:48 +0000 (GMT)
-Received: from thinkpad (unknown [9.171.9.196])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Mon, 23 Aug 2021 14:05:48 +0000 (GMT)
-Date:   Mon, 23 Aug 2021 16:05:46 +0200
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Mon, 23 Aug 2021 14:12:43 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2DE26A4BDF;
+        Mon, 23 Aug 2021 14:12:43 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EE119A4BDD;
+        Mon, 23 Aug 2021 14:12:40 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.145.170.214])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 23 Aug 2021 14:12:40 +0000 (GMT)
+Subject: Re: [PATCH v2 1/2] KVM: Refactor kvm_arch_vcpu_fault() to return a
+ struct page pointer
+To:     David Hildenbrand <david@redhat.com>,
+        Hou Wenlong <houwenlong93@linux.alibaba.com>,
+        kvm@vger.kernel.org
+Cc:     Sean Christopherson <seanjc@google.com>,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        nvdimm@lists.linux.dev, linux-s390@vger.kernel.org
-Subject: Re: can we finally kill off CONFIG_FS_DAX_LIMITED
-Message-ID: <20210823160546.0bf243bf@thinkpad>
-In-Reply-To: <20210820054340.GA28560@lst.de>
-References: <20210820054340.GA28560@lst.de>
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org
+References: <YRQcZqCWwVH8bCGc@google.com>
+ <1c510b24fc1d7cbae8aa4b69c0799ebd32e65b82.1628739116.git.houwenlong93@linux.alibaba.com>
+ <98adbd3c-ec6f-5689-1686-2a8a7909951a@redhat.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <c228bf78-28fb-8666-e394-5ebfa1de0862@de.ibm.com>
+Date:   Mon, 23 Aug 2021 16:12:40 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <98adbd3c-ec6f-5689-1686-2a8a7909951a@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1A_TPo4dkfWUK9cCFGq2PmlskZkAXvhC
-X-Proofpoint-GUID: 1A_TPo4dkfWUK9cCFGq2PmlskZkAXvhC
+X-Proofpoint-GUID: 5V65b4zTLVrYqqCGUcddJc1BLzc-OYWe
+X-Proofpoint-ORIG-GUID: mhbanuFWoNfFP43Rw2Ff2PaJeTjB43vn
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-08-23_03:2021-08-23,2021-08-23 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- malwarescore=0 mlxscore=0 lowpriorityscore=0 bulkscore=0 impostorscore=0
- mlxlogscore=779 priorityscore=1501 spamscore=0 suspectscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108230098
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ mlxlogscore=999 spamscore=0 adultscore=0 lowpriorityscore=0 clxscore=1011
+ priorityscore=1501 phishscore=0 suspectscore=0 bulkscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
+ definitions=main-2108230098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 20 Aug 2021 07:43:40 +0200
-Christoph Hellwig <hch@lst.de> wrote:
 
-> Hi all,
+
+On 12.08.21 11:04, David Hildenbrand wrote:
+> On 12.08.21 06:02, Hou Wenlong wrote:
+>> From: Sean Christopherson <seanjc@google.com>
+>>
+>> Refactor kvm_arch_vcpu_fault() to return 'struct page *' instead of
+>> 'vm_fault_t' to simplify architecture specific implementations that do
+>> more than return SIGBUS.  Currently this only applies to s390, but a
+>> future patch will move x86's pio_data handling into x86 where it belongs.
+>>
+>> No functional changed intended.
+>>
+>> Cc: Hou Wenlong <houwenlong93@linux.alibaba.com>
+>> Signed-off-by: Sean Christopherson <seanjc@google.com>
+>> Signed-off-by: Hou Wenlong <houwenlong93@linux.alibaba.com>
+>> ---
+>>   arch/arm64/kvm/arm.c       |  4 ++--
+>>   arch/mips/kvm/mips.c       |  4 ++--
+>>   arch/powerpc/kvm/powerpc.c |  4 ++--
+>>   arch/s390/kvm/kvm-s390.c   | 12 ++++--------
+>>   arch/x86/kvm/x86.c         |  4 ++--
+>>   include/linux/kvm_host.h   |  2 +-
+>>   virt/kvm/kvm_main.c        |  5 ++++-
+>>   7 files changed, 17 insertions(+), 18 deletions(-)
+>>
+>> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+>> index e9a2b8f27792..83f4ffe3e4f2 100644
+>> --- a/arch/arm64/kvm/arm.c
+>> +++ b/arch/arm64/kvm/arm.c
+>> @@ -161,9 +161,9 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>>       return ret;
+>>   }
+>> -vm_fault_t kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+>> +struct page *kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+>>   {
+>> -    return VM_FAULT_SIGBUS;
+>> +    return NULL;
+>>   }
+>> diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+>> index af9dd029a4e1..ae79874e6fd2 100644
+>> --- a/arch/mips/kvm/mips.c
+>> +++ b/arch/mips/kvm/mips.c
+>> @@ -1053,9 +1053,9 @@ int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+>>       return -ENOIOCTLCMD;
+>>   }
+>> -vm_fault_t kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+>> +struct page *kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+>>   {
+>> -    return VM_FAULT_SIGBUS;
+>> +    return NULL;
+>>   }
+>>   int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>> diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
+>> index be33b5321a76..b9c21f9ab784 100644
+>> --- a/arch/powerpc/kvm/powerpc.c
+>> +++ b/arch/powerpc/kvm/powerpc.c
+>> @@ -2090,9 +2090,9 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+>>       return r;
+>>   }
+>> -vm_fault_t kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+>> +struct page *kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+>>   {
+>> -    return VM_FAULT_SIGBUS;
+>> +    return NULL;
+>>   }
+>>   static int kvm_vm_ioctl_get_pvinfo(struct kvm_ppc_pvinfo *pvinfo)
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 02574d7b3612..e1b69833e228 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -4979,17 +4979,13 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+>>       return r;
+>>   }
+>> -vm_fault_t kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+>> +struct page *kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+>>   {
+>>   #ifdef CONFIG_KVM_S390_UCONTROL
+>> -    if ((vmf->pgoff == KVM_S390_SIE_PAGE_OFFSET)
+>> -         && (kvm_is_ucontrol(vcpu->kvm))) {
+>> -        vmf->page = virt_to_page(vcpu->arch.sie_block);
+>> -        get_page(vmf->page);
+>> -        return 0;
+>> -    }
+>> +    if (vmf->pgoff == KVM_S390_SIE_PAGE_OFFSET && kvm_is_ucontrol(vcpu->kvm))
+>> +        return virt_to_page(vcpu->arch.sie_block);
+>>   #endif
+>> -    return VM_FAULT_SIGBUS;
+>> +    return NULL;
+>>   }
+>>   /* Section: memory related */
+>> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+>> index 3cedc7cc132a..1e3bbe5cd33a 100644
+>> --- a/arch/x86/kvm/x86.c
+>> +++ b/arch/x86/kvm/x86.c
+>> @@ -5347,9 +5347,9 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+>>       return r;
+>>   }
+>> -vm_fault_t kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+>> +struct page *kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf)
+>>   {
+>> -    return VM_FAULT_SIGBUS;
+>> +    return NULL;
+>>   }
+>>   static int kvm_vm_ioctl_set_tss_addr(struct kvm *kvm, unsigned long addr)
+>> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+>> index 492d183dd7d0..a949de534722 100644
+>> --- a/include/linux/kvm_host.h
+>> +++ b/include/linux/kvm_host.h
+>> @@ -995,7 +995,7 @@ long kvm_arch_dev_ioctl(struct file *filp,
+>>               unsigned int ioctl, unsigned long arg);
+>>   long kvm_arch_vcpu_ioctl(struct file *filp,
+>>                unsigned int ioctl, unsigned long arg);
+>> -vm_fault_t kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf);
+>> +struct page *kvm_arch_vcpu_fault(struct kvm_vcpu *vcpu, struct vm_fault *vmf);
+>>   int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext);
+>> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+>> index 30d322519253..f7d21418971b 100644
+>> --- a/virt/kvm/kvm_main.c
+>> +++ b/virt/kvm/kvm_main.c
+>> @@ -3448,7 +3448,10 @@ static vm_fault_t kvm_vcpu_fault(struct vm_fault *vmf)
+>>               &vcpu->dirty_ring,
+>>               vmf->pgoff - KVM_DIRTY_LOG_PAGE_OFFSET);
+>>       else
+>> -        return kvm_arch_vcpu_fault(vcpu, vmf);
+>> +        page = kvm_arch_vcpu_fault(vcpu, vmf);
+>> +    if (!page)
+>> +        return VM_FAULT_SIGBUS;
+>> +
+>>       get_page(page);
+>>       vmf->page = page;
+>>       return 0;
+>>
 > 
-> looking at the recent ZONE_DEVICE related changes we still have a
-> horrible maze of different code paths.  I already suggested to
-> depend on ARCH_HAS_PTE_SPECIAL for ZONE_DEVICE there, which all modern
-> architectures have anyway.  But the other odd special case is
-> CONFIG_FS_DAX_LIMITED which is just used for the xpram driver.  Does
-> this driver still see use?  If so can we make it behave like the
-> other DAX drivers and require a pgmap?  I think the biggest missing
-> part would be to implement ARCH_HAS_PTE_DEVMAP for s390.
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> 
+> But at the same time I wonder if we should just get rid of CONFIG_KVM_S390_UCONTROL and consequently kvm_arch_vcpu_fault().
+> 
+> 
+> In practice CONFIG_KVM_S390_UCONTROL, is never enabled in any reasonable kernel build and consequently it's never tested; further, exposing the sie_block to user space allows user space to generate random SIE validity intercepts.
+> 
+> CONFIG_KVM_S390_UCONTROL feels like something that should just be maintained out of tree by someone who really needs to hack deep into hw virtualization for testing purposes etc.
 
-Puh, yes, that seems to be needed in order to enable ZONE_DEVICE, and
-then we could use devm_memremap_pages(), at least that was my plan
-some time ago. However, either the ARCH_HAS_PTE_DEVMAP dependency
-is new, or I overlooked it before, but we do not have any free bits
-in the pte left, so this is not going to work.
-
-Would it strictly be necessary to implement ZONE_DEVICE, or would
-it be enough if we would use e.g. add_memory() instead of just
-adding the DCSS memory directly to the kernel mapping via
-vmem_add_mapping()? That way we might at least get the struct pages,
-but somehow it doesn't feel completely right.
+I recently talked to the ucontrol users and they will look into selftests.
