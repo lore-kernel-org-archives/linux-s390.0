@@ -2,130 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0799C4338F
-	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 15:16:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 393F3C4338F
+	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 15:17:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CC48360F92
-	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 15:16:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A1DA613CD
+	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 15:17:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231161AbhHWPRM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 Aug 2021 11:17:12 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:37698 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230166AbhHWPRL (ORCPT
+        id S231272AbhHWPSk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 Aug 2021 11:18:40 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49710 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229743AbhHWPSj (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 23 Aug 2021 11:17:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629731789;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=DN1b/ZryAIDQdlT9EYOFyEAWtXpqjUmEBD/b/C3QFkQ=;
-        b=CdbPIEq3nX11WfwPTN6qcUKfceqMaA4jAW8mbp+gXioAFLhzH2IS6x+YhppjOXxV+5+0Rl
-        6r3bPQotegA3ZCGShJSb7uUCrulJru3xvKXGm8o47bfOtbTVxFxhWnCc6SVUl3dKUp+OET
-        lmZ0/4idaRa8Ds4rm9VPnfbxoSodXkI=
-Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
- [209.85.210.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-2-07biEgUWOVaeuH_pGj0DYQ-1; Mon, 23 Aug 2021 11:16:27 -0400
-X-MC-Unique: 07biEgUWOVaeuH_pGj0DYQ-1
-Received: by mail-ot1-f71.google.com with SMTP id v11-20020a056830140b00b0051af4c9ee9fso7095093otp.16
-        for <linux-s390@vger.kernel.org>; Mon, 23 Aug 2021 08:16:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:organization:mime-version:content-transfer-encoding;
-        bh=DN1b/ZryAIDQdlT9EYOFyEAWtXpqjUmEBD/b/C3QFkQ=;
-        b=UuXkBYL9vswjs0YoQSuOnx8EZwGD52+ZVxb+GUrNHSZKpZ76QWjLjeVpWppRWe6srm
-         u9ef8RUy8iorTcu6G+aI1KwpaptaDlPEd+2veBt+cw2/L+Es01rxTUORSqiob8IOJ2ku
-         L6LGByQOmkOhMOA6aeRGi8QEX6R1hfYTIq/wKxNFC0DlF5VzA2cC6VXuT7hdGdTuYVe+
-         1w1NiQSydXlDyfXILoqVRani1MRodDnsnJEDfLYLto+Lg5ztRkEo1gnnJctSaijy1K7W
-         //gT7iQHBJwpiLonm4AtQpwPS5xSwZFKzj+l0O7dd7pvkJwC4OivmFmEtK18oo3F1pZL
-         UJpw==
-X-Gm-Message-State: AOAM532u4CGtFhRNmqklSwqzMJNoRN5Hwb5Vws/3CAWRMMnunqJSDQlm
-        IuJyf12RHJw4AntliuyBrHdWCzZ1AnYfyOg+VSHauJQsNL4EuqGfJ49AWXvUtm62zZARkRXUsaM
-        zOIzg7lgPH/P/5cnzqQrS3w==
-X-Received: by 2002:a05:6830:1dac:: with SMTP id z12mr24543873oti.52.1629731787082;
-        Mon, 23 Aug 2021 08:16:27 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzqOeF/H0qDGnn9D02GiZCSA4DRcSR8LiSLGylhEba8t1EsbxXzTz8dIto+iigT90XxNROCzg==
-X-Received: by 2002:a05:6830:1dac:: with SMTP id z12mr24543850oti.52.1629731786895;
-        Mon, 23 Aug 2021 08:16:26 -0700 (PDT)
-Received: from redhat.com ([198.99.80.109])
-        by smtp.gmail.com with ESMTPSA id x1sm2557766otu.8.2021.08.23.08.16.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Aug 2021 08:16:26 -0700 (PDT)
-Date:   Mon, 23 Aug 2021 09:16:24 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Yishai Hadas <yishaih@nvidia.com>
-Cc:     <bhelgaas@google.com>, <corbet@lwn.net>,
-        <diana.craciun@oss.nxp.com>, <kwankhede@nvidia.com>,
-        <eric.auger@redhat.com>, <masahiroy@kernel.org>,
-        <michal.lkml@markovi.net>, <linux-pci@vger.kernel.org>,
-        <linux-doc@vger.kernel.org>, <kvm@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>, <linux-kbuild@vger.kernel.org>,
-        <mgurtovoy@nvidia.com>, <jgg@nvidia.com>, <maorg@nvidia.com>,
-        <leonro@nvidia.com>
-Subject: Re: [PATCH V3 06/13] vfio/pci: Split the pci_driver code out of
- vfio_pci_core.c
-Message-ID: <20210823091624.697c67d6.alex.williamson@redhat.com>
-In-Reply-To: <20210822143602.153816-7-yishaih@nvidia.com>
-References: <20210822143602.153816-1-yishaih@nvidia.com>
-        <20210822143602.153816-7-yishaih@nvidia.com>
-Organization: Red Hat
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        Mon, 23 Aug 2021 11:18:39 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17NF2umR075654;
+        Mon, 23 Aug 2021 11:17:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=joRttYs9N4ZWr34z4vspyOpC3YJqV16TS83slYUX8KI=;
+ b=aGnWgfpzBS6HUsyRhJ+15JG51/F0fkRMP3UUoFE6YaK1U/bSHk2cevoI06fUwCk4r/rk
+ xYUp8JSYwTlP4i6qPknR55CHgWGOMg3nPWV0WzALuyonwDzG2dGBHRcdwNQuTgJKGvQ8
+ Pq1QCDsmygrl5do0TyxsXcoj2m3FLJcm2gCrm5C58zje5uefQwxUy6a0d64dysp6/EWS
+ aHvOVYeCGUlqJ0RTYYBCJ8hN81R4zTlsgYPXhAsV1qDVa9Zlt48ZMNdpX0AchET9yjjU
+ RdzfYasZBB8IbTW8FsEQmSaDyvJbHt5GHL4Y7GAZn6n1iHQDODn/RnpqS3sa6boTfA4x GA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3amamgynnu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Aug 2021 11:17:56 -0400
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17NF3GGv076806;
+        Mon, 23 Aug 2021 11:17:55 -0400
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3amamgynn9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Aug 2021 11:17:55 -0400
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17NFHLV2010883;
+        Mon, 23 Aug 2021 15:17:54 GMT
+Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
+        by ppma02wdc.us.ibm.com with ESMTP id 3ajs4b90yn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Aug 2021 15:17:54 +0000
+Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
+        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17NFHnBW13238614
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 23 Aug 2021 15:17:49 GMT
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DD360136074;
+        Mon, 23 Aug 2021 15:17:48 +0000 (GMT)
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EDAF3136066;
+        Mon, 23 Aug 2021 15:17:47 +0000 (GMT)
+Received: from cpe-172-100-181-211.stny.res.rr.com (unknown [9.160.182.229])
+        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Mon, 23 Aug 2021 15:17:47 +0000 (GMT)
+Subject: Re: [PATCH 1/2] s390/vfio-ap: r/w lock for PQAP interception handler
+ function pointer
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        kwankhede@nvidia.com, david@redhat.com
+References: <20210719193503.793910-1-akrowiak@linux.ibm.com>
+ <20210719193503.793910-2-akrowiak@linux.ibm.com>
+ <1a9f15d7-0f4d-00a0-0a8b-f1c08aa52eeb@de.ibm.com>
+ <358b1052-c751-7417-1263-308b133325b6@linux.ibm.com>
+ <20210819115433.76153ae4.alex.williamson@redhat.com>
+ <20210819175807.GC1721383@nvidia.com>
+ <d905d1fa-2852-4fb7-5b56-4b3b12d8994f@linux.ibm.com>
+ <20210820223049.GJ1721383@nvidia.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <5ed12778-bd0e-20dd-15e7-3639dbf1c87c@linux.ibm.com>
+Date:   Mon, 23 Aug 2021 11:17:47 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20210820223049.GJ1721383@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: RJNXGD5iPK4BskVfuUaCcaZbhkOyIMbG
+X-Proofpoint-GUID: OZQcPZrxzPj3-QOTN5-VEK3pwnyK0ENt
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-23_03:2021-08-23,2021-08-23 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ malwarescore=0 mlxscore=0 lowpriorityscore=0 bulkscore=0 impostorscore=0
+ mlxlogscore=999 priorityscore=1501 spamscore=0 suspectscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108230104
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, 22 Aug 2021 17:35:55 +0300
-Yishai Hadas <yishaih@nvidia.com> wrote:
-> diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-> new file mode 100644
-> index 000000000000..15474ebadd98
-> --- /dev/null
-> +++ b/drivers/vfio/pci/vfio_pci.c
-...
-> +static int vfio_pci_sriov_configure(struct pci_dev *pdev, int nr_virtfn)
-> +{
-> +	might_sleep();
-> +
-> +	if (!enable_sriov)
-> +		return -ENOENT;
-> +
-> +	return vfio_pci_core_sriov_configure(pdev, nr_virtfn);
-> +}
+Thanks, I think I've got it now.
 
-As noted in previous version, why do we need the might_sleep() above
-when the core code below includes it and there's nothing above that
-might sleep before that?  Thanks,
-
-Alex
-
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index 94f062818e0c..87d1960d0d61 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-...
-> -static int vfio_pci_sriov_configure(struct pci_dev *pdev, int nr_virtfn)
-> +int vfio_pci_core_sriov_configure(struct pci_dev *pdev, int nr_virtfn)
->  {
->  	struct vfio_device *device;
->  	int ret = 0;
->  
->  	might_sleep();
->  
-> -	if (!enable_sriov)
-> -		return -ENOENT;
-> -
->  	device = vfio_device_get_from_dev(&pdev->dev);
->  	if (!device)
->  		return -ENODEV;
+On 8/20/21 6:30 PM, Jason Gunthorpe wrote:
+> git reset --hard origin/next
 
