@@ -2,122 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_2 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B90B0C4338F
-	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 16:02:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 029F2C4338F
+	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 16:21:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A20D3613DA
-	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 16:02:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DAA29611C9
+	for <linux-s390@archiver.kernel.org>; Mon, 23 Aug 2021 16:21:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229970AbhHWQDS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 Aug 2021 12:03:18 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39448 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229465AbhHWQDS (ORCPT
+        id S229763AbhHWQVo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 Aug 2021 12:21:44 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:34300 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229586AbhHWQVn (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 23 Aug 2021 12:03:18 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17NFZMl3042002;
-        Mon, 23 Aug 2021 12:02:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=3hKfoY9tkVj90yiJGaBtBd9Ta9C3SApNM8CIeJ4UbXE=;
- b=XT2RHU7H3k9TqKUy+aElqegrwmVbHQlqJOrxYCmcLKRhZpJNJA9xYcbhcgq0LfAfhq+1
- gOC7tK1IS6MLdB1Xk70wb6jh4t8WYZBm4frpGEQ1R1KdHlGRcryE7Yj4CT58IVr2Rthl
- iDn3Bha6uF/vz4Lc4la4KXna/WfqjXPX5bCTcLHW/EsccPADE/86BRfUbWAAmfo0wdHl
- Nyeh+bJrsWSUgAYvrlovG7XRey23k0Bu5UGiRSJWJ8bCiRqWWPTbf7HVrdSxR2QATpv9
- 9CT8Qs4THdPrsotmOPDjFNGU3xSKoFmo3wOk+ACKM5op/Gdd4YOzFLxXckDIKkPTNa+k gw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3am1evdat8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Aug 2021 12:02:34 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17NFZTXE045050;
-        Mon, 23 Aug 2021 12:02:33 -0400
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3am1evdasg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Aug 2021 12:02:33 -0400
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17NFvHmN025945;
-        Mon, 23 Aug 2021 16:02:32 GMT
-Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
-        by ppma01wdc.us.ibm.com with ESMTP id 3ajs4b2mq6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Aug 2021 16:02:32 +0000
-Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
-        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17NG2VgZ24707460
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 23 Aug 2021 16:02:31 GMT
-Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DD38DC6059;
-        Mon, 23 Aug 2021 16:02:30 +0000 (GMT)
-Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 53083C606E;
-        Mon, 23 Aug 2021 16:02:30 +0000 (GMT)
-Received: from oc4221205838.ibm.com (unknown [9.163.11.57])
-        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Mon, 23 Aug 2021 16:02:30 +0000 (GMT)
+        Mon, 23 Aug 2021 12:21:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629735660;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=71l7HuQPH09rcwEW7WJrnA99Ea0t1Z3460JPOoHmvwU=;
+        b=WlxqKwu8galleVdPbvukqbfif94qvIjuZ+sRDoZaYzoAMwfzveVpBbhps/6NJ6QkKTxkG5
+        PuoNfgh15J+nhBTxvIx/Xs/xLMIZLE9Q8VtFgGUPcFP+dqN6XsZwTW1+E2ZXHctTWOYiWe
+        bd3en75LqN5r9E185zevS2rMsZKeAPU=
+Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
+ [209.85.161.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-452-vcXCZ8KhOdCClvaequ-lFQ-1; Mon, 23 Aug 2021 12:20:59 -0400
+X-MC-Unique: vcXCZ8KhOdCClvaequ-lFQ-1
+Received: by mail-oo1-f72.google.com with SMTP id s20-20020a4aead40000b029028b41986b27so9568046ooh.14
+        for <linux-s390@vger.kernel.org>; Mon, 23 Aug 2021 09:20:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=71l7HuQPH09rcwEW7WJrnA99Ea0t1Z3460JPOoHmvwU=;
+        b=qU/Ipbbr8sXo9yHD3DB8tilawyYBl+bZ0RVk0AbBQGWRf4L9PpBf3gR8bRYEwuWXMg
+         QOV3UDMou9xjxXNULoy+YXFcSUY/XwC4KlsKDjxqvWZ7lEyGrBKlj9wGm9iBIUFeGUAM
+         AksVMV8myH8kaV18V1DrqdNaU6GcVhPSN1ib+zzRsiNdZKUo3HF07Uu8//vg6h41MUPv
+         /YKYNOsmBvT/W76Z5kN4rxZsEhBfZ0uibNOCGeb1LBQLkORLB9p/Pfr+BlwjOgCNULYn
+         mGkgSk81ClWHjIQ9V6Us7zkFU3Is/IRq76tE2IIojjHRzTaWm01Jdqbkz4G8hBPrFq1A
+         FvLQ==
+X-Gm-Message-State: AOAM532EtzCh8Av3qkGJRzKBU8FA5cazU5JZuVDzSuhF8WIYMsHwEeTJ
+        JyGkRp1Fny/Q8dlYN6/pPELwdLfKBwoM2WPSAMjwEyR4QC/0Sv7NuHUi5lCsyjANUfMqfR4zaLW
+        NgV2Q5Zri5OcF6V1avRSKcQ==
+X-Received: by 2002:a4a:2c49:: with SMTP id o70mr26027960ooo.71.1629735658103;
+        Mon, 23 Aug 2021 09:20:58 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJytJtuQ3SpG7msNN3C4qxLKEw23HYYuXZy4UzrQ7Bc4P8QrmE1aecpbhTM4xCuxYHj1l1ui4w==
+X-Received: by 2002:a4a:2c49:: with SMTP id o70mr26027942ooo.71.1629735657918;
+        Mon, 23 Aug 2021 09:20:57 -0700 (PDT)
+Received: from redhat.com ([198.99.80.109])
+        by smtp.gmail.com with ESMTPSA id x8sm3448488oof.27.2021.08.23.09.20.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Aug 2021 09:20:57 -0700 (PDT)
+Date:   Mon, 23 Aug 2021 10:20:56 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Cai Huoqing <caihuoqing@baidu.com>
+Cc:     <mjrosato@linux.ibm.com>, <farman@linux.ibm.com>,
+        <cohuck@redhat.com>, <linux-s390@vger.kernel.org>,
+        <kvm@vger.kernel.org>
 Subject: Re: [PATCH] vfio-pci/zdev: Remove repeated verbose license text
-To:     Cai Huoqing <caihuoqing@baidu.com>, farman@linux.ibm.com,
-        alex.williamson@redhat.com, cohuck@redhat.com
-Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org
-References: <20210822043500.561-1-caihuoqing@baidu.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-Message-ID: <45493e42-f3af-eb5a-e503-9ea1ea71a927@linux.ibm.com>
-Date:   Mon, 23 Aug 2021 12:02:29 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
-MIME-Version: 1.0
+Message-ID: <20210823102056.49daf260.alex.williamson@redhat.com>
 In-Reply-To: <20210822043500.561-1-caihuoqing@baidu.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+References: <20210822043500.561-1-caihuoqing@baidu.com>
+Organization: Red Hat
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: gPFUutsmq-7yClS9qwqc6BqCnJV-CKoj
-X-Proofpoint-ORIG-GUID: XsOYlejOdyxWkkl5YnIEsWPBDgiCdxJ9
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-23_03:2021-08-23,2021-08-23 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- mlxlogscore=999 spamscore=0 adultscore=0 lowpriorityscore=0 clxscore=1011
- priorityscore=1501 phishscore=0 suspectscore=0 bulkscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
- definitions=main-2108230107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 8/22/21 12:35 AM, Cai Huoqing wrote:
+On Sun, 22 Aug 2021 12:35:00 +0800
+Cai Huoqing <caihuoqing@baidu.com> wrote:
+
 > remove it because SPDX-License-Identifier is already used
 > 
 > Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
-
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-
 > ---
->   drivers/vfio/pci/vfio_pci_zdev.c | 5 -----
->   1 file changed, 5 deletions(-)
+>  drivers/vfio/pci/vfio_pci_zdev.c | 5 -----
+>  1 file changed, 5 deletions(-)
 > 
 > diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
 > index 7b011b62c766..dfd8d826223d 100644
 > --- a/drivers/vfio/pci/vfio_pci_zdev.c
 > +++ b/drivers/vfio/pci/vfio_pci_zdev.c
 > @@ -5,11 +5,6 @@
->    * Copyright (C) IBM Corp. 2020.  All rights reserved.
->    *	Author(s): Pierre Morel <pmorel@linux.ibm.com>
->    *                 Matthew Rosato <mjrosato@linux.ibm.com>
+>   * Copyright (C) IBM Corp. 2020.  All rights reserved.
+>   *	Author(s): Pierre Morel <pmorel@linux.ibm.com>
+>   *                 Matthew Rosato <mjrosato@linux.ibm.com>
 > - *
 > - * This program is free software; you can redistribute it and/or modify
 > - * it under the terms of the GNU General Public License version 2 as
 > - * published by the Free Software Foundation.
 > - *
->    */
->   #include <linux/io.h>
->   #include <linux/pci.h>
-> 
+>   */
+>  #include <linux/io.h>
+>  #include <linux/pci.h>
+
+The SPDX license for this file is actually GPL-2.0+ but the text here
+matches the more restrictive GPL-2.0.  I'm not a lawyer, but I'd expect
+the more restrictive license holds, so removing this text might
+actually change the license.  Should this also correct the SPDX
+license?  Perhaps we need clarification from the authors.  Thanks,
+
+Alex
 
