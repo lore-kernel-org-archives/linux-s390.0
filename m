@@ -2,121 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0ED15C4338F
-	for <linux-s390@archiver.kernel.org>; Tue, 24 Aug 2021 06:50:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27B42C4338F
+	for <linux-s390@archiver.kernel.org>; Tue, 24 Aug 2021 07:16:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E592861265
-	for <linux-s390@archiver.kernel.org>; Tue, 24 Aug 2021 06:50:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0836061361
+	for <linux-s390@archiver.kernel.org>; Tue, 24 Aug 2021 07:16:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230332AbhHXGus (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 24 Aug 2021 02:50:48 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28954 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230192AbhHXGus (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Aug 2021 02:50:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629787804;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=smEbHzblXx6RDwsdPQ8zTE40MkkErt1zu2jIV9SRWO4=;
-        b=HAb9O1PUA2T6YyDC/+398jNRBCA1gmST8klL4o9TEzZd+xqSA07S13kLz/I+XwnFkI5ctE
-        xkGFTe0teSJ4Y25GtESV1aGOK6AMOX/Enj924eHHwu/t7GLZEQ6Agh0uXvKpl/M2k+tyc1
-        JCOjNX3g/SrpO6zKfeeQfnhAHX8cDME=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-271-KwtN0Y80MEqEB1BxkkMKHA-1; Tue, 24 Aug 2021 02:50:02 -0400
-X-MC-Unique: KwtN0Y80MEqEB1BxkkMKHA-1
-Received: by mail-wm1-f69.google.com with SMTP id j33-20020a05600c1c21b02902e6828f7a20so761616wms.7
-        for <linux-s390@vger.kernel.org>; Mon, 23 Aug 2021 23:50:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:organization
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=smEbHzblXx6RDwsdPQ8zTE40MkkErt1zu2jIV9SRWO4=;
-        b=R5JKf9XdJtWB6rZOtghR+XdGJglSjZ4XIe2DXEUaaH5qiNs9OYDSYnDfRilLERD/0u
-         yDC9uZKaw4BQTzbaby6jvmF56g5p1GzM+7vnznNK/PxohPz9sbDFfZPzPzjvTHhUV+kf
-         UwwoIvJWU4h/lOzCcErLkN3YJwkf8PgxNfPIFiLY4xsgVXBRD5TK9+UCwGNMw51bYXO/
-         58HLlgjqGxlEFsEL9UFLebQTP1dhAjmptzUPJbgvVD6yRPo1NE1pGQLrPFCtkqc3WCT/
-         MmMKOfZHwYWDLFHZ5mCOv7PzgDf7idghTLQMYJpJZZGZtjoT9whRHQ1Wr4d7KmIsJzgw
-         nPzw==
-X-Gm-Message-State: AOAM532mGbjdcXNYXoHpcTSouGqULiaiE/cD/lXGHH7LatNumMB8bFDx
-        6ToRdEqPj9yytgVzm4Ya+Nt88aEVBrtEkGc43CNqjwHycftJTDBlpSLMD+6fXHX2XNvoCWDcrtL
-        xPrnGIfHqJ+KHTxin0ukBASwtOjhT9qO0Kutw8dVvwxRWoiDbgv7INNQB/lNa4+Fifex0yw==
-X-Received: by 2002:a05:600c:19ce:: with SMTP id u14mr2576212wmq.12.1629787801545;
-        Mon, 23 Aug 2021 23:50:01 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxzL1/974TaRC4DVC7n3KRvEvlLa6nIPMFoGRrCmDENm2VXp4QK8Bf5jNXbnI/AdFA1V0Enzg==
-X-Received: by 2002:a05:600c:19ce:: with SMTP id u14mr2576181wmq.12.1629787801219;
-        Mon, 23 Aug 2021 23:50:01 -0700 (PDT)
-Received: from [192.168.3.132] (p4ff23c4d.dip0.t-ipconnect.de. [79.242.60.77])
-        by smtp.gmail.com with ESMTPSA id g138sm611737wmg.34.2021.08.23.23.50.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 Aug 2021 23:50:00 -0700 (PDT)
-Subject: Re: can we finally kill off CONFIG_FS_DAX_LIMITED
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        nvdimm@lists.linux.dev, linux-s390@vger.kernel.org
-References: <20210820054340.GA28560@lst.de> <20210823160546.0bf243bf@thinkpad>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Message-ID: <c186f1f4-0217-35b4-ba4a-6c20aece3d8f@redhat.com>
-Date:   Tue, 24 Aug 2021 08:49:59 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S234610AbhHXHRG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 24 Aug 2021 03:17:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60672 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229823AbhHXHRG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 Aug 2021 03:17:06 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB5F5C061575;
+        Tue, 24 Aug 2021 00:16:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=u2jjKxNoYoIqkuUBOVaU0g9hA7j5FEUKEzONmfPEFRs=; b=l0RA5+0lIDtpN8Qsm8qgG9uLOs
+        8eClxBaokH3TyZM/fu8ykw6ZD3oCED17rxUrpLs0TtHot/9XJECBVSsY9dqwrfZEMuNDPQh43FRwB
+        gwr+bd3HMFV1W5C6/t8vtIAK0gchzdE/kqUnfspiLdm9pQGzx1360mkBMMfe+XyJFRijFq2K3ePSr
+        Jff3vPErlsbRwyhgZ70I86mOyH8JMJcY3mI4n/qCuMatfUmzB4kKpKhH3faryhLixp+fcY+HXVAOh
+        PoC9+BbF8dkfZF5wppyEi6qopLgHXvjed9HLCvhzBV9c0zMcG0Q8n3Oaf7OpZqZFQwTLhSiLC+K35
+        CAj2ybqg==;
+Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mIQdm-00AhZQ-Cu; Tue, 24 Aug 2021 07:14:45 +0000
+Date:   Tue, 24 Aug 2021 08:14:34 +0100
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-graphics-maintainer@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        Borislav Petkov <bp@alien8.de>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Sathyanarayanan Kuppuswamy 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: Re: [PATCH v2 03/12] x86/sev: Add an x86 version of prot_guest_has()
+Message-ID: <YSScWvpXeVXw/ed5@infradead.org>
+References: <cover.1628873970.git.thomas.lendacky@amd.com>
+ <7d55bac0cf2e73f53816bce3a3097877ed9663f3.1628873970.git.thomas.lendacky@amd.com>
+ <YR4p9TqKTLdN1A96@infradead.org>
+ <4272eaf5-b654-2669-62ac-ba768acd6b91@amd.com>
 MIME-Version: 1.0
-In-Reply-To: <20210823160546.0bf243bf@thinkpad>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4272eaf5-b654-2669-62ac-ba768acd6b91@amd.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 23.08.21 16:05, Gerald Schaefer wrote:
-> On Fri, 20 Aug 2021 07:43:40 +0200
-> Christoph Hellwig <hch@lst.de> wrote:
+On Thu, Aug 19, 2021 at 01:33:09PM -0500, Tom Lendacky wrote:
+> I did it as inline originally because the presence of the function will be
+> decided based on the ARCH_HAS_PROTECTED_GUEST config. For now, that is
+> only selected by the AMD memory encryption support, so if I went out of
+> line I could put in mem_encrypt.c. But with TDX wanting to also use it, it
+> would have to be in an always built file with some #ifdefs or in its own
+> file that is conditionally built based on the ARCH_HAS_PROTECTED_GUEST
+> setting (they've already tried building with ARCH_HAS_PROTECTED_GUEST=y
+> and AMD_MEM_ENCRYPT not set).
 > 
->> Hi all,
->>
->> looking at the recent ZONE_DEVICE related changes we still have a
->> horrible maze of different code paths.  I already suggested to
->> depend on ARCH_HAS_PTE_SPECIAL for ZONE_DEVICE there, which all modern
->> architectures have anyway.  But the other odd special case is
->> CONFIG_FS_DAX_LIMITED which is just used for the xpram driver.  Does
->> this driver still see use?  If so can we make it behave like the
->> other DAX drivers and require a pgmap?  I think the biggest missing
->> part would be to implement ARCH_HAS_PTE_DEVMAP for s390.
-> 
-> Puh, yes, that seems to be needed in order to enable ZONE_DEVICE, and
-> then we could use devm_memremap_pages(), at least that was my plan
-> some time ago. However, either the ARCH_HAS_PTE_DEVMAP dependency
-> is new, or I overlooked it before, but we do not have any free bits
-> in the pte left, so this is not going to work.
-> 
-> Would it strictly be necessary to implement ZONE_DEVICE, or would
-> it be enough if we would use e.g. add_memory() instead of just
-> adding the DCSS memory directly to the kernel mapping via
-> vmem_add_mapping()? That way we might at least get the struct pages,
-> but somehow it doesn't feel completely right.
-> 
+> To take it out of line, I'm leaning towards the latter, creating a new
+> file that is built based on the ARCH_HAS_PROTECTED_GUEST setting.
 
-add_memory() is for adding system RAM. I don't think that's what you 
-want in the case of DCSS. Supporting ZONE_DEVICE cleanly would be ideal.
+Yes.  In general everytime architectures have to provide the prototype
+and not just the implementation of something we end up with a giant mess
+sooner or later.  In a few cases that is still warranted due to
+performance concerns, but i don't think that is the case here.
 
--- 
-Thanks,
+> 
+> > 
+> >> +/* 0x800 - 0x8ff reserved for AMD */
+> >> +#define PATTR_SME			0x800
+> >> +#define PATTR_SEV			0x801
+> >> +#define PATTR_SEV_ES			0x802
+> > 
+> > Why do we need reservations for a purely in-kernel namespace?
+> > 
+> > And why are you overoading a brand new generic API with weird details
+> > of a specific implementation like this?
+> 
+> There was some talk about this on the mailing list where TDX and SEV may
+> need to be differentiated, so we wanted to reserve a range of values per
+> technology. I guess I can remove them until they are actually needed.
 
-David / dhildenb
+In that case add a flag for the differing behavior.  And only add them
+when actually needed.  And either way there is absolutely no need to
+reserve ranges.
 
