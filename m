@@ -2,138 +2,162 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_2 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51B89C432BE
-	for <linux-s390@archiver.kernel.org>; Tue, 24 Aug 2021 16:18:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C1E8C4338F
+	for <linux-s390@archiver.kernel.org>; Tue, 24 Aug 2021 18:25:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3801361212
-	for <linux-s390@archiver.kernel.org>; Tue, 24 Aug 2021 16:18:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 287AE61265
+	for <linux-s390@archiver.kernel.org>; Tue, 24 Aug 2021 18:25:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231727AbhHXQS5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 24 Aug 2021 12:18:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:56547 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231404AbhHXQS4 (ORCPT
+        id S231518AbhHXSZ6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 24 Aug 2021 14:25:58 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:54686 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231293AbhHXSZ5 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:18:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629821890;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=bJabbqkNupKTThGjFKf2rBjQIQEbUXnIAkBWwJDSMks=;
-        b=dBOV1LY+1AOzqRWzfzMPr0pTRn1M9ZEI25XJF/3l4yUoNwqDbHDYoCpnvczilboRbd5krp
-        gZZAKdP17XQINRaMSmzwiQex1KcU25WQ0NN08lA35esr5tIxy1CH0XjREiegnEi2AZi/yO
-        Hc981gorllOxSJ0g60llNOtFI4q8WL0=
-Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
- [209.85.166.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-563-7T3ubtjhMdmffzdbY3-ahg-1; Tue, 24 Aug 2021 12:18:09 -0400
-X-MC-Unique: 7T3ubtjhMdmffzdbY3-ahg-1
-Received: by mail-il1-f198.google.com with SMTP id x3-20020a92de03000000b0022458d4e768so12145366ilm.2
-        for <linux-s390@vger.kernel.org>; Tue, 24 Aug 2021 09:18:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:organization:mime-version:content-transfer-encoding;
-        bh=bJabbqkNupKTThGjFKf2rBjQIQEbUXnIAkBWwJDSMks=;
-        b=MGE+ikMtr0Kh5Y64tpDBa40ubIIJ0NLfzLFqYcI5+NtHykl1XbDao+1Sv5da4CdPBX
-         /dzQ5HDtr+Zos6hRVpcQ+gbYCXB2LyzWNZa2oILfuKUPl2ct13R2bc6qqsJDSbtrCszE
-         KLW877nLYNVwEVDV7nhETR5yxVcVa0snwON2JtXkePoEtfdaf0uPI3UlW7gpZw3FT8Ms
-         kLjNLY23jmA24950bz7JgjfaGlP2B7WxDfEdJ1WDedXO+hpO0+FgBZLQWobxzEMY6S7j
-         oI1gASTL0d/PAl/fKN1GP8LFkLOL+VS9jet+xTK/b3lQY+QPm667tpY2Um8/+IWEHCbM
-         rSRQ==
-X-Gm-Message-State: AOAM533wc3gFhs1/q/+WoinblM9ARIHVkBkXjQPUOZ1swI1bnDXrkFoM
-        z4kOx8FE3/iqjHyLzuBiELcylD4koxUj1e/lzNocJfKPjf9E1W4SeaDPKXLHRzsOs6c2fIK/EEi
-        xJbNnNBe1105Bj5xGb1wyoA==
-X-Received: by 2002:a5d:8710:: with SMTP id u16mr13582505iom.62.1629821889009;
-        Tue, 24 Aug 2021 09:18:09 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwice9wMKOTJEhk94fUGvO1ox0iAV2gbWgv+fyeX4ypPIlF3s4RP/BFcStnTfghdPYRVxKqrg==
-X-Received: by 2002:a5d:8710:: with SMTP id u16mr13582489iom.62.1629821888821;
-        Tue, 24 Aug 2021 09:18:08 -0700 (PDT)
-Received: from redhat.com ([198.99.80.109])
-        by smtp.gmail.com with ESMTPSA id s16sm10156290iln.5.2021.08.24.09.18.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Aug 2021 09:18:08 -0700 (PDT)
-Date:   Tue, 24 Aug 2021 10:18:05 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     Cai Huoqing <caihuoqing@baidu.com>, farman@linux.ibm.com,
-        cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH v2] vfio-pci/zdev: Remove repeated verbose license text
-Message-ID: <20210824101805.028a0011.alex.williamson@redhat.com>
-In-Reply-To: <d2e299fb-c636-ea1d-a523-c0e842e0d9e6@linux.ibm.com>
-References: <20210824003749.1039-1-caihuoqing@baidu.com>
-        <d2e299fb-c636-ea1d-a523-c0e842e0d9e6@linux.ibm.com>
-Organization: Red Hat
+        Tue, 24 Aug 2021 14:25:57 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17OI2pXD088938;
+        Tue, 24 Aug 2021 14:24:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=CQSjhBqa9IhwtYPuxQFmZCtU1qfdpGE9cPYZK/auCdI=;
+ b=Op4Ba4wSJ61c8cVhurJT+aTzEwLmGlZEfTdplgPQFVgMVijDpHLCABZ01CIrjT64wOGm
+ n63kMjg3FHBx/B9ha0RzOPh042XOzJStY/oCsahnVqoueez3jFONqzCV7ARkkp/Ufdcg
+ D8G+7Kzds3ZlZOtlcJzzaVKRSxLPmRaRy4pOgb/1UyUK9ynvLuHyOl4hWK2RdGg++im+
+ LiyPb+89QeWbznhcgDpfEgJyX/R2JEX6vWZ+H2r6yXX6Bk9VikjBLnk829z+GewqfuuN
+ 2hvdKMY/PwOGWSBMk7h5qqkUP5Tn6+ciYrWhTld8TGFFUAKkzQKQp5gE1D+cjwrj6Wso jA== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3an5nu8mbb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 24 Aug 2021 14:24:57 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17OI8WZN004717;
+        Tue, 24 Aug 2021 18:24:56 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ajs48dnnn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 24 Aug 2021 18:24:55 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17OIOqEu52494822
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 24 Aug 2021 18:24:52 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E5B6AAE06E;
+        Tue, 24 Aug 2021 18:24:51 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 75B62AE057;
+        Tue, 24 Aug 2021 18:24:51 +0000 (GMT)
+Received: from thinkpad (unknown [9.171.26.150])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Tue, 24 Aug 2021 18:24:51 +0000 (GMT)
+Date:   Tue, 24 Aug 2021 20:24:49 +0200
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     Joao Martins <joao.m.martins@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Linux NVDIMM <nvdimm@lists.linux.dev>,
+        linux-s390 <linux-s390@vger.kernel.org>
+Subject: Re: can we finally kill off CONFIG_FS_DAX_LIMITED
+Message-ID: <20210824202449.19d524b5@thinkpad>
+In-Reply-To: <CAPcyv4jYXPWmT2EzroTa7RDz1Z68Qz8Uj4MeheQHPbBXdfS4pA@mail.gmail.com>
+References: <20210820054340.GA28560@lst.de>
+        <20210823160546.0bf243bf@thinkpad>
+        <20210823214708.77979b3f@thinkpad>
+        <CAPcyv4jijqrb1O5OOTd5ftQ2Q-5SVwNRM7XMQ+N3MAFxEfvxpA@mail.gmail.com>
+        <e250feab-1873-c91d-5ea9-39ac6ef26458@oracle.com>
+        <CAPcyv4jYXPWmT2EzroTa7RDz1Z68Qz8Uj4MeheQHPbBXdfS4pA@mail.gmail.com>
 X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: aDSOrzBDX7qNcPzvxKb_e1iSh3ps2dXR
+X-Proofpoint-GUID: aDSOrzBDX7qNcPzvxKb_e1iSh3ps2dXR
 Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-24_05:2021-08-24,2021-08-24 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ priorityscore=1501 lowpriorityscore=0 malwarescore=0 clxscore=1015
+ mlxscore=0 mlxlogscore=999 spamscore=0 suspectscore=0 phishscore=0
+ impostorscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2107140000 definitions=main-2108240119
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 24 Aug 2021 11:52:11 -0400
-Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+On Tue, 24 Aug 2021 07:53:22 -0700
+Dan Williams <dan.j.williams@intel.com> wrote:
 
-> On 8/23/21 8:37 PM, Cai Huoqing wrote:
-> > remove it because SPDX-License-Identifier is already used
-> > and change "GPL-2.0+" to "GPL-2.0-only"  
+> On Tue, Aug 24, 2021 at 7:10 AM Joao Martins <joao.m.martins@oracle.com> wrote:
+> >
+> >
+> >
+> > On 8/23/21 9:21 PM, Dan Williams wrote:
+> > > On Mon, Aug 23, 2021 at 12:47 PM Gerald Schaefer
+> > > <gerald.schaefer@linux.ibm.com> wrote:
+> > >>
+> > >> On Mon, 23 Aug 2021 16:05:46 +0200
+> > >> Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
+> > >>
+> > >>> On Fri, 20 Aug 2021 07:43:40 +0200
+> > >>> Christoph Hellwig <hch@lst.de> wrote:
+> > >>>
+> > >>>> Hi all,
+> > >>>>
+> > >>>> looking at the recent ZONE_DEVICE related changes we still have a
+> > >>>> horrible maze of different code paths.  I already suggested to
+> > >>>> depend on ARCH_HAS_PTE_SPECIAL for ZONE_DEVICE there, which all modern
+> > >>
+> > >> Oh, we do have PTE_SPECIAL, actually that took away the last free bit
+> > >> in the pte. So, if there is a chance that ZONE_DEVICE would depend
+> > >> on PTE_SPECIAL instead of PTE_DEVMAP, we might be back in the game
+> > >> and get rid of that CONFIG_FS_DAX_LIMITED.
+> > >
+> > > So PTE_DEVMAP is primarily there to coordinate the
+> > > get_user_pages_fast() path, and even there it's usage can be
+> > > eliminated in favor of PTE_SPECIAL. I started that effort [1], but
+> > > need to rebase on new notify_failure infrastructure coming from Ruan
+> > > [2]. So I think you are not in the critical path until I can get the
+> > > PTE_DEVMAP requirement out of your way.
+> > >
+> >
+> > Isn't the implicit case that PTE_SPECIAL means that you
+> > aren't supposed to get a struct page back? The gup path bails out on
+> > pte_special() case. And in the fact in this thread that you quote:
+> >
+> > > [1]: https://lore.kernel.org/r/161604050866.1463742.7759521510383551055.stgit@dwillia2-desk3.amr.corp.intel.com
+> >
+> > (...) we were speaking about[1.1] using that same special bit to block
+> > longterm gup for fs-dax (while allowing it device-dax which does support it).
+> >
+> > [1.1] https://lore.kernel.org/nvdimm/a8c41028-c7f5-9b93-4721-b8ddcf2427da@oracle.com/
+> >
+> > Or maybe that's what you mean for this particular case of FS_DAX_LIMITED. Most _special*()
+> > cases in mm match _devmap*() as far I've experimented in the past with PMD/PUD and dax
+> > (prior to [1.1]).
+> >
+> > I am just wondering would you differentiate the case where you have metadata for the
+> > !FS_DAX_LIMITED case in {gup,gup_fast} path in light of removing PTE_DEVMAP. I would have
+> > thought of checking that a pgmap exists for the pfn (without grabbing a ref to it).
 > 
-> Could maybe extend the commit message a little to add something along 
-> the lines of ' to match the more restrictive license that was specified 
-> by the verbose text being removed.', so as to explain why the identifier 
-> is being changed here.
-> 
-> With that,
-> 
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> So I should clarify, I'm not proposing removing PTE_DEVMAP, I'm
+> proposing relaxing its need for architectures that can not afford the
+> PTE bit. Those architectures would miss out on get_user_pages_fast()
+> for devmap pages. Then, once PTE_SPECIAL kicks get_user_pages() to the
+> slow path, get_dev_pagemap() is used to detect devmap pages.
 
-Agreed, I'd propose changing it to:
-
-  The SPDX and verbose license text are redundant, however in this case
-  the verbose license indicates a GPL v2 only while SPDX specifies v2+.
-  Remove the verbose license and correct SPDX to the more restricted
-  version.
-
-I can update on commit unless Cai wishes to respin with different
-wording.  Thanks,
-
-Alex
-
-> > Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
-> > ---
-> > v1->v2: change "GPL-2.0+" to "GPL-2.0-only"
-> > 
-> >   drivers/vfio/pci/vfio_pci_zdev.c | 7 +------
-> >   1 file changed, 1 insertion(+), 6 deletions(-)
-> > 
-> > diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-> > index 7b011b62c766..104fcf6658db 100644
-> > --- a/drivers/vfio/pci/vfio_pci_zdev.c
-> > +++ b/drivers/vfio/pci/vfio_pci_zdev.c
-> > @@ -1,15 +1,10 @@
-> > -// SPDX-License-Identifier: GPL-2.0+
-> > +// SPDX-License-Identifier: GPL-2.0-only
-> >   /*
-> >    * VFIO ZPCI devices support
-> >    *
-> >    * Copyright (C) IBM Corp. 2020.  All rights reserved.
-> >    *	Author(s): Pierre Morel <pmorel@linux.ibm.com>
-> >    *                 Matthew Rosato <mjrosato@linux.ibm.com>
-> > - *
-> > - * This program is free software; you can redistribute it and/or modify
-> > - * it under the terms of the GNU General Public License version 2 as
-> > - * published by the Free Software Foundation.
-> > - *
-> >    */
-> >   #include <linux/io.h>
-> >   #include <linux/pci.h>
-> >   
-> 
-
+Thanks, I was also a bit confused, but I think I got it now. Does that mean
+that you also plan to relax the pte_devmap(pte) check in follow_page_pte(),
+before calling get_dev_pagemap() in the slow path? So that it could also be
+called for pte_special(), maybe with additional vma_is_dax() check. And then
+rely on get_dev_pagemap() finding the pages for those "very special" PTEs that
+actually would have struct pages (at least for s390 DCSS with DAX)?
