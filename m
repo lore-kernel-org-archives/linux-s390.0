@@ -2,124 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CD61C4338F
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 06:45:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC6C5C4338F
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 08:32:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4FCE9610E5
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 06:45:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A7F9C61058
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 08:32:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238956AbhHYGqT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 Aug 2021 02:46:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46016 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239085AbhHYGqR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Aug 2021 02:46:17 -0400
-Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EDE5C061757;
-        Tue, 24 Aug 2021 23:45:31 -0700 (PDT)
-Received: by mail-qk1-x72b.google.com with SMTP id 22so26004613qkg.2;
-        Tue, 24 Aug 2021 23:45:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=gPVMfJmF5apelHRJsHy850+Wr5DdBmlIDaqFUXSeNXo=;
-        b=RYfjZT+pPeLG/c6H+4FuVfXOD8rE5zIrlBwgxKiY3KLG8/O/bhxpPtsa38f6/Xm5cX
-         hH9gpHpJWJgXpOHpNDFkttMfb7Wma3tsgEhe1ZY7JT12btulwFOtMhY2f29ampKsLDVx
-         FZ3lOcqh5LXmx0qpdS4eZSsruFoNw2JQO4sktAeaVK8hxd9uMNrrpT+KCqojI0GHDRO8
-         L92No8jMYeGNeH2z9h0FyTrctB+HKd5wpCJexxOp/pcc4jek6cMd9bDglsIEpffr5iXo
-         zp+kxV62H4hbgBeapIdYjlJFEBLbzreiNJR4xx/AaqJYLsolKMDaDAIhi2sgfL1FBVLe
-         MIAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=gPVMfJmF5apelHRJsHy850+Wr5DdBmlIDaqFUXSeNXo=;
-        b=j/RpFnurqp1VmQnSurX8+VCYD1FrlLcLkMO3yM8867J9PHc3kXpwJ++h8BLQED+OG7
-         enbfCPi0aTKiNqVZdSIXrUe++JPQpmVQuTnB9AmA82uKyRkSUIlvN73wXbQHru6RJMzI
-         RvGg+wK+XKY5JoK9xgEDT21x1sewBijvCDo0kcrQbg52TQCAiWtFreF8VzTz4AEbaeZ3
-         VhKmOBkPqCz4Ob1jfV4JlLkI566ekmKXaPibnz9e0DY+ri5M8lpiv64N+bMSptcXMcWx
-         0tprvvWkWP3z5foefgBtFzdpMYmGEfTUJj+/3AnsLQc1ijy8MEAQmyxF4Iu3Ht6SJIC5
-         89rg==
-X-Gm-Message-State: AOAM532xRSnC8csbELk/nqTz3MlSM8YqbeQ3x+ZgxZr7WRjkL1HjruEb
-        I9BpJmW9z4RAkDmYrIcoT5U=
-X-Google-Smtp-Source: ABdhPJx6r2y0Qz2o9dTE8QuwbDQ9c8mqvBudP4+JQ74RMeYZSmD0MwH8+K/5/Ztr6ZY9w3mRDrS0OA==
-X-Received: by 2002:a05:620a:95e:: with SMTP id w30mr28881016qkw.157.1629873930774;
-        Tue, 24 Aug 2021 23:45:30 -0700 (PDT)
-Received: from localhost.localdomain ([193.203.214.57])
-        by smtp.gmail.com with ESMTPSA id w185sm12663265qkd.30.2021.08.24.23.45.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Aug 2021 23:45:30 -0700 (PDT)
-From:   CGEL <cgel.zte@gmail.com>
-X-Google-Original-From: CGEL <deng.changcheng@zte.com.cn>
-To:     Heiko Carstens <hca@linux.ibm.com>
+        id S231765AbhHYIcx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 Aug 2021 04:32:53 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47702 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231697AbhHYIcw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 25 Aug 2021 04:32:52 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17P83KOB031074;
+        Wed, 25 Aug 2021 04:32:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=n9SHBptqzWZ2B6k5FIRVom2V/ZJEr2Jom/F7F5i63pA=;
+ b=KbvTTas8AhiorHuwWBEYl4/SCCxm4HR259SxeCpOXcUmH74O7LKEXMgG7r+KJcN7HWiR
+ PFyClVU7FdHIjMOgTob7cA0MS0Ae8civ/5USE38rJ5MPmeEPvQE9auQJQ7jYswpNbQ77
+ +f6Qif/EzClBeGh9he2AtmEiZaSRftRn3ke//QNst5Svx0da3SiFZHGZZ9oyew9Isf//
+ yz3TY5WceFpnJ0HFz6P40Kxtb40ZydQkKp10yyLjZFQj4uaSECbex68spANjzh4IxYhu
+ CQx5M5afw8i+ve7OsrAOxCxGV+k6OTInAwBZnHs7vBgI6ftmF84wIxg3NYQDYllmG7e+ +g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3anhydgvmk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 Aug 2021 04:32:06 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17P84LmI037127;
+        Wed, 25 Aug 2021 04:32:06 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3anhydgvkw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 Aug 2021 04:32:06 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17P8HRcv015024;
+        Wed, 25 Aug 2021 08:32:04 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3ajrrheqhs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 Aug 2021 08:32:04 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17P8VvJ514614974
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 25 Aug 2021 08:31:57 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 41C224C059;
+        Wed, 25 Aug 2021 08:31:57 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E35FC4C040;
+        Wed, 25 Aug 2021 08:31:56 +0000 (GMT)
+Received: from osiris (unknown [9.145.63.47])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed, 25 Aug 2021 08:31:56 +0000 (GMT)
+Date:   Wed, 25 Aug 2021 10:31:55 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     CGEL <cgel.zte@gmail.com>
 Cc:     Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         Vineeth Vijayan <vneethv@linux.ibm.com>,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         jing yangyang <jing.yangyang@zte.com.cn>,
         Zeal Robot <zealci@zte.com.cn>
-Subject: [PATCH linux-next] s390:raw3270: Convert sysfs sprintf/snprintf family to sysfs_emit
-Date:   Tue, 24 Aug 2021 23:45:23 -0700
-Message-Id: <20210825064523.70563-1-deng.changcheng@zte.com.cn>
-X-Mailer: git-send-email 2.25.1
+Subject: Re: [PATCH linux-next] s390:raw3270: Convert sysfs sprintf/snprintf
+ family to sysfs_emit
+Message-ID: <YSX/+4zj+fFQxtDa@osiris>
+References: <20210825064523.70563-1-deng.changcheng@zte.com.cn>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210825064523.70563-1-deng.changcheng@zte.com.cn>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 7H_vkXazW-dx9DOCRH3lUxMKZ-hN5Xbi
+X-Proofpoint-GUID: -f2I0Wgove-Dh6SsBsmQishT1kutBbet
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-25_02:2021-08-25,2021-08-25 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ spamscore=0 mlxscore=0 suspectscore=0 bulkscore=0 mlxlogscore=800
+ priorityscore=1501 lowpriorityscore=0 adultscore=0 impostorscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108250048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: jing yangyang <jing.yangyang@zte.com.cn>
+On Tue, Aug 24, 2021 at 11:45:23PM -0700, CGEL wrote:
+> From: jing yangyang <jing.yangyang@zte.com.cn>
+> 
+> Fix the following coccicheck warning:
+> ./drivers/s390/char/raw3270.c:1066:8-16: WARNING: use scnprintf or sprintf
+> ./drivers/s390/char/raw3270.c:1050:8-16: WARNING:use scnprintf or sprintf
+> ./drivers/s390/char/raw3270.c:1058:8-16: WARNING:use scnprintf or sprintf
+> 
+> Reported-by: Zeal Robot <zealci@zte.com.cn>
+> Signed-off-by: jing yangyang <jing.yangyang@zte.com.cn>
+> ---
+>  drivers/s390/char/raw3270.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 
-Fix the following coccicheck warning:
-./drivers/s390/char/raw3270.c:1066:8-16: WARNING: use scnprintf or sprintf
-./drivers/s390/char/raw3270.c:1050:8-16: WARNING:use scnprintf or sprintf
-./drivers/s390/char/raw3270.c:1058:8-16: WARNING:use scnprintf or sprintf
-
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: jing yangyang <jing.yangyang@zte.com.cn>
----
- drivers/s390/char/raw3270.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-index 646ec79..be8529f 100644
---- a/drivers/s390/char/raw3270.c
-+++ b/drivers/s390/char/raw3270.c
-@@ -1047,7 +1047,7 @@ struct raw3270_view *
- static ssize_t
- raw3270_model_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
--	return snprintf(buf, PAGE_SIZE, "%i\n",
-+	return sysfs_emit(buf, "%i\n",
- 			((struct raw3270 *) dev_get_drvdata(dev))->model);
- }
- static DEVICE_ATTR(model, 0444, raw3270_model_show, NULL);
-@@ -1055,7 +1055,7 @@ struct raw3270_view *
- static ssize_t
- raw3270_rows_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
--	return snprintf(buf, PAGE_SIZE, "%i\n",
-+	return sysfs_emit(buf, "%i\n",
- 			((struct raw3270 *) dev_get_drvdata(dev))->rows);
- }
- static DEVICE_ATTR(rows, 0444, raw3270_rows_show, NULL);
-@@ -1063,7 +1063,7 @@ struct raw3270_view *
- static ssize_t
- raw3270_columns_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
--	return snprintf(buf, PAGE_SIZE, "%i\n",
-+	return sysfs_emit(buf, "%i\n",
- 			((struct raw3270 *) dev_get_drvdata(dev))->cols);
- }
- static DEVICE_ATTR(columns, 0444, raw3270_columns_show, NULL);
--- 
-1.8.3.1
-
-
+Ignoring comments and resending the same unmodified patch is not helpful.
