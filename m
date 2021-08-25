@@ -2,96 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72747C4338F
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 04:38:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CD61C4338F
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 06:45:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 56728611C8
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 04:38:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4FCE9610E5
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 06:45:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230268AbhHYEjS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 Aug 2021 00:39:18 -0400
-Received: from conssluserg-05.nifty.com ([210.131.2.90]:54859 "EHLO
-        conssluserg-05.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229500AbhHYEjS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Aug 2021 00:39:18 -0400
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178]) (authenticated)
-        by conssluserg-05.nifty.com with ESMTP id 17P4cBxK014941;
-        Wed, 25 Aug 2021 13:38:12 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-05.nifty.com 17P4cBxK014941
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1629866292;
-        bh=185z9fBx84g4EeM7cWLgAxqs/o1lYgR8mgEZJhnnvEs=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=gBblxi6seNJfBudaLxQzOZmqz/OTwWLQL3IcPRbA8nDVPg9xEtjgc/Ehac30HM4FC
-         uLRTiQqrid58d0/ravMCKKMk991rH8FFZt6b73qx4wvTnidG8aTZEAtj68h75esyjs
-         fkm+GWqenrP0Tx+saqUu7L/lCNhtrbqTCPC6/76OKZ1NXIMfld2gpQ4db9C3c/EMFn
-         zHNBG7uBeZhQzDawqMNFG3l3bJ3a+LId0QdJEHl+ikeSqWAWLxEjeoo3I+e1Tina0h
-         UojoOxJrYNiUcmNpGm2HLl5u6F7uQQrC0p+623NJGBR9XpRHrm5AIEnGKA+Rb97kwW
-         rw78OrNJOQWnw==
-X-Nifty-SrcIP: [209.85.210.178]
-Received: by mail-pf1-f178.google.com with SMTP id 18so20211782pfh.9;
-        Tue, 24 Aug 2021 21:38:12 -0700 (PDT)
-X-Gm-Message-State: AOAM5302D7gtLQBSEPGYIhKG9rWPXw78VuMSt/UjFC+DQ7SsOldrPhZY
-        1HloRHaZhAbvrtXGF+pmJ4ypEG7QEibMJxILG3Y=
-X-Google-Smtp-Source: ABdhPJwcdJFuOrLNf7RmHq3OLHTTbvtGb+4Xh8aGyjWezKKziH+PtPzo7jkceRnU/VmUdPjuerTZAX28CQHZvIaKn48=
-X-Received: by 2002:aa7:98da:0:b029:3e0:8b98:df83 with SMTP id
- e26-20020aa798da0000b02903e08b98df83mr42751636pfm.63.1629866291328; Tue, 24
- Aug 2021 21:38:11 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210817002109.2736222-1-ndesaulniers@google.com>
- <20210817002109.2736222-3-ndesaulniers@google.com> <YSPePKNwZ/znykqf@osiris>
-In-Reply-To: <YSPePKNwZ/znykqf@osiris>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Wed, 25 Aug 2021 13:37:34 +0900
-X-Gmail-Original-Message-ID: <CAK7LNASupkuA=vY3NOUWW_mX1Mnp+NFeGAUxuFC=k-ADMFd35Q@mail.gmail.com>
-Message-ID: <CAK7LNASupkuA=vY3NOUWW_mX1Mnp+NFeGAUxuFC=k-ADMFd35Q@mail.gmail.com>
-Subject: Re: [PATCH 2/7] s390: replace cc-option-yn uses with cc-option
+        id S238956AbhHYGqT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 Aug 2021 02:46:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46016 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239085AbhHYGqR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Aug 2021 02:46:17 -0400
+Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EDE5C061757;
+        Tue, 24 Aug 2021 23:45:31 -0700 (PDT)
+Received: by mail-qk1-x72b.google.com with SMTP id 22so26004613qkg.2;
+        Tue, 24 Aug 2021 23:45:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=gPVMfJmF5apelHRJsHy850+Wr5DdBmlIDaqFUXSeNXo=;
+        b=RYfjZT+pPeLG/c6H+4FuVfXOD8rE5zIrlBwgxKiY3KLG8/O/bhxpPtsa38f6/Xm5cX
+         hH9gpHpJWJgXpOHpNDFkttMfb7Wma3tsgEhe1ZY7JT12btulwFOtMhY2f29ampKsLDVx
+         FZ3lOcqh5LXmx0qpdS4eZSsruFoNw2JQO4sktAeaVK8hxd9uMNrrpT+KCqojI0GHDRO8
+         L92No8jMYeGNeH2z9h0FyTrctB+HKd5wpCJexxOp/pcc4jek6cMd9bDglsIEpffr5iXo
+         zp+kxV62H4hbgBeapIdYjlJFEBLbzreiNJR4xx/AaqJYLsolKMDaDAIhi2sgfL1FBVLe
+         MIAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=gPVMfJmF5apelHRJsHy850+Wr5DdBmlIDaqFUXSeNXo=;
+        b=j/RpFnurqp1VmQnSurX8+VCYD1FrlLcLkMO3yM8867J9PHc3kXpwJ++h8BLQED+OG7
+         enbfCPi0aTKiNqVZdSIXrUe++JPQpmVQuTnB9AmA82uKyRkSUIlvN73wXbQHru6RJMzI
+         RvGg+wK+XKY5JoK9xgEDT21x1sewBijvCDo0kcrQbg52TQCAiWtFreF8VzTz4AEbaeZ3
+         VhKmOBkPqCz4Ob1jfV4JlLkI566ekmKXaPibnz9e0DY+ri5M8lpiv64N+bMSptcXMcWx
+         0tprvvWkWP3z5foefgBtFzdpMYmGEfTUJj+/3AnsLQc1ijy8MEAQmyxF4Iu3Ht6SJIC5
+         89rg==
+X-Gm-Message-State: AOAM532xRSnC8csbELk/nqTz3MlSM8YqbeQ3x+ZgxZr7WRjkL1HjruEb
+        I9BpJmW9z4RAkDmYrIcoT5U=
+X-Google-Smtp-Source: ABdhPJx6r2y0Qz2o9dTE8QuwbDQ9c8mqvBudP4+JQ74RMeYZSmD0MwH8+K/5/Ztr6ZY9w3mRDrS0OA==
+X-Received: by 2002:a05:620a:95e:: with SMTP id w30mr28881016qkw.157.1629873930774;
+        Tue, 24 Aug 2021 23:45:30 -0700 (PDT)
+Received: from localhost.localdomain ([193.203.214.57])
+        by smtp.gmail.com with ESMTPSA id w185sm12663265qkd.30.2021.08.24.23.45.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Aug 2021 23:45:30 -0700 (PDT)
+From:   CGEL <cgel.zte@gmail.com>
+X-Google-Original-From: CGEL <deng.changcheng@zte.com.cn>
 To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        jing yangyang <jing.yangyang@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>
+Subject: [PATCH linux-next] s390:raw3270: Convert sysfs sprintf/snprintf family to sysfs_emit
+Date:   Tue, 24 Aug 2021 23:45:23 -0700
+Message-Id: <20210825064523.70563-1-deng.changcheng@zte.com.cn>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Aug 24, 2021 at 2:43 AM Heiko Carstens <hca@linux.ibm.com> wrote:
->
-> On Mon, Aug 16, 2021 at 05:21:04PM -0700, Nick Desaulniers wrote:
-> > cc-option-yn can be replaced with cc-option. ie.
-> > Checking for support:
-> > ifeq ($(call cc-option-yn,$(FLAG)),y)
-> > becomes:
-> > ifneq ($(call cc-option,$(FLAG)),)
-> >
-> > Checking for lack of support:
-> > ifeq ($(call cc-option-yn,$(FLAG)),n)
-> > becomes:
-> > ifeq ($(call cc-option,$(FLAG)),)
-> >
-> > This allows us to pursue removing cc-option-yn.
-> >
-> > Cc: Heiko Carstens <hca@linux.ibm.com>
-> > Cc: Vasily Gorbik <gor@linux.ibm.com>
-> > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> > Cc: linux-s390@vger.kernel.org
-> > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> > ---
-> >  arch/s390/Makefile | 14 +++++++-------
-> >  1 file changed, 7 insertions(+), 7 deletions(-)
->
-> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+From: jing yangyang <jing.yangyang@zte.com.cn>
 
-Applied to linux-kbuild.
+Fix the following coccicheck warning:
+./drivers/s390/char/raw3270.c:1066:8-16: WARNING: use scnprintf or sprintf
+./drivers/s390/char/raw3270.c:1050:8-16: WARNING:use scnprintf or sprintf
+./drivers/s390/char/raw3270.c:1058:8-16: WARNING:use scnprintf or sprintf
 
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: jing yangyang <jing.yangyang@zte.com.cn>
+---
+ drivers/s390/char/raw3270.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
+index 646ec79..be8529f 100644
+--- a/drivers/s390/char/raw3270.c
++++ b/drivers/s390/char/raw3270.c
+@@ -1047,7 +1047,7 @@ struct raw3270_view *
+ static ssize_t
+ raw3270_model_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+-	return snprintf(buf, PAGE_SIZE, "%i\n",
++	return sysfs_emit(buf, "%i\n",
+ 			((struct raw3270 *) dev_get_drvdata(dev))->model);
+ }
+ static DEVICE_ATTR(model, 0444, raw3270_model_show, NULL);
+@@ -1055,7 +1055,7 @@ struct raw3270_view *
+ static ssize_t
+ raw3270_rows_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+-	return snprintf(buf, PAGE_SIZE, "%i\n",
++	return sysfs_emit(buf, "%i\n",
+ 			((struct raw3270 *) dev_get_drvdata(dev))->rows);
+ }
+ static DEVICE_ATTR(rows, 0444, raw3270_rows_show, NULL);
+@@ -1063,7 +1063,7 @@ struct raw3270_view *
+ static ssize_t
+ raw3270_columns_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+-	return snprintf(buf, PAGE_SIZE, "%i\n",
++	return sysfs_emit(buf, "%i\n",
+ 			((struct raw3270 *) dev_get_drvdata(dev))->cols);
+ }
+ static DEVICE_ATTR(columns, 0444, raw3270_columns_show, NULL);
 -- 
-Best Regards
-Masahiro Yamada
+1.8.3.1
+
+
