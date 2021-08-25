@@ -2,83 +2,80 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
-	version=3.4.0
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD652C432BE
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 20:13:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86921C43214
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 21:25:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B2A52610C8
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 20:13:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 660C8610CA
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 21:25:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238571AbhHYUOc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 Aug 2021 16:14:32 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:36650 "EHLO
+        id S232810AbhHYV0S (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 Aug 2021 17:26:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43208 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237031AbhHYUOb (ORCPT
+        by vger.kernel.org with ESMTP id S233073AbhHYV0P (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 25 Aug 2021 16:14:31 -0400
+        Wed, 25 Aug 2021 17:26:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629922425;
+        s=mimecast20190719; t=1629926728;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=TD0gcJwpeALt28x1quGfed89sGXPxECqUw4n7hpehPA=;
-        b=J78AbwRutjCVItXKFKkK05G8oAP4Miqvv0Rap9A30uZc4iqs88ZJ9S54WsDr/3oexeAhit
-        H2PkrmjLmGwZW8jUVrdh3cn664I5ucfzzLGA1YsFqtqlVxpUg4nL4NYzJ67McxIV0B4F3+
-        3KmbpkBOWNFNpaVRizkSi4r7mRJHmAg=
-Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
- [209.85.167.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-375-0lZQnbGWP6WMTIgaDxajNw-1; Wed, 25 Aug 2021 16:13:44 -0400
-X-MC-Unique: 0lZQnbGWP6WMTIgaDxajNw-1
-Received: by mail-oi1-f199.google.com with SMTP id bj30-20020a056808199e00b0026889aaacbfso513991oib.2
-        for <linux-s390@vger.kernel.org>; Wed, 25 Aug 2021 13:13:43 -0700 (PDT)
+        bh=a8WjHoFBXc0jwAZ/Pzv1m1K7J4OWtNmWsJJuNT1URQ8=;
+        b=U3LUOgGwsbOFZQ1PNqBh0/0Nza3r9tFgbqKLgmzl7e6xnUoR+jmIZSOKyT6YXdxdTZqR6p
+        IzsgROSabeyytiVUrL8XTH/Qj8NeU0zHiUJ+QCnhi953PdhViHrlghuUGeofeK6clZgbJx
+        fDV+bDD3KE/11hgi0zi9KoTshxR1bcY=
+Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com
+ [209.85.161.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-264-lJW9zQ6JPR6AAiQBcjSN3w-1; Wed, 25 Aug 2021 17:25:27 -0400
+X-MC-Unique: lJW9zQ6JPR6AAiQBcjSN3w-1
+Received: by mail-oo1-f71.google.com with SMTP id w9-20020a4aca09000000b0028b7adc5bd2so312610ooq.11
+        for <linux-s390@vger.kernel.org>; Wed, 25 Aug 2021 14:25:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
          :references:organization:mime-version:content-transfer-encoding;
-        bh=TD0gcJwpeALt28x1quGfed89sGXPxECqUw4n7hpehPA=;
-        b=n/rrw+vLQTLZ1vV7J1Of7iFmMHWMxYzTKlKZVi33Hu/lBqDrnuqz7Tl8qhTHLRPNm5
-         6yqn0M7OZN81PISt0ZOsworVsSSRlZEPCr6P47kFON1gnh468VXeG+ityQxB4YlvoVwA
-         anaFg2O5zFze412KvHWkZMp01RILD7Ou6l8IhCCcfDAto3zFtFFiEut6/uauff2LDEVT
-         sOXtvRGwtHHF9NjB/LjAT3fUh6yEkiU3KwRYztoOLkT7bk/ZnVkLV2rGjJ8OB/Tl0pP/
-         k9+vWMpGz17hJD4Nal0JH1MFvoj3ee21QqQj3osHERkmpfZ1LZ2dGUO9uJjQMasQZyqP
-         wmlg==
-X-Gm-Message-State: AOAM5328qHSsUhlH8IW15xEO5vQooQrzmLwaHa/qEPnTn9vFjxKw2lqH
-        FunVRz4RXzVNsOsMSB12fH2p9MP3WqKdqUvi3Ag1+SccMkdrcAF4rwJW4alvRvl/+1Nxe3zkWKe
-        A8YF33VBXegtxE9Fd+/qn4w==
-X-Received: by 2002:a05:6830:4489:: with SMTP id r9mr205355otv.348.1629922423083;
-        Wed, 25 Aug 2021 13:13:43 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxwqoOjKZuCf/8sHhqNXmLr/JN92bDlHaUcKEZdFSwX6Lf6E5CUbp9XjevrBlCf+VV+AIVf8w==
-X-Received: by 2002:a05:6830:4489:: with SMTP id r9mr205334otv.348.1629922422859;
-        Wed, 25 Aug 2021 13:13:42 -0700 (PDT)
+        bh=a8WjHoFBXc0jwAZ/Pzv1m1K7J4OWtNmWsJJuNT1URQ8=;
+        b=amw0/UMD7TbPjI5K2bQDMgm7KxXeQmt3MatRcsJe6CliUDLHTbxKMr3nP97fhskfza
+         g/qdtlc8QLHquSWUuZET5iTJn5i0JDCwz7AmiTvpl+JvifFDerTUjTVwo6JLePsKw4dE
+         CIoblcy5srASCfvki/XTBce0mZ1ioS4Dmd6sTbtZ6x82DMqpxb/QDMKXdEizj0vwFJbJ
+         XlGsj+zNAoHBZYETn3CULZ+tLc0NawZW5McQt+y31PUIuqnnnmZwEvBwTNBXpFK2bJlZ
+         WD63zzGtT0P2aJHTIEfSJj2BEO8FBknfOaRhyDCsOiFWE3uyX7cWel5LoTbMwiJUIzxc
+         beNQ==
+X-Gm-Message-State: AOAM531IfIeG4Iuhu1D5D4xP2ow0JeJyo7g7NXR97DmaOSMmOFmHiMbB
+        Xu8JF4xhuNy3oDbk9NGr68pr/UHKozNlKCzirL/8NkzEftQq6j6LvMnOQuFSFe+uj4c7wvpIPQT
+        ROGbmpUbylTp/5M0ck3nxBA==
+X-Received: by 2002:aca:59c6:: with SMTP id n189mr8927969oib.44.1629926726456;
+        Wed, 25 Aug 2021 14:25:26 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx2TQ0tVP/G/91e1rsMJxtfNj9JdiJU9bbsFApswvKRzxaqgLUrbQuFPpCCzIEKetVt2wAhqA==
+X-Received: by 2002:aca:59c6:: with SMTP id n189mr8927948oib.44.1629926726248;
+        Wed, 25 Aug 2021 14:25:26 -0700 (PDT)
 Received: from redhat.com ([198.99.80.109])
-        by smtp.gmail.com with ESMTPSA id f33sm168912otf.0.2021.08.25.13.13.41
+        by smtp.gmail.com with ESMTPSA id y7sm178910oov.36.2021.08.25.14.25.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Aug 2021 13:13:42 -0700 (PDT)
-Date:   Wed, 25 Aug 2021 14:13:41 -0600
+        Wed, 25 Aug 2021 14:25:25 -0700 (PDT)
+Date:   Wed, 25 Aug 2021 15:25:24 -0600
 From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, kvm@vger.kernel.org
-Subject: Re: [PATCH v4] vfio/ap_ops: Convert to use
- vfio_register_group_dev()
-Message-ID: <20210825141341.59b0efb4.alex.williamson@redhat.com>
-In-Reply-To: <20210825004226.GC1721383@nvidia.com>
-References: <0-v4-0203a4ab0596+f7-vfio_ap_jgg@nvidia.com>
-        <20210824143001.37d01a77.alex.williamson@redhat.com>
-        <20210825004226.GC1721383@nvidia.com>
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Yishai Hadas <yishaih@nvidia.com>, bhelgaas@google.com,
+        corbet@lwn.net, diana.craciun@oss.nxp.com, kwankhede@nvidia.com,
+        eric.auger@redhat.com, masahiroy@kernel.org,
+        michal.lkml@markovi.net, linux-pci@vger.kernel.org,
+        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kbuild@vger.kernel.org,
+        mgurtovoy@nvidia.com, jgg@nvidia.com, maorg@nvidia.com,
+        leonro@nvidia.com
+Subject: Re: [PATCH V4 09/13] PCI: Add 'override_only' field to struct
+ pci_device_id
+Message-ID: <20210825152524.45437035.alex.williamson@redhat.com>
+In-Reply-To: <20210825155446.GA3575423@bjorn-Precision-5520>
+References: <20210825135139.79034-10-yishaih@nvidia.com>
+        <20210825155446.GA3575423@bjorn-Precision-5520>
 Organization: Red Hat
 X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
@@ -88,405 +85,36 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 24 Aug 2021 21:42:26 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
+On Wed, 25 Aug 2021 10:54:46 -0500
+Bjorn Helgaas <helgaas@kernel.org> wrote:
 
-> On Tue, Aug 24, 2021 at 02:30:01PM -0600, Alex Williamson wrote:
-> > On Mon, 23 Aug 2021 11:42:04 -0300
-> > Jason Gunthorpe <jgg@nvidia.com> wrote:
-> >   
-> > > This is straightforward conversion, the ap_matrix_mdev is actually serving
-> > > as the vfio_device and we can replace all the mdev_get_drvdata()'s with a
-> > > simple container_of() or a dev_get_drvdata() for sysfs paths.
-> > > 
-> > > Cc: Alex Williamson <alex.williamson@redhat.com>
-> > > Cc: Cornelia Huck <cohuck@redhat.com>
-> > > Cc: kvm@vger.kernel.org
-> > > Cc: Christoph Hellwig <hch@lst.de>
-> > > Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> > > Reviewed-by: Christoph Hellwig <hch@lst.de>
-> > > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> > >  drivers/s390/crypto/vfio_ap_ops.c     | 155 +++++++++++++++-----------
-> > >  drivers/s390/crypto/vfio_ap_private.h |   2 +
-> > >  2 files changed, 91 insertions(+), 66 deletions(-)  
+> On Wed, Aug 25, 2021 at 04:51:35PM +0300, Yishai Hadas wrote:
+> > From: Max Gurtovoy <mgurtovoy@nvidia.com>
 > > 
-> > Jason & Tony,
+> > Add 'override_only' field to struct pci_device_id to be used as part of
+> > pci_match_device().
 > > 
-> > Would one of you please rebase on the other's series?  The merge
-> > conflict between this and 20210823212047.1476436-1-akrowiak@linux.ibm.com
-> > is more than I'd like to bury into a merge commit and I can't test beyond
-> > a cross compile.  Thanks,  
+> > When set, it means that matching is true only when dev->driver_override
+> > is this driver.  
 > 
-> Tony, as you have the Hw to test it is probably best if you do it, all
-> I can do is the same as Alex.
+> Maybe:
+> 
+>   When set, a driver only matches the entry when dev->driver_override
+>   is set to that driver.
 
-Maybe we can do it this way, it seems easier to port Jason's single
-patch on top of Tony's series than vice versa.  The below is my attempt
-at that.  If Jason and Tony can give this a thumbs up, I'll run with it.
+I've made this change locally, thanks Bjorn.
 
-Thanks,
 Alex
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index c46937de5758..2347808fa3e4 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -24,8 +24,9 @@
- #define VFIO_AP_MDEV_TYPE_HWVIRT "passthrough"
- #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
- 
--static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
-+static int vfio_ap_mdev_reset_queues(struct ap_matrix_mdev *matrix_mdev);
- static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
-+static const struct vfio_device_ops vfio_ap_matrix_dev_ops;
- 
- static int match_apqn(struct device *dev, const void *data)
- {
-@@ -326,43 +327,57 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
- 	matrix->adm_max = info->apxa ? info->Nd : 15;
- }
- 
--static int vfio_ap_mdev_create(struct mdev_device *mdev)
-+static int vfio_ap_mdev_probe(struct mdev_device *mdev)
- {
- 	struct ap_matrix_mdev *matrix_mdev;
-+	int ret;
- 
- 	if ((atomic_dec_if_positive(&matrix_dev->available_instances) < 0))
- 		return -EPERM;
- 
- 	matrix_mdev = kzalloc(sizeof(*matrix_mdev), GFP_KERNEL);
- 	if (!matrix_mdev) {
--		atomic_inc(&matrix_dev->available_instances);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto err_dec_available;
- 	}
-+	vfio_init_group_dev(&matrix_mdev->vdev, &mdev->dev,
-+			    &vfio_ap_matrix_dev_ops);
- 
- 	matrix_mdev->mdev = mdev;
- 	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
--	mdev_set_drvdata(mdev, matrix_mdev);
- 	matrix_mdev->pqap_hook = handle_pqap;
- 	mutex_lock(&matrix_dev->lock);
- 	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
- 	mutex_unlock(&matrix_dev->lock);
- 
-+	ret = vfio_register_group_dev(&matrix_mdev->vdev);
-+	if (ret)
-+		goto err_list;
-+	dev_set_drvdata(&mdev->dev, matrix_mdev);
- 	return 0;
-+
-+err_list:
-+	mutex_lock(&matrix_dev->lock);
-+	list_del(&matrix_mdev->node);
-+	mutex_unlock(&matrix_dev->lock);
-+	kfree(matrix_mdev);
-+err_dec_available:
-+	atomic_inc(&matrix_dev->available_instances);
-+	return ret;
- }
- 
--static int vfio_ap_mdev_remove(struct mdev_device *mdev)
-+static void vfio_ap_mdev_remove(struct mdev_device *mdev)
- {
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(&mdev->dev);
-+
-+	vfio_unregister_group_dev(&matrix_mdev->vdev);
- 
- 	mutex_lock(&matrix_dev->lock);
--	vfio_ap_mdev_reset_queues(mdev);
-+	vfio_ap_mdev_reset_queues(matrix_mdev);
- 	list_del(&matrix_mdev->node);
- 	kfree(matrix_mdev);
--	mdev_set_drvdata(mdev, NULL);
- 	atomic_inc(&matrix_dev->available_instances);
- 	mutex_unlock(&matrix_dev->lock);
--
--	return 0;
- }
- 
- static ssize_t name_show(struct mdev_type *mtype,
-@@ -604,8 +619,7 @@ static ssize_t assign_adapter_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apid;
--	struct mdev_device *mdev = mdev_from_dev(dev);
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
- 
- 	mutex_lock(&matrix_dev->lock);
- 
-@@ -674,8 +688,7 @@ static ssize_t unassign_adapter_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apid;
--	struct mdev_device *mdev = mdev_from_dev(dev);
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
- 
- 	mutex_lock(&matrix_dev->lock);
- 
-@@ -760,8 +773,7 @@ static ssize_t assign_domain_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apqi;
--	struct mdev_device *mdev = mdev_from_dev(dev);
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
- 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
- 
- 	mutex_lock(&matrix_dev->lock);
-@@ -826,8 +838,7 @@ static ssize_t unassign_domain_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apqi;
--	struct mdev_device *mdev = mdev_from_dev(dev);
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
- 
- 	mutex_lock(&matrix_dev->lock);
- 
-@@ -877,8 +888,7 @@ static ssize_t assign_control_domain_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long id;
--	struct mdev_device *mdev = mdev_from_dev(dev);
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
- 
- 	mutex_lock(&matrix_dev->lock);
- 
-@@ -932,8 +942,7 @@ static ssize_t unassign_control_domain_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long domid;
--	struct mdev_device *mdev = mdev_from_dev(dev);
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
- 	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
- 
- 	mutex_lock(&matrix_dev->lock);
-@@ -968,8 +977,7 @@ static ssize_t control_domains_show(struct device *dev,
- 	int nchars = 0;
- 	int n;
- 	char *bufpos = buf;
--	struct mdev_device *mdev = mdev_from_dev(dev);
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
- 	unsigned long max_domid = matrix_mdev->matrix.adm_max;
- 
- 	mutex_lock(&matrix_dev->lock);
-@@ -987,8 +995,7 @@ static DEVICE_ATTR_RO(control_domains);
- static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
- 			   char *buf)
- {
--	struct mdev_device *mdev = mdev_from_dev(dev);
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
- 	char *bufpos = buf;
- 	unsigned long apid;
- 	unsigned long apqi;
-@@ -1165,7 +1172,7 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev,
- 		mutex_lock(&matrix_dev->lock);
- 
- 		kvm_arch_crypto_clear_masks(kvm);
--		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
-+		vfio_ap_mdev_reset_queues(matrix_mdev);
- 		kvm_put_kvm(kvm);
- 		matrix_mdev->kvm = NULL;
- 
-@@ -1259,13 +1266,12 @@ int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q,
- 	return ret;
- }
- 
--static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
-+static int vfio_ap_mdev_reset_queues(struct ap_matrix_mdev *matrix_mdev)
- {
- 	int ret;
- 	int rc = 0;
- 	unsigned long apid, apqi;
- 	struct vfio_ap_queue *q;
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
- 	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
- 			     matrix_mdev->matrix.apm_max + 1) {
-@@ -1286,49 +1292,45 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
- 	return rc;
- }
- 
--static int vfio_ap_mdev_open_device(struct mdev_device *mdev)
-+static int vfio_ap_mdev_open_device(struct vfio_device *vdev)
- {
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_mdev *matrix_mdev =
-+		container_of(vdev, struct ap_matrix_mdev, vdev);
- 	unsigned long events;
- 	int ret;
- 
--
--	if (!try_module_get(THIS_MODULE))
--		return -ENODEV;
--
- 	matrix_mdev->group_notifier.notifier_call = vfio_ap_mdev_group_notifier;
- 	events = VFIO_GROUP_NOTIFY_SET_KVM;
- 
--	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
-+	ret = vfio_register_notifier(vdev->dev, VFIO_GROUP_NOTIFY,
- 				     &events, &matrix_mdev->group_notifier);
--	if (ret) {
--		module_put(THIS_MODULE);
-+	if (ret)
- 		return ret;
--	}
- 
- 	matrix_mdev->iommu_notifier.notifier_call = vfio_ap_mdev_iommu_notifier;
- 	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
--	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-+	ret = vfio_register_notifier(vdev->dev, VFIO_IOMMU_NOTIFY,
- 				     &events, &matrix_mdev->iommu_notifier);
--	if (!ret)
--		return ret;
-+	if (ret)
-+		goto out_unregister_group;
-+	return 0;
- 
--	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
-+out_unregister_group:
-+	vfio_unregister_notifier(vdev->dev, VFIO_GROUP_NOTIFY,
- 				 &matrix_mdev->group_notifier);
--	module_put(THIS_MODULE);
- 	return ret;
- }
- 
--static void vfio_ap_mdev_close_device(struct mdev_device *mdev)
-+static void vfio_ap_mdev_close_device(struct vfio_device *vdev)
- {
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct ap_matrix_mdev *matrix_mdev =
-+		container_of(vdev, struct ap_matrix_mdev, vdev);
- 
--	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-+	vfio_unregister_notifier(vdev->dev, VFIO_IOMMU_NOTIFY,
- 				 &matrix_mdev->iommu_notifier);
--	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
-+	vfio_unregister_notifier(vdev->dev, VFIO_GROUP_NOTIFY,
- 				 &matrix_mdev->group_notifier);
- 	vfio_ap_mdev_unset_kvm(matrix_mdev, matrix_mdev->kvm);
--	module_put(THIS_MODULE);
- }
- 
- static int vfio_ap_mdev_get_device_info(unsigned long arg)
-@@ -1351,11 +1353,12 @@ static int vfio_ap_mdev_get_device_info(unsigned long arg)
- 	return copy_to_user((void __user *)arg, &info, minsz) ? -EFAULT : 0;
- }
- 
--static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
-+static ssize_t vfio_ap_mdev_ioctl(struct vfio_device *vdev,
- 				    unsigned int cmd, unsigned long arg)
- {
-+	struct ap_matrix_mdev *matrix_mdev =
-+		container_of(vdev, struct ap_matrix_mdev, vdev);
- 	int ret;
--	struct ap_matrix_mdev *matrix_mdev;
- 
- 	mutex_lock(&matrix_dev->lock);
- 	switch (cmd) {
-@@ -1363,13 +1366,7 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
- 		ret = vfio_ap_mdev_get_device_info(arg);
- 		break;
- 	case VFIO_DEVICE_RESET:
--		matrix_mdev = mdev_get_drvdata(mdev);
--		if (WARN(!matrix_mdev, "Driver data missing from mdev!!")) {
--			ret = -EINVAL;
--			break;
--		}
--
--		ret = vfio_ap_mdev_reset_queues(mdev);
-+		ret = vfio_ap_mdev_reset_queues(matrix_mdev);
- 		break;
- 	default:
- 		ret = -EOPNOTSUPP;
-@@ -1380,25 +1377,51 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
- 	return ret;
- }
- 
-+static const struct vfio_device_ops vfio_ap_matrix_dev_ops = {
-+	.open_device = vfio_ap_mdev_open_device,
-+	.close_device = vfio_ap_mdev_close_device,
-+	.ioctl = vfio_ap_mdev_ioctl,
-+};
-+
-+static struct mdev_driver vfio_ap_matrix_driver = {
-+	.driver = {
-+		.name = "vfio_ap_mdev",
-+		.owner = THIS_MODULE,
-+		.mod_name = KBUILD_MODNAME,
-+		.dev_groups = vfio_ap_mdev_attr_groups,
-+	},
-+	.probe = vfio_ap_mdev_probe,
-+	.remove = vfio_ap_mdev_remove,
-+};
-+
- static const struct mdev_parent_ops vfio_ap_matrix_ops = {
- 	.owner			= THIS_MODULE,
-+	.device_driver		= &vfio_ap_matrix_driver,
- 	.supported_type_groups	= vfio_ap_mdev_type_groups,
--	.mdev_attr_groups	= vfio_ap_mdev_attr_groups,
--	.create			= vfio_ap_mdev_create,
--	.remove			= vfio_ap_mdev_remove,
--	.open_device		= vfio_ap_mdev_open_device,
--	.close_device		= vfio_ap_mdev_close_device,
--	.ioctl			= vfio_ap_mdev_ioctl,
- };
- 
- int vfio_ap_mdev_register(void)
- {
-+	int ret;
-+
- 	atomic_set(&matrix_dev->available_instances, MAX_ZDEV_ENTRIES_EXT);
- 
--	return mdev_register_device(&matrix_dev->device, &vfio_ap_matrix_ops);
-+	ret = mdev_register_driver(&vfio_ap_matrix_driver);
-+	if (ret)
-+		return ret;
-+
-+	ret = mdev_register_device(&matrix_dev->device, &vfio_ap_matrix_ops);
-+	if (ret)
-+		goto err_driver;
-+	return 0;
-+
-+err_driver:
-+	mdev_unregister_driver(&vfio_ap_matrix_driver);
-+	return ret;
- }
- 
- void vfio_ap_mdev_unregister(void)
- {
- 	mdev_unregister_device(&matrix_dev->device);
-+	mdev_unregister_driver(&vfio_ap_matrix_driver);
- }
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 22d2e0ca3ae5..77760e2b546f 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -18,6 +18,7 @@
- #include <linux/delay.h>
- #include <linux/mutex.h>
- #include <linux/kvm_host.h>
-+#include <linux/vfio.h>
- 
- #include "ap_bus.h"
- 
-@@ -79,6 +80,7 @@ struct ap_matrix {
-  * @kvm:	the struct holding guest's state
-  */
- struct ap_matrix_mdev {
-+	struct vfio_device vdev;
- 	struct list_head node;
- 	struct ap_matrix matrix;
- 	struct notifier_block group_notifier;
+> 
+> > In addition, add a helper macro named 'PCI_DEVICE_DRIVER_OVERRIDE' to
+> > enable setting some data on it.
+> > 
+> > Next patch from this series will use the above functionality.
+> > 
+> > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> > Signed-off-by: Yishai Hadas <yishaih@nvidia.com>  
+> 
+> Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 
