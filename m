@@ -2,566 +2,379 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-24.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D659EC00143
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 10:40:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D1E3C432BE
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 12:36:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BDD2C6108F
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 10:40:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 826646109E
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 12:36:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241593AbhHZKlZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 26 Aug 2021 06:41:25 -0400
-Received: from mail-mw2nam12on2060.outbound.protection.outlook.com ([40.107.244.60]:2017
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S241575AbhHZKlY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 26 Aug 2021 06:41:24 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=VkM71lFbBiV71ab03YMKcoAKYKsLfFbCAE9yqRRYA1gz33uRKC+YnsDZu11mAFM57QzZNsm6WbpxxRqkQ9K5GEJmky1fEzf3amHNX5mw9p6cRw3YEwzirnzC7flB4HQeWMR9QQKMzBUMcjh1MQaneyWHHAXxTKB+kDZZwjR2XavZYvTko+Z1DPDDhxxXH6M1VmSAoZ0rWM73ACPVdV//OeS2guQz9QHpnp4+x9Ory/YXNSdgrCBAHXmfCGROg0zkN6suzGfvFq0b5HNI/ZHPFBDiUZkdK5HuILWrMkHEPOupIiiLHu5PwvcEywNL3slWPBZoRIX+QpABSm0gx21lrA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=q8i5scciZ0UEsi2qbZtPCIyoMtQu/FovGsa6oOrOJjs=;
- b=AhIoc/VxqOxvk8nwDMigvWxHwrqK4vC7AYwpl7/a8nrU9JujMMApSReO5lL/hNO8G7wajX55g9juQyzlDIT/tDj5btKx6pQBfjQXLw23K3Qw+JRJnZvHRsH2tEWSqjWW/d4dN5O6RLUoMMqjPAP++8JIjhgfSCz9srVA56zgfOKYM7CNnya5USeyZo0xFHWNY0MT1PXv4O5/xw247NiUlKjDuyKzDFqks++FjvaHUHIRietXEnmdpLek2Td/6eM05f9NCBgfgssbejhUosl1CidlHhKVZTQeVaegmOFwam/QSbeEHdO7Tyu+RGukMocjRa3ZlvG4cPCr/2hkUG4djA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.35) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=q8i5scciZ0UEsi2qbZtPCIyoMtQu/FovGsa6oOrOJjs=;
- b=XcWP1lxC8Ry0xe68hBwXwKEF+lIa+DsSLVUd7RRZgqnYApRAi8gmQKEEiEOrIWe4SkEYD1B32wyVIWT8bTmsDm6IfuHIfAjstIlWvGeVlZKhTMiCuovxAnA7otTsDmgid/3oco9u++ZRC6EF2YhZhN7r7IExi9sZ3D5DHep8pJ5FVYXMPhtsMVJOXv+RCtzgqCTUCc9Qi/21t6Yt1lKOWaOdOkXrO1H49I2vRlySCX+Bc1zgd56M7Lx+7hzPotlqaG/TJe9g47xxgrSBfrIY2ss8NgZf6PShqxIR8WZ+Hoev04EWz87u5M0FJkr4EC07FIBFii9ylMT3gIBinTz8xA==
-Received: from MWHPR03CA0012.namprd03.prod.outlook.com (2603:10b6:300:117::22)
- by DM6PR12MB3722.namprd12.prod.outlook.com (2603:10b6:5:1c3::24) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4436.22; Thu, 26 Aug
- 2021 10:40:35 +0000
-Received: from CO1NAM11FT028.eop-nam11.prod.protection.outlook.com
- (2603:10b6:300:117:cafe::61) by MWHPR03CA0012.outlook.office365.com
- (2603:10b6:300:117::22) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4457.20 via Frontend
- Transport; Thu, 26 Aug 2021 10:40:35 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.35)
- smtp.mailfrom=nvidia.com; vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.35 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.35; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.35) by
- CO1NAM11FT028.mail.protection.outlook.com (10.13.175.214) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4457.17 via Frontend Transport; Thu, 26 Aug 2021 10:40:35 +0000
-Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 26 Aug
- 2021 10:40:34 +0000
-Received: from vdi.nvidia.com (172.20.187.6) by mail.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 26 Aug 2021 10:40:30 +0000
-From:   Yishai Hadas <yishaih@nvidia.com>
-To:     <bhelgaas@google.com>, <corbet@lwn.net>,
-        <alex.williamson@redhat.com>, <diana.craciun@oss.nxp.com>,
-        <kwankhede@nvidia.com>, <eric.auger@redhat.com>,
-        <masahiroy@kernel.org>, <michal.lkml@markovi.net>
-CC:     <linux-pci@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-        <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <linux-kbuild@vger.kernel.org>, <mgurtovoy@nvidia.com>,
-        <jgg@nvidia.com>, <yishaih@nvidia.com>, <maorg@nvidia.com>,
-        <leonro@nvidia.com>, "Christoph Hellwig" <hch@lst.de>
-Subject: [PATCH V5 13/13] vfio/pci: Introduce vfio_pci_core.ko
-Date:   Thu, 26 Aug 2021 13:39:12 +0300
-Message-ID: <20210826103912.128972-14-yishaih@nvidia.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20210826103912.128972-1-yishaih@nvidia.com>
-References: <20210826103912.128972-1-yishaih@nvidia.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 12cd0008-efe1-4771-e836-08d9687deff1
-X-MS-TrafficTypeDiagnostic: DM6PR12MB3722:
-X-Microsoft-Antispam-PRVS: <DM6PR12MB3722189C240A64B4BCC294E7C3C79@DM6PR12MB3722.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:3276;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: AGEx9aadaQtgr/XDvkuV7Gf4hp6XSVcapVN90s8WbUQXlPsO9KHUMU4eNjf4X+tAUYYFDqJwwwt7hfZB9JBj1mxOjFbf4ZibInvBH/hFKjj80G0Dcvsvitm4ObS0fRHUh4WGtW9Y7UBQeNguA3lSWKpkKo+qsmUJXo4pii3/h4Cd3L5gzSbwYkXSCHrQ8UDOMRQmFcasOlz2rZfp5W3U3pSXf97cAXmB1ia9ZodDRAidVn7Dc8P0T5mhLQsxei/KcWUTEurJap3IFzpQ3aFswMfVukp2fi3tsN64TKEyUBjiz8Sq3U7drwHa0OGUcq+2Aw90bduXTdlswkBSAgM7uzOAGo+rTGuWWaGaLIrx7rSVQzdW5Mt91B8dCQe43g235JjRO9xRrEVRtgt/Ak9GTK6kkk7rbpoyuoFLkZW9MjmOJc2QvL+uenNh8Iv1TxwkrTAPc53sg0aZGC6aBxY6OK73wgPUtt+faSXP9x65rrVk5nfan8ZiTFJbr0P98d3lSoneqdIW5rxSIcyvdibikmmc5L09gkrDUbEkYWMCQx/HpojbXKytGs3eEapY5uJ0u9sLrsfK5ep0XAr6cpckJdWcngw3lSgNbVHx28t7N2Snzi8AYa+RHFVHyFptPrTZvCDgL98vOf/+QUlEO1YUKOqOYr1pjGB54Vq7W3lap5MTtxh1Vo6mxZzQiLqF/WlnOo38D6vASxTvnVtYbIlCf52nkjM3MVDtcEvCJcgtMQo=
-X-Forefront-Antispam-Report: CIP:216.228.112.35;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid04.nvidia.com;CAT:NONE;SFS:(4636009)(376002)(346002)(136003)(39860400002)(396003)(46966006)(36840700001)(54906003)(316002)(82310400003)(2616005)(70206006)(110136005)(36906005)(70586007)(7416002)(7696005)(86362001)(7636003)(5660300002)(30864003)(8936002)(356005)(36860700001)(8676002)(82740400003)(26005)(478600001)(336012)(83380400001)(6666004)(47076005)(186003)(36756003)(2906002)(1076003)(4326008)(426003)(2101003);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Aug 2021 10:40:35.3126
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 12cd0008-efe1-4771-e836-08d9687deff1
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.35];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT028.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3722
+        id S241888AbhHZMho (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 26 Aug 2021 08:37:44 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7454 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241878AbhHZMhn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 26 Aug 2021 08:37:43 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17QCXI0x162215;
+        Thu, 26 Aug 2021 08:36:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=ujUmPrruaZ9z+WNsaGZbPQEnhEfXbSITcXDL6b+XNgI=;
+ b=Ig1CLBiiYQpJj65nUtw1TOMcnFIfiw787w+UU01aLjja8RHKtqI3a5VE5X7i6hYWZq71
+ ZuyJ+unZCMwLpMifrm571fCRq14kzMVTFteroo8MvFIdwwhYd3SshMlxKp6SeZQKCaO0
+ zV02fBXzOGzELI1iKdLhXIhdx5b4iR8oOmvKY7d8dxTqeCJC/krZEF2OIcRvdn4mRdiv
+ 5AzPMk437jCrJaF+xyyZEqtONMAp8QZ1uqdPU9/rRZX9T+SaaUcC3NJ5Aj4DnaRQ/jwa
+ TLOsfDawfpslzMiXte/JaoKSyy9juT4Vq2KaiD58KY+KhzNabKqTLmx8xxG7k2dYtAKj Nw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3apabchcxm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 26 Aug 2021 08:36:33 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17QCXbRw163122;
+        Thu, 26 Aug 2021 08:36:33 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3apabchcvs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 26 Aug 2021 08:36:33 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17QCWnSQ004857;
+        Thu, 26 Aug 2021 12:36:31 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ajs48hd0b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 26 Aug 2021 12:36:30 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17QCaSMK54329644
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 26 Aug 2021 12:36:28 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5D6D152052;
+        Thu, 26 Aug 2021 12:36:28 +0000 (GMT)
+Received: from sig-9-145-41-53.uk.ibm.com (unknown [9.145.41.53])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id EA1DE52054;
+        Thu, 26 Aug 2021 12:36:27 +0000 (GMT)
+Message-ID: <87d15d5eead35c9eaa667958d057cf4a81a8bf13.camel@linux.ibm.com>
+Subject: Re: [PATCH v3] PCI: Move pci_dev_is/assign_added() to pci.h
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Date:   Thu, 26 Aug 2021 14:36:27 +0200
+In-Reply-To: <20210825190444.GA3593752@bjorn-Precision-5520>
+References: <20210825190444.GA3593752@bjorn-Precision-5520>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: xl4UtiseWzXXSIZAvLjOt7vbm6dFF_Ui
+X-Proofpoint-GUID: J3eT8UvJPBvZRDUgGthuNmjzyEOXPS-X
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-26_03:2021-08-26,2021-08-26 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
+ lowpriorityscore=0 malwarescore=0 adultscore=0 impostorscore=0
+ suspectscore=0 mlxscore=0 mlxlogscore=999 priorityscore=1501 phishscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108260077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
+On Wed, 2021-08-25 at 14:04 -0500, Bjorn Helgaas wrote:
+> On Mon, Aug 23, 2021 at 12:53:39PM +0200, Niklas Schnelle wrote:
+> > On Fri, 2021-08-20 at 17:37 -0500, Bjorn Helgaas wrote:
+> > > On Tue, Jul 20, 2021 at 05:01:45PM +0200, Niklas Schnelle wrote:
+> > > > The helper function pci_dev_is_added() from drivers/pci/pci.h is used in
+> > > > PCI arch code of both s390 and powerpc leading to awkward relative
+> > > > includes. Move it to the global include/linux/pci.h and get rid of these
+> > > > includes just for that one function.
+> > > 
+> > > I agree the includes are awkward.
+> > > 
+> > > But the arch code *using* pci_dev_is_added() seems awkward, too.
+> > 
+> > See below for my interpretation why s390 has some driver like
+> > functionality in its arch code which isn't necessarily awkward.
+> > 
+> > Independent from that I have found pci_dev_is_added() as the only way
+> > deal with the case that one might be looking at a struct pci_dev
+> > reference that has been removed via pci_stop_and_remove_bus_device() or
+> > has never been fully scanned. This is quite useful when handling error
+> > events which on s390 are part of the adapter event mechanism shared
+> > with channel I/O devices.
+> > 
+> > > AFAICS, in powerpc, pci_dev_is_added() is only used by
+> > > pnv_pci_ioda_fixup_iov() and pseries_pci_fixup_iov_resources().  Those
+> > > are only called from pcibios_add_device(), which is only called from
+> > > pci_device_add().
+> > > 
+> > > Is it even possible for pci_dev_is_added() to be true in that path?
+> 
+> If the pci_dev_is_added() in powerpc is unreachable, we can remove it
+> and at least reduce this to an s390-only problem.
 
-Now that vfio_pci has been split into two source modules, one focusing on
-the "struct pci_driver" (vfio_pci.c) and a toolbox library of code
-(vfio_pci_core.c), complete the split and move them into two different
-kernel modules.
+Ok. I might be missing something but I agree it does look these are
+called from within pcibios_add_device() only so pci_dev_is_added() can
+never be true. This looks pretty clear as pci_dev_assign_added() is
+called after pcibios_add_device() in pci_bus_add_device().
 
-As before vfio_pci.ko continues to present the same interface under sysfs
-and this change will have no functional impact.
+> 
+> > > s390 uses pci_dev_is_added() in recover_store()
+> > 
+> > I'm actually looking into this as I'm working on an s390 implementation
+> > of the PCI recovery flow described in Documentation/PCI/pci-error-
+> > recovery.rst that would also call pci_dev_is_added() because when we
+> > get a platform notification of a PCI reset done by firmware it may be
+> > that the struct pci_dev is going away i.e. we still have a ref count
+> > but it is not added to the PCI bus anymore. And pci_dev_is_added() is
+> > the only way I've found to check for this state.
+> > 
+> > > , but I don't know what
+> > > that is (looks like a sysfs file, but it's not documented) or why s390
+> > > is the only arch that does this.
+> > 
+> > Good point about this not being documented, I'll look into adding docs.
+> > 
+> > This is a sysfs attribute that basically removes the pci_dev and re-
+> > adds it. This has the complication that since the attribute sits at
+> > /sys/bus/pci/devices/<dev>/recover it deletes its own parent directory
+> > which requires extra caution and means concurrent accesses block on
+> > pci_lock_rescan_remove() instead of a kernfs lock.
+> > Long story short when concurrently triggering the attribute one thread
+> > proceeds into the pci_lock_rescan_remove() section and does the
+> > removal, while others would block on pci_lock_rescan_remove(). Now when
+> > the threads unblock the removal is done. In this case there is a new
+> > struct pci_dev found in the rescan but the previously blocked threads
+> > still have references to the old struct pci_dev which was removed and
+> > as far as I could tell can only be distinguished by checking
+> > pci_dev_is_added().
+> 
+> Is this locking issue different from concurrently writing to
+> /sys/.../remove on other architectures?
 
-Splitting into another module and adding exports allows creating new HW
-specific VFIO PCI drivers that can implement device specific
-functionality, such as VFIO migration interfaces or specialized device
-requirements.
+In principle it is very similar except that we re-scan and thus the
+removed pdev may co-exist with a new pdev for the same actual device if
+there are other references to the pdev.
 
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
----
- MAINTAINERS                                   |  1 +
- drivers/vfio/pci/Kconfig                      | 33 +++++++++-------
- drivers/vfio/pci/Makefile                     |  8 ++--
- drivers/vfio/pci/vfio_pci.c                   | 14 ++-----
- drivers/vfio/pci/vfio_pci_config.c            |  2 +-
- drivers/vfio/pci/vfio_pci_core.c              | 39 ++++++++++++++++---
- drivers/vfio/pci/vfio_pci_igd.c               |  2 +-
- drivers/vfio/pci/vfio_pci_intrs.c             |  2 +-
- drivers/vfio/pci/vfio_pci_rdwr.c              |  2 +-
- drivers/vfio/pci/vfio_pci_zdev.c              |  2 +-
- .../pci => include/linux}/vfio_pci_core.h     |  2 -
- 11 files changed, 65 insertions(+), 42 deletions(-)
- rename {drivers/vfio/pci => include/linux}/vfio_pci_core.h (99%)
+There is however also a significant difference in locking that fixes a
+possible deadlock that I just confirmed also affects /sys/../remove
+where it is hidden by a lockdep ignore, see lockdep splash below. 
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index c9467d2839f5..7f0fcaa8ee67 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -19466,6 +19466,7 @@ T:	git git://github.com/awilliam/linux-vfio.git
- F:	Documentation/driver-api/vfio.rst
- F:	drivers/vfio/
- F:	include/linux/vfio.h
-+F:	include/linux/vfio_pci_core.h
- F:	include/uapi/linux/vfio.h
- 
- VFIO FSL-MC DRIVER
-diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
-index afdab7d71e98..860424ccda1b 100644
---- a/drivers/vfio/pci/Kconfig
-+++ b/drivers/vfio/pci/Kconfig
-@@ -1,19 +1,28 @@
- # SPDX-License-Identifier: GPL-2.0-only
--config VFIO_PCI
--	tristate "VFIO support for PCI devices"
--	depends on PCI
--	depends on MMU
-+if PCI && MMU
-+config VFIO_PCI_CORE
-+	tristate
- 	select VFIO_VIRQFD
- 	select IRQ_BYPASS_MANAGER
-+
-+config VFIO_PCI_MMAP
-+	def_bool y if !S390
-+
-+config VFIO_PCI_INTX
-+	def_bool y if !S390
-+
-+config VFIO_PCI
-+	tristate "Generic VFIO support for any PCI device"
-+	select VFIO_PCI_CORE
- 	help
--	  Support for the PCI VFIO bus driver.  This is required to make
--	  use of PCI drivers using the VFIO framework.
-+	  Support for the generic PCI VFIO bus driver which can connect any
-+	  PCI device to the VFIO framework.
- 
- 	  If you don't know what to do here, say N.
- 
- if VFIO_PCI
- config VFIO_PCI_VGA
--	bool "VFIO PCI support for VGA devices"
-+	bool "Generic VFIO PCI support for VGA devices"
- 	depends on X86 && VGA_ARB
- 	help
- 	  Support for VGA extension to VFIO PCI.  This exposes an additional
-@@ -22,14 +31,8 @@ config VFIO_PCI_VGA
- 
- 	  If you don't know what to do here, say N.
- 
--config VFIO_PCI_MMAP
--	def_bool y if !S390
--
--config VFIO_PCI_INTX
--	def_bool y if !S390
--
- config VFIO_PCI_IGD
--	bool "VFIO PCI extensions for Intel graphics (GVT-d)"
-+	bool "Generic VFIO PCI extensions for Intel graphics (GVT-d)"
- 	depends on X86
- 	default y
- 	help
-@@ -39,5 +42,5 @@ config VFIO_PCI_IGD
- 	  and LPC bridge config space.
- 
- 	  To enable Intel IGD assignment through vfio-pci, say Y.
--
-+endif
- endif
-diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
-index 8aa517b4b671..349d68d242b4 100644
---- a/drivers/vfio/pci/Makefile
-+++ b/drivers/vfio/pci/Makefile
-@@ -1,7 +1,9 @@
- # SPDX-License-Identifier: GPL-2.0-only
- 
--vfio-pci-y := vfio_pci.o vfio_pci_core.o vfio_pci_intrs.o vfio_pci_rdwr.o vfio_pci_config.o
--vfio-pci-$(CONFIG_VFIO_PCI_IGD) += vfio_pci_igd.o
--vfio-pci-$(CONFIG_S390) += vfio_pci_zdev.o
-+vfio-pci-core-y := vfio_pci_core.o vfio_pci_intrs.o vfio_pci_rdwr.o vfio_pci_config.o
-+vfio-pci-core-$(CONFIG_S390) += vfio_pci_zdev.o
-+obj-$(CONFIG_VFIO_PCI_CORE) += vfio-pci-core.o
- 
-+vfio-pci-y := vfio_pci.o
-+vfio-pci-$(CONFIG_VFIO_PCI_IGD) += vfio_pci_igd.o
- obj-$(CONFIG_VFIO_PCI) += vfio-pci.o
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 85fd638a5955..a5ce92beb655 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -25,7 +25,7 @@
- #include <linux/types.h>
- #include <linux/uaccess.h>
- 
--#include "vfio_pci_core.h"
-+#include <linux/vfio_pci_core.h>
- 
- #define DRIVER_AUTHOR   "Alex Williamson <alex.williamson@redhat.com>"
- #define DRIVER_DESC     "VFIO PCI - User Level meta-driver"
-@@ -153,6 +153,7 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	ret = vfio_pci_core_register_device(vdev);
- 	if (ret)
- 		goto out_free;
-+	dev_set_drvdata(&pdev->dev, vdev);
- 	return 0;
- 
- out_free:
-@@ -246,14 +247,10 @@ static int __init vfio_pci_init(void)
- 
- 	vfio_pci_core_set_params(nointxmask, is_disable_vga, disable_idle_d3);
- 
--	ret = vfio_pci_core_init();
--	if (ret)
--		return ret;
--
- 	/* Register and scan for devices */
- 	ret = pci_register_driver(&vfio_pci_driver);
- 	if (ret)
--		goto out;
-+		return ret;
- 
- 	vfio_pci_fill_ids();
- 
-@@ -261,17 +258,12 @@ static int __init vfio_pci_init(void)
- 		pr_warn("device denylist disabled.\n");
- 
- 	return 0;
--
--out:
--	vfio_pci_core_cleanup();
--	return ret;
- }
- module_init(vfio_pci_init);
- 
- static void __exit vfio_pci_cleanup(void)
- {
- 	pci_unregister_driver(&vfio_pci_driver);
--	vfio_pci_core_cleanup();
- }
- module_exit(vfio_pci_cleanup);
- 
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index 1f034f768a27..6e58b4bf7a60 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -26,7 +26,7 @@
- #include <linux/vfio.h>
- #include <linux/slab.h>
- 
--#include "vfio_pci_core.h"
-+#include <linux/vfio_pci_core.h>
- 
- /* Fake capability ID for standard config space */
- #define PCI_CAP_ID_BASIC	0
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index 65eafaafb2e0..675616e08897 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -8,6 +8,8 @@
-  * Author: Tom Lyon, pugs@cisco.com
-  */
- 
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
- #include <linux/device.h>
- #include <linux/eventfd.h>
- #include <linux/file.h>
-@@ -25,7 +27,10 @@
- #include <linux/nospec.h>
- #include <linux/sched/mm.h>
- 
--#include "vfio_pci_core.h"
-+#include <linux/vfio_pci_core.h>
-+
-+#define DRIVER_AUTHOR   "Alex Williamson <alex.williamson@redhat.com>"
-+#define DRIVER_DESC "core driver for VFIO based PCI devices"
- 
- static bool nointxmask;
- static bool disable_vga;
-@@ -306,6 +311,7 @@ int vfio_pci_core_enable(struct vfio_pci_core_device *vdev)
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_enable);
- 
- void vfio_pci_core_disable(struct vfio_pci_core_device *vdev)
- {
-@@ -403,6 +409,7 @@ void vfio_pci_core_disable(struct vfio_pci_core_device *vdev)
- 	if (!vfio_pci_dev_set_try_reset(vdev->vdev.dev_set) && !disable_idle_d3)
- 		vfio_pci_set_power_state(vdev, PCI_D3hot);
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_disable);
- 
- static struct vfio_pci_core_device *get_pf_vdev(struct vfio_pci_core_device *vdev)
- {
-@@ -459,6 +466,7 @@ void vfio_pci_core_close_device(struct vfio_device *core_vdev)
- 	}
- 	mutex_unlock(&vdev->igate);
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_close_device);
- 
- void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev)
- {
-@@ -466,6 +474,7 @@ void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev)
- 	vfio_spapr_pci_eeh_open(vdev->pdev);
- 	vfio_pci_vf_token_user_add(vdev, 1);
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_finish_enable);
- 
- static int vfio_pci_get_irq_count(struct vfio_pci_core_device *vdev, int irq_type)
- {
-@@ -624,6 +633,7 @@ int vfio_pci_register_dev_region(struct vfio_pci_core_device *vdev,
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_register_dev_region);
- 
- long vfio_pci_core_ioctl(struct vfio_device *core_vdev, unsigned int cmd,
- 		unsigned long arg)
-@@ -1168,6 +1178,7 @@ long vfio_pci_core_ioctl(struct vfio_device *core_vdev, unsigned int cmd,
- 
- 	return -ENOTTY;
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_ioctl);
- 
- static ssize_t vfio_pci_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			   size_t count, loff_t *ppos, bool iswrite)
-@@ -1211,6 +1222,7 @@ ssize_t vfio_pci_core_read(struct vfio_device *core_vdev, char __user *buf,
- 
- 	return vfio_pci_rw(vdev, buf, count, ppos, false);
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_read);
- 
- ssize_t vfio_pci_core_write(struct vfio_device *core_vdev, const char __user *buf,
- 		size_t count, loff_t *ppos)
-@@ -1223,6 +1235,7 @@ ssize_t vfio_pci_core_write(struct vfio_device *core_vdev, const char __user *bu
- 
- 	return vfio_pci_rw(vdev, (char __user *)buf, count, ppos, true);
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_write);
- 
- /* Return 1 on zap and vma_lock acquired, 0 on contention (only with @try) */
- static int vfio_pci_zap_and_vma_lock(struct vfio_pci_core_device *vdev, bool try)
-@@ -1501,6 +1514,7 @@ int vfio_pci_core_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_mmap);
- 
- void vfio_pci_core_request(struct vfio_device *core_vdev, unsigned int count)
- {
-@@ -1523,6 +1537,7 @@ void vfio_pci_core_request(struct vfio_device *core_vdev, unsigned int count)
- 
- 	mutex_unlock(&vdev->igate);
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_request);
- 
- static int vfio_pci_validate_vf_token(struct vfio_pci_core_device *vdev,
- 				      bool vf_token, uuid_t *uuid)
-@@ -1667,6 +1682,7 @@ int vfio_pci_core_match(struct vfio_device *core_vdev, char *buf)
- 
- 	return 1; /* Match */
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_match);
- 
- static int vfio_pci_bus_notifier(struct notifier_block *nb,
- 				 unsigned long action, void *data)
-@@ -1775,6 +1791,7 @@ void vfio_pci_core_init_device(struct vfio_pci_core_device *vdev,
- 	INIT_LIST_HEAD(&vdev->vma_list);
- 	init_rwsem(&vdev->memory_lock);
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_init_device);
- 
- void vfio_pci_core_uninit_device(struct vfio_pci_core_device *vdev)
- {
-@@ -1785,6 +1802,7 @@ void vfio_pci_core_uninit_device(struct vfio_pci_core_device *vdev)
- 	kfree(vdev->region);
- 	kfree(vdev->pm_save);
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_uninit_device);
- 
- int vfio_pci_core_register_device(struct vfio_pci_core_device *vdev)
- {
-@@ -1852,7 +1870,6 @@ int vfio_pci_core_register_device(struct vfio_pci_core_device *vdev)
- 	ret = vfio_register_group_dev(&vdev->vdev);
- 	if (ret)
- 		goto out_power;
--	dev_set_drvdata(&pdev->dev, vdev);
- 	return 0;
- 
- out_power:
-@@ -1864,6 +1881,7 @@ int vfio_pci_core_register_device(struct vfio_pci_core_device *vdev)
- 	vfio_iommu_group_put(group, &pdev->dev);
- 	return ret;
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_register_device);
- 
- void vfio_pci_core_unregister_device(struct vfio_pci_core_device *vdev)
- {
-@@ -1881,6 +1899,7 @@ void vfio_pci_core_unregister_device(struct vfio_pci_core_device *vdev)
- 	if (!disable_idle_d3)
- 		vfio_pci_set_power_state(vdev, PCI_D0);
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_unregister_device);
- 
- static pci_ers_result_t vfio_pci_aer_err_detected(struct pci_dev *pdev,
- 						  pci_channel_state_t state)
-@@ -1924,10 +1943,12 @@ int vfio_pci_core_sriov_configure(struct pci_dev *pdev, int nr_virtfn)
- 
- 	return ret < 0 ? ret : nr_virtfn;
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_sriov_configure);
- 
- const struct pci_error_handlers vfio_pci_core_err_handlers = {
- 	.error_detected = vfio_pci_aer_err_detected,
- };
-+EXPORT_SYMBOL_GPL(vfio_pci_core_err_handlers);
- 
- static bool vfio_dev_in_groups(struct vfio_pci_core_device *vdev,
- 			       struct vfio_pci_group_info *groups)
-@@ -2116,16 +2137,22 @@ void vfio_pci_core_set_params(bool is_nointxmask, bool is_disable_vga,
- 	disable_vga = is_disable_vga;
- 	disable_idle_d3 = is_disable_idle_d3;
- }
-+EXPORT_SYMBOL_GPL(vfio_pci_core_set_params);
- 
--/* This will become the __exit function of vfio_pci_core.ko */
--void vfio_pci_core_cleanup(void)
-+static void vfio_pci_core_cleanup(void)
- {
- 	vfio_pci_uninit_perm_bits();
- }
- 
--/* This will become the __init function of vfio_pci_core.ko */
--int __init vfio_pci_core_init(void)
-+static int __init vfio_pci_core_init(void)
- {
- 	/* Allocate shared config space permission data used by all devices */
- 	return vfio_pci_init_perm_bits();
- }
-+
-+module_init(vfio_pci_core_init);
-+module_exit(vfio_pci_core_cleanup);
-+
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR(DRIVER_AUTHOR);
-+MODULE_DESCRIPTION(DRIVER_DESC);
-diff --git a/drivers/vfio/pci/vfio_pci_igd.c b/drivers/vfio/pci/vfio_pci_igd.c
-index a324ca7e6b5a..7ca4109bba48 100644
---- a/drivers/vfio/pci/vfio_pci_igd.c
-+++ b/drivers/vfio/pci/vfio_pci_igd.c
-@@ -15,7 +15,7 @@
- #include <linux/uaccess.h>
- #include <linux/vfio.h>
- 
--#include "vfio_pci_core.h"
-+#include <linux/vfio_pci_core.h>
- 
- #define OPREGION_SIGNATURE	"IntelGraphicsMem"
- #define OPREGION_SIZE		(8 * 1024)
-diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
-index 945ddbdf4d11..6069a11fb51a 100644
---- a/drivers/vfio/pci/vfio_pci_intrs.c
-+++ b/drivers/vfio/pci/vfio_pci_intrs.c
-@@ -20,7 +20,7 @@
- #include <linux/wait.h>
- #include <linux/slab.h>
- 
--#include "vfio_pci_core.h"
-+#include <linux/vfio_pci_core.h>
- 
- /*
-  * INTx
-diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-index 8fff4689dd44..57d3b2cbbd8e 100644
---- a/drivers/vfio/pci/vfio_pci_rdwr.c
-+++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-@@ -17,7 +17,7 @@
- #include <linux/vfio.h>
- #include <linux/vgaarb.h>
- 
--#include "vfio_pci_core.h"
-+#include <linux/vfio_pci_core.h>
- 
- #ifdef __LITTLE_ENDIAN
- #define vfio_ioread64	ioread64
-diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-index 2ffbdc11f089..fe4def9ffffb 100644
---- a/drivers/vfio/pci/vfio_pci_zdev.c
-+++ b/drivers/vfio/pci/vfio_pci_zdev.c
-@@ -19,7 +19,7 @@
- #include <asm/pci_clp.h>
- #include <asm/pci_io.h>
- 
--#include "vfio_pci_core.h"
-+#include <linux/vfio_pci_core.h>
- 
- /*
-  * Add the Base PCI Function information to the device info region.
-diff --git a/drivers/vfio/pci/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-similarity index 99%
-rename from drivers/vfio/pci/vfio_pci_core.h
-rename to include/linux/vfio_pci_core.h
-index 7a2da1e14de3..ef9a44b6cf5d 100644
---- a/drivers/vfio/pci/vfio_pci_core.h
-+++ b/include/linux/vfio_pci_core.h
-@@ -207,8 +207,6 @@ static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
- #endif
- 
- /* Will be exported for vfio pci drivers usage */
--void vfio_pci_core_cleanup(void);
--int vfio_pci_core_init(void);
- void vfio_pci_core_set_params(bool nointxmask, bool is_disable_vga,
- 			      bool is_disable_idle_d3);
- void vfio_pci_core_close_device(struct vfio_device *core_vdev);
--- 
-2.18.1
+For /sys/../recover this was fixed by my commit dd712f0a53ca
+("s390/pci: Fix possible deadlock in  recover_store()") which also
+introduced the need for pci_dev_is_added().
+
+The change in the above commit is very similar to what is done in
+drivers/scsi/scsi_sysfs.c:sdev_store_delete() which also has a self
+deletion and in commit 0ee223b2e1f6 ("scsi: core: Avoid that SCSI
+device removal through sysfs triggers a deadlock") fixed a very very
+similar lock order problem.
+
+Like the SCSI code I use sysfs_break_active_protection() which allows a
+concurrent access to /sys/../recover to advance into recover_store().
+It may then block on pci_lock_rescan_remove() instead of the kernfs
+lock it would block on with just delete_remove_file_self(). Thus we
+have to handle unblocking from pci_lock_rescan_remove() while holding
+the stale struct pci_dev of the removed device. Together with the re-
+scan this means I have to be able to determine after unblocking if I'm
+looking at the old pdev.
+
+I just tested that when removing the lockdep ignore from remove_store()
+and do /sys/../power and /sys/../remove I do hit the same lock order
+inversion issue there for remove. Note that unlike in the commit
+introducing the ignore this is a completely flat hiearchy:
+
+[  234.196509] ======================================================
+[  234.196511] WARNING: possible circular locking dependency detected
+[  234.196512] 5.14.0-rc7-08025-gf6d7568b37df-dirty #18 Not tainted
+[  234.196514] ------------------------------------------------------
+[  234.196516] zsh/1214 is trying to acquire lock:
+[  234.196518] 000000013f296e30 (pci_rescan_remove_lock){+.+.}-{3:3}, at: pci_stop_and_remove_bus_device_locked+0x26/0x48
+[  234.196529]
+               but task is already holding lock:
+[  234.196530] 000000009b6c3a10 (kn->active#363){++++}-{0:0}, at: sysfs_remove_file_self+0x42/0x78
+[  234.196538]
+               which lock already depends on the new lock.
+
+[  234.196539]
+               the existing dependency chain (in reverse order) is:
+[  234.196541]
+               -> #1 (kn->active#363){++++}-{0:0}:
+[  234.196545]        validate_chain+0x9ca/0xde8
+[  234.196548]        __lock_acquire+0x64c/0xc40
+[  234.196550]        lock_acquire.part.0+0xec/0x258
+[  234.196552]        lock_acquire+0xb0/0x200
+[  234.196554]        kernfs_drain+0x17a/0x1c8
+[  234.196556]        __kernfs_remove+0x1f4/0x230
+[  234.196558]        kernfs_remove_by_name_ns+0x5c/0xa8
+[  234.196560]        remove_files+0x46/0x90
+[  234.196563]        sysfs_remove_group+0x5a/0xb8
+[  234.196565]        sysfs_remove_groups+0x46/0x68
+[  234.196567]        device_remove_attrs+0x90/0xb8
+[  234.196598]        device_del+0x192/0x3f8
+[  234.196600]        pci_remove_bus_device+0x8a/0x128
+[  234.196602]        pci_stop_and_remove_bus_device_locked+0x3a/0x48
+[  234.196604]        zpci_bus_remove_device+0x68/0xa8
+[  234.196607]        zpci_deconfigure_device+0x3a/0xe0
+[  234.196610]        power_write_file+0x7c/0x130
+[  234.196615]        kernfs_fop_write_iter+0x13e/0x1e0
+[  234.196617]        new_sync_write+0x100/0x190
+[  234.196620]        vfs_write+0x21e/0x2d0
+[  234.196622]        ksys_write+0x6c/0xf8
+[  234.196624]        __do_syscall+0x1c2/0x1f0
+[  234.196628]        system_call+0x78/0xa0
+[  234.196632]
+               -> #0 (pci_rescan_remove_lock){+.+.}-{3:3}:
+[  234.196636]        check_noncircular+0x168/0x188
+[  234.196637]        check_prev_add+0xe0/0xed8
+[  234.196639]        validate_chain+0x9ca/0xde8
+[  234.196641]        __lock_acquire+0x64c/0xc40
+[  234.196642]        lock_acquire.part.0+0xec/0x258
+[  234.196644]        lock_acquire+0xb0/0x200
+[  234.196646]        __mutex_lock+0xa2/0x8d8
+[  234.196648]        mutex_lock_nested+0x32/0x40
+[  234.196649]        pci_stop_and_remove_bus_device_locked+0x26/0x48
+[  234.196652]        remove_store+0x7a/0x88
+[  234.196654]        kernfs_fop_write_iter+0x13e/0x1e0
+[  234.196656]        new_sync_write+0x100/0x190
+[  234.196657]        vfs_write+0x21e/0x2d0
+[  234.196659]        ksys_write+0x6c/0xf8
+[  234.196661]        __do_syscall+0x1c2/0x1f0
+[  234.196663]        system_call+0x78/0xa0
+[  234.196665]
+               other info that might help us debug this:
+
+[  234.196666]  Possible unsafe locking scenario:
+
+[  234.196668]        CPU0                    CPU1
+[  234.196669]        ----                    ----
+[  234.196670]   lock(kn->active#363);
+[  234.196672]                                lock(pci_rescan_remove_lock);
+[  234.196674]                                lock(kn->active#363);
+[  234.196677]   lock(pci_rescan_remove_lock);
+[  234.196679]
+                *** DEADLOCK ***
+
+[  234.196680] 3 locks held by zsh/1214:
+[  234.196682]  #0: 0000000099d44498 (sb_writers#3){.+.+}-{0:0}, at: ksys_write+0x6c/0xf8
+[  234.196688]  #1: 00000000b214ee90 (&of->mutex){+.+.}-{3:3}, at: kernfs_fop_write_iter+0x102/0x1e0
+[  234.196693]  #2: 000000009b6c3a10 (kn->active#363){++++}-{0:0}, at: sysfs_remove_file_self+0x42/0x78
+[  234.196699]
+               stack backtrace:
+[  234.196701] CPU: 6 PID: 1214 Comm: zsh Not tainted 5.14.0-rc7-08025-gf6d7568b37df-dirty #18
+[  234.196703] Hardware name: IBM 8561 T01 703 (LPAR)
+[  234.196705] Call Trace:
+[  234.196706]  [<000000013ebba5d0>] show_stack+0x90/0xf8
+[  234.196711]  [<000000013ebcc28e>] dump_stack_lvl+0x8e/0xc8
+[  234.196714]  [<000000013dfbe908>] check_noncircular+0x168/0x188
+[  234.196716]  [<000000013dfbf9c8>] check_prev_add+0xe0/0xed8
+[  234.196718]  [<000000013dfc118a>] validate_chain+0x9ca/0xde8
+[  234.196720]  [<000000013dfc4184>] __lock_acquire+0x64c/0xc40
+[  234.196721]  [<000000013dfc2d8c>] lock_acquire.part.0+0xec/0x258
+[  234.196724]  [<000000013dfc2fa8>] lock_acquire+0xb0/0x200
+[  234.196725]  [<000000013ebdac7a>] __mutex_lock+0xa2/0x8d8
+[  234.196727]  [<000000013ebdb4e2>] mutex_lock_nested+0x32/0x40
+[  234.196729]  [<000000013e7daaf6>] pci_stop_and_remove_bus_device_locked+0x26/0x48
+[  234.196732]  [<000000013e7e753a>] remove_store+0x7a/0x88
+[  234.196734]  [<000000013e35b4be>] kernfs_fop_write_iter+0x13e/0x1e0
+[  234.196736]  [<000000013e264098>] new_sync_write+0x100/0x190
+[  234.196738]  [<000000013e266f06>] vfs_write+0x21e/0x2d0
+[  234.196740]  [<000000013e267224>] ksys_write+0x6c/0xf8
+[  234.196742]  [<000000013ebcf9da>] __do_syscall+0x1c2/0x1f0
+[  234.196744]  [<000000013ebe2238>] system_call+0x78/0xa0
+
+
+> 
+> > > Maybe we should make powerpc and s390 less special?
+> > 
+> > On s390, as I see it, the reason for this is that all of the PCI
+> > functionality is directly defined in the Architecture as special CPU
+> > instructions which are kind of hypercalls but also an ISA extension.
+> > 
+> > These instructions range from the basic PCI memory accesses (no real
+> > MMIO) to enumeration of the devices and on to reporting of hot-plug and
+> > and resets/recovery events. Importantly we do not have any kind of
+> > direct access to a real or virtual PCI controller and the architecture
+> > has no concept of a comparable entity.
+> > 
+> > So in my opinion while there is some of the functionality of a PCI
+> > controller in arch/s390/pci the cut off between controller
+> > functionality and arch support isn't clear at all and exposing PCI
+> > support as CPU instructions doesn't map well to the controller concept.
+> > 
+> > That said, in principle I'm open to moving some of that into
+> > drivers/pci/controller/ if you think that would improve things and we
+> > can find a good argument what should go where. One possible cut off
+> > would be to have arch/s390/pci/ provide wrappers to the PCI
+> > instructions but move all their uses to  e.g.
+> > drivers/pci/controller/s390/. This would of course be a major
+> > refactoring and none of that code would be useful on any other
+> > architecture but it would move a lot the accesses to PCI common code
+> > functionality out of the arch code.
+> 
+> Looks like hotplug is already in drivers/pci/hotplug/s390_pci_hpc.c.
+> 
+> Might be worth considering putting the other PCI core-ish code in
+> drivers/pci as well, though it doesn't feel urgent to me.  Maybe a
+> good internship or mentoring project.
+
+I agree
+
+> 
+> I'm not sure this juggling around is worth it basically to just clean
+> up the include path.  The downside to me is exposing
+> pci_dev_is_added() to outside the PCI core, because I don't want
+> to encourage any other users.
+
+Hmm, for me the big question how to then handle the need for
+pci_dev_is_added() in my upcoming recovery code, that would be a new
+user outside the PCI core unless I move arch/s390/pci/pci_event.c to
+drivers/pci.
+
+That said I'm not sure I understand yet what makes pci_dev_is_added()
+unsuitable for outside the PCI core. I do understand that struct
+pci_dev::priv_flags is supposed to be private to PCI drivers but on the
+other hand the functionality of checking whether a PCI device has been
+added to a PCI bus seems rather basic and useful whenever working with
+a PCI device.
+
+> 
+> > > > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > > ---
+> > > > Since v1 (and bad v2):
+> > > > - Fixed accidental removal of PCI_DPC_RECOVERED, PCI_DPC_RECOVERING
+> > > >   defines and also move these to include/linux/pci.h
+> > > > 
+> > > >  arch/powerpc/platforms/powernv/pci-sriov.c |  3 ---
+> > > >  arch/powerpc/platforms/pseries/setup.c     |  1 -
+> > > >  arch/s390/pci/pci_sysfs.c                  |  2 --
+> > > >  drivers/pci/hotplug/acpiphp_glue.c         |  1 -
+> > > >  drivers/pci/pci.h                          | 15 ---------------
+> > > >  include/linux/pci.h                        | 15 +++++++++++++++
+> > > >  6 files changed, 15 insertions(+), 22 deletions(-)
+> > > > 
+> > > > diff --git a/arch/powerpc/platforms/powernv/pci-sriov.c b/arch/powerpc/platforms/powernv/pci-sriov.c
+> > > > index 28aac933a439..2e0ca5451e85 100644
+> > > > --- a/arch/powerpc/platforms/powernv/pci-sriov.c
+> > > > +++ b/arch/powerpc/platforms/powernv/pci-sriov.c
+> > > > @@ -9,9 +9,6 @@
+> > > >  
+> > > >  #include "pci.h"
+> > > >  
+> > > > -/* for pci_dev_is_added() */
+> > > > -#include "../../../../drivers/pci/pci.h"
+> > > > 
+> > .. snip ..
+> > 
 
