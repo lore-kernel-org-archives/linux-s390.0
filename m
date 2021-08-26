@@ -2,155 +2,218 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09FA2C4320E
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 22:33:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BED35C432BE
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 00:52:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DB3A4610D0
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Aug 2021 22:33:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 93F716102A
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 00:52:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233230AbhHYWe3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 Aug 2021 18:34:29 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38118 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232742AbhHYWe3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 25 Aug 2021 18:34:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1629930822;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=W2s2lKx+M8e7vRsFegnV5E2n16k3Db//auuN9XiWQNI=;
-        b=f1exkAaVRzOEBQ1OSkoBIr9N3fj3vunrxWtikq8beQD+dOFmuoSa6PC8mpachb4bY3yhWf
-        lXm6W0j4Rf4nYQlAfc1W2HwE1E76DSBoszPGq8yHBgOi+4QdQ46eyVW6VYEj19wVG2Zkfz
-        ic6lsAM8m9LAV7C7rzR2Fc5bdFhAWoE=
-Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com
- [209.85.161.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-239-rwtmDipbO5O11pl0P4ipjQ-1; Wed, 25 Aug 2021 18:33:41 -0400
-X-MC-Unique: rwtmDipbO5O11pl0P4ipjQ-1
-Received: by mail-oo1-f71.google.com with SMTP id r1-20020a4a3701000000b0028c9e077850so370911oor.17
-        for <linux-s390@vger.kernel.org>; Wed, 25 Aug 2021 15:33:41 -0700 (PDT)
+        id S235548AbhHZAwq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 Aug 2021 20:52:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42720 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232139AbhHZAwp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Aug 2021 20:52:45 -0400
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54EB5C061757
+        for <linux-s390@vger.kernel.org>; Wed, 25 Aug 2021 17:51:59 -0700 (PDT)
+Received: by mail-pg1-x533.google.com with SMTP id t1so1489436pgv.3
+        for <linux-s390@vger.kernel.org>; Wed, 25 Aug 2021 17:51:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=f3PaRj0+UK3KiHBEQ/mOLHR7LbXNTGksF7paqU+Kuls=;
+        b=A6asxkjO+IhVOQFmhI2tBLQ24vNU4qbyC65KkjHK6YZEdFzhqDTuNOl/jUY0GY8BZk
+         sO21CWd5euGfV+luP8orfSSY/6R8H/lyogJvRGslTcBehiRZLI6fp4wTJHAZTkWW0Luj
+         236HN6iRo5IlditmnFRnNMm8X/Z+T2vuG5T/fkhA/TK8hHnA0ENvDZ7NczgztwdHw795
+         FBtREj4Nfnw/RApEMCNmyqeYph9H+5+VTpFwKCsOwANy6FK0VwyT/yA9+TXDqcqo4zbp
+         CBNvsaomjk9PSQ4KnFbCwLS1WZ5WBZeuC6vG5p684Rv340MRHtj/gV3n4AGPaCXS6GPY
+         fWYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:organization:mime-version:content-transfer-encoding;
-        bh=W2s2lKx+M8e7vRsFegnV5E2n16k3Db//auuN9XiWQNI=;
-        b=O1XRhs0SepA/yMJfNLAdu9FYAw1qshxeEH5LjyN/fqk6U7Ked8ZpTEfsEFw8AIbd/q
-         DmiPY0zTLbpWHOFkYByTCq2jd+4jax6I+s4EIAZhKSEYjooD7lsOtNeXo6Ty7O5hhXcj
-         EYt0nFNCZPy0ziobcheids6ez3QGKsG6ufBPsMdt4eCFSxTClB8cB9/hRJyyR2BfUxEJ
-         PcWULe55UD89KkA4fWapJKsdRzRSmIWopDGx7MfuN4x/VtZoWX82cC/tzNlGtsa5W7l2
-         8mFo+t768mdasFGcXwBGJXvhazzx3bVQib3juyPH6zDYAGhqj0sfFSRXN4qVWeNiwDQ0
-         2n5g==
-X-Gm-Message-State: AOAM532cxJ2PMjfUG3ZVXIWah3I57Y6E5kc/HQn6/VgQmpfcZZDZwriY
-        FAp4xVjxI5sRdudpW5QtAhdu+ZlD42GJTMpTbEBeZ1rTwzUCJc3GPMiECYsNDv2dW3q/OaCotXe
-        NE94vA+zme4oDgWh1IU+O3A==
-X-Received: by 2002:a9d:5d01:: with SMTP id b1mr539924oti.263.1629930820475;
-        Wed, 25 Aug 2021 15:33:40 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwO2O7S9ysUHHjEJeBxwPTAt83BOcqHoSfdMF0B2hh/JiarjF0RvnZ+1Q/OfBSxJD4SlynzcA==
-X-Received: by 2002:a9d:5d01:: with SMTP id b1mr539908oti.263.1629930820252;
-        Wed, 25 Aug 2021 15:33:40 -0700 (PDT)
-Received: from redhat.com ([198.99.80.109])
-        by smtp.gmail.com with ESMTPSA id c37sm210594otu.60.2021.08.25.15.33.39
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=f3PaRj0+UK3KiHBEQ/mOLHR7LbXNTGksF7paqU+Kuls=;
+        b=fjYrl/YJM9ML/vgzZ02dSk+0Skj8qfBTvuyKDoYXzp2YI53mEpsBWmVh3B41QKYHvG
+         lvC6/DTYSi91/2kvIt5eHoE6aVTFCtWqCGgb8VECKcNBjTJifx781K4bFmvR4QZBVcw1
+         biPDJ6k6aTzgP2IRzsrGyo8TE0es67wW/m8tSuaSRWUuJtNFWjd2aYusZTsfRW+xYeWf
+         4cPbpa0/Py4EBRLQqAYXfyIGCMKfmZr1U0Z6x2CssLv1TO03Kn0m737daP56pNnVlWgq
+         SY7lqMr+5xcK7Ul2WEORXG1wISpCOIdW307kRUdbAhUPhz10WHltekAvwOBINAe3K+qP
+         /MNg==
+X-Gm-Message-State: AOAM533ggbVFANQUqj5r7hPJd7jcXPDMSw1rVDCsGjMQnJjOyqdrk4X7
+        XV1DFvNUmups0WnVNGnNd3TqJw==
+X-Google-Smtp-Source: ABdhPJz66WwJdot9pOGh7Q3Z/ZxgXoc0GykrLFcpNH6VM8KC5/c4zJUQuHeGGSWtTQv/EwVGtnL95A==
+X-Received: by 2002:a63:401:: with SMTP id 1mr926843pge.166.1629939118422;
+        Wed, 25 Aug 2021 17:51:58 -0700 (PDT)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id j21sm756334pfj.66.2021.08.25.17.51.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Aug 2021 15:33:40 -0700 (PDT)
-Date:   Wed, 25 Aug 2021 16:33:38 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Yishai Hadas <yishaih@nvidia.com>, bhelgaas@google.com,
-        corbet@lwn.net, diana.craciun@oss.nxp.com, kwankhede@nvidia.com,
-        eric.auger@redhat.com, masahiroy@kernel.org,
-        michal.lkml@markovi.net, linux-pci@vger.kernel.org,
-        linux-doc@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kbuild@vger.kernel.org,
-        mgurtovoy@nvidia.com, maorg@nvidia.com, leonro@nvidia.com
-Subject: Re: [PATCH V4 10/13] PCI / VFIO: Add 'override_only' support for
- VFIO PCI sub system
-Message-ID: <20210825163338.68ad5a4d.alex.williamson@redhat.com>
-In-Reply-To: <20210825222443.GN1721383@nvidia.com>
-References: <20210825135139.79034-1-yishaih@nvidia.com>
-        <20210825135139.79034-11-yishaih@nvidia.com>
-        <20210825160546.380c0137.alex.williamson@redhat.com>
-        <20210825222443.GN1721383@nvidia.com>
-Organization: Red Hat
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        Wed, 25 Aug 2021 17:51:57 -0700 (PDT)
+Date:   Thu, 26 Aug 2021 00:51:54 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc:     Darren Hart <dvhart@infradead.org>,
+        "Russell King, ARM Linux" <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>, gor <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        paulmck <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, shuah <shuah@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-csky <linux-csky@vger.kernel.org>,
+        linux-mips <linux-mips@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        KVM list <kvm@vger.kernel.org>,
+        linux-kselftest <linux-kselftest@vger.kernel.org>,
+        Peter Foley <pefoley@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Ben Gardon <bgardon@google.com>
+Subject: Re: [PATCH v2 4/5] KVM: selftests: Add a test for KVM_RUN+rseq to
+ detect task migration bugs
+Message-ID: <YSblqrrpKcORzilX@google.com>
+References: <20210820225002.310652-1-seanjc@google.com>
+ <20210820225002.310652-5-seanjc@google.com>
+ <766990430.21713.1629731934069.JavaMail.zimbra@efficios.com>
+ <282257549.21721.1629732017655.JavaMail.zimbra@efficios.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <282257549.21721.1629732017655.JavaMail.zimbra@efficios.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 25 Aug 2021 19:24:43 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
-
-> On Wed, Aug 25, 2021 at 04:05:46PM -0600, Alex Williamson wrote:
-> > On Wed, 25 Aug 2021 16:51:36 +0300
-> > Yishai Hadas <yishaih@nvidia.com> wrote:  
-> > > diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-> > > index 7c97fa8e36bc..c3edbf73157e 100644
-> > > +++ b/scripts/mod/file2alias.c
-> > > @@ -426,7 +426,7 @@ static int do_ieee1394_entry(const char *filename,
-> > >  	return 1;
-> > >  }
-> > >  
-> > > -/* Looks like: pci:vNdNsvNsdNbcNscNiN. */
-> > > +/* Looks like: pci:vNdNsvNsdNbcNscNiN or <prefix>_pci:vNdNsvNsdNbcNscNiN. */
-> > >  static int do_pci_entry(const char *filename,
-> > >  			void *symval, char *alias)
-> > >  {
-> > > @@ -440,8 +440,12 @@ static int do_pci_entry(const char *filename,
-> > >  	DEF_FIELD(symval, pci_device_id, subdevice);
-> > >  	DEF_FIELD(symval, pci_device_id, class);
-> > >  	DEF_FIELD(symval, pci_device_id, class_mask);
-> > > +	DEF_FIELD(symval, pci_device_id, override_only);
-> > >  
-> > > -	strcpy(alias, "pci:");
-> > > +	if (override_only & PCI_ID_F_VFIO_DRIVER_OVERRIDE)
-> > > +		strcpy(alias, "vfio_pci:");
-> > > +	else
-> > > +		strcpy(alias, "pci:");  
+On Mon, Aug 23, 2021, Mathieu Desnoyers wrote:
+> [ re-send to Darren Hart ]
+> 
+> ----- On Aug 23, 2021, at 11:18 AM, Mathieu Desnoyers mathieu.desnoyers@efficios.com wrote:
+> 
+> > ----- On Aug 20, 2021, at 6:50 PM, Sean Christopherson seanjc@google.com wrote:
 > > 
-> > I'm a little concerned that we're allowing unknown, non-zero
-> > override_only values to fall through to create "pci:" alias matches.
-> > Should this be something like:
+> >> Add a test to verify an rseq's CPU ID is updated correctly if the task is
+> >> migrated while the kernel is handling KVM_RUN.  This is a regression test
+> >> for a bug introduced by commit 72c3c0fe54a3 ("x86/kvm: Use generic xfer
+> >> to guest work function"), where TIF_NOTIFY_RESUME would be cleared by KVM
+> >> without updating rseq, leading to a stale CPU ID and other badness.
+> >> 
 > > 
-> > 	if (override_only & PCI_ID_F_VFIO_DRIVER_OVERRIDE) {  
-> 
-> Should probably be == not &, since in this new arrangement it is
-> really more of an enum than a bit flags... A switch would be OK here
-> too
-> 
-> > 		strcpy(alias, "vfio_pci:");
-> > 	} else if (override_only) {
-> > 		warn("Unknown PCI driver_override alias %08X\n",
-> > 			driver_override);
-> > 		return 0;
-> > 	} else {
-> > 		strcpy(alias, "pci:");
-> > 	}  
-> 
-> It seems reasonable to me to throw a warn, it signals to a future
-> developer that kbuild is not working right.
-> 
-> > And then if we can only have a single bit set in override_only (I
-> > can't think of a use case for a single entry to have multiple
-> > override options), should PCI_DEVICE_DRIVER_OVERRIDE() be defined to
-> > take a "driver_override_shift" value where .driver_override is assigned
-> > (1 << driver_override_shift)?  That would encode the semantics in the
-> > prototypes a little better.    
-> 
-> I think it is just an enum of overrides, no reason to make it one hot
-> encoded. Previously when it was flags the bit encode had a certain
-> amount of logic, but no longer.
+> > [...]
+> > 
+> > +#define RSEQ_SIG 0xdeadbeef
+> > 
+> > Is there any reason for defining a custom signature rather than including
+> > tools/testing/selftests/rseq/rseq.h ? This should take care of including
+> > the proper architecture header which will define the appropriate signature.
+> > 
+> > Arguably you don't define rseq critical sections in this test per se, but
+> > I'm wondering why the custom signature here.
 
-Yeah, a switch statement handling pci:/vfio_pci:/warn rather than
-testing bits would clear things up for me.  Thanks,
+Partly to avoid taking a dependency on rseq.h, and partly to try to call out that
+the test doesn't actually do any rseq critical sections.
 
-Alex
+> > [...]
+> > 
+> >> +
+> >> +static void *migration_worker(void *ign)
+> >> +{
+> >> +	cpu_set_t allowed_mask;
+> >> +	int r, i, nr_cpus, cpu;
+> >> +
+> >> +	CPU_ZERO(&allowed_mask);
+> >> +
+> >> +	nr_cpus = CPU_COUNT(&possible_mask);
+> >> +
+> >> +	for (i = 0; i < 20000; i++) {
+> >> +		cpu = i % nr_cpus;
+> >> +		if (!CPU_ISSET(cpu, &possible_mask))
+> >> +			continue;
+> >> +
+> >> +		CPU_SET(cpu, &allowed_mask);
+> >> +
+> >> +		/*
+> >> +		 * Bump the sequence count twice to allow the reader to detect
+> >> +		 * that a migration may have occurred in between rseq and sched
+> >> +		 * CPU ID reads.  An odd sequence count indicates a migration
+> >> +		 * is in-progress, while a completely different count indicates
+> >> +		 * a migration occurred since the count was last read.
+> >> +		 */
+> >> +		atomic_inc(&seq_cnt);
+> > 
+> > So technically this atomic_inc contains the required barriers because the
+> > selftests implementation uses "__sync_add_and_fetch(&addr->val, 1)". But
+> > it's rather odd that the semantic differs from the kernel implementation in
+> > terms of memory barriers: the kernel implementation of atomic_inc
+> > guarantees no memory barriers, but this one happens to provide full
+> > barriers pretty much by accident (selftests futex/include/atomic.h
+> > documents no such guarantee).
 
+Yeah, I got quite lost trying to figure out what atomics the test would actually
+end up with.
+
+> > If this full barrier guarantee is indeed provided by the selftests atomic.h
+> > header, I would really like a comment stating that in the atomic.h header
+> > so the carpet is not pulled from under our feet by a future optimization.
+> > 
+> > 
+> >> +		r = sched_setaffinity(0, sizeof(allowed_mask), &allowed_mask);
+> >> +		TEST_ASSERT(!r, "sched_setaffinity failed, errno = %d (%s)",
+> >> +			    errno, strerror(errno));
+> >> +		atomic_inc(&seq_cnt);
+> >> +
+> >> +		CPU_CLR(cpu, &allowed_mask);
+> >> +
+> >> +		/*
+> >> +		 * Let the read-side get back into KVM_RUN to improve the odds
+> >> +		 * of task migration coinciding with KVM's run loop.
+> > 
+> > This comment should be about increasing the odds of letting the seqlock
+> > read-side complete. Otherwise, the delay between the two back-to-back
+> > atomic_inc is so small that the seqlock read-side may never have time to
+> > complete the reading the rseq cpu id and the sched_getcpu() call, and can
+> > retry forever.
+
+Hmm, but that's not why there's a delay.  I'm not arguing that a livelock isn't
+possible (though that syscall would have to be screaming fast), but the primary
+motivation is very much to allow the read-side enough time to get back into KVM
+proper.
+
+To encounter the bug, TIF_NOTIFY_RESUME has to be recognized by KVM in its run
+loop, i.e. sched_setaffinity() must induce task migration after the read-side has
+invoked ioctl(KVM_RUN).
+
+> > I'm wondering if 1 microsecond is sufficient on other architectures as
+> > well.
+
+I'm definitely wondering that as well :-)
+
+> > One alternative way to make this depend less on the architecture's
+> > implementation of sched_getcpu (whether it's a vDSO, or goes through a
+> > syscall) would be to read the rseq cpu id and call sched_getcpu a few times
+> > (e.g. 3 times) in the migration thread rather than use usleep, and throw
+> > away the value read. This would ensure the delay is appropriate on all
+> > architectures.
+
+As above, I think an arbitrary delay is required regardless of how fast
+sched_getcpu() can execute.  One thought would be to do sched_getcpu() _and_
+usleep() to account for sched_getcpu() overhead and to satisfy the KVM_RUN part,
+but I don't know that that adds meaningful value.
+
+The real test is if someone could see if the bug repros on non-x86 hardware...
