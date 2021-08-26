@@ -2,164 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35799C4320A
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 08:36:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E78AC432BE
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 09:06:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1DD8861076
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 08:36:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E56A5610A1
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 09:06:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240532AbhHZIha (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 26 Aug 2021 04:37:30 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6514 "EHLO
+        id S240674AbhHZJHf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 26 Aug 2021 05:07:35 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4496 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240351AbhHZIh3 (ORCPT
+        by vger.kernel.org with ESMTP id S240657AbhHZJHf (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 26 Aug 2021 04:37:29 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17Q8aaRZ091959;
-        Thu, 26 Aug 2021 04:36:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=W3XCYcUz9J5/hAW2mjZkntBmA3/2aSp+E6yAvrb7spU=;
- b=CYEry+AKZkeNVVFddzn574yRU6JcjC5kFjSXNvkLIl5dhysuKaDJXFL8001/A0uCe9lg
- OL19nL4Ncwed6gC7S7LFdwPihuFdYXm17beX6zFpAPkgrRILvR14j5ToIOI3pDHRM1dJ
- 43gh8nnYxg81fj160GQ+u1KsqvPxXX47A52dQJI45hrc3dc2xfbTaxUMq5lEladJfOY8
- CBIKtdw594g+Y/fw1pxjAvqepazhcqYeseJKQNzGMsy74Z6RjBMNf+WU0YRn216ae2yc
- /hq08fI7IadwhDSkdCBNiUGYWxxg/GCzp8kP8NK/ylxzap3gDHVNIlNmcd47IXm7DNh+ gA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ap72pgskh-1
+        Thu, 26 Aug 2021 05:07:35 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17Q95FC6156696;
+        Thu, 26 Aug 2021 05:06:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type; s=pp1;
+ bh=BdrYN073JkJXYnKYViotbHLEznESEx2D4kfxU+ZaTvI=;
+ b=LKwBBCzHI9TwgIGWPiK+m8PRfigdNRVVlvPpVV7AjdmO9OXHvqwWeme055of3tSMz8mR
+ +sumKVTuWCNVCoC1IOlDxDdA1M/Q4xJ7vdKImgcmqNyOCGOfAwdX/ZxEA2WO0SySsE1/
+ vuMn6Qb+kHxxSxSTe7u72otiS9CZErrYorYbIErPm0hRxdKg77tMJ6bg5MhA+UpocLFo
+ E+sb5OF1X5/oNbhFSEyafT0YqALHjuT92AIMvAZZ8mQpAaqakriAcK1tnQZebLl3XWeI
+ FkADec4cmZjrQPJPpE7qCx3RlyZRhn13+iOAm7vhYxGa8JzG8sGZjpWvUm4PaeGy9OVP Rg== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ap1kj12h1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 26 Aug 2021 04:36:42 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17Q8aggM092996;
-        Thu, 26 Aug 2021 04:36:42 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ap72pgs6t-1
+        Thu, 26 Aug 2021 05:06:41 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17Q8wsb3020256;
+        Thu, 26 Aug 2021 09:06:39 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 3ajrrhh010-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 26 Aug 2021 04:36:42 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17Q8XB7c026348;
-        Thu, 26 Aug 2021 08:33:48 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3ajs490v9f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 26 Aug 2021 08:33:48 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17Q8XfOx11796810
+        Thu, 26 Aug 2021 09:06:39 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17Q92oC361276634
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 26 Aug 2021 08:33:41 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0FA0FA4084;
-        Thu, 26 Aug 2021 08:33:41 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C4C61A4057;
-        Thu, 26 Aug 2021 08:33:39 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.32.161])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 26 Aug 2021 08:33:39 +0000 (GMT)
-Subject: Re: [PATCH v4 13/14] KVM: s390: pv: lazy destroy for reboot
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ulrich.Weigand@de.ibm.com
-References: <20210818132620.46770-1-imbrenda@linux.ibm.com>
- <20210818132620.46770-14-imbrenda@linux.ibm.com>
-From:   Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>
-Message-ID: <63a25b80-9dcf-7948-e2c3-88b8f9064736@linux.vnet.ibm.com>
-Date:   Thu, 26 Aug 2021 10:33:39 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        Thu, 26 Aug 2021 09:02:50 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DF9104C04E;
+        Thu, 26 Aug 2021 09:06:33 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 00E474C081;
+        Thu, 26 Aug 2021 09:06:33 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Thu, 26 Aug 2021 09:06:32 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        hca@linux.ibm.com
+Subject: crash on s390 with SCHED_CORE=y
+Date:   Thu, 26 Aug 2021 11:06:31 +0200
+Message-ID: <yt9d35qwa82w.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 MIME-Version: 1.0
-In-Reply-To: <20210818132620.46770-14-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1UZrufRMQtr9wSVDrviP86wPML_6Eyds
-X-Proofpoint-ORIG-GUID: 0-Z5DjNoyOFwAP6tQ2AYHIklc-_VU9JY
+X-Proofpoint-GUID: i24icF58UrksW2YvFCEQPhiHrUWsUymt
+X-Proofpoint-ORIG-GUID: i24icF58UrksW2YvFCEQPhiHrUWsUymt
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-26_01:2021-08-25,2021-08-26 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- mlxlogscore=999 malwarescore=0 priorityscore=1501 spamscore=0 phishscore=0
- adultscore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108260050
+ definitions=2021-08-26_02:2021-08-25,2021-08-26 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
+ priorityscore=1501 mlxscore=0 adultscore=0 suspectscore=0 malwarescore=0
+ phishscore=0 mlxlogscore=369 bulkscore=0 lowpriorityscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108260054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Am 18.08.21 um 15:26 schrieb Claudio Imbrenda:
-> Until now, destroying a protected guest was an entirely synchronous
-> operation that could potentially take a very long time, depending on
-> the size of the guest, due to the time needed to clean up the address
-> space from protected pages.
-> 
-> This patch implements a lazy destroy mechanism, that allows a protected
-> guest to reboot significantly faster than previously.
-> 
-> This is achieved by clearing the pages of the old guest in background.
-> In case of reboot, the new guest will be able to run in the same
-> address space almost immediately.
-> 
-> The old protected guest is then only destroyed when all of its memory has
-> been destroyed or otherwise made non protected.
-> 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->  arch/s390/kvm/kvm-s390.c |   6 +-
->  arch/s390/kvm/kvm-s390.h |   2 +-
->  arch/s390/kvm/pv.c       | 132 ++++++++++++++++++++++++++++++++++++++-
->  3 files changed, 134 insertions(+), 6 deletions(-)
-> 
-[...]
-> 
-> +static int kvm_s390_pv_destroy_vm_thread(void *priv)
-> +{
-> +	struct deferred_priv *p = priv;
-> +	u16 rc, rrc;
-> +	int r;
-> +
-> +	/* Clear all the pages as long as we are not the only users of the mm */
-> +	s390_uv_destroy_range(p->mm, 1, 0, TASK_SIZE_MAX);
-> +	/*
-> +	 * If we were the last user of the mm, synchronously free (and clear
-> +	 * if needed) all pages.
-> +	 * Otherwise simply decrease the reference counter; in this case we
-> +	 * have already cleared all pages.
-> +	 */
-> +	mmput(p->mm);
-> +
-> +	r = uv_cmd_nodata(p->handle, UVC_CMD_DESTROY_SEC_CONF, &rc, &rrc);
-> +	WARN_ONCE(r, "protvirt destroy vm failed rc %x rrc %x", rc, rrc);
-> +	if (r) {
-> +		mmdrop(p->mm);
+Hi Peter,
 
-The comment about leaking makes more sense here, no?
-Also
-		goto out_dont_free;
-> +		return r;
-> +	}
-> +	atomic_dec(&p->mm->context.is_protected);
-> +	mmdrop(p->mm);
-> +
-> +	/*
-> +	 * Intentional leak in case the destroy secure VM call fails. The
-> +	 * call should never fail if the hardware is not broken.
-> +	 */
-> +	free_pages(p->stor_base, get_order(uv_info.guest_base_stor_len));
-> +	free_pages(p->old_table, CRST_ALLOC_ORDER);
-> +	vfree(p->stor_var);
-out_dont_free:
-> +	kfree(p);
-> +	return 0;
-> +}
-> +
-[...]
+i'm seeing the following crash on s390 with the strace testsuite (namely
+the prctl-sched-core--pidns-translation testcase).
 
+[   25.044039] Unable to handle kernel pointer dereference in virtual kernel address space
+[   25.044051] Failing address: 0000000000000000 TEID: 0000000000000483
+[   25.044053] Fault in home space mode while using kernel ASCE.
+[   25.044056] AS:0000000166bd4007 R3:00000003fffe8007 S:00000003fffed800 P:000000000000003d
+[   25.044080] Oops: 0004 ilc:2 [#1] SMP
+[   25.044085] Modules linked in: nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables nfnetlink sunrpc dm_multipath scsi_dh_rdac scsi_dh_emc scsi_dh_alua s390_trng ghash_s390 ism p
+rng smc aes_s390 des_s390 libdes ib_core sha3_512_s390 sha3_256_s390 sha512_s390 sha256_s390 sha1_s390 sha_common eadm_sch vfio_ccw mdev vfio_iommu_type1 vfio sch_fq_codel pkey zcrypt rng_core configfs ip_tables x_tables autofs4
+[   25.044125] CPU: 122 PID: 2045 Comm: prctl-sched-cor Not tainted 5.14.0-rc7-08025-gf6d7568b37df-dirty #532
+[   25.044129] Hardware name: IBM 8561 T01 701 (LPAR)
+[   25.044130] Krnl PSW : 0404e00180000000 00000001655b7534 (raw_spin_rq_lock_nested+0x5c/0xb8)
+[   25.044142]            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+[   25.044145] Krnl GPRS: ffffffffffffffff 0000000000000000 000000030000007b 0000000000000000
+[   25.044147]            0000000000000000 0000000000000000 0000000100000080 0000000166ad0900
+[   25.044149]            0000000000000400 0000000100000000 0000000000000000 00000003fd9a3600
+[   25.044150]            000000009fb50000 0000000166172538 00000380077cbd00 00000380077cbcc0
+[   25.044158] Krnl Code: 00000001655b752a: b90400ab            lgr     %r10,%r11
+[   25.044158]            00000001655b752e: 582003ac            l       %r2,940
+[   25.044158]           #00000001655b7532: 1819                lr      %r1,%r9
+[   25.044158]           >00000001655b7534: ba12a000            cs      %r1,%r2,0(%r10)
+[   25.044158]            00000001655b7538: ec16001d007e        cij     %r1,0,6,00000001655b7572
+[   25.044158]            00000001655b753e: e310b1300112        lt      %r1,4400(%r11)
+[   25.044158]            00000001655b7544: a7740012            brc     7,00000001655b7568
+[   25.044158]            00000001655b7548: b904001b            lgr     %r1,%r11
+[   25.044230] Call Trace:
+[   25.044234]  [<00000001655b7534>] raw_spin_rq_lock_nested+0x5c/0xb8
+[   25.044241]  [<00000001655d2cfc>] online_fair_sched_group+0x9c/0x1c0
+[   25.044248]  [<00000001655e481c>] sched_autogroup_create_attach+0xdc/0x210
+[   25.044253]  [<000000016559a45e>] ksys_setsid+0x10e/0x148
+[   25.044258]  [<000000016559a4ba>] __s390_sys_setsid+0x22/0x30
+[   25.044261]  [<000000016608402c>] __do_syscall+0x1bc/0x1e8
+[   25.044266]  [<0000000166091358>] system_call+0x78/0xa0
+[   25.044269] Last Breaking-Event-Address:
+[   25.044270]  [<0000000000000000>] 0x0
+[   25.044274] Kernel panic - not syncing: Fatal exception: panic_on_oops
+
+The crash is caused by using a NULL rq->core value in
+__rq_lockp, which is then passed on to raw_spin_rq_lock_nested(). This
+is because it is implemented as follows:
+
+static inline raw_spinlock_t *__rq_lockp(struct rq *rq)
+{
+        if (rq->core_enabled)
+		return &rq->core->__lock;
+	return &rq->__lock;
+}
+
+The problem is, that __sched_core_flip() sets rq->core_enabled to 1 even
+for offline CPUS:
+
+	/*
+	 * Toggle the offline CPUs.
+	 */
+	cpumask_copy(&sched_core_mask, cpu_possible_mask);
+	cpumask_andnot(&sched_core_mask, &sched_core_mask, cpu_online_mask);
+
+	for_each_cpu(cpu, &sched_core_mask)
+		cpu_rq(cpu)->core_enabled = enabled;
+
+... But rq->core seems to get only assigned in the cpu hotplug notifer
+sched_core_cpu_starting(), which is never called for offline CPUs. At
+least i haven't found another place which assigns rq->core.
+
+Any thoughts?
+
+Thanks
+Svem
