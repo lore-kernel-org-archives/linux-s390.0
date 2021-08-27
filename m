@@ -2,139 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EADFC432BE
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 21:23:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C661EC43216
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 23:23:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0325560F58
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 21:23:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A735D60F45
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 23:23:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231926AbhH0VYo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 Aug 2021 17:24:44 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46570 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231908AbhH0VYo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Aug 2021 17:24:44 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17RLE0gC130838;
-        Fri, 27 Aug 2021 17:23:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=sCclVsG9zuQMWWDfdDhVlv7eQo2MGj647KbJjB0FvGE=;
- b=hkVIWSPLFnB26u8IfCDJ771Kt6FmU5P4x9xiZkHmQim7JtK+M5DSI+YgIapnK5MzFZtC
- 6wlgLa2Wresdm2ErcCeRyYsIatQPus+REUQmnA88ncXcnudKseiN+ogCejT0y20XC7E4
- OEsr8neJc/IG327OMF94W1PS7U7uIjGsqo0MkD4Ydt02wSXIzLqTqqu8aQvcwq8PnGYB
- fJLxcm90iiiXwgNrXJckd/vfQMgKCVc17fKcZJLRVLlWniwWg4wOiN68JkX8E/nPNPSW
- 4zult/UGt2QWipR50l9LEYXGS/f76i/8wKW18QEfnQcpSd3LrJ8rcvVdwJVxxdrFLJK2 9g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3aq7sjr5ua-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Aug 2021 17:23:54 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17RLFVgC139301;
-        Fri, 27 Aug 2021 17:23:54 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3aq7sjr5tk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Aug 2021 17:23:54 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17RLHgWH016088;
-        Fri, 27 Aug 2021 21:23:51 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04fra.de.ibm.com with ESMTP id 3ajs48t8aa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Aug 2021 21:23:51 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17RLNlRF55378226
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 Aug 2021 21:23:47 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BABA411C050;
-        Fri, 27 Aug 2021 21:23:47 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C933A11C01F;
-        Fri, 27 Aug 2021 21:23:46 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.80.46])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Fri, 27 Aug 2021 21:23:46 +0000 (GMT)
-Date:   Fri, 27 Aug 2021 23:23:44 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Michael Mueller <mimu@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 1/1] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
-Message-ID: <20210827232344.431e3114.pasic@linux.ibm.com>
-In-Reply-To: <e9d2f79c-b784-bc6b-88dc-2d0f7cc08dbe@de.ibm.com>
-References: <20210827125429.1912577-1-pasic@linux.ibm.com>
-        <20210827160616.532d6699@p-imbrenda>
-        <e9d2f79c-b784-bc6b-88dc-2d0f7cc08dbe@de.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S232535AbhH0XY1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 Aug 2021 19:24:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58236 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232492AbhH0XYZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Aug 2021 19:24:25 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BA0DC0617AD
+        for <linux-s390@vger.kernel.org>; Fri, 27 Aug 2021 16:23:35 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id f11-20020a17090aa78b00b0018e98a7cddaso5865883pjq.4
+        for <linux-s390@vger.kernel.org>; Fri, 27 Aug 2021 16:23:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=TQth0zKaZ1g898XhTaLjgqI+BqtTYpmEnIJq3AsLCJk=;
+        b=BAuX2ol8F6dvdcYTLPau4K0GBYzUoQCSuqStZCATywk1xJsRcTN/zbnvR40BRHvYRj
+         p2MT9UNw+pSe1w4FqYAzJww2vX26GF4Etd+uOuVWgHJFd4agO5hpaKs4rD3Z8IuIiQ64
+         bceibC9z39TyoUF5r/ZBJugD41m33rR/4wmX0JjHH4Ox3VO0sQvCLcKc4rCPjZl3kpp/
+         z2ewywcdb4obgJrlPAWwwSgAREPIfSw6ixPLrZU+orCqHvOzAJIbsJDGYnOKI/KJzI5+
+         MS27DWV8OUcVAL9tLPc5IpbSctooG5g35qhato+7vW1AY9AOSyjT1rpopwB7U0ojjXOG
+         jR7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=TQth0zKaZ1g898XhTaLjgqI+BqtTYpmEnIJq3AsLCJk=;
+        b=nTwCe/E7+cZH+PTxfvqkWKvtUyM6alWEUUcDcy3mvhGdua49kmPlvVos0JOqjS9t0D
+         RXcIYfA/mWtbslq9fN+E5Z5o6xOUQoU2vNAB45aevogYDNp+EB+vD+i0ngMfnUlk0EKs
+         0OaUwdo92QKEJliqH8Rf31m+FbdXTG2trtLKMkqZCakK3Rr5ENb3jTajssmIwFGIe++8
+         vvotZcqeF9cfY5GGtiTY1atp25GwzFr+zCtDDpEHpgiLVf024p7SJe7q6JzMciPRzo+B
+         P57b+TSLbYyQoQ/GicnyjW74oIA5QI8ulnbO3/r9zarqYGdoLUxDVo5LJRFfSWP2ldiF
+         rAWQ==
+X-Gm-Message-State: AOAM530sHsPPb3bDQS+gYg7uh/tSYbbWbGuMF+4YNW/+ajOE5QzNNLKZ
+        AX18VYq7FPRDzAFsrQqJZrmNcA==
+X-Google-Smtp-Source: ABdhPJwmCb6NSZOc/5AwINtm/0AHRKcukC2PPcNvrpcQ6DjdUz8MDW9KTFWzGmyEhc2uaUezQAIkrA==
+X-Received: by 2002:a17:90a:fe8e:: with SMTP id co14mr10854117pjb.200.1630106614660;
+        Fri, 27 Aug 2021 16:23:34 -0700 (PDT)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id h13sm7335943pgh.93.2021.08.27.16.23.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 Aug 2021 16:23:33 -0700 (PDT)
+Date:   Fri, 27 Aug 2021 23:23:30 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc:     dvhart <dvhart@infradead.org>,
+        "Russell King, ARM Linux" <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>, gor <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        paulmck <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, shuah <shuah@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-csky <linux-csky@vger.kernel.org>,
+        linux-mips <linux-mips@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        KVM list <kvm@vger.kernel.org>,
+        linux-kselftest <linux-kselftest@vger.kernel.org>,
+        Peter Foley <pefoley@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Ben Gardon <bgardon@google.com>
+Subject: Re: [PATCH v2 4/5] KVM: selftests: Add a test for KVM_RUN+rseq to
+ detect task migration bugs
+Message-ID: <YSlz8h9SWgeuicak@google.com>
+References: <20210820225002.310652-1-seanjc@google.com>
+ <20210820225002.310652-5-seanjc@google.com>
+ <766990430.21713.1629731934069.JavaMail.zimbra@efficios.com>
+ <282257549.21721.1629732017655.JavaMail.zimbra@efficios.com>
+ <YSblqrrpKcORzilX@google.com>
+ <1700758714.29394.1630003332081.JavaMail.zimbra@efficios.com>
+ <YSgpy8iXXXUQ+b/k@google.com>
+ <339641531.29941.1630091374065.JavaMail.zimbra@efficios.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oj0mOj90HEjTriSPPOKCL0y1FS6AXabX
-X-Proofpoint-GUID: e44dW4wEjmBWVeodvyoT24FHQg_SXFMh
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-27_06:2021-08-27,2021-08-27 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
- malwarescore=0 priorityscore=1501 impostorscore=0 mlxscore=0
- suspectscore=0 clxscore=1015 adultscore=0 bulkscore=0 lowpriorityscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108270124
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <339641531.29941.1630091374065.JavaMail.zimbra@efficios.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 27 Aug 2021 18:36:48 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-
-> On 27.08.21 16:06, Claudio Imbrenda wrote:
-> > On Fri, 27 Aug 2021 14:54:29 +0200
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> >> While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true,
-
-s/vcp_id/vcpu_id/
-
-> >> it may not always be, and we must not rely on this.  
+On Fri, Aug 27, 2021, Mathieu Desnoyers wrote:
+> > So there are effectively three reasons we want a delay:
 > > 
-> > why?
+> >  1. To allow sched_setaffinity() to coincide with ioctl(KVM_RUN) before KVM can
+> >     enter the guest so that the guest doesn't need an arch-specific VM-Exit source.
 > > 
-> > maybe add a simple explanation of why vcpu_idx and vcpu_id can be
-> > different, namely:
-> > KVM decides the vcpu_idx, userspace decides the vcpu_id, thus the two
-> > might not match
-> >   
-> >>
-> >> Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
-> >> that code like
-> >> for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
-> >>                  vcpu = kvm_get_vcpu(kvm, vcpu_id);  
+> >  2. To let ioctl(KVM_RUN) make its way back to the test before the next round
+> >     of migration.
 > > 
-> > you can also add a sentence to clarify that kvm_get_vcpu expects an
-> > vcpu_idx, not an vcpu_id.
-> >   
-> >> 		do_stuff(vcpu);  
+> >  3. To ensure the read-side can make forward progress, e.g. if sched_getcpu()
+> >     involves a syscall.
+> > 
+> > 
+> > After looking at KVM for arm64 and s390, #1 is a bit tenuous because x86 is the
+> > only arch that currently uses xfer_to_guest_mode_work(), i.e. the test could be
+> > tweaked to be overtly x86-specific.  But since a delay is needed for #2 and #3,
+> > I'd prefer to rely on it for #1 as well in the hopes that this test provides
+> > coverage for arm64 and/or s390 if they're ever converted to use the common
+> > xfer_to_guest_mode_work().
 > 
-> I will modify the patch description accordingly before sending to Paolo.
-> Thanks for noticing.
+> Now that we have this understanding of why we need the delay, it would be good to
+> write this down in a comment within the test.
 
-Can you also please fix the typo I pointed out above (in the first line
-of the long description).
+Ya, I'll get a new version out next week.
 
-Thanks!
-Halil
+> Does it reproduce if we randomize the delay to have it picked randomly from 0us
+> to 100us (with 1us step) ? It would remove a lot of the needs for arch-specific
+> magic delay value.
+
+My less-than-scientific testing shows that it can reproduce at delays up to ~500us,
+but above ~10us the reproducibility starts to drop.  The bug still reproduces
+reliably, it just takes more iterations, and obviously the test runs a bit slower.
+
+Any objection to using a 1-10us delay, e.g. a simple usleep((i % 10) + 1)?
