@@ -2,242 +2,238 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-18.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00E46C43214
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 23:54:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4257C432BE
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 07:06:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D0AE260FDC
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Aug 2021 23:54:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B7CBC60FC4
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 07:06:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229710AbhHZXzq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 26 Aug 2021 19:55:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48326 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243823AbhHZXzp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Aug 2021 19:55:45 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E595C06179A
-        for <linux-s390@vger.kernel.org>; Thu, 26 Aug 2021 16:54:57 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id e15so2783150plh.8
-        for <linux-s390@vger.kernel.org>; Thu, 26 Aug 2021 16:54:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=dW8gFjFomOc5wOdjLD9Dz4jaY3La87NN9K39GXWQx+E=;
-        b=ItG8l0YBP+DbB+c2JE7Df+BDJmWlmM348qS2tn+o20n2CfRdWAMxuKeVWdApc9i/ph
-         SXx9VY/vjBKJ3otuIt73eO92WBuq2g3EeJrPGA1j+NIfwr3rwhzUL7XKr8ulfNJkTyAs
-         A/hdowTP0Ti4TQsIpZGrNAHfz/lIC0cgWPZ6lWsmT7TuDhNU3UrobkDJ2/YT8+DUskzz
-         HyZQgME2+z2UW9Kqa9640Z5XVMQ6hwklS3TQ+vcyW689vKbrce53AFsKL98ApNqD/w6b
-         XBODsFQkhS7SADidGdS4SqCHCuSJuloxnOtFCWTXqWXH7UgBlb+bA6idy73fwmLcWo99
-         dmPw==
+        id S243036AbhH0HHn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 Aug 2021 03:07:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:57395 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231739AbhH0HHn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 27 Aug 2021 03:07:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1630048014;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nOKUkOiPOJUuW1BeJGrt0BGMqLncXK4AuC8Tr1L6PbU=;
+        b=TG7ZfvziM5/rQdMZaih04/SsZA268VZcIe78xYDYSTIaS4oqQapzTtu/fv6Ktk+0VEuzwQ
+        RSFCU18RBgGvDT3A/zs2aY/MFA1pypTNzLaE7BMlDHMMXu7u13rIeQmOU6lb56GjXGJa/9
+        39juG98LIt+oENoyjxq7yjYrq4Hs+r0=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-250-TSewGk02MH-PpwXot3KzHQ-1; Fri, 27 Aug 2021 03:06:52 -0400
+X-MC-Unique: TSewGk02MH-PpwXot3KzHQ-1
+Received: by mail-wm1-f70.google.com with SMTP id b207-20020a1c80d8000000b002ea321114f7so996538wmd.7
+        for <linux-s390@vger.kernel.org>; Fri, 27 Aug 2021 00:06:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=dW8gFjFomOc5wOdjLD9Dz4jaY3La87NN9K39GXWQx+E=;
-        b=UmPordZlvpb8FmeygjnNV1APf1/6bFEf3Ue8BLu6csMkSF80XarILGl6xr0tQcxzIn
-         019tC7oF5soI1bLKrBcKQFLs1fqL+ZSVSc/tdjKj+cPYk8SQhB1QX1YmHSTiHrK0dMQh
-         9eSPpCDfDeibylpSDl3uu4ix77IJFDqU+LWCINbpw/mWzaJoalbPYWTqMUgzYgayPH2a
-         lhWDLWZfbTb+a8ad9D0n0MuqiKfG28HZW6vy6UmRhAjvaCVB8rDILvbMDY8dVDi8qy6U
-         QURKC6sV+XEg3xf+Fb8ATZDyML3S2gIsCzPRk2x+1pYeAdwaIAidz5eKqzwXokxWE9TK
-         JJmw==
-X-Gm-Message-State: AOAM53092FrxhBD/smMPWbbuhbgp5UuydXX5MP5SRMiOIF6HZZJ9bTVX
-        pOme0yWUprM4i5hOc3dNsah7Tg==
-X-Google-Smtp-Source: ABdhPJwzNqdZ7nV9Pm9TbIto/bocQMQl0ruPz+G7jXml1aOfc3KfC0ZbBEbJQskaU4OTATHvb0yPjg==
-X-Received: by 2002:a17:902:c643:b0:130:eab4:bd22 with SMTP id s3-20020a170902c64300b00130eab4bd22mr5672776pls.13.1630022096179;
-        Thu, 26 Aug 2021 16:54:56 -0700 (PDT)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id r3sm3863725pff.119.2021.08.26.16.54.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Aug 2021 16:54:55 -0700 (PDT)
-Date:   Thu, 26 Aug 2021 23:54:51 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc:     dvhart <dvhart@infradead.org>,
-        "Russell King, ARM Linux" <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>, gor <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        paulmck <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, shuah <shuah@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-csky <linux-csky@vger.kernel.org>,
-        linux-mips <linux-mips@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        KVM list <kvm@vger.kernel.org>,
-        linux-kselftest <linux-kselftest@vger.kernel.org>,
-        Peter Foley <pefoley@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Ben Gardon <bgardon@google.com>
-Subject: Re: [PATCH v2 4/5] KVM: selftests: Add a test for KVM_RUN+rseq to
- detect task migration bugs
-Message-ID: <YSgpy8iXXXUQ+b/k@google.com>
-References: <20210820225002.310652-1-seanjc@google.com>
- <20210820225002.310652-5-seanjc@google.com>
- <766990430.21713.1629731934069.JavaMail.zimbra@efficios.com>
- <282257549.21721.1629732017655.JavaMail.zimbra@efficios.com>
- <YSblqrrpKcORzilX@google.com>
- <1700758714.29394.1630003332081.JavaMail.zimbra@efficios.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=nOKUkOiPOJUuW1BeJGrt0BGMqLncXK4AuC8Tr1L6PbU=;
+        b=HQGP618tUeafN16wcGSPJ0Nmayxrr8az1qBmGj7vVFlcZq1yf+0mQHX3Uux9qCs2n3
+         HsDonpA2xdGpEU0pd+Q2+EFlcKWkTTRUILpifhw1YGSFwoGqmlx7MUr5dk4WdwsJVkmP
+         HB6ymqfpHVh+pl22N5VfHfdfG3eiwhyFc82/z4gHfo/zSIPE1iKn+n9usceKqNlaZlzU
+         Jn6VusoyMplngv7SiuekGhi1O+RmDg19Ma9KkXucdDbUrg07WMop0q2PtLu7b8frUy4w
+         8r+N+7cYwWL07t3K6zf7ckgJ1Aj6kzbq8UOv9ycJfu7c+kelFxeAky72zjqKHRw+dqLt
+         b7Tg==
+X-Gm-Message-State: AOAM5321mCAr4jLGYTlDUUcb/Z3u7LZb/nmwtb7ggB7+T0aYduoyAn6e
+        0NCWy/oeiRuJehR1Mz6XsoEQnc4j3hIjg9IHE9gUIpzNamm8ZuIwXfzDRpSUQpOUXVsN22/XI2l
+        SukzuBZvhuIRdpW4NLSLr3Q==
+X-Received: by 2002:adf:9ccc:: with SMTP id h12mr8327998wre.385.1630048011489;
+        Fri, 27 Aug 2021 00:06:51 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw57zjaM5g1GyQHtDyDMZ2UBw12roRBBqfIkLUfj27vJWmqrNn2efnoDxPlsDUNyZkXOwoBMw==
+X-Received: by 2002:adf:9ccc:: with SMTP id h12mr8327984wre.385.1630048011293;
+        Fri, 27 Aug 2021 00:06:51 -0700 (PDT)
+Received: from thuth.remote.csb (dynamic-046-114-148-182.46.114.pool.telefonica.de. [46.114.148.182])
+        by smtp.gmail.com with ESMTPSA id u27sm5711741wru.2.2021.08.27.00.06.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 27 Aug 2021 00:06:50 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH v2 1/3] lib: s390x: Print addressing
+ related exception information
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, cohuck@redhat.com
+References: <20210820114000.166527-1-frankja@linux.ibm.com>
+ <20210820114000.166527-2-frankja@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <079f3f36-652f-4f11-a704-4105ddc65a8a@redhat.com>
+Date:   Fri, 27 Aug 2021 09:06:49 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1700758714.29394.1630003332081.JavaMail.zimbra@efficios.com>
+In-Reply-To: <20210820114000.166527-2-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Aug 26, 2021, Mathieu Desnoyers wrote:
-> ----- On Aug 25, 2021, at 8:51 PM, Sean Christopherson seanjc@google.com wrote:
-> >> >> +		r = sched_setaffinity(0, sizeof(allowed_mask), &allowed_mask);
-> >> >> +		TEST_ASSERT(!r, "sched_setaffinity failed, errno = %d (%s)",
-> >> >> +			    errno, strerror(errno));
-> >> >> +		atomic_inc(&seq_cnt);
-> >> >> +
-> >> >> +		CPU_CLR(cpu, &allowed_mask);
-> >> >> +
-> >> >> +		/*
-> >> >> +		 * Let the read-side get back into KVM_RUN to improve the odds
-> >> >> +		 * of task migration coinciding with KVM's run loop.
-> >> > 
-> >> > This comment should be about increasing the odds of letting the seqlock
-> >> > read-side complete. Otherwise, the delay between the two back-to-back
-> >> > atomic_inc is so small that the seqlock read-side may never have time to
-> >> > complete the reading the rseq cpu id and the sched_getcpu() call, and can
-> >> > retry forever.
-> > 
-> > Hmm, but that's not why there's a delay.  I'm not arguing that a livelock isn't
-> > possible (though that syscall would have to be screaming fast),
+On 20/08/2021 13.39, Janosch Frank wrote:
+> Right now we only get told the kind of program exception as well as
+> the PSW at the point where it happened.
 > 
-> I don't think we have the same understanding of the livelock scenario. AFAIU the livelock
-> would be caused by a too-small delay between the two consecutive atomic_inc() from one
-> loop iteration to the next compared to the time it takes to perform a read-side critical
-> section of the seqlock. Back-to-back atomic_inc can be performed very quickly, so I
-> doubt that the sched_getcpu implementation have good odds to be fast enough to complete
-> in that narrow window, leading to lots of read seqlock retry.
-
-Ooooh, yeah, brain fart on my side.  I was thinking of the two atomic_inc() in the
-same loop iteration and completely ignoring the next iteration.  Yes, I 100% agree
-that a delay to ensure forward progress is needed.  An assertion in main() that the
-reader complete at least some reasonable number of KVM_RUNs is also probably a good
-idea, e.g. to rule out a false pass due to the reader never making forward progress.
-
-FWIW, the do-while loop does make forward progress without a delay, but at ~50% 
-throughput, give or take.
-
-> > but the primary motivation is very much to allow the read-side enough time
-> > to get back into KVM proper.
+> For addressing exceptions the PSW is not always enough so let's print
+> the TEID which contains the failing address and flags that tell us
+> more about the kind of address exception.
 > 
-> I'm puzzled by your statement. AFAIU, let's say we don't have the delay, then we
-> have:
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+...
+> --- /dev/null
+> +++ b/lib/s390x/fault.h
+> @@ -0,0 +1,44 @@
+> +/* SPDX-License-Identifier: GPL-2.0-or-later */
+> +/*
+> + * Headers for fault.c
+> + *
+> + * Copyright 2021 IBM Corp.
+> + *
+> + * Authors:
+> + *    Janosch Frank <frankja@linux.ibm.com>
+> + */
+> +#ifndef _S390X_FAULT_H_
+> +#define _S390X_FAULT_H_
+> +
+> +#include <bitops.h>
+> +
+> +/* Instruction execution prevention, i.e. no-execute, 101 */
+> +static inline bool prot_is_iep(uint64_t teid)
+> +{
+> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid))
+> +		return true;
+> +
+> +	return false;
+
+You could simplify this into:
+
+	return test_bit_inv(56, &teid) &&
+                !test_bit_inv(60, &teid) &&
+                test_bit_inv(61, &teid);
+
+... but I don't mind too much if you keep the current version.
+
+> +}
+> +
+> +/* Standard DAT exception, 001 */
+> +static inline bool prot_is_datp(uint64_t teid)
+> +{
+> +	if (!test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && test_bit_inv(61, &teid))
+> +		return true;
+> +
+> +	return false;
+
+dito
+
+> +}
+> +
+> +/* Low-address protection exception, 100 */
+> +static inline bool prot_is_lap(uint64_t teid)
+> +{
+> +	if (test_bit_inv(56, &teid) && !test_bit_inv(60, &teid) && !test_bit_inv(61, &teid))
+> +		return true;
+> +
+> +	return false;
+
+dito
+
+> +}
+> +
+> +void print_decode_teid(uint64_t teid);
+> +
+> +#endif /* _S390X_FAULT_H_ */
+> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> index 01ded49d..721e6758 100644
+> --- a/lib/s390x/interrupt.c
+> +++ b/lib/s390x/interrupt.c
+> @@ -12,6 +12,8 @@
+>   #include <sclp.h>
+>   #include <interrupt.h>
+>   #include <sie.h>
+> +#include <fault.h>
+> +#include <asm/page.h>
+>   
+>   static bool pgm_int_expected;
+>   static bool ext_int_expected;
+> @@ -76,8 +78,7 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
+>   		break;
+>   	case PGM_INT_CODE_PROTECTION:
+>   		/* Handling for iep.c test case. */
+> -		if (lc->trans_exc_id & 0x80UL && lc->trans_exc_id & 0x04UL &&
+> -		    !(lc->trans_exc_id & 0x08UL))
+> +		if (prot_is_iep(lc->trans_exc_id))
+>   			/*
+>   			 * We branched to the instruction that caused
+>   			 * the exception so we can use the return
+> @@ -126,6 +127,26 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
+>   	/* suppressed/terminated/completed point already at the next address */
+>   }
+>   
+> +static void print_storage_exception_information(void)
+> +{
+> +	switch (lc->pgm_int_code) {
+> +	case PGM_INT_CODE_PROTECTION:
+> +	case PGM_INT_CODE_PAGE_TRANSLATION:
+> +	case PGM_INT_CODE_SEGMENT_TRANSLATION:
+> +	case PGM_INT_CODE_ASCE_TYPE:
+> +	case PGM_INT_CODE_REGION_FIRST_TRANS:
+> +	case PGM_INT_CODE_REGION_SECOND_TRANS:
+> +	case PGM_INT_CODE_REGION_THIRD_TRANS:
+> +	case PGM_INT_CODE_SECURE_STOR_ACCESS:
+> +	case PGM_INT_CODE_NON_SECURE_STOR_ACCESS:
+> +	case PGM_INT_CODE_SECURE_STOR_VIOLATION:
+> +		print_decode_teid(lc->trans_exc_id);
+> +		break;
+> +	default:
+> +		return;
+
+Drop the default case?
+
+> +	}
+> +}
+> +
+>   static void print_int_regs(struct stack_frame_int *stack)
+>   {
+>   	printf("\n");
+> @@ -155,6 +176,10 @@ static void print_pgm_info(struct stack_frame_int *stack)
+>   	       lc->pgm_int_code, stap(), lc->pgm_old_psw.addr, lc->pgm_int_id);
+>   	print_int_regs(stack);
+>   	dump_stack();
+> +
+> +	/* Dump stack doesn't end with a \n so we add it here instead */
+> +	printf("\n");
+> +	print_storage_exception_information();
+>   	report_summary();
+>   	abort();
+>   }
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index ef8041a6..5d1a33a0 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -72,6 +72,7 @@ cflatobjs += lib/s390x/css_lib.o
+>   cflatobjs += lib/s390x/malloc_io.o
+>   cflatobjs += lib/s390x/uv.o
+>   cflatobjs += lib/s390x/sie.o
+> +cflatobjs += lib/s390x/fault.o
+>   
+>   OBJDIRS += lib/s390x
+>   
 > 
-> migration thread                             KVM_RUN/read-side thread
-> -----------------------------------------------------------------------------------
->                                              - ioctl(KVM_RUN)
-> - atomic_inc_seq_cst(&seqcnt)
-> - sched_setaffinity
-> - atomic_inc_seq_cst(&seqcnt)
->                                              - a = atomic_load(&seqcnt) & ~1
->                                              - smp_rmb()
->                                              - b = LOAD_ONCE(__rseq_abi->cpu_id);
->                                              - sched_getcpu()
->                                              - smp_rmb()
->                                              - re-load seqcnt/compare (succeeds)
->                                                - Can only succeed if entire read-side happens while the seqcnt
->                                                  is in an even numbered state.
->                                              - if (a != b) abort()
->   /* no delay. Even counter state is very
->      short. */
-> - atomic_inc_seq_cst(&seqcnt)
->   /* Let's suppose the lack of delay causes the
->      setaffinity to complete too early compared
->      with KVM_RUN ioctl */
-> - sched_setaffinity
-> - atomic_inc_seq_cst(&seqcnt)
-> 
->   /* no delay. Even counter state is very
->      short. */
-> - atomic_inc_seq_cst(&seqcnt)
->   /* Then a setaffinity from a following
->      migration thread loop will run
->      concurrently with KVM_RUN */
->                                              - ioctl(KVM_RUN)
-> - sched_setaffinity
-> - atomic_inc_seq_cst(&seqcnt)
-> 
-> As pointed out here, if the first setaffinity runs too early compared with KVM_RUN,
-> a following setaffinity will run concurrently with it. However, the fact that 
-> the even counter state is very short may very well hurt progress of the read seqlock.
 
-*sigh*
+Some nits, but looks fine to me anyway:
 
-Several hours later, I think I finally have my head wrapped around everything.
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 
-Due to the way the test is written and because of how KVM's run loop works,
-TIF_NOTIFY_RESUME or TIF_NEED_RESCHED effectively has to be set before KVM actually
-enters the guest, otherwise KVM will exit to userspace without touching the flag,
-i.e. it will be handled by the normal exit_to_user_mode_loop().
-
-Where I got lost was trying to figure out why I couldn't make the bug reproduce by
-causing the guest to exit to KVM, but not userspace, in which case KVM should
-easily trigger the problematic flow as the window for sched_getcpu() to collide
-with KVM would be enormous.  The reason I didn't go down this route for the
-"official" test is that, unless there's something clever I'm overlooking, it
-requires arch specific guest code, and ialso I don't know that forcing an exit
-would even be necessary/sufficient on other architectures.
-
-Anyways, I was trying to confirm that the bug was being hit without a delay, while
-still retaining the sequence retry in the test.  The test doesn't fail because the
-back-to-back atomic_inc() changes seqcnt too fast.  The read-side makes forward
-progress, but it never observes failure because the do-while loop only ever
-completes after another sched_setaffinity(), never after the one that collides
-with KVM because it takes too long to get out of ioctl(KVM_RUN) and back to the
-test.  I.e. the atomic_inc() in the next loop iteration (makes seq_cnt odd) always
-completes before the check, and so the check ends up spinning until another
-migration, which correctly updates rseq.  This was expected and didn't confuse me.
-
-What confused me is that I was trying to confirm the bug was being hit from within
-the kernel by confirming KVM observed TIF_NOTIFY_RESUME, but I misunderstood when
-TIF_NOTIFY_RESUME would get set.  KVM can observe TIF_NOTIFY_RESUME directly, but
-it's rare, and I suspect happens iff sched_setaffinity() hits the small window where
-it collides with KVM_RUN before KVM enters the guest.
-
-More commonly, the bug occurs when KVM sees TIF_NEED_RESCHED.  In that case, KVM
-calls xfer_to_guest_mode_work(), which does schedule() and _that_ sets
-TIF_NOTIFY_RESUME.  xfer_to_guest_mode_work() then mishandles TIF_NOTIFY_RESUME
-and the bug is hit, but my confirmation logic in KVM never fired.
-
-So there are effectively three reasons we want a delay:
-
-  1. To allow sched_setaffinity() to coincide with ioctl(KVM_RUN) before KVM can
-     enter the guest so that the guest doesn't need an arch-specific VM-Exit source.
-
-  2. To let ioctl(KVM_RUN) make its way back to the test before the next round
-     of migration.
-
-  3. To ensure the read-side can make forward progress, e.g. if sched_getcpu()
-     involves a syscall.
-
-
-After looking at KVM for arm64 and s390, #1 is a bit tenuous because x86 is the
-only arch that currently uses xfer_to_guest_mode_work(), i.e. the test could be
-tweaked to be overtly x86-specific.  But since a delay is needed for #2 and #3,
-I'd prefer to rely on it for #1 as well in the hopes that this test provides
-coverage for arm64 and/or s390 if they're ever converted to use the common
-xfer_to_guest_mode_work().
