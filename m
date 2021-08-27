@@ -2,95 +2,209 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE767C432BE
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 07:20:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EF0FC432BE
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 12:54:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A7FA560FD8
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 07:20:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E48C60F4F
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 12:54:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244368AbhH0HU4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 Aug 2021 03:20:56 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58718 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S244255AbhH0HUz (ORCPT
+        id S245179AbhH0Mzp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 Aug 2021 08:55:45 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30338 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S245172AbhH0Mzo (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Aug 2021 03:20:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630048806;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=M8VasvezmSl84LxW/Gp2bxkUkiZuhYPO9+N7tbIG3zY=;
-        b=Ukft8AyyQdHvZsMsVfmAo5kK41gYoliekqjx+2/G9L9tZz1ynD87tDugwXmTWFSUBfG2X1
-        Bm/ZLd9URa6hmUUwKyXILm84FWteLpLHU+I2oN9bKC5CLsuCfCK9lokVr0Xo9ptkXG3q5s
-        ZcX+jrgwYLoxVvYalNCcxw+t4gQ2G9U=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-371-dp10PwpzMCeuV0Wy6_rZFw-1; Fri, 27 Aug 2021 03:20:05 -0400
-X-MC-Unique: dp10PwpzMCeuV0Wy6_rZFw-1
-Received: by mail-wm1-f71.google.com with SMTP id f19-20020a1c1f13000000b002e6bd83c344so1453121wmf.3
-        for <linux-s390@vger.kernel.org>; Fri, 27 Aug 2021 00:20:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=M8VasvezmSl84LxW/Gp2bxkUkiZuhYPO9+N7tbIG3zY=;
-        b=Z4P+GU+yD+ocL9Xndiu7fVt1gi2OgiP6wqZQYQEHKBrw/gXpIeil2FOXMtdnJpipZ3
-         KWu04ExgNCTWc2aSLwYbjTQoLe1iVD0IL16FZ5lw45YkSsSlrocM/4AgGQk9v6rPrwlI
-         hw6fi3TxgtRWCRpYg61am7nOiSVV3DjKDsjnWhBlsXBiIHsaEUX78PyRyWNzP3kT8XXb
-         oAYuMZLVGJ5g5TMnJzgtFgvV3RunABCMu/sn7fHPnKhuFmJj61O3JLB1t/F3LY38FIVw
-         xEI4eddfM8lg3H10Mii+x3evSCKNwC5ECGOy2UOxVSpXsr2Y/JVFWBewoAJBV469yt6p
-         pUWA==
-X-Gm-Message-State: AOAM533gfmJl+gnooYYeFvhhH37zl6K8g1qA6Eo1jjbb0Lx30457ZbIK
-        bE7ssHC8lBKSpY1hLzVNqfp+2lxRd8Ssch1f+M7V94Z7sdfgw28MVpChfo7WRaV7MCz+vZq0tVX
-        c9ftNywEieMbMdPEF5/ZeEg==
-X-Received: by 2002:a5d:58e7:: with SMTP id f7mr8684513wrd.51.1630048804263;
-        Fri, 27 Aug 2021 00:20:04 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwTl9i5nBeoXpyrIICHyuDAVdEjoMlEzjsx5J+YiYXGLf74oC1sYlJ6u79cx1FXoWewoLtWBw==
-X-Received: by 2002:a5d:58e7:: with SMTP id f7mr8684494wrd.51.1630048804134;
-        Fri, 27 Aug 2021 00:20:04 -0700 (PDT)
-Received: from thuth.remote.csb (dynamic-046-114-148-182.46.114.pool.telefonica.de. [46.114.148.182])
-        by smtp.gmail.com with ESMTPSA id n20sm4115941wms.15.2021.08.27.00.20.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 27 Aug 2021 00:20:03 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH v2 3/3] lib: s390x: Control register
- constant cleanup
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, cohuck@redhat.com
-References: <20210820114000.166527-1-frankja@linux.ibm.com>
- <20210820114000.166527-4-frankja@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <a8302c3a-1bd6-7dbe-62d8-85601f28301e@redhat.com>
-Date:   Fri, 27 Aug 2021 09:20:02 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        Fri, 27 Aug 2021 08:55:44 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17RCak8G173581;
+        Fri, 27 Aug 2021 08:54:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=6nAAk+V2d3Xwl4xFOBHWQFYVImZXGqjhwIJlEY+rm20=;
+ b=rtuW/YZpRbiM9QkYgwCIkfUJjwihCeTJ+EwSyYZyE1WUDRNgRkz/DTsQcliTy5Rqv04C
+ c1QVhXJLWrZhFqqh6r4LcssGtZsZ6LalPQe9BCtWGeXVC5RJmCkRyHh1G+Lsa80m0YBL
+ WjQuzR+B1Fn5VQMDZB8bmQlRzjaM5HlKvhW0871qRfxwgZrPpog2b6bWF64UJMGdoMzU
+ 7dxg8PQgkRIKICuhhYGFzSC5yJXWSnJdxgYbpCxPF7oskASzIaKeKjNk8bxTkvC2/CEB
+ q4Go9eMi5vKhPvMeRX/42RGrqm00QvqkNgj8sUuctZdqENjl9W7XmyP5G68syWP0MCHH mA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3apyek9maj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 27 Aug 2021 08:54:55 -0400
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17RCqomp066704;
+        Fri, 27 Aug 2021 08:54:55 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3apyek9m8u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 27 Aug 2021 08:54:54 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17RCmITK017628;
+        Fri, 27 Aug 2021 12:54:52 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3ajrrhkjf4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 27 Aug 2021 12:54:52 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17RCowH456820034
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 27 Aug 2021 12:50:58 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F14ED4C052;
+        Fri, 27 Aug 2021 12:54:48 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7A3FF4C058;
+        Fri, 27 Aug 2021 12:54:48 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 27 Aug 2021 12:54:48 +0000 (GMT)
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Halil Pasic <pasic@linux.ibm.com>, stable@vger.kernel.org,
+        Michael Mueller <mimu@linux.ibm.com>
+Subject: [PATCH 1/1] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
+Date:   Fri, 27 Aug 2021 14:54:29 +0200
+Message-Id: <20210827125429.1912577-1-pasic@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20210820114000.166527-4-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: HSaEmx09D-qoYvwa6kdRNQ6JSp1xcYFH
+X-Proofpoint-ORIG-GUID: vV37pAX20O9K5gptdURlBA59ndbX9vdW
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-27_04:2021-08-26,2021-08-27 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 adultscore=0
+ mlxlogscore=999 priorityscore=1501 suspectscore=0 phishscore=0 mlxscore=0
+ lowpriorityscore=0 malwarescore=0 clxscore=1015 bulkscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108270081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 20/08/2021 13.40, Janosch Frank wrote:
-> We had bits and masks defined and don't necessarily need both.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->   lib/s390x/asm/arch_def.h | 28 ++++++++++++----------------
->   lib/s390x/smp.c          |  3 ++-
->   s390x/skrf.c             |  3 ++-
->   3 files changed, 16 insertions(+), 18 deletions(-)
+While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true,
+it may not always be, and we must not rely on this.
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
+that code like
+for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
+                vcpu = kvm_get_vcpu(kvm, vcpu_id);
+		do_stuff(vcpu);
+}
+is not legit. The trouble is, we do actually use kvm->arch.idle_mask
+like this. To fix this problem we have two options. Either use
+kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
+or switch to indexing via vcpu_idx. The latter is preferable for obvious
+reasons.
+
+Let us make switch from indexing kvm->arch.idle_mask by vcpu_id to
+indexing it by vcpu_idx.  To keep gisa_int.kicked_mask indexed by the
+same index as idle_mask lets make the same change for it as well.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
+Cc: <stable@vger.kernel.org> # 3.15+
+---
+ arch/s390/include/asm/kvm_host.h |  1 +
+ arch/s390/kvm/interrupt.c        | 12 ++++++------
+ arch/s390/kvm/kvm-s390.c         |  2 +-
+ arch/s390/kvm/kvm-s390.h         |  2 +-
+ 4 files changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 161a9e12bfb8..630eab0fa176 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -957,6 +957,7 @@ struct kvm_arch{
+ 	atomic64_t cmma_dirty_pages;
+ 	/* subset of available cpu features enabled by user space */
+ 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
++	/* indexed by vcpu_idx */
+ 	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
+ 	struct kvm_s390_gisa_interrupt gisa_int;
+ 	struct kvm_s390_pv pv;
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index d548d60caed2..16256e17a544 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -419,13 +419,13 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
+ static void __set_cpu_idle(struct kvm_vcpu *vcpu)
+ {
+ 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
+-	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
++	set_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
+ }
+ 
+ static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
+ {
+ 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
+-	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
++	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
+ }
+ 
+ static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
+@@ -3050,18 +3050,18 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
+ 
+ static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
+ {
+-	int vcpu_id, online_vcpus = atomic_read(&kvm->online_vcpus);
++	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
+ 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+ 	struct kvm_vcpu *vcpu;
+ 
+-	for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
+-		vcpu = kvm_get_vcpu(kvm, vcpu_id);
++	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
++		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
+ 		if (psw_ioint_disabled(vcpu))
+ 			continue;
+ 		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
+ 		if (deliverable_mask) {
+ 			/* lately kicked but not yet running */
+-			if (test_and_set_bit(vcpu_id, gi->kicked_mask))
++			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
+ 				return;
+ 			kvm_s390_vcpu_wakeup(vcpu);
+ 			return;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 4527ac7b5961..8580543c5bc3 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4044,7 +4044,7 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
+ 		kvm_s390_patch_guest_per_regs(vcpu);
+ 	}
+ 
+-	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.gisa_int.kicked_mask);
++	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.gisa_int.kicked_mask);
+ 
+ 	vcpu->arch.sie_block->icptcode = 0;
+ 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 9fad25109b0d..ecd741ee3276 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -79,7 +79,7 @@ static inline int is_vcpu_stopped(struct kvm_vcpu *vcpu)
+ 
+ static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
+ {
+-	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
++	return test_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
+ }
+ 
+ static inline int kvm_is_ucontrol(struct kvm *kvm)
+
+base-commit: 77dd11439b86e3f7990e4c0c9e0b67dca82750ba
+-- 
+2.25.1
 
