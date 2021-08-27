@@ -2,241 +2,281 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9738BC432BE
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 16:36:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73B82C43216
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 19:09:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7C5D460F25
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 16:36:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C7D460F39
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 19:09:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230007AbhH0Qhp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 Aug 2021 12:37:45 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42948 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229854AbhH0Qhp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Aug 2021 12:37:45 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17RGXT2X155565;
-        Fri, 27 Aug 2021 12:36:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=mfM0/5nznkJ6+pFJS0/IEBbQq8YC8Neshd5/N4K+5e0=;
- b=jMMwvR4UaKeoKgkuaL9tXiQzQyC0pUemp43uIHy9dugaTXh/VBf5qGxHSOjRiZHPzvud
- cZvR9e2fsILmIYdkX0+2fv1C4yS84Bf/iM1v8rclEa59NyH/wXHZJIAxhqsOn8LeJOZL
- 7m0yePPjUryLLiMy20Kzp/sOUTKjV5OiPUdo6s/Lw3VXJNqaO4UIINyUGAloTUc9o0Ab
- qvQ2/imv1b+GVXfWLmPCqj9riL9Y55sSiqF4ggK9sxvzwetY2S3bN8EgSafhAhdrHQ6t
- 0OoNvAD8AAOGYShVA9Cu/DrbrOZi4v4KfiEGTZo9U8X0o37mRLSUp9y/4FXeOA+RmaY2 gA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3aq3ne82uy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Aug 2021 12:36:55 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17RGXnxG156395;
-        Fri, 27 Aug 2021 12:36:55 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3aq3ne82u9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Aug 2021 12:36:55 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17RGRb7c014842;
-        Fri, 27 Aug 2021 16:36:53 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3ajs493tgh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Aug 2021 16:36:53 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17RGan8r33554852
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 Aug 2021 16:36:49 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A6CC7A405F;
-        Fri, 27 Aug 2021 16:36:49 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2B0EBA4054;
-        Fri, 27 Aug 2021 16:36:49 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.145.50.110])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 27 Aug 2021 16:36:49 +0000 (GMT)
-Subject: Re: [PATCH 1/1] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Michael Mueller <mimu@linux.ibm.com>
-References: <20210827125429.1912577-1-pasic@linux.ibm.com>
- <20210827160616.532d6699@p-imbrenda>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <e9d2f79c-b784-bc6b-88dc-2d0f7cc08dbe@de.ibm.com>
-Date:   Fri, 27 Aug 2021 18:36:48 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S231131AbhH0TK0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 Aug 2021 15:10:26 -0400
+Received: from mail.efficios.com ([167.114.26.124]:53444 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230446AbhH0TKZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Aug 2021 15:10:25 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 35CF8381D4D;
+        Fri, 27 Aug 2021 15:09:35 -0400 (EDT)
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id bdpbmavpTcDf; Fri, 27 Aug 2021 15:09:34 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 70AB2381CCB;
+        Fri, 27 Aug 2021 15:09:34 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 70AB2381CCB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1630091374;
+        bh=a+xsJEpOCH31ksEHBk6kwF1tUR+tILdkL5tisWRdxI0=;
+        h=Date:From:To:Message-ID:MIME-Version;
+        b=cZCl7fQ/RTUAu0JMKb52619qhmst5OKPbEtnktbVMX/PIHufPwNIz98Ws9VY3/hy4
+         tL/OEN4pzYr3Qp9c6LsakEcVPL42DmIBvwb0DHeXYpf+36mtzHghXaDhPpzwd132KK
+         hEGDyCXfz7EzVSVP6SPQEDmeEGlUwzPCYdoSc1QaK5k5qgXsewClns9NDZ5b/ANSk9
+         QAIBXoJdR3MOeo9N8iFtFpTi7L41mC/UV6LCTb8bhnUV6jRlXRnwh3eKkShIA/awvz
+         X6y/j+YsW2oArKIqHNlYlgPu+EvmE4w8fkZeC4LXw6VXW0bGAFOxuNvAsFq0SA9oq1
+         ckDQ0iaaY4cpQ==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id nRsCb8Qy1cNv; Fri, 27 Aug 2021 15:09:34 -0400 (EDT)
+Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
+        by mail.efficios.com (Postfix) with ESMTP id 3381D381E39;
+        Fri, 27 Aug 2021 15:09:34 -0400 (EDT)
+Date:   Fri, 27 Aug 2021 15:09:34 -0400 (EDT)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     dvhart <dvhart@infradead.org>,
+        "Russell King, ARM Linux" <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>, gor <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        paulmck <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, shuah <shuah@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-csky <linux-csky@vger.kernel.org>,
+        linux-mips <linux-mips@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        KVM list <kvm@vger.kernel.org>,
+        linux-kselftest <linux-kselftest@vger.kernel.org>,
+        Peter Foley <pefoley@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Ben Gardon <bgardon@google.com>
+Message-ID: <339641531.29941.1630091374065.JavaMail.zimbra@efficios.com>
+In-Reply-To: <YSgpy8iXXXUQ+b/k@google.com>
+References: <20210820225002.310652-1-seanjc@google.com> <20210820225002.310652-5-seanjc@google.com> <766990430.21713.1629731934069.JavaMail.zimbra@efficios.com> <282257549.21721.1629732017655.JavaMail.zimbra@efficios.com> <YSblqrrpKcORzilX@google.com> <1700758714.29394.1630003332081.JavaMail.zimbra@efficios.com> <YSgpy8iXXXUQ+b/k@google.com>
+Subject: Re: [PATCH v2 4/5] KVM: selftests: Add a test for KVM_RUN+rseq to
+ detect task migration bugs
 MIME-Version: 1.0
-In-Reply-To: <20210827160616.532d6699@p-imbrenda>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: cpRrVZT10NGT7EOqsMVLAhs6Bi64PxjU
-X-Proofpoint-GUID: b70fr0IFHIywE5V8rJSjT6o3Xs245CxO
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-08-27_04:2021-08-26,2021-08-27 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- mlxlogscore=999 spamscore=0 malwarescore=0 bulkscore=0 clxscore=1015
- lowpriorityscore=0 adultscore=0 priorityscore=1501 mlxscore=0 phishscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108270098
+X-Originating-IP: [167.114.26.124]
+X-Mailer: Zimbra 8.8.15_GA_4101 (ZimbraWebClient - FF91 (Linux)/8.8.15_GA_4059)
+Thread-Topic: selftests: Add a test for KVM_RUN+rseq to detect task migration bugs
+Thread-Index: Cat4/nZnF/JdYT0CBeoaNK9t7xzyjQ==
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 27.08.21 16:06, Claudio Imbrenda wrote:
-> On Fri, 27 Aug 2021 14:54:29 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
-> 
->> While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true,
->> it may not always be, and we must not rely on this.
-> 
-> why?
-> 
-> maybe add a simple explanation of why vcpu_idx and vcpu_id can be
-> different, namely:
-> KVM decides the vcpu_idx, userspace decides the vcpu_id, thus the two
-> might not match
-> 
->>
->> Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
->> that code like
->> for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
->>                  vcpu = kvm_get_vcpu(kvm, vcpu_id);
-> 
-> you can also add a sentence to clarify that kvm_get_vcpu expects an
-> vcpu_idx, not an vcpu_id.
-> 
->> 		do_stuff(vcpu);
+----- On Aug 26, 2021, at 7:54 PM, Sean Christopherson seanjc@google.com wrote:
 
-I will modify the patch description accordingly before sending to Paolo.
-Thanks for noticing.
+> On Thu, Aug 26, 2021, Mathieu Desnoyers wrote:
+>> ----- On Aug 25, 2021, at 8:51 PM, Sean Christopherson seanjc@google.com wrote:
+>> >> >> +		r = sched_setaffinity(0, sizeof(allowed_mask), &allowed_mask);
+>> >> >> +		TEST_ASSERT(!r, "sched_setaffinity failed, errno = %d (%s)",
+>> >> >> +			    errno, strerror(errno));
+>> >> >> +		atomic_inc(&seq_cnt);
+>> >> >> +
+>> >> >> +		CPU_CLR(cpu, &allowed_mask);
+>> >> >> +
+>> >> >> +		/*
+>> >> >> +		 * Let the read-side get back into KVM_RUN to improve the odds
+>> >> >> +		 * of task migration coinciding with KVM's run loop.
+>> >> > 
+>> >> > This comment should be about increasing the odds of letting the seqlock
+>> >> > read-side complete. Otherwise, the delay between the two back-to-back
+>> >> > atomic_inc is so small that the seqlock read-side may never have time to
+>> >> > complete the reading the rseq cpu id and the sched_getcpu() call, and can
+>> >> > retry forever.
+>> > 
+>> > Hmm, but that's not why there's a delay.  I'm not arguing that a livelock isn't
+>> > possible (though that syscall would have to be screaming fast),
+>> 
+>> I don't think we have the same understanding of the livelock scenario. AFAIU the
+>> livelock
+>> would be caused by a too-small delay between the two consecutive atomic_inc()
+>> from one
+>> loop iteration to the next compared to the time it takes to perform a read-side
+>> critical
+>> section of the seqlock. Back-to-back atomic_inc can be performed very quickly,
+>> so I
+>> doubt that the sched_getcpu implementation have good odds to be fast enough to
+>> complete
+>> in that narrow window, leading to lots of read seqlock retry.
+> 
+> Ooooh, yeah, brain fart on my side.  I was thinking of the two atomic_inc() in
+> the
+> same loop iteration and completely ignoring the next iteration.  Yes, I 100%
+> agree
+> that a delay to ensure forward progress is needed.  An assertion in main() that
+> the
+> reader complete at least some reasonable number of KVM_RUNs is also probably a
+> good
+> idea, e.g. to rule out a false pass due to the reader never making forward
+> progress.
 
+Agreed.
 
->> }
->> is not legit. The trouble is, we do actually use kvm->arch.idle_mask
->> like this. To fix this problem we have two options. Either use
->> kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
->> or switch to indexing via vcpu_idx. The latter is preferable for obvious
->> reasons.
->>
->> Let us make switch from indexing kvm->arch.idle_mask by vcpu_id to
->> indexing it by vcpu_idx.  To keep gisa_int.kicked_mask indexed by the
->> same index as idle_mask lets make the same change for it as well.
->>
->> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
->> Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
 > 
-> otherwise looks good to me.
+> FWIW, the do-while loop does make forward progress without a delay, but at ~50%
+> throughput, give or take.
+
+I did not expect absolutely no progress, but a significant slow down of
+the read-side.
+
 > 
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>> > but the primary motivation is very much to allow the read-side enough time
+>> > to get back into KVM proper.
+>> 
+>> I'm puzzled by your statement. AFAIU, let's say we don't have the delay, then we
+>> have:
+>> 
+>> migration thread                             KVM_RUN/read-side thread
+>> -----------------------------------------------------------------------------------
+>>                                              - ioctl(KVM_RUN)
+>> - atomic_inc_seq_cst(&seqcnt)
+>> - sched_setaffinity
+>> - atomic_inc_seq_cst(&seqcnt)
+>>                                              - a = atomic_load(&seqcnt) & ~1
+>>                                              - smp_rmb()
+>>                                              - b = LOAD_ONCE(__rseq_abi->cpu_id);
+>>                                              - sched_getcpu()
+>>                                              - smp_rmb()
+>>                                              - re-load seqcnt/compare (succeeds)
+>>                                                - Can only succeed if entire read-side happens while the seqcnt
+>>                                                  is in an even numbered state.
+>>                                              - if (a != b) abort()
+>>   /* no delay. Even counter state is very
+>>      short. */
+>> - atomic_inc_seq_cst(&seqcnt)
+>>   /* Let's suppose the lack of delay causes the
+>>      setaffinity to complete too early compared
+>>      with KVM_RUN ioctl */
+>> - sched_setaffinity
+>> - atomic_inc_seq_cst(&seqcnt)
+>> 
+>>   /* no delay. Even counter state is very
+>>      short. */
+>> - atomic_inc_seq_cst(&seqcnt)
+>>   /* Then a setaffinity from a following
+>>      migration thread loop will run
+>>      concurrently with KVM_RUN */
+>>                                              - ioctl(KVM_RUN)
+>> - sched_setaffinity
+>> - atomic_inc_seq_cst(&seqcnt)
+>> 
+>> As pointed out here, if the first setaffinity runs too early compared with
+>> KVM_RUN,
+>> a following setaffinity will run concurrently with it. However, the fact that
+>> the even counter state is very short may very well hurt progress of the read
+>> seqlock.
 > 
->> Cc: <stable@vger.kernel.org> # 3.15+
->> ---
->>   arch/s390/include/asm/kvm_host.h |  1 +
->>   arch/s390/kvm/interrupt.c        | 12 ++++++------
->>   arch/s390/kvm/kvm-s390.c         |  2 +-
->>   arch/s390/kvm/kvm-s390.h         |  2 +-
->>   4 files changed, 9 insertions(+), 8 deletions(-)
->>
->> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
->> index 161a9e12bfb8..630eab0fa176 100644
->> --- a/arch/s390/include/asm/kvm_host.h
->> +++ b/arch/s390/include/asm/kvm_host.h
->> @@ -957,6 +957,7 @@ struct kvm_arch{
->>   	atomic64_t cmma_dirty_pages;
->>   	/* subset of available cpu features enabled by user space */
->>   	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
->> +	/* indexed by vcpu_idx */
->>   	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
->>   	struct kvm_s390_gisa_interrupt gisa_int;
->>   	struct kvm_s390_pv pv;
->> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
->> index d548d60caed2..16256e17a544 100644
->> --- a/arch/s390/kvm/interrupt.c
->> +++ b/arch/s390/kvm/interrupt.c
->> @@ -419,13 +419,13 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
->>   static void __set_cpu_idle(struct kvm_vcpu *vcpu)
->>   {
->>   	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
->> -	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
->> +	set_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
->>   }
->>   
->>   static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
->>   {
->>   	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
->> -	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
->> +	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
->>   }
->>   
->>   static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
->> @@ -3050,18 +3050,18 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
->>   
->>   static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
->>   {
->> -	int vcpu_id, online_vcpus = atomic_read(&kvm->online_vcpus);
->> +	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
->>   	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
->>   	struct kvm_vcpu *vcpu;
->>   
->> -	for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
->> -		vcpu = kvm_get_vcpu(kvm, vcpu_id);
->> +	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
->> +		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
->>   		if (psw_ioint_disabled(vcpu))
->>   			continue;
->>   		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
->>   		if (deliverable_mask) {
->>   			/* lately kicked but not yet running */
->> -			if (test_and_set_bit(vcpu_id, gi->kicked_mask))
->> +			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
->>   				return;
->>   			kvm_s390_vcpu_wakeup(vcpu);
->>   			return;
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 4527ac7b5961..8580543c5bc3 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -4044,7 +4044,7 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
->>   		kvm_s390_patch_guest_per_regs(vcpu);
->>   	}
->>   
->> -	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.gisa_int.kicked_mask);
->> +	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.gisa_int.kicked_mask);
->>   
->>   	vcpu->arch.sie_block->icptcode = 0;
->>   	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
->> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
->> index 9fad25109b0d..ecd741ee3276 100644
->> --- a/arch/s390/kvm/kvm-s390.h
->> +++ b/arch/s390/kvm/kvm-s390.h
->> @@ -79,7 +79,7 @@ static inline int is_vcpu_stopped(struct kvm_vcpu *vcpu)
->>   
->>   static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
->>   {
->> -	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
->> +	return test_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
->>   }
->>   
->>   static inline int kvm_is_ucontrol(struct kvm *kvm)
->>
->> base-commit: 77dd11439b86e3f7990e4c0c9e0b67dca82750ba
+> *sigh*
 > 
+> Several hours later, I think I finally have my head wrapped around everything.
+> 
+> Due to the way the test is written and because of how KVM's run loop works,
+> TIF_NOTIFY_RESUME or TIF_NEED_RESCHED effectively has to be set before KVM
+> actually
+> enters the guest, otherwise KVM will exit to userspace without touching the
+> flag,
+> i.e. it will be handled by the normal exit_to_user_mode_loop().
+> 
+> Where I got lost was trying to figure out why I couldn't make the bug reproduce
+> by
+> causing the guest to exit to KVM, but not userspace, in which case KVM should
+> easily trigger the problematic flow as the window for sched_getcpu() to collide
+> with KVM would be enormous.  The reason I didn't go down this route for the
+> "official" test is that, unless there's something clever I'm overlooking, it
+> requires arch specific guest code, and ialso I don't know that forcing an exit
+> would even be necessary/sufficient on other architectures.
+> 
+> Anyways, I was trying to confirm that the bug was being hit without a delay,
+> while
+> still retaining the sequence retry in the test.  The test doesn't fail because
+> the
+> back-to-back atomic_inc() changes seqcnt too fast.  The read-side makes forward
+> progress, but it never observes failure because the do-while loop only ever
+> completes after another sched_setaffinity(), never after the one that collides
+> with KVM because it takes too long to get out of ioctl(KVM_RUN) and back to the
+> test.  I.e. the atomic_inc() in the next loop iteration (makes seq_cnt odd)
+> always
+> completes before the check, and so the check ends up spinning until another
+> migration, which correctly updates rseq.  This was expected and didn't confuse
+> me.
+> 
+> What confused me is that I was trying to confirm the bug was being hit from
+> within
+> the kernel by confirming KVM observed TIF_NOTIFY_RESUME, but I misunderstood
+> when
+> TIF_NOTIFY_RESUME would get set.  KVM can observe TIF_NOTIFY_RESUME directly,
+> but
+> it's rare, and I suspect happens iff sched_setaffinity() hits the small window
+> where
+> it collides with KVM_RUN before KVM enters the guest.
+> 
+> More commonly, the bug occurs when KVM sees TIF_NEED_RESCHED.  In that case, KVM
+> calls xfer_to_guest_mode_work(), which does schedule() and _that_ sets
+> TIF_NOTIFY_RESUME.  xfer_to_guest_mode_work() then mishandles TIF_NOTIFY_RESUME
+> and the bug is hit, but my confirmation logic in KVM never fired.
+> 
+> So there are effectively three reasons we want a delay:
+> 
+>  1. To allow sched_setaffinity() to coincide with ioctl(KVM_RUN) before KVM can
+>     enter the guest so that the guest doesn't need an arch-specific VM-Exit source.
+> 
+>  2. To let ioctl(KVM_RUN) make its way back to the test before the next round
+>     of migration.
+> 
+>  3. To ensure the read-side can make forward progress, e.g. if sched_getcpu()
+>     involves a syscall.
+> 
+> 
+> After looking at KVM for arm64 and s390, #1 is a bit tenuous because x86 is the
+> only arch that currently uses xfer_to_guest_mode_work(), i.e. the test could be
+> tweaked to be overtly x86-specific.  But since a delay is needed for #2 and #3,
+> I'd prefer to rely on it for #1 as well in the hopes that this test provides
+> coverage for arm64 and/or s390 if they're ever converted to use the common
+> xfer_to_guest_mode_work().
+
+Now that we have this understanding of why we need the delay, it would be good to
+write this down in a comment within the test.
+
+Does it reproduce if we randomize the delay to have it picked randomly from 0us
+to 100us (with 1us step) ? It would remove a lot of the needs for arch-specific
+magic delay value.
+
+Thanks,
+
+Mathieu
+
+-- 
+Mathieu Desnoyers
+EfficiOS Inc.
+http://www.efficios.com
