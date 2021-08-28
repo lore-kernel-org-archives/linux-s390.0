@@ -2,62 +2,53 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C661EC43216
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 23:23:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73697C4320A
+	for <linux-s390@archiver.kernel.org>; Sat, 28 Aug 2021 00:06:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A735D60F45
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Aug 2021 23:23:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5CD9260FE6
+	for <linux-s390@archiver.kernel.org>; Sat, 28 Aug 2021 00:06:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232535AbhH0XY1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 Aug 2021 19:24:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58236 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232492AbhH0XYZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Aug 2021 19:24:25 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BA0DC0617AD
-        for <linux-s390@vger.kernel.org>; Fri, 27 Aug 2021 16:23:35 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id f11-20020a17090aa78b00b0018e98a7cddaso5865883pjq.4
-        for <linux-s390@vger.kernel.org>; Fri, 27 Aug 2021 16:23:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=TQth0zKaZ1g898XhTaLjgqI+BqtTYpmEnIJq3AsLCJk=;
-        b=BAuX2ol8F6dvdcYTLPau4K0GBYzUoQCSuqStZCATywk1xJsRcTN/zbnvR40BRHvYRj
-         p2MT9UNw+pSe1w4FqYAzJww2vX26GF4Etd+uOuVWgHJFd4agO5hpaKs4rD3Z8IuIiQ64
-         bceibC9z39TyoUF5r/ZBJugD41m33rR/4wmX0JjHH4Ox3VO0sQvCLcKc4rCPjZl3kpp/
-         z2ewywcdb4obgJrlPAWwwSgAREPIfSw6ixPLrZU+orCqHvOzAJIbsJDGYnOKI/KJzI5+
-         MS27DWV8OUcVAL9tLPc5IpbSctooG5g35qhato+7vW1AY9AOSyjT1rpopwB7U0ojjXOG
-         jR7Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=TQth0zKaZ1g898XhTaLjgqI+BqtTYpmEnIJq3AsLCJk=;
-        b=nTwCe/E7+cZH+PTxfvqkWKvtUyM6alWEUUcDcy3mvhGdua49kmPlvVos0JOqjS9t0D
-         RXcIYfA/mWtbslq9fN+E5Z5o6xOUQoU2vNAB45aevogYDNp+EB+vD+i0ngMfnUlk0EKs
-         0OaUwdo92QKEJliqH8Rf31m+FbdXTG2trtLKMkqZCakK3Rr5ENb3jTajssmIwFGIe++8
-         vvotZcqeF9cfY5GGtiTY1atp25GwzFr+zCtDDpEHpgiLVf024p7SJe7q6JzMciPRzo+B
-         P57b+TSLbYyQoQ/GicnyjW74oIA5QI8ulnbO3/r9zarqYGdoLUxDVo5LJRFfSWP2ldiF
-         rAWQ==
-X-Gm-Message-State: AOAM530sHsPPb3bDQS+gYg7uh/tSYbbWbGuMF+4YNW/+ajOE5QzNNLKZ
-        AX18VYq7FPRDzAFsrQqJZrmNcA==
-X-Google-Smtp-Source: ABdhPJwmCb6NSZOc/5AwINtm/0AHRKcukC2PPcNvrpcQ6DjdUz8MDW9KTFWzGmyEhc2uaUezQAIkrA==
-X-Received: by 2002:a17:90a:fe8e:: with SMTP id co14mr10854117pjb.200.1630106614660;
-        Fri, 27 Aug 2021 16:23:34 -0700 (PDT)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id h13sm7335943pgh.93.2021.08.27.16.23.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Aug 2021 16:23:33 -0700 (PDT)
-Date:   Fri, 27 Aug 2021 23:23:30 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+        id S232682AbhH1AHW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 Aug 2021 20:07:22 -0400
+Received: from mail.efficios.com ([167.114.26.124]:47366 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232558AbhH1AHP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Aug 2021 20:07:15 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 334D2383D90;
+        Fri, 27 Aug 2021 20:06:25 -0400 (EDT)
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id dJnw97AVp-6J; Fri, 27 Aug 2021 20:06:20 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id AABF53839D9;
+        Fri, 27 Aug 2021 20:06:20 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com AABF53839D9
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1630109180;
+        bh=aNbnUoaMo9qyJFeAmPDlGUugMe1xHV+lzHQym41zPgk=;
+        h=Date:From:To:Message-ID:MIME-Version;
+        b=ibXqVy9zMTh8pzWhCDOoh0A6j0FvWS8eYDH852Q65ZQn7p1jJGIre5/cPOpdeIP+y
+         aA3o07Eg6BWPXmQhKAcL/ut69D3yBdvdejeJXIhzPTSWYfZet9c55De2zXu/+jv9qb
+         9rMBUNtRH3XFmY4l5818jP7JeOTnYOyaVW6g21SlH6hM5lnPmcjj7mBKimFhzIieoI
+         r/xa04WF8N3Rq/3K+SW2ss83aevuy6/MvU/Sy30Y15mPyUw7HSYrNN1GbX2+DRw0YH
+         7ZItjz+GSSq3DkuqubXPIjIIupZU9sNhSleF8+cDrSh10TSYD5CLywa6jmXG5NyjL6
+         CV8mJ14ojbACA==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 9JJ04Y5MGhgL; Fri, 27 Aug 2021 20:06:20 -0400 (EDT)
+Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
+        by mail.efficios.com (Postfix) with ESMTP id 87F07383C99;
+        Fri, 27 Aug 2021 20:06:20 -0400 (EDT)
+Date:   Fri, 27 Aug 2021 20:06:20 -0400 (EDT)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Sean Christopherson <seanjc@google.com>
 Cc:     dvhart <dvhart@infradead.org>,
         "Russell King, ARM Linux" <linux@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
@@ -86,56 +77,43 @@ Cc:     dvhart <dvhart@infradead.org>,
         Peter Foley <pefoley@google.com>,
         Shakeel Butt <shakeelb@google.com>,
         Ben Gardon <bgardon@google.com>
+Message-ID: <1054916754.30218.1630109180443.JavaMail.zimbra@efficios.com>
+In-Reply-To: <YSlz8h9SWgeuicak@google.com>
+References: <20210820225002.310652-1-seanjc@google.com> <766990430.21713.1629731934069.JavaMail.zimbra@efficios.com> <282257549.21721.1629732017655.JavaMail.zimbra@efficios.com> <YSblqrrpKcORzilX@google.com> <1700758714.29394.1630003332081.JavaMail.zimbra@efficios.com> <YSgpy8iXXXUQ+b/k@google.com> <339641531.29941.1630091374065.JavaMail.zimbra@efficios.com> <YSlz8h9SWgeuicak@google.com>
 Subject: Re: [PATCH v2 4/5] KVM: selftests: Add a test for KVM_RUN+rseq to
  detect task migration bugs
-Message-ID: <YSlz8h9SWgeuicak@google.com>
-References: <20210820225002.310652-1-seanjc@google.com>
- <20210820225002.310652-5-seanjc@google.com>
- <766990430.21713.1629731934069.JavaMail.zimbra@efficios.com>
- <282257549.21721.1629732017655.JavaMail.zimbra@efficios.com>
- <YSblqrrpKcORzilX@google.com>
- <1700758714.29394.1630003332081.JavaMail.zimbra@efficios.com>
- <YSgpy8iXXXUQ+b/k@google.com>
- <339641531.29941.1630091374065.JavaMail.zimbra@efficios.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <339641531.29941.1630091374065.JavaMail.zimbra@efficios.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [167.114.26.124]
+X-Mailer: Zimbra 8.8.15_GA_4101 (ZimbraWebClient - FF91 (Linux)/8.8.15_GA_4059)
+Thread-Topic: selftests: Add a test for KVM_RUN+rseq to detect task migration bugs
+Thread-Index: eu98ugrRMaO1Ldp5KUn1lSy5MLrp5Q==
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 27, 2021, Mathieu Desnoyers wrote:
-> > So there are effectively three reasons we want a delay:
-> > 
-> >  1. To allow sched_setaffinity() to coincide with ioctl(KVM_RUN) before KVM can
-> >     enter the guest so that the guest doesn't need an arch-specific VM-Exit source.
-> > 
-> >  2. To let ioctl(KVM_RUN) make its way back to the test before the next round
-> >     of migration.
-> > 
-> >  3. To ensure the read-side can make forward progress, e.g. if sched_getcpu()
-> >     involves a syscall.
-> > 
-> > 
-> > After looking at KVM for arm64 and s390, #1 is a bit tenuous because x86 is the
-> > only arch that currently uses xfer_to_guest_mode_work(), i.e. the test could be
-> > tweaked to be overtly x86-specific.  But since a delay is needed for #2 and #3,
-> > I'd prefer to rely on it for #1 as well in the hopes that this test provides
-> > coverage for arm64 and/or s390 if they're ever converted to use the common
-> > xfer_to_guest_mode_work().
+----- On Aug 27, 2021, at 7:23 PM, Sean Christopherson seanjc@google.com wrote:
+
+> On Fri, Aug 27, 2021, Mathieu Desnoyers wrote:
+[...]
+>> Does it reproduce if we randomize the delay to have it picked randomly from 0us
+>> to 100us (with 1us step) ? It would remove a lot of the needs for arch-specific
+>> magic delay value.
 > 
-> Now that we have this understanding of why we need the delay, it would be good to
-> write this down in a comment within the test.
+> My less-than-scientific testing shows that it can reproduce at delays up to
+> ~500us,
+> but above ~10us the reproducibility starts to drop.  The bug still reproduces
+> reliably, it just takes more iterations, and obviously the test runs a bit
+> slower.
+> 
+> Any objection to using a 1-10us delay, e.g. a simple usleep((i % 10) + 1)?
 
-Ya, I'll get a new version out next week.
+Works for me, thanks!
 
-> Does it reproduce if we randomize the delay to have it picked randomly from 0us
-> to 100us (with 1us step) ? It would remove a lot of the needs for arch-specific
-> magic delay value.
+Mathieu
 
-My less-than-scientific testing shows that it can reproduce at delays up to ~500us,
-but above ~10us the reproducibility starts to drop.  The bug still reproduces
-reliably, it just takes more iterations, and obviously the test runs a bit slower.
-
-Any objection to using a 1-10us delay, e.g. a simple usleep((i % 10) + 1)?
+-- 
+Mathieu Desnoyers
+EfficiOS Inc.
+http://www.efficios.com
