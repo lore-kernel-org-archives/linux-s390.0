@@ -2,118 +2,224 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73697C4320A
-	for <linux-s390@archiver.kernel.org>; Sat, 28 Aug 2021 00:06:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 411B2C432BE
+	for <linux-s390@archiver.kernel.org>; Sat, 28 Aug 2021 11:07:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5CD9260FE6
-	for <linux-s390@archiver.kernel.org>; Sat, 28 Aug 2021 00:06:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 29EF2601FD
+	for <linux-s390@archiver.kernel.org>; Sat, 28 Aug 2021 11:07:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232682AbhH1AHW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 Aug 2021 20:07:22 -0400
-Received: from mail.efficios.com ([167.114.26.124]:47366 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232558AbhH1AHP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Aug 2021 20:07:15 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 334D2383D90;
-        Fri, 27 Aug 2021 20:06:25 -0400 (EDT)
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id dJnw97AVp-6J; Fri, 27 Aug 2021 20:06:20 -0400 (EDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id AABF53839D9;
-        Fri, 27 Aug 2021 20:06:20 -0400 (EDT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com AABF53839D9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1630109180;
-        bh=aNbnUoaMo9qyJFeAmPDlGUugMe1xHV+lzHQym41zPgk=;
-        h=Date:From:To:Message-ID:MIME-Version;
-        b=ibXqVy9zMTh8pzWhCDOoh0A6j0FvWS8eYDH852Q65ZQn7p1jJGIre5/cPOpdeIP+y
-         aA3o07Eg6BWPXmQhKAcL/ut69D3yBdvdejeJXIhzPTSWYfZet9c55De2zXu/+jv9qb
-         9rMBUNtRH3XFmY4l5818jP7JeOTnYOyaVW6g21SlH6hM5lnPmcjj7mBKimFhzIieoI
-         r/xa04WF8N3Rq/3K+SW2ss83aevuy6/MvU/Sy30Y15mPyUw7HSYrNN1GbX2+DRw0YH
-         7ZItjz+GSSq3DkuqubXPIjIIupZU9sNhSleF8+cDrSh10TSYD5CLywa6jmXG5NyjL6
-         CV8mJ14ojbACA==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 9JJ04Y5MGhgL; Fri, 27 Aug 2021 20:06:20 -0400 (EDT)
-Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
-        by mail.efficios.com (Postfix) with ESMTP id 87F07383C99;
-        Fri, 27 Aug 2021 20:06:20 -0400 (EDT)
-Date:   Fri, 27 Aug 2021 20:06:20 -0400 (EDT)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     dvhart <dvhart@infradead.org>,
-        "Russell King, ARM Linux" <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>, gor <gor@linux.ibm.com>,
+        id S233927AbhH1LI2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 28 Aug 2021 07:08:28 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20344 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233732AbhH1LI1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 28 Aug 2021 07:08:27 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17SB7VoI136137;
+        Sat, 28 Aug 2021 07:07:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=kpd3suGXbrkdM8iW+jjf4KzAG/Cih0t8ovp5ZZwZbQ0=;
+ b=FKNNyZLPon/lgNmo8HsGTK38OaR8vdkkgkFmGf1V2m/5jkGXu807mZCkRmdRrnFSiXlT
+ /MLfNTHnIhbbbZqO0c5crlq5BdIUIMZSvd9AE7MG9UGf++lXUh3DbBgdd4s2Xx+bYewZ
+ JuReeAU88H46JdDwi3sRedvihk1MeGf9lwqbcJtt0kE8V+eCL8YcAtg3N3COZQvn5o8c
+ rpDlJeLj2OMVA0HcP5yLhwNBVnllVJwlLphETs431+O3QzzOd6tbQO0gIUdCGCGZzkPN
+ aN03kidof4804fvNH3f5WuIsWPHWAQHhcDCMB+FS5pXqhMak++LftEmpE08Qy8TWIjxi kQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3aqjungx6h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 28 Aug 2021 07:07:36 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17SB7XXQ136268;
+        Sat, 28 Aug 2021 07:07:36 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3aqjungx11-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 28 Aug 2021 07:07:35 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17SB1pN9006018;
+        Sat, 28 Aug 2021 11:04:49 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 3aqcs88ct0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 28 Aug 2021 11:04:49 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17SB0tqE61735290
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 28 Aug 2021 11:00:55 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ABCC3A42AE;
+        Sat, 28 Aug 2021 11:04:45 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1136AA42B5;
+        Sat, 28 Aug 2021 11:04:45 +0000 (GMT)
+Received: from ant.fritz.box (unknown [9.145.66.174])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Sat, 28 Aug 2021 11:04:44 +0000 (GMT)
+Subject: Re: [PATCH 1/1] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
+To:     Halil Pasic <pasic@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        paulmck <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, shuah <shuah@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-csky <linux-csky@vger.kernel.org>,
-        linux-mips <linux-mips@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        KVM list <kvm@vger.kernel.org>,
-        linux-kselftest <linux-kselftest@vger.kernel.org>,
-        Peter Foley <pefoley@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Ben Gardon <bgardon@google.com>
-Message-ID: <1054916754.30218.1630109180443.JavaMail.zimbra@efficios.com>
-In-Reply-To: <YSlz8h9SWgeuicak@google.com>
-References: <20210820225002.310652-1-seanjc@google.com> <766990430.21713.1629731934069.JavaMail.zimbra@efficios.com> <282257549.21721.1629732017655.JavaMail.zimbra@efficios.com> <YSblqrrpKcORzilX@google.com> <1700758714.29394.1630003332081.JavaMail.zimbra@efficios.com> <YSgpy8iXXXUQ+b/k@google.com> <339641531.29941.1630091374065.JavaMail.zimbra@efficios.com> <YSlz8h9SWgeuicak@google.com>
-Subject: Re: [PATCH v2 4/5] KVM: selftests: Add a test for KVM_RUN+rseq to
- detect task migration bugs
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20210827125429.1912577-1-pasic@linux.ibm.com>
+From:   Michael Mueller <mimu@linux.ibm.com>
+Message-ID: <e3759bf8-012b-149f-ed98-0663e4a3431b@linux.ibm.com>
+Date:   Sat, 28 Aug 2021 13:04:44 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20210827125429.1912577-1-pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [167.114.26.124]
-X-Mailer: Zimbra 8.8.15_GA_4101 (ZimbraWebClient - FF91 (Linux)/8.8.15_GA_4059)
-Thread-Topic: selftests: Add a test for KVM_RUN+rseq to detect task migration bugs
-Thread-Index: eu98ugrRMaO1Ldp5KUn1lSy5MLrp5Q==
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: wYKbXj4c6MbsqjqEjjXR-ch9WhdMCIRt
+X-Proofpoint-ORIG-GUID: 9nG_gdqpRwlHeqIiyg6CAZGz0muQ9xgw
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-08-28_02:2021-08-27,2021-08-28 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ adultscore=0 priorityscore=1501 impostorscore=0 suspectscore=0 spamscore=0
+ malwarescore=0 phishscore=0 clxscore=1011 mlxlogscore=999
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108280068
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
------ On Aug 27, 2021, at 7:23 PM, Sean Christopherson seanjc@google.com wrote:
 
-> On Fri, Aug 27, 2021, Mathieu Desnoyers wrote:
-[...]
->> Does it reproduce if we randomize the delay to have it picked randomly from 0us
->> to 100us (with 1us step) ? It would remove a lot of the needs for arch-specific
->> magic delay value.
+
+On 27.08.21 14:54, Halil Pasic wrote:
+> While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true,
+> it may not always be, and we must not rely on this.
 > 
-> My less-than-scientific testing shows that it can reproduce at delays up to
-> ~500us,
-> but above ~10us the reproducibility starts to drop.  The bug still reproduces
-> reliably, it just takes more iterations, and obviously the test runs a bit
-> slower.
+> Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
+> that code like
+> for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
+>                  vcpu = kvm_get_vcpu(kvm, vcpu_id);
+> 		do_stuff(vcpu);
+> }
+> is not legit. The trouble is, we do actually use kvm->arch.idle_mask
+> like this. To fix this problem we have two options. Either use
+> kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
+> or switch to indexing via vcpu_idx. The latter is preferable for obvious
+> reasons.
 > 
-> Any objection to using a 1-10us delay, e.g. a simple usleep((i % 10) + 1)?
+> Let us make switch from indexing kvm->arch.idle_mask by vcpu_id to
+> indexing it by vcpu_idx.  To keep gisa_int.kicked_mask indexed by the
+> same index as idle_mask lets make the same change for it as well.
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
+> Cc: <stable@vger.kernel.org> # 3.15+
+> ---
+>   arch/s390/include/asm/kvm_host.h |  1 +
+>   arch/s390/kvm/interrupt.c        | 12 ++++++------
+>   arch/s390/kvm/kvm-s390.c         |  2 +-
+>   arch/s390/kvm/kvm-s390.h         |  2 +-
+>   4 files changed, 9 insertions(+), 8 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index 161a9e12bfb8..630eab0fa176 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -957,6 +957,7 @@ struct kvm_arch{
+>   	atomic64_t cmma_dirty_pages;
+>   	/* subset of available cpu features enabled by user space */
+>   	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
+> +	/* indexed by vcpu_idx */
+>   	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
+>   	struct kvm_s390_gisa_interrupt gisa_int;
+>   	struct kvm_s390_pv pv;
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index d548d60caed2..16256e17a544 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -419,13 +419,13 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
+>   static void __set_cpu_idle(struct kvm_vcpu *vcpu)
+>   {
+>   	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
+> -	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
+> +	set_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
+>   }
+>   
+>   static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
+>   {
+>   	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
+> -	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
+> +	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
+>   }
+>   
+>   static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
+> @@ -3050,18 +3050,18 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
+>   
+>   static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
+>   {
+> -	int vcpu_id, online_vcpus = atomic_read(&kvm->online_vcpus);
+> +	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
+>   	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+>   	struct kvm_vcpu *vcpu;
+>   
+> -	for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
+> -		vcpu = kvm_get_vcpu(kvm, vcpu_id);
+> +	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
+> +		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
+>   		if (psw_ioint_disabled(vcpu))
+>   			continue;
+>   		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
+>   		if (deliverable_mask) {
+>   			/* lately kicked but not yet running */
+> -			if (test_and_set_bit(vcpu_id, gi->kicked_mask))
+> +			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
+>   				return;
+>   			kvm_s390_vcpu_wakeup(vcpu);
+>   			return;
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 4527ac7b5961..8580543c5bc3 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -4044,7 +4044,7 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
+>   		kvm_s390_patch_guest_per_regs(vcpu);
+>   	}
+>   
+> -	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.gisa_int.kicked_mask);
+> +	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.gisa_int.kicked_mask);
+>   
+>   	vcpu->arch.sie_block->icptcode = 0;
+>   	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
+> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> index 9fad25109b0d..ecd741ee3276 100644
+> --- a/arch/s390/kvm/kvm-s390.h
+> +++ b/arch/s390/kvm/kvm-s390.h
+> @@ -79,7 +79,7 @@ static inline int is_vcpu_stopped(struct kvm_vcpu *vcpu)
+>   
+>   static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
+>   {
+> -	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
+> +	return test_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
+>   }
+>   
+>   static inline int kvm_is_ucontrol(struct kvm *kvm)
+> 
+> base-commit: 77dd11439b86e3f7990e4c0c9e0b67dca82750ba
 
-Works for me, thanks!
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
 
-Mathieu
+I did also run some tests and have prepared a qemu that will choose
+vcpu_id's that are not equal to the index in the kernel.
 
--- 
-Mathieu Desnoyers
-EfficiOS Inc.
-http://www.efficios.com
+Michael
+
+> 
