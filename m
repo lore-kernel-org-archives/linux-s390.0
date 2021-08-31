@@ -7,120 +7,142 @@ X-Spam-Status: No, score=-16.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A129FC4320A
-	for <linux-s390@archiver.kernel.org>; Tue, 31 Aug 2021 13:44:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59EC4C432BE
+	for <linux-s390@archiver.kernel.org>; Tue, 31 Aug 2021 13:55:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8289D60462
-	for <linux-s390@archiver.kernel.org>; Tue, 31 Aug 2021 13:44:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E9DB60241
+	for <linux-s390@archiver.kernel.org>; Tue, 31 Aug 2021 13:55:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239133AbhHaNpC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 31 Aug 2021 09:45:02 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21438 "EHLO
+        id S239305AbhHaN4N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 31 Aug 2021 09:56:13 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37516 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233928AbhHaNpB (ORCPT
+        by vger.kernel.org with ESMTP id S239787AbhHaN4M (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 31 Aug 2021 09:45:01 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17VDd4Bm119233;
-        Tue, 31 Aug 2021 09:44:05 -0400
+        Tue, 31 Aug 2021 09:56:12 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 17VDnZmJ123807;
+        Tue, 31 Aug 2021 09:55:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
  references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=1Fi0yUgtz9RHoLjSAVwdI/Llm2RRAhJp9ZZ/2bN7jYk=;
- b=Tzp8Ban95yOdGklYf8RiyCNVQLw9ymy6cVpKOkipLNQhIH9aKruMZ4nCYu0qzrYZeBZu
- I9hekjPBaSY17LoVcmoWHozBHnyC+7AHQij3dHmaB+PUiPEHM2SFAE2pQczTN/z4UDkE
- NxbkMuU0ybcj2CYZiHo6YCubN4Niv6MfJ9RnZ09eWx5+Rrs/sP2mqfXpb/HWIuzlSGWu
- sb/eLRLMT5CqkykmikjnJajtzIUkvGoajsYNgBWdn9clkJmKDX170xiFmOwaJH9mzY77
- ZZka/UyaO96OXPra5XAPxHay5BXQXQK7c908xy4ILcJwuatyw0UtJAGQ18ieHB79cs1w 9A== 
+ bh=GNld3ZAakhTzCAjLeVyROgSf6RN4dScPLaqttdrbqtc=;
+ b=tBHHndK+doas9DbdixV+v06plbyjkKxJC/fz6ytP8jlFtMAS47ivp7EL5ab4u+EIw8ZW
+ HlPzIf92JNloFsEzchUgTyNEUu0TF8QsvtyZRbVuFcKO3rplipubh4KDuwysi+v90aft
+ RrfX9nEo7npS0ATIiw1prox/VXBBwhdFrj/PIOXVjBA+o3K6b0OrfnUZifspNay5O0oe
+ sHTWKXWNT3exdqgQM00hIH7vtT8u9CtdSErb1Szq4lTwfq9hsiyMs8oJTzCq5aXBNr4p
+ bbtBeJ4VpfXI9HYhlqGoBzvJK6LmJROYyQFtd3FWugqiN/gxAZ7syOYm6Yg4C6E2lQSi /g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3asjbw6277-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3asndwrpyv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 31 Aug 2021 09:44:05 -0400
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17VDfbkv133237;
-        Tue, 31 Aug 2021 09:44:05 -0400
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3asjbw6260-1
+        Tue, 31 Aug 2021 09:55:16 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 17VDowSx131715;
+        Tue, 31 Aug 2021 09:55:16 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3asndwrpxn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 31 Aug 2021 09:44:04 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17VDXcF6004026;
-        Tue, 31 Aug 2021 13:44:02 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03fra.de.ibm.com with ESMTP id 3aqcs9adrg-1
+        Tue, 31 Aug 2021 09:55:16 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 17VDVdEQ019546;
+        Tue, 31 Aug 2021 13:55:13 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3aqcs92kss-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 31 Aug 2021 13:44:02 +0000
+        Tue, 31 Aug 2021 13:55:13 +0000
 Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17VDhwOc33947922
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 17VDp9Kc14811598
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 31 Aug 2021 13:43:58 GMT
+        Tue, 31 Aug 2021 13:51:09 GMT
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 06C61AE06C;
-        Tue, 31 Aug 2021 13:43:58 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id BA71DAE055;
+        Tue, 31 Aug 2021 13:55:08 +0000 (GMT)
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BA8BAE05D;
-        Tue, 31 Aug 2021 13:43:57 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 52B90AE068;
+        Tue, 31 Aug 2021 13:55:08 +0000 (GMT)
 Received: from oc7455500831.ibm.com (unknown [9.145.164.122])
         by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 31 Aug 2021 13:43:57 +0000 (GMT)
-Subject: Re: [PATCH v4 01/14] KVM: s390: pv: add macros for UVC CC values
+        Tue, 31 Aug 2021 13:55:08 +0000 (GMT)
+Subject: Re: [PATCH v4 02/14] KVM: s390: pv: avoid double free of sida page
 To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     cohuck@redhat.com, frankja@linux.ibm.com, thuth@redhat.com,
         pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, Ulrich.Weigand@de.ibm.com
 References: <20210818132620.46770-1-imbrenda@linux.ibm.com>
- <20210818132620.46770-2-imbrenda@linux.ibm.com>
+ <20210818132620.46770-3-imbrenda@linux.ibm.com>
 From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <6fe29ca4-61b2-6c43-f2c7-ae83c3d7a846@de.ibm.com>
-Date:   Tue, 31 Aug 2021 15:43:57 +0200
+Message-ID: <ad1a386e-3ae9-13d7-430b-c24ed0cc4c85@de.ibm.com>
+Date:   Tue, 31 Aug 2021 15:55:07 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <20210818132620.46770-2-imbrenda@linux.ibm.com>
+In-Reply-To: <20210818132620.46770-3-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: GYX15mX5flKO9mJ5PTYE1U64Pyr0cv6i
-X-Proofpoint-GUID: bdciEbMFyNiZUjFcSn5d-tD1vXGPu2oL
+X-Proofpoint-ORIG-GUID: 8DqG5T1CPtRRsY3bQcdBaUv5P-6bqo4p
+X-Proofpoint-GUID: na_nhoeSdqaXKSyqHp9qb6ZoatWJ67Zv
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-08-31_05:2021-08-31,2021-08-31 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
- priorityscore=1501 phishscore=0 spamscore=0 impostorscore=0 malwarescore=0
- clxscore=1015 adultscore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
- definitions=main-2108310077
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ mlxscore=0 clxscore=1015 spamscore=0 lowpriorityscore=0 impostorscore=0
+ priorityscore=1501 malwarescore=0 mlxlogscore=768 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2107140000 definitions=main-2108310077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+
+
 On 18.08.21 15:26, Claudio Imbrenda wrote:
-> Add macros to describe the 4 possible CC values returned by the UVC
-> instruction.
-
-Matches the architecture. I kind of like the numerical value of the condition code, but I am already too long in this area. So I guess it will improve readability for others.
-
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> If kvm_s390_pv_destroy_cpu is called more than once, we risk calling
+> free_page on a random page, since the sidad field is aliased with the
+> gbea, which is not guaranteed to be zero.
+> 
+> The solution is to simply return successfully immediately if the vCPU
+> was already non secure.
 > 
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Fixes: 19e1227768863a1469797c13ef8fea1af7beac2c ("KVM: S390: protvirt: Introduce instruction data area bounce buffer")
+
+Patch looks good. Do we have any potential case where we call this twice? In other words,
+do we need the Fixes tag with the code as of today or not?
 > ---
->   arch/s390/include/asm/uv.h | 5 +++++
->   1 file changed, 5 insertions(+)
+>   arch/s390/kvm/pv.c | 19 +++++++++----------
+>   1 file changed, 9 insertions(+), 10 deletions(-)
 > 
-> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-> index 12c5f006c136..b35add51b967 100644
-> --- a/arch/s390/include/asm/uv.h
-> +++ b/arch/s390/include/asm/uv.h
-> @@ -18,6 +18,11 @@
->   #include <asm/page.h>
->   #include <asm/gmap.h>
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index c8841f476e91..0a854115100b 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -16,18 +16,17 @@
 >   
-> +#define UVC_CC_OK	0
-> +#define UVC_CC_ERROR	1
-> +#define UVC_CC_BUSY	2
-> +#define UVC_CC_PARTIAL	3
+>   int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+>   {
+> -	int cc = 0;
+> +	int cc;
+>   
+> -	if (kvm_s390_pv_cpu_get_handle(vcpu)) {
+> -		cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
+> -				   UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
+> +	if (!kvm_s390_pv_cpu_get_handle(vcpu))
+> +		return 0;
 > +
->   #define UVC_RC_EXECUTED		0x0001
->   #define UVC_RC_INV_CMD		0x0002
->   #define UVC_RC_INV_STATE	0x0003
+> +	cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu), UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
+> +
+> +	KVM_UV_EVENT(vcpu->kvm, 3, "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
+> +		     vcpu->vcpu_id, *rc, *rrc);
+> +	WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x", *rc, *rrc);
+>   
+> -		KVM_UV_EVENT(vcpu->kvm, 3,
+> -			     "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
+> -			     vcpu->vcpu_id, *rc, *rrc);
+> -		WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x",
+> -			  *rc, *rrc);
+> -	}
+>   	/* Intended memory leak for something that should never happen. */
+>   	if (!cc)
+>   		free_pages(vcpu->arch.pv.stor_base,
 > 
