@@ -2,93 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48DCFC432BE
-	for <linux-s390@archiver.kernel.org>; Mon, 30 Aug 2021 23:57:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8225C432BE
+	for <linux-s390@archiver.kernel.org>; Tue, 31 Aug 2021 02:19:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F3C860FC0
-	for <linux-s390@archiver.kernel.org>; Mon, 30 Aug 2021 23:57:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B92A60FE8
+	for <linux-s390@archiver.kernel.org>; Tue, 31 Aug 2021 02:19:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238942AbhH3X6A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 30 Aug 2021 19:58:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39164 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233413AbhH3X57 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Aug 2021 19:57:59 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EF56C061575;
-        Mon, 30 Aug 2021 16:57:05 -0700 (PDT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1630367824;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=II7kr15IK3yVzn+wqs9ggAl0e2ITXLSBVCs7oul256g=;
-        b=UJB1BmN/GLRUpjfKiStlGPks9y33OJXh4aIazBHTPzmvfv4M0prAA4xBlqgXtHMlcWJqgG
-        TEKtGLfHWPJ+CjFYxzc5MNxi61kyqTxOWLpYrs2ahn/t6ZxwMO0sVH+km7MvA2/VEuIF/o
-        7Td7pNcLWVyGNPMLS6TFZgGwvwUvXz84W78JsohtW/FNIVJV02T8qjb3t6M+r/yQokqsGD
-        U4jTd4p1dr4iOVZP4b92IoB/jL8azc25f9KCrBvph7MX5y1S2DbDyzJyKumyi9A8CoMXhp
-        8I/e0GmF1PJqZFicaj5ulPla+D18vYEkMcOveENl7v0YgifeAuuJxJUZJTNx3A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1630367824;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=II7kr15IK3yVzn+wqs9ggAl0e2ITXLSBVCs7oul256g=;
-        b=jW+3yxOxWsNazbUV71bYBpQpOtxBxmUYZjDNl9y+QHieHL4Xmr9Bs3f8+Jqt1snWyJG6zp
-        WZpTofMv5RDgh9Dg==
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: Linux 5.14
-In-Reply-To: <87wno2fzbq.ffs@tglx>
-References: <CAHk-=wh75ELUu99yPkPNt+R166CK=-M4eoV+F62tW3TVgB7=4g@mail.gmail.com>
- <20210830201225.GA2671970@roeck-us.net> <87wno2fzbq.ffs@tglx>
-Date:   Tue, 31 Aug 2021 01:57:03 +0200
-Message-ID: <8735qqfpv4.ffs@tglx>
+        id S239585AbhHaCUX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 30 Aug 2021 22:20:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50798 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239546AbhHaCUW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 30 Aug 2021 22:20:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FE13601FD;
+        Tue, 31 Aug 2021 02:19:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1630376368;
+        bh=VTRc4vv8EkgtSGV1wWLNzhTaOzg126Vm7jyCEGgW258=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=VE/AXwjI9cecjCBl276Ldf9LtZZbLv6ZGM3R70TEZc8J9IL1GMFNV461ZeFbd2efS
+         /SJK1lQfzOirAXPVY+Wvycy2MtXYYLEcu48G6KNg7KWQo75mAjEUsMususRamVYY/G
+         ikxwuDTXxDP34gpq7gVEJfL017pMSY4dhgKAOy4/qLIvsYX1VQBEy+rKEuzJR0lZV4
+         OMjNgEEMyr2SukYpf0bbO4G1OuuUZyJS024Zb6CSG7VUgGaI/nplbS9hL46Fel8FDe
+         nAazXW5AZwA02smQ5lfk2GgeekdVfvBJkk5NtYuvQm7GxMOqISA4g7KvOAM3lLzyzV
+         q4Ibfsmcxhj+Q==
+Date:   Mon, 30 Aug 2021 19:19:25 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        llvm@lists.linux.dev
+Subject: Re: [GIT PULL] s390 updates for 5.15 merge window
+Message-ID: <YS2RrUma2oOSYtIc@Ryzen-9-3900X.localdomain>
+References: <YSzZFgBt6nMvpVgc@osiris>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YSzZFgBt6nMvpVgc@osiris>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 30 2021 at 22:32, Thomas Gleixner wrote:
+Hi Heiko,
 
-> On Mon, Aug 30 2021 at 13:12, Guenter Roeck wrote:
->> On Sun, Aug 29, 2021 at 03:19:23PM -0700, Linus Torvalds wrote:
->> So far so good, but there is a brand new runtime warning, seen when booting
->> s390 images.
->>
->> [    3.218816] ------------[ cut here ]------------
->> [    3.219010] WARNING: CPU: 1 PID: 0 at kernel/sched/core.c:5779 sched_core_cpu_starting+0x172/0x180
->> [    3.222992]  [<0000000000186e86>] sched_core_cpu_starting+0x176/0x180
->> [    3.223114] ([<0000000000186dc4>] sched_core_cpu_starting+0xb4/0x180)
->> [    3.223182]  [<00000000001963e4>] sched_cpu_starting+0x2c/0x68
->> [    3.223243]  [<000000000014f288>] cpuhp_invoke_callback+0x318/0x970
->> [    3.223304]  [<000000000014f970>] cpuhp_invoke_callback_range+0x90/0x108
->> [    3.223364]  [<000000000015123c>] notify_cpu_starting+0x84/0xa8
->> [    3.223426]  [<0000000000117bca>] smp_init_secondary+0x72/0xf0
->> [    3.223492]  [<0000000000117846>] smp_start_secondary+0x86/0x90
->>
->> Commit 3c474b3239f12 ("sched: Fix Core-wide rq->lock for uninitialized
->> CPUs") sems to be the culprit. Indeed, the warning is gone after reverting
->> this commit.
->
-> The warning is gone, but the underlying S390 problem persists:
->
-> S390 invokes notify_cpu_starting() _before_ updating the topology masks.
+On Mon, Aug 30, 2021 at 03:11:50PM +0200, Heiko Carstens wrote:
+> - Enable KCSAN for s390. This comes with a small common code change to fix a
+>   compile warning. Acked by Marco Elver:
+>   https://lore.kernel.org/r/20210729142811.1309391-1-hca@linux.ibm.com/
 
-And interestingly enough that very commit was tested on S390:
+This caught my eye, as we are boot testing KCSAN + KCSAN_KUNIT_TEST in
+our CI [1] for x86_64 so it would be nice to enable this for s390 as
+well. However, it does not seem like the unit tests pass when booting up
+in QEMU, is this expected or am I doing something wrong? The results and
+compiler versions are below (the results are the same), they should both
+have the commits that are mentioned in the KCSAN message.
 
-  https://lore.kernel.org/r/yt9dy28o8q0o.fsf@linux.ibm.com
+GCC 12.0.0 @ d904008df267cbcc01bd6edf98fa0789fb6e94da
 
-Thanks,
+[  131.813482]     not ok 1 - test_basic
+[  135.321137]     not ok 2 - test_concurrent_races
+[  138.830648]     ok 3 - test_novalue_change
+[  142.342562]     not ok 4 - test_novalue_change_exception
+[  145.851008]     not ok 5 - test_unknown_origin
+[  149.361416]     ok 6 - test_write_write_assume_atomic
+[  152.872013]     not ok 7 - test_write_write_struct
+[  156.382960]     not ok 8 - test_write_write_struct_part
+[  159.890222]     ok 9 - test_read_atomic_write_atomic
+[  163.402919]     not ok 10 - test_read_plain_atomic_write
+[  166.912931]     not ok 11 - test_read_plain_atomic_rmw
+[  170.431915]     not ok 12 - test_zero_size_access
+[  173.940959]     ok 13 - test_data_race
+[  177.452028]     not ok 14 - test_assert_exclusive_writer
+[  180.962840]     not ok 15 - test_assert_exclusive_access
+[  184.474686]     not ok 16 - test_assert_exclusive_access_writer
+[  187.992282]     not ok 17 - test_assert_exclusive_bits_change
+[  191.501869]     ok 18 - test_assert_exclusive_bits_nochange
+[  195.013138]     not ok 19 - test_assert_exclusive_writer_scoped
+[  199.534212]     not ok 20 - test_assert_exclusive_access_scoped
+[  203.053361]     ok 21 - test_jiffies_noreport
+[  206.573803]     ok 22 - test_seqlock_noreport
+[  210.093508]     ok 23 - test_atomic_builtins
+[  210.094014] not ok 1 - kcsan
 
-        tglx
+clang 14.0.0 @ 657bb7262d4a53e903e702d46fdcab57b7085128:
+
+[   10.341427]     not ok 1 - test_basic
+[   13.848960]     not ok 2 - test_concurrent_races
+[   17.359671]     ok 3 - test_novalue_change
+[   20.869202]     not ok 4 - test_novalue_change_exception
+[   24.379067]     not ok 5 - test_unknown_origin
+[   27.889492]     ok 6 - test_write_write_assume_atomic
+[   31.399572]     not ok 7 - test_write_write_struct
+[   34.910833]     not ok 8 - test_write_write_struct_part
+[   38.419473]     ok 9 - test_read_atomic_write_atomic
+[   41.929642]     not ok 10 - test_read_plain_atomic_write
+[   45.439644]     not ok 11 - test_read_plain_atomic_rmw
+[   48.950048]     not ok 12 - test_zero_size_access
+[   52.459026]     ok 13 - test_data_race
+[   55.969806]     not ok 14 - test_assert_exclusive_writer
+[   59.480436]     not ok 15 - test_assert_exclusive_access
+[   62.990164]     not ok 16 - test_assert_exclusive_access_writer
+[   66.499199]     not ok 17 - test_assert_exclusive_bits_change
+[   70.009481]     ok 18 - test_assert_exclusive_bits_nochange
+[   73.522184]     not ok 19 - test_assert_exclusive_writer_scoped
+[   78.030448]     not ok 20 - test_assert_exclusive_access_scoped
+[   81.539059]     ok 21 - test_jiffies_noreport
+[   85.051769]     ok 22 - test_seqlock_noreport
+[   88.572048]     ok 23 - test_atomic_builtins
+[   88.572279] not ok 1 - kcsan
+
+[1]: https://github.com/ClangBuiltLinux/continuous-integration2
+
+Cheers,
+Nathan
