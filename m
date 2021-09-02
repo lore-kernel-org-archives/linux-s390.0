@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC1FAC8302C
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Sep 2021 17:41:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 436A8C8302D
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Sep 2021 17:42:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C4E5861103
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Sep 2021 17:41:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2EEAE61103
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Sep 2021 17:42:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347192AbhIBRmx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Sep 2021 13:42:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36938 "EHLO
+        id S1347227AbhIBRnM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Sep 2021 13:43:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347006AbhIBRmT (ORCPT
+        with ESMTP id S1347005AbhIBRmT (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Sep 2021 13:42:19 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1802C061760;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D00E8C061757;
         Thu,  2 Sep 2021 10:41:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Sender:Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
         Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=7TDsKeD7IxDkEhHV9HOPpdDxKioqknLkF46unKTn3WM=; b=xGYAM35rDyzjVTq3BtdHLJZNPa
-        j52bS1QcvGAYD81BWsYGdnk0y7caLpFkD7gameTc07LEGg13lAHLs7Gt9yW5GJcb9nAndjLcUTA/v
-        /wG8U+2Dic+ZvEicKho6RS5Hf838hdyO4xBDR8UC5blVVZc+1ZpjRs8HIB4zGBweYMYHOdqzm0W9y
-        0gN4bSw+yuQu3XxYJTKSsXXMtXg/HRuk0MxSW0s1EVwv4MQ48FW9pU9eexzUxX+y2/IUx80vLGDvp
-        urAq0lK6TDcTP/JDPaLLXD+qJ+rOLFNE01UbQdwZHJVAkoQIll07INbEDxpLnAh8ubGfh8fin25nF
-        yrZ6wufA==;
+        bh=9WAQqGmCnBZBIvZV5P2hlA8WSQ4fd7LqTPumJ23Kn/w=; b=OsZrKg+vMpotB4axsHjx6FruHD
+        7GIdZBhzq61yrFpuu4mb5Li+LLit+paEsC5jyH/KWYPeLNqpuKfHiyLPZokO+vJKA4P3MIXjuUlcM
+        KSYCsS4jYWs2oz5+bLrvXa2OdX7NwfyHIlBMCw4ubaN/IaKitfS5+Mg/QsWa8Y8M/djrBhmHm9RXk
+        ldur9JBj282q9KTmrunMF0U5r2O1pEapxpC3F0MSQgur9DxWClL9pWr5SHJzHAVVoSKDSOOCfbGVp
+        SsRQB1G5YmcO43/vRkmf6vTQeM5x7cKxnfZIwiqCYPzJoGrEHiX95U0UgZIBuc/mCqDtWPvmL2fLE
+        dTVBTxIg==;
 Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mLqi2-00A9FO-8J; Thu, 02 Sep 2021 17:41:06 +0000
+        id 1mLqi1-00A9FC-PM; Thu, 02 Sep 2021 17:41:05 +0000
 From:   Luis Chamberlain <mcgrof@kernel.org>
 To:     axboe@kernel.dk, gregkh@linuxfoundation.org,
         chaitanya.kulkarni@wdc.com, atulgopinathan@gmail.com, hare@suse.de,
@@ -48,9 +48,9 @@ To:     axboe@kernel.dk, gregkh@linuxfoundation.org,
 Cc:     linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
         linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
         linux-kernel@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>
-Subject: [PATCH 7/9] s390/block/dcssblk: add error handling support for add_disk()
-Date:   Thu,  2 Sep 2021 10:41:03 -0700
-Message-Id: <20210902174105.2418771-8-mcgrof@kernel.org>
+Subject: [PATCH 1/9] cdrom/gdrom: add error handling support for add_disk()
+Date:   Thu,  2 Sep 2021 10:40:57 -0700
+Message-Id: <20210902174105.2418771-2-mcgrof@kernel.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210902174105.2418771-1-mcgrof@kernel.org>
 References: <20210902174105.2418771-1-mcgrof@kernel.org>
@@ -67,24 +67,29 @@ error handling.
 
 Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 ---
- drivers/s390/block/dcssblk.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/cdrom/gdrom.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index 5be3d1c39a78..b0fd5009a12e 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -696,7 +696,9 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char
+diff --git a/drivers/cdrom/gdrom.c b/drivers/cdrom/gdrom.c
+index 8e1fe75af93f..d50cc1fd34d5 100644
+--- a/drivers/cdrom/gdrom.c
++++ b/drivers/cdrom/gdrom.c
+@@ -805,9 +805,14 @@ static int probe_gdrom(struct platform_device *devptr)
+ 		err = -ENOMEM;
+ 		goto probe_fail_free_irqs;
  	}
+-	add_disk(gd.disk);
++	err = add_disk(gd.disk);
++	if (err)
++		goto probe_fail_add_disk;
++
+ 	return 0;
  
- 	get_device(&dev_info->dev);
--	device_add_disk(&dev_info->dev, dev_info->gd, NULL);
-+	rc = device_add_disk(&dev_info->dev, dev_info->gd, NULL);
-+	if (rc)
-+		goto put_dev;
- 
- 	switch (dev_info->segment_type) {
- 		case SEG_TYPE_SR:
++probe_fail_add_disk:
++	kfree(gd.toc);
+ probe_fail_free_irqs:
+ 	free_irq(HW_EVENT_GDROM_DMA, &gd);
+ 	free_irq(HW_EVENT_GDROM_CMD, &gd);
 -- 
 2.30.2
 
