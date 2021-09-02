@@ -2,111 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F370C19F38
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Sep 2021 23:38:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60850C83028
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Sep 2021 17:41:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 29A3C60C3E
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Sep 2021 23:38:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 41E5D600AA
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Sep 2021 17:41:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242518AbhIAXjE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Sep 2021 19:39:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44494 "EHLO
+        id S1346633AbhIBRmR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Sep 2021 13:42:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237858AbhIAXjA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Sep 2021 19:39:00 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA925C061757
-        for <linux-s390@vger.kernel.org>; Wed,  1 Sep 2021 16:38:02 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id e16so179816pfc.6
-        for <linux-s390@vger.kernel.org>; Wed, 01 Sep 2021 16:38:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=np9yXpAi1Pec3CPMJHXf2bgsvhEwG3KDrK8xe6dniXY=;
-        b=XrDUvfaSRPhHFu6OiKJ+27rYlUA0tUaReZeBT55d/ORmDSKJaTXk91lZY+JNJlUOJb
-         +PJv1QNbBU7vYs5ti8mCSoRW/wDEeasD9IobeBp76vkrymBFbimOgJpu27INFRTPdLiz
-         rNFK8xucPOAXRSmJiaopBLC6ZNIBSBdUEdaBM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=np9yXpAi1Pec3CPMJHXf2bgsvhEwG3KDrK8xe6dniXY=;
-        b=dFb9+9c4fN6Tqd/abo+bsZ6kVEOe3wbIDEXNw1atO8w20/j/CHbMnUagXcQQo/Lw7y
-         TvYl06i8SgsR5PpyVnQe/hxqi/KD4YeQ9WPuydQdGQNWuh7jLn7gr+LntQOtAKCGsXY5
-         EUxzUYfCH57aCH9Z6OTcuN3BlllP55Fhb4vBmqxbARjIfZtADpMwJn3GmE2o/CHmDK5X
-         vnDnqSmmBkUJbHXXmXE0omg7qFD1Ev9+avFX/mFqFww5UfOJPtde7S/yQWwV9Rx7kpYj
-         IVrCAzrnu5VuCz1E7UE4vSKUe9RZ8qRfcQVDfGjLdH/MlzjPupdw6uVgbBnPJgahEqc7
-         dM2w==
-X-Gm-Message-State: AOAM532FYHBbTcu2JOMmBqRyseLykhi9X0L9Ut5hF8Rfu5Z4yuIoKSZE
-        ZX7jGXLUrIYowpvsVzlaE6S0NQ==
-X-Google-Smtp-Source: ABdhPJx4jrm3+NKpnau+9R6qA75ParitjlgXKNplEdsHenp19e3xfX1dbfLz0+I+njbB3AyLDuvPYg==
-X-Received: by 2002:a63:a517:: with SMTP id n23mr208818pgf.412.1630539482268;
-        Wed, 01 Sep 2021 16:38:02 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id a10sm81784pfo.75.2021.09.01.16.37.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Sep 2021 16:37:59 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     Josh Poimboeuf <jpoimboe@redhat.com>
-Cc:     Kees Cook <keescook@chromium.org>, Jessica Yu <jeyu@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: [PATCH 4/4] module: Include .static_call_sites in module ro_after_init
-Date:   Wed,  1 Sep 2021 16:37:57 -0700
-Message-Id: <20210901233757.2571878-5-keescook@chromium.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210901233757.2571878-1-keescook@chromium.org>
-References: <20210901233757.2571878-1-keescook@chromium.org>
+        with ESMTP id S1346632AbhIBRmQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Sep 2021 13:42:16 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 575FEC061575;
+        Thu,  2 Sep 2021 10:41:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=bq7aygA/HlITheyoOHX4TDfVgRy1coZaxPOc4Dj9QXQ=; b=dXAtDVZTAgUbP9IB7I6GZ486uQ
+        a0TNXad+2o7Gn9TsGoapvByiWqL5vJwhHo5WzweXMHbySRmpGB/cF/Xa91cL5cqT7HvCaYcfr0XGe
+        +IXl01u13V/qnAzTnki5UJez2+pYCUVrY2nlHvOI998w8KYWfO5lUQhrw+rMDy+DBmU9bDAjyG7xC
+        SkyLoqr4Ephh62sazlqQJM+ndk83dL+8yHfpqoMzkKYXb5wGZyBiP57PSZ7aJHp8R3VhKngkfMFBq
+        OE/FdbsfCoNshb82/Hiw0+3/gKMNQWVIPn0ivWs3gDAREtUBBNRpVWC9kzYiq05jPfJAaHB+B23aA
+        rBOunPrg==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mLqi1-00A9FA-My; Thu, 02 Sep 2021 17:41:05 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     axboe@kernel.dk, gregkh@linuxfoundation.org,
+        chaitanya.kulkarni@wdc.com, atulgopinathan@gmail.com, hare@suse.de,
+        maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org,
+        colin.king@canonical.com, shubhankarvk@gmail.com,
+        baijiaju1990@gmail.com, trix@redhat.com,
+        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
+        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        sth@linux.ibm.com, hoeppner@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, borntraeger@de.ibm.com, oberpar@linux.ibm.com,
+        tj@kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 0/9] block: 5th batch of add_disk() error handling conversions 
+Date:   Thu,  2 Sep 2021 10:40:56 -0700
+Message-Id: <20210902174105.2418771-1-mcgrof@kernel.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=794; h=from:subject; bh=4jSl5dHsXqTpG4oJluProg2yWmW/Ve+LsdCZEC6e1Dw=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBhMA7VAXOzsg3zZLmJUMu5Lg5kAnuK37eBljxDh1gM k8eqI7iJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYTAO1QAKCRCJcvTf3G3AJgzgEA CGmpZ6bb2D5q7shwYr1JAXzYhtqCHxJNX7EJneeUy97bxESmDfaxW1AlZ2Ouv9CgYRQ/56ddioBKcH ytiVv/2ldJYkGni7UJGjrrqEZqcfogWk5Rgc9pkNMomcMy8YzaExDVTsFngO5uUVMmxPZh9pFCmYPF 739g20bAf/lei3iNuofJeBkeZvLPxPr1bEG4eoTZYFlG7nY2MAs4azGi9c7TdgckdRQxp39qR/WciA zOlE1iScu/DjIeLFgKcRf+sBCRQMF5PZGGAwfZCym53bEA8WCDZ4VX0MVPwvkNlBpaY+Wfe+D8C60S J0BLAHR3CLfLQorVgbgsGw8uSUDiGeZgM+nvHE2+WdC6OD8MSkM9LfVu0fafzNG3CKCuqXymGUwSv3 ik6nygeHYenOM95zwzzIEggz3OnFUXtarqKuBroLjaP4qAjeI9O19Ki1pjyrrgMP0Yxn0l1cMoHXD/ dMXp31CKkiwuQTl+Rppha4bpx4A8SHfu419J0M9//Z5xwGUO32tVISPwMppxQhs2sqdAAj2WVle+Hk J67cHnId7+fDQoxVe9SkYBrz7IbtBlysGNgSi4jzjDT12EWR5xUfpVb8Ac9ELjgxngvR16PBbDxGhm 3bVi4RZDN1E/FGGKtkQf9hx7lLArSYIpkT4GXvA8mcDwYLQZZWY4uOG9chVQ==
-X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
 Content-Transfer-Encoding: 8bit
+Sender: Luis Chamberlain <mcgrof@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The RO_AFTER_INIT_DATA macro and module_sections_ro_after_init[] need
-to be kept in sync.
+This is the 5th of 7 set of driver conversion over to use the new
+add_disk() error handling. Please let me know if you spot
+any issues. This set deals with miscellaneous block drivers.
 
-Cc: Jessica Yu <jeyu@kernel.org>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Fixes: 9183c3f9ed71 ("static_call: Add inline static call infrastructure")
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- kernel/module.c | 1 +
- 1 file changed, 1 insertion(+)
+This patch set is based on axboe/master, you can find the
+full set of changes on my 20210901-for-axboe-add-disk-error-handling
+branch [0].
 
-diff --git a/kernel/module.c b/kernel/module.c
-index b0ff82cc48fe..06410eb68dea 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3521,6 +3521,7 @@ core_param(module_blacklist, module_blacklist, charp, 0400);
- static const char * const module_sections_ro_after_init[] = {
- 	".data..ro_after_init",
- 	"__jump_table",
-+	".static_call_sites",
- 	NULL
- };
- 
+It would seem there are going to be a total of 7 sets of patches. The
+next one will be the wonderful and exciting world of floppy drivers.
+The last is the required changes to add a __must_check for the return
+value for the caller.
+
+[0] https://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/linux-next.git/log/?h=20210901-for-axboe-add-disk-error-handling
+
+Luis Chamberlain (9):
+  cdrom/gdrom: add error handling support for add_disk()
+  ms_block: add error handling support for add_disk()
+  mspro_block: add error handling support for add_disk()
+  rbd: add add_disk() error handling
+  mtd: add add_disk() error handling
+  s390/block/dasd_genhd: add error handling support for add_disk()
+  s390/block/dcssblk: add error handling support for add_disk()
+  s390/block/scm_blk: add error handling support for add_disk()
+  s390/block/xpram: add error handling support for add_disk()
+
+ drivers/block/rbd.c                 | 6 +++++-
+ drivers/cdrom/gdrom.c               | 7 ++++++-
+ drivers/memstick/core/ms_block.c    | 6 +++++-
+ drivers/memstick/core/mspro_block.c | 6 +++++-
+ drivers/mtd/mtd_blkdevs.c           | 6 +++++-
+ drivers/s390/block/dasd_genhd.c     | 8 ++++++--
+ drivers/s390/block/dcssblk.c        | 4 +++-
+ drivers/s390/block/scm_blk.c        | 7 ++++++-
+ drivers/s390/block/xpram.c          | 4 +++-
+ 9 files changed, 44 insertions(+), 10 deletions(-)
+
 -- 
 2.30.2
 
