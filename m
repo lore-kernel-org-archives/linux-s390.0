@@ -2,116 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1989C433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 08:17:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85227C43219
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 08:23:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 90838610F9
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 08:17:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6877260FD7
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 08:23:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348247AbhICISy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Sep 2021 04:18:54 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4674 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1348208AbhICISx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Sep 2021 04:18:53 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 18383Vjd100391;
-        Fri, 3 Sep 2021 04:17:29 -0400
+        id S1348364AbhICIYr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Sep 2021 04:24:47 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2482 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1348295AbhICIYq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Sep 2021 04:24:46 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 18384kVk094606;
+        Fri, 3 Sep 2021 04:22:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=EFVcpm4UQneIaCZwZnSBxOJ/+HzC3h8TKoJEJi3ETSI=;
- b=MGSqvMgpFXEblg9c9CXPbECtXn/wV2ytKqQNTjkYQvHKb6pcVAwGZiMz4g9BbgrUYbgi
- 46lmZ7x+llhy31bfPqWoTk8Kux+qgFfDzaPhqQ5Q4e1uqWbhV9nC5vuOEo2Phqcv0EwR
- hcJgguCPrT55iqx8x899PV2fBn3zuzYbChqKtlo4XwyVqmi3fnhbQVQVGwf9ddEZERGZ
- WjJLdYZtiP/a3h22AJuBgKRPNZ7rqVr9IY3zQ2BATW9bGT14XLBwMq2+kn0b+GE6LCzI
- ksVovSxusoJAM3y94xehtTgqA4EJ0SQ/idoO0YZEAqKiIITokM/MubnlnapMMU65Ij9r Rg== 
+ in-reply-to; s=pp1; bh=yvn3uRltpD6qua2hyp0D2c7Lx/IW7lVKvIh+1+hY8jc=;
+ b=sxqFHGBuVldPs6+5K/rqtVS9JHaQU11EacvwcMXWaBbncc1l8OOnAuO55qpy/Yz7lvG8
+ fHBGcdKnfMjUhSSKgEXpC9tfhTNXhCD4RL1rLoTx+ouZqYUheCwxI6sQQRKrEw+MIkfP
+ NvtrSkjS+pOzrkJLiM4WrfcV3fsDP5VKqrtC2E9soOQhjwnWHr03qec/WayDpr2td3x+
+ 3dJLfkNMsgjwswwo311zitvpYu/rAJHq1kjaBUQjEZ5HM8L/YTyT0zKUTr/71/uf3dON
+ n8LL5RnLa43g60fHv/kVumN2Z4k8oa5+mK/9XJPoCXZpMKfS4mcMm6AYJ7LnhFAdfrNc 2Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3audm3us44-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3auftc8fse-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Sep 2021 04:17:29 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18383mw7101882;
-        Fri, 3 Sep 2021 04:17:28 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3audm3us3p-1
+        Fri, 03 Sep 2021 04:22:03 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18384pMm095198;
+        Fri, 3 Sep 2021 04:22:02 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3auftc8frg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Sep 2021 04:17:28 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18388Crg010014;
-        Fri, 3 Sep 2021 08:17:27 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma01fra.de.ibm.com with ESMTP id 3au6q74vxc-1
+        Fri, 03 Sep 2021 04:22:02 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18388C9c028085;
+        Fri, 3 Sep 2021 08:21:59 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04fra.de.ibm.com with ESMTP id 3au6q74x6c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Sep 2021 08:17:26 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1838HN0837093702
+        Fri, 03 Sep 2021 08:21:59 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1838LtB930671224
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 3 Sep 2021 08:17:23 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2AC2652057;
-        Fri,  3 Sep 2021 08:17:23 +0000 (GMT)
+        Fri, 3 Sep 2021 08:21:55 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 50DCEA4054;
+        Fri,  3 Sep 2021 08:21:55 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D5A24A405B;
+        Fri,  3 Sep 2021 08:21:53 +0000 (GMT)
 Received: from osiris (unknown [9.145.159.114])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 85EF952051;
-        Fri,  3 Sep 2021 08:17:22 +0000 (GMT)
-Date:   Fri, 3 Sep 2021 10:17:21 +0200
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri,  3 Sep 2021 08:21:53 +0000 (GMT)
+Date:   Fri, 3 Sep 2021 10:21:52 +0200
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-arch@vger.kernel.org, Jessica Yu <jeyu@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-Subject: Re: [PATCH 1/4] vmlinux.lds.h: Use regular *RODATA and
- *RO_AFTER_INIT_DATA suffixes
-Message-ID: <YTHaEYQz0O+MzpkE@osiris>
-References: <20210901233757.2571878-1-keescook@chromium.org>
- <20210901233757.2571878-2-keescook@chromium.org>
+To:     Weizhao Ouyang <o451686892@gmail.com>
+Cc:     rostedt@goodmis.org, mingo@redhat.com, linux@armlinux.org.uk,
+        catalin.marinas@arm.com, will@kernel.org, guoren@kernel.org,
+        monstr@monstr.eu, tsbogend@alpha.franken.de, nickhu@andestech.com,
+        green.hu@gmail.com, deanbo422@gmail.com,
+        James.Bottomley@hansenpartnership.com, deller@gmx.de,
+        mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, gor@linux.ibm.com, borntraeger@de.ibm.com,
+        ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net,
+        tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org
+Subject: Re: [PATCH] ftrace: Cleanup ftrace_dyn_arch_init()
+Message-ID: <YTHbIMVw2EhNpDwO@osiris>
+References: <20210903071817.1162938-1-o451686892@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210901233757.2571878-2-keescook@chromium.org>
+In-Reply-To: <20210903071817.1162938-1-o451686892@gmail.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: v1G7oJQepZwIeoo1eRVbS8zdzxgq0Ecm
-X-Proofpoint-GUID: EBwgNgUyLMucUzf3CMsYqy3jTnIpBptl
+X-Proofpoint-GUID: v7gSly151gMH4jiswwJLQJyae83ofpqz
+X-Proofpoint-ORIG-GUID: 5AAR1uAs7Bex_EJmpFQlQUops1ZiOFiF
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-09-03_02:2021-09-03,2021-09-03 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1011
- adultscore=0 impostorscore=0 mlxlogscore=815 bulkscore=0
- priorityscore=1501 suspectscore=0 lowpriorityscore=0 mlxscore=0
- spamscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1011 adultscore=0 spamscore=0 bulkscore=0 phishscore=0
+ impostorscore=0 lowpriorityscore=0 mlxlogscore=634 suspectscore=0
+ malwarescore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2108310000 definitions=main-2109030048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 01, 2021 at 04:37:54PM -0700, Kees Cook wrote:
-> Rename the various section macros that live in RODATA and
-> RO_AFTER_INIT_DATA. Just being called "DATA" implies they are expected
-> to be writable.
+On Fri, Sep 03, 2021 at 03:18:17PM +0800, Weizhao Ouyang wrote:
+> Most ARCHs use empty ftrace_dyn_arch_init(), introduce a weak common
+> ftrace_dyn_arch_init() to cleanup them.
 > 
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-> Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Cc: linux-arch@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Signed-off-by: Weizhao Ouyang <o451686892@gmail.com>
 > ---
->  arch/s390/kernel/vmlinux.lds.S    |  2 +-
->  include/asm-generic/vmlinux.lds.h | 12 ++++++------
->  2 files changed, 7 insertions(+), 7 deletions(-)
+>  arch/arm/kernel/ftrace.c          | 5 -----
+>  arch/arm64/kernel/ftrace.c        | 5 -----
+>  arch/csky/kernel/ftrace.c         | 5 -----
+>  arch/ia64/kernel/ftrace.c         | 6 ------
+>  arch/microblaze/kernel/ftrace.c   | 5 -----
+>  arch/mips/include/asm/ftrace.h    | 2 ++
+>  arch/nds32/kernel/ftrace.c        | 5 -----
+>  arch/parisc/kernel/ftrace.c       | 5 -----
+>  arch/powerpc/include/asm/ftrace.h | 4 ++++
+>  arch/riscv/kernel/ftrace.c        | 5 -----
+>  arch/s390/kernel/ftrace.c         | 5 -----
+>  arch/sh/kernel/ftrace.c           | 5 -----
+>  arch/sparc/kernel/ftrace.c        | 5 -----
+>  arch/x86/kernel/ftrace.c          | 5 -----
+>  include/linux/ftrace.h            | 1 -
+>  kernel/trace/ftrace.c             | 5 +++++
+>  16 files changed, 11 insertions(+), 62 deletions(-)
 
-For the s390 bit:
+For s390:
 Acked-by: Heiko Carstens <hca@linux.ibm.com>
