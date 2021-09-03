@@ -6,56 +6,56 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67B11C433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 07:57:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B8AAC4321E
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 08:04:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4C543610A2
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 07:57:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 26084610FD
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 08:04:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347810AbhICH6O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Sep 2021 03:58:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33110 "EHLO
+        id S1348197AbhICIFM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Sep 2021 04:05:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234772AbhICH6O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Sep 2021 03:58:14 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C8F6C061575;
-        Fri,  3 Sep 2021 00:57:14 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id e7so4805907pgk.2;
-        Fri, 03 Sep 2021 00:57:14 -0700 (PDT)
+        with ESMTP id S1348134AbhICIEi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Sep 2021 04:04:38 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB68C061575;
+        Fri,  3 Sep 2021 01:03:26 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id f129so4818121pgc.1;
+        Fri, 03 Sep 2021 01:03:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3EzTvK/9UwFvtjEDurK48O7RI8g22JgDw2/OSGI9Ff0=;
-        b=JYFfX3O5Uxz2kOe9S7N2hFwmwhv6Ug6z7tVtB2GTYcdhv5XkDIID9By4MJKXFR/nxF
-         WHMim5jjf6n85UFWs74FZ5oNH7pZMpSO8IoIz7+0bK6YCPAXYdmlSn9/TkPNWXN2LUCv
-         N8mB4yycrSrUbYbVWnSc327+nvZWfZjt03Q99/VdLUIeRrPuEQi1lQgtjHRwzJRXTgo6
-         cKhQZHXhYZI+k3eG9p84+5JMD6HX4A3V0+Ohs1h3leaG3Iohg/BA46O09stt5Z2LpxwD
-         91Xg52ZHlGSSqz6KP7NU+m5vpEFTkhxGaVdV7jWCKiAlKTDT4Ge0CD3apY4cuvgS4B72
-         lZUw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=6L64VU0IF2J9r1dk8gShwbL6aTlx7NpiPDjd+XxYvPU=;
+        b=Ltpz16+0MI/vRLTQNSqjmTEViTUxTZBeW/ro+ozL7tE9ux2vC/RZLYlFJWWutPCxCT
+         Or0u+cx/xkJnwSk9vvMOIBXVx/8ESLEXzwuiDU5PojtigUJIWZSbEXSnaOuasewHpnqr
+         YmufC1lUt+hIayVubApOGKtKD1Zox3JCh2SDccto7+W3vZX9rsDrkmyr/4HRYeloy+8i
+         /1UOyqTMNtLy9rzWTDaKgBqZZKa9bu7WX6UhSxcb0iGHA4GwxEd/rGa9L2Q9/apPLKEC
+         CzELDCvMSuFAI3bWH++mKFe1KnAIfJIT+FsxmfiTg+dRS2eUrMZc5ejZ6xgK5xaAqxAh
+         M6jQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3EzTvK/9UwFvtjEDurK48O7RI8g22JgDw2/OSGI9Ff0=;
-        b=YQ8mI086A+RNkqdoRDpocr0fTflJcdQjJCZjBpDFLOrFdSpN6/YWRWJV2q5le5nHYU
-         QZ7poSO1wihOjPaJvMip8o+MymuBylovovJqUB0UuBOc26w7np3yORqkX44+g7JsVOPu
-         E3Qq979/bEpuni2M8W8TErO94jkDaCA1hReT5djOgR0NvaTMi/SJWOErjZ3y2U2EjaLE
-         daehIQYFyKQvYOXGIMeTKMpB8SqFP0jWL2LNBah6Py7yzJNhaci2Xr+ulvXwd5vIHLIL
-         ieDEPqNGN85oxp/mYc8O37XJoXgSBjgVRwt7xWBZfgpXLDReqmtUHxl1h5ExGN8odD2U
-         Jthg==
-X-Gm-Message-State: AOAM532i2ro3uAjPEoX2y/jo1UJBRS6g2n0n/8qdurscqq0ssHsZxNmn
-        A6eJcgmjt4lVK0MFksNU5CU=
-X-Google-Smtp-Source: ABdhPJy19YKLiwBiT4dKpxkBvd2ya/HSDRLeb56Yw187UcLXiO6He29foQYh9JBsAqlY6BCoe0mGoA==
-X-Received: by 2002:aa7:8097:0:b029:3cd:b205:cfe9 with SMTP id v23-20020aa780970000b02903cdb205cfe9mr2377877pff.1.1630655833936;
-        Fri, 03 Sep 2021 00:57:13 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=6L64VU0IF2J9r1dk8gShwbL6aTlx7NpiPDjd+XxYvPU=;
+        b=kfZ4niicVkhT6NV8h0gyBrwjJC/i7qnx3dvw8JjSep3Rp0E14VlP45uXMx/EOzIz2u
+         5SwFCz6K6q7pv0UR8+VAgDN6C+sfRk5UITXiTPs5d8lhJrp4IxXhCuMBJ+x5iXvIY98v
+         +78WCj4D8YyCOl0utOsqnArfuFrv9k9UYhO3oIgn5Ste+REV46u/ryk8qUggcxc4M/+h
+         CYQ+sPAFFj2w9XCZDYMorrb2Il/TSZshaqngz3sW95lC66yB0zZ2kKiqjarBg/Pn+Ns/
+         Vjn1Px6cqHEEQ0tBiGnL9dNRDcUZGO4mqvudf/QzRyNF++i2xhRL9gjj3BHlqgU9TEYa
+         rpgQ==
+X-Gm-Message-State: AOAM530GFOfPW/zf52W69Mac+bLf8a/o6ECu5lrOIEzVHIcx/PZg5A2v
+        TouxARyyVWgIhQ7NplcxugQ=
+X-Google-Smtp-Source: ABdhPJwFH2cSsna4NAVhWoQSvXmPH2PjvbH+RaggZ/mwqlF6khocO59N3M1BWzXDPDsb39Wa7mQ+DQ==
+X-Received: by 2002:a63:aa43:: with SMTP id x3mr2527544pgo.208.1630656205743;
+        Fri, 03 Sep 2021 01:03:25 -0700 (PDT)
 Received: from ubt.spreadtrum.com ([117.18.48.102])
-        by smtp.gmail.com with ESMTPSA id u8sm5420534pgc.69.2021.09.03.00.57.09
+        by smtp.gmail.com with ESMTPSA id 26sm6200531pgx.72.2021.09.03.01.03.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Sep 2021 00:57:13 -0700 (PDT)
+        Fri, 03 Sep 2021 01:03:25 -0700 (PDT)
 From:   Chunyan Zhang <zhang.lyra@gmail.com>
 To:     Vasily Gorbik <gor@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
@@ -68,9 +68,11 @@ Cc:     linux-s390@vger.kernel.org, kernel test robot <lkp@intel.com>,
         Chunyan Zhang <chunyan.zhang@unisoc.com>,
         LKML <linux-kernel@vger.kernel.org>
 Subject: [PATCH] s390/io: Fix ioremap and iounmap undefinded issue for s390
-Date:   Fri,  3 Sep 2021 15:56:41 +0800
-Message-Id: <20210903075641.2807623-1-zhang.lyra@gmail.com>
+Date:   Fri,  3 Sep 2021 16:03:16 +0800
+Message-Id: <20210903080316.2808017-1-zhang.lyra@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210903075641.2807623-1-zhang.lyra@gmail.com>
+References: <20210903075641.2807623-1-zhang.lyra@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -80,7 +82,7 @@ X-Mailing-List: linux-s390@vger.kernel.org
 From: Chunyan Zhang <chunyan.zhang@unisoc.com>
 
 There would not be ioremap and iounmap implementations if CONFIG_PCI is
-not set for s390, so add default declarations of these two functionsi
+not set for s390, so add default declarations of these two functions
 for the case to avoid 'undefined reference' issue.
 
 Fixes: 71ba41c9b1d9 ("s390/pci: provide support for MIO instructions")
