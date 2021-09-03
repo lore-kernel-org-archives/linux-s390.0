@@ -2,148 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64645C433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 10:51:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B644C433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 14:06:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4A65160698
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 10:51:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A7F961058
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Sep 2021 14:06:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347864AbhICKw4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Sep 2021 06:52:56 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47208 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S235081AbhICKwz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Sep 2021 06:52:55 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 183AYlgt065503;
-        Fri, 3 Sep 2021 06:51:45 -0400
+        id S1348889AbhICOHw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Sep 2021 10:07:52 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23060 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235668AbhICOHv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Sep 2021 10:07:51 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 183E3UbD181380;
+        Fri, 3 Sep 2021 10:06:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=2wI7/uC69HAKY2YS1ZHhwaV74lLPkFZeBaJdvdBPJGE=;
- b=sM8vjxwsXve4uBde7CuBR9f/cv7F6bcDD2dVHiyCf/vW2x/M+M4Dv1FB/ztQi+UAv2zC
- AGtUjzmRA4VSxFDVzmUHQp9urETmNyIlZH+uFx+3wHgDmS/sIdbUP9rPJ86Ju9LofdXl
- bNi/vh+AG47AM/vEwvMLOetQN9AUnwQQKYNoGjZbRlMYRsIPWMz7DkgCaFnjlub+9IZc
- fKINsPRGvuKsk8+RV58VcDW+CtAK4Ml5pIV3X4s79rF0iQYlr5eMyG1kiNpWZ9wY0HdK
- H6TYGuvfpVuHoRg/MGi6EW04utCCqsRPdHSYefgP7H8tktdzRO5HXsVCjejruQ7odDpe FQ== 
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=c5dtoeuWVsQu+Kx8qJUPUNaZorSC3QCCcGga7tN4sMM=;
+ b=ScX/mNrpjpVGSx7jnWReoQPFcq12svD7XPCLBc9+6TcavrCpFAUGPoIUBGeID0O3nUQ8
+ aG2XqrMHeI1H6uH7Bz5TxvciGjxAU+sdozMlFUgeWFBXfLNgYtqng2x7evKyHE7CSCmn
+ 4qvRCZDSoMunMRURUbVVrLC0nPgqByu2VIOhDqKf/0qKkrztBc3ddgbIuEFNRIYG3qlI
+ 4OxZa+v6kbClDzirNILXgdEG0wTxsWg+s0bg0AmFLE/P/U/FtTlcIfoeB2MszbyFM8Eb
+ O6/4oYtU414B8YjaaKASZa+PwGVaLZEnJi4SjdP/5bMcv31V3PkLxnO5DfFZJ3o954ME 6w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3auj318a10-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3aujf14aj5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Sep 2021 06:51:44 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 183AcGkX088394;
-        Fri, 3 Sep 2021 06:51:44 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3auj318a05-1
+        Fri, 03 Sep 2021 10:06:25 -0400
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 183E58pp001197;
+        Fri, 3 Sep 2021 10:06:24 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3aujf14agu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Sep 2021 06:51:44 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 183AliJt028023;
-        Fri, 3 Sep 2021 10:51:42 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06fra.de.ibm.com with ESMTP id 3au6q06ts5-1
+        Fri, 03 Sep 2021 10:06:24 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 183DwGLW004761;
+        Fri, 3 Sep 2021 14:06:21 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 3au6q7h8bn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Sep 2021 10:51:42 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 183ApdgS54657362
+        Fri, 03 Sep 2021 14:06:21 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 183E2Ese61866466
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 3 Sep 2021 10:51:39 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 031AB4C044;
-        Fri,  3 Sep 2021 10:51:39 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 92F594C088;
-        Fri,  3 Sep 2021 10:51:38 +0000 (GMT)
+        Fri, 3 Sep 2021 14:02:14 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DA6AA52050;
+        Fri,  3 Sep 2021 14:06:17 +0000 (GMT)
 Received: from osiris (unknown [9.145.159.114])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri,  3 Sep 2021 10:51:38 +0000 (GMT)
-Date:   Fri, 3 Sep 2021 12:51:37 +0200
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id CFE815206B;
+        Fri,  3 Sep 2021 14:06:16 +0000 (GMT)
+Date:   Fri, 3 Sep 2021 16:06:15 +0200
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Cc:     Chunyan Zhang <zhang.lyra@gmail.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] s390/io: Fix ioremap and iounmap undefinded issue for
- s390
-Message-ID: <YTH+OVMeZo4GlOlg@osiris>
-References: <20210903075641.2807623-1-zhang.lyra@gmail.com>
- <20210903080316.2808017-1-zhang.lyra@gmail.com>
- <b4a5f322d035d75c97abf2aaa19d033adc68527d.camel@linux.ibm.com>
- <CAAfSe-v0DbOS5p7nF0db4SdTrsy28gJNdW93ds4capVxuUO1xw@mail.gmail.com>
- <9e4780da8c899f2272923cc4fe72814891845226.camel@linux.ibm.com>
+To:     Luis Chamberlain <mcgrof@kernel.org>
+Cc:     axboe@kernel.dk, gregkh@linuxfoundation.org,
+        chaitanya.kulkarni@wdc.com, atulgopinathan@gmail.com, hare@suse.de,
+        maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org,
+        colin.king@canonical.com, shubhankarvk@gmail.com,
+        baijiaju1990@gmail.com, trix@redhat.com,
+        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
+        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        sth@linux.ibm.com, hoeppner@linux.ibm.com, gor@linux.ibm.com,
+        borntraeger@de.ibm.com, oberpar@linux.ibm.com, tj@kernel.org,
+        linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 9/9] s390/block/xpram: add error handling support for
+ add_disk()
+Message-ID: <YTIr1w/qPvgioUfL@osiris>
+References: <20210902174105.2418771-1-mcgrof@kernel.org>
+ <20210902174105.2418771-10-mcgrof@kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9e4780da8c899f2272923cc4fe72814891845226.camel@linux.ibm.com>
+In-Reply-To: <20210902174105.2418771-10-mcgrof@kernel.org>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: F4wZ4QMsQy6LAM7hJXEAEWFik1uASHKC
-X-Proofpoint-ORIG-GUID: 8dTVrKUX_J0MphIu3gMEMdRb7yUJS3OM
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
+X-Proofpoint-ORIG-GUID: cnjpHgTUs8-WIbHVAJtbBq5h0cPzkyvT
+X-Proofpoint-GUID: XAog2zEDSgH4nXCPv9bkGtJovoNDgwBR
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-09-03_02:2021-09-03,2021-09-03 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
- phishscore=0 priorityscore=1501 clxscore=1011 mlxlogscore=779
- suspectscore=0 lowpriorityscore=0 spamscore=0 adultscore=0 mlxscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2108310000 definitions=main-2109030064
+ definitions=2021-09-03_05:2021-09-03,2021-09-03 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 phishscore=0 spamscore=0 mlxlogscore=999 malwarescore=0
+ mlxscore=0 adultscore=0 clxscore=1011 suspectscore=0 impostorscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2108310000 definitions=main-2109030088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Sep 03, 2021 at 12:28:41PM +0200, Niklas Schnelle wrote:
-> On Fri, 2021-09-03 at 17:40 +0800, Chunyan Zhang wrote:
-> > On Fri, 3 Sept 2021 at 16:24, Niklas Schnelle <schnelle@linux.ibm.com> wrote:
-> > > On Fri, 2021-09-03 at 16:03 +0800, Chunyan Zhang wrote:
-> > > > From: Chunyan Zhang <chunyan.zhang@unisoc.com>
-> > > > 
-> > > > There would not be ioremap and iounmap implementations if CONFIG_PCI is
-> > > > not set for s390, so add default declarations of these two functions
-> > > > for the case to avoid 'undefined reference' issue.
-> > > > 
-> > > > Fixes: 71ba41c9b1d9 ("s390/pci: provide support for MIO instructions")
-> > > > Reported-by: kernel test robot <lkp@intel.com>
-> > > > Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-> > > > ---
-> > > > The issue was reported from https://lkml.org/lkml/2021/8/1/18
-...
-> > Actually HAS_IOMEM is set as default on other architectures, but not
-> > for s390 which redefined it.
+On Thu, Sep 02, 2021 at 10:41:05AM -0700, Luis Chamberlain wrote:
+> We never checked for errors on add_disk() as this function
+> returned void. Now that this is fixed, use the shiny new
+> error handling.
 > 
-> Yes because most architectures always have IOMEM and io*map() functions
-> I believe. s390 is an exception here as the mainframe native
-> functionality all works without MMIO and you can run a fully functional
-> system including networking and block devices without any MMIO, PCI and
-> without ioremap()/iounmap().
+> Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+> ---
+>  drivers/s390/block/xpram.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> > 
-> > > At the very least I think the functions should do a WARN_ONCE() but
-> > > then we have the same situation as discussed below with Linus making it
-> > > pretty clear that he prefers these cases to be compile time checked:
-> > 
-> > Ok, if I understand correctly, if io*map is not implemented for some
-> > case, there should be a *compile-time* error rather than adding a stub
-> > function to make this kind of errors disappeared.
-> > 
-> > Please correct me if I missed something.
-> 
-> Ideally not a compile time error but a compile time flag such as a
-> Kconfig option that would make sure that if HAS_IOMEM isn't set we
-> don't get drivers compiled which depend on working io*map(). After all
-> these drivers will surely not be functional.
+> diff --git a/drivers/s390/block/xpram.c b/drivers/s390/block/xpram.c
+> index ce98fab4d43c..ed3904b6a9c8 100644
+> --- a/drivers/s390/block/xpram.c
+> +++ b/drivers/s390/block/xpram.c
+> @@ -371,7 +371,9 @@ static int __init xpram_setup_blkdev(void)
+>  		disk->private_data = &xpram_devices[i];
+>  		sprintf(disk->disk_name, "slram%d", i);
+>  		set_capacity(disk, xpram_sizes[i] << 1);
+> -		add_disk(disk);
+> +		rc = add_disk(disk);
+> +		if (rc)
+> +			goto out;
 
-Please note that Arnd Bergmann started to work on that:
-https://lkml.org/lkml/2021/7/5/286
+Hmm, this is a more or less dead device driver, and I'm wondering if
+we shouldn't remove it instead. But anyway, your patch is not correct:
 
-However, as far as I can tell, there is nothing like that in
-linux-next currently.
+- del_gendisk for all registered disks has to be called
+- unregister_blkdev(XPRAM_MAJOR, XPRAM_NAME) is missing as well
 
-Arnd, are you still working on this?
+That would be more or or less xpram_exit with parameter.
+
+You can send a new patch or I can provide a proper one, whatever you
+prefer.
