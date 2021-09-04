@@ -2,187 +2,367 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+X-Spam-Status: No, score=-18.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A15FFC433FE
-	for <linux-s390@archiver.kernel.org>; Sat,  4 Sep 2021 04:09:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C6FFC43219
+	for <linux-s390@archiver.kernel.org>; Sat,  4 Sep 2021 12:00:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7C9F961054
-	for <linux-s390@archiver.kernel.org>; Sat,  4 Sep 2021 04:09:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4DE5610FF
+	for <linux-s390@archiver.kernel.org>; Sat,  4 Sep 2021 12:00:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229545AbhIDEKL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 4 Sep 2021 00:10:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:51229 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229689AbhIDEKL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 4 Sep 2021 00:10:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630728549;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=JsroHwqSqpHGTdfNxA5PLdxrx3L9qSi9QYjP9ozR0Rg=;
-        b=H+L7ySwqzf4OL9LQrWhnLkcSR7OFfR4ok+PmG2D54kSoW/BGoUIUuIDqPvo27SHDQsq+Ur
-        MW7ZOfV83g0EJwDqllMo12Y0hehP/MpVYhnABFvu2EG++gC1MzNM+jpjuyONzBodusU4wy
-        n1s64ySpgVRGEwjIJ42Q57z+leKqhV8=
-Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
- [209.85.161.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-467--hSaYDVkOW6FDnT8j5m1bA-1; Sat, 04 Sep 2021 00:09:08 -0400
-X-MC-Unique: -hSaYDVkOW6FDnT8j5m1bA-1
-Received: by mail-oo1-f72.google.com with SMTP id w21-20020a4ae9f5000000b0029116e62638so585509ooc.4
-        for <linux-s390@vger.kernel.org>; Fri, 03 Sep 2021 21:09:07 -0700 (PDT)
+        id S236359AbhIDMBA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 4 Sep 2021 08:01:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44638 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234198AbhIDMA7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 4 Sep 2021 08:00:59 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24AF6C061575;
+        Sat,  4 Sep 2021 04:59:58 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id w19-20020a17090aaf9300b00191e6d10a19so1376742pjq.1;
+        Sat, 04 Sep 2021 04:59:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=cSlbZmXpuYD8xFeqZ0DwF8X1WWOBci0BBC9riaxZUYA=;
+        b=V/PDsqjvnlJBrJ+JE89/2f5evnVWxc43lhab6iUxot8bmYz+k40WJyKDXQ4ADGSfpn
+         SP/aotyqNyc9kL2HYOrc9BpAmWTCKz8FSnqj1J0FsqZA5wkQ4FRt4kFsFVPOvt5Yb+sr
+         JmDzj4fa2KlG+O109gOcKvbkkoLWQBV0YL/i5AEuut3omZNT3FWgfwM2Oo14pv2N9o1L
+         kxMZLAkfy3GNBL2rPG08tKEF8IIomALvwgQjBC5qOE8Ag9YrjJxA3FstQiTkUf7ltZPL
+         8nv83RBDTNJCHU0CzhxrnbeL1pQOZRn+l3h1XXCV6RjYe52sAPWYc2fgymiBKkDrXJSZ
+         VFyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=JsroHwqSqpHGTdfNxA5PLdxrx3L9qSi9QYjP9ozR0Rg=;
-        b=JTlgzRsLdgct2t81JglcLuSD05wGkeDZ56tMbleS5QoqqMdjWNHakk8+cc1m6Ul5rh
-         PiVD5aJhxwfvve4ONHzS0QaL+A2nwY/Bd40+z1CgRksmLKC9onlTXx63Kl2CrO71VAue
-         fK3JiNj5Q/acGYjqdLo2xtUSO12Gw7wwy1RScpkFOvSh0gphOK+FSMHGKNhQNf919Fn0
-         NKLgVpY7Dy4X81qPap5n1KyaWSZ1MgduvNG7/48WgiXWK6TUEYl1L9Z6LTQyP8148xpF
-         TZJs5ih8plw8DLikjnwomYarfBrRI8JbRskel1RrICwIiG65naQZ1v88aVOxZ07EYN+k
-         fYag==
-X-Gm-Message-State: AOAM531cKTqOm61tqstFI85rLfXbPZpdWcJUmk+cYgmvL3kwVTuWa4Yl
-        BNx4efecuN3U0S3nwrh6iSLGlL4ZO/zM5kDOrl89mn5Lw89x2zrtq5lwyvwdBK/iYm4HTjonB29
-        w9yELyBvO9aDvLxlLa22HkQ==
-X-Received: by 2002:aca:2116:: with SMTP id 22mr1480698oiz.170.1630728547335;
-        Fri, 03 Sep 2021 21:09:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwKG2Bhyz5Pv4rdwpFAlJhDWYZhyA5CL4ylAm5niXx52VorWmQTsjlaYrGdEv5Ldte8e6NL+w==
-X-Received: by 2002:aca:2116:: with SMTP id 22mr1480685oiz.170.1630728547110;
-        Fri, 03 Sep 2021 21:09:07 -0700 (PDT)
-Received: from treble ([2600:1700:6e32:6c00::15])
-        by smtp.gmail.com with ESMTPSA id b25sm293987ooq.6.2021.09.03.21.09.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Sep 2021 21:09:06 -0700 (PDT)
-Date:   Fri, 3 Sep 2021 21:09:03 -0700
-From:   Josh Poimboeuf <jpoimboe@redhat.com>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Jessica Yu <jeyu@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-arch@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-hardening@vger.kernel.org,
-        Sean Christopherson <seanjc@google.com>
-Subject: Re: [PATCH 3/4] module: Use a list of strings for ro_after_init
- sections
-Message-ID: <20210904040903.tgkkoo2x76zpuj62@treble>
-References: <20210901233757.2571878-1-keescook@chromium.org>
- <20210901233757.2571878-4-keescook@chromium.org>
- <20210903064951.to4dhiu7zua7s6dn@treble>
- <202109030932.1358C4093@keescook>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=cSlbZmXpuYD8xFeqZ0DwF8X1WWOBci0BBC9riaxZUYA=;
+        b=F+iijATiqeW8liBaaIKLyWElO7Dtws0AdqIhUJ0zJXF8nOgxFn5icJ80VoimXbZnbc
+         cAd0MoGefQsMDVAXir1XoYKy2Ah17EixdKgf12dgusqgptKU7aABlZA3guagjoJW67us
+         p0w3i9McyJUbs7RRreeUsEjoPHeIk7nTxwhXJSwfuSfrU0yG7RjodZ8tv9+f6+gaslA6
+         G1M/hJ6ja07f+iuKauIDW7eVECWagyBQrLJ3lt+Ajxz3Nva/wm+Cehhj5y0F49N9IvDf
+         WxW4STMFtrBBVg0CQ48OBZPeDBoo0nJH7bC5GxYElSAOOqjiou0tSWeJPbxIdVTvNWhT
+         VV2g==
+X-Gm-Message-State: AOAM532P5As07dr75Vdmx+VLVVC9khmlEdh6HNerv4LEod2PpZUEIyiE
+        r1m6ocsz5uAoRXCswsIUAusj9AYNixodkGzQ
+X-Google-Smtp-Source: ABdhPJwgObY05FTJzW20N4IfqsEwUWKxifFXB24KxwFfOt7JwTfAmgET7xmnoFJ+rG39t5ClYQmC5w==
+X-Received: by 2002:a17:90b:4c4f:: with SMTP id np15mr3954617pjb.30.1630756797323;
+        Sat, 04 Sep 2021 04:59:57 -0700 (PDT)
+Received: from owniadeMacBook-Pro.local ([103.97.201.4])
+        by smtp.gmail.com with ESMTPSA id z11sm2306331pfr.157.2021.09.04.04.59.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 04 Sep 2021 04:59:56 -0700 (PDT)
+Subject: Re: [PATCH] ftrace: Cleanup ftrace_dyn_arch_init()
+To:     rostedt@goodmis.org, mingo@redhat.com
+Cc:     linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org,
+        guoren@kernel.org, monstr@monstr.eu, tsbogend@alpha.franken.de,
+        nickhu@andestech.com, green.hu@gmail.com, deanbo422@gmail.com,
+        James.Bottomley@HansenPartnership.com, deller@gmx.de,
+        mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
+        borntraeger@de.ibm.com, ysato@users.sourceforge.jp,
+        dalias@libc.org, davem@davemloft.net, tglx@linutronix.de,
+        bp@alien8.de, x86@kernel.org, hpa@zytor.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org
+References: <20210903071817.1162938-1-o451686892@gmail.com>
+From:   Weizhao Ouyang <o451686892@gmail.com>
+Message-ID: <609ef9ee-079a-8d46-4ebe-ef8ab3e1e7ab@gmail.com>
+Date:   Sat, 4 Sep 2021 19:59:48 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.13.0
 MIME-Version: 1.0
+In-Reply-To: <20210903071817.1162938-1-o451686892@gmail.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <202109030932.1358C4093@keescook>
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Sep 03, 2021 at 09:38:42AM -0700, Kees Cook wrote:
-> On Thu, Sep 02, 2021 at 11:49:51PM -0700, Josh Poimboeuf wrote:
-> > On Wed, Sep 01, 2021 at 04:37:56PM -0700, Kees Cook wrote:
-> > > Instead of open-coding the section names, use a list for the sections that
-> > > need to be marked read-only after init. Unfortunately, it seems we can't
-> > > do normal section merging with scripts/module.lds.S as ld.bfd doesn't
-> > > correctly update symbol tables. For more details, see commit 6a3193cdd5e5
-> > > ("kbuild: lto: Merge module sections if and only if CONFIG_LTO_CLANG
-> > > is enabled").
-> > 
-> > I'm missing what this has to do with section merging.  Can you connect
-> > the dots here, i.e. what sections would we want to merge and how would
-> > that help here?
-> 
-> Right, sorry, if ld.bfd didn't have this issue, we could use section
-> merging in the module.lds.S file the way we do in vmlinux.lds:
-> 
-> #ifndef RO_AFTER_INIT_DATA
-> #define RO_AFTER_INIT_DATA                                              \
->         . = ALIGN(8);                                                   \
->         __start_ro_after_init = .;                                      \
->         *(.data..ro_after_init)                                         \
->         JUMP_TABLE_DATA                                                 \
->         STATIC_CALL_DATA                                                \
->         __end_ro_after_init = .;
-> #endif
-> ...
->         . = ALIGN((align));                                             \
->         .rodata           : AT(ADDR(.rodata) - LOAD_OFFSET) {           \
->                 __start_rodata = .;                                     \
->                 *(.rodata) *(.rodata.*)                                 \
->                 SCHED_DATA                                              \
->                 RO_AFTER_INIT_DATA      /* Read only after init */      \
->                 . = ALIGN(8);                                           \
->                 __start___tracepoints_ptrs = .;                         \
->                 KEEP(*(__tracepoints_ptrs)) /* Tracepoints: pointer array */ \
->                 __stop___tracepoints_ptrs = .;                          \
->                 *(__tracepoints_strings)/* Tracepoints: strings */      \
->         }                                                               \
-> 
-> Then jump_table and static_call sections could be collected into a
-> new section, as the module loader would only need to look for that
-> single name.
 
-Hm, that could be a really nice way to converge things for vmlinux and
-module linking.
+On 2021/9/3 15:18, Weizhao Ouyang wrote:
+> Most ARCHs use empty ftrace_dyn_arch_init(), introduce a weak common
+> ftrace_dyn_arch_init() to cleanup them.
+>
+> Signed-off-by: Weizhao Ouyang <o451686892@gmail.com>
+> ---
+>  arch/arm/kernel/ftrace.c          | 5 -----
+>  arch/arm64/kernel/ftrace.c        | 5 -----
+>  arch/csky/kernel/ftrace.c         | 5 -----
+>  arch/ia64/kernel/ftrace.c         | 6 ------
+>  arch/microblaze/kernel/ftrace.c   | 5 -----
+>  arch/mips/include/asm/ftrace.h    | 2 ++
+>  arch/nds32/kernel/ftrace.c        | 5 -----
+>  arch/parisc/kernel/ftrace.c       | 5 -----
+>  arch/powerpc/include/asm/ftrace.h | 4 ++++
+>  arch/riscv/kernel/ftrace.c        | 5 -----
+>  arch/s390/kernel/ftrace.c         | 5 -----
+>  arch/sh/kernel/ftrace.c           | 5 -----
+>  arch/sparc/kernel/ftrace.c        | 5 -----
+>  arch/x86/kernel/ftrace.c          | 5 -----
+>  include/linux/ftrace.h            | 1 -
+>  kernel/trace/ftrace.c             | 5 +++++
+>  16 files changed, 11 insertions(+), 62 deletions(-)
+>
+> diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
+> index 3c83b5d29697..a006585e1c09 100644
+> --- a/arch/arm/kernel/ftrace.c
+> +++ b/arch/arm/kernel/ftrace.c
+> @@ -193,11 +193,6 @@ int ftrace_make_nop(struct module *mod,
+>  
+>  	return ret;
+>  }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>  #endif /* CONFIG_DYNAMIC_FTRACE */
+>  
+>  #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+> diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
+> index 7f467bd9db7a..fc62dfe73f93 100644
+> --- a/arch/arm64/kernel/ftrace.c
+> +++ b/arch/arm64/kernel/ftrace.c
+> @@ -236,11 +236,6 @@ void arch_ftrace_update_code(int command)
+>  	command |= FTRACE_MAY_SLEEP;
+>  	ftrace_modify_all_code(command);
+>  }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>  #endif /* CONFIG_DYNAMIC_FTRACE */
+>  
+>  #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+> diff --git a/arch/csky/kernel/ftrace.c b/arch/csky/kernel/ftrace.c
+> index b4a7ec1517ff..50bfcf129078 100644
+> --- a/arch/csky/kernel/ftrace.c
+> +++ b/arch/csky/kernel/ftrace.c
+> @@ -133,11 +133,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
+>  				(unsigned long)func, true, true);
+>  	return ret;
+>  }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>  #endif /* CONFIG_DYNAMIC_FTRACE */
+>  
+>  #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+> diff --git a/arch/ia64/kernel/ftrace.c b/arch/ia64/kernel/ftrace.c
+> index b2ab2d58fb30..d6360fd404ab 100644
+> --- a/arch/ia64/kernel/ftrace.c
+> +++ b/arch/ia64/kernel/ftrace.c
+> @@ -194,9 +194,3 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
+>  	flush_icache_range(addr, addr + 16);
+>  	return 0;
+>  }
+> -
+> -/* run from kstop_machine */
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+> diff --git a/arch/microblaze/kernel/ftrace.c b/arch/microblaze/kernel/ftrace.c
+> index 224eea40e1ee..188749d62709 100644
+> --- a/arch/microblaze/kernel/ftrace.c
+> +++ b/arch/microblaze/kernel/ftrace.c
+> @@ -163,11 +163,6 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
+>  	return ret;
+>  }
+>  
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+> -
+>  int ftrace_update_ftrace_func(ftrace_func_t func)
+>  {
+>  	unsigned long ip = (unsigned long)(&ftrace_call);
+> diff --git a/arch/mips/include/asm/ftrace.h b/arch/mips/include/asm/ftrace.h
+> index b463f2aa5a61..ed013e767390 100644
+> --- a/arch/mips/include/asm/ftrace.h
+> +++ b/arch/mips/include/asm/ftrace.h
+> @@ -76,6 +76,8 @@ do {						\
+>  
+>  
+>  #ifdef CONFIG_DYNAMIC_FTRACE
+> +int __init ftrace_dyn_arch_init(void);
+> +
+>  static inline unsigned long ftrace_call_adjust(unsigned long addr)
+>  {
+>  	return addr;
+> diff --git a/arch/nds32/kernel/ftrace.c b/arch/nds32/kernel/ftrace.c
+> index 0e23e3a8df6b..f0ef4842d191 100644
+> --- a/arch/nds32/kernel/ftrace.c
+> +++ b/arch/nds32/kernel/ftrace.c
+> @@ -84,11 +84,6 @@ void _ftrace_caller(unsigned long parent_ip)
+>  	/* restore all state needed by the compiler epilogue */
+>  }
+>  
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+> -
+>  static unsigned long gen_sethi_insn(unsigned long addr)
+>  {
+>  	unsigned long opcode = 0x46000000;
+> diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
+> index 0a1e75af5382..01581f715737 100644
+> --- a/arch/parisc/kernel/ftrace.c
+> +++ b/arch/parisc/kernel/ftrace.c
+> @@ -94,11 +94,6 @@ int ftrace_disable_ftrace_graph_caller(void)
+>  #endif
+>  
+>  #ifdef CONFIG_DYNAMIC_FTRACE
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>  int ftrace_update_ftrace_func(ftrace_func_t func)
+>  {
+>  	return 0;
+> diff --git a/arch/powerpc/include/asm/ftrace.h b/arch/powerpc/include/asm/ftrace.h
+> index debe8c4f7062..4db83cf4283f 100644
+> --- a/arch/powerpc/include/asm/ftrace.h
+> +++ b/arch/powerpc/include/asm/ftrace.h
+> @@ -61,6 +61,10 @@ struct dyn_arch_ftrace {
+>  };
+>  #endif /* __ASSEMBLY__ */
+>  
+> +#ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+> +int __init ftrace_dyn_arch_init(void);
+> +#endif
+> +
 
-After some digging, 6a3193cdd5e5 isn't necessarily a linker bug.  It may
-be some kind of undefined behavior when the section address isn't
-specified.  If you just explicitly set the section address to zero then
-the "bug" goes away.
+Sorry there is a mistake CONFIG, I will send a v2 patch later.
 
-diff --git a/scripts/module.lds.S b/scripts/module.lds.S
-index 04c5685c25cf..80b09b7d405c 100644
---- a/scripts/module.lds.S
-+++ b/scripts/module.lds.S
-@@ -30,23 +30,22 @@ SECTIONS {
- 
- 	__patchable_function_entries : { *(__patchable_function_entries) }
- 
--#ifdef CONFIG_LTO_CLANG
- 	/*
- 	 * With CONFIG_LTO_CLANG, LLD always enables -fdata-sections and
- 	 * -ffunction-sections, which increases the size of the final module.
- 	 * Merge the split sections in the final binary.
- 	 */
--	.bss : {
-+	.bss 0 : {
- 		*(.bss .bss.[0-9a-zA-Z_]*)
- 		*(.bss..L*)
- 	}
- 
--	.data : {
-+	.data 0 : {
- 		*(.data .data.[0-9a-zA-Z_]*)
- 		*(.data..L*)
- 	}
- 
--	.rodata : {
-+	.rodata 0 : {
- 		*(.rodata .rodata.[0-9a-zA-Z_]*)
- 		*(.rodata..L*)
- 	}
-@@ -55,11 +54,10 @@ SECTIONS {
- 	 * With CONFIG_CFI_CLANG, we assume __cfi_check is at the beginning
- 	 * of the .text section, and is aligned to PAGE_SIZE.
- 	 */
--	.text : ALIGN_CFI {
-+	.text 0 : ALIGN_CFI {
- 		*(.text.__cfi_check)
- 		*(.text .text.[0-9a-zA-Z_]* .text..L.cfi*)
- 	}
--#endif
- }
- 
- /* bring in arch-specific sections */
+>  #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+>  #define ARCH_SUPPORTS_FTRACE_OPS 1
+>  #endif
+> diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
+> index 7f1e5203de88..4716f4cdc038 100644
+> --- a/arch/riscv/kernel/ftrace.c
+> +++ b/arch/riscv/kernel/ftrace.c
+> @@ -154,11 +154,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
+>  
+>  	return ret;
+>  }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>  #endif
+>  
+>  #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+> diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
+> index 0a464d328467..3fd80397ff52 100644
+> --- a/arch/s390/kernel/ftrace.c
+> +++ b/arch/s390/kernel/ftrace.c
+> @@ -262,11 +262,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
+>  	return 0;
+>  }
+>  
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+> -
+>  void arch_ftrace_update_code(int command)
+>  {
+>  	if (ftrace_shared_hotpatch_trampoline(NULL))
+> diff --git a/arch/sh/kernel/ftrace.c b/arch/sh/kernel/ftrace.c
+> index 295c43315bbe..930001bb8c6a 100644
+> --- a/arch/sh/kernel/ftrace.c
+> +++ b/arch/sh/kernel/ftrace.c
+> @@ -252,11 +252,6 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
+>  
+>  	return ftrace_modify_code(rec->ip, old, new);
+>  }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>  #endif /* CONFIG_DYNAMIC_FTRACE */
+>  
+>  #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+> diff --git a/arch/sparc/kernel/ftrace.c b/arch/sparc/kernel/ftrace.c
+> index 684b84ce397f..eaead3da8e03 100644
+> --- a/arch/sparc/kernel/ftrace.c
+> +++ b/arch/sparc/kernel/ftrace.c
+> @@ -82,11 +82,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
+>  	new = ftrace_call_replace(ip, (unsigned long)func);
+>  	return ftrace_modify_code(ip, old, new);
+>  }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>  #endif
+>  
+>  #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+> diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+> index 1b3ce3b4a2a2..23d221a9a3cd 100644
+> --- a/arch/x86/kernel/ftrace.c
+> +++ b/arch/x86/kernel/ftrace.c
+> @@ -252,11 +252,6 @@ void arch_ftrace_update_code(int command)
+>  	ftrace_modify_all_code(command);
+>  }
+>  
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+> -
+>  /* Currently only x86_64 supports dynamic trampolines */
+>  #ifdef CONFIG_X86_64
+>  
+> diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
+> index 832e65f06754..f1eca123d89d 100644
+> --- a/include/linux/ftrace.h
+> +++ b/include/linux/ftrace.h
+> @@ -573,7 +573,6 @@ ftrace_set_early_filter(struct ftrace_ops *ops, char *buf, int enable);
+>  
+>  /* defined in arch */
+>  extern int ftrace_ip_converted(unsigned long ip);
+> -extern int ftrace_dyn_arch_init(void);
+>  extern void ftrace_replace_code(int enable);
+>  extern int ftrace_update_ftrace_func(ftrace_func_t func);
+>  extern void ftrace_caller(void);
+> diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+> index 7efbc8aaf7f6..4c090323198d 100644
+> --- a/kernel/trace/ftrace.c
+> +++ b/kernel/trace/ftrace.c
+> @@ -6846,6 +6846,11 @@ void __init ftrace_free_init_mem(void)
+>  	ftrace_free_mem(NULL, start, end);
+>  }
+>  
+> +int __init __weak ftrace_dyn_arch_init(void)
+> +{
+> +	return 0;
+> +}
+> +
+>  void __init ftrace_init(void)
+>  {
+>  	extern unsigned long __start_mcount_loc[];
 
+Thanks.
