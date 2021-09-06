@@ -2,131 +2,152 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D78FC433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 14:36:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4E6EC4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 14:58:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 512C460232
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 14:36:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9A9306023F
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 14:58:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243450AbhIFOhe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Sep 2021 10:37:34 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7922 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236950AbhIFOh2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 10:37:28 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 186EB0cd093954;
-        Mon, 6 Sep 2021 10:34:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=K9YoRjs+OVJTZWwE3aqGWgWmXGlfnLRk4vE6zXW/7MI=;
- b=pr6D7d1d18e9uwZlU0Ty8GzNce4SEulx18mGcF9L1kEJ+zwvsOlx2ic4beSbSKw26JXq
- +wabtQ6fpEzwdqEUSQHic1lITg/cwVqj2Q9qvwIMCxTPnmi7I9/KTvTxJIpE4M3WM14v
- HYDFATUechLGhhqevTYTmAG5IXFY/tsxIuKqHi3m4r5SPjgAoEk5be+4X9Ttpy82h96g
- fh5avbZFBx/ShTM0cCfRkPrxAMtwX+VSP+LliZEDjWMy+NMGkZhRKG+NSJI4ZCJCUQV+
- gebnm3jalueksIc+cPWp9KV8M6hqjwyRk4edwR6GL+1FQWUA2fUN0+1R8Cr9CPFKM6e2 Nw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3awhbyn14m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Sep 2021 10:34:04 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 186EB02d093867;
-        Mon, 6 Sep 2021 10:34:03 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3awhbyn13w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Sep 2021 10:34:03 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 186EX2rL017980;
-        Mon, 6 Sep 2021 14:34:01 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma01fra.de.ibm.com with ESMTP id 3av0e9chec-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Sep 2021 14:34:01 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 186EXwhM54198718
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Sep 2021 14:33:58 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4F4D3AE058;
-        Mon,  6 Sep 2021 14:33:58 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 49EFEAE05D;
-        Mon,  6 Sep 2021 14:33:57 +0000 (GMT)
-Received: from osiris (unknown [9.145.3.161])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon,  6 Sep 2021 14:33:57 +0000 (GMT)
-Date:   Mon, 6 Sep 2021 16:33:55 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     Luis Chamberlain <mcgrof@kernel.org>, axboe@kernel.dk,
-        gregkh@linuxfoundation.org, chaitanya.kulkarni@wdc.com,
-        atulgopinathan@gmail.com, hare@suse.de, maximlevitsky@gmail.com,
-        oakad@yahoo.com, ulf.hansson@linaro.org, colin.king@canonical.com,
-        shubhankarvk@gmail.com, baijiaju1990@gmail.com, trix@redhat.com,
-        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
-        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
-        sth@linux.ibm.com, hoeppner@linux.ibm.com, gor@linux.ibm.com,
-        borntraeger@de.ibm.com, oberpar@linux.ibm.com, tj@kernel.org,
-        linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/9] s390/block/dcssblk: add error handling support for
- add_disk()
-Message-ID: <YTYm09U6jZUDtB9l@osiris>
-References: <20210902174105.2418771-1-mcgrof@kernel.org>
- <20210902174105.2418771-8-mcgrof@kernel.org>
- <YTIscKy+jg5L/TMh@osiris>
- <YTLP8mYBX37R++9E@bombadil.infradead.org>
- <20210906134346.19c14246@thinkpad>
+        id S243712AbhIFO7Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Sep 2021 10:59:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39432 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243684AbhIFO7H (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 10:59:07 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04246C061575;
+        Mon,  6 Sep 2021 07:58:03 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id u13-20020a17090abb0db0290177e1d9b3f7so4447409pjr.1;
+        Mon, 06 Sep 2021 07:58:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=e7Lxz1rTUMVMiOxDU3ihYWK5WPfaNeZ9K8ew2EFVN6M=;
+        b=LXgp52W5k+6e+E1lD/+fnmwROVu0im0ZTbRaTGFRUHoee98niPkmedBSPuoaU+C901
+         xA0zVCRtm3ZstMaY0r+bfrLwX0h4lJRwjHZSrSd7VMiiQmuNR4VJb4KIkfYgNr45+6R/
+         Ytm3SgdnIw+8vdyNM7Qrbyc2ZfHYtokHyF9mvUbjZBpqaG9aV9hVDtVpCH7AesyMXvxe
+         UqoY/NFf7dqJ+B2r0NE5QZJnHLwexfdT+iciJQG7/AjInHtDs1ZoecQ7oAJRB4rOv/f9
+         sTenECUfv5Z+O8xZpmI3XfSxkSvYjZ+DMUZOgmuBqGpnmkHpr4lFbj1WgmAnvQDDLG1o
+         HBzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=e7Lxz1rTUMVMiOxDU3ihYWK5WPfaNeZ9K8ew2EFVN6M=;
+        b=iA89nih+C3XC4TBfbpSu9gKv5NHVSmzdRFP0BLVNNkz18vfDPvVjyCvnlH6h6vQu3H
+         pqU0PohkolvcapHtnjs0kfhmVt3sUOy09O4pnxENd4wiWxG4xVoeCsaDb+uLiWVDoD/l
+         CNR53Hsj2+5Bae5qe88JoLQYQSeyQJuEbk+lxwkCcna86ghSeZSzgkPrHxGenWzkAPRs
+         OkCrMpzNxhII0AhaubXod+KvY/jPgX59+lqI0rQ048f0DtxruFjwOFRa0d1Ph2F6z4sc
+         KpXXnnsiwqkFLmjw3kb44Vtpp+lBtZ3//JBVvAwioSrchw+eja5mTkHeWloNxWu1IGLN
+         6AYw==
+X-Gm-Message-State: AOAM530K/Gc3aHBcoueBxmIbajNs5c4hKAsVX2uBCno5/ZZdfALz3LFd
+        /4NzsXPIRq1DmVC/CvHBQNbphEXQ9ZcAySCJqUM=
+X-Google-Smtp-Source: ABdhPJx4U2UXdqmjv3wFeCTa6pX3ETSedWET7Gxlb8aTpJkm1WYcBE+shFcj4K1cKKYWsG7A6RIebw==
+X-Received: by 2002:a17:902:8648:b029:129:dda4:ddc2 with SMTP id y8-20020a1709028648b0290129dda4ddc2mr11168934plt.4.1630940282178;
+        Mon, 06 Sep 2021 07:58:02 -0700 (PDT)
+Received: from owniadeMacBook-Pro.local ([8.21.11.90])
+        by smtp.gmail.com with ESMTPSA id p3sm7607183pfw.71.2021.09.06.07.57.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 06 Sep 2021 07:58:01 -0700 (PDT)
+Subject: Re: [PATCH v2] ftrace: Cleanup ftrace_dyn_arch_init()
+To:     Michael Ellerman <mpe@ellerman.id.au>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>
+Cc:     Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org
+References: <20210906111626.1259867-1-o451686892@gmail.com>
+ <87v93dn5qh.fsf@mpe.ellerman.id.au>
+From:   Weizhao Ouyang <o451686892@gmail.com>
+Message-ID: <87b80cd6-f20f-a673-f438-faff5d7d4334@gmail.com>
+Date:   Mon, 6 Sep 2021 22:57:53 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210906134346.19c14246@thinkpad>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: oSOWQOHMJCB8KRa2gHe6rtDES0-9leq3
-X-Proofpoint-ORIG-GUID: uWvV3nnx5hIse_lWekuNz15Kr0UNPFaR
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-09-06_06:2021-09-03,2021-09-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- mlxscore=0 impostorscore=0 phishscore=0 lowpriorityscore=0 clxscore=1015
- mlxlogscore=999 priorityscore=1501 spamscore=0 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2108310000
- definitions=main-2109060090
+In-Reply-To: <87v93dn5qh.fsf@mpe.ellerman.id.au>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 06, 2021 at 01:43:46PM +0200, Gerald Schaefer wrote:
-> On Fri, 3 Sep 2021 18:46:26 -0700
-> Luis Chamberlain <mcgrof@kernel.org> wrote:
-> > > > +	rc = device_add_disk(&dev_info->dev, dev_info->gd, NULL);
-> > > > +	if (rc)
-> > > > +		goto put_dev;
-> > > 
-> > > This looks not correct to me. We seem to have now in case of an error:
-> > > 
-> > > - reference count imbalance (= memory leak)
-> > > - dax cleanup is missing
-> > 
-> > Care to provide an alternative?
-> 
-> See patch below:
-> 
-> From 7053b5f8c0a126c3ef450de3668d9963bd68ceaa Mon Sep 17 00:00:00 2001
-> From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> Date: Mon, 6 Sep 2021 13:18:53 +0200
-> Subject: [PATCH] s390/block/dcssblk: add error handling support for add_disk()
-> 
-> Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> ---
->  drivers/s390/block/dcssblk.c | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
 
-Thanks Gerald! FWIW:
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+On 2021/9/6 22:22, Michael Ellerman wrote:
+> Weizhao Ouyang <o451686892@gmail.com> writes:
+>> Most of ARCHs use empty ftrace_dyn_arch_init(), introduce a weak common
+>> ftrace_dyn_arch_init() to cleanup them.
+>>
+>> Signed-off-by: Weizhao Ouyang <o451686892@gmail.com>
+>> Acked-by: Heiko Carstens <hca@linux.ibm.com> (s390)
+>>
+>> ---
+>>
+>> Changes in v2:
+>> -- correct CONFIG_DYNAMIC_FTRACE on PowerPC
+>> -- add Acked-by tag
+>> diff --git a/arch/powerpc/include/asm/ftrace.h b/arch/powerpc/include/asm/ftrace.h
+>> index debe8c4f7062..d59f67c0225f 100644
+>> --- a/arch/powerpc/include/asm/ftrace.h
+>> +++ b/arch/powerpc/include/asm/ftrace.h
+>> @@ -61,6 +61,10 @@ struct dyn_arch_ftrace {
+>>  };
+>>  #endif /* __ASSEMBLY__ */
+>>  
+>> +#ifdef CONFIG_DYNAMIC_FTRACE
+>> +int __init ftrace_dyn_arch_init(void);
+>> +#endif /* CONFIG_DYNAMIC_FTRACE */
+>> +
+>>  #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+>>  #define ARCH_SUPPORTS_FTRACE_OPS 1
+>>  #endif
+> That breaks the build for powerpc:
+>
+>   /linux/arch/powerpc/include/asm/ftrace.h: Assembler messages:
+>   /linux/arch/powerpc/include/asm/ftrace.h:65: Error: unrecognized opcode: `int'
+>   make[4]: *** [/linux/scripts/Makefile.build:352: arch/powerpc/kernel/trace/ftrace_64.o] Error 1
+>   make[3]: *** [/linux/scripts/Makefile.build:514: arch/powerpc/kernel/trace] Error 2
+>   make[2]: *** [/linux/scripts/Makefile.build:514: arch/powerpc/kernel] Error 2
+>   make[1]: *** [/linux/Makefile:1861: arch/powerpc] Error 2
+>   make[1]: *** Waiting for unfinished jobs....
+>
+> It needs to be inside an #ifndef __ASSEMBLY__ section.
+>
+> cheers
+
+Thanks for reply, I'll fix it up.
