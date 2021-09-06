@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC453C433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:31:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27373C43217
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:31:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 95AE660EBA
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:31:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 113EE61027
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:31:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241319AbhIFBcq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 5 Sep 2021 21:32:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47508 "EHLO mail.kernel.org"
+        id S241400AbhIFBcs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 5 Sep 2021 21:32:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351400AbhIFBa1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:30:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF2C66120F;
-        Mon,  6 Sep 2021 01:23:40 +0000 (UTC)
+        id S1351658AbhIFBaw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:30:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A26D8611F2;
+        Mon,  6 Sep 2021 01:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891421;
-        bh=/RylU52czDfaiM3F7W790mWH3u6dY9JBCjKLFY6ARfk=;
+        s=k20201202; t=1630891445;
+        bh=xGwExUppbd3H53PxpNT/Y7MZXZdRKAOroOEcEFe8Yis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hvho3ub29dmDd81BF+g0N2o6ORK2gN8tsjE494AI+nSlR41sse13300rPFL1rMes7
-         BmihYNxt0UePXTPslpOEWo2N2X+TjtKctl8LFY5QAammseMF+ticgicYZ1BSVbCRHp
-         IoVYR/eJxpnFwoov0Gx0IndDFWkN2Tkq/bG0dO7JL7jPyyW+ocF29Hcrr3b03JdPo2
-         SgUSgd/fvwvPdb8CUWE/tcwPAPP4m6qajOjMGKUuBCtMNJdME0onr6v6V9yUY5YDgz
-         z54T8TJs26ISkRbgb3v08BJpeNZN1HtWjYDaGH8GR9KySJb1OMATvbfF6P2vj9cKpc
-         hwkhstxrIp+pQ==
+        b=L4P4f10sXffG85AO2F23jNUwm9r8hUx/dqczhV9KUKe4z+Gkmon1LgW/xqdP3Zzf7
+         on9LJER9h8piqQAK3vZUcdOp8YLnbi3BHmTIfAhv6eXT/pe2Zopx3gBQFCpREjAWxd
+         InCXPuKLziRF8fVaJNCE8+H/purqcmce7csi9O3oXGoKih5q+qEwQdmmv4+bkqzt5+
+         bL590FxlFNbGIcqHaZOHDWb4kW7mJTkWHpxdTDgDC+u4mgIjdnyy5RujXTpQPSpggx
+         BlkTEmB4pV3FHw0ix/7sKiQJMiM3UAGslQGAnVQogFqyZatDiVov/Ws2t5Qc6oWTOB
+         GNlBCAx0scEAw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 15/23] s390/cio: add dev_busid sysfs entry for each subchannel
-Date:   Sun,  5 Sep 2021 21:23:14 -0400
-Message-Id: <20210906012322.930668-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 10/17] s390/cio: add dev_busid sysfs entry for each subchannel
+Date:   Sun,  5 Sep 2021 21:23:45 -0400
+Message-Id: <20210906012352.930954-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210906012322.930668-1-sashal@kernel.org>
-References: <20210906012322.930668-1-sashal@kernel.org>
+In-Reply-To: <20210906012352.930954-1-sashal@kernel.org>
+References: <20210906012352.930954-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -78,12 +78,12 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 17 insertions(+)
 
 diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 825a8f2703b4..6efe50d70c4b 100644
+index e2026d54dd37..435e804b6b8b 100644
 --- a/drivers/s390/cio/css.c
 +++ b/drivers/s390/cio/css.c
-@@ -364,9 +364,26 @@ static ssize_t pimpampom_show(struct device *dev,
+@@ -330,9 +330,26 @@ static ssize_t pimpampom_show(struct device *dev,
  }
- static DEVICE_ATTR_RO(pimpampom);
+ static DEVICE_ATTR(pimpampom, 0444, pimpampom_show, NULL);
  
 +static ssize_t dev_busid_show(struct device *dev,
 +			      struct device_attribute *attr,
