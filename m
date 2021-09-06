@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FD1CC433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 09:49:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FB3DC433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 09:49:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2835660F3A
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 09:49:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0CC5861051
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 09:49:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241479AbhIFJuq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Sep 2021 05:50:46 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21558 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S241399AbhIFJup (ORCPT
+        id S241494AbhIFJur (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Sep 2021 05:50:47 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21294 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241341AbhIFJup (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 05:50:45 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1869Y0BG063343;
-        Mon, 6 Sep 2021 05:49:34 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1869YLaT173576;
+        Mon, 6 Sep 2021 05:49:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=Zp/hKbHxmVJIjen8PsqG35YaaJmd5NOaxBF0c/5Vh14=;
- b=P4EEqLXbzFHsyqICmRHA0qjhh8DdkH5du5msFh88ZhIePXhpQdTqvoFDhgvfxn+KBNU0
- hrePIYZCYLRCb6DqUOoHoHB0mNsB6xsqbwFgi+fbk9oidbxhiQ8PJDUueyiv8zhxy5PF
- yU7vuGUZHdItBXr0jOJu1iefi8vHIajLT2BkBYXOI4I3+jzcP8fK2g51teQBmd+XyICO
- NS6+HRS1CwEwtyWUVBdQ5TXQLmAlp53qhv1zgSG+6xHYWFtfiSVX/yJnTTqW6qmX5784
- 8gyMhVO3+Pwbn24yKQ08lLlP8bXjpqtbFfEj8VpmPBFUN2b5jWKlrLKXzwzDAxCjulrS Pg== 
+ bh=aV0DpjxY4KIjR8H4ZzCiCpmwtlBifvWcQRETX12XuIo=;
+ b=HPWetATNQlRUStc7fk5Sy6QUovv9eGsRf5YN/BUq+qoYq8X+JUZIccxj5GPqwnKzyaft
+ MGz+BAS0RQ/jnuDW5d5d5GPff3WzqVEnbK1CFOGuZz1iT8lQIapL0PdaFzAOuiM96Ne6
+ qXOlsGXdawoBgRxDD7My3FYzrQImVG3xviZLGuMizNRH6VE9bixeEu/bLQWVsGuyRrh8
+ 3MraMhxIUL3PCLTm8s68DxA9Io/K59JjDiuYojEyChR8SlXBoK4JXa7zEJWPf7iOKUcX
+ YanwR6FKiYVkqQgfUt1rmS/5HmYAy01Jj818ZxkjG8UwWrS7BlYgrhdQO4LRn1qd/o8c qQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3awfyd14h3-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3awfhbsnuk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Sep 2021 05:49:35 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1869ZaGZ180618;
+        Mon, 6 Sep 2021 05:49:34 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3awfhbsnu3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 06 Sep 2021 05:49:34 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1869Y2Mc063575;
-        Mon, 6 Sep 2021 05:49:33 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3awfyd14gk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Sep 2021 05:49:33 -0400
 Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1869lNaS022341;
-        Mon, 6 Sep 2021 09:49:32 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3av0e91w7u-1
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1869lNAn022344;
+        Mon, 6 Sep 2021 09:49:33 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3av0e91w80-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Sep 2021 09:49:31 +0000
+        Mon, 06 Sep 2021 09:49:32 +0000
 Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1869nShf46530834
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1869nTrQ26083762
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Sep 2021 09:49:28 GMT
+        Mon, 6 Sep 2021 09:49:29 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 852D542049;
-        Mon,  6 Sep 2021 09:49:28 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7E32542057;
+        Mon,  6 Sep 2021 09:49:29 +0000 (GMT)
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1D66B4203F;
-        Mon,  6 Sep 2021 09:49:28 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 17FEB4204C;
+        Mon,  6 Sep 2021 09:49:29 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Sep 2021 09:49:28 +0000 (GMT)
+        Mon,  6 Sep 2021 09:49:29 +0000 (GMT)
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
 To:     Bjorn Helgaas <bhelgaas@google.com>
 Cc:     Linas Vepstas <linasvepstas@gmail.com>,
@@ -71,202 +71,146 @@ Cc:     Linas Vepstas <linasvepstas@gmail.com>,
         linux-s390@vger.kernel.org,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH 1/5] s390/pci: refresh function handle in iomap
-Date:   Mon,  6 Sep 2021 11:49:23 +0200
-Message-Id: <20210906094927.524106-2-schnelle@linux.ibm.com>
+Subject: [PATCH 3/5] PCI: Move pci_dev_is/assign_added() to pci.h
+Date:   Mon,  6 Sep 2021 11:49:25 +0200
+Message-Id: <20210906094927.524106-4-schnelle@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210906094927.524106-1-schnelle@linux.ibm.com>
 References: <20210906094927.524106-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ikp-rEgA3uulDFrfX70vSh3-lQgClUAr
-X-Proofpoint-ORIG-GUID: j-W58HU9k9Th5eBgCvTXhPw33rheMzUG
+X-Proofpoint-ORIG-GUID: nasEqpBhqga_TV6B5j2tDuXorT8aJv24
+X-Proofpoint-GUID: ThaxjnUnArSqEIM3lfP7wL2Fm1rxUupT
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-09-06_05:2021-09-03,2021-09-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- impostorscore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=999
- clxscore=1011 spamscore=0 adultscore=0 suspectscore=0 bulkscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 mlxlogscore=999 lowpriorityscore=0 bulkscore=0
+ malwarescore=0 impostorscore=0 adultscore=0 spamscore=0 phishscore=0
+ mlxscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2108310000 definitions=main-2109060060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The function handle of a PCI function is updated when disabling or
-enabling it as well as when the function's availability changes or it
-enters the error state.
-
-Until now this only occurred either while there is no struct pci_dev
-associated with the function yet or the function became unavailable.
-This meant that leaving a stale function handle in the iomap either
-didn't happen because there was no iomap yet or it lead to errors on PCI
-access but so would the correct disabled function handle.
-
-In the future a CLP Set PCI Function Disable/Enable cycle during PCI
-device recovery may be done while the device is bound to a driver.  In
-this case we must update the iomap associated with the now-stale
-function handle to ensure that the resulting zPCI instruction references
-an accurate function handle.
-
-Since the function handle is accessed by the PCI accessor helpers
-without locking use READ_ONCE()/WRITE_ONCE() to mark this access and
-prevent compiler optimizations that would move the load/store.
-
-With that infrastructure in place let's also properly update the
-function handle in the existing cases. This makes sure that in the
-future debugging of a zPCI function access through the handle will
-show an up to date handle reducing the chance of confusion. Also it
-makes sure we have one single place where a zPCI function handle is
-updated after initialization.
+The helper function pci_dev_is_added() from drivers/pci/pci.h is used in
+PCI arch code of both s390 and powerpc leading to awkward relative
+includes. Move it to the global include/linux/pci.h and get rid of these
+includes just for that one function.
 
 Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
- arch/s390/include/asm/pci.h |  1 +
- arch/s390/pci/pci.c         | 36 ++++++++++++++++++++++++++++++++----
- arch/s390/pci/pci_event.c   |  6 +++---
- arch/s390/pci/pci_insn.c    |  4 ++--
- 4 files changed, 38 insertions(+), 9 deletions(-)
+ arch/powerpc/platforms/powernv/pci-sriov.c |  3 ---
+ arch/powerpc/platforms/pseries/setup.c     |  1 -
+ arch/s390/pci/pci_sysfs.c                  |  2 --
+ drivers/pci/hotplug/acpiphp_glue.c         |  1 -
+ drivers/pci/pci.h                          | 15 ---------------
+ include/linux/pci.h                        | 15 +++++++++++++++
+ 6 files changed, 15 insertions(+), 22 deletions(-)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index e4803ec51110..5e6cba22a801 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -211,6 +211,7 @@ int zpci_deconfigure_device(struct zpci_dev *zdev);
- int zpci_register_ioat(struct zpci_dev *, u8, u64, u64, u64);
- int zpci_unregister_ioat(struct zpci_dev *, u8);
- void zpci_remove_reserved_devices(void);
-+void zpci_update_fh(struct zpci_dev *zdev, u32 fh);
+diff --git a/arch/powerpc/platforms/powernv/pci-sriov.c b/arch/powerpc/platforms/powernv/pci-sriov.c
+index 28aac933a439..2e0ca5451e85 100644
+--- a/arch/powerpc/platforms/powernv/pci-sriov.c
++++ b/arch/powerpc/platforms/powernv/pci-sriov.c
+@@ -9,9 +9,6 @@
  
- /* CLP */
- int clp_setup_writeback_mio(void);
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index e7e6788d75a8..af22778551c1 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -481,6 +481,34 @@ static void zpci_free_iomap(struct zpci_dev *zdev, int entry)
- 	spin_unlock(&zpci_iomap_lock);
+ #include "pci.h"
+ 
+-/* for pci_dev_is_added() */
+-#include "../../../../drivers/pci/pci.h"
+-
+ /*
+  * The majority of the complexity in supporting SR-IOV on PowerNV comes from
+  * the need to put the MMIO space for each VF into a separate PE. Internally
+diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
+index 0dfaa6ab44cc..08e846ae1853 100644
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -74,7 +74,6 @@
+ #include <asm/hvconsole.h>
+ 
+ #include "pseries.h"
+-#include "../../../../drivers/pci/pci.h"
+ 
+ DEFINE_STATIC_KEY_FALSE(shared_processor);
+ EXPORT_SYMBOL(shared_processor);
+diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
+index 335c281811c7..40733b93a086 100644
+--- a/arch/s390/pci/pci_sysfs.c
++++ b/arch/s390/pci/pci_sysfs.c
+@@ -13,8 +13,6 @@
+ #include <linux/stat.h>
+ #include <linux/pci.h>
+ 
+-#include "../../../drivers/pci/pci.h"
+-
+ #include <asm/sclp.h>
+ 
+ #define zpci_attr(name, fmt, member)					\
+diff --git a/drivers/pci/hotplug/acpiphp_glue.c b/drivers/pci/hotplug/acpiphp_glue.c
+index f031302ad401..4cb963f88183 100644
+--- a/drivers/pci/hotplug/acpiphp_glue.c
++++ b/drivers/pci/hotplug/acpiphp_glue.c
+@@ -38,7 +38,6 @@
+ #include <linux/slab.h>
+ #include <linux/acpi.h>
+ 
+-#include "../pci.h"
+ #include "acpiphp.h"
+ 
+ static LIST_HEAD(bridge_list);
+diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
+index 93dcdd431072..a159cd0f6f05 100644
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -383,21 +383,6 @@ static inline bool pci_dev_is_disconnected(const struct pci_dev *dev)
+ 	return dev->error_state == pci_channel_io_perm_failure;
  }
  
-+static void zpci_do_update_iomap_fh(struct zpci_dev *zdev, u32 fh)
-+{
-+	int bar, idx;
+-/* pci_dev priv_flags */
+-#define PCI_DEV_ADDED 0
+-#define PCI_DPC_RECOVERED 1
+-#define PCI_DPC_RECOVERING 2
+-
+-static inline void pci_dev_assign_added(struct pci_dev *dev, bool added)
+-{
+-	assign_bit(PCI_DEV_ADDED, &dev->priv_flags, added);
+-}
+-
+-static inline bool pci_dev_is_added(const struct pci_dev *dev)
+-{
+-	return test_bit(PCI_DEV_ADDED, &dev->priv_flags);
+-}
+-
+ #ifdef CONFIG_PCIEAER
+ #include <linux/aer.h>
+ 
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 540b377ca8f6..ea0e23dbc8ec 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -507,6 +507,21 @@ struct pci_dev {
+ 	unsigned long	priv_flags;	/* Private flags for the PCI driver */
+ };
+ 
++/* pci_dev priv_flags */
++#define PCI_DEV_ADDED 0
++#define PCI_DPC_RECOVERED 1
++#define PCI_DPC_RECOVERING 2
 +
-+	spin_lock(&zpci_iomap_lock);
-+	for (bar = 0; bar < PCI_STD_NUM_BARS; bar++) {
-+		if (!zdev->bars[bar].size)
-+			continue;
-+		idx = zdev->bars[bar].map_idx;
-+		if (!zpci_iomap_start[idx].count)
-+			continue;
-+		WRITE_ONCE(zpci_iomap_start[idx].fh, zdev->fh);
-+	}
-+	spin_unlock(&zpci_iomap_lock);
++static inline void pci_dev_assign_added(struct pci_dev *dev, bool added)
++{
++	assign_bit(PCI_DEV_ADDED, &dev->priv_flags, added);
 +}
 +
-+void zpci_update_fh(struct zpci_dev *zdev, u32 fh)
++static inline bool pci_dev_is_added(const struct pci_dev *dev)
 +{
-+	if (!fh || zdev->fh == fh)
-+		return;
-+
-+	zdev->fh = fh;
-+	if (zpci_use_mio(zdev))
-+		return;
-+	if (zdev->has_resources && zdev_enabled(zdev))
-+		zpci_do_update_iomap_fh(zdev, fh);
++	return test_bit(PCI_DEV_ADDED, &dev->priv_flags);
 +}
 +
- static struct resource *__alloc_res(struct zpci_dev *zdev, unsigned long start,
- 				    unsigned long size, unsigned long flags)
+ static inline struct pci_dev *pci_physfn(struct pci_dev *dev)
  {
-@@ -668,7 +696,7 @@ int zpci_enable_device(struct zpci_dev *zdev)
- 	if (clp_enable_fh(zdev, &fh, ZPCI_NR_DMA_SPACES))
- 		rc = -EIO;
- 	else
--		zdev->fh = fh;
-+		zpci_update_fh(zdev, fh);
- 	return rc;
- }
- 
-@@ -679,14 +707,14 @@ int zpci_disable_device(struct zpci_dev *zdev)
- 
- 	cc = clp_disable_fh(zdev, &fh);
- 	if (!cc) {
--		zdev->fh = fh;
-+		zpci_update_fh(zdev, fh);
- 	} else if (cc == CLP_RC_SETPCIFN_ALRDY) {
- 		pr_info("Disabling PCI function %08x had no effect as it was already disabled\n",
- 			zdev->fid);
- 		/* Function is already disabled - update handle */
- 		rc = clp_refresh_fh(zdev->fid, &fh);
- 		if (!rc) {
--			zdev->fh = fh;
-+			zpci_update_fh(zdev, fh);
- 			rc = -EINVAL;
- 		}
- 	} else {
-@@ -768,7 +796,7 @@ int zpci_scan_configured_device(struct zpci_dev *zdev, u32 fh)
- {
- 	int rc;
- 
--	zdev->fh = fh;
-+	zpci_update_fh(zdev, fh);
- 	/* the PCI function will be scanned once function 0 appears */
- 	if (!zdev->zbus->bus)
- 		return 0;
-diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-index c856f80cb21b..e868d996ec5b 100644
---- a/arch/s390/pci/pci_event.c
-+++ b/arch/s390/pci/pci_event.c
-@@ -76,7 +76,7 @@ void zpci_event_error(void *data)
- 
- static void zpci_event_hard_deconfigured(struct zpci_dev *zdev, u32 fh)
- {
--	zdev->fh = fh;
-+	zpci_update_fh(zdev, fh);
- 	/* Give the driver a hint that the function is
- 	 * already unusable.
- 	 */
-@@ -117,7 +117,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 		if (!zdev)
- 			zpci_create_device(ccdf->fid, ccdf->fh, ZPCI_FN_STATE_STANDBY);
- 		else
--			zdev->fh = ccdf->fh;
-+			zpci_update_fh(zdev, ccdf->fh);
- 		break;
- 	case 0x0303: /* Deconfiguration requested */
- 		if (zdev) {
-@@ -126,7 +126,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 			 */
- 			if (zdev->state != ZPCI_FN_STATE_CONFIGURED)
- 				break;
--			zdev->fh = ccdf->fh;
-+			zpci_update_fh(zdev, ccdf->fh);
- 			zpci_deconfigure_device(zdev);
- 		}
- 		break;
-diff --git a/arch/s390/pci/pci_insn.c b/arch/s390/pci/pci_insn.c
-index 2e43996159f0..28d863aaafea 100644
---- a/arch/s390/pci/pci_insn.c
-+++ b/arch/s390/pci/pci_insn.c
-@@ -163,7 +163,7 @@ static inline int zpci_load_fh(u64 *data, const volatile void __iomem *addr,
- 			       unsigned long len)
- {
- 	struct zpci_iomap_entry *entry = &zpci_iomap_start[ZPCI_IDX(addr)];
--	u64 req = ZPCI_CREATE_REQ(entry->fh, entry->bar, len);
-+	u64 req = ZPCI_CREATE_REQ(READ_ONCE(entry->fh), entry->bar, len);
- 
- 	return __zpci_load(data, req, ZPCI_OFFSET(addr));
- }
-@@ -244,7 +244,7 @@ static inline int zpci_store_fh(const volatile void __iomem *addr, u64 data,
- 				unsigned long len)
- {
- 	struct zpci_iomap_entry *entry = &zpci_iomap_start[ZPCI_IDX(addr)];
--	u64 req = ZPCI_CREATE_REQ(entry->fh, entry->bar, len);
-+	u64 req = ZPCI_CREATE_REQ(READ_ONCE(entry->fh), entry->bar, len);
- 
- 	return __zpci_store(data, req, ZPCI_OFFSET(addr));
- }
+ #ifdef CONFIG_PCI_IOV
 -- 
 2.25.1
 
