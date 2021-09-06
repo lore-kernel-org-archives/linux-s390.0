@@ -2,132 +2,197 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23F1DC433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 17:11:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF163C433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 18:14:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0ED5261004
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 17:11:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC34460F14
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 18:14:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244024AbhIFRMN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Sep 2021 13:12:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41468 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243946AbhIFRML (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 13:12:11 -0400
-Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE90CC0613C1
-        for <linux-s390@vger.kernel.org>; Mon,  6 Sep 2021 10:11:05 -0700 (PDT)
-Received: by mail-lf1-x130.google.com with SMTP id x27so14534970lfu.5
-        for <linux-s390@vger.kernel.org>; Mon, 06 Sep 2021 10:11:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Cu2xJTqozk4xsbaxL8H9BoFzyGhonAhAaycqLOW0ec8=;
-        b=OlLhUgbAfIRcaQBkm3ucc7CkjQAA3BY3foo15moLBOuI3bnD2Kus4MNZyf0QsYgIYo
-         nYbwNGvkReFol2qerrmiIPhJwlB8yfL4VS7xERe6PQW1ZAkPROcukdDIAppf1FTAiEtW
-         y+1oyCqSnc3RJ5wKu+lHo6J8Hhxb89KqfMf2R86r38NWDbRsmOlMpqbHkNHi7bCFiSqW
-         cl3lahlfSxznPdky39hR5eu7x7LzmxY6PmVuGHoR2GG6KV3mnQh2ksxW1J/2m2kjXAZA
-         AXoTX3K6GFv1heJQ79c2pUmD74HsC98NaYlHdj2R9LB8Mw6mkN6Kj8B5D6ZJn7udld5B
-         OXKg==
+        id S244258AbhIFSPl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Sep 2021 14:15:41 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38894 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S244113AbhIFSPi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 14:15:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1630952072;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2xG82+ZFm24gH0tYAxEPUcMUMhGif1Gqp+OPOBOKLlw=;
+        b=MNtbQ1yX2I0XTu78DoXd6FBS5Z6SoTVYgZLkFJR3fDHFHEUVwYsNqv1EKgtmXdiwqjSo9Y
+        NRh/7fr6/T7wlO3JSnJCGMVIeEX+NfrCWhGz77jDpVMO7oCkI7V2GQNrhfmKH2MdbM6Oph
+        tOGtJ1Yn7XZgyn7MCMX+EQjwXcBn5wo=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-157-MdFneb7DN1qrDGjwy_9uHA-1; Mon, 06 Sep 2021 14:14:31 -0400
+X-MC-Unique: MdFneb7DN1qrDGjwy_9uHA-1
+Received: by mail-wr1-f70.google.com with SMTP id h1-20020adffd41000000b0015931e17ccfso1352867wrs.18
+        for <linux-s390@vger.kernel.org>; Mon, 06 Sep 2021 11:14:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Cu2xJTqozk4xsbaxL8H9BoFzyGhonAhAaycqLOW0ec8=;
-        b=EVFG8VpcGEPB0N+RS3hJDtNhN8iADMUmvn7gxiuSgslYVdmvis5n1BuDAgBhd+tr+P
-         kgRGMl9rFsz+7sjm6MS4+/Fz2Y0aWJVfbb3HVZtD2yQNm6RaO7X9+EWOhOGiv3hiAunW
-         ozRRqpnTX0iZTEH18XfRL1iRKjcniGn15bhJqMYqVfYPMr6uMjzv+lnrJFuEJmEexjKs
-         7Lh0z/3hJCXGa8SBAt9etmLYPVsB6e52t97KAHXnalhwWQtVxZCgfy8Km/WMKfnjMOId
-         Sob/xLy8e0KussFjmNo2aBkmmc2qZ6QGvPOyN04IKR8W6xS8NluFsgBINBzAuHAnuoHD
-         v8jg==
-X-Gm-Message-State: AOAM532L4WImMccJK5MdUXUFK+GFhcXHbTVtqAEzGzVSKCX7QQKY7evC
-        3I5BDsTAhEWGb6yeU6StKy+76fMVtWLP5aH0mM/p5w==
-X-Google-Smtp-Source: ABdhPJySjVy/4t45uf+nwvNhsrs7H6NHiflWPlp7zgQ9bQXGTclgeFZjH9Q4gk7PApD5uzg0A1VOJOtWwiyVL3oaHNk=
-X-Received: by 2002:a05:6512:1043:: with SMTP id c3mr9631426lfb.358.1630948263963;
- Mon, 06 Sep 2021 10:11:03 -0700 (PDT)
+        h=x-gm-message-state:to:cc:references:from:organization:subject
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=2xG82+ZFm24gH0tYAxEPUcMUMhGif1Gqp+OPOBOKLlw=;
+        b=MAX6G4hPLlXIeRbSiZa57N1NBKT7C/w1sdaHiAelLrzdDXORE8xap9t4iYUNyf858Z
+         Ca1XGuzi1H50tZC3KpUJZml6GyVaUnRlfNCTYJvMwfR4fpi7m49dmZD4dqAFVSaBGuf8
+         Gu9u0WN77JEE7K239AsY9afnOEU5f6NlJCdit3SEAe4dhsNIQgv/WzNk276QNsKVh9/x
+         C2dN4F4rEVgmg0Pjf9ukcB6ekxcxTef8W/+hXMDtuCC0+OETNBsJHQb7awkJCY7q6x24
+         s6mrtrlDEPbYpuoXQPuoraSVD9EA2pvCyGLymMq9Ejosq9qTgJVTtGUjdUXyD2hy/mAt
+         K9Ng==
+X-Gm-Message-State: AOAM532CImTkb9jA+w2Upzh1A7Mb1I14hj3TMcGwhsxKG3VZ6pOQuGKN
+        83uci2qmn8rZnoRmzzFRQfNwItjmY2E4EY7u6KzD7JpcGrj4jVsWzZIesv0q8rd8Swb9QpnrGN/
+        3VtVepuZUHpSMCfJRCc9kGw==
+X-Received: by 2002:a7b:c18c:: with SMTP id y12mr358049wmi.3.1630952070568;
+        Mon, 06 Sep 2021 11:14:30 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxTKcGsAySmiUVPbZa0wChd03rANHOChx4tJM3XxNg2I2SNzcBrDT70CPLjiidSRHte2rT4JQ==
+X-Received: by 2002:a7b:c18c:: with SMTP id y12mr358029wmi.3.1630952070330;
+        Mon, 06 Sep 2021 11:14:30 -0700 (PDT)
+Received: from [192.168.3.132] (p5b0c6323.dip0.t-ipconnect.de. [91.12.99.35])
+        by smtp.gmail.com with ESMTPSA id w9sm217391wmc.19.2021.09.06.11.14.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 06 Sep 2021 11:14:29 -0700 (PDT)
+To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com
+References: <1627979206-32663-1-git-send-email-pmorel@linux.ibm.com>
+ <1627979206-32663-2-git-send-email-pmorel@linux.ibm.com>
+ <b5ee1953-b19d-50ec-b2e2-47a05babcee4@redhat.com>
+ <f8d8bf00-3965-d4a1-c464-59ffcf20bfa3@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v3 1/3] s390x: KVM: accept STSI for CPU topology
+ information
+Message-ID: <bb1f5629-a6c6-b299-7765-a4326c8fa2d5@redhat.com>
+Date:   Mon, 6 Sep 2021 20:14:29 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-References: <20210902174105.2418771-1-mcgrof@kernel.org> <20210902174105.2418771-4-mcgrof@kernel.org>
-In-Reply-To: <20210902174105.2418771-4-mcgrof@kernel.org>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Mon, 6 Sep 2021 19:10:27 +0200
-Message-ID: <CAPDyKFrwjJyLXfr48+Jujfp7VvxPu5JCGJAhZJn3-GzDb1Kh5A@mail.gmail.com>
-Subject: Re: [PATCH 3/9] mspro_block: add error handling support for add_disk()
-To:     Luis Chamberlain <mcgrof@kernel.org>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        chaitanya.kulkarni@wdc.com, atulgopinathan@gmail.com,
-        Hannes Reinecke <hare@suse.de>,
-        Maxim Levitsky <maximlevitsky@gmail.com>,
-        Alex Dubov <oakad@yahoo.com>,
-        Colin King <colin.king@canonical.com>,
-        Shubhankar Kuranagatti <shubhankarvk@gmail.com>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>, Tom Rix <trix@redhat.com>,
-        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh R <vigneshr@ti.com>, sth@linux.ibm.com,
-        hoeppner@linux.ibm.com, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        oberpar@linux.ibm.com, Tejun Heo <tj@kernel.org>,
-        linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-mmc <linux-mmc@vger.kernel.org>,
-        linux-block <linux-block@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <f8d8bf00-3965-d4a1-c464-59ffcf20bfa3@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2 Sept 2021 at 19:41, Luis Chamberlain <mcgrof@kernel.org> wrote:
->
-> We never checked for errors on add_disk() as this function
-> returned void. Now that this is fixed, use the shiny new
-> error handling.
->
-> Contrary to the typical removal which delays the put_disk()
-> until later, since we are failing on a probe we immediately
-> put the disk on failure from add_disk by using
-> blk_cleanup_disk().
->
-> Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+On 01.09.21 11:43, Pierre Morel wrote:
+> 
+> 
+> On 8/31/21 3:59 PM, David Hildenbrand wrote:
+>> On 03.08.21 10:26, Pierre Morel wrote:
+>>> STSI(15.1.x) gives information on the CPU configuration topology.
+>>> Let's accept the interception of STSI with the function code 15 and
+>>> let the userland part of the hypervisor handle it when userland
+>>> support the CPU Topology facility.
+>>>
+>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>> ---
+>>>    arch/s390/kvm/priv.c | 7 ++++++-
+>>>    1 file changed, 6 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+>>> index 9928f785c677..8581b6881212 100644
+>>> --- a/arch/s390/kvm/priv.c
+>>> +++ b/arch/s390/kvm/priv.c
+>>> @@ -856,7 +856,8 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+>>>        if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+>>>            return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+>>> -    if (fc > 3) {
+>>> +    if ((fc > 3 && fc != 15) ||
+>>> +        (fc == 15 && !test_kvm_facility(vcpu->kvm, 11))) {
+>>>            kvm_s390_set_psw_cc(vcpu, 3);
+>>>            return 0;
+>>>        }
+>>> @@ -893,6 +894,10 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+>>>                goto out_no_data;
+>>>            handle_stsi_3_2_2(vcpu, (void *) mem);
+>>>            break;
+>>> +    case 15:
+>>> +        trace_kvm_s390_handle_stsi(vcpu, fc, sel1, sel2, operand2);
+>>> +        insert_stsi_usr_data(vcpu, operand2, ar, fc, sel1, sel2);
+>>> +        return -EREMOTE;
+>>>        }
+>>>        if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+>>>            memcpy((void *)sida_origin(vcpu->arch.sie_block), (void *)mem,
+>>>
+>>
+>> Sorry, I'm a bit rusty on s390x kvm facility handling.
+>>
+>>
+>> For test_kvm_facility() to succeed, the facility has to be in both:
+>>
+>> a) fac_mask: actually available on the HW and supported by KVM
+>> (kvm_s390_fac_base via FACILITIES_KVM, kvm_s390_fac_ext via
+>> FACILITIES_KVM_CPUMODEL)
+>>
+>> b) fac_list: enabled for a VM
+>>
+>> AFAIU, facility 11 is neither in FACILITIES_KVM nor
+>> FACILITIES_KVM_CPUMODEL, and I remember it's a hypervisor-managed bit.
+>>
+>> So unless we unlock facility 11 in FACILITIES_KVM_CPUMODEL, will
+>> test_kvm_facility(vcpu->kvm, 11) ever successfully trigger here?
+>>
+>>
+>> I'm pretty sure I am messing something up :)
+>>
+> 
+> I think it is the same remark that Christian did as wanted me to use the
+> arch/s390/tools/gen_facilities.c to activate the facility.
+> 
+> The point is that CONFIGURATION_TOPOLOGY, STFL, 11, is already defined
+> inside QEMU since full_GEN10_GA1, so the test_kvm_facility() will
+> succeed with the next patch setting the facility 11 in the mask when
+> getting the KVM_CAP_S390_CPU_TOPOLOGY from userland.
 
-Queued for v5.16 on the temporary devel branch, thanks!
+Ok, I see ...
 
-Kind regards
-Uffe
+QEMU knows the facility and as soon as we present it to QEMU, QEMU will 
+want to automatically enable it in the "host" model.
+
+However, we'd like QEMU to join in and handle some part of it.
+
+So indeed, handling it like KVM_CAP_S390_VECTOR_REGISTERS or 
+KVM_CAP_S390_RI looks like a reasonable approach.
+
+> 
+> But if we activate it in KVM via any of the FACILITIES_KVM_xxx in the
+> gen_facilities.c we will activate it for the guest what ever userland
+> hypervizor we have, including old QEMU which will generate an exception.
+> 
+> 
+> In this circumstances we have the choice between:
+> 
+> - use FACILITY_KVM and handle everything in kernel
+> - use FACILITY_KVM and use an extra CAPABILITY to handle part in kernel
+> to avoid guest crash and part in userland
+
+This sounds quite nice to me. Implement minimal kernel support and 
+indicate the facility via stfl to user space.
+
+In addition, add a new capability that intercepts to user space instead.
 
 
-> ---
->  drivers/memstick/core/mspro_block.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/memstick/core/mspro_block.c b/drivers/memstick/core/mspro_block.c
-> index 22778d0e24f5..c0450397b673 100644
-> --- a/drivers/memstick/core/mspro_block.c
-> +++ b/drivers/memstick/core/mspro_block.c
-> @@ -1239,10 +1239,14 @@ static int mspro_block_init_disk(struct memstick_dev *card)
->         set_capacity(msb->disk, capacity);
->         dev_dbg(&card->dev, "capacity set %ld\n", capacity);
->
-> -       device_add_disk(&card->dev, msb->disk, NULL);
-> +       rc = device_add_disk(&card->dev, msb->disk, NULL);
-> +       if (rc)
-> +               goto out_cleanup_disk;
->         msb->active = 1;
->         return 0;
->
-> +out_cleanup_disk:
-> +       blk_cleanup_disk(msb->disk);
->  out_free_tag_set:
->         blk_mq_free_tag_set(&msb->tag_set);
->  out_release_id:
-> --
-> 2.30.2
->
+... but I can understand that it might not be worth it.
+
+
+This patch as it stands doesn't make any sense on its own. Either 
+document how it's supposed to work and why it is currently dead code, or 
+simply squash into the next patch (preferred IMHO).
+
+-- 
+Thanks,
+
+David / dhildenb
+
