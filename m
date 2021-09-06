@@ -4,44 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92B24C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC453C433F5
 	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:31:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7BFB760EBA
+	by mail.kernel.org (Postfix) with ESMTP id 95AE660EBA
 	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:31:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241293AbhIFBcq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S241319AbhIFBcq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Sun, 5 Sep 2021 21:32:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47862 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243311AbhIFB3Z (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:29:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C71261186;
-        Mon,  6 Sep 2021 01:23:21 +0000 (UTC)
+        id S1351400AbhIFBa1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:30:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF2C66120F;
+        Mon,  6 Sep 2021 01:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891402;
-        bh=I5llsKYYxFWQTyhl7lYYfvhIRgWslQdGtn9D9lLw5jw=;
+        s=k20201202; t=1630891421;
+        bh=/RylU52czDfaiM3F7W790mWH3u6dY9JBCjKLFY6ARfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mSQ5gppWxEcQAUXnEqPkjUu/EDeRIdT8R/Nbn7nbDnOv2lFK8MB6sdmR9EXWJVnKm
-         7CEUQ+dsAp94GwpZB3fKzRY8iKnhdcnhajqKg22clk2kk7spn3vJwXNBL8Hn+NdKxI
-         RYy1VudLRrZWQy+j2TYQISQHCWJG5KH9uHSmBHNm3WMp75VG6iBgjH9UnNwAAn69i8
-         SqMi9QoRDEZhUUiuQJVwS4WFQv/vOpbVZ93wdndZYNmEXWbyMtOfLC0MaxXwqs765U
-         CrGD4gxO8uxdSShIEoRVAFyDUi837rY9f7/fe5QKCFU+RxIuzYZNR67NHv9HviUMc1
-         QnKOpgKEiEJjg==
+        b=Hvho3ub29dmDd81BF+g0N2o6ORK2gN8tsjE494AI+nSlR41sse13300rPFL1rMes7
+         BmihYNxt0UePXTPslpOEWo2N2X+TjtKctl8LFY5QAammseMF+ticgicYZ1BSVbCRHp
+         IoVYR/eJxpnFwoov0Gx0IndDFWkN2Tkq/bG0dO7JL7jPyyW+ocF29Hcrr3b03JdPo2
+         SgUSgd/fvwvPdb8CUWE/tcwPAPP4m6qajOjMGKUuBCtMNJdME0onr6v6V9yUY5YDgz
+         z54T8TJs26ISkRbgb3v08BJpeNZN1HtWjYDaGH8GR9KySJb1OMATvbfF6P2vj9cKpc
+         hwkhstxrIp+pQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 30/30] s390/debug: fix debug area life cycle
-Date:   Sun,  5 Sep 2021 21:22:43 -0400
-Message-Id: <20210906012244.930338-30-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 15/23] s390/cio: add dev_busid sysfs entry for each subchannel
+Date:   Sun,  5 Sep 2021 21:23:14 -0400
+Message-Id: <20210906012322.930668-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210906012244.930338-1-sashal@kernel.org>
-References: <20210906012244.930338-1-sashal@kernel.org>
+In-Reply-To: <20210906012322.930668-1-sashal@kernel.org>
+References: <20210906012322.930668-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -50,179 +51,63 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Peter Oberparleiter <oberpar@linux.ibm.com>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-[ Upstream commit 9372a82892c2caa6bccab9a4081166fa769699f8 ]
+[ Upstream commit d3683c055212bf910d4e318f7944910ce10dbee6 ]
 
-Currently allocation and registration of s390dbf debug areas are tied
-together. As a result, a debug area cannot be unregistered and
-re-registered while any process has an associated debugfs file open.
+Introduce dev_busid, which exports the device-id associated with the
+io-subchannel (and message-subchannel). The dev_busid indicates that of
+the device which may be physically installed on the corrosponding
+subchannel. The dev_busid value "none" indicates that the subchannel
+is not valid, there is no I/O device currently associated with the
+subchannel.
 
-Fix this by splitting alloc/release from register/unregister.
+The dev_busid information would be helpful to write device-specific
+udev-rules associated with the subchannel. The dev_busid interface would
+be available even when the sch is not bound to any driver or if there is
+no operational device connected on it. Hence this attribute can be used to
+write udev-rules which are specific to the device associated with the
+subchannel.
 
-Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/debug.c | 102 +++++++++++++++++++++------------------
- 1 file changed, 56 insertions(+), 46 deletions(-)
+ drivers/s390/cio/css.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index 7184d55d87aa..b1aadc3ad065 100644
---- a/arch/s390/kernel/debug.c
-+++ b/arch/s390/kernel/debug.c
-@@ -327,24 +327,6 @@ static debug_info_t *debug_info_create(const char *name, int pages_per_area,
- 		goto out;
- 
- 	rc->mode = mode & ~S_IFMT;
--
--	/* create root directory */
--	rc->debugfs_root_entry = debugfs_create_dir(rc->name,
--						    debug_debugfs_root_entry);
--
--	/* append new element to linked list */
--	if (!debug_area_first) {
--		/* first element in list */
--		debug_area_first = rc;
--		rc->prev = NULL;
--	} else {
--		/* append element to end of list */
--		debug_area_last->next = rc;
--		rc->prev = debug_area_last;
--	}
--	debug_area_last = rc;
--	rc->next = NULL;
--
- 	refcount_set(&rc->ref_count, 1);
- out:
- 	return rc;
-@@ -404,27 +386,10 @@ static void debug_info_get(debug_info_t *db_info)
-  */
- static void debug_info_put(debug_info_t *db_info)
- {
--	int i;
--
- 	if (!db_info)
- 		return;
--	if (refcount_dec_and_test(&db_info->ref_count)) {
--		for (i = 0; i < DEBUG_MAX_VIEWS; i++) {
--			if (!db_info->views[i])
--				continue;
--			debugfs_remove(db_info->debugfs_entries[i]);
--		}
--		debugfs_remove(db_info->debugfs_root_entry);
--		if (db_info == debug_area_first)
--			debug_area_first = db_info->next;
--		if (db_info == debug_area_last)
--			debug_area_last = db_info->prev;
--		if (db_info->prev)
--			db_info->prev->next = db_info->next;
--		if (db_info->next)
--			db_info->next->prev = db_info->prev;
-+	if (refcount_dec_and_test(&db_info->ref_count))
- 		debug_info_free(db_info);
--	}
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 825a8f2703b4..6efe50d70c4b 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -364,9 +364,26 @@ static ssize_t pimpampom_show(struct device *dev,
  }
+ static DEVICE_ATTR_RO(pimpampom);
  
- /*
-@@ -648,6 +613,31 @@ static int debug_close(struct inode *inode, struct file *file)
- 	return 0; /* success */
- }
- 
-+/* Create debugfs entries and add to internal list. */
-+static void _debug_register(debug_info_t *id)
++static ssize_t dev_busid_show(struct device *dev,
++			      struct device_attribute *attr,
++			      char *buf)
 +{
-+	/* create root directory */
-+	id->debugfs_root_entry = debugfs_create_dir(id->name,
-+						    debug_debugfs_root_entry);
++	struct subchannel *sch = to_subchannel(dev);
++	struct pmcw *pmcw = &sch->schib.pmcw;
 +
-+	/* append new element to linked list */
-+	if (!debug_area_first) {
-+		/* first element in list */
-+		debug_area_first = id;
-+		id->prev = NULL;
-+	} else {
-+		/* append element to end of list */
-+		debug_area_last->next = id;
-+		id->prev = debug_area_last;
-+	}
-+	debug_area_last = id;
-+	id->next = NULL;
-+
-+	debug_register_view(id, &debug_level_view);
-+	debug_register_view(id, &debug_flush_view);
-+	debug_register_view(id, &debug_pages_view);
++	if ((pmcw->st == SUBCHANNEL_TYPE_IO ||
++	     pmcw->st == SUBCHANNEL_TYPE_MSG) && pmcw->dnv)
++		return sysfs_emit(buf, "0.%x.%04x\n", sch->schid.ssid,
++				  pmcw->dev);
++	else
++		return sysfs_emit(buf, "none\n");
 +}
++static DEVICE_ATTR_RO(dev_busid);
 +
- /**
-  * debug_register_mode() - creates and initializes debug area.
-  *
-@@ -677,19 +667,16 @@ debug_info_t *debug_register_mode(const char *name, int pages_per_area,
- 	if ((uid != 0) || (gid != 0))
- 		pr_warn("Root becomes the owner of all s390dbf files in sysfs\n");
- 	BUG_ON(!initialized);
--	mutex_lock(&debug_mutex);
- 
- 	/* create new debug_info */
- 	rc = debug_info_create(name, pages_per_area, nr_areas, buf_size, mode);
--	if (!rc)
--		goto out;
--	debug_register_view(rc, &debug_level_view);
--	debug_register_view(rc, &debug_flush_view);
--	debug_register_view(rc, &debug_pages_view);
--out:
--	if (!rc)
-+	if (rc) {
-+		mutex_lock(&debug_mutex);
-+		_debug_register(rc);
-+		mutex_unlock(&debug_mutex);
-+	} else {
- 		pr_err("Registering debug feature %s failed\n", name);
--	mutex_unlock(&debug_mutex);
-+	}
- 	return rc;
- }
- EXPORT_SYMBOL(debug_register_mode);
-@@ -718,6 +705,27 @@ debug_info_t *debug_register(const char *name, int pages_per_area,
- }
- EXPORT_SYMBOL(debug_register);
- 
-+/* Remove debugfs entries and remove from internal list. */
-+static void _debug_unregister(debug_info_t *id)
-+{
-+	int i;
-+
-+	for (i = 0; i < DEBUG_MAX_VIEWS; i++) {
-+		if (!id->views[i])
-+			continue;
-+		debugfs_remove(id->debugfs_entries[i]);
-+	}
-+	debugfs_remove(id->debugfs_root_entry);
-+	if (id == debug_area_first)
-+		debug_area_first = id->next;
-+	if (id == debug_area_last)
-+		debug_area_last = id->prev;
-+	if (id->prev)
-+		id->prev->next = id->next;
-+	if (id->next)
-+		id->next->prev = id->prev;
-+}
-+
- /**
-  * debug_unregister() - give back debug area.
-  *
-@@ -731,8 +739,10 @@ void debug_unregister(debug_info_t *id)
- 	if (!id)
- 		return;
- 	mutex_lock(&debug_mutex);
--	debug_info_put(id);
-+	_debug_unregister(id);
- 	mutex_unlock(&debug_mutex);
-+
-+	debug_info_put(id);
- }
- EXPORT_SYMBOL(debug_unregister);
- 
+ static struct attribute *io_subchannel_type_attrs[] = {
+ 	&dev_attr_chpids.attr,
+ 	&dev_attr_pimpampom.attr,
++	&dev_attr_dev_busid.attr,
+ 	NULL,
+ };
+ ATTRIBUTE_GROUPS(io_subchannel_type);
 -- 
 2.30.2
 
