@@ -2,152 +2,241 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4E6EC4332F
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 14:58:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0A2EC433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 15:32:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9A9306023F
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 14:58:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A2E55606A5
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 15:32:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243712AbhIFO7Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Sep 2021 10:59:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39432 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243684AbhIFO7H (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 10:59:07 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04246C061575;
-        Mon,  6 Sep 2021 07:58:03 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id u13-20020a17090abb0db0290177e1d9b3f7so4447409pjr.1;
-        Mon, 06 Sep 2021 07:58:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=e7Lxz1rTUMVMiOxDU3ihYWK5WPfaNeZ9K8ew2EFVN6M=;
-        b=LXgp52W5k+6e+E1lD/+fnmwROVu0im0ZTbRaTGFRUHoee98niPkmedBSPuoaU+C901
-         xA0zVCRtm3ZstMaY0r+bfrLwX0h4lJRwjHZSrSd7VMiiQmuNR4VJb4KIkfYgNr45+6R/
-         Ytm3SgdnIw+8vdyNM7Qrbyc2ZfHYtokHyF9mvUbjZBpqaG9aV9hVDtVpCH7AesyMXvxe
-         UqoY/NFf7dqJ+B2r0NE5QZJnHLwexfdT+iciJQG7/AjInHtDs1ZoecQ7oAJRB4rOv/f9
-         sTenECUfv5Z+O8xZpmI3XfSxkSvYjZ+DMUZOgmuBqGpnmkHpr4lFbj1WgmAnvQDDLG1o
-         HBzg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=e7Lxz1rTUMVMiOxDU3ihYWK5WPfaNeZ9K8ew2EFVN6M=;
-        b=iA89nih+C3XC4TBfbpSu9gKv5NHVSmzdRFP0BLVNNkz18vfDPvVjyCvnlH6h6vQu3H
-         pqU0PohkolvcapHtnjs0kfhmVt3sUOy09O4pnxENd4wiWxG4xVoeCsaDb+uLiWVDoD/l
-         CNR53Hsj2+5Bae5qe88JoLQYQSeyQJuEbk+lxwkCcna86ghSeZSzgkPrHxGenWzkAPRs
-         OkCrMpzNxhII0AhaubXod+KvY/jPgX59+lqI0rQ048f0DtxruFjwOFRa0d1Ph2F6z4sc
-         KpXXnnsiwqkFLmjw3kb44Vtpp+lBtZ3//JBVvAwioSrchw+eja5mTkHeWloNxWu1IGLN
-         6AYw==
-X-Gm-Message-State: AOAM530K/Gc3aHBcoueBxmIbajNs5c4hKAsVX2uBCno5/ZZdfALz3LFd
-        /4NzsXPIRq1DmVC/CvHBQNbphEXQ9ZcAySCJqUM=
-X-Google-Smtp-Source: ABdhPJx4U2UXdqmjv3wFeCTa6pX3ETSedWET7Gxlb8aTpJkm1WYcBE+shFcj4K1cKKYWsG7A6RIebw==
-X-Received: by 2002:a17:902:8648:b029:129:dda4:ddc2 with SMTP id y8-20020a1709028648b0290129dda4ddc2mr11168934plt.4.1630940282178;
-        Mon, 06 Sep 2021 07:58:02 -0700 (PDT)
-Received: from owniadeMacBook-Pro.local ([8.21.11.90])
-        by smtp.gmail.com with ESMTPSA id p3sm7607183pfw.71.2021.09.06.07.57.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Sep 2021 07:58:01 -0700 (PDT)
-Subject: Re: [PATCH v2] ftrace: Cleanup ftrace_dyn_arch_init()
-To:     Michael Ellerman <mpe@ellerman.id.au>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>
-Cc:     Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Nick Hu <nickhu@andestech.com>,
-        Greentime Hu <green.hu@gmail.com>,
-        Vincent Chen <deanbo422@gmail.com>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@alien8.de>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org
-References: <20210906111626.1259867-1-o451686892@gmail.com>
- <87v93dn5qh.fsf@mpe.ellerman.id.au>
-From:   Weizhao Ouyang <o451686892@gmail.com>
-Message-ID: <87b80cd6-f20f-a673-f438-faff5d7d4334@gmail.com>
-Date:   Mon, 6 Sep 2021 22:57:53 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.13.0
+        id S243069AbhIFPdt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Sep 2021 11:33:49 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30028 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S242942AbhIFPds (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 11:33:48 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 186F3xX4146268;
+        Mon, 6 Sep 2021 11:32:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=LhLmdJTI6AgTZCvPKytLsM1D6cmN974c7wLVohpLheA=;
+ b=dwvIS4lcQsXnCDut+faRAM05/oDfyB+JVLBo/T5qk0IytRsRx4Jon6VfMPaMK/1NH/50
+ Km0yYDrQBUeaugxDKhm4VeH9XppYA6FmyHGoKBQ55Uk4s2LqJ9mloO0yHZG+5/P1VfNU
+ Q5zqDZ6FQBjD4faaK6vl8zO84p2A9Wyqz+5Jx7z9qqtETHzstHe29Mf6Vpi8JyWKYdSA
+ C4G4L9Rs4d1A08/wAmS6nQ3tt5K8Cbd7xzIZpuH0ZBW24YIYFOj2+eUDBiyC21KWwAID
+ 7ztTu9Zgne8t+yxkK7Y/F4wj8cXdf69szJg/7S8NLYJjyC8aHHn2BMf7MJkTJtWtRBjM 7g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3awmsyh5es-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Sep 2021 11:32:43 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 186FGUZ5002560;
+        Mon, 6 Sep 2021 11:32:42 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3awmsyh5ea-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Sep 2021 11:32:42 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 186FRWlY007301;
+        Mon, 6 Sep 2021 15:32:41 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 3av02jdvpp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Sep 2021 15:32:41 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 186FWaBW52167162
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 6 Sep 2021 15:32:36 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BDDDB52065;
+        Mon,  6 Sep 2021 15:32:36 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.145.95.210])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 50DCA52057;
+        Mon,  6 Sep 2021 15:32:36 +0000 (GMT)
+Subject: Re: [PATCH v4 05/14] KVM: s390: pv: leak the ASCE page when destroy
+ fails
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     cohuck@redhat.com, frankja@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Ulrich.Weigand@de.ibm.com
+References: <20210818132620.46770-1-imbrenda@linux.ibm.com>
+ <20210818132620.46770-6-imbrenda@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <36ce2f10-a65d-ff2a-3a11-8f2cd853f3e9@de.ibm.com>
+Date:   Mon, 6 Sep 2021 17:32:36 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <87v93dn5qh.fsf@mpe.ellerman.id.au>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20210818132620.46770-6-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: MAytNYwHf8ClKL67gIMa5ms91oVoc0Sn
+X-Proofpoint-ORIG-GUID: avYDd4c4sW6gu0ESxYlgekFCnz8Wx-2U
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-09-06_06:2021-09-03,2021-09-06 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ mlxlogscore=999 priorityscore=1501 spamscore=0 malwarescore=0 mlxscore=0
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2108310000
+ definitions=main-2109060096
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+The subject should say
 
-On 2021/9/6 22:22, Michael Ellerman wrote:
-> Weizhao Ouyang <o451686892@gmail.com> writes:
->> Most of ARCHs use empty ftrace_dyn_arch_init(), introduce a weak common
->> ftrace_dyn_arch_init() to cleanup them.
->>
->> Signed-off-by: Weizhao Ouyang <o451686892@gmail.com>
->> Acked-by: Heiko Carstens <hca@linux.ibm.com> (s390)
->>
->> ---
->>
->> Changes in v2:
->> -- correct CONFIG_DYNAMIC_FTRACE on PowerPC
->> -- add Acked-by tag
->> diff --git a/arch/powerpc/include/asm/ftrace.h b/arch/powerpc/include/asm/ftrace.h
->> index debe8c4f7062..d59f67c0225f 100644
->> --- a/arch/powerpc/include/asm/ftrace.h
->> +++ b/arch/powerpc/include/asm/ftrace.h
->> @@ -61,6 +61,10 @@ struct dyn_arch_ftrace {
->>  };
->>  #endif /* __ASSEMBLY__ */
->>  
->> +#ifdef CONFIG_DYNAMIC_FTRACE
->> +int __init ftrace_dyn_arch_init(void);
->> +#endif /* CONFIG_DYNAMIC_FTRACE */
->> +
->>  #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
->>  #define ARCH_SUPPORTS_FTRACE_OPS 1
->>  #endif
-> That breaks the build for powerpc:
->
->   /linux/arch/powerpc/include/asm/ftrace.h: Assembler messages:
->   /linux/arch/powerpc/include/asm/ftrace.h:65: Error: unrecognized opcode: `int'
->   make[4]: *** [/linux/scripts/Makefile.build:352: arch/powerpc/kernel/trace/ftrace_64.o] Error 1
->   make[3]: *** [/linux/scripts/Makefile.build:514: arch/powerpc/kernel/trace] Error 2
->   make[2]: *** [/linux/scripts/Makefile.build:514: arch/powerpc/kernel] Error 2
->   make[1]: *** [/linux/Makefile:1861: arch/powerpc] Error 2
->   make[1]: *** Waiting for unfinished jobs....
->
-> It needs to be inside an #ifndef __ASSEMBLY__ section.
->
-> cheers
+KVM: s390: pv: leak the topmost page table when destroy fails
 
-Thanks for reply, I'll fix it up.
+
+On 18.08.21 15:26, Claudio Imbrenda wrote:
+> When a protected VM is created, the topmost level of page tables of its
+> ASCE is marked by the Ultravisor; any attempt to use that memory for
+> protected virtualization will result in failure.
+
+
+maybe rephrase that to
+Each secure guest must have a unique address space control element and we
+must avoid that new guests will use the same ASCE to avoid an error. As
+the ASCE mostly consists of the top most page table address (and flags)
+we must not return that memory to the pool unless the ASCE is no longer
+used.
+
+Only a a successful Destroy Configuration UVC will make the ASCE no longer
+collide.
+When the Destroy Configuration UVC fails, the ASCE cannot be reused for a
+secure guest ASCE. To avoid a collision, it must not be used again.
+
+  
+> Only a successful Destroy Configuration UVC will remove the marking.
+> 
+> When the Destroy Configuration UVC fails, the topmost level of page
+> tables of the VM does not get its marking cleared; to avoid issues it
+> must not be used again.
+> 
+> This is a permanent error and the page becomes in practice unusable, so
+> we set it aside and leak it.
+
+Maybe add: on failure we already leak other memory that has ultravisor marking (the
+variable and base storage for a guest) and not setting the ASCE aside (by
+leaking the topmost page table) was an oversight.
+
+Or something like that
+
+maybe also add that we usually do not expect to see such error under normal
+circumstances.
+
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/gmap.h |  2 ++
+>   arch/s390/kvm/pv.c           |  4 ++-
+>   arch/s390/mm/gmap.c          | 55 ++++++++++++++++++++++++++++++++++++
+>   3 files changed, 60 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+> index 40264f60b0da..746e18bf8984 100644
+> --- a/arch/s390/include/asm/gmap.h
+> +++ b/arch/s390/include/asm/gmap.h
+> @@ -148,4 +148,6 @@ void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
+>   			     unsigned long gaddr, unsigned long vmaddr);
+>   int gmap_mark_unmergeable(void);
+>   void s390_reset_acc(struct mm_struct *mm);
+> +void s390_remove_old_asce(struct gmap *gmap);
+> +int s390_replace_asce(struct gmap *gmap);
+>   #endif /* _ASM_S390_GMAP_H */
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index 00d272d134c2..76b0d64ce8fa 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -168,9 +168,11 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+>   	atomic_set(&kvm->mm->context.is_protected, 0);
+>   	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x", *rc, *rrc);
+>   	WARN_ONCE(cc, "protvirt destroy vm failed rc %x rrc %x", *rc, *rrc);
+> -	/* Inteded memory leak on "impossible" error */
+> +	/* Intended memory leak on "impossible" error */
+>   	if (!cc)
+>   		kvm_s390_pv_dealloc_vm(kvm);
+> +	else
+> +		s390_replace_asce(kvm->arch.gmap);
+>   	return cc ? -EIO : 0;
+>   }
+>   
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 9bb2c7512cd5..5a138f6220c4 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -2706,3 +2706,58 @@ void s390_reset_acc(struct mm_struct *mm)
+>   	mmput(mm);
+>   }
+>   EXPORT_SYMBOL_GPL(s390_reset_acc);
+> +
+> +/*
+> + * Remove the topmost level of page tables from the list of page tables of
+> + * the gmap.
+> + * This means that it will not be freed when the VM is torn down, and needs
+> + * to be handled separately by the caller, unless an intentional leak is
+> + * intended.
+> + */
+> +void s390_remove_old_asce(struct gmap *gmap)
+> +{
+> +	struct page *old;
+> +
+> +	old = virt_to_page(gmap->table);
+> +	spin_lock(&gmap->guest_table_lock);
+> +	list_del(&old->lru);
+> +	spin_unlock(&gmap->guest_table_lock);
+> +	/* in case the ASCE needs to be "removed" multiple times */
+> +	INIT_LIST_HEAD(&old->lru);
+shouldn't that also be under the spin_lock?
+
+> +}
+> +EXPORT_SYMBOL_GPL(s390_remove_old_asce);
+> +
+> +/*
+> + * Try to replace the current ASCE with another equivalent one.
+> + * If the allocation of the new top level page table fails, the ASCE is not
+> + * replaced.
+> + * In any case, the old ASCE is removed from the list, therefore the caller
+> + * has to make sure to save a pointer to it beforehands, unless an
+> + * intentional leak is intended.
+> + */
+> +int s390_replace_asce(struct gmap *gmap)
+> +{
+> +	unsigned long asce;
+> +	struct page *page;
+> +	void *table;
+> +
+> +	s390_remove_old_asce(gmap);
+> +
+> +	page = alloc_pages(GFP_KERNEL_ACCOUNT, CRST_ALLOC_ORDER);
+> +	if (!page)
+> +		return -ENOMEM;
+
+It seems that we do not handle errors in our caller?
+
+> +	table = page_to_virt(page);
+> +	memcpy(table, gmap->table, 1UL << (CRST_ALLOC_ORDER + PAGE_SHIFT));
+> +
+> +	spin_lock(&gmap->guest_table_lock);
+> +	list_add(&page->lru, &gmap->crst_list);
+> +	spin_unlock(&gmap->guest_table_lock);
+> +
+> +	asce = (gmap->asce & ~PAGE_MASK) | __pa(table);
+
+Instead of PAGE_MASK better use _ASCE_ORIGIN ?
+> +	WRITE_ONCE(gmap->asce, asce);
+> +	WRITE_ONCE(gmap->mm->context.gmap_asce, asce);
+> +	WRITE_ONCE(gmap->table, table);
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(s390_replace_asce);
+> 
