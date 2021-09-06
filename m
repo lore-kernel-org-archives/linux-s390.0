@@ -4,41 +4,43 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2C6CC433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:27:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED322C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:27:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CCC7E60EE6
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:27:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D644660EE6
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:27:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241271AbhIFB2d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 5 Sep 2021 21:28:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38916 "EHLO mail.kernel.org"
+        id S241279AbhIFB2e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 5 Sep 2021 21:28:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240785AbhIFB0h (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:26:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B317610FB;
-        Mon,  6 Sep 2021 01:22:39 +0000 (UTC)
+        id S240122AbhIFB0f (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:26:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A911D610F9;
+        Mon,  6 Sep 2021 01:22:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891360;
-        bh=ICotKW+gJE6MViGFxSX6mbjWVs8hAtWnUFrAfhMIh7A=;
+        s=k20201202; t=1630891357;
+        bh=pRz0pcGrk0bI5tVenX8gEj6hCVq03V+Zw6XBu62Nmks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjJVguNITVEpE/10uTeWRYMEzEPdhE2dNkBcuoj5IXEg6V4MmuU+FGSNC+Jo362Vy
-         PrpfV+19CMipErwHCRxka829BlZ6IouREROIYjURlV8w757tvGB+JSIz7Zj6Zyq1+w
-         wDU3H+Ha4xt9tFkKCq/uPIcQ2TBMh2isViWsaeroSyBi+uuMjyh8Ue7/kaF+urLrA6
-         kP8bWBDxegV72IL9IlaXnXw162aQk7sfcJ8yFiKWRrRnQVZrQj0JokY6pkjuS1Ymx9
-         xKcX2nQcvotDl7h0GxFPDvK8udSls9Gg7J9f/nBnazA5j35/DPb8ABb18OMAkYzU9n
-         SgqOHujxd8atA==
+        b=DonMKGc0nkUetX+41lgckbiT2RFDPKiLyw3wvAJSoWSiSKA0nlphszZN+Jv6Re+5w
+         GkUU3rbNmjTL/TqTXcrFFnkuFUep9EhCba4e7K3FlQfZx9DSS7E3mOiaouYo9+Um56
+         /MWQ7U11WhPBPdtr14vNoAOgZUg/ELhrE7F3u+9LNN68UoIo5bQlPvXMz7z8WcnIPM
+         /nH1mfCzNziJ4yHERGJ2JjxJBmzPC3j5LQLsWF2MUzVVNd3ItZOn4f/DgIhYS9m2Q7
+         7RSZ5IseUqQJ51hZ8nVC/N/s6qFC2tlQTmSyGZGt0rctP1ir0qvpcD0HfPyxezF/c6
+         ZUYA1Jx/gE84A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Oberparleiter <oberpar@linux.ibm.com>,
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 37/39] s390/debug: keep debug data on resize
-Date:   Sun,  5 Sep 2021 21:21:51 -0400
-Message-Id: <20210906012153.929962-37-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, kasan-dev@googlegroups.com,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 35/39] s390/kasan: fix large PMD pages address alignment check
+Date:   Sun,  5 Sep 2021 21:21:49 -0400
+Message-Id: <20210906012153.929962-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012153.929962-1-sashal@kernel.org>
 References: <20210906012153.929962-1-sashal@kernel.org>
@@ -50,138 +52,84 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Peter Oberparleiter <oberpar@linux.ibm.com>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit 1204777867e8486a88dbb4793fe256b31ea05eeb ]
+[ Upstream commit ddd63c85ef67ea9ea7282ad35eafb6568047126e ]
 
-Any previously recorded s390dbf debug data is reset when a debug area
-is resized using the 'pages' sysfs attribute. This can make
-live-debugging unnecessarily complex.
+It is currently possible to initialize a large PMD page when
+the address is not aligned on page boundary.
 
-Fix this by copying existing debug data to the newly allocated debug
-area when resizing.
-
-Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/debug.c | 74 ++++++++++++++++++++++++++++------------
- 1 file changed, 53 insertions(+), 21 deletions(-)
+ arch/s390/mm/kasan_init.c | 41 +++++++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 21 deletions(-)
 
-diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index b6619ae9a3e0..e392d3e42b1d 100644
---- a/arch/s390/kernel/debug.c
-+++ b/arch/s390/kernel/debug.c
-@@ -24,6 +24,7 @@
- #include <linux/export.h>
- #include <linux/init.h>
- #include <linux/fs.h>
-+#include <linux/minmax.h>
- #include <linux/debugfs.h>
- 
- #include <asm/debug.h>
-@@ -92,6 +93,8 @@ static int debug_hex_ascii_format_fn(debug_info_t *id, struct debug_view *view,
- 				     char *out_buf, const char *in_buf);
- static int debug_sprintf_format_fn(debug_info_t *id, struct debug_view *view,
- 				   char *out_buf, debug_sprintf_entry_t *curr_event);
-+static void debug_areas_swap(debug_info_t *a, debug_info_t *b);
-+static void debug_events_append(debug_info_t *dest, debug_info_t *src);
- 
- /* globals */
- 
-@@ -726,35 +729,28 @@ EXPORT_SYMBOL(debug_unregister);
-  */
- static int debug_set_size(debug_info_t *id, int nr_areas, int pages_per_area)
- {
--	debug_entry_t ***new_areas;
-+	debug_info_t *new_id;
- 	unsigned long flags;
--	int rc = 0;
- 
- 	if (!id || (nr_areas <= 0) || (pages_per_area < 0))
- 		return -EINVAL;
--	if (pages_per_area > 0) {
--		new_areas = debug_areas_alloc(pages_per_area, nr_areas);
--		if (!new_areas) {
--			pr_info("Allocating memory for %i pages failed\n",
--				pages_per_area);
--			rc = -ENOMEM;
--			goto out;
--		}
--	} else {
--		new_areas = NULL;
-+
-+	new_id = debug_info_alloc("", pages_per_area, nr_areas, id->buf_size,
-+				  id->level, ALL_AREAS);
-+	if (!new_id) {
-+		pr_info("Allocating memory for %i pages failed\n",
-+			pages_per_area);
-+		return -ENOMEM;
+diff --git a/arch/s390/mm/kasan_init.c b/arch/s390/mm/kasan_init.c
+index 5646b39c728a..e9a9b7b616bc 100644
+--- a/arch/s390/mm/kasan_init.c
++++ b/arch/s390/mm/kasan_init.c
+@@ -108,6 +108,9 @@ static void __init kasan_early_vmemmap_populate(unsigned long address,
+ 		sgt_prot &= ~_SEGMENT_ENTRY_NOEXEC;
  	}
-+
- 	spin_lock_irqsave(&id->lock, flags);
--	debug_areas_free(id);
--	id->areas = new_areas;
--	id->nr_areas = nr_areas;
--	id->pages_per_area = pages_per_area;
--	id->active_area = 0;
--	memset(id->active_entries, 0, sizeof(int)*id->nr_areas);
--	memset(id->active_pages, 0, sizeof(int)*id->nr_areas);
-+	debug_events_append(new_id, id);
-+	debug_areas_swap(new_id, id);
-+	debug_info_free(new_id);
- 	spin_unlock_irqrestore(&id->lock, flags);
- 	pr_info("%s: set new size (%i pages)\n", id->name, pages_per_area);
--out:
--	return rc;
-+
-+	return 0;
- }
  
- /**
-@@ -821,6 +817,42 @@ static inline debug_entry_t *get_active_entry(debug_info_t *id)
- 				  id->active_entries[id->active_area]);
- }
++	/*
++	 * The first 1MB of 1:1 mapping is mapped with 4KB pages
++	 */
+ 	while (address < end) {
+ 		pg_dir = pgd_offset_k(address);
+ 		if (pgd_none(*pg_dir)) {
+@@ -165,30 +168,26 @@ static void __init kasan_early_vmemmap_populate(unsigned long address,
  
-+/* Swap debug areas of a and b. */
-+static void debug_areas_swap(debug_info_t *a, debug_info_t *b)
-+{
-+	swap(a->nr_areas, b->nr_areas);
-+	swap(a->pages_per_area, b->pages_per_area);
-+	swap(a->areas, b->areas);
-+	swap(a->active_area, b->active_area);
-+	swap(a->active_pages, b->active_pages);
-+	swap(a->active_entries, b->active_entries);
-+}
+ 		pm_dir = pmd_offset(pu_dir, address);
+ 		if (pmd_none(*pm_dir)) {
+-			if (mode == POPULATE_ZERO_SHADOW &&
+-			    IS_ALIGNED(address, PMD_SIZE) &&
++			if (IS_ALIGNED(address, PMD_SIZE) &&
+ 			    end - address >= PMD_SIZE) {
+-				pmd_populate(&init_mm, pm_dir,
+-						kasan_early_shadow_pte);
+-				address = (address + PMD_SIZE) & PMD_MASK;
+-				continue;
+-			}
+-			/* the first megabyte of 1:1 is mapped with 4k pages */
+-			if (has_edat && address && end - address >= PMD_SIZE &&
+-			    mode != POPULATE_ZERO_SHADOW) {
+-				void *page;
+-
+-				if (mode == POPULATE_ONE2ONE) {
+-					page = (void *)address;
+-				} else {
+-					page = kasan_early_alloc_segment();
+-					memset(page, 0, _SEGMENT_SIZE);
++				if (mode == POPULATE_ZERO_SHADOW) {
++					pmd_populate(&init_mm, pm_dir, kasan_early_shadow_pte);
++					address = (address + PMD_SIZE) & PMD_MASK;
++					continue;
++				} else if (has_edat && address) {
++					void *page;
 +
-+/* Append all debug events in active area from source to destination log. */
-+static void debug_events_append(debug_info_t *dest, debug_info_t *src)
-+{
-+	debug_entry_t *from, *to, *last;
-+
-+	if (!src->areas || !dest->areas)
-+		return;
-+
-+	/* Loop over all entries in src, starting with oldest. */
-+	from = get_active_entry(src);
-+	last = from;
-+	do {
-+		if (from->clock != 0LL) {
-+			to = get_active_entry(dest);
-+			memset(to, 0, dest->entry_size);
-+			memcpy(to, from, min(src->entry_size,
-+					     dest->entry_size));
-+			proceed_active_entry(dest);
-+		}
-+
-+		proceed_active_entry(src);
-+		from = get_active_entry(src);
-+	} while (from != last);
-+}
-+
- /*
-  * debug_finish_entry:
-  * - set timestamp, caller address, cpu number etc.
++					if (mode == POPULATE_ONE2ONE) {
++						page = (void *)address;
++					} else {
++						page = kasan_early_alloc_segment();
++						memset(page, 0, _SEGMENT_SIZE);
++					}
++					pmd_val(*pm_dir) = __pa(page) | sgt_prot;
++					address = (address + PMD_SIZE) & PMD_MASK;
++					continue;
+ 				}
+-				pmd_val(*pm_dir) = __pa(page) | sgt_prot;
+-				address = (address + PMD_SIZE) & PMD_MASK;
+-				continue;
+ 			}
+-
+ 			pt_dir = kasan_early_pte_alloc();
+ 			pmd_populate(&init_mm, pm_dir, pt_dir);
+ 		} else if (pmd_large(*pm_dir)) {
 -- 
 2.30.2
 
