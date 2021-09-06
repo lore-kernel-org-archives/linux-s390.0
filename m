@@ -2,182 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5FEDC433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 12:02:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16544C4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 14:23:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C311D60FBF
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 12:02:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 048A560F6B
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 14:23:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236388AbhIFMDn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Sep 2021 08:03:43 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8080 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229648AbhIFMDn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 08:03:43 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 186BumjL092208;
-        Mon, 6 Sep 2021 08:02:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=Bjuk2NDJE+6fXhkJSAQxTPZRvmPVUvFZ+XXivWwaByY=;
- b=rDIbK6nRtxrctvyX12DQirogMcS8cdnGD8ztT5JBryAqx99avkOmVTc7+lv82K0DQ8qq
- 3Ry82olsgzCKwHj6qI5bzZTRcy4ovVCralJ5HZOEgfwBw/bDp618ll+y5klJoaHNEups
- E3tkjdLTKTJu9gVhDGImRMr/3Yp5/5BUF2IwAtJ4SIYgM5Za5ATtZzmGUASGQbq4UnwO
- 8OGhtfK4EIolpRBOjLMQ+/FiNwChprF8IE9Zd4ktAWcLxzj4F7uuWQoIdznzhQmnhKy0
- P3pxx1Q7DhpyowiBH8XExICcTPIXJ+nbk5OZkuII0HHqKyi13x6yJ0SZ2WYC7H4+2JFN vw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3awjje83n1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Sep 2021 08:02:37 -0400
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 186BvW0Z096218;
-        Mon, 6 Sep 2021 08:02:37 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3awjje83m3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Sep 2021 08:02:36 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 186BvOqD029141;
-        Mon, 6 Sep 2021 12:02:34 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 3av0e93h10-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Sep 2021 12:02:34 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 186C2S2a57606462
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Sep 2021 12:02:28 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B8A1F420BC;
-        Mon,  6 Sep 2021 12:02:28 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 611764209E;
-        Mon,  6 Sep 2021 12:02:28 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.8.215])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Sep 2021 12:02:28 +0000 (GMT)
-Date:   Mon, 6 Sep 2021 14:02:25 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     kvm@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
+        id S243356AbhIFOYN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Sep 2021 10:24:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59590 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243298AbhIFOYI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 10:24:08 -0400
+Received: from ozlabs.org (ozlabs.org [IPv6:2401:3900:2:1::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86ADDC061575;
+        Mon,  6 Sep 2021 07:23:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1630938178;
+        bh=a1ig8YTFMn8o0S8xZRd6vor5m3Cp6vgqt+R8f3Aaqr8=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=gPDFVvcgFKVCtnnFcqifi3/U7sQu2oKLjlWmQLo9QKNWq1U2MACHRnqyFWKrnad56
+         uL+i5BVZJzimDdNdOdWWL97qyY3vQEru4eOyRsCgGll1qxWgWbklqZekpDGcAGKuCf
+         7DC9/fmleSs/J6PLf3UKelktEfEUDK/VqMn/+w368Z5+i7rKCZizeZ9JNKFm1pNAA5
+         h4LY2z9lptO/oPnnmWr1502XTFsZvG+pEmckwN3k0Ifrq04O0itioFFI4oF6PBSbWI
+         occtjlLIAW9X8Cbc98/3bwK1W8QWf6J3uswp0ONhi5bpMTYeu0fzaFaimB7DadN/5M
+         jHul5fcpFPOCA==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4H39bX6gcYz9sW4;
+        Tue,  7 Sep 2021 00:22:48 +1000 (AEST)
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Weizhao Ouyang <o451686892@gmail.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>
+Cc:     Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v1] s390x/skey: Test for ADDRESSING
- exceptions
-Message-ID: <20210906140225.4edfdd9a@p-imbrenda>
-In-Reply-To: <20210903162537.57178-1-david@redhat.com>
-References: <20210903162537.57178-1-david@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, Weizhao Ouyang <o451686892@gmail.com>
+Subject: Re: [PATCH v2] ftrace: Cleanup ftrace_dyn_arch_init()
+In-Reply-To: <20210906111626.1259867-1-o451686892@gmail.com>
+References: <20210906111626.1259867-1-o451686892@gmail.com>
+Date:   Tue, 07 Sep 2021 00:22:46 +1000
+Message-ID: <87v93dn5qh.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Dj6Obc5eBoX8Jlq7l5ugYr8WD89ImTxW
-X-Proofpoint-GUID: aKqjbbrKe0Yc-EwxTKacf4yaWw1Dbksc
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-09-06_05:2021-09-03,2021-09-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 spamscore=0 clxscore=1015 mlxscore=0 adultscore=0
- suspectscore=0 bulkscore=0 mlxlogscore=999 priorityscore=1501 phishscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2108310000 definitions=main-2109060073
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri,  3 Sep 2021 18:25:37 +0200
-David Hildenbrand <david@redhat.com> wrote:
-
-> ... used to be broken in TCG, so let's add a very simple test for SSKE
-> and ISKE. In order to test RRBE as well, introduce a helper to call the
-> machine instruction.
-> 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-
-Maybe consider testing rrbm too, but anyway:
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
+Weizhao Ouyang <o451686892@gmail.com> writes:
+> Most of ARCHs use empty ftrace_dyn_arch_init(), introduce a weak common
+> ftrace_dyn_arch_init() to cleanup them.
+>
+> Signed-off-by: Weizhao Ouyang <o451686892@gmail.com>
+> Acked-by: Heiko Carstens <hca@linux.ibm.com> (s390)
+>
 > ---
->  lib/s390x/asm/mem.h | 12 ++++++++++++
->  s390x/skey.c        | 28 ++++++++++++++++++++++++++++
->  2 files changed, 40 insertions(+)
-> 
-> diff --git a/lib/s390x/asm/mem.h b/lib/s390x/asm/mem.h
-> index 40b22b6..845c00c 100644
-> --- a/lib/s390x/asm/mem.h
-> +++ b/lib/s390x/asm/mem.h
-> @@ -50,6 +50,18 @@ static inline unsigned char get_storage_key(void *addr)
->  	return skey;
->  }
->  
-> +static inline unsigned char reset_reference_bit(void *addr)
-> +{
-> +	int cc;
-> +
-> +	asm volatile(
-> +		"rrbe	0,%1\n"
-> +		"ipm	%0\n"
-> +		"srl	%0,28\n"
-> +		: "=d" (cc) : "a" (addr) : "cc");
-> +	return cc;
-> +}
-> +
->  #define PFMF_FSC_4K 0
->  #define PFMF_FSC_1M 1
->  #define PFMF_FSC_2G 2
-> diff --git a/s390x/skey.c b/s390x/skey.c
-> index 2539944..58a5543 100644
-> --- a/s390x/skey.c
-> +++ b/s390x/skey.c
-> @@ -120,6 +120,33 @@ static void test_priv(void)
->  	report_prefix_pop();
->  }
->  
-> +static void test_invalid_address(void)
-> +{
-> +	void *inv_addr = (void *)-1ull;
-> +
-> +	report_prefix_push("invalid address");
-> +
-> +	report_prefix_push("sske");
-> +	expect_pgm_int();
-> +	set_storage_key(inv_addr, 0, 0);
-> +	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("iske");
-> +	expect_pgm_int();
-> +	get_storage_key(inv_addr);
-> +	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("rrbe");
-> +	expect_pgm_int();
-> +	reset_reference_bit(inv_addr);
-> +	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_pop();
-> +}
-> +
->  int main(void)
->  {
->  	report_prefix_push("skey");
-> @@ -128,6 +155,7 @@ int main(void)
->  		goto done;
->  	}
->  	test_priv();
-> +	test_invalid_address();
->  	test_set();
->  	test_set_mb();
->  	test_chg();
+>
+> Changes in v2:
+> -- correct CONFIG_DYNAMIC_FTRACE on PowerPC
+> -- add Acked-by tag
 
+> diff --git a/arch/powerpc/include/asm/ftrace.h b/arch/powerpc/include/asm/ftrace.h
+> index debe8c4f7062..d59f67c0225f 100644
+> --- a/arch/powerpc/include/asm/ftrace.h
+> +++ b/arch/powerpc/include/asm/ftrace.h
+> @@ -61,6 +61,10 @@ struct dyn_arch_ftrace {
+>  };
+>  #endif /* __ASSEMBLY__ */
+>  
+> +#ifdef CONFIG_DYNAMIC_FTRACE
+> +int __init ftrace_dyn_arch_init(void);
+> +#endif /* CONFIG_DYNAMIC_FTRACE */
+> +
+>  #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+>  #define ARCH_SUPPORTS_FTRACE_OPS 1
+>  #endif
+
+That breaks the build for powerpc:
+
+  /linux/arch/powerpc/include/asm/ftrace.h: Assembler messages:
+  /linux/arch/powerpc/include/asm/ftrace.h:65: Error: unrecognized opcode: `int'
+  make[4]: *** [/linux/scripts/Makefile.build:352: arch/powerpc/kernel/trace/ftrace_64.o] Error 1
+  make[3]: *** [/linux/scripts/Makefile.build:514: arch/powerpc/kernel/trace] Error 2
+  make[2]: *** [/linux/scripts/Makefile.build:514: arch/powerpc/kernel] Error 2
+  make[1]: *** [/linux/Makefile:1861: arch/powerpc] Error 2
+  make[1]: *** Waiting for unfinished jobs....
+
+It needs to be inside an #ifndef __ASSEMBLY__ section.
+
+cheers
