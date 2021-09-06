@@ -2,166 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BDE3C433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 16:16:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56C92C433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 17:11:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F2D160524
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 16:16:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3DC3661004
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 17:11:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243779AbhIFQRY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Sep 2021 12:17:24 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36772 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234132AbhIFQRX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 12:17:23 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 186GEHr2054075;
-        Mon, 6 Sep 2021 12:16:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=4LuLvRTwcB5+x/Z+K7GSrWAkFn9onhsaecda0nUz62I=;
- b=Vj9RVpQbnx5MFdrQSFMIXADgRO8n5Ytqv/IPdbIp+2F7BEW8HzEiuYIIBHdHF0xVWCzA
- gnbgAXY6LxR93OZl1TO8XzYhnj/tDD4SpL4H39VuQnHOAidMqEoh7wkQkCmlOiccJ+Tz
- vqL3DT5gIL8rDPVNqnqpTsjCdfc1pRyyxgB2l1hJcq3tieFpHaGPswGqLSy9mKLrf2pb
- DI7vBnm1wmCP/7XuioMb9yUeCrtZMeH6iVn5DzOjGQiPLn9ClZVSnBdjDgTvEF+CMLed
- zji/JnRbG+Nlm3EZln3sRrBhVyv86bDdc+DPy7kkbc7Y7MF8p2dxFNfAntk2iE5+6bMw 7A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3awmc62d7n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Sep 2021 12:16:18 -0400
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 186GGDWd060607;
-        Mon, 6 Sep 2021 12:16:18 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3awmc62d70-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Sep 2021 12:16:18 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 186GDPAd011105;
-        Mon, 6 Sep 2021 16:16:16 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3av0e9da97-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Sep 2021 16:16:15 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 186GBvJp37683482
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Sep 2021 16:11:57 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 70B3E52052;
-        Mon,  6 Sep 2021 16:16:11 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.145.95.210])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 0B84F52054;
-        Mon,  6 Sep 2021 16:16:11 +0000 (GMT)
-Subject: Re: [PATCH v4 06/14] KVM: s390: pv: properly handle page flags for
- protected guests
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, cohuck@redhat.com, frankja@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ulrich.Weigand@de.ibm.com,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-References: <20210818132620.46770-1-imbrenda@linux.ibm.com>
- <20210818132620.46770-7-imbrenda@linux.ibm.com>
- <1a44ff5c-f59f-2f37-2585-084294ed5e11@de.ibm.com>
- <20210906175618.4ce0323f@p-imbrenda>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <35e4b7a3-42d8-6b8f-e2e7-5b6a81dfcfa3@de.ibm.com>
-Date:   Mon, 6 Sep 2021 18:16:10 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S243903AbhIFRML (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Sep 2021 13:12:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41448 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243999AbhIFRMJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 13:12:09 -0400
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC6E5C0613D9
+        for <linux-s390@vger.kernel.org>; Mon,  6 Sep 2021 10:10:58 -0700 (PDT)
+Received: by mail-lf1-x136.google.com with SMTP id y34so14513650lfa.8
+        for <linux-s390@vger.kernel.org>; Mon, 06 Sep 2021 10:10:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=CW74dcoV+jr+H/cOee9EJDtMnYKDaAeGSoGkoOfBh0A=;
+        b=fiBYOjOq+VBGQV/Z/w0zPvWtW2UdpSWfKvNcpoxD+K0WhuhAtoceEVoeVxOgsHPOhv
+         efrzRbDV+uvCfhjgMPpEAyHUjdY3TNBRGO2ascjrj0a8sJkn7E+gp/dr4pWniQgzRRQF
+         q98akxIU254+B/rN3gPB3vS2zoJRULAlh32sYQ3MgkDWtN5OmaO+jI6cVC8P0jEcXZjM
+         5J9yOudkRCUkuEmbSVcv7bhsnzpejWiq8jfUXL/v/giNNCifV/BladKTn0Y7v9egF/vN
+         7pklhCc4DE5X6amh2/h+2STJm39f2wwFex5emYYC4FcRMupzl4VSdjFxUGanzZUlpoBw
+         tJyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=CW74dcoV+jr+H/cOee9EJDtMnYKDaAeGSoGkoOfBh0A=;
+        b=AQKEUJzUW+gMYGxT6RVKwTA74p1FSSMQRSG3QIsy+901D/HErtrr1Jb/yyHK3Lxhge
+         WqZfsZkRQH+RCzvoItdxFWkpw14mGMsEkgamHqAJxIGZvjZi3aPB5mdUFkVJ0WjW1VkN
+         L+429ZaPoVPxu6qC4T3Q7kZNV02bRPQPnhcMnKWE7hy79vjr0EHOY6j9pINFmdsElYOa
+         VflLoB19EQGN7KiXrtmSZ4a6m8F3Pu/UZs/tKNWGNY/0fGRjKoz4D5f86l27q+iv0Aq9
+         0OzfGkYTILJR7hGKtGigg4qZcLZBvGdzJkaCrL6komrpQxVV84h8hcpxmsNMNV5IP9Hh
+         Qfjg==
+X-Gm-Message-State: AOAM530whSsWftpAOUGvNYuVbEIolS9yQ+Gl6WzRDF8xbcsNGtajwUgK
+        egJLyVUHiKAMVrhzvNDzMo2SoJET4vTmfwKrVQTqyA==
+X-Google-Smtp-Source: ABdhPJyhjHArMca68TR5pTBXzBL9tRGf14Q3uN8WTnzHOdYd8ltoCuxOYH+yY9mOHeyJ4NbktZ7AcuCVRlMvz/GSBvU=
+X-Received: by 2002:a19:dc47:: with SMTP id f7mr9888628lfj.71.1630948256412;
+ Mon, 06 Sep 2021 10:10:56 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210906175618.4ce0323f@p-imbrenda>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3lNbS7yAX7Cph2cK1wos9PWw4Y4TYO9k
-X-Proofpoint-GUID: IDYCKt2rdwNe6EwvY7s_cxQU_e-tdyIV
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-09-06_08:2021-09-03,2021-09-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
- adultscore=0 mlxlogscore=999 mlxscore=0 suspectscore=0 malwarescore=0
- priorityscore=1501 impostorscore=0 clxscore=1015 lowpriorityscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2108310000 definitions=main-2109060103
+References: <20210902174105.2418771-1-mcgrof@kernel.org> <20210902174105.2418771-3-mcgrof@kernel.org>
+In-Reply-To: <20210902174105.2418771-3-mcgrof@kernel.org>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Mon, 6 Sep 2021 19:10:20 +0200
+Message-ID: <CAPDyKFoZ1QqPMYi=N=3s2058mnbzcXYPodNFkexCi0eTbD4NmQ@mail.gmail.com>
+Subject: Re: [PATCH 2/9] ms_block: add error handling support for add_disk()
+To:     Luis Chamberlain <mcgrof@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        chaitanya.kulkarni@wdc.com, atulgopinathan@gmail.com,
+        Hannes Reinecke <hare@suse.de>,
+        Maxim Levitsky <maximlevitsky@gmail.com>,
+        Alex Dubov <oakad@yahoo.com>,
+        Colin King <colin.king@canonical.com>,
+        Shubhankar Kuranagatti <shubhankarvk@gmail.com>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>, Tom Rix <trix@redhat.com>,
+        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh R <vigneshr@ti.com>, sth@linux.ibm.com,
+        hoeppner@linux.ibm.com, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        oberpar@linux.ibm.com, Tejun Heo <tj@kernel.org>,
+        linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-mmc <linux-mmc@vger.kernel.org>,
+        linux-block <linux-block@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, 2 Sept 2021 at 19:41, Luis Chamberlain <mcgrof@kernel.org> wrote:
+>
+> We never checked for errors on add_disk() as this function
+> returned void. Now that this is fixed, use the shiny new
+> error handling.
+>
+> Contrary to the typical removal which delays the put_disk()
+> until later, since we are failing on a probe we immediately
+> put the disk on failure from add_disk by using
+> blk_cleanup_disk().
+>
+> Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+
+Queued for v5.16 on the temporary devel branch, thanks!
+
+Kind regards
+Uffe
 
 
-On 06.09.21 17:56, Claudio Imbrenda wrote:
-> On Mon, 6 Sep 2021 17:46:40 +0200
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> 
->> On 18.08.21 15:26, Claudio Imbrenda wrote:
->>> Introduce variants of the convert and destroy page functions that also
->>> clear the PG_arch_1 bit used to mark them as secure pages.
->>>
->>> These new functions can only be called on pages for which a reference
->>> is already being held.
->>>
->>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
->>> Acked-by: Janosch Frank <frankja@linux.ibm.com>
->>
->> Can you refresh my mind? We do have over-indication of PG_arch_1 and this
->> might result in spending some unneeded cycles but in the end this will be
->> correct. Right?
->> And this patch will fix some unnecessary places that add overindication.
-> 
-> correct, PG_arch_1 will still overindicate, but with this patch it will
-> happen less.
-> 
-> And PG_arch_1 overindication is perfectly fine from a correctness point
-> of view.
-
-Maybe add something like this to the patch description then.
-
->>> +/*
->>> + * The caller must already hold a reference to the page
->>> + */
->>> +int uv_destroy_owned_page(unsigned long paddr)
->>> +{
->>> +	struct page *page = phys_to_page(paddr);
-
-Do we have to protect against weird mappings without struct page here? I have not
-followed the discussion about this topic. Maybe Gerald knows if we can have memory
-without struct pages.
-
->>> +	int rc;
->>> +
->>> +	get_page(page);
->>> +	rc = uv_destroy_page(paddr);
->>> +	if (!rc)
->>> +		clear_bit(PG_arch_1, &page->flags);
->>> +	put_page(page);
->>> +	return rc;
->>> +}
->>> +
->>>    /*
->>>     * Requests the Ultravisor to encrypt a guest page and make it
->>>     * accessible to the host for paging (export).
->>> @@ -154,6 +170,22 @@ int uv_convert_from_secure(unsigned long paddr)
->>>    	return 0;
->>>    }
->>>    
->>> +/*
->>> + * The caller must already hold a reference to the page
->>> + */
->>> +int uv_convert_owned_from_secure(unsigned long paddr)
->>> +{
->>> +	struct page *page = phys_to_page(paddr);
-
-Same here. If this is not an issue (and you add something to the patch description as
-outlined above)
-
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-
+> ---
+>  drivers/memstick/core/ms_block.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
+> index 4a4573fa7b0f..86c626933c1a 100644
+> --- a/drivers/memstick/core/ms_block.c
+> +++ b/drivers/memstick/core/ms_block.c
+> @@ -2156,10 +2156,14 @@ static int msb_init_disk(struct memstick_dev *card)
+>                 set_disk_ro(msb->disk, 1);
+>
+>         msb_start(card);
+> -       device_add_disk(&card->dev, msb->disk, NULL);
+> +       rc = device_add_disk(&card->dev, msb->disk, NULL);
+> +       if (rc)
+> +               goto out_cleanup_disk;
+>         dbg("Disk added");
+>         return 0;
+>
+> +out_cleanup_disk:
+> +       blk_cleanup_disk(msb->disk);
+>  out_free_tag_set:
+>         blk_mq_free_tag_set(&msb->tag_set);
+>  out_release_id:
+> --
+> 2.30.2
+>
