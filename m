@@ -2,132 +2,195 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-25.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 570D3C433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 10:35:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 052BEC433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 10:58:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 33D2F61051
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 10:35:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DD0476101C
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 10:58:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238549AbhIFKgy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Sep 2021 06:36:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45467 "EHLO
+        id S241099AbhIFK7h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Sep 2021 06:59:37 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:44251 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231174AbhIFKgy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 06:36:54 -0400
+        by vger.kernel.org with ESMTP id S240963AbhIFK7g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 06:59:36 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630924549;
+        s=mimecast20190719; t=1630925912;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=g68PpF6+mUXROjTFT/pPvYK23nXqxvx0vraJdLoo7FI=;
-        b=BkKFCp6oV3oCBx21SoP/AZUYvBK+hv4G5hlFuxGbIND2e6zu6CooQLqrKgSHPweOJ9E7mO
-        nt2Vh0mceHagtDqkybd9NSNHUL4xjsZGvwJ9aUUN/6NfJBzx2KoGCQ3/qVHOMs08eDv2Ut
-        T23OkndCI52kGkEOXK2Ptzqp3MV5Yh0=
+        bh=1RDA8Bk3nt+swtUOnWsFb/ykCw+znhVEXQGv+yky4p8=;
+        b=YTHGZNAu07rEVIoARTlILYYr+5WIMVV+tiC5bDesCTSfJleprUnjhzdiuL402N98tJOaCz
+        mtDtFxfslDaAvH8eLQ7D0oVAI9sAZYe8uk3kyg8F+9Q5GcMzOz9/Si0Kla+Nfdgjlr9oit
+        6oTglZwBC1JrFr6eKKMyXlhSk6xQV7g=
 Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
  [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-333-KqOhg8kKOpusXL5JDKWHcQ-1; Mon, 06 Sep 2021 06:35:48 -0400
-X-MC-Unique: KqOhg8kKOpusXL5JDKWHcQ-1
-Received: by mail-ej1-f71.google.com with SMTP id c25-20020a170906529900b005c56c92caa2so2143858ejm.19
-        for <linux-s390@vger.kernel.org>; Mon, 06 Sep 2021 03:35:48 -0700 (PDT)
+ us-mta-128-auNR85bgOPCrpwZRa--Qdg-1; Mon, 06 Sep 2021 06:58:31 -0400
+X-MC-Unique: auNR85bgOPCrpwZRa--Qdg-1
+Received: by mail-ej1-f71.google.com with SMTP id r21-20020a1709067055b02904be5f536463so2203463ejj.0
+        for <linux-s390@vger.kernel.org>; Mon, 06 Sep 2021 03:58:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=g68PpF6+mUXROjTFT/pPvYK23nXqxvx0vraJdLoo7FI=;
-        b=LhZyXsV7mmlT8RseqzQS/EAOcuF9q5ZCO9L0cJ3fJNXa2QbVRqsNA6ROnrTC2B0nQP
-         bWyQ9pu4tvPES6lgfgp00Hcc6vO320jsPzLwDI31Qlmz1UcslP20jMgLp+ykJG720lTt
-         ltnJfvitSIU3r1ebNakh9Dg8TDpphbsB94/HACAJjoemso9xdBz9+66uE4AxmAymwFqk
-         +hqt1IYGtz90/n7duwrFYzt6vdpNurN66pQAzStTOQJKP4gHNLGtKDyr3MN9jWnZFGnv
-         wwBwqrdbSJvsXz4hhwnqVdXFRMKB65yRmV8twj2/upPY+LwrU4CzRUQefGwJoiQpIg6X
-         QNEw==
-X-Gm-Message-State: AOAM5306ibSa1VYOvMd0C3UASz2o+c4H8FqzGg+s2KHaabim2It/uWAN
-        37eVwzo0jQkh2TNJgrcUAK3d98B1FoBCNq1UVhPa3boQWeUkz88nqOywTq7iPKcNhDOkp3CJGwj
-        JbhrhjIn4grEC2lkBdSYtZA==
-X-Received: by 2002:a17:906:d045:: with SMTP id bo5mr12803962ejb.461.1630924546937;
-        Mon, 06 Sep 2021 03:35:46 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxZNrsZgDmccQd/BU46BG1MwpW2PfB4vsAom9LwPHgvfmCBrJ1P4pbixZweCnbZZISN13+LKw==
-X-Received: by 2002:a17:906:d045:: with SMTP id bo5mr12803945ejb.461.1630924546767;
-        Mon, 06 Sep 2021 03:35:46 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id c7sm4327202ede.21.2021.09.06.03.35.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Sep 2021 03:35:46 -0700 (PDT)
-Subject: Re: [GIT PULL 0/2] KVM: s390: Fix and feature for 5.15
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-References: <20210829060121.16702-1-borntraeger@de.ibm.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <70668bcd-b94d-36d1-dffa-af3315f0c60c@redhat.com>
-Date:   Mon, 6 Sep 2021 12:35:40 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=1RDA8Bk3nt+swtUOnWsFb/ykCw+znhVEXQGv+yky4p8=;
+        b=Mqr6pwnN9cHgvAUvQKb/602l47X0vtxXOmlUZDxdAjkXpDesR0vy3aV6L1h211Uflj
+         mIax/B+QYspHnnTvVajT/pFldcNTZ6q7/a+08K7NRahfVaGZYDUU6aFrAGBk35mR5XHC
+         fIfTj7XlYsXLd8WWZrLmlFqp4oks2ZzpabHRBNmW++Z9jia3YbRKanz/FeZ6zPJ6oUEg
+         XAjXGZvXxBOwNyZ6UAMcMn8xC6mAzNikiScCMB5wPbEgLwdq9Py9ONhWGnoTfA1T018N
+         vCJWf7Fi47MMaV0z3Dh52MeYBTz9+6WUSXJ2gn1PFgnYRX9XIi8VOom3vQzoVjVMjkIr
+         /VwQ==
+X-Gm-Message-State: AOAM532Ff+fjSCLi5fSebr5RIDbDGZl6sUZ+tMPVOAnyPD8T+1ENpwYP
+        mfSl4mJnN2Bc+QsFXH5Z53VJA1zZ+KPSIEkxslGxWelV01WzQcc9yNJeZXWOqCN2oDazq424VzY
+        EsGQD+8ChYniL9VpCTDc2Dg==
+X-Received: by 2002:a17:906:5408:: with SMTP id q8mr12573282ejo.54.1630925910059;
+        Mon, 06 Sep 2021 03:58:30 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyWrX2GgCzwIGIlvdKnLO5nw6k3AjkJdy6n1BkDhKb1omv4ojZVj6K69QMmQGj9nmdtLh4Dng==
+X-Received: by 2002:a17:906:5408:: with SMTP id q8mr12573265ejo.54.1630925909864;
+        Mon, 06 Sep 2021 03:58:29 -0700 (PDT)
+Received: from gator.home (cst2-174-132.cust.vodafone.cz. [31.30.174.132])
+        by smtp.gmail.com with ESMTPSA id cn16sm4433015edb.87.2021.09.06.03.58.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Sep 2021 03:58:29 -0700 (PDT)
+Date:   Mon, 6 Sep 2021 12:58:27 +0200
+From:   Andrew Jones <drjones@redhat.com>
+To:     Alexandru Elisei <alexandru.elisei@arm.com>
+Cc:     thuth@redhat.com, pbonzini@redhat.com, lvivier@redhat.com,
+        kvm-ppc@vger.kernel.org, david@redhat.com, frankja@linux.ibm.com,
+        cohuck@redhat.com, imbrenda@linux.ibm.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu, andre.przywara@arm.com,
+        maz@kernel.org, vivek.gautam@arm.com
+Subject: Re: [kvm-unit-tests RFC PATCH 1/5] lib: arm: Print test exit status
+ on exit if chr-testdev is not available
+Message-ID: <20210906105827.wneqtlrsgbz3pxk5@gator.home>
+References: <20210702163122.96110-1-alexandru.elisei@arm.com>
+ <20210702163122.96110-2-alexandru.elisei@arm.com>
+ <20210712163647.oxntpjapur4z23sl@gator>
+ <7814beab-547e-98d9-9aa0-3b7e5afd803b@arm.com>
 MIME-Version: 1.0
-In-Reply-To: <20210829060121.16702-1-borntraeger@de.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7814beab-547e-98d9-9aa0-3b7e5afd803b@arm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 29/08/21 08:01, Christian Borntraeger wrote:
-> Paolo,
+On Mon, Sep 06, 2021 at 11:20:31AM +0100, Alexandru Elisei wrote:
+> Hi Drew,
 > 
-> sorry for being so late. One feature (enable hardware interpretion of
-> specification exceptions) and one fix targeted for stable. Given the
-> short runway to 5.14 I decided to let this go via next and not try to
-> sneak it into 5.14.
+> Sorry for taking so long to reply, been busy with other things.
 > 
-> The following changes since commit 1f703d2cf20464338c3d5279dddfb65ac79b8782:
+> On 7/12/21 5:36 PM, Andrew Jones wrote:
+> > On Fri, Jul 02, 2021 at 05:31:18PM +0100, Alexandru Elisei wrote:
+> >> The arm64 tests can be run under kvmtool, which doesn't emulate a
+> >> chr-testdev device. In preparation for adding run script support for
+> >> kvmtool, print the test exit status so the scripts can pick it up and
+> >> correctly mark the test as pass or fail.
+> >>
+> >> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+> >> ---
+> >>  lib/chr-testdev.h |  1 +
+> >>  lib/arm/io.c      | 10 +++++++++-
+> >>  lib/chr-testdev.c |  5 +++++
+> >>  3 files changed, 15 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/lib/chr-testdev.h b/lib/chr-testdev.h
+> >> index ffd9a851aa9b..09b4b424670e 100644
+> >> --- a/lib/chr-testdev.h
+> >> +++ b/lib/chr-testdev.h
+> >> @@ -11,4 +11,5 @@
+> >>   */
+> >>  extern void chr_testdev_init(void);
+> >>  extern void chr_testdev_exit(int code);
+> >> +extern bool chr_testdev_available(void);
+> >>  #endif
+> >> diff --git a/lib/arm/io.c b/lib/arm/io.c
+> >> index 343e10822263..9e62b571a91b 100644
+> >> --- a/lib/arm/io.c
+> >> +++ b/lib/arm/io.c
+> >> @@ -125,7 +125,15 @@ extern void halt(int code);
+> >>  
+> >>  void exit(int code)
+> >>  {
+> >> -	chr_testdev_exit(code);
+> >> +	if (chr_testdev_available()) {
+> >> +		chr_testdev_exit(code);
+> > chr_testdev_exit() already has a 'if !vcon goto out' in it, so you can
+> > just call it unconditionally. No need for chr_testdev_available().
 > 
->    KVM: s390: allow facility 192 (vector-packed-decimal-enhancement facility 2) (2021-06-23 09:35:20 +0200)
+> I'm not sure what you mean. There has to be a way to check if chr-testdev is
+> available, and if it's not present on the system, to print the EXIT: STATUS
+> message, and vcon is static in chr-testdev.c.
 > 
-> are available in the Git repository at:
-> 
->    git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.15-1
-> 
-> for you to fetch changes up to a3e03bc1368c1bc16e19b001fc96dc7430573cc8:
-> 
->    KVM: s390: index kvm->arch.idle_mask by vcpu_idx (2021-08-27 18:35:41 +0200)
-> 
-> ----------------------------------------------------------------
-> KVM: s390: Fix and feature for 5.15
-> 
-> - enable interpretion of specification exceptions
-> - fix a vcpu_idx vs vcpu_id mixup
-> 
-> ----------------------------------------------------------------
-> Halil Pasic (1):
->        KVM: s390: index kvm->arch.idle_mask by vcpu_idx
-> 
-> Janis Schoetterl-Glausch (1):
->        KVM: s390: Enable specification exception interpretation
-> 
->   arch/s390/include/asm/kvm_host.h |  2 ++
->   arch/s390/kvm/interrupt.c        | 12 ++++++------
->   arch/s390/kvm/kvm-s390.c         |  4 +++-
->   arch/s390/kvm/kvm-s390.h         |  2 +-
->   arch/s390/kvm/vsie.c             |  2 ++
->   5 files changed, 14 insertions(+), 8 deletions(-)
-> 
+> Are you suggesting that we move the message to chr_testdev_exit(code)?
 
-Pulled now, thanks!
+I'm saying you can unconditionally call chr_testdev_exit(), because it
+only conditionally does anything, and on the same condition that you're
+adding (vcon != NULL). 
 
-Paolo
+$ /usr/bin/qemu-system-aarch64 -nodefaults -machine virt,accel=tcg -cpu cortex-a57 -device virtio-serial-device -device virtconsole,chardev=ctd -chardev testdev,id=ctd -device pci-testdev -display none -serial stdio -kernel arm/selftest.flat
+ABORT: selftest: no test specified
+SUMMARY: 0 tests
+$ echo $?
+127
+$ /usr/bin/qemu-system-aarch64 -nodefaults -machine virt,accel=tcg -cpu cortex-a57 -display none -serial stdio -kernel arm/selftest.flat
+ABORT: selftest: no test specified
+SUMMARY: 0 tests
+$ echo $?
+0
+
+See, no explosions when the device is removed. Just a lack of return code.
+
+Also, since chr_testdev_exit() exits, any calls after it won't happen. So
+the exit print statement doesn't need to be in an else clause. That said,
+I think the print statement should come first in order to also put it in
+the qemu output logs. We might as well have consistent output between qemu
+and kvmtool.
+
+Thanks,
+drew
+
+
+> 
+> Thanks,
+> 
+> Alex
+> 
+> >
+> >> +	} else {
+> >> +		/*
+> >> +		 * Print the test return code in the format used by chr-testdev
+> >> +		 * so the runner script can parse it.
+> >> +		 */
+> >> +		printf("\nEXIT: STATUS=%d\n", ((code) << 1) | 1);
+> >> +	}
+> >>  	psci_system_off();
+> >>  	halt(code);
+> >>  	__builtin_unreachable();
+> >> diff --git a/lib/chr-testdev.c b/lib/chr-testdev.c
+> >> index b3c641a833fe..301e73a6c064 100644
+> >> --- a/lib/chr-testdev.c
+> >> +++ b/lib/chr-testdev.c
+> >> @@ -68,3 +68,8 @@ void chr_testdev_init(void)
+> >>  	in_vq = vqs[0];
+> >>  	out_vq = vqs[1];
+> >>  }
+> >> +
+> >> +bool chr_testdev_available(void)
+> >> +{
+> >> +	return vcon != NULL;
+> >> +}
+> >> -- 
+> >> 2.32.0
+> >>
+> > Thanks,
+> > drew 
+> >
+> 
 
