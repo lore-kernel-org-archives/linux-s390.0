@@ -4,44 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 163D8C4321E
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:21:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B40EC433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:22:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F1DD861151
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:21:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 67B98611BF
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:22:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239434AbhIFBWn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 5 Sep 2021 21:22:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38852 "EHLO mail.kernel.org"
+        id S239478AbhIFBX7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 5 Sep 2021 21:23:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239075AbhIFBVy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:21:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3416B6103B;
-        Mon,  6 Sep 2021 01:20:50 +0000 (UTC)
+        id S239486AbhIFBW4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:22:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5C0061054;
+        Mon,  6 Sep 2021 01:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891250;
-        bh=urc2Q1qzPA3AM/O3aVlM8flpD6FGPprUNtSXje40LHA=;
+        s=k20201202; t=1630891284;
+        bh=CsjYALVIpDrXms1/IH5MyVOgUNBA0DQFj67fi+aflx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HaXgJNYl5zZVBSLV+IPTwPQ5M32uk10lYfCDM4qGy/rZBIL5kzWe6Jzew3OtCCSdr
-         EPJTD5s8LdoE4oq76+0SZsdJVgQQb9vg6uhhyMva7VcxGlsWTrrHuECqeL05xKCjlD
-         Gy7IhpQLoidx9ENydsPIY7NUkVcC7uDAupIfzcKgWvQpaDHM+/rNC82o/zBk/mnzVV
-         mVGmnexojOW3ddpnWYL0Wvb/TdWEKK1QkZcguYp74FuIG47xig2P2X3e9kD2NeTxUw
-         wEWyYtvkofvKCJxB7p/e6u+4kTeZbt+7Z0BxGxbEVTn0/jMv8kGLz6NXGP22EmCeuU
-         1q9mTdWPDcRIA==
+        b=aRwJRIyZOgSnHudDjs6C1RkJDHTDzWOfH1U22ZyiPe6V1YU7phRouOUoZKeifiJTS
+         smMcjf9vTeOzawODMVu1XyLl1PCj7T3P5EDY02n0BL5ToqvXoITcaXl89W1Fq4PLay
+         RO9I/gYVttpLa6jDUKVEp5B6aYif7PiqSV6QSKMG8o0Ej4ovCAiLzeBz85M74IQG8y
+         7DFN6YlIk6TzU3YLCkq1mXiuhbUk0+TxxzLBaHNR9riQU4NhNKpwsxxDzsxudb3gWf
+         afkFlOr85KMwfThfvxSo774UdO8R3H5xXWoHSZTuhFvLCtB9/9j4mycHDYRSeRjzpk
+         P8Qrvn3SM1hEA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 47/47] s390/smp: enable DAT before CPU restart callback is called
-Date:   Sun,  5 Sep 2021 21:19:51 -0400
-Message-Id: <20210906011951.928679-47-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 25/46] s390/cio: add dev_busid sysfs entry for each subchannel
+Date:   Sun,  5 Sep 2021 21:20:30 -0400
+Message-Id: <20210906012052.929174-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210906011951.928679-1-sashal@kernel.org>
-References: <20210906011951.928679-1-sashal@kernel.org>
+In-Reply-To: <20210906012052.929174-1-sashal@kernel.org>
+References: <20210906012052.929174-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -50,292 +51,63 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-[ Upstream commit 915fea04f9320d0f4ab6ecbb6bf759eebcd2c41d ]
+[ Upstream commit d3683c055212bf910d4e318f7944910ce10dbee6 ]
 
-The restart interrupt is triggered whenever a secondary CPU is
-brought online, a remote function call dispatched from another
-CPU or a manual PSW restart is initiated and causes the system
-to kdump. The handling routine is always called with DAT turned
-off. It then initializes the stack frame and invokes a callback.
+Introduce dev_busid, which exports the device-id associated with the
+io-subchannel (and message-subchannel). The dev_busid indicates that of
+the device which may be physically installed on the corrosponding
+subchannel. The dev_busid value "none" indicates that the subchannel
+is not valid, there is no I/O device currently associated with the
+subchannel.
 
-The existing callbacks handle DAT as follows:
+The dev_busid information would be helpful to write device-specific
+udev-rules associated with the subchannel. The dev_busid interface would
+be available even when the sch is not bound to any driver or if there is
+no operational device connected on it. Hence this attribute can be used to
+write udev-rules which are specific to the device associated with the
+subchannel.
 
-  * __do_restart() and __machine_kexec() turn in on upon entry;
-  * __ipl_run(), __reipl_run() and __dump_run() do not turn it
-    right away, but all of them call diag308() - which turns DAT
-    on, but only if kasan is enabled;
-
-In addition to the described complexity all callbacks (and the
-functions they call) should avoid kasan instrumentation while
-DAT is off.
-
-This update enables DAT in the assembler restart handler and
-relieves any callbacks (which are mostly C functions) from
-dealing with DAT altogether.
-
-There are four types of CPU restart that initialize control
-registers in different ways:
-
-  1. Start of secondary CPU on boot - control registers are
-     inherited from the IPL CPU;
-  2. Restart of online CPU - control registers of the CPU being
-     restarted are kept;
-  3. Hotplug of offline CPU - control registers are inherited
-     from the starting CPU;
-  4. Start of offline CPU triggered by manual PSW restart -
-     the control registers are read from the absolute lowcore
-     and contain the boot time IPL CPU values updated with all
-     follow-up calls of smp_ctl_set_bit() and smp_ctl_clear_bit()
-     routines;
-
-In first three cases contents of the control registers is the
-most recent. In the latter case control registers are good
-enough to facilitate successful completion of kdump operation.
-
-Suggested-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/lowcore.h   |  3 ++-
- arch/s390/include/asm/processor.h |  2 ++
- arch/s390/kernel/asm-offsets.c    |  1 +
- arch/s390/kernel/entry.S          | 11 +++++++----
- arch/s390/kernel/ipl.c            |  3 ---
- arch/s390/kernel/machine_kexec.c  |  1 -
- arch/s390/kernel/setup.c          |  9 ++++++++-
- arch/s390/kernel/smp.c            | 31 ++++++++++++++++++++++---------
- 8 files changed, 42 insertions(+), 19 deletions(-)
+ drivers/s390/cio/css.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
-index 47bde5a20a41..11213c8bfca5 100644
---- a/arch/s390/include/asm/lowcore.h
-+++ b/arch/s390/include/asm/lowcore.h
-@@ -124,7 +124,8 @@ struct lowcore {
- 	/* Restart function and parameter. */
- 	__u64	restart_fn;			/* 0x0370 */
- 	__u64	restart_data;			/* 0x0378 */
--	__u64	restart_source;			/* 0x0380 */
-+	__u32	restart_source;			/* 0x0380 */
-+	__u32	restart_flags;			/* 0x0384 */
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index a974943c27da..9fcdb8d81eee 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -430,9 +430,26 @@ static ssize_t pimpampom_show(struct device *dev,
+ }
+ static DEVICE_ATTR_RO(pimpampom);
  
- 	/* Address space pointer. */
- 	__u64	kernel_asce;			/* 0x0388 */
-diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index ddc7858bbce4..879b8e3f609c 100644
---- a/arch/s390/include/asm/processor.h
-+++ b/arch/s390/include/asm/processor.h
-@@ -26,6 +26,8 @@
- #define _CIF_MCCK_GUEST		BIT(CIF_MCCK_GUEST)
- #define _CIF_DEDICATED_CPU	BIT(CIF_DEDICATED_CPU)
- 
-+#define RESTART_FLAG_CTLREGS	_AC(1 << 0, U)
++static ssize_t dev_busid_show(struct device *dev,
++			      struct device_attribute *attr,
++			      char *buf)
++{
++	struct subchannel *sch = to_subchannel(dev);
++	struct pmcw *pmcw = &sch->schib.pmcw;
 +
- #ifndef __ASSEMBLY__
- 
- #include <linux/cpumask.h>
-diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
-index 77ff2130cb04..dc53b0452ce2 100644
---- a/arch/s390/kernel/asm-offsets.c
-+++ b/arch/s390/kernel/asm-offsets.c
-@@ -116,6 +116,7 @@ int main(void)
- 	OFFSET(__LC_RESTART_FN, lowcore, restart_fn);
- 	OFFSET(__LC_RESTART_DATA, lowcore, restart_data);
- 	OFFSET(__LC_RESTART_SOURCE, lowcore, restart_source);
-+	OFFSET(__LC_RESTART_FLAGS, lowcore, restart_flags);
- 	OFFSET(__LC_KERNEL_ASCE, lowcore, kernel_asce);
- 	OFFSET(__LC_USER_ASCE, lowcore, user_asce);
- 	OFFSET(__LC_LPP, lowcore, lpp);
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 5a2f70cbd3a9..b9716a7e326d 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -624,12 +624,15 @@ ENTRY(mcck_int_handler)
- 4:	j	4b
- ENDPROC(mcck_int_handler)
- 
--#
--# PSW restart interrupt handler
--#
- ENTRY(restart_int_handler)
- 	ALTERNATIVE "", ".insn s,0xb2800000,_LPP_OFFSET", 40
- 	stg	%r15,__LC_SAVE_AREA_RESTART
-+	TSTMSK	__LC_RESTART_FLAGS,RESTART_FLAG_CTLREGS,4
-+	jz	0f
-+	la	%r15,4095
-+	lctlg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r15)
-+0:	larl	%r15,.Lstosm_tmp
-+	stosm	0(%r15),0x04			# turn dat on, keep irqs off
- 	lg	%r15,__LC_RESTART_STACK
- 	xc	STACK_FRAME_OVERHEAD(__PT_SIZE,%r15),STACK_FRAME_OVERHEAD(%r15)
- 	stmg	%r0,%r14,STACK_FRAME_OVERHEAD+__PT_R0(%r15)
-@@ -638,7 +641,7 @@ ENTRY(restart_int_handler)
- 	xc	0(STACK_FRAME_OVERHEAD,%r15),0(%r15)
- 	lg	%r1,__LC_RESTART_FN		# load fn, parm & source cpu
- 	lg	%r2,__LC_RESTART_DATA
--	lg	%r3,__LC_RESTART_SOURCE
-+	lgf	%r3,__LC_RESTART_SOURCE
- 	ltgr	%r3,%r3				# test source cpu address
- 	jm	1f				# negative -> skip source stop
- 0:	sigp	%r4,%r3,SIGP_SENSE		# sigp sense to source cpu
-diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-index 50e2c21e0ec9..911cd3912351 100644
---- a/arch/s390/kernel/ipl.c
-+++ b/arch/s390/kernel/ipl.c
-@@ -179,8 +179,6 @@ static inline int __diag308(unsigned long subcode, void *addr)
- 
- int diag308(unsigned long subcode, void *addr)
- {
--	if (IS_ENABLED(CONFIG_KASAN))
--		__arch_local_irq_stosm(0x04); /* enable DAT */
- 	diag_stat_inc(DIAG_STAT_X308);
- 	return __diag308(subcode, addr);
- }
-@@ -1843,7 +1841,6 @@ static struct kobj_attribute on_restart_attr = __ATTR_RW(on_restart);
- 
- static void __do_restart(void *ignore)
- {
--	__arch_local_irq_stosm(0x04); /* enable DAT */
- 	smp_send_stop();
- #ifdef CONFIG_CRASH_DUMP
- 	crash_kexec(NULL);
-diff --git a/arch/s390/kernel/machine_kexec.c b/arch/s390/kernel/machine_kexec.c
-index 1005a6935fbe..c1fbc979e0e8 100644
---- a/arch/s390/kernel/machine_kexec.c
-+++ b/arch/s390/kernel/machine_kexec.c
-@@ -263,7 +263,6 @@ static void __do_machine_kexec(void *data)
-  */
- static void __machine_kexec(void *data)
- {
--	__arch_local_irq_stosm(0x04); /* enable DAT */
- 	pfault_fini();
- 	tracing_off();
- 	debug_locks_off();
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index ff0f9e838916..ee23908f1b96 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -421,7 +421,7 @@ static void __init setup_lowcore_dat_off(void)
- 	lc->restart_stack = (unsigned long) restart_stack;
- 	lc->restart_fn = (unsigned long) do_restart;
- 	lc->restart_data = 0;
--	lc->restart_source = -1UL;
-+	lc->restart_source = -1U;
- 
- 	mcck_stack = (unsigned long)memblock_alloc(THREAD_SIZE, THREAD_SIZE);
- 	if (!mcck_stack)
-@@ -450,12 +450,19 @@ static void __init setup_lowcore_dat_off(void)
- 
- static void __init setup_lowcore_dat_on(void)
- {
-+	struct lowcore *lc = lowcore_ptr[0];
++	if ((pmcw->st == SUBCHANNEL_TYPE_IO ||
++	     pmcw->st == SUBCHANNEL_TYPE_MSG) && pmcw->dnv)
++		return sysfs_emit(buf, "0.%x.%04x\n", sch->schid.ssid,
++				  pmcw->dev);
++	else
++		return sysfs_emit(buf, "none\n");
++}
++static DEVICE_ATTR_RO(dev_busid);
 +
- 	__ctl_clear_bit(0, 28);
- 	S390_lowcore.external_new_psw.mask |= PSW_MASK_DAT;
- 	S390_lowcore.svc_new_psw.mask |= PSW_MASK_DAT;
- 	S390_lowcore.program_new_psw.mask |= PSW_MASK_DAT;
- 	S390_lowcore.io_new_psw.mask |= PSW_MASK_DAT;
-+	__ctl_store(S390_lowcore.cregs_save_area, 0, 15);
- 	__ctl_set_bit(0, 28);
-+	mem_assign_absolute(S390_lowcore.restart_flags, RESTART_FLAG_CTLREGS);
-+	mem_assign_absolute(S390_lowcore.program_new_psw, lc->program_new_psw);
-+	memcpy_absolute(&S390_lowcore.cregs_save_area, lc->cregs_save_area,
-+			sizeof(S390_lowcore.cregs_save_area));
- }
- 
- static struct resource code_resource = {
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 8984711f72ed..8e8ace899407 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -252,6 +252,7 @@ static void pcpu_prepare_secondary(struct pcpu *pcpu, int cpu)
- 	cpumask_set_cpu(cpu, &init_mm.context.cpu_attach_mask);
- 	cpumask_set_cpu(cpu, mm_cpumask(&init_mm));
- 	lc->cpu_nr = cpu;
-+	lc->restart_flags = RESTART_FLAG_CTLREGS;
- 	lc->spinlock_lockval = arch_spin_lockval(cpu);
- 	lc->spinlock_index = 0;
- 	lc->percpu_offset = __per_cpu_offset[cpu];
-@@ -297,7 +298,7 @@ static void pcpu_start_fn(struct pcpu *pcpu, void (*func)(void *), void *data)
- 	lc->restart_stack = lc->nodat_stack;
- 	lc->restart_fn = (unsigned long) func;
- 	lc->restart_data = (unsigned long) data;
--	lc->restart_source = -1UL;
-+	lc->restart_source = -1U;
- 	pcpu_sigp_retry(pcpu, SIGP_RESTART, 0);
- }
- 
-@@ -311,12 +312,12 @@ static void __pcpu_delegate(pcpu_delegate_fn *func, void *data)
- 	func(data);	/* should not return */
- }
- 
--static void __no_sanitize_address pcpu_delegate(struct pcpu *pcpu,
--						pcpu_delegate_fn *func,
--						void *data, unsigned long stack)
-+static void pcpu_delegate(struct pcpu *pcpu,
-+			  pcpu_delegate_fn *func,
-+			  void *data, unsigned long stack)
- {
- 	struct lowcore *lc = lowcore_ptr[pcpu - pcpu_devices];
--	unsigned long source_cpu = stap();
-+	unsigned int source_cpu = stap();
- 
- 	__load_psw_mask(PSW_KERNEL_BITS | PSW_MASK_DAT);
- 	if (pcpu->address == source_cpu) {
-@@ -569,6 +570,9 @@ static void smp_ctl_bit_callback(void *info)
- 	__ctl_load(cregs, 0, 15);
- }
- 
-+static DEFINE_SPINLOCK(ctl_lock);
-+static unsigned long ctlreg;
-+
- /*
-  * Set a bit in a control register of all cpus
-  */
-@@ -576,6 +580,11 @@ void smp_ctl_set_bit(int cr, int bit)
- {
- 	struct ec_creg_mask_parms parms = { 1UL << bit, -1UL, cr };
- 
-+	spin_lock(&ctl_lock);
-+	memcpy_absolute(&ctlreg, &S390_lowcore.cregs_save_area[cr], sizeof(ctlreg));
-+	__set_bit(bit, &ctlreg);
-+	memcpy_absolute(&S390_lowcore.cregs_save_area[cr], &ctlreg, sizeof(ctlreg));
-+	spin_unlock(&ctl_lock);
- 	on_each_cpu(smp_ctl_bit_callback, &parms, 1);
- }
- EXPORT_SYMBOL(smp_ctl_set_bit);
-@@ -587,6 +596,11 @@ void smp_ctl_clear_bit(int cr, int bit)
- {
- 	struct ec_creg_mask_parms parms = { 0, ~(1UL << bit), cr };
- 
-+	spin_lock(&ctl_lock);
-+	memcpy_absolute(&ctlreg, &S390_lowcore.cregs_save_area[cr], sizeof(ctlreg));
-+	__clear_bit(bit, &ctlreg);
-+	memcpy_absolute(&S390_lowcore.cregs_save_area[cr], &ctlreg, sizeof(ctlreg));
-+	spin_unlock(&ctl_lock);
- 	on_each_cpu(smp_ctl_bit_callback, &parms, 1);
- }
- EXPORT_SYMBOL(smp_ctl_clear_bit);
-@@ -895,14 +909,13 @@ static void smp_init_secondary(void)
- /*
-  *	Activate a secondary processor.
-  */
--static void __no_sanitize_address smp_start_secondary(void *cpuvoid)
-+static void smp_start_secondary(void *cpuvoid)
- {
- 	S390_lowcore.restart_stack = (unsigned long) restart_stack;
- 	S390_lowcore.restart_fn = (unsigned long) do_restart;
- 	S390_lowcore.restart_data = 0;
--	S390_lowcore.restart_source = -1UL;
--	__ctl_load(S390_lowcore.cregs_save_area, 0, 15);
--	__load_psw_mask(PSW_KERNEL_BITS | PSW_MASK_DAT);
-+	S390_lowcore.restart_source = -1U;
-+	S390_lowcore.restart_flags = 0;
- 	call_on_stack_noreturn(smp_init_secondary, S390_lowcore.kernel_stack);
- }
- 
+ static struct attribute *io_subchannel_type_attrs[] = {
+ 	&dev_attr_chpids.attr,
+ 	&dev_attr_pimpampom.attr,
++	&dev_attr_dev_busid.attr,
+ 	NULL,
+ };
+ ATTRIBUTE_GROUPS(io_subchannel_type);
 -- 
 2.30.2
 
