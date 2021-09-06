@@ -2,112 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27373C43217
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:31:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 928A7C433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 09:17:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 113EE61027
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:31:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 78C3B60EB7
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 09:17:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241400AbhIFBcs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 5 Sep 2021 21:32:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47504 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351658AbhIFBaw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:30:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A26D8611F2;
-        Mon,  6 Sep 2021 01:24:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891445;
-        bh=xGwExUppbd3H53PxpNT/Y7MZXZdRKAOroOEcEFe8Yis=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L4P4f10sXffG85AO2F23jNUwm9r8hUx/dqczhV9KUKe4z+Gkmon1LgW/xqdP3Zzf7
-         on9LJER9h8piqQAK3vZUcdOp8YLnbi3BHmTIfAhv6eXT/pe2Zopx3gBQFCpREjAWxd
-         InCXPuKLziRF8fVaJNCE8+H/purqcmce7csi9O3oXGoKih5q+qEwQdmmv4+bkqzt5+
-         bL590FxlFNbGIcqHaZOHDWb4kW7mJTkWHpxdTDgDC+u4mgIjdnyy5RujXTpQPSpggx
-         BlkTEmB4pV3FHw0ix/7sKiQJMiM3UAGslQGAnVQogFqyZatDiVov/Ws2t5Qc6oWTOB
-         GNlBCAx0scEAw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 10/17] s390/cio: add dev_busid sysfs entry for each subchannel
-Date:   Sun,  5 Sep 2021 21:23:45 -0400
-Message-Id: <20210906012352.930954-10-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210906012352.930954-1-sashal@kernel.org>
-References: <20210906012352.930954-1-sashal@kernel.org>
+        id S241157AbhIFJSe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Sep 2021 05:18:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46608 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240430AbhIFJSd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 05:18:33 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A44DC061575;
+        Mon,  6 Sep 2021 02:17:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=rpadY60xuZTsVqlD3pQoJaPqU3ClhmKBmxShxdIOPTQ=; b=PnvC6D5zqQVeRqwnkETdG9hYJx
+        ljEOQvj4My7mUimGhEI1YNMlvjzbX7PGi2zUTMQmJQhK8Hns7uGt6hka0lnZFNJAsdlAaOCNA5Avs
+        NFC6y8Agrp38qMbZLj6Tj0rySktHbY+AwC3htRPHpABgcJqs8/5c+0iuqiIe27xLRytx/rNIEpsqO
+        ZWyWai5d2hrS9T6DmndX82cTyQCL5YmLldG/mmJW3nN7w1ac5T6SGMgp6R2RTc+Co9HFSjtZPr4IR
+        8uf10wSIJ9a97lAjpGFuZeLuQ8W7X29RmhQVxfn5mxKuCE4/SfrEts5ru+wBawqcL8BDuPky7nXVI
+        GZT9W8mA==;
+Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mNAj6-006oEv-Fr; Mon, 06 Sep 2021 09:15:52 +0000
+Date:   Mon, 6 Sep 2021 10:15:40 +0100
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Luis Chamberlain <mcgrof@kernel.org>, axboe@kernel.dk,
+        gregkh@linuxfoundation.org, chaitanya.kulkarni@wdc.com,
+        atulgopinathan@gmail.com, hare@suse.de, maximlevitsky@gmail.com,
+        oakad@yahoo.com, ulf.hansson@linaro.org, colin.king@canonical.com,
+        shubhankarvk@gmail.com, baijiaju1990@gmail.com, trix@redhat.com,
+        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
+        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        sth@linux.ibm.com, hoeppner@linux.ibm.com, gor@linux.ibm.com,
+        borntraeger@de.ibm.com, oberpar@linux.ibm.com, tj@kernel.org,
+        linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 9/9] s390/block/xpram: add error handling support for
+ add_disk()
+Message-ID: <YTXcPBph323n2WJ8@infradead.org>
+References: <20210902174105.2418771-1-mcgrof@kernel.org>
+ <20210902174105.2418771-10-mcgrof@kernel.org>
+ <YTIr1w/qPvgioUfL@osiris>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YTIr1w/qPvgioUfL@osiris>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+On Fri, Sep 03, 2021 at 04:06:15PM +0200, Heiko Carstens wrote:
+> Hmm, this is a more or less dead device driver, and I'm wondering if
+> we shouldn't remove it instead. But anyway, your patch is not correct:
 
-[ Upstream commit d3683c055212bf910d4e318f7944910ce10dbee6 ]
-
-Introduce dev_busid, which exports the device-id associated with the
-io-subchannel (and message-subchannel). The dev_busid indicates that of
-the device which may be physically installed on the corrosponding
-subchannel. The dev_busid value "none" indicates that the subchannel
-is not valid, there is no I/O device currently associated with the
-subchannel.
-
-The dev_busid information would be helpful to write device-specific
-udev-rules associated with the subchannel. The dev_busid interface would
-be available even when the sch is not bound to any driver or if there is
-no operational device connected on it. Hence this attribute can be used to
-write udev-rules which are specific to the device associated with the
-subchannel.
-
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/cio/css.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
-
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index e2026d54dd37..435e804b6b8b 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -330,9 +330,26 @@ static ssize_t pimpampom_show(struct device *dev,
- }
- static DEVICE_ATTR(pimpampom, 0444, pimpampom_show, NULL);
- 
-+static ssize_t dev_busid_show(struct device *dev,
-+			      struct device_attribute *attr,
-+			      char *buf)
-+{
-+	struct subchannel *sch = to_subchannel(dev);
-+	struct pmcw *pmcw = &sch->schib.pmcw;
-+
-+	if ((pmcw->st == SUBCHANNEL_TYPE_IO ||
-+	     pmcw->st == SUBCHANNEL_TYPE_MSG) && pmcw->dnv)
-+		return sysfs_emit(buf, "0.%x.%04x\n", sch->schid.ssid,
-+				  pmcw->dev);
-+	else
-+		return sysfs_emit(buf, "none\n");
-+}
-+static DEVICE_ATTR_RO(dev_busid);
-+
- static struct attribute *io_subchannel_type_attrs[] = {
- 	&dev_attr_chpids.attr,
- 	&dev_attr_pimpampom.attr,
-+	&dev_attr_dev_busid.attr,
- 	NULL,
- };
- ATTRIBUTE_GROUPS(io_subchannel_type);
--- 
-2.30.2
-
+I'm all for removing it.  I think we need to do a little more spring
+cleaning on unmaintained and likely to be unused block drivers.
