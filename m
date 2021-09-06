@@ -7,39 +7,40 @@ X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01DC1C43219
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2B7BC4332F
 	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:31:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E1D0A61027
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:31:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B45E161027
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:31:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240952AbhIFBcn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 5 Sep 2021 21:32:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46932 "EHLO mail.kernel.org"
+        id S240936AbhIFBco (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 5 Sep 2021 21:32:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239839AbhIFB3C (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:29:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00617610FD;
-        Mon,  6 Sep 2021 01:23:07 +0000 (UTC)
+        id S242969AbhIFB3Y (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:29:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC16D610CF;
+        Mon,  6 Sep 2021 01:23:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891388;
-        bh=AcB6rgKsnEZum9fY6eXTrB/nElr4h8DulqdY1j98qa0=;
+        s=k20201202; t=1630891400;
+        bh=wS9B+vqHgc6uCx1PSmE3t5QxXSsEKNRwNNJUmWfPJM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n+dD692hVZFSWfpLmWacEIjZC8h7VMEsDiFvoMqxzIRFI2oTHpSdG1eIB0ZfMr1N4
-         hO2jckouSEqBIbwAqFxmu2RnfI7sTTmilCj9h33vXN1++dMq2aszX005qPgSLUvQTX
-         kUQmHpGGrZ3BNU0El5XWZzc5504IBmXC+v40VVRVlrXnXIeGNbk9d0XQFnuUH3xluo
-         uPMyqleesRGYyZaNA9rYNrQnpQyDiIZ1a08S5QcEJW3oRhgxMzMOtw42UiZZg9MvG7
-         ylydpnO0/IMyfpKDwAIvdyCXWKSxHWInVNc1cERniPAz/jn8mCFCtkzcO7SBfHKCvg
-         98eFMLsA45Hlg==
+        b=M8gkruqE/JUUba2OZyF1aEbGBNzBwY3CRF2YbYASo1kC1zdxR2bFHv1OVhDSPrzkY
+         41bQJm5j/qWTRwnxCi8W3P561IK0T2jtFpsJzLZE+yvhsUOok0QOWSDZWiHcefVCtb
+         yMFAAjf9Mt0SBGRKU0wYlF01Wa2rOw4G+vEAJILoAnhOgkdSll66e6WLP4lIxJ+bGu
+         L1TYpXJ5EPnPYWo9tfwWNoJ4H8UCmoqSu3aFwQIkOFZVUZmFZTa7igJNcphxkY16lq
+         +929c8WiFrXW9j97T0eev8txxLd/sLl956TQwz0i2YFdERdUHvWsvyb01PJVAcqgIh
+         EOaa9ZnhhRVPg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 20/30] s390/cio: add dev_busid sysfs entry for each subchannel
-Date:   Sun,  5 Sep 2021 21:22:33 -0400
-Message-Id: <20210906012244.930338-20-sashal@kernel.org>
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, kasan-dev@googlegroups.com,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 29/30] s390/kasan: fix large PMD pages address alignment check
+Date:   Sun,  5 Sep 2021 21:22:42 -0400
+Message-Id: <20210906012244.930338-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012244.930338-1-sashal@kernel.org>
 References: <20210906012244.930338-1-sashal@kernel.org>
@@ -51,63 +52,84 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit d3683c055212bf910d4e318f7944910ce10dbee6 ]
+[ Upstream commit ddd63c85ef67ea9ea7282ad35eafb6568047126e ]
 
-Introduce dev_busid, which exports the device-id associated with the
-io-subchannel (and message-subchannel). The dev_busid indicates that of
-the device which may be physically installed on the corrosponding
-subchannel. The dev_busid value "none" indicates that the subchannel
-is not valid, there is no I/O device currently associated with the
-subchannel.
+It is currently possible to initialize a large PMD page when
+the address is not aligned on page boundary.
 
-The dev_busid information would be helpful to write device-specific
-udev-rules associated with the subchannel. The dev_busid interface would
-be available even when the sch is not bound to any driver or if there is
-no operational device connected on it. Hence this attribute can be used to
-write udev-rules which are specific to the device associated with the
-subchannel.
-
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/css.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ arch/s390/mm/kasan_init.c | 41 +++++++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 5734a78dbb8e..7950ac59b174 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -426,9 +426,26 @@ static ssize_t pimpampom_show(struct device *dev,
- }
- static DEVICE_ATTR_RO(pimpampom);
+diff --git a/arch/s390/mm/kasan_init.c b/arch/s390/mm/kasan_init.c
+index 460f25572940..5182e0836ca7 100644
+--- a/arch/s390/mm/kasan_init.c
++++ b/arch/s390/mm/kasan_init.c
+@@ -101,6 +101,9 @@ static void __init kasan_early_vmemmap_populate(unsigned long address,
+ 	pgt_prot = pgprot_val(PAGE_KERNEL_EXEC);
+ 	sgt_prot = pgprot_val(SEGMENT_KERNEL_EXEC);
  
-+static ssize_t dev_busid_show(struct device *dev,
-+			      struct device_attribute *attr,
-+			      char *buf)
-+{
-+	struct subchannel *sch = to_subchannel(dev);
-+	struct pmcw *pmcw = &sch->schib.pmcw;
++	/*
++	 * The first 1MB of 1:1 mapping is mapped with 4KB pages
++	 */
+ 	while (address < end) {
+ 		pg_dir = pgd_offset_k(address);
+ 		if (pgd_none(*pg_dir)) {
+@@ -146,30 +149,26 @@ static void __init kasan_early_vmemmap_populate(unsigned long address,
+ 
+ 		pm_dir = pmd_offset(pu_dir, address);
+ 		if (pmd_none(*pm_dir)) {
+-			if (mode == POPULATE_ZERO_SHADOW &&
+-			    IS_ALIGNED(address, PMD_SIZE) &&
++			if (IS_ALIGNED(address, PMD_SIZE) &&
+ 			    end - address >= PMD_SIZE) {
+-				pmd_populate(&init_mm, pm_dir,
+-						kasan_early_shadow_pte);
+-				address = (address + PMD_SIZE) & PMD_MASK;
+-				continue;
+-			}
+-			/* the first megabyte of 1:1 is mapped with 4k pages */
+-			if (has_edat && address && end - address >= PMD_SIZE &&
+-			    mode != POPULATE_ZERO_SHADOW) {
+-				void *page;
+-
+-				if (mode == POPULATE_ONE2ONE) {
+-					page = (void *)address;
+-				} else {
+-					page = kasan_early_alloc_segment();
+-					memset(page, 0, _SEGMENT_SIZE);
++				if (mode == POPULATE_ZERO_SHADOW) {
++					pmd_populate(&init_mm, pm_dir, kasan_early_shadow_pte);
++					address = (address + PMD_SIZE) & PMD_MASK;
++					continue;
++				} else if (has_edat && address) {
++					void *page;
 +
-+	if ((pmcw->st == SUBCHANNEL_TYPE_IO ||
-+	     pmcw->st == SUBCHANNEL_TYPE_MSG) && pmcw->dnv)
-+		return sysfs_emit(buf, "0.%x.%04x\n", sch->schid.ssid,
-+				  pmcw->dev);
-+	else
-+		return sysfs_emit(buf, "none\n");
-+}
-+static DEVICE_ATTR_RO(dev_busid);
-+
- static struct attribute *io_subchannel_type_attrs[] = {
- 	&dev_attr_chpids.attr,
- 	&dev_attr_pimpampom.attr,
-+	&dev_attr_dev_busid.attr,
- 	NULL,
- };
- ATTRIBUTE_GROUPS(io_subchannel_type);
++					if (mode == POPULATE_ONE2ONE) {
++						page = (void *)address;
++					} else {
++						page = kasan_early_alloc_segment();
++						memset(page, 0, _SEGMENT_SIZE);
++					}
++					pmd_val(*pm_dir) = __pa(page) | sgt_prot;
++					address = (address + PMD_SIZE) & PMD_MASK;
++					continue;
+ 				}
+-				pmd_val(*pm_dir) = __pa(page) | sgt_prot;
+-				address = (address + PMD_SIZE) & PMD_MASK;
+-				continue;
+ 			}
+-
+ 			pt_dir = kasan_early_pte_alloc();
+ 			pmd_populate(&init_mm, pm_dir, pt_dir);
+ 		} else if (pmd_large(*pm_dir)) {
 -- 
 2.30.2
 
