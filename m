@@ -2,274 +2,394 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A06AFC433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 18:37:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62A4AC4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 20:40:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 791BA6069E
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 18:37:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4486861077
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 20:40:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237641AbhIFSip (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Sep 2021 14:38:45 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:36985 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235911AbhIFSio (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Sep 2021 14:38:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630953459;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Wnh0WKCRe49Jpy2AZ0FfJzHfp3O52I++fgnbbsEPWvk=;
-        b=DGDc2/9nmfoUwgORKjX6iErRKBVc/yMPFRtQEBuxpfpGoFjoyMaSC7cZutejNnYWDTyU8S
-        EYdPhLVol6kqtvRINHTbU73qF5BIb/Y0C+QlDfsYwr3yrTBZ3GYG2AIbQ6EINMVO4pe4zQ
-        oKqO/SUM51QHOeL/7fv9aOb1LXV6eVs=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-76-kIu0WATNPWWUA-goOyB5zQ-1; Mon, 06 Sep 2021 14:37:38 -0400
-X-MC-Unique: kIu0WATNPWWUA-goOyB5zQ-1
-Received: by mail-wm1-f71.google.com with SMTP id s197-20020a1ca9ce000000b002e72ba822dcso49572wme.6
-        for <linux-s390@vger.kernel.org>; Mon, 06 Sep 2021 11:37:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:organization:subject
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=Wnh0WKCRe49Jpy2AZ0FfJzHfp3O52I++fgnbbsEPWvk=;
-        b=QA9Pd7ZTPBJp+x4lofRxp1lIIIt/W2Ii4OIdwIdSiPov1ZddzlgoF+QVsJEJ1wXk8x
-         /e8JgcLYiB09m+hlAW/+QUgDp73MVfAaTTWHnJyJ+ebW1H8m+OLtTPcX7lBxw2vlDua1
-         q/ytBdTrWrHChFoqxZVvdKAKbjZJSlXrJcBuMzK0iJaQ+I5Fsa0mwuWrzRsTLHWq+AYw
-         YFZ5btSFfDrWzjZwg7crGEq4tfq1XJ7CYOrWex41ptbHCSPXG21IOhmoLuiypRNQTnUV
-         OZBi9m5orp5bE0BXe0SEFSqVG/eoDuxZaCV4DF0NV4uYY+NpLKLb539dRE9yRS4SLGUi
-         0hSw==
-X-Gm-Message-State: AOAM531PhXBiYzPK/qpHDu9M+un6ukQqeRlXKND+Gc7RS4iqoiCHuNUD
-        xQLVKzE3H4ktJ7a72zCHPsnlN1f7nzlou/XOmsFNJv/8MNKX9l/HjNkZ2bkgZ8r1KTlmKuT6vqf
-        MJgae2YbFenjPgyPTAKH2Mg==
-X-Received: by 2002:a1c:2289:: with SMTP id i131mr412366wmi.113.1630953456911;
-        Mon, 06 Sep 2021 11:37:36 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxZGwfAJjZTLGnBV4KbGuYowR9PrWwNbsztoLb9n5KDjqcp7r1O7B+GCYU05DrZdWJQy51Xeg==
-X-Received: by 2002:a1c:2289:: with SMTP id i131mr412347wmi.113.1630953456697;
-        Mon, 06 Sep 2021 11:37:36 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c6323.dip0.t-ipconnect.de. [91.12.99.35])
-        by smtp.gmail.com with ESMTPSA id t14sm257161wmi.12.2021.09.06.11.37.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Sep 2021 11:37:36 -0700 (PDT)
-To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com
-References: <1627979206-32663-1-git-send-email-pmorel@linux.ibm.com>
- <1627979206-32663-3-git-send-email-pmorel@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH v3 2/3] s390x: KVM: Implementation of Multiprocessor
- Topology-Change-Report
-Message-ID: <d85a6998-0f86-44d9-4eae-3051b65c2b4e@redhat.com>
-Date:   Mon, 6 Sep 2021 20:37:35 +0200
+        id S232326AbhIFUl2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Sep 2021 16:41:28 -0400
+Received: from mout.gmx.net ([212.227.17.22]:57449 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229717AbhIFUl0 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 6 Sep 2021 16:41:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1630960702;
+        bh=WevteChaVTuIJ4vpbr4/S6Dy5gJM391zvvJnoNTQzeQ=;
+        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=jgFg06yM+iwybYFpbzzkJmZm/SCTiZitHSZTAJ9C5NX2kLKqYS0y0KP2FTserSuxh
+         Eqwm30wHapagCvLCe+sfLUcjybTUJKUWLlL4N6xw1YMdd7tlspbfrymTlU7+4q3gkF
+         PE/NY5aL+n60GN8BN0jWsYWdG0hg52z5OmxZ4RNo=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.85.61] ([80.187.112.14]) by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MKbkC-1mfxez3TOW-00KvzB; Mon, 06
+ Sep 2021 22:38:22 +0200
+Subject: Re: [PATCH v2] ftrace: Cleanup ftrace_dyn_arch_init()
+To:     Weizhao Ouyang <o451686892@gmail.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>
+Cc:     Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org
+References: <20210906111626.1259867-1-o451686892@gmail.com>
+From:   Helge Deller <deller@gmx.de>
+Message-ID: <a25be752-bb65-652e-977f-312ee0b95c15@gmx.de>
+Date:   Mon, 6 Sep 2021 22:36:32 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <1627979206-32663-3-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <20210906111626.1259867-1-o451686892@gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:r/JUrRhbvOicWGkiqogKRwFTRO8+bXkMsWJ6ArSDb2+yOaZh1Qh
+ itUnWpVNjQZtukajCgk+9dVWp5QWeY6EC68jABYr/Z/mmoBCskHSc68TkP8OFkozE08Ymto
+ RScyaWcZfFu0YeONVmfOsW0W+36044q2gtcmtnZfjB+47DPw/jElcyHxTaAN3Y7IHNV5r/H
+ jvyIgy8IibjSGnMiYxXsQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:tG48Hcn4Z5Q=:ehG9Ni/7f3QY9e3/tDaV67
+ Go/9izpDYuXjcteZfs+fw1YiYrhfZqvdhxTbPflNNETE0HdftRFgBe/CmV1CDBN5BiG25pDEG
+ 6un5Br95HIDvWvYqizxRIlseCi9E7A+jxIEc1dbkBLTKodGaWReVFzxBvn/5NRgdx4KnG/9df
+ ucNdKFNKAX4j0cSUBZ6haHrP0B2AYmLT532uicLt18v1TEEIqJVpQab+XNiRy64g6rDdkRHLF
+ aJIoXqZqxjC3+RQeQGY46xXIX+hGQFiF2xxMAfSR4Lzkz4K62aep6JYQ/f+pfOz4H8rF639YH
+ PKgC59vyttAZGVwimTOGC9niyGHMt9eXRPgE6qGTMoYCcy4mZWQuZJGefPkg9NUJZDav1pqOd
+ ZbfXhPYq8Es6bs+VONsPb/f5pHatLB4N81z5s5931+T3fQcX04KLknCYABzXJMXAFca1a/W/4
+ 67fdVs0SjW/6m3CrQVfi4xtNXP8QNJc3Ar8sqKQEbl6CJZzYke1YQ/IOAlfXLCGH8nmPgtgNU
+ t3em/d8Kjb35YHIB0PjfM7cbZw6+qNdL/sNn+lo15+rG/GHPi6LUWNZUEtZlMYNtzIg3zsYMC
+ 6Xtf20IhJzPfAX+mpJuinHgQmjMg09oXSHfLLnRrW7cnWAFPKYV/8zCcFAeVvW/5Xd8FJtNYj
+ Vk8KjlesicI96F+gJoVPyQAUfujUbzGjGzcYAb4mnPMVSnnjnDI2L6fqlqjNMMjrMYGKOXiiV
+ FOF36zyo2Ye9CUAtgUIntYMFUzTYEMA1+dNWkp8D2ToEon7wYnylwQiwa3eX4VBNPgtgbKLTl
+ SnPU+iCyrbYSep4qhUdqeqI3O7jvFcPUThaElNxhL7oh64JNICcc0oCnJ69I+DTsmdMuCDwAB
+ Z4qWUzHaETcq5zJPgtCKjptx9/07i1enT+zaXoFenEP/ien6VfMOu818AJVG7zgPCAChvvhO/
+ 3B7OkK469cs9rUvkqUjzWgdjs42P6wWz8HKmOG4h7fA+dUruy2tipPUOLvzSyWMTmrHl5yG1S
+ Vz4p4FrS45Wlm0zmdLqj3BlCIo4KZXsI5jJ3aFUoi1GkRY1W4IkespQ7JpG/CToEyVNoNNBxX
+ 8ju98M7ZjSeuEU554usU2/WnmGPp2u1TmeW6vjq1Qo+ZBY9J3/8cNFhLw==
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 03.08.21 10:26, Pierre Morel wrote:
-> We let the userland hypervisor know if the machine support the CPU
-> topology facility using a new KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
-> 
-> The PTF instruction will report a topology change if there is any change
-> with a previous STSI_15_2 SYSIB.
-> Changes inside a STSI_15_2 SYSIB occur if CPU bits are set or clear
-> inside the CPU Topology List Entry CPU mask field, which happens with
-> changes in CPU polarization, dedication, CPU types and adding or
-> removing CPUs in a socket.
-> 
-> The reporting to the guest is done using the Multiprocessor
-> Topology-Change-Report (MTCR) bit of the utility entry of the guest's
-> SCA which will be cleared during the interpretation of PTF.
-> 
-> To check if the topology has been modified we use a new field of the
-> arch vCPU to save the previous real CPU ID at the end of a schedule
-> and verify on next schedule that the CPU used is in the same socket.
-> 
-> We deliberatly ignore:
-> - polarization: only horizontal polarization is currently used in linux.
-> - CPU Type: only IFL Type are supported in Linux
-> - Dedication: we consider that only a complete dedicated CPU stack can
->    take benefit of the CPU Topology.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+On 9/6/21 1:16 PM, Weizhao Ouyang wrote:
+> Most of ARCHs use empty ftrace_dyn_arch_init(), introduce a weak common
+> ftrace_dyn_arch_init() to cleanup them.
+>
+> Signed-off-by: Weizhao Ouyang <o451686892@gmail.com>
+> Acked-by: Heiko Carstens <hca@linux.ibm.com> (s390)
 
+Acked-by: Helge Deller <deller@gmx.de> # parisc
 
-> @@ -228,7 +232,7 @@ struct kvm_s390_sie_block {
->   	__u8	icptcode;		/* 0x0050 */
->   	__u8	icptstatus;		/* 0x0051 */
->   	__u16	ihcpu;			/* 0x0052 */
-> -	__u8	reserved54;		/* 0x0054 */
-> +	__u8	mtcr;			/* 0x0054 */
->   #define IICTL_CODE_NONE		 0x00
->   #define IICTL_CODE_MCHK		 0x01
->   #define IICTL_CODE_EXT		 0x02
-> @@ -246,6 +250,7 @@ struct kvm_s390_sie_block {
->   #define ECB_TE		0x10
->   #define ECB_SRSI	0x04
->   #define ECB_HOSTPROTINT	0x02
-> +#define ECB_PTF		0x01
-
- From below I understand, that ECB_PTF can be used with stfl(11) in the 
-hypervisor.
-
-What is to happen if the hypervisor doesn't support stfl(11) and we 
-consequently cannot use ECB_PTF? Will QEMU be able to emulate PTF fully?
-
-
->   	__u8	ecb;			/* 0x0061 */
->   #define ECB2_CMMA	0x80
->   #define ECB2_IEP	0x20
-> @@ -747,6 +752,7 @@ struct kvm_vcpu_arch {
->   	bool skey_enabled;
->   	struct kvm_s390_pv_vcpu pv;
->   	union diag318_info diag318_info;
-> +	int prev_cpu;
->   };
->   
->   struct kvm_vm_stat {
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index b655a7d82bf0..ff6d8a2b511c 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -568,6 +568,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->   	case KVM_CAP_S390_VCPU_RESETS:
->   	case KVM_CAP_SET_GUEST_DEBUG:
->   	case KVM_CAP_S390_DIAG318:
-> +	case KVM_CAP_S390_CPU_TOPOLOGY:
-
-I would have expected instead
-
-r = test_facility(11);
-break
-
-...
-
->   		r = 1;
->   		break;
->   	case KVM_CAP_SET_GUEST_DEBUG2:
-> @@ -819,6 +820,23 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
->   		icpt_operexc_on_all_vcpus(kvm);
->   		r = 0;
->   		break;
-> +	case KVM_CAP_S390_CPU_TOPOLOGY:
-> +		mutex_lock(&kvm->lock);
-> +		if (kvm->created_vcpus) {
-> +			r = -EBUSY;
-> +		} else {
-
-...
-} else if (test_facility(11)) {
-	set_kvm_facility(kvm->arch.model.fac_mask, 11);
-	set_kvm_facility(kvm->arch.model.fac_list, 11);
-	r = 0;
-} else {
-	r = -EINVAL;
-}
-
-similar to how we handle KVM_CAP_S390_VECTOR_REGISTERS.
-
-But I assume you want to be able to support hosts without ECB_PTF, correct?
-
-
-> +			set_kvm_facility(kvm->arch.model.fac_mask, 11);
-> +			set_kvm_facility(kvm->arch.model.fac_list, 11);
-> +			r = 0;
-> +		}
-> +		mutex_unlock(&kvm->lock);
-> +		VM_EVENT(kvm, 3, "ENABLE: CPU TOPOLOGY %s",
-> +			 r ? "(not available)" : "(success)");
-> +		break;
-> +
-> +		r = -EINVAL;
-> +		break;
-
-^ dead code
-
-[...]
-
->   }
->   
->   void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
->   {
-> +	vcpu->arch.prev_cpu = vcpu->cpu;
->   	vcpu->cpu = -1;
->   	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
->   		__stop_cpu_timer_accounting(vcpu);
-> @@ -3198,6 +3239,11 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
->   		vcpu->arch.sie_block->ecb |= ECB_HOSTPROTINT;
->   	if (test_kvm_facility(vcpu->kvm, 9))
->   		vcpu->arch.sie_block->ecb |= ECB_SRSI;
-> +
-> +	/* PTF needs both host and guest facilities to enable interpretation */
-> +	if (test_kvm_facility(vcpu->kvm, 11) && test_facility(11))
-> +		vcpu->arch.sie_block->ecb |= ECB_PTF;
-
-Here you say we need both ...
-
-> +
->   	if (test_kvm_facility(vcpu->kvm, 73))
->   		vcpu->arch.sie_block->ecb |= ECB_TE;
->   
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 4002a24bc43a..50d67190bf65 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -503,6 +503,9 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->   	/* Host-protection-interruption introduced with ESOP */
->   	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_ESOP))
->   		scb_s->ecb |= scb_o->ecb & ECB_HOSTPROTINT;
-> +	/* CPU Topology */
-> +	if (test_kvm_facility(vcpu->kvm, 11))
-> +		scb_s->ecb |= scb_o->ecb & ECB_PTF;
-
-but here you don't check?
-
->   	/* transactional execution */
->   	if (test_kvm_facility(vcpu->kvm, 73) && wants_tx) {
->   		/* remap the prefix is tx is toggled on */
-> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-> index d9e4aabcb31a..081ce0cd44b9 100644
-> --- a/include/uapi/linux/kvm.h
-> +++ b/include/uapi/linux/kvm.h
-> @@ -1112,6 +1112,7 @@ struct kvm_ppc_resize_hpt {
->   #define KVM_CAP_BINARY_STATS_FD 203
->   #define KVM_CAP_EXIT_ON_EMULATION_FAILURE 204
->   #define KVM_CAP_ARM_MTE 205
-> +#define KVM_CAP_S390_CPU_TOPOLOGY 206
->   
-
-We'll need a Documentation/virt/kvm/api.rst description.
-
-I'm not completely confident that the way we're handling the 
-capability+facility is the right approach. It all feels a bit suboptimal.
-
-Except stfl(74) -- STHYI --, we never enable a facility via 
-set_kvm_facility() that's not available in the host. And STHYI is 
-special such that it is never implemented in hardware.
-
-I'll think about what might be cleaner once I get some more details 
-about the interaction with stfl(11) in the hypervisor.
-
--- 
 Thanks,
+Helge
 
-David / dhildenb
+
+> ---
+>
+> Changes in v2:
+> -- correct CONFIG_DYNAMIC_FTRACE on PowerPC
+> -- add Acked-by tag
+>
+> ---
+>   arch/arm/kernel/ftrace.c          | 5 -----
+>   arch/arm64/kernel/ftrace.c        | 5 -----
+>   arch/csky/kernel/ftrace.c         | 5 -----
+>   arch/ia64/kernel/ftrace.c         | 6 ------
+>   arch/microblaze/kernel/ftrace.c   | 5 -----
+>   arch/mips/include/asm/ftrace.h    | 2 ++
+>   arch/nds32/kernel/ftrace.c        | 5 -----
+>   arch/parisc/kernel/ftrace.c       | 5 -----
+>   arch/powerpc/include/asm/ftrace.h | 4 ++++
+>   arch/riscv/kernel/ftrace.c        | 5 -----
+>   arch/s390/kernel/ftrace.c         | 5 -----
+>   arch/sh/kernel/ftrace.c           | 5 -----
+>   arch/sparc/kernel/ftrace.c        | 5 -----
+>   arch/x86/kernel/ftrace.c          | 5 -----
+>   include/linux/ftrace.h            | 1 -
+>   kernel/trace/ftrace.c             | 5 +++++
+>   16 files changed, 11 insertions(+), 62 deletions(-)
+>
+> diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
+> index 3c83b5d29697..a006585e1c09 100644
+> --- a/arch/arm/kernel/ftrace.c
+> +++ b/arch/arm/kernel/ftrace.c
+> @@ -193,11 +193,6 @@ int ftrace_make_nop(struct module *mod,
+>
+>   	return ret;
+>   }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>   #endif /* CONFIG_DYNAMIC_FTRACE */
+>
+>   #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+> diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
+> index 7f467bd9db7a..fc62dfe73f93 100644
+> --- a/arch/arm64/kernel/ftrace.c
+> +++ b/arch/arm64/kernel/ftrace.c
+> @@ -236,11 +236,6 @@ void arch_ftrace_update_code(int command)
+>   	command |=3D FTRACE_MAY_SLEEP;
+>   	ftrace_modify_all_code(command);
+>   }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>   #endif /* CONFIG_DYNAMIC_FTRACE */
+>
+>   #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+> diff --git a/arch/csky/kernel/ftrace.c b/arch/csky/kernel/ftrace.c
+> index b4a7ec1517ff..50bfcf129078 100644
+> --- a/arch/csky/kernel/ftrace.c
+> +++ b/arch/csky/kernel/ftrace.c
+> @@ -133,11 +133,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
+>   				(unsigned long)func, true, true);
+>   	return ret;
+>   }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>   #endif /* CONFIG_DYNAMIC_FTRACE */
+>
+>   #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+> diff --git a/arch/ia64/kernel/ftrace.c b/arch/ia64/kernel/ftrace.c
+> index b2ab2d58fb30..d6360fd404ab 100644
+> --- a/arch/ia64/kernel/ftrace.c
+> +++ b/arch/ia64/kernel/ftrace.c
+> @@ -194,9 +194,3 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
+>   	flush_icache_range(addr, addr + 16);
+>   	return 0;
+>   }
+> -
+> -/* run from kstop_machine */
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+> diff --git a/arch/microblaze/kernel/ftrace.c b/arch/microblaze/kernel/ft=
+race.c
+> index 224eea40e1ee..188749d62709 100644
+> --- a/arch/microblaze/kernel/ftrace.c
+> +++ b/arch/microblaze/kernel/ftrace.c
+> @@ -163,11 +163,6 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsign=
+ed long addr)
+>   	return ret;
+>   }
+>
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+> -
+>   int ftrace_update_ftrace_func(ftrace_func_t func)
+>   {
+>   	unsigned long ip =3D (unsigned long)(&ftrace_call);
+> diff --git a/arch/mips/include/asm/ftrace.h b/arch/mips/include/asm/ftra=
+ce.h
+> index b463f2aa5a61..ed013e767390 100644
+> --- a/arch/mips/include/asm/ftrace.h
+> +++ b/arch/mips/include/asm/ftrace.h
+> @@ -76,6 +76,8 @@ do {						\
+>
+>
+>   #ifdef CONFIG_DYNAMIC_FTRACE
+> +int __init ftrace_dyn_arch_init(void);
+> +
+>   static inline unsigned long ftrace_call_adjust(unsigned long addr)
+>   {
+>   	return addr;
+> diff --git a/arch/nds32/kernel/ftrace.c b/arch/nds32/kernel/ftrace.c
+> index 0e23e3a8df6b..f0ef4842d191 100644
+> --- a/arch/nds32/kernel/ftrace.c
+> +++ b/arch/nds32/kernel/ftrace.c
+> @@ -84,11 +84,6 @@ void _ftrace_caller(unsigned long parent_ip)
+>   	/* restore all state needed by the compiler epilogue */
+>   }
+>
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+> -
+>   static unsigned long gen_sethi_insn(unsigned long addr)
+>   {
+>   	unsigned long opcode =3D 0x46000000;
+> diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
+> index 0a1e75af5382..01581f715737 100644
+> --- a/arch/parisc/kernel/ftrace.c
+> +++ b/arch/parisc/kernel/ftrace.c
+> @@ -94,11 +94,6 @@ int ftrace_disable_ftrace_graph_caller(void)
+>   #endif
+>
+>   #ifdef CONFIG_DYNAMIC_FTRACE
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>   int ftrace_update_ftrace_func(ftrace_func_t func)
+>   {
+>   	return 0;
+> diff --git a/arch/powerpc/include/asm/ftrace.h b/arch/powerpc/include/as=
+m/ftrace.h
+> index debe8c4f7062..d59f67c0225f 100644
+> --- a/arch/powerpc/include/asm/ftrace.h
+> +++ b/arch/powerpc/include/asm/ftrace.h
+> @@ -61,6 +61,10 @@ struct dyn_arch_ftrace {
+>   };
+>   #endif /* __ASSEMBLY__ */
+>
+> +#ifdef CONFIG_DYNAMIC_FTRACE
+> +int __init ftrace_dyn_arch_init(void);
+> +#endif /* CONFIG_DYNAMIC_FTRACE */
+> +
+>   #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+>   #define ARCH_SUPPORTS_FTRACE_OPS 1
+>   #endif
+> diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
+> index 7f1e5203de88..4716f4cdc038 100644
+> --- a/arch/riscv/kernel/ftrace.c
+> +++ b/arch/riscv/kernel/ftrace.c
+> @@ -154,11 +154,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
+>
+>   	return ret;
+>   }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>   #endif
+>
+>   #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+> diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
+> index 0a464d328467..3fd80397ff52 100644
+> --- a/arch/s390/kernel/ftrace.c
+> +++ b/arch/s390/kernel/ftrace.c
+> @@ -262,11 +262,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
+>   	return 0;
+>   }
+>
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+> -
+>   void arch_ftrace_update_code(int command)
+>   {
+>   	if (ftrace_shared_hotpatch_trampoline(NULL))
+> diff --git a/arch/sh/kernel/ftrace.c b/arch/sh/kernel/ftrace.c
+> index 295c43315bbe..930001bb8c6a 100644
+> --- a/arch/sh/kernel/ftrace.c
+> +++ b/arch/sh/kernel/ftrace.c
+> @@ -252,11 +252,6 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsign=
+ed long addr)
+>
+>   	return ftrace_modify_code(rec->ip, old, new);
+>   }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>   #endif /* CONFIG_DYNAMIC_FTRACE */
+>
+>   #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+> diff --git a/arch/sparc/kernel/ftrace.c b/arch/sparc/kernel/ftrace.c
+> index 684b84ce397f..eaead3da8e03 100644
+> --- a/arch/sparc/kernel/ftrace.c
+> +++ b/arch/sparc/kernel/ftrace.c
+> @@ -82,11 +82,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
+>   	new =3D ftrace_call_replace(ip, (unsigned long)func);
+>   	return ftrace_modify_code(ip, old, new);
+>   }
+> -
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+>   #endif
+>
+>   #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+> diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+> index 1b3ce3b4a2a2..23d221a9a3cd 100644
+> --- a/arch/x86/kernel/ftrace.c
+> +++ b/arch/x86/kernel/ftrace.c
+> @@ -252,11 +252,6 @@ void arch_ftrace_update_code(int command)
+>   	ftrace_modify_all_code(command);
+>   }
+>
+> -int __init ftrace_dyn_arch_init(void)
+> -{
+> -	return 0;
+> -}
+> -
+>   /* Currently only x86_64 supports dynamic trampolines */
+>   #ifdef CONFIG_X86_64
+>
+> diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
+> index 832e65f06754..f1eca123d89d 100644
+> --- a/include/linux/ftrace.h
+> +++ b/include/linux/ftrace.h
+> @@ -573,7 +573,6 @@ ftrace_set_early_filter(struct ftrace_ops *ops, char=
+ *buf, int enable);
+>
+>   /* defined in arch */
+>   extern int ftrace_ip_converted(unsigned long ip);
+> -extern int ftrace_dyn_arch_init(void);
+>   extern void ftrace_replace_code(int enable);
+>   extern int ftrace_update_ftrace_func(ftrace_func_t func);
+>   extern void ftrace_caller(void);
+> diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+> index 7efbc8aaf7f6..4c090323198d 100644
+> --- a/kernel/trace/ftrace.c
+> +++ b/kernel/trace/ftrace.c
+> @@ -6846,6 +6846,11 @@ void __init ftrace_free_init_mem(void)
+>   	ftrace_free_mem(NULL, start, end);
+>   }
+>
+> +int __init __weak ftrace_dyn_arch_init(void)
+> +{
+> +	return 0;
+> +}
+> +
+>   void __init ftrace_init(void)
+>   {
+>   	extern unsigned long __start_mcount_loc[];
+>
 
