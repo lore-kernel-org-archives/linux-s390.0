@@ -4,41 +4,43 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B17CC433FE
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:20:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B512C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:21:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8418A61050
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:20:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3472F610FC
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Sep 2021 01:21:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239020AbhIFBVt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 5 Sep 2021 21:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38116 "EHLO mail.kernel.org"
+        id S239353AbhIFBWY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 5 Sep 2021 21:22:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238690AbhIFBV2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:21:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B15F9610E9;
-        Mon,  6 Sep 2021 01:20:22 +0000 (UTC)
+        id S238991AbhIFBVs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:21:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8719861054;
+        Mon,  6 Sep 2021 01:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891223;
-        bh=22+iNXGyu0eCwAJ2X0a28d6/ghXFmPsf4AF7qIF8heo=;
+        s=k20201202; t=1630891244;
+        bh=fUdaK+VTkRrihQCD1mPgnPxVsL3VfZ4s3NaOmxqcnZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QExy520exWL9J/O1gDM5YoO1D1XpZQepug6DQafDPTBnUuuCn0p/WmplPfWvbRxSz
-         MjcC2wq2e7DbAlXs3PC2kobDy6syRuJZ0qdM8zkK/yZeyz+0PwPZ5V7mfldJqSlFrC
-         AUMXDF8NebXJBIHrWxb7mtfFi5G0h8yTs1M9rlBcMCm218Oqeif/BS/TSRycmKv616
-         9zaI7NxE55fYmz/wRCylkw9nnxOziEb4HpiK7KyfUp8BySgtuh73Px+rieyXuw6usB
-         PI0iGl7y7BzPvGZrspeKN0zFRA9DB8Po/xJm/9jHEX0exrnl0Oy2Lg0B7vrP9ej2It
-         1XhXBMY6piDoQ==
+        b=Icy1ps6GXqGiRfWKAA/3WogFvJobGlUs+C+qbevbJc1D07T2To9uRmo3CK9QD7F6P
+         ot5kQYHynOauIVnCpI1ZIF0lEfWXwIhcW0uNxkECoOnAS1zWhrmn8il8RpGB6nHdx0
+         dTobNQNl/SCLM75l7RJUZbYlQB3JSwWGoU6UObeyYpdnZrU/E7wWYW9FZtLErlBSsy
+         FFEQlotsh94faq8jmZAkIFUxfq+naRm/3sIlF8Sdu8XSlZ6Z4KvNY1d9qXJzbII58U
+         3t9/7Pa43bTxQi2gRJxkQfTCvRPwPLfLq/vYc7uCYDhEmMOPYCmjerD0x8I8iSiN0U
+         x0qKg7QoYTfSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harald Freudenberger <freude@linux.ibm.com>,
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 26/47] s390/zcrypt: fix wrong offset index for APKA master key valid state
-Date:   Sun,  5 Sep 2021 21:19:30 -0400
-Message-Id: <20210906011951.928679-26-sashal@kernel.org>
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, kasan-dev@googlegroups.com,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 42/47] s390/kasan: fix large PMD pages address alignment check
+Date:   Sun,  5 Sep 2021 21:19:46 -0400
+Message-Id: <20210906011951.928679-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906011951.928679-1-sashal@kernel.org>
 References: <20210906011951.928679-1-sashal@kernel.org>
@@ -50,43 +52,84 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit 8617bb74006252cb2286008afe7d6575a6425857 ]
+[ Upstream commit ddd63c85ef67ea9ea7282ad35eafb6568047126e ]
 
-Tests showed a mismatch between what the CCA tool reports about
-the APKA master key state and what's displayed by the zcrypt dd
-in sysfs. After some investigation, we found out that the
-documentation which was the source for the zcrypt dd implementation
-lacks the listing of 3 fields. So this patch now moves the
-evaluation of the APKA master key state to the correct offset.
+It is currently possible to initialize a large PMD page when
+the address is not aligned on page boundary.
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/zcrypt_ccamisc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/s390/mm/kasan_init.c | 41 +++++++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c b/drivers/s390/crypto/zcrypt_ccamisc.c
-index bc34bedf9db8..6a3c2b460965 100644
---- a/drivers/s390/crypto/zcrypt_ccamisc.c
-+++ b/drivers/s390/crypto/zcrypt_ccamisc.c
-@@ -1724,10 +1724,10 @@ static int fetch_cca_info(u16 cardnr, u16 domain, struct cca_info *ci)
- 	rlen = vlen = PAGE_SIZE/2;
- 	rc = cca_query_crypto_facility(cardnr, domain, "STATICSB",
- 				       rarray, &rlen, varray, &vlen);
--	if (rc == 0 && rlen >= 10*8 && vlen >= 240) {
--		ci->new_apka_mk_state = (char) rarray[7*8];
--		ci->cur_apka_mk_state = (char) rarray[8*8];
--		ci->old_apka_mk_state = (char) rarray[9*8];
-+	if (rc == 0 && rlen >= 13*8 && vlen >= 240) {
-+		ci->new_apka_mk_state = (char) rarray[10*8];
-+		ci->cur_apka_mk_state = (char) rarray[11*8];
-+		ci->old_apka_mk_state = (char) rarray[12*8];
- 		if (ci->old_apka_mk_state == '2')
- 			memcpy(&ci->old_apka_mkvp, varray + 208, 8);
- 		if (ci->cur_apka_mk_state == '2')
+diff --git a/arch/s390/mm/kasan_init.c b/arch/s390/mm/kasan_init.c
+index a0fdc6dc5f9d..cc3af046c14e 100644
+--- a/arch/s390/mm/kasan_init.c
++++ b/arch/s390/mm/kasan_init.c
+@@ -107,6 +107,9 @@ static void __init kasan_early_pgtable_populate(unsigned long address,
+ 		sgt_prot &= ~_SEGMENT_ENTRY_NOEXEC;
+ 	}
+ 
++	/*
++	 * The first 1MB of 1:1 mapping is mapped with 4KB pages
++	 */
+ 	while (address < end) {
+ 		pg_dir = pgd_offset_k(address);
+ 		if (pgd_none(*pg_dir)) {
+@@ -157,30 +160,26 @@ static void __init kasan_early_pgtable_populate(unsigned long address,
+ 
+ 		pm_dir = pmd_offset(pu_dir, address);
+ 		if (pmd_none(*pm_dir)) {
+-			if (mode == POPULATE_ZERO_SHADOW &&
+-			    IS_ALIGNED(address, PMD_SIZE) &&
++			if (IS_ALIGNED(address, PMD_SIZE) &&
+ 			    end - address >= PMD_SIZE) {
+-				pmd_populate(&init_mm, pm_dir,
+-						kasan_early_shadow_pte);
+-				address = (address + PMD_SIZE) & PMD_MASK;
+-				continue;
+-			}
+-			/* the first megabyte of 1:1 is mapped with 4k pages */
+-			if (has_edat && address && end - address >= PMD_SIZE &&
+-			    mode != POPULATE_ZERO_SHADOW) {
+-				void *page;
+-
+-				if (mode == POPULATE_ONE2ONE) {
+-					page = (void *)address;
+-				} else {
+-					page = kasan_early_alloc_segment();
+-					memset(page, 0, _SEGMENT_SIZE);
++				if (mode == POPULATE_ZERO_SHADOW) {
++					pmd_populate(&init_mm, pm_dir, kasan_early_shadow_pte);
++					address = (address + PMD_SIZE) & PMD_MASK;
++					continue;
++				} else if (has_edat && address) {
++					void *page;
++
++					if (mode == POPULATE_ONE2ONE) {
++						page = (void *)address;
++					} else {
++						page = kasan_early_alloc_segment();
++						memset(page, 0, _SEGMENT_SIZE);
++					}
++					pmd_val(*pm_dir) = __pa(page) | sgt_prot;
++					address = (address + PMD_SIZE) & PMD_MASK;
++					continue;
+ 				}
+-				pmd_val(*pm_dir) = __pa(page) | sgt_prot;
+-				address = (address + PMD_SIZE) & PMD_MASK;
+-				continue;
+ 			}
+-
+ 			pt_dir = kasan_early_pte_alloc();
+ 			pmd_populate(&init_mm, pm_dir, pt_dir);
+ 		} else if (pmd_large(*pm_dir)) {
 -- 
 2.30.2
 
