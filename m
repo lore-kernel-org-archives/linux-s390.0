@@ -2,384 +2,220 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7A31C4321E
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Sep 2021 10:05:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9286EC433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Sep 2021 10:11:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B14C36112E
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Sep 2021 10:05:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7A187603E7
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Sep 2021 10:11:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243708AbhIGKG4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Sep 2021 06:06:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38720 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231194AbhIGKGy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Sep 2021 06:06:54 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AE0BC061575;
-        Tue,  7 Sep 2021 03:05:48 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id m21-20020a17090a859500b00197688449c4so1314451pjn.0;
-        Tue, 07 Sep 2021 03:05:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=XsFH+qQagyYhml3ETf2vA7O/cJmrmxQNmknQNQS/89c=;
-        b=EPEtxHQW9yV2reHCWPlSiaCfwvz536XVy6+nVlEmEoHFIqWlNio/chou6bg3zuLD6R
-         DgWF28ZEC8RZbdDFpaMNkGQec2xJH0a5n2nRj4XWPMjwx/Ml29sjudUTFa01/GK7dKL9
-         JhTuUP1500A3CvAAeWxsXWkKJaWyDrb063krX61oHn+tpgWuwTGWcDkt8z6+KZC9/CgF
-         NVsQH5HZlIG/ffOdGblF4sjYArdVxmx9IQsC48kCqWwcGFFodQp9Do7mOs1EROYlWdV6
-         iAJP+W4py/eQ2HqozJwQfQhoND404sHsr7Knr8WYZy02EMz+SzQ3lxZ3W/3TGY7G3iQ4
-         WJ9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=XsFH+qQagyYhml3ETf2vA7O/cJmrmxQNmknQNQS/89c=;
-        b=i6u8VtPdxIugu5KlYg6Jp8tI6hySnt0SuNq/GvbRnVXd7zXGGxMH5iaQirYHxInKh7
-         kCaTkmvXPqpgJ49rVwfWKjVvfWwyw+Z1tzamH//Eswg0RJjOiuAu23Ms847bzktOqxLA
-         YV65Bv+wobDjYddN+aI7yLZW1lphiMLVfBBhaxDyK0Qc8xwTXA6I2RxedZ8StIPcWV5s
-         xTkgmr9E0Hb+cnJH0N2fQlrQthrIMFhd/ZMyGLZTMREhuOGKzSrCMkyWYCJYH6jsEIWA
-         KRaTT/HnsB3qM7+VpT0yMoroGrNZ97BJ9rA03MdJGf7pXQEGEkW0vd89HJ20C0lyBTTj
-         6cJw==
-X-Gm-Message-State: AOAM530rGvl2HYvyVpPR3+2LJoh0ozpexXauoNe4IcZFb1U62HR9XKVn
-        IiZ7I6GFno4YPlX/KkliEc4=
-X-Google-Smtp-Source: ABdhPJwdxvq27bvyuBdou1sXQrmHEZ7qMV/BvFtlru+2WaV0e5/rX3mk5Mexx9s0y+UJtnE6jpKOlQ==
-X-Received: by 2002:a17:90a:be11:: with SMTP id a17mr3611354pjs.229.1631009147670;
-        Tue, 07 Sep 2021 03:05:47 -0700 (PDT)
-Received: from ownia.. ([173.248.225.217])
-        by smtp.gmail.com with ESMTPSA id x10sm10599983pfj.174.2021.09.07.03.05.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Sep 2021 03:05:47 -0700 (PDT)
-From:   Weizhao Ouyang <o451686892@gmail.com>
-To:     Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>
-Cc:     Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Nick Hu <nickhu@andestech.com>,
-        Greentime Hu <green.hu@gmail.com>,
-        Vincent Chen <deanbo422@gmail.com>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@alien8.de>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, Weizhao Ouyang <o451686892@gmail.com>
-Subject: [PATCH v3] ftrace: Cleanup ftrace_dyn_arch_init()
-Date:   Tue,  7 Sep 2021 18:05:24 +0800
-Message-Id: <20210907100524.1454928-1-o451686892@gmail.com>
-X-Mailer: git-send-email 2.30.2
+        id S245105AbhIGKMk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Sep 2021 06:12:40 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6968 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S244744AbhIGKMi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Sep 2021 06:12:38 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 187A3u5w177383;
+        Tue, 7 Sep 2021 06:11:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=pNaCS8fCAXlLe10iIVcVs4n0KsDs36NpibASR4Zw3Lc=;
+ b=PDfsVxSLR5a/KbyQzIw2NwxBtk9cyqiKMKZ6/XNYrmkRaINiDY1FiNGmpr1w++EZV1k2
+ 7Q7xMkBlc0DXxaegK0Ry/pGN5IPY+wdp+IYi7qz+lEhIFeiXADk+bXP31X2maeMIWd0O
+ 89c3KLm0P5USOL5vtx5cZiYWIHaYYzMCW6/BCSyjvYiwQpZ5CohYUyJNtSH3mNqf0udN
+ 6VEnc149phsNufDKh8//akojYAuTDcGsLBTx83T0L+T2dQqA6oqugiDAY0c6s9ZeylV1
+ CR1hzMGatkXWYhxuDYU6OQ0u21beD9OmUNwIPzN4qCojQ+hNfJU671mBp2TlgPIj1Uen wQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ax2v2d5me-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 07 Sep 2021 06:11:32 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 187A4CVD178267;
+        Tue, 7 Sep 2021 06:11:32 -0400
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ax2v2d5kr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 07 Sep 2021 06:11:31 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1879w8Cs003266;
+        Tue, 7 Sep 2021 10:11:29 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3av02jcgxa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 07 Sep 2021 10:11:29 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 187ABQP57209290
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 7 Sep 2021 10:11:26 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A24F1AE063;
+        Tue,  7 Sep 2021 10:11:25 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3D4B5AE065;
+        Tue,  7 Sep 2021 10:11:25 +0000 (GMT)
+Received: from oc3016276355.ibm.com (unknown [9.145.9.165])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  7 Sep 2021 10:11:25 +0000 (GMT)
+Subject: Re: [PATCH v3 1/3] s390x: KVM: accept STSI for CPU topology
+ information
+To:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com
+References: <1627979206-32663-1-git-send-email-pmorel@linux.ibm.com>
+ <1627979206-32663-2-git-send-email-pmorel@linux.ibm.com>
+ <b5ee1953-b19d-50ec-b2e2-47a05babcee4@redhat.com>
+ <f8d8bf00-3965-d4a1-c464-59ffcf20bfa3@linux.ibm.com>
+ <bb1f5629-a6c6-b299-7765-a4326c8fa2d5@redhat.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <92fcb116-8bc7-7524-c522-0be5b210029b@linux.ibm.com>
+Date:   Tue, 7 Sep 2021 12:11:24 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
+In-Reply-To: <bb1f5629-a6c6-b299-7765-a4326c8fa2d5@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: isJoqA6GwM9P_9t0TAvb_UPf9i3hU48F
+X-Proofpoint-ORIG-GUID: KSNg3m-6XNnRbvu-OzwSH60lw9os9XS2
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-09-07_03:2021-09-03,2021-09-07 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ phishscore=0 impostorscore=0 mlxlogscore=999 spamscore=0
+ lowpriorityscore=0 suspectscore=0 mlxscore=0 clxscore=1015
+ priorityscore=1501 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2108310000 definitions=main-2109070067
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Most of ARCHs use empty ftrace_dyn_arch_init(), introduce a weak common
-ftrace_dyn_arch_init() to cleanup them.
 
-Signed-off-by: Weizhao Ouyang <o451686892@gmail.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com> (s390)
-Acked-by: Helge Deller <deller@gmx.de> (parisc)
 
----
-Changes in v3:
--- fix unrecognized opcode on PowerPC
+On 9/6/21 8:14 PM, David Hildenbrand wrote:
+> On 01.09.21 11:43, Pierre Morel wrote:
+>>
+>>
+>> On 8/31/21 3:59 PM, David Hildenbrand wrote:
+>>> On 03.08.21 10:26, Pierre Morel wrote:
+>>>> STSI(15.1.x) gives information on the CPU configuration topology.
+>>>> Let's accept the interception of STSI with the function code 15 and
+>>>> let the userland part of the hypervisor handle it when userland
+>>>> support the CPU Topology facility.
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> ---
+>>>>    arch/s390/kvm/priv.c | 7 ++++++-
+>>>>    1 file changed, 6 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+>>>> index 9928f785c677..8581b6881212 100644
+>>>> --- a/arch/s390/kvm/priv.c
+>>>> +++ b/arch/s390/kvm/priv.c
+>>>> @@ -856,7 +856,8 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+>>>>        if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+>>>>            return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+>>>> -    if (fc > 3) {
+>>>> +    if ((fc > 3 && fc != 15) ||
+>>>> +        (fc == 15 && !test_kvm_facility(vcpu->kvm, 11))) {
+>>>>            kvm_s390_set_psw_cc(vcpu, 3);
+>>>>            return 0;
+>>>>        }
+>>>> @@ -893,6 +894,10 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+>>>>                goto out_no_data;
+>>>>            handle_stsi_3_2_2(vcpu, (void *) mem);
+>>>>            break;
+>>>> +    case 15:
+>>>> +        trace_kvm_s390_handle_stsi(vcpu, fc, sel1, sel2, operand2);
+>>>> +        insert_stsi_usr_data(vcpu, operand2, ar, fc, sel1, sel2);
+>>>> +        return -EREMOTE;
+>>>>        }
+>>>>        if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+>>>>            memcpy((void *)sida_origin(vcpu->arch.sie_block), (void 
+>>>> *)mem,
+>>>>
+>>>
+>>> Sorry, I'm a bit rusty on s390x kvm facility handling.
+>>>
+>>>
+>>> For test_kvm_facility() to succeed, the facility has to be in both:
+>>>
+>>> a) fac_mask: actually available on the HW and supported by KVM
+>>> (kvm_s390_fac_base via FACILITIES_KVM, kvm_s390_fac_ext via
+>>> FACILITIES_KVM_CPUMODEL)
+>>>
+>>> b) fac_list: enabled for a VM
+>>>
+>>> AFAIU, facility 11 is neither in FACILITIES_KVM nor
+>>> FACILITIES_KVM_CPUMODEL, and I remember it's a hypervisor-managed bit.
+>>>
+>>> So unless we unlock facility 11 in FACILITIES_KVM_CPUMODEL, will
+>>> test_kvm_facility(vcpu->kvm, 11) ever successfully trigger here?
+>>>
+>>>
+>>> I'm pretty sure I am messing something up :)
+>>>
+>>
+>> I think it is the same remark that Christian did as wanted me to use the
+>> arch/s390/tools/gen_facilities.c to activate the facility.
+>>
+>> The point is that CONFIGURATION_TOPOLOGY, STFL, 11, is already defined
+>> inside QEMU since full_GEN10_GA1, so the test_kvm_facility() will
+>> succeed with the next patch setting the facility 11 in the mask when
+>> getting the KVM_CAP_S390_CPU_TOPOLOGY from userland.
+> 
+> Ok, I see ...
+> 
+> QEMU knows the facility and as soon as we present it to QEMU, QEMU will 
+> want to automatically enable it in the "host" model.
+> 
+> However, we'd like QEMU to join in and handle some part of it.
+> 
+> So indeed, handling it like KVM_CAP_S390_VECTOR_REGISTERS or 
+> KVM_CAP_S390_RI looks like a reasonable approach.
+> 
+>>
+>> But if we activate it in KVM via any of the FACILITIES_KVM_xxx in the
+>> gen_facilities.c we will activate it for the guest what ever userland
+>> hypervizor we have, including old QEMU which will generate an exception.
+>>
+>>
+>> In this circumstances we have the choice between:
+>>
+>> - use FACILITY_KVM and handle everything in kernel
+>> - use FACILITY_KVM and use an extra CAPABILITY to handle part in kernel
+>> to avoid guest crash and part in userland
+> 
+> This sounds quite nice to me. Implement minimal kernel support and 
+> indicate the facility via stfl to user space.
+> 
+> In addition, add a new capability that intercepts to user space instead.
+> 
+> 
+> ... but I can understand that it might not be worth it.
 
-Changes in v2:
--- correct CONFIG_DYNAMIC_FTRACE on PowerPC
--- add Acked-by tag
+yes, since we need a CAPABILITY anyway I find it makes things more 
+complicated.
+> 
+> 
+> This patch as it stands doesn't make any sense on its own. Either 
+> document how it's supposed to work and why it is currently dead code, or 
+> simply squash into the next patch (preferred IMHO).
+> 
 
----
- arch/arm/kernel/ftrace.c          | 5 -----
- arch/arm64/kernel/ftrace.c        | 5 -----
- arch/csky/kernel/ftrace.c         | 5 -----
- arch/ia64/kernel/ftrace.c         | 6 ------
- arch/microblaze/kernel/ftrace.c   | 5 -----
- arch/mips/include/asm/ftrace.h    | 2 ++
- arch/nds32/kernel/ftrace.c        | 5 -----
- arch/parisc/kernel/ftrace.c       | 5 -----
- arch/powerpc/include/asm/ftrace.h | 4 ++++
- arch/riscv/kernel/ftrace.c        | 5 -----
- arch/s390/kernel/ftrace.c         | 5 -----
- arch/sh/kernel/ftrace.c           | 5 -----
- arch/sparc/kernel/ftrace.c        | 5 -----
- arch/x86/kernel/ftrace.c          | 5 -----
- include/linux/ftrace.h            | 1 -
- kernel/trace/ftrace.c             | 5 +++++
- 16 files changed, 11 insertions(+), 62 deletions(-)
+Yes, you are right, I will squash it with the next patch.
 
-diff --git a/arch/arm/kernel/ftrace.c b/arch/arm/kernel/ftrace.c
-index 3c83b5d29697..a006585e1c09 100644
---- a/arch/arm/kernel/ftrace.c
-+++ b/arch/arm/kernel/ftrace.c
-@@ -193,11 +193,6 @@ int ftrace_make_nop(struct module *mod,
- 
- 	return ret;
- }
--
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
- #endif /* CONFIG_DYNAMIC_FTRACE */
- 
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
-diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
-index 7f467bd9db7a..fc62dfe73f93 100644
---- a/arch/arm64/kernel/ftrace.c
-+++ b/arch/arm64/kernel/ftrace.c
-@@ -236,11 +236,6 @@ void arch_ftrace_update_code(int command)
- 	command |= FTRACE_MAY_SLEEP;
- 	ftrace_modify_all_code(command);
- }
--
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
- #endif /* CONFIG_DYNAMIC_FTRACE */
- 
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
-diff --git a/arch/csky/kernel/ftrace.c b/arch/csky/kernel/ftrace.c
-index b4a7ec1517ff..50bfcf129078 100644
---- a/arch/csky/kernel/ftrace.c
-+++ b/arch/csky/kernel/ftrace.c
-@@ -133,11 +133,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
- 				(unsigned long)func, true, true);
- 	return ret;
- }
--
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
- #endif /* CONFIG_DYNAMIC_FTRACE */
- 
- #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
-diff --git a/arch/ia64/kernel/ftrace.c b/arch/ia64/kernel/ftrace.c
-index b2ab2d58fb30..d6360fd404ab 100644
---- a/arch/ia64/kernel/ftrace.c
-+++ b/arch/ia64/kernel/ftrace.c
-@@ -194,9 +194,3 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
- 	flush_icache_range(addr, addr + 16);
- 	return 0;
- }
--
--/* run from kstop_machine */
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
-diff --git a/arch/microblaze/kernel/ftrace.c b/arch/microblaze/kernel/ftrace.c
-index 224eea40e1ee..188749d62709 100644
---- a/arch/microblaze/kernel/ftrace.c
-+++ b/arch/microblaze/kernel/ftrace.c
-@@ -163,11 +163,6 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
- 	return ret;
- }
- 
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
--
- int ftrace_update_ftrace_func(ftrace_func_t func)
- {
- 	unsigned long ip = (unsigned long)(&ftrace_call);
-diff --git a/arch/mips/include/asm/ftrace.h b/arch/mips/include/asm/ftrace.h
-index b463f2aa5a61..ed013e767390 100644
---- a/arch/mips/include/asm/ftrace.h
-+++ b/arch/mips/include/asm/ftrace.h
-@@ -76,6 +76,8 @@ do {						\
- 
- 
- #ifdef CONFIG_DYNAMIC_FTRACE
-+int __init ftrace_dyn_arch_init(void);
-+
- static inline unsigned long ftrace_call_adjust(unsigned long addr)
- {
- 	return addr;
-diff --git a/arch/nds32/kernel/ftrace.c b/arch/nds32/kernel/ftrace.c
-index 0e23e3a8df6b..f0ef4842d191 100644
---- a/arch/nds32/kernel/ftrace.c
-+++ b/arch/nds32/kernel/ftrace.c
-@@ -84,11 +84,6 @@ void _ftrace_caller(unsigned long parent_ip)
- 	/* restore all state needed by the compiler epilogue */
- }
- 
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
--
- static unsigned long gen_sethi_insn(unsigned long addr)
- {
- 	unsigned long opcode = 0x46000000;
-diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
-index 0a1e75af5382..01581f715737 100644
---- a/arch/parisc/kernel/ftrace.c
-+++ b/arch/parisc/kernel/ftrace.c
-@@ -94,11 +94,6 @@ int ftrace_disable_ftrace_graph_caller(void)
- #endif
- 
- #ifdef CONFIG_DYNAMIC_FTRACE
--
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
- int ftrace_update_ftrace_func(ftrace_func_t func)
- {
- 	return 0;
-diff --git a/arch/powerpc/include/asm/ftrace.h b/arch/powerpc/include/asm/ftrace.h
-index debe8c4f7062..b05c43f13a4d 100644
---- a/arch/powerpc/include/asm/ftrace.h
-+++ b/arch/powerpc/include/asm/ftrace.h
-@@ -126,6 +126,10 @@ static inline void this_cpu_enable_ftrace(void) { }
- static inline void this_cpu_set_ftrace_enabled(u8 ftrace_enabled) { }
- static inline u8 this_cpu_get_ftrace_enabled(void) { return 1; }
- #endif /* CONFIG_PPC64 */
-+
-+#ifdef CONFIG_DYNAMIC_FTRACE
-+int __init ftrace_dyn_arch_init(void);
-+#endif /* CONFIG_DYNAMIC_FTRACE */
- #endif /* !__ASSEMBLY__ */
- 
- #endif /* _ASM_POWERPC_FTRACE */
-diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
-index 7f1e5203de88..4716f4cdc038 100644
---- a/arch/riscv/kernel/ftrace.c
-+++ b/arch/riscv/kernel/ftrace.c
-@@ -154,11 +154,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
- 
- 	return ret;
- }
--
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
- #endif
- 
- #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
-diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
-index 0a464d328467..3fd80397ff52 100644
---- a/arch/s390/kernel/ftrace.c
-+++ b/arch/s390/kernel/ftrace.c
-@@ -262,11 +262,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
- 	return 0;
- }
- 
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
--
- void arch_ftrace_update_code(int command)
- {
- 	if (ftrace_shared_hotpatch_trampoline(NULL))
-diff --git a/arch/sh/kernel/ftrace.c b/arch/sh/kernel/ftrace.c
-index 295c43315bbe..930001bb8c6a 100644
---- a/arch/sh/kernel/ftrace.c
-+++ b/arch/sh/kernel/ftrace.c
-@@ -252,11 +252,6 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
- 
- 	return ftrace_modify_code(rec->ip, old, new);
- }
--
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
- #endif /* CONFIG_DYNAMIC_FTRACE */
- 
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
-diff --git a/arch/sparc/kernel/ftrace.c b/arch/sparc/kernel/ftrace.c
-index 684b84ce397f..eaead3da8e03 100644
---- a/arch/sparc/kernel/ftrace.c
-+++ b/arch/sparc/kernel/ftrace.c
-@@ -82,11 +82,6 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
- 	new = ftrace_call_replace(ip, (unsigned long)func);
- 	return ftrace_modify_code(ip, old, new);
- }
--
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
- #endif
- 
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 1b3ce3b4a2a2..23d221a9a3cd 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -252,11 +252,6 @@ void arch_ftrace_update_code(int command)
- 	ftrace_modify_all_code(command);
- }
- 
--int __init ftrace_dyn_arch_init(void)
--{
--	return 0;
--}
--
- /* Currently only x86_64 supports dynamic trampolines */
- #ifdef CONFIG_X86_64
- 
-diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
-index 832e65f06754..f1eca123d89d 100644
---- a/include/linux/ftrace.h
-+++ b/include/linux/ftrace.h
-@@ -573,7 +573,6 @@ ftrace_set_early_filter(struct ftrace_ops *ops, char *buf, int enable);
- 
- /* defined in arch */
- extern int ftrace_ip_converted(unsigned long ip);
--extern int ftrace_dyn_arch_init(void);
- extern void ftrace_replace_code(int enable);
- extern int ftrace_update_ftrace_func(ftrace_func_t func);
- extern void ftrace_caller(void);
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 7efbc8aaf7f6..4c090323198d 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -6846,6 +6846,11 @@ void __init ftrace_free_init_mem(void)
- 	ftrace_free_mem(NULL, start, end);
- }
- 
-+int __init __weak ftrace_dyn_arch_init(void)
-+{
-+	return 0;
-+}
-+
- void __init ftrace_init(void)
- {
- 	extern unsigned long __start_mcount_loc[];
+Thanks,
+Pierre
+
 -- 
-2.30.2
-
+Pierre Morel
+IBM Lab Boeblingen
