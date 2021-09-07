@@ -2,294 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5C5AC4332F
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Sep 2021 12:28:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52DA2C433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Sep 2021 14:38:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A3DE360F45
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Sep 2021 12:28:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 39AF3610FE
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Sep 2021 14:38:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344157AbhIGM3j (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Sep 2021 08:29:39 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37440 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1344559AbhIGM3f (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Sep 2021 08:29:35 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 187C5Eq0084838;
-        Tue, 7 Sep 2021 08:28:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=jlFeoSlara75f/ASgLQTWMIxJdcvlkqc6aKkMG5Y+wY=;
- b=LNRz4dvoLXR8lFahbw6cXuj6Ga8tipsyGklVgPHQ0gxyGpc5J7YgJqqjAMV9WqQC7o5Y
- HpIk+wtd+DuS0lTYLWt+ATsJ66OPHzTId5JfucBM2igTGH4cR0JHfXP0PtkxXXOrBeqD
- brnHj6Pm9rnkCy3UO/ld4+YGru67lAzxGvj8IJUWgMgnd6iG1+mhxIbSAzk7DwN4Jja/
- lzIXdoML7opnIF1SbdvwFvY1lDj58z1Fq0XIJhrscITOBaFhOdgjDN+r3D2SEQpGndPN
- WoYdOx8pPhNp40N9odwcvk4YY3+w4otd5Z/O3rNmGccoYTFlvsHBRCEwt0XCmZ7OOCx7 nQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3ax54pm4dx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Sep 2021 08:28:29 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 187C5YYx086399;
-        Tue, 7 Sep 2021 08:28:28 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3ax54pm4dd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Sep 2021 08:28:28 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 187CC8w9005583;
-        Tue, 7 Sep 2021 12:28:27 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3av0e9f2ns-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Sep 2021 12:28:26 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 187CSNKs43385332
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Sep 2021 12:28:23 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 44F83AE045;
-        Tue,  7 Sep 2021 12:28:23 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CE528AE04D;
-        Tue,  7 Sep 2021 12:28:22 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.9.165])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  7 Sep 2021 12:28:22 +0000 (GMT)
-Subject: Re: [PATCH v3 2/3] s390x: KVM: Implementation of Multiprocessor
- Topology-Change-Report
-To:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com
-References: <1627979206-32663-1-git-send-email-pmorel@linux.ibm.com>
- <1627979206-32663-3-git-send-email-pmorel@linux.ibm.com>
- <d85a6998-0f86-44d9-4eae-3051b65c2b4e@redhat.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <c4cfc6b1-44b5-eda7-c602-a54858971f01@linux.ibm.com>
-Date:   Tue, 7 Sep 2021 14:28:22 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S233978AbhIGOjn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Sep 2021 10:39:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45192 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237261AbhIGOjn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Sep 2021 10:39:43 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C16E3C0613CF
+        for <linux-s390@vger.kernel.org>; Tue,  7 Sep 2021 07:38:36 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id y17so8304591pfl.13
+        for <linux-s390@vger.kernel.org>; Tue, 07 Sep 2021 07:38:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=qhhCof7Bxt7WkPbfZU7ElxFgFbYJKUpmBYIoqT3FQG0=;
+        b=dDM249O1jyYEP+sPZcNiaaYYByaEMpzFEK/dirlDIZo1llr4qtiA9AwONG4gfWFxuh
+         GI+LHZeQL/xeGEQ7Yfkgt3/vvEePqhDwrmKdVjtWDvjOavLauOARfD2emyCkCFDIZ3e5
+         RZJODDFiVIiw9T1gza4f7jn3IWawg1iNUGGJLjWdnuO+yJ9asXLrHQr2+tGWyM13pjym
+         1+byStjxJrGiqSwx/wJlrs7mmw75bxC4tAQmD1XUWS2Kmf6OB7eQm5ViyURea6XHmtW+
+         mck5xXQNXvsw8NgSA/A4XmTbdZUQ2dwVHhPiE7RfQH0O5+QpGIXptx+UdEU6zgDpgmg+
+         vWmQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=qhhCof7Bxt7WkPbfZU7ElxFgFbYJKUpmBYIoqT3FQG0=;
+        b=Q9ZuWCl667QxUEDTDbcwzLJvtbHg2dfe19di+7WkPFYKpoQxBwkehBo9qT25p74JKQ
+         O4ifeeS5cZZgM2n9jK8YO39j+FN9do8HK4/GZ5D2L+Nouo8GWCRcqpNHYvTC2/qcWfT7
+         vE97jzyaVTTmvgISzUs+qrxSxyPhnPcmgyGsktUXyFHNAK2IuD38PmwmKVyC4AYchiLN
+         9Nt/cvtpp1FSzNfaZdy8SEcLDzcFF7fciYIAOEk7dWuca6uIk79Zb7d/r+h+ic07pwXm
+         S+gf2ag1NGCj5oeZAU6BJrXfvpVOtcMPoh4k4tjiJsK6HoEx61l8pgkjF4ABZHZJH4gY
+         2ZzA==
+X-Gm-Message-State: AOAM5312hfqhAAVKnKWH9Q3oAv1Rt80tse0v6uu72PHG8TAoL1+0lVyZ
+        fQHLfvbJ95Tbv+C/CiejlazBiA==
+X-Google-Smtp-Source: ABdhPJzl5tT+vIOlvAuqK2CqdOtw1QALWHjYejAcBedH1JDRDyFV2NrE6Q9L+J99MDm/UGDNVHbaHA==
+X-Received: by 2002:a63:c10b:: with SMTP id w11mr17484810pgf.228.1631025516087;
+        Tue, 07 Sep 2021 07:38:36 -0700 (PDT)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id j6sm13428682pgq.0.2021.09.07.07.38.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Sep 2021 07:38:35 -0700 (PDT)
+Date:   Tue, 7 Sep 2021 14:38:31 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Russell King, ARM Linux" <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>, gor <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Oleg Nesterov <oleg@redhat.com>, rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        paulmck <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
+        shuah <shuah@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-csky <linux-csky@vger.kernel.org>,
+        linux-mips <linux-mips@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        KVM list <kvm@vger.kernel.org>,
+        linux-kselftest <linux-kselftest@vger.kernel.org>,
+        Peter Foley <pefoley@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Ben Gardon <bgardon@google.com>
+Subject: Re: [PATCH 1/5] KVM: rseq: Update rseq when processing NOTIFY_RESUME
+ on xfer to KVM guest
+Message-ID: <YTd5Z91j9N2LuuIr@google.com>
+References: <20210818001210.4073390-1-seanjc@google.com>
+ <20210818001210.4073390-2-seanjc@google.com>
+ <1673583543.19718.1629409152244.JavaMail.zimbra@efficios.com>
+ <YR7tzZ98XC6OV2vu@google.com>
+ <1872633041.20290.1629485463253.JavaMail.zimbra@efficios.com>
+ <425456d3-4772-2a1b-9cf3-a5b750b95c2e@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <d85a6998-0f86-44d9-4eae-3051b65c2b4e@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2_BdQvQ0dUZimhTFZiMClJ_i4afnWG4w
-X-Proofpoint-GUID: EIvhWPucQpuUnjmrgbfT1VnS1wFJsgtE
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-09-07_04:2021-09-07,2021-09-07 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 bulkscore=0 phishscore=0 adultscore=0 mlxlogscore=999
- mlxscore=0 spamscore=0 malwarescore=0 clxscore=1015 priorityscore=1501
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2108310000 definitions=main-2109070076
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425456d3-4772-2a1b-9cf3-a5b750b95c2e@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, Sep 06, 2021, Paolo Bonzini wrote:
+> On 20/08/21 20:51, Mathieu Desnoyers wrote:
+> > > Ah, or is it the case that rseq_cs is non-NULL if and only if userspace is in an
+> > > rseq critical section, and because syscalls in critical sections are illegal, by
+> > > definition clearing rseq_cs is a nop unless userspace is misbehaving.
+> > Not quite, as I described above. But we want it to stay set so the CONFIG_DEBUG_RSEQ
+> > code executed when returning from ioctl to userspace will be able to validate that
+> > it is not nested within a rseq critical section.
+> > 
+> > > If that's true, what about explicitly checking that at NOTIFY_RESUME?  Or is it
+> > > not worth the extra code to detect an error that will likely be caught anyways?
+> > The error will indeed already be caught on return from ioctl to userspace, so I
+> > don't see any added value in duplicating this check.
+> 
+> Sean, can you send a v2 (even for this patch only would be okay)?
 
+Made it all the way to v3 while you were out :-)
 
-On 9/6/21 8:37 PM, David Hildenbrand wrote:
-> On 03.08.21 10:26, Pierre Morel wrote:
->> We let the userland hypervisor know if the machine support the CPU
->> topology facility using a new KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
->>
->> The PTF instruction will report a topology change if there is any change
->> with a previous STSI_15_2 SYSIB.
->> Changes inside a STSI_15_2 SYSIB occur if CPU bits are set or clear
->> inside the CPU Topology List Entry CPU mask field, which happens with
->> changes in CPU polarization, dedication, CPU types and adding or
->> removing CPUs in a socket.
->>
->> The reporting to the guest is done using the Multiprocessor
->> Topology-Change-Report (MTCR) bit of the utility entry of the guest's
->> SCA which will be cleared during the interpretation of PTF.
->>
->> To check if the topology has been modified we use a new field of the
->> arch vCPU to save the previous real CPU ID at the end of a schedule
->> and verify on next schedule that the CPU used is in the same socket.
->>
->> We deliberatly ignore:
->> - polarization: only horizontal polarization is currently used in linux.
->> - CPU Type: only IFL Type are supported in Linux
->> - Dedication: we consider that only a complete dedicated CPU stack can
->>    take benefit of the CPU Topology.
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> 
-> 
->> @@ -228,7 +232,7 @@ struct kvm_s390_sie_block {
->>       __u8    icptcode;        /* 0x0050 */
->>       __u8    icptstatus;        /* 0x0051 */
->>       __u16    ihcpu;            /* 0x0052 */
->> -    __u8    reserved54;        /* 0x0054 */
->> +    __u8    mtcr;            /* 0x0054 */
->>   #define IICTL_CODE_NONE         0x00
->>   #define IICTL_CODE_MCHK         0x01
->>   #define IICTL_CODE_EXT         0x02
->> @@ -246,6 +250,7 @@ struct kvm_s390_sie_block {
->>   #define ECB_TE        0x10
->>   #define ECB_SRSI    0x04
->>   #define ECB_HOSTPROTINT    0x02
->> +#define ECB_PTF        0x01
-> 
->  From below I understand, that ECB_PTF can be used with stfl(11) in the 
-> hypervisor.
-> 
-> What is to happen if the hypervisor doesn't support stfl(11) and we 
-> consequently cannot use ECB_PTF? Will QEMU be able to emulate PTF fully?
-> 
-> 
->>       __u8    ecb;            /* 0x0061 */
->>   #define ECB2_CMMA    0x80
->>   #define ECB2_IEP    0x20
->> @@ -747,6 +752,7 @@ struct kvm_vcpu_arch {
->>       bool skey_enabled;
->>       struct kvm_s390_pv_vcpu pv;
->>       union diag318_info diag318_info;
->> +    int prev_cpu;
->>   };
->>   struct kvm_vm_stat {
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index b655a7d82bf0..ff6d8a2b511c 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -568,6 +568,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, 
->> long ext)
->>       case KVM_CAP_S390_VCPU_RESETS:
->>       case KVM_CAP_SET_GUEST_DEBUG:
->>       case KVM_CAP_S390_DIAG318:
->> +    case KVM_CAP_S390_CPU_TOPOLOGY:
-> 
-> I would have expected instead
-> 
-> r = test_facility(11);
-> break
-> 
-> ...
-> 
->>           r = 1;
->>           break;
->>       case KVM_CAP_SET_GUEST_DEBUG2:
->> @@ -819,6 +820,23 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, 
->> struct kvm_enable_cap *cap)
->>           icpt_operexc_on_all_vcpus(kvm);
->>           r = 0;
->>           break;
->> +    case KVM_CAP_S390_CPU_TOPOLOGY:
->> +        mutex_lock(&kvm->lock);
->> +        if (kvm->created_vcpus) {
->> +            r = -EBUSY;
->> +        } else {
-> 
-> ...
-> } else if (test_facility(11)) {
->      set_kvm_facility(kvm->arch.model.fac_mask, 11);
->      set_kvm_facility(kvm->arch.model.fac_list, 11);
->      r = 0;
-> } else {
->      r = -EINVAL;
-> }
-> 
-> similar to how we handle KVM_CAP_S390_VECTOR_REGISTERS.
-> 
-> But I assume you want to be able to support hosts without ECB_PTF, correct?
-> 
-> 
->> +            set_kvm_facility(kvm->arch.model.fac_mask, 11);
->> +            set_kvm_facility(kvm->arch.model.fac_list, 11);
->> +            r = 0;
->> +        }
->> +        mutex_unlock(&kvm->lock);
->> +        VM_EVENT(kvm, 3, "ENABLE: CPU TOPOLOGY %s",
->> +             r ? "(not available)" : "(success)");
->> +        break;
->> +
->> +        r = -EINVAL;
->> +        break;
-> 
-> ^ dead code
-> 
-> [...]
-> 
->>   }
->>   void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
->>   {
->> +    vcpu->arch.prev_cpu = vcpu->cpu;
->>       vcpu->cpu = -1;
->>       if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
->>           __stop_cpu_timer_accounting(vcpu);
->> @@ -3198,6 +3239,11 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu 
->> *vcpu)
->>           vcpu->arch.sie_block->ecb |= ECB_HOSTPROTINT;
->>       if (test_kvm_facility(vcpu->kvm, 9))
->>           vcpu->arch.sie_block->ecb |= ECB_SRSI;
->> +
->> +    /* PTF needs both host and guest facilities to enable 
->> interpretation */
->> +    if (test_kvm_facility(vcpu->kvm, 11) && test_facility(11))
->> +        vcpu->arch.sie_block->ecb |= ECB_PTF;
-> 
-> Here you say we need both ...
-> 
->> +
->>       if (test_kvm_facility(vcpu->kvm, 73))
->>           vcpu->arch.sie_block->ecb |= ECB_TE;
->> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->> index 4002a24bc43a..50d67190bf65 100644
->> --- a/arch/s390/kvm/vsie.c
->> +++ b/arch/s390/kvm/vsie.c
->> @@ -503,6 +503,9 @@ static int shadow_scb(struct kvm_vcpu *vcpu, 
->> struct vsie_page *vsie_page)
->>       /* Host-protection-interruption introduced with ESOP */
->>       if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_ESOP))
->>           scb_s->ecb |= scb_o->ecb & ECB_HOSTPROTINT;
->> +    /* CPU Topology */
->> +    if (test_kvm_facility(vcpu->kvm, 11))
->> +        scb_s->ecb |= scb_o->ecb & ECB_PTF;
-> 
-> but here you don't check?
-> 
->>       /* transactional execution */
->>       if (test_kvm_facility(vcpu->kvm, 73) && wants_tx) {
->>           /* remap the prefix is tx is toggled on */
->> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
->> index d9e4aabcb31a..081ce0cd44b9 100644
->> --- a/include/uapi/linux/kvm.h
->> +++ b/include/uapi/linux/kvm.h
->> @@ -1112,6 +1112,7 @@ struct kvm_ppc_resize_hpt {
->>   #define KVM_CAP_BINARY_STATS_FD 203
->>   #define KVM_CAP_EXIT_ON_EMULATION_FAILURE 204
->>   #define KVM_CAP_ARM_MTE 205
->> +#define KVM_CAP_S390_CPU_TOPOLOGY 206
-> 
-> We'll need a Documentation/virt/kvm/api.rst description.
-> 
-> I'm not completely confident that the way we're handling the 
-> capability+facility is the right approach. It all feels a bit suboptimal.
-> 
-> Except stfl(74) -- STHYI --, we never enable a facility via 
-> set_kvm_facility() that's not available in the host. And STHYI is 
-> special such that it is never implemented in hardware.
-> 
-> I'll think about what might be cleaner once I get some more details 
-> about the interaction with stfl(11) in the hypervisor.
-> 
-
-OK, may be we do not need to handle the case stfl(11) is not present in 
-the host, these are pre GA10...
-
-
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+https://lkml.kernel.org/r/20210901203030.1292304-1-seanjc@google.com
