@@ -2,111 +2,205 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42569C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 15:59:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1DF0C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 16:07:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2A4816113C
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 15:59:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4C426113C
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 16:07:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352180AbhIHQAz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Sep 2021 12:00:55 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:23797 "EHLO
+        id S1346734AbhIHQI5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Sep 2021 12:08:57 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:46452 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1349777AbhIHQAy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Sep 2021 12:00:54 -0400
+        by vger.kernel.org with ESMTP id S235422AbhIHQI4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Sep 2021 12:08:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631116786;
+        s=mimecast20190719; t=1631117268;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=nNGQxhgl92hWe/3FtCW1Csy9gPO2VqfXKxGZzqH+8fM=;
-        b=SwP5RoLM1shtTU4HSgZQsYkY2N0VGaXBZeJzY4wZMczDQBg5NRN+bOu4BzULQ1ISL4wPyZ
-        q2n1lwuR7OxnGUvKqygHAhVLrYnIsFf8y9/JYhkLFqb1shETAH2mCKAd+Duq56VJzmXmNX
-        kkCguYstJyPoNjxix+g4Z0b+I5yKONk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-485-hQLoTZZgPhGYXuAjYv9BQQ-1; Wed, 08 Sep 2021 11:59:45 -0400
-X-MC-Unique: hQLoTZZgPhGYXuAjYv9BQQ-1
-Received: by mail-wm1-f69.google.com with SMTP id y188-20020a1c7dc5000000b002e80e0b2f87so1278502wmc.1
-        for <linux-s390@vger.kernel.org>; Wed, 08 Sep 2021 08:59:45 -0700 (PDT)
+        bh=bgAixjfqxK+KySv0KLIPFQXXlPfwGRV/dBCLSa1qrTs=;
+        b=aUw0wiLpDa+JObqaDmcQp0On/HCXQwVbL0k6oHuq2QmocCj8vkp8PyiqSLAUVe23XIOTiV
+        qDeaFa8HOG3C6PS1+VjJc1fncajvRi9cNW5/bPpHy754PZ44RdoNiB+4EGOmShsGfIlNMf
+        8tE+s70nkui5YvL6OZ/ZFi839o55Ygo=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-510-m4gxAkaZO7O_zng8rpGDyw-1; Wed, 08 Sep 2021 12:07:47 -0400
+X-MC-Unique: m4gxAkaZO7O_zng8rpGDyw-1
+Received: by mail-ej1-f70.google.com with SMTP id x6-20020a170906710600b005c980192a39so1248646ejj.9
+        for <linux-s390@vger.kernel.org>; Wed, 08 Sep 2021 09:07:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:organization
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=nNGQxhgl92hWe/3FtCW1Csy9gPO2VqfXKxGZzqH+8fM=;
-        b=lztOp7l3i0N/5yrHBhv1hLex+lDBp3NO5vhMvnaXs/gwg9Ik3FqIs0Cd5qms+ABAIx
-         nLhqCtgIhahRD1+vn59oxrcm+E1v0qaLCXzwarou7vT3bL7aQLcpBzpmWmQxHKHI3oOY
-         Hv4nXGE5xnTPKWzf3KboaVNJi7amHKNeySO1hGmHcUPi/k7tRVaMd6hBip3YBtCbdHSh
-         CethHgOOKxzyzDhqIncoVkfIGfTWze4PdJRoH4r2pbfd6aYg3NSvApqk0DzwglpbKu54
-         /fefnFOtV7t20sLA1tatj2QSs8vCEIv8Alp1cgduVVKLU/DMj0ke6+y5Y2FOmBgXnPMS
-         L5rA==
-X-Gm-Message-State: AOAM531FkmKbZYAQshZiv//nQMQzb0y7u3gp3YecwA9G7koDq3EEwVQy
-        U9NFZH3fqN+TArguvAV1aaRTV0PXH5cH7INrHqYbfty048oJTj6i/8uFF2RXhix7N7eEc2AW6e6
-        tTtEgpNdSDW40OP/8R/ncwg==
-X-Received: by 2002:a5d:5241:: with SMTP id k1mr5057150wrc.14.1631116784251;
-        Wed, 08 Sep 2021 08:59:44 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwbV4MVn6sYe3duHRKvKFgkXf7OfAeyy0HcyFVucgkBnamnZJUt5EmSeR3LM818BjuO31ao5Q==
-X-Received: by 2002:a5d:5241:: with SMTP id k1mr5057132wrc.14.1631116784080;
-        Wed, 08 Sep 2021 08:59:44 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c6125.dip0.t-ipconnect.de. [91.12.97.37])
-        by smtp.gmail.com with ESMTPSA id g1sm2745480wrc.65.2021.09.08.08.59.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Sep 2021 08:59:43 -0700 (PDT)
-Subject: Re: [PATCH v1] hugetlbfs: s390 is always 64bit
-To:     linux-kernel@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>
-References: <20210908154506.20764-1-david@redhat.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Message-ID: <3f9d1394-600b-5851-670d-71f1ab13a88a@redhat.com>
-Date:   Wed, 8 Sep 2021 17:59:42 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=bgAixjfqxK+KySv0KLIPFQXXlPfwGRV/dBCLSa1qrTs=;
+        b=3GC6LQkaaK5CjfwjOYbxSDm5GkobSLVlGKmv5fBgGuCDS6nG1NyFAqMuFlDpOCrpcR
+         1axDYsr1GeTGS6v2eu+E0cbiflS2wFB3Pd3pnYdmxXCZRyK0RyILSaPDYbC3J9vIlWWu
+         H7HmxuLKXAHP05kL34Qq+2CQk3+G3cFIB+ia8lDBDh8ehSJ5keZisCwMnV3qqvn64CGv
+         bqESzcM4wrN+daBGwLHRXhPod1i1Oadxo1eQq2ikFpb0phGecXFy07O9HbJDldjS8Kwh
+         1QrDWEv1ZDVUgnTixWG6ea6+CxrgXlpGlvkCG/0cvmIS6XfKnIC2j1Dqx28yDDTcnbsP
+         C9Ug==
+X-Gm-Message-State: AOAM532NXw0I5X5eMmtw8m9Ff6Gi/Nsmm6wYQGksq5CHPPkjs0DiDJkX
+        Q+CHlMPpBx7loNiM9Nu5PQw7esQysyNLe3ilec5iBPs5S9exCK+mQtaUZh8ZP0vTM2u/FGL1BCa
+        XIr/jWk6w/89+eNE/n6zumw==
+X-Received: by 2002:aa7:c04e:: with SMTP id k14mr4597893edo.101.1631117265773;
+        Wed, 08 Sep 2021 09:07:45 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx/Z+CwRUwOjBWCCIIw4LzHo1BJr62ATb5mUiTSp/JNWar8qE3J6IMmTqOXtmUN6Dl6kWTUDw==
+X-Received: by 2002:aa7:c04e:: with SMTP id k14mr4597875edo.101.1631117265580;
+        Wed, 08 Sep 2021 09:07:45 -0700 (PDT)
+Received: from gator (cst2-174-132.cust.vodafone.cz. [31.30.174.132])
+        by smtp.gmail.com with ESMTPSA id l8sm1080254ejn.103.2021.09.08.09.07.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Sep 2021 09:07:45 -0700 (PDT)
+Date:   Wed, 8 Sep 2021 18:07:43 +0200
+From:   Andrew Jones <drjones@redhat.com>
+To:     Alexandru Elisei <alexandru.elisei@arm.com>
+Cc:     thuth@redhat.com, pbonzini@redhat.com, lvivier@redhat.com,
+        kvm-ppc@vger.kernel.org, david@redhat.com, frankja@linux.ibm.com,
+        cohuck@redhat.com, imbrenda@linux.ibm.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu, andre.przywara@arm.com,
+        maz@kernel.org, vivek.gautam@arm.com
+Subject: Re: [kvm-unit-tests RFC PATCH 4/5] scripts: Generate kvmtool
+ standalone tests
+Message-ID: <20210908160743.l4hrl4de7wkxwuda@gator>
+References: <20210702163122.96110-1-alexandru.elisei@arm.com>
+ <20210702163122.96110-5-alexandru.elisei@arm.com>
+ <20210907102135.i2w3r7j4zyj736b5@gator>
+ <ee11a10a-c3e6-b9ce-81e1-147025a9b5bd@arm.com>
 MIME-Version: 1.0
-In-Reply-To: <20210908154506.20764-1-david@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ee11a10a-c3e6-b9ce-81e1-147025a9b5bd@arm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 08.09.21 17:45, David Hildenbrand wrote:
-> No need to check for 64BIT. While at it, let's just select
-> ARCH_SUPPORTS_HUGETLBFS from arch/s390x/Kconfig.
+On Wed, Sep 08, 2021 at 04:37:39PM +0100, Alexandru Elisei wrote:
+> Hi Drew,
 > 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Mike Kravetz <mike.kravetz@oracle.com>
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-mm@vger.kernel.org
+> On 9/7/21 11:21 AM, Andrew Jones wrote:
+> > On Fri, Jul 02, 2021 at 05:31:21PM +0100, Alexandru Elisei wrote:
+> >> Add support for the standalone target when running kvm-unit-tests under
+> >> kvmtool.
+> >>
+> >> Example command line invocation:
+> >>
+> >> $ ./configure --target=kvmtool
+> >> $ make clean && make standalone
+> >>
+> >> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+> >> ---
+> >>  scripts/mkstandalone.sh | 14 +++++++-------
+> >>  1 file changed, 7 insertions(+), 7 deletions(-)
+> >>
+> >> diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
+> >> index 16f461c06842..d84bdb7e278c 100755
+> >> --- a/scripts/mkstandalone.sh
+> >> +++ b/scripts/mkstandalone.sh
+> >> @@ -44,6 +44,10 @@ generate_test ()
+> >>  	config_export ARCH_NAME
+> >>  	config_export PROCESSOR
+> >>  
+> >> +	if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "arm" ]; then
+> >> +		config_export TARGET
+> >> +	fi
+> > Should export unconditionally, since we'll want TARGET set
+> > unconditionally.
+> 
+> Yes, will do.
+> 
+> >
+> >> +
+> >>  	echo "echo BUILD_HEAD=$(cat build-head)"
+> >>  
+> >>  	if [ ! -f $kernel ]; then
+> >> @@ -59,7 +63,7 @@ generate_test ()
+> >>  		echo 'export FIRMWARE'
+> >>  	fi
+> >>  
+> >> -	if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
+> >> +	if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
+> > I think it would be better to ensure that ENVIRON_DEFAULT is "no" for
+> > TARGET=kvmtool in configure.
+> 
+> From looking at the code, it is my understanding that with ENVIRON_DEFAULT=yes, an
+> initrd file is generated with the contents of erratatxt and other information, in
+> a key=value pair format. This initrd is then passed on to the test (please correct
+> me if I'm wrong). With ENVIRON_DEFAULT=no (set via ./configure
+> --disable-default-environ), this initrd is not generated.
+> 
+> kvmtool doesn't have support for passing an initrd when loading firmware, so yes,
+> I believe the default should be no.
+> 
+> However, I have two questions:
+> 
+> 1. What happens when the user specifically enables the default environ via
+> ./configure --enable-default-environ --target=kvmtool? In my opinion, that should
+> be an error because the user wants something that is not possible with kvmtool
+> (loading an image with --firmware in kvmtool means that the initrd image it not
+> loaded into the guest memory and no node is generated for it in the dtb), but I
+> would like to hear your thoughts about it.
 
-^ wishful thinking, lol
+As part of the forcing ENVIRON_DEFAULT to "no" for kvmtool in configure an
+error should be generated if a user tries to explicitly enable it.
 
-Cc: linux-mm@kvack.org
+> 
+> 2. If the default environment is disabled, is it still possible for an user to
+> pass an initrd via other means? I couldn't find where that is implemented, so I'm
+> guessing it's not possible.
 
+Yes, a user could have a KVM_UNIT_TESTS_ENV environment variable set when
+they launch the tests. If that variable points to a file then it will get
+passed as an initrd. I guess you should also report a warning in arm/run
+if KVM_UNIT_TESTS_ENV is set which states that the environment file will
+be ignored when running with kvmtool.
 
--- 
+There aren't currently any other ways to invoke the addition of the
+-initrd command line option, because so far we only support passing a
+single file to test (the environment "file"). If we ever want to pass
+more files, then we'd need to create a simple file system on the initrd
+and make it possible to add -initrd even when no environment is desired.
+But, that may never happen.
+
 Thanks,
+drew
 
-David / dhildenb
+> 
+> Thanks,
+> 
+> Alex
+> 
+> >
+> >
+> >>  		temp_file ERRATATXT "$ERRATATXT"
+> >>  		echo 'export ERRATATXT'
+> >>  	fi
+> >> @@ -95,12 +99,8 @@ function mkstandalone()
+> >>  	echo Written $standalone.
+> >>  }
+> >>  
+> >> -if [ "$TARGET" = "kvmtool" ]; then
+> >> -	echo "Standalone tests not supported with kvmtool"
+> >> -	exit 2
+> >> -fi
+> >> -
+> >> -if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
+> >> +if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && \
+> >> +		[ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
+> >>  	echo "$ERRATATXT not found. (ERRATATXT=$ERRATATXT)" >&2
+> >>  	exit 2
+> >>  fi
+> >> -- 
+> >> 2.32.0
+> >>
+> > Thanks,
+> > drew 
+> >
+> 
 
