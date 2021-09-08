@@ -2,282 +2,226 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88CCBC433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 07:07:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AF2EC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 08:09:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F9076113D
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 07:07:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D72961131
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 08:09:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347544AbhIHHI3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Sep 2021 03:08:29 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20250 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1345947AbhIHHI0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Sep 2021 03:08:26 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 18873UqI150071;
-        Wed, 8 Sep 2021 03:07:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=ruoYdbmAJSNEFNyz5GvaGAjORefo7IUUyT/V6WiJ6Us=;
- b=fEl1YxFl8/hu7f4rrGKf5R5Fkiby+7usg2IcvzXvqcTGy+BE09w6ViffnS+AU3mt69Jl
- vcE48QOam0Q1d52KpEqOfi7p6OQgCAy37Hrhe8YtZyZ1l1Ndgh/2yabfeN0SXvtghpwa
- TfijppfCeanBOTM+TlNLgzI6H53bynea+Qp5P4YKlnYUp/ocpYBFP5VRjDekLWgiuBqF
- yAWraClAMCNDpJ5wJvTfe946DnJ7vrBw523J29djs5gIhbyqG2MCjgrqdcHqdEOE25jN
- AMU4JcW0ExfJow7vqL2OfnetqKh11qy7NO8FALCP9G8A/SynRltS59woLfVKV+KgZV7m eA== 
+        id S1347802AbhIHIKr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Sep 2021 04:10:47 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21336 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234696AbhIHIKo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Sep 2021 04:10:44 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 188839ae025462;
+        Wed, 8 Sep 2021 04:09:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=+AkS1tHO2xb+Q7+y879BlIe5c4v+6pGuu55sSeuCijI=;
+ b=kNVxlkbDSc9Iz7sx1hVT6rAb8SdLASngVlpVspAKIj+DoS2gHa+BK6KVYalYTgyGSxK2
+ JpMkbU4V00B03OwVeZYYdfvyIJ1+twhiNK6rCEFfsmS6vi9bOF941tq182b0boNdKkG/
+ WBLGJFJeGLaeR44CSJoivsmaKovdo738/XGffkr0lhf3VNlGVek1FYfv8ScPFVyckJ4q
+ Hrx3uqymc35u6vCqMdqwB+cqEXpwL6RglUGuHaoe1U0LdzsvGjCp7mLGbseWtH+abSgK
+ 2JlqQ0uhZpDS9Rg8gqL1SeSNBMd+yX1LkrLAdbG0O1xUArBPDMsL9GM+OTvRKJTQQqdN hQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3axqy9gryu-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3axrd49pcv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Sep 2021 03:07:18 -0400
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18873UMH150146;
-        Wed, 8 Sep 2021 03:07:18 -0400
+        Wed, 08 Sep 2021 04:09:28 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18883Guf025805;
+        Wed, 8 Sep 2021 04:09:27 -0400
 Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3axqy9grxq-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3axrd49pcj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Sep 2021 03:07:17 -0400
+        Wed, 08 Sep 2021 04:09:27 -0400
 Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18873K2N011308;
-        Wed, 8 Sep 2021 07:07:15 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 3axcnp54v4-1
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18883NJ8009759;
+        Wed, 8 Sep 2021 08:09:26 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3axcnp5t40-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Sep 2021 07:07:15 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18877C8v29163990
+        Wed, 08 Sep 2021 08:09:26 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18889MAp56623584
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 8 Sep 2021 07:07:12 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0367311C05C;
-        Wed,  8 Sep 2021 07:07:12 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 69FE911C052;
-        Wed,  8 Sep 2021 07:07:11 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.145.79.242])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  8 Sep 2021 07:07:11 +0000 (GMT)
-Subject: Re: [PATCH v3 2/3] s390x: KVM: Implementation of Multiprocessor
- Topology-Change-Report
-To:     Pierre Morel <pmorel@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        frankja@linux.ibm.com, cohuck@redhat.com, thuth@redhat.com,
-        imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
-References: <1627979206-32663-1-git-send-email-pmorel@linux.ibm.com>
- <1627979206-32663-3-git-send-email-pmorel@linux.ibm.com>
- <d85a6998-0f86-44d9-4eae-3051b65c2b4e@redhat.com>
- <c4cfc6b1-44b5-eda7-c602-a54858971f01@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <720762c5-01ab-55f6-e585-b46c9b62ce8c@de.ibm.com>
-Date:   Wed, 8 Sep 2021 09:07:11 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
-MIME-Version: 1.0
-In-Reply-To: <c4cfc6b1-44b5-eda7-c602-a54858971f01@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        Wed, 8 Sep 2021 08:09:22 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 30DB952054;
+        Wed,  8 Sep 2021 08:09:22 +0000 (GMT)
+Received: from sig-9-145-80-246.uk.ibm.com (unknown [9.145.80.246])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 9602652057;
+        Wed,  8 Sep 2021 08:09:21 +0000 (GMT)
+Message-ID: <4a250dadbf8124980b4912389745c9546e2ec431.camel@linux.ibm.com>
+Subject: Re: [PATCH 0/5] s390/pci: automatic error recovery
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     "Oliver O'Halloran" <oohall@gmail.com>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Linas Vepstas <linasvepstas@gmail.com>,
+        Russell Currey <ruscur@russell.cc>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Date:   Wed, 08 Sep 2021 10:09:21 +0200
+In-Reply-To: <CAOSf1CH2T-R44qx1mGpJQ8WgD0upxG8sQNud_5L3SHYZJm9LRA@mail.gmail.com>
+References: <20210906094927.524106-1-schnelle@linux.ibm.com>
+         <CAOSf1CFyuf9FaeSNparj+7W0mKTPvtcM8vxjHDSFsNDC6k_7xQ@mail.gmail.com>
+         <e739c2919f97e277849a1bc1324a20df6a7d59eb.camel@linux.ibm.com>
+         <0c9326c943c0e6aa572cc132ee2deb952bf41c7f.camel@linux.ibm.com>
+         <CAOSf1CH2T-R44qx1mGpJQ8WgD0upxG8sQNud_5L3SHYZJm9LRA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QomOUwNb_IVkaAYuQi2WBZs0Fcay0xKv
-X-Proofpoint-ORIG-GUID: Li0lZM0PqJRoS_FpGpdE7iTTChYTimn9
+X-Proofpoint-GUID: 1kZhKCXcjOljT9eToHI8NNV7WIpx97bH
+X-Proofpoint-ORIG-GUID: uF62vMTNa9WMWmKt-L20QaI7kxqyBpE7
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
  definitions=2021-09-08_02:2021-09-07,2021-09-08 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- priorityscore=1501 malwarescore=0 bulkscore=0 phishscore=0 mlxlogscore=999
- spamscore=0 clxscore=1015 suspectscore=0 impostorscore=0
- lowpriorityscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2109030001 definitions=main-2109080044
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ phishscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0 mlxlogscore=999
+ clxscore=1015 priorityscore=1501 bulkscore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109030001 definitions=main-2109080047
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, 2021-09-08 at 11:37 +1000, Oliver O'Halloran wrote:
+> On Tue, Sep 7, 2021 at 10:21 PM Niklas Schnelle <schnelle@linux.ibm.com> wrote:
+> > On Tue, 2021-09-07 at 10:45 +0200, Niklas Schnelle wrote:
+> > > On Tue, 2021-09-07 at 12:04 +1000, Oliver O'Halloran wrote:
+> > > > On Mon, Sep 6, 2021 at 7:49 PM Niklas Schnelle <schnelle@linux.ibm.com> wrote:
+> > > > > Patch 3 I already sent separately resulting in the discussion below but without
+> > > > > a final conclusion.
+> > > > > 
+> > > > > https://lore.kernel.org/lkml/20210720150145.640727-1-schnelle@linux.ibm.com/
+> > > > > 
+> > > > > I believe even though there were some doubts about the use of
+> > > > > pci_dev_is_added() by arch code the existing uses as well as the use in the
+> > > > > final patch of this series warrant this export.
+> > > > 
+> > > > The use of pci_dev_is_added() in arch/powerpc was because in the past
+> > > > pci_bus_add_device() could be called before pci_device_add(). That was
+> > > > fixed a while ago so It should be safe to remove those calls now.
+> > > 
+> > > Hmm, ok that confirms Bjorns suspicion and explains how it came to be.
+> > > I can certainly sent a patch for that. This would then leave only the
+> > > existing use in s390 which I added because of a dead lock prevention
+> > > and explained here:
+> > > https://lore.kernel.org/lkml/87d15d5eead35c9eaa667958d057cf4a81a8bf13.camel@linux.ibm.com/
+> > > 
+> > > Plus the need to use it in the recovery code of this series. I think in
+> > > the EEH code the need for a similar check is alleviated by the checks
+> > > in the beginning of
+> > > arch/powerpc/kernel/eeh_driver.c:eeh_handle_normal_event() especially
+> > > eeh_slot_presence_check() which checks presence via the hotplug slot.
+> > > I guess we could use our own state tracking in a similar way but felt
+> > > like pci_dev_is_added() is the more logical choice.
+> 
+> The slot check is mainly there to prevent attempts to "recover"
+> devices that have been surprise removed (i.e NVMe hot-unplug). The
+> actual recovery process operates off the eeh_pe tree which is frozen
+> in place when an error is detected. If a pci_dev is added or removed
+> it's not really a problem since those are only ever looked at when
+> notifying drivers which is done with the rescan_remove lock held. 
+
+Thanks for the explanation.
+
+> That
+> said, I wouldn't really encourage anyone to follow the EEH model since
+> it's pretty byzantine.
+> 
+> > Looking into this again, I think we actually can't easily track this
+> > state ourselves outside struct pci_dev. The reason for this is that
+> > when e.g. arch/s390/pci/pci_sysfs.c:recover_store() removes the struct
+> > pci_dev and scans it again the new struct pci_dev re-uses the same
+> > struct zpci_dev because from a platform point of view the PCI device
+> > was never removed but only disabled and re-enabled. Thus we can only
+> > distinguish the stale struct pci_dev by looking at things stored in
+> > struct pci_dev itself.
+> 
+> IMO the real problem is removing and re-adding the pci_dev. I think
+> it's something that's done largely because the PCI core doesn't really
+> provide any better mechanism for getting a device back into a
+> known-good state so it's abused to implement error recovery. This is
+> something that's always annoyed me since it conflates recovery with
+> hotplug. After a hot-(un)plug we might have a different device or no
+> device. In the recovery case we expect to start and end with the same
+> device. Why not apply the same logic to the pci_dev?
+
+For us there are two cases. First The existing
+/sys/bus/pci/devices/<dev>/recover attribute. This does the pci_dev
+remove and re-add that you mention and thus we end up with a ne pci_dev
+afterwards and I agree that is kind of a dumb way to recover which
+(too?) closely resembles unplug/re-plug.
+
+Secondly the automatic error recovery added in this series. Here we
+only attempt recovery if we have a driver bound that supports the error
+callbacks thus always keeping the same pci_dev. If there is no driver
+we give up automatic recovery and are back at the situation without
+this series.
+
+> 
+> Something I was tinkering with before I left IBM was re-working the
+> way EEH handles recovering devices that don't have a driver with error
+> handling callbacks to something like:
+> 
+> 1. unbind the driver
+> 2. pci_save_state()
+> 3. do the reset
+> 4. pci_restore_state()
+> 5. re-bind the driver
+> 
+> That would allow keeping the pci_dev around and let me delete a pile
+> of confusing code which handles binding the eeh_dev to the new
+> pci_dev.
+
+This sounds like an interesting future approach for us too. Thankfully
+our binding of the zpci_dev to the new pci_dev is pretty simple by now.
+The main trouble with removing and re-adding a pci_dev is then that
+upper layers like block devices are also re-created which really only
+happens if we have a driver bound.
+
+>  The obvious problem with that approach is the assumption the
+> device is functional enough to allow saving the config space, but I
+> don't think that's a deal breaker. We could stash a copy of the device
+> state before we allow drivers to attach and use that to restore the
+> device after the reset. The end result would be the same known-good
+> state that we'd get after a re-scan.
+> 
+> > That said, I think for the recovery case we might be able to drop the
+> > pci_dev_is_added() and rely on pdev->driver != NULL which we check
+> > anyway and that should catch any PCI device that was already removed.
+> 
+> Would that work if there was an error on a device without a driver
+> bound? 
+
+For the automatic recovery flow introduced by this series we only
+recover if such a driver is bound anyway so that is already a
+requirement. Luckily all physical PCI devices we support on our
+platform have drivers with that support.
+
+> If you're just trying to stop races between recovery and device
+> removal then pci_dev_is_added() is probably the right tool for the
+> job. Trying to substitute it with a proxy seems like a bad idea.
+
+Yes I believe at least for the existing recover attribute that does not
+require a bound driver we still need pci_dev_is_added().
+
+For the automatic recovery flow I think it would be okay to rely on the
+fact that removed devices don't have a driver bound since the recovery
+requires a bound driver anyway but yes an explicit pci_dev_is_added()
+check as in this patch does feel more clean.
 
 
-On 07.09.21 14:28, Pierre Morel wrote:
-> 
-> 
-> On 9/6/21 8:37 PM, David Hildenbrand wrote:
->> On 03.08.21 10:26, Pierre Morel wrote:
->>> We let the userland hypervisor know if the machine support the CPU
->>> topology facility using a new KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
->>>
->>> The PTF instruction will report a topology change if there is any change
->>> with a previous STSI_15_2 SYSIB.
->>> Changes inside a STSI_15_2 SYSIB occur if CPU bits are set or clear
->>> inside the CPU Topology List Entry CPU mask field, which happens with
->>> changes in CPU polarization, dedication, CPU types and adding or
->>> removing CPUs in a socket.
->>>
->>> The reporting to the guest is done using the Multiprocessor
->>> Topology-Change-Report (MTCR) bit of the utility entry of the guest's
->>> SCA which will be cleared during the interpretation of PTF.
->>>
->>> To check if the topology has been modified we use a new field of the
->>> arch vCPU to save the previous real CPU ID at the end of a schedule
->>> and verify on next schedule that the CPU used is in the same socket.
->>>
->>> We deliberatly ignore:
->>> - polarization: only horizontal polarization is currently used in linux.
->>> - CPU Type: only IFL Type are supported in Linux
->>> - Dedication: we consider that only a complete dedicated CPU stack can
->>>    take benefit of the CPU Topology.
->>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>
->>
->>> @@ -228,7 +232,7 @@ struct kvm_s390_sie_block {
->>>       __u8    icptcode;        /* 0x0050 */
->>>       __u8    icptstatus;        /* 0x0051 */
->>>       __u16    ihcpu;            /* 0x0052 */
->>> -    __u8    reserved54;        /* 0x0054 */
->>> +    __u8    mtcr;            /* 0x0054 */
->>>   #define IICTL_CODE_NONE         0x00
->>>   #define IICTL_CODE_MCHK         0x01
->>>   #define IICTL_CODE_EXT         0x02
->>> @@ -246,6 +250,7 @@ struct kvm_s390_sie_block {
->>>   #define ECB_TE        0x10
->>>   #define ECB_SRSI    0x04
->>>   #define ECB_HOSTPROTINT    0x02
->>> +#define ECB_PTF        0x01
->>
->>  From below I understand, that ECB_PTF can be used with stfl(11) in the hypervisor.
->>
->> What is to happen if the hypervisor doesn't support stfl(11) and we consequently cannot use ECB_PTF? Will QEMU be able to emulate PTF fully?
->>
->>
->>>       __u8    ecb;            /* 0x0061 */
->>>   #define ECB2_CMMA    0x80
->>>   #define ECB2_IEP    0x20
->>> @@ -747,6 +752,7 @@ struct kvm_vcpu_arch {
->>>       bool skey_enabled;
->>>       struct kvm_s390_pv_vcpu pv;
->>>       union diag318_info diag318_info;
->>> +    int prev_cpu;
->>>   };
->>>   struct kvm_vm_stat {
->>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>> index b655a7d82bf0..ff6d8a2b511c 100644
->>> --- a/arch/s390/kvm/kvm-s390.c
->>> +++ b/arch/s390/kvm/kvm-s390.c
->>> @@ -568,6 +568,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->>>       case KVM_CAP_S390_VCPU_RESETS:
->>>       case KVM_CAP_SET_GUEST_DEBUG:
->>>       case KVM_CAP_S390_DIAG318:
->>> +    case KVM_CAP_S390_CPU_TOPOLOGY:
->>
->> I would have expected instead
->>
->> r = test_facility(11);
->> break
->>
->> ...
->>
->>>           r = 1;
->>>           break;
->>>       case KVM_CAP_SET_GUEST_DEBUG2:
->>> @@ -819,6 +820,23 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
->>>           icpt_operexc_on_all_vcpus(kvm);
->>>           r = 0;
->>>           break;
->>> +    case KVM_CAP_S390_CPU_TOPOLOGY:
->>> +        mutex_lock(&kvm->lock);
->>> +        if (kvm->created_vcpus) {
->>> +            r = -EBUSY;
->>> +        } else {
->>
->> ...
->> } else if (test_facility(11)) {
->>      set_kvm_facility(kvm->arch.model.fac_mask, 11);
->>      set_kvm_facility(kvm->arch.model.fac_list, 11);
->>      r = 0;
->> } else {
->>      r = -EINVAL;
->> }
->>
->> similar to how we handle KVM_CAP_S390_VECTOR_REGISTERS.
->>
->> But I assume you want to be able to support hosts without ECB_PTF, correct?
->>
->>
->>> +            set_kvm_facility(kvm->arch.model.fac_mask, 11);
->>> +            set_kvm_facility(kvm->arch.model.fac_list, 11);
->>> +            r = 0;
->>> +        }
->>> +        mutex_unlock(&kvm->lock);
->>> +        VM_EVENT(kvm, 3, "ENABLE: CPU TOPOLOGY %s",
->>> +             r ? "(not available)" : "(success)");
->>> +        break;
->>> +
->>> +        r = -EINVAL;
->>> +        break;
->>
->> ^ dead code
->>
->> [...]
->>
->>>   }
->>>   void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
->>>   {
->>> +    vcpu->arch.prev_cpu = vcpu->cpu;
->>>       vcpu->cpu = -1;
->>>       if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
->>>           __stop_cpu_timer_accounting(vcpu);
->>> @@ -3198,6 +3239,11 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
->>>           vcpu->arch.sie_block->ecb |= ECB_HOSTPROTINT;
->>>       if (test_kvm_facility(vcpu->kvm, 9))
->>>           vcpu->arch.sie_block->ecb |= ECB_SRSI;
->>> +
->>> +    /* PTF needs both host and guest facilities to enable interpretation */
->>> +    if (test_kvm_facility(vcpu->kvm, 11) && test_facility(11))
->>> +        vcpu->arch.sie_block->ecb |= ECB_PTF;
->>
->> Here you say we need both ...
->>
->>> +
->>>       if (test_kvm_facility(vcpu->kvm, 73))
->>>           vcpu->arch.sie_block->ecb |= ECB_TE;
->>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->>> index 4002a24bc43a..50d67190bf65 100644
->>> --- a/arch/s390/kvm/vsie.c
->>> +++ b/arch/s390/kvm/vsie.c
->>> @@ -503,6 +503,9 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->>>       /* Host-protection-interruption introduced with ESOP */
->>>       if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_ESOP))
->>>           scb_s->ecb |= scb_o->ecb & ECB_HOSTPROTINT;
->>> +    /* CPU Topology */
->>> +    if (test_kvm_facility(vcpu->kvm, 11))
->>> +        scb_s->ecb |= scb_o->ecb & ECB_PTF;
->>
->> but here you don't check?
->>
->>>       /* transactional execution */
->>>       if (test_kvm_facility(vcpu->kvm, 73) && wants_tx) {
->>>           /* remap the prefix is tx is toggled on */
->>> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
->>> index d9e4aabcb31a..081ce0cd44b9 100644
->>> --- a/include/uapi/linux/kvm.h
->>> +++ b/include/uapi/linux/kvm.h
->>> @@ -1112,6 +1112,7 @@ struct kvm_ppc_resize_hpt {
->>>   #define KVM_CAP_BINARY_STATS_FD 203
->>>   #define KVM_CAP_EXIT_ON_EMULATION_FAILURE 204
->>>   #define KVM_CAP_ARM_MTE 205
->>> +#define KVM_CAP_S390_CPU_TOPOLOGY 206
->>
->> We'll need a Documentation/virt/kvm/api.rst description.
->>
->> I'm not completely confident that the way we're handling the capability+facility is the right approach. It all feels a bit suboptimal.
->>
->> Except stfl(74) -- STHYI --, we never enable a facility via set_kvm_facility() that's not available in the host. And STHYI is special such that it is never implemented in hardware.
->>
->> I'll think about what might be cleaner once I get some more details about the interaction with stfl(11) in the hypervisor.
->>
-> 
-> OK, may be we do not need to handle the case stfl(11) is not present in the host, these are pre GA10...
 
-What about VSIE? For all existing KVM guests, stfl11 is off.
