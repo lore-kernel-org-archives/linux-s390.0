@@ -2,158 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEB1DC433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 16:11:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 058B5C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 16:54:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D4D0761153
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 16:11:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DAD2A61102
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 16:54:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230091AbhIHQMw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Sep 2021 12:12:52 -0400
-Received: from foss.arm.com ([217.140.110.172]:48418 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237223AbhIHQMw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 8 Sep 2021 12:12:52 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E5AFA1FB;
-        Wed,  8 Sep 2021 09:11:43 -0700 (PDT)
-Received: from [192.168.0.110] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8EAD13F766;
-        Wed,  8 Sep 2021 09:11:41 -0700 (PDT)
-Subject: Re: [kvm-unit-tests RFC PATCH 5/5] configure: Ignore --erratatxt when
- --target=kvmtool
-To:     Andrew Jones <drjones@redhat.com>
-Cc:     thuth@redhat.com, pbonzini@redhat.com, lvivier@redhat.com,
-        kvm-ppc@vger.kernel.org, david@redhat.com, frankja@linux.ibm.com,
-        cohuck@redhat.com, imbrenda@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        kvmarm@lists.cs.columbia.edu, andre.przywara@arm.com,
-        maz@kernel.org, vivek.gautam@arm.com
-References: <20210702163122.96110-1-alexandru.elisei@arm.com>
- <20210702163122.96110-6-alexandru.elisei@arm.com>
- <20210907102536.jhycvnazlmj7qyto@gator>
-From:   Alexandru Elisei <alexandru.elisei@arm.com>
-Message-ID: <f1803e06-3557-c41a-58a1-c479fd5e0b97@arm.com>
-Date:   Wed, 8 Sep 2021 17:13:04 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S1349771AbhIHQzj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Sep 2021 12:55:39 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44166 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S235666AbhIHQzi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Sep 2021 12:55:38 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 188GXLCL019212;
+        Wed, 8 Sep 2021 12:54:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=UFUuMWLVoMZuIsxaszDJEv/XsW5TDiT4te8RaJ+mT0k=;
+ b=OA7N13R/reJICTV2DtIPzYzBQAWWLJIzjDTjvNo6JTPZCT3wT6QPwrcaULaHgeSL1bwi
+ +aRU4nSehRFCrUH674TBgGCHKhhUVlmIa1L+OC7CY1xH3ExYL2EPaIr+qOfQd6I1rusl
+ SngVNUdM3foNGlpW4wJlCc0rRDosfZ2OfydUHnQpbXSvketwLlhMTR1Tu9+azda1e6x8
+ 5k6poRAkd7Pq38MtBlNJHI0S9Q6vHCJc1EEBTiviNc18feoNu4cpOTBzbZ9jM2qBp/5i
+ SWvddobLN7khJZ3Q2W45GbBgTeS23212Vv0UW1VcHnN1HPVdJKjXPsXshduJADVyCSR+ +Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3axyvc289b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Sep 2021 12:54:27 -0400
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 188GYlZa023305;
+        Wed, 8 Sep 2021 12:54:27 -0400
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3axyvc288h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Sep 2021 12:54:27 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 188Gm4G7022026;
+        Wed, 8 Sep 2021 16:54:25 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma02fra.de.ibm.com with ESMTP id 3axcnk3qtj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Sep 2021 16:54:24 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 188GsLVf50790674
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Sep 2021 16:54:21 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 56D89A406F;
+        Wed,  8 Sep 2021 16:54:21 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D65EBA4055;
+        Wed,  8 Sep 2021 16:54:20 +0000 (GMT)
+Received: from osiris (unknown [9.145.165.20])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed,  8 Sep 2021 16:54:20 +0000 (GMT)
+Date:   Wed, 8 Sep 2021 18:54:19 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        linux-s390@vger.kernel.org, linux-mm@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH v1] hugetlbfs: s390 is always 64bit
+Message-ID: <YTjquztIqDE0Ew3A@osiris>
+References: <20210908154506.20764-1-david@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210907102536.jhycvnazlmj7qyto@gator>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210908154506.20764-1-david@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zVAwf6gTfkN1fKu6s0lGD0g_iuDCoh9Q
+X-Proofpoint-GUID: loEvSY1R8qvreNBZGroeBSls14zRCJOj
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-09-08_06:2021-09-07,2021-09-08 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ priorityscore=1501 bulkscore=0 spamscore=0 suspectscore=0 mlxlogscore=791
+ impostorscore=0 phishscore=0 malwarescore=0 mlxscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109030001 definitions=main-2109080103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Drew,
+On Wed, Sep 08, 2021 at 05:45:06PM +0200, David Hildenbrand wrote:
+> No need to check for 64BIT. While at it, let's just select
+> ARCH_SUPPORTS_HUGETLBFS from arch/s390x/Kconfig.
+                                    ^^^^^
+s390 :)
 
-On 9/7/21 11:25 AM, Andrew Jones wrote:
-> On Fri, Jul 02, 2021 at 05:31:22PM +0100, Alexandru Elisei wrote:
->> kvmtool runs a test using the -f/--firmware argument, which doesn't load an
->> initrd, making specifying an errata file useless. Instead, configure forces
->> all erratas to be enabled via the CONFIG_ERRATA_FORCE define in
->> lib/config.h.
->>
->> Forbid the --erratatxt option when kvm-unit-tests is configured for kvmtool
->> and let the user know that all erratas are enabled by default.
->>
->> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
->> ---
->> I'm not sure if printing an error is too strong here and a simple warning would
->> suffice. Suggestions welcome!
->>
->>  configure | 26 +++++++++++++++++++-------
->>  1 file changed, 19 insertions(+), 7 deletions(-)
->>
->> diff --git a/configure b/configure
->> index 395c809c9c02..acd288239f80 100755
->> --- a/configure
->> +++ b/configure
->> @@ -24,7 +24,8 @@ u32_long=
->>  wa_divide=
->>  target=
->>  errata_force=0
->> -erratatxt="$srcdir/errata.txt"
->> +erratatxt_default="$srcdir/errata.txt"
->> +erratatxt="_NO_FILE_4Uhere_"
->>  host_key_document=
->>  page_size=
->>  earlycon=
->> @@ -50,7 +51,8 @@ usage() {
->>  	                           enable or disable the generation of a default environ when
->>  	                           no environ is provided by the user (enabled by default)
->>  	    --erratatxt=FILE       specify a file to use instead of errata.txt. Use
->> -	                           '--erratatxt=' to ensure no file is used.
->> +	                           '--erratatxt=' to ensure no file is used. This option is
->> +	                           invalid for arm/arm64 when target=kvmtool.
-> Do we need to always specifiy arm/arm64 when talking about target=kvmtool?
-> How much more effort would an x86 kvmtool target be to add?
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/s390/Kconfig | 1 +
+>  fs/Kconfig        | 3 +--
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 
-Err.. there haven't been any commits to the x86 code, other than those caused by
-refactoring in the other parts of the code, since 2015.
-
-Ballpark estimate, it's going to be very hard even to make 50% of the tests run on
-kvmtool. I think adding adding --target=uefi is much more likely to happen for x86
-than --target=kvmtool.
-
->
->>  	    --host-key-document=HOST_KEY_DOCUMENT
->>  	                           Specify the machine-specific host-key document for creating
->>  	                           a PVM image with 'genprotimg' (s390x only)
->> @@ -147,11 +149,6 @@ if [ -n "$host_key_document" ] && [ ! -f "$host_key_document" ]; then
->>      exit 1
->>  fi
->>  
->> -if [ "$erratatxt" ] && [ ! -f "$erratatxt" ]; then
->> -    echo "erratatxt: $erratatxt does not exist or is not a regular file"
->> -    exit 1
->> -fi
->> -
->>  arch_name=$arch
->>  [ "$arch" = "aarch64" ] && arch="arm64"
->>  [ "$arch_name" = "arm64" ] && arch_name="aarch64"
->> @@ -184,6 +181,21 @@ else
->>      fi
->>  fi
->>  
->> +if [ "$target" = "kvmtool" ]; then
->> +    if [ "$erratatxt" ] && [ "$erratatxt" != "_NO_FILE_4Uhere_" ]; then
->> +        echo "--erratatxt is not supported for target=kvmtool (all erratas enabled by default)"
->> +        usage
->> +    fi
->> +else
->> +    if [ "$erratatxt" = "_NO_FILE_4Uhere_" ]; then
->> +        erratatxt=$erratatxt_default
->> +    fi
->> +    if [ "$erratatxt" ] && [ ! -f "$erratatxt" ]; then
->> +        echo "erratatxt: $erratatxt does not exist or is not a regular file"
->> +        exit 1
->> +    fi
->> +fi
-> switch
-
-Sure.
-
-Thanks,
-
-Alex
-
->
->> +
->>  [ -z "$processor" ] && processor="$arch"
->>  
->>  if [ "$processor" = "arm64" ]; then
->> -- 
->> 2.32.0
->>
-> Otherwise looks good to me.
->
-> Thanks,
-> drew 
->
+I'll apply this to the s390 tree. Thanks David!
