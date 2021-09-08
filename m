@@ -2,221 +2,156 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48872C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 03:52:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B1A5C433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 07:04:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3216361139
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 03:52:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 19FD860F13
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Sep 2021 07:04:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347624AbhIHDxx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Sep 2021 23:53:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56218 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232366AbhIHDxu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Sep 2021 23:53:50 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E49EC061575;
-        Tue,  7 Sep 2021 20:52:43 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id v123so872604pfb.11;
-        Tue, 07 Sep 2021 20:52:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=WSt+UMhq7R7h5hSLb95oV8jytbQKlUJH1lEwRLVcxwc=;
-        b=GLJfR0NMco+oS1HHyphViWc/H8Wf/bLjCDcmbtta6hyb801Md0ubjqPMWp6WdPvWq/
-         /NuGfVD1j9+XuSUMOGQz/eTCVbohXJ+Qkv9I2QMqTdEHfklDHNcvxpVFOWfbJPymvNFD
-         btC1KFw4ADbCa7XAeGte2pPkaEU5kZ7GcfmYZBMz4nJuY9zvGtKXL5+PeF7cVlAHFI2G
-         +TP44OHlZU2UYl/1A7zxdCsPyN+6gq/V8DFaKk1ZAfOPXKPdX2/k8aXmhsfoLio/obd/
-         fRBEBNg4S22eyDDVR3hvYvwYI6y0QYJteRexx8hn81tf7J0GoryM+zimw3uyq3VlSa06
-         cc0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=WSt+UMhq7R7h5hSLb95oV8jytbQKlUJH1lEwRLVcxwc=;
-        b=i+oW9IX37D+6Xk755PRVI+GqYDyVCobXsZn77xRd3s1QbU4zfeKNEp4BHWs6IVjca8
-         gL5fhNxplc3QGFaGCJBq95dsXqIaOQvczGpE8Xvn5Ti59BB7aOnhAZHYAta7M9siW0R0
-         3WZeJsXpt5GWGQt8oQQEQM8DAlNFkw10jg9+JYZ05zevEq9nhTksVOJhgVfcDt9Q0udY
-         kXQUgIZIYkTwYhKCpzUQKm6QvbvBRImuGvMwB72+elYbpSk/3n8ZdrqU3eBVuIT0uqv7
-         KC8ocZFF/xL9o1T2rX9B1WzHFAl4ReSqH/ZxYiREdxnLhPbR1hj/GXr61OABZzesXERA
-         HVcw==
-X-Gm-Message-State: AOAM533z4DNdfmhxrZUsZs6pTlsM8sHrNQJDM3iC0pkrVt8nAk0IfX3a
-        K7KIc8psogrrBJzpGfxhmRo=
-X-Google-Smtp-Source: ABdhPJzsF7/ZmS0a3POWsiDv6cT4l+YoAuvMs8kxVeVkGFJVzJ1fBZkDxrQQPMspQMKZVPXO7C92+Q==
-X-Received: by 2002:a63:30d:: with SMTP id 13mr1668901pgd.289.1631073162944;
-        Tue, 07 Sep 2021 20:52:42 -0700 (PDT)
-Received: from [192.168.30.11] ([173.248.225.217])
-        by smtp.gmail.com with ESMTPSA id p4sm647725pgc.15.2021.09.07.20.52.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Sep 2021 20:52:42 -0700 (PDT)
-Subject: Re: [PATCH v3] ftrace: Cleanup ftrace_dyn_arch_init()
-To:     LEROY Christophe <christophe.leroy@csgroup.eu>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>
-Cc:     Rich Felker <dalias@libc.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        Vincent Chen <deanbo422@gmail.com>,
-        Will Deacon <will@kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Helge Deller <deller@gmx.de>,
-        "x86@kernel.org" <x86@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Greentime Hu <green.hu@gmail.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        Nick Hu <nickhu@andestech.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Mackerras <paulus@samba.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "David S. Miller" <davem@davemloft.net>
-References: <20210907100524.1454928-1-o451686892@gmail.com>
- <MRZP264MB298824D80E6C0ADCB5EA1D9AEDD39@MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM>
-From:   Weizhao Ouyang <o451686892@gmail.com>
-Message-ID: <f33570e2-a67d-b0cf-f127-040ccd9e5da9@gmail.com>
-Date:   Wed, 8 Sep 2021 11:52:33 +0800
+        id S232308AbhIHHFr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Sep 2021 03:05:47 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47020 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232184AbhIHHFq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Sep 2021 03:05:46 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 18873ISe038599;
+        Wed, 8 Sep 2021 03:04:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=qDzUcZrYcDUllZjv0qQ9XzRik5hj4TNu/Hv/3igrSsU=;
+ b=tt66OnUHWQoDuWXp+hhMvLrkjqSGttpd/L9X2WGAavMD61cJUbTw5qz2qJ5Af556/eZq
+ P5tZv803K2J2jhCuoKdpx9jJTXkuLKQ1BfGxRD1s0ncfaTgc9WGtC4p5ZxTtBh4mTW4z
+ Y7wsEmCThkNkVBuoocVJXQU1yP7jFp1fyGynS2k1zc/VW71/WWGYLdDES8f/9qL1A4UZ
+ DnJPxPzNN1KkfrVk7foo7YJ1c85a4WIeGIbRJfhZKgmVdZH1H11ECBPBl+I86cQeXiRW
+ TWWEi5nhnt7BIFjdPCKwPjWGsb+TlR6E4Hz9EU6FQwqP3EeV8h2XXeeYz/nj5dDr6Ud+ 2w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3axmvmmeap-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Sep 2021 03:04:37 -0400
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18874bco046560;
+        Wed, 8 Sep 2021 03:04:37 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3axmvmmea8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Sep 2021 03:04:37 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18873KNG011325;
+        Wed, 8 Sep 2021 07:04:35 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3axcnp53ty-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Sep 2021 07:04:35 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18874V5B40829338
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Sep 2021 07:04:31 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8188F11C054;
+        Wed,  8 Sep 2021 07:04:31 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0A11711C05B;
+        Wed,  8 Sep 2021 07:04:31 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.145.79.242])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Sep 2021 07:04:30 +0000 (GMT)
+Subject: Re: [PATCH v3 2/3] s390x: KVM: Implementation of Multiprocessor
+ Topology-Change-Report
+To:     Pierre Morel <pmorel@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        frankja@linux.ibm.com, cohuck@redhat.com, thuth@redhat.com,
+        imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+References: <1627979206-32663-1-git-send-email-pmorel@linux.ibm.com>
+ <1627979206-32663-3-git-send-email-pmorel@linux.ibm.com>
+ <d85a6998-0f86-44d9-4eae-3051b65c2b4e@redhat.com>
+ <59ff09e8-6975-20c2-78de-282585e2953d@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <66754109-4b35-f6e5-3db7-654d8b67392e@de.ibm.com>
+Date:   Wed, 8 Sep 2021 09:04:30 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <MRZP264MB298824D80E6C0ADCB5EA1D9AEDD39@MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <59ff09e8-6975-20c2-78de-282585e2953d@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: m72y-ME-Qzb11RXsxOnPTr0fJxA2v3wd
+X-Proofpoint-ORIG-GUID: rJ22_opFUMmURn52B54kFJDTJU_wv9Ip
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-09-08_02:2021-09-07,2021-09-08 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ lowpriorityscore=0 adultscore=0 clxscore=1015 priorityscore=1501
+ malwarescore=0 mlxlogscore=999 suspectscore=0 impostorscore=0 mlxscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109030001 definitions=main-2109080044
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thanks for reply.
 
-On 2021/9/7 23:55, LEROY Christophe wrote:
->
->> -----Message d'origine-----
->> De : Linuxppc-dev <linuxppc-dev-
->> bounces+christophe.leroy=csgroup.eu@lists.ozlabs.org> De la part de Weizhao
->> Ouyang
->>
->> Most of ARCHs use empty ftrace_dyn_arch_init(), introduce a weak common
->> ftrace_dyn_arch_init() to cleanup them.
->>
->> Signed-off-by: Weizhao Ouyang <o451686892@gmail.com>
->> Acked-by: Heiko Carstens <hca@linux.ibm.com> (s390)
->> Acked-by: Helge Deller <deller@gmx.de> (parisc)
->>
->> ---
->> Changes in v3:
->> -- fix unrecognized opcode on PowerPC
->>
->> Changes in v2:
->> -- correct CONFIG_DYNAMIC_FTRACE on PowerPC
->> -- add Acked-by tag
->>
->> ---
->>  arch/arm/kernel/ftrace.c          | 5 -----
->>  arch/arm64/kernel/ftrace.c        | 5 -----
->>  arch/csky/kernel/ftrace.c         | 5 -----
->>  arch/ia64/kernel/ftrace.c         | 6 ------
->>  arch/microblaze/kernel/ftrace.c   | 5 -----
->>  arch/mips/include/asm/ftrace.h    | 2 ++
->>  arch/nds32/kernel/ftrace.c        | 5 -----
->>  arch/parisc/kernel/ftrace.c       | 5 -----
->>  arch/powerpc/include/asm/ftrace.h | 4 ++++
->>  arch/riscv/kernel/ftrace.c        | 5 -----
->>  arch/s390/kernel/ftrace.c         | 5 -----
->>  arch/sh/kernel/ftrace.c           | 5 -----
->>  arch/sparc/kernel/ftrace.c        | 5 -----
->>  arch/x86/kernel/ftrace.c          | 5 -----
->>  include/linux/ftrace.h            | 1 -
->>  kernel/trace/ftrace.c             | 5 +++++
->>  16 files changed, 11 insertions(+), 62 deletions(-)
->>
->> diff --git a/arch/mips/include/asm/ftrace.h b/arch/mips/include/asm/ftrace.h
->> index b463f2aa5a61..ed013e767390 100644
->> --- a/arch/mips/include/asm/ftrace.h
->> +++ b/arch/mips/include/asm/ftrace.h
->> @@ -76,6 +76,8 @@ do {                                                \
->>
->>
->>  #ifdef CONFIG_DYNAMIC_FTRACE
->> +int __init ftrace_dyn_arch_init(void);
->> +
-> Why ?
->
->
->>  static inline unsigned long ftrace_call_adjust(unsigned long addr)
->>  {
->>       return addr;
->> diff --git a/arch/powerpc/include/asm/ftrace.h
->> b/arch/powerpc/include/asm/ftrace.h
->> index debe8c4f7062..b05c43f13a4d 100644
->> --- a/arch/powerpc/include/asm/ftrace.h
->> +++ b/arch/powerpc/include/asm/ftrace.h
->> @@ -126,6 +126,10 @@ static inline void this_cpu_enable_ftrace(void) { }
->>  static inline void this_cpu_set_ftrace_enabled(u8 ftrace_enabled) { }
->>  static inline u8 this_cpu_get_ftrace_enabled(void) { return 1; }
->>  #endif /* CONFIG_PPC64 */
->> +
->> +#ifdef CONFIG_DYNAMIC_FTRACE
->> +int __init ftrace_dyn_arch_init(void);
->> +#endif /* CONFIG_DYNAMIC_FTRACE */
-> Why ?
->
->>  #endif /* !__ASSEMBLY__ */
->>
->>  #endif /* _ASM_POWERPC_FTRACE */
->> diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
->> index 832e65f06754..f1eca123d89d 100644
->> --- a/include/linux/ftrace.h
->> +++ b/include/linux/ftrace.h
->> @@ -573,7 +573,6 @@ ftrace_set_early_filter(struct ftrace_ops *ops, char
->> *buf, int enable);
->>
->>  /* defined in arch */
->>  extern int ftrace_ip_converted(unsigned long ip);
->> -extern int ftrace_dyn_arch_init(void);
-> Why removing that ?
->
-> Have you tried to build kernel/trace/ftrace.o with C=2 ? It will likely tell you that the function is not declared and that it should be static
 
-Yes I missed this check. Under the situation, the function should be static.
+On 07.09.21 12:24, Pierre Morel wrote:
+> 
+> 
+> On 9/6/21 8:37 PM, David Hildenbrand wrote:
+>> On 03.08.21 10:26, Pierre Morel wrote:
+>>> We let the userland hypervisor know if the machine support the CPU
+>>> topology facility using a new KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
+>>>
+>>> The PTF instruction will report a topology change if there is any change
+>>> with a previous STSI_15_2 SYSIB.
+>>> Changes inside a STSI_15_2 SYSIB occur if CPU bits are set or clear
+>>> inside the CPU Topology List Entry CPU mask field, which happens with
+>>> changes in CPU polarization, dedication, CPU types and adding or
+>>> removing CPUs in a socket.
+>>>
+>>> The reporting to the guest is done using the Multiprocessor
+>>> Topology-Change-Report (MTCR) bit of the utility entry of the guest's
+>>> SCA which will be cleared during the interpretation of PTF.
+>>>
+>>> To check if the topology has been modified we use a new field of the
+>>> arch vCPU to save the previous real CPU ID at the end of a schedule
+>>> and verify on next schedule that the CPU used is in the same socket.
+>>>
+>>> We deliberatly ignore:
+>>> - polarization: only horizontal polarization is currently used in linux.
+>>> - CPU Type: only IFL Type are supported in Linux
+>>> - Dedication: we consider that only a complete dedicated CPU stack can
+>>>    take benefit of the CPU Topology.
+>>>
+>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>
+>>
+>>> @@ -228,7 +232,7 @@ struct kvm_s390_sie_block {
+>>>       __u8    icptcode;        /* 0x0050 */
+>>>       __u8    icptstatus;        /* 0x0051 */
+>>>       __u16    ihcpu;            /* 0x0052 */
+>>> -    __u8    reserved54;        /* 0x0054 */
+>>> +    __u8    mtcr;            /* 0x0054 */
+>>>   #define IICTL_CODE_NONE         0x00
+>>>   #define IICTL_CODE_MCHK         0x01
+>>>   #define IICTL_CODE_EXT         0x02
+>>> @@ -246,6 +250,7 @@ struct kvm_s390_sie_block {
+>>>   #define ECB_TE        0x10
+>>>   #define ECB_SRSI    0x04
+>>>   #define ECB_HOSTPROTINT    0x02
+>>> +#define ECB_PTF        0x01
+>>
+>>  From below I understand, that ECB_PTF can be used with stfl(11) in the hypervisor.
+>>
+>> What is to happen if the hypervisor doesn't support stfl(11) and we consequently cannot use ECB_PTF? Will QEMU be able to emulate PTF fully?
+> 
+> Yes.
 
-> We could eventually consider that in the past, this generic declaration was unrelevant because the definitions where in the arch specific sections.
-> Now that you are implementing a generic weak version of this function, it would make sense to have a generic declaration as well.
->
-> I really don't see the point in duplicating the declaration of the function in the arch specific headers.
-
-I use declaration in arch specific headers in tend to clarify the arch has implement ftrace_dyn_arch_init().
-Anyway, it maybe pointless, a generic declaration is enough. Will update it later.
-
->>  extern void ftrace_replace_code(int enable);
->>  extern int ftrace_update_ftrace_func(ftrace_func_t func);
->>  extern void ftrace_caller(void);
-> Christophe
->
-> CS Group - Document Interne
+Do we want that? I do not think so. Other OSes (like zOS) do use PTF in there low level interrupt handler, so PTF must be really fast.
+I think I would prefer that in that case the guest will simply not see stfle(11).
+So the user can still specify the topology but the guest will have no interface to query it.
