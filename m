@@ -2,255 +2,198 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00200C433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 09:03:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C45F1C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 11:10:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D438061051
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 09:03:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9FBE961100
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 11:10:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232348AbhIIJEs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 05:04:48 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4894 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231281AbhIIJEr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 05:04:47 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1898YEo2032371;
-        Thu, 9 Sep 2021 05:03:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=/YAY+eCn01Bm0F0GNC2e0tGhJEKRvIHGBmxosDd3nlM=;
- b=BS3rX89tzk+Qq88MhMUAqoOXk546p8/5pzUKo0zDWEvIQwH2wb9Xr0XVjkhyUCVIHz6z
- VvUbtQ6g00AE07QR08qqYT+/iQAkbo9AC4Mf6sKHfVZ4TJdFL45Zvb0TOEu7twC53Yy1
- SxW+sakV2DxHm5A7sqlXjf+v90Z7zr/XSK/7BlkvVfCKwuaCboX0UWRkKVatsywY1dBn
- SoTPTioX7NQX55/9HtYCc+KBuaFo5KtIzIeG5ng1iGk8XxWaWZvTYbCsaeCz5daCyD75
- +stnUBPRYy5eFmh0WOxGrxeVitrAq1u9omhOZFewWXbUSXLcz9rABcAukqjkre6up1m3 aw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3aydx71yye-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Sep 2021 05:03:38 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18990xIq136832;
-        Thu, 9 Sep 2021 05:03:37 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3aydx71yxt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Sep 2021 05:03:37 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1898rLdH004379;
-        Thu, 9 Sep 2021 09:03:35 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3axcnntdgy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Sep 2021 09:03:35 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1898xBhd51577216
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 9 Sep 2021 08:59:11 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0CE9811C04C;
-        Thu,  9 Sep 2021 09:03:31 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A9A0E11C05B;
-        Thu,  9 Sep 2021 09:03:30 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.39.118])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  9 Sep 2021 09:03:30 +0000 (GMT)
-Subject: Re: [PATCH v3 2/3] s390x: KVM: Implementation of Multiprocessor
- Topology-Change-Report
-To:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
-        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com
-References: <1627979206-32663-1-git-send-email-pmorel@linux.ibm.com>
- <1627979206-32663-3-git-send-email-pmorel@linux.ibm.com>
- <d85a6998-0f86-44d9-4eae-3051b65c2b4e@redhat.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <8b30dd8b-45f6-c04f-a23a-2a4477e21938@linux.ibm.com>
-Date:   Thu, 9 Sep 2021 11:03:30 +0200
+        id S234953AbhIILLl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 07:11:41 -0400
+Received: from foss.arm.com ([217.140.110.172]:58736 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234349AbhIILLj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:11:39 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B19A431B;
+        Thu,  9 Sep 2021 04:10:29 -0700 (PDT)
+Received: from [192.168.0.110] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4AC433F73D;
+        Thu,  9 Sep 2021 04:10:27 -0700 (PDT)
+Subject: Re: [kvm-unit-tests RFC PATCH 4/5] scripts: Generate kvmtool
+ standalone tests
+To:     Andrew Jones <drjones@redhat.com>
+Cc:     thuth@redhat.com, pbonzini@redhat.com, lvivier@redhat.com,
+        kvm-ppc@vger.kernel.org, david@redhat.com, frankja@linux.ibm.com,
+        cohuck@redhat.com, imbrenda@linux.ibm.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu, andre.przywara@arm.com,
+        maz@kernel.org, vivek.gautam@arm.com
+References: <20210702163122.96110-1-alexandru.elisei@arm.com>
+ <20210702163122.96110-5-alexandru.elisei@arm.com>
+ <20210907102135.i2w3r7j4zyj736b5@gator>
+ <ee11a10a-c3e6-b9ce-81e1-147025a9b5bd@arm.com>
+ <20210908160743.l4hrl4de7wkxwuda@gator>
+From:   Alexandru Elisei <alexandru.elisei@arm.com>
+Message-ID: <9d5da497-7070-31ef-282a-a11a86e0102e@arm.com>
+Date:   Thu, 9 Sep 2021 12:11:52 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <d85a6998-0f86-44d9-4eae-3051b65c2b4e@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20210908160743.l4hrl4de7wkxwuda@gator>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zN9Py9ZmH3zH8nFBdx_Atj6pPIPPx9SP
-X-Proofpoint-ORIG-GUID: hXbG9DTZ19VRKYmdZ0mn1Oubx-WbhEnM
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-09-09_02:2021-09-07,2021-09-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 adultscore=0 lowpriorityscore=0 mlxlogscore=999
- phishscore=0 malwarescore=0 mlxscore=0 spamscore=0 bulkscore=0
- clxscore=1015 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2109030001 definitions=main-2109090050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi Drew,
 
-
-On 9/6/21 8:37 PM, David Hildenbrand wrote:
-> On 03.08.21 10:26, Pierre Morel wrote:
->> We let the userland hypervisor know if the machine support the CPU
->> topology facility using a new KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
+On 9/8/21 5:07 PM, Andrew Jones wrote:
+> On Wed, Sep 08, 2021 at 04:37:39PM +0100, Alexandru Elisei wrote:
+>> Hi Drew,
 >>
->> The PTF instruction will report a topology change if there is any change
->> with a previous STSI_15_2 SYSIB.
->> Changes inside a STSI_15_2 SYSIB occur if CPU bits are set or clear
->> inside the CPU Topology List Entry CPU mask field, which happens with
->> changes in CPU polarization, dedication, CPU types and adding or
->> removing CPUs in a socket.
+>> On 9/7/21 11:21 AM, Andrew Jones wrote:
+>>> On Fri, Jul 02, 2021 at 05:31:21PM +0100, Alexandru Elisei wrote:
+>>>> Add support for the standalone target when running kvm-unit-tests under
+>>>> kvmtool.
+>>>>
+>>>> Example command line invocation:
+>>>>
+>>>> $ ./configure --target=kvmtool
+>>>> $ make clean && make standalone
+>>>>
+>>>> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+>>>> ---
+>>>>  scripts/mkstandalone.sh | 14 +++++++-------
+>>>>  1 file changed, 7 insertions(+), 7 deletions(-)
+>>>>
+>>>> diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
+>>>> index 16f461c06842..d84bdb7e278c 100755
+>>>> --- a/scripts/mkstandalone.sh
+>>>> +++ b/scripts/mkstandalone.sh
+>>>> @@ -44,6 +44,10 @@ generate_test ()
+>>>>  	config_export ARCH_NAME
+>>>>  	config_export PROCESSOR
+>>>>  
+>>>> +	if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "arm" ]; then
+>>>> +		config_export TARGET
+>>>> +	fi
+>>> Should export unconditionally, since we'll want TARGET set
+>>> unconditionally.
+>> Yes, will do.
 >>
->> The reporting to the guest is done using the Multiprocessor
->> Topology-Change-Report (MTCR) bit of the utility entry of the guest's
->> SCA which will be cleared during the interpretation of PTF.
+>>>> +
+>>>>  	echo "echo BUILD_HEAD=$(cat build-head)"
+>>>>  
+>>>>  	if [ ! -f $kernel ]; then
+>>>> @@ -59,7 +63,7 @@ generate_test ()
+>>>>  		echo 'export FIRMWARE'
+>>>>  	fi
+>>>>  
+>>>> -	if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
+>>>> +	if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
+>>> I think it would be better to ensure that ENVIRON_DEFAULT is "no" for
+>>> TARGET=kvmtool in configure.
+>> From looking at the code, it is my understanding that with ENVIRON_DEFAULT=yes, an
+>> initrd file is generated with the contents of erratatxt and other information, in
+>> a key=value pair format. This initrd is then passed on to the test (please correct
+>> me if I'm wrong). With ENVIRON_DEFAULT=no (set via ./configure
+>> --disable-default-environ), this initrd is not generated.
 >>
->> To check if the topology has been modified we use a new field of the
->> arch vCPU to save the previous real CPU ID at the end of a schedule
->> and verify on next schedule that the CPU used is in the same socket.
+>> kvmtool doesn't have support for passing an initrd when loading firmware, so yes,
+>> I believe the default should be no.
 >>
->> We deliberatly ignore:
->> - polarization: only horizontal polarization is currently used in linux.
->> - CPU Type: only IFL Type are supported in Linux
->> - Dedication: we consider that only a complete dedicated CPU stack can
->>    take benefit of the CPU Topology.
+>> However, I have two questions:
 >>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> 
-> 
->> @@ -228,7 +232,7 @@ struct kvm_s390_sie_block {
->>       __u8    icptcode;        /* 0x0050 */
->>       __u8    icptstatus;        /* 0x0051 */
->>       __u16    ihcpu;            /* 0x0052 */
->> -    __u8    reserved54;        /* 0x0054 */
->> +    __u8    mtcr;            /* 0x0054 */
->>   #define IICTL_CODE_NONE         0x00
->>   #define IICTL_CODE_MCHK         0x01
->>   #define IICTL_CODE_EXT         0x02
->> @@ -246,6 +250,7 @@ struct kvm_s390_sie_block {
->>   #define ECB_TE        0x10
->>   #define ECB_SRSI    0x04
->>   #define ECB_HOSTPROTINT    0x02
->> +#define ECB_PTF        0x01
-> 
->  From below I understand, that ECB_PTF can be used with stfl(11) in the 
-> hypervisor.
-> 
-> What is to happen if the hypervisor doesn't support stfl(11) and we 
-> consequently cannot use ECB_PTF? Will QEMU be able to emulate PTF fully?
-> 
-> 
->>       __u8    ecb;            /* 0x0061 */
->>   #define ECB2_CMMA    0x80
->>   #define ECB2_IEP    0x20
->> @@ -747,6 +752,7 @@ struct kvm_vcpu_arch {
->>       bool skey_enabled;
->>       struct kvm_s390_pv_vcpu pv;
->>       union diag318_info diag318_info;
->> +    int prev_cpu;
->>   };
->>   struct kvm_vm_stat {
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index b655a7d82bf0..ff6d8a2b511c 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -568,6 +568,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, 
->> long ext)
->>       case KVM_CAP_S390_VCPU_RESETS:
->>       case KVM_CAP_SET_GUEST_DEBUG:
->>       case KVM_CAP_S390_DIAG318:
->> +    case KVM_CAP_S390_CPU_TOPOLOGY:
-> 
-> I would have expected instead
-> 
-> r = test_facility(11);
-> break
+>> 1. What happens when the user specifically enables the default environ via
+>> ./configure --enable-default-environ --target=kvmtool? In my opinion, that should
+>> be an error because the user wants something that is not possible with kvmtool
+>> (loading an image with --firmware in kvmtool means that the initrd image it not
+>> loaded into the guest memory and no node is generated for it in the dtb), but I
+>> would like to hear your thoughts about it.
+> As part of the forcing ENVIRON_DEFAULT to "no" for kvmtool in configure an
+> error should be generated if a user tries to explicitly enable it.
+>
+>> 2. If the default environment is disabled, is it still possible for an user to
+>> pass an initrd via other means? I couldn't find where that is implemented, so I'm
+>> guessing it's not possible.
+> Yes, a user could have a KVM_UNIT_TESTS_ENV environment variable set when
+> they launch the tests. If that variable points to a file then it will get
+> passed as an initrd. I guess you should also report a warning in arm/run
+> if KVM_UNIT_TESTS_ENV is set which states that the environment file will
+> be ignored when running with kvmtool.
 
-I will change to this as we decided not to support emulation if the hist 
-does not support facility 11.
+Thank you for explaining it, I had looked at
+scripts/arch-run.bash::initrd_create(), but it didn't click that setting the
+KVM_UNIT_TESTS_ENV environment variable is enough to generate and use the initrd.
 
+After looking at the code some more, in the logs the -initrd argument is shown as
+a comment, instead of an actual argument that is passed to qemu:
 
-> 
-> ...
-> 
->>           r = 1;
->>           break;
->>       case KVM_CAP_SET_GUEST_DEBUG2:
->> @@ -819,6 +820,23 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, 
->> struct kvm_enable_cap *cap)
->>           icpt_operexc_on_all_vcpus(kvm);
->>           r = 0;
->>           break;
->> +    case KVM_CAP_S390_CPU_TOPOLOGY:
->> +        mutex_lock(&kvm->lock);
->> +        if (kvm->created_vcpus) {
->> +            r = -EBUSY;
->> +        } else {
-> 
-> ...
-> } else if (test_facility(11)) {
->      set_kvm_facility(kvm->arch.model.fac_mask, 11);
->      set_kvm_facility(kvm->arch.model.fac_list, 11);
->      r = 0;
-> } else {
->      r = -EINVAL;
-> }
-> 
-> similar to how we handle KVM_CAP_S390_VECTOR_REGISTERS.
-> 
-> But I assume you want to be able to support hosts without ECB_PTF, correct?
+timeout -k 1s --foreground 90s /usr/bin/qemu-system-aarch64 -nodefaults -machine
+virt,gic-version=host,accel=kvm -cpu host -device virtio-serial-device -device
+virtconsole,chardev=ctd -chardev testdev,id=ctd -device pci-testdev -display none
+-serial stdio -kernel arm/cache.flat -smp 1 # -initrd /tmp/tmp.rUIZ3h9KLJ
+QEMU_ACCEL = kvm
+INFO: IDC-DIC: dcache clean to PoU required
+INFO: IDC-DIC: icache invalidation to PoU required
+PASS: IDC-DIC: code generation
+SUMMARY: 1 tests
 
-No more, after Christian comments we do not want to support emulation at 
-all.
+This is done intentionally in scripts/arch-run.bash::run_qemu(). I don't
+understand the reason for that. When I first looked at the logs, I was sure that
+no initrd is passed to the test. I had to go dig through the scripts to figure out
+that the "#" sign (which marks the beginning of a comment) is not present in the
+qemu invocation.
 
-> 
-> 
+Thanks,
 
-...snip...
+Alex
 
->> +
->> +    /* PTF needs both host and guest facilities to enable 
->> interpretation */
->> +    if (test_kvm_facility(vcpu->kvm, 11) && test_facility(11))
->> +        vcpu->arch.sie_block->ecb |= ECB_PTF;
-> 
-> Here you say we need both ...
-> 
->> +
->>       if (test_kvm_facility(vcpu->kvm, 73))
->>           vcpu->arch.sie_block->ecb |= ECB_TE;
->> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->> index 4002a24bc43a..50d67190bf65 100644
->> --- a/arch/s390/kvm/vsie.c
->> +++ b/arch/s390/kvm/vsie.c
->> @@ -503,6 +503,9 @@ static int shadow_scb(struct kvm_vcpu *vcpu, 
->> struct vsie_page *vsie_page)
->>       /* Host-protection-interruption introduced with ESOP */
->>       if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_ESOP))
->>           scb_s->ecb |= scb_o->ecb & ECB_HOSTPROTINT;
->> +    /* CPU Topology */
->> +    if (test_kvm_facility(vcpu->kvm, 11))
->> +        scb_s->ecb |= scb_o->ecb & ECB_PTF;
-> 
-> but here you don't check?
-
-do we really need to check at all, even for test_kvm_facility() ?
-as facilities do not change during a guest session and we checked for 
-setting it at first time.
-
-Regards,
-Pierre
-
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+>
+> There aren't currently any other ways to invoke the addition of the
+> -initrd command line option, because so far we only support passing a
+> single file to test (the environment "file"). If we ever want to pass
+> more files, then we'd need to create a simple file system on the initrd
+> and make it possible to add -initrd even when no environment is desired.
+> But, that may never happen.
+>
+> Thanks,
+> drew
+>
+>> Thanks,
+>>
+>> Alex
+>>
+>>>
+>>>>  		temp_file ERRATATXT "$ERRATATXT"
+>>>>  		echo 'export ERRATATXT'
+>>>>  	fi
+>>>> @@ -95,12 +99,8 @@ function mkstandalone()
+>>>>  	echo Written $standalone.
+>>>>  }
+>>>>  
+>>>> -if [ "$TARGET" = "kvmtool" ]; then
+>>>> -	echo "Standalone tests not supported with kvmtool"
+>>>> -	exit 2
+>>>> -fi
+>>>> -
+>>>> -if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
+>>>> +if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && \
+>>>> +		[ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
+>>>>  	echo "$ERRATATXT not found. (ERRATATXT=$ERRATATXT)" >&2
+>>>>  	exit 2
+>>>>  fi
+>>>> -- 
+>>>> 2.32.0
+>>>>
+>>> Thanks,
+>>> drew 
+>>>
