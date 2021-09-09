@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8C90C4332F
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 12:11:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73828C433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 12:35:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 94811610E9
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 12:11:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5DA7761100
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 12:35:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346950AbhIIMMW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 08:12:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
+        id S1353405AbhIIMgy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 08:36:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350583AbhIIMIc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:08:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AE7F619E5;
-        Thu,  9 Sep 2021 11:48:00 +0000 (UTC)
+        id S1353660AbhIIM3P (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:29:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 963866127C;
+        Thu,  9 Sep 2021 11:52:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188081;
-        bh=hB18a7k1xdiWHbYTMV/1DwVCbkxpJr4gvAy11Oq/qII=;
+        s=k20201202; t=1631188345;
+        bh=jaWhB30kYM7WYMY8wYo7ZrTkUv2CIFZbGtHtR7noM1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOdycUa1V6reke1xJz+ARjbSfUrbKx03pIIyURhmP5Bs7XFXfthMazk77s3bn8aXZ
-         bQA1tEHzkkP/IWxj+Ys26UBgze4MJwmmZDz8x/cwjPk893EjwxbQ+PfAtM6vTXGiC2
-         SQhWJrmZzZ4m+ohLqnTXjzsUIpeQGy/aDTPsSPF7yUB5qz1wQK8nzuzqqlQ+b07quu
-         CUnNYKDTs5l4/YEuXg3WQvHA4AcT7rdjG/NoPVb8qYJ618BVo9ifCSlt5f/WIQX/96
-         RvFSzOgNt4mRXog9qk/fZqQO9qcPFTC95OuJ+atIPEHe+ZrCVZUb0osuHRqw1gX1SA
-         ZYjKMetu3CIqw==
+        b=vIKmPekPdITbT6IetQW5k0arIyNbak4gAsmxwkcfX6gOsHkJo/4ZUOMr4o/utLFQr
+         HICBUJNVPgyB/7bhE+CI/PwjvaZN7rFeYobJnId0GCbzrsbXZHiiL7kgjkLat3dVHE
+         fXgku3ZcITa7WJLAXlSLk8Y6goafpJq36Q8m+PTY4D1S2M+gARs5OxbBlMH1A0zez7
+         RxhJchuAPpJwckwCvpwmXBGQCusnkx7P8G4mTOaVmDdzW7nnoSeLogHlt61e1OucJO
+         QtZT5vXt8boutwaG7J05DbNFE0PVHOij8lAFBvjSSHdJDS4x4TgVDjDIpAoukOxub3
+         vpMGBPEJQIgvA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 066/219] s390: make PCI mio support a machine flag
-Date:   Thu,  9 Sep 2021 07:44:02 -0400
-Message-Id: <20210909114635.143983-66-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 052/176] s390: make PCI mio support a machine flag
+Date:   Thu,  9 Sep 2021 07:49:14 -0400
+Message-Id: <20210909115118.146181-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
-References: <20210909114635.143983-1-sashal@kernel.org>
+In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
+References: <20210909115118.146181-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -82,10 +82,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  3 files changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/arch/s390/include/asm/setup.h b/arch/s390/include/asm/setup.h
-index 3e388fa208d4..519d517fedf4 100644
+index bdb242a1544e..75a2ecec2ab8 100644
 --- a/arch/s390/include/asm/setup.h
 +++ b/arch/s390/include/asm/setup.h
-@@ -36,6 +36,7 @@
+@@ -38,6 +38,7 @@
  #define MACHINE_FLAG_NX		BIT(15)
  #define MACHINE_FLAG_GS		BIT(16)
  #define MACHINE_FLAG_SCC	BIT(17)
@@ -93,7 +93,7 @@ index 3e388fa208d4..519d517fedf4 100644
  
  #define LPP_MAGIC		BIT(31)
  #define LPP_PID_MASK		_AC(0xffffffff, UL)
-@@ -109,6 +110,7 @@ extern unsigned long mio_wb_bit_mask;
+@@ -113,6 +114,7 @@ extern unsigned long mio_wb_bit_mask;
  #define MACHINE_HAS_NX		(S390_lowcore.machine_flags & MACHINE_FLAG_NX)
  #define MACHINE_HAS_GS		(S390_lowcore.machine_flags & MACHINE_FLAG_GS)
  #define MACHINE_HAS_SCC		(S390_lowcore.machine_flags & MACHINE_FLAG_SCC)
@@ -102,10 +102,10 @@ index 3e388fa208d4..519d517fedf4 100644
  /*
   * Console mode. Override with conmode=
 diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index a361d2e70025..661585587cbe 100644
+index 705844f73934..985e1e755333 100644
 --- a/arch/s390/kernel/early.c
 +++ b/arch/s390/kernel/early.c
-@@ -236,6 +236,10 @@ static __init void detect_machine_facilities(void)
+@@ -238,6 +238,10 @@ static __init void detect_machine_facilities(void)
  		clock_comparator_max = -1ULL >> 1;
  		__ctl_set_bit(0, 53);
  	}
@@ -117,10 +117,10 @@ index a361d2e70025..661585587cbe 100644
  
  static inline void save_vector_registers(void)
 diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 8fcb7ecb7225..2146ffb3e1eb 100644
+index ca1a105e3b5d..807589077739 100644
 --- a/arch/s390/pci/pci.c
 +++ b/arch/s390/pci/pci.c
-@@ -892,7 +892,6 @@ static void zpci_mem_exit(void)
+@@ -865,7 +865,6 @@ static void zpci_mem_exit(void)
  }
  
  static unsigned int s390_pci_probe __initdata = 1;
@@ -128,7 +128,7 @@ index 8fcb7ecb7225..2146ffb3e1eb 100644
  unsigned int s390_pci_force_floating __initdata;
  static unsigned int s390_pci_initialized;
  
-@@ -903,7 +902,7 @@ char * __init pcibios_setup(char *str)
+@@ -876,7 +875,7 @@ char * __init pcibios_setup(char *str)
  		return NULL;
  	}
  	if (!strcmp(str, "nomio")) {
@@ -137,9 +137,9 @@ index 8fcb7ecb7225..2146ffb3e1eb 100644
  		return NULL;
  	}
  	if (!strcmp(str, "force_floating")) {
-@@ -934,7 +933,7 @@ static int __init pci_base_init(void)
+@@ -905,7 +904,7 @@ static int __init pci_base_init(void)
+ 	if (!test_facility(69) || !test_facility(71))
  		return 0;
- 	}
  
 -	if (test_facility(153) && !s390_pci_no_mio) {
 +	if (MACHINE_HAS_PCI_MIO) {
