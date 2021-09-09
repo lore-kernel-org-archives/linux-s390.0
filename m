@@ -2,205 +2,221 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9D26C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 12:50:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27D7DC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:00:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A1B2B60ED8
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 12:50:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B3FC60ED8
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:00:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354207AbhIIMvh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 08:51:37 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61928 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1355248AbhIIMtl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 08:49:41 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 189Cbmrl105359;
-        Thu, 9 Sep 2021 08:48:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=50eUgxpnLXwGYdA2zWpp2GLVh8JlQc/khD0Cg8L63lA=;
- b=dXORHdMlId9+f/oXT6yhxDfYooyhsreAwBrIHz+MFvKgMXLDw7mLZF3vAZ3k0Iojtjd+
- iU5q5b8L/OTXBPf4LaYQsGDjTZ8mnItYk6CXyl2ke9sUyVgkhPcnhwgF38bTvFaF3P74
- K0Dlc47OlsSQur4RyJ+sAIoj6mKr7hW5H+urrvtg85NGTHC2ZBcW/WaajZl3WZXZ93ND
- Z8S5dcAtlBgIQjURRWzlFEpaFxu71xvgij3QreBSHxoLYCneCTj7TvYgNUjzdM9C1LPz
- zYS6jYXh2OaoMnjWRk5I/dbYJA7B38Ja75fza5hO0PStOjG3eYJw901QbYnhJj0w9ZVg xQ== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ayh0pjc6n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Sep 2021 08:48:26 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 189Cm7jd003831;
-        Thu, 9 Sep 2021 12:48:23 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3axcnkn32b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Sep 2021 12:48:23 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 189Ci0H148627984
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 9 Sep 2021 12:44:00 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8D84E11C054;
-        Thu,  9 Sep 2021 12:48:20 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4B65A11C04A;
-        Thu,  9 Sep 2021 12:48:20 +0000 (GMT)
-Received: from osiris (unknown [9.145.66.211])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu,  9 Sep 2021 12:48:20 +0000 (GMT)
-Date:   Thu, 9 Sep 2021 14:48:18 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] second batch of s390 updates for 5.15 merge window
-Message-ID: <YToCkrOYXKNTXqar@osiris>
+        id S1353235AbhIINB3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 09:01:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47509 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S243907AbhIIMuk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 08:50:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1631191769;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=/WIIV9R0O9293cVKltmhNKEdIknXhvoAmfpR0+Emkrc=;
+        b=QA2TDyvUImPRNeJYKF1PAZE5Qs8XQ5L3etWkHSowvvXidV1sRO/Xhpklgq/fUnxl/y79O6
+        c/RwCGwsKXiZavjFO+jNALE5qKiKfsCEeyHXIlu8UbcoxKti84dygC+BuAA3XnN1wNERAK
+        7XG6lwMEpxG0s3dkKdL61dtLhP3G3Tc=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-577-YphAzVT4PNaXmtKXtkK-Mw-1; Thu, 09 Sep 2021 08:49:28 -0400
+X-MC-Unique: YphAzVT4PNaXmtKXtkK-Mw-1
+Received: by mail-wm1-f70.google.com with SMTP id x10-20020a7bc76a000000b002f8cba3fd65so830833wmk.2
+        for <linux-s390@vger.kernel.org>; Thu, 09 Sep 2021 05:49:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=/WIIV9R0O9293cVKltmhNKEdIknXhvoAmfpR0+Emkrc=;
+        b=ZQtbJAU8TKaOIuP6nYDZod4UBOHjWKA1w9YjKVvP6a5xKvE2c/N0ULmBGy/ScEG+sc
+         oWmHRZc1HYXpkC14SyJsPfBdkUjTpXoXIcBmvXIV1liB+mgh58Vn3UXkjSAWXqXQ7lYz
+         5x5uSwOPT0Ns0b9PwSpsvK7prSv+sjnjpL/XBWMVCzYELd8XZa2U4TSAMa68VCVH6hQu
+         cgq6XR2pDnHlVd3APIKcySEvO9jTKdqGqUIosjvvIUcWasCjR3o+PW06hrrKbSkeRJTe
+         8jywvLGEn/NH2UP9zj1vMlIcpVkPDFrzPfIB3WTk7xZn4wRzJ5gHSOWt3CL6IX7ZzG/v
+         +W/A==
+X-Gm-Message-State: AOAM5301KfYC57PgE3DSmWr4bc9M5+vgQRB8Pc2p0uyu+o7j5pAVDgvo
+        ZeTNFgcVdMQm1GVXFcqbsVk2xi9jmoi9FhTn1jQQwfRJbPVcCS5voRTwh/7xvkC6TUl0NG+XkoU
+        xVPUjLFnX8lKvtEqw31zwdQ==
+X-Received: by 2002:a1c:f315:: with SMTP id q21mr2914779wmq.76.1631191767065;
+        Thu, 09 Sep 2021 05:49:27 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyhRToFiGZDeV90P9U2++KGI827ZasghlkgDnXG6Np7ns/pBENdzsEK0QomGtIIK6/dnfSjDQ==
+X-Received: by 2002:a1c:f315:: with SMTP id q21mr2914753wmq.76.1631191766841;
+        Thu, 09 Sep 2021 05:49:26 -0700 (PDT)
+Received: from gator (cst2-174-132.cust.vodafone.cz. [31.30.174.132])
+        by smtp.gmail.com with ESMTPSA id t17sm1658091wra.95.2021.09.09.05.49.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Sep 2021 05:49:26 -0700 (PDT)
+Date:   Thu, 9 Sep 2021 14:49:24 +0200
+From:   Andrew Jones <drjones@redhat.com>
+To:     Alexandru Elisei <alexandru.elisei@arm.com>
+Cc:     thuth@redhat.com, pbonzini@redhat.com, lvivier@redhat.com,
+        kvm-ppc@vger.kernel.org, david@redhat.com, frankja@linux.ibm.com,
+        cohuck@redhat.com, imbrenda@linux.ibm.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu, andre.przywara@arm.com,
+        maz@kernel.org, vivek.gautam@arm.com
+Subject: Re: [kvm-unit-tests RFC PATCH 3/5] run_tests.sh: Add kvmtool support
+Message-ID: <20210909124924.xcuehgluucvs7gb2@gator>
+References: <20210702163122.96110-1-alexandru.elisei@arm.com>
+ <20210702163122.96110-4-alexandru.elisei@arm.com>
+ <20210907101730.trnsig2j4jmhinyu@gator>
+ <587a5f8c-cf04-59ec-7e35-4ca6adf87862@arm.com>
+ <20210908150912.3d57akqkfux4fahj@gator>
+ <56289c06-04ec-1772-6e15-98d02780876d@arm.com>
+ <20210908154943.z7d6bhww3pnbaftd@gator>
+ <58d25f89-ff19-2dbc-81bc-3224b8baa9fb@arm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: TfQ6trnzWsiOFEjAvZUMkEva64a7TnZ2
-X-Proofpoint-ORIG-GUID: TfQ6trnzWsiOFEjAvZUMkEva64a7TnZ2
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-09-09_04:2021-09-09,2021-09-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- phishscore=0 mlxlogscore=664 spamscore=0 impostorscore=0 adultscore=0
- bulkscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109030001
- definitions=main-2109090076
+In-Reply-To: <58d25f89-ff19-2dbc-81bc-3224b8baa9fb@arm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Linus,
+On Thu, Sep 09, 2021 at 12:33:11PM +0100, Alexandru Elisei wrote:
+> Hi Drew,
+> 
+> On 9/8/21 4:49 PM, Andrew Jones wrote:
+> > On Wed, Sep 08, 2021 at 04:46:19PM +0100, Alexandru Elisei wrote:
+> >> Hi Drew,
+> >>
+> >> On 9/8/21 4:09 PM, Andrew Jones wrote:
+> >>> On Wed, Sep 08, 2021 at 03:33:19PM +0100, Alexandru Elisei wrote:
+> >>> ...
+> >>>>>> +fixup_kvmtool_opts()
+> >>>>>> +{
+> >>>>>> +    local opts=$1
+> >>>>>> +    local groups=$2
+> >>>>>> +    local gic
+> >>>>>> +    local gic_version
+> >>>>>> +
+> >>>>>> +    if find_word "pmu" $groups; then
+> >>>>>> +        opts+=" --pmu"
+> >>>>>> +    fi
+> >>>>>> +
+> >>>>>> +    if find_word "its" $groups; then
+> >>>>>> +        gic_version=3
+> >>>>>> +        gic="gicv3-its"
+> >>>>>> +    elif [[ "$opts" =~ -machine\ *gic-version=(2|3) ]]; then
+> >>>>>> +        gic_version="${BASH_REMATCH[1]}"
+> >>>>>> +        gic="gicv$gic_version"
+> >>>>>> +    fi
+> >>>>>> +
+> >>>>>> +    if [ -n "$gic" ]; then
+> >>>>>> +        opts=${opts/-machine gic-version=$gic_version/}
+> >>>>>> +        opts+=" --irqchip=$gic"
+> >>>>>> +    fi
+> >>>>>> +
+> >>>>>> +    opts=${opts/-append/--params}
+> >>>>>> +
+> >>>>>> +    echo "$opts"
+> >>>>>> +}
+> >>>>> Hmm, I don't think we want to write a QEMU parameter translator for
+> >>>>> all other VMMs, and all other VMM architectures, that we want to
+> >>>>> support. I think we should add new "extra_params" variables to the
+> >>>>> unittest configuration instead, e.g. "kvmtool_params", where the
+> >>>>> extra parameters can be listed correctly and explicitly. While at
+> >>>>> it, I would create an alias for "extra_params", which would be
+> >>>>> "qemu_params" allowing unittests that support more than one VMM
+> >>>>> to clearly show what's what.
+> >>>> I agree, this is a much better idea than a parameter translator. Using a dedicated
+> >>>> variable in unittests.cfg will make it easier for new tests to get support for all
+> >>>> VMMs (for example, writing a list of parameters in unittests.cfg should be easier
+> >>>> than digging through the scripts to figure exactly how and where to add a
+> >>>> translation for a new parameter), and it allow us to express parameters for other
+> >>>> VMMs which don't have a direct correspondent in qemu.
+> >>>>
+> >>>> By creating an alias, do you mean replacing extra_params with qemu_params in
+> >>>> arm/unittests.cfg? Or something else?
+> >>> Probably something like this
+> >>>
+> >>> diff --git a/scripts/common.bash b/scripts/common.bash
+> >>> index 7b983f7d6dd6..e5119ff216e5 100644
+> >>> --- a/scripts/common.bash
+> >>> +++ b/scripts/common.bash
+> >>> @@ -37,7 +37,12 @@ function for_each_unittest()
+> >>>                 elif [[ $line =~ ^smp\ *=\ *(.*)$ ]]; then
+> >>>                         smp=${BASH_REMATCH[1]}
+> >>>                 elif [[ $line =~ ^extra_params\ *=\ *(.*)$ ]]; then
+> >>> -                       opts=${BASH_REMATCH[1]}
+> >>> +               elif [[ $line =~ ^extra_params\ *=\ *(.*)$ ]]; then
+> >>> +                       qemu_opts=${BASH_REMATCH[1]}
+> >>> +               elif [[ $line =~ ^qemu_params\ *=\ *(.*)$ ]]; then
+> >>> +                       qemu_opts=${BASH_REMATCH[1]}
+> >>> +               elif [[ $line =~ ^kvmtool_params\ *=\ *(.*)$ ]]; then
+> >>> +                       kvmtool_opts=${BASH_REMATCH[1]}
+> >>>                 elif [[ $line =~ ^groups\ *=\ *(.*)$ ]]; then
+> >>>                         groups=${BASH_REMATCH[1]}
+> >>>                 elif [[ $line =~ ^arch\ *=\ *(.*)$ ]]; then
+> >>>
+> >>> and all other changes needed to support the s/opts/qemu_opts/ change
+> >>> should work. Also, an addition to the unittests.cfg documentation.
+> >> Got it, replace extra_opts with qemu_opts in the scripts.
+> >>
+> >> Yes, the documentation for unittests.cfg (at the top of the file) should
+> >> definitely be updated to document the new configuration option, kvmtool_params.
+> >>
+> >>> The above diff doesn't consider that a unittests.cfg file could have
+> >>> both an 'extra_params' and a 'qemu_params' field, but I'm not sure
+> >>> we care about that. Users should read the documentation and we
+> >>> should review changes to the committed unittests.cfg files to avoid
+> >>> that.
+> >> What do you feel about renaming extra_params -> qemu_params in unittests.cfg?
+> > Yes, that's what I would expect the patch to do.
+> >
+> >> I'm
+> >> thinking it would make the usage clearer, improve consistency (we would have
+> >> qemu_params and kvmtool_params, instead of extra_params and kvmtool_params), and
+> >> remove any confusions regarding when they are used (I can see someone thinking
+> >> that extra_params are used all the time, and are appended to kvmtool_params when
+> >> --target=kvmtool). On the other hand, this could be problematic for people using
+> >> out-of-tree scripts that parse the unittest.cfg file for whatever reason (are
+> >> there people that do that?).
+> > I'm not as worried about that as about people using out-of-tree
+> > unittests.cfg files that will break when the 'extra_params' field
+> > disappears. That's why I suggested to make 'extra_params' an alias.
+> 
+> I'm sorry, but I'm still having trouble parsing what alias means in this context.
+> Do you mean keep extra_params for current tests, encourage qemu_params for new
+> tests, document that they mean the same thing and going forward qemu_params should
+> be used?
 
-please pull the second batch of s390 updates for the 5.15 merge
-window. Besides the xpram device driver removal it is all about
-fixes and cleanups.
+Exactly, which just amounts to keeping the parsing line
+
+           elif [[ $line =~ ^extra_params\ *=\ *(.*)$ ]]; then
+                 qemu_opts=${BASH_REMATCH[1]}
+
+and some documentation changes.
 
 Thanks,
-Heiko
+drew
 
-The following changes since commit c7a5238ef68b98130fe36716bb3fa44502f56001:
+> 
+> Thanks,
+> 
+> Alex
+> 
+> >
+> > Thanks,
+> > drew
+> >
+> >> Thanks,
+> >>
+> >> Alex
+> >>
+> >>> Thanks,
+> >>> drew
+> >>>
+> 
 
-  Merge tag 's390-5.15-1' of git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux (2021-08-30 13:07:15 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.15-2
-
-for you to fetch changes up to bb9c14ad267d25dd77ceccbcfd69804bdb7240f5:
-
-  hugetlbfs: s390 is always 64bit (2021-09-08 18:58:35 +0200)
-
-----------------------------------------------------------------
-2nd batch of s390 updates for 5.15 merge window
-
-- Fix topology update on cpu hotplug, so notifiers see expected masks. This bug
-  was uncovered with SCHED_CORE support.
-
-- Fix stack unwinding so that the correct number of entries are omitted like
-  expected by common code. This fixes KCSAN selftests.
-
-- Add kmemleak annotation to stack_alloc to avoid false positive kmemleak
-  warnings.
-
-- Avoid layering violation in common I/O code and don't unregister subchannel
-  from child-drivers.
-
-- Remove xpram device driver for which no real use case exists since the kernel
-  is 64 bit only. Also all hypervisors got required support removed in the
-  meantime, which means the xpram device driver is dead code.
-
-- Fix -ENODEV handling of clp_get_state in our PCI code.
-
-- Enable KFENCE in debug defconfig.
-
-- Cleanup hugetlbfs s390 specific Kconfig dependency.
-
-- Quite a lot of trivial fixes to get rid of "W=1" warnings, and and other
-  simple cleanups.
-
-----------------------------------------------------------------
-David Hildenbrand (1):
-      hugetlbfs: s390 is always 64bit
-
-Heiko Carstens (12):
-      s390/entry: make oklabel within CHKSTG macro local
-      s390/mm: fix kernel doc comments
-      s390/cpum_cf: move array from header to C file
-      s390/con3270: use proper type for tasklet function
-      s390/ctrlchar: fix kernel doc comment
-      s390/cio: fix kernel doc comment
-      s390: remove xpram device driver
-      s390/hmcdrv_ftp: fix kernel doc comment
-      s390/sclp: add __nonstring annotation
-      scsi: zfcp: fix kernel doc comments
-      s390/zcrypt: remove incorrect kernel doc indicators
-      s390/ftrace: remove incorrect __va usage
-
-Niklas Schnelle (1):
-      s390/pci: fix clp_get_state() handling of -ENODEV
-
-Pierre Morel (1):
-      s390/pci: read clp_list_pci_req only once
-
-Sven Schnelle (3):
-      s390: add kmemleak annotation in stack_alloc()
-      s390/configs: enable CONFIG_KFENCE in debug_defconfig
-      s390/topology: fix topology information when calling cpu hotplug notifiers
-
-Vasily Gorbik (1):
-      s390/unwind: use current_frame_address() to unwind current task
-
-Vineeth Vijayan (1):
-      s390/cio: dont unregister subchannel from child-drivers
-
- arch/s390/Kconfig                      |   1 +
- arch/s390/configs/debug_defconfig      |   1 +
- arch/s390/configs/defconfig            |   1 -
- arch/s390/configs/zfcpdump_defconfig   |   1 -
- arch/s390/include/asm/cpu_mcf.h        |   7 -
- arch/s390/include/asm/smp.h            |   1 +
- arch/s390/include/asm/stacktrace.h     |  20 +-
- arch/s390/include/asm/unwind.h         |   8 +-
- arch/s390/kernel/entry.S               |   4 +-
- arch/s390/kernel/ftrace.c              |   4 +-
- arch/s390/kernel/perf_cpum_cf.c        |   8 +
- arch/s390/kernel/setup.c               |  10 +-
- arch/s390/kernel/smp.c                 |   9 +-
- arch/s390/kernel/topology.c            |  13 +-
- arch/s390/mm/gmap.c                    |  11 +-
- arch/s390/mm/pgtable.c                 |   4 +-
- arch/s390/pci/pci_clp.c                |   9 +-
- drivers/s390/block/Kconfig             |  11 -
- drivers/s390/block/Makefile            |   1 -
- drivers/s390/block/xpram.c             | 416 ---------------------------------
- drivers/s390/char/con3270.c            |   7 +-
- drivers/s390/char/ctrlchar.c           |  11 +-
- drivers/s390/char/hmcdrv_ftp.c         |   2 +-
- drivers/s390/char/sclp.c               |   2 +-
- drivers/s390/cio/blacklist.c           |   5 +-
- drivers/s390/cio/device.c              |  21 +-
- drivers/s390/cio/device_id.c           |   2 +-
- drivers/s390/crypto/zcrypt_api.c       |  14 +-
- drivers/s390/crypto/zcrypt_cex2a.c     |   8 +-
- drivers/s390/crypto/zcrypt_cex2c.c     |  10 +-
- drivers/s390/crypto/zcrypt_cex4.c      |   8 +-
- drivers/s390/crypto/zcrypt_msgtype50.c |  18 +-
- drivers/s390/crypto/zcrypt_msgtype6.c  |  38 +--
- drivers/s390/scsi/zfcp_dbf.c           |   4 +-
- drivers/s390/scsi/zfcp_fsf.c           |   2 +-
- drivers/s390/scsi/zfcp_qdio.c          |   2 +-
- drivers/s390/scsi/zfcp_unit.c          |   4 +-
- fs/Kconfig                             |   3 +-
- 38 files changed, 139 insertions(+), 562 deletions(-)
- delete mode 100644 drivers/s390/block/xpram.c
