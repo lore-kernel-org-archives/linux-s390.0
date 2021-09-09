@@ -7,40 +7,40 @@ X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15114C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 16:23:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E2DAC433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 16:23:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F4013611CA
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 16:23:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 172C1611F2
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 16:23:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237771AbhIIQY7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 12:24:59 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28865 "EHLO
+        id S237884AbhIIQZA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 12:25:00 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:21874 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236837AbhIIQYw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 12:24:52 -0400
+        by vger.kernel.org with ESMTP id S237054AbhIIQYx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 12:24:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1631204623;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=XLdqt4rseRM/GIF92UYXv6b/tK6ZasqjgOzH1i0jC0Y=;
-        b=iHuRXqeNehRBeN9grFRWaaXgofMrx7pZOq6mMGh5DGEY0XFX3vfwlDdBBNknrbbuc0t0d0
-        vMPMRgACYCYMzqEz7Yfw7wPojixM9lT48zVC3dytrFXKDKbshy5WCXSLoY/1rG1BYdNcfq
-        JN9UPhcr2Ed4aP6Q/RLsBFIKyMWxj2w=
+        bh=JN1gh/b5OY5DLuaHK7ojF2josCVOG87yIDqVi/iwvJY=;
+        b=IlknmZ1I5I4Pf3lZCZIVsk2zaJQNzE9tl9inE6SYWrf80dpWqGil3RRwlyfmAM6QKA8EDh
+        4ibYCeyNyksgehvwZFD9BETFmkPhY5pUnln0yqHJ69T5mophszbmA97tLOcujxYgDYtfk0
+        JJ2Qozv2Cx8F4MWwe/zHZ8Xr9hOXHHI=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-249-dD2LMHwWPuOGAojgNHBPhg-1; Thu, 09 Sep 2021 12:23:42 -0400
-X-MC-Unique: dD2LMHwWPuOGAojgNHBPhg-1
+ us-mta-359-Et78AoGNN7u6gQGCcIj0hQ-1; Thu, 09 Sep 2021 12:23:42 -0400
+X-MC-Unique: Et78AoGNN7u6gQGCcIj0hQ-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EC3BC802E3F;
-        Thu,  9 Sep 2021 16:23:10 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EAA9910919F9;
+        Thu,  9 Sep 2021 16:23:03 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.39.192.233])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BC80C77718;
-        Thu,  9 Sep 2021 16:23:07 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A1C2B18FD2;
+        Thu,  9 Sep 2021 16:23:00 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
@@ -54,9 +54,9 @@ Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
-Subject: [PATCH resend RFC 5/9] s390/uv: fully validate the VMA before calling follow_page()
-Date:   Thu,  9 Sep 2021 18:22:44 +0200
-Message-Id: <20210909162248.14969-6-david@redhat.com>
+Subject: [PATCH resend RFC 3/9] s390/mm: validate VMA in PGSTE manipulation functions
+Date:   Thu,  9 Sep 2021 18:22:42 +0200
+Message-Id: <20210909162248.14969-4-david@redhat.com>
 In-Reply-To: <20210909162248.14969-1-david@redhat.com>
 References: <20210909162248.14969-1-david@redhat.com>
 MIME-Version: 1.0
@@ -70,30 +70,75 @@ We should not walk/touch page tables outside of VMA boundaries when
 holding only the mmap sem in read mode. Evil user space can modify the
 VMA layout just before this function runs and e.g., trigger races with
 page table removal code since commit dd2283f2605e ("mm: mmap: zap pages
-with read mmap_sem in munmap").
+with read mmap_sem in munmap"). gfn_to_hva() will only translate using
+KVM memory regions, but won't validate the VMA.
 
-find_vma() does not check if the address is >= the VMA start address;
-use vma_lookup() instead.
+Further, we should not allocate page tables outside of VMA boundaries: if
+evil user space decides to map hugetlbfs to these ranges, bad things will
+happen because we suddenly have PTE or PMD page tables where we
+shouldn't have them.
 
-Fixes: 214d9bbcd3a6 ("s390/mm: provide memory management functions for protected KVM guests")
+Similarly, we have to check if we suddenly find a hugetlbfs VMA, before
+calling get_locked_pte().
+
+Fixes: 2d42f9477320 ("s390/kvm: Add PGSTE manipulation functions")
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kernel/uv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/mm/pgtable.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index aeb0a15bcbb7..193205fb2777 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -227,7 +227,7 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
- 	uaddr = __gmap_translate(gmap, gaddr);
- 	if (IS_ERR_VALUE(uaddr))
- 		goto out;
--	vma = find_vma(gmap->mm, uaddr);
-+	vma = vma_lookup(gmap->mm, uaddr);
- 	if (!vma)
- 		goto out;
- 	/*
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index eec3a9d7176e..54969e0f3a94 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -988,6 +988,7 @@ EXPORT_SYMBOL(get_guest_storage_key);
+ int pgste_perform_essa(struct mm_struct *mm, unsigned long hva, int orc,
+ 			unsigned long *oldpte, unsigned long *oldpgste)
+ {
++	struct vm_area_struct *vma;
+ 	unsigned long pgstev;
+ 	spinlock_t *ptl;
+ 	pgste_t pgste;
+@@ -997,6 +998,10 @@ int pgste_perform_essa(struct mm_struct *mm, unsigned long hva, int orc,
+ 	WARN_ON_ONCE(orc > ESSA_MAX);
+ 	if (unlikely(orc > ESSA_MAX))
+ 		return -EINVAL;
++
++	vma = vma_lookup(mm, hva);
++	if (!vma || is_vm_hugetlb_page(vma))
++		return -EFAULT;
+ 	ptep = get_locked_pte(mm, hva, &ptl);
+ 	if (unlikely(!ptep))
+ 		return -EFAULT;
+@@ -1089,10 +1094,14 @@ EXPORT_SYMBOL(pgste_perform_essa);
+ int set_pgste_bits(struct mm_struct *mm, unsigned long hva,
+ 			unsigned long bits, unsigned long value)
+ {
++	struct vm_area_struct *vma;
+ 	spinlock_t *ptl;
+ 	pgste_t new;
+ 	pte_t *ptep;
+ 
++	vma = vma_lookup(mm, hva);
++	if (!vma || is_vm_hugetlb_page(vma))
++		return -EFAULT;
+ 	ptep = get_locked_pte(mm, hva, &ptl);
+ 	if (unlikely(!ptep))
+ 		return -EFAULT;
+@@ -1117,9 +1126,13 @@ EXPORT_SYMBOL(set_pgste_bits);
+  */
+ int get_pgste(struct mm_struct *mm, unsigned long hva, unsigned long *pgstep)
+ {
++	struct vm_area_struct *vma;
+ 	spinlock_t *ptl;
+ 	pte_t *ptep;
+ 
++	vma = vma_lookup(mm, hva);
++	if (!vma || is_vm_hugetlb_page(vma))
++		return -EFAULT;
+ 	ptep = get_locked_pte(mm, hva, &ptl);
+ 	if (unlikely(!ptep))
+ 		return -EFAULT;
 -- 
 2.31.1
 
