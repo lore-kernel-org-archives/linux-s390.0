@@ -2,65 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5137C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 20:03:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AA13C433FE
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 23:39:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A01C96113E
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 20:03:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A9EA6113A
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 23:39:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345078AbhIIUFF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 16:05:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44912 "EHLO mail.kernel.org"
+        id S230075AbhIIXkY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 19:40:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233316AbhIIUFF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 9 Sep 2021 16:05:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 795226115B;
-        Thu,  9 Sep 2021 20:03:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631217835;
-        bh=tTeShPZNcQpLw3rDTtHBrAJoKpz1lAI4gsU1dYx0alI=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=QRUlnlQWBcp1f/kfLyhPzVp21FfXes3/u2giiyckcF/xGC3bRKMNKALTyC1S2pcUJ
-         AUtvWc+jJLAkAH6IdF2J6m18z+AkMoUB3hsPJW1Dlw0CU4YSwml1VDEAN5cReFbIxS
-         iFUsWAQQKyshMXGqJVGERbKSgWs0Tr3k+1S/kjP9D+sTb1kMiyknctMJSmDqc2yOGe
-         iDetrHyzchpkpooHOxei/rA6uAzOwsjZSt9nr8w7WzTWkNsycuHnLmPvYaPQIauU30
-         OGqgC1TZ16+3+Fi6ZwYPjT9zTeF/GP9vbPDibr8gM5GMGLRrhvF+q0XKzuhVbWPChu
-         k2L+w25U+A68g==
-Subject: Re: [GIT PULL] second batch of s390 updates for 5.15 merge window
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <YToCkrOYXKNTXqar@osiris>
-References: <YToCkrOYXKNTXqar@osiris>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <YToCkrOYXKNTXqar@osiris>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.15-2
-X-PR-Tracked-Commit-Id: bb9c14ad267d25dd77ceccbcfd69804bdb7240f5
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: f154c806676ad7153c6e161f30c53a44855329d6
-Message-Id: <163121783535.16320.12896534656135963682.pr-tracker-bot@kernel.org>
-Date:   Thu, 09 Sep 2021 20:03:55 +0000
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        id S232591AbhIIXiK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 9 Sep 2021 19:38:10 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AF536108D;
+        Thu,  9 Sep 2021 23:36:57 +0000 (UTC)
+Date:   Thu, 9 Sep 2021 19:36:55 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Weizhao Ouyang <o451686892@gmail.com>
+Cc:     Ingo Molnar <mingo@redhat.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org
+Subject: Re: [PATCH v4] ftrace: Cleanup ftrace_dyn_arch_init()
+Message-ID: <20210909193655.7bc715af@gandalf.local.home>
+In-Reply-To: <20210909090216.1955240-1-o451686892@gmail.com>
+References: <20210909090216.1955240-1-o451686892@gmail.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Thu, 9 Sep 2021 14:48:18 +0200:
+On Thu,  9 Sep 2021 17:02:16 +0800
+Weizhao Ouyang <o451686892@gmail.com> wrote:
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.15-2
+> Most of ARCHs use empty ftrace_dyn_arch_init(), introduce a weak common
+> ftrace_dyn_arch_init() to cleanup them.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/f154c806676ad7153c6e161f30c53a44855329d6
+FYI,
 
-Thank you!
+I'm not ignoring this patch. I just wont be able to look at it until the
+merge window is over.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+-- Steve
+
+
+> 
+> Signed-off-by: Weizhao Ouyang <o451686892@gmail.com>
+> Acked-by: Heiko Carstens <hca@linux.ibm.com> (s390)
+> Acked-by: Helge Deller <deller@gmx.de> (parisc)
+> 
+> ---
+> Changes in v4:
+> -- revert the generic declaration
+> 
+> Changes in v3:
+> -- fix unrecognized opcode on PowerPC
+> 
+> Changes in v2:
+> -- correct CONFIG_DYNAMIC_FTRACE on PowerPC
+> -- add Acked-by tag
+> 
+> ---
+>  arch/arm/kernel/ftrace.c        | 5 -----
+>  arch/arm64/kernel/ftrace.c      | 5 -----
+>  arch/csky/kernel/ftrace.c       | 5 -----
+>  arch/ia64/kernel/ftrace.c       | 6 ------
+>  arch/microblaze/kernel/ftrace.c | 5 -----
+>  arch/nds32/kernel/ftrace.c      | 5 -----
+>  arch/parisc/kernel/ftrace.c     | 5 -----
+>  arch/riscv/kernel/ftrace.c      | 5 -----
+>  arch/s390/kernel/ftrace.c       | 5 -----
+>  arch/sh/kernel/ftrace.c         | 5 -----
+>  arch/sparc/kernel/ftrace.c      | 5 -----
+>  arch/x86/kernel/ftrace.c        | 5 -----
+>  kernel/trace/ftrace.c           | 5 +++++
+>  13 files changed, 5 insertions(+), 61 deletions(-)
+> 
+>
