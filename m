@@ -4,43 +4,43 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 547D5C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:28:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ADD2C433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:44:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3E0D061059
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:28:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 433AF611C9
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:44:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343998AbhIIN3G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 09:29:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56240 "EHLO mail.kernel.org"
+        id S1356103AbhIINpt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 09:45:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358419AbhIINHT (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 9 Sep 2021 09:07:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B110632AF;
-        Thu,  9 Sep 2021 12:00:40 +0000 (UTC)
+        id S1356440AbhIIMzM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:55:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB5EA613AD;
+        Thu,  9 Sep 2021 11:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188841;
-        bh=26DpxREAUW4RnhxRwr/LD/ekH0ARh3OLBDizhE3yZ2o=;
+        s=k20201202; t=1631188676;
+        bh=pPUTDhlbhoWxCecJxjTKaCYpbhlU/dyhrWccM8e4UF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJ8QtSjqw7zHSkszIYOPS5m/xVmimV7dRI9aQ8mpp8w63HdjtLQ3o98cS/HLOwwnH
-         rBZCogT3jRhRvI37qKfRCdXEmizJGtO2zFnPMJb5scF+0enZx9M8ry9GsDdHmbPP69
-         RCBd9+6uHKG3mweTPpMHu329bTj0I7yCXVC/y0L71JhiIbHprvuBg9y+yzgGcvnUm4
-         QhrEO/P29or7Wuu5gcG8CCKgew5yAcaWkl+pLFAFd/kCNsNOZz6XYBlddUlYtmimCt
-         vcrpQ5iWaO5DHp9Vd8o3UTE3VScj5KLLJVtFNGrzqe2YfwUv0+jApbrry25ndPBMRd
-         E42yKZNBCsz4g==
+        b=eD7POMwFN4HIg89gZDHyiowzixXPh36OyoQA0ciAQrfolpj06FtqgdzEc23Q3a/cs
+         xg9fWdgmv8Kzwrx60dPr5/bToSvfu2IiXvWwu86W26eas1usyzsiLPg9OPrms/Arlc
+         RD23mlplTKN4Ku/g28PsfBR7hTUxfqpQbXxz5SSJJ5hUcQ9np3ibaT1Xv7aFLcM5aK
+         zcs0vp0twUxLjxxiZ8ihUSEXO9fKCB/dBhU+DJPiwQ3U4BuWyPVkoVyTI8/A2qVaQj
+         igXi14bBRMU99Z2P5YnP7BFyooNf0rB9Mx4Jlh6Xly7VRSXTAEBgJQJGNnQrHqeH2f
+         2L+w02QlnKrqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 20/48] s390/jump_label: print real address in a case of a jump label bug
-Date:   Thu,  9 Sep 2021 07:59:47 -0400
-Message-Id: <20210909120015.150411-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 24/74] s390/jump_label: print real address in a case of a jump label bug
+Date:   Thu,  9 Sep 2021 07:56:36 -0400
+Message-Id: <20210909115726.149004-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210909120015.150411-1-sashal@kernel.org>
-References: <20210909120015.150411-1-sashal@kernel.org>
+In-Reply-To: <20210909115726.149004-1-sashal@kernel.org>
+References: <20210909115726.149004-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -64,10 +64,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/s390/kernel/jump_label.c b/arch/s390/kernel/jump_label.c
-index 083b05f5f5ab..cbc187706648 100644
+index 68f415e334a5..10009a0cdb37 100644
 --- a/arch/s390/kernel/jump_label.c
 +++ b/arch/s390/kernel/jump_label.c
-@@ -43,7 +43,7 @@ static void jump_label_bug(struct jump_entry *entry, struct insn *expected,
+@@ -41,7 +41,7 @@ static void jump_label_bug(struct jump_entry *entry, struct insn *expected,
  	unsigned char *ipe = (unsigned char *)expected;
  	unsigned char *ipn = (unsigned char *)new;
  
