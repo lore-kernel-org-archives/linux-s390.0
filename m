@@ -2,177 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E298AC433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 11:31:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50138C4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 11:45:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C6B1260F24
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 11:31:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3C3A56140F
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 11:45:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235265AbhIILc4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 07:32:56 -0400
-Received: from foss.arm.com ([217.140.110.172]:58934 "EHLO foss.arm.com"
+        id S236982AbhIILrA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 07:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234507AbhIILc4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:32:56 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 53DD831B;
-        Thu,  9 Sep 2021 04:31:46 -0700 (PDT)
-Received: from [192.168.0.110] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 995063F73D;
-        Thu,  9 Sep 2021 04:31:43 -0700 (PDT)
-Subject: Re: [kvm-unit-tests RFC PATCH 3/5] run_tests.sh: Add kvmtool support
-To:     Andrew Jones <drjones@redhat.com>
-Cc:     thuth@redhat.com, pbonzini@redhat.com, lvivier@redhat.com,
-        kvm-ppc@vger.kernel.org, david@redhat.com, frankja@linux.ibm.com,
-        cohuck@redhat.com, imbrenda@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        kvmarm@lists.cs.columbia.edu, andre.przywara@arm.com,
-        maz@kernel.org, vivek.gautam@arm.com
-References: <20210702163122.96110-1-alexandru.elisei@arm.com>
- <20210702163122.96110-4-alexandru.elisei@arm.com>
- <20210907101730.trnsig2j4jmhinyu@gator>
- <587a5f8c-cf04-59ec-7e35-4ca6adf87862@arm.com>
- <20210908150912.3d57akqkfux4fahj@gator>
- <56289c06-04ec-1772-6e15-98d02780876d@arm.com>
- <20210908154943.z7d6bhww3pnbaftd@gator>
-From:   Alexandru Elisei <alexandru.elisei@arm.com>
-Message-ID: <58d25f89-ff19-2dbc-81bc-3224b8baa9fb@arm.com>
-Date:   Thu, 9 Sep 2021 12:33:11 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S238005AbhIILpB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:45:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D7CA61131;
+        Thu,  9 Sep 2021 11:42:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1631187763;
+        bh=CAqIcXkcf34afve8LtpAWpAHRErObplwMTC0sRhadn0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=LEGszd4YzupvRwSykdV9Ox2oHpsMyUztVNVgPEyFf5emkBNW4maUFgiPB1kCrrGkB
+         hVzj3vTzTgRz7gyYGuKogH4JLjvhHKUkfJ+CHyNp7AOU9/kjymeuu5PrirIHAWo4Pz
+         jFl4OuGZNSSmn7k1mC6Hicibt6cOoOkgPlccZfgBsiI6xkouTvRBz4SmmeUVRZo6vm
+         NgwnuRY3cBdB0o/Mh87fcIfntLi8XdUhI01gvI3xl60jEMXYIL5qMETe2JBcFet7xq
+         eVSZDoKps1h7FvIJPBKvYT1eVYPn82gf7LdlKrdKWQMBCklcPWDgWSAJjvfsSVbPU7
+         9y80IKRa+fY2Q==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 076/252] s390: make PCI mio support a machine flag
+Date:   Thu,  9 Sep 2021 07:38:10 -0400
+Message-Id: <20210909114106.141462-76-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
+References: <20210909114106.141462-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20210908154943.z7d6bhww3pnbaftd@gator>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Drew,
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-On 9/8/21 4:49 PM, Andrew Jones wrote:
-> On Wed, Sep 08, 2021 at 04:46:19PM +0100, Alexandru Elisei wrote:
->> Hi Drew,
->>
->> On 9/8/21 4:09 PM, Andrew Jones wrote:
->>> On Wed, Sep 08, 2021 at 03:33:19PM +0100, Alexandru Elisei wrote:
->>> ...
->>>>>> +fixup_kvmtool_opts()
->>>>>> +{
->>>>>> +    local opts=$1
->>>>>> +    local groups=$2
->>>>>> +    local gic
->>>>>> +    local gic_version
->>>>>> +
->>>>>> +    if find_word "pmu" $groups; then
->>>>>> +        opts+=" --pmu"
->>>>>> +    fi
->>>>>> +
->>>>>> +    if find_word "its" $groups; then
->>>>>> +        gic_version=3
->>>>>> +        gic="gicv3-its"
->>>>>> +    elif [[ "$opts" =~ -machine\ *gic-version=(2|3) ]]; then
->>>>>> +        gic_version="${BASH_REMATCH[1]}"
->>>>>> +        gic="gicv$gic_version"
->>>>>> +    fi
->>>>>> +
->>>>>> +    if [ -n "$gic" ]; then
->>>>>> +        opts=${opts/-machine gic-version=$gic_version/}
->>>>>> +        opts+=" --irqchip=$gic"
->>>>>> +    fi
->>>>>> +
->>>>>> +    opts=${opts/-append/--params}
->>>>>> +
->>>>>> +    echo "$opts"
->>>>>> +}
->>>>> Hmm, I don't think we want to write a QEMU parameter translator for
->>>>> all other VMMs, and all other VMM architectures, that we want to
->>>>> support. I think we should add new "extra_params" variables to the
->>>>> unittest configuration instead, e.g. "kvmtool_params", where the
->>>>> extra parameters can be listed correctly and explicitly. While at
->>>>> it, I would create an alias for "extra_params", which would be
->>>>> "qemu_params" allowing unittests that support more than one VMM
->>>>> to clearly show what's what.
->>>> I agree, this is a much better idea than a parameter translator. Using a dedicated
->>>> variable in unittests.cfg will make it easier for new tests to get support for all
->>>> VMMs (for example, writing a list of parameters in unittests.cfg should be easier
->>>> than digging through the scripts to figure exactly how and where to add a
->>>> translation for a new parameter), and it allow us to express parameters for other
->>>> VMMs which don't have a direct correspondent in qemu.
->>>>
->>>> By creating an alias, do you mean replacing extra_params with qemu_params in
->>>> arm/unittests.cfg? Or something else?
->>> Probably something like this
->>>
->>> diff --git a/scripts/common.bash b/scripts/common.bash
->>> index 7b983f7d6dd6..e5119ff216e5 100644
->>> --- a/scripts/common.bash
->>> +++ b/scripts/common.bash
->>> @@ -37,7 +37,12 @@ function for_each_unittest()
->>>                 elif [[ $line =~ ^smp\ *=\ *(.*)$ ]]; then
->>>                         smp=${BASH_REMATCH[1]}
->>>                 elif [[ $line =~ ^extra_params\ *=\ *(.*)$ ]]; then
->>> -                       opts=${BASH_REMATCH[1]}
->>> +               elif [[ $line =~ ^extra_params\ *=\ *(.*)$ ]]; then
->>> +                       qemu_opts=${BASH_REMATCH[1]}
->>> +               elif [[ $line =~ ^qemu_params\ *=\ *(.*)$ ]]; then
->>> +                       qemu_opts=${BASH_REMATCH[1]}
->>> +               elif [[ $line =~ ^kvmtool_params\ *=\ *(.*)$ ]]; then
->>> +                       kvmtool_opts=${BASH_REMATCH[1]}
->>>                 elif [[ $line =~ ^groups\ *=\ *(.*)$ ]]; then
->>>                         groups=${BASH_REMATCH[1]}
->>>                 elif [[ $line =~ ^arch\ *=\ *(.*)$ ]]; then
->>>
->>> and all other changes needed to support the s/opts/qemu_opts/ change
->>> should work. Also, an addition to the unittests.cfg documentation.
->> Got it, replace extra_opts with qemu_opts in the scripts.
->>
->> Yes, the documentation for unittests.cfg (at the top of the file) should
->> definitely be updated to document the new configuration option, kvmtool_params.
->>
->>> The above diff doesn't consider that a unittests.cfg file could have
->>> both an 'extra_params' and a 'qemu_params' field, but I'm not sure
->>> we care about that. Users should read the documentation and we
->>> should review changes to the committed unittests.cfg files to avoid
->>> that.
->> What do you feel about renaming extra_params -> qemu_params in unittests.cfg?
-> Yes, that's what I would expect the patch to do.
->
->> I'm
->> thinking it would make the usage clearer, improve consistency (we would have
->> qemu_params and kvmtool_params, instead of extra_params and kvmtool_params), and
->> remove any confusions regarding when they are used (I can see someone thinking
->> that extra_params are used all the time, and are appended to kvmtool_params when
->> --target=kvmtool). On the other hand, this could be problematic for people using
->> out-of-tree scripts that parse the unittest.cfg file for whatever reason (are
->> there people that do that?).
-> I'm not as worried about that as about people using out-of-tree
-> unittests.cfg files that will break when the 'extra_params' field
-> disappears. That's why I suggested to make 'extra_params' an alias.
+[ Upstream commit 3322ba0d7bea1e24ae464418626f6a15b69533ab ]
 
-I'm sorry, but I'm still having trouble parsing what alias means in this context.
-Do you mean keep extra_params for current tests, encourage qemu_params for new
-tests, document that they mean the same thing and going forward qemu_params should
-be used?
+Kernel support for the newer PCI mio instructions can be toggled off
+with the pci=nomio command line option which needs to integrate with
+common code PCI option parsing. However this option then toggles static
+branches which can't be toggled yet in an early_param() call.
 
-Thanks,
+Thus commit 9964f396f1d0 ("s390: fix setting of mio addressing control")
+moved toggling the static branches to the PCI init routine.
 
-Alex
+With this setup however we can't check for mio support outside the PCI
+code during early boot, i.e. before switching the static branches, which
+we need to be able to export this as an ELF HWCAP.
 
->
-> Thanks,
-> drew
->
->> Thanks,
->>
->> Alex
->>
->>> Thanks,
->>> drew
->>>
+Improve on this by turning mio availability into a machine flag that
+gets initially set based on CONFIG_PCI and the facility bit and gets
+toggled off if pci=nomio is found during PCI option parsing allowing
+simple access to this machine flag after early init.
+
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/include/asm/setup.h | 2 ++
+ arch/s390/kernel/early.c      | 4 ++++
+ arch/s390/pci/pci.c           | 5 ++---
+ 3 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/arch/s390/include/asm/setup.h b/arch/s390/include/asm/setup.h
+index 3a77aa96d092..bdb0c77bcfd9 100644
+--- a/arch/s390/include/asm/setup.h
++++ b/arch/s390/include/asm/setup.h
+@@ -36,6 +36,7 @@
+ #define MACHINE_FLAG_NX		BIT(15)
+ #define MACHINE_FLAG_GS		BIT(16)
+ #define MACHINE_FLAG_SCC	BIT(17)
++#define MACHINE_FLAG_PCI_MIO	BIT(18)
+ 
+ #define LPP_MAGIC		BIT(31)
+ #define LPP_PID_MASK		_AC(0xffffffff, UL)
+@@ -110,6 +111,7 @@ extern unsigned long mio_wb_bit_mask;
+ #define MACHINE_HAS_NX		(S390_lowcore.machine_flags & MACHINE_FLAG_NX)
+ #define MACHINE_HAS_GS		(S390_lowcore.machine_flags & MACHINE_FLAG_GS)
+ #define MACHINE_HAS_SCC		(S390_lowcore.machine_flags & MACHINE_FLAG_SCC)
++#define MACHINE_HAS_PCI_MIO	(S390_lowcore.machine_flags & MACHINE_FLAG_PCI_MIO)
+ 
+ /*
+  * Console mode. Override with conmode=
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index fb84e3fc1686..9857cb046726 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -236,6 +236,10 @@ static __init void detect_machine_facilities(void)
+ 		clock_comparator_max = -1ULL >> 1;
+ 		__ctl_set_bit(0, 53);
+ 	}
++	if (IS_ENABLED(CONFIG_PCI) && test_facility(153)) {
++		S390_lowcore.machine_flags |= MACHINE_FLAG_PCI_MIO;
++		/* the control bit is set during PCI initialization */
++	}
+ }
+ 
+ static inline void save_vector_registers(void)
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 8fcb7ecb7225..2146ffb3e1eb 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -892,7 +892,6 @@ static void zpci_mem_exit(void)
+ }
+ 
+ static unsigned int s390_pci_probe __initdata = 1;
+-static unsigned int s390_pci_no_mio __initdata;
+ unsigned int s390_pci_force_floating __initdata;
+ static unsigned int s390_pci_initialized;
+ 
+@@ -903,7 +902,7 @@ char * __init pcibios_setup(char *str)
+ 		return NULL;
+ 	}
+ 	if (!strcmp(str, "nomio")) {
+-		s390_pci_no_mio = 1;
++		S390_lowcore.machine_flags &= ~MACHINE_FLAG_PCI_MIO;
+ 		return NULL;
+ 	}
+ 	if (!strcmp(str, "force_floating")) {
+@@ -934,7 +933,7 @@ static int __init pci_base_init(void)
+ 		return 0;
+ 	}
+ 
+-	if (test_facility(153) && !s390_pci_no_mio) {
++	if (MACHINE_HAS_PCI_MIO) {
+ 		static_branch_enable(&have_mio);
+ 		ctl_set_bit(2, 5);
+ 	}
+-- 
+2.30.2
+
