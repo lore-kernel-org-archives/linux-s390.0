@@ -5,99 +5,97 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E970EC433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 15:01:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A03B9C43217
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 16:23:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D228E611B0
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 15:01:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8398C611CB
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 16:23:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237680AbhIIPCR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 11:02:17 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:41201 "EHLO
+        id S237128AbhIIQYx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 12:24:53 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:25171 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236714AbhIIPB7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 11:01:59 -0400
+        by vger.kernel.org with ESMTP id S236112AbhIIQYw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 12:24:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631199650;
+        s=mimecast20190719; t=1631204622;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=B5eD9QSjHB/obRO2RHdOXDtwX2b2cRaWyG1OuiS09Ls=;
-        b=AiIUhXqb5Vr1sZjTSkgSiro1k7rBLxDDbFlQ6GgsWhWdn8Bxc/zg3bDKF3lwq7mTgl5G5R
-        s71bMUc/nCckihkJ0MesCOYZpBv4ske53xBSkQISH2dAXqQKM1okc33939ze0kYskgZ3ko
-        Qm5wVhbLR+gGXI2s3TFssOcJdRTin30=
+        bh=87Mua4NbTS7oP3gkDXZZUnEGgyi6Qj+P+zd/pBlYJc8=;
+        b=LaUqb2JNSbg1tGogWRXwFTvA2kdy3DiSHLAdsvCGnK8KRbMnIdJ2rgQ9APwrM84WGjZuSf
+        06FwO953DxwZx0tyiZbqrkE92tHsi2vvupl7XEZSl9eFq3xHAntuhfABHu2tAHnPKvAuLh
+        txHnkTeOQ1UaHyTBX8gXejpV+f4zGpE=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-495-TmHlYQi8M1CK1M0bGrpLFg-1; Thu, 09 Sep 2021 11:00:48 -0400
-X-MC-Unique: TmHlYQi8M1CK1M0bGrpLFg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+ us-mta-234-qr5LxvXsMziVhewUddlc0A-1; Thu, 09 Sep 2021 12:23:41 -0400
+X-MC-Unique: qr5LxvXsMziVhewUddlc0A-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9788D835DE0;
-        Thu,  9 Sep 2021 15:00:47 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4D99E802C8A;
+        Thu,  9 Sep 2021 16:23:00 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.39.192.233])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6F51319E7E;
-        Thu,  9 Sep 2021 15:00:46 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 051B218FD2;
+        Thu,  9 Sep 2021 16:22:56 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-mm@kvack.org, David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC 9/9] s390/mm: optimize reset_guest_reference_bit()
-Date:   Thu,  9 Sep 2021 16:59:45 +0200
-Message-Id: <20210909145945.12192-10-david@redhat.com>
-In-Reply-To: <20210909145945.12192-1-david@redhat.com>
-References: <20210909145945.12192-1-david@redhat.com>
+        linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+Subject: [PATCH resend RFC 2/9] s390/gmap: don't unconditionally call pte_unmap_unlock() in __gmap_zap()
+Date:   Thu,  9 Sep 2021 18:22:41 +0200
+Message-Id: <20210909162248.14969-3-david@redhat.com>
+In-Reply-To: <20210909162248.14969-1-david@redhat.com>
+References: <20210909162248.14969-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We already optimize get_guest_storage_key() to assume that if we don't have
-a PTE table and don't have a huge page mapped that the storage key is 0.
+... otherwise we will try unlocking a spinlock that was never locked via a
+garbage pointer.
 
-Similarly, optimize reset_guest_reference_bit() to simply do nothing if
-there is no PTE table and no huge page mapped.
+At the time we reach this code path, we usually successfully looked up
+a PGSTE already; however, evil user space could have manipulated the VMA
+layout in the meantime and triggered removal of the page table.
 
+Fixes: 1e133ab296f3 ("s390/mm: split arch/s390/mm/pgtable.c")
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/mm/pgtable.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/s390/mm/gmap.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 534939a3eca5..50ab2fed3397 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -901,13 +901,23 @@ int reset_guest_reference_bit(struct mm_struct *mm, unsigned long addr)
- 	pte_t *ptep;
- 	int cc = 0;
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index b6b56cd4ca64..9023bf3ced89 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -690,9 +690,10 @@ void __gmap_zap(struct gmap *gmap, unsigned long gaddr)
  
--	if (pmd_lookup(mm, addr, &pmdp))
-+	/*
-+	 * If we don't have a PTE table and if there is no huge page mapped,
-+	 * the storage key is 0 and there is nothing for us to do.
-+	 */
-+	switch (pmd_lookup(mm, addr, &pmdp)) {
-+	case -ENOENT:
-+		return 0;
-+	case 0:
-+		break;
-+	default:
- 		return -EFAULT;
-+	}
- 
- 	ptl = pmd_lock(mm, pmdp);
- 	if (!pmd_present(*pmdp)) {
- 		spin_unlock(ptl);
--		return -EFAULT;
-+		return 0;
+ 		/* Get pointer to the page table entry */
+ 		ptep = get_locked_pte(gmap->mm, vmaddr, &ptl);
+-		if (likely(ptep))
++		if (likely(ptep)) {
+ 			ptep_zap_unused(gmap->mm, vmaddr, ptep, 0);
+-		pte_unmap_unlock(ptep, ptl);
++			pte_unmap_unlock(ptep, ptl);
++		}
  	}
- 
- 	if (pmd_large(*pmdp)) {
+ }
+ EXPORT_SYMBOL_GPL(__gmap_zap);
 -- 
 2.31.1
 
