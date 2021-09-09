@@ -5,42 +5,42 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BA4FC433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 16:23:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1D09C433FE
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 16:24:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5C86F611CA
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 16:23:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E208E611CA
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 16:24:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237100AbhIIQZC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 12:25:02 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:39025 "EHLO
+        id S237286AbhIIQY6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 12:24:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:58914 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237872AbhIIQZA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 12:25:00 -0400
+        by vger.kernel.org with ESMTP id S237100AbhIIQYx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 12:24:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631204630;
+        s=mimecast20190719; t=1631204623;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Vy4AapnQMIXuIP4+oB7VDWAdrTQvAAS99Uj1TpIfDfo=;
-        b=awbT2nxUK9lTtl+YtMicJ5f8ZDf7FvxB0djpO/+X/GpYPTOfnJMll+s8V16x+TGwxnqklb
-        HkYWuN2/68j9BngbQPsrFlkIaKUIl2uasu+5frcFiiJuZyQvE2tu3CslqDM5Pby13aFtKm
-        mDhx1R4auwH5w5w+DMwFiESaOlSHRxc=
+        bh=6g4VWCrzU/h/qyBDenztolU1cZPMwHWOEhuFKokN2bQ=;
+        b=R1i6yFakVicAUrI63EBOIv1baOvwT0jH7oCltH3/DZKmnXx2/p9eWyujEbRzS8SZkznwCP
+        NzcHpft1yRR2XaEvW3GCimqSCb8Q/ee1FSYKgc2H/KjtFI+rum0YS8qlsXifHi2qqq1shX
+        cDC5WL5YOt10OubD27EcJ17OuybXoBw=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-67-ioilyjDyOoyG3YriGikekw-1; Thu, 09 Sep 2021 12:23:49 -0400
-X-MC-Unique: ioilyjDyOoyG3YriGikekw-1
+ us-mta-572-0MTA3mPBNC2oDkUS9eTzCg-1; Thu, 09 Sep 2021 12:23:42 -0400
+X-MC-Unique: 0MTA3mPBNC2oDkUS9eTzCg-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 999D01006AA6;
-        Thu,  9 Sep 2021 16:22:56 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6C8E91092872;
+        Thu,  9 Sep 2021 16:23:18 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.39.192.233])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8560777718;
-        Thu,  9 Sep 2021 16:22:53 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F00B818FD2;
+        Thu,  9 Sep 2021 16:23:14 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
@@ -54,9 +54,9 @@ Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
-Subject: [PATCH resend RFC 1/9] s390/gmap: validate VMA in __gmap_zap()
-Date:   Thu,  9 Sep 2021 18:22:40 +0200
-Message-Id: <20210909162248.14969-2-david@redhat.com>
+Subject: [PATCH resend RFC 7/9] s390/mm: no need for pte_alloc_map_lock() if we know the pmd is present
+Date:   Thu,  9 Sep 2021 18:22:46 +0200
+Message-Id: <20210909162248.14969-8-david@redhat.com>
 In-Reply-To: <20210909162248.14969-1-david@redhat.com>
 References: <20210909162248.14969-1-david@redhat.com>
 MIME-Version: 1.0
@@ -66,55 +66,53 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We should not walk/touch page tables outside of VMA boundaries when
-holding only the mmap sem in read mode. Evil user space can modify the
-VMA layout just before this function runs and e.g., trigger races with
-page table removal code since commit dd2283f2605e ("mm: mmap: zap pages
-with read mmap_sem in munmap"). The pure prescence in our guest_to_host
-radix tree does not imply that there is a VMA.
+pte_map_lock() is sufficient.
 
-Further, we should not allocate page tables (via get_locked_pte()) outside
-of VMA boundaries: if evil user space decides to map hugetlbfs to these
-ranges, bad things will happen because we suddenly have PTE or PMD page
-tables where we shouldn't have them.
-
-Similarly, we have to check if we suddenly find a hugetlbfs VMA, before
-calling get_locked_pte().
-
-Note that gmap_discard() is different:
-zap_page_range()->unmap_single_vma() makes sure to stay within VMA
-boundaries.
-
-Fixes: b31288fa83b2 ("s390/kvm: support collaborative memory management")
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/mm/gmap.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/s390/mm/pgtable.c | 15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 9bb2c7512cd5..b6b56cd4ca64 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -673,6 +673,7 @@ EXPORT_SYMBOL_GPL(gmap_fault);
-  */
- void __gmap_zap(struct gmap *gmap, unsigned long gaddr)
- {
-+	struct vm_area_struct *vma;
- 	unsigned long vmaddr;
- 	spinlock_t *ptl;
- 	pte_t *ptep;
-@@ -682,6 +683,11 @@ void __gmap_zap(struct gmap *gmap, unsigned long gaddr)
- 						   gaddr >> PMD_SHIFT);
- 	if (vmaddr) {
- 		vmaddr |= gaddr & ~PMD_MASK;
-+
-+		vma = vma_lookup(gmap->mm, vmaddr);
-+		if (!vma || is_vm_hugetlb_page(vma))
-+			return;
-+
- 		/* Get pointer to the page table entry */
- 		ptep = get_locked_pte(gmap->mm, vmaddr, &ptl);
- 		if (likely(ptep))
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 5fb409ff7842..4e77b8ebdcc5 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -814,10 +814,7 @@ int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
+ 	}
+ 	spin_unlock(ptl);
+ 
+-	ptep = pte_alloc_map_lock(mm, pmdp, addr, &ptl);
+-	if (unlikely(!ptep))
+-		return -EFAULT;
+-
++	ptep = pte_offset_map_lock(mm, pmdp, addr, &ptl);
+ 	new = old = pgste_get_lock(ptep);
+ 	pgste_val(new) &= ~(PGSTE_GR_BIT | PGSTE_GC_BIT |
+ 			    PGSTE_ACC_BITS | PGSTE_FP_BIT);
+@@ -912,10 +909,7 @@ int reset_guest_reference_bit(struct mm_struct *mm, unsigned long addr)
+ 	}
+ 	spin_unlock(ptl);
+ 
+-	ptep = pte_alloc_map_lock(mm, pmdp, addr, &ptl);
+-	if (unlikely(!ptep))
+-		return -EFAULT;
+-
++	ptep = pte_offset_map_lock(mm, pmdp, addr, &ptl);
+ 	new = old = pgste_get_lock(ptep);
+ 	/* Reset guest reference bit only */
+ 	pgste_val(new) &= ~PGSTE_GR_BIT;
+@@ -977,10 +971,7 @@ int get_guest_storage_key(struct mm_struct *mm, unsigned long addr,
+ 	}
+ 	spin_unlock(ptl);
+ 
+-	ptep = pte_alloc_map_lock(mm, pmdp, addr, &ptl);
+-	if (unlikely(!ptep))
+-		return -EFAULT;
+-
++	ptep = pte_offset_map_lock(mm, pmdp, addr, &ptl);
+ 	pgste = pgste_get_lock(ptep);
+ 	*key = (pgste_val(pgste) & (PGSTE_ACC_BITS | PGSTE_FP_BIT)) >> 56;
+ 	paddr = pte_val(*ptep) & PAGE_MASK;
 -- 
 2.31.1
 
