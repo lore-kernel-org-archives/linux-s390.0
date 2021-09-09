@@ -4,43 +4,43 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C25ACC43217
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 11:45:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FF5FC433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 12:11:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AAB6E613A9
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 11:45:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7688261132
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 12:11:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237816AbhIILrB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 07:47:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46202 "EHLO mail.kernel.org"
+        id S1347674AbhIIMMV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 08:12:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235578AbhIILo6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:44:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11D2E61222;
-        Thu,  9 Sep 2021 11:42:41 +0000 (UTC)
+        id S1350592AbhIIMIc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:08:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38B3C619E2;
+        Thu,  9 Sep 2021 11:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187762;
+        s=k20201202; t=1631188079;
         bh=uwA0nUERC+utH2fpcqTViMZbqrZcqe6qSSC9TEOQ8Yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CCWjJ8AZsrnIyQlzjF902hY7G6+VlBRlIscIJPNM+7ZomvNMyoMPENzxEMeCkoChN
-         LYARljc9bZJXL4nZlBXswEJKz09wsgbzNjJnksxmSdpaZ4zK3eMzUZlB8FdbZyyroT
-         D6Ag647B/xSQr7bPQARBKkBursePHQc4oxFfb/+1cBLVBC+8App7lzNjBiNXd51FRx
-         zI2WML3Xo/vp85htNY/rNAOjyqm48SHJ1iIVAYojHV3CzX8ZrictGXr5lTXsikW+Z1
-         ZiCvyAW9IPl50IHCY8hnS46i8khGl7WzBeGzK7WIHWTdk8LV/Hl8jQVQpI/Rl5ZxeV
-         A6VxMkJ0BPzJg==
+        b=Lj7oeNDPgsvawAryT9+JcmCeuB+zQ+on65Qqpp0e6TnQpXX/2253BYztU3UD6vyZR
+         R7TE9lelNs1W1SUXFvgfnXkRGiD5KGYc4CIbzR5GtKvdHCaWFxO7uVVTWHCXT0nI/3
+         9XJEZslGJfhXYmCccG9o7/+2FfBj++Lqk4PsIIA0PWJcOUDVulTu0WRPBO6D06+MWp
+         5Ikk8xcNGcYKwaIwM6QMSDA0fvdD67dTIEjL+rJIHAL7DfCvLuNAIL/HJq32ByhdKL
+         4iomzSghFHd1W8toxMoQ+ymbKZ4kBRaKwCJALE70AP1yl0nO3YxMfScX850g70nwEv
+         8vpYYJ8oFqMxA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 075/252] s390/jump_label: print real address in a case of a jump label bug
-Date:   Thu,  9 Sep 2021 07:38:09 -0400
-Message-Id: <20210909114106.141462-75-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 065/219] s390/jump_label: print real address in a case of a jump label bug
+Date:   Thu,  9 Sep 2021 07:44:01 -0400
+Message-Id: <20210909114635.143983-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
-References: <20210909114106.141462-1-sashal@kernel.org>
+In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
+References: <20210909114635.143983-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
