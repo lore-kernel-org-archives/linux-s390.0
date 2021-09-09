@@ -2,479 +2,244 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2386AC433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 14:04:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8317C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 14:41:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 01EE1610E9
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 14:04:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB9606120E
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 14:41:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345172AbhIIOFv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 10:05:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38196 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239783AbhIIOFM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 10:05:12 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ADF6C0355CD
-        for <linux-s390@vger.kernel.org>; Thu,  9 Sep 2021 05:04:29 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id l7-20020a1c2507000000b002e6be5d86b3so1197852wml.3
-        for <linux-s390@vger.kernel.org>; Thu, 09 Sep 2021 05:04:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=K3vDDlqm04DaMwsoFUUJnAu6JgMCtAyVT1spCpUheAo=;
-        b=sDD09AQopSiJ3AtxBztVP873sDOz/Dm0FAdJM+v1ON/192NsLFcT7+8c5fkhkTgGRi
-         0Nd8zGb4B3fXELEQgOEbJKuJQrLwjie5Kl5kt/905SbdUrOuujw7TFNiWIzoW8hmDJuI
-         /B0ZvV08VGU+EeQkhZLkbYcsNb9Zi3VPDX5NBmeKIx4NHaRZNeLehKe5LrdsDEHygrW4
-         GrwVpG7zlf7ACbIZ+0ttCLiAuSA2XjfZfYzM/Q1uvzvIAR/XUa76+1HWzURzkqK3ZKm3
-         jfhgVXaA/Cr4zJc4Dkvy01s+QMYr3vWpbS8vixpLf7TPigpzhiFOFksKy2njYYyJiT4U
-         KKcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=K3vDDlqm04DaMwsoFUUJnAu6JgMCtAyVT1spCpUheAo=;
-        b=wF4d6vrvZVtG4XlaHBAkjajNlt+ehzCfd2wEgnOh2fSSoXItxd8z97FiytCCwvkODc
-         26Jer7tPIM0llIVCzPVdat5dQ6d2msd/KbxUGHPCclgJu7cCo8DPTpc0blzdKHoBpJ52
-         TZk4cbJQ5bsePSACNlgYf7Y02x2GioW7aqeM5ckRP+7HT0iK0jL374bPSyeU/dkAwszN
-         MG+RBKpdfuqjkvKHlXsFmoROo8FafqfbsHkSz7XrbeUKo77GCQ5UbRBfGmzDhKG1aBl5
-         pxBxfoBPsZQODITIO39MgfTynWJM0dc3xnZkHvbcpyZX3Ck8wG5PXaMReOos3btm1nZz
-         Or5g==
-X-Gm-Message-State: AOAM533V/EtCywhE7l6I+XSxxZUEklo2dPmDMaZAwI1JIHWaq7pgZZ8b
-        wBdArDk1TokvRJjPACsD4VUtVw==
-X-Google-Smtp-Source: ABdhPJz0PFpr/wZU2BJPWEvtutySCqYGxgLOifcfTS5MAcWKT7qquZYWa46Z0XYFxy5mcPeu8yVcJQ==
-X-Received: by 2002:a1c:1d42:: with SMTP id d63mr1301620wmd.55.1631189067647;
-        Thu, 09 Sep 2021 05:04:27 -0700 (PDT)
-Received: from localhost.localdomain ([95.148.6.201])
-        by smtp.gmail.com with ESMTPSA id n66sm1437498wmn.2.2021.09.09.05.04.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Sep 2021 05:04:27 -0700 (PDT)
-From:   Lee Jones <lee.jones@linaro.org>
-To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Brian Cain <bcain@codeaurora.org>,
-        Michal Simek <monstr@monstr.eu>,
-        John Crispin <john@phrozen.org>,
-        Ley Foon Tan <ley.foon.tan@intel.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Rich Felker <dalias@libc.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        uclinux-h8-devel@lists.sourceforge.jp,
-        linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH v2 1/3] arch: Export machine_restart() instances so they can be called from modules
-Date:   Thu,  9 Sep 2021 13:04:19 +0100
-Message-Id: <20210909120421.1313908-2-lee.jones@linaro.org>
-X-Mailer: git-send-email 2.33.0.153.gba50c8fa24-goog
-In-Reply-To: <20210909120421.1313908-1-lee.jones@linaro.org>
-References: <20210909120421.1313908-1-lee.jones@linaro.org>
+        id S244647AbhIIOm4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 10:42:56 -0400
+Received: from foss.arm.com ([217.140.110.172]:36598 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1350908AbhIIOml (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 9 Sep 2021 10:42:41 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CC8DF6D;
+        Thu,  9 Sep 2021 07:41:31 -0700 (PDT)
+Received: from [192.168.0.110] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 78A7F3F59C;
+        Thu,  9 Sep 2021 07:41:29 -0700 (PDT)
+Subject: Re: [kvm-unit-tests RFC PATCH 4/5] scripts: Generate kvmtool
+ standalone tests
+To:     Andrew Jones <drjones@redhat.com>
+Cc:     thuth@redhat.com, pbonzini@redhat.com, lvivier@redhat.com,
+        kvm-ppc@vger.kernel.org, david@redhat.com, frankja@linux.ibm.com,
+        cohuck@redhat.com, imbrenda@linux.ibm.com,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu, andre.przywara@arm.com,
+        maz@kernel.org, vivek.gautam@arm.com
+References: <20210702163122.96110-1-alexandru.elisei@arm.com>
+ <20210702163122.96110-5-alexandru.elisei@arm.com>
+ <20210907102135.i2w3r7j4zyj736b5@gator>
+ <ee11a10a-c3e6-b9ce-81e1-147025a9b5bd@arm.com>
+ <20210908160743.l4hrl4de7wkxwuda@gator>
+ <9d5da497-7070-31ef-282a-a11a86e0102e@arm.com>
+ <20210909130553.gnzce7cs7d5stvjd@gator>
+ <7313396e-de46-8a3b-902d-5a59b2089c79@arm.com>
+ <20210909135429.dqreodxr7elpvmfm@gator>
+From:   Alexandru Elisei <alexandru.elisei@arm.com>
+Message-ID: <e8560cdb-532c-0320-420d-c57d14cdae18@arm.com>
+Date:   Thu, 9 Sep 2021 15:42:54 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210909135429.dqreodxr7elpvmfm@gator>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-A recent attempt to convert the Power Reset Restart driver to tristate
-failed because of the following compile error (reported once merged by
-Stephen Rothwell via Linux Next):
+Hi Drew,
 
-  ERROR: "machine_restart" [drivers/power/reset/restart-poweroff.ko] undefined!
+On 9/9/21 2:54 PM, Andrew Jones wrote:
+> On Thu, Sep 09, 2021 at 02:47:57PM +0100, Alexandru Elisei wrote:
+>> Hi Drew,
+>>
+>> On 9/9/21 2:05 PM, Andrew Jones wrote:
+>>> On Thu, Sep 09, 2021 at 12:11:52PM +0100, Alexandru Elisei wrote:
+>>>> Hi Drew,
+>>>>
+>>>> On 9/8/21 5:07 PM, Andrew Jones wrote:
+>>>>> On Wed, Sep 08, 2021 at 04:37:39PM +0100, Alexandru Elisei wrote:
+>>>>>> Hi Drew,
+>>>>>>
+>>>>>> On 9/7/21 11:21 AM, Andrew Jones wrote:
+>>>>>>> On Fri, Jul 02, 2021 at 05:31:21PM +0100, Alexandru Elisei wrote:
+>>>>>>>> Add support for the standalone target when running kvm-unit-tests under
+>>>>>>>> kvmtool.
+>>>>>>>>
+>>>>>>>> Example command line invocation:
+>>>>>>>>
+>>>>>>>> $ ./configure --target=kvmtool
+>>>>>>>> $ make clean && make standalone
+>>>>>>>>
+>>>>>>>> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+>>>>>>>> ---
+>>>>>>>>  scripts/mkstandalone.sh | 14 +++++++-------
+>>>>>>>>  1 file changed, 7 insertions(+), 7 deletions(-)
+>>>>>>>>
+>>>>>>>> diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
+>>>>>>>> index 16f461c06842..d84bdb7e278c 100755
+>>>>>>>> --- a/scripts/mkstandalone.sh
+>>>>>>>> +++ b/scripts/mkstandalone.sh
+>>>>>>>> @@ -44,6 +44,10 @@ generate_test ()
+>>>>>>>>  	config_export ARCH_NAME
+>>>>>>>>  	config_export PROCESSOR
+>>>>>>>>  
+>>>>>>>> +	if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "arm" ]; then
+>>>>>>>> +		config_export TARGET
+>>>>>>>> +	fi
+>>>>>>> Should export unconditionally, since we'll want TARGET set
+>>>>>>> unconditionally.
+>>>>>> Yes, will do.
+>>>>>>
+>>>>>>>> +
+>>>>>>>>  	echo "echo BUILD_HEAD=$(cat build-head)"
+>>>>>>>>  
+>>>>>>>>  	if [ ! -f $kernel ]; then
+>>>>>>>> @@ -59,7 +63,7 @@ generate_test ()
+>>>>>>>>  		echo 'export FIRMWARE'
+>>>>>>>>  	fi
+>>>>>>>>  
+>>>>>>>> -	if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
+>>>>>>>> +	if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
+>>>>>>> I think it would be better to ensure that ENVIRON_DEFAULT is "no" for
+>>>>>>> TARGET=kvmtool in configure.
+>>>>>> From looking at the code, it is my understanding that with ENVIRON_DEFAULT=yes, an
+>>>>>> initrd file is generated with the contents of erratatxt and other information, in
+>>>>>> a key=value pair format. This initrd is then passed on to the test (please correct
+>>>>>> me if I'm wrong). With ENVIRON_DEFAULT=no (set via ./configure
+>>>>>> --disable-default-environ), this initrd is not generated.
+>>>>>>
+>>>>>> kvmtool doesn't have support for passing an initrd when loading firmware, so yes,
+>>>>>> I believe the default should be no.
+>>>>>>
+>>>>>> However, I have two questions:
+>>>>>>
+>>>>>> 1. What happens when the user specifically enables the default environ via
+>>>>>> ./configure --enable-default-environ --target=kvmtool? In my opinion, that should
+>>>>>> be an error because the user wants something that is not possible with kvmtool
+>>>>>> (loading an image with --firmware in kvmtool means that the initrd image it not
+>>>>>> loaded into the guest memory and no node is generated for it in the dtb), but I
+>>>>>> would like to hear your thoughts about it.
+>>>>> As part of the forcing ENVIRON_DEFAULT to "no" for kvmtool in configure an
+>>>>> error should be generated if a user tries to explicitly enable it.
+>>>>>
+>>>>>> 2. If the default environment is disabled, is it still possible for an user to
+>>>>>> pass an initrd via other means? I couldn't find where that is implemented, so I'm
+>>>>>> guessing it's not possible.
+>>>>> Yes, a user could have a KVM_UNIT_TESTS_ENV environment variable set when
+>>>>> they launch the tests. If that variable points to a file then it will get
+>>>>> passed as an initrd. I guess you should also report a warning in arm/run
+>>>>> if KVM_UNIT_TESTS_ENV is set which states that the environment file will
+>>>>> be ignored when running with kvmtool.
+>>>> Thank you for explaining it, I had looked at
+>>>> scripts/arch-run.bash::initrd_create(), but it didn't click that setting the
+>>>> KVM_UNIT_TESTS_ENV environment variable is enough to generate and use the initrd.
+>>>>
+>>>> After looking at the code some more, in the logs the -initrd argument is shown as
+>>>> a comment, instead of an actual argument that is passed to qemu:
+>>>>
+>>>> timeout -k 1s --foreground 90s /usr/bin/qemu-system-aarch64 -nodefaults -machine
+>>>> virt,gic-version=host,accel=kvm -cpu host -device virtio-serial-device -device
+>>>> virtconsole,chardev=ctd -chardev testdev,id=ctd -device pci-testdev -display none
+>>>> -serial stdio -kernel arm/cache.flat -smp 1 # -initrd /tmp/tmp.rUIZ3h9KLJ
+>>>> QEMU_ACCEL = kvm
+>>>> INFO: IDC-DIC: dcache clean to PoU required
+>>>> INFO: IDC-DIC: icache invalidation to PoU required
+>>>> PASS: IDC-DIC: code generation
+>>>> SUMMARY: 1 tests
+>>>>
+>>>> This is done intentionally in scripts/arch-run.bash::run_qemu(). I don't
+>>>> understand the reason for that. When I first looked at the logs, I was sure that
+>>>> no initrd is passed to the test. I had to go dig through the scripts to figure out
+>>>> that the "#" sign (which marks the beginning of a comment) is not present in the
+>>>> qemu invocation.
+>>> It's commented out because if you want to copy+paste the command line to
+>>> use it again it'll fail to run because the temp file will be gone. Of
+>>> course somebody depending on the environment for their test run will have
+>>> other problems when it's gone, but those people can use the
+>>> KVM_UNIT_TESTS_ENV variable to specify a non-temp file which includes the
+>>> default environment and then configure without the default environment.
+>>> The command line won't get the # in that case.
+>> Hmm... wouldn't it make more sense then to generate the initrd in the logs
+>> directory, and keep it there? To ensure the test runs can be reproduced manually,
+>> if needed?
+> Well, there's no logs directory for standalone tests, but I do like the
+> idea of capturing the environment when possible. Possibly the best thing
+> to do is to provide an option that, when enabled, says to dump the
+> environment into the log before executing the test. That would be similar
+> to how BUILD_HEAD is output first when running the tests standalone.
+> Anyway, this is a good idea, but probably outside the scope of your
+> kvmtool work unless the initrd thing is blocking you and you need to
+> rework it anyway.
 
-This error occurs since some of the machine_restart() instances are
-not currently exported for use in modules.  This patch aims to rectify
-that.
+I don't need to change anything about how initrd works in kvm-unit-tests for my
+kvmtool series, I was just curious to understand more about it. Thank you for the
+explanations!
 
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Guo Ren <guoren@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Brian Cain <bcain@codeaurora.org>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: John Crispin <john@phrozen.org>
-Cc: Ley Foon Tan <ley.foon.tan@intel.com>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: James E.J. Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Chris Zankel <chris@zankel.net>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-csky@vger.kernel.org
-Cc: uclinux-h8-devel@lists.sourceforge.jp
-Cc: linux-hexagon@vger.kernel.org
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: linux-mips@vger.kernel.org
-Cc: openrisc@lists.librecores.org
-Cc: linux-parisc@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-riscv@lists.infradead.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
-Cc: linux-um@lists.infradead.org
-Cc: linux-xtensa@linux-xtensa.org
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
----
- arch/arc/kernel/reset.c            | 1 +
- arch/arm/kernel/reboot.c           | 1 +
- arch/arm64/kernel/process.c        | 1 +
- arch/csky/kernel/power.c           | 1 +
- arch/h8300/kernel/process.c        | 1 +
- arch/hexagon/kernel/reset.c        | 1 +
- arch/m68k/kernel/process.c         | 1 +
- arch/microblaze/kernel/reset.c     | 1 +
- arch/mips/kernel/reset.c           | 1 +
- arch/mips/lantiq/falcon/reset.c    | 1 +
- arch/mips/sgi-ip27/ip27-reset.c    | 1 +
- arch/nds32/kernel/process.c        | 2 +-
- arch/nios2/kernel/process.c        | 1 +
- arch/openrisc/kernel/process.c     | 1 +
- arch/parisc/kernel/process.c       | 1 +
- arch/powerpc/kernel/setup-common.c | 1 +
- arch/riscv/kernel/reset.c          | 1 +
- arch/s390/kernel/setup.c           | 1 +
- arch/sh/kernel/reboot.c            | 1 +
- arch/sparc/kernel/process_32.c     | 1 +
- arch/sparc/kernel/reboot.c         | 1 +
- arch/um/kernel/reboot.c            | 1 +
- arch/x86/kernel/reboot.c           | 1 +
- arch/xtensa/kernel/setup.c         | 1 +
- 24 files changed, 24 insertions(+), 1 deletion(-)
+Thanks,
 
-diff --git a/arch/arc/kernel/reset.c b/arch/arc/kernel/reset.c
-index fd6c3eb930bad..1f5d8ce532e2f 100644
---- a/arch/arc/kernel/reset.c
-+++ b/arch/arc/kernel/reset.c
-@@ -20,6 +20,7 @@ void machine_restart(char *__unused)
- 	pr_info("Put your restart handler here\n");
- 	machine_halt();
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_power_off(void)
- {
-diff --git a/arch/arm/kernel/reboot.c b/arch/arm/kernel/reboot.c
-index 3044fcb8d0736..95cdcb17251af 100644
---- a/arch/arm/kernel/reboot.c
-+++ b/arch/arm/kernel/reboot.c
-@@ -146,3 +146,4 @@ void machine_restart(char *cmd)
- 	printk("Reboot failed -- System halted\n");
- 	while (1);
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
-diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index c8989b999250d..d7557f649dbd6 100644
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -148,6 +148,7 @@ void machine_restart(char *cmd)
- 	printk("Reboot failed -- System halted\n");
- 	while (1);
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- #define bstr(suffix, str) [PSR_BTYPE_ ## suffix >> PSR_BTYPE_SHIFT] = str
- static const char *const btypes[] = {
-diff --git a/arch/csky/kernel/power.c b/arch/csky/kernel/power.c
-index 923ee4e381b81..1787de5b13ba6 100644
---- a/arch/csky/kernel/power.c
-+++ b/arch/csky/kernel/power.c
-@@ -28,3 +28,4 @@ void machine_restart(char *cmd)
- 	do_kernel_restart(cmd);
- 	asm volatile ("bkpt");
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
-diff --git a/arch/h8300/kernel/process.c b/arch/h8300/kernel/process.c
-index 2ac27e4248a46..f92f473a1934a 100644
---- a/arch/h8300/kernel/process.c
-+++ b/arch/h8300/kernel/process.c
-@@ -66,6 +66,7 @@ void machine_restart(char *__unused)
- 	local_irq_disable();
- 	__asm__("jmp @@0");
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_halt(void)
- {
-diff --git a/arch/hexagon/kernel/reset.c b/arch/hexagon/kernel/reset.c
-index da36114d928f0..ed79e0e5a0318 100644
---- a/arch/hexagon/kernel/reset.c
-+++ b/arch/hexagon/kernel/reset.c
-@@ -19,6 +19,7 @@ void machine_halt(void)
- void machine_restart(char *cmd)
- {
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void (*pm_power_off)(void) = NULL;
- EXPORT_SYMBOL(pm_power_off);
-diff --git a/arch/m68k/kernel/process.c b/arch/m68k/kernel/process.c
-index db49f90917112..f891d9b4bdf2f 100644
---- a/arch/m68k/kernel/process.c
-+++ b/arch/m68k/kernel/process.c
-@@ -57,6 +57,7 @@ void machine_restart(char * __unused)
- 		mach_reset();
- 	for (;;);
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_halt(void)
- {
-diff --git a/arch/microblaze/kernel/reset.c b/arch/microblaze/kernel/reset.c
-index 5f4722908164d..7f47e59914c0d 100644
---- a/arch/microblaze/kernel/reset.c
-+++ b/arch/microblaze/kernel/reset.c
-@@ -41,3 +41,4 @@ void machine_restart(char *cmd)
- 	pr_emerg("Reboot failed -- System halted\n");
- 	while (1);
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
-diff --git a/arch/mips/kernel/reset.c b/arch/mips/kernel/reset.c
-index 6288780b779e7..4fe2edc2d06d6 100644
---- a/arch/mips/kernel/reset.c
-+++ b/arch/mips/kernel/reset.c
-@@ -99,6 +99,7 @@ void machine_restart(char *command)
- 	pr_emerg("Reboot failed -- System halted\n");
- 	machine_hang();
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_halt(void)
- {
-diff --git a/arch/mips/lantiq/falcon/reset.c b/arch/mips/lantiq/falcon/reset.c
-index 261996c230cf6..70259dd09aaea 100644
---- a/arch/mips/lantiq/falcon/reset.c
-+++ b/arch/mips/lantiq/falcon/reset.c
-@@ -51,6 +51,7 @@ static void machine_restart(char *command)
- 		(void *)WDT_REG_BASE);
- 	unreachable();
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- static void machine_halt(void)
- {
-diff --git a/arch/mips/sgi-ip27/ip27-reset.c b/arch/mips/sgi-ip27/ip27-reset.c
-index 5ac5ad6387343..35084653022ea 100644
---- a/arch/mips/sgi-ip27/ip27-reset.c
-+++ b/arch/mips/sgi-ip27/ip27-reset.c
-@@ -29,6 +29,7 @@
- #include "ip27-common.h"
- 
- void machine_restart(char *command) __noreturn;
-+EXPORT_SYMBOL_GPL(machine_restart);
- void machine_halt(void) __noreturn;
- void machine_power_off(void) __noreturn;
- 
-diff --git a/arch/nds32/kernel/process.c b/arch/nds32/kernel/process.c
-index 391895b54d13c..f60b70fcfaf3d 100644
---- a/arch/nds32/kernel/process.c
-+++ b/arch/nds32/kernel/process.c
-@@ -91,7 +91,7 @@ void machine_restart(char *cmd)
- 	while (1) ;
- }
- 
--EXPORT_SYMBOL(machine_restart);
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void show_regs(struct pt_regs *regs)
- {
-diff --git a/arch/nios2/kernel/process.c b/arch/nios2/kernel/process.c
-index 9ff37ba2bb603..ebc4940059de5 100644
---- a/arch/nios2/kernel/process.c
-+++ b/arch/nios2/kernel/process.c
-@@ -51,6 +51,7 @@ void machine_restart(char *__unused)
- 	: "r" (cpuinfo.reset_addr)
- 	: "r4");
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_halt(void)
- {
-diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-index eb62429681fc8..fba2aa6ae8470 100644
---- a/arch/openrisc/kernel/process.c
-+++ b/arch/openrisc/kernel/process.c
-@@ -61,6 +61,7 @@ void machine_restart(char *cmd)
- 	pr_emerg("Reboot failed -- System halted\n");
- 	while (1);
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- /*
-  * Similar to machine_power_off, but don't shut off power.  Add code
-diff --git a/arch/parisc/kernel/process.c b/arch/parisc/kernel/process.c
-index 184ec3c1eae44..f39f7620d715d 100644
---- a/arch/parisc/kernel/process.c
-+++ b/arch/parisc/kernel/process.c
-@@ -96,6 +96,7 @@ void machine_restart(char *cmd)
- 	while (1) ;
- 
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void (*chassis_power_off)(void);
- 
-diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-index aa9c2d01424af..dfd875d4f8478 100644
---- a/arch/powerpc/kernel/setup-common.c
-+++ b/arch/powerpc/kernel/setup-common.c
-@@ -158,6 +158,7 @@ void machine_restart(char *cmd)
- 
- 	machine_hang();
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_power_off(void)
- {
-diff --git a/arch/riscv/kernel/reset.c b/arch/riscv/kernel/reset.c
-index ee5878d968cc1..5fd0aa3e12766 100644
---- a/arch/riscv/kernel/reset.c
-+++ b/arch/riscv/kernel/reset.c
-@@ -20,6 +20,7 @@ void machine_restart(char *cmd)
- 	do_kernel_restart(cmd);
- 	while (1);
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_halt(void)
- {
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index ff0f9e8389162..ce8afa1cf8645 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -278,6 +278,7 @@ void machine_restart(char *command)
- 		console_unblank();
- 	_machine_restart(command);
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_halt(void)
- {
-diff --git a/arch/sh/kernel/reboot.c b/arch/sh/kernel/reboot.c
-index 5c33f036418be..ea4b1bdada41a 100644
---- a/arch/sh/kernel/reboot.c
-+++ b/arch/sh/kernel/reboot.c
-@@ -83,6 +83,7 @@ void machine_restart(char *cmd)
- {
- 	machine_ops.restart(cmd);
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_halt(void)
- {
-diff --git a/arch/sparc/kernel/process_32.c b/arch/sparc/kernel/process_32.c
-index 93983d6d431de..de9106e386919 100644
---- a/arch/sparc/kernel/process_32.c
-+++ b/arch/sparc/kernel/process_32.c
-@@ -104,6 +104,7 @@ void machine_restart(char * cmd)
- 	prom_feval ("reset");
- 	panic("Reboot failed!");
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_power_off(void)
- {
-diff --git a/arch/sparc/kernel/reboot.c b/arch/sparc/kernel/reboot.c
-index 69c1b6c047d53..faebf958c4b5a 100644
---- a/arch/sparc/kernel/reboot.c
-+++ b/arch/sparc/kernel/reboot.c
-@@ -52,4 +52,5 @@ void machine_restart(char *cmd)
- 	prom_reboot("");
- 	panic("Reboot failed!");
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
-diff --git a/arch/um/kernel/reboot.c b/arch/um/kernel/reboot.c
-index 48c0610d506e0..7ca141cf4a0af 100644
---- a/arch/um/kernel/reboot.c
-+++ b/arch/um/kernel/reboot.c
-@@ -47,6 +47,7 @@ void machine_restart(char * __unused)
- 	uml_cleanup();
- 	reboot_skas();
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_power_off(void)
- {
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index ebfb911082326..d378e80a60a1b 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -733,6 +733,7 @@ static void native_machine_restart(char *__unused)
- 		machine_shutdown();
- 	__machine_emergency_restart(0);
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- static void native_machine_halt(void)
- {
-diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
-index ed184106e4cf9..a70c1351cd59e 100644
---- a/arch/xtensa/kernel/setup.c
-+++ b/arch/xtensa/kernel/setup.c
-@@ -564,6 +564,7 @@ void machine_restart(char * cmd)
- {
- 	platform_restart();
- }
-+EXPORT_SYMBOL_GPL(machine_restart);
- 
- void machine_halt(void)
- {
--- 
-2.33.0.153.gba50c8fa24-goog
+Alex
 
+>
+> Thanks,
+> drew
+>
+>> Thanks,
+>>
+>> Alex
+>>
+>>> Thanks,
+>>> drew
+>>>
+>>>> Thanks,
+>>>>
+>>>> Alex
+>>>>
+>>>>> There aren't currently any other ways to invoke the addition of the
+>>>>> -initrd command line option, because so far we only support passing a
+>>>>> single file to test (the environment "file"). If we ever want to pass
+>>>>> more files, then we'd need to create a simple file system on the initrd
+>>>>> and make it possible to add -initrd even when no environment is desired.
+>>>>> But, that may never happen.
+>>>>>
+>>>>> Thanks,
+>>>>> drew
+>>>>>
+>>>>>> Thanks,
+>>>>>>
+>>>>>> Alex
+>>>>>>
+>>>>>>>>  		temp_file ERRATATXT "$ERRATATXT"
+>>>>>>>>  		echo 'export ERRATATXT'
+>>>>>>>>  	fi
+>>>>>>>> @@ -95,12 +99,8 @@ function mkstandalone()
+>>>>>>>>  	echo Written $standalone.
+>>>>>>>>  }
+>>>>>>>>  
+>>>>>>>> -if [ "$TARGET" = "kvmtool" ]; then
+>>>>>>>> -	echo "Standalone tests not supported with kvmtool"
+>>>>>>>> -	exit 2
+>>>>>>>> -fi
+>>>>>>>> -
+>>>>>>>> -if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
+>>>>>>>> +if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && \
+>>>>>>>> +		[ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
+>>>>>>>>  	echo "$ERRATATXT not found. (ERRATATXT=$ERRATATXT)" >&2
+>>>>>>>>  	exit 2
+>>>>>>>>  fi
+>>>>>>>> -- 
+>>>>>>>> 2.32.0
+>>>>>>>>
+>>>>>>> Thanks,
+>>>>>>> drew 
+>>>>>>>
