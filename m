@@ -2,38 +2,73 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D46F7C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:48:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8455AC4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:56:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B9F0760041
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:48:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 668326124C
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:56:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238207AbhIINtn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 09:49:43 -0400
-Received: from foss.arm.com ([217.140.110.172]:35616 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354458AbhIINrt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 9 Sep 2021 09:47:49 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6CD1D6D;
-        Thu,  9 Sep 2021 06:46:39 -0700 (PDT)
-Received: from [192.168.0.110] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0F7AA3F59C;
-        Thu,  9 Sep 2021 06:46:36 -0700 (PDT)
-Subject: Re: [kvm-unit-tests RFC PATCH 4/5] scripts: Generate kvmtool
- standalone tests
-To:     Andrew Jones <drjones@redhat.com>
+        id S1355033AbhIIN5H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 09:57:07 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:31132 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1346963AbhIINzr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 09:55:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1631195674;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=wEVPyarOdAG4+QXV2M6pVKkXfZcNCBW8zpMaROhMu5s=;
+        b=KcmKU3yfWfDiu90ZDOFR/Q5fh37yT0rhx7tWv8fVInoiNVLLUcmWmw8RfmNz1vH+FwruEs
+        2ddB5eKDw7lHA9rmTz7QXxPiRYFsBVHGQzdV+Q4U2H0pvGoE8LHZq7t5dgmg6Nh8HltlWt
+        dsbkDwpyqNE6SqXV3oqfffA5uBnHxpk=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-4-6lwKbUrHNom66EHi8OHNeQ-1; Thu, 09 Sep 2021 09:54:33 -0400
+X-MC-Unique: 6lwKbUrHNom66EHi8OHNeQ-1
+Received: by mail-wm1-f71.google.com with SMTP id r4-20020a1c4404000000b002e728beb9fbso895932wma.9
+        for <linux-s390@vger.kernel.org>; Thu, 09 Sep 2021 06:54:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=wEVPyarOdAG4+QXV2M6pVKkXfZcNCBW8zpMaROhMu5s=;
+        b=o+W1gn+IwOYq0ia52Nrpc8vU8RAQ5nskI6++j51zDGopph8S79aC6JSTLfucdLspn6
+         tzqHpumbP9JBKAz1cq8vzxx0OPBl+G3utznmOx4YGigStqUadY2GPF0NLLm3A6RK2caD
+         oNPlGE5EJ0R1bZxLsIqiiHr3kcbsKZnHDVsZYiknJ2n55xqKCRoWmLo0+dS7jCFoaPNY
+         Nw7Cwws5h3UWztNneZOa+5Jj3GRbf+mmm6Evg9aKDt09iA1rNHmC5CW2AiAe54XDjUEh
+         q/fMlmjDKYRX+tQClPcyZWYaLA8wRUvJCS4I3YSTASy/1/hXGritZ1JORMif6Czc56PW
+         Fn/g==
+X-Gm-Message-State: AOAM532Gp2sHRitMuk1vCDmgfJrgkFWpS/gw5aURLvQ/xD2bSmsMR52F
+        wr/A0JwX8lOLSxQPQjFLNtJATJj50svq+VbGFRHmtpmTYsPkz64ztmVm3MGwo12SoXPgCtI96el
+        Tw44LaoP9fYsY/4djc84rcw==
+X-Received: by 2002:a05:6000:1c4:: with SMTP id t4mr3745778wrx.414.1631195671781;
+        Thu, 09 Sep 2021 06:54:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzENPh15kgj7b+ORGo05x4NaTJWILlsrcu/90V3+5zY1byaTVnSKjHqkZXMU3GGjMJN9Xaaqw==
+X-Received: by 2002:a05:6000:1c4:: with SMTP id t4mr3745747wrx.414.1631195671555;
+        Thu, 09 Sep 2021 06:54:31 -0700 (PDT)
+Received: from gator (cst2-174-132.cust.vodafone.cz. [31.30.174.132])
+        by smtp.gmail.com with ESMTPSA id v12sm1885544wrm.7.2021.09.09.06.54.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Sep 2021 06:54:31 -0700 (PDT)
+Date:   Thu, 9 Sep 2021 15:54:29 +0200
+From:   Andrew Jones <drjones@redhat.com>
+To:     Alexandru Elisei <alexandru.elisei@arm.com>
 Cc:     thuth@redhat.com, pbonzini@redhat.com, lvivier@redhat.com,
         kvm-ppc@vger.kernel.org, david@redhat.com, frankja@linux.ibm.com,
         cohuck@redhat.com, imbrenda@linux.ibm.com,
         linux-s390@vger.kernel.org, kvm@vger.kernel.org,
         kvmarm@lists.cs.columbia.edu, andre.przywara@arm.com,
         maz@kernel.org, vivek.gautam@arm.com
+Subject: Re: [kvm-unit-tests RFC PATCH 4/5] scripts: Generate kvmtool
+ standalone tests
+Message-ID: <20210909135429.dqreodxr7elpvmfm@gator>
 References: <20210702163122.96110-1-alexandru.elisei@arm.com>
  <20210702163122.96110-5-alexandru.elisei@arm.com>
  <20210907102135.i2w3r7j4zyj736b5@gator>
@@ -41,181 +76,192 @@ References: <20210702163122.96110-1-alexandru.elisei@arm.com>
  <20210908160743.l4hrl4de7wkxwuda@gator>
  <9d5da497-7070-31ef-282a-a11a86e0102e@arm.com>
  <20210909130553.gnzce7cs7d5stvjd@gator>
-From:   Alexandru Elisei <alexandru.elisei@arm.com>
-Message-ID: <7313396e-de46-8a3b-902d-5a59b2089c79@arm.com>
-Date:   Thu, 9 Sep 2021 14:47:57 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+ <7313396e-de46-8a3b-902d-5a59b2089c79@arm.com>
 MIME-Version: 1.0
-In-Reply-To: <20210909130553.gnzce7cs7d5stvjd@gator>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7313396e-de46-8a3b-902d-5a59b2089c79@arm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Drew,
+On Thu, Sep 09, 2021 at 02:47:57PM +0100, Alexandru Elisei wrote:
+> Hi Drew,
+> 
+> On 9/9/21 2:05 PM, Andrew Jones wrote:
+> > On Thu, Sep 09, 2021 at 12:11:52PM +0100, Alexandru Elisei wrote:
+> >> Hi Drew,
+> >>
+> >> On 9/8/21 5:07 PM, Andrew Jones wrote:
+> >>> On Wed, Sep 08, 2021 at 04:37:39PM +0100, Alexandru Elisei wrote:
+> >>>> Hi Drew,
+> >>>>
+> >>>> On 9/7/21 11:21 AM, Andrew Jones wrote:
+> >>>>> On Fri, Jul 02, 2021 at 05:31:21PM +0100, Alexandru Elisei wrote:
+> >>>>>> Add support for the standalone target when running kvm-unit-tests under
+> >>>>>> kvmtool.
+> >>>>>>
+> >>>>>> Example command line invocation:
+> >>>>>>
+> >>>>>> $ ./configure --target=kvmtool
+> >>>>>> $ make clean && make standalone
+> >>>>>>
+> >>>>>> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+> >>>>>> ---
+> >>>>>>  scripts/mkstandalone.sh | 14 +++++++-------
+> >>>>>>  1 file changed, 7 insertions(+), 7 deletions(-)
+> >>>>>>
+> >>>>>> diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
+> >>>>>> index 16f461c06842..d84bdb7e278c 100755
+> >>>>>> --- a/scripts/mkstandalone.sh
+> >>>>>> +++ b/scripts/mkstandalone.sh
+> >>>>>> @@ -44,6 +44,10 @@ generate_test ()
+> >>>>>>  	config_export ARCH_NAME
+> >>>>>>  	config_export PROCESSOR
+> >>>>>>  
+> >>>>>> +	if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "arm" ]; then
+> >>>>>> +		config_export TARGET
+> >>>>>> +	fi
+> >>>>> Should export unconditionally, since we'll want TARGET set
+> >>>>> unconditionally.
+> >>>> Yes, will do.
+> >>>>
+> >>>>>> +
+> >>>>>>  	echo "echo BUILD_HEAD=$(cat build-head)"
+> >>>>>>  
+> >>>>>>  	if [ ! -f $kernel ]; then
+> >>>>>> @@ -59,7 +63,7 @@ generate_test ()
+> >>>>>>  		echo 'export FIRMWARE'
+> >>>>>>  	fi
+> >>>>>>  
+> >>>>>> -	if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
+> >>>>>> +	if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
+> >>>>> I think it would be better to ensure that ENVIRON_DEFAULT is "no" for
+> >>>>> TARGET=kvmtool in configure.
+> >>>> From looking at the code, it is my understanding that with ENVIRON_DEFAULT=yes, an
+> >>>> initrd file is generated with the contents of erratatxt and other information, in
+> >>>> a key=value pair format. This initrd is then passed on to the test (please correct
+> >>>> me if I'm wrong). With ENVIRON_DEFAULT=no (set via ./configure
+> >>>> --disable-default-environ), this initrd is not generated.
+> >>>>
+> >>>> kvmtool doesn't have support for passing an initrd when loading firmware, so yes,
+> >>>> I believe the default should be no.
+> >>>>
+> >>>> However, I have two questions:
+> >>>>
+> >>>> 1. What happens when the user specifically enables the default environ via
+> >>>> ./configure --enable-default-environ --target=kvmtool? In my opinion, that should
+> >>>> be an error because the user wants something that is not possible with kvmtool
+> >>>> (loading an image with --firmware in kvmtool means that the initrd image it not
+> >>>> loaded into the guest memory and no node is generated for it in the dtb), but I
+> >>>> would like to hear your thoughts about it.
+> >>> As part of the forcing ENVIRON_DEFAULT to "no" for kvmtool in configure an
+> >>> error should be generated if a user tries to explicitly enable it.
+> >>>
+> >>>> 2. If the default environment is disabled, is it still possible for an user to
+> >>>> pass an initrd via other means? I couldn't find where that is implemented, so I'm
+> >>>> guessing it's not possible.
+> >>> Yes, a user could have a KVM_UNIT_TESTS_ENV environment variable set when
+> >>> they launch the tests. If that variable points to a file then it will get
+> >>> passed as an initrd. I guess you should also report a warning in arm/run
+> >>> if KVM_UNIT_TESTS_ENV is set which states that the environment file will
+> >>> be ignored when running with kvmtool.
+> >> Thank you for explaining it, I had looked at
+> >> scripts/arch-run.bash::initrd_create(), but it didn't click that setting the
+> >> KVM_UNIT_TESTS_ENV environment variable is enough to generate and use the initrd.
+> >>
+> >> After looking at the code some more, in the logs the -initrd argument is shown as
+> >> a comment, instead of an actual argument that is passed to qemu:
+> >>
+> >> timeout -k 1s --foreground 90s /usr/bin/qemu-system-aarch64 -nodefaults -machine
+> >> virt,gic-version=host,accel=kvm -cpu host -device virtio-serial-device -device
+> >> virtconsole,chardev=ctd -chardev testdev,id=ctd -device pci-testdev -display none
+> >> -serial stdio -kernel arm/cache.flat -smp 1 # -initrd /tmp/tmp.rUIZ3h9KLJ
+> >> QEMU_ACCEL = kvm
+> >> INFO: IDC-DIC: dcache clean to PoU required
+> >> INFO: IDC-DIC: icache invalidation to PoU required
+> >> PASS: IDC-DIC: code generation
+> >> SUMMARY: 1 tests
+> >>
+> >> This is done intentionally in scripts/arch-run.bash::run_qemu(). I don't
+> >> understand the reason for that. When I first looked at the logs, I was sure that
+> >> no initrd is passed to the test. I had to go dig through the scripts to figure out
+> >> that the "#" sign (which marks the beginning of a comment) is not present in the
+> >> qemu invocation.
+> > It's commented out because if you want to copy+paste the command line to
+> > use it again it'll fail to run because the temp file will be gone. Of
+> > course somebody depending on the environment for their test run will have
+> > other problems when it's gone, but those people can use the
+> > KVM_UNIT_TESTS_ENV variable to specify a non-temp file which includes the
+> > default environment and then configure without the default environment.
+> > The command line won't get the # in that case.
+> 
+> Hmm... wouldn't it make more sense then to generate the initrd in the logs
+> directory, and keep it there? To ensure the test runs can be reproduced manually,
+> if needed?
 
-On 9/9/21 2:05 PM, Andrew Jones wrote:
-> On Thu, Sep 09, 2021 at 12:11:52PM +0100, Alexandru Elisei wrote:
->> Hi Drew,
->>
->> On 9/8/21 5:07 PM, Andrew Jones wrote:
->>> On Wed, Sep 08, 2021 at 04:37:39PM +0100, Alexandru Elisei wrote:
->>>> Hi Drew,
->>>>
->>>> On 9/7/21 11:21 AM, Andrew Jones wrote:
->>>>> On Fri, Jul 02, 2021 at 05:31:21PM +0100, Alexandru Elisei wrote:
->>>>>> Add support for the standalone target when running kvm-unit-tests under
->>>>>> kvmtool.
->>>>>>
->>>>>> Example command line invocation:
->>>>>>
->>>>>> $ ./configure --target=kvmtool
->>>>>> $ make clean && make standalone
->>>>>>
->>>>>> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
->>>>>> ---
->>>>>>  scripts/mkstandalone.sh | 14 +++++++-------
->>>>>>  1 file changed, 7 insertions(+), 7 deletions(-)
->>>>>>
->>>>>> diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
->>>>>> index 16f461c06842..d84bdb7e278c 100755
->>>>>> --- a/scripts/mkstandalone.sh
->>>>>> +++ b/scripts/mkstandalone.sh
->>>>>> @@ -44,6 +44,10 @@ generate_test ()
->>>>>>  	config_export ARCH_NAME
->>>>>>  	config_export PROCESSOR
->>>>>>  
->>>>>> +	if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "arm" ]; then
->>>>>> +		config_export TARGET
->>>>>> +	fi
->>>>> Should export unconditionally, since we'll want TARGET set
->>>>> unconditionally.
->>>> Yes, will do.
->>>>
->>>>>> +
->>>>>>  	echo "echo BUILD_HEAD=$(cat build-head)"
->>>>>>  
->>>>>>  	if [ ! -f $kernel ]; then
->>>>>> @@ -59,7 +63,7 @@ generate_test ()
->>>>>>  		echo 'export FIRMWARE'
->>>>>>  	fi
->>>>>>  
->>>>>> -	if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
->>>>>> +	if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
->>>>> I think it would be better to ensure that ENVIRON_DEFAULT is "no" for
->>>>> TARGET=kvmtool in configure.
->>>> From looking at the code, it is my understanding that with ENVIRON_DEFAULT=yes, an
->>>> initrd file is generated with the contents of erratatxt and other information, in
->>>> a key=value pair format. This initrd is then passed on to the test (please correct
->>>> me if I'm wrong). With ENVIRON_DEFAULT=no (set via ./configure
->>>> --disable-default-environ), this initrd is not generated.
->>>>
->>>> kvmtool doesn't have support for passing an initrd when loading firmware, so yes,
->>>> I believe the default should be no.
->>>>
->>>> However, I have two questions:
->>>>
->>>> 1. What happens when the user specifically enables the default environ via
->>>> ./configure --enable-default-environ --target=kvmtool? In my opinion, that should
->>>> be an error because the user wants something that is not possible with kvmtool
->>>> (loading an image with --firmware in kvmtool means that the initrd image it not
->>>> loaded into the guest memory and no node is generated for it in the dtb), but I
->>>> would like to hear your thoughts about it.
->>> As part of the forcing ENVIRON_DEFAULT to "no" for kvmtool in configure an
->>> error should be generated if a user tries to explicitly enable it.
->>>
->>>> 2. If the default environment is disabled, is it still possible for an user to
->>>> pass an initrd via other means? I couldn't find where that is implemented, so I'm
->>>> guessing it's not possible.
->>> Yes, a user could have a KVM_UNIT_TESTS_ENV environment variable set when
->>> they launch the tests. If that variable points to a file then it will get
->>> passed as an initrd. I guess you should also report a warning in arm/run
->>> if KVM_UNIT_TESTS_ENV is set which states that the environment file will
->>> be ignored when running with kvmtool.
->> Thank you for explaining it, I had looked at
->> scripts/arch-run.bash::initrd_create(), but it didn't click that setting the
->> KVM_UNIT_TESTS_ENV environment variable is enough to generate and use the initrd.
->>
->> After looking at the code some more, in the logs the -initrd argument is shown as
->> a comment, instead of an actual argument that is passed to qemu:
->>
->> timeout -k 1s --foreground 90s /usr/bin/qemu-system-aarch64 -nodefaults -machine
->> virt,gic-version=host,accel=kvm -cpu host -device virtio-serial-device -device
->> virtconsole,chardev=ctd -chardev testdev,id=ctd -device pci-testdev -display none
->> -serial stdio -kernel arm/cache.flat -smp 1 # -initrd /tmp/tmp.rUIZ3h9KLJ
->> QEMU_ACCEL = kvm
->> INFO: IDC-DIC: dcache clean to PoU required
->> INFO: IDC-DIC: icache invalidation to PoU required
->> PASS: IDC-DIC: code generation
->> SUMMARY: 1 tests
->>
->> This is done intentionally in scripts/arch-run.bash::run_qemu(). I don't
->> understand the reason for that. When I first looked at the logs, I was sure that
->> no initrd is passed to the test. I had to go dig through the scripts to figure out
->> that the "#" sign (which marks the beginning of a comment) is not present in the
->> qemu invocation.
-> It's commented out because if you want to copy+paste the command line to
-> use it again it'll fail to run because the temp file will be gone. Of
-> course somebody depending on the environment for their test run will have
-> other problems when it's gone, but those people can use the
-> KVM_UNIT_TESTS_ENV variable to specify a non-temp file which includes the
-> default environment and then configure without the default environment.
-> The command line won't get the # in that case.
-
-Hmm... wouldn't it make more sense then to generate the initrd in the logs
-directory, and keep it there? To ensure the test runs can be reproduced manually,
-if needed?
+Well, there's no logs directory for standalone tests, but I do like the
+idea of capturing the environment when possible. Possibly the best thing
+to do is to provide an option that, when enabled, says to dump the
+environment into the log before executing the test. That would be similar
+to how BUILD_HEAD is output first when running the tests standalone.
+Anyway, this is a good idea, but probably outside the scope of your
+kvmtool work unless the initrd thing is blocking you and you need to
+rework it anyway.
 
 Thanks,
+drew
 
-Alex
-
->
+> 
 > Thanks,
-> drew
->
->> Thanks,
->>
->> Alex
->>
->>> There aren't currently any other ways to invoke the addition of the
->>> -initrd command line option, because so far we only support passing a
->>> single file to test (the environment "file"). If we ever want to pass
->>> more files, then we'd need to create a simple file system on the initrd
->>> and make it possible to add -initrd even when no environment is desired.
->>> But, that may never happen.
->>>
->>> Thanks,
->>> drew
->>>
->>>> Thanks,
->>>>
->>>> Alex
->>>>
->>>>>>  		temp_file ERRATATXT "$ERRATATXT"
->>>>>>  		echo 'export ERRATATXT'
->>>>>>  	fi
->>>>>> @@ -95,12 +99,8 @@ function mkstandalone()
->>>>>>  	echo Written $standalone.
->>>>>>  }
->>>>>>  
->>>>>> -if [ "$TARGET" = "kvmtool" ]; then
->>>>>> -	echo "Standalone tests not supported with kvmtool"
->>>>>> -	exit 2
->>>>>> -fi
->>>>>> -
->>>>>> -if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
->>>>>> +if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && \
->>>>>> +		[ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
->>>>>>  	echo "$ERRATATXT not found. (ERRATATXT=$ERRATATXT)" >&2
->>>>>>  	exit 2
->>>>>>  fi
->>>>>> -- 
->>>>>> 2.32.0
->>>>>>
->>>>> Thanks,
->>>>> drew 
->>>>>
+> 
+> Alex
+> 
+> >
+> > Thanks,
+> > drew
+> >
+> >> Thanks,
+> >>
+> >> Alex
+> >>
+> >>> There aren't currently any other ways to invoke the addition of the
+> >>> -initrd command line option, because so far we only support passing a
+> >>> single file to test (the environment "file"). If we ever want to pass
+> >>> more files, then we'd need to create a simple file system on the initrd
+> >>> and make it possible to add -initrd even when no environment is desired.
+> >>> But, that may never happen.
+> >>>
+> >>> Thanks,
+> >>> drew
+> >>>
+> >>>> Thanks,
+> >>>>
+> >>>> Alex
+> >>>>
+> >>>>>>  		temp_file ERRATATXT "$ERRATATXT"
+> >>>>>>  		echo 'export ERRATATXT'
+> >>>>>>  	fi
+> >>>>>> @@ -95,12 +99,8 @@ function mkstandalone()
+> >>>>>>  	echo Written $standalone.
+> >>>>>>  }
+> >>>>>>  
+> >>>>>> -if [ "$TARGET" = "kvmtool" ]; then
+> >>>>>> -	echo "Standalone tests not supported with kvmtool"
+> >>>>>> -	exit 2
+> >>>>>> -fi
+> >>>>>> -
+> >>>>>> -if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
+> >>>>>> +if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && \
+> >>>>>> +		[ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
+> >>>>>>  	echo "$ERRATATXT not found. (ERRATATXT=$ERRATATXT)" >&2
+> >>>>>>  	exit 2
+> >>>>>>  fi
+> >>>>>> -- 
+> >>>>>> 2.32.0
+> >>>>>>
+> >>>>> Thanks,
+> >>>>> drew 
+> >>>>>
+> 
+
