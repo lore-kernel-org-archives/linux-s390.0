@@ -2,266 +2,194 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8455AC4332F
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:56:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FAB5C4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 14:04:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 668326124C
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 13:56:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F0331610FF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Sep 2021 14:04:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355033AbhIIN5H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Sep 2021 09:57:07 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:31132 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1346963AbhIINzr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 09:55:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631195674;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=wEVPyarOdAG4+QXV2M6pVKkXfZcNCBW8zpMaROhMu5s=;
-        b=KcmKU3yfWfDiu90ZDOFR/Q5fh37yT0rhx7tWv8fVInoiNVLLUcmWmw8RfmNz1vH+FwruEs
-        2ddB5eKDw7lHA9rmTz7QXxPiRYFsBVHGQzdV+Q4U2H0pvGoE8LHZq7t5dgmg6Nh8HltlWt
-        dsbkDwpyqNE6SqXV3oqfffA5uBnHxpk=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-4-6lwKbUrHNom66EHi8OHNeQ-1; Thu, 09 Sep 2021 09:54:33 -0400
-X-MC-Unique: 6lwKbUrHNom66EHi8OHNeQ-1
-Received: by mail-wm1-f71.google.com with SMTP id r4-20020a1c4404000000b002e728beb9fbso895932wma.9
-        for <linux-s390@vger.kernel.org>; Thu, 09 Sep 2021 06:54:32 -0700 (PDT)
+        id S240070AbhIIOFU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Sep 2021 10:05:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38588 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345916AbhIIOFD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Sep 2021 10:05:03 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B9AC0363C4
+        for <linux-s390@vger.kernel.org>; Thu,  9 Sep 2021 05:04:26 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id v10so2215032wrd.4
+        for <linux-s390@vger.kernel.org>; Thu, 09 Sep 2021 05:04:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TGhvxcJ5e0tWwjSJNqM6XCMaaGd6Uf1B/o2F+QC2P2E=;
+        b=G9Aqk2QIyaP4NStdJlI2W+jYyFf2cxdEkKsatz7oGDFsfmYZi9tBWCduPA4+jE5p7U
+         BOuY6gqJjmyV8v5QQKYxDwuzwKGa/5XhOO/tgHUHlhmUEBmh3zMhoy6pH4jz/X3mqm+B
+         aiFLyQdZrtcHXPQq/wBywud/Lta/EdrBpbrZgbARYUg/fOO/ZsAxLyZc7yqfUK2jqcg3
+         720naMUmXaJh+2jyYDvtsgc7dQDFDjt/gHNTBax++79zSiiVG4xnl5N2SAU6gkjrhJJm
+         w9rVyMGtlv9iW1cuSRn5jzCsOgqZnJRO0L04W/ii+Is7cQG1OlyTaPAzvogxQD1BYjMN
+         IkgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=wEVPyarOdAG4+QXV2M6pVKkXfZcNCBW8zpMaROhMu5s=;
-        b=o+W1gn+IwOYq0ia52Nrpc8vU8RAQ5nskI6++j51zDGopph8S79aC6JSTLfucdLspn6
-         tzqHpumbP9JBKAz1cq8vzxx0OPBl+G3utznmOx4YGigStqUadY2GPF0NLLm3A6RK2caD
-         oNPlGE5EJ0R1bZxLsIqiiHr3kcbsKZnHDVsZYiknJ2n55xqKCRoWmLo0+dS7jCFoaPNY
-         Nw7Cwws5h3UWztNneZOa+5Jj3GRbf+mmm6Evg9aKDt09iA1rNHmC5CW2AiAe54XDjUEh
-         q/fMlmjDKYRX+tQClPcyZWYaLA8wRUvJCS4I3YSTASy/1/hXGritZ1JORMif6Czc56PW
-         Fn/g==
-X-Gm-Message-State: AOAM532Gp2sHRitMuk1vCDmgfJrgkFWpS/gw5aURLvQ/xD2bSmsMR52F
-        wr/A0JwX8lOLSxQPQjFLNtJATJj50svq+VbGFRHmtpmTYsPkz64ztmVm3MGwo12SoXPgCtI96el
-        Tw44LaoP9fYsY/4djc84rcw==
-X-Received: by 2002:a05:6000:1c4:: with SMTP id t4mr3745778wrx.414.1631195671781;
-        Thu, 09 Sep 2021 06:54:31 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzENPh15kgj7b+ORGo05x4NaTJWILlsrcu/90V3+5zY1byaTVnSKjHqkZXMU3GGjMJN9Xaaqw==
-X-Received: by 2002:a05:6000:1c4:: with SMTP id t4mr3745747wrx.414.1631195671555;
-        Thu, 09 Sep 2021 06:54:31 -0700 (PDT)
-Received: from gator (cst2-174-132.cust.vodafone.cz. [31.30.174.132])
-        by smtp.gmail.com with ESMTPSA id v12sm1885544wrm.7.2021.09.09.06.54.30
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TGhvxcJ5e0tWwjSJNqM6XCMaaGd6Uf1B/o2F+QC2P2E=;
+        b=c00Qy4+mXrJg78ZCqpXtOIVpKKw5Rj8f7bLa01j4S+xHwk/NLax8HICf/oTyXHLGVS
+         TNpK88SuD4XFikTQ/8TNhaWPV6Z3k+8tT5VvghyYhfPSv44zid+M7wj7I/57yHvAP8ik
+         32xHeOIkUcDmJmjzCszlvVgcgcvufvWNQBssAXF0m+cehH5B4FsXHln7f6/wgp4fkKb8
+         eP60h7wkIRtRc8UxDO8wIu4JtIENJq42gL5YlcIhl/AUfNMwTOJB+W6CC7PIJvCq5Ki2
+         mV3PQQxTrmY5h51NzFDbH4xwyc2sCN9YBT7FpZnvR9kKo5T/fvldTayxibcdWiIWVoG+
+         TeJA==
+X-Gm-Message-State: AOAM530FwNmEaJXPyPPNRpQWXx8+DMfYrRHDtXYFdrTq7IrZ9gVRVsfb
+        MTbIQL6ag4cdEL5g5/cOQYP0xg==
+X-Google-Smtp-Source: ABdhPJwXFzB1KuSRyctCLMeToyBav6moCwvyVSJSQ2wA2Una7A66/qiHNzLd3gX+GGFxN1qUveWbMQ==
+X-Received: by 2002:adf:de8a:: with SMTP id w10mr3133483wrl.413.1631189065464;
+        Thu, 09 Sep 2021 05:04:25 -0700 (PDT)
+Received: from localhost.localdomain ([95.148.6.201])
+        by smtp.gmail.com with ESMTPSA id n66sm1437498wmn.2.2021.09.09.05.04.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Sep 2021 06:54:31 -0700 (PDT)
-Date:   Thu, 9 Sep 2021 15:54:29 +0200
-From:   Andrew Jones <drjones@redhat.com>
-To:     Alexandru Elisei <alexandru.elisei@arm.com>
-Cc:     thuth@redhat.com, pbonzini@redhat.com, lvivier@redhat.com,
-        kvm-ppc@vger.kernel.org, david@redhat.com, frankja@linux.ibm.com,
-        cohuck@redhat.com, imbrenda@linux.ibm.com,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        kvmarm@lists.cs.columbia.edu, andre.przywara@arm.com,
-        maz@kernel.org, vivek.gautam@arm.com
-Subject: Re: [kvm-unit-tests RFC PATCH 4/5] scripts: Generate kvmtool
- standalone tests
-Message-ID: <20210909135429.dqreodxr7elpvmfm@gator>
-References: <20210702163122.96110-1-alexandru.elisei@arm.com>
- <20210702163122.96110-5-alexandru.elisei@arm.com>
- <20210907102135.i2w3r7j4zyj736b5@gator>
- <ee11a10a-c3e6-b9ce-81e1-147025a9b5bd@arm.com>
- <20210908160743.l4hrl4de7wkxwuda@gator>
- <9d5da497-7070-31ef-282a-a11a86e0102e@arm.com>
- <20210909130553.gnzce7cs7d5stvjd@gator>
- <7313396e-de46-8a3b-902d-5a59b2089c79@arm.com>
+        Thu, 09 Sep 2021 05:04:24 -0700 (PDT)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     lee.jones@linaro.org
+Cc:     linux-kernel@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Brian Cain <bcain@codeaurora.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Chris Zankel <chris@zankel.net>,
+        "David S . Miller" <davem@davemloft.net>,
+        Guo Ren <guoren@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>, Ingo Molnar <mingo@redhat.com>,
+        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Jeff Dike <jdike@addtoit.com>, John Crispin <john@phrozen.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        Ley Foon Tan <ley.foon.tan@intel.com>,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, Max Filippov <jcmvbkbc@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Simek <monstr@monstr.eu>, openrisc@lists.librecores.org,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Richard Weinberger <richard@nod.at>,
+        Rich Felker <dalias@libc.org>, sparclinux@vger.kernel.org,
+        Stafford Horne <shorne@gmail.com>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        uclinux-h8-devel@lists.sourceforge.jp,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Will Deacon <will@kernel.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>
+Subject: [PATCH v2 0/3] power: reset: Convert Power-Off driver to tristate
+Date:   Thu,  9 Sep 2021 13:04:18 +0100
+Message-Id: <20210909120421.1313908-1-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.33.0.153.gba50c8fa24-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7313396e-de46-8a3b-902d-5a59b2089c79@arm.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 09, 2021 at 02:47:57PM +0100, Alexandru Elisei wrote:
-> Hi Drew,
-> 
-> On 9/9/21 2:05 PM, Andrew Jones wrote:
-> > On Thu, Sep 09, 2021 at 12:11:52PM +0100, Alexandru Elisei wrote:
-> >> Hi Drew,
-> >>
-> >> On 9/8/21 5:07 PM, Andrew Jones wrote:
-> >>> On Wed, Sep 08, 2021 at 04:37:39PM +0100, Alexandru Elisei wrote:
-> >>>> Hi Drew,
-> >>>>
-> >>>> On 9/7/21 11:21 AM, Andrew Jones wrote:
-> >>>>> On Fri, Jul 02, 2021 at 05:31:21PM +0100, Alexandru Elisei wrote:
-> >>>>>> Add support for the standalone target when running kvm-unit-tests under
-> >>>>>> kvmtool.
-> >>>>>>
-> >>>>>> Example command line invocation:
-> >>>>>>
-> >>>>>> $ ./configure --target=kvmtool
-> >>>>>> $ make clean && make standalone
-> >>>>>>
-> >>>>>> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
-> >>>>>> ---
-> >>>>>>  scripts/mkstandalone.sh | 14 +++++++-------
-> >>>>>>  1 file changed, 7 insertions(+), 7 deletions(-)
-> >>>>>>
-> >>>>>> diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
-> >>>>>> index 16f461c06842..d84bdb7e278c 100755
-> >>>>>> --- a/scripts/mkstandalone.sh
-> >>>>>> +++ b/scripts/mkstandalone.sh
-> >>>>>> @@ -44,6 +44,10 @@ generate_test ()
-> >>>>>>  	config_export ARCH_NAME
-> >>>>>>  	config_export PROCESSOR
-> >>>>>>  
-> >>>>>> +	if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "arm" ]; then
-> >>>>>> +		config_export TARGET
-> >>>>>> +	fi
-> >>>>> Should export unconditionally, since we'll want TARGET set
-> >>>>> unconditionally.
-> >>>> Yes, will do.
-> >>>>
-> >>>>>> +
-> >>>>>>  	echo "echo BUILD_HEAD=$(cat build-head)"
-> >>>>>>  
-> >>>>>>  	if [ ! -f $kernel ]; then
-> >>>>>> @@ -59,7 +63,7 @@ generate_test ()
-> >>>>>>  		echo 'export FIRMWARE'
-> >>>>>>  	fi
-> >>>>>>  
-> >>>>>> -	if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
-> >>>>>> +	if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ]; then
-> >>>>> I think it would be better to ensure that ENVIRON_DEFAULT is "no" for
-> >>>>> TARGET=kvmtool in configure.
-> >>>> From looking at the code, it is my understanding that with ENVIRON_DEFAULT=yes, an
-> >>>> initrd file is generated with the contents of erratatxt and other information, in
-> >>>> a key=value pair format. This initrd is then passed on to the test (please correct
-> >>>> me if I'm wrong). With ENVIRON_DEFAULT=no (set via ./configure
-> >>>> --disable-default-environ), this initrd is not generated.
-> >>>>
-> >>>> kvmtool doesn't have support for passing an initrd when loading firmware, so yes,
-> >>>> I believe the default should be no.
-> >>>>
-> >>>> However, I have two questions:
-> >>>>
-> >>>> 1. What happens when the user specifically enables the default environ via
-> >>>> ./configure --enable-default-environ --target=kvmtool? In my opinion, that should
-> >>>> be an error because the user wants something that is not possible with kvmtool
-> >>>> (loading an image with --firmware in kvmtool means that the initrd image it not
-> >>>> loaded into the guest memory and no node is generated for it in the dtb), but I
-> >>>> would like to hear your thoughts about it.
-> >>> As part of the forcing ENVIRON_DEFAULT to "no" for kvmtool in configure an
-> >>> error should be generated if a user tries to explicitly enable it.
-> >>>
-> >>>> 2. If the default environment is disabled, is it still possible for an user to
-> >>>> pass an initrd via other means? I couldn't find where that is implemented, so I'm
-> >>>> guessing it's not possible.
-> >>> Yes, a user could have a KVM_UNIT_TESTS_ENV environment variable set when
-> >>> they launch the tests. If that variable points to a file then it will get
-> >>> passed as an initrd. I guess you should also report a warning in arm/run
-> >>> if KVM_UNIT_TESTS_ENV is set which states that the environment file will
-> >>> be ignored when running with kvmtool.
-> >> Thank you for explaining it, I had looked at
-> >> scripts/arch-run.bash::initrd_create(), but it didn't click that setting the
-> >> KVM_UNIT_TESTS_ENV environment variable is enough to generate and use the initrd.
-> >>
-> >> After looking at the code some more, in the logs the -initrd argument is shown as
-> >> a comment, instead of an actual argument that is passed to qemu:
-> >>
-> >> timeout -k 1s --foreground 90s /usr/bin/qemu-system-aarch64 -nodefaults -machine
-> >> virt,gic-version=host,accel=kvm -cpu host -device virtio-serial-device -device
-> >> virtconsole,chardev=ctd -chardev testdev,id=ctd -device pci-testdev -display none
-> >> -serial stdio -kernel arm/cache.flat -smp 1 # -initrd /tmp/tmp.rUIZ3h9KLJ
-> >> QEMU_ACCEL = kvm
-> >> INFO: IDC-DIC: dcache clean to PoU required
-> >> INFO: IDC-DIC: icache invalidation to PoU required
-> >> PASS: IDC-DIC: code generation
-> >> SUMMARY: 1 tests
-> >>
-> >> This is done intentionally in scripts/arch-run.bash::run_qemu(). I don't
-> >> understand the reason for that. When I first looked at the logs, I was sure that
-> >> no initrd is passed to the test. I had to go dig through the scripts to figure out
-> >> that the "#" sign (which marks the beginning of a comment) is not present in the
-> >> qemu invocation.
-> > It's commented out because if you want to copy+paste the command line to
-> > use it again it'll fail to run because the temp file will be gone. Of
-> > course somebody depending on the environment for their test run will have
-> > other problems when it's gone, but those people can use the
-> > KVM_UNIT_TESTS_ENV variable to specify a non-temp file which includes the
-> > default environment and then configure without the default environment.
-> > The command line won't get the # in that case.
-> 
-> Hmm... wouldn't it make more sense then to generate the initrd in the logs
-> directory, and keep it there? To ensure the test runs can be reproduced manually,
-> if needed?
+Provide support to compile the Power-Off driver as a module.
 
-Well, there's no logs directory for standalone tests, but I do like the
-idea of capturing the environment when possible. Possibly the best thing
-to do is to provide an option that, when enabled, says to dump the
-environment into the log before executing the test. That would be similar
-to how BUILD_HEAD is output first when running the tests standalone.
-Anyway, this is a good idea, but probably outside the scope of your
-kvmtool work unless the initrd thing is blocking you and you need to
-rework it anyway.
+v1 => v2:
+ - s/EXPORT_SYMBOL/EXPORT_SYMBOL_GPL/
+ 
+Elliot Berman (2):
+  reboot: Export reboot_mode
+  power: reset: Enable tristate on restart power-off driver
 
-Thanks,
-drew
+Lee Jones (1):
+  arch: Export machine_restart() instances so they can be called from
+    modules
 
-> 
-> Thanks,
-> 
-> Alex
-> 
-> >
-> > Thanks,
-> > drew
-> >
-> >> Thanks,
-> >>
-> >> Alex
-> >>
-> >>> There aren't currently any other ways to invoke the addition of the
-> >>> -initrd command line option, because so far we only support passing a
-> >>> single file to test (the environment "file"). If we ever want to pass
-> >>> more files, then we'd need to create a simple file system on the initrd
-> >>> and make it possible to add -initrd even when no environment is desired.
-> >>> But, that may never happen.
-> >>>
-> >>> Thanks,
-> >>> drew
-> >>>
-> >>>> Thanks,
-> >>>>
-> >>>> Alex
-> >>>>
-> >>>>>>  		temp_file ERRATATXT "$ERRATATXT"
-> >>>>>>  		echo 'export ERRATATXT'
-> >>>>>>  	fi
-> >>>>>> @@ -95,12 +99,8 @@ function mkstandalone()
-> >>>>>>  	echo Written $standalone.
-> >>>>>>  }
-> >>>>>>  
-> >>>>>> -if [ "$TARGET" = "kvmtool" ]; then
-> >>>>>> -	echo "Standalone tests not supported with kvmtool"
-> >>>>>> -	exit 2
-> >>>>>> -fi
-> >>>>>> -
-> >>>>>> -if [ "$ENVIRON_DEFAULT" = "yes" ] && [ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
-> >>>>>> +if [ "$TARGET" != "kvmtool" ] && [ "$ENVIRON_DEFAULT" = "yes" ] && \
-> >>>>>> +		[ "$ERRATATXT" ] && [ ! -f "$ERRATATXT" ]; then
-> >>>>>>  	echo "$ERRATATXT not found. (ERRATATXT=$ERRATATXT)" >&2
-> >>>>>>  	exit 2
-> >>>>>>  fi
-> >>>>>> -- 
-> >>>>>> 2.32.0
-> >>>>>>
-> >>>>> Thanks,
-> >>>>> drew 
-> >>>>>
-> 
+ arch/arc/kernel/reset.c            | 1 +
+ arch/arm/kernel/reboot.c           | 1 +
+ arch/arm64/kernel/process.c        | 1 +
+ arch/csky/kernel/power.c           | 1 +
+ arch/h8300/kernel/process.c        | 1 +
+ arch/hexagon/kernel/reset.c        | 1 +
+ arch/m68k/kernel/process.c         | 1 +
+ arch/microblaze/kernel/reset.c     | 1 +
+ arch/mips/kernel/reset.c           | 1 +
+ arch/mips/lantiq/falcon/reset.c    | 1 +
+ arch/mips/sgi-ip27/ip27-reset.c    | 1 +
+ arch/nds32/kernel/process.c        | 2 +-
+ arch/nios2/kernel/process.c        | 1 +
+ arch/openrisc/kernel/process.c     | 1 +
+ arch/parisc/kernel/process.c       | 1 +
+ arch/powerpc/kernel/setup-common.c | 1 +
+ arch/riscv/kernel/reset.c          | 1 +
+ arch/s390/kernel/setup.c           | 1 +
+ arch/sh/kernel/reboot.c            | 1 +
+ arch/sparc/kernel/process_32.c     | 1 +
+ arch/sparc/kernel/reboot.c         | 1 +
+ arch/um/kernel/reboot.c            | 1 +
+ arch/x86/kernel/reboot.c           | 1 +
+ arch/xtensa/kernel/setup.c         | 1 +
+ drivers/power/reset/Kconfig        | 2 +-
+ kernel/reboot.c                    | 2 ++
+ 26 files changed, 27 insertions(+), 2 deletions(-)
+
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Chris Zankel <chris@zankel.net>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: James E.J. Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: John Crispin <john@phrozen.org>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Ley Foon Tan <ley.foon.tan@intel.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-um@lists.infradead.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: openrisc@lists.librecores.org
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Rich Felker <dalias@libc.org>
+Cc: sparclinux@vger.kernel.org
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: uclinux-h8-devel@lists.sourceforge.jp
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+-- 
+2.33.0.153.gba50c8fa24-goog
 
