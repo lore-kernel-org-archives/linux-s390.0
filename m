@@ -7,157 +7,151 @@ X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,
 	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9255C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Sep 2021 22:26:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF0B1C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Sep 2021 23:06:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8EDCC611CC
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Sep 2021 22:26:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A2A7C60EE3
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Sep 2021 23:06:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229560AbhIJW13 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 10 Sep 2021 18:27:29 -0400
-Received: from mail-bn8nam08on2053.outbound.protection.outlook.com ([40.107.100.53]:11617
-        "EHLO NAM04-BN8-obe.outbound.protection.outlook.com"
+        id S232573AbhIJXHp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 10 Sep 2021 19:07:45 -0400
+Received: from mail-dm6nam12on2044.outbound.protection.outlook.com ([40.107.243.44]:52128
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229474AbhIJW12 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Sep 2021 18:27:28 -0400
+        id S231742AbhIJXHo (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Sep 2021 19:07:44 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZLjx8eZezaCKXGaV+09ZVoo4kBoxvcptFwUDCk6xfFN8VmpuCfl24stcV6c8riZ5hR3bR2YYTySVEYl3LZavl9jcsPPZUK9FVxhkWm7gHKYjuTTaZ0fF4IG1DfsZLKkk0lK1hzQRt8gs7IoRFtMIVqfw27oDb47DCVkcv71GvlF/xPi+yA1x5PztbglirhxAVKiT4tbIeu4X4gAlYonjvbY9d9PeSHDWPLUa6Io2L/+CdwLe8DwDQhxAeftjE6CxDHjMygJ4rST1iJr7P0E2NEquTlVGGxvy3tNMjJGVswcGQbrn3HTfrc4Ucr/DcLAYIBgZLoEwEVmLi7zw3Dljfg==
+ b=KEQriZFUMRo4KS/vykSOI21wAEj2lQwTOrvdu0o2RTfWfC8r5aw14TGsiL0qGhHya1Z6rwdxf+Y4WS/KzjYxaCBIGSfQsu+Swzf4WW5+WD+FBzWctihbjgiqSpfC+AuxRmHkzJTyCLY4Tsze6/VPxSKyyvE/Mhn//YILMheuaAgh5bEVJIRVI5E6op24N43CH0+IGzo9NbDRXP42NAzPlkLG/zYSJaYYeLYPkkIIhXryfDzSYYVgU8Pg2mgQPLOaMdpiLJJ1zoVmiy0OaSbFxj9/g8hUxXP58Vs37CU5MdA2dMXDxKGyy2fMGaAcrVYp098TvzRATwKXCmwqxvLiXw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
- bh=npimqYWbevy/eUHfWf3Ti49kTeL2kV6d+BBqrJQJ8cU=;
- b=cwUIiyhftypH+e0vXlzEMHuFdoiIRzJedO810Xbk+8lqaoGRHwkyq8Zlje3fNqKpgQS8IVYTPiDV/Lml+jjBqirnJeG3WEgzq+18wMpDwNJpLUFjqVKYX+bH61tKylvsu1SPpVlxnIXwAqAo2/kLP4pFw+tLFvlMLwzeyb8MAEIGm3MpymXP7CHnFdTpEWkr/sT83jvAOdHyWRnXpN+L0ITQp7nWHArAoo+DfPQmok4Omkqj5Y9gzBoF0VVQsDw5a8JFKlsJJYLzd0lRYX+gDqzeTLBuwqQkvHMbg4fUylQbzgj6jzvNqdY2HCuPO1LVHZwBBVGPpdgZTL7LBDzLXA==
+ bh=h+vGxovTxT+s4XRJBP7hm7bjpDwMQsyUjt2i9ZfnRT4=;
+ b=NKTLfAw6TreP6sidpM6EPZYOWF9dNFmoQo8bRYloqLFipsCURG5AFS14djQ1L/cr0tvGauxKfnYjSD+bnh/7O3+LLd10K96HjHAsMk94unoMVur1xdfM/yFC0RefSC6Hj1TjcLAJE1AddsBxa84mMAL97OD5VGkE021Io4XrU7pdeJ2WVrdmlUtCjwoUWt8c3SrirKFTxoLia+AIhewb+jeJMW36OJQ5tlcs+tGO9ScrVmiViEiX0pT/Zpr0fQ9RTr2DzLvR/H3y3VIOKd+8xJs/bomGnq63s/Mhi+vdYY16zKhwyakg7ruJYegLkr+Df2azLchuPhSiimq8xd0KcQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=npimqYWbevy/eUHfWf3Ti49kTeL2kV6d+BBqrJQJ8cU=;
- b=nNP3AEewukPRg7LkPzD8MMr9v58035pPnTxE2W3wt3oblEVEs9eQ+n1bUn7Zm25lxcLwQBxLVTzu+lAGy3fMN8ZXvuCMxlX8BovX6JU9wf3+LswgsTC7f1Wr9M53h+FV8lCJRahZuB9oJIc1t0FDd0zuw+JhIEazqp6SMhvh/B1JkAZLKauJqGWuZZX5E2aBWod6COLOLTNxhGMl8IKbMOODk3Ps5NLGdD+oNeCYXUFIS4Out9rcuPjYurOCY46UCekixCRbExLn/Kt6XFuwv8lk47kY7Q2BEhqri6PsiYGh+D6F4If59kV2VOjMfcEt7nZ2+Go2Sp3vkdcbbw+WXA==
-Authentication-Results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
+ bh=h+vGxovTxT+s4XRJBP7hm7bjpDwMQsyUjt2i9ZfnRT4=;
+ b=uk1WzswteG9ka25e1yt6mySwbooir/wwPmspq6DOcX8plLJaiu1uRbE1k6ot+Mtdmfro/qVUUUsO7JeUF9694/SorV/S6Neg0gk5jkLGTMzVgugZ+W9J/SDASULccMpgQHaOg4OmhsCRexvrNePcUCDoK3fyGBbA36cBHx7Kl7EeCGa8dojuJFigSvFZ7yzTfxH2zSfMsP0LO8F8sVS/e1nEb8yVuZtVIgX8KmTqRVxQjECsbaiU8vHzsq1R6TkAKcBj0kmkkbzbXUJS/IBP987kKQ1D1iHDPRNwblpFUNMPk8RiPOMOPDsCgS+w4YZGMHfZI7U0hj8hG6vfKi853w==
+Authentication-Results: de.ibm.com; dkim=none (message not signed)
+ header.d=none;de.ibm.com; dmarc=none action=none header.from=nvidia.com;
 Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL1PR12MB5191.namprd12.prod.outlook.com (2603:10b6:208:318::21) with
+ by BL1PR12MB5093.namprd12.prod.outlook.com (2603:10b6:208:309::22) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4500.16; Fri, 10 Sep
- 2021 22:26:16 +0000
+ 2021 23:06:31 +0000
 Received: from BL0PR12MB5506.namprd12.prod.outlook.com
  ([fe80::e8af:232:915e:2f95]) by BL0PR12MB5506.namprd12.prod.outlook.com
  ([fe80::e8af:232:915e:2f95%8]) with mapi id 15.20.4500.014; Fri, 10 Sep 2021
- 22:26:16 +0000
-Date:   Fri, 10 Sep 2021 19:26:14 -0300
+ 23:06:31 +0000
 From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
         Harald Freudenberger <freude@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Jason Herne <jjherne@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Cornelia Huck <cohuck@redhat.com>,
         Christoph Hellwig <hch@lst.de>, kvm@vger.kernel.org
-Subject: Re: [PATCH] vfio/ap_ops: Add missed vfio_uninit_group_dev()
-Message-ID: <20210910222614.GV2505917@nvidia.com>
-References: <0-v1-3a05c6000668+2ce62-ap_uninit_jgg@nvidia.com>
- <20210910142531.2e18e73a.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210910142531.2e18e73a.alex.williamson@redhat.com>
-X-ClientProxiedBy: MN2PR22CA0009.namprd22.prod.outlook.com
- (2603:10b6:208:238::14) To BL0PR12MB5506.namprd12.prod.outlook.com
+Subject: [PATCH v2] vfio/ap_ops: Add missed vfio_uninit_group_dev()
+Date:   Fri, 10 Sep 2021 20:06:30 -0300
+Message-Id: <0-v2-25656bbbb814+41-ap_uninit_jgg@nvidia.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BL1PR13CA0033.namprd13.prod.outlook.com
+ (2603:10b6:208:257::8) To BL0PR12MB5506.namprd12.prod.outlook.com
  (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
-Received: from mlx.ziepe.ca (142.162.113.129) by MN2PR22CA0009.namprd22.prod.outlook.com (2603:10b6:208:238::14) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4500.14 via Frontend Transport; Fri, 10 Sep 2021 22:26:15 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1mOoyM-00FgFE-IP; Fri, 10 Sep 2021 19:26:14 -0300
+Received: from mlx.ziepe.ca (142.162.113.129) by BL1PR13CA0033.namprd13.prod.outlook.com (2603:10b6:208:257::8) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4523.8 via Frontend Transport; Fri, 10 Sep 2021 23:06:31 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1mOpbK-00FguE-MK; Fri, 10 Sep 2021 20:06:30 -0300
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 4c44059a-5e72-4e4a-47bb-08d974aa00e1
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5191:
-X-Microsoft-Antispam-PRVS: <BL1PR12MB5191C00C2DEE07A032F471DEC2D69@BL1PR12MB5191.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:178;
+X-MS-Office365-Filtering-Correlation-Id: d10e78d7-ef8b-4ca6-9110-08d974afa0bc
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5093:
+X-Microsoft-Antispam-PRVS: <BL1PR12MB5093B1795862D393970DD99DC2D69@BL1PR12MB5093.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:131;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: bup3HnYnhez/UnL9SRRwlmxxtwkjWxebN8Mi7kjGxVCN+Glsc4h2rNnErXdrg5XKhjb1ifDg7o4EsEbozjeSdheqFrpQaRoJjQFNjfC79GOYiiFhRwiYfKSTlQ4XdMvvRUMJneZbF9R2AS+2zDGSp9VO1LZkPU8K29Pqv8LZq7eqWQ+PuAs45F93VHLZHaxpFKyzPgbaq8b3OBmzcbMbFjElbtrIJ+kXDh9crO/4gcthnwEbKpk/SrEnuFtwf2MbTDS+ob19sD81udXWm2D7iGJhgby5LHef3pYz3Ta3RICCezJJvaT738nR1gny2caGNVWikwmsVH02o7OkfKK2pZCEzbjG24qlUFkvA87qFgPXX4OSj8oyBOMgiTT+1IYMNx/Rhbnqrc1THWliQDos1CtD5VpXo3nFrHBpZB+XnvyzROnWanZVIl1OPJpRexEBgWCOHjiw+Kp/KmC+EV+ESk3SafmXRqDKvZlRvIsdUv4NGB9V2cVcNayfOtk7aGTkUrBauKPBYArZsFe7dr6sNcN3kA4ldOoLlo5hcg/8TST6rXCNK6Gvf6vR7RY5wYCQ/wc//zJIjspXCIRNydVULEqapSzBQ32HkX1vOmWOni1WKKpLKqEt0dE9RmJ5VHHiCgPM3PbuN6ao7/labn7/yQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(376002)(396003)(136003)(366004)(346002)(83380400001)(2616005)(66946007)(38100700002)(26005)(54906003)(1076003)(33656002)(4326008)(36756003)(478600001)(9786002)(9746002)(7416002)(8936002)(2906002)(8676002)(6916009)(316002)(66476007)(66556008)(5660300002)(186003)(86362001)(426003);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: AWiyG8T2ix+HMVWDcnuzMb9DEYduana+QBLuZ9QOLkHxywwNK5QM1uLEXM6Uy0AmuO+2UP3sjqyhdbrC5g8nJ7J5bkGST4yrev2NqURDuud9YTHMwPcSdX/Xq2KZ06E6Zk8vFif8dxoxAS93241RLRHTbk5Y2frE9p8u1CTq46G3t0YoJuO844Hwiud2wKsa9ft1mo8F5mQtArViLYm8RSAQhS+xV9A7ZoVr161dpBrY0xCSWHnasi0zEeS0urc/jX1YDC3eFZtFXAHOmUMrP0EgNpW2o0f0/OHtJnRfZQ/fr2dBNJtHENtR7VNAbGAEhuD+3ektkqtT/gnOesVDwBb0c5dmc4gOKNZlmlNZKUbQgHpEVnqE+/hVMcaDCIy20ASDeMjLIBeZFAdEoRfz29aD1Hd8wgVvR4qGIcDgqLaSuHORUzuo5aSUzOi+g2AvI8iEAZllCzT9IkNLIvaOU2JAUQT9yZKokUOiA+QKchz4Pfnu8YB0ik+l9r2dI0qGBJbseDQy9wnnDl9t3PE7I6IaJ5B7vgMtB+m+i7U8zKkqVpAHLb0wMfR5Ed/lNvX4kmiy0S+E5ozIc1G5SLbCIL1RissvFgpCEV/tP60jy0LdEXW/QkioGNGVEsmWpEabpAv4ZVj14H3p+e4Rs4CeoclLHo1qCrsQIgAiHIKgx3RP9yl4qDFQWBafq8j0y+8itX+4G6BPvYhAmNT2N+P1aysgWJZi3LOYNjqoBv6B+D/YrB+Izv0y8Svax7uXJSYIFB/bl43jLslrgevVhiOBgw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(136003)(366004)(346002)(39860400002)(376002)(2906002)(54906003)(110136005)(426003)(7416002)(4326008)(86362001)(36756003)(2616005)(316002)(478600001)(9786002)(9746002)(186003)(8936002)(83380400001)(966005)(8676002)(66476007)(66556008)(5660300002)(38100700002)(26005)(66946007)(4216001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Ox/e+NZSGahMtKCbSLYpdj4lXduXYTVSACipY/19RvM94C3ZQUEg06la47/G?=
- =?us-ascii?Q?mg9w7o/GXTq4C1eb1huhTj/rfrcZYiyiTToezQBqr/jqv9px71Fx0li0P1iH?=
- =?us-ascii?Q?YYNx5dDWdCbzT8zepSAn+IIEcwVPaoPO+srQcFYw8wU+qTHdQHRwwDm+hFn5?=
- =?us-ascii?Q?7JyoojRYldwDJ7eln/3ST1eTq8ID4aPa3cMrX9O87EurBIYZ2hB2SgXrBAuu?=
- =?us-ascii?Q?rCTo/timccuaXUw8SpncofcAygSOC2zW+9S1dQYfEO3JilAx5VVIDkj+DEYV?=
- =?us-ascii?Q?bPAMJmDAY8QlaXwL0OtmcKZR3/S+eA4ibqN8gb1uCjzzbIHJh5UTjiNO4nJg?=
- =?us-ascii?Q?cAnRotMsOZramD9Z73WBShD+jSYDxKQTscVNBnIUTvb1h9pIBKPbWsUWsgBp?=
- =?us-ascii?Q?5KvHoY1niN0E71Vvh95MdaPJBqsWHVTtc0Lcg0L+3RENt45NfErWiIgyqcvJ?=
- =?us-ascii?Q?F5AQlC7fAWNz2JDvyVJJjv2Kt2GgP7ilrqWmzCU/CRQV3eYVJNnBBqa1w4O0?=
- =?us-ascii?Q?pILX9ixGtpN7V0fQSqg35dfx3rk1C1xILQMZa8AMFb+az38AGDSbp7VwAFBW?=
- =?us-ascii?Q?2HWC5OTG14aBSuVUuYQPfmG+XNGFqHJgyP30IE6WQgJekDQBgt+HyPhMcNru?=
- =?us-ascii?Q?pU5EnmfSTjPsXfljUv3XJMtTk66EEHEpQk7B7ERpXN1KBh9Th2qrYCPG3Ss3?=
- =?us-ascii?Q?4WyLEvZSjkB9Lzwnyd3oNsnmZlh2ETpRCb00z1zPeFKQtgWD/EJia5cfGxk8?=
- =?us-ascii?Q?TBR3/AhOdrtsy4P68TX6/rmVP8MfkDXkhnt3u1x83AQsxDAIoJubEAHYmBOm?=
- =?us-ascii?Q?GzqoFo+QXqVeSFrvuw+zzYbYA86fVMunkQ3wNgEi100zr41jes5+GHeiIQOz?=
- =?us-ascii?Q?zkXyNnCYWAnU3cvOziMZ3yQXrW5uKO5AanEB92cUkI2UWKd19y2x4v1wl8Xe?=
- =?us-ascii?Q?0NIbMRgu5X31EpQYP8GKZy9EhQHwnHqi3tYfbAfm4Vf7+qcj13OxvIZ7HuuE?=
- =?us-ascii?Q?ExAFzt5zX/6XLIESp5O2qTDyRKvYcLgySkdzhcKvGAqfw5VP4VDU21SIwdvQ?=
- =?us-ascii?Q?DbvvCnGvIppV0Pw912wq5qX4wdl/OCCJspeA3GpbdxS4Ii8empfWqoOWKJVG?=
- =?us-ascii?Q?ceLCr1iE1QrbA5es1dfH5Cyp25QKbiLpKCokKT8fObxwlwEsyaebVpcICEr4?=
- =?us-ascii?Q?Mt0CEkNaK49VFdPB/lCqkbgYcgUm+VlvIlKnzUMfyLvVvHdSyjXae0bLVq7x?=
- =?us-ascii?Q?9h+6IeeWWYqu622R6RTfVInY84fCi6D+9UcGbBUGAwYMjkXfOnS7pY0r4twt?=
- =?us-ascii?Q?pTsnPjW3LHGHst2t19WaJHw/?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?cTiXwe/8tempuDY9cR+naI/nw8Dof0QKXr/uyaBETt4QAmVQuCNAQCJSoxDU?=
+ =?us-ascii?Q?HLDHkBWNyfPOurZL7vcnZz4mVN7e/C9JlXPwAXJ6qj+LC7xTx/+8bwSxW3Fk?=
+ =?us-ascii?Q?ZEt3dnawrw9kJTVkcuggS2Utq/EoEPQQfJ5B4rZZ0gJpSM41pRTJgtm4yGjE?=
+ =?us-ascii?Q?KcB82UqmYlcTlLTfWKrqMX52MRNuNISbdm6D9XfC81KRmqT5ObIM9BVkPufb?=
+ =?us-ascii?Q?WsHpqe4D7TztEadK8fS9d+iPHNvWzpvJxsPV8pG9L1InKKjaIDAEFytIUnUj?=
+ =?us-ascii?Q?XVJ68ayo6U9KT901aNfJmEmhLh5n28QUwzLkiVfaKyzlTPqkjLtpFW9Rloh9?=
+ =?us-ascii?Q?KnnFEb5DKUVs9rZJjX0KySioZMdOk9/yPgnwIUDNo/L1Ei3AaglvIUgK9w1v?=
+ =?us-ascii?Q?12f4HBZploI+jMraFWr7RW6AvPKjzujgcAboFvHlckeQ/B5g9NzPArGlFurd?=
+ =?us-ascii?Q?F3uDB2MNMxq2wiqmVwAmDNp8ypkirilU3Pjg9KuVqvfavLX/clGHA/qqnuiE?=
+ =?us-ascii?Q?5Kqg3UjTWn+t5Zw0IcOxXxsrm+AhSEudMzJY1COlCkM7LmJ8tjJMT+05eoJS?=
+ =?us-ascii?Q?QyEon6nYl3YjnXyUOrCcvSpZCbUNajda6Pk/bHFBl3tW6EgvCWwMq9OXhrt7?=
+ =?us-ascii?Q?I62iStv9tZGEFqVL9iWxH7bstnhdsu06B0o5Go/IQqGna8EA8R9ZJLHUJaUZ?=
+ =?us-ascii?Q?8bJ78QBRwUxbCPFVyJwpWaQFFzk52vgx7OsTCyiiU61tcICM60FMwj5YXzSN?=
+ =?us-ascii?Q?9+8+7IoGw+bIfHsMF6i3/YmP6gtoiMf11oJjvT3iuC5jghs8hTjDfBxB3QPP?=
+ =?us-ascii?Q?ER7k6kuyjQzB0a2VwYokWyGSddt3yLiITnY+kG1VoICHeck2GGHZM0EJLv35?=
+ =?us-ascii?Q?t3snnlUpXYwE4ne9ONKRb5nwIzQOisMVskfW7pG2DB2nxeOcYl6Jkd6Af5fc?=
+ =?us-ascii?Q?bqv7fm7c2z64IULwo8xDOPo9tOGE4zeIOGCEEp3Wm1FH/yHfwK/KmDVT7zo7?=
+ =?us-ascii?Q?ywXW88337yLCa7A68J/yMYKPZURs8Tf2hL94RbOXYordoK3Y0WiIivHjHE99?=
+ =?us-ascii?Q?MqlqtwTdkll26ov62xCuRdXWwBgS4ypeWT4q7uwBRfodePD7AtviMBPJmp7q?=
+ =?us-ascii?Q?SKB2vP0LykOaWb24YWX4WYLRT/udP55QNpgVBHHV4XXIYbb/g5g902noPiXJ?=
+ =?us-ascii?Q?mwJvdZLr0WSc4OXP9AdQMFTku83aoRazsiro3IH2y0PC32AVtEVkmRLItLK5?=
+ =?us-ascii?Q?NN2ACU/Y3pXkmkCFA31/cUXhLnnvYZFx/tYuJkJooiK80YGrDqOBqspJqWnq?=
+ =?us-ascii?Q?mUIaDmEwPasW9M5J1Kgq7Lag?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4c44059a-5e72-4e4a-47bb-08d974aa00e1
+X-MS-Exchange-CrossTenant-Network-Message-Id: d10e78d7-ef8b-4ca6-9110-08d974afa0bc
 X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Sep 2021 22:26:15.9802
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Sep 2021 23:06:31.5373
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: c9DxdtHw1ymNcrNv2/gI6Qu7V1KLtlNZHLo5qX2STE5NGCf3vKGEf971R57BZx2Q
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5191
+X-MS-Exchange-CrossTenant-UserPrincipalName: Tl0Zgx0M398l+rmi3lYJXBO1zOmk/vgiQZlS0UwJbairS8Kx87nhXLdpmub1/CSx
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Sep 10, 2021 at 02:25:31PM -0600, Alex Williamson wrote:
-> On Thu,  9 Sep 2021 14:24:00 -0300
-> Jason Gunthorpe <jgg@nvidia.com> wrote:
-> 
-> > Without this call an xarray entry is leaked when the vfio_ap device is
-> > unprobed. It was missed when the below patch was rebased across the
-> > dev_set patch.
-> > 
-> > Fixes: eb0feefd4c02 ("vfio/ap_ops: Convert to use vfio_register_group_dev()")
-> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> >  drivers/s390/crypto/vfio_ap_ops.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> > 
-> > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> > index 2347808fa3e427..54bb0c22e8020e 100644
-> > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> > @@ -360,6 +360,7 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
-> >  	mutex_lock(&matrix_dev->lock);
-> >  	list_del(&matrix_mdev->node);
-> >  	mutex_unlock(&matrix_dev->lock);
-> > +	vfio_uninit_group_dev(&matrix_mdev->vdev);
-> >  	kfree(matrix_mdev);
-> >  err_dec_available:
-> >  	atomic_inc(&matrix_dev->available_instances);
-> > @@ -375,8 +376,8 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
-> 
-> 
-> Not sure if you're editing patches by hand, but your line counts above
-> don't match the chunk below, should be ,6..,7 as the previous chunk.
+Without this call an xarray entry is leaked when the vfio_ap device is
+unprobed. It was missed when the below patch was rebased across the
+dev_set patch.
 
-No, never... 
+Fixes: eb0feefd4c02 ("vfio/ap_ops: Convert to use vfio_register_group_dev()")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-It took awhile to figure out but it turns out emacs did it?!
+v2: Fix corrupted diff
+v1: https://lore.kernel.org/all/0-v1-3a05c6000668+2ce62-ap_uninit_jgg@nvidia.com/
 
-I've been trying out the 'base-commit' trailer feature and removed it
-by hand from this patch before sending because it was just some bogus
-local merge. When I did this emacs diff mode wrongly thought the diff
-was being edited and corrupted the @@ line.
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 2347808fa3e427..54bb0c22e8020e 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -360,6 +360,7 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
+ 	mutex_lock(&matrix_dev->lock);
+ 	list_del(&matrix_mdev->node);
+ 	mutex_unlock(&matrix_dev->lock);
++	vfio_uninit_group_dev(&matrix_mdev->vdev);
+ 	kfree(matrix_mdev);
+ err_dec_available:
+ 	atomic_inc(&matrix_dev->available_instances);
+@@ -375,6 +376,7 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
+ 	mutex_lock(&matrix_dev->lock);
+ 	vfio_ap_mdev_reset_queues(matrix_mdev);
+ 	list_del(&matrix_mdev->node);
++	vfio_uninit_group_dev(&matrix_mdev->vdev);
+ 	kfree(matrix_mdev);
+ 	atomic_inc(&matrix_dev->available_instances);
+ 	mutex_unlock(&matrix_dev->lock);
 
-Wow, I had no idea it could edit patches :\
+base-commit: ea870730d83fc13a5fa2bd0e175176d7ac8a400a
+-- 
+2.33.0
 
-Jason
