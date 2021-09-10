@@ -2,143 +2,157 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDD7CC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Sep 2021 08:23:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D210C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Sep 2021 09:23:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B58D061186
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Sep 2021 08:23:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D89360E54
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Sep 2021 09:23:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231665AbhIJIYN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 10 Sep 2021 04:24:13 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2712 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231666AbhIJIYK (ORCPT
+        id S232016AbhIJJZE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 10 Sep 2021 05:25:04 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:44493 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231818AbhIJJZD (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Sep 2021 04:24:10 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 18A82xVP059738;
-        Fri, 10 Sep 2021 04:22:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=jVxY14ywZqG7Jf4duKhASmJyUCTEy+v+4GH1vFnf6RQ=;
- b=NhTohMXYFJu5EJOqcrxdpdw5pUq7qWPVzsaodVcysGUKZZ0gJZp4cGONJSLjQJQE+iH2
- 2lHNTtWNiga0XOLoxTGvzfc2s8XmwXk8FQ1lEbknElHwi+BdsmLPWTB+wF5nyLC2Jukz
- tHWS9S8+sebVrIgstnjh9ifDE6ehLdbLbgYjaddS4WWgsyt31jxvxOdT4lGKMKJCZj9f
- YXQkE6dnSh+IKdo4EKRpnyNj1uRCx1GsxbBGSB78+5rbGAXibcafLTWLF+c0sZQIEmwN
- Y49Lc9vtocWB/xyBdf4+f1XCvbhDvcLcm0R2kXcF1Zft7bz3uk9SRHEyNgiFthVFiDKJ bA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ayu419y7n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Sep 2021 04:22:57 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18A8C8FN101185;
-        Fri, 10 Sep 2021 04:22:57 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ayu419y74-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Sep 2021 04:22:57 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18A8HQMh015695;
-        Fri, 10 Sep 2021 08:22:55 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06fra.de.ibm.com with ESMTP id 3axcnqe9r8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Sep 2021 08:22:54 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18A8MpbT26673662
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 10 Sep 2021 08:22:51 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A23D3A4065;
-        Fri, 10 Sep 2021 08:22:51 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 50858A4066;
-        Fri, 10 Sep 2021 08:22:51 +0000 (GMT)
-Received: from sig-9-145-77-172.uk.ibm.com (unknown [9.145.77.172])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 10 Sep 2021 08:22:51 +0000 (GMT)
-Message-ID: <82d683ec361245e1879b3f14492cdd5c41957e52.camel@linux.ibm.com>
+        Fri, 10 Sep 2021 05:25:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1631265832;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=vrslVFgCV0A1ASGIKU12boBiWPC4TLJ7XoCjGrBTCz8=;
+        b=JJEvg2H5+TLjA9WWSA96xgLOShSki5LRRV51vAw4FkeJKk9aTbTXTBID0YKSTaMdkL8KzI
+        BPtKEbJeaWWq7p6ohU2BNeRphgDq2X0pznRgjwlRUrIO/SY0O7d/DukENTt+QJWaFJ5kJA
+        6DPIYQTiZsK+QmEV2eV3+QX/QzLoWik=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-86-ypGM_wKvPUOeaGQcow5tVA-1; Fri, 10 Sep 2021 05:23:51 -0400
+X-MC-Unique: ypGM_wKvPUOeaGQcow5tVA-1
+Received: by mail-wr1-f72.google.com with SMTP id q14-20020a5d574e000000b00157b0978ddeso291502wrw.5
+        for <linux-s390@vger.kernel.org>; Fri, 10 Sep 2021 02:23:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:organization
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=vrslVFgCV0A1ASGIKU12boBiWPC4TLJ7XoCjGrBTCz8=;
+        b=JvsZFrZaMA40l4kxE1NSerM0tGWl5v0Ja/f99lwtHMlcSzsdxT105pljkRPs4vQTuZ
+         CSfF+S8Vqa8S0Qwt1KAKDzpxcbxWettuYAkhBYJA8naIl0xGrjJKwv5146vQxAE3BPXg
+         Emv8mdK2QRlA5R6l593Uzne2h2/o9ellP/BbTMiuK5B1e3iRGzghzUvjcjbSA9Jjxd0/
+         A1qTCn46TIDklGSHmRGCmhjKTXe7QnpOgEHgz3lFQcsSIKZGTR4QJabFkw+LGyNpoQtt
+         RoMQDB2lHC8t1p9uc27i3eoTjIceIElc/eL6O+ikh6yynf+s93Xl5gDonwNDwdWMRW9R
+         2mSQ==
+X-Gm-Message-State: AOAM5305kp+bFYdfU45VzfPndTNedE452+6I3oNhVSj4cf/kN0ZrYmqY
+        bD4bz1vuA9XjvXudME4ojutQW8jK6UiUNTtje4BfifJAlFyVDUjHio3iNzjppPJen4k5vvLZ7FG
+        2pmd6W7nekPcxnpQPF3sRKA==
+X-Received: by 2002:adf:e7ca:: with SMTP id e10mr537324wrn.97.1631265830239;
+        Fri, 10 Sep 2021 02:23:50 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxbJtumfWhoeoqWdrbbfX6WGzwZFjWqOeIuwT2t9OUhauNMdOAXqx3T37WZquMUdpxR8rvMgA==
+X-Received: by 2002:adf:e7ca:: with SMTP id e10mr537307wrn.97.1631265829997;
+        Fri, 10 Sep 2021 02:23:49 -0700 (PDT)
+Received: from [192.168.3.132] (p5b0c600c.dip0.t-ipconnect.de. [91.12.96.12])
+        by smtp.gmail.com with ESMTPSA id p5sm4479649wrd.25.2021.09.10.02.23.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 10 Sep 2021 02:23:49 -0700 (PDT)
 Subject: Re: [PATCH RFC 6/9] s390/pci_mmio: fully validate the VMA before
  calling follow_pte()
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-mm@kvack.org
-Date:   Fri, 10 Sep 2021 10:22:50 +0200
-In-Reply-To: <20210909145945.12192-7-david@redhat.com>
 References: <20210909145945.12192-1-david@redhat.com>
-         <20210909145945.12192-7-david@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
-Mime-Version: 1.0
+ <20210909145945.12192-7-david@redhat.com>
+ <82d683ec361245e1879b3f14492cdd5c41957e52.camel@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Message-ID: <d9ec2387-2645-796e-af47-26f22516f7fa@redhat.com>
+Date:   Fri, 10 Sep 2021 11:23:48 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
+MIME-Version: 1.0
+In-Reply-To: <82d683ec361245e1879b3f14492cdd5c41957e52.camel@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: sP6U2HhjRzpPKt-WnTURwLFoYc87rO_0
-X-Proofpoint-ORIG-GUID: Aty1VeXchEKLqvSS2X_qjh5vNDqqeENk
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-09-10_02:2021-09-09,2021-09-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=999
- suspectscore=0 clxscore=1011 impostorscore=0 malwarescore=0 phishscore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 adultscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109030001
- definitions=main-2109100050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2021-09-09 at 16:59 +0200, David Hildenbrand wrote:
-> We should not walk/touch page tables outside of VMA boundaries when
-> holding only the mmap sem in read mode. Evil user space can modify the
-> VMA layout just before this function runs and e.g., trigger races with
-> page table removal code since commit dd2283f2605e ("mm: mmap: zap pages
-> with read mmap_sem in munmap").
+On 10.09.21 10:22, Niklas Schnelle wrote:
+> On Thu, 2021-09-09 at 16:59 +0200, David Hildenbrand wrote:
+>> We should not walk/touch page tables outside of VMA boundaries when
+>> holding only the mmap sem in read mode. Evil user space can modify the
+>> VMA layout just before this function runs and e.g., trigger races with
+>> page table removal code since commit dd2283f2605e ("mm: mmap: zap pages
+>> with read mmap_sem in munmap").
+>>
+>> find_vma() does not check if the address is >= the VMA start address;
+>> use vma_lookup() instead.
+>>
+>> Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>   arch/s390/pci/pci_mmio.c | 4 ++--
+>>   1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
+>> index ae683aa623ac..c5b35ea129cf 100644
+>> --- a/arch/s390/pci/pci_mmio.c
+>> +++ b/arch/s390/pci/pci_mmio.c
+>> @@ -159,7 +159,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
+>>   
+>>   	mmap_read_lock(current->mm);
+>>   	ret = -EINVAL;
+>> -	vma = find_vma(current->mm, mmio_addr);
+>> +	vma = vma_lookup(current->mm, mmio_addr);
+>>   	if (!vma)
+>>   		goto out_unlock_mmap;
+>>   	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
+>> @@ -298,7 +298,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mmio_addr,
+>>   
+>>   	mmap_read_lock(current->mm);
+>>   	ret = -EINVAL;
+>> -	vma = find_vma(current->mm, mmio_addr);
+>> +	vma = vma_lookup(current->mm, mmio_addr);
+>>   	if (!vma)
+>>   		goto out_unlock_mmap;
+>>   	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
 > 
-> find_vma() does not check if the address is >= the VMA start address;
-> use vma_lookup() instead.
+> Oh wow great find thanks! If I may say so these are not great function
+> names. Looking at the code vma_lookup() is inded find_vma() plus the
+> check that the looked up address is indeed inside the vma.
 > 
-> Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  arch/s390/pci/pci_mmio.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+
+IIRC, vma_lookup() was introduced fairly recently. Before that, this 
+additional check was open coded (and still are in some instances). It's 
+confusing, I agree.
+
+> I think this is pretty independent of the rest of the patches, so do
+> you want me to apply this patch independently or do you want to wait
+> for the others?
+
+Sure, please go ahead and apply independently. It'd be great if you 
+could give it a quick sanity test, although I don't expect surprises -- 
+unfortunately, the environment I have easily at hand is not very well 
+suited (#cpu, #mem, #disk ...) for anything that exceeds basic compile 
+tests (and even cross-compiling is significantly faster ...).
+
 > 
-> diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
-> index ae683aa623ac..c5b35ea129cf 100644
-> --- a/arch/s390/pci/pci_mmio.c
-> +++ b/arch/s390/pci/pci_mmio.c
-> @@ -159,7 +159,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
->  
->  	mmap_read_lock(current->mm);
->  	ret = -EINVAL;
-> -	vma = find_vma(current->mm, mmio_addr);
-> +	vma = vma_lookup(current->mm, mmio_addr);
->  	if (!vma)
->  		goto out_unlock_mmap;
->  	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
-> @@ -298,7 +298,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mmio_addr,
->  
->  	mmap_read_lock(current->mm);
->  	ret = -EINVAL;
-> -	vma = find_vma(current->mm, mmio_addr);
-> +	vma = vma_lookup(current->mm, mmio_addr);
->  	if (!vma)
->  		goto out_unlock_mmap;
->  	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
+> In any case:
+> 
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> 
 
-Oh wow great find thanks! If I may say so these are not great function
-names. Looking at the code vma_lookup() is inded find_vma() plus the
-check that the looked up address is indeed inside the vma.
+Thanks!
 
-I think this is pretty independent of the rest of the patches, so do
-you want me to apply this patch independently or do you want to wait
-for the others?
+-- 
+Thanks,
 
-In any case:
-
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+David / dhildenb
 
