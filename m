@@ -2,108 +2,240 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D4FFC433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Sep 2021 16:53:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BB9EC4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Sep 2021 17:41:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3C86760F36
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Sep 2021 16:53:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 04170610CC
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Sep 2021 17:41:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239888AbhIMQyp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Sep 2021 12:54:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51158 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238901AbhIMQyh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Sep 2021 12:54:37 -0400
-Received: from bombadil.infradead.org (unknown [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B54ADC061766;
-        Mon, 13 Sep 2021 09:53:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=m/3a5AY41rDqUNNKgbTN21eo535vkOk2RbK4QApErFo=; b=mTXsFDP3UjsDKBPdRKXLQ4tfgC
-        S0zlEqfitx1WA0aIQ0vmmKB0Kf4xhs+9iAE5T774WOW/Nid9YwGKfiUDd3HD66KAVNPlAy+dqbXxj
-        O4b2PMt4VGjwMa3kZqKWfuYixnaEHETy5vVqLguYmyjOtuQeiGX1lFe8vK0gLYz164Fxfco3Ini+P
-        PAueX2/2lwte2kAxUNi8+DI6bnhVvNVc6yg9B3DSFUYUT/UAFASVN6tQPFWt2FqQyWR5BDNS0G/hh
-        hgbtMPcqgRJeqXEFRoFZsshHQibor6ae94i0cm4pEU5sNewvSC8aTSwa3iCPuZVwIavUjHYTWw0xu
-        IFizBO1w==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mPpCk-002WmJ-2M; Mon, 13 Sep 2021 16:53:14 +0000
-Date:   Mon, 13 Sep 2021 09:53:14 -0700
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>, axboe@kernel.dk,
-        gregkh@linuxfoundation.org, chaitanya.kulkarni@wdc.com,
-        atulgopinathan@gmail.com, hare@suse.de, maximlevitsky@gmail.com,
-        oakad@yahoo.com, ulf.hansson@linaro.org, colin.king@canonical.com,
-        shubhankarvk@gmail.com, baijiaju1990@gmail.com, trix@redhat.com,
-        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
-        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
-        sth@linux.ibm.com, hoeppner@linux.ibm.com, gor@linux.ibm.com,
-        borntraeger@de.ibm.com, oberpar@linux.ibm.com, tj@kernel.org,
-        linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/9] s390/block/dcssblk: add error handling support for
- add_disk()
-Message-ID: <YT+B+vCUcpZEq8hM@bombadil.infradead.org>
-References: <20210902174105.2418771-1-mcgrof@kernel.org>
- <20210902174105.2418771-8-mcgrof@kernel.org>
- <YTIscKy+jg5L/TMh@osiris>
- <YTLP8mYBX37R++9E@bombadil.infradead.org>
- <20210906134346.19c14246@thinkpad>
+        id S1344127AbhIMRmf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Sep 2021 13:42:35 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60496 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1345948AbhIMRm1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 13 Sep 2021 13:42:27 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.0.43) with SMTP id 18DGRBUv018538;
+        Mon, 13 Sep 2021 13:41:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=/NN3jaUxPuN1Z0XMRm7SAz5tZplp4p3QlUjz9/vCUbc=;
+ b=gO39d4TnwFjmc7xxvNJGf0GVcXd02hsuUO1bvxu2ZDiXoKFn2lyr3Ga3IW6qdqZISaoA
+ Yzoca+q97jMS2R9VoXLd00SvHsYvqwXbultrFG2N3xEcaVAttzCGwcpb+cQkwr5gDb7W
+ ABjjTVYR/z0/F0T1Vd/9CDuHbFL2ryENB/Lfs+9ddrArVMJJ/rg3yCn0Y4xrtZm0tHyi
+ zERGOsLVdO76nPD7zFC/GFafhtor/nYWdPr/CVO9EY7Tg6K4llpeViKhOwEFhsVAFQhr
+ Jk5UsCkpqrKYCLRDPgt9m0jufcPfVREB+9CHfITC7euvKIWljd90An0qkF4rVVlz/Ffx 4w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b247749d6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Sep 2021 13:41:02 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18DHYb4u002637;
+        Mon, 13 Sep 2021 13:41:01 -0400
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b247749ch-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Sep 2021 13:41:01 -0400
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18DHNkKQ030419;
+        Mon, 13 Sep 2021 17:41:00 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma03dal.us.ibm.com with ESMTP id 3b0m3a7j57-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Sep 2021 17:41:00 +0000
+Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18DHehJp41025848
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 13 Sep 2021 17:40:43 GMT
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BD939124066;
+        Mon, 13 Sep 2021 17:40:43 +0000 (GMT)
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 50577124076;
+        Mon, 13 Sep 2021 17:40:36 +0000 (GMT)
+Received: from farman-thinkpad-t470p (unknown [9.211.116.76])
+        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
+        Mon, 13 Sep 2021 17:40:36 +0000 (GMT)
+Message-ID: <1e431e58465b86430d02d429c86c427f7088bf1f.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 0/9] Move vfio_ccw to the new mdev API
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Cc:     Christoph Hellwig <hch@lst.de>
+Date:   Mon, 13 Sep 2021 13:40:34 -0400
+In-Reply-To: <0-v2-7d3a384024cf+2060-ccw_mdev_jgg@nvidia.com>
+References: <0-v2-7d3a384024cf+2060-ccw_mdev_jgg@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: -Y_Guw0LHcHmxLUcn1T9ujGqJJ8_C5Jd
+X-Proofpoint-ORIG-GUID: z1fn5zdhFz8KxePmVCxN-fxKjMKHYvcA
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210906134346.19c14246@thinkpad>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
+ definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ lowpriorityscore=0 malwarescore=0 mlxlogscore=999 suspectscore=0
+ adultscore=0 mlxscore=0 priorityscore=1501 spamscore=0 impostorscore=0
+ bulkscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109030001 definitions=main-2109130063
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 06, 2021 at 01:43:46PM +0200, Gerald Schaefer wrote:
-> On Fri, 3 Sep 2021 18:46:26 -0700
-> Luis Chamberlain <mcgrof@kernel.org> wrote:
-> 
-> > On Fri, Sep 03, 2021 at 04:08:48PM +0200, Heiko Carstens wrote:
-> > > On Thu, Sep 02, 2021 at 10:41:03AM -0700, Luis Chamberlain wrote:
-> > > > We never checked for errors on add_disk() as this function
-> > > > returned void. Now that this is fixed, use the shiny new
-> > > > error handling.
-> > > > 
-> > > > Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-> > > > ---
-> > > >  drivers/s390/block/dcssblk.c | 4 +++-
-> > > >  1 file changed, 3 insertions(+), 1 deletion(-)
-> > > > 
-> > > > diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-> > > > index 5be3d1c39a78..b0fd5009a12e 100644
-> > > > --- a/drivers/s390/block/dcssblk.c
-> > > > +++ b/drivers/s390/block/dcssblk.c
-> > > > @@ -696,7 +696,9 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char
-> > > >  	}
-> > > >  
-> > > >  	get_device(&dev_info->dev);
-> > > > -	device_add_disk(&dev_info->dev, dev_info->gd, NULL);
-> > > > +	rc = device_add_disk(&dev_info->dev, dev_info->gd, NULL);
-> > > > +	if (rc)
-> > > > +		goto put_dev;
-> > > 
-> > > This looks not correct to me. We seem to have now in case of an error:
-> > > 
-> > > - reference count imbalance (= memory leak)
-> > > - dax cleanup is missing
-> > 
-> > Care to provide an alternative?
-> 
-> See patch below:
+On Thu, 2021-09-09 at 16:38 -0300, Jason Gunthorpe wrote:
+> This addresses Cornelia's remark on the earlier patch that ccw has a
+> confusing lifecycle. While it doesn't seem like the original attempt
+> was
+> functionally wrong, the result can be made better with a lot of
+> further
+> work.
 
-Thanks! Will you queue this up on your end or do would you
-prefer for me to roll this into my tree and eventually resend
-with the rest?
+I thought I'd take a stab at seeing how this works with the hardware
+before looking at the code much. git couldn't apply patches 1, 6, or 9
+to 5.15-rc1, but I was able to hand-fit them into place. Shutting down
+the guest and de-configuring a device ends up bringing my whole system
+down. I haven't looked at this any further; hopefully something jumps
+to mind for you:
 
-  Luis
+[   64.585347] vfio_ccw 0.0.08fe: MDEV: Unregistering
+[   64.585357] illegal operation: 0001 ilc:1 [#1] SMP 
+[   64.585362] Modules linked in: vhost_vsock
+vmw_vsock_virtio_transport_common vsock vhost
+[   64.585364] vfio_ccw_mdev b50bbd4b-eab8-4f8c-9f0c-3cf636f936b9:
+Relaying device request to user (#0)
+[   64.585364]  vhost_iotlb lcs ctcm fsm kvm xt_MASQUERADE xt_conntrack
+ipt_REJECT nf_reject_ipv4 xt_tcpudp iptable_mangle iptable_nat nf_nat
+nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bridge stp
+llc dm_multipath dm_mod s390_trng eadm_sch zcrypt_cex4 qeth_l2 vfio_ccw
+mdev vfio_iommu_type1 vfio configfs zram zsmalloc ip_tables x_tables
+mlx5_core ghash_s390 prng aes_s390 des_s390 libdes sha3_512_s390
+sha3_256_s390 sha512_s390 sha256_s390 sha1_s390 sha_common pkey zcrypt
+rng_core autofs4
+[   64.585392] CPU: 14 PID: 4487 Comm: qemu-system-s39 Kdump: loaded
+Not tainted 5.15.0-rc1 #1
+[   64.585395] Hardware name: IBM 3906 M05 780 (LPAR)
+[   64.585396] Krnl PSW : 0704c00180000000 0000000000000002 (0x2)
+[   64.585404]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0
+PM:0 RI:0 EA:3
+[   64.585407] Krnl GPRS: 0000000000000001 0000000000000000
+00000000005f4800 0000000000000004
+[   64.585410]            0000000000000000 0000000000000002
+0000000000000000 000002aa3e65085e
+[   64.585412]            000000008de09100 0000000000003b6f
+000003ff8017fa08 00000000005f4800
+[   64.585413]            0000000081450000 000003ff7c032310
+000003ff80179db0 000003800bf53da0
+[   64.585418] Krnl Code:#0000000000000000:
+0000                illegal 
+          >0000000000000002: 0000               illegal 
+           0000000000000004: 0000               illegal 
+           0000000000000006: 0000               illegal 
+           0000000000000008: 0000               illegal 
+           000000000000000a: 0000               illegal 
+           000000000000000c: 0000               illegal 
+           000000000000000e: 0000               illegal 
+[   64.585462] Call Trace:
+[   64.585464]  [<0000000000000002>] 0x2 
+[   64.585467] ([<000003ff80179d74>] vfio_ccw_mdev_ioctl+0x84/0x318
+[vfio_ccw])
+[   64.585476]  [<00000000bb7adda6>] __s390x_sys_ioctl+0xbe/0x100 
+[   64.585481]  [<00000000bbfbf5e4>] __do_syscall+0x1bc/0x1e8 
+[   64.585488]  [<00000000bbfcc8d8>] system_call+0x78/0xa0 
+
+Eric
+
+> 
+> Reorganize the driver so that the mdev owns the private memory and
+> controls the lifecycle, not the css_driver. The memory associated
+> with the
+> css_driver lifecycle is only the mdev_parent/mdev_type registration.
+> 
+> Along the way we change when the sch is quiescent or not to be linked
+> to
+> the open/close_device lifetime of the vfio_device, which is sort of
+> what
+> it was tring to do already, just not completely.
+> 
+> The troublesome racey lifecycle of the css_driver callbacks is made
+> clear
+> with simple vfio_device refcounting so a callback is only delivered
+> into a
+> registered vfio_device and has obvious correctness.
+> 
+> Move the only per-css_driver state, the "available instance" counter,
+> into
+> the core code and share that logic with many of the other drivers.
+> The
+> value is kept in the mdev_type memory.
+> 
+> v2:
+>  - Clean up the lifecycle in ccw with 7 new patches
+>  - Rebase
+> v1: 
+> https://lore.kernel.org/all/7-v2-7667f42c9bad+935-vfio3_jgg@nvidia.com
+> 
+> Jason Gunthorpe (9):
+>   vfio/ccw: Use functions for alloc/free of the vfio_ccw_private
+>   vfio/ccw: Pass vfio_ccw_private not mdev_device to various
+> functions
+>   vfio/ccw: Convert to use vfio_register_group_dev()
+>   vfio/ccw: Make the FSM complete and synchronize it to the mdev
+>   vfio/mdev: Consolidate all the device_api sysfs into the core code
+>   vfio/mdev: Add mdev available instance checking to the core
+>   vfio/ccw: Remove private->mdev
+>   vfio: Export vfio_device_try_get()
+>   vfio/ccw: Move the lifecycle of the struct vfio_ccw_private to the
+>     mdev
+> 
+>  drivers/gpu/drm/i915/gvt/kvmgt.c      |   9 +-
+>  drivers/s390/cio/vfio_ccw_drv.c       | 282 +++++++++++-------------
+> --
+>  drivers/s390/cio/vfio_ccw_fsm.c       | 152 ++++++++++----
+>  drivers/s390/cio/vfio_ccw_ops.c       | 240 ++++++++++------------
+>  drivers/s390/cio/vfio_ccw_private.h   |  42 +++-
+>  drivers/s390/crypto/vfio_ap_ops.c     |  41 +---
+>  drivers/s390/crypto/vfio_ap_private.h |   2 -
+>  drivers/vfio/mdev/mdev_core.c         |  13 +-
+>  drivers/vfio/mdev/mdev_private.h      |   2 +
+>  drivers/vfio/mdev/mdev_sysfs.c        |  64 +++++-
+>  drivers/vfio/vfio.c                   |   3 +-
+>  include/linux/mdev.h                  |  13 +-
+>  include/linux/vfio.h                  |   1 +
+>  samples/vfio-mdev/mbochs.c            |   9 +-
+>  samples/vfio-mdev/mdpy.c              |  31 +--
+>  samples/vfio-mdev/mtty.c              |  10 +-
+>  16 files changed, 470 insertions(+), 444 deletions(-)
+> 
+
