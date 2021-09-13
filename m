@@ -2,127 +2,148 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CCEDC433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 11 Sep 2021 11:09:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55B55C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Sep 2021 08:18:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6062260FE6
-	for <linux-s390@archiver.kernel.org>; Sat, 11 Sep 2021 11:09:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4110860F12
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Sep 2021 08:18:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235034AbhIKLK2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 11 Sep 2021 07:10:28 -0400
-Received: from ozlabs.org ([203.11.71.1]:46909 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230249AbhIKLK2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 11 Sep 2021 07:10:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1631358554;
-        bh=wCFs7QKhXMzS395kRZvRG47SpyWfFbs7z3zfl/ErxEA=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=c7NELGpAh1HsCHqwY/uRPbVYXKqVYXvcpRQ7aAvLfrWo90t0t5JU4N5P5r1ljt3gd
-         PVbtiY8u7jdCKuRrfL5DQucozCtmh/F7bFuUTJ+i+bpd7CsdQdknWHzExu+DvVIKtB
-         uwLsrNPAELnlQpfGWJznYWBnjeSFXzWC1Cw3nK24plV5lEcWTFF1f42ZB5iMfSm/pa
-         kKTVmte0UiwKhq93/QjxY9h1DRoEpQGfDYwBWQbUWcvFlw7+FKl3M4FUaSgcoxozKZ
-         jSuPF+4DgNWfuChV3mQU6o/y5ZsSfBK4JQOfYjX0nTy3szz6t9mImirD8OXV4GtB7v
-         xNGxQdtKhjO+w==
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4H693t161rz9sW5;
-        Sat, 11 Sep 2021 21:09:13 +1000 (AEST)
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Oliver O'Halloran <oohall@gmail.com>,
-        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH 1/1] powerpc: Drop superfluous pci_dev_is_added() calls
-In-Reply-To: <20210910141940.2598035-2-schnelle@linux.ibm.com>
-References: <20210910141940.2598035-1-schnelle@linux.ibm.com>
- <20210910141940.2598035-2-schnelle@linux.ibm.com>
-Date:   Sat, 11 Sep 2021 21:09:13 +1000
-Message-ID: <87wnnnl67a.fsf@mpe.ellerman.id.au>
+        id S237959AbhIMITm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Sep 2021 04:19:42 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41282 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237966AbhIMITk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 13 Sep 2021 04:19:40 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.0.43) with SMTP id 18D7H3eH032230;
+        Mon, 13 Sep 2021 04:17:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=/QzFF3fZPcOazDgK94YUNtDPRVXwWmwYXrgzAl0cjS8=;
+ b=LZ1IatJS4Vf8fkMOpw3nPsnMsWvXi1zKOHNtdoJR3WA1JOBt6akxtAUeaFcmfSrgtfzv
+ 4NRm+1ZMgBCrY9RGl4dUX70gpcEuR/zoFChDQB/2NaF/00szr5Oq+z1uBI4QDWhfD6zc
+ P4rPwNr4fozCqJ0RGb+LWgtoO6TFVqtlItWyJVzIn+2xzExDULNQ2sA1K5ofpZpOPT8T
+ 41lEG9BrbDHup3b+CuJPl0uLd2nP2dTMKAS/okY1PdF2CEfrb2UeKEaug1ngWcpv8R0f
+ l5A1Tv0GjOGn+bmD16W5XhxbS2fbbACIEnfaoLzXVgrhfKN3kKq+UCiD6E2iiWjFNGh3 QQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b19j7cd6k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Sep 2021 04:17:57 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18D7xD27005324;
+        Mon, 13 Sep 2021 04:17:56 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b19j7cd5w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Sep 2021 04:17:56 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18D8DW0J022837;
+        Mon, 13 Sep 2021 08:17:53 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3b0kqj52da-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Sep 2021 08:17:53 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18D8HnQ554067622
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 13 Sep 2021 08:17:49 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 75FA24C091;
+        Mon, 13 Sep 2021 08:17:49 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7AD8A4C0A0;
+        Mon, 13 Sep 2021 08:17:48 +0000 (GMT)
+Received: from [9.145.51.25] (unknown [9.145.51.25])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 13 Sep 2021 08:17:48 +0000 (GMT)
+Subject: Re: [PATCH 6/9] s390/block/dasd_genhd: add error handling support for
+ add_disk()
+To:     Luis Chamberlain <mcgrof@kernel.org>, axboe@kernel.dk,
+        gregkh@linuxfoundation.org, chaitanya.kulkarni@wdc.com,
+        atulgopinathan@gmail.com, hare@suse.de, maximlevitsky@gmail.com,
+        oakad@yahoo.com, ulf.hansson@linaro.org, colin.king@canonical.com,
+        shubhankarvk@gmail.com, baijiaju1990@gmail.com, trix@redhat.com,
+        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
+        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        sth@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        borntraeger@de.ibm.com, oberpar@linux.ibm.com, tj@kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20210902174105.2418771-1-mcgrof@kernel.org>
+ <20210902174105.2418771-7-mcgrof@kernel.org>
+From:   =?UTF-8?Q?Jan_H=c3=b6ppner?= <hoeppner@linux.ibm.com>
+Message-ID: <d6140e40-a472-e732-9893-99e1839b717e@linux.ibm.com>
+Date:   Mon, 13 Sep 2021 10:17:48 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20210902174105.2418771-7-mcgrof@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: iIf5PatQK3tLGbkyIENHhS0UWFy_EX4T
+X-Proofpoint-GUID: iNtwPwv-S4pcIL1NuHAo4zaBrJP6dp5o
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
+ definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
+ spamscore=0 clxscore=1011 priorityscore=1501 lowpriorityscore=0
+ adultscore=0 impostorscore=0 mlxscore=0 phishscore=0 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109030001 definitions=main-2109120024
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Niklas Schnelle <schnelle@linux.ibm.com> writes:
-> On powerpc, pci_dev_is_added() is called as part of SR-IOV fixups
-> that are done under pcibios_add_device() which in turn is only called in
-> pci_device_add() whih is called when a PCI device is scanned.
-
-Thanks for cleaning this up for us.
-
-> Now pci_dev_assign_added() is called in pci_bus_add_device() which is
-> only called after scanning the device. Thus pci_dev_is_added() is always
-> false and can be dropped.
-
-My only query is whether we can pin down when that changed.
-
-Oliver said:
-
-  The use of pci_dev_is_added() in arch/powerpc was because in the past
-  pci_bus_add_device() could be called before pci_device_add(). That was
-  fixed a while ago so It should be safe to remove those calls now.
-
-I trawled back through the history a bit but I can't remember/find which
-commit changed that, Oliver can you remember?
-
-cheers
-
-> diff --git a/arch/powerpc/platforms/powernv/pci-sriov.c b/arch/powerpc/platforms/powernv/pci-sriov.c
-> index 28aac933a439..deddbb233fde 100644
-> --- a/arch/powerpc/platforms/powernv/pci-sriov.c
-> +++ b/arch/powerpc/platforms/powernv/pci-sriov.c
-> @@ -9,9 +9,6 @@
->  
->  #include "pci.h"
->  
-> -/* for pci_dev_is_added() */
-> -#include "../../../../drivers/pci/pci.h"
-> -
->  /*
->   * The majority of the complexity in supporting SR-IOV on PowerNV comes from
->   * the need to put the MMIO space for each VF into a separate PE. Internally
-> @@ -228,9 +225,6 @@ static void pnv_pci_ioda_fixup_iov_resources(struct pci_dev *pdev)
->  
->  void pnv_pci_ioda_fixup_iov(struct pci_dev *pdev)
+On 02/09/2021 19:41, Luis Chamberlain wrote:
+> We never checked for errors on add_disk() as this function
+> returned void. Now that this is fixed, use the shiny new
+> error handling.
+> 
+> Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+> ---
+>  drivers/s390/block/dasd_genhd.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
+> index fa966e0db6ca..ba07022283bc 100644
+> --- a/drivers/s390/block/dasd_genhd.c
+> +++ b/drivers/s390/block/dasd_genhd.c
+> @@ -33,7 +33,7 @@ int dasd_gendisk_alloc(struct dasd_block *block)
 >  {
-> -	if (WARN_ON(pci_dev_is_added(pdev)))
-> -		return;
-> -
->  	if (pdev->is_virtfn) {
->  		struct pnv_ioda_pe *pe = pnv_ioda_get_pe(pdev);
+>  	struct gendisk *gdp;
+>  	struct dasd_device *base;
+> -	int len;
+> +	int len, rc;
 >  
-> diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
-> index f79126f16258..2188054470c1 100644
-> --- a/arch/powerpc/platforms/pseries/setup.c
-> +++ b/arch/powerpc/platforms/pseries/setup.c
-> @@ -74,7 +74,6 @@
->  #include <asm/hvconsole.h>
+>  	/* Make sure the minor for this device exists. */
+>  	base = block->base;
+> @@ -79,7 +79,11 @@ int dasd_gendisk_alloc(struct dasd_block *block)
+>  	dasd_add_link_to_gendisk(gdp, base);
+>  	block->gdp = gdp;
+>  	set_capacity(block->gdp, 0);
+> -	device_add_disk(&base->cdev->dev, block->gdp, NULL);
+> +
+> +	rc = device_add_disk(&base->cdev->dev, block->gdp, NULL);
+> +	if (rc)
+> +		return rc;
+> +
+
+I think, just like with some of the other changes, there is some
+cleanup required before returning. I'll prepare a patch and
+come back to you.
+
+>  	return 0;
+>  }
 >  
->  #include "pseries.h"
-> -#include "../../../../drivers/pci/pci.h"
->  
->  DEFINE_STATIC_KEY_FALSE(shared_processor);
->  EXPORT_SYMBOL(shared_processor);
-> @@ -750,7 +749,7 @@ static void pseries_pci_fixup_iov_resources(struct pci_dev *pdev)
->  	const int *indexes;
->  	struct device_node *dn = pci_device_to_OF_node(pdev);
->  
-> -	if (!pdev->is_physfn || pci_dev_is_added(pdev))
-> +	if (!pdev->is_physfn)
->  		return;
->  	/*Firmware must support open sriov otherwise dont configure*/
->  	indexes = of_get_property(dn, "ibm,open-sriov-vf-bar-info", NULL);
-> -- 
-> 2.25.1
+> 
+
