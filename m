@@ -2,101 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F4E6C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Sep 2021 22:35:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED930C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 08:34:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 46E6E61163
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Sep 2021 22:35:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C740E60EE0
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 08:34:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348567AbhIMWgT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Sep 2021 18:36:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51156 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348581AbhIMWfk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 13 Sep 2021 18:35:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4420461222;
-        Mon, 13 Sep 2021 22:34:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631572464;
-        bh=MXf4S0vzKac0hK17tnN+6U9uXKb+YFLSpgKQKzDLYDM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lxkv1dOfp9hKtzNS9AoYKjFxGECxdeqoDYlH8ha/ATFBkS+qaj7+AYD679/rzMFFj
-         FpXkvvqJU4neYfxPkCm8FPPKyfoUnnQB6tZoHTFHthhpcXW+FKOOVQn70B3e9qew9J
-         9g4wbL8p1+nYaya5v0wgpDgzBsyUjI6wVx7tD8cdqmwKik/Up9fXQCRgZ1/2smihNL
-         A8yy8zQWdHDUh/Hzck3KqkL+93UumyKw0zPwFYYs1INncgELqX+ElyQvaIYLikqI2V
-         WTALzSKQyjp786cywTA7arwd7OYuMRGKyC2O6xOj1o2f4sp7tnGRXhEOXg4rcNHwXW
-         95CWfmJnlzRaA==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Schnelle <svens@linux.ibm.com>,
-        Marc Hartmayer <mhartmay@linux.ibm.com>,
+        id S230458AbhINIfR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Sep 2021 04:35:17 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:11980 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S230487AbhINIfQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Sep 2021 04:35:16 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.0.43) with SMTP id 18E7f5oP015176;
+        Tue, 14 Sep 2021 04:33:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=oEPKXKrys1Lj+3UwTsxeCpOipe1FbO2kiblAQnK8xRY=;
+ b=lm1KDgwi1JJDAGwHSR1i0+gBU5nJyzafshl6FJrnBEqN9zZD6mKylpGBsZ51ArawQY1J
+ 8sy/mhhrtu5ol3JNWNIU6jpeMwfz3cwW4jTjrkpETUo3rJJ7JcJTKX//hUvc9KenxQhs
+ 1NIuomxT62RAazBMWNT1AO/vzskEeqvzq9BLtYbKKFTo5tBMuFPZhQ96Hj2lvY+av39G
+ /Mi0VTEWYGSd31zneb4y9FosOYlT/U5fiY9J82hQS8a3SE/MNOhp5t8pG68dhfdeMpVL
+ xIK2Jf6pKakONJXPa3zdx+vyI/0wx992+joo6PCs0tBnLMDvhtaklEq6uaZoFomDCwYu LQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3b2mvb4kyv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Sep 2021 04:33:55 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18E6UT7R013217;
+        Tue, 14 Sep 2021 04:33:55 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3b2mvb4ky6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Sep 2021 04:33:55 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18E8XPH0014062;
+        Tue, 14 Sep 2021 08:33:53 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3b0m398umj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Sep 2021 08:33:53 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18E8XnQD46006694
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 14 Sep 2021 08:33:49 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5A1784C058;
+        Tue, 14 Sep 2021 08:33:49 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EE48C4C04A;
+        Tue, 14 Sep 2021 08:33:48 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 14 Sep 2021 08:33:48 +0000 (GMT)
+From:   Karsten Graul <kgraul@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 06/19] s390: add kmemleak annotation in stack_alloc()
-Date:   Mon, 13 Sep 2021 18:34:02 -0400
-Message-Id: <20210913223415.435654-6-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210913223415.435654-1-sashal@kernel.org>
-References: <20210913223415.435654-1-sashal@kernel.org>
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: [PATCH net-next 0/4] s390/net: updates 2021-09-14
+Date:   Tue, 14 Sep 2021 10:33:16 +0200
+Message-Id: <20210914083320.508996-1-kgraul@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: _zigWZEqPJXLC0KSqg-6BJIjdv-B9TVo
+X-Proofpoint-GUID: o9pr3lBBiCGwfchQK1SW6fW9iDzhtyqs
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
+ definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=999 impostorscore=0 adultscore=0 malwarescore=0 mlxscore=0
+ phishscore=0 priorityscore=1501 clxscore=1015 bulkscore=0
+ lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109030001 definitions=main-2109140017
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+Please apply the following patches to netdev's net-next tree.
 
-[ Upstream commit 436fc4feeabbf103d78d50a8e091b3aac28cc37f ]
+Stop using the wrappers in include/linux/pci-dma-compat.h,
+and fix warnings about incorrect kernel-doc comments.
 
-kmemleak with enabled auto scanning reports that our stack allocation is
-lost. This is because we're saving the pointer + STACK_INIT_OFFSET to
-lowcore. When kmemleak now scans the objects, it thinks that this one is
-lost because it can't find a corresponding pointer.
+Christophe JAILLET (1):
+  s390/ism: switch from 'pci_' to 'dma_' API
 
-Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Tested-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/setup.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+Heiko Carstens (3):
+  s390/ctcm: remove incorrect kernel doc indicators
+  s390/lcs: remove incorrect kernel doc indicators
+  s390/netiucv: remove incorrect kernel doc indicators
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 93538e63fa03..442150c88278 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -50,6 +50,7 @@
- #include <linux/compat.h>
- #include <linux/start_kernel.h>
- #include <linux/hugetlb.h>
-+#include <linux/kmemleak.h>
- 
- #include <asm/boot_data.h>
- #include <asm/ipl.h>
-@@ -310,9 +311,12 @@ void *restart_stack;
- unsigned long stack_alloc(void)
- {
- #ifdef CONFIG_VMAP_STACK
--	return (unsigned long)__vmalloc_node(THREAD_SIZE, THREAD_SIZE,
--			THREADINFO_GFP, NUMA_NO_NODE,
--			__builtin_return_address(0));
-+	void *ret;
-+
-+	ret = __vmalloc_node(THREAD_SIZE, THREAD_SIZE, THREADINFO_GFP,
-+			     NUMA_NO_NODE, __builtin_return_address(0));
-+	kmemleak_not_leak(ret);
-+	return (unsigned long)ret;
- #else
- 	return __get_free_pages(GFP_KERNEL, THREAD_SIZE_ORDER);
- #endif
+ drivers/s390/net/ctcm_fsms.c |  60 ++++++++---------
+ drivers/s390/net/ctcm_main.c |  38 +++++------
+ drivers/s390/net/ctcm_mpc.c  |   8 +--
+ drivers/s390/net/fsm.c       |   2 +-
+ drivers/s390/net/ism_drv.c   |   2 +-
+ drivers/s390/net/lcs.c       | 121 ++++++++++++++++++-----------------
+ drivers/s390/net/netiucv.c   | 104 +++++++++++++++---------------
+ 7 files changed, 168 insertions(+), 167 deletions(-)
+
 -- 
-2.30.2
+2.25.1
 
