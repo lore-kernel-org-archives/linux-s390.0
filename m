@@ -6,81 +6,105 @@ X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
 	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93E21C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 14:56:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3408C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 15:41:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 78BA6610D1
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 14:56:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ADDAC6113B
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 15:41:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234798AbhINO5q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Sep 2021 10:57:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44574 "EHLO
+        id S231966AbhINPnC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Sep 2021 11:43:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234452AbhINO5n (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Sep 2021 10:57:43 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A627DC061574;
-        Tue, 14 Sep 2021 07:56:25 -0700 (PDT)
-Received: from zn.tnic (p200300ec2f1048001ab509412f10df56.dip0.t-ipconnect.de [IPv6:2003:ec:2f10:4800:1ab5:941:2f10:df56])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 3AA951EC04D1;
-        Tue, 14 Sep 2021 16:56:19 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1631631379;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=fC6oRVekYYeOWo6Ou3mRPO8RAeBaCtshKbuZA0gycas=;
-        b=DjTjeMWi1aTZkXxq8Lf9KyX6WC0t0Xl9olO8XFqhK7E+qGjzzzpMJxBPFDqtXa7lxuvLMF
-        BJZxFO3MGqQdmfuJdFwoNpN1Q2f2YF1GOFt4ptUcVjuOWJnOJOQqL4VXuXLUK8z4I3mRHF
-        ddNSSmZuSk4r3r8c6iL+tcOt78DT0h0=
-Date:   Tue, 14 Sep 2021 16:56:09 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Sathyanarayanan Kuppuswamy 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        linux-efi@vger.kernel.org, Brijesh Singh <brijesh.singh@amd.com>,
-        kvm@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        platform-driver-x86@vger.kernel.org,
-        Paul Mackerras <paulus@samba.org>, linux-s390@vger.kernel.org,
-        Andi Kleen <ak@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>, x86@kernel.org,
-        amd-gfx@lists.freedesktop.org,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-graphics-maintainer@vmware.com,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
-        iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH v3 4/8] powerpc/pseries/svm: Add a powerpc version of
- cc_platform_has()
-Message-ID: <YUC4CW02tqEttZZJ@zn.tnic>
-References: <cover.1631141919.git.thomas.lendacky@amd.com>
- <9d4fc3f8ea7b325aaa1879beab1286876f45d450.1631141919.git.thomas.lendacky@amd.com>
- <YUCOTIPPsJJpLO/d@zn.tnic>
- <41b93dae-2f10-15a3-a079-c632381bec73@csgroup.eu>
+        with ESMTP id S234833AbhINPnA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Sep 2021 11:43:00 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64B6EC061766
+        for <linux-s390@vger.kernel.org>; Tue, 14 Sep 2021 08:41:42 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id x11so30002698ejv.0
+        for <linux-s390@vger.kernel.org>; Tue, 14 Sep 2021 08:41:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=dgZDRvewpIcHvEl+aClDgx6dxTBkhTg+5FlC2P6kQVc=;
+        b=BpcuMcoHH1B5L3A9rysqIc0UNfq5noiLE14zKeR1TSa0gFC85lOw2Beo8dO5honWby
+         rYyCHFnHkKNi7MCpw7JrIjMcXxBeTw1cz/rDSABmNfOTKR6Ymn6YfZNGpWuykLc9dauc
+         iTDBkLKWwlR9RhIlCft6lceQmUvWAku/ar3t0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=dgZDRvewpIcHvEl+aClDgx6dxTBkhTg+5FlC2P6kQVc=;
+        b=OiRHvx9oTLn7snAjqH2XtU5c3aomvhc8QktKjiCN6hx/CjvM7hTJOgRRjUe7ijQkx+
+         khueXkIxUFxuvcMIKla/HQh5TCLs8+SztP9Csctq9RlXGqIR+yj0aHI85jqB0ZKZ1Wxp
+         oQi4pCbEcSnhrENpbA5XwBwibjhnXsHYvVPRSFlIQUHUnx6h4Ote1NSNrsbdWPGxiBg5
+         +VNBdg/2tXFZ5HJxOv5nSGpeHyodlLcyLYFndpU/8gXW2J1j5zLC2iM2Kqd7dWe80b/C
+         NvqLXh7HB36YkVGuMfqNccUUZrHFnSVtXMn9Lh18Vq2BT/Y88iY5xW0Bj4+1iZZhwOlD
+         Jc3g==
+X-Gm-Message-State: AOAM530f5jXbXuXLlkzYkDW+M9gayEjXc7fVa5T18ZJHLy4tyg080bha
+        piJvD09qBuoCdVAygVud3SQPmDiKGAu8UgrLftE=
+X-Google-Smtp-Source: ABdhPJxb/kteOE3kwsHVcAbCS9DQrD3UrY6OVHt7ACDPsEUY21xzHyly8jVFDlTmGl3FbM5rKwsGKg==
+X-Received: by 2002:a17:906:35d8:: with SMTP id p24mr19350067ejb.292.1631634100633;
+        Tue, 14 Sep 2021 08:41:40 -0700 (PDT)
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com. [209.85.221.45])
+        by smtp.gmail.com with ESMTPSA id f22sm5178239ejz.122.2021.09.14.08.41.40
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Sep 2021 08:41:40 -0700 (PDT)
+Received: by mail-wr1-f45.google.com with SMTP id x6so20936415wrv.13
+        for <linux-s390@vger.kernel.org>; Tue, 14 Sep 2021 08:41:40 -0700 (PDT)
+X-Received: by 2002:a2e:a7d0:: with SMTP id x16mr15637818ljp.494.1631634089537;
+ Tue, 14 Sep 2021 08:41:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <41b93dae-2f10-15a3-a079-c632381bec73@csgroup.eu>
+References: <20210914121036.3975026-1-ardb@kernel.org> <20210914121036.3975026-2-ardb@kernel.org>
+In-Reply-To: <20210914121036.3975026-2-ardb@kernel.org>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 14 Sep 2021 08:41:13 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whkCzP-wyZ08r9RDJRx9cbANVHy-jy=vJAGTkSbXm50iA@mail.gmail.com>
+Message-ID: <CAHk-=whkCzP-wyZ08r9RDJRx9cbANVHy-jy=vJAGTkSbXm50iA@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/8] arm64: add CPU field to struct thread_info
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Keith Packard <keithpac@amazon.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 04:47:41PM +0200, Christophe Leroy wrote:
-> Yes, see https://lore.kernel.org/linuxppc-dev/20210914123919.58203eef@canb.auug.org.au/T/#t
+On Tue, Sep 14, 2021 at 5:10 AM Ard Biesheuvel <ardb@kernel.org> wrote:
+>
+> The CPU field will be moved back into thread_info even when
+> THREAD_INFO_IN_TASK is enabled, so add it back to arm64's definition of
+> struct thread_info.
 
-Aha, more compiler magic stuff ;-\
+The series looks sane to me, but it strikes me that it's inconsistent
+- here for arm64, you make it unconditional, but for the other
+architectures you end up putting it inside a #ifdef CONFIG_SMP.
 
-Oh well, I guess that fix will land upstream soon.
+Was there some reason for this odd behavior?
 
-Thx.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+           Linus
