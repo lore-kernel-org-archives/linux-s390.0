@@ -2,116 +2,102 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15119C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 15:47:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8223FC43217
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 15:51:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F05256113E
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 15:47:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D3EC61247
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 15:51:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234534AbhINPsl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Sep 2021 11:48:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56714 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234462AbhINPsl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Sep 2021 11:48:41 -0400
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A23B2C061574
-        for <linux-s390@vger.kernel.org>; Tue, 14 Sep 2021 08:47:23 -0700 (PDT)
-Received: by mail-ed1-x531.google.com with SMTP id g8so20650426edt.7
-        for <linux-s390@vger.kernel.org>; Tue, 14 Sep 2021 08:47:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AuGH7A1j3mwghnSNlt7ii3pSP3zqhI3ZLfhyE1/i7mY=;
-        b=R7AKqlIgzHsNi6Tq6c2IwOarByE0iXqz4YlcYfOLGqwYPfSWeFNr9LdrOHY0sHRCu8
-         naDWlgwpYmTs3LAeSJhTpybHunXV2G0Zr6u1AYtP8z+sHgAVUF85Ux4F5km4EfIbfx7r
-         jZuWndb2Alk2aESrYA3wH6fpzGqN1esmqt/VE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AuGH7A1j3mwghnSNlt7ii3pSP3zqhI3ZLfhyE1/i7mY=;
-        b=qoWujYn49mPmShr76q/4yLB/3D97xi3Nv7Ky3r87sGGoRuKG31WB9DAMhBpXOFic7o
-         +9thNPNAC+rMMWHrvejCIsT10HnBHi6BZjDSuE4DGKtaVFffb5hlVraTPIykgKLk93wM
-         1mClFIRf4vPajtxcdHU0ry36Zzkwo696tO1BTZiaJ8tVb4WHIYp8h8gBFs+uAHEjIis4
-         0XvjbaOuys7fcE1WiNLGOwvD9Xo0Ya3K7t10Irg2BD5iCv3Iw8uMSYRFqps3AZDz0hia
-         8oPbSgjMmvIaLmRCWvSsCetwOyhaWb1+tJQzAStu04hyYKBAgS0hwKc3tZ4c+nEgRzT7
-         kDvg==
-X-Gm-Message-State: AOAM531+WcYKthlcG5AB7084RydVfwEYjydRyOPEGLjtW4/aeTSB4NYQ
-        UbvMwqCLKEutaXltiYgioYaEnKKn9ZeIagvvPYA=
-X-Google-Smtp-Source: ABdhPJwg9rmtV/6R9m9DqDGelQ7+v+VBm/AN5dTRn717qK3/eFBMcQY8sbbuOhvC7HZLcI43D3v7sw==
-X-Received: by 2002:a05:6402:2913:: with SMTP id ee19mr4877700edb.332.1631634441768;
-        Tue, 14 Sep 2021 08:47:21 -0700 (PDT)
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com. [209.85.221.46])
-        by smtp.gmail.com with ESMTPSA id v1sm5315826ejd.31.2021.09.14.08.47.21
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Sep 2021 08:47:21 -0700 (PDT)
-Received: by mail-wr1-f46.google.com with SMTP id i23so21006937wrb.2
-        for <linux-s390@vger.kernel.org>; Tue, 14 Sep 2021 08:47:21 -0700 (PDT)
-X-Received: by 2002:a2e:8185:: with SMTP id e5mr15545178ljg.31.1631634430421;
- Tue, 14 Sep 2021 08:47:10 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210914121036.3975026-1-ardb@kernel.org> <20210914121036.3975026-6-ardb@kernel.org>
-In-Reply-To: <20210914121036.3975026-6-ardb@kernel.org>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 14 Sep 2021 08:46:54 -0700
-X-Gmail-Original-Message-ID: <CAHk-=whLEofPLzzTKXN5etnH5WqsTPQRLVv8uQgHnx7c59omBg@mail.gmail.com>
-Message-ID: <CAHk-=whLEofPLzzTKXN5etnH5WqsTPQRLVv8uQgHnx7c59omBg@mail.gmail.com>
-Subject: Re: [RFC PATCH 5/8] sched: move CPU field back into thread_info if THREAD_INFO_IN_TASK=y
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Keith Packard <keithpac@amazon.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S235304AbhINPwW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Sep 2021 11:52:22 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:29566 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234826AbhINPvy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Sep 2021 11:51:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1631634636;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jJZEdwvFQ3ljWbLKCYoI62KGMcI1gt7/agR2sAPSxa0=;
+        b=XRtPb7vWBFqmWqr0JaSO+N7EC7b524wqv47V4WczEDyw9EePkg1o/a/Bqu4CSBHXRcRybc
+        jVIQZYWg/RzCBJaosvKdSz8Q6c/XI8xRnezXEg8cSwTH9QZzx6SzcxuTeAHwBp1/Cuk3PQ
+        lpUnfJIu4jd/TiuxheWVXwJcaB0dsn4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-161-GmG0s0aDNHqI4HgOwagdZQ-1; Tue, 14 Sep 2021 11:50:35 -0400
+X-MC-Unique: GmG0s0aDNHqI4HgOwagdZQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EB3DFCC623;
+        Tue, 14 Sep 2021 15:50:31 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.211])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 28282100AE35;
+        Tue, 14 Sep 2021 15:50:27 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Christoph Hellwig <hch@infradead.org>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Cc:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v2 1/9] vfio/ccw: Use functions for alloc/free of the
+ vfio_ccw_private
+In-Reply-To: <YTtBDbVsRveVE3i9@infradead.org>
+Organization: Red Hat GmbH
+References: <0-v2-7d3a384024cf+2060-ccw_mdev_jgg@nvidia.com>
+ <1-v2-7d3a384024cf+2060-ccw_mdev_jgg@nvidia.com>
+ <YTtBDbVsRveVE3i9@infradead.org>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Tue, 14 Sep 2021 17:50:25 +0200
+Message-ID: <87sfy7gnr2.fsf@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 5:11 AM Ard Biesheuvel <ardb@kernel.org> wrote:
+On Fri, Sep 10 2021, Christoph Hellwig <hch@infradead.org> wrote:
+
+> On Thu, Sep 09, 2021 at 04:38:41PM -0300, Jason Gunthorpe wrote:
+>> +
+>> +	private = kzalloc(sizeof(*private), GFP_KERNEL | GFP_DMA);
+>> +	if (!private)
+>> +		return ERR_PTR(-ENOMEM);
 >
->  static inline unsigned int task_cpu(const struct task_struct *p)
->  {
->  #ifdef CONFIG_THREAD_INFO_IN_TASK
-> -       return READ_ONCE(p->cpu);
-> +       return READ_ONCE(p->thread_info.cpu);
->  #else
->         return READ_ONCE(task_thread_info(p)->cpu);
->  #endif
+> Nit: there is no need to add GFP_KERNEL when using GFP_DMA.
+>
+> Also a question to the s390 maintainers: why do we need 31-bit
+> addressability for the main private data structure?
 
-Those two lines look different, but aren't.
+I don't think we need it anymore since c98e16b2fa12 ("s390/cio: Convert
+ccw_io_region to pointer") and probably should just drop the GFP_DMA.
 
-Please just remove the CONFIG_THREAD_INFO_IN_TASK conditional, and use
-
-          return READ_ONCE(task_thread_info(p)->cpu);
-
-unconditionally, which now does the right thing regardless.
-
-             Linus
