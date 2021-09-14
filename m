@@ -2,124 +2,76 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A7FEC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 11:58:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69DAFC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 12:00:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3C7D561107
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 11:58:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 47E966113B
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 12:00:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232411AbhINL7e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Sep 2021 07:59:34 -0400
-Received: from mail.skyhub.de ([5.9.137.197]:57542 "EHLO mail.skyhub.de"
+        id S232491AbhINMBZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Sep 2021 08:01:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232287AbhINL7d (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Sep 2021 07:59:33 -0400
-Received: from zn.tnic (p200300ec2f1048001e15ef619509992f.dip0.t-ipconnect.de [IPv6:2003:ec:2f10:4800:1e15:ef61:9509:992f])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 8B7241EC04EC;
-        Tue, 14 Sep 2021 13:58:10 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1631620690;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=b/N09IsvqYn24JfFZ47aDfAefXmwmXR82Pt3awNAfbs=;
-        b=bxwwIzIyK+Rg4oIy01BbpgT86ORE1XKclCEYAaQ9uu2p2YFJBhtO9vvO21Z67RPc0ptMoP
-        47+Ry7kCX0P48iid+/PmdkrtsbH5uZdiuAmR5uxqjBKZy74znSrvhF2nYkipmdb9VWoPx/
-        PSVn04awQpG91qOKWcYNAHUkxFtjb44=
-Date:   Tue, 14 Sep 2021 13:58:04 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     Tom Lendacky <thomas.lendacky@amd.com>,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-graphics-maintainer@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sathyanarayanan Kuppuswamy 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH v3 4/8] powerpc/pseries/svm: Add a powerpc version of
- cc_platform_has()
-Message-ID: <YUCOTIPPsJJpLO/d@zn.tnic>
-References: <cover.1631141919.git.thomas.lendacky@amd.com>
- <9d4fc3f8ea7b325aaa1879beab1286876f45d450.1631141919.git.thomas.lendacky@amd.com>
+        id S232464AbhINMBZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Sep 2021 08:01:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id DECBB61130;
+        Tue, 14 Sep 2021 12:00:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1631620807;
+        bh=jDYSPGSsj1J8XaUWZqYTB+SaFo8BavEQKKS9GQk5W94=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=pPQG5GGRoHEiTJhzi0jarTJc4DTDIdO18+JPi7oAc7cc5SC6wMdjhYFw/9sOOYAwV
+         18oYGV/thHGSz9patXA0kZHfGuTbfOdmyIWsMiRz5B5cBqoIh/Qq0vXJv+OSZ9DmhO
+         3emRarzOgEfmm8a3d7Gu2MehRPQIklaMjkcrcnCxePM0AvRvugf8/4kxZ/oQ5DF7Ob
+         qHXptGoRFiXiAy803FqBwg5bn1kZIHYrrxEWWVG5FrEfLpgH8fJyXuiC3Zv3QCM2PD
+         1WYFcmLSc/ILowekHuEo1wX9sG+9m138f/Vh8PSLv+XxHXb2rY9dh9IEMuZ3Mjjd51
+         tY1F8B4xB3+Lg==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <9d4fc3f8ea7b325aaa1879beab1286876f45d450.1631141919.git.thomas.lendacky@amd.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next 0/3] net/smc: add EID support
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163162080788.6005.3584458121489217986.git-patchwork-notify@kernel.org>
+Date:   Tue, 14 Sep 2021 12:00:07 +0000
+References: <20210914083507.511369-1-guvenc@linux.ibm.com>
+In-Reply-To: <20210914083507.511369-1-guvenc@linux.ibm.com>
+To:     Guvenc Gulce <guvenc@linux.ibm.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com, kgraul@linux.ibm.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 08, 2021 at 05:58:35PM -0500, Tom Lendacky wrote:
-> Introduce a powerpc version of the cc_platform_has() function. This will
-> be used to replace the powerpc mem_encrypt_active() implementation, so
-> the implementation will initially only support the CC_ATTR_MEM_ENCRYPT
-> attribute.
+Hello:
+
+This series was applied to netdev/net-next.git (refs/heads/master):
+
+On Tue, 14 Sep 2021 10:35:04 +0200 you wrote:
+> Hi Dave & Jakub,
 > 
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-> ---
->  arch/powerpc/platforms/pseries/Kconfig       |  1 +
->  arch/powerpc/platforms/pseries/Makefile      |  2 ++
->  arch/powerpc/platforms/pseries/cc_platform.c | 26 ++++++++++++++++++++
->  3 files changed, 29 insertions(+)
->  create mode 100644 arch/powerpc/platforms/pseries/cc_platform.c
+> please apply the following patch series for smc to netdev's net-next
+> tree. The series introduce the so called Enterprise ID support for smc
+> protocol. Including the generic netlink based interface.
+> 
+> Thanks,
+> 
+> [...]
 
-Michael,
+Here is the summary with links:
+  - [net-next,1/3] net/smc: add support for user defined EIDs
+    https://git.kernel.org/netdev/net-next/c/fa0866625543
+  - [net-next,2/3] net/smc: keep static copy of system EID
+    https://git.kernel.org/netdev/net-next/c/11a26c59fc51
+  - [net-next,3/3] net/smc: add generic netlink support for system EID
+    https://git.kernel.org/netdev/net-next/c/3c572145c24e
 
-can I get an ACK for the ppc bits to carry them through the tip tree
-pls?
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Btw, on a related note, cross-compiling this throws the following error here:
 
-$ make CROSS_COMPILE=/home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/powerpc64-linux- V=1 ARCH=powerpc
-
-...
-
-/home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/powerpc64-linux-gcc -Wp,-MD,arch/powerpc/boot/.crt0.o.d -D__ASSEMBLY__ -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -O2 -msoft-float -mno-altivec -mno-vsx -pipe -fomit-frame-pointer -fno-builtin -fPIC -nostdinc -include ./include/linux/compiler_attributes.h -I./arch/powerpc/include -I./arch/powerpc/include/generated  -I./include -I./arch/powerpc/include/uapi -I./arch/powerpc/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -m32 -isystem /home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/../lib/gcc/powerpc64-linux/9.4.0/include -mbig-endian -nostdinc -c -o arch/powerpc/boot/crt0.o arch/powerpc/boot/crt0.S
-In file included from <command-line>:
-././include/linux/compiler_attributes.h:62:5: warning: "__has_attribute" is not defined, evaluates to 0 [-Wundef]
-   62 | #if __has_attribute(__assume_aligned__)
-      |     ^~~~~~~~~~~~~~~
-././include/linux/compiler_attributes.h:62:20: error: missing binary operator before token "("
-   62 | #if __has_attribute(__assume_aligned__)
-      |                    ^
-././include/linux/compiler_attributes.h:88:5: warning: "__has_attribute" is not defined, evaluates to 0 [-Wundef]
-   88 | #if __has_attribute(__copy__)
-      |     ^~~~~~~~~~~~~~~
-...
-
-Known issue?
-
-This __has_attribute() thing is supposed to be supported
-in gcc since 5.1 and I'm using the crosstool stuff from
-https://www.kernel.org/pub/tools/crosstool/ and gcc-9.4 above is pretty
-new so that should not happen actually.
-
-But it does...
-
-Hmmm.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
