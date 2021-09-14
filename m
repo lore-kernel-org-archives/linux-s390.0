@@ -2,105 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59AD9C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 16:10:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4AF2C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 16:50:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 36C1C60FED
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 16:10:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A9D61604DC
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 16:50:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234989AbhINQME (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Sep 2021 12:12:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59984 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235205AbhINQMD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Sep 2021 12:12:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EBE061184;
-        Tue, 14 Sep 2021 16:10:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631635846;
-        bh=EG2I9oaRHQ+gf10Ljpq+PHD1qpxygSWw9ESK9c5OiTI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=IHaez8cpMAtBscPugr8Wcx49J5XMmJfvQ3Mok3kfERhW3dEAPDFubeaLOLLeh9fHG
-         t5pEK4LY2m3b8QwYehsOmmn+zYydXxpWeyI/hxKSpEuhTc8H6OvGtmAE2NhlJGK+g3
-         i0iqI5O2vxZND4woIXUIws78VJBZv/sXg/SPQRTYh2UPJItg9+zmp6pHD6hfFNF96Q
-         Y+GA5w3hfbEPP7jRxdS+2cqxABnGmRf7UBZxcVh0prTu8fgpFidPfDlongZapwbyW6
-         vNEe7VR9+LbNh4FHXz4UpdNRgT4H2B3yc0IfMjLEa1EhSNZlHpQwon17Fyxt0NQdXv
-         N32FT/mRdaGnA==
-Received: by mail-ot1-f49.google.com with SMTP id g66-20020a9d12c8000000b0051aeba607f1so19235288otg.11;
-        Tue, 14 Sep 2021 09:10:45 -0700 (PDT)
-X-Gm-Message-State: AOAM531KxFi6+kFUJWb+QARtiHxauuDPFE/u7WdbtXJQ8eRK0w+UJ0Ro
-        HjFE8l/cINdLwzfNfGotFHDDvzRpuwshANQ2adw=
-X-Google-Smtp-Source: ABdhPJy/NGgZ1IROAgHU5psXnjNt0DbcmbCt3vJiiC8iJFGuRSAXr6SftyZ8/TdDx/41hvt3tr6orITFhHtqOeCjlZU=
-X-Received: by 2002:a9d:200b:: with SMTP id n11mr15316897ota.30.1631635845243;
- Tue, 14 Sep 2021 09:10:45 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210914121036.3975026-1-ardb@kernel.org> <20210914121036.3975026-6-ardb@kernel.org>
- <CAHk-=whLEofPLzzTKXN5etnH5WqsTPQRLVv8uQgHnx7c59omBg@mail.gmail.com>
- <CAMj1kXH_Q4a4Gsi0Xuw=YsV-b7Mu8TQndk3Ei-JFaRV=GSiqUQ@mail.gmail.com> <CAHk-=wiaVLChOjJ=7fdoQXKE4JHb98MjDtg8pPkA8EYfd5aj3g@mail.gmail.com>
-In-Reply-To: <CAHk-=wiaVLChOjJ=7fdoQXKE4JHb98MjDtg8pPkA8EYfd5aj3g@mail.gmail.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Tue, 14 Sep 2021 18:10:33 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXHKn+RLQf1Nc_7Vs1qVoFZd6RL4=WX8AwoLst18i7n+LA@mail.gmail.com>
-Message-ID: <CAMj1kXHKn+RLQf1Nc_7Vs1qVoFZd6RL4=WX8AwoLst18i7n+LA@mail.gmail.com>
-Subject: Re: [RFC PATCH 5/8] sched: move CPU field back into thread_info if THREAD_INFO_IN_TASK=y
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Keith Packard <keithpac@amazon.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
+        id S229706AbhINQwG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Sep 2021 12:52:06 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34952 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229379AbhINQwF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Sep 2021 12:52:05 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.0.43) with SMTP id 18EGacw6017828;
+        Tue, 14 Sep 2021 12:50:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Rh3adKXOvTjnVLe7wTOUMZo3kGUE1+HavKT6nVaxveU=;
+ b=FZP0WW8r6fDKNDLzVE79X/joPRQfRDxRd1pBy/bu0sRMU9tIhDZRAMd/QHCMAVQICxsz
+ aQRudNMD1uNqWG4m/+EAcDs2RVe6R5Q0kvtcBeE8QSXzX52SonJYPUapuAz7vaF7nBYA
+ j84ozPTFlwlVUbwYIKyflqSqbIDvsDLWcjSMvEJmJE2a3QW0ySE4vSI+xSJOhkKaJHXZ
+ gWWZb2tbLzq68LvampgFUKFhtyQZE9UrjAA3fYWekA7896QGuQ+APue95BhQQ/DSg9lh
+ ms+bOyWnO/uZn+MK4XcqNGbH1dAzpo4mL83fMSfyhYzNlEgkSJhxoIqplnEm+1unBYKG ig== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b2ydjg83h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Sep 2021 12:50:45 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18EGe8jT032210;
+        Tue, 14 Sep 2021 12:50:44 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b2ydjg82f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Sep 2021 12:50:44 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18EGTdXN018652;
+        Tue, 14 Sep 2021 16:50:42 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04fra.de.ibm.com with ESMTP id 3b0m39w8d9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Sep 2021 16:50:41 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18EGobta45154708
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 14 Sep 2021 16:50:37 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7DE5D4205E;
+        Tue, 14 Sep 2021 16:50:37 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8CDBA42056;
+        Tue, 14 Sep 2021 16:50:36 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.8.12])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 14 Sep 2021 16:50:36 +0000 (GMT)
+Date:   Tue, 14 Sep 2021 18:50:33 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-mm@kvack.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+Subject: Re: [PATCH resend RFC 0/9] s390: fixes, cleanups and optimizations
+ for page table walkers
+Message-ID: <20210914185033.367020b3@p-imbrenda>
+In-Reply-To: <20210909162248.14969-1-david@redhat.com>
+References: <20210909162248.14969-1-david@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: PFTO1wmqLkc7mGdR--al99-8qbnnou4J
+X-Proofpoint-ORIG-GUID: GntbYdhzAhAgpOL2BHZLbv00a8NJIqdw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
+ definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 clxscore=1011 mlxscore=0 adultscore=0 spamscore=0
+ mlxlogscore=999 suspectscore=0 malwarescore=0 lowpriorityscore=0
+ phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109030001 definitions=main-2109140091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 14 Sept 2021 at 17:59, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> On Tue, Sep 14, 2021 at 8:53 AM Ard Biesheuvel <ardb@kernel.org> wrote:
-> >
-> > task_cpu() takes a 'const struct task_struct *', whereas
-> > task_thread_info() takes a 'struct task_struct *'.
->
-> Oh, annoying, but that's easily fixed. Just make that
->
->    static inline struct thread_info *task_thread_info(struct
-> task_struct *task) ..
->
-> be a simple
->
->   #define task_thread_info(tsk) (&(tsk)->thread_info)
->
-> instead. That actually then matches the !THREAD_INFO_IN_TASK case anyway.
->
-> Make the commit comment be about how that fixes the type problem.
->
-> Because while in many cases inline functions are superior to macros,
-> it clearly isn't the case in this case.
->
+On Thu,  9 Sep 2021 18:22:39 +0200
+David Hildenbrand <david@redhat.com> wrote:
 
-Works for me.
+> Resend because I missed ccing people on the actual patches ...
+> 
+> RFC because the patches are essentially untested and I did not actually
+> try to trigger any of the things these patches are supposed to fix. It
+
+this is an interesting series, and the code makes sense, but I would
+really like to see some regression tests, and maybe even some
+selftests to trigger (at least some of) the issues.
+
+the follow-up question is: how did we manage to go on so long without
+noticing these issues? :D
+
+> merely matches my current understanding (and what other code does :) ). I
+> did compile-test as far as possible.
+> 
+> After learning more about the wonderful world of page tables and their
+> interaction with the mmap_sem and VMAs, I spotted some issues in our
+> page table walkers that allow user space to trigger nasty behavior when
+> playing dirty tricks with munmap() or mmap() of hugetlb. While some issues
+> should be hard to trigger, others are fairly easy because we provide
+> conventient interfaces (e.g., KVM_S390_GET_SKEYS and KVM_S390_SET_SKEYS).
+> 
+> Future work:
+> - Don't use get_locked_pte() when it's not required to actually allocate
+>   page tables -- similar to how storage keys are now handled. Examples are
+>   get_pgste() and __gmap_zap.
+> - Don't use get_locked_pte() and instead let page fault logic allocate page
+>   tables when we actually do need page tables -- also, similar to how
+>   storage keys are now handled. Examples are set_pgste_bits() and
+>   pgste_perform_essa().
+> - Maybe switch to mm/pagewalk.c to avoid custom page table walkers. For
+>   __gmap_zap() that's very easy.
+> 
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Janosch Frank <frankja@linux.ibm.com>
+> Cc: Cornelia Huck <cohuck@redhat.com>
+> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Cc: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+> 
+> David Hildenbrand (9):
+>   s390/gmap: validate VMA in __gmap_zap()
+>   s390/gmap: don't unconditionally call pte_unmap_unlock() in
+>     __gmap_zap()
+>   s390/mm: validate VMA in PGSTE manipulation functions
+>   s390/mm: fix VMA and page table handling code in storage key handling
+>     functions
+>   s390/uv: fully validate the VMA before calling follow_page()
+>   s390/pci_mmio: fully validate the VMA before calling follow_pte()
+>   s390/mm: no need for pte_alloc_map_lock() if we know the pmd is
+>     present
+>   s390/mm: optimize set_guest_storage_key()
+>   s390/mm: optimize reset_guest_reference_bit()
+> 
+>  arch/s390/kernel/uv.c    |   2 +-
+>  arch/s390/mm/gmap.c      |  11 +++-
+>  arch/s390/mm/pgtable.c   | 109 +++++++++++++++++++++++++++------------
+>  arch/s390/pci/pci_mmio.c |   4 +-
+>  4 files changed, 89 insertions(+), 37 deletions(-)
+> 
+> 
+> base-commit: 7d2a07b769330c34b4deabeed939325c77a7ec2f
+
