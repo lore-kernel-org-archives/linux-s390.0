@@ -2,168 +2,137 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7F49C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 13:55:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9ACAC43217
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 14:49:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9EC3B6113B
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 13:55:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 94605610CE
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Sep 2021 14:49:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233537AbhINN5B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Sep 2021 09:57:01 -0400
-Received: from foss.arm.com ([217.140.110.172]:45208 "EHLO foss.arm.com"
+        id S234469AbhINOui (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Sep 2021 10:50:38 -0400
+Received: from pegase2.c-s.fr ([93.17.235.10]:36305 "EHLO pegase2.c-s.fr"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233631AbhINN4w (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Sep 2021 09:56:52 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9D62A1FB;
-        Tue, 14 Sep 2021 06:55:33 -0700 (PDT)
-Received: from C02TD0UTHF1T.local (unknown [10.57.21.233])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8D39B3F5A1;
-        Tue, 14 Sep 2021 06:55:29 -0700 (PDT)
-Date:   Tue, 14 Sep 2021 14:55:27 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, Keith Packard <keithpac@amazon.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [RFC PATCH 0/8] Move task_struct::cpu back into thread_info
-Message-ID: <20210914135527.GC30247@C02TD0UTHF1T.local>
-References: <20210914121036.3975026-1-ardb@kernel.org>
+        id S234274AbhINOtD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Sep 2021 10:49:03 -0400
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4H85mc3stlz9sTZ;
+        Tue, 14 Sep 2021 16:47:44 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id GO3bOpvNkxSJ; Tue, 14 Sep 2021 16:47:44 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4H85mc2pnkz9sTY;
+        Tue, 14 Sep 2021 16:47:44 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 475E88B773;
+        Tue, 14 Sep 2021 16:47:44 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id 6uDZRDL0dNLX; Tue, 14 Sep 2021 16:47:44 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.204.207])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 86DA68B763;
+        Tue, 14 Sep 2021 16:47:42 +0200 (CEST)
+Subject: Re: [PATCH v3 4/8] powerpc/pseries/svm: Add a powerpc version of
+ cc_platform_has()
+To:     Borislav Petkov <bp@alien8.de>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Cc:     Sathyanarayanan Kuppuswamy 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        linux-efi@vger.kernel.org, Brijesh Singh <brijesh.singh@amd.com>,
+        kvm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        platform-driver-x86@vger.kernel.org,
+        Paul Mackerras <paulus@samba.org>, linux-s390@vger.kernel.org,
+        Andi Kleen <ak@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>, x86@kernel.org,
+        amd-gfx@lists.freedesktop.org,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-graphics-maintainer@vmware.com,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+References: <cover.1631141919.git.thomas.lendacky@amd.com>
+ <9d4fc3f8ea7b325aaa1879beab1286876f45d450.1631141919.git.thomas.lendacky@amd.com>
+ <YUCOTIPPsJJpLO/d@zn.tnic>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <41b93dae-2f10-15a3-a079-c632381bec73@csgroup.eu>
+Date:   Tue, 14 Sep 2021 16:47:41 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210914121036.3975026-1-ardb@kernel.org>
+In-Reply-To: <YUCOTIPPsJJpLO/d@zn.tnic>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr-FR
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 02:10:28PM +0200, Ard Biesheuvel wrote:
-> Commit c65eacbe290b ("sched/core: Allow putting thread_info into
-> task_struct") mentions that, along with moving thread_info into
-> task_struct, the cpu field is moved out of the former into the latter,
-> but does not explain why.
 
-From what I recall of talking to Andy around that time, when converting
-arm64 over, the theory was that over time we'd move more and more out of
-thread_info and into task_struct or thread_struct, until task_struct
-supplanted thread_info entirely, and that all became generic.
 
-I think the key gain there was making things more *generic*, and there
-are other ways we could do that in future without moving more into
-task_struct (e.g. with a geenric thread_info and arch_thread_info inside
-that).
+Le 14/09/2021 à 13:58, Borislav Petkov a écrit :
+> On Wed, Sep 08, 2021 at 05:58:35PM -0500, Tom Lendacky wrote:
+>> Introduce a powerpc version of the cc_platform_has() function. This will
+>> be used to replace the powerpc mem_encrypt_active() implementation, so
+>> the implementation will initially only support the CC_ATTR_MEM_ENCRYPT
+>> attribute.
+>>
+>> Cc: Michael Ellerman <mpe@ellerman.id.au>
+>> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+>> Cc: Paul Mackerras <paulus@samba.org>
+>> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+>> ---
+>>   arch/powerpc/platforms/pseries/Kconfig       |  1 +
+>>   arch/powerpc/platforms/pseries/Makefile      |  2 ++
+>>   arch/powerpc/platforms/pseries/cc_platform.c | 26 ++++++++++++++++++++
+>>   3 files changed, 29 insertions(+)
+>>   create mode 100644 arch/powerpc/platforms/pseries/cc_platform.c
+> 
+> Michael,
+> 
+> can I get an ACK for the ppc bits to carry them through the tip tree
+> pls?
+> 
+> Btw, on a related note, cross-compiling this throws the following error here:
+> 
+> $ make CROSS_COMPILE=/home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/powerpc64-linux- V=1 ARCH=powerpc
+> 
+> ...
+> 
+> /home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/powerpc64-linux-gcc -Wp,-MD,arch/powerpc/boot/.crt0.o.d -D__ASSEMBLY__ -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -O2 -msoft-float -mno-altivec -mno-vsx -pipe -fomit-frame-pointer -fno-builtin -fPIC -nostdinc -include ./include/linux/compiler_attributes.h -I./arch/powerpc/include -I./arch/powerpc/include/generated  -I./include -I./arch/powerpc/include/uapi -I./arch/powerpc/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -m32 -isystem /home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/../lib/gcc/powerpc64-linux/9.4.0/include -mbig-endian -nostdinc -c -o arch/powerpc/boot/crt0.o arch/powerpc/boot/crt0.S
+> In file included from <command-line>:
+> ././include/linux/compiler_attributes.h:62:5: warning: "__has_attribute" is not defined, evaluates to 0 [-Wundef]
+>     62 | #if __has_attribute(__assume_aligned__)
+>        |     ^~~~~~~~~~~~~~~
+> ././include/linux/compiler_attributes.h:62:20: error: missing binary operator before token "("
+>     62 | #if __has_attribute(__assume_aligned__)
+>        |                    ^
+> ././include/linux/compiler_attributes.h:88:5: warning: "__has_attribute" is not defined, evaluates to 0 [-Wundef]
+>     88 | #if __has_attribute(__copy__)
+>        |     ^~~~~~~~~~~~~~~
+> ...
+> 
+> Known issue?
+> 
+> This __has_attribute() thing is supposed to be supported
+> in gcc since 5.1 and I'm using the crosstool stuff from
+> https://www.kernel.org/pub/tools/crosstool/ and gcc-9.4 above is pretty
+> new so that should not happen actually.
+> 
+> But it does...
+> 
+> Hmmm.
+> 
 
-With that in mind, and given the diffstat, I think this is worthwhile.
 
-FWIW, for the series:
+Yes, see 
+https://lore.kernel.org/linuxppc-dev/20210914123919.58203eef@canb.auug.org.au/T/#t
 
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-
-Mark.
-
-> While collaborating with Keith on adding THREAD_INFO_IN_TASK support to
-> ARM, we noticed that keeping CPU in task_struct is problematic for
-> architectures that define raw_smp_processor_id() in terms of this field,
-> as it requires linux/sched.h to be included, which causes a lot of pain
-> in terms of circular dependencies (or 'header soup', as the original
-> commit refers to it).
-> 
-> For examples of how existing architectures work around this, please
-> refer to patches #6 or #7. In the former case, it uses an awful
-> asm-offsets hack to index thread_info/current without using its type
-> definition. The latter approach simply keeps a copy of the task_struct
-> CPU field in thread_info, and keeps it in sync at context switch time.
-> 
-> Patch #8 reverts this latter approach for ARM, but this code is still
-> under review so it does not currently apply to mainline.
-> 
-> We also discussed introducing yet another Kconfig symbol to indicate
-> that the arch has THREAD_INFO_IN_TASK enabled but still prefers to keep
-> its CPU field in thread_info, but simply keeping it in thread_info in
-> all cases seems to be the cleanest approach here.
-> 
-> Cc: Keith Packard <keithpac@amazon.com>
-> Cc: Russell King <linux@armlinux.org.uk>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Paul Walmsley <paul.walmsley@sifive.com>
-> Cc: Palmer Dabbelt <palmer@dabbelt.com>
-> Cc: Albert Ou <aou@eecs.berkeley.edu>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Cc: linux-riscv@lists.infradead.org
-> Cc: linux-s390@vger.kernel.org
-> 
-> Ard Biesheuvel (8):
->   arm64: add CPU field to struct thread_info
->   x86: add CPU field to struct thread_info
->   s390: add CPU field to struct thread_info
->   powerpc: add CPU field to struct thread_info
->   sched: move CPU field back into thread_info if THREAD_INFO_IN_TASK=y
->   powerpc: smp: remove hack to obtain offset of task_struct::cpu
->   riscv: rely on core code to keep thread_info::cpu updated
->   ARM: rely on core code to keep thread_info::cpu updated
-> 
->  arch/arm/include/asm/switch_to.h       | 14 --------------
->  arch/arm/kernel/smp.c                  |  3 ---
->  arch/arm64/include/asm/thread_info.h   |  1 +
->  arch/arm64/kernel/asm-offsets.c        |  2 +-
->  arch/arm64/kernel/head.S               |  2 +-
->  arch/powerpc/Makefile                  | 11 -----------
->  arch/powerpc/include/asm/smp.h         | 17 +----------------
->  arch/powerpc/include/asm/thread_info.h |  3 +++
->  arch/powerpc/kernel/asm-offsets.c      |  4 +---
->  arch/powerpc/kernel/smp.c              |  2 +-
->  arch/riscv/kernel/asm-offsets.c        |  1 -
->  arch/riscv/kernel/entry.S              |  5 -----
->  arch/riscv/kernel/head.S               |  1 -
->  arch/s390/include/asm/thread_info.h    |  1 +
->  arch/x86/include/asm/thread_info.h     |  3 +++
->  include/linux/sched.h                  |  6 +-----
->  kernel/sched/sched.h                   |  4 ----
->  17 files changed, 14 insertions(+), 66 deletions(-)
-> 
-> -- 
-> 2.30.2
-> 
