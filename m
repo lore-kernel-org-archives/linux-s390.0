@@ -2,79 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2A76C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 00:23:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 056B8C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 00:29:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B1A4B6121D
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 00:23:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9CB161212
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 00:29:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229952AbhIOAYq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Sep 2021 20:24:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
+        id S236132AbhIOAaX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Sep 2021 20:30:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229657AbhIOAYp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Sep 2021 20:24:45 -0400
+        with ESMTP id S229991AbhIOAaX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Sep 2021 20:30:23 -0400
 Received: from ozlabs.org (bilbo.ozlabs.org [IPv6:2401:3900:2:1::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A5D6C061574;
-        Tue, 14 Sep 2021 17:23:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53563C061574;
+        Tue, 14 Sep 2021 17:29:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1631665405;
-        bh=Pliqrcvr6CmlpuzEgkusFjzlu2wuAo+oNPelgwZk/tI=;
+        s=201909; t=1631665743;
+        bh=HgCpSqOauKiPM+dBPwX1rVKc5DllbEYyPqTeHP+eUfA=;
         h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=TPy4x0c0qB00Uky/okfi0agfYTTirGCIOxGnyL3Z2WJjcy9Ij+y6eYt34V0foPR/O
-         o1okl98XSAlBWoLSjBK2ST30QS4MIAlF6Q5jA9WbJd+t/pYlgoXvxAw0bJWuqYJ3kd
-         7a7a6bYzwZZ6/qCNoSAmjasAfhIO+tm/yfC0Qr4vHTgZfWFSMgRJZ0XA3P/TYxv3W8
-         HAXDqW2k6pmwvEaigI491dok7/GBd2trlcrP8o0JI2Q9R8YjbcSTnLHIZiytZzNpto
-         aHqxor2QYwZ9tGiIR0+zkTxf7ARZwTpGwCyhJhFhBNQsj7LzgLsiKQ4LnRpQ+coT+7
-         P6bVDxR2ZyoQQ==
+        b=nobrDH5nGZu7v+B+3sYvcmgWwQ6HXMJcFwBQJdDWX9HZxhJmSYRfeLJ5bqM1L8nAT
+         Zv7FEyFybAcOR9q2SSYXqyD/igi9xudle6V5yasFwsCuG7S0oozCaRNikxkvD596/w
+         6l43PVixwL61h3NyNDnNd5sNzqDNGCDn9FEcD1fB6an9gsKEzr5R3Isof7M+Dp+CFm
+         Flkym9C4vSI8DMWcOL/ydbmO/xhA1U449O7gqRfyeoJq9Tl/sPJDKQcCHDPv+s1Rp6
+         4loBfWLosZBa6f9xlvgT7ZD+EwPUzeNUvScHtwtaoHQpWTi57p46qNn2qlhGqy8rED
+         FWCERXkM6X8Sg==
 Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4H8LXr70S6z9s5R;
-        Wed, 15 Sep 2021 10:23:24 +1000 (AEST)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4H8LgJ0MSWz9sVq;
+        Wed, 15 Sep 2021 10:28:59 +1000 (AEST)
 From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Bjorn Helgaas <helgaas@kernel.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     Tom Lendacky <thomas.lendacky@amd.com>,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-graphics-maintainer@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Sathyanarayanan Kuppuswamy 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Christoph Hellwig <hch@infradead.org>,
         Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Oliver O'Halloran <oohall@gmail.com>,
-        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH 1/1] powerpc: Drop superfluous pci_dev_is_added() calls
-In-Reply-To: <20210914193130.GA1447657@bjorn-Precision-5520>
-References: <20210914193130.GA1447657@bjorn-Precision-5520>
-Date:   Wed, 15 Sep 2021 10:23:22 +1000
-Message-ID: <87o88uk7ph.fsf@mpe.ellerman.id.au>
+        Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH v3 4/8] powerpc/pseries/svm: Add a powerpc version of
+ cc_platform_has()
+In-Reply-To: <YUCOTIPPsJJpLO/d@zn.tnic>
+References: <cover.1631141919.git.thomas.lendacky@amd.com>
+ <9d4fc3f8ea7b325aaa1879beab1286876f45d450.1631141919.git.thomas.lendacky@amd.com>
+ <YUCOTIPPsJJpLO/d@zn.tnic>
+Date:   Wed, 15 Sep 2021 10:28:59 +1000
+Message-ID: <87lf3yk7g4.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Bjorn Helgaas <helgaas@kernel.org> writes:
-> On Fri, Sep 10, 2021 at 04:19:40PM +0200, Niklas Schnelle wrote:
->> On powerpc, pci_dev_is_added() is called as part of SR-IOV fixups
->> that are done under pcibios_add_device() which in turn is only called in
->> pci_device_add() whih is called when a PCI device is scanned.
+Borislav Petkov <bp@alien8.de> writes:
+> On Wed, Sep 08, 2021 at 05:58:35PM -0500, Tom Lendacky wrote:
+>> Introduce a powerpc version of the cc_platform_has() function. This will
+>> be used to replace the powerpc mem_encrypt_active() implementation, so
+>> the implementation will initially only support the CC_ATTR_MEM_ENCRYPT
+>> attribute.
 >> 
->> Now pci_dev_assign_added() is called in pci_bus_add_device() which is
->> only called after scanning the device. Thus pci_dev_is_added() is always
->> false and can be dropped.
->> 
->> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+>> Cc: Michael Ellerman <mpe@ellerman.id.au>
+>> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+>> Cc: Paul Mackerras <paulus@samba.org>
+>> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+>> ---
+>>  arch/powerpc/platforms/pseries/Kconfig       |  1 +
+>>  arch/powerpc/platforms/pseries/Makefile      |  2 ++
+>>  arch/powerpc/platforms/pseries/cc_platform.c | 26 ++++++++++++++++++++
+>>  3 files changed, 29 insertions(+)
+>>  create mode 100644 arch/powerpc/platforms/pseries/cc_platform.c
 >
-> Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+> Michael,
 >
-> This doesn't touch the PCI core, so maybe makes sense for you to take
-> it, Michael?  But let me know if you think otherwise.
+> can I get an ACK for the ppc bits to carry them through the tip tree
+> pls?
 
-Yeah I'm happy to take it, thanks.
+Yeah.
+
+I don't love it, a new C file and an out-of-line call to then call back
+to a static inline that for most configuration will return false ... but
+whatever :)
+
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+
+
+> Btw, on a related note, cross-compiling this throws the following error here:
+>
+> $ make CROSS_COMPILE=/home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/powerpc64-linux- V=1 ARCH=powerpc
+>
+> ...
+>
+> /home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/powerpc64-linux-gcc -Wp,-MD,arch/powerpc/boot/.crt0.o.d -D__ASSEMBLY__ -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -O2 -msoft-float -mno-altivec -mno-vsx -pipe -fomit-frame-pointer -fno-builtin -fPIC -nostdinc -include ./include/linux/compiler_attributes.h -I./arch/powerpc/include -I./arch/powerpc/include/generated  -I./include -I./arch/powerpc/include/uapi -I./arch/powerpc/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -m32 -isystem /home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/../lib/gcc/powerpc64-linux/9.4.0/include -mbig-endian -nostdinc -c -o arch/powerpc/boot/crt0.o arch/powerpc/boot/crt0.S
+> In file included from <command-line>:
+> ././include/linux/compiler_attributes.h:62:5: warning: "__has_attribute" is not defined, evaluates to 0 [-Wundef]
+>    62 | #if __has_attribute(__assume_aligned__)
+>       |     ^~~~~~~~~~~~~~~
+> ././include/linux/compiler_attributes.h:62:20: error: missing binary operator before token "("
+>    62 | #if __has_attribute(__assume_aligned__)
+>       |                    ^
+> ././include/linux/compiler_attributes.h:88:5: warning: "__has_attribute" is not defined, evaluates to 0 [-Wundef]
+>    88 | #if __has_attribute(__copy__)
+>       |     ^~~~~~~~~~~~~~~
+> ...
+>
+> Known issue?
+
+Yeah, fixed in mainline today, thanks for trying to cross compile :)
 
 cheers
