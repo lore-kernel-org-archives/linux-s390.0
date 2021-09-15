@@ -2,157 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7456DC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 10:15:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5979C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 14:08:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 500F860EB4
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 10:15:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BEEDE61164
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 14:08:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237010AbhIOKQV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Sep 2021 06:16:21 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34576 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231940AbhIOKQU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Sep 2021 06:16:20 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.0.43) with SMTP id 18F7Zmpq013104;
-        Wed, 15 Sep 2021 06:14:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=1CvBoL4UO9UE0U96hNF1qNekvPhdGJ/IHUjTEpXG+YU=;
- b=YEfNJhshjitTdfVh2SQ9IRmxiLu+hBc9JZhhRgA/541skcknTB+qjhIvHnJq1g+oUk7w
- k7PfKp0uAMT0dIneL2+ilosryXmj6pnAAyNFz/tkMKN19IUh2L9PjsXWqGYl4dmTnF16
- XAh9c0gwMOZOcyw74by1riil5QeOlcjxUznr13KzbG9jVGC8dVjGXJTeCJwBT51p8dvA
- FcfuITA+g9E2ITDemtBJe/ilVrDofRF2F9hbPSzRBDAdHvN9Zlv4MSO+3Sof6LmgaH8e
- mkkTvPVQNPci5GKuCcTmziz9O/YybnVcdo2LND9ImzRCZHoXMMoScCP9boR+mo34CKEf tA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3b3cjtb89d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Sep 2021 06:14:05 -0400
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18F9o6tF016868;
-        Wed, 15 Sep 2021 06:14:04 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3b3cjtb88r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Sep 2021 06:14:04 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18FA3PO2017375;
-        Wed, 15 Sep 2021 10:14:02 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3b0kqjwnas-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Sep 2021 10:14:02 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18FA9Owo58065308
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Sep 2021 10:09:24 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1E3094C050;
-        Wed, 15 Sep 2021 10:13:58 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 357904C046;
-        Wed, 15 Sep 2021 10:13:57 +0000 (GMT)
-Received: from sig-9-145-34-225.uk.ibm.com (unknown [9.145.34.225])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Sep 2021 10:13:57 +0000 (GMT)
-Message-ID: <3cfa5c39151b415000b13f94edbd513940c272c4.camel@linux.ibm.com>
-Subject: Re: [PATCH] pci: Rename pcibios_add_device to match
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     "Oliver O'Halloran" <oohall@gmail.com>,
-        Michal Simek <monstr@monstr.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>
-Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Date:   Wed, 15 Sep 2021 12:13:56 +0200
-In-Reply-To: <20210913152709.48013-1-oohall@gmail.com>
-References: <20210913152709.48013-1-oohall@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: qsgztY6656GojP5eot9j-my1z4nhin5e
-X-Proofpoint-ORIG-GUID: tinSbreoYB0apZL0qAvJHteIZSAXyVt9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
- definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 malwarescore=0 mlxscore=0 impostorscore=0 spamscore=0
- mlxlogscore=999 adultscore=0 bulkscore=0 suspectscore=0 priorityscore=1501
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109030001 definitions=main-2109150047
+        id S233545AbhIOOJp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Sep 2021 10:09:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55022 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233793AbhIOOJo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Sep 2021 10:09:44 -0400
+Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CB63C061574;
+        Wed, 15 Sep 2021 07:08:25 -0700 (PDT)
+Received: by mail-ot1-x334.google.com with SMTP id g66-20020a9d12c8000000b0051aeba607f1so3663615otg.11;
+        Wed, 15 Sep 2021 07:08:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=I2A31vkH1KuWdXSd5ju0bH7L4mFuHVmLMgvk3FgHJY0=;
+        b=NRdaicJWp7ayqH9jsDFb73Gz8Cf3R628eZgQGNYYYw73nlRDwX0MhDq3KweoJDhTJT
+         GbxOItv3OOUX8L6g6LLw54GEZtCbyUbRDJreqRfzf2kQ8+ZBCa8lt7i4hA/D3w+b7J2H
+         wtIcXm/k2Y7EJx6QRC43Tt790k2irXPm+bEBOiLhnMjNuCig1kv00lMutBWUUMGqlhAR
+         zWFwosOLm5A+i4su+fgeaWORBHdDvNj1IC8X2pHlSWR5+qMfJzc+Ph80lhUZNCxml7gm
+         9roMymlF1nIpeN4Wgqc4sQUWQYe2isgncBD/xw6u3wE1W54GJ0aJneuYsgYJrBw/zyx5
+         tWVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=I2A31vkH1KuWdXSd5ju0bH7L4mFuHVmLMgvk3FgHJY0=;
+        b=LjqWHg+LYMtJ0SQ5DsfD/yIlqSu9l5AcyWB7zfpMEiHvj15YiS3HBDdLU61c2I3nta
+         lJDNeizp7gElqeGtYQDkx0K4gzz6Va7mGWYzuZXqlye7/Eg3zC3DGffa2uJDTfh+l5e6
+         4WJl06Eb2UH74wBX0AC2cvt/dSRq9eSFUtuHs+DgAZy3oN0iY6YB19N+EC0cbaDTkmWc
+         DGR43WzH9sbWQRPaT4U4OnxE51VjiCScFoxJKCCzI9SbFo0vBx3wN2zuqstYFjUqLItv
+         vif2UB/kfL+3KXJrWuzwrElWpPfBw5CNElGvT6aL/LDulF3AcJzDxtaEs3C+keWdvNlW
+         SU9w==
+X-Gm-Message-State: AOAM5323gLFyU1umpH9pofWphM9sfUBB50FQltXK+fReCyJ0fGqxyJz1
+        QruX2z44+L4Ifqpkeu325R5Is+Ahofw=
+X-Google-Smtp-Source: ABdhPJyGVejKG/0QIjX/U07XHlCiHcZBAD5y4wapWvmWPwTsE14wGhKTrxx2aD6uEomzXj+nR2CUgQ==
+X-Received: by 2002:a9d:4589:: with SMTP id x9mr111337ote.52.1631714904722;
+        Wed, 15 Sep 2021 07:08:24 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id v5sm20358oos.17.2021.09.15.07.08.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 15 Sep 2021 07:08:23 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH] s390: Add WARN_DYNAMIC_STACK dependencies
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20210915044010.640499-1-linux@roeck-us.net>
+ <80b7dbc9-0c09-197f-0f40-ab92d2e3fe3c@de.ibm.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <84949d48-435a-e76b-9977-d072f7359d91@roeck-us.net>
+Date:   Wed, 15 Sep 2021 07:08:21 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
+MIME-Version: 1.0
+In-Reply-To: <80b7dbc9-0c09-197f-0f40-ab92d2e3fe3c@de.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2021-09-14 at 01:27 +1000, Oliver O'Halloran wrote:
-> The general convention for pcibios_* hooks is that they're named after
-> the corresponding pci_* function they provide a hook for. The exception
-> is pcibios_add_device() which provides a hook for pci_device_add(). This
-> has been irritating me for years so rename it.
-> 
-> Also, remove the export of the microblaze version. The only caller
-> must be compiled as a built-in so there's no reason for the export.
-> 
-> Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-> ---
->  arch/microblaze/pci/pci-common.c           | 3 +--
->  arch/powerpc/kernel/pci-common.c           | 2 +-
->  arch/powerpc/platforms/powernv/pci-sriov.c | 2 +-
->  arch/s390/pci/pci.c                        | 2 +-
->  arch/sparc/kernel/pci.c                    | 2 +-
->  arch/x86/pci/common.c                      | 2 +-
->  drivers/pci/pci.c                          | 4 ++--
->  drivers/pci/probe.c                        | 4 ++--
->  include/linux/pci.h                        | 2 +-
->  9 files changed, 11 insertions(+), 12 deletions(-)
+On 9/15/21 2:02 AM, Christian Borntraeger wrote:
 > 
 > 
-.. snip ..
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index e7e6788d75a8..ded3321b7208 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -561,7 +561,7 @@ static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
->  	zdev->has_resources = 0;
->  }
->  
-> -int pcibios_add_device(struct pci_dev *pdev)
-> +int pcibios_device_add(struct pci_dev *pdev)
->  {
->  	struct zpci_dev *zdev = to_zpci(pdev);
->  	struct resource *res;
+> On 15.09.21 06:40, Guenter Roeck wrote:
+>> s390:allmodconfig fails to build with the following errors.
+>>
+>> arch/s390/kernel/syscall.c: In function '__do_syscall':
+>> arch/s390/kernel/syscall.c:168:1: error:
+>>     '__do_syscall' uses dynamic stack allocation
+>>
+>> lib/test_kasan.c: In function 'kasan_alloca_oob_right':
+>> lib/test_kasan.c:782:1: error:
+>>     'kasan_alloca_oob_right' uses dynamic stack allocation
+>>
+>> lib/test_kasan.c: In function 'kasan_alloca_oob_left':
+>> lib/test_kasan.c:767:1: error:
+>>     'kasan_alloca_oob_left' uses dynamic stack allocation
+>>
+>> The first error is seen if RANDOMIZE_KSTACK_OFFSET_DEFAULT,
+>> WARN_DYNAMIC_STACK, and WERROR are enabled. The other problems
+>> are seen if KASAN_KUNIT_TEST, WARN_DYNAMIC_STACK, and WERROR
+>> are enabled.
+>>
+>> It does not make sense to abort a build in that situation.
+>> If either RANDOMIZE_KSTACK_OFFSET_DEFAULT or KASAN_KUNIT_TEST
+>> is enabled, dynamic stack allocation is on purpose and should
+>> not fail the build. Add dependencies to reflect that situation.
+>>
 > 
-.. snip ..
->
+> Thanks for the patch. I think Heiko (on vacation) has a patch to
+> get rid  of this config alltogether, which is probably the better
+> solution.
+> 
 
+I did consider that, but concluded that this would be something a maintainer
+should do and went with what I thought was the least invasive method.
+I did check the various mailing lists for other patches, but I did not
+find anything there. Sorry if I missed it.
 
-I agree with your assesment this is indeed confusing. Interestingly
-pcibios_release_device() also doesn't follow the convention exactly as
-it is called from pci_release_dev() but at least that isn't very
-confusing.
-
-So for the arch/s390/pci bit:
-
-Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
-
+Guenter
