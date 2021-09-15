@@ -2,194 +2,105 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E67CC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 14:58:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5A9EC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 15:13:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE7F161212
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 14:58:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C0AB9611C6
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 15:13:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235132AbhIOO7m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Sep 2021 10:59:42 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33414 "EHLO
+        id S238065AbhIOPPK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Sep 2021 11:15:10 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55734 "EHLO
         mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232242AbhIOO7l (ORCPT
+        by vger.kernel.org with ESMTP id S238064AbhIOPPH (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Sep 2021 10:59:41 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.0.43) with SMTP id 18FEUr3n028559;
-        Wed, 15 Sep 2021 10:57:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=XZCB86uPKuV/GzpbaX8+VV3hy7G2w+54Yd25UoQjYiA=;
- b=p0hUCf/0qQPWDba9bizX/010a1RbKLZmp7dMoG7zsai0bIliEwc+zkgdLGOeV/5721JT
- tZjWfCp0cgVzr2CxY9Ca3vzq6tDiuo2x9/gRQ/N+Jg625dNmKwXzhX+2em0gf3S0nRvi
- /rkG2qsBFbyuYlCPWyWa1VMAgVFh6PaSPQik1D0qiS4sxkVECz/9gDB53mgW/5CdRPF7
- GfBEiuvdp/zKvNOzQngxOvA1HH7h5EYwZE8ya7sYmaHzzPGqA12GJJBncZlSF+YzftOS
- oyEoHdjXsJlbB9SWqwmnh3FYwYAqXnkU3wOw69hIcMZk3JWdcq9GGHDQO1T9iBOaiuqv kw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b3jnc8t77-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Sep 2021 10:57:56 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18FEVhPI002814;
-        Wed, 15 Sep 2021 10:57:55 -0400
+        Wed, 15 Sep 2021 11:15:07 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.0.43) with SMTP id 18FEWVgm007862;
+        Wed, 15 Sep 2021 11:13:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=TweV0ObwXVO+zHibZFEyWufzhhgQYs0SGA5CXvY/FgA=;
+ b=iraN+uXB6CRpWl7EhMjd8+prqfW96zEMLuz5niM8pnJ3YCQM3sI+txyexpH9zdqgYsfa
+ Rn/6PinAuf0jo3arGVNgO09DFmc2Xd+pb+i4pQKljcxO40ojt60g3/pHBRWpLkwKrWF7
+ LlyF+8iooaADnKv1owAqsAoPT8VVxLG0j4oCBnLr5l7jZ9/Coi/DBJtzRdZg3XfOhoWk
+ nvoqo7xRs3UytKo69iNqlQR+x0IATWphxF50NP/VE0EiUBZ/ANx3uBP+cg9iz15+LKZP
+ yio1U6IpFbOIh28K0UN/J0ytJtZntVvkbqpLpTfs0ozDasFI04aIm8W6d/wlL8Wiq8J/ /g== 
 Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b3jnc8t6c-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b3gwecmeg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Sep 2021 10:57:55 -0400
+        Wed, 15 Sep 2021 11:13:36 -0400
 Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18FEqw1j024866;
-        Wed, 15 Sep 2021 14:57:53 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04fra.de.ibm.com with ESMTP id 3b0m3a72ns-1
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18FFCvnh004002;
+        Wed, 15 Sep 2021 15:13:34 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04fra.de.ibm.com with ESMTP id 3b0m3a77nn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Sep 2021 14:57:53 +0000
+        Wed, 15 Sep 2021 15:13:34 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18FEvnm248824578
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18FF8u8S57540954
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Sep 2021 14:57:49 GMT
+        Wed, 15 Sep 2021 15:08:56 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AA8ECA405C;
-        Wed, 15 Sep 2021 14:57:49 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1C084A405C;
+        Wed, 15 Sep 2021 15:13:30 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B0BD8A4054;
-        Wed, 15 Sep 2021 14:57:48 +0000 (GMT)
-Received: from [9.145.14.74] (unknown [9.145.14.74])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Sep 2021 14:57:48 +0000 (GMT)
-Subject: Re: [PATCH 6/9] s390/block/dasd_genhd: add error handling support for
- add_disk()
-To:     Luis Chamberlain <mcgrof@kernel.org>
-Cc:     axboe@kernel.dk, gregkh@linuxfoundation.org,
-        chaitanya.kulkarni@wdc.com, atulgopinathan@gmail.com, hare@suse.de,
-        maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org,
-        colin.king@canonical.com, shubhankarvk@gmail.com,
-        baijiaju1990@gmail.com, trix@redhat.com,
-        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
-        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
-        sth@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        borntraeger@de.ibm.com, oberpar@linux.ibm.com, tj@kernel.org,
-        linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
+        by IMSVA (Postfix) with ESMTP id AE5E1A4060;
+        Wed, 15 Sep 2021 15:13:29 +0000 (GMT)
+Received: from localhost (unknown [9.171.18.94])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed, 15 Sep 2021 15:13:29 +0000 (GMT)
+Date:   Wed, 15 Sep 2021 17:13:28 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org
-References: <20210902174105.2418771-1-mcgrof@kernel.org>
- <20210902174105.2418771-7-mcgrof@kernel.org>
- <d6140e40-a472-e732-9893-99e1839b717e@linux.ibm.com>
- <f24da7d5-0b67-fa24-862f-0b27a2ab502c@linux.ibm.com>
- <YT+Bmvv3yXbuBddi@bombadil.infradead.org>
-From:   =?UTF-8?Q?Jan_H=c3=b6ppner?= <hoeppner@linux.ibm.com>
-Message-ID: <417cf368-6821-442b-0a14-006b27690591@linux.ibm.com>
-Date:   Wed, 15 Sep 2021 16:57:48 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-MIME-Version: 1.0
-In-Reply-To: <YT+Bmvv3yXbuBddi@bombadil.infradead.org>
+Subject: Re: [PATCH] s390: Add WARN_DYNAMIC_STACK dependencies
+Message-ID: <your-ad-here.call-01631718808-ext-1439@work.hours>
+References: <20210915044010.640499-1-linux@roeck-us.net>
+ <80b7dbc9-0c09-197f-0f40-ab92d2e3fe3c@de.ibm.com>
+ <84949d48-435a-e76b-9977-d072f7359d91@roeck-us.net>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+In-Reply-To: <84949d48-435a-e76b-9977-d072f7359d91@roeck-us.net>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 9TnzlmD7Tr-lHTTUHflItAjPnDnMN64G
-X-Proofpoint-GUID: ehalCfQDBnMyMC6p5nCgsPYP3FossWSO
+X-Proofpoint-GUID: sCEnG9ADulu-mYJeTKvoTLvL5wRMiSu6
+X-Proofpoint-ORIG-GUID: sCEnG9ADulu-mYJeTKvoTLvL5wRMiSu6
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
  definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- mlxlogscore=999 mlxscore=0 suspectscore=0 malwarescore=0 impostorscore=0
- clxscore=1015 phishscore=0 bulkscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109030001 definitions=main-2109150090
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 bulkscore=0 mlxlogscore=999 suspectscore=0 adultscore=0
+ priorityscore=1501 clxscore=1015 impostorscore=0 mlxscore=0 phishscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109030001 definitions=main-2109150073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 13/09/2021 18:51, Luis Chamberlain wrote:
-> On Mon, Sep 13, 2021 at 02:19:38PM +0200, Jan Höppner wrote:
->> On 13/09/2021 10:17, Jan Höppner wrote:
->>> On 02/09/2021 19:41, Luis Chamberlain wrote:
->>>> We never checked for errors on add_disk() as this function
->>>> returned void. Now that this is fixed, use the shiny new
->>>> error handling.
->>>>
->>>> Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
->>>> ---
->>>>  drivers/s390/block/dasd_genhd.c | 8 ++++++--
->>>>  1 file changed, 6 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
->>>> index fa966e0db6ca..ba07022283bc 100644
->>>> --- a/drivers/s390/block/dasd_genhd.c
->>>> +++ b/drivers/s390/block/dasd_genhd.c
->>>> @@ -33,7 +33,7 @@ int dasd_gendisk_alloc(struct dasd_block *block)
->>>>  {
->>>>  	struct gendisk *gdp;
->>>>  	struct dasd_device *base;
->>>> -	int len;
->>>> +	int len, rc;
->>>>  
->>>>  	/* Make sure the minor for this device exists. */
->>>>  	base = block->base;
->>>> @@ -79,7 +79,11 @@ int dasd_gendisk_alloc(struct dasd_block *block)
->>>>  	dasd_add_link_to_gendisk(gdp, base);
->>>>  	block->gdp = gdp;
->>>>  	set_capacity(block->gdp, 0);
->>>> -	device_add_disk(&base->cdev->dev, block->gdp, NULL);
->>>> +
->>>> +	rc = device_add_disk(&base->cdev->dev, block->gdp, NULL);
->>>> +	if (rc)
->>>> +		return rc;
->>>> +
->>>
->>> I think, just like with some of the other changes, there is some
->>> cleanup required before returning. I'll prepare a patch and
->>> come back to you.
->>>
->>
->> It's actually just one call that is required. The patch should
->> look like this:
->>
->> diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
->> index fa966e0db6ca..80673dbfb1f9 100644
->> --- a/drivers/s390/block/dasd_genhd.c
->> +++ b/drivers/s390/block/dasd_genhd.c
->> @@ -33,7 +33,7 @@ int dasd_gendisk_alloc(struct dasd_block *block)
->>  {
->>         struct gendisk *gdp;
->>         struct dasd_device *base;
->> -       int len;
->> +       int len, rc;
->>  
->>         /* Make sure the minor for this device exists. */
->>         base = block->base;
->> @@ -79,7 +79,13 @@ int dasd_gendisk_alloc(struct dasd_block *block)
->>         dasd_add_link_to_gendisk(gdp, base);
->>         block->gdp = gdp;
->>         set_capacity(block->gdp, 0);
->> -       device_add_disk(&base->cdev->dev, block->gdp, NULL);
->> +
->> +       rc = device_add_disk(&base->cdev->dev, block->gdp, NULL);
->> +       if (rc) {
->> +               dasd_gendisk_free(block);
->> +               return rc;
->> +       }
->> +
+On Wed, Sep 15, 2021 at 07:08:21AM -0700, Guenter Roeck wrote:
+> > Thanks for the patch. I think Heiko (on vacation) has a patch to
+> > get rid  of this config alltogether, which is probably the better
+> > solution.
+> > 
 > 
-> Thanks!
-> 
-> Would you like to to fold this fix into my patch and resend eventually?
-> Or will you send a replacement?
-> 
->   Luis
-> 
+> I did consider that, but concluded that this would be something a maintainer
+> should do and went with what I thought was the least invasive method.
+> I did check the various mailing lists for other patches, but I did not
+> find anything there. Sorry if I missed it.
 
-I'd be fine with you just taking the changes for your patchset.
-Once you've resent the whole patchset I'll review it and send
-the usual ack or r-b.
+Sorry, we could have been more transparent with our patch queue. The
+patch is from Monday and with our regular ci/qa queue delay it is now on
+fixes branch:
 
-regards,
-Jan
+https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit/?h=fixes&id=f5711f9df9242446feccf2bdb6fdc06a72ca1010
