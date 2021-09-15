@@ -2,128 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 056B8C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 00:29:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 451FAC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 04:40:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D9CB161212
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 00:29:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 206C061166
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Sep 2021 04:40:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236132AbhIOAaX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Sep 2021 20:30:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37756 "EHLO
+        id S229632AbhIOEld (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Sep 2021 00:41:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229991AbhIOAaX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Sep 2021 20:30:23 -0400
-Received: from ozlabs.org (bilbo.ozlabs.org [IPv6:2401:3900:2:1::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53563C061574;
-        Tue, 14 Sep 2021 17:29:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1631665743;
-        bh=HgCpSqOauKiPM+dBPwX1rVKc5DllbEYyPqTeHP+eUfA=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=nobrDH5nGZu7v+B+3sYvcmgWwQ6HXMJcFwBQJdDWX9HZxhJmSYRfeLJ5bqM1L8nAT
-         Zv7FEyFybAcOR9q2SSYXqyD/igi9xudle6V5yasFwsCuG7S0oozCaRNikxkvD596/w
-         6l43PVixwL61h3NyNDnNd5sNzqDNGCDn9FEcD1fB6an9gsKEzr5R3Isof7M+Dp+CFm
-         Flkym9C4vSI8DMWcOL/ydbmO/xhA1U449O7gqRfyeoJq9Tl/sPJDKQcCHDPv+s1Rp6
-         4loBfWLosZBa6f9xlvgT7ZD+EwPUzeNUvScHtwtaoHQpWTi57p46qNn2qlhGqy8rED
-         FWCERXkM6X8Sg==
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4H8LgJ0MSWz9sVq;
-        Wed, 15 Sep 2021 10:28:59 +1000 (AEST)
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     Tom Lendacky <thomas.lendacky@amd.com>,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-graphics-maintainer@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sathyanarayanan Kuppuswamy 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH v3 4/8] powerpc/pseries/svm: Add a powerpc version of
- cc_platform_has()
-In-Reply-To: <YUCOTIPPsJJpLO/d@zn.tnic>
-References: <cover.1631141919.git.thomas.lendacky@amd.com>
- <9d4fc3f8ea7b325aaa1879beab1286876f45d450.1631141919.git.thomas.lendacky@amd.com>
- <YUCOTIPPsJJpLO/d@zn.tnic>
-Date:   Wed, 15 Sep 2021 10:28:59 +1000
-Message-ID: <87lf3yk7g4.fsf@mpe.ellerman.id.au>
+        with ESMTP id S229450AbhIOElc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Sep 2021 00:41:32 -0400
+Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81127C061574;
+        Tue, 14 Sep 2021 21:40:14 -0700 (PDT)
+Received: by mail-ot1-x32e.google.com with SMTP id c8-20020a9d6c88000000b00517cd06302dso1833749otr.13;
+        Tue, 14 Sep 2021 21:40:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vIjgnD6llWLecWS9URuZLYevsrhl82ycmqOPmbjPpGA=;
+        b=aHCo58/7pgnyS8W/eH3M8NbQJRCTuDmU00wx/ZizM6zUGWRmvZ75gJ0bm85FQrxR3I
+         SYMKvUNm0ap3AutIGbbvA5LgCTgm92MWXewwhtDUfeWyM2PN8P4LUEKrI8Yjo3VUDMCp
+         wjcST5c28d87FVkQiPIETOztje0li0lV9+DsKu+9Qv3p99pzQYkPkIBuziJrcdFtX5E9
+         tS/kTz6z4V6+pUPlb0bTp6qutMHMvZ/tak70zvxLsNTnCWfKVbPfVOJrWT62bguZy/ni
+         ORfvX7e/W0cWZ0APeyqPDy2IutZ1HvcGBWRCCL9mPmKlFrUVIOOf6NWjY2U1DQddon6v
+         00pA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=vIjgnD6llWLecWS9URuZLYevsrhl82ycmqOPmbjPpGA=;
+        b=nZp68VTzghvPOcLB0wQvH62q2aPCfecvPHE0FcTkpi0qEpOXzQ9Wp6hDNhzmmIt5uK
+         jHWR3ybCeP3BtAuWPA/T6GwpDednRw6Hq3YSkZPRfugzaPWvIaat+We4N8OTiu9VWjDV
+         cYHSplobyn3AwV0xqMirN2ck8QFdsBs/jWRgIbgy2LDqOfK+m2OFlNGih0QEU4xJzFCp
+         6hUFrGJXopHGxVd8BboYmNLWixzNo2S4C8c7jV6BU+M7P/GkvUi4ksEiG97strCqMO9N
+         JfNgl4E7TiG2fDA+MbbdlA3ATOueCp5Vdv3ItDvh9Zl7dNYawo4EOIdVWl3ssuXQxLFL
+         R5Og==
+X-Gm-Message-State: AOAM5335h5gkFOdT6CbapKoqcvWeEOs8Qnsj/kZCq11/t+6zn7m7XxyP
+        6vtbs/FZK+dZyuENjlrphaQ=
+X-Google-Smtp-Source: ABdhPJwEy2wdlTzeCrHUmbGshHdzuLJsJ11MpmFsV+r4hpH9fc3sf/3Rn5evNGwSXx2+X4kvTs/jYQ==
+X-Received: by 2002:a05:6830:1b78:: with SMTP id d24mr17657592ote.197.1631680813695;
+        Tue, 14 Sep 2021 21:40:13 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id r26sm3072921otn.77.2021.09.14.21.40.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Sep 2021 21:40:13 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] s390: Add WARN_DYNAMIC_STACK dependencies
+Date:   Tue, 14 Sep 2021 21:40:10 -0700
+Message-Id: <20210915044010.640499-1-linux@roeck-us.net>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Borislav Petkov <bp@alien8.de> writes:
-> On Wed, Sep 08, 2021 at 05:58:35PM -0500, Tom Lendacky wrote:
->> Introduce a powerpc version of the cc_platform_has() function. This will
->> be used to replace the powerpc mem_encrypt_active() implementation, so
->> the implementation will initially only support the CC_ATTR_MEM_ENCRYPT
->> attribute.
->> 
->> Cc: Michael Ellerman <mpe@ellerman.id.au>
->> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->> Cc: Paul Mackerras <paulus@samba.org>
->> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
->> ---
->>  arch/powerpc/platforms/pseries/Kconfig       |  1 +
->>  arch/powerpc/platforms/pseries/Makefile      |  2 ++
->>  arch/powerpc/platforms/pseries/cc_platform.c | 26 ++++++++++++++++++++
->>  3 files changed, 29 insertions(+)
->>  create mode 100644 arch/powerpc/platforms/pseries/cc_platform.c
->
-> Michael,
->
-> can I get an ACK for the ppc bits to carry them through the tip tree
-> pls?
+s390:allmodconfig fails to build with the following errors.
 
-Yeah.
+arch/s390/kernel/syscall.c: In function '__do_syscall':
+arch/s390/kernel/syscall.c:168:1: error:
+	'__do_syscall' uses dynamic stack allocation
 
-I don't love it, a new C file and an out-of-line call to then call back
-to a static inline that for most configuration will return false ... but
-whatever :)
+lib/test_kasan.c: In function 'kasan_alloca_oob_right':
+lib/test_kasan.c:782:1: error:
+	'kasan_alloca_oob_right' uses dynamic stack allocation
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+lib/test_kasan.c: In function 'kasan_alloca_oob_left':
+lib/test_kasan.c:767:1: error:
+	'kasan_alloca_oob_left' uses dynamic stack allocation
 
+The first error is seen if RANDOMIZE_KSTACK_OFFSET_DEFAULT,
+WARN_DYNAMIC_STACK, and WERROR are enabled. The other problems
+are seen if KASAN_KUNIT_TEST, WARN_DYNAMIC_STACK, and WERROR
+are enabled.
 
-> Btw, on a related note, cross-compiling this throws the following error here:
->
-> $ make CROSS_COMPILE=/home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/powerpc64-linux- V=1 ARCH=powerpc
->
-> ...
->
-> /home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/powerpc64-linux-gcc -Wp,-MD,arch/powerpc/boot/.crt0.o.d -D__ASSEMBLY__ -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -O2 -msoft-float -mno-altivec -mno-vsx -pipe -fomit-frame-pointer -fno-builtin -fPIC -nostdinc -include ./include/linux/compiler_attributes.h -I./arch/powerpc/include -I./arch/powerpc/include/generated  -I./include -I./arch/powerpc/include/uapi -I./arch/powerpc/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -m32 -isystem /home/share/src/crosstool/gcc-9.4.0-nolibc/powerpc64-linux/bin/../lib/gcc/powerpc64-linux/9.4.0/include -mbig-endian -nostdinc -c -o arch/powerpc/boot/crt0.o arch/powerpc/boot/crt0.S
-> In file included from <command-line>:
-> ././include/linux/compiler_attributes.h:62:5: warning: "__has_attribute" is not defined, evaluates to 0 [-Wundef]
->    62 | #if __has_attribute(__assume_aligned__)
->       |     ^~~~~~~~~~~~~~~
-> ././include/linux/compiler_attributes.h:62:20: error: missing binary operator before token "("
->    62 | #if __has_attribute(__assume_aligned__)
->       |                    ^
-> ././include/linux/compiler_attributes.h:88:5: warning: "__has_attribute" is not defined, evaluates to 0 [-Wundef]
->    88 | #if __has_attribute(__copy__)
->       |     ^~~~~~~~~~~~~~~
-> ...
->
-> Known issue?
+It does not make sense to abort a build in that situation.
+If either RANDOMIZE_KSTACK_OFFSET_DEFAULT or KASAN_KUNIT_TEST
+is enabled, dynamic stack allocation is on purpose and should
+not fail the build. Add dependencies to reflect that situation.
 
-Yeah, fixed in mainline today, thanks for trying to cross compile :)
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ arch/s390/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-cheers
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 2bd90c51efd3..776b730e2d15 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -688,6 +688,7 @@ config STACK_GUARD
+ config WARN_DYNAMIC_STACK
+ 	def_bool n
+ 	prompt "Emit compiler warnings for function with dynamic stack usage"
++	depends on !WERROR || (!RANDOMIZE_KSTACK_OFFSET_DEFAULT && !KASAN_KUNIT_TEST)
+ 	help
+ 	  This option enables the compiler option -mwarn-dynamicstack. If the
+ 	  compiler supports this options generates warnings for functions
+-- 
+2.33.0
+
