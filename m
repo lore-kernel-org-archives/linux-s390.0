@@ -2,194 +2,219 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1E55C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Sep 2021 13:18:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47412C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Sep 2021 13:44:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A90E96120F
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Sep 2021 13:18:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 27ACF60F21
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Sep 2021 13:44:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240020AbhIPNUH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Sep 2021 09:20:07 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47880 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240008AbhIPNUG (ORCPT
+        id S240271AbhIPNpe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Sep 2021 09:45:34 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:52032 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240229AbhIPNpd (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Sep 2021 09:20:06 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.0.43) with SMTP id 18GD0N2m029064;
-        Thu, 16 Sep 2021 09:18:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=oVkxofZeBhWFIRtnW0yTddOC+EkElRBzdsYHJchrF8g=;
- b=LyfQJtTQ7N7ml5O1J94ziPDSSstuoeGsKsSUJmAffjY0O2jGJSMZlM5gczlfsMwWo9eU
- YfaDSsIdAY2wlxrAofpdkjRzmAPdA29H8qehRd5ED2fpMLAF86H4x6Er/+ZuQS7Lh4az
- ocSJQiUmhHzXr+vXJCjz/le7MaG7NbzBLq93XRDKuR1sCiHg3ddL7srifQoWOas4sItl
- uR/7BFuvxgflRTKlrfReIVFSDeP0egl9NLCjw3Od+otFVu5fO950397JW4jQyVmwpxaj
- 05pDAcNlTHjD8V7LQov11xgFxNVy0uX8WpzLJ9A+/4hqvel/oPEooTYgQ1yGvGU8hvlR ag== 
+        Thu, 16 Sep 2021 09:45:33 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.0.43) with SMTP id 18GBoxOv023629;
+        Thu, 16 Sep 2021 09:44:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id; s=pp1;
+ bh=HtKygSPi3oYqwMruQ99VjgC+Z+kWAOtQT7JsSHwYT68=;
+ b=p3lwGsMp5Yo1RGNYl3PdslMG9geOjR+essIxtmUKC+KX6QAyM08HiRsXpEKhM61rpGt0
+ 6KC2R8mMmodglcPH1+TmlIfsmQpbjcA9dGVlaIyJKLgK5YaKLvPeB1BMvyTk6UT7Ey5L
+ 0QNAG1ghMsQNNb4JnI0Hh2Rr2WKmPZB94OKRdi2+fxhD3ndN2HtLD4WtwLsufhExAR1r
+ d4Ccdo/nv0amici/wa9nXV9tZvAue01LE7AEberoD3tVG6KBe/tGjygEhWtRKFAfYLzS
+ bFKTCKhUPChSE1dCLBzU/7cFZaDknHRZkz62hsl2GiVPnCzebsWTK/hW8pFFvcjYgHEB Lw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b46e98fp7-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b421g81ar-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Sep 2021 09:18:44 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18GD1OKo031879;
-        Thu, 16 Sep 2021 09:18:44 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b46e98fnk-1
+        Thu, 16 Sep 2021 09:44:13 -0400
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18GCmksL027895;
+        Thu, 16 Sep 2021 09:44:12 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b421g81a2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Sep 2021 09:18:43 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18GD8pdw004195;
-        Thu, 16 Sep 2021 13:18:42 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3b0m39s268-1
+        Thu, 16 Sep 2021 09:44:12 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18GDgqVl002007;
+        Thu, 16 Sep 2021 13:44:10 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma05fra.de.ibm.com with ESMTP id 3b0m3ahc59-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Sep 2021 13:18:42 +0000
+        Thu, 16 Sep 2021 13:44:10 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18GDE27C58130854
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18GDi6L050987478
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 16 Sep 2021 13:14:02 GMT
+        Thu, 16 Sep 2021 13:44:06 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 75E5E11C04A;
-        Thu, 16 Sep 2021 13:18:38 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C9D6D11C05B;
+        Thu, 16 Sep 2021 13:44:06 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A9D8D11C06E;
-        Thu, 16 Sep 2021 13:18:37 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.66.107])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Thu, 16 Sep 2021 13:18:37 +0000 (GMT)
-Date:   Thu, 16 Sep 2021 15:18:35 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, bfu@redhat.com,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 1/1] virtio/s390: fix vritio-ccw device teardown
-Message-ID: <20210916151835.4ab512b2.pasic@linux.ibm.com>
-In-Reply-To: <87pmt8hp5o.fsf@redhat.com>
-References: <20210915215742.1793314-1-pasic@linux.ibm.com>
- <87pmt8hp5o.fsf@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+        by IMSVA (Postfix) with ESMTP id 3375111C052;
+        Thu, 16 Sep 2021 13:44:06 +0000 (GMT)
+Received: from oc3016276355.ibm.com (unknown [9.145.190.206])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 16 Sep 2021 13:44:06 +0000 (GMT)
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, pmorel@linux.ibm.com
+Subject: [PATCH v4 0/1] s390x: KVM: CPU Topology
+Date:   Thu, 16 Sep 2021 15:44:04 +0200
+Message-Id: <1631799845-24860-1-git-send-email-pmorel@linux.ibm.com>
+X-Mailer: git-send-email 1.8.3.1
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SjFQ9cught4KPEvl1ldA4b5PUyKZbhTb
-X-Proofpoint-ORIG-GUID: Fz25Jva0wLuz3n6TfQ6ZGY0_juWbeQm6
+X-Proofpoint-GUID: djm7p5uOWuuhltAH20n5DueXSEw-Qkab
+X-Proofpoint-ORIG-GUID: wrtp9Z9C9dOf7ciG-k1SPQ_uSsG-9Izj
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
  definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
- priorityscore=1501 lowpriorityscore=0 malwarescore=0 mlxlogscore=999
- bulkscore=0 suspectscore=0 phishscore=0 clxscore=1015 spamscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 mlxlogscore=999 malwarescore=0 bulkscore=0 priorityscore=1501
+ suspectscore=0 clxscore=1015 spamscore=0 phishscore=0 mlxscore=0
  impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109030001 definitions=main-2109160072
+ engine=8.12.0-2109030001 definitions=main-2109160070
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 16 Sep 2021 10:59:15 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+Hi all,
 
-> > Since commit 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
-> > classic notifiers") we were supposed to make sure that
-> > virtio_ccw_release_dev() completes before the ccw device, and the
-> > attached dma pool are torn down, but unfortunately we did not.
-> > Before that commit it used to be OK to delay cleaning up the memory
-> > allocated by virtio-ccw indefinitely (which isn't really intuitive for
-> > guys used to destruction happens in reverse construction order).
-> >
-> > To accomplish this let us take a reference on the ccw device before we
-> > allocate the dma_area and give it up after dma_area was freed.
-> >
-> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > Fixes: 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
-> > classic notifiers")
-> > Reported-by: bfu@redhat.com
-> > ---
-> >
-> > I'm not certain this is the only hot-unplug and teardonw related problem
-> > with virtio-ccw.
-> >
-> > Some things that are not perfectly clear to me:
-> > * What would happen if we observed an hot-unplug while we are doing
-> >   wait_event() in ccw_io_helper()? Do we get stuck? I don't thin we
-> >   are guaranteed to receive an irq for a subchannel that is gone.  
-> 
-> Hm. I think we may need to do a wake_up during remove handling.
+This new series add the implementation of interpretation for
+the PTF instruction.
 
-My guess is that the BQL is saving us from ever seeing this with QEMU
-as the hypervisor-userspace. Nevertheless I don't think we should rely
-on that. 
+The series provides:
+1- interception of the STSI instruction forwarding the CPU topology
+2- interpretation of the PTF instruction
+3- a KVM capability for the userland hypervisor to ask KVM to 
+   setup PTF interpretation.
 
-> 
-> > * cdev->online seems to be manipulated under cdev->ccwlock, but
-> >   in virtio_ccw_remove() we look at it to decide should we clean up
-> >   or not. What is the idea there? I guess we want to avoid doing
-> >   if nothing is there or twice. But I don't understand how stuff
-> >   interlocks.  
-> 
-> We only created the virtio device when we onlined the ccw device. Do you
-> have a better idea how to check for that? (And yes, I'm not sure the
-> locking is correct.)
-> 
 
-Thanks, if I find time for it, I will try to understand this better and
-come back with my findings.
+0- Foreword
 
-> > * Can virtio_ccw_remove() get called while !cdev->online and 
-> >   virtio_ccw_online() is running on a different cpu? If yes, what would
-> >   happen then?  
-> 
-> All of the remove/online/... etc. callbacks are invoked via the ccw bus
-> code. We have to trust that it gets it correct :) (Or have the common
-> I/O layer maintainers double-check it.)
-> 
+The S390 CPU topology is reported using two instructions:
+- PTF, to get information if the CPU topology did change since last
+  PTF instruction or a subsystem reset.
+- STSI, to get the topology information, consisting of the topology
+  of the CPU inside the sockets, of the sockets inside the books etc.
 
-Vineeth, what is your take on this? Are the struct ccw_driver
-virtio_ccw_remove and the virtio_ccw_online callbacks mutually
-exclusive. Please notice that we may initiate the onlining by
-calling ccw_device_set_online() from a workqueue.
+The PTF(2) instruction report a change if the STSI(15.1.2) instruction
+will report a difference with the last STSI(15.1.2) instruction*.
+With the SIE interpretation, the PTF(2) instruction will report a
+change to the guest if the host sets the SCA.MTCR bit.
 
-@Conny: I'm not sure what is your definition of 'it gets it correct'...
-I doubt CIO can make things 100% foolproof in this area.
+*The STSI(15.1.2) instruction reports:
+- The cores address within a socket
+- The polarization of the cores
+- The CPU type of the cores
+- If the cores are dedicated or not
 
-> >  
-> > The main addresse of these questions is Conny ;).
+We decided to implement the CPU topology for S390 in several steps:
+- first step we provide a correct topology only for dedicated CPUs
+  and vCPUs. We provide the basic framework and report topology change
+  only when a new vCPU is plugged in a monotonic scheme.
 
-In any case, I think we can go step by step. I would like the issue
-this patch intends to address, addressed first. Then we can think
-about the rest.
+In future development we will provide:
+- NUMA handling, allowing holes inside the cores bitmap reported by
+  STSI(15.1.2)
+- dedicated versus shared CPUs handling
+- vCPU migration on a different CPU
 
-> >
-> > An alternative to this approach would be to inc and dec the refcount
-> > in ccw_device_dma_zalloc() and ccw_device_dma_free() respectively.  
-> 
-> Yeah, I also thought about that. This would give us more get/put
-> operations, but might be the safer option.
+We will ignore the following changes inside a STSI(15.1.2):
+- polarization: only horizontal polarization is currently used in Linux.
+- CPU Type: only IFL Type are supported in Linux
 
-My understanding is, that having the ccw device go away while in a
-middle of doing ccw stuff (about to submit, or waiting for a channel
-program, or whatever) was bad before. So my intuition tells me that
-drivers should manage explicitly. Yes virtio_ccw happens to have dma
-memory whose lifetime is more or less the lifetime of struct virtio_ccw,
-but that may not be always the case.
 
-Thanks for your comments!
+1- Interception of STSI
+
+To provide Topology information to the guest through the STSI
+instruction, we forward STSI with Function Code 15 to the
+userland hypervisor which will take care to provide the right
+information to the guest.
+
+To let the guest use both the PTF instruction  to check if a topology
+change occurred and sthe STSI_15.x.x instruction we add a new KVM
+capability to enable the topology facility.
+
+2- Interpretation of PTF with FC(2)
+
+The PTF instruction will report a topology change if there is any change
+with a previous STSI(15.1.2) SYSIB.
+Changes inside a STSI(15.1.2) SYSIB occur if CPU bits are set or clear
+inside the CPU Topology List Entry CPU mask field, which happens with
+changes in CPU polarization, dedication, CPU types and adding or
+removing CPUs in a socket.
+
+The reporting to the guest is done using the Multiprocessor
+Topology-Change-Report (MTCR) bit of the utility entry of the guest's
+SCA which will be cleared during the interpretation of PTF.
+
+To check if the topology has been modified we use a new field of the
+arch vCPU prev_cpu, to save the previous real CPU ID at the end of a
+schedule and verify on next schedule that the CPU used is in the same
+socket, this field is initialized to -1 on vCPU creation.
+
 
 Regards,
-Halil
+Pierre
+
+
+
+Pierre Morel (1):
+  s390x: KVM: accept STSI for CPU topology information
+
+ Documentation/virt/kvm/api.rst   | 16 ++++++++++
+ arch/s390/include/asm/kvm_host.h | 14 ++++++---
+ arch/s390/kvm/kvm-s390.c         | 51 +++++++++++++++++++++++++++++++-
+ arch/s390/kvm/priv.c             |  7 ++++-
+ arch/s390/kvm/vsie.c             |  3 ++
+ include/uapi/linux/kvm.h         |  1 +
+ 6 files changed, 86 insertions(+), 6 deletions(-)
+
+-- 
+2.25.1
+
+Changelog:
+
+from v3 to v4
+
+- squatch both patches
+  (David)
+
+- Added Documentation
+  (David)
+
+- Modified the detection for new vCPUs
+  (Pierre)
+
+from v2 to v3
+
+- use PTF interpretation
+  (Christian)
+
+- optimize arch_update_cpu_topology using PTF
+  (Pierre)
+
+from v1 to v2:
+
+- Add a KVM capability to let QEMU know we support PTF and STSI 15
+  (David)
+
+- check KVM facility 11 before accepting STSI fc 15
+  (David)
+
+- handle all we can in userland
+  (David)
+
+- add tracing to STSI fc 15
+  (Connie)
 
