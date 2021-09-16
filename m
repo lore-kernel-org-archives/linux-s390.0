@@ -2,167 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F226C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Sep 2021 08:59:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25C11C4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Sep 2021 09:33:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6039861186
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Sep 2021 08:59:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 079286112E
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Sep 2021 09:33:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235020AbhIPJAn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Sep 2021 05:00:43 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:28012 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232335AbhIPJAm (ORCPT
+        id S229494AbhIPJfI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Sep 2021 05:35:08 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13256 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235582AbhIPJfH (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Sep 2021 05:00:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631782761;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=t2Z/Tfws0/ZPIkBTJwi6vBLPKuMktwH7w8C6L94eoVM=;
-        b=Zlm7NHIoNZHJfmo97uyp8A+Leymoeqvpi3KHAw252NO+dU04+1FMz+2sP+BvCVx3e76/XT
-        2mXeiNxPKQHQDddOsA5bn1J03noKM8FvjGjxC/vcFtSayyFFG1zfCMyIQo7UmhtB74p/Mn
-        E3MrNvW+J7AxPwgt00StvcBLyx0dJ1Y=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-54-GlU6ZhEVPs-lOiN55UKk5A-1; Thu, 16 Sep 2021 04:59:19 -0400
-X-MC-Unique: GlU6ZhEVPs-lOiN55UKk5A-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 24861100CCC1;
-        Thu, 16 Sep 2021 08:59:18 +0000 (UTC)
-Received: from localhost (unknown [10.39.192.155])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id B554960FDD;
-        Thu, 16 Sep 2021 08:59:17 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Halil Pasic <pasic@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     bfu@redhat.com, Vineeth Vijayan <vneethv@linux.ibm.com>
-Subject: Re: [PATCH 1/1] virtio/s390: fix vritio-ccw device teardown
-In-Reply-To: <20210915215742.1793314-1-pasic@linux.ibm.com>
-Organization: Red Hat GmbH
-References: <20210915215742.1793314-1-pasic@linux.ibm.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Thu, 16 Sep 2021 10:59:15 +0200
-Message-ID: <87pmt8hp5o.fsf@redhat.com>
+        Thu, 16 Sep 2021 05:35:07 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.0.43) with SMTP id 18G80eiI015912;
+        Thu, 16 Sep 2021 05:33:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=qsA7PkV5pI59qeVSVGVfVRV97WN1QFXQJwB3Icmh79U=;
+ b=LLrPq+HyvYaSIELJ+eU34NtviaqXZnfP1SxkQth9vg+5a0xQ84RCkJQWl6qGUqqMmeq4
+ 0tGOICigXxYLBIGcUirHAYDyvbAlN2QeMamqaT5Z2ugGLgzI1JstPa3CoGYlSQgR6Bk5
+ GakVH0yYh33b6QIXGJ4NQpbiu+2GWqjDqV1f6uihWPia9o4ie8YtDfR0lQJnv6nvbBpX
+ MUgwDQsq4kiyzcx/C97jDb1h0wYrRs4R0qnYkbXlnXJ9a/JUaQjQBfBjfnAvg0tLX93s
+ iq4KvWeuT0UAYAdjOIFkHGR82NCsYCXST8VK1iZe6jSMf4ai81/VOigl4eeomwmIXWPv /g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b421g1wgv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Sep 2021 05:33:45 -0400
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18G9H2FC024718;
+        Thu, 16 Sep 2021 05:33:44 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b421g1wg5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Sep 2021 05:33:44 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18G9WVJi003798;
+        Thu, 16 Sep 2021 09:33:42 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3b0m39xh7q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Sep 2021 09:33:42 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18G9Xcxb30671202
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 16 Sep 2021 09:33:38 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A57414203F;
+        Thu, 16 Sep 2021 09:33:38 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4DEBA4204D;
+        Thu, 16 Sep 2021 09:33:38 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 16 Sep 2021 09:33:38 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Bjorn Helgaas <bhelgaas@google.com>
+Cc:     Linas Vepstas <linasvepstas@gmail.com>,
+        "Oliver O'Halloran" <oohall@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-pci@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v2 3/4] PCI: Export pci_dev_lock()
+Date:   Thu, 16 Sep 2021 11:33:35 +0200
+Message-Id: <20210916093336.2895602-4-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210916093336.2895602-1-schnelle@linux.ibm.com>
+References: <20210916093336.2895602-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: xOIP_jw-lGA-LRg15PsNuYjweBj2FGW0
+X-Proofpoint-ORIG-GUID: x1gHyZUIa9cX9PfQmyT1usMaEnA2vfuY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
+ definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 mlxlogscore=999 malwarescore=0 bulkscore=0 priorityscore=1501
+ suspectscore=0 clxscore=1015 spamscore=0 phishscore=0 mlxscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109030001 definitions=main-2109160044
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 15 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
+Commit e3a9b1212b9d ("PCI: Export pci_dev_trylock() and pci_dev_unlock()")
+already exported pci_dev_trylock()/pci_dev_unlock() however in some
+circumstances such as during error recovery it makes sense to block
+waiting to get full access to the device so also export pci_dev_lock().
 
-> Since commit 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
-> classic notifiers") we were supposed to make sure that
-> virtio_ccw_release_dev() completes before the ccw device, and the
-> attached dma pool are torn down, but unfortunately we did not.
-> Before that commit it used to be OK to delay cleaning up the memory
-> allocated by virtio-ccw indefinitely (which isn't really intuitive for
-> guys used to destruction happens in reverse construction order).
->
-> To accomplish this let us take a reference on the ccw device before we
-> allocate the dma_area and give it up after dma_area was freed.
->
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Fixes: 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
-> classic notifiers")
-> Reported-by: bfu@redhat.com
-> ---
->
-> I'm not certain this is the only hot-unplug and teardonw related problem
-> with virtio-ccw.
->
-> Some things that are not perfectly clear to me:
-> * What would happen if we observed an hot-unplug while we are doing
->   wait_event() in ccw_io_helper()? Do we get stuck? I don't thin we
->   are guaranteed to receive an irq for a subchannel that is gone.
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+ drivers/pci/pci.c   | 3 ++-
+ include/linux/pci.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-Hm. I think we may need to do a wake_up during remove handling.
-
-> * cdev->online seems to be manipulated under cdev->ccwlock, but
->   in virtio_ccw_remove() we look at it to decide should we clean up
->   or not. What is the idea there? I guess we want to avoid doing
->   if nothing is there or twice. But I don't understand how stuff
->   interlocks.
-
-We only created the virtio device when we onlined the ccw device. Do you
-have a better idea how to check for that? (And yes, I'm not sure the
-locking is correct.)
-
-> * Can virtio_ccw_remove() get called while !cdev->online and 
->   virtio_ccw_online() is running on a different cpu? If yes, what would
->   happen then?
-
-All of the remove/online/... etc. callbacks are invoked via the ccw bus
-code. We have to trust that it gets it correct :) (Or have the common
-I/O layer maintainers double-check it.)
-
->  
-> The main addresse of these questions is Conny ;).
->
-> An alternative to this approach would be to inc and dec the refcount
-> in ccw_device_dma_zalloc() and ccw_device_dma_free() respectively.
-
-Yeah, I also thought about that. This would give us more get/put
-operations, but might be the safer option.
-
->
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index d35e7a3f7067..99141df3259b 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -1006,10 +1006,12 @@ static void virtio_ccw_release_dev(struct device *_d)
->  {
->  	struct virtio_device *dev = dev_to_virtio(_d);
->  	struct virtio_ccw_device *vcdev = to_vc_device(dev);
-> +	struct ccw_device *cdev = READ_ONCE(vcdev->cdev);
->  
->  	ccw_device_dma_free(vcdev->cdev, vcdev->dma_area,
->  			    sizeof(*vcdev->dma_area));
->  	kfree(vcdev);
-> +	put_device(&cdev->dev);
->  }
->  
->  static int irb_is_error(struct irb *irb)
-> @@ -1262,6 +1264,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
->  	struct virtio_ccw_device *vcdev;
->  	unsigned long flags;
->  
-> +	get_device(&cdev->dev);
->  	vcdev = kzalloc(sizeof(*vcdev), GFP_KERNEL);
->  	if (!vcdev) {
->  		dev_warn(&cdev->dev, "Could not get memory for virtio\n");
-> @@ -1315,6 +1318,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
->  				    sizeof(*vcdev->dma_area));
->  	}
->  	kfree(vcdev);
-> +	put_device(&cdev->dev);
->  	return ret;
->  }
->  
->
-> base-commit: 3ca706c189db861b2ca2019a0901b94050ca49d8
-> -- 
-> 2.25.1
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index ce2ab62b64cf..6fe810fdb796 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -5059,12 +5059,13 @@ static int pci_reset_bus_function(struct pci_dev *dev, bool probe)
+ 	return pci_parent_bus_reset(dev, probe);
+ }
+ 
+-static void pci_dev_lock(struct pci_dev *dev)
++void pci_dev_lock(struct pci_dev *dev)
+ {
+ 	pci_cfg_access_lock(dev);
+ 	/* block PM suspend, driver probe, etc. */
+ 	device_lock(&dev->dev);
+ }
++EXPORT_SYMBOL_GPL(pci_dev_lock);
+ 
+ /* Return 1 on successful lock, 0 on contention */
+ int pci_dev_trylock(struct pci_dev *dev)
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index cd8aa6fce204..c27c8fd1d30c 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -1671,6 +1671,7 @@ void pci_cfg_access_lock(struct pci_dev *dev);
+ bool pci_cfg_access_trylock(struct pci_dev *dev);
+ void pci_cfg_access_unlock(struct pci_dev *dev);
+ 
++void pci_dev_lock(struct pci_dev *dev);
+ int pci_dev_trylock(struct pci_dev *dev);
+ void pci_dev_unlock(struct pci_dev *dev);
+ 
+-- 
+2.25.1
 
