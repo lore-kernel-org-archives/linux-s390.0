@@ -2,125 +2,163 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2836C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Sep 2021 22:05:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57EECC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Sep 2021 08:14:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CADE760F6E
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Sep 2021 22:05:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 39B2960F93
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Sep 2021 08:14:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240673AbhIPWGn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Sep 2021 18:06:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39798 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240689AbhIPWGn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Sep 2021 18:06:43 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA3CC061766
-        for <linux-s390@vger.kernel.org>; Thu, 16 Sep 2021 15:05:22 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id n13-20020a17090a4e0d00b0017946980d8dso8548875pjh.5
-        for <linux-s390@vger.kernel.org>; Thu, 16 Sep 2021 15:05:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=pc3VGvRcHS+5HOxv6BUlJ0pcBYgpx5RMDU9krFJbSFI=;
-        b=L9Q0s9st6IwFUEPzVmbOCNGgjCrmNDpcr28U9cZK4tTmz1j4mRtwNPsTNwmFxm9QPT
-         5KOLA+IeJ+ETgpRQNvpWWO6HQ3dzliERyKKbo9DNqWKooqXhaghSVvKfT6piuRrennIY
-         IVR802SufbqXdHydO7wRcXR8T/kfWIQ2WVoRI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=pc3VGvRcHS+5HOxv6BUlJ0pcBYgpx5RMDU9krFJbSFI=;
-        b=SV2WL2d40p3GHw0n1kri5cnq7WrxIo88sNqqhQlXS6oMsnEI2tQjO9BUesYe9yeA4R
-         JhdfQn58DsM5nIGR9C8Yq/7kBjPxjTjnbzP9VT286yz3r6T9OPRYKmmO+FhSAXZ6lPwW
-         W8/V9Gx09lez3CqtxHgee88qQ7KQCV1hqAH1WgaJ5tbcmzii29D1l08Zg0ls/iwkBTaX
-         HdAr2ICdWw2XglDJQdzU2k8fC8SkzbedwWRhLaKmkzA0TOdcrNPumiQu16d5jo4mJwOh
-         J3s48xiYSHVuBHMajr6s55EPu6KJmcssvbMrqNi3CQKzoIu3hYXmuvHEPkei+T9obuhl
-         QX4Q==
-X-Gm-Message-State: AOAM532jC141ptMWC36jrans/WePx6/fd11GzzrbKx2X6TJqNZqEvqt9
-        e70xLh8MMxD1rhpqjuKQtkBAuQ==
-X-Google-Smtp-Source: ABdhPJzlx4QqzuYqWgTlMu8HdcAgL44WNF97KaSbw9uVDYW3Rvi+9yNLWyGiEwBOJot16CXQYA3dhA==
-X-Received: by 2002:a17:90b:1d8d:: with SMTP id pf13mr17425080pjb.130.1631829921820;
-        Thu, 16 Sep 2021 15:05:21 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id a11sm3858739pfo.31.2021.09.16.15.05.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Sep 2021 15:05:21 -0700 (PDT)
-Date:   Thu, 16 Sep 2021 15:05:20 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Thomas Huth <thuth@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-nfs@vger.kernel.org,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Iurii Zaikin <yzaikin@google.com>, linux-s390@vger.kernel.org,
-        Jia He <hejianet@gmail.com>,
-        Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-Subject: Re: [PATCH 2/2] lockd: change the proc_handler for nsm_use_hostnames
-Message-ID: <202109161503.07F872F6@keescook>
-References: <20210803105937.52052-1-thuth@redhat.com>
- <20210803105937.52052-3-thuth@redhat.com>
+        id S232543AbhIQIPz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Sep 2021 04:15:55 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8024 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229837AbhIQIPy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 17 Sep 2021 04:15:54 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18H7UT0Q020803;
+        Fri, 17 Sep 2021 04:14:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=D72Nmltq5W761HKc8q5yf4qEMem+vL6IcD2L/nSKoec=;
+ b=HdF4u9HK+PXauaX4EGimJAqSwUQN9m8xrvWBvmSFKrMkq6+AOgAng4XjGVv03APpIp3c
+ 5U0Z2hx9ZQ1vbmo6Ah9NcuG/WshCt8+UwzWT+XGX6tfpkve/sf/qfIoMfe0CuvMeZ7q1
+ vkp689eyJNKjEg0MGfszoWXjHN//DeJBsx5w9kp9Q8lJS82zfpQvgKqjTXJU09dzi/DI
+ JyFU1nmnCMlUZxaKhSJnHId8FvKddOKd6PdxrlnQAapLCSnzJV9u1S+VV39IAEcbthQM
+ 9rampl8LZyD6ILfD3gHcZS73wuw7vfwfIHhFKANRlvHQmt+pAmy5CuyzLTwJlcvydoy5 HA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3b4ppmrvqq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Sep 2021 04:14:31 -0400
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18H8CnT0020157;
+        Fri, 17 Sep 2021 04:14:31 -0400
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3b4ppmrvqa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Sep 2021 04:14:31 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18H8D39x029176;
+        Fri, 17 Sep 2021 08:14:29 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3b0kqkhrfm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Sep 2021 08:14:29 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18H89l8g56361376
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 17 Sep 2021 08:09:47 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C4060A405F;
+        Fri, 17 Sep 2021 08:14:25 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 48BCBA4054;
+        Fri, 17 Sep 2021 08:14:25 +0000 (GMT)
+Received: from oc3016276355.ibm.com (unknown [9.145.70.78])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Sep 2021 08:14:25 +0000 (GMT)
+Subject: Re: [PATCH v4 1/1] s390x: KVM: accept STSI for CPU topology
+ information
+To:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com
+References: <1631799845-24860-1-git-send-email-pmorel@linux.ibm.com>
+ <1631799845-24860-2-git-send-email-pmorel@linux.ibm.com>
+ <eef5ed95-3f54-b709-894d-cdf75bc3180b@redhat.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <d5a752d3-9de0-5f7e-fefa-76b680b1d2a7@linux.ibm.com>
+Date:   Fri, 17 Sep 2021 10:14:25 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210803105937.52052-3-thuth@redhat.com>
+In-Reply-To: <eef5ed95-3f54-b709-894d-cdf75bc3180b@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: vfrr3HJkTCHB8QQyscuCERwC2DXcARzi
+X-Proofpoint-GUID: W6T2wZ_OjEKcyUUzYd4oNyNnpdDdygo_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-17_03,2021-09-16_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ bulkscore=0 mlxlogscore=999 priorityscore=1501 impostorscore=0
+ lowpriorityscore=0 spamscore=0 phishscore=0 clxscore=1015 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109030001 definitions=main-2109170047
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Aug 03, 2021 at 12:59:37PM +0200, Thomas Huth wrote:
-> From: Jia He <hejianet@gmail.com>
-> 
-> nsm_use_hostnames is a module parameter and it will be exported to sysctl
-> procfs. This is to let user sometimes change it from userspace. But the
-> minimal unit for sysctl procfs read/write it sizeof(int).
-> In big endian system, the converting from/to  bool to/from int will cause
-> error for proc items.
-> 
-> This patch use a new proc_handler proc_dobool to fix it.
-> 
-> Signed-off-by: Jia He <hejianet@gmail.com>
-> Reviewed-by: Pan Xinhui <xinhui.pan@linux.vnet.ibm.com>
-> [thuth: Fix typo in commit message]
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->  fs/lockd/svc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/fs/lockd/svc.c b/fs/lockd/svc.c
-> index 2de048f80eb8..0ab9756ed235 100644
-> --- a/fs/lockd/svc.c
-> +++ b/fs/lockd/svc.c
-> @@ -584,7 +584,7 @@ static struct ctl_table nlm_sysctls[] = {
->  		.data		= &nsm_use_hostnames,
->  		.maxlen		= sizeof(int),
 
-For robustness, maybe this should be:
 
-		.maxlen		= sizeof(nsm_use_hostnames),
-
->  		.mode		= 0644,
-> -		.proc_handler	= proc_dointvec,
-> +		.proc_handler	= proc_dobool,
->  	},
->  	{
->  		.procname	= "nsm_local_state",
-> -- 
-> 2.27.0
+On 9/16/21 4:03 PM, David Hildenbrand wrote:
+>>   struct kvm_vm_stat {
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 51d1594bd6cd..f3887e13c5db 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -608,6 +608,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, 
+>> long ext)
+>>       case KVM_CAP_S390_PROTECTED:
+>>           r = is_prot_virt_host();
+>>           break;
+>> +    case KVM_CAP_S390_CPU_TOPOLOGY:
+>> +        r = test_facility(11);
+>> +        break;
+>>       default:
+>>           r = 0;
+>>       }
+>> @@ -819,6 +822,19 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, 
+>> struct kvm_enable_cap *cap)
+>>           icpt_operexc_on_all_vcpus(kvm);
+>>           r = 0;
+>>           break;
+>> +    case KVM_CAP_S390_CPU_TOPOLOGY:
+> 
+> As given in my example, this should be
+> 
+> r = -EINVAL;
+> mutex_lock(&kvm->lock);
+> if (kvm->created_vcpus) {
+>      r = -EBUSY;
+> } else if (test_facility(11)) {
+> ...
+> }
+> 
+> Similar to how we handle KVM_CAP_S390_VECTOR_REGISTERS.
+> 
+> [...]
+> 
+>> +
+>> +    /* PTF needs both host and guest facilities to enable 
+>> interpretation */
+>> +    if (test_kvm_facility(vcpu->kvm, 11) && test_facility(11))
+>> +        vcpu->arch.sie_block->ecb |= ECB_PTF;
+> 
+> This should be simplified to
+> 
+> if (test_kvm_facility(vcpu->kvm, 11))
+> 
+> then. (vsie code below is correct)
+> 
 > 
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
+OK, the idea was to let the hypervisor the possibility to do userland 
+emulation if it wanted.
+But I can modify as you want.
 
-Also, I wonder what other BE-corrupted bools are out there?
+Regards,
+Pierre
 
 -- 
-Kees Cook
+Pierre Morel
+IBM Lab Boeblingen
