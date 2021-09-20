@@ -7,141 +7,183 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EF27C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 13:25:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 635B9C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 13:25:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 29B1E60F93
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 13:25:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4E33660F93
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 13:25:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235999AbhITN0j (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Sep 2021 09:26:39 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47730 "EHLO
+        id S239433AbhITN0m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Sep 2021 09:26:42 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2912 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239355AbhITN0i (ORCPT
+        by vger.kernel.org with ESMTP id S239395AbhITN0k (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Sep 2021 09:26:38 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18KDD3KB025896;
-        Mon, 20 Sep 2021 09:25:12 -0400
+        Mon, 20 Sep 2021 09:26:40 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18KDD4E2022474;
+        Mon, 20 Sep 2021 09:25:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=3QcLxw9Pl3fllBrjZDMb1xG5pgYHY19y6fIGD7yExEo=;
- b=gS4eHSv6eXB8f4EjpWDtZhHx7qvQVWhJYkTUDW8uq+zyOhyIPXbH0jKIihfZOM62DzYl
- vLcWvy8wHz9putEBUTLdq4zEXtMwbgphAuITvXAAfz8VlCy0MtIYAWPrnAWCucEZCKYX
- A5M3z9IezuXLoamcu/VsCp0kyLpYzeqOi9KsJ+M0wNVQvtPS2Vt7UOY5EChXqwKW5Y1F
- YSqV6sGMXpsf6dPCsz7IIPtUDD+nBCilPMRCE5wIutWEFoay53BuySZtYV+st554VcAe
- /LOuwv5xdkKgTZD6a+0KPRnFmQC99+SwvjvVZwR1NSfehq1PZQchCi3xjMG2F7Iey2+T HQ== 
+ bh=SAC/UWUbp9h/+bspINz5hMtt5nml0kfzkshBQz3mMz4=;
+ b=Vl9swiM6Mql0JA950WVF8oH4S/d6PEx+DJgQ7bS4lHRRUI49qhR3OnDMjsL0lPzVrtQh
+ beQngmcjjJQfbxXELEJoOddq+zWvuUu4BLgEy3NtfrMli2YdIkopkehHKIxfraD4u5vt
+ 6r3sg3rmqDYuBI/cvLkOBg08JFt4bj9qNHP60YL2RvkBOwsh87cpY+ix1eo+vnsH2X6o
+ s0HLgeWZCyOockYwSC2DMmetOUBWnhCCt4B4mcMqPGaUUQfnjhFHoSQddYHAQ4B9aA+c
+ 8IEJBEJH6ugJiQnr+WoDy1uA2CUGXWa1HfBZxzjjkXdiN/UwMufEjtNNH+e9imLs6DfP Og== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b5wq59u03-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b5w6aj85d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Sep 2021 09:25:11 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18KDE9g8029338;
-        Mon, 20 Sep 2021 09:25:11 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b5wq59txw-1
+        Mon, 20 Sep 2021 09:25:13 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18KDD4fE022521;
+        Mon, 20 Sep 2021 09:25:13 -0400
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b5w6aj841-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Sep 2021 09:25:11 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18KDD8b4030978;
-        Mon, 20 Sep 2021 13:25:09 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3b57r98vta-1
+        Mon, 20 Sep 2021 09:25:13 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18KDP8d2022956;
+        Mon, 20 Sep 2021 13:25:10 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 3b57r904kn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Sep 2021 13:25:08 +0000
+        Mon, 20 Sep 2021 13:25:10 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18KDP4Jx29557070
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18KDP5q043254226
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Sep 2021 13:25:04 GMT
+        Mon, 20 Sep 2021 13:25:05 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1C13CA4057;
-        Mon, 20 Sep 2021 13:25:04 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id AFAC2A4069;
+        Mon, 20 Sep 2021 13:25:05 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A39BFA406E;
-        Mon, 20 Sep 2021 13:25:03 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 28446A406B;
+        Mon, 20 Sep 2021 13:25:05 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.145.9.241])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 20 Sep 2021 13:25:03 +0000 (GMT)
+        Mon, 20 Sep 2021 13:25:05 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com,
         thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         Ulrich.Weigand@de.ibm.com
-Subject: [PATCH v5 02/14] KVM: s390: pv: avoid double free of sida page
-Date:   Mon, 20 Sep 2021 15:24:50 +0200
-Message-Id: <20210920132502.36111-3-imbrenda@linux.ibm.com>
+Subject: [PATCH v5 04/14] KVM: s390: pv: avoid stalls when making pages secure
+Date:   Mon, 20 Sep 2021 15:24:52 +0200
+Message-Id: <20210920132502.36111-5-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210920132502.36111-1-imbrenda@linux.ibm.com>
 References: <20210920132502.36111-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 11J18oDJYFjDdqM2OmKqw9sjuLGyqFKW
-X-Proofpoint-GUID: gqj2ierpLA70BjhtZ6Wi0Jnl0oEhR4-n
+X-Proofpoint-GUID: y7VQ6i_kYNjG_b7E2NTz8NJG2wZolnid
+X-Proofpoint-ORIG-GUID: ewh6-Jj4M7w9ErdZ9obb7dgC4fgSOqRq
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-09-20_07,2021-09-20_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- phishscore=0 bulkscore=0 clxscore=1015 mlxlogscore=538 mlxscore=0
- impostorscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109030001 definitions=main-2109200079
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 clxscore=1015 suspectscore=0 impostorscore=0 mlxlogscore=999
+ priorityscore=1501 phishscore=0 spamscore=0 malwarescore=0 mlxscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109030001 definitions=main-2109200084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-If kvm_s390_pv_destroy_cpu is called more than once, we risk calling
-free_page on a random page, since the sidad field is aliased with the
-gbea, which is not guaranteed to be zero.
+Improve make_secure_pte to avoid stalls when the system is heavily
+overcommitted. This was especially problematic in kvm_s390_pv_unpack,
+because of the loop over all pages that needed unpacking.
 
-This can happen, for example, if userspace calls the KVM_PV_DISABLE
-IOCTL, and it fails, and then userspace calls the same IOCTL again.
-This scenario is only possible if KVM has some serious bug or if the
-hardware is broken.
+Due to the locks being held, it was not possible to simply replace
+uv_call with uv_call_sched. A more complex approach was
+needed, in which uv_call is replaced with __uv_call, which does not
+loop. When the UVC needs to be executed again, -EAGAIN is returned, and
+the caller (or its caller) will try again.
 
-The solution is to simply return successfully immediately if the vCPU
-was already non secure.
+When -EAGAIN is returned, the path is the same as when the page is in
+writeback (and the writeback check is also performed, which is
+harmless).
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Fixes: 19e1227768863a1469797c13ef8fea1af7beac2c ("KVM: S390: protvirt: Introduce instruction data area bounce buffer")
+Fixes: 214d9bbcd3a672 ("s390/mm: provide memory management functions for protected KVM guests")
 ---
- arch/s390/kvm/pv.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ arch/s390/kernel/uv.c     | 29 +++++++++++++++++++++++------
+ arch/s390/kvm/intercept.c |  5 +++++
+ 2 files changed, 28 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index c8841f476e91..0a854115100b 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -16,18 +16,17 @@
- 
- int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index aeb0a15bcbb7..68a8fbafcb9c 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -180,7 +180,7 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
  {
--	int cc = 0;
-+	int cc;
+ 	pte_t entry = READ_ONCE(*ptep);
+ 	struct page *page;
+-	int expected, rc = 0;
++	int expected, cc = 0;
  
--	if (kvm_s390_pv_cpu_get_handle(vcpu)) {
--		cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
--				   UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
-+	if (!kvm_s390_pv_cpu_get_handle(vcpu))
+ 	if (!pte_present(entry))
+ 		return -ENXIO;
+@@ -196,12 +196,25 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
+ 	if (!page_ref_freeze(page, expected))
+ 		return -EBUSY;
+ 	set_bit(PG_arch_1, &page->flags);
+-	rc = uv_call(0, (u64)uvcb);
++	/*
++	 * If the UVC does not succeed or fail immediately, we don't want to
++	 * loop for long, or we might get stall notifications.
++	 * On the other hand, this is a complex scenario and we are holding a lot of
++	 * locks, so we can't easily sleep and reschedule. We try only once,
++	 * and if the UVC returned busy or partial completion, we return
++	 * -EAGAIN and we let the callers deal with it.
++	 */
++	cc = __uv_call(0, (u64)uvcb);
+ 	page_ref_unfreeze(page, expected);
+-	/* Return -ENXIO if the page was not mapped, -EINVAL otherwise */
+-	if (rc)
+-		rc = uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+-	return rc;
++	/*
++	 * Return -ENXIO if the page was not mapped, -EINVAL for other errors.
++	 * If busy or partially completed, return -EAGAIN.
++	 */
++	if (cc == UVC_CC_OK)
 +		return 0;
-+
-+	cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu), UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
-+
-+	KVM_UV_EVENT(vcpu->kvm, 3, "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
-+		     vcpu->vcpu_id, *rc, *rrc);
-+	WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x", *rc, *rrc);
++	else if (cc == UVC_CC_BUSY || cc == UVC_CC_PARTIAL)
++		return -EAGAIN;
++	return uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+ }
  
--		KVM_UV_EVENT(vcpu->kvm, 3,
--			     "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
--			     vcpu->vcpu_id, *rc, *rrc);
--		WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x",
--			  *rc, *rrc);
--	}
- 	/* Intended memory leak for something that should never happen. */
- 	if (!cc)
- 		free_pages(vcpu->arch.pv.stor_base,
+ /*
+@@ -254,6 +267,10 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+ 	mmap_read_unlock(gmap->mm);
+ 
+ 	if (rc == -EAGAIN) {
++		/*
++		 * If we are here because the UVC returned busy or partial
++		 * completion, this is just a useless check, but it is safe.
++		 */
+ 		wait_on_page_writeback(page);
+ 	} else if (rc == -EBUSY) {
+ 		/*
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 72b25b7cc6ae..47833ade4da5 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -516,6 +516,11 @@ static int handle_pv_uvc(struct kvm_vcpu *vcpu)
+ 	 */
+ 	if (rc == -EINVAL)
+ 		return 0;
++	/*
++	 * If we got -EAGAIN here, we simply return it. It will eventually
++	 * get propagated all the way to userspace, which should then try
++	 * again.
++	 */
+ 	return rc;
+ }
+ 
 -- 
 2.31.1
 
