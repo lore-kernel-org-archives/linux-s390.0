@@ -2,71 +2,48 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B20D8C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 07:41:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E3D3C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 10:07:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 882BC60FF2
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 07:41:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 25EDE60E9C
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 10:07:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231566AbhITHmq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Sep 2021 03:42:46 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48914 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231990AbhITHmp (ORCPT
+        id S231308AbhITKJB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Sep 2021 06:09:01 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:39250 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230486AbhITKJB (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Sep 2021 03:42:45 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18K4hDZ6027238;
-        Mon, 20 Sep 2021 03:41:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=QhU2fJ30Ylq89IQ5b92Q9qDJ3jDbJqw0TeGqxw6bagk=;
- b=bsODAaUAFqt5cPNm/DmLiW1PuNIvnCXFgoTyrPzgvtSQ65yF6t8HqKnoYG+EtwRtIsa5
- T4UXmqq+8sCQZvFIV9A+9qBq9AdAp2pbx9UuRtwIOek9EuyxkPSYfeuHZ0BX6PUbiZWA
- wkKylznDsRUzw5s7Um/97G2V5lGEnbdgVYRqcSaRXqTbxTxvrB+Riw9qC8vkD9DSzUI1
- zMXIpbIb1SMxoTqi2c9Get2A4ek4nz28ykZqpfqXWvxVNl/bNWFRNyV25G9mSlYLSxZI
- 9CEDQ7twVeelXQgVnSM69KYhO7PTK0EuJTiF2cHMunPgWqDfNcYq+eOR+dst1dzeLXk5 vg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b5w693bvh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Sep 2021 03:41:15 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18K7KdAF011125;
-        Mon, 20 Sep 2021 03:41:14 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b5w693bum-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Sep 2021 03:41:14 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18K7VW7r028991;
-        Mon, 20 Sep 2021 07:41:12 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04fra.de.ibm.com with ESMTP id 3b57r94hgk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Sep 2021 07:41:12 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18K7aPIe43516410
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Sep 2021 07:36:25 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 921874C063;
-        Mon, 20 Sep 2021 07:41:07 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 836954C059;
-        Mon, 20 Sep 2021 07:41:06 +0000 (GMT)
-Received: from li-748c07cc-28e5-11b2-a85c-e3822d7eceb3.ibm.com (unknown [9.171.5.235])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 20 Sep 2021 07:41:06 +0000 (GMT)
-Message-ID: <88b514a4416cf72cda53a31ad2e15c13586350e4.camel@linux.ibm.com>
-Subject: Re: [PATCH 1/1] virtio/s390: fix vritio-ccw device teardown
-From:   Vineeth Vijayan <vneethv@linux.ibm.com>
-To:     Halil Pasic <pasic@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>
+        Mon, 20 Sep 2021 06:09:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1632132454;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=odkZV5dq7VYtsOMJXDg+2n8h1mYSCLrv0qFp+DsAT2Y=;
+        b=fWPVwQFNCZUhMEFMasDkkd4JGOnj5uyYR1MQe1ptU4rDHqav+s0kuy8Tf5Ewm/nq9q1gY9
+        s11N3KDbm5/FJenM7QsMaMSFfTGU3Gm/UETvmdLwIShmbbXQ3knb9tLHO/znQIZS7gt/rf
+        pE2utzpOvzQzaCaKc2Jl9UC14/X4fVc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-269-OvxKwz2wN0ygX4b2jsTIuQ-1; Mon, 20 Sep 2021 06:07:33 -0400
+X-MC-Unique: OvxKwz2wN0ygX4b2jsTIuQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 16C8B835DE4;
+        Mon, 20 Sep 2021 10:07:31 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.92])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id C6CFE101E24F;
+        Mon, 20 Sep 2021 10:07:24 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
@@ -75,83 +52,80 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         linux-s390@vger.kernel.org,
         virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org, bfu@redhat.com
-Date:   Mon, 20 Sep 2021 09:41:06 +0200
-In-Reply-To: <20210920003935.1369f9fe.pasic@linux.ibm.com>
+Subject: Re: [PATCH 1/1] virtio/s390: fix vritio-ccw device teardown
+In-Reply-To: <88b514a4416cf72cda53a31ad2e15c13586350e4.camel@linux.ibm.com>
+Organization: Red Hat GmbH
 References: <20210915215742.1793314-1-pasic@linux.ibm.com>
-         <87pmt8hp5o.fsf@redhat.com> <20210916151835.4ab512b2.pasic@linux.ibm.com>
-         <87mtobh9xn.fsf@redhat.com> <20210920003935.1369f9fe.pasic@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: O2YLebhLF1qY_dykVwHEiFcUaS00yvK1
-X-Proofpoint-ORIG-GUID: _OOu5WaZyCxFiCTJFzzcGPi_Mkn2GqpQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-20_03,2021-09-17_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- bulkscore=0 mlxlogscore=925 priorityscore=1501 phishscore=0 clxscore=1011
- malwarescore=0 spamscore=0 adultscore=0 suspectscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109030001
- definitions=main-2109200044
+ <87pmt8hp5o.fsf@redhat.com> <20210916151835.4ab512b2.pasic@linux.ibm.com>
+ <87mtobh9xn.fsf@redhat.com> <20210920003935.1369f9fe.pasic@linux.ibm.com>
+ <88b514a4416cf72cda53a31ad2e15c13586350e4.camel@linux.ibm.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Mon, 20 Sep 2021 12:07:23 +0200
+Message-ID: <878rzrh86c.fsf@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2021-09-20 at 00:39 +0200, Halil Pasic wrote:
-> On Fri, 17 Sep 2021 10:40:20 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-...snip...
-> > > 
-> > > Thanks, if I find time for it, I will try to understand this
-> > > better and
-> > > come back with my findings.
-> > >  
-> > > > > * Can virtio_ccw_remove() get called while !cdev->online and 
-> > > > >   virtio_ccw_online() is running on a different cpu? If yes,
-> > > > > what would
-> > > > >   happen then?    
-> > > > 
-> > > > All of the remove/online/... etc. callbacks are invoked via the
-> > > > ccw bus
-> > > > code. We have to trust that it gets it correct :) (Or have the
-> > > > common
-> > > > I/O layer maintainers double-check it.)
-> > > >   
-> > > 
-> > > Vineeth, what is your take on this? Are the struct ccw_driver
-> > > virtio_ccw_remove and the virtio_ccw_online callbacks mutually
-> > > exclusive. Please notice that we may initiate the onlining by
-> > > calling ccw_device_set_online() from a workqueue.
-> > > 
-> > > @Conny: I'm not sure what is your definition of 'it gets it
-> > > correct'...
-> > > I doubt CIO can make things 100% foolproof in this area.  
-> > 
-> > Not 100% foolproof, but "don't online a device that is in the
-> > progress
-> > of going away" seems pretty basic to me.
-> > 
-> 
-> I hope Vineeth will chime in on this.
-Considering the online/offline processing, 
-The ccw_device_set_offline function or the online/offline is handled
-inside device_lock. Also, the online_store function takes care of
-avoiding multiple online/offline processing. 
+On Mon, Sep 20 2021, Vineeth Vijayan <vneethv@linux.ibm.com> wrote:
 
-Now, when we consider the unconditional remove of the device,
-I am not familiar with the virtio_ccw driver. My assumptions are based
-on how CIO/dasd drivers works. If i understand correctly, the dasd
-driver sets different flags to make sure that a device_open is getting
-prevented while the the device is in progress of offline-ing. 
+> On Mon, 2021-09-20 at 00:39 +0200, Halil Pasic wrote:
+>> On Fri, 17 Sep 2021 10:40:20 +0200
+>> Cornelia Huck <cohuck@redhat.com> wrote:
+>> 
+> ...snip...
+>> > > 
+>> > > Thanks, if I find time for it, I will try to understand this
+>> > > better and
+>> > > come back with my findings.
+>> > >  
+>> > > > > * Can virtio_ccw_remove() get called while !cdev->online and 
+>> > > > >   virtio_ccw_online() is running on a different cpu? If yes,
+>> > > > > what would
+>> > > > >   happen then?    
+>> > > > 
+>> > > > All of the remove/online/... etc. callbacks are invoked via the
+>> > > > ccw bus
+>> > > > code. We have to trust that it gets it correct :) (Or have the
+>> > > > common
+>> > > > I/O layer maintainers double-check it.)
+>> > > >   
+>> > > 
+>> > > Vineeth, what is your take on this? Are the struct ccw_driver
+>> > > virtio_ccw_remove and the virtio_ccw_online callbacks mutually
+>> > > exclusive. Please notice that we may initiate the onlining by
+>> > > calling ccw_device_set_online() from a workqueue.
+>> > > 
+>> > > @Conny: I'm not sure what is your definition of 'it gets it
+>> > > correct'...
+>> > > I doubt CIO can make things 100% foolproof in this area.  
+>> > 
+>> > Not 100% foolproof, but "don't online a device that is in the
+>> > progress
+>> > of going away" seems pretty basic to me.
+>> > 
+>> 
+>> I hope Vineeth will chime in on this.
+> Considering the online/offline processing, 
+> The ccw_device_set_offline function or the online/offline is handled
+> inside device_lock. Also, the online_store function takes care of
+> avoiding multiple online/offline processing. 
+>
+> Now, when we consider the unconditional remove of the device,
+> I am not familiar with the virtio_ccw driver. My assumptions are based
+> on how CIO/dasd drivers works. If i understand correctly, the dasd
+> driver sets different flags to make sure that a device_open is getting
+> prevented while the the device is in progress of offline-ing. 
 
-> 
-> > >  
-> > > > >  
-> > > > > The main addresse of these questions is Conny ;).  
-> > > 
+Hm, if we are invoking the online/offline callbacks under the device
+lock already, how would that affect the remove callback? Shouldn't they
+be serialized under the device lock already? I think we are fine.
 
-...snip...
+For dasd, I think they also need to deal with the block device
+lifetimes. For virtio-ccw, we are basically a transport that does not
+know about devices further down the chain (that are associated with the
+virtio device, whose lifetime is tied to online/offline processing.) I'd
+presume that the serialization above would be enough.
 
