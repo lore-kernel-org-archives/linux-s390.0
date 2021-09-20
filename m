@@ -2,125 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 859CDC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 15:30:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B335AC4167D
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 18:04:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 61F4E60F38
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 15:30:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A0DA460724
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Sep 2021 18:04:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236894AbhITPbr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Sep 2021 11:31:47 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9476 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234117AbhITPbr (ORCPT
+        id S1358241AbhITSGD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Sep 2021 14:06:03 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:56731 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1357382AbhITSEH (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Sep 2021 11:31:47 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18KEqUmX005142;
-        Mon, 20 Sep 2021 11:30:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=QOxMDugNfIIjhAiZgkxusJmlTL421wYHJIwMplwhVQY=;
- b=W83GPId4Hd+F8xgalZtBhHP22B/ECLfuPch8jp1pXkbfQpoCvYi/yy9UbbUJcveIDxy2
- p4TL4FyOlOba6R2G22L/cANmxetbuKnKZypBoS+F7rZnUX6i/uyRQJMMGijHflirniHJ
- 4zo1AKn/v8EaOR0iKqicDQXsSqrctDveQdSXs/DxRUJgBOTcPsWX1f14LZW5KYZ6cr9I
- q+tI2O1rjdkJXS7D6NwIHh5bzLL3n2Ezd5Y3mmjnaMo1CAXyc8S/v4jjKkg2pW6NAUVC
- 5R93Atz6c5U2tv7GjNXGlkKnWwCSShL90ggrcwBKF9YjkJ2cFp2iMHkeP9J1Q2cOx/T+ Gw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b5w94dfbr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Sep 2021 11:30:19 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18KEqeZs005776;
-        Mon, 20 Sep 2021 11:30:18 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b5w94dfan-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Sep 2021 11:30:18 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18KFR9Fu026815;
-        Mon, 20 Sep 2021 15:30:16 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06fra.de.ibm.com with ESMTP id 3b57cj9kq4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Sep 2021 15:30:16 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18KFUC0X42598794
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Sep 2021 15:30:12 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5F75F4C06F;
-        Mon, 20 Sep 2021 15:30:12 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9CECF4C059;
-        Mon, 20 Sep 2021 15:30:11 +0000 (GMT)
-Received: from li-43c5434c-23b8-11b2-a85c-c4958fb47a68.ibm.com (unknown [9.171.21.246])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 20 Sep 2021 15:30:11 +0000 (GMT)
-Subject: Re: [PATCH 0/1] KVM: s390: backport for stable of "KVM: s390: index
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        Nitesh Narayan Lal <nitesh@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-References: <20210920150616.15668-1-borntraeger@de.ibm.com>
- <YUint4b1ETglbj8z@kroah.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <16dad0d8-43bf-1ad7-bf3e-ae3acfde97eb@de.ibm.com>
-Date:   Mon, 20 Sep 2021 17:30:11 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        Mon, 20 Sep 2021 14:04:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1632160960;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=WwlG7m0Pkd8z9L6TGcVmgxQFpqMvFaegkPkOTNgv/sc=;
+        b=VeeGQe96y7KXLsToaREdwGYLsFlDOqV/569ewjRs3U5dDJKlHHqT2sQsTP69KI28HJWogp
+        mBDQdXDUTagciw3Os0Eb82jJ5R6gkeTonrL3LtcjZwRKuUq5yr37qqH6yGJkXJZYcLAQsR
+        O5TMofG9LtSIsT4tqnLiC7nA8IJ3DMY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-60-7Hnru5NkPEWPmrJvytwe_g-1; Mon, 20 Sep 2021 14:02:39 -0400
+X-MC-Unique: 7Hnru5NkPEWPmrJvytwe_g-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DAAA51084684;
+        Mon, 20 Sep 2021 18:02:35 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.92])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id DA7BD19D9D;
+        Mon, 20 Sep 2021 18:02:30 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Cc:     Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v2 6/9] vfio/mdev: Add mdev available instance checking
+ to the core
+In-Reply-To: <6-v2-7d3a384024cf+2060-ccw_mdev_jgg@nvidia.com>
+Organization: Red Hat GmbH
+References: <6-v2-7d3a384024cf+2060-ccw_mdev_jgg@nvidia.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Mon, 20 Sep 2021 20:02:29 +0200
+Message-ID: <87tuiff7m2.fsf@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <YUint4b1ETglbj8z@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Y8UCpFASt39i18TwPb2kmabvEAOPjHb8
-X-Proofpoint-ORIG-GUID: C8iVt7EszD-JHo1ucCGgFxdLdxQtanEP
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-20_07,2021-09-20_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- priorityscore=1501 mlxscore=0 mlxlogscore=956 impostorscore=0
- suspectscore=0 phishscore=0 clxscore=1015 spamscore=0 lowpriorityscore=0
- bulkscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109030001 definitions=main-2109200097
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, Sep 09 2021, Jason Gunthorpe <jgg@nvidia.com> wrote:
 
+> Many of the mdev drivers use a simple counter for keeping track of the
+> available instances. Move this code to the core code and store the counter
+> in the mdev_type. Implement it using correct locking, fixing mdpy.
+>
+> Drivers provide a get_available() callback to set the number of available
+> instances for their mtypes which is fixed at registration time. The core
+> provides a standard sysfs attribute to return the available_instances.
 
-Am 20.09.21 um 17:24 schrieb Greg KH:
-> On Mon, Sep 20, 2021 at 05:06:15PM +0200, Christian Borntraeger wrote:
->> Stable team,
->>
->> here is a backport for 4.19 of
->> commit a3e03bc1368 ("KVM: s390: index kvm->arch.idle_mask by vcpu_idx")
->> This basically removes the kick_mask parts that were introduced with
->> kernel 5.0 and fixes up the location of the idle_mask to the older
->> place.
-> 
-> Now queued up, thanks.
-> 
->> FWIW, it might be a good idea to also backport
->> 8750e72a79dd ("KVM: remember position in kvm->vcpus array") to avoid
->> a performance regression for large guests (many vCPUs) when this patch
->> is applied.
->> @Paolo Bonzini, would you be ok with 8750e72a79dd in older stable releases?
-> 
-> That would also have to go into 5.4.y, right?
-Ideally yes.
+So, according to the documentation, available_instances is
+mandatory. This means that drivers either need to provide get_available
+or implement their own version of the attribute. I think we want to
+update vfio-mediated-device.rst as well?
+
+>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_drv.c       |  1 -
+>  drivers/s390/cio/vfio_ccw_ops.c       | 26 ++++++-------------
+>  drivers/s390/cio/vfio_ccw_private.h   |  2 --
+>  drivers/s390/crypto/vfio_ap_ops.c     | 32 ++++++-----------------
+>  drivers/s390/crypto/vfio_ap_private.h |  2 --
+>  drivers/vfio/mdev/mdev_core.c         | 11 +++++++-
+>  drivers/vfio/mdev/mdev_private.h      |  2 ++
+>  drivers/vfio/mdev/mdev_sysfs.c        | 37 +++++++++++++++++++++++++++
+>  include/linux/mdev.h                  |  2 ++
+>  samples/vfio-mdev/mdpy.c              | 22 +++++-----------
+>  10 files changed, 73 insertions(+), 64 deletions(-)
+
+Otherwise, looks good.
+
