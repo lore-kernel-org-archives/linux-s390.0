@@ -2,249 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DED6BC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 13:31:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB48FC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 13:48:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5D2A61131
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 13:31:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D3F6B61131
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 13:48:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233274AbhIUNco (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Sep 2021 09:32:44 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35108 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233238AbhIUNcl (ORCPT
+        id S233362AbhIUNt5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Sep 2021 09:49:57 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65530 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S233428AbhIUNtx (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Sep 2021 09:32:41 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18LD9X76023324;
-        Tue, 21 Sep 2021 09:31:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=GoNAd1sEGXSP/XzocatogQMnkY9qkbqTLHUnurI+Rvo=;
- b=eaF1xUnrT1CEtiXUEgitGdpoOT2fs+c+U+fgsRXPXFuhuwT7pSWbE85z9H43KrNW7d5P
- LmvZEMTtnylDRE1/zGzbLn0cFAsXqVTQ0DAyoOg8qnIZhUIJF1TBm7zqFjsXFZ382hIn
- kYMYyMPs8n0ACEtM0iUxBfL34QcR/4a8szi/3HN5qekTf6FKrOWc+dMg+Pdu4CvttqDn
- 2goq6pSAY6QSm3wM1nK5OXAH6BMxcaAkJDQZobHNPtnzQI4NUWO3fI0UoRs/zEfI9QN1
- /vrZzQrDwda/ZqPuoc+5uEOsu1yLqQsed24hoCcS5wX4ExKfokoh4ETrG2nvcCp5U0Jb 3A== 
+        Tue, 21 Sep 2021 09:49:53 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18LDRCw5016875;
+        Tue, 21 Sep 2021 09:48:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type :
+ content-transfer-encoding; s=pp1;
+ bh=SqvjPubLHu3KNaK7W4fiBVIRY7dIc0KmJSzZMlI/9XQ=;
+ b=BJSR3o0ywsskBTD7pqQfXHnpni8POe/BnWxV3TtfXZJmSsv8fZVm8DvWm5TAwuE4x0HA
+ ncTkwjKnpudnohp5b3iMhDMHHUDYjKHQh0Os2H4LpsBKgyn4hr/WsSkwvrEdVtFB1kPc
+ aJp/GdD5Ex8M/UqJ1nh1jNEFl2/5QL+VNgVbYQPn4V+h30z4WxQF59htjnWDMc4oJVsj
+ bTS/pLlfZ/oIbjUJTEoV9Oj1TswX0KMN7HJVWwHiRiiqX/ywick2EIeIbKhIy7IckupF
+ ThRgE2wQU2k7+f9qU013Wpk/9BBJTEulQFO40IzgVXesO7pRyefW5I92HkPpf9743cv/ Tw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b7f699ueg-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3b7b7u15ka-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Sep 2021 09:31:11 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18LDCSMW004488;
-        Tue, 21 Sep 2021 09:31:10 -0400
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b7f699udm-1
+        Tue, 21 Sep 2021 09:48:24 -0400
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18LDWtef030148;
+        Tue, 21 Sep 2021 09:48:24 -0400
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3b7b7u15jn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Sep 2021 09:31:10 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18LDNGWl012687;
-        Tue, 21 Sep 2021 13:31:08 GMT
+        Tue, 21 Sep 2021 09:48:24 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18LDhGFC029879;
+        Tue, 21 Sep 2021 13:48:22 GMT
 Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03fra.de.ibm.com with ESMTP id 3b57r9ccrk-1
+        by ppma02fra.de.ibm.com with ESMTP id 3b57r9cn27-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Sep 2021 13:31:08 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18LDV54U3605186
+        Tue, 21 Sep 2021 13:48:22 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18LDmGKs56557870
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 21 Sep 2021 13:31:05 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 32E4E52059;
-        Tue, 21 Sep 2021 13:31:05 +0000 (GMT)
-Received: from li-748c07cc-28e5-11b2-a85c-e3822d7eceb3.ibm.com (unknown [9.171.53.36])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 650CD5206B;
-        Tue, 21 Sep 2021 13:31:04 +0000 (GMT)
-Message-ID: <05b1ac0e4aa4a1c7df1a8994c898630e9b2e384d.camel@linux.ibm.com>
-Subject: Re: [PATCH 1/1] virtio/s390: fix vritio-ccw device teardown
-From:   Vineeth Vijayan <vneethv@linux.ibm.com>
-To:     Halil Pasic <pasic@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        Tue, 21 Sep 2021 13:48:16 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 80C5511C058;
+        Tue, 21 Sep 2021 13:48:16 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7656F11C06C;
+        Tue, 21 Sep 2021 13:48:16 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 21 Sep 2021 13:48:16 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
+        id 11939E07EE; Tue, 21 Sep 2021 15:48:16 +0200 (CEST)
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, KVM <kvm@vger.kernel.org>,
+        Cornelia Huck <cohuck@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, bfu@redhat.com
-Date:   Tue, 21 Sep 2021 15:31:03 +0200
-In-Reply-To: <20210921052548.4eea231f.pasic@linux.ibm.com>
-References: <20210915215742.1793314-1-pasic@linux.ibm.com>
-         <87pmt8hp5o.fsf@redhat.com> <20210916151835.4ab512b2.pasic@linux.ibm.com>
-         <87mtobh9xn.fsf@redhat.com> <20210920003935.1369f9fe.pasic@linux.ibm.com>
-         <88b514a4416cf72cda53a31ad2e15c13586350e4.camel@linux.ibm.com>
-         <878rzrh86c.fsf@redhat.com> <20210921052548.4eea231f.pasic@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH] [backport for 4.19/5.4 stable] KVM: remember position in kvm->vcpus array
+Date:   Tue, 21 Sep 2021 15:48:15 +0200
+Message-Id: <20210921134815.17615-1-borntraeger@de.ibm.com>
+X-Mailer: git-send-email 2.31.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Lyo5OewEPVXFuzjf8nd1sJPAg6M_keGk
-X-Proofpoint-ORIG-GUID: Pp3h7m0TlpJ3hPqjosFbLyyFADrNqMz-
+X-Proofpoint-GUID: -3tHm8Y9-2rczQ5iTOgfj_3orM6YaSxR
+X-Proofpoint-ORIG-GUID: TPsZ7XBaaKlxAjJfmxJqnu_jZzmh6rV8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-09-21_01,2021-09-20_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
- priorityscore=1501 mlxscore=0 lowpriorityscore=0 malwarescore=0
- impostorscore=0 adultscore=0 mlxlogscore=999 clxscore=1015 bulkscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=430
+ lowpriorityscore=0 malwarescore=0 clxscore=1015 bulkscore=0
+ priorityscore=1501 spamscore=0 impostorscore=0 adultscore=0 phishscore=0
  suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2109030001 definitions=main-2109210083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2021-09-21 at 05:25 +0200, Halil Pasic wrote:
-> On Mon, 20 Sep 2021 12:07:23 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > On Mon, Sep 20 2021, Vineeth Vijayan <vneethv@linux.ibm.com> wrote:
-> > 
-> > > On Mon, 2021-09-20 at 00:39 +0200, Halil Pasic wrote:  
-> > > > On Fri, 17 Sep 2021 10:40:20 +0200
-> > > > Cornelia Huck <cohuck@redhat.com> wrote:
-> > > >   
-> > > ...snip...  
-> > > > > > Thanks, if I find time for it, I will try to understand
-> > > > > > this
-> > > > > > better and
-> > > > > > come back with my findings.
-> > > > > >    
-> > > > > > > > * Can virtio_ccw_remove() get called while !cdev-
-> > > > > > > > >online and 
-> > > > > > > >   virtio_ccw_online() is running on a different cpu? If
-> > > > > > > > yes,
-> > > > > > > > what would
-> > > > > > > >   happen then?      
-> > > > > > > 
-> > > > > > > All of the remove/online/... etc. callbacks are invoked
-> > > > > > > via the
-> > > > > > > ccw bus
-> > > > > > > code. We have to trust that it gets it correct :) (Or
-> > > > > > > have the
-> > > > > > > common
-> > > > > > > I/O layer maintainers double-check it.)
-> > > > > > >     
-> > > > > > 
-> > > > > > Vineeth, what is your take on this? Are the struct
-> > > > > > ccw_driver
-> > > > > > virtio_ccw_remove and the virtio_ccw_online callbacks
-> > > > > > mutually
-> > > > > > exclusive. Please notice that we may initiate the onlining
-> > > > > > by
-> > > > > > calling ccw_device_set_online() from a workqueue.
-> > > > > > 
-> > > > > > @Conny: I'm not sure what is your definition of 'it gets it
-> > > > > > correct'...
-> > > > > > I doubt CIO can make things 100% foolproof in this
-> > > > > > area.    
-> > > > > 
-> > > > > Not 100% foolproof, but "don't online a device that is in the
-> > > > > progress
-> > > > > of going away" seems pretty basic to me.
-> > > > >   
-> > > > 
-> > > > I hope Vineeth will chime in on this.  
-> > > Considering the online/offline processing, 
-> > > The ccw_device_set_offline function or the online/offline is
-> > > handled
-> > > inside device_lock. Also, the online_store function takes care of
-> > > avoiding multiple online/offline processing. 
-> > > 
-> > > Now, when we consider the unconditional remove of the device,
-> > > I am not familiar with the virtio_ccw driver. My assumptions are
-> > > based
-> > > on how CIO/dasd drivers works. If i understand correctly, the
-> > > dasd
-> > > driver sets different flags to make sure that a device_open is
-> > > getting
-> > > prevented while the the device is in progress of offline-ing.   
-> > 
-> > Hm, if we are invoking the online/offline callbacks under the
-> > device
-> > lock already, 
-> 
-> I believe we have a misunderstanding here. I believe that Vineeth is
-> trying to tell us, that online_store_handle_offline() and
-> online_store_handle_offline() are called under the a device lock of
-> the ccw device. Right, Vineeth?
-Yes. I wanted to bring-out both the scenario.The set_offline/_online()
-calls and the unconditional-remove call. 
-For the set_online The virtio_ccw_online() also invoked with ccwlock
-held. (ref: ccw_device_set_online)
-> 
-> Conny, I believe, by online/offline callbacks, you mean
-> virtio_ccw_online() and virtio_ccw_offline(), right?
-> 
-> But the thing is that virtio_ccw_online() may get called (and is
-> typically called, AFAICT) with no locks held via:
-> virtio_ccw_probe() --> async_schedule(virtio_ccw_auto_online, cdev)
-> -*-> virtio_ccw_auto_online(cdev) --> ccw_device_set_online(cdev) -->
-> virtio_ccw_online()
-> 
-> Furthermore after a closer look, I believe because we don't take
-> a reference to the cdev in probe, we may get virtio_ccw_auto_online()
-> called with an invalid pointer (the pointer is guaranteed to be valid
-> in probe, but because of async we have no guarantee that it will be
-> called in the context of probe).
-> 
-> Shouldn't we take a reference to the cdev in probe?
-We just had a quick look at the virtio_ccw_probe() function.
-Did you mean to have a get_device() during the probe() and put_device()
-just after the virtio_ccw_auto_online() ?
+From: Radim Krčmář <rkrcmar@redhat.com>
 
-> reason for the async?
-> 
-> 
-> > how would that affect the remove callback?
-> 
-> I believe dev->bus->remove(dev) is called by 
-> bus_remove_device() with the device lock held. I.e. I believe that
-> means
-> that virtio_ccw_remove() is called with the ccw devices device lock
-> held. Vineeth can you confirm that?
-This is what my understanding too.
-When we disconnect a working/online device, the CIO layer gets a CRW
-which indicates this disconnection. Then the subchannel driver endup
-un-registering the ccw-device. This ccw_device_unregister() then
-invokes device_del(), which invokes the bus->driver->remove calls which
-is called with @dev-lock held.
-> 
-> 
-> The thing is, both virtio_ccw_remove() and virtio_ccw_offline() are
-> very similar, with the notable exception that offline assumes we are
-> online() at the moment, while remove() does the same only if it
-> decides based on vcdev && cdev->online that we are online.
-> 
-> 
-> > Shouldn't they
-> > be serialized under the device lock already? I think we are fine.
-> 
-> AFAICT virtio_ccw_remove() and virtio_ccw_offline() are serialized
-> against each other under the device lock. And also against
-> virtio_ccw_online() iff it was initiated via the sysfs, and not via
-> the auto-online mechanism.
-> 
-> Thus I don't think we are fine at the moment.
-> 
-> > For dasd, I think they also need to deal with the block device
-> > lifetimes. For virtio-ccw, we are basically a transport that does
-> > not
-> > know about devices further down the chain (that are associated with
-> > the
-> > virtio device, whose lifetime is tied to online/offline
-> > processing.) I'd
-> > presume that the serialization above would be enough.
-> > 
-> 
-> I don't know about dasd that much. For the reasons stated above, I
-> don't
-> think the serialization we have right now is entirely sufficient.
-> 
-> Regards,
-> Halil
+Fetching an index for any vcpu in kvm->vcpus array by traversing
+the entire array everytime is costly.
+This patch remembers the position of each vcpu in kvm->vcpus array
+by storing it in vcpus_idx under kvm_vcpu structure.
+
+Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
+Signed-off-by: Nitesh Narayan Lal <nitesh@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[borntraeger@de.ibm.com]: backport to 4.19 (also fits for 5.4)
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ include/linux/kvm_host.h | 11 +++--------
+ virt/kvm/kvm_main.c      |  5 +++--
+ 2 files changed, 6 insertions(+), 10 deletions(-)
+
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 8dd4ebb58e97..827f70ce0b49 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -248,7 +248,8 @@ struct kvm_vcpu {
+ 	struct preempt_notifier preempt_notifier;
+ #endif
+ 	int cpu;
+-	int vcpu_id;
++	int vcpu_id; /* id given by userspace at creation */
++	int vcpu_idx; /* index in kvm->vcpus array */
+ 	int srcu_idx;
+ 	int mode;
+ 	u64 requests;
+@@ -551,13 +552,7 @@ static inline struct kvm_vcpu *kvm_get_vcpu_by_id(struct kvm *kvm, int id)
+ 
+ static inline int kvm_vcpu_get_idx(struct kvm_vcpu *vcpu)
+ {
+-	struct kvm_vcpu *tmp;
+-	int idx;
+-
+-	kvm_for_each_vcpu(idx, tmp, vcpu->kvm)
+-		if (tmp == vcpu)
+-			return idx;
+-	BUG();
++	return vcpu->vcpu_idx;
+ }
+ 
+ #define kvm_for_each_memslot(memslot, slots)	\
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index a3d82113ae1c..86ef740763b5 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2751,7 +2751,8 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
+ 		goto unlock_vcpu_destroy;
+ 	}
+ 
+-	BUG_ON(kvm->vcpus[atomic_read(&kvm->online_vcpus)]);
++	vcpu->vcpu_idx = atomic_read(&kvm->online_vcpus);
++	BUG_ON(kvm->vcpus[vcpu->vcpu_idx]);
+ 
+ 	/* Now it's all set up, let userspace reach it */
+ 	kvm_get_kvm(kvm);
+@@ -2761,7 +2762,7 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
+ 		goto unlock_vcpu_destroy;
+ 	}
+ 
+-	kvm->vcpus[atomic_read(&kvm->online_vcpus)] = vcpu;
++	kvm->vcpus[vcpu->vcpu_idx] = vcpu;
+ 
+ 	/*
+ 	 * Pairs with smp_rmb() in kvm_get_vcpu.  Write kvm->vcpus
+-- 
+2.31.1
 
