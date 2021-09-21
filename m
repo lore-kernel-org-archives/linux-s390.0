@@ -2,132 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C79E9C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 03:17:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7993AC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 03:17:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AD6CC61100
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 03:17:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 63CB561159
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 03:17:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232100AbhIUDTL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Sep 2021 23:19:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41336 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230113AbhIUC2g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Sep 2021 22:28:36 -0400
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCD1FC0F344C
-        for <linux-s390@vger.kernel.org>; Mon, 20 Sep 2021 12:23:43 -0700 (PDT)
-Received: by mail-lf1-x12d.google.com with SMTP id x27so72032864lfu.5
-        for <linux-s390@vger.kernel.org>; Mon, 20 Sep 2021 12:23:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=shutemov-name.20210112.gappssmtp.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=lfxmCAIn9aHEGlNTCFP6oI4sdv4GtF/cTPp74Gw1WBM=;
-        b=51peZIPp0Z/EhYUJjOrVhklffvLaouyg2C5XP2pPvI6GKpQqRTRJNH9z0riNU6JUST
-         o0XwKLmOpbRlulubaDys5ESijC7RfZDY0btoMVLhd24Wbuq4HCPaAcFG5bL/hMGrqGtL
-         7xl5z5ix8Uq+1/IFKbmMGW0qkcT6Kblu2SXf54ogQOpF0XmbXZnVwYt6ayxUDZ2i0zc5
-         ndwQC+lLTjKOM/5Nx96ULxzCt3Is+WBaiGfGuvvkAWuKo2L9VaqIf1rPaXJawFd0DZaR
-         UVhdwOrDahN59n5xgeFFwe62qLfoeS4Srs8f0W8HdLOxbwittlQusCzObDZLZ8VTA7Ay
-         5WSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=lfxmCAIn9aHEGlNTCFP6oI4sdv4GtF/cTPp74Gw1WBM=;
-        b=H5C5K6ubi/sXYFxWBGuy1iiknebMUovBLnwoMvqzy/AR09v7xMCOQerOect2YEspef
-         BCTRq9BUlaB9llwNJO4D7aWasQyhZjdcVwoZAximnyFPy9JsQjODZhYWkyaKdWVOHfmS
-         NCzJfalJejPlgMTS2wf6+I7+0wXJKarFOK+VllLYBhW5gOg1aPaqFF42P59WQiB2ULQb
-         KKWBauKXSuUNqw/c605kfZLPEjjkGQT6wnbJRvFJIO4J8W3RR0oCAFjKoI+zQEQ9Fjwk
-         +jTzfy4+IkG6xq2RbXp9047EqDDdIBbyd6qfIQsjDUuiAiBiq1wjtLALswe47p2lwleD
-         mdQw==
-X-Gm-Message-State: AOAM533O4uFuL4cKHNtTpeTYEd80ie0YoGcEpXwJD+D0uxnQqG0DB5CZ
-        cGc630sdgXw+SCrM9PRFMw+6GQ==
-X-Google-Smtp-Source: ABdhPJzBd1RwKOZT1XWwd9VMdTBk2dtlBYL+yyroRGVVu01s956l3lUsknRhzDPFsjv00pVQxtEqOw==
-X-Received: by 2002:a05:651c:83:: with SMTP id 3mr23323003ljq.341.1632165822010;
-        Mon, 20 Sep 2021 12:23:42 -0700 (PDT)
-Received: from box.localdomain ([86.57.175.117])
-        by smtp.gmail.com with ESMTPSA id j21sm1858858ljh.87.2021.09.20.12.23.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Sep 2021 12:23:41 -0700 (PDT)
-Received: by box.localdomain (Postfix, from userid 1000)
-        id B961C103053; Mon, 20 Sep 2021 22:23:41 +0300 (+03)
-Date:   Mon, 20 Sep 2021 22:23:41 +0300
-From:   "Kirill A. Shutemov" <kirill@shutemov.name>
-To:     Tom Lendacky <thomas.lendacky@amd.com>
-Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-graphics-maintainer@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
-        Borislav Petkov <bp@alien8.de>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sathyanarayanan Kuppuswamy 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>
-Subject: Re: [PATCH v3 5/8] x86/sme: Replace occurrences of sme_active() with
- cc_platform_has()
-Message-ID: <20210920192341.maue7db4lcbdn46x@box.shutemov.name>
-References: <cover.1631141919.git.thomas.lendacky@amd.com>
- <367624d43d35d61d5c97a8b289d9ddae223636e9.1631141919.git.thomas.lendacky@amd.com>
+        id S232095AbhIUDTM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Sep 2021 23:19:12 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30680 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1351957AbhIUCps (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 20 Sep 2021 22:45:48 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18L1eJsR023857;
+        Mon, 20 Sep 2021 22:44:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=g86bu6UYdOTw8CrRSdIIfyFJZ6DW0/5IWe0xyjvz4dE=;
+ b=CWohMfwJXyoabeja3mVz93k/SAZFIkDxesugoI1LB9TUp6Vj8vqRpwac0oUhX3ir9+yb
+ P0cox8/j4OqAiuMNE3rYC/gK5wa7teN2I/OZfPdoCctISHc1YKh/qgRKe7DOG0WS5sn/
+ M/wTHp6ZIugxvwGzyW1hHBSByYoSFolpEttKXrYNoV8iXR8mRX9GFF9VAT6m6tSVp5za
+ Uj0pjV6Lnrb7jwth2oXU6cKGj5UqKnOKbJa07amHNQDyA9ZoMR+FvTk4KXBL4GdQMHtc
+ MyCEjS2wXWhAhYTtlvteZrMtd41MoeCLjvYV41UxTBIGIIy3pqyWVW4yUT4X9G12+EG/ tg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b735nbpwr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Sep 2021 22:44:19 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18L2NQRq028777;
+        Mon, 20 Sep 2021 22:44:18 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b735nbpw6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Sep 2021 22:44:18 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18L2gCHP005245;
+        Tue, 21 Sep 2021 02:44:16 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04fra.de.ibm.com with ESMTP id 3b57r9dtay-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 21 Sep 2021 02:44:16 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18L2iCaO54460746
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 21 Sep 2021 02:44:12 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7D57AAE055;
+        Tue, 21 Sep 2021 02:44:12 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AD322AE051;
+        Tue, 21 Sep 2021 02:44:11 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.4.199])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Tue, 21 Sep 2021 02:44:11 +0000 (GMT)
+Date:   Tue, 21 Sep 2021 04:43:59 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
+        KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Nitesh Narayan Lal <nitesh@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 1/1] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
+Message-ID: <20210921044359.2355c29c.pasic@linux.ibm.com>
+In-Reply-To: <20210920150616.15668-2-borntraeger@de.ibm.com>
+References: <20210920150616.15668-1-borntraeger@de.ibm.com>
+        <20210920150616.15668-2-borntraeger@de.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: AWRJUq7lBdU9jNKSjM_KlD2CTOVFHBbN
+X-Proofpoint-GUID: z-9euliBIriPoGgwGcHmJCCLMkzG_4Il
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <367624d43d35d61d5c97a8b289d9ddae223636e9.1631141919.git.thomas.lendacky@amd.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-20_11,2021-09-20_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 impostorscore=0 phishscore=0 spamscore=0 suspectscore=0
+ clxscore=1011 malwarescore=0 mlxscore=0 mlxlogscore=999 bulkscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109030001 definitions=main-2109210013
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 08, 2021 at 05:58:36PM -0500, Tom Lendacky wrote:
-> diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
-> index 470b20208430..eff4d19f9cb4 100644
-> --- a/arch/x86/mm/mem_encrypt_identity.c
-> +++ b/arch/x86/mm/mem_encrypt_identity.c
-> @@ -30,6 +30,7 @@
->  #include <linux/kernel.h>
->  #include <linux/mm.h>
->  #include <linux/mem_encrypt.h>
-> +#include <linux/cc_platform.h>
->  
->  #include <asm/setup.h>
->  #include <asm/sections.h>
-> @@ -287,7 +288,7 @@ void __init sme_encrypt_kernel(struct boot_params *bp)
->  	unsigned long pgtable_area_len;
->  	unsigned long decrypted_base;
->  
-> -	if (!sme_active())
-> +	if (!cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT))
->  		return;
->  
->  	/*
+On Mon, 20 Sep 2021 17:06:16 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-This change break boot for me (in KVM on Intel host). It only reproduces
-with allyesconfig. More reasonable config works fine, but I didn't try to
-find exact cause in config.
+> Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Reviewed-by: Christian Bornträger <borntraeger@de.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Cc: <stable@vger.kernel.org> # 3.15+
+> Link: https://lore.kernel.org/r/20210827125429.1912577-1-pasic@linux.ibm.com
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> [borntraeger@de.ibm.com]: change  idle mask, remove kicked_mask 
 
-Convertion to cc_platform_has() in __startup_64() in 8/8 has the same
-effect.
-
-I believe it caused by sme_me_mask access from __startup_64() without
-fixup_pointer() magic. I think __startup_64() requires special treatement
-and we should avoid cc_platform_has() there (or have a special version of
-the helper). Note that only AMD requires these cc_platform_has() to return
-true.
-
--- 
- Kirill A. Shutemov
+LGTM. Thanks for taking care of this!
