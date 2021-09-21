@@ -2,201 +2,240 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC980C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 14:52:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A26CFC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 16:52:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B2FCD60FC1
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 14:52:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 83AF961166
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 16:52:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233811AbhIUOyA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Sep 2021 10:54:00 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20502 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233798AbhIUOx7 (ORCPT
+        id S229675AbhIUQyL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Sep 2021 12:54:11 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43766 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229601AbhIUQyK (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Sep 2021 10:53:59 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18LEKFSX037730;
-        Tue, 21 Sep 2021 10:52:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=9dL6tQd4tAav7VDRjDMxUg/fUV3+1e2wrD6EQNW8ok8=;
- b=rgfkNtclXHzPTDnOmjkQYswBCOfRUyOQ2azCnWWbdOJ8HKLPynYPIXjTmQlfWQtjWHOO
- f5PKrP3HJu3fXhd7fIKiNBU6mN0OdOnJ6qyoeB4vzVQCWAXlzsj/lGq46+5w6WPpm8ST
- zLzXvqmRNkW34txcnpXXEUcgrfpEnB6clZnhLAss4rCIMwjDXFJ6aeZgSbtscDKQfo2t
- 9gRgH91I4Jpci9R6s6sGXWzeVFWKWtHH5GSTeTqiuZJTJQZk5OEmC+JmWv0COC0lUDkT
- ug7hwouhBEa6XCc0Ae6BJ0XjdqkGkHGoDKIJNzCI7t/VvKIm2ZQPofUTER+doom5/2SN gw== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b7ek3nd36-1
+        Tue, 21 Sep 2021 12:54:10 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18LGUZMf008466;
+        Tue, 21 Sep 2021 12:52:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=zq7YY3YY+sxUoqCZOSv7oBX0nJQbTKqcrFtg5oANv1s=;
+ b=DrYrnkzVv6SXbIyICfswMh9+n1qwl7O9z6/gxpUA9NvNsRnjK0QAto9xzMgANdNPIsqZ
+ +66Hvp7VnFQ0YWG6Zp5rPevthlu9W9M3idYqDbzZgO7gsSafzRXJvbYRZGxgCdj0PeWS
+ wpgpzGVx0JT0Ae8nGSOgQ/HyX2UgO3QBrAOwJys0ZlvSsNEZH3ykzHDGAHxFGizoLvDO
+ Hq50Q1xNF1ITpFhh/gYkd5H/KomZ08p2999+nk5Rldz5BHSj+xALmIYyvlNegdIzN7vb
+ hVFadApy2WoYDldS7Jetj+vCdOBCEQiPXSix28r/ONqKSqUOvQ5QUpJ1yAD5xTmszvGx ig== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3b7jyrgf7p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Sep 2021 10:52:27 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18LEqFTd020123;
-        Tue, 21 Sep 2021 14:52:25 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04fra.de.ibm.com with ESMTP id 3b57r9nc7x-1
+        Tue, 21 Sep 2021 12:52:40 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18LGatrn007253;
+        Tue, 21 Sep 2021 12:52:39 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3b7jyrgf75-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Sep 2021 14:52:25 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18LElYON61473246
+        Tue, 21 Sep 2021 12:52:39 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18LGpZmW029688;
+        Tue, 21 Sep 2021 16:52:37 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3b57r8yu7v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 21 Sep 2021 16:52:37 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18LGqYds64356724
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 21 Sep 2021 14:47:34 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 88F645205A;
-        Tue, 21 Sep 2021 14:52:19 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 388E552071;
-        Tue, 21 Sep 2021 14:52:19 +0000 (GMT)
-From:   Julian Wiedmann <jwi@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     linux-netdev <netdev@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
+        Tue, 21 Sep 2021 16:52:34 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3381142047;
+        Tue, 21 Sep 2021 16:52:34 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 60B7D42045;
+        Tue, 21 Sep 2021 16:52:33 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.4.199])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Tue, 21 Sep 2021 16:52:33 +0000 (GMT)
+Date:   Tue, 21 Sep 2021 18:52:22 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Vineeth Vijayan <vneethv@linux.ibm.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>
-Subject: [PATCH net 2/3] s390/qeth: Fix deadlock in remove_discipline
-Date:   Tue, 21 Sep 2021 16:52:16 +0200
-Message-Id: <20210921145217.1584654-3-jwi@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210921145217.1584654-1-jwi@linux.ibm.com>
-References: <20210921145217.1584654-1-jwi@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        linux-s390@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, bfu@redhat.com,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>
+Subject: Re: [PATCH 1/1] virtio/s390: fix vritio-ccw device teardown
+Message-ID: <20210921185222.246b15bb.pasic@linux.ibm.com>
+In-Reply-To: <05b1ac0e4aa4a1c7df1a8994c898630e9b2e384d.camel@linux.ibm.com>
+References: <20210915215742.1793314-1-pasic@linux.ibm.com>
+        <87pmt8hp5o.fsf@redhat.com>
+        <20210916151835.4ab512b2.pasic@linux.ibm.com>
+        <87mtobh9xn.fsf@redhat.com>
+        <20210920003935.1369f9fe.pasic@linux.ibm.com>
+        <88b514a4416cf72cda53a31ad2e15c13586350e4.camel@linux.ibm.com>
+        <878rzrh86c.fsf@redhat.com>
+        <20210921052548.4eea231f.pasic@linux.ibm.com>
+        <05b1ac0e4aa4a1c7df1a8994c898630e9b2e384d.camel@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=US-ASCII
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 3C_e2yalCjallge8bfe9v5EjJmOh3vjW
-X-Proofpoint-ORIG-GUID: 3C_e2yalCjallge8bfe9v5EjJmOh3vjW
+X-Proofpoint-GUID: cNbMBuXq06W4CDMkwxrKesH3Zq0-0zsb
+X-Proofpoint-ORIG-GUID: AwH4AXAt3PYdrg-FToX5RJsf1fRJy4ev
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-09-21_04,2021-09-20_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 impostorscore=0 lowpriorityscore=0 spamscore=0 mlxscore=0
- adultscore=0 mlxlogscore=999 bulkscore=0 clxscore=1015 malwarescore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109030001 definitions=main-2109210089
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 bulkscore=0 mlxscore=0 adultscore=0 clxscore=1015
+ malwarescore=0 priorityscore=1501 mlxlogscore=999 suspectscore=0
+ phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109030001 definitions=main-2109210098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+On Tue, 21 Sep 2021 15:31:03 +0200
+Vineeth Vijayan <vneethv@linux.ibm.com> wrote:
 
-Problem: qeth_close_dev_handler is a worker that tries to acquire
-card->discipline_mutex via drv->set_offline() in ccwgroup_set_offline().
-Since commit b41b554c1ee7
-("s390/qeth: fix locking for discipline setup / removal")
-qeth_remove_discipline() is called under card->discipline_mutex and
-cancels the work and waits for it to finish.
+> On Tue, 2021-09-21 at 05:25 +0200, Halil Pasic wrote:
+> > On Mon, 20 Sep 2021 12:07:23 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> >   
+> > > On Mon, Sep 20 2021, Vineeth Vijayan <vneethv@linux.ibm.com> wrote:
+> > >   
+> > > > On Mon, 2021-09-20 at 00:39 +0200, Halil Pasic wrote:    
+> > > > > On Fri, 17 Sep 2021 10:40:20 +0200
+> > > > > Cornelia Huck <cohuck@redhat.com> wrote:
+> > > > >     
+> > > > ...snip...    
+> > > > > > > Thanks, if I find time for it, I will try to understand
+> > > > > > > this
+> > > > > > > better and
+> > > > > > > come back with my findings.
+> > > > > > >      
+> > > > > > > > > * Can virtio_ccw_remove() get called while !cdev-  
+> > > > > > > > > >online and   
+> > > > > > > > >   virtio_ccw_online() is running on a different cpu? If
+> > > > > > > > > yes,
+> > > > > > > > > what would
+> > > > > > > > >   happen then?        
+> > > > > > > > 
+> > > > > > > > All of the remove/online/... etc. callbacks are invoked
+> > > > > > > > via the
+> > > > > > > > ccw bus
+> > > > > > > > code. We have to trust that it gets it correct :) (Or
+> > > > > > > > have the
+> > > > > > > > common
+> > > > > > > > I/O layer maintainers double-check it.)
+> > > > > > > >       
+> > > > > > > 
+> > > > > > > Vineeth, what is your take on this? Are the struct
+> > > > > > > ccw_driver
+> > > > > > > virtio_ccw_remove and the virtio_ccw_online callbacks
+> > > > > > > mutually
+> > > > > > > exclusive. Please notice that we may initiate the onlining
+> > > > > > > by
+> > > > > > > calling ccw_device_set_online() from a workqueue.
+> > > > > > > 
+> > > > > > > @Conny: I'm not sure what is your definition of 'it gets it
+> > > > > > > correct'...
+> > > > > > > I doubt CIO can make things 100% foolproof in this
+> > > > > > > area.      
+> > > > > > 
+> > > > > > Not 100% foolproof, but "don't online a device that is in the
+> > > > > > progress
+> > > > > > of going away" seems pretty basic to me.
+> > > > > >     
+> > > > > 
+> > > > > I hope Vineeth will chime in on this.    
+> > > > Considering the online/offline processing, 
+> > > > The ccw_device_set_offline function or the online/offline is
+> > > > handled
+> > > > inside device_lock. Also, the online_store function takes care of
+> > > > avoiding multiple online/offline processing. 
+> > > > 
+> > > > Now, when we consider the unconditional remove of the device,
+> > > > I am not familiar with the virtio_ccw driver. My assumptions are
+> > > > based
+> > > > on how CIO/dasd drivers works. If i understand correctly, the
+> > > > dasd
+> > > > driver sets different flags to make sure that a device_open is
+> > > > getting
+> > > > prevented while the the device is in progress of offline-ing.     
+> > > 
+> > > Hm, if we are invoking the online/offline callbacks under the
+> > > device
+> > > lock already,   
+> > 
+> > I believe we have a misunderstanding here. I believe that Vineeth is
+> > trying to tell us, that online_store_handle_offline() and
+> > online_store_handle_offline() are called under the a device lock of
+> > the ccw device. Right, Vineeth?  
+> Yes. I wanted to bring-out both the scenario.The set_offline/_online()
+> calls and the unconditional-remove call.
 
-STOPLAN reception with reason code IPA_RC_VEPA_TO_VEB_TRANSITION is the
-only situation that schedules close_dev_work. In that situation scheduling
-qeth recovery will also result in an offline interface, when resetting the
-isolation mode fails, if the external switch is still set to VEB.
-And since commit 0b9902c1fcc5 ("s390/qeth: fix deadlock during recovery")
-qeth recovery does not aquire card->discipline_mutex anymore.
+I don't understand the paragraph above. I can't map the terms
+set_offline/_online() and unconditional-remove call to chunks of code.
+:( 
 
-So we accept the longer pathlength of qeth_schedule_recovery in this
-error situation and re-use the existing function.
+> For the set_online The virtio_ccw_online() also invoked with ccwlock
+> held. (ref: ccw_device_set_online)
 
-As a side-benefit this changes the hwtrap to behave like during recovery
-instead of like during a user-triggered set_offline.
+I don't think virtio_ccw_online() is invoked with the ccwlock held. I
+think we call virtio_ccw_online() in this line:
+https://elixir.bootlin.com/linux/v5.15-rc2/source/drivers/s390/cio/device.c#L394
+and we have released the cdev->ccwlock literally 2 lines above.
 
-Fixes: b41b554c1ee7 ("s390/qeth: fix locking for discipline setup / removal")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Acked-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core.h      |  1 -
- drivers/s390/net/qeth_core_main.c | 16 ++++------------
- drivers/s390/net/qeth_l2_main.c   |  1 -
- drivers/s390/net/qeth_l3_main.c   |  1 -
- 4 files changed, 4 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 535a60b3946d..a5aa0bdc61d6 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -858,7 +858,6 @@ struct qeth_card {
- 	struct napi_struct napi;
- 	struct qeth_rx rx;
- 	struct delayed_work buffer_reclaim_work;
--	struct work_struct close_dev_work;
- };
- 
- static inline bool qeth_card_hw_is_reachable(struct qeth_card *card)
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 3fba440a0731..9f26706051e5 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -70,15 +70,6 @@ static void qeth_issue_next_read_cb(struct qeth_card *card,
- static int qeth_qdio_establish(struct qeth_card *);
- static void qeth_free_qdio_queues(struct qeth_card *card);
- 
--static void qeth_close_dev_handler(struct work_struct *work)
--{
--	struct qeth_card *card;
--
--	card = container_of(work, struct qeth_card, close_dev_work);
--	QETH_CARD_TEXT(card, 2, "cldevhdl");
--	ccwgroup_set_offline(card->gdev);
--}
--
- static const char *qeth_get_cardname(struct qeth_card *card)
- {
- 	if (IS_VM_NIC(card)) {
-@@ -795,10 +786,12 @@ static struct qeth_ipa_cmd *qeth_check_ipa_data(struct qeth_card *card,
- 	case IPA_CMD_STOPLAN:
- 		if (cmd->hdr.return_code == IPA_RC_VEPA_TO_VEB_TRANSITION) {
- 			dev_err(&card->gdev->dev,
--				"Interface %s is down because the adjacent port is no longer in reflective relay mode\n",
-+				"Adjacent port of interface %s is no longer in reflective relay mode, trigger recovery\n",
- 				netdev_name(card->dev));
--			schedule_work(&card->close_dev_work);
-+			/* Set offline, then probably fail to set online: */
-+			qeth_schedule_recovery(card);
- 		} else {
-+			/* stay online for subsequent STARTLAN */
- 			dev_warn(&card->gdev->dev,
- 				 "The link for interface %s on CHPID 0x%X failed\n",
- 				 netdev_name(card->dev), card->info.chpid);
-@@ -1540,7 +1533,6 @@ static void qeth_setup_card(struct qeth_card *card)
- 	INIT_LIST_HEAD(&card->ipato.entries);
- 	qeth_init_qdio_info(card);
- 	INIT_DELAYED_WORK(&card->buffer_reclaim_work, qeth_buffer_reclaim_work);
--	INIT_WORK(&card->close_dev_work, qeth_close_dev_handler);
- 	hash_init(card->rx_mode_addrs);
- 	hash_init(card->local_addrs4);
- 	hash_init(card->local_addrs6);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 72e84ff9fea5..dc6c00768d91 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2307,7 +2307,6 @@ static void qeth_l2_remove_device(struct ccwgroup_device *gdev)
- 	if (gdev->state == CCWGROUP_ONLINE)
- 		qeth_set_offline(card, card->discipline, false);
- 
--	cancel_work_sync(&card->close_dev_work);
- 	if (card->dev->reg_state == NETREG_REGISTERED) {
- 		priv = netdev_priv(card->dev);
- 		if (priv->brport_features & BR_LEARNING_SYNC) {
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 3a523e700a5a..6fd3e288f059 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1969,7 +1969,6 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
- 	if (cgdev->state == CCWGROUP_ONLINE)
- 		qeth_set_offline(card, card->discipline, false);
- 
--	cancel_work_sync(&card->close_dev_work);
- 	if (card->dev->reg_state == NETREG_REGISTERED)
- 		unregister_netdev(card->dev);
- 
--- 
-2.25.1
+> > 
+> > Conny, I believe, by online/offline callbacks, you mean
+> > virtio_ccw_online() and virtio_ccw_offline(), right?
+> > 
+> > But the thing is that virtio_ccw_online() may get called (and is
+> > typically called, AFAICT) with no locks held via:
+> > virtio_ccw_probe() --> async_schedule(virtio_ccw_auto_online, cdev)
+> > -*-> virtio_ccw_auto_online(cdev) --> ccw_device_set_online(cdev) -->
+> > virtio_ccw_online()
+> > 
+> > Furthermore after a closer look, I believe because we don't take
+> > a reference to the cdev in probe, we may get virtio_ccw_auto_online()
+> > called with an invalid pointer (the pointer is guaranteed to be valid
+> > in probe, but because of async we have no guarantee that it will be
+> > called in the context of probe).
+> > 
+> > Shouldn't we take a reference to the cdev in probe?  
+> We just had a quick look at the virtio_ccw_probe() function.
+> Did you mean to have a get_device() during the probe() and put_device()
+> just after the virtio_ccw_auto_online() ?
 
+Yes, that would ensure that cdev pointer is still valid when
+virtio_ccw_auto_online() is executed, and that things are cleaned up
+properly, I guess. But I'm not 100% sure about all the interactions.
+AFAIR ccw_device_set_online(cdev) would bail out if !drv. But then
+we have the case where we already assigned it to a new driver (e.g.
+vfio for dasd).
+
+BTW I believe if we have a problem here, the dasd driver has the same
+problem as well. The code looks very, very similar.
+
+And shouldn't this auto-online be common CIO functionality? What is the
+reason the char devices don't seem to have it?
+
+Regards,
+Halil
