@@ -2,76 +2,194 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFACEC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 13:12:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EC25C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 13:19:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 964546112F
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 13:12:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A64360F6E
+	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 13:19:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232868AbhIUNNq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Sep 2021 09:13:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43790 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232584AbhIUNNq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Sep 2021 09:13:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFEFC61166;
-        Tue, 21 Sep 2021 13:12:13 +0000 (UTC)
-Date:   Tue, 21 Sep 2021 14:12:10 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, Keith Packard <keithpac@amazon.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S232906AbhIUNUn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Sep 2021 09:20:43 -0400
+Received: from mail-dm6nam11hn2248.outbound.protection.outlook.com ([52.100.172.248]:1408
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231658AbhIUNUl (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 21 Sep 2021 09:20:41 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=I4Jo6PsZZuSa55LhS5vJ5tkAaccmSCMIBo+4eMR9edGMnIMwNXuafqGTEPjXb2jd5JweQ+ap+I+hY83sP3XGX+Zb0DQs/pl5XuNSX+CmGNGs7S1DnguZ5Qm7Puil+oGGByN83JVbvSYFsbTm4wnGd10ACof+/DcISQeRrveIZShQlAl3mdTXS0ArTBqz9hwDf0Z2hrf7oGqRDb6Bw7N4czUf5tZjdenfVoWOXPb6o92DDjyHULkV4Jy/S17aht+lEbR3GZghF4yD85COzMjEUxCvOvScD1/kLn4XV6YwRlaTMtEim9N2Zs5Rq/SA2/8w25E5yusABm4MclSfScEM4A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
+ bh=94Wdtz1P7371BO9JoG/h7kHcocoe9ZpMfQ2pCiWwlgg=;
+ b=oI1SvlrBb2ahyihfWAD2cvNbUtti+aKXR8PNkqW7ubV5vCLGU8JyK7ST+Y49rjPA+41kKvTT9UZWf0puaj2qejwfAJeYl2QWR/D7IatLRtw3mJRSSCJCXARFDwV2HNWD/hM//2UwugecBmsTY66qTi/jBpn9G3foJt3WQYbinCChltM4rf+wGb8UFUStTHKOW3xeeh6RO2XWfq4kWTynk5XeAWhHfvuoReULXnQdvRr0V1cjoXe8dynSBvTANbEOB3BnreSFt5w85NMyeePpHdI0cdAjWtJ7C5Asec1zgntNRt+kMRuaeAG4msxwMPBi+0sYkMURK2fh9Mtq99naPQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=94Wdtz1P7371BO9JoG/h7kHcocoe9ZpMfQ2pCiWwlgg=;
+ b=OI0NY3eczvHXpyr4B6M3/luDLf7OK3iOBC/OUH2aMypDHOOinuKP/k1PmSt8XPeRybTTbmko7rloxhdI4zilwFFzR197d0oaqeUkGmuwv/8Kw5WdeCZ4TVghZS/tnVYYGCpweengXUS8gMbNTLAYAZAr77kLHedsqjCJ/b7gNSuHfiSVJwMwIZlgvuJTcgH/opCJV1cdlvoqVYGbRitfpzBCj/WDy5KtRr5DBlgr9KuIAdw58nPOGUhlMU0fb6Ewa1miymXh4FWk1h1rw8hKNhRQEIwGI8TeV9HE+jHLrsFk5mRUnuPtjRDDbjmxnEySguV18j0cYHSXN2NL1YfQZg==
+Authentication-Results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL1PR12MB5336.namprd12.prod.outlook.com (2603:10b6:208:314::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4523.14; Tue, 21 Sep
+ 2021 13:19:10 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::e8af:232:915e:2f95]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::e8af:232:915e:2f95%8]) with mapi id 15.20.4544.013; Tue, 21 Sep 2021
+ 13:19:09 +0000
+Date:   Tue, 21 Sep 2021 10:19:08 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Cornelia Huck <cohuck@redhat.com>
+Cc:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [RFC PATCH 5/8] sched: move CPU field back into thread_info if
- THREAD_INFO_IN_TASK=y
-Message-ID: <YUnaKixPsMuHksI9@arm.com>
-References: <20210914121036.3975026-1-ardb@kernel.org>
- <20210914121036.3975026-6-ardb@kernel.org>
-MIME-Version: 1.0
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v2 6/9] vfio/mdev: Add mdev available instance checking
+ to the core
+Message-ID: <20210921131908.GK327412@nvidia.com>
+References: <6-v2-7d3a384024cf+2060-ccw_mdev_jgg@nvidia.com>
+ <87tuiff7m2.fsf@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210914121036.3975026-6-ardb@kernel.org>
+In-Reply-To: <87tuiff7m2.fsf@redhat.com>
+X-ClientProxiedBy: MN2PR17CA0009.namprd17.prod.outlook.com
+ (2603:10b6:208:15e::22) To BL0PR12MB5506.namprd12.prod.outlook.com
+ (2603:10b6:208:1cb::22)
+MIME-Version: 1.0
+Received: from mlx.ziepe.ca (142.162.113.129) by MN2PR17CA0009.namprd17.prod.outlook.com (2603:10b6:208:15e::22) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4544.13 via Frontend Transport; Tue, 21 Sep 2021 13:19:09 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1mSffw-003Kbx-LZ; Tue, 21 Sep 2021 10:19:08 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 377f0363-5917-479c-8236-08d97d026576
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5336:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BL1PR12MB5336BE1F0CDC1310B37D6C11C2A19@BL1PR12MB5336.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: =?us-ascii?Q?Pf6gzM7XhP3b+WfteTXY5QtMZlaWU/fnDfnm2hNovolJjrjhn2k7PV4I7yMv?=
+ =?us-ascii?Q?yUlfayAV+cM+jNOOkOUkS6w4vQFRv0YcEkCHl8hBOw7bnj/00qRlWeKR+9lO?=
+ =?us-ascii?Q?dS3x8CwwQM0fGGJ+tqhrBisnnv6XpbeEv4iVjKpsXowJzavTQJDQ1saxBzWx?=
+ =?us-ascii?Q?Q6liETo5u8blPya80i9G0KsjekWi/9Au5PtpH+FwX6onjr5eeuv+VzMxuMUI?=
+ =?us-ascii?Q?9Kpq/SwfKW5Y2p6zihBvybOu3kPVAvp4Wk4Wio/ywJhP6C7SvPKrx66b6DFf?=
+ =?us-ascii?Q?XTGD56QzLv70W3IgJL7dUIeP97DYyFcCrZh1mawhD/anuQW3TCJwGPTWJQyB?=
+ =?us-ascii?Q?b1tFCS1VxrCbqXZiqBri6Dn0lGEyuUUi6IAVid8tDwR96MP/p8lvnnWDi+tW?=
+ =?us-ascii?Q?cO0p7Qkt1OS+I2F7pNvSIARJ7wyoE5LGbnRZFNXJcOCpYCEeqWzD+KlAaF2c?=
+ =?us-ascii?Q?7Fm1rEkaCKYG5Ogh7cCD/9c2pRKLYvwUOk5MKgwprJ8Ud/oMtRmiT48qpZZ2?=
+ =?us-ascii?Q?c4IFEAwgDmfbV38gwFZ2yCykqaa0Aw/b6QD5tPF+8ldWji5G/2YEpn2B1drW?=
+ =?us-ascii?Q?vzFDU/QocDwPMzsVVl0o+eKWqNAtJRv6NcyC11815dyOS3InapTJpP//njHa?=
+ =?us-ascii?Q?P27aRv/bBfKaGcrEOrkxoHdHwUoQFdCCMLBHNlpupX7PoGtMWzmztaWI5Ra9?=
+ =?us-ascii?Q?SOIHwMzPr+Nq9hIqX4m85/pl0z7uVuxTTpt7dWaztPNB32a+8bLe+j3RYT5N?=
+ =?us-ascii?Q?oSbf01/IlgPhfv5dF+X/KspJzFREy8kN1BuNZBDdJhgdd+/i0OQFk0UtDEGH?=
+ =?us-ascii?Q?RvVzv/6FXr+/eOmSOmW6MQ9UHCQVyGamOIQsYk514HKlI3Ep3671g0YqQEJ3?=
+ =?us-ascii?Q?XRdpQn3VDZvdjP6uoWAhheaeVDQYSSXIYQDHsXe8lAPqO2NV/nslwWMhRVPS?=
+ =?us-ascii?Q?fPZ16QoELp0yaqFjPfwhObt12NMGgmTiFsX0itHmeTjaNm4ZHiR8dJBng6KT?=
+ =?us-ascii?Q?O6gX36okDzlr9Mi2ro5jTOes35wvcQermwb3vwF7NDFC2EY=3D?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:5;SRV:;IPV:NLI;SFV:SPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:OSPM;SFS:(4636009)(366004)(33656002)(9786002)(9746002)(5660300002)(38100700002)(8676002)(8936002)(4326008)(26005)(7416002)(66476007)(86362001)(66556008)(186003)(66946007)(508600001)(54906003)(2906002)(6916009)(2616005)(83380400001)(36756003)(1076003)(316002)(426003)(27376004)(131093003);DIR:OUT;SFP:1501;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?u/FSAdOJ8fM6QbvbhBc/zuGgqWfd8KSeKZdkf0zFIBxAZgXa/M6HXdKqhGX5?=
+ =?us-ascii?Q?VX+YNa5zy1A5MUlSJ/dt4XAFSBDt1btP4rt9Sgxj7EV+0gDI0Vnnx54jJKPB?=
+ =?us-ascii?Q?SGnQ+Dwvtz2B08gUQC0bEr/N6mu6H3dcMWtevFB+v9cneg3fbFoSV/GGEjiD?=
+ =?us-ascii?Q?5UcvWgPzkc9MYCI1kkUf+BMPb7Q1q8BFbtvWI4rzJCaIThRzh/RyaKKrVdNy?=
+ =?us-ascii?Q?3Rcb0xEo5NfBaTeI5aPqDIPVIBCpNmRQvqVxY4tHdHD/QbOKO4IW4zHIjGgc?=
+ =?us-ascii?Q?MZ/bqVsZowNaotgitEATVkGRUQrDtLFNlXpWez7u6vSNMjqtbaPyauP2V9kH?=
+ =?us-ascii?Q?C8rxPndSwwILH0fw/TwzQWFCqyfEGRApO9tBi7tqqO6qQ33ek30AtIj0/tcx?=
+ =?us-ascii?Q?UMsR2Qlt+Uz4I27YwxLvM9tgTX9QCikDPvrA7h7ZWUFUhO3bc3zacvs7xJuK?=
+ =?us-ascii?Q?VOMqawQRqdaO9wT3BXyNeLschu42YoXqXmQ7xztB4bPKhbohowhXIyETdgGQ?=
+ =?us-ascii?Q?jrVb0UzrjC0zL+ZZbfu1KoJLWx6idU1RH5yDQR3fxfT7TPgSEtqraQGfO0DM?=
+ =?us-ascii?Q?jrQVKCrj7fFtahJXr+odW0uE+QT8zZ1ahAr+CxoKKEvXjDo8DSg6ca1G1Hrc?=
+ =?us-ascii?Q?mZT4UIrBoktdSzKu4AicZAz2kq06s1sA6ie572Dw9/1DBXizfjTueMuUMS6z?=
+ =?us-ascii?Q?zxhT+v1dWZbHRdq7ToxmwjCd6sck3Pln0JonPEiCry9wE7SSn0q1TzZZUtih?=
+ =?us-ascii?Q?mfjjMVibCTx2EytwpsROxA1qe1OTMHvIK/3myH52Yd05/mOtUIRHXs3Y0hPU?=
+ =?us-ascii?Q?ce8Mvc3obdD6zdufHso7k+srexFUcR1d+nqvNNCOlGQgPI9htudP08cDAB21?=
+ =?us-ascii?Q?VA+FyXtQiX3SLy4tz0H3YtWAv5WrlYDZz6Ak2/k8y5e2ZUpSILyiLeQQVOxM?=
+ =?us-ascii?Q?9eJ986thUHBLH5JvmmbG4Kx608KWzAqq2Rx/LKqfwKHxS0xhPK4TztO1MO6O?=
+ =?us-ascii?Q?vkb6WhlvRlvWs1tdT+Q03jhXvQOntivM6EZJG6QrE4tFFjLlEpzTix6gOa87?=
+ =?us-ascii?Q?C1l5iwesIwC5VxhN2tPFBBbXXiJs91e3ZWlKyW1luQ9X7Wpezp+4aUiBeuMn?=
+ =?us-ascii?Q?492Y1JKAr1NoqPjdceCCjCSFSMtkN30U2qDfJ1CmZOjU9gsktfw7xQg6EPnN?=
+ =?us-ascii?Q?MpUxw/9xbHzvH6Im3ALM/F77k4uPuWYVWbaFnLwhIG+rFXKw6y+nvM23J3VE?=
+ =?us-ascii?Q?K05U8EJ4QEj8UPsc8k6B3UW0XjYy+meTbQRees2NssZdlqx3vGb0tptzw4ct?=
+ =?us-ascii?Q?7XVdKvUKdXzLh+KQFOEMkjkn38MnBzGbmQuI3mG2EgLS9Q=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 377f0363-5917-479c-8236-08d97d026576
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Sep 2021 13:19:09.8603
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: GSXci/sgOsyBy993lndKI8yPYwidWvkowVgIRUoTmphFHM09gQgw+3NTLDwj78RD
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5336
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 02:10:33PM +0200, Ard Biesheuvel wrote:
-> THREAD_INFO_IN_TASK moved the CPU field out of thread_info, but this
-> causes some issues on architectures that define raw_smp_processor_id()
-> in terms of this field, due to the fact that #include'ing linux/sched.h
-> to get at struct task_struct is problematic in terms of circular
-> dependencies.
+On Mon, Sep 20, 2021 at 08:02:29PM +0200, Cornelia Huck wrote:
+> On Thu, Sep 09 2021, Jason Gunthorpe <jgg@nvidia.com> wrote:
 > 
-> Given that thread_info and task_struct are the same data structure
-> anyway when THREAD_INFO_IN_TASK=y, let's move it back so that having
-> access to the type definition of struct thread_info is sufficient to
-> reference the CPU number of the current task.
+> > Many of the mdev drivers use a simple counter for keeping track of the
+> > available instances. Move this code to the core code and store the counter
+> > in the mdev_type. Implement it using correct locking, fixing mdpy.
+> >
+> > Drivers provide a get_available() callback to set the number of available
+> > instances for their mtypes which is fixed at registration time. The core
+> > provides a standard sysfs attribute to return the available_instances.
 > 
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> So, according to the documentation, available_instances is
+> mandatory. This means that drivers either need to provide get_available
+> or implement their own version of the attribute. I think we want to
+> update vfio-mediated-device.rst as well?
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+I added this, and something similar for the device_api patch too, thanks
+
+diff --git a/Documentation/driver-api/vfio-mediated-device.rst b/Documentation/driver-api/vfio-mediated-device.rst
+index 9f26079cacae35..0a130d76b33a48 100644
+--- a/Documentation/driver-api/vfio-mediated-device.rst
++++ b/Documentation/driver-api/vfio-mediated-device.rst
+@@ -106,6 +106,7 @@ structure to represent a mediated device's driver::
+ 	     int  (*probe)  (struct mdev_device *dev);
+ 	     void (*remove) (struct mdev_device *dev);
+ 	     struct device_driver    driver;
++	     unsigned int (*get_available)(struct mdev_type *mtype);
+      };
+ 
+ A mediated bus driver for mdev should use this structure in the function calls
+@@ -230,7 +231,8 @@ Directories and files under the sysfs for Each Physical Device
+ * available_instances
+ 
+   This attribute should show the number of devices of type <type-id> that can be
+-  created.
++  created. Drivers can supply a get_availble() function pointer to have the core
++  code create and maintain this sysfs automatically.
+ 
+ * [device]
+ 
