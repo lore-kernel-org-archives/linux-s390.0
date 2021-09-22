@@ -2,77 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42CCFC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 03:10:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EE97C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 07:19:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1960A611AD
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 03:10:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E42561090
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 07:19:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230138AbhIVDLg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Sep 2021 23:11:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35214 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230054AbhIVDLg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Sep 2021 23:11:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 13EB76115A;
-        Wed, 22 Sep 2021 03:10:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632280207;
-        bh=6FBTz2toAIgmo5Vr3DFfild0yN/e4opUzPVjNwZZp70=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=QwE63g/3LB6T5i8RpUdplYCAtFxIQgJ3hrH5gK9lmHiJjOpwikVZV9XlmHYt2r3b8
-         bapww9+BnaC2Shie+okzQoc+u18axhavgOpmlXeHxRoSTDo6bPIyw8TXVYxjVuApRE
-         pULfJVoqEFJlCf1Ej0XSxNV4LJwOZZ3uNZF+5zXrFh3AUst7sUgKoyRDd47dWt9w47
-         PQpD7O1mdNzgZzjRH8SQTxBVYMpajZE47uSXEFrNvkea0bXuty7WcTR561UfdMNSmg
-         k98h0sFOPAibMdkCZzJHRKaeJOOoCOqJ/b/YWcgMPDg8kCnvC42jcSLE9ADU4oREY1
-         9mEGtsHrsYA3A==
-Content-Type: text/plain; charset="utf-8"
+        id S231429AbhIVHUj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Sep 2021 03:20:39 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11868 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233228AbhIVHUf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Sep 2021 03:20:35 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18M6CvK5018881;
+        Wed, 22 Sep 2021 03:19:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=ih18O89CAt9Jc6itVCK/6O7R2Ea4Fi8D95DsC3HHXzg=;
+ b=rn4jQIWhYUt6sf9FVOKgkWf2aHvow/MpDy2UGGNv18Inn/JTFxAvkvkunIGNATMTb1r7
+ GThEgBYkjYJIjXCAk4djCgFrtAj8GptfOuHcsVeXkt9ieSk4xkLvPVajLQDHOXl6zOAa
+ jG4N08wso8wIADeGIbzzQpX92VhRZRkEgk9MNPC1e3xtIEnfcbPcNXrFnx/+Hwe4E9h7
+ fcAwqr7NcwVurYx0Lyjsczd2gciuNPEg7JjR4x+IQUu5tDoWky2e5+jK5zAToaRzplOI
+ tXbj1/ygZ3UJDboGiWN5/BpxIdmAfm9J4RSwVAVXgU6QsvY9gmcSr57F935QF2Fwhsmo tg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b7t09er16-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 22 Sep 2021 03:19:05 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18M6jZpx025518;
+        Wed, 22 Sep 2021 03:19:04 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b7t09er0h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 22 Sep 2021 03:19:04 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18M78EEj013387;
+        Wed, 22 Sep 2021 07:19:02 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03ams.nl.ibm.com with ESMTP id 3b7q6pkgru-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 22 Sep 2021 07:19:02 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18M7ECoq61604304
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 22 Sep 2021 07:14:12 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DE054A405F;
+        Wed, 22 Sep 2021 07:18:58 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 22E70A4055;
+        Wed, 22 Sep 2021 07:18:58 +0000 (GMT)
+Received: from linux6.. (unknown [9.114.12.104])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 22 Sep 2021 07:18:58 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     thuth@redhat.com, david@redhat.com, linux-s390@vger.kernel.org,
+        seiden@linux.ibm.com, imbrenda@linux.ibm.com
+Subject: [kvm-unit-tests PATCH 6/9] lib: s390x: Print PGM code as hex
+Date:   Wed, 22 Sep 2021 07:18:08 +0000
+Message-Id: <20210922071811.1913-7-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210922071811.1913-1-frankja@linux.ibm.com>
+References: <20210922071811.1913-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 0/3] s390/qeth: fixes 2021-09-21
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <163228020700.28047.10149739218296607530.git-patchwork-notify@kernel.org>
-Date:   Wed, 22 Sep 2021 03:10:07 +0000
-References: <20210921145217.1584654-1-jwi@linux.ibm.com>
-In-Reply-To: <20210921145217.1584654-1-jwi@linux.ibm.com>
-To:     Julian Wiedmann <jwi@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com,
-        kgraul@linux.ibm.com, wintera@linux.ibm.com
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: D9Qtpszowo1kJOATJincpMf_eqGolsTW
+X-Proofpoint-ORIG-GUID: hosBIHoWeZrNvMUCvwC9vryFuU8vUet1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-22_02,2021-09-20_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ spamscore=0 suspectscore=0 phishscore=0 bulkscore=0 impostorscore=0
+ priorityscore=1501 mlxscore=0 mlxlogscore=932 clxscore=1015
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109200000 definitions=main-2109220048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+We have them defined as hex constants in lib/s390x/asm/arch_def.h so
+why not print them as hex values?
 
-This series was applied to netdev/net.git (refs/heads/master):
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ lib/s390x/interrupt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On Tue, 21 Sep 2021 16:52:14 +0200 you wrote:
-> Hi Dave & Jakub,
-> 
-> please apply the following patch series for qeth to netdev's net tree.
-> 
-> This brings two fixes for deadlocks when a device is removed while it
-> has certain types of async work pending. And one additional fix for a
-> missing NULL check in an error case.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net,1/3] s390/qeth: fix NULL deref in qeth_clear_working_pool_list()
-    https://git.kernel.org/netdev/net/c/248f064af222
-  - [net,2/3] s390/qeth: Fix deadlock in remove_discipline
-    https://git.kernel.org/netdev/net/c/ee909d0b1dac
-  - [net,3/3] s390/qeth: fix deadlock during failing recovery
-    https://git.kernel.org/netdev/net/c/d2b59bd4b06d
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index 126d4c0a..27d3b767 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -169,7 +169,7 @@ static void print_pgm_info(struct stack_frame_int *stack)
+ 		  lc->pgm_old_psw.addr <= (uintptr_t)sie_exit);
+ 
+ 	printf("\n");
+-	printf("Unexpected program interrupt %s: %d on cpu %d at %#lx, ilen %d\n",
++	printf("Unexpected program interrupt %s: %#x on cpu %d at %#lx, ilen %d\n",
+ 	       in_sie ? "in SIE" : "",
+ 	       lc->pgm_int_code, stap(), lc->pgm_old_psw.addr, lc->pgm_int_id);
+ 	print_int_regs(stack);
+-- 
+2.30.2
 
