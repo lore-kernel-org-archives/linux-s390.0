@@ -4,163 +4,151 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13A93C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 09:36:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E75E2C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 11:37:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F273961351
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 09:36:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C7C5C60F43
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 11:37:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234460AbhIVJha (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Sep 2021 05:37:30 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44002 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234482AbhIVJh2 (ORCPT
+        id S235596AbhIVLib (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Sep 2021 07:38:31 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21244 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230171AbhIVLi3 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 22 Sep 2021 05:37:28 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18M8VNdN016374;
-        Wed, 22 Sep 2021 05:35:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        Wed, 22 Sep 2021 07:38:29 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18M9M74s022231;
+        Wed, 22 Sep 2021 07:36:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=C/3gshnIgbM0+pDZJMoOP2L3EVQSi0uCc9vTz4QhkoE=;
- b=HJ92TxH0TAGU5hOnEqt+e51ExtNw3Ep/NRmYyYy0cThAnfW1h5NkDE6K8iVqCkDE18kh
- 5CZsWvs4mrBp/dRdMQlB9W3lMFMZkL50KNA+gTkQO0yG61FkXrmcx7zq+l0DNdcPMugN
- SVxi3caMsbfXyL1uLCrhta1o2QfaDT+itTg8LIS4EqqBJhW2e2XwTfOA20FSp3aQQOze
- M3ZL4cw3KEpkfLqhDD9jJG6I5R3gn/8BppvGqIoTPzTf5Rpa4TuUPgt+bal0Zcn/VMS3
- Ix6jYda/n0QqWohDWxfNyCCkDkJEdqszcxDDLP35KZp4E4iOHe4GndBasNqLw0spX3Yl LA== 
+ bh=NXBx5dqDCc9S943AjoQYTz/4bTTyMld2VJLektLQdDE=;
+ b=MDtt8n/Xs5SqfaGzZzjO5Fd0UTXJqc+e5QXiWIa0Ga3rVAV8DTi+UCHGu+59Hj/RTArZ
+ JgwgmFzr1ENy8iFtHZh7SVzs3CwUaHMR4MWfRQctJkmG+uzFDKsjrC4az4Gegtpw9tep
+ XYzO4UxnSP8fJUPuExvrIHzA6FvzMEK0Qg04yHCr1Nqz74E21tZf477+iqtehn+AEOYk
+ 7P957IdCZYZNd9q+RcyMB7HteMb6rQVk9fTqc49K/4aFUmKFKbrMr4D2A32bkVBlKvAT
+ mXNVDVB0n0yoDa6fSON/+WeyHawhUlDv+mmlFHUKaL9hQY4CNre/9HcY8IL5rHA0HLMJ QQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b811u9bey-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b7yqjnqww-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 05:35:58 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18M9LjYh014154;
-        Wed, 22 Sep 2021 05:35:58 -0400
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b811u9beh-1
+        Wed, 22 Sep 2021 07:36:59 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18MAlq3L025225;
+        Wed, 22 Sep 2021 07:36:58 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b7yqjnqw9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 05:35:57 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18M9W1hL008723;
-        Wed, 22 Sep 2021 09:35:55 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma02fra.de.ibm.com with ESMTP id 3b7q6rmkv5-1
+        Wed, 22 Sep 2021 07:36:58 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18MBVxTw012893;
+        Wed, 22 Sep 2021 11:36:56 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3b7q6qx262-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 09:35:55 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18M9ZqUw41419016
+        Wed, 22 Sep 2021 11:36:56 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18MBW3Ki57540972
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Sep 2021 09:35:52 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F2995AE058;
-        Wed, 22 Sep 2021 09:35:51 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A237FAE055;
-        Wed, 22 Sep 2021 09:35:51 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.3.24])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 22 Sep 2021 09:35:51 +0000 (GMT)
-Date:   Wed, 22 Sep 2021 11:18:54 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
+        Wed, 22 Sep 2021 11:32:03 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1A4704C064;
+        Wed, 22 Sep 2021 11:36:53 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B8D414C044;
+        Wed, 22 Sep 2021 11:36:52 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.85.176])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 22 Sep 2021 11:36:52 +0000 (GMT)
+Subject: Re: [kvm-unit-tests PATCH 1/9] s390x: uv: Tolerate 0x100 query return
+ code
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc:     kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com,
         linux-s390@vger.kernel.org, seiden@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH 3/9] s390x: uv-host: Fence a destroy cpu
- test on z15
-Message-ID: <20210922111854.767c29c7@p-imbrenda>
-In-Reply-To: <20210922071811.1913-4-frankja@linux.ibm.com>
 References: <20210922071811.1913-1-frankja@linux.ibm.com>
-        <20210922071811.1913-4-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+ <20210922071811.1913-2-frankja@linux.ibm.com>
+ <20210922111256.04febb7e@p-imbrenda>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <75c8d08e-3b93-c001-cc84-5f77aaee5248@linux.ibm.com>
+Date:   Wed, 22 Sep 2021 13:36:52 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20210922111256.04febb7e@p-imbrenda>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: _7TLKksq79HS88kfy6s7dtQvhp3JeoEf
-X-Proofpoint-GUID: tFnbr8QA6qkGmDmYlmWN8LFMuCesIeGD
+X-Proofpoint-GUID: Is28jtXBkCtBC0VAM09VKkaDWH5spvK_
+X-Proofpoint-ORIG-GUID: vBrqJQbRlYIRUnF_CniR5kC44D0RW2OK
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-22_03,2021-09-20_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 malwarescore=0 bulkscore=0 mlxscore=0 mlxlogscore=999
- impostorscore=0 suspectscore=0 phishscore=0 lowpriorityscore=0
- clxscore=1015 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109200000 definitions=main-2109220066
+ definitions=2021-09-22_04,2021-09-22_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 mlxscore=0 lowpriorityscore=0 clxscore=1015
+ adultscore=0 impostorscore=0 bulkscore=0 malwarescore=0 suspectscore=0
+ phishscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109200000 definitions=main-2109220081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 22 Sep 2021 07:18:05 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> Firmware will not give us the expected return code on z15 so let's
-> fence it for the z15 machine generation.
+On 9/22/21 11:12 AM, Claudio Imbrenda wrote:
+> On Wed, 22 Sep 2021 07:18:03 +0000
+> Janosch Frank <frankja@linux.ibm.com> wrote:
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> ---
->  lib/s390x/asm/arch_def.h | 14 ++++++++++++++
->  s390x/uv-host.c          | 11 +++++++----
->  2 files changed, 21 insertions(+), 4 deletions(-)
+>> RC 0x100 is not an error but a notice that we could have gotten more
+>> data from the Ultravisor if we had asked for it. So let's tolerate
+>> them in our tests.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>  s390x/uv-guest.c | 4 ++--
+>>  s390x/uv-host.c  | 2 +-
+>>  2 files changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
+>> index f05ae4c3..e7446e03 100644
+>> --- a/s390x/uv-guest.c
+>> +++ b/s390x/uv-guest.c
+>> @@ -70,8 +70,8 @@ static void test_query(void)
+>>  	report(cc == 1 && uvcb.header.rc == UVC_RC_INV_LEN, "length");
+>>  
+>>  	uvcb.header.len = sizeof(uvcb);
+>> -	cc = uv_call(0, (u64)&uvcb);
+>> -	report(cc == 0 && uvcb.header.rc == UVC_RC_EXECUTED, "successful query");
+>> +	uv_call(0, (u64)&uvcb);
+>> +	report(uvcb.header.rc == UVC_RC_EXECUTED || uvcb.header.rc
+>> == 0x100, "successful query");
 > 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index aa80d840..c8d2722a 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -219,6 +219,20 @@ static inline unsigned short stap(void)
->  	return cpu_address;
->  }
->  
-> +#define MACHINE_Z15A	0x8561
-> +#define MACHINE_Z15B	0x8562
-> +
-> +static inline uint16_t get_machine_id(void)
-> +{
-> +	uint64_t cpuid;
-> +
-> +	asm volatile("stidp %0" : "=Q" (cpuid));
-> +	cpuid = cpuid >> 16;
-> +	cpuid &= 0xffff;
-> +
-> +	return cpuid;
-> +}
-> +
->  static inline int tprot(unsigned long addr)
->  {
->  	int cc;
-> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
-> index 66a11160..5e351120 100644
-> --- a/s390x/uv-host.c
-> +++ b/s390x/uv-host.c
-> @@ -111,6 +111,7 @@ static void test_config_destroy(void)
->  static void test_cpu_destroy(void)
->  {
->  	int rc;
-> +	uint16_t machineid = get_machine_id();
->  	struct uv_cb_nodata uvcb = {
->  		.header.len = sizeof(uvcb),
->  		.header.cmd = UVC_CMD_DESTROY_SEC_CPU,
-> @@ -125,10 +126,12 @@ static void test_cpu_destroy(void)
->  	       "hdr invalid length");
->  	uvcb.header.len += 8;
->  
-> -	uvcb.handle += 1;
-> -	rc = uv_call(0, (uint64_t)&uvcb);
-> -	report(rc == 1 && uvcb.header.rc == UVC_RC_INV_CHANDLE, "invalid handle");
-> -	uvcb.handle -= 1;
-> +	if (machineid != MACHINE_Z15A && machineid != MACHINE_Z15B) {
-> +		uvcb.handle += 1;
-> +		rc = uv_call(0, (uint64_t)&uvcb);
-> +		report(rc == 1 && uvcb.header.rc == UVC_RC_INV_CHANDLE, "invalid handle");
-> +		uvcb.handle -= 1;
-> +	}
->  
->  	rc = uv_call(0, (uint64_t)&uvcb);
->  	report(rc == 0 && uvcb.header.rc == UVC_RC_EXECUTED, "success");
+> if you want to be even more pedantic:
+> 	report(cc == 0 && uvcb.header.rc == UVC_RC_EXECUTED ||
+> 		cc == 1 && uvcb.header.rc == 0x100, ... 
+
+Yeah I pondered about that but at the end I chose to drop the cc check
+
+> 
+>>  
+>>  	/*
+>>  	 * These bits have been introduced with the very first
+>> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
+>> index 28035707..66a11160 100644
+>> --- a/s390x/uv-host.c
+>> +++ b/s390x/uv-host.c
+>> @@ -401,7 +401,7 @@ static void test_query(void)
+>>  
+>>  	uvcb_qui.header.len = sizeof(uvcb_qui);
+>>  	uv_call(0, (uint64_t)&uvcb_qui);
+>> -	report(uvcb_qui.header.rc == UVC_RC_EXECUTED, "successful query");
+>> +	report(uvcb_qui.header.rc == UVC_RC_EXECUTED || uvcb_qui.header.rc == 0x100, "successful query");
+> 
+> same here
+> 
+>>  
+>>  	for (i = 0; cmds[i].name; i++)
+>>  		report(uv_query_test_call(cmds[i].call_bit), "%s", cmds[i].name);
+> 
 
