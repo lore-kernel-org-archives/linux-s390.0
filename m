@@ -7,131 +7,152 @@ X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2CF3C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 11:47:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0C5BC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 13:05:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9B4E761156
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 11:47:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A8276611C0
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 13:05:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235798AbhIVLs4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Sep 2021 07:48:56 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35474 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S230171AbhIVLsx (ORCPT
+        id S231336AbhIVNGt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Sep 2021 09:06:49 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40168 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230180AbhIVNGt (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 22 Sep 2021 07:48:53 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18MBYw1Q030178;
-        Wed, 22 Sep 2021 07:47:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
- from : subject : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=2xyInIEpJeIXBBL0cMhzPhwFEl+sbXx5dMRpNfiJJZg=;
- b=P67E8oP1lzgPNysM9liAIsqYYIKt6e5Bw33fWuJXeD2tK8J3obwMkznBNwBoo/xBaHrC
- SvOD70JcrEUfO2ezhH+kxX68iWGvq3sb56bFe2zTTQBx4I0IiSLi0J9QrK5Y6xIlQroN
- lvoWaTCg2V+zE/kS1Q97olpcItfaFpEGd6kPHbVDctYb1s+UfBSe1nzHVxBOz9Kv96nB
- ppqKjg6Xj9fVdjuUrQyTFlnbMK5vgBnvgcP739Qv8B2voSISJ6TFSAb6nN2BUYQEX3Tt
- 7dHWip+41kAI4LQ5H9yYgYzOFhjvk/5CmuyTuytFYAmNy0Tqn3hR/alngXD85vUJD9Zd IA== 
+        Wed, 22 Sep 2021 09:06:49 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18MCD5kM009203;
+        Wed, 22 Sep 2021 09:05:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=z9gdhd93/UAvan1rXwGwITh0P+5rMHlSMbScNaYqTYI=;
+ b=tMBINywXUOBATry+6hm1ek5gY7jbuTg5Sc2M6snWJodwmnetiI2Js9xlVCB6m4sPapa1
+ GSG+js180RyU/wrL05JyvvO1IjwcztGkMp+sggxhVqA0CPP7rKAS1hFwStno0HMgW0XU
+ /oNF9QxY3Xv/SCHnPAhNwq6Sspf8KY7ud7UaT/speXKr+8xbUd/NStxbMDS2hyPMtGaf
+ RS5cqj3P8Y1t2MHoJtr85sdRHc9WncOxhrOogwFoAaNAfSR5YT3ONYko1uUH+up3v5/I
+ EDBOz5nJ9CytrWVhObi2ADSdq3R6NH9kQX6HCXcB/BMfpb1GfS8ydltW+BhL7cS2CSjs /g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3b83r6r7yq-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b8230vje4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 07:47:23 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18MBaQ1W001259;
-        Wed, 22 Sep 2021 07:47:22 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3b83r6r7y6-1
+        Wed, 22 Sep 2021 09:05:11 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18MC04JR012850;
+        Wed, 22 Sep 2021 09:05:11 -0400
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b8230vjd9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 07:47:22 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18MBfxAm026664;
-        Wed, 22 Sep 2021 11:47:21 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3b7q6qx56p-1
+        Wed, 22 Sep 2021 09:05:11 -0400
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18MCw9U0019135;
+        Wed, 22 Sep 2021 13:05:10 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma02wdc.us.ibm.com with ESMTP id 3b7q6td9bd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 11:47:21 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18MBlHpd44892566
+        Wed, 22 Sep 2021 13:05:09 +0000
+Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18MD58gc39387414
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Sep 2021 11:47:17 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 774D54C059;
-        Wed, 22 Sep 2021 11:47:17 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 163554C052;
-        Wed, 22 Sep 2021 11:47:17 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.85.176])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 22 Sep 2021 11:47:17 +0000 (GMT)
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com,
-        linux-s390@vger.kernel.org, seiden@linux.ibm.com
-References: <20210922071811.1913-1-frankja@linux.ibm.com>
- <20210922071811.1913-10-frankja@linux.ibm.com>
- <20210922113459.56737df3@p-imbrenda>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH 9/9] s390x: skrf: Fix tprot assembly
-Message-ID: <d645e4aa-1106-6971-e25c-4401a7d7cfdd@linux.ibm.com>
-Date:   Wed, 22 Sep 2021 13:47:16 +0200
+        Wed, 22 Sep 2021 13:05:08 GMT
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B43AB6E065;
+        Wed, 22 Sep 2021 13:05:08 +0000 (GMT)
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 636EA6E070;
+        Wed, 22 Sep 2021 13:05:07 +0000 (GMT)
+Received: from cpe-172-100-181-211.stny.res.rr.com (unknown [9.65.75.198])
+        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Wed, 22 Sep 2021 13:05:07 +0000 (GMT)
+Subject: Re: [PATCH v3] vfio/ap_ops: Add missed vfio_uninit_group_dev()
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, kvm@vger.kernel.org
+References: <0-v3-f9b50340cdbb+e4-ap_uninit_jgg@nvidia.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <4a50ed05-c60c-aad0-bceb-de9665602aed@linux.ibm.com>
+Date:   Wed, 22 Sep 2021 09:05:06 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
-MIME-Version: 1.0
-In-Reply-To: <20210922113459.56737df3@p-imbrenda>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <0-v3-f9b50340cdbb+e4-ap_uninit_jgg@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QCCl6BIY-5Oo1LmAbpjBZrm4tGXPyG7F
-X-Proofpoint-ORIG-GUID: ty77w63FPu3ZNdN5AwFu8tU_go1EpxKM
+X-Proofpoint-GUID: 33bWobvGGjttjIDRF_JqZHHETomYlO3U
+X-Proofpoint-ORIG-GUID: Y_mmh8qc6g2KnVJOsbIjsOnFiRVuBOEj
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-09-22_04,2021-09-22_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 mlxlogscore=999 lowpriorityscore=0 adultscore=0
- impostorscore=0 spamscore=0 clxscore=1015 mlxscore=0 malwarescore=0
- phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109200000 definitions=main-2109220081
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 adultscore=0 impostorscore=0 suspectscore=0 phishscore=0
+ priorityscore=1501 bulkscore=0 mlxscore=0 clxscore=1015 spamscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109200000 definitions=main-2109220093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 9/22/21 11:34 AM, Claudio Imbrenda wrote:
-> On Wed, 22 Sep 2021 07:18:11 +0000
-> Janosch Frank <frankja@linux.ibm.com> wrote:
-> 
->> It's a base + displacement address so we need to address it via 0(%[addr]).
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> 
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> 
-> but see comment below
-> 
->> ---
->>  s390x/skrf.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/s390x/skrf.c b/s390x/skrf.c
->> index 8ca7588c..84fb762c 100644
->> --- a/s390x/skrf.c
->> +++ b/s390x/skrf.c
->> @@ -103,7 +103,7 @@ static void test_tprot(void)
->>  {
->>  	report_prefix_push("tprot");
->>  	expect_pgm_int();
->> -	asm volatile("tprot	%[addr],0xf0(0)\n"
->> +	asm volatile("tprot	0(%[addr]),0xf0(0)\n"
-> 
-> I think the displacement defaults to 0 if not specified?
-> 
-> did you get a warning, or why are you changing this now?
 
-It fixes one of the ~18 clang warnings and making it explicit directly
-tells you it's a B+D instruction i.e. it looks cleaner to me.
 
-> 
->>  		     : : [addr] "a" (pagebuf) : );
->>  	check_pgm_int_code(PGM_INT_CODE_SPECIAL_OPERATION);
->>  	report_prefix_pop();
-> 
+On 9/21/21 8:11 AM, Jason Gunthorpe wrote:
+> Without this call an xarray entry is leaked when the vfio_ap device is
+> unprobed. It was missed when the below patch was rebased across the
+> dev_set patch. Keep the remove function in the same order as the error
+> unwind in probe.
+>
+> Fixes: eb0feefd4c02 ("vfio/ap_ops: Convert to use vfio_register_group_dev()")
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Tested-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>   drivers/s390/crypto/vfio_ap_ops.c | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> v3:
+>   - Keep the remove sequence the same as remove to avoid a lockdep splat
+> v2: https://lore.kernel.org/r/0-v2-25656bbbb814+41-ap_uninit_jgg@nvidia.com/
+>   - Fix corrupted diff
+> v1: https://lore.kernel.org/r/0-v1-3a05c6000668+2ce62-ap_uninit_jgg@nvidia.com/
+>
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index 118939a7729a1e..623d5269a52ce5 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -361,6 +361,7 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
+>   	mutex_lock(&matrix_dev->lock);
+>   	list_del(&matrix_mdev->node);
+>   	mutex_unlock(&matrix_dev->lock);
+> +	vfio_uninit_group_dev(&matrix_mdev->vdev);
+>   	kfree(matrix_mdev);
+>   err_dec_available:
+>   	atomic_inc(&matrix_dev->available_instances);
+> @@ -376,9 +377,10 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
+>   	mutex_lock(&matrix_dev->lock);
+>   	vfio_ap_mdev_reset_queues(matrix_mdev);
+>   	list_del(&matrix_mdev->node);
+> +	mutex_unlock(&matrix_dev->lock);
+> +	vfio_uninit_group_dev(&matrix_mdev->vdev);
+>   	kfree(matrix_mdev);
+>   	atomic_inc(&matrix_dev->available_instances);
+
+I think the above line of code should be done under the
+matrix_dev->lock after removing the matrix_mdev from
+the list since it is changing a value in matrix_dev.
+
+
+> -	mutex_unlock(&matrix_dev->lock);
+>   }
+>   
+>   static ssize_t name_show(struct mdev_type *mtype,
+>
+> base-commit: 6880fa6c56601bb8ed59df6c30fd390cc5f6dd8f
 
