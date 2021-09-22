@@ -2,191 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E80BC433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 13:53:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96C68C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 14:12:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D2C7611CA
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 13:53:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 822D86120E
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 14:12:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232714AbhIVNzC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Sep 2021 09:55:02 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57126 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232832AbhIVNzB (ORCPT
+        id S236086AbhIVOOU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Sep 2021 10:14:20 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38671 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236026AbhIVOOO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 22 Sep 2021 09:55:01 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18MC69Ua009162;
-        Wed, 22 Sep 2021 09:53:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=to : cc : references :
- from : subject : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=7f6GPRDdDyd6Fk9IImEun7vElAtKqXzDzJDCnVK0juk=;
- b=LBKdfPn567OVxTIVsnC70wuW3Gwjc84LrB5RQyhtbMVknC1wOwRCDEwCmGDLsjafgAoR
- df6ozzRH18hDB3h8uG2mEoLvxDNqm9lg8IAIO1snH8zPWYPX+8GotVeuFPtpKBpLvIJB
- JEU9JCkFPNNt32MfLBtagRuCAJbpnYEzvsfUI9NOiqEp8Zpo87j5IcIILUXYerFudY5j
- fXc0F0trgRIQ0l0tpnt7SNt1Ay0kbS3ycYYZYCyqnyeTwBLRtQ+ZcTkqPaWkQ2biSioe
- E2DptWoVesgm7HZ0eD2WmWeTxtSI3TSyo8mDXcLNfcYYFT803TEJ2jsLV8BdfSTcKrdR +Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b8230wx1w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 09:53:31 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18MCR8hH001340;
-        Wed, 22 Sep 2021 09:53:30 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b8230wx19-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 09:53:30 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18MDlxfv022700;
-        Wed, 22 Sep 2021 13:53:28 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3b7q6pqj4c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 13:53:28 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18MDmXLD45744546
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Sep 2021 13:48:34 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B4D854C04E;
-        Wed, 22 Sep 2021 13:53:23 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 518914C046;
-        Wed, 22 Sep 2021 13:53:23 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.85.176])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 22 Sep 2021 13:53:23 +0000 (GMT)
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     thuth@redhat.com, david@redhat.com, linux-s390@vger.kernel.org,
-        seiden@linux.ibm.com, imbrenda@linux.ibm.com
-References: <20210922071811.1913-1-frankja@linux.ibm.com>
- <20210922071811.1913-10-frankja@linux.ibm.com>
- <20210922134112.174842-1-scgl@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH 9/9] s390x: skrf: Fix tprot assembly
-Message-ID: <1472bd3a-f72e-16d0-4b99-cb3863b4a7bf@linux.ibm.com>
-Date:   Wed, 22 Sep 2021 15:53:22 +0200
+        Wed, 22 Sep 2021 10:14:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1632319964;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=rZMdBUFCcEro44m/VYQjrdo8tgcAaj3vpqrRJk30Xe4=;
+        b=AfPwWbF8yLhbvlx4DgIh/0v6SBEVJG8wr1TRBpKZz9hAUT7+td02E7C1DbrWdaQwPNMfLq
+        YkYJORZmIpKPKtsTaskMCRnc2MC9vhPV3HIa79JkkQtPf5vgmxfDI2ZlD/1+Q6X+N1Andl
+        7cCs11/Uek2WDmmT8VDNq2zCYNr75Mo=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-507-Z_XZxYpjOf6UH5F3lbVO0Q-1; Wed, 22 Sep 2021 10:12:43 -0400
+X-MC-Unique: Z_XZxYpjOf6UH5F3lbVO0Q-1
+Received: by mail-ed1-f70.google.com with SMTP id o18-20020a056402439200b003d2b11eb0a9so3154754edc.23
+        for <linux-s390@vger.kernel.org>; Wed, 22 Sep 2021 07:12:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=rZMdBUFCcEro44m/VYQjrdo8tgcAaj3vpqrRJk30Xe4=;
+        b=X3rmocnyMDOeeFvorgKWz2GOFHOw8ddVeam1G9ED4ilXV7VaBH/HcSA+xJF9K8LZ+D
+         LUCC6OSnXCE1TLmQArheMSKp/G4H3SSfmhoAIwPI7XaJeg61BWAi1OHm7DXxmXflB5+N
+         XuWML+v5DXfUTtSrgdUhnZFgmRxmjqNs+tKO5Xn60fjInMgUybp0loOiFitYbeWGottN
+         99HKv7YltZ2iFcMvNNkXLiWlZTf2YwLnq4uPiUROCUE5tPVvZH/1Xk418IvLKGPuoSGh
+         fvv4gAciZNVSm61vVGK6OAskhuWNWf3dLdXOcr+N3jykSadoG/DZxSVr8GvUc+1MQcbm
+         bb1A==
+X-Gm-Message-State: AOAM532hbLnDLXTCLex9BQdlJoCZEJJeloZFFo8SJ1I4cJ42mwO9iOk2
+        vZ9hI4LY2wmaTN1jtivaod+qZ7KuFwf1w9bsmSu2xgLglAwhPwh5Rw5VafODlKTwRmbOctpfhDj
+        2kEMNGRRlC27hSPPoPddulQ==
+X-Received: by 2002:a17:906:b183:: with SMTP id w3mr41217063ejy.394.1632319961898;
+        Wed, 22 Sep 2021 07:12:41 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxDM/LAO92AMI8uC+ZsdL5tg3HWsAwfnbY471GXtr9Lv9ROvDMZHXi9azcQssuJ/zXZcmQ7Nw==
+X-Received: by 2002:a17:906:b183:: with SMTP id w3mr41217031ejy.394.1632319961680;
+        Wed, 22 Sep 2021 07:12:41 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id n23sm393858edw.75.2021.09.22.07.12.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 22 Sep 2021 07:12:41 -0700 (PDT)
+Subject: Re: [PATCH 0/5] KVM: rseq: Fix and a test for a KVM+rseq bug
+To:     Sean Christopherson <seanjc@google.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Shuah Khan <shuah@kernel.org>
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Peter Foley <pefoley@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Ben Gardon <bgardon@google.com>
+References: <20210818001210.4073390-1-seanjc@google.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <430684f9-1b35-b6f1-f243-6298e892bc7a@redhat.com>
+Date:   Wed, 22 Sep 2021 16:12:38 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210922134112.174842-1-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20210818001210.4073390-1-seanjc@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KhbhahjLl045c4zVZhVN7CFhlPnHQRyL
-X-Proofpoint-ORIG-GUID: EvzXLecY1eNJy8mVfmzMhrJkKfPR6vnS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-22_05,2021-09-22_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 adultscore=0 impostorscore=0 suspectscore=0 phishscore=0
- priorityscore=1501 bulkscore=0 mlxscore=0 clxscore=1015 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109200000 definitions=main-2109220093
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 9/22/21 3:41 PM, Janis Schoetterl-Glausch wrote:
-> On Wed, Sep 22, 2021 at 07:18:11AM +0000, Janosch Frank wrote:
->> It's a base + displacement address so we need to address it via 0(%[addr]).
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>  s390x/skrf.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/s390x/skrf.c b/s390x/skrf.c
->> index 8ca7588c..84fb762c 100644
->> --- a/s390x/skrf.c
->> +++ b/s390x/skrf.c
->> @@ -103,7 +103,7 @@ static void test_tprot(void)
->>  {
->>  	report_prefix_push("tprot");
->>  	expect_pgm_int();
->> -	asm volatile("tprot	%[addr],0xf0(0)\n"
->> +	asm volatile("tprot	0(%[addr]),0xf0(0)\n"
->>  		     : : [addr] "a" (pagebuf) : );
->>  	check_pgm_int_code(PGM_INT_CODE_SPECIAL_OPERATION);
->>  	report_prefix_pop();
->> -- 
->> 2.30.2
->>
+On 18/08/21 02:12, Sean Christopherson wrote:
+> Patch 1 fixes a KVM+rseq bug where KVM's handling of TIF_NOTIFY_RESUME,
+> e.g. for task migration, clears the flag without informing rseq and leads
+> to stale data in userspace's rseq struct.
 > 
-> Let's add an argument to tprot instead.
+> Patch 2 is a cleanup to try and make future bugs less likely.  It's also
+> a baby step towards moving and renaming tracehook_notify_resume() since
+> it has nothing to do with tracing.  It kills me to not do the move/rename
+> as part of this series, but having a dedicated series/discussion seems
+> more appropriate given the sheer number of architectures that call
+> tracehook_notify_resume() and the lack of an obvious home for the code.
+> 
+> Patch 3 is a fix/cleanup to stop overriding x86's unistd_{32,64}.h when
+> the include path (intentionally) omits tools' uapi headers.  KVM's
+> selftests do exactly that so that they can pick up the uapi headers from
+> the installed kernel headers, and still use various tools/ headers that
+> mirror kernel code, e.g. linux/types.h.  This allows the new test in
+> patch 4 to reference __NR_rseq without having to manually define it.
+> 
+> Patch 4 is a regression test for the KVM+rseq bug.
+> 
+> Patch 5 is a cleanup made possible by patch 3.
+> 
+> 
+> Sean Christopherson (5):
+>    KVM: rseq: Update rseq when processing NOTIFY_RESUME on xfer to KVM
+>      guest
+>    entry: rseq: Call rseq_handle_notify_resume() in
+>      tracehook_notify_resume()
+>    tools: Move x86 syscall number fallbacks to .../uapi/
+>    KVM: selftests: Add a test for KVM_RUN+rseq to detect task migration
+>      bugs
+>    KVM: selftests: Remove __NR_userfaultfd syscall fallback
+> 
+>   arch/arm/kernel/signal.c                      |   1 -
+>   arch/arm64/kernel/signal.c                    |   1 -
+>   arch/csky/kernel/signal.c                     |   4 +-
+>   arch/mips/kernel/signal.c                     |   4 +-
+>   arch/powerpc/kernel/signal.c                  |   4 +-
+>   arch/s390/kernel/signal.c                     |   1 -
+>   include/linux/tracehook.h                     |   2 +
+>   kernel/entry/common.c                         |   4 +-
+>   kernel/rseq.c                                 |   4 +-
+>   .../x86/include/{ => uapi}/asm/unistd_32.h    |   0
+>   .../x86/include/{ => uapi}/asm/unistd_64.h    |   3 -
+>   tools/testing/selftests/kvm/.gitignore        |   1 +
+>   tools/testing/selftests/kvm/Makefile          |   3 +
+>   tools/testing/selftests/kvm/rseq_test.c       | 131 ++++++++++++++++++
+>   14 files changed, 143 insertions(+), 20 deletions(-)
+>   rename tools/arch/x86/include/{ => uapi}/asm/unistd_32.h (100%)
+>   rename tools/arch/x86/include/{ => uapi}/asm/unistd_64.h (83%)
+>   create mode 100644 tools/testing/selftests/kvm/rseq_test.c
+> 
 
-Sure, LGTM
+Queued v3, thanks.  I'll send it in a separate pull request to Linus 
+since it touches stuff outside my usual turf.
 
-> -- >8 --
-> Subject: [kvm-unit-tests PATCH] lib: s390x: Add access key argument to tprot
-> 
-> Currently there is only one callee passing a non zero key,
-> but having the argument will be useful in the future.
-> 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> ---
->  lib/s390x/asm/arch_def.h | 6 +++---
->  lib/s390x/sclp.c         | 2 +-
->  s390x/skrf.c             | 3 +--
->  3 files changed, 5 insertions(+), 6 deletions(-)
-> 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 302ef1f..55f3124 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -206,15 +206,15 @@ static inline unsigned short stap(void)
->  	return cpu_address;
->  }
->  
-> -static inline int tprot(unsigned long addr)
-> +static inline int tprot(unsigned long addr, char access_key)
->  {
->  	int cc;
->  
->  	asm volatile(
-> -		"	tprot	0(%1),0\n"
-> +		"	tprot	0(%1),0(%2)\n"
->  		"	ipm	%0\n"
->  		"	srl	%0,28\n"
-> -		: "=d" (cc) : "a" (addr) : "cc");
-> +		: "=d" (cc) : "a" (addr), "a" (access_key << 4) : "cc");
->  	return cc;
->  }
->  
-> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-> index 9502d16..0272249 100644
-> --- a/lib/s390x/sclp.c
-> +++ b/lib/s390x/sclp.c
-> @@ -217,7 +217,7 @@ void sclp_memory_setup(void)
->  	/* probe for r/w memory up to max memory size */
->  	while (ram_size < max_ram_size) {
->  		expect_pgm_int();
-> -		cc = tprot(ram_size + storage_increment_size - 1);
-> +		cc = tprot(ram_size + storage_increment_size - 1, 0);
->  		/* stop once we receive an exception or have protected memory */
->  		if (clear_pgm_int() || cc != 0)
->  			break;
-> diff --git a/s390x/skrf.c b/s390x/skrf.c
-> index 9488c32..e0a1007 100644
-> --- a/s390x/skrf.c
-> +++ b/s390x/skrf.c
-> @@ -102,8 +102,7 @@ static void test_tprot(void)
->  {
->  	report_prefix_push("tprot");
->  	expect_pgm_int();
-> -	asm volatile("tprot	%[addr],0xf0(0)\n"
-> -		     : : [addr] "a" (pagebuf) : );
-> +	tprot((unsigned long)pagebuf, 0xf);
->  	check_pgm_int_code(PGM_INT_CODE_SPECIAL_OPERATION);
->  	report_prefix_pop();
->  }
-> 
+Thanks,
+
+Paolo
 
