@@ -2,166 +2,145 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96C68C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 14:12:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0016FC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 14:32:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 822D86120E
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 14:12:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E050F6115A
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 14:32:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236086AbhIVOOU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Sep 2021 10:14:20 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38671 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236026AbhIVOOO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 22 Sep 2021 10:14:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1632319964;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rZMdBUFCcEro44m/VYQjrdo8tgcAaj3vpqrRJk30Xe4=;
-        b=AfPwWbF8yLhbvlx4DgIh/0v6SBEVJG8wr1TRBpKZz9hAUT7+td02E7C1DbrWdaQwPNMfLq
-        YkYJORZmIpKPKtsTaskMCRnc2MC9vhPV3HIa79JkkQtPf5vgmxfDI2ZlD/1+Q6X+N1Andl
-        7cCs11/Uek2WDmmT8VDNq2zCYNr75Mo=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-507-Z_XZxYpjOf6UH5F3lbVO0Q-1; Wed, 22 Sep 2021 10:12:43 -0400
-X-MC-Unique: Z_XZxYpjOf6UH5F3lbVO0Q-1
-Received: by mail-ed1-f70.google.com with SMTP id o18-20020a056402439200b003d2b11eb0a9so3154754edc.23
-        for <linux-s390@vger.kernel.org>; Wed, 22 Sep 2021 07:12:43 -0700 (PDT)
+        id S236289AbhIVOdm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Sep 2021 10:33:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58526 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236279AbhIVOdj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Sep 2021 10:33:39 -0400
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 735DDC061756
+        for <linux-s390@vger.kernel.org>; Wed, 22 Sep 2021 07:32:09 -0700 (PDT)
+Received: by mail-lf1-x135.google.com with SMTP id u18so12389696lfd.12
+        for <linux-s390@vger.kernel.org>; Wed, 22 Sep 2021 07:32:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=shutemov-name.20210112.gappssmtp.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ayCGrHt4GWDBHksaWpDlFPsTDgmCQyv1ZQQyBUlWV+I=;
+        b=vKVQE5RUe8kMs0wun4XuDGO3eTujOGs2RwESdLhyIqK2JwxlqZrlSJy3MrsXJkRafX
+         gBAYy/nccugQKoUll1gn8VoFbzjQhjrLzptB1R76SapyouDJT5ZGJIWbG+FX4hwJyS6V
+         RHRd5aepSbIC42CmHtd5u+dR4xuEL++muo/z0NTk8BMGL92wAA2PmP9KOi2aYe71/Bfr
+         QklC4Nhk0K/0QbQiJZijepS1OZ+jtAxihfchh+jQ4jf5+4U17tQ1xXPBbmD5a5nhc0Gd
+         SVGSB9p7xAW0QvKqL518rFLXTD4w7KZA2wBif/Kp2RKz31Lh+5HyNQaqaSmkfOyisrNC
+         k+Nw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=rZMdBUFCcEro44m/VYQjrdo8tgcAaj3vpqrRJk30Xe4=;
-        b=X3rmocnyMDOeeFvorgKWz2GOFHOw8ddVeam1G9ED4ilXV7VaBH/HcSA+xJF9K8LZ+D
-         LUCC6OSnXCE1TLmQArheMSKp/G4H3SSfmhoAIwPI7XaJeg61BWAi1OHm7DXxmXflB5+N
-         XuWML+v5DXfUTtSrgdUhnZFgmRxmjqNs+tKO5Xn60fjInMgUybp0loOiFitYbeWGottN
-         99HKv7YltZ2iFcMvNNkXLiWlZTf2YwLnq4uPiUROCUE5tPVvZH/1Xk418IvLKGPuoSGh
-         fvv4gAciZNVSm61vVGK6OAskhuWNWf3dLdXOcr+N3jykSadoG/DZxSVr8GvUc+1MQcbm
-         bb1A==
-X-Gm-Message-State: AOAM532hbLnDLXTCLex9BQdlJoCZEJJeloZFFo8SJ1I4cJ42mwO9iOk2
-        vZ9hI4LY2wmaTN1jtivaod+qZ7KuFwf1w9bsmSu2xgLglAwhPwh5Rw5VafODlKTwRmbOctpfhDj
-        2kEMNGRRlC27hSPPoPddulQ==
-X-Received: by 2002:a17:906:b183:: with SMTP id w3mr41217063ejy.394.1632319961898;
-        Wed, 22 Sep 2021 07:12:41 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxDM/LAO92AMI8uC+ZsdL5tg3HWsAwfnbY471GXtr9Lv9ROvDMZHXi9azcQssuJ/zXZcmQ7Nw==
-X-Received: by 2002:a17:906:b183:: with SMTP id w3mr41217031ejy.394.1632319961680;
-        Wed, 22 Sep 2021 07:12:41 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id n23sm393858edw.75.2021.09.22.07.12.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Sep 2021 07:12:41 -0700 (PDT)
-Subject: Re: [PATCH 0/5] KVM: rseq: Fix and a test for a KVM+rseq bug
-To:     Sean Christopherson <seanjc@google.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=ayCGrHt4GWDBHksaWpDlFPsTDgmCQyv1ZQQyBUlWV+I=;
+        b=6ePmZZoaM5ZVG2BZuebP+rK7k+3GyZ4jY6LkadzRei+h9C5hIaSj7np9aeiDk2WuO8
+         Ucc3Qc75zO64X6OmhUgqow9771tf4qUmCrNAhdvaQdveu3R8E/AWZdB7NUn7/a5RiPgW
+         B6hVjljZGzCLqUbWv/AyWoTawU/qKAqAcl+MX4IofgFTSfrj6cJtjT7cevCGzQsEm50F
+         YKVrkyKm1QIgab94pbWMBVt51uwq1AH0tjrdw599lDXwE0NBK7JWF6TE97TuEzuemAT6
+         Xg+fvm05EpSvH7UL/Ios5GrtWTo959N/4lmMOdFUyshIEJsGm5k4uZGGUc0Jh4sgnEfT
+         j8Gw==
+X-Gm-Message-State: AOAM533s7GggdS48hFWVjpF34Qwd/yhaQ3PJuOyIG01UYG9tj2Pk4A7u
+        I+4FulEvWQhgSCxycZCnDzOxjQ==
+X-Google-Smtp-Source: ABdhPJz3SPlP/oK9QpFHL+xKtQ0nQUgNyOd556PIkN1KxMSQUqIwOiDbPwtupEbWOJByEgde/ChetQ==
+X-Received: by 2002:a05:651c:512:: with SMTP id o18mr35155713ljp.199.1632321016184;
+        Wed, 22 Sep 2021 07:30:16 -0700 (PDT)
+Received: from box.localdomain ([86.57.175.117])
+        by smtp.gmail.com with ESMTPSA id y9sm205960lfl.240.2021.09.22.07.30.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Sep 2021 07:30:15 -0700 (PDT)
+Received: by box.localdomain (Postfix, from userid 1000)
+        id E147C10304D; Wed, 22 Sep 2021 17:30:15 +0300 (+03)
+Date:   Wed, 22 Sep 2021 17:30:15 +0300
+From:   "Kirill A. Shutemov" <kirill@shutemov.name>
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     Borislav Petkov <bp@alien8.de>, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        x86@kernel.org, iommu@lists.linux-foundation.org,
+        kvm@vger.kernel.org, linux-efi@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-graphics-maintainer@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Sathyanarayanan Kuppuswamy 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Christoph Hellwig <hch@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
         Andy Lutomirski <luto@kernel.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Shuah Khan <shuah@kernel.org>
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-mips@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Peter Foley <pefoley@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Ben Gardon <bgardon@google.com>
-References: <20210818001210.4073390-1-seanjc@google.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <430684f9-1b35-b6f1-f243-6298e892bc7a@redhat.com>
-Date:   Wed, 22 Sep 2021 16:12:38 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>
+Subject: Re: [PATCH v3 5/8] x86/sme: Replace occurrences of sme_active() with
+ cc_platform_has()
+Message-ID: <20210922143015.vvxvh6ec73lffvkf@box.shutemov.name>
+References: <367624d43d35d61d5c97a8b289d9ddae223636e9.1631141919.git.thomas.lendacky@amd.com>
+ <20210920192341.maue7db4lcbdn46x@box.shutemov.name>
+ <77df37e1-0496-aed5-fd1d-302180f1edeb@amd.com>
+ <YUoao0LlqQ6+uBrq@zn.tnic>
+ <20210921212059.wwlytlmxoft4cdth@box.shutemov.name>
+ <YUpONYwM4dQXAOJr@zn.tnic>
+ <20210921213401.i2pzaotgjvn4efgg@box.shutemov.name>
+ <00f52bf8-cbc6-3721-f40e-2f51744751b0@amd.com>
+ <20210921215830.vqxd75r4eyau6cxy@box.shutemov.name>
+ <01891f59-7ec3-cf62-a8fc-79f79ca76587@amd.com>
 MIME-Version: 1.0
-In-Reply-To: <20210818001210.4073390-1-seanjc@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01891f59-7ec3-cf62-a8fc-79f79ca76587@amd.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 18/08/21 02:12, Sean Christopherson wrote:
-> Patch 1 fixes a KVM+rseq bug where KVM's handling of TIF_NOTIFY_RESUME,
-> e.g. for task migration, clears the flag without informing rseq and leads
-> to stale data in userspace's rseq struct.
+On Wed, Sep 22, 2021 at 08:40:43AM -0500, Tom Lendacky wrote:
+> On 9/21/21 4:58 PM, Kirill A. Shutemov wrote:
+> > On Tue, Sep 21, 2021 at 04:43:59PM -0500, Tom Lendacky wrote:
+> > > On 9/21/21 4:34 PM, Kirill A. Shutemov wrote:
+> > > > On Tue, Sep 21, 2021 at 11:27:17PM +0200, Borislav Petkov wrote:
+> > > > > On Wed, Sep 22, 2021 at 12:20:59AM +0300, Kirill A. Shutemov wrote:
+> > > > > > I still believe calling cc_platform_has() from __startup_64() is totally
+> > > > > > broken as it lacks proper wrapping while accessing global variables.
+> > > > > 
+> > > > > Well, one of the issues on the AMD side was using boot_cpu_data too
+> > > > > early and the Intel side uses it too. Can you replace those checks with
+> > > > > is_tdx_guest() or whatever was the helper's name which would check
+> > > > > whether the the kernel is running as a TDX guest, and see if that helps?
+> > > > 
+> > > > There's no need in Intel check this early. Only AMD need it. Maybe just
+> > > > opencode them?
+> > > 
+> > > Any way you can put a gzipped/bzipped copy of your vmlinux file somewhere I
+> > > can grab it from and take a look at it?
+> > 
+> > You can find broken vmlinux and bzImage here:
+> > 
+> > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdrive.google.com%2Fdrive%2Ffolders%2F1n74vUQHOGebnF70Im32qLFY8iS3wvjIs%3Fusp%3Dsharing&amp;data=04%7C01%7Cthomas.lendacky%40amd.com%7C1c7adf380cbe4c1a6bb708d97d4af6ff%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C0%7C637678583935705530%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=gA30x%2Bfu97tUx0p2UqI8HgjiL8bxDbK1GqgJBbUrUE4%3D&amp;reserved=0
+> > 
+> > Let me know when I can remove it.
 > 
-> Patch 2 is a cleanup to try and make future bugs less likely.  It's also
-> a baby step towards moving and renaming tracehook_notify_resume() since
-> it has nothing to do with tracing.  It kills me to not do the move/rename
-> as part of this series, but having a dedicated series/discussion seems
-> more appropriate given the sheer number of architectures that call
-> tracehook_notify_resume() and the lack of an obvious home for the code.
-> 
-> Patch 3 is a fix/cleanup to stop overriding x86's unistd_{32,64}.h when
-> the include path (intentionally) omits tools' uapi headers.  KVM's
-> selftests do exactly that so that they can pick up the uapi headers from
-> the installed kernel headers, and still use various tools/ headers that
-> mirror kernel code, e.g. linux/types.h.  This allows the new test in
-> patch 4 to reference __NR_rseq without having to manually define it.
-> 
-> Patch 4 is a regression test for the KVM+rseq bug.
-> 
-> Patch 5 is a cleanup made possible by patch 3.
-> 
-> 
-> Sean Christopherson (5):
->    KVM: rseq: Update rseq when processing NOTIFY_RESUME on xfer to KVM
->      guest
->    entry: rseq: Call rseq_handle_notify_resume() in
->      tracehook_notify_resume()
->    tools: Move x86 syscall number fallbacks to .../uapi/
->    KVM: selftests: Add a test for KVM_RUN+rseq to detect task migration
->      bugs
->    KVM: selftests: Remove __NR_userfaultfd syscall fallback
-> 
->   arch/arm/kernel/signal.c                      |   1 -
->   arch/arm64/kernel/signal.c                    |   1 -
->   arch/csky/kernel/signal.c                     |   4 +-
->   arch/mips/kernel/signal.c                     |   4 +-
->   arch/powerpc/kernel/signal.c                  |   4 +-
->   arch/s390/kernel/signal.c                     |   1 -
->   include/linux/tracehook.h                     |   2 +
->   kernel/entry/common.c                         |   4 +-
->   kernel/rseq.c                                 |   4 +-
->   .../x86/include/{ => uapi}/asm/unistd_32.h    |   0
->   .../x86/include/{ => uapi}/asm/unistd_64.h    |   3 -
->   tools/testing/selftests/kvm/.gitignore        |   1 +
->   tools/testing/selftests/kvm/Makefile          |   3 +
->   tools/testing/selftests/kvm/rseq_test.c       | 131 ++++++++++++++++++
->   14 files changed, 143 insertions(+), 20 deletions(-)
->   rename tools/arch/x86/include/{ => uapi}/asm/unistd_32.h (100%)
->   rename tools/arch/x86/include/{ => uapi}/asm/unistd_64.h (83%)
->   create mode 100644 tools/testing/selftests/kvm/rseq_test.c
-> 
+> Looking at everything, it is all RIP relative addressing, so those
+> accesses should be fine.
 
-Queued v3, thanks.  I'll send it in a separate pull request to Linus 
-since it touches stuff outside my usual turf.
+Not fine, but waiting to blowup with random build environment change.
 
-Thanks,
+> Your image has the intel_cc_platform_has()
+> function, does it work if you remove that call? Because I think it may be
+> the early call into that function which looks like it has instrumentation
+> that uses %gs in __sanitizer_cov_trace_pc and %gs is not setup properly
+> yet. And since boot_cpu_data.x86_vendor will likely be zero this early it
+> will match X86_VENDOR_INTEL and call into that function.
 
-Paolo
+Right removing call to intel_cc_platform_has() or moving it to
+cc_platform.c fixes the issue.
 
+-- 
+ Kirill A. Shutemov
