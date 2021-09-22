@@ -2,127 +2,77 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65176C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 21:58:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42CCFC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 03:10:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4B38961019
-	for <linux-s390@archiver.kernel.org>; Tue, 21 Sep 2021 21:58:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1960A611AD
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 03:10:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235768AbhIUWAF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 21 Sep 2021 18:00:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56336 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235747AbhIUWAB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Sep 2021 18:00:01 -0400
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BD83C061760
-        for <linux-s390@vger.kernel.org>; Tue, 21 Sep 2021 14:58:31 -0700 (PDT)
-Received: by mail-lf1-x129.google.com with SMTP id u8so3176501lff.9
-        for <linux-s390@vger.kernel.org>; Tue, 21 Sep 2021 14:58:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=shutemov-name.20210112.gappssmtp.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=3LA4/O2mCyOef4VI1WFdoR8n1dGVVw7qzM7cBS6DVhU=;
-        b=uz74/2S9fGGuaG1ODTSPcqBPXWYPIeYWZ5doyMS2bRw5AX5Q0Ua+uMdim4ZuJxyrxA
-         jJZQO4P96OqxH5cKvegadiVeIhPzNJbdYGDNOj6HudiXM/SjkCNrO1WvHS6o1vufFzsX
-         2aSN3AaXAf4xQbbvR+FPssTEArjutFFJ66GH7RUNHyFCNozOqySWjjTExvVocPFb39xr
-         6cGXTnJkbxFWnWohqMtGSjOnjJQnu/xNRG5R8l2FsElk/Lpvl66TfQOcwUYfJ1TTZ5xS
-         XHIL9Tea6doFMlP16r8MNgBnWMAMa0JaH2OsWma5jit+qxznz4qqyPPj9R612HR9czFp
-         8TyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=3LA4/O2mCyOef4VI1WFdoR8n1dGVVw7qzM7cBS6DVhU=;
-        b=NHc/Bnz9z8ampsfHQOAsupjQSDICyNcaA+NL56C74EHqAHfwoP5tcWliWJrFWPOKok
-         rmOIMJwzbPXRW9/tbmkf53flhKxJELhS/iyvUpPlYTr8T1MdvGS+ZM6OFXLiyYxs9G75
-         6JIxGLDfpCT0Kmy/AyARp6RxTk8euksjp+hZty6q3n66CRpy3fzE36NEnzQOGhOKaI90
-         /E3H1cBS4zQTcbTtiAEdLffwOl/gqddvJON4u4OePqU/RmcIK4dJQFPEeVBYcvXeTxmf
-         luLOjcs4L4e07RKpZsWy/d4NHhmMdFwYh/VttIDWvoDkToE+88/EoKeRz6QwbjlDYmg+
-         VOOQ==
-X-Gm-Message-State: AOAM530wt2XA1wXDAEuVV7Pl8QYkKKDTRpWnS9iuTvB3lSzwo/KwsNiz
-        WSjrIlMMZS1yZ1e2msRUUM3soQ==
-X-Google-Smtp-Source: ABdhPJwDR/A8UmkVQG/A20LQ6G5BoWJFTrnWNencwdMb7p0WPRY497q9Nuc+l8sjchxpIRdzv87pHg==
-X-Received: by 2002:a2e:86ce:: with SMTP id n14mr11214294ljj.211.1632261509754;
-        Tue, 21 Sep 2021 14:58:29 -0700 (PDT)
-Received: from box.localdomain ([86.57.175.117])
-        by smtp.gmail.com with ESMTPSA id q7sm16555ljg.137.2021.09.21.14.58.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Sep 2021 14:58:29 -0700 (PDT)
-Received: by box.localdomain (Postfix, from userid 1000)
-        id 5DF1710305C; Wed, 22 Sep 2021 00:58:30 +0300 (+03)
-Date:   Wed, 22 Sep 2021 00:58:30 +0300
-From:   "Kirill A. Shutemov" <kirill@shutemov.name>
-To:     Tom Lendacky <thomas.lendacky@amd.com>
-Cc:     Borislav Petkov <bp@alien8.de>, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        x86@kernel.org, iommu@lists.linux-foundation.org,
-        kvm@vger.kernel.org, linux-efi@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-graphics-maintainer@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sathyanarayanan Kuppuswamy 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>
-Subject: Re: [PATCH v3 5/8] x86/sme: Replace occurrences of sme_active() with
- cc_platform_has()
-Message-ID: <20210921215830.vqxd75r4eyau6cxy@box.shutemov.name>
-References: <cover.1631141919.git.thomas.lendacky@amd.com>
- <367624d43d35d61d5c97a8b289d9ddae223636e9.1631141919.git.thomas.lendacky@amd.com>
- <20210920192341.maue7db4lcbdn46x@box.shutemov.name>
- <77df37e1-0496-aed5-fd1d-302180f1edeb@amd.com>
- <YUoao0LlqQ6+uBrq@zn.tnic>
- <20210921212059.wwlytlmxoft4cdth@box.shutemov.name>
- <YUpONYwM4dQXAOJr@zn.tnic>
- <20210921213401.i2pzaotgjvn4efgg@box.shutemov.name>
- <00f52bf8-cbc6-3721-f40e-2f51744751b0@amd.com>
+        id S230138AbhIVDLg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 21 Sep 2021 23:11:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35214 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230054AbhIVDLg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 21 Sep 2021 23:11:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id 13EB76115A;
+        Wed, 22 Sep 2021 03:10:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632280207;
+        bh=6FBTz2toAIgmo5Vr3DFfild0yN/e4opUzPVjNwZZp70=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=QwE63g/3LB6T5i8RpUdplYCAtFxIQgJ3hrH5gK9lmHiJjOpwikVZV9XlmHYt2r3b8
+         bapww9+BnaC2Shie+okzQoc+u18axhavgOpmlXeHxRoSTDo6bPIyw8TXVYxjVuApRE
+         pULfJVoqEFJlCf1Ej0XSxNV4LJwOZZ3uNZF+5zXrFh3AUst7sUgKoyRDd47dWt9w47
+         PQpD7O1mdNzgZzjRH8SQTxBVYMpajZE47uSXEFrNvkea0bXuty7WcTR561UfdMNSmg
+         k98h0sFOPAibMdkCZzJHRKaeJOOoCOqJ/b/YWcgMPDg8kCnvC42jcSLE9ADU4oREY1
+         9mEGtsHrsYA3A==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00f52bf8-cbc6-3721-f40e-2f51744751b0@amd.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 0/3] s390/qeth: fixes 2021-09-21
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163228020700.28047.10149739218296607530.git-patchwork-notify@kernel.org>
+Date:   Wed, 22 Sep 2021 03:10:07 +0000
+References: <20210921145217.1584654-1-jwi@linux.ibm.com>
+In-Reply-To: <20210921145217.1584654-1-jwi@linux.ibm.com>
+To:     Julian Wiedmann <jwi@linux.ibm.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com,
+        kgraul@linux.ibm.com, wintera@linux.ibm.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 21, 2021 at 04:43:59PM -0500, Tom Lendacky wrote:
-> On 9/21/21 4:34 PM, Kirill A. Shutemov wrote:
-> > On Tue, Sep 21, 2021 at 11:27:17PM +0200, Borislav Petkov wrote:
-> > > On Wed, Sep 22, 2021 at 12:20:59AM +0300, Kirill A. Shutemov wrote:
-> > > > I still believe calling cc_platform_has() from __startup_64() is totally
-> > > > broken as it lacks proper wrapping while accessing global variables.
-> > > 
-> > > Well, one of the issues on the AMD side was using boot_cpu_data too
-> > > early and the Intel side uses it too. Can you replace those checks with
-> > > is_tdx_guest() or whatever was the helper's name which would check
-> > > whether the the kernel is running as a TDX guest, and see if that helps?
-> > 
-> > There's no need in Intel check this early. Only AMD need it. Maybe just
-> > opencode them?
+Hello:
+
+This series was applied to netdev/net.git (refs/heads/master):
+
+On Tue, 21 Sep 2021 16:52:14 +0200 you wrote:
+> Hi Dave & Jakub,
 > 
-> Any way you can put a gzipped/bzipped copy of your vmlinux file somewhere I
-> can grab it from and take a look at it?
+> please apply the following patch series for qeth to netdev's net tree.
+> 
+> This brings two fixes for deadlocks when a device is removed while it
+> has certain types of async work pending. And one additional fix for a
+> missing NULL check in an error case.
+> 
+> [...]
 
-You can find broken vmlinux and bzImage here:
+Here is the summary with links:
+  - [net,1/3] s390/qeth: fix NULL deref in qeth_clear_working_pool_list()
+    https://git.kernel.org/netdev/net/c/248f064af222
+  - [net,2/3] s390/qeth: Fix deadlock in remove_discipline
+    https://git.kernel.org/netdev/net/c/ee909d0b1dac
+  - [net,3/3] s390/qeth: fix deadlock during failing recovery
+    https://git.kernel.org/netdev/net/c/d2b59bd4b06d
 
-https://drive.google.com/drive/folders/1n74vUQHOGebnF70Im32qLFY8iS3wvjIs?usp=sharing
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Let me know when I can remove it.
 
--- 
- Kirill A. Shutemov
