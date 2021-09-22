@@ -2,150 +2,152 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ECFDC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 07:19:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79A31C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 09:35:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5E08C61090
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 07:19:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 522FA61351
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 09:35:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233247AbhIVHVD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Sep 2021 03:21:03 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23500 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231426AbhIVHUh (ORCPT
+        id S234321AbhIVJhK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Sep 2021 05:37:10 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17580 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234274AbhIVJhK (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 22 Sep 2021 03:20:37 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18M6fQ8F007698;
-        Wed, 22 Sep 2021 03:19:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=tVUxvXQEv/IA5jflOPoATXZeUFH4XUk9bmACzRnvkEI=;
- b=VnS7V9QiLD1k3rB9VfU6YiWGrq9/QkHA8n8KWLjC1+nwIRLI0SNEkw+x1GPoWjf+F7Fm
- yzR9403OUAlWyw0oTWGLzTLe4U+j8GsbGhls5lPv5aM/W98vRWhj6QENK2VHZkXm/W82
- 6Xl0iASVaS74GtBkaBM//et1Ct7LJwHvhRKHh4UMDTqhHT2olutffGG1nVgLytdOde/K
- 7y4TX1sTbwgxxFDOszmRZkzWHPvPmdDcLw6gepwU0cnfCIPpsRtW9NLjEdhwTOvu/Top
- t3qG/kyOS7OCAIv+m2tjyoLsS741/JRk3pb+0+SjBK5WPu/+JYv/M9PyG/fCw1VetXYn +A== 
+        Wed, 22 Sep 2021 05:37:10 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18M9M7Kj022231;
+        Wed, 22 Sep 2021 05:35:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=2vpuS6qasgEDTZFxLoquGr4l2Oj2SS9ap6N41OrbVmM=;
+ b=JHSqT4bfxBe5QYqDhF09gQuQ8hN4OiUCvnkjjGyA0fXh4yoFOvqG00WVT3COTbe+fgco
+ Fmtwzi8nR/+dvyUgR57SmTyDJYzWhDX0eQniQ20s2sPqqgO9nzqcYAAsIZEqZjULW3SA
+ BVGUDLvWd2DddtzQnyfnuXUESfGZsdw0khy4xAZiq4tvBtX7IRxN5n+d166YL3MrlmxH
+ ttV0SVEoJ3/LmWNRGkWYoCLdsvOBB/SCsujTChJm59T5wuMJzSZAL4mrgIboITs4n0JT
+ w9kwEl/vEbOanAhXbZZgFNN6zsNhyM027TeNuGQduJw7wsvMXPKgF0Ku0lIxHH+FNToo uQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b7yeh0twx-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b7yqjk5pm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 03:19:07 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18M6wFCn006442;
-        Wed, 22 Sep 2021 03:19:07 -0400
+        Wed, 22 Sep 2021 05:35:39 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18M8t0H5028503;
+        Wed, 22 Sep 2021 05:35:39 -0400
 Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b7yeh0tw2-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b7yqjk5np-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 03:19:06 -0400
+        Wed, 22 Sep 2021 05:35:39 -0400
 Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18M774UV012471;
-        Wed, 22 Sep 2021 07:19:04 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma05fra.de.ibm.com with ESMTP id 3b7q69ubbm-1
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18M9YcsR005503;
+        Wed, 22 Sep 2021 09:35:37 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma05fra.de.ibm.com with ESMTP id 3b7q69vn2e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 07:19:04 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18M7J0Y240763864
+        Wed, 22 Sep 2021 09:35:37 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18M9ZX0X49807630
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Sep 2021 07:19:01 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D5CBCA4051;
-        Wed, 22 Sep 2021 07:19:00 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 18DB7A4055;
-        Wed, 22 Sep 2021 07:19:00 +0000 (GMT)
-Received: from linux6.. (unknown [9.114.12.104])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 22 Sep 2021 07:18:59 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     thuth@redhat.com, david@redhat.com, linux-s390@vger.kernel.org,
-        seiden@linux.ibm.com, imbrenda@linux.ibm.com
-Subject: [kvm-unit-tests PATCH 8/9] s390x: Add sthyi cc==0 r2+1 verification
-Date:   Wed, 22 Sep 2021 07:18:10 +0000
-Message-Id: <20210922071811.1913-9-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210922071811.1913-1-frankja@linux.ibm.com>
+        Wed, 22 Sep 2021 09:35:33 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CDEE0AE057;
+        Wed, 22 Sep 2021 09:35:33 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8EF08AE059;
+        Wed, 22 Sep 2021 09:35:33 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.3.24])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 22 Sep 2021 09:35:33 +0000 (GMT)
+Date:   Wed, 22 Sep 2021 11:16:41 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com,
+        linux-s390@vger.kernel.org, seiden@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH 2/9] s390x: pfmf: Fix 1MB handling
+Message-ID: <20210922111641.23a957ac@p-imbrenda>
+In-Reply-To: <20210922071811.1913-3-frankja@linux.ibm.com>
 References: <20210922071811.1913-1-frankja@linux.ibm.com>
+        <20210922071811.1913-3-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: k2QngRA3HbkIWKRBschk2XnvVhY7I9mt
-X-Proofpoint-GUID: QvLWwR-cCOss4AMm5hwoq7KMhnvuC4er
+X-Proofpoint-GUID: -ZUhIQ0KJ4eLqcS9EMicezfF2bXmQuUB
+X-Proofpoint-ORIG-GUID: 0s_aCvWNhU0iaBKP3lawIoxOvcHIbqDz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-22_02,2021-09-20_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=999 adultscore=0 mlxscore=0 bulkscore=0 phishscore=0
- priorityscore=1501 suspectscore=0 clxscore=1015 impostorscore=0
- spamscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2109200000 definitions=main-2109220048
+ definitions=2021-09-22_03,2021-09-20_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 mlxscore=0 lowpriorityscore=0 clxscore=1015
+ adultscore=0 impostorscore=0 bulkscore=0 malwarescore=0 suspectscore=0
+ phishscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109200000 definitions=main-2109220066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On success r2 + 1 should be 0, let's also check for that.
+On Wed, 22 Sep 2021 07:18:04 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/sthyi.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+> On everything larger than 4k pfmf will update the address in GR2 when
+> it's interrupted so we should loop on pfmf and not trust that it
+> doesn't get interrupted.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-diff --git a/s390x/sthyi.c b/s390x/sthyi.c
-index db90b56f..4b153bf4 100644
---- a/s390x/sthyi.c
-+++ b/s390x/sthyi.c
-@@ -24,16 +24,16 @@ static inline int sthyi(uint64_t vaddr, uint64_t fcode, uint64_t *rc,
- {
- 	register uint64_t code asm("0") = fcode;
- 	register uint64_t addr asm("2") = vaddr;
--	register uint64_t rc3 asm("3") = 0;
-+	register uint64_t rc3 asm("3") = 42;
- 	int cc = 0;
- 
--	asm volatile(".insn rre,0xB2560000,%[r1],%[r2]\n"
--		     "ipm	 %[cc]\n"
--		     "srl	 %[cc],28\n"
--		     : [cc] "=d" (cc)
--		     : [code] "d" (code), [addr] "a" (addr), [r1] "i" (r1),
--		       [r2] "i" (r2)
--		     : "memory", "cc", "r3");
-+	asm volatile(
-+		".insn   rre,0xB2560000,%[r1],%[r2]\n"
-+		"ipm     %[cc]\n"
-+		"srl     %[cc],28\n"
-+		: [cc] "=d" (cc), "+d" (rc3)
-+		: [code] "d" (code), [addr] "a" (addr), [r1] "i" (r1), [r2] "i" (r2)
-+		: "memory", "cc");
- 	if (rc)
- 		*rc = rc3;
- 	return cc;
-@@ -139,16 +139,18 @@ static void test_fcode0(void)
- 	struct sthyi_hdr_sctn *hdr;
- 	struct sthyi_mach_sctn *mach;
- 	struct sthyi_par_sctn *par;
-+	uint64_t rc = 42;
- 
- 	/* Zero destination memory. */
- 	memset(pagebuf, 0, PAGE_SIZE);
- 
- 	report_prefix_push("fcode 0");
--	sthyi((uint64_t)pagebuf, 0, NULL, 0, 2);
-+	sthyi((uint64_t)pagebuf, 0, &rc, 0, 2);
- 	hdr = (void *)pagebuf;
- 	mach = (void *)pagebuf + hdr->INFMOFF;
- 	par = (void *)pagebuf + hdr->INFPOFF;
- 
-+	report(!rc, "r2 + 1 == 0");
- 	test_fcode0_hdr(hdr);
- 	test_fcode0_mach(mach);
- 	test_fcode0_par(par);
--- 
-2.30.2
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+> ---
+>  s390x/pfmf.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+> 
+> diff --git a/s390x/pfmf.c b/s390x/pfmf.c
+> index 2f3cb110..b0095bd7 100644
+> --- a/s390x/pfmf.c
+> +++ b/s390x/pfmf.c
+> @@ -54,6 +54,7 @@ static void test_1m_key(void)
+>  	bool rp = true;
+>  	union pfmf_r1 r1;
+>  	union skey skey;
+> +	void *addr = pagebuf;
+>  
+>  	report_prefix_push("1M");
+>  	if (test_facility(169)) {
+> @@ -64,7 +65,9 @@ static void test_1m_key(void)
+>  	r1.reg.sk = 1;
+>  	r1.reg.fsc = PFMF_FSC_1M;
+>  	r1.reg.key = 0x30;
+> -	pfmf(r1.val, pagebuf);
+> +	do {
+> +		addr = pfmf(r1.val, addr);
+> +	} while ((uintptr_t)addr != (uintptr_t)pagebuf + HPAGE_SIZE);
+>  	for (i = 0; i < 256; i++) {
+>  		skey.val = get_storage_key(pagebuf + i * PAGE_SIZE);
+>  		skey.val &= SKEY_ACC | SKEY_FP;
+> @@ -99,6 +102,7 @@ static void test_1m_clear(void)
+>  	int i;
+>  	union pfmf_r1 r1;
+>  	unsigned long sum = 0;
+> +	void *addr = pagebuf;
+>  
+>  	r1.val = 0;
+>  	r1.reg.cf = 1;
+> @@ -106,7 +110,9 @@ static void test_1m_clear(void)
+>  
+>  	report_prefix_push("1M");
+>  	memset(pagebuf, 42, PAGE_SIZE * 256);
+> -	pfmf(r1.val, pagebuf);
+> +	do {
+> +		addr = pfmf(r1.val, addr);
+> +	} while ((uintptr_t)addr != (uintptr_t)pagebuf + HPAGE_SIZE);
+>  	for (i = 0; i < PAGE_SIZE * 256; i++)
+>  		sum |= pagebuf[i];
+>  	report(!sum, "clear memory");
 
