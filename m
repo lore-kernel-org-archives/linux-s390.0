@@ -2,145 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0016FC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 14:32:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77ABBC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 17:21:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E050F6115A
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 14:32:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 60FBB6112F
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 17:21:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236289AbhIVOdm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Sep 2021 10:33:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58526 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236279AbhIVOdj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Sep 2021 10:33:39 -0400
-Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 735DDC061756
-        for <linux-s390@vger.kernel.org>; Wed, 22 Sep 2021 07:32:09 -0700 (PDT)
-Received: by mail-lf1-x135.google.com with SMTP id u18so12389696lfd.12
-        for <linux-s390@vger.kernel.org>; Wed, 22 Sep 2021 07:32:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=shutemov-name.20210112.gappssmtp.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=ayCGrHt4GWDBHksaWpDlFPsTDgmCQyv1ZQQyBUlWV+I=;
-        b=vKVQE5RUe8kMs0wun4XuDGO3eTujOGs2RwESdLhyIqK2JwxlqZrlSJy3MrsXJkRafX
-         gBAYy/nccugQKoUll1gn8VoFbzjQhjrLzptB1R76SapyouDJT5ZGJIWbG+FX4hwJyS6V
-         RHRd5aepSbIC42CmHtd5u+dR4xuEL++muo/z0NTk8BMGL92wAA2PmP9KOi2aYe71/Bfr
-         QklC4Nhk0K/0QbQiJZijepS1OZ+jtAxihfchh+jQ4jf5+4U17tQ1xXPBbmD5a5nhc0Gd
-         SVGSB9p7xAW0QvKqL518rFLXTD4w7KZA2wBif/Kp2RKz31Lh+5HyNQaqaSmkfOyisrNC
-         k+Nw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ayCGrHt4GWDBHksaWpDlFPsTDgmCQyv1ZQQyBUlWV+I=;
-        b=6ePmZZoaM5ZVG2BZuebP+rK7k+3GyZ4jY6LkadzRei+h9C5hIaSj7np9aeiDk2WuO8
-         Ucc3Qc75zO64X6OmhUgqow9771tf4qUmCrNAhdvaQdveu3R8E/AWZdB7NUn7/a5RiPgW
-         B6hVjljZGzCLqUbWv/AyWoTawU/qKAqAcl+MX4IofgFTSfrj6cJtjT7cevCGzQsEm50F
-         YKVrkyKm1QIgab94pbWMBVt51uwq1AH0tjrdw599lDXwE0NBK7JWF6TE97TuEzuemAT6
-         Xg+fvm05EpSvH7UL/Ios5GrtWTo959N/4lmMOdFUyshIEJsGm5k4uZGGUc0Jh4sgnEfT
-         j8Gw==
-X-Gm-Message-State: AOAM533s7GggdS48hFWVjpF34Qwd/yhaQ3PJuOyIG01UYG9tj2Pk4A7u
-        I+4FulEvWQhgSCxycZCnDzOxjQ==
-X-Google-Smtp-Source: ABdhPJz3SPlP/oK9QpFHL+xKtQ0nQUgNyOd556PIkN1KxMSQUqIwOiDbPwtupEbWOJByEgde/ChetQ==
-X-Received: by 2002:a05:651c:512:: with SMTP id o18mr35155713ljp.199.1632321016184;
-        Wed, 22 Sep 2021 07:30:16 -0700 (PDT)
-Received: from box.localdomain ([86.57.175.117])
-        by smtp.gmail.com with ESMTPSA id y9sm205960lfl.240.2021.09.22.07.30.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Sep 2021 07:30:15 -0700 (PDT)
-Received: by box.localdomain (Postfix, from userid 1000)
-        id E147C10304D; Wed, 22 Sep 2021 17:30:15 +0300 (+03)
-Date:   Wed, 22 Sep 2021 17:30:15 +0300
-From:   "Kirill A. Shutemov" <kirill@shutemov.name>
-To:     Tom Lendacky <thomas.lendacky@amd.com>
-Cc:     Borislav Petkov <bp@alien8.de>, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        x86@kernel.org, iommu@lists.linux-foundation.org,
-        kvm@vger.kernel.org, linux-efi@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-graphics-maintainer@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sathyanarayanan Kuppuswamy 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>
-Subject: Re: [PATCH v3 5/8] x86/sme: Replace occurrences of sme_active() with
- cc_platform_has()
-Message-ID: <20210922143015.vvxvh6ec73lffvkf@box.shutemov.name>
-References: <367624d43d35d61d5c97a8b289d9ddae223636e9.1631141919.git.thomas.lendacky@amd.com>
- <20210920192341.maue7db4lcbdn46x@box.shutemov.name>
- <77df37e1-0496-aed5-fd1d-302180f1edeb@amd.com>
- <YUoao0LlqQ6+uBrq@zn.tnic>
- <20210921212059.wwlytlmxoft4cdth@box.shutemov.name>
- <YUpONYwM4dQXAOJr@zn.tnic>
- <20210921213401.i2pzaotgjvn4efgg@box.shutemov.name>
- <00f52bf8-cbc6-3721-f40e-2f51744751b0@amd.com>
- <20210921215830.vqxd75r4eyau6cxy@box.shutemov.name>
- <01891f59-7ec3-cf62-a8fc-79f79ca76587@amd.com>
+        id S236716AbhIVRXI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Sep 2021 13:23:08 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57404 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S236701AbhIVRXI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Sep 2021 13:23:08 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18MH9gnt018529;
+        Wed, 22 Sep 2021 13:21:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=GbQtfpd2tsEbXEXXhPYCa3aqqGdu9jYMnwZTtyh2fts=;
+ b=EVI/5RMqr4X/XFHgjuf3B3o+9d+XfKu5jfBQw8nv+QPqdcT1B2WlC99YcAwMRB+syV7y
+ qswiwP8Cuzvm2MnJsjRwZOSItkAy5Rw04e3odzSkC3kJD9VeVmQzz7UOcqMOq6CtT1Ix
+ 8OyqU7mDLzfomfezA8+s/EdDXlToawGErtPAOtJIi/dUFU9oxXwcTpAzL7LHiPnCsGBe
+ 5jTracUWeKW2XBIDI4CCouZreJEB2jqEVEyk1vw0bzjXh/ctyW9aI6y+Y/udYwztNLIj
+ Pb0Fmxso/Z4XdY+O4xxjwV0EoRB9YaURUYtAuxl1nzmdh6JMkibl/6IMFN5z+dJWbcij Rw== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3b87mr1puy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 22 Sep 2021 13:21:35 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18MH1xjp015408;
+        Wed, 22 Sep 2021 17:21:33 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3b7q6r1hqv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 22 Sep 2021 17:21:33 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18MHLT4H57541088
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 22 Sep 2021 17:21:30 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D14E042042;
+        Wed, 22 Sep 2021 17:21:29 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 75AEB4204B;
+        Wed, 22 Sep 2021 17:21:29 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 22 Sep 2021 17:21:29 +0000 (GMT)
+From:   Guvenc Gulce <guvenc@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net] MAINTAINERS: remove Guvenc Gulce as net/smc maintainer
+Date:   Wed, 22 Sep 2021 19:21:29 +0200
+Message-Id: <20210922172129.773374-1-guvenc@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6gwdX00Fn6_uVr3VJmOeedYyioZTtvr2
+X-Proofpoint-ORIG-GUID: 6gwdX00Fn6_uVr3VJmOeedYyioZTtvr2
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01891f59-7ec3-cf62-a8fc-79f79ca76587@amd.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-22_06,2021-09-22_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ mlxscore=0 phishscore=0 impostorscore=0 mlxlogscore=714 priorityscore=1501
+ adultscore=0 bulkscore=0 lowpriorityscore=0 clxscore=1015 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109200000
+ definitions=main-2109220114
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 22, 2021 at 08:40:43AM -0500, Tom Lendacky wrote:
-> On 9/21/21 4:58 PM, Kirill A. Shutemov wrote:
-> > On Tue, Sep 21, 2021 at 04:43:59PM -0500, Tom Lendacky wrote:
-> > > On 9/21/21 4:34 PM, Kirill A. Shutemov wrote:
-> > > > On Tue, Sep 21, 2021 at 11:27:17PM +0200, Borislav Petkov wrote:
-> > > > > On Wed, Sep 22, 2021 at 12:20:59AM +0300, Kirill A. Shutemov wrote:
-> > > > > > I still believe calling cc_platform_has() from __startup_64() is totally
-> > > > > > broken as it lacks proper wrapping while accessing global variables.
-> > > > > 
-> > > > > Well, one of the issues on the AMD side was using boot_cpu_data too
-> > > > > early and the Intel side uses it too. Can you replace those checks with
-> > > > > is_tdx_guest() or whatever was the helper's name which would check
-> > > > > whether the the kernel is running as a TDX guest, and see if that helps?
-> > > > 
-> > > > There's no need in Intel check this early. Only AMD need it. Maybe just
-> > > > opencode them?
-> > > 
-> > > Any way you can put a gzipped/bzipped copy of your vmlinux file somewhere I
-> > > can grab it from and take a look at it?
-> > 
-> > You can find broken vmlinux and bzImage here:
-> > 
-> > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdrive.google.com%2Fdrive%2Ffolders%2F1n74vUQHOGebnF70Im32qLFY8iS3wvjIs%3Fusp%3Dsharing&amp;data=04%7C01%7Cthomas.lendacky%40amd.com%7C1c7adf380cbe4c1a6bb708d97d4af6ff%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C0%7C637678583935705530%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=gA30x%2Bfu97tUx0p2UqI8HgjiL8bxDbK1GqgJBbUrUE4%3D&amp;reserved=0
-> > 
-> > Let me know when I can remove it.
-> 
-> Looking at everything, it is all RIP relative addressing, so those
-> accesses should be fine.
+Remove myself as net/smc maintainer, as I am
+leaving IBM soon and can not maintain net/smc anymore.
 
-Not fine, but waiting to blowup with random build environment change.
+Cc: Julian Wiedmann <jwi@linux.ibm.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+---
+ MAINTAINERS | 1 -
+ 1 file changed, 1 deletion(-)
 
-> Your image has the intel_cc_platform_has()
-> function, does it work if you remove that call? Because I think it may be
-> the early call into that function which looks like it has instrumentation
-> that uses %gs in __sanitizer_cov_trace_pc and %gs is not setup properly
-> yet. And since boot_cpu_data.x86_vendor will likely be zero this early it
-> will match X86_VENDOR_INTEL and call into that function.
-
-Right removing call to intel_cc_platform_has() or moving it to
-cc_platform.c fixes the issue.
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index eeb4c70b3d5b..3c814976443e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16955,7 +16955,6 @@ F:	drivers/misc/sgi-xp/
+ 
+ SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
+ M:	Karsten Graul <kgraul@linux.ibm.com>
+-M:	Guvenc Gulce <guvenc@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ S:	Supported
+ W:	http://www.ibm.com/developerworks/linux/linux390/
 -- 
- Kirill A. Shutemov
+2.25.1
+
