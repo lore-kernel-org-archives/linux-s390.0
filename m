@@ -2,110 +2,94 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77ABBC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 17:21:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F7EDC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 19:52:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 60FBB6112F
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 17:21:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 61C24610A1
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Sep 2021 19:52:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236716AbhIVRXI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Sep 2021 13:23:08 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57404 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S236701AbhIVRXI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 22 Sep 2021 13:23:08 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18MH9gnt018529;
-        Wed, 22 Sep 2021 13:21:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=GbQtfpd2tsEbXEXXhPYCa3aqqGdu9jYMnwZTtyh2fts=;
- b=EVI/5RMqr4X/XFHgjuf3B3o+9d+XfKu5jfBQw8nv+QPqdcT1B2WlC99YcAwMRB+syV7y
- qswiwP8Cuzvm2MnJsjRwZOSItkAy5Rw04e3odzSkC3kJD9VeVmQzz7UOcqMOq6CtT1Ix
- 8OyqU7mDLzfomfezA8+s/EdDXlToawGErtPAOtJIi/dUFU9oxXwcTpAzL7LHiPnCsGBe
- 5jTracUWeKW2XBIDI4CCouZreJEB2jqEVEyk1vw0bzjXh/ctyW9aI6y+Y/udYwztNLIj
- Pb0Fmxso/Z4XdY+O4xxjwV0EoRB9YaURUYtAuxl1nzmdh6JMkibl/6IMFN5z+dJWbcij Rw== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3b87mr1puy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 13:21:35 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18MH1xjp015408;
-        Wed, 22 Sep 2021 17:21:33 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 3b7q6r1hqv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 22 Sep 2021 17:21:33 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18MHLT4H57541088
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Sep 2021 17:21:30 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D14E042042;
-        Wed, 22 Sep 2021 17:21:29 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 75AEB4204B;
-        Wed, 22 Sep 2021 17:21:29 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 22 Sep 2021 17:21:29 +0000 (GMT)
-From:   Guvenc Gulce <guvenc@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net] MAINTAINERS: remove Guvenc Gulce as net/smc maintainer
-Date:   Wed, 22 Sep 2021 19:21:29 +0200
-Message-Id: <20210922172129.773374-1-guvenc@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6gwdX00Fn6_uVr3VJmOeedYyioZTtvr2
-X-Proofpoint-ORIG-GUID: 6gwdX00Fn6_uVr3VJmOeedYyioZTtvr2
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S237246AbhIVTxu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Sep 2021 15:53:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47276 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230384AbhIVTxu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Sep 2021 15:53:50 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA40CC061574;
+        Wed, 22 Sep 2021 12:52:19 -0700 (PDT)
+Received: from zn.tnic (p200300ec2f0efa00329c23fffea6a903.dip0.t-ipconnect.de [IPv6:2003:ec:2f0e:fa00:329c:23ff:fea6:a903])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id A15F91EC051F;
+        Wed, 22 Sep 2021 21:52:12 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1632340332;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=fzo+PEl8pAwSY958R9AIE6gnLhJ3Zcu0FqnZgS+Q1TY=;
+        b=TrWHyvCovp1xYBCa06xEBb39RTKWLWn8eifuyhcdUuW5I5UUvkqPldeIi88B6DgpVlgBYI
+        ASWuqiS9Bh001r8tMMkQ2eLdFI7a2WxUys56vjsCLc9p/oWDFK43yZPwrWhsKpt67ttN8/
+        oJCfsdDzqB/NRk5+DSVx+/KMmYpDSb0=
+Date:   Wed, 22 Sep 2021 21:52:07 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     "Kirill A. Shutemov" <kirill@shutemov.name>
+Cc:     Tom Lendacky <thomas.lendacky@amd.com>,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
+        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-graphics-maintainer@vmware.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Sathyanarayanan Kuppuswamy 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>
+Subject: Re: [PATCH v3 5/8] x86/sme: Replace occurrences of sme_active() with
+ cc_platform_has()
+Message-ID: <YUuJZ2qOgbdpfk6N@zn.tnic>
+References: <20210920192341.maue7db4lcbdn46x@box.shutemov.name>
+ <77df37e1-0496-aed5-fd1d-302180f1edeb@amd.com>
+ <YUoao0LlqQ6+uBrq@zn.tnic>
+ <20210921212059.wwlytlmxoft4cdth@box.shutemov.name>
+ <YUpONYwM4dQXAOJr@zn.tnic>
+ <20210921213401.i2pzaotgjvn4efgg@box.shutemov.name>
+ <00f52bf8-cbc6-3721-f40e-2f51744751b0@amd.com>
+ <20210921215830.vqxd75r4eyau6cxy@box.shutemov.name>
+ <01891f59-7ec3-cf62-a8fc-79f79ca76587@amd.com>
+ <20210922143015.vvxvh6ec73lffvkf@box.shutemov.name>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-22_06,2021-09-22_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- mlxscore=0 phishscore=0 impostorscore=0 mlxlogscore=714 priorityscore=1501
- adultscore=0 bulkscore=0 lowpriorityscore=0 clxscore=1015 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109200000
- definitions=main-2109220114
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210922143015.vvxvh6ec73lffvkf@box.shutemov.name>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Remove myself as net/smc maintainer, as I am
-leaving IBM soon and can not maintain net/smc anymore.
+On Wed, Sep 22, 2021 at 05:30:15PM +0300, Kirill A. Shutemov wrote:
+> Not fine, but waiting to blowup with random build environment change.
 
-Cc: Julian Wiedmann <jwi@linux.ibm.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
----
- MAINTAINERS | 1 -
- 1 file changed, 1 deletion(-)
+Why is it not fine?
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index eeb4c70b3d5b..3c814976443e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -16955,7 +16955,6 @@ F:	drivers/misc/sgi-xp/
- 
- SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
- M:	Karsten Graul <kgraul@linux.ibm.com>
--M:	Guvenc Gulce <guvenc@linux.ibm.com>
- L:	linux-s390@vger.kernel.org
- S:	Supported
- W:	http://www.ibm.com/developerworks/linux/linux390/
+Are you suspecting that the compiler might generate something else and
+not a rip-relative access?
+
 -- 
-2.25.1
+Regards/Gruss,
+    Boris.
 
+https://people.kernel.org/tglx/notes-about-netiquette
