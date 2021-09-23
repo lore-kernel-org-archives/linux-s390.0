@@ -2,186 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D655C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Sep 2021 13:54:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E4A0C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Sep 2021 16:08:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8124061090
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Sep 2021 13:54:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B79261107
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Sep 2021 16:08:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241467AbhIWN4Z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Sep 2021 09:56:25 -0400
-Received: from pegase2.c-s.fr ([93.17.235.10]:32845 "EHLO pegase2.c-s.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231974AbhIWN4Y (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 23 Sep 2021 09:56:24 -0400
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-        by localhost (Postfix) with ESMTP id 4HFc9P5sHPz9sV7;
-        Thu, 23 Sep 2021 15:54:49 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id xdm1Ouzf8XXu; Thu, 23 Sep 2021 15:54:49 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase2.c-s.fr (Postfix) with ESMTP id 4HFc9P4lm1z9sV4;
-        Thu, 23 Sep 2021 15:54:49 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 8BA938B776;
-        Thu, 23 Sep 2021 15:54:49 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id i24VgXHaAF2s; Thu, 23 Sep 2021 15:54:49 +0200 (CEST)
-Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.202.200])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id ACF658B763;
-        Thu, 23 Sep 2021 15:54:47 +0200 (CEST)
-Subject: Re: [PATCH 3/3] memblock: cleanup memblock_free interface
-To:     Mike Rapoport <rppt@linux.ibm.com>
-Cc:     Mike Rapoport <rppt@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        devicetree@vger.kernel.org, linux-efi@vger.kernel.org,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-kernel@vger.kernel.org, kasan-dev@googlegroups.com,
-        linux-mips@vger.kernel.org, linux-mm@kvack.org,
-        iommu@lists.linux-foundation.org, linux-usb@vger.kernel.org,
-        linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org,
-        xen-devel@lists.xenproject.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-References: <20210923074335.12583-1-rppt@kernel.org>
- <20210923074335.12583-4-rppt@kernel.org>
- <1101e3c7-fcb7-a632-8e22-47f4a01ea02e@csgroup.eu>
- <YUxsgN/uolhn1Ok+@linux.ibm.com>
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-Message-ID: <96e3da9f-70ff-e5c0-ef2e-cf0b636e5695@csgroup.eu>
-Date:   Thu, 23 Sep 2021 15:54:46 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S242425AbhIWQJ5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Sep 2021 12:09:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43162 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242421AbhIWQJ4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Sep 2021 12:09:56 -0400
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24B12C061574
+        for <linux-s390@vger.kernel.org>; Thu, 23 Sep 2021 09:08:25 -0700 (PDT)
+Received: by mail-lj1-x22a.google.com with SMTP id b36so239440ljr.6
+        for <linux-s390@vger.kernel.org>; Thu, 23 Sep 2021 09:08:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DLOxhnwH/JaVIhRbDcxcZPpiYGHLJbtd0CRIGAWnOsw=;
+        b=QMXOiJ6n28J2emY/y7cY9+DD4h8Pn0KRvNWmJxYGi/2iw91Mhhsv5k4E/yi6SvFmH+
+         cwsdxpHCcIaSp+pnaMQx9j8vfDg38b4ujoTb2lzS4jvwjrgaoWuJfcNbrdzMUshkRDfy
+         wyxZpTZP4dsY0GDCSs5bbcT3wFiFu+kSB/Akk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DLOxhnwH/JaVIhRbDcxcZPpiYGHLJbtd0CRIGAWnOsw=;
+        b=Tv2p1LLWc72dzX7OiBdxoZiYVtK16vSlnvgZ3fUhgAIiyBaQNLTyAgjOx0Xri3z1vv
+         dDt2PW4msykHyasODwDRgOpKkwZX/XTIGqtL9xsEiFFgYgrlhiPhpu5kN1LQKMXziYKD
+         xNlEs9X21MAdEMyQHIVu5WEsbP2Fv2Iu1EdLpgUj5cRATdwtPCyP/HjEbVVFI+faB0aM
+         fpMPzALzNvKE7tUjT4s3sY5syCxXskkhov6XG+VwwVqRFUDdRWABXUXFvu8XFVH8zFLk
+         7qpdSJUZLlFGBI9F/JwRlcirx88gNYyzdzG06hObxs3qpi+iUNgD5i0lH/tRyCK4k9bI
+         5+Gg==
+X-Gm-Message-State: AOAM531ZTOhelkn2hDkkdfQ5qUrnKoJfDjNI6TvmFY5TZBDGXuF6S/13
+        JUh28/8LZEO/6RkZO6ojPwxmvPEmdmNdhhGyW/M=
+X-Google-Smtp-Source: ABdhPJxDnlLDPWNzMZuWcnV+/rOgrakre1rXPCpfdqmIqed3vqPY4L03tfWY5TgXHtZ8fOcJhFFSsQ==
+X-Received: by 2002:a2e:b608:: with SMTP id r8mr6073109ljn.248.1632413302815;
+        Thu, 23 Sep 2021 09:08:22 -0700 (PDT)
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com. [209.85.167.51])
+        by smtp.gmail.com with ESMTPSA id b17sm639414ljj.35.2021.09.23.09.08.22
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Sep 2021 09:08:22 -0700 (PDT)
+Received: by mail-lf1-f51.google.com with SMTP id e15so28571128lfr.10
+        for <linux-s390@vger.kernel.org>; Thu, 23 Sep 2021 09:08:22 -0700 (PDT)
+X-Received: by 2002:a2e:3309:: with SMTP id d9mr5950451ljc.249.1632412922441;
+ Thu, 23 Sep 2021 09:02:02 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <YUxsgN/uolhn1Ok+@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: fr-FR
-Content-Transfer-Encoding: 8bit
+References: <20210923074335.12583-1-rppt@kernel.org>
+In-Reply-To: <20210923074335.12583-1-rppt@kernel.org>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 23 Sep 2021 09:01:46 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wiJB8H5pZz-AKaSJ7ViRtdxQGJT7eOByp8DJx2OwZSYwA@mail.gmail.com>
+Message-ID: <CAHk-=wiJB8H5pZz-AKaSJ7ViRtdxQGJT7eOByp8DJx2OwZSYwA@mail.gmail.com>
+Subject: Re: [PATCH 0/3] memblock: cleanup memblock_free interface
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        iommu <iommu@lists.linux-foundation.org>,
+        kasan-dev <kasan-dev@googlegroups.com>,
+        KVM list <kvm@vger.kernel.org>,
+        alpha <linux-alpha@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-efi <linux-efi@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        "open list:SYNOPSYS ARC ARCHITECTURE" 
+        <linux-snps-arc@lists.infradead.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        linux-usb@vger.kernel.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-sparc <sparclinux@vger.kernel.org>,
+        xen-devel@lists.xenproject.org, Mike Rapoport <rppt@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, Sep 23, 2021 at 12:43 AM Mike Rapoport <rppt@kernel.org> wrote:
+>
+> The core change is in the third patch that makes memblock_free() a
+> counterpart of memblock_alloc() and adds memblock_phys_alloc() to be a
 
+^^^^^^^^^^^^^^^^^^^
+> counterpart of memblock_phys_alloc().
 
-Le 23/09/2021 à 14:01, Mike Rapoport a écrit :
-> On Thu, Sep 23, 2021 at 11:47:48AM +0200, Christophe Leroy wrote:
->>
->>
->> Le 23/09/2021 à 09:43, Mike Rapoport a écrit :
->>> From: Mike Rapoport <rppt@linux.ibm.com>
->>>
->>> For ages memblock_free() interface dealt with physical addresses even
->>> despite the existence of memblock_alloc_xx() functions that return a
->>> virtual pointer.
->>>
->>> Introduce memblock_phys_free() for freeing physical ranges and repurpose
->>> memblock_free() to free virtual pointers to make the following pairing
->>> abundantly clear:
->>>
->>> 	int memblock_phys_free(phys_addr_t base, phys_addr_t size);
->>> 	phys_addr_t memblock_phys_alloc(phys_addr_t base, phys_addr_t size);
->>>
->>> 	void *memblock_alloc(phys_addr_t size, phys_addr_t align);
->>> 	void memblock_free(void *ptr, size_t size);
->>>
->>> Replace intermediate memblock_free_ptr() with memblock_free() and drop
->>> unnecessary aliases memblock_free_early() and memblock_free_early_nid().
->>>
->>> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
->>> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
->>> ---
->>
->>> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
->>> index 1a04e5bdf655..37826d8c4f74 100644
->>> --- a/arch/s390/kernel/smp.c
->>> +++ b/arch/s390/kernel/smp.c
->>> @@ -723,7 +723,7 @@ void __init smp_save_dump_cpus(void)
->>>    			/* Get the CPU registers */
->>>    			smp_save_cpu_regs(sa, addr, is_boot_cpu, page);
->>>    	}
->>> -	memblock_free(page, PAGE_SIZE);
->>> +	memblock_phys_free(page, PAGE_SIZE);
->>>    	diag_amode31_ops.diag308_reset();
->>>    	pcpu_set_smt(0);
->>>    }
->>> @@ -880,7 +880,7 @@ void __init smp_detect_cpus(void)
->>>    	/* Add CPUs present at boot */
->>>    	__smp_rescan_cpus(info, true);
->>> -	memblock_free_early((unsigned long)info, sizeof(*info));
->>> +	memblock_free(info, sizeof(*info));
->>>    }
->>>    /*
->>
->> I'm a bit lost. IIUC memblock_free_early() and memblock_free() where
->> identical.
-> 
-> Yes, they were, but all calls to memblock_free_early() were using
-> __pa(vaddr) because they had a virtual address at hand.
+That should be 'memblock_phys_free()'
 
-I'm still not following. In the above memblock_free_early() was taking 
-(unsigned long)info . Was it a bug ? It looks odd to hide bug fixes in 
-such a big patch, should that bug fix go in patch 2 ?
+HOWEVER.
 
-> 
->> In the first hunk memblock_free() gets replaced by memblock_phys_free()
->> In the second hunk memblock_free_early() gets replaced by memblock_free()
-> 
-> In the first hunk the memory is allocated with memblock_phys_alloc() and we
-> have a physical range to free. In the second hunk the memory is allocated
-> with memblock_alloc() and we are freeing a virtual pointer.
->   
->> I think it would be easier to follow if you could split it in several
->> patches:
-> 
-> It was an explicit request from Linus to make it a single commit:
-> 
->    but the actual commit can and should be just a single commit that just
->    fixes 'memblock_free()' to have sane interfaces.
-> 
-> I don't feel strongly about splitting it (except my laziness really
-> objects), but I don't think doing the conversion in several steps worth the
-> churn.
+The real reason I'm replying is that this patch is horribly buggy, and
+will cause subtle problems that are nasty to debug.
 
-The commit is quite big (55 files changed, approx 100 lines modified).
+You need to be a LOT more careful.
 
-If done in the right order the change should be minimal.
+From a trivial check - exactly because I looked at doing it with a
+script, and decided it's not so easy - I found cases like this:
 
-It is rather not-easy to follow and review when a function that was 
-existing (namely memblock_free() ) disappears and re-appears in the same 
-commit but to do something different.
+-               memblock_free(__pa(paca_ptrs) + new_ptrs_size,
++               memblock_free(paca_ptrs + new_ptrs_size,
 
-You do:
-- memblock_free() ==> memblock_phys_free()
-- memblock_free_ptr() ==> memblock_free()
+which is COMPLETELY wrong.
 
-At least you could split in two patches, the advantage would be that 
-between first and second patch memblock() doesn't exist anymore so you 
-can check you really don't have anymore user.
+Why? Because now that addition is done as _pointer_ addition, not as
+an integer addition, and the end result is something completely
+different.
 
-> 
->> - First patch: Create memblock_phys_free() and change all relevant
->> memblock_free() to memblock_phys_free() - Or change memblock_free() to
->> memblock_phys_free() and make memblock_free() an alias of it.
->> - Second patch: Make memblock_free_ptr() become memblock_free() and change
->> all remaining callers to the new semantics (IIUC memblock_free(__pa(ptr))
->> becomes memblock_free(ptr) and make memblock_free_ptr() an alias of
->> memblock_free()
->> - Fourth patch: Replace and drop memblock_free_ptr()
->> - Fifth patch: Drop memblock_free_early() and memblock_free_early_nid() (All
->> users should have been upgraded to memblock_free_phys() in patch 1 or
->> memblock_free() in patch 2)
->>
->> Christophe
-> 
+pcac_ptrs is of type 'struct paca_struct **', so when you add
+new_ptrs_size to it, it will add it in terms of that many pointers,
+not that many bytes.
+
+You need to use some smarter scripting, or some way to validate it.
+
+And no, making the scripting just replace '__pa(x)' with '(void *)(x)'
+- which _would_ be mindless and get the same result - is not
+acceptable either, because it avoids one of the big improvements from
+using the right interface, namely having compiler type checking (and
+saner code that people understand).
+
+So NAK. No broken automated scripting patches.
+
+               Linus
