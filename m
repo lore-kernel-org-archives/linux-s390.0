@@ -2,149 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3C89C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Sep 2021 08:52:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48256C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Sep 2021 09:47:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A66EA61269
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Sep 2021 08:52:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 26E5A6121F
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Sep 2021 09:47:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240034AbhIWIyV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Sep 2021 04:54:21 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33874 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240018AbhIWIyV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 23 Sep 2021 04:54:21 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18N7VEMw021941;
-        Thu, 23 Sep 2021 04:52:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=vi//wIVyT+h5+C9jizJGkEb5o7LV4fbjChl0kUpetww=;
- b=ZahMwh30SuExkEvWaCr4uDmzth0/Ynn/aa+vNfgPGvQyFRMZP7bCkaBLi1sy5ObAJiuL
- LR6QwWhhMYvwuzAcrehriLgx+VJn6JTrHTJd+a/CPsF5+o8flAz5raWqxdCIbQGvkjs+
- 3VE4VSyxbCWJZQpU/zj9VL9diXQQm4icfrC7Izb/Pk4ZHDc85pys8hJ0buAizg9eJfOB
- p5GSaOWyBePyx3Cioe1YtKtLM3g0dXpsR4wC9TM7MxnEnfO+VEvwtSjIpl0d+xHKCzGR
- PauF1TgmwASkD1w2mvn0DmP3UD5b1kbRtDtjSsOG2ghcvqqk0cYcnigj89TJnknQm9s7 4g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b8n8q1skh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 23 Sep 2021 04:52:21 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18N87m8F003634;
-        Thu, 23 Sep 2021 04:52:19 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3b8n8q1sjg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 23 Sep 2021 04:52:19 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18N8hx4k020988;
-        Thu, 23 Sep 2021 08:52:16 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06fra.de.ibm.com with ESMTP id 3b7q6pq4ab-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 23 Sep 2021 08:52:16 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18N8lKmU54133162
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 23 Sep 2021 08:47:20 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 824174C1C0;
-        Thu, 23 Sep 2021 08:52:11 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 71F604C182;
-        Thu, 23 Sep 2021 08:52:10 +0000 (GMT)
-Received: from osiris (unknown [9.145.165.148])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu, 23 Sep 2021 08:52:10 +0000 (GMT)
-Date:   Thu, 23 Sep 2021 10:52:08 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Luis Chamberlain <mcgrof@kernel.org>
-Cc:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>, axboe@kernel.dk,
-        gregkh@linuxfoundation.org, chaitanya.kulkarni@wdc.com,
-        atulgopinathan@gmail.com, hare@suse.de, maximlevitsky@gmail.com,
-        oakad@yahoo.com, ulf.hansson@linaro.org, colin.king@canonical.com,
-        shubhankarvk@gmail.com, baijiaju1990@gmail.com, trix@redhat.com,
-        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
-        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
-        sth@linux.ibm.com, hoeppner@linux.ibm.com, gor@linux.ibm.com,
-        borntraeger@de.ibm.com, oberpar@linux.ibm.com, tj@kernel.org,
-        linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/9] s390/block/dcssblk: add error handling support for
- add_disk()
-Message-ID: <YUxAOKY7dXZAABhI@osiris>
-References: <20210902174105.2418771-1-mcgrof@kernel.org>
- <20210902174105.2418771-8-mcgrof@kernel.org>
- <YTIscKy+jg5L/TMh@osiris>
- <YTLP8mYBX37R++9E@bombadil.infradead.org>
- <20210906134346.19c14246@thinkpad>
- <YT+B+vCUcpZEq8hM@bombadil.infradead.org>
+        id S240224AbhIWJt1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Sep 2021 05:49:27 -0400
+Received: from pegase2.c-s.fr ([93.17.235.10]:52743 "EHLO pegase2.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240175AbhIWJt0 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 23 Sep 2021 05:49:26 -0400
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4HFVhS1HTcz9sTZ;
+        Thu, 23 Sep 2021 11:47:52 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id N2iojAvTUjrW; Thu, 23 Sep 2021 11:47:52 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4HFVhS0G8Vz9sTX;
+        Thu, 23 Sep 2021 11:47:52 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id E65698B775;
+        Thu, 23 Sep 2021 11:47:51 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id HEg50hnqH7U5; Thu, 23 Sep 2021 11:47:51 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.202.200])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 224928B763;
+        Thu, 23 Sep 2021 11:47:50 +0200 (CEST)
+Subject: Re: [PATCH 3/3] memblock: cleanup memblock_free interface
+To:     Mike Rapoport <rppt@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     devicetree@vger.kernel.org, linux-efi@vger.kernel.org,
+        Mike Rapoport <rppt@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-kernel@vger.kernel.org,
+        kasan-dev@googlegroups.com, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, iommu@lists.linux-foundation.org,
+        linux-usb@vger.kernel.org, linux-alpha@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+References: <20210923074335.12583-1-rppt@kernel.org>
+ <20210923074335.12583-4-rppt@kernel.org>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <1101e3c7-fcb7-a632-8e22-47f4a01ea02e@csgroup.eu>
+Date:   Thu, 23 Sep 2021 11:47:48 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YT+B+vCUcpZEq8hM@bombadil.infradead.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2XeQEdid_UYFD9jsrBRsyb10jcGxIyKO
-X-Proofpoint-GUID: oI5-SgomwrvMO_toFwGrIdfrCQ0BSo8E
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-23_02,2021-09-22_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- phishscore=0 spamscore=0 malwarescore=0 priorityscore=1501
- lowpriorityscore=0 mlxscore=0 mlxlogscore=999 adultscore=0 impostorscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109200000 definitions=main-2109230052
+In-Reply-To: <20210923074335.12583-4-rppt@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: fr-FR
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 13, 2021 at 09:53:14AM -0700, Luis Chamberlain wrote:
-> On Mon, Sep 06, 2021 at 01:43:46PM +0200, Gerald Schaefer wrote:
-> > On Fri, 3 Sep 2021 18:46:26 -0700
-> > Luis Chamberlain <mcgrof@kernel.org> wrote:
-> > 
-> > > On Fri, Sep 03, 2021 at 04:08:48PM +0200, Heiko Carstens wrote:
-> > > > On Thu, Sep 02, 2021 at 10:41:03AM -0700, Luis Chamberlain wrote:
-> > > > > We never checked for errors on add_disk() as this function
-> > > > > returned void. Now that this is fixed, use the shiny new
-> > > > > error handling.
-> > > > > 
-> > > > > Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-> > > > > ---
-> > > > >  drivers/s390/block/dcssblk.c | 4 +++-
-> > > > >  1 file changed, 3 insertions(+), 1 deletion(-)
-> > > > > 
-> > > > > diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-> > > > > index 5be3d1c39a78..b0fd5009a12e 100644
-> > > > > --- a/drivers/s390/block/dcssblk.c
-> > > > > +++ b/drivers/s390/block/dcssblk.c
-> > > > > @@ -696,7 +696,9 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char
-> > > > >  	}
-> > > > >  
-> > > > >  	get_device(&dev_info->dev);
-> > > > > -	device_add_disk(&dev_info->dev, dev_info->gd, NULL);
-> > > > > +	rc = device_add_disk(&dev_info->dev, dev_info->gd, NULL);
-> > > > > +	if (rc)
-> > > > > +		goto put_dev;
-> > > > 
-> > > > This looks not correct to me. We seem to have now in case of an error:
-> > > > 
-> > > > - reference count imbalance (= memory leak)
-> > > > - dax cleanup is missing
-> > > 
-> > > Care to provide an alternative?
-> > 
-> > See patch below:
-> 
-> Thanks! Will you queue this up on your end or do would you
-> prefer for me to roll this into my tree and eventually resend
-> with the rest?
 
-Please add the patch to your tree.
+
+Le 23/09/2021 à 09:43, Mike Rapoport a écrit :
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> For ages memblock_free() interface dealt with physical addresses even
+> despite the existence of memblock_alloc_xx() functions that return a
+> virtual pointer.
+> 
+> Introduce memblock_phys_free() for freeing physical ranges and repurpose
+> memblock_free() to free virtual pointers to make the following pairing
+> abundantly clear:
+> 
+> 	int memblock_phys_free(phys_addr_t base, phys_addr_t size);
+> 	phys_addr_t memblock_phys_alloc(phys_addr_t base, phys_addr_t size);
+> 
+> 	void *memblock_alloc(phys_addr_t size, phys_addr_t align);
+> 	void memblock_free(void *ptr, size_t size);
+> 
+> Replace intermediate memblock_free_ptr() with memblock_free() and drop
+> unnecessary aliases memblock_free_early() and memblock_free_early_nid().
+> 
+> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+
+> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+> index 1a04e5bdf655..37826d8c4f74 100644
+> --- a/arch/s390/kernel/smp.c
+> +++ b/arch/s390/kernel/smp.c
+> @@ -723,7 +723,7 @@ void __init smp_save_dump_cpus(void)
+>   			/* Get the CPU registers */
+>   			smp_save_cpu_regs(sa, addr, is_boot_cpu, page);
+>   	}
+> -	memblock_free(page, PAGE_SIZE);
+> +	memblock_phys_free(page, PAGE_SIZE);
+>   	diag_amode31_ops.diag308_reset();
+>   	pcpu_set_smt(0);
+>   }
+> @@ -880,7 +880,7 @@ void __init smp_detect_cpus(void)
+>   
+>   	/* Add CPUs present at boot */
+>   	__smp_rescan_cpus(info, true);
+> -	memblock_free_early((unsigned long)info, sizeof(*info));
+> +	memblock_free(info, sizeof(*info));
+>   }
+>   
+>   /*
+
+I'm a bit lost. IIUC memblock_free_early() and memblock_free() where 
+identical.
+
+In the first hunk memblock_free() gets replaced by memblock_phys_free()
+In the second hunk memblock_free_early() gets replaced by memblock_free()
+
+I think it would be easier to follow if you could split it in several 
+patches:
+- First patch: Create memblock_phys_free() and change all relevant 
+memblock_free() to memblock_phys_free() - Or change memblock_free() to 
+memblock_phys_free() and make memblock_free() an alias of it.
+- Second patch: Make memblock_free_ptr() become memblock_free() and 
+change all remaining callers to the new semantics (IIUC 
+memblock_free(__pa(ptr)) becomes memblock_free(ptr) and make 
+memblock_free_ptr() an alias of memblock_free()
+- Fourth patch: Replace and drop memblock_free_ptr()
+- Fifth patch: Drop memblock_free_early() and memblock_free_early_nid() 
+(All users should have been upgraded to memblock_free_phys() in patch 1 
+or memblock_free() in patch 2)
+
+Christophe
