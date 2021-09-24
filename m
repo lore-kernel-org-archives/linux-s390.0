@@ -2,198 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81A6DC43219
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 13:31:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5B1CC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 13:49:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6B05F61038
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 13:31:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 979EA6103B
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 13:49:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346515AbhIXNd3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 24 Sep 2021 09:33:29 -0400
-Received: from mail-dm6nam10on2058.outbound.protection.outlook.com ([40.107.93.58]:39863
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1345378AbhIXNdZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 24 Sep 2021 09:33:25 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BaxjAC9EmAWBsh7zRULTA8AeJCx8enxji/OILEiCnQ43wxLbuUftgiwh6dzc6V4VFnm8sK8rf53PXiL+Lec17R35QMMdTcC8+F7uKiA/8be7IMyAAEP4Y9Snfsy62TDQJKeB0oLoJZVT0SqtgUMMYAXd6VwFGKIEP1vnIY3YK6z8K4P3LjrIh96WL9C4xRc/MPFvcJYT82Kk/W3vBjuENCozXGX9owlzAfpWdO69rTPMa6uQgeL1Mpyd1rLM1b7rUPmHeBK7uwdNHmNuftLzZPGxWIF9HeViTbjeRnaN9l/E7LwUFlt9yZa6AVkJ8Hfdq/AGG7u5qTVu/SDURi30aA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
- bh=pbiPm6dQwPY9o1IJZg6JJVINOZIQSwzE/cJ0+AdpetY=;
- b=Cs255WXViZoz7y7KyoVp6Bkf3svXCezQwhf/XYXz3sPm7WGxUoCtH8iZS789dQmx7WN6Ulfg6SzJgI/+Uafo9f4pRd93HIvEajnG9llnlc+gMFei11JG2KgAk2bRCV0vuLCbRmacy3B7zj9rg+H54dreMXafGXegGpCo/kWg/MPlZy6Po0Oh83EKpr/eqCsQifJUPqkCgv2bcye/JNyNAWOel+vWjChdAaDg6nuM9uF/AHlMiCCyE7H1RqG7evxgWnpv3nX3pnus2YGopPwDMAurbcHrx6uVKyRLPp1QgIuXrmoHpFKZuuTV1la8nnNp22zA6vLay+UeN36BG0yjOA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pbiPm6dQwPY9o1IJZg6JJVINOZIQSwzE/cJ0+AdpetY=;
- b=i6sLgCLSBmcGjGWMy1Ie9Jqo0Xd67lR+LQQfX93WLgZjHnmfJ+xh7IM7DNn9/NcI0DopVks+2sLbbnJoTlV1U7D58nSJNHoinjyWjpy2TnjWx/NeIez0vOD2rdT5Yv3i1l8n2/9YC/wxiK0ji1fwZtYfhLcreCEZaiUgg12aWJM=
-Authentication-Results: kernel.org; dkim=none (message not signed)
- header.d=none;kernel.org; dmarc=none action=none header.from=amd.com;
-Received: from DM4PR12MB5229.namprd12.prod.outlook.com (2603:10b6:5:398::12)
- by DM4PR12MB5311.namprd12.prod.outlook.com (2603:10b6:5:39f::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4544.13; Fri, 24 Sep
- 2021 13:31:49 +0000
-Received: from DM4PR12MB5229.namprd12.prod.outlook.com
- ([fe80::d560:d21:cd59:9418]) by DM4PR12MB5229.namprd12.prod.outlook.com
- ([fe80::d560:d21:cd59:9418%7]) with mapi id 15.20.4544.018; Fri, 24 Sep 2021
- 13:31:49 +0000
-Subject: Re: [PATCH v3 5/8] x86/sme: Replace occurrences of sme_active() with
- cc_platform_has()
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     "Kirill A. Shutemov" <kirill@shutemov.name>,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        iommu@lists.linux-foundation.org, kvm@vger.kernel.org,
-        linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-graphics-maintainer@vmware.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sathyanarayanan Kuppuswamy 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>
-References: <YUpONYwM4dQXAOJr@zn.tnic>
- <20210921213401.i2pzaotgjvn4efgg@box.shutemov.name>
- <00f52bf8-cbc6-3721-f40e-2f51744751b0@amd.com>
- <20210921215830.vqxd75r4eyau6cxy@box.shutemov.name>
- <01891f59-7ec3-cf62-a8fc-79f79ca76587@amd.com>
- <20210922143015.vvxvh6ec73lffvkf@box.shutemov.name>
- <YUuJZ2qOgbdpfk6N@zn.tnic>
- <20210922210558.itofvu3725dap5xx@box.shutemov.name>
- <YUzFj+yH79XRc3F3@zn.tnic>
- <20210924094132.gxyqp4z3qdk5w4j6@box.shutemov.name>
- <YU2fsCblZVQpgMvC@zn.tnic>
-From:   Tom Lendacky <thomas.lendacky@amd.com>
-Message-ID: <8ed60226-b3f2-1226-3ce8-afc58acbe1e5@amd.com>
-Date:   Fri, 24 Sep 2021 08:31:46 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-In-Reply-To: <YU2fsCblZVQpgMvC@zn.tnic>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SN7PR04CA0039.namprd04.prod.outlook.com
- (2603:10b6:806:120::14) To DM4PR12MB5229.namprd12.prod.outlook.com
- (2603:10b6:5:398::12)
+        id S1344828AbhIXNuv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 24 Sep 2021 09:50:51 -0400
+Received: from pegase2.c-s.fr ([93.17.235.10]:41017 "EHLO pegase2.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231510AbhIXNuv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 24 Sep 2021 09:50:51 -0400
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4HGD0X5vB8z9sVt;
+        Fri, 24 Sep 2021 15:49:16 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id j5VNJ9feyuFZ; Fri, 24 Sep 2021 15:49:16 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4HGD0X4sfyz9sVq;
+        Fri, 24 Sep 2021 15:49:16 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 8A49E8B781;
+        Fri, 24 Sep 2021 15:49:16 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id D0X0hp1BLVGj; Fri, 24 Sep 2021 15:49:16 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.202.215])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 49A808B763;
+        Fri, 24 Sep 2021 15:49:16 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
+        by PO20335.IDSI0.si.c-s.fr (8.16.1/8.16.1) with ESMTPS id 18ODn6DW1293064
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Fri, 24 Sep 2021 15:49:06 +0200
+Received: (from chleroy@localhost)
+        by PO20335.IDSI0.si.c-s.fr (8.16.1/8.16.1/Submit) id 18ODn6eg1293063;
+        Fri, 24 Sep 2021 15:49:06 +0200
+X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     Andrew Morton <akpm@linux-foundation.org>, arnd@arndb.de
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-arch@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Subject: [PATCH 3/3] s390: Use generic version of arch_is_kernel_initmem_freed()
+Date:   Fri, 24 Sep 2021 15:48:47 +0200
+Message-Id: <8e7f31b51ce62c9c495f71845f29a6d825d6e852.1632491308.git.christophe.leroy@csgroup.eu>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <0b55650058a5bf64f7d74781871a1ada2298c8b4.1632491308.git.christophe.leroy@csgroup.eu>
+References: <0b55650058a5bf64f7d74781871a1ada2298c8b4.1632491308.git.christophe.leroy@csgroup.eu>
 MIME-Version: 1.0
-Received: from office-ryzen.texastahm.com (67.79.209.213) by SN7PR04CA0039.namprd04.prod.outlook.com (2603:10b6:806:120::14) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4544.13 via Frontend Transport; Fri, 24 Sep 2021 13:31:47 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 562c0a4d-7f00-409b-5e44-08d97f5fa99b
-X-MS-TrafficTypeDiagnostic: DM4PR12MB5311:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM4PR12MB5311DB3E6AA21B17B48078F3ECA49@DM4PR12MB5311.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 0hVtvo18zjgOL1qHrWEFnWPX3eO6OKUF9sKIvfEmkkXSiV1oNEctI48mvtIMdtaIO5WErzTj+VIHjSVlJxsMEo8nLSpNaB3QqHzqKDDZoF6DYEEoIDrMt2OMMnx8677few5iwbXziUYlXvLs8vQbm6KJzBexZwkpeE4xSSaAIDZuk6OWokDnenGbhNz9iXQl2ahU0kWtVpccNBHj+1fS0qspjsrZ1ZpDVEz0fS7XO1wW1N6S8eCkGLrqSvotyHamANYDvYOqhKSHY8G06ozyki/W+01q4a6OkVxpJRTjLoSMcelXvxxkpd3CEjNPTaxLXZjGzcf3mFFb7h6H3vd2deGAYT8Ox9sHSSbmPMQdQsTeyCongaWLh8sB+LJreZJp63327vsvZ/P3XYErn9u289Ebl4MwnLYLYeuIGEAlRWvZpK4T1V6/+phOy/hVbYmmvh2ybujowstU96zB3wvGtw+QvRbRqiD7dIN/qpcUriQha0eLx2Vmgyc+wquDiNd7WJXClsUrQylu+6Qqt9z4iQZUZmA/9MBC7JNOLCv56jdtvjVdIFpveho+rKnQClwPIVdFJW75YmUdP9jgXefxVtbFHMEW9Rgkx84zfK7mgckLvZTy5vpDbtaxnkGVymYkYlJW9fKYiBgg9tVc6hTEDwvR+9oZVESXZHlxIQ50TOHHeqDSyB6g/gN80EWNCTmk9MqN19/As9jgBnAXXuoOSURe8bxmjXPxgcG/7zZAu3Q=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB5229.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(36756003)(6506007)(38100700002)(86362001)(2906002)(2616005)(8936002)(8676002)(66946007)(6512007)(956004)(316002)(508600001)(5660300002)(83380400001)(54906003)(4326008)(6486002)(66556008)(186003)(31696002)(66476007)(53546011)(7416002)(6916009)(26005)(31686004)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dnhlS2JEVUhjQ1JyN3Bwenk4Y2c0cDBCQzNZelV2VUIzZ0JNd0dJNEVtUFp4?=
- =?utf-8?B?aGJxVmZRaHFpQk5GV3RLL2Q4ek9BdFVEL1lmVEJaWjMrNm9jN2Z1YmxxWmdN?=
- =?utf-8?B?TnF2YXdibkNLSjRDdnp4WkFBUWpSbW9keUVMb3RBeUJkZGtJbGtCNTZtMy9T?=
- =?utf-8?B?NFB3ajlFeWUrS1AzamtjQjV2blIvaW1zdkllZEJxMERQTmVRK0Rzcm1FbG5L?=
- =?utf-8?B?TXR5NEVHd1VWdDlqSk5KQTAvdmUvTElrdDVwOXc3Ykgrb0gvdWk5VWhjbHRW?=
- =?utf-8?B?cmZTcDJBbURtTnV0emNpdHBiamR6WjQ5c1pGYnhtZWFsYXNreHZ0ZGpGT2VL?=
- =?utf-8?B?djhOaEhPUi8wNytxcGhoczlYaXRPSmlqSFk1S3ZVQVlVK2M2NTRVM0JTcU9Z?=
- =?utf-8?B?ZFY2NnhtbUtoUkxhb0RjQS96UU5iK3NTU2lraExyNElnTzdlNVBLWm1XUVcr?=
- =?utf-8?B?WEYrQ2pIcjcrTGx5NVNQNmJMcE9OWnRyMitpU2ZYUHcxUTcxb1g3UG5tWE5M?=
- =?utf-8?B?K2V6RDh5TlRObUFZZC9qeWdhb28zRlFackh2WDVDU1RoRGhuV0tjZHNSN0hz?=
- =?utf-8?B?V2ZJYlRjYVBSSit0d3VxcFo2TnJ2UTVzdDNPS0s3M04xWFpPL1g3WElweTJw?=
- =?utf-8?B?RXp3T2g5MlNNM0FWTzYreVRubTBUMndqOW0zekMvL2ZoSlRKUGpTaHhnUnVK?=
- =?utf-8?B?Qm5Qdy9PUTdpVlZPOExLZytIOVRIaURSK3NUTTdMZWFNRlBGTXZoclBRd2JB?=
- =?utf-8?B?YWFxdUI2RXNOYUtsME15cW5ESnVaRTdnMTczZVVQckkzR0FaeE0ySUlFd1FB?=
- =?utf-8?B?YWg3M0lnajdYRExBUXd2QUZLMGV5VzdaeVZlcS9vNDg3ZHVsUVZXUkRRYTlU?=
- =?utf-8?B?OHh5WjN3OUYrSEFiRjR5cXppYUpodG9sSmk4cTdlTG9IdVVuRVVkdVcycDNN?=
- =?utf-8?B?T1J5dnRzYTJUVkdLZk45M09ISHFLaFh6VUY0QzF4UzFjdHlJWGF2eXR2UU1w?=
- =?utf-8?B?eEd2Q0QzSUhpYzd1RGgwUXdKQkp2bnY1K1FCdGNjT3FGWEl6ek1wZVFxTHNR?=
- =?utf-8?B?SS9XTFNRNlZrcWZoamtvZWJQMkZtM25zVktPM2lsbExvNlhrRUQ4TGx3dWNo?=
- =?utf-8?B?ZllFcnRxWkFpenFlV1AvYm5EaVp5UmtwWVpTUENLY0U3TWFPOGEwbEVFMkdo?=
- =?utf-8?B?dXhPT0QyUTJkMWlwclE1MnJLUDZDcU85am1reEZ5M0FGOG1Hd3BTdUNBeWwy?=
- =?utf-8?B?VENGZmozcVpIT1hlMG9zVHRTMlRnUWpOSU5RcWc0Nld2KzRIMnBaWWMrYzR4?=
- =?utf-8?B?MlZQckxkcEhoM0J1U2lPQUZHZ1dzQ3F6bEFOL3ZBM2p1V2hzeTljalRrOHRF?=
- =?utf-8?B?ZEJLK2xPSnhIQlNGMys3SWNpcXllN0J1NngrdXR1a3NUeEpJbnV0a1RxakhL?=
- =?utf-8?B?RTR1aXgybUF0bnd5aHBENWJOTVByWVRncHhjaUFZeVZNdDVxSktCaiszQkx5?=
- =?utf-8?B?QmVIOHIwTWJJdDJnMU94Sm5PWnZZZHhjZmhGNDYrSW1NQ3ovR2RJZElyeFcx?=
- =?utf-8?B?NGFLeUtsa29JcFVYQjRuNEcvVk9iZjNka1E4L1hST256MndxTmtpYm1nSUNp?=
- =?utf-8?B?YXg2dFdUT0g2MENVNmRYZUhYb0thNXljYWtHL2RGTTl6VGRVYnFwSW5JZEFG?=
- =?utf-8?B?Qjg4bWkvbWhCcmlkNUlZdDVKTEdZVktsS0FOeXRRd29KM05FVS93NHlsVU1u?=
- =?utf-8?Q?3m7QisQgP7Q9ySV/qRvHgsMy89jxrkH4Wg7Po5b?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 562c0a4d-7f00-409b-5e44-08d97f5fa99b
-X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB5229.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Sep 2021 13:31:49.6207
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: H3xaDD1HT2rXnyqGNye8q/oD5FbAfwb/GcGk71rNaG70mxtDRuobWwuL03mu++JQQ00ZCOgmP65D8dytClAlJw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5311
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 9/24/21 4:51 AM, Borislav Petkov wrote:
-> On Fri, Sep 24, 2021 at 12:41:32PM +0300, Kirill A. Shutemov wrote:
->> On Thu, Sep 23, 2021 at 08:21:03PM +0200, Borislav Petkov wrote:
->>> On Thu, Sep 23, 2021 at 12:05:58AM +0300, Kirill A. Shutemov wrote:
->>>> Unless we find other way to guarantee RIP-relative access, we must use
->>>> fixup_pointer() to access any global variables.
->>>
->>> Yah, I've asked compiler folks about any guarantees we have wrt
->>> rip-relative addresses but it doesn't look good. Worst case, we'd have
->>> to do the fixup_pointer() thing.
->>>
->>> In the meantime, Tom and I did some more poking at this and here's a
->>> diff ontop.
->>>
->>> The direction being that we'll stick both the AMD and Intel
->>> *cc_platform_has() call into cc_platform.c for which instrumentation
->>> will be disabled so no issues with that.
->>>
->>> And that will keep all that querying all together in a single file.
->>
->> And still do cc_platform_has() calls in __startup_64() codepath?
->>
->> It's broken.
->>
->> Intel detection in cc_platform_has() relies on boot_cpu_data.x86_vendor
->> which is not initialized until early_cpu_init() in setup_arch(). Given
->> that X86_VENDOR_INTEL is 0 it leads to false-positive.
-> 
-> Yeah, Tom, I had the same question yesterday.
-> 
-> /me looks in his direction.
-> 
+Generic version of arch_is_kernel_initmem_freed() now does the same
+as s390 version.
 
-Yup, all the things we talked about.
+Remove the s390 version.
 
-But we also know that cc_platform_has() gets called a few other times 
-before boot_cpu_data is initialized - so more false-positives. For 
-cc_platform_has() to work properly, given the desire to consolidate the 
-calls, IMO, Intel will have to come up with some early setting that can be 
-enabled and checked in place of boot_cpu_data or else you live with 
-false-positives.
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+---
+ arch/s390/include/asm/sections.h | 12 ------------
+ arch/s390/mm/init.c              |  3 ---
+ 2 files changed, 15 deletions(-)
 
-Thanks,
-Tom
+diff --git a/arch/s390/include/asm/sections.h b/arch/s390/include/asm/sections.h
+index 85881dd48022..3fecaa4e8b74 100644
+--- a/arch/s390/include/asm/sections.h
++++ b/arch/s390/include/asm/sections.h
+@@ -2,20 +2,8 @@
+ #ifndef _S390_SECTIONS_H
+ #define _S390_SECTIONS_H
+ 
+-#define arch_is_kernel_initmem_freed arch_is_kernel_initmem_freed
+-
+ #include <asm-generic/sections.h>
+ 
+-extern bool initmem_freed;
+-
+-static inline int arch_is_kernel_initmem_freed(unsigned long addr)
+-{
+-	if (!initmem_freed)
+-		return 0;
+-	return addr >= (unsigned long)__init_begin &&
+-	       addr < (unsigned long)__init_end;
+-}
+-
+ /*
+  * .boot.data section contains variables "shared" between the decompressor and
+  * the decompressed kernel. The decompressor will store values in them, and
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index a04faf49001a..8c6f258a6183 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -58,8 +58,6 @@ unsigned long empty_zero_page, zero_page_mask;
+ EXPORT_SYMBOL(empty_zero_page);
+ EXPORT_SYMBOL(zero_page_mask);
+ 
+-bool initmem_freed;
+-
+ static void __init setup_zero_pages(void)
+ {
+ 	unsigned int order;
+@@ -214,7 +212,6 @@ void __init mem_init(void)
+ 
+ void free_initmem(void)
+ {
+-	initmem_freed = true;
+ 	__set_memory((unsigned long)_sinittext,
+ 		     (unsigned long)(_einittext - _sinittext) >> PAGE_SHIFT,
+ 		     SET_MEMORY_RW | SET_MEMORY_NX);
+-- 
+2.31.1
 
-> :-)
-> 
