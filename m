@@ -2,206 +2,77 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BC66C4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 14:34:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E726FC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 17:47:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 056D36124F
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 14:34:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C83476105A
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 17:47:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346817AbhIXOfy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 24 Sep 2021 10:35:54 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:10367 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234615AbhIXOfu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Sep 2021 10:35:50 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HGDv42Blsz8yh1;
-        Fri, 24 Sep 2021 22:29:36 +0800 (CST)
-Received: from kwepemm600016.china.huawei.com (7.193.23.20) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Fri, 24 Sep 2021 22:34:10 +0800
-Received: from localhost.localdomain (10.67.165.24) by
- kwepemm600016.china.huawei.com (7.193.23.20) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Fri, 24 Sep 2021 22:34:09 +0800
-From:   Guangbin Huang <huangguangbin2@huawei.com>
-To:     <davem@davemloft.net>, <kuba@kernel.org>, <mkubecek@suse.cz>,
-        <andrew@lunn.ch>, <amitc@mellanox.com>, <idosch@idosch.org>,
-        <danieller@nvidia.com>, <jesse.brandeburg@intel.com>,
-        <anthony.l.nguyen@intel.com>, <jdike@addtoit.com>,
-        <richard@nod.at>, <anton.ivanov@cambridgegreys.com>,
-        <netanel@amazon.com>, <akiyano@amazon.com>, <gtzalik@amazon.com>,
-        <saeedb@amazon.com>, <chris.snook@gmail.com>,
-        <ulli.kroll@googlemail.com>, <linus.walleij@linaro.org>,
-        <jeroendb@google.com>, <csully@google.com>,
-        <awogbemila@google.com>, <jdmason@kudzu.us>,
+        id S1344557AbhIXRtZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 24 Sep 2021 13:49:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55722 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1344543AbhIXRtZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 24 Sep 2021 13:49:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F22E61076;
+        Fri, 24 Sep 2021 17:47:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632505672;
+        bh=jwGq3T9SWUtbKc9Gjb5uspuKUEIlvFqf7Wf6LwvoktQ=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=Z9PBRhpNBbzXPxtGSlpKiGU2zCvGnZF/BjaXR/YTMHF7G0YsMhlbyeLyLNkgzB/HN
+         kIiPmWIrXoi0K9X+Eecbw7PlSU6zAnA1o4wVpqmPpJQIuW0raSxMDp5W04DsLXSK1J
+         qDlMBvWRTiP3WlOk4eAoukisuELwQ5D2QYRKhb2xQtrSQHEtjCrptg56ZLTyGciqwI
+         fFm4efqerO8XqVfGmsK9w4dr9lOv70X9j4SfdnZSpmoEkmh1Y3mBSk4SLeFDAR9Oec
+         9kU0fRvrW8utdNo098NiDnlyvlzsHjjp4hBueMKM8OA7eK7iXLdqHPYFLd164BZKj6
+         XhgRJtmqX/qMQ==
+Date:   Fri, 24 Sep 2021 10:47:50 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Guangbin Huang <huangguangbin2@huawei.com>
+Cc:     <davem@davemloft.net>, <mkubecek@suse.cz>, <andrew@lunn.ch>,
+        <amitc@mellanox.com>, <idosch@idosch.org>, <danieller@nvidia.com>,
+        <jesse.brandeburg@intel.com>, <anthony.l.nguyen@intel.com>,
+        <jdike@addtoit.com>, <richard@nod.at>,
+        <anton.ivanov@cambridgegreys.com>, <netanel@amazon.com>,
+        <akiyano@amazon.com>, <gtzalik@amazon.com>, <saeedb@amazon.com>,
+        <chris.snook@gmail.com>, <ulli.kroll@googlemail.com>,
+        <linus.walleij@linaro.org>, <jeroendb@google.com>,
+        <csully@google.com>, <awogbemila@google.com>, <jdmason@kudzu.us>,
         <rain.1986.08.12@gmail.com>, <zyjzyj2000@gmail.com>,
         <kys@microsoft.com>, <haiyangz@microsoft.com>, <mst@redhat.com>,
         <jasowang@redhat.com>, <doshir@vmware.com>,
         <pv-drivers@vmware.com>, <jwi@linux.ibm.com>,
         <kgraul@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
-        <johannes@sipsolutions.net>
-CC:     <netdev@vger.kernel.org>, <lipeng321@huawei.com>,
-        <chenhao288@hisilicon.com>, <huangguangbin2@huawei.com>,
+        <johannes@sipsolutions.net>, <netdev@vger.kernel.org>,
+        <lipeng321@huawei.com>, <chenhao288@hisilicon.com>,
         <linux-s390@vger.kernel.org>
-Subject: [PATCH V2 net-next 2/6] net: hns3: add support to set/get tx copybreak buf size via ethtool for hns3 driver
-Date:   Fri, 24 Sep 2021 22:29:55 +0800
-Message-ID: <20210924142959.7798-3-huangguangbin2@huawei.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210924142959.7798-1-huangguangbin2@huawei.com>
+Subject: Re: [PATCH V2 net-next 3/6] ethtool: add support to set/get rx buf
+ len via ethtool
+Message-ID: <20210924104750.48ad3692@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20210924142959.7798-4-huangguangbin2@huawei.com>
 References: <20210924142959.7798-1-huangguangbin2@huawei.com>
+        <20210924142959.7798-4-huangguangbin2@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.67.165.24]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- kwepemm600016.china.huawei.com (7.193.23.20)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Hao Chen <chenhao288@hisilicon.com>
+On Fri, 24 Sep 2021 22:29:56 +0800 Guangbin Huang wrote:
+> @@ -621,9 +631,13 @@ struct ethtool_ops {
+>  				struct kernel_ethtool_coalesce *,
+>  				struct netlink_ext_ack *);
+>  	void	(*get_ringparam)(struct net_device *,
+> -				 struct ethtool_ringparam *);
+> +				 struct ethtool_ringparam *,
+> +				 struct ethtool_ringparam_ext *,
+> +				 struct netlink_ext_ack *);
+>  	int	(*set_ringparam)(struct net_device *,
+> -				 struct ethtool_ringparam *);
+> +				 struct ethtool_ringparam *,
+> +				 struct ethtool_ringparam_ext *,
+> +				 struct netlink_ext_ack *);
 
-Tx copybreak buf size is used for tx copybreak feature, the feature is
-used for small size packet or frag. It adds a queue based tx shared
-bounce buffer to memcpy the small packet when the len of xmitted skb is
-below tx_copybreak(value to distinguish small size and normal size),
-and reduce the overhead of dma map and unmap when IOMMU is on.
-
-Support setting it via ethtool --set-tunable parameter and getting
-it via ethtool --get-tunable parameter.
-
-Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
----
- .../net/ethernet/hisilicon/hns3/hns3_enet.c   |  4 +-
- .../net/ethernet/hisilicon/hns3/hns3_enet.h   |  2 +
- .../ethernet/hisilicon/hns3/hns3_ethtool.c    | 56 +++++++++++++++++++
- 3 files changed, 60 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index adc54a726661..345dddb2d691 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -5519,8 +5519,8 @@ static int hns3_reset_notify_uninit_enet(struct hnae3_handle *handle)
- 	return 0;
- }
- 
--static int hns3_reset_notify(struct hnae3_handle *handle,
--			     enum hnae3_reset_notify_type type)
-+int hns3_reset_notify(struct hnae3_handle *handle,
-+		      enum hnae3_reset_notify_type type)
- {
- 	int ret = 0;
- 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-index 6162d9f88e37..eefdcef341d2 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-@@ -705,6 +705,8 @@ void hns3_set_vector_coalesce_tx_ql(struct hns3_enet_tqp_vector *tqp_vector,
- 				    u32 ql_value);
- 
- void hns3_request_update_promisc_mode(struct hnae3_handle *handle);
-+int hns3_reset_notify(struct hnae3_handle *handle,
-+		      enum hnae3_reset_notify_type type);
- 
- #ifdef CONFIG_HNS3_DCB
- void hns3_dcbnl_setup(struct hnae3_handle *handle);
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-index 7ea511d59e91..c757e067f31f 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-@@ -1691,6 +1691,7 @@ static int hns3_get_tunable(struct net_device *netdev,
- 			    void *data)
- {
- 	struct hns3_nic_priv *priv = netdev_priv(netdev);
-+	struct hnae3_handle *h = priv->ae_handle;
- 	int ret = 0;
- 
- 	switch (tuna->id) {
-@@ -1701,6 +1702,9 @@ static int hns3_get_tunable(struct net_device *netdev,
- 	case ETHTOOL_RX_COPYBREAK:
- 		*(u32 *)data = priv->rx_copybreak;
- 		break;
-+	case ETHTOOL_TX_COPYBREAK_BUF_SIZE:
-+		*(u32 *)data = h->kinfo.tx_spare_buf_size;
-+		break;
- 	default:
- 		ret = -EOPNOTSUPP;
- 		break;
-@@ -1709,11 +1713,43 @@ static int hns3_get_tunable(struct net_device *netdev,
- 	return ret;
- }
- 
-+static int hns3_set_tx_spare_buf_size(struct net_device *netdev,
-+				      u32 data)
-+{
-+	struct hns3_nic_priv *priv = netdev_priv(netdev);
-+	struct hnae3_handle *h = priv->ae_handle;
-+	int ret;
-+
-+	if (hns3_nic_resetting(netdev))
-+		return -EBUSY;
-+
-+	h->kinfo.tx_spare_buf_size = data;
-+
-+	ret = hns3_reset_notify(h, HNAE3_DOWN_CLIENT);
-+	if (ret)
-+		return ret;
-+
-+	ret = hns3_reset_notify(h, HNAE3_UNINIT_CLIENT);
-+	if (ret)
-+		return ret;
-+
-+	ret = hns3_reset_notify(h, HNAE3_INIT_CLIENT);
-+	if (ret)
-+		return ret;
-+
-+	ret = hns3_reset_notify(h, HNAE3_UP_CLIENT);
-+	if (ret)
-+		hns3_reset_notify(h, HNAE3_UNINIT_CLIENT);
-+
-+	return ret;
-+}
-+
- static int hns3_set_tunable(struct net_device *netdev,
- 			    const struct ethtool_tunable *tuna,
- 			    const void *data)
- {
- 	struct hns3_nic_priv *priv = netdev_priv(netdev);
-+	u32 old_tx_spare_buf_size, new_tx_spare_buf_size;
- 	struct hnae3_handle *h = priv->ae_handle;
- 	int i, ret = 0;
- 
-@@ -1731,6 +1767,26 @@ static int hns3_set_tunable(struct net_device *netdev,
- 		for (i = h->kinfo.num_tqps; i < h->kinfo.num_tqps * 2; i++)
- 			priv->ring[i].rx_copybreak = priv->rx_copybreak;
- 
-+		break;
-+	case ETHTOOL_TX_COPYBREAK_BUF_SIZE:
-+		old_tx_spare_buf_size = h->kinfo.tx_spare_buf_size;
-+		new_tx_spare_buf_size = *(u32 *)data;
-+		ret = hns3_set_tx_spare_buf_size(netdev, new_tx_spare_buf_size);
-+		if (ret) {
-+			int ret1;
-+
-+			netdev_warn(netdev,
-+				    "change tx spare buf size fail, revert to old value\n");
-+			ret1 = hns3_set_tx_spare_buf_size(netdev,
-+							  old_tx_spare_buf_size);
-+			if (ret1) {
-+				netdev_err(netdev,
-+					   "revert to old tx spare buf size fail\n");
-+				return ret1;
-+			}
-+
-+			return ret;
-+		}
- 		break;
- 	default:
- 		ret = -EOPNOTSUPP;
--- 
-2.33.0
-
+You need to make the driver changes together with this chunk.
+Otherwise the build will be broken between the two during bisection.
