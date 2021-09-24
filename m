@@ -2,76 +2,76 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=ham
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 166B7C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 02:53:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 988BBC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 02:54:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E236561108
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 02:53:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 78E8261108
+	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 02:54:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243956AbhIXCz0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Sep 2021 22:55:26 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44084 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S243921AbhIXCzZ (ORCPT
+        id S230123AbhIXC4W (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Sep 2021 22:56:22 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13534 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231579AbhIXC4V (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 23 Sep 2021 22:55:25 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18O1dWP7018194;
-        Thu, 23 Sep 2021 22:53:44 -0400
+        Thu, 23 Sep 2021 22:56:21 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18O02VFJ017299;
+        Thu, 23 Sep 2021 22:54:41 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  mime-version : content-transfer-encoding; s=pp1;
- bh=wuouC2eqvPDvQ1Md7kHHpeWYjluxjEmJURkvCvdNlcs=;
- b=rNEIbh80Df3xj+oBlUfUz/ifiBmf2od1re3ZROT1t6M+X+3HgCobqOdlFHHTTS4GgR18
- NeaT56ACus5MT7Owl7H+Zed2qaTebaWE5S+sIJWEJ+FnDdZFrKtWmSRN+WX3tVOgSWZz
- wp2nWrWKM8/9bduQCQVSZFpCrey1DOQ+WPA0/TPFscmBouH+c1piVOlL/5GU4UU4LwCU
- Ys6t3wuMX1TaucjJc/VHU8xgR9uhnikRLGAlS/ADFbYQk0Ql1WwCcQUSdBegBPdODqoI
- k0zKNd5GKwvWGvQ0gSrmn7JyDmTarcaw2aniWqwTe7BiuncLSQiX9fP0ghupY6Nzi6sX Mw== 
+ bh=zoqu0xjY8xvBr+WpJGH45TyxUeL+ccy34ZawDizGpFM=;
+ b=MS1RYQqNh5MZNGpPu8ooZ+n+rwb6xjS5YnNgpjkZkgR2qu0f6CAqq7J5YLOV6XtYbYKu
+ c7W63DC+KByz7rZxmeJyIdZakNY4JYAf47iSg3A8XsdxDrQ2l+zHUEtZNlK1/lWK4ihB
+ cYbCU3BAss7FrYKb6fdrPOZb3SEwkd+0OT/jG1hiuOR3Ydp7L43r00VKJE3bMlc6xeW2
+ hGHHBIRQbueZecv2v5lyGkNnvs3xMfwfPlMx7pOZkZ90wQ6qa5XNbj0vU8ik29jNdJeq
+ FPXXjYcqKfaox/NSS+LnKABaLngBqvLpVZzApq1RIw80Wo/6spJRrWfAPTuwQncJajHS 8A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3b93suatwk-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b93snawsh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 23 Sep 2021 22:53:44 -0400
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18O2mTFU017258;
-        Thu, 23 Sep 2021 22:53:43 -0400
+        Thu, 23 Sep 2021 22:54:41 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18O2dT9n018221;
+        Thu, 23 Sep 2021 22:54:40 -0400
 Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3b93suatwc-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3b93snaws3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 23 Sep 2021 22:53:43 -0400
+        Thu, 23 Sep 2021 22:54:40 -0400
 Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18O2lXBH002397;
-        Fri, 24 Sep 2021 02:53:42 GMT
-Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
-        by ppma03dal.us.ibm.com with ESMTP id 3b93g1u8j0-1
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18O2lZsr002446;
+        Fri, 24 Sep 2021 02:54:39 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma03dal.us.ibm.com with ESMTP id 3b93g1u8yw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 24 Sep 2021 02:53:42 +0000
-Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18O2reqp39649698
+        Fri, 24 Sep 2021 02:54:39 +0000
+Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18O2sc8144433820
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 24 Sep 2021 02:53:41 GMT
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BE3CC136060;
-        Fri, 24 Sep 2021 02:53:40 +0000 (GMT)
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D54D513605D;
-        Fri, 24 Sep 2021 02:53:38 +0000 (GMT)
+        Fri, 24 Sep 2021 02:54:38 GMT
+Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 87BEB112067;
+        Fri, 24 Sep 2021 02:54:38 +0000 (GMT)
+Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 507CF112064;
+        Fri, 24 Sep 2021 02:54:32 +0000 (GMT)
 Received: from farman-thinkpad-t470p (unknown [9.211.34.14])
-        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Fri, 24 Sep 2021 02:53:38 +0000 (GMT)
-Message-ID: <144b3f129af82c0e928250342b71f2372cc67ea3.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 1/9] vfio/ccw: Use functions for alloc/free of the
- vfio_ccw_private
+        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri, 24 Sep 2021 02:54:32 +0000 (GMT)
+Message-ID: <40149f01475f5a68bbd92d560cd97f9d4ce4e581.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 6/9] vfio/mdev: Add mdev available instance checking
+ to the core
 From:   Eric Farman <farman@linux.ibm.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
+To:     Jason Gunthorpe <jgg@nvidia.com>, Cornelia Huck <cohuck@redhat.com>
+Cc:     David Airlie <airlied@linux.ie>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
         Alex Williamson <alex.williamson@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
         Daniel Vetter <daniel@ffwll.ch>,
         dri-devel@lists.freedesktop.org,
         Harald Freudenberger <freude@linux.ibm.com>,
@@ -90,40 +90,86 @@ To:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Vineeth Vijayan <vneethv@linux.ibm.com>,
         Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-Cc:     Christoph Hellwig <hch@lst.de>
-Date:   Thu, 23 Sep 2021 22:53:37 -0400
-In-Reply-To: <1-v2-7d3a384024cf+2060-ccw_mdev_jgg@nvidia.com>
-References: <1-v2-7d3a384024cf+2060-ccw_mdev_jgg@nvidia.com>
+        Zhi Wang <zhi.a.wang@intel.com>, Christoph Hellwig <hch@lst.de>
+Date:   Thu, 23 Sep 2021 22:54:30 -0400
+In-Reply-To: <20210921131908.GK327412@nvidia.com>
+References: <6-v2-7d3a384024cf+2060-ccw_mdev_jgg@nvidia.com>
+         <87tuiff7m2.fsf@redhat.com> <20210921131908.GK327412@nvidia.com>
 Content-Type: text/plain; charset="UTF-8"
 X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: _r2Z3ezORzHmn3cXQji0mW9FA5OFlGWs
-X-Proofpoint-GUID: dAyJm55gTKyHAGMoz8sVyegi9l8Z5giQ
+X-Proofpoint-GUID: B8BC6k_a_B_997uB0jzc3T2U0q5Lmp5u
+X-Proofpoint-ORIG-GUID: HB6TdxZZw3JHEK9Ne1Vst8GTlGdjJFQu
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-09-23_07,2021-09-23_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- lowpriorityscore=0 suspectscore=0 mlxlogscore=947 mlxscore=0
- priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
- malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2109230001 definitions=main-2109240011
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ malwarescore=0 mlxlogscore=999 adultscore=0 bulkscore=0 impostorscore=0
+ suspectscore=0 spamscore=0 clxscore=1015 phishscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
+ definitions=main-2109240011
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2021-09-09 at 16:38 -0300, Jason Gunthorpe wrote:
-> Makes the code easier to understand what is memory lifecycle and what
-> is
-> other stuff.
+On Tue, 2021-09-21 at 10:19 -0300, Jason Gunthorpe wrote:
+> On Mon, Sep 20, 2021 at 08:02:29PM +0200, Cornelia Huck wrote:
+> > On Thu, Sep 09 2021, Jason Gunthorpe <jgg@nvidia.com> wrote:
+> > 
+> > > Many of the mdev drivers use a simple counter for keeping track
+> > > of the
+> > > available instances. Move this code to the core code and store
+> > > the counter
+> > > in the mdev_type. Implement it using correct locking, fixing
+> > > mdpy.
+> > > 
+> > > Drivers provide a get_available() callback to set the number of
+> > > available
+> > > instances for their mtypes which is fixed at registration time.
+> > > The core
+> > > provides a standard sysfs attribute to return the
+> > > available_instances.
+> > 
+> > So, according to the documentation, available_instances is
+> > mandatory. This means that drivers either need to provide
+> > get_available
+> > or implement their own version of the attribute. I think we want to
+> > update vfio-mediated-device.rst as well?
 > 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/s390/cio/vfio_ccw_drv.c | 137 ++++++++++++++++++----------
-> ----
->  1 file changed, 78 insertions(+), 59 deletions(-)
+> I added this, and something similar for the device_api patch too,
+> thanks
+> 
+> diff --git a/Documentation/driver-api/vfio-mediated-device.rst
+> b/Documentation/driver-api/vfio-mediated-device.rst
+> index 9f26079cacae35..0a130d76b33a48 100644
+> --- a/Documentation/driver-api/vfio-mediated-device.rst
+> +++ b/Documentation/driver-api/vfio-mediated-device.rst
+> @@ -106,6 +106,7 @@ structure to represent a mediated device's
+> driver::
+>  	     int  (*probe)  (struct mdev_device *dev);
+>  	     void (*remove) (struct mdev_device *dev);
+>  	     struct device_driver    driver;
+> +	     unsigned int (*get_available)(struct mdev_type *mtype);
+>       };
+>  
+>  A mediated bus driver for mdev should use this structure in the
+> function calls
+> @@ -230,7 +231,8 @@ Directories and files under the sysfs for Each
+> Physical Device
+>  * available_instances
+>  
+>    This attribute should show the number of devices of type <type-id> 
+> that can be
+> -  created.
+> +  created. Drivers can supply a get_availble() function pointer to 
 
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
+s/availble/available/
+
+> have the core
+> +  code create and maintain this sysfs automatically.
+>  
+>  * [device]
+>  
 
