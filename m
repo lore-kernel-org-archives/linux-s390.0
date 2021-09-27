@@ -2,92 +2,165 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 646F7C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 19:02:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0531AC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 20:46:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4387060FED
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 19:02:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC66D6109F
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 20:46:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234825AbhI0TD4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Sep 2021 15:03:56 -0400
-Received: from mout.kundenserver.de ([212.227.126.134]:34797 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236063AbhI0TDz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Sep 2021 15:03:55 -0400
-Received: from mail-wm1-f43.google.com ([209.85.128.43]) by
- mrelayeu.kundenserver.de (mreue012 [213.165.67.97]) with ESMTPSA (Nemesis) id
- 1MdwRi-1n4ofh3zuQ-00b4yY; Mon, 27 Sep 2021 21:02:16 +0200
-Received: by mail-wm1-f43.google.com with SMTP id t16-20020a1c7710000000b003049690d882so1493491wmi.5;
-        Mon, 27 Sep 2021 12:02:15 -0700 (PDT)
-X-Gm-Message-State: AOAM530aHFNmQ/YXY6nBF0NEzMt8OW1uyymH1U5foQL9343OVaifRiLF
-        VzUx5h+nUy0G7ip4IvKtxogYo5i6oupkE3RzqvE=
-X-Google-Smtp-Source: ABdhPJy79GvrLbGbTQ8AFXTHbME27yck4aLAU/Tyk7Yz+HgqfmX9UVGglkndMij2PPstBo5KAXPiu0yRr6boGHxrkfU=
-X-Received: by 2002:a1c:7413:: with SMTP id p19mr701388wmc.98.1632769335470;
- Mon, 27 Sep 2021 12:02:15 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210927161955.28494-1-rpalethorpe@suse.com> <875yuletsw.fsf@oldenburg.str.redhat.com>
-In-Reply-To: <875yuletsw.fsf@oldenburg.str.redhat.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 27 Sep 2021 21:01:59 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a3o96yR4LBSv8Q-_oy0g3hULS_kcm2fpahjEvqB6i_EuQ@mail.gmail.com>
-Message-ID: <CAK8P3a3o96yR4LBSv8Q-_oy0g3hULS_kcm2fpahjEvqB6i_EuQ@mail.gmail.com>
-Subject: Re: [PATCH] x86/entry/ia32: Ensure s32 is sign extended to s64
-To:     Florian Weimer <fweimer@redhat.com>
-Cc:     Richard Palethorpe <rpalethorpe@suse.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S236816AbhI0Urz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Sep 2021 16:47:55 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64062 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236414AbhI0Urz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 27 Sep 2021 16:47:55 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18RIokti026875;
+        Mon, 27 Sep 2021 16:46:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=lwBg6ETHNmezOliV6uYm9wJHkponVlX6ZQYAIV/PAIw=;
+ b=lneehF2swa0M0E9cllaE1fMIH4mEQLsOiLYDwh35MKczOPU7V6O6GiRt0yw+u3gJpZQT
+ BI27BpxZSg9Gx/eV/G0VfjXpatjVNoCqZ3IkgAclpeMvRh07rbDnRH1lLjV/j446o6If
+ rdaQBOYKoDGoXDwqFoeCTA6T4+8gFyEQaW8wTg6j8cWk8JllVVZk8+PQ5E+lY3yp6KhZ
+ lkgSe7C2IDjFz7i4rSWyJXm0yxPZO/oiWoiDNxlX66vuZ95HAMPTIKauJnyxpMFCksfS
+ LEM8DsHIttRoU2/o5srtXKyYu9ai/j+d72w+gUeCNpYGKRwf7p5KUJMerhpkfZd3Afb5 nw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bagx55xp1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Sep 2021 16:46:08 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18RJsJM4007485;
+        Mon, 27 Sep 2021 16:46:07 -0400
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bagx55xnq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Sep 2021 16:46:07 -0400
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18RKbMUk005939;
+        Mon, 27 Sep 2021 20:46:06 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma01dal.us.ibm.com with ESMTP id 3b9udb7dkp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Sep 2021 20:46:06 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18RKk5up11142088
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 27 Sep 2021 20:46:05 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8288B2805E;
+        Mon, 27 Sep 2021 20:46:05 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C892028058;
+        Mon, 27 Sep 2021 20:45:58 +0000 (GMT)
+Received: from farman-thinkpad-t470p (unknown [9.163.16.42])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Mon, 27 Sep 2021 20:45:58 +0000 (GMT)
+Message-ID: <f1b64606c967e9adf12f4e026cdfdf910ade554e.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 7/9] vfio/ccw: Remove private->mdev
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, rpalethorpe@richiejp.com,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        LTP List <ltp@lists.linux.it>
+        Cornelia Huck <cohuck@redhat.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>, Christoph Hellwig <hch@lst.de>
+Date:   Mon, 27 Sep 2021 16:45:56 -0400
+In-Reply-To: <20210927123253.GY964074@nvidia.com>
+References: <7-v2-7d3a384024cf+2060-ccw_mdev_jgg@nvidia.com>
+         <f887a563e688057d6759e6de65d480326f502331.camel@linux.ibm.com>
+         <20210927123253.GY964074@nvidia.com>
 Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:eq1p4rR48K6UZamzIXjZYFVnkdM6YeIhS041Ef2FdEAXAVwckgv
- o7+D1qnVmiu4QhUi6ozkdRUHYMAoSyHJ/VKiHID287vjTHApgLlNN1ybSFK+EBudWuVYpfS
- DumHaRHlIltIoiLQTT19d14ntJsV7fQ0wPnW+LgwLIRDAMqK+Q+uhTND1Xyi7VSo53oUFbH
- iyI1DD8L/Sk+oyeAd68oA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:RlI8kg2kRSI=:CFIxa1gC9QGwHz6uvxjkmp
- v7JjCHNB+2rbqEEqRxnxg/qzRLlBSltH7i4dtvtaNyx+BX18bcsSIA4I9LXeC0TZkmLqtu/Zz
- hZHuWcQuhWC6HyNTlXTsyd3iyE4MhsM6VLqU3gRasdlW0kXAvfq5hjs462QSmPdDfTof0kCPl
- ePEI9Wvzqf7fb5YOh+KF8k6JRZc+1v3hT9IU14xQE/gdBkCpZ2p4dmYRI0lB/LMxtst9lrgmP
- XwkbQi7ZKsb8t+ILkkb9XPfYGMGIIliqhRJ6EJEceeYjBQHAyUpmGKgy6NfMu1gIaPyT6gxD4
- qlxvK6aVe3LoE0RR6j/RYhv1e2pm+UCjle2yP79VGyViWrgLBRz6jamACr9pllhE6yukQhsKk
- wuD3es3n58xig5P2AvDn96mDM/bJ4F4S28IY4mh7fngrI+RD6wHXMhgSitJKZRm29iFKtqRB8
- 9n8F/KJmEGN7o7C/2Gcc9MD+qEwXwAJDZmmC9mRbXiR3A5fZnFefgJnwdbUNh2tV5psh4MS5X
- 7CfbC13xjwKkbL8G1hdQ3x441lnTPtLstpkJyKES1mMIheIX9UgF2QzScEYc58bHaLrUAaoE6
- pGyTlfu9Axusx3Gio7Wf2ueUTfuWFNg2+oHvKkB689jBA8+JKoMO73S1w1TzwFpfdhTgnrs2s
- dZt7eIzrroLl2ufMXsaJrYRAS1Vn9IJoJL0r3+hGgyGIBjrnX7aCc41XoCKhexoWhxL17ZBzH
- QrCSQBAAQwDrUBi9FHzhGR0EmoXNFpiTN5oOpHx8xgMJi+SfjcvmSDr6lZl4pqJD3OOL9ZO9r
- KwxBsXYpGsko0EvoHxpkVw4QmYmLgclqF2b/Jh7ohM/+Pvo+jFruhqLTcbIBHfcko27IcBjOF
- n9oHEYJAmLprqjQOAMWg==
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: v0DgXAfibzUmo_LUs0sDhAmrtXJUoU0-
+X-Proofpoint-ORIG-GUID: w-2bKWgqbBr-1g7NEf-wxPVRrKgqRuob
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-27_07,2021-09-24_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=798 spamscore=0
+ impostorscore=0 suspectscore=0 phishscore=0 priorityscore=1501
+ lowpriorityscore=0 mlxscore=0 bulkscore=0 clxscore=1015 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2109270138
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 27, 2021 at 8:51 PM Florian Weimer <fweimer@redhat.com> wrote:
->
-> * Richard Palethorpe:
->
-> > +#define __SC_COMPAT_CAST(t, a)                                               \
-> > +     (__typeof(__builtin_choose_expr(__TYPE_IS_L(t), 0, 0U)))        \
-> > +     (unsigned int)a
->
-> So this casts to int (triggering sign extension) if the type on the
-> 64-bit kernel side is long?  But not in other cases (unsigned long,
-> pointer)?  Just double-checking.
+On Mon, 2021-09-27 at 09:32 -0300, Jason Gunthorpe wrote:
+> On Fri, Sep 24, 2021 at 04:45:02PM -0400, Eric Farman wrote:
+> > On Thu, 2021-09-09 at 16:38 -0300, Jason Gunthorpe wrote:
+> > > Having a mdev pointer floating about in addition to a struct
+> > > vfio_device
+> > > is confusing. It is only used for three things:
+> > > 
+> > > - Getting the mdev 'struct device *' - this is the same as
+> > >      private->vdev.dev
+> > > 
+> > > - Printing the uuid of the mdev in logging. The uuid is also the
+> > > dev_name
+> > >   of the mdev so this is the same string as
+> > >      dev_name(private->vdev.dev)
+> > > 
+> > > - A weird attempt to fence the vfio_ccw_sch_io_todo() work. This
+> > > work
+> > > is
+> > >   only queued during states IDLE/PROCESSING/PENDING and flushed
+> > > when
+> > >   entering CLOSED. Thus the work already cannot run when the mdev
+> > > is
+> > > NULL.
+> > >   Remove it.
+> > > 
+> > > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> > >  drivers/s390/cio/vfio_ccw_drv.c     |  6 ++--
+> > >  drivers/s390/cio/vfio_ccw_fsm.c     | 48 +++++++++++++--------
+> > > ----
+> > >  drivers/s390/cio/vfio_ccw_ops.c     | 16 ++++------
+> > >  drivers/s390/cio/vfio_ccw_private.h |  2 --
+> > >  include/linux/mdev.h                |  4 ---
+> > >  5 files changed, 30 insertions(+), 46 deletions(-)
+> > 
+> > I like this patch. Unfortunately it depends on the removal of a
+> > hunk in
+> > patch 4, which sets the FSM state to different values based on
+> > whether
+> > private->mdev is NULL or not, so can't go on its own. Need to spend
+> > more time thinking about that patch.
+> 
+> The FSM patch is important, really what is happening is the FSM logic
+> takes on the roles that was being split all over the place with other
+> logic, like this mdev stuff. To make that work we need a FSM that
+> makes sense..
 
-Correct, this is the only case that is not already handled: anything smaller
-than a 'long' is the same size on all architectures we support and we
-ensure those are correctly sign- or zero-extended. 'unsigned long'
-and any pointer are zero-extended by the entry code from 32-bit user
-space to a 64-bit register in the kernel. Only signed 'long' requires
-explicit sign-extending from the userspace 'long' to the kernel function
-argument.
+No argument from me about that. My point is that I could consume this
+patch easier than the FSM patch, and need to get back to that one.
 
-         Arnd
+Eric
+
+> 
+> Jason
+
