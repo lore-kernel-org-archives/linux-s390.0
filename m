@@ -2,87 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F27BC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 21:56:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C797C43219
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 22:04:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 53E7E60F11
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 21:56:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77CAA611EE
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 22:04:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237482AbhI0V63 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Sep 2021 17:58:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49810 "EHLO
+        id S238175AbhI0WFw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Sep 2021 18:05:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237393AbhI0V61 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Sep 2021 17:58:27 -0400
+        with ESMTP id S238034AbhI0WF3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Sep 2021 18:05:29 -0400
 Received: from bombadil.infradead.org (unknown [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39B33C061575;
-        Mon, 27 Sep 2021 14:56:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57DB8C061235;
+        Mon, 27 Sep 2021 15:02:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=hGX2uraOWKcbdqvQEGEcWfwcUwznDEuW9gnPoVw/EgI=; b=shlhIoloA5/y4cBG9UooN5GbSW
-        ijM03Fm43/Qu54nJagQc7sk9etQwr9ldMXJEaFMwzQXMNAvsW52Kf0rw2Y9laLR8m91A/lFLEz0CN
-        Yxi7Kg1b+VGuyaM4x3jvbN27QM/lrppJjx0bPRbLhaAKUA9R+G+yPWZe30FFX32qeogOzH1gkRPCq
-        JZW6FWNvYlpGbTiibFSEDKaY0+f4mMj1KwbO4cWptBfJ6r7EpHEwZZdiNWUYS4VSNG2Utp1afkYsJ
-        nIopo5QnPbPeegK/ay3PZ0KrPf7eKryFohKiTGpy9Pi/fsLOmYGLPrEzSDuPqPsgMK20jaZ5u8Hx3
-        ER8gqQLA==;
-Received: from [2601:1c0:6280:3f0::aa0b] (helo=bombadil.infradead.org)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mUycC-004Rxw-Hi; Mon, 27 Sep 2021 21:56:48 +0000
-From:   Randy Dunlap <rdunlap@infradead.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: [PATCH] s390/sclp_vt220: fix unused function warning
-Date:   Mon, 27 Sep 2021 14:56:47 -0700
-Message-Id: <20210927215647.11506-1-rdunlap@infradead.org>
+        d=infradead.org; s=bombadil.20210309; h=Sender:Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+        Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=y0kWvQS67gJE9oH2Tu+3mzoZQKPgF7CjDPD3Aqrkl9E=; b=czcgq8i1+g9A9g+zXiauQIA7Kj
+        pbcCXZYG2uU49Bh9MXwzR4eMtk+Vd3AktD9gnc4BiUDpyy4iQxV2/JvF8DBmWH47Cr2miHslnIT9R
+        hyxzvkr9FA94O+Tw5P7L6DlzcfXn4Px/DZGDRFqjWtgWamOX5q9SvCKacNlgYzcaHRCkzXAcXJzG5
+        vHQLx42LfHZkPRYMmGSG3gLSUwIuDr+XsLW79eCmEuOKvi9YZXC0FRuxTa+lCAXES/zPk9nmKqffx
+        U+Vc1UKWOMktji+o+HOsBfKCbnXOD5KE5TEdqhnK2ZXjs3bdgYZDKgxz6VrS0GSSNUw8Pyc/2N+bC
+        bzxoHKtg==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mUyhl-004Uu2-Rg; Mon, 27 Sep 2021 22:02:33 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     axboe@kernel.dk, gregkh@linuxfoundation.org,
+        chaitanya.kulkarni@wdc.com, atulgopinathan@gmail.com, hare@suse.de,
+        maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org,
+        colin.king@canonical.com, shubhankarvk@gmail.com,
+        baijiaju1990@gmail.com, trix@redhat.com,
+        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
+        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        sth@linux.ibm.com, hoeppner@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, borntraeger@de.ibm.com, oberpar@linux.ibm.com,
+        tj@kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH v2 5/6] s390/block/dcssblk: add error handling support for add_disk()
+Date:   Mon, 27 Sep 2021 15:02:31 -0700
+Message-Id: <20210927220232.1071926-6-mcgrof@kernel.org>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210927220232.1071926-1-mcgrof@kernel.org>
+References: <20210927220232.1071926-1-mcgrof@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Sender: Luis Chamberlain <mcgrof@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When CONFIG_SCLP_VT220_TTY=y and CONFIG_SCLP_VT220_CONSOLE is not set:
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-../drivers/s390/char/sclp_vt220.c:771:13: warning: '__sclp_vt220_flush_buffer' defined but not used [-Wunused-function]
-  771 | static void __sclp_vt220_flush_buffer(void)
+We never checked for errors on add_disk() as this function
+returned void. Now that this is fixed, use the shiny new
+error handling.
 
-so move this function inside the #ifdef block where it is used.
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 ---
-Sorry, I can't determine what the Fixes: tag for this should be
-(missing some git fu).
+ drivers/s390/block/dcssblk.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
- drivers/s390/char/sclp_vt220.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
+index 5be3d1c39a78..0741a9321712 100644
+--- a/drivers/s390/block/dcssblk.c
++++ b/drivers/s390/block/dcssblk.c
+@@ -696,7 +696,9 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char
+ 	}
+ 
+ 	get_device(&dev_info->dev);
+-	device_add_disk(&dev_info->dev, dev_info->gd, NULL);
++	rc = device_add_disk(&dev_info->dev, dev_info->gd, NULL);
++	if (rc)
++		goto out_dax;
+ 
+ 	switch (dev_info->segment_type) {
+ 		case SEG_TYPE_SR:
+@@ -712,6 +714,10 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char
+ 	rc = count;
+ 	goto out;
+ 
++out_dax:
++	put_device(&dev_info->dev);
++	kill_dax(dev_info->dax_dev);
++	put_dax(dev_info->dax_dev);
+ put_dev:
+ 	list_del(&dev_info->lh);
+ 	blk_cleanup_disk(dev_info->gd);
+-- 
+2.30.2
 
---- linux-next-20210927.orig/drivers/s390/char/sclp_vt220.c
-+++ linux-next-20210927/drivers/s390/char/sclp_vt220.c
-@@ -768,6 +768,8 @@ out_driver:
- }
- __initcall(sclp_vt220_tty_init);
- 
-+#ifdef CONFIG_SCLP_VT220_CONSOLE
-+
- static void __sclp_vt220_flush_buffer(void)
- {
- 	unsigned long flags;
-@@ -784,8 +786,6 @@ static void __sclp_vt220_flush_buffer(vo
- 	spin_unlock_irqrestore(&sclp_vt220_lock, flags);
- }
- 
--#ifdef CONFIG_SCLP_VT220_CONSOLE
--
- static void
- sclp_vt220_con_write(struct console *con, const char *buf, unsigned int count)
- {
