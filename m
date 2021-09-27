@@ -2,113 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B245C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 15:12:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0864C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 15:19:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 452EE60F44
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 15:12:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8ED8A60F44
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 15:19:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235081AbhI0POd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Sep 2021 11:14:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54200 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235002AbhI0POc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 27 Sep 2021 11:14:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED8B7611C0;
-        Mon, 27 Sep 2021 15:12:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632755575;
-        bh=CKBeZqx1JroYNLrGq5H114mf1zFlMql7osjtvpITDCw=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=EVBbs3MVb2rKhlVS8zKpcM376o/TKjtkXDHHd/wsTbaLfx6lDmygiZpT3x7nXiuQ3
-         qI6Y85rpLepdxU+wE0Grxf7YsEaSbNhENVT+K25JSCaaY+814CwQ0wyxUsc9KUuvQy
-         hQdmzWSytaJMhwWEBAVICPEipETSfP3Xu6nDTfAdg5aRgouxOHTt3NfeACf7kbOWCR
-         OsCr7y6iELtBigI8CNkHzbquvZiEOaAvAmL84E8ja0KTlJjM1I99On/bQ1Ypc9tMZk
-         SaL7iKw5FGEGEAfGtwf33A3FoOYzfQslocN3+NGigGTpzuzQ60fFGB/7x3vYj7X3Wo
-         Dc/q7pfQ+7M1Q==
-Received: by mail-oi1-f171.google.com with SMTP id x124so25951234oix.9;
-        Mon, 27 Sep 2021 08:12:54 -0700 (PDT)
-X-Gm-Message-State: AOAM530Ilm/x5W+uOuMSC71Qm/zfE2USl6OULczEtCmN1IelD0KI7y4p
-        JFtfsdUvSfsD+gfpaK90THwE0z+7e9CdWn+9RKs=
-X-Google-Smtp-Source: ABdhPJyeC8BgibE5zzxbqU0l8Tut8FIpgncaCT3Q0Qb4RyOfhbEhCIFLxw2ikpv+mDHPe9VMwWn8YxftPxI0HPTWIJ0=
-X-Received: by 2002:aca:32c2:: with SMTP id y185mr501704oiy.47.1632755574136;
- Mon, 27 Sep 2021 08:12:54 -0700 (PDT)
+        id S235085AbhI0PVC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Sep 2021 11:21:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:38290 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235073AbhI0PVB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 27 Sep 2021 11:21:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1632755963;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=wXxx/mWjZvI5CKydBAcRP5EsO0jhBZkFq3UTyMZjQpw=;
+        b=E6PEBn7fqk11WaU6W/XATZ/tpFGs6GoNlCN8e8dTjXIVjeh7ElEWwL8dCt1k/wYpD4xx29
+        YWGjw+lxdZ9DBvS9zzlSu7MO/88hK/OmQmxVyu19e0nsvsf5Gb7peZ50ICTs4aGH4d3ha8
+        QVBVr7zROauJXnw1SqlzGXCmeWv3uiA=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-296-7N0DOE5HPfWi1pty5Eokiw-1; Mon, 27 Sep 2021 11:19:22 -0400
+X-MC-Unique: 7N0DOE5HPfWi1pty5Eokiw-1
+Received: by mail-wr1-f71.google.com with SMTP id s13-20020adfeccd000000b00160531902f4so6551987wro.2
+        for <linux-s390@vger.kernel.org>; Mon, 27 Sep 2021 08:19:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=wXxx/mWjZvI5CKydBAcRP5EsO0jhBZkFq3UTyMZjQpw=;
+        b=oFR/g/ZwlPj5iMjnqT3Dtfz0w8ZD4nt9cezo71cXjRIlzMAHq2MAeFYjUE59o4f2vL
+         p0vfsD+pw7yC4yzYxpL8vrIPDVCt9Ajd/IgFrRRJOvKxaqHmxmA2HZIi8eMqP5S1HHmO
+         sMInj0D/FlThX+etjiYYN4/FiUKcIMOKdeHfW29a3VPOcLlMhA/626GCjkHoQ9mfKkS4
+         5r2aNeEFPtGP43FlihpwUOpG4Vu2mUacJZdauIrr0R1G1cMOJa8lubgeCBbjuRnzZ9+m
+         TSs+IOheehENI7MXGSnhc4WibFceV5uZZJ0OT+y5+U+kkZ9lC8vf3BQwOe6UgejIZdw3
+         Ziaw==
+X-Gm-Message-State: AOAM533OfatLRLkYOqgvCldgl0GmPnrK1GsFAqvtTJV4DAJle6m6Hq7s
+        RJ2LCMAuN+vqArJrE8qHPrwcsOK0RZuSJ7RIh8cH7MTJOXk7vm5ivrbaTBMpUF+6jQ+1uphe/ra
+        WX5RpNcb5rvxvFOkc8191Tw==
+X-Received: by 2002:a05:600c:4293:: with SMTP id v19mr5948340wmc.113.1632755960788;
+        Mon, 27 Sep 2021 08:19:20 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzklb4Y9OgrluZRSquXFubQOTHk8hh4uL420+KWG6nBseRr7rAuICcnZhxEuK691gegSgWdhw==
+X-Received: by 2002:a05:600c:4293:: with SMTP id v19mr5948326wmc.113.1632755960608;
+        Mon, 27 Sep 2021 08:19:20 -0700 (PDT)
+Received: from thuth.remote.csb (p549bb2bd.dip0.t-ipconnect.de. [84.155.178.189])
+        by smtp.gmail.com with ESMTPSA id g143sm21051419wme.16.2021.09.27.08.19.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 Sep 2021 08:19:20 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH 1/9] s390x: uv: Tolerate 0x100 query return
+ code
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, david@redhat.com, linux-s390@vger.kernel.org,
+        seiden@linux.ibm.com
+References: <20210922071811.1913-1-frankja@linux.ibm.com>
+ <20210922071811.1913-2-frankja@linux.ibm.com>
+ <20210922111256.04febb7e@p-imbrenda>
+ <75c8d08e-3b93-c001-cc84-5f77aaee5248@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <7f1dba57-59b2-81de-1ea5-691b8de71a98@redhat.com>
+Date:   Mon, 27 Sep 2021 17:19:18 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-References: <20210914121036.3975026-1-ardb@kernel.org> <20210914121036.3975026-5-ardb@kernel.org>
-In-Reply-To: <20210914121036.3975026-5-ardb@kernel.org>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Mon, 27 Sep 2021 17:12:43 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXEojbQbNzCP39KT4EzFAyW3J1Tfm_stCZ+fGo8_SO90PA@mail.gmail.com>
-Message-ID: <CAMj1kXEojbQbNzCP39KT4EzFAyW3J1Tfm_stCZ+fGo8_SO90PA@mail.gmail.com>
-Subject: Re: [RFC PATCH 4/8] powerpc: add CPU field to struct thread_info
-To:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Cc:     Keith Packard <keithpac@amazon.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        "open list:S390" <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <75c8d08e-3b93-c001-cc84-5f77aaee5248@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 14 Sept 2021 at 14:11, Ard Biesheuvel <ardb@kernel.org> wrote:
->
-> The CPU field will be moved back into thread_info even when
-> THREAD_INFO_IN_TASK is enabled, so add it back to powerpc's definition
-> of struct thread_info.
->
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+On 22/09/2021 13.36, Janosch Frank wrote:
+> On 9/22/21 11:12 AM, Claudio Imbrenda wrote:
+>> On Wed, 22 Sep 2021 07:18:03 +0000
+>> Janosch Frank <frankja@linux.ibm.com> wrote:
+>>
+>>> RC 0x100 is not an error but a notice that we could have gotten more
+>>> data from the Ultravisor if we had asked for it. So let's tolerate
+>>> them in our tests.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> ---
+>>>   s390x/uv-guest.c | 4 ++--
+>>>   s390x/uv-host.c  | 2 +-
+>>>   2 files changed, 3 insertions(+), 3 deletions(-)
+>>>
+>>> diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
+>>> index f05ae4c3..e7446e03 100644
+>>> --- a/s390x/uv-guest.c
+>>> +++ b/s390x/uv-guest.c
+>>> @@ -70,8 +70,8 @@ static void test_query(void)
+>>>   	report(cc == 1 && uvcb.header.rc == UVC_RC_INV_LEN, "length");
+>>>   
+>>>   	uvcb.header.len = sizeof(uvcb);
+>>> -	cc = uv_call(0, (u64)&uvcb);
+>>> -	report(cc == 0 && uvcb.header.rc == UVC_RC_EXECUTED, "successful query");
+>>> +	uv_call(0, (u64)&uvcb);
+>>> +	report(uvcb.header.rc == UVC_RC_EXECUTED || uvcb.header.rc
+>>> == 0x100, "successful query");
+>>
+>> if you want to be even more pedantic:
+>> 	report(cc == 0 && uvcb.header.rc == UVC_RC_EXECUTED ||
+>> 		cc == 1 && uvcb.header.rc == 0x100, ...
+> 
+> Yeah I pondered about that but at the end I chose to drop the cc check
 
-Michael,
+Well, but we're in the kvm-unit-tests here where we check for the exact 
+behavior of the system ... so I'd vote for keeping/extening the cc checking, 
+even if it's more code to read in the end.
 
-Do you have any objections or issues with this patch or the subsequent
-ones cleaning up the task CPU kludge for ppc32? Christophe indicated
-that he was happy with it.
+  Thomas
 
-Thanks,
-Ard.
-
-
-> ---
->  arch/powerpc/include/asm/thread_info.h | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/arch/powerpc/include/asm/thread_info.h b/arch/powerpc/include/asm/thread_info.h
-> index b4ec6c7dd72e..5725029aaa29 100644
-> --- a/arch/powerpc/include/asm/thread_info.h
-> +++ b/arch/powerpc/include/asm/thread_info.h
-> @@ -47,6 +47,9 @@
->  struct thread_info {
->         int             preempt_count;          /* 0 => preemptable,
->                                                    <0 => BUG */
-> +#ifdef CONFIG_SMP
-> +       unsigned int    cpu;
-> +#endif
->         unsigned long   local_flags;            /* private flags for thread */
->  #ifdef CONFIG_LIVEPATCH
->         unsigned long *livepatch_sp;
-> --
-> 2.30.2
->
