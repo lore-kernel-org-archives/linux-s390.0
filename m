@@ -2,144 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60401C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 23:14:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7301C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 11:33:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3BC6761164
-	for <linux-s390@archiver.kernel.org>; Fri, 24 Sep 2021 23:14:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FFA160F58
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 11:33:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245708AbhIXXPh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 24 Sep 2021 19:15:37 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:33888 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245569AbhIXXPg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Sep 2021 19:15:36 -0400
-Received: from relay1.suse.de (relay1.suse.de [149.44.160.133])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 75F4622487;
-        Fri, 24 Sep 2021 23:14:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1632525241; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=6ftKH3Meg+rHTHxrerz6jLZXFoYb96A6HHtnJeYJJeg=;
-        b=bn/gV4Wx1vodeT8XvPLbHCOE7HDzUrIFLX1d0k3gLt32OKN90Q1Nzwsr0YrIRrHZknIqju
-        XnKdXTqh7I3Nyn3GeVR/4oF+00pq5FCF870JaxzSzjTlw6OqEX0ZbnC2AZwqo6AF7Gtbth
-        gwJMlyjHuk3IFqvobpXZJPSQ7vO6MyY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1632525241;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=6ftKH3Meg+rHTHxrerz6jLZXFoYb96A6HHtnJeYJJeg=;
-        b=m9SWKqvq6tlBMsmEX7YRA41f8EjgRxgGf6nxtnGkJJYcoXeLYBQgnJ3nmUq9Km8s2//vuI
-        Xk4ExkqLo56r59BA==
-Received: from lion.mk-sys.cz (unknown [10.100.225.114])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay1.suse.de (Postfix) with ESMTPS id 5244325D44;
-        Fri, 24 Sep 2021 23:14:00 +0000 (UTC)
-Received: by lion.mk-sys.cz (Postfix, from userid 1000)
-        id C4C84603FF; Sat, 25 Sep 2021 01:14:00 +0200 (CEST)
-Date:   Sat, 25 Sep 2021 01:14:00 +0200
-From:   Michal Kubecek <mkubecek@suse.cz>
-To:     Guangbin Huang <huangguangbin2@huawei.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, andrew@lunn.ch,
-        amitc@mellanox.com, idosch@idosch.org, danieller@nvidia.com,
-        jesse.brandeburg@intel.com, anthony.l.nguyen@intel.com,
-        jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com,
-        netanel@amazon.com, akiyano@amazon.com, saeedb@amazon.com,
-        chris.snook@gmail.com, ulli.kroll@googlemail.com,
-        linus.walleij@linaro.org, jeroendb@google.com, csully@google.com,
-        awogbemila@google.com, jdmason@kudzu.us, rain.1986.08.12@gmail.com,
-        zyjzyj2000@gmail.com, kys@microsoft.com, haiyangz@microsoft.com,
-        mst@redhat.com, jasowang@redhat.com, doshir@vmware.com,
-        pv-drivers@vmware.com, jwi@linux.ibm.com, kgraul@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, johannes@sipsolutions.net,
-        netdev@vger.kernel.org, lipeng321@huawei.com,
-        chenhao288@hisilicon.com, linux-s390@vger.kernel.org
-Subject: Re: [PATCH V2 net-next 3/6] ethtool: add support to set/get rx buf
- len via ethtool
-Message-ID: <20210924231400.aettgmbwx6m4pdok@lion.mk-sys.cz>
-References: <20210924142959.7798-1-huangguangbin2@huawei.com>
- <20210924142959.7798-4-huangguangbin2@huawei.com>
+        id S234000AbhI0LfO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Sep 2021 07:35:14 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45416 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233948AbhI0LfO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 27 Sep 2021 07:35:14 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18RBQov0027164;
+        Mon, 27 Sep 2021 07:33:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=Zh4ocPd5zq01wbH2VJDNCfT88s0EYVFeCQkN48p09Rc=;
+ b=HFxbLZtALlzLcIV513Gw+sxVwvyBy56n2YzyuwSn5PhVx+r78j+XpSTou4uCQxcVZnoE
+ ORBmrmCvRSJjDV+Ccv2/aAl0E0LKSqjtC7pEVYkcfhGs2gARhJrtNmpcMZLACj1l3H9e
+ wiOzzrnbeakRimBQKGiZG/vgljuMDfDH40vFu6QUIrDqxXQm0raGWFyPpAM+xNskL32L
+ cit9eG4DTS9wNpPPnwq/OiGUy3QfNwVJL1bvIFM7kz7dvrsv4WGOaJ2SSB2cnUlgVe2w
+ xizeUAt1Oo/0G6wIHGgXQzOY2Vejlh581H5hmUOcXLZvcVfbDeJx89csV2wfHViBPvSe YA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bagv81unu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Sep 2021 07:33:18 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18RBQVOH012751;
+        Mon, 27 Sep 2021 07:33:18 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bagv81umx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Sep 2021 07:33:17 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18RBVJoX026969;
+        Mon, 27 Sep 2021 11:33:15 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma01fra.de.ibm.com with ESMTP id 3b9ud9b7y5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Sep 2021 11:33:15 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18RBXBwa2294488
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 27 Sep 2021 11:33:11 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2EF8442094;
+        Mon, 27 Sep 2021 11:33:11 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7804D4205C;
+        Mon, 27 Sep 2021 11:33:10 +0000 (GMT)
+Received: from sig-9-145-45-184.uk.ibm.com (unknown [9.145.45.184])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 27 Sep 2021 11:33:10 +0000 (GMT)
+Message-ID: <e9665315bc2f244d50d026863476e72e3d9b8067.camel@linux.ibm.com>
+Subject: Re: [PATCH RESEND bpf] bpf, s390: Fix potential memory leak about
+ jit_data
+From:   Ilya Leoshkevich <iii@linux.ibm.com>
+To:     Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>
+Cc:     Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
+        netdev@vger.kernel.org, bpf@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Xuefeng Li <lixuefeng@loongson.cn>
+Date:   Mon, 27 Sep 2021 13:33:10 +0200
+In-Reply-To: <1632726374-7154-1-git-send-email-yangtiezhu@loongson.cn>
+References: <1632726374-7154-1-git-send-email-yangtiezhu@loongson.cn>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5tlrcpiss2xqxqsp"
-Content-Disposition: inline
-In-Reply-To: <20210924142959.7798-4-huangguangbin2@huawei.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: giYAHGJqTgpQ3DQJ2HWE-ISyvY6pZDkS
+X-Proofpoint-ORIG-GUID: hgcrE1P2X7C_h_hUHBTq5OFZJdaEnIUq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-27_04,2021-09-24_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 mlxlogscore=944 malwarescore=0 phishscore=0 adultscore=0
+ spamscore=0 impostorscore=0 priorityscore=1501 mlxscore=0 bulkscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2109270079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
---5tlrcpiss2xqxqsp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Sep 24, 2021 at 10:29:56PM +0800, Guangbin Huang wrote:
-> From: Hao Chen <chenhao288@hisilicon.com>
->=20
-> Add support to set rx buf len via ethtool -G parameter and get
-> rx buf len via ethtool -g parameter.
->=20
-> Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
-> Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+On Mon, 2021-09-27 at 15:06 +0800, Tiezhu Yang wrote:
+> Make sure to free jit_data through kfree() in the error path.
+> 
+> Fixes: 1c8f9b91c456 ("bpf: s390: add JIT support for multi-function
+> programs")
+> Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
 > ---
->  Documentation/networking/ethtool-netlink.rst |  2 ++
->  include/linux/ethtool.h                      | 18 ++++++++++++++++--
->  include/uapi/linux/ethtool.h                 |  8 ++++++++
->  include/uapi/linux/ethtool_netlink.h         |  1 +
->  net/ethtool/netlink.h                        |  2 +-
->  net/ethtool/rings.c                          | 17 ++++++++++++++++-
->  6 files changed, 44 insertions(+), 4 deletions(-)
->=20
-> diff --git a/Documentation/networking/ethtool-netlink.rst b/Documentation=
-/networking/ethtool-netlink.rst
-> index a47b0255aaf9..9734b7c1e05d 100644
-> --- a/Documentation/networking/ethtool-netlink.rst
-> +++ b/Documentation/networking/ethtool-netlink.rst
-> @@ -841,6 +841,7 @@ Kernel response contents:
->    ``ETHTOOL_A_RINGS_RX_MINI``           u32     size of RX mini ring
->    ``ETHTOOL_A_RINGS_RX_JUMBO``          u32     size of RX jumbo ring
->    ``ETHTOOL_A_RINGS_TX``                u32     size of TX ring
-> +  ``ETHTOOL_A_RINGS_RX_BUF_LEN``        u32     size of buffers on the r=
-ing
->    =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D  =3D=3D=3D=3D=3D=3D  =3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> =20
-> =20
-> @@ -857,6 +858,7 @@ Request contents:
->    ``ETHTOOL_A_RINGS_RX_MINI``           u32     size of RX mini ring
->    ``ETHTOOL_A_RINGS_RX_JUMBO``          u32     size of RX jumbo ring
->    ``ETHTOOL_A_RINGS_TX``                u32     size of TX ring
-> +  ``ETHTOOL_A_RINGS_RX_BUF_LEN``        u32     size of buffers on the r=
-ing
->    =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D  =3D=3D=3D=3D=3D=3D  =3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> =20
->  Kernel checks that requested ring sizes do not exceed limits reported by
+> 
+> RESEND due to the following reason:
+> [Can not connect to recipient's server because of unstable
+> network or firewall filter. rcpt handle timeout, last handle
+> info: Can not connect to vger.kernel.org]
+> 
+>  arch/s390/net/bpf_jit_comp.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Would it make sense to let driver report also maximum supported value
-like it does for existing ring parameters (ring sizes)?
+Nice catch, thanks!
 
-Michal
+Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
 
---5tlrcpiss2xqxqsp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEWN3j3bieVmp26mKO538sG/LRdpUFAmFOW7MACgkQ538sG/LR
-dpUaZAgAwk2KWH0eA5QIm+danLzNaAPBPB53CjHmCJD44vHgdniatWE2N306ob4N
-x9FOkGdjeiUe0o44BSxySUeqxOsXL1TgLbcByQRibdrota79jTOMm2ggNr1kAk+/
-OeCslVmVbiq/iG/RDxknwZaun+bGpSSlMFdWf72ES074StU3zdBzVuBoZetv5ZX6
-im0nBFN5WFwkaZ6Bd80t1mFNDZ1PR9FqH/7WA07t73Cj0qJSkH/rRNxyANmpJjxW
-D5HQ0nfB6ZxctVF2gcu4futcEMDZk9emb5qD0HysAfscYh+DR1RrOCk8X5QSodva
-mRVlHTxp6xUvpaJczXfEQlI6a/34nQ==
-=fa0B
------END PGP SIGNATURE-----
-
---5tlrcpiss2xqxqsp--
