@@ -2,73 +2,73 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E128C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 17:39:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 783F1C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 17:42:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E511A60F3A
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 17:39:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4F60E6058D
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 17:42:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237696AbhI0RlQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Sep 2021 13:41:16 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:51736 "EHLO
+        id S236216AbhI0Rnn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Sep 2021 13:43:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49873 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238911AbhI0Rkd (ORCPT
+        by vger.kernel.org with ESMTP id S238273AbhI0Rna (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:40:33 -0400
+        Mon, 27 Sep 2021 13:43:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1632764334;
+        s=mimecast20190719; t=1632764511;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=jirQ9FfdlhvaJz4asll3MbjWE5MFUvpfdv5thabWi7A=;
-        b=iy4tiEGVsMXV/mZtJzo6+jo5P+HM4YI5WMmjrbDnQqP6a5SyvO/xQWwIy3sQmzA20OCFZm
-        LpHD1uCaeU1y7ceB8jUBAoL+Ey9rdzXd4bcpfgwNWAKXfDVx2zASLN2SUuBxQBxG8HIfrI
-        GNM8CLXldYzYSuNDfWuYdcLbndcgAAo=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-217-R2nWblpcPXGPxEQz63pj6Q-1; Mon, 27 Sep 2021 13:38:53 -0400
-X-MC-Unique: R2nWblpcPXGPxEQz63pj6Q-1
-Received: by mail-wr1-f70.google.com with SMTP id l9-20020adfc789000000b00160111fd4e8so14342714wrg.17
-        for <linux-s390@vger.kernel.org>; Mon, 27 Sep 2021 10:38:53 -0700 (PDT)
+        bh=3Rt9qT67yf6Pyb+8KXiGshS9FYAzTa8kXZ1NwXtcm+0=;
+        b=D5uWDQQSzdfwvMjsvZAgmMmAEUHSlDmzeBZSJQehjDjxDZrKe0MIqLcgD7GtISkru9UCXE
+        OsCUzoww9gYxnivJ5V41aD4LL4O0QMY21LAerFkHWoNZi4Gmw5mRYyhK5A1T6UKgJ3zEZ7
+        s+VBWRLI2C6eetRZ+vB0RehWSCAj9E8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-300-08Z1BQlqNK2DHtnHK_ldEw-1; Mon, 27 Sep 2021 13:41:50 -0400
+X-MC-Unique: 08Z1BQlqNK2DHtnHK_ldEw-1
+Received: by mail-wm1-f69.google.com with SMTP id v5-20020a1cac05000000b0030b85d2d479so553137wme.9
+        for <linux-s390@vger.kernel.org>; Mon, 27 Sep 2021 10:41:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=jirQ9FfdlhvaJz4asll3MbjWE5MFUvpfdv5thabWi7A=;
-        b=hF9uM0aMigqfkvJgoU8jHb4LlNw8TdgROt2GA3kJQVOjWxh5M5S9wR9Eorumec2xyc
-         +ApCXfJn3vTMNepk+G0hPquhfDQXkZmtlfdIUMhGI26H3KOdQumwrQMx0DOt6mx6d/hi
-         F6R/JBqS+L77xytxF0hGvGyb/NIk2gxVHU6EcH+mdBL+o5ecOgIF4cyZk3YGxnJztJ4a
-         zSjIYyzZr6TEi4M0erCKG93SI74sx+aQEgdnkhhdf7426qOAyMAYq6Jl7tbWlKEkgZ7W
-         xqacFPeUiRxi7+J3B2INSPey6suR+dSE7Vfe0yAox6Dh5AbNwIYkhNbfdci7DUhf1ry5
-         D5Nw==
-X-Gm-Message-State: AOAM531C9KeJuEA4rNyPZQI4MSSY4vaiI9nyooAOwO7RhJylVnBoytd9
-        i31SyLoE3rb+dhFTjuW7O0USaqmwvEsbxIAM8dztonc9PAzFCZM5jyeeeUQdZcsGr1i6U1dI11K
-        Ix+fksuC158hdslaHOt1Thg==
-X-Received: by 2002:a7b:cc8d:: with SMTP id p13mr334101wma.10.1632764332440;
-        Mon, 27 Sep 2021 10:38:52 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJygFnvXthhc22zdk5qwNvouSPfv7jgeqZp4tnutQ46qGYpl4iAodfS+D5/JP8rMpXiaGk50jQ==
-X-Received: by 2002:a7b:cc8d:: with SMTP id p13mr334084wma.10.1632764332259;
-        Mon, 27 Sep 2021 10:38:52 -0700 (PDT)
+        bh=3Rt9qT67yf6Pyb+8KXiGshS9FYAzTa8kXZ1NwXtcm+0=;
+        b=3a2Ry/2R0T51aQC/kQmlUSzAv1bKJrXANH0rgOVAul17wfn13ew4+VwNMmdicS3Wmm
+         AREBXTwAy4uQ++iDnxWrETsVekQRty5vgUB+NbiUo+hb83rNcckWiv+XJUIU0oaovLOg
+         9PjyLOWwaskdLjZ8/P/crFM1YXN0mw0+BVkSaSWEtw3zKOhnBQXo5wVhP4c6h9wRakYq
+         k+UW2CtPUgq7idlqeHMDVmLy59w9jGtyptNKERxUlwdaaE9bvo+5QbGDufAmbsUsEAg+
+         d1XzYwZqPNKQ7Bt2Ol3n+k7h+NBIIrX6orCiiJJ2pd6qvieMaiRld6AqJMotqR4Z7jkz
+         GScQ==
+X-Gm-Message-State: AOAM531KVoBMSKiGHW88rXcar99ZqWGIldNiKGI/hNaO5T3MDTkG950Z
+        bfdiWx5lJ7vDR7aEG1ukMvXwsh1h6n9ZzM2BUZvMw0U9RMGSOGWZ/WfTN7Z0S0MLXLtZpzw2ZWY
+        YiV+pUKUitPI+YzFjXHdpgQ==
+X-Received: by 2002:a1c:1d92:: with SMTP id d140mr321082wmd.17.1632764509430;
+        Mon, 27 Sep 2021 10:41:49 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwQ1+eoNtpGMQr1DRUlfIXcJoZBO20R0H/6CG5qcAELeaeqEP/+0t0EJCosYC3ygoR8XTwWAw==
+X-Received: by 2002:a1c:1d92:: with SMTP id d140mr321070wmd.17.1632764509281;
+        Mon, 27 Sep 2021 10:41:49 -0700 (PDT)
 Received: from thuth.remote.csb (p549bb2bd.dip0.t-ipconnect.de. [84.155.178.189])
-        by smtp.gmail.com with ESMTPSA id s2sm9315667wru.3.2021.09.27.10.38.51
+        by smtp.gmail.com with ESMTPSA id u2sm4511702wrr.35.2021.09.27.10.41.48
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Sep 2021 10:38:51 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH 4/9] lib: s390x: uv: Fix share return value
- and print
+        Mon, 27 Sep 2021 10:41:48 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH 5/9] lib: s390x: uv: Add UVC_ERR_DEBUG
+ switch
 To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     david@redhat.com, linux-s390@vger.kernel.org, seiden@linux.ibm.com,
         imbrenda@linux.ibm.com
 References: <20210922071811.1913-1-frankja@linux.ibm.com>
- <20210922071811.1913-5-frankja@linux.ibm.com>
+ <20210922071811.1913-6-frankja@linux.ibm.com>
 From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <333dcee3-2d66-5e76-bd0e-149ede04ef7a@redhat.com>
-Date:   Mon, 27 Sep 2021 19:38:50 +0200
+Message-ID: <30a104a3-02a1-58a7-2377-de6221e7d20b@redhat.com>
+Date:   Mon, 27 Sep 2021 19:41:47 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <20210922071811.1913-5-frankja@linux.ibm.com>
+In-Reply-To: <20210922071811.1913-6-frankja@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -77,41 +77,30 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 22/09/2021 09.18, Janosch Frank wrote:
-> Let's only return 0/1 for success/failure respectively.
-> If needed we can later add rc/rrc pointers so we can check for the
-> reasons of cc==1 cases like we do in the kernel.
+> Every time something goes wrong in a way we don't expect, we need to
+> add debug prints to some UVC to get the unexpected return code.
 > 
-> As share might also be used in snippets it's best not to use prints to
-
-Maybe: s/share/share()/
-... so that it is clear that you're talking about the function here...
-
-> avoid linking problems so lets remove the report_info().
+> Let's just put the printing behind a macro so we can enable it if
+> needed via a simple switch.
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
->   lib/s390x/asm/uv.h | 9 +--------
->   1 file changed, 1 insertion(+), 8 deletions(-)
+>   lib/s390x/asm/uv.h | 12 ++++++++++++
+>   1 file changed, 12 insertions(+)
 > 
 > diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-> index ec10d1c4..2f099553 100644
+> index 2f099553..0e958ad7 100644
 > --- a/lib/s390x/asm/uv.h
 > +++ b/lib/s390x/asm/uv.h
-> @@ -219,15 +219,8 @@ static inline int share(unsigned long addr, u16 cmd)
->   		.header.len = sizeof(uvcb),
->   		.paddr = addr
->   	};
-> -	int cc;
+> @@ -12,6 +12,9 @@
+>   #ifndef _ASMS390X_UV_H_
+>   #define _ASMS390X_UV_H_
 >   
-> -	cc = uv_call(0, (u64)&uvcb);
-> -	if (!cc && uvcb.header.rc == UVC_RC_EXECUTED)
-> -		return 0;
-> -
-> -	report_info("uv_call: cmd %04x cc %d response code: %04x", cc, cmd,
-> -		    uvcb.header.rc);
-> -	return -1;
-> +	return uv_call(0, (u64)&uvcb);
->   }
+> +/* Enables printing of command code and return codes for failed UVCs */
+> +#define UVC_ERR_DEBUG	0
 
-Acked-by: Thomas Huth <thuth@redhat.com>
+Do we maybe want a "#ifndef UVC_ERR_DEBUG" in front of this, so that we 
+could also set the macro to 1 from individual *.c files (or from the Makefile)?
+
+  Thomas
 
