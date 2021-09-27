@@ -2,102 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A0B8C4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 15:07:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B245C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 15:12:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E4CAB60FF2
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 15:07:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 452EE60F44
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 15:12:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235006AbhI0PIr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Sep 2021 11:08:47 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:22962 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235064AbhI0PIq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 27 Sep 2021 11:08:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1632755227;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=H2YLjPWLjDxhksfVJJ0b+TgzS3sQ4uenpZKkXE6cLl8=;
-        b=Vuq9HxLgQlfj9bP7NfiSyHCmpHTUMswo7Ijerr+14A94Ln9wkpFBqxZEBlQjirzTHX0T/d
-        r4KL5Y0EAK1vuIv09zmr1VmIvGMzCm2RfXRCo0yf0ZF6KU/IgVAYuXVzncZWmeQy+UicuJ
-        0wjd0vXR85f6FqtqNqeZIbrSe0fcia8=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-445-lqAba_-SPlaIjI48PciRWA-1; Mon, 27 Sep 2021 11:07:06 -0400
-X-MC-Unique: lqAba_-SPlaIjI48PciRWA-1
-Received: by mail-wm1-f72.google.com with SMTP id 70-20020a1c0149000000b0030b7dd84d81so360693wmb.3
-        for <linux-s390@vger.kernel.org>; Mon, 27 Sep 2021 08:07:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:organization
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=H2YLjPWLjDxhksfVJJ0b+TgzS3sQ4uenpZKkXE6cLl8=;
-        b=eCQ9xjqFh+gq0MyH2QEnY3tCXLsVk+QFrt0S3TbbZ98Eytk785yvL+SO5AUD6EHBu4
-         oMfJxD+CqWHJaIMIKcVAvt+AO4+y6CsRaHAq+TnT7kud8b2iNsOYR8Uq6jinYnvUfIT4
-         FiFOyPm9CpC3NSLFOTuwzZocf8p5zdmOMS2TQQ9q77as4tcz2pqNR6D9ITlwTEX2U0si
-         WvlIRhR2cSjInYVJ6M/pa+k4eAY5c5AbrfxraCRkdnCZFWMAseSeFVT+nA+qkfMwuec+
-         bx42AMwGLnbnTfuTjg9Q8hA42czRA0Imm6PdmQ++d+jExrJvmN1Rcz2irAYJ9TBHF0jU
-         gnaw==
-X-Gm-Message-State: AOAM5310RAz+tIScg5k+vIRMf4D84wkGNlasUkKS4PhFagdbXqJ+H/nf
-        2PUL62i1PEIC0N0d1q1KLWQPhX0YLpJd2AwOZ2I3gisEjdcyFim94bmTACnL36PHKHueToaZdK3
-        Tx0uwLn07MMfXRm4XARQvuw==
-X-Received: by 2002:a5d:590a:: with SMTP id v10mr361568wrd.87.1632755224888;
-        Mon, 27 Sep 2021 08:07:04 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyy5wlKXLyU5BWf9WD/reu/rSzNLdsCLGLJ2WCZuEX7Xkvd9O/Z0HH1Erkz7+dZr/KU55FrDA==
-X-Received: by 2002:a5d:590a:: with SMTP id v10mr361519wrd.87.1632755224672;
-        Mon, 27 Sep 2021 08:07:04 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c654d.dip0.t-ipconnect.de. [91.12.101.77])
-        by smtp.gmail.com with ESMTPSA id f9sm284908wmf.3.2021.09.27.08.07.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Sep 2021 08:07:04 -0700 (PDT)
-Subject: Re: [PATCH v1 0/4] mm/memory_hotplug: full support for
-To:     linux-kernel@vger.kernel.org
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Jianyong Wu <Jianyong.Wu@arm.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        id S235081AbhI0POd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Sep 2021 11:14:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54200 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235002AbhI0POc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 27 Sep 2021 11:14:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED8B7611C0;
+        Mon, 27 Sep 2021 15:12:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632755575;
+        bh=CKBeZqx1JroYNLrGq5H114mf1zFlMql7osjtvpITDCw=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=EVBbs3MVb2rKhlVS8zKpcM376o/TKjtkXDHHd/wsTbaLfx6lDmygiZpT3x7nXiuQ3
+         qI6Y85rpLepdxU+wE0Grxf7YsEaSbNhENVT+K25JSCaaY+814CwQ0wyxUsc9KUuvQy
+         hQdmzWSytaJMhwWEBAVICPEipETSfP3Xu6nDTfAdg5aRgouxOHTt3NfeACf7kbOWCR
+         OsCr7y6iELtBigI8CNkHzbquvZiEOaAvAmL84E8ja0KTlJjM1I99On/bQ1Ypc9tMZk
+         SaL7iKw5FGEGEAfGtwf33A3FoOYzfQslocN3+NGigGTpzuzQ60fFGB/7x3vYj7X3Wo
+         Dc/q7pfQ+7M1Q==
+Received: by mail-oi1-f171.google.com with SMTP id x124so25951234oix.9;
+        Mon, 27 Sep 2021 08:12:54 -0700 (PDT)
+X-Gm-Message-State: AOAM530Ilm/x5W+uOuMSC71Qm/zfE2USl6OULczEtCmN1IelD0KI7y4p
+        JFtfsdUvSfsD+gfpaK90THwE0z+7e9CdWn+9RKs=
+X-Google-Smtp-Source: ABdhPJyeC8BgibE5zzxbqU0l8Tut8FIpgncaCT3Q0Qb4RyOfhbEhCIFLxw2ikpv+mDHPe9VMwWn8YxftPxI0HPTWIJ0=
+X-Received: by 2002:aca:32c2:: with SMTP id y185mr501704oiy.47.1632755574136;
+ Mon, 27 Sep 2021 08:12:54 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210914121036.3975026-1-ardb@kernel.org> <20210914121036.3975026-5-ardb@kernel.org>
+In-Reply-To: <20210914121036.3975026-5-ardb@kernel.org>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Mon, 27 Sep 2021 17:12:43 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXEojbQbNzCP39KT4EzFAyW3J1Tfm_stCZ+fGo8_SO90PA@mail.gmail.com>
+Message-ID: <CAMj1kXEojbQbNzCP39KT4EzFAyW3J1Tfm_stCZ+fGo8_SO90PA@mail.gmail.com>
+Subject: Re: [RFC PATCH 4/8] powerpc: add CPU field to struct thread_info
+To:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Cc:     Keith Packard <keithpac@amazon.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Eric Biederman <ebiederm@xmission.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Arnd Bergmann <arnd@arndb.de>,
-        linux-snps-arc@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-mm@kvack.org,
-        kexec@lists.infradead.org
-References: <20210927150518.8607-1-david@redhat.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Message-ID: <d7d4ec92-7b9c-f466-6d3c-cfdd162d1dbf@redhat.com>
-Date:   Mon, 27 Sep 2021 17:07:02 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-MIME-Version: 1.0
-In-Reply-To: <20210927150518.8607-1-david@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
+        <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        "open list:S390" <linux-s390@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Intended subject was "[PATCH v1 0/4] mm/memory_hotplug: full support for 
-add_memory_driver_managed() with CONFIG_ARCH_KEEP_MEMBLOCK"
+On Tue, 14 Sept 2021 at 14:11, Ard Biesheuvel <ardb@kernel.org> wrote:
+>
+> The CPU field will be moved back into thread_info even when
+> THREAD_INFO_IN_TASK is enabled, so add it back to powerpc's definition
+> of struct thread_info.
+>
+> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 
--- 
+Michael,
+
+Do you have any objections or issues with this patch or the subsequent
+ones cleaning up the task CPU kludge for ppc32? Christophe indicated
+that he was happy with it.
+
 Thanks,
+Ard.
 
-David / dhildenb
 
+> ---
+>  arch/powerpc/include/asm/thread_info.h | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/arch/powerpc/include/asm/thread_info.h b/arch/powerpc/include/asm/thread_info.h
+> index b4ec6c7dd72e..5725029aaa29 100644
+> --- a/arch/powerpc/include/asm/thread_info.h
+> +++ b/arch/powerpc/include/asm/thread_info.h
+> @@ -47,6 +47,9 @@
+>  struct thread_info {
+>         int             preempt_count;          /* 0 => preemptable,
+>                                                    <0 => BUG */
+> +#ifdef CONFIG_SMP
+> +       unsigned int    cpu;
+> +#endif
+>         unsigned long   local_flags;            /* private flags for thread */
+>  #ifdef CONFIG_LIVEPATCH
+>         unsigned long *livepatch_sp;
+> --
+> 2.30.2
+>
