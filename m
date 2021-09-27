@@ -2,33 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 820B3C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 22:04:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F0F7C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 22:04:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6E13E61058
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 22:04:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 284C961058
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 22:04:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237996AbhI0WGN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Sep 2021 18:06:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50932 "EHLO
+        id S238141AbhI0WGP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Sep 2021 18:06:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237998AbhI0WFd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Sep 2021 18:05:33 -0400
+        with ESMTP id S237883AbhI0WFe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Sep 2021 18:05:34 -0400
 Received: from bombadil.infradead.org (unknown [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E19C0611C0;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD1EC061217;
         Mon, 27 Sep 2021 15:02:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Sender:Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
         Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=+OAfxCoaVOuKuOjWZKvBW/L6IB8523Q0h7o1ENcxwyY=; b=0OtugzOoZWoPNTHgHokvNhlzny
-        LVtyiNlqwmw6UskbWe87APtWwkxhfaTd657hK8Nxf64/0n7+qjsV7SqOENx+Nu2qDlxckAxUmF+Ny
-        AewzZsDualM8Exf0Z4MyhUf6wg4FoGv02lM2+G39XUuNmRy7q4DQjVJAvxnTsLM7wBNG7zW9xiMdt
-        0lGQg/MrOx1MZn++Eo7oAEvY+pQprH6S4mmf137SY8aFgyvffLFv8NL/59vgPhPeBEU9w/iiqI1Oz
-        bp7ic6YX1SV/0CLLDl0CKA8z9XRctV9hZQCOJcirvX+5F2ZSxVAPF0H+0JF5bVRvhnR1IuntUYRrS
-        H5tYNCSA==;
+        bh=0XhzHqCRK7YpFsSG+7Rmrxl0ZALMmH2eUYve6WoEo48=; b=FVOFkdymklCD9HFfwIA+D+3xTm
+        TsckIlazcNTsRtk64tsaiwo3wu86zZ2y43ctmSLDJgp7V4mxt+XWGceXb0dXYXy2LBR92VQp63zm+
+        VXeMrQogOnIKb8OWRMZ54F80i2uLPLWcfg388mkvxNd0y251xt24Bk3t9v29agqUjGO1KkA9HFsO9
+        eUqKdzur1+A4N7XofqKJCE6QLka7PZbTTXYoTYdFme0hJBxnZxgSEVjIZEZpCqrPhECSj9zVMPvWL
+        3T82b9AN9WbwJWJMepzeLogaEIW3J8r+lLE3X3OfoJBuC/uBmVASjC2kbc1qAtAyo3gNPmKfB8MCa
+        rDRUSVfw==;
 Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mUyhl-004Utz-PR; Mon, 27 Sep 2021 22:02:33 +0000
+        id 1mUyhm-004UuE-2P; Mon, 27 Sep 2021 22:02:34 +0000
 From:   Luis Chamberlain <mcgrof@kernel.org>
 To:     axboe@kernel.dk, gregkh@linuxfoundation.org,
         chaitanya.kulkarni@wdc.com, atulgopinathan@gmail.com, hare@suse.de,
@@ -43,9 +43,9 @@ To:     axboe@kernel.dk, gregkh@linuxfoundation.org,
 Cc:     linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
         linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
         linux-kernel@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>
-Subject: [PATCH v2 4/6] s390/block/dasd_genhd: add error handling support for add_disk()
-Date:   Mon, 27 Sep 2021 15:02:30 -0700
-Message-Id: <20210927220232.1071926-5-mcgrof@kernel.org>
+Subject: [PATCH v2 6/6] s390/block/scm_blk: add error handling support for add_disk()
+Date:   Mon, 27 Sep 2021 15:02:32 -0700
+Message-Id: <20210927220232.1071926-7-mcgrof@kernel.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210927220232.1071926-1-mcgrof@kernel.org>
 References: <20210927220232.1071926-1-mcgrof@kernel.org>
@@ -60,41 +60,32 @@ We never checked for errors on add_disk() as this function
 returned void. Now that this is fixed, use the shiny new
 error handling.
 
-Be sure to call dasd_gendisk_free() on error.
-
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 ---
- drivers/s390/block/dasd_genhd.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/s390/block/scm_blk.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
-index fa966e0db6ca..80673dbfb1f9 100644
---- a/drivers/s390/block/dasd_genhd.c
-+++ b/drivers/s390/block/dasd_genhd.c
-@@ -33,7 +33,7 @@ int dasd_gendisk_alloc(struct dasd_block *block)
- {
- 	struct gendisk *gdp;
- 	struct dasd_device *base;
--	int len;
-+	int len, rc;
+diff --git a/drivers/s390/block/scm_blk.c b/drivers/s390/block/scm_blk.c
+index 88cba6212ee2..61ecdcb2cc6a 100644
+--- a/drivers/s390/block/scm_blk.c
++++ b/drivers/s390/block/scm_blk.c
+@@ -495,9 +495,14 @@ int scm_blk_dev_setup(struct scm_blk_dev *bdev, struct scm_device *scmdev)
  
- 	/* Make sure the minor for this device exists. */
- 	base = block->base;
-@@ -79,7 +79,13 @@ int dasd_gendisk_alloc(struct dasd_block *block)
- 	dasd_add_link_to_gendisk(gdp, base);
- 	block->gdp = gdp;
- 	set_capacity(block->gdp, 0);
--	device_add_disk(&base->cdev->dev, block->gdp, NULL);
-+
-+	rc = device_add_disk(&base->cdev->dev, block->gdp, NULL);
-+	if (rc) {
-+		dasd_gendisk_free(block);
-+		return rc;
-+	}
+ 	/* 512 byte sectors */
+ 	set_capacity(bdev->gendisk, scmdev->size >> 9);
+-	device_add_disk(&scmdev->dev, bdev->gendisk, NULL);
++	ret = device_add_disk(&scmdev->dev, bdev->gendisk, NULL);
++	if (ret)
++		goto out_cleanup_disk;
 +
  	return 0;
- }
  
++out_cleanup_disk:
++	blk_cleanup_disk(bdev->gendisk);
+ out_tag:
+ 	blk_mq_free_tag_set(&bdev->tag_set);
+ out:
 -- 
 2.30.2
 
