@@ -2,90 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 847B0C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 16:13:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 594A2C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 16:21:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5FAF160F24
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 16:13:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3F86D60FED
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 16:21:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235336AbhI0QP0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Sep 2021 12:15:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54116 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235261AbhI0QP0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Sep 2021 12:15:26 -0400
-Received: from mail-qk1-x72d.google.com (mail-qk1-x72d.google.com [IPv6:2607:f8b0:4864:20::72d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5394CC061575
-        for <linux-s390@vger.kernel.org>; Mon, 27 Sep 2021 09:13:48 -0700 (PDT)
-Received: by mail-qk1-x72d.google.com with SMTP id 72so37218257qkk.7
-        for <linux-s390@vger.kernel.org>; Mon, 27 Sep 2021 09:13:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=/3GGkyrom3DTgS/bGXMlfCPlY5tmhfbrDIfBJ3BlpmI=;
-        b=FnU5pasGnw/t6IG/Vr00DXAOFAT91ktkE8GSkjIDWDGd4el/SSeNGKwBhAJyJws1d1
-         0JSayD7mKqUReGauA3ZZARDRXop/4eWNyewtHi+aTI52mqipxHWeAl5ZeYOOgQQH+2Y8
-         2ukDTTOHVOIp7BCmhCh50qQ7Rmm1wKipOgAmc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=/3GGkyrom3DTgS/bGXMlfCPlY5tmhfbrDIfBJ3BlpmI=;
-        b=BfOgATDuLEHfWXsjVMaaDqVJ29lT1QSVCMvvSrQn8dq53a5DTGGmth51qXjD5C9wZP
-         aR15H7mvBodKyzQyLVW1PkSMLFJ+/hVqi1f841xdeNwFEPV8/rYFnioANAbJ654z+pnd
-         yIgPbf8TB0ERD6DFoQi7CnPbOs8Hw+ehcVzBEAU8EsNCI6XgRAunz9xpN2MONEwtKSZq
-         ziNIvJxgeEEwE59Z5RJhOKLKHiig05MczfyKgHvRLA4nlM7X1NW6JFGoSFWUnKpGlzyb
-         HITKezJ96RUO5ZCELyP7xfZ4KSSt/Izer+p6C5SkGvjIM8DdNF21rl6aqlbE0gE4LWsk
-         lCMQ==
-X-Gm-Message-State: AOAM533TZRIsgboeq4w2w82ZLc/xoP4c58PbSGF+l1Do2ejKXCJYZEcJ
-        qgla3ZRi4vFJmDA4dMPvkqhb/w==
-X-Google-Smtp-Source: ABdhPJzUroZeu4A0rF6c09CMGFFjlCShBOW4fzZGusJgcCXEuy8+TEU0EDJ0qgrs7Ht4b4Dxf8qxYA==
-X-Received: by 2002:a37:44ca:: with SMTP id r193mr804368qka.190.1632759227376;
-        Mon, 27 Sep 2021 09:13:47 -0700 (PDT)
-Received: from meerkat.local (bras-base-mtrlpq5031w-grc-32-216-209-220-181.dsl.bell.ca. [216.209.220.181])
-        by smtp.gmail.com with ESMTPSA id j14sm11375353qtv.36.2021.09.27.09.13.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Sep 2021 09:13:47 -0700 (PDT)
-Date:   Mon, 27 Sep 2021 12:13:45 -0400
-From:   Konstantin Ryabitsev <konstantin@linuxfoundation.org>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Daniel Borkmann <daniel@iogearbox.net>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        id S235350AbhI0QWl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Sep 2021 12:22:41 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:39550 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235341AbhI0QWk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Sep 2021 12:22:40 -0400
+Received: from relay1.suse.de (relay1.suse.de [149.44.160.133])
+        by smtp-out2.suse.de (Postfix) with ESMTP id B1E5520174;
+        Mon, 27 Sep 2021 16:21:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1632759661; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=OhdVD9gOAiEfK7wpJLmapbTk6U8empUyrJJ+9sKjxDc=;
+        b=UE0ndxT/7SMUQi2S12WiU1L8o3vezLNsivOroJUx3J6QMJZLqypB8enMbr/LXtEAwGfFAK
+        NzJ4YnTh1xfRrxWsdPLZurdMg5t7WZFYMs4KALj0b0mNHEFMJXFyVTgeZZs4VR5x0dP06T
+        Q0cDAVQEP9WHufbko8M+3o9EQbDZ9BY=
+Received: from g78.suse.de (unknown [10.163.24.38])
+        by relay1.suse.de (Postfix) with ESMTP id A3FD825D3E;
+        Mon, 27 Sep 2021 16:20:58 +0000 (UTC)
+From:   Richard Palethorpe <rpalethorpe@suse.com>
+To:     x86@kernel.org
+Cc:     Richard Palethorpe <rpalethorpe@suse.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Xuefeng Li <lixuefeng@loongson.cn>, warthog9@kernel.org
-Subject: Re: [PATCH RESEND bpf] bpf, s390: Fix potential memory leak about
- jit_data
-Message-ID: <20210927161345.vh6w3jffo5w2z6t7@meerkat.local>
-References: <1632726374-7154-1-git-send-email-yangtiezhu@loongson.cn>
- <e9665315bc2f244d50d026863476e72e3d9b8067.camel@linux.ibm.com>
- <c02febfc-03e6-848a-8fb0-5bd6802c1869@iogearbox.net>
- <0cc48f4d-f6c0-ab11-64b0-bc219fbfe777@de.ibm.com>
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-api@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>, rpalethorpe@richiejp.com,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        ltp@lists.linux.it
+Subject: [PATCH] x86/entry/ia32: Ensure s32 is sign extended to s64
+Date:   Mon, 27 Sep 2021 17:19:55 +0100
+Message-Id: <20210927161955.28494-1-rpalethorpe@suse.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <0cc48f4d-f6c0-ab11-64b0-bc219fbfe777@de.ibm.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 27, 2021 at 05:58:54PM +0200, Christian Borntraeger wrote:
-> Interestingly enough b4 cannot find the patch email on lore.
-> Looks like Tiezhu Yang has indeed connection issues with vger.
-> CC Konstantin, in case he knows something.
+Presently ia32 registers stored in ptregs are unconditionally cast to
+unsigned int by the ia32 stub. They are then cast to long when passed
+to __se_sys*, but will not be sign extended.
 
-I'm not actually in charge of vger, so I'm not able to help any further than
-adding John to the cc's.
+This takes the sign of the syscall argument into account in the ia32
+stub. It still casts to unsigned int to avoid implementation specific
+behavior. However then casts to int or unsigned int as necessary. So
+that the following cast to long sign extends the value.
 
--K
+This fixes the io_pgetevents02 LTP test when compiled with
+-m32. Presently the systemcall io_pgetevents_time64 unexpectedly
+accepts -1 for the maximum number of events. It doesn't appear other
+systemcalls with signed arguments are effected because they all have
+compat variants defined and wired up. A less general solution is to
+wire up the systemcall:
+https://lore.kernel.org/ltp/20210921130127.24131-1-rpalethorpe@suse.com/
+
+Fixes: ebeb8c82ffaf ("syscalls/x86: Use 'struct pt_regs' based syscall calling for IA32_EMULATION and x32")
+Signed-off-by: Richard Palethorpe <rpalethorpe@suse.com>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/s390/include/asm/syscall_wrapper.h |  2 --
+ arch/x86/include/asm/syscall_wrapper.h  | 25 +++++++++++++++++++++----
+ include/linux/syscalls.h                |  1 +
+ 3 files changed, 22 insertions(+), 6 deletions(-)
+
+diff --git a/arch/s390/include/asm/syscall_wrapper.h b/arch/s390/include/asm/syscall_wrapper.h
+index ad2c996e7e93..25ab58b0ded1 100644
+--- a/arch/s390/include/asm/syscall_wrapper.h
++++ b/arch/s390/include/asm/syscall_wrapper.h
+@@ -7,8 +7,6 @@
+ #ifndef _ASM_S390_SYSCALL_WRAPPER_H
+ #define _ASM_S390_SYSCALL_WRAPPER_H
+ 
+-#define __SC_TYPE(t, a) t
+-
+ #define SYSCALL_PT_ARG6(regs, m, t1, t2, t3, t4, t5, t6)\
+ 	SYSCALL_PT_ARG5(regs, m, t1, t2, t3, t4, t5),	\
+ 		m(t6, (regs->gprs[7]))
+diff --git a/arch/x86/include/asm/syscall_wrapper.h b/arch/x86/include/asm/syscall_wrapper.h
+index 6a2827d0681f..811139a82b13 100644
+--- a/arch/x86/include/asm/syscall_wrapper.h
++++ b/arch/x86/include/asm/syscall_wrapper.h
+@@ -58,12 +58,29 @@ extern long __ia32_sys_ni_syscall(const struct pt_regs *regs);
+ 		,,regs->di,,regs->si,,regs->dx				\
+ 		,,regs->r10,,regs->r8,,regs->r9)			\
+ 
++
++/* SYSCALL_PT_ARGS is Adapted from s390x */
++#define SYSCALL_PT_ARG6(m, t1, t2, t3, t4, t5, t6)			\
++	SYSCALL_PT_ARG5(m, t1, t2, t3, t4, t5), m(t6, (regs->bp))
++#define SYSCALL_PT_ARG5(m, t1, t2, t3, t4, t5)				\
++	SYSCALL_PT_ARG4(m, t1, t2, t3, t4),  m(t5, (regs->di))
++#define SYSCALL_PT_ARG4(m, t1, t2, t3, t4)				\
++	SYSCALL_PT_ARG3(m, t1, t2, t3),  m(t4, (regs->si))
++#define SYSCALL_PT_ARG3(m, t1, t2, t3)					\
++	SYSCALL_PT_ARG2(m, t1, t2), m(t3, (regs->dx))
++#define SYSCALL_PT_ARG2(m, t1, t2)					\
++	SYSCALL_PT_ARG1(m, t1), m(t2, (regs->cx))
++#define SYSCALL_PT_ARG1(m, t1) m(t1, (regs->bx))
++#define SYSCALL_PT_ARGS(x, ...) SYSCALL_PT_ARG##x(__VA_ARGS__)
++
++#define __SC_COMPAT_CAST(t, a)						\
++	(__typeof(__builtin_choose_expr(__TYPE_IS_L(t), 0, 0U)))	\
++	(unsigned int)a
++
+ /* Mapping of registers to parameters for syscalls on i386 */
+ #define SC_IA32_REGS_TO_ARGS(x, ...)					\
+-	__MAP(x,__SC_ARGS						\
+-	      ,,(unsigned int)regs->bx,,(unsigned int)regs->cx		\
+-	      ,,(unsigned int)regs->dx,,(unsigned int)regs->si		\
+-	      ,,(unsigned int)regs->di,,(unsigned int)regs->bp)
++	SYSCALL_PT_ARGS(x, __SC_COMPAT_CAST,				\
++			__MAP(x, __SC_TYPE, __VA_ARGS__))		\
+ 
+ #define __SYS_STUB0(abi, name)						\
+ 	long __##abi##_##name(const struct pt_regs *regs);		\
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 69c9a7010081..a492276a11f1 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -122,6 +122,7 @@ enum landlock_rule_type;
+ #define __TYPE_IS_LL(t) (__TYPE_AS(t, 0LL) || __TYPE_AS(t, 0ULL))
+ #define __SC_LONG(t, a) __typeof(__builtin_choose_expr(__TYPE_IS_LL(t), 0LL, 0L)) a
+ #define __SC_CAST(t, a)	(__force t) a
++#define __SC_TYPE(t, a)	t
+ #define __SC_ARGS(t, a)	a
+ #define __SC_TEST(t, a) (void)BUILD_BUG_ON_ZERO(!__TYPE_IS_LL(t) && sizeof(t) > sizeof(long))
+ 
+-- 
+2.31.1
+
