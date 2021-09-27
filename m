@@ -2,109 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6354C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 17:47:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C163CC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 18:22:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CF88460F9B
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 17:47:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A96BE60F11
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 18:22:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237754AbhI0Rsx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Sep 2021 13:48:53 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:49956 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236379AbhI0Rsn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 27 Sep 2021 13:48:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1632764825;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ryDhvxI0D4+x5a2eZW+6+xV/dil48ItaFsqys1pNbt0=;
-        b=Y4cBvpljCuyqceqX/J0P5Z3yFLs8Ej8F2jqqrCkGmr3IA9SNdqTbGXeeIL++BUCpeQs+JF
-        uKoA/C3uKi7nPn1dcHqDFLoKz/mw6JoxJ5VV2KZUpKYyjs9HBSiYpo9sKxm7XGmwroJJis
-        IZPQbaJahri6A+FNHPKT1vCxws9mjgI=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-591-Nl1cGz6qNxmwKsNGUtZJfg-1; Mon, 27 Sep 2021 13:47:03 -0400
-X-MC-Unique: Nl1cGz6qNxmwKsNGUtZJfg-1
-Received: by mail-wr1-f72.google.com with SMTP id a17-20020adfed11000000b00160525e875aso6812010wro.23
-        for <linux-s390@vger.kernel.org>; Mon, 27 Sep 2021 10:47:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ryDhvxI0D4+x5a2eZW+6+xV/dil48ItaFsqys1pNbt0=;
-        b=VdeMIKoFomHdZkyuk1lna3cL5tOpz8xJ1xANWb1R0Iw5NI3jDKfoMp+wSK0lfDiebQ
-         Swwyo6LcOsEKGU0emuUd1juhVkam1rU2xDhpTxmtZe0d9X/7iqA1FhsrOiEamgsH8/2N
-         uNphgjuq9GIDJVkqNAiLJUco+bRixGGUTv6bEyoWA5Ed7B/8NUfq1fbCkUxdC2JUULnJ
-         ecoaL/S5dVfRfJZIKFTS9CxKnPYql8qGpStqPr+1aMkvez4iF36JadQZkiTSKIQeUSVC
-         aR/i3KJ7pyI7A9HS9V/LZtQCjMFCH1NwSxXyrVNGw2oPo1cJVyGKDcIrxZMj0LXBABD7
-         rDjg==
-X-Gm-Message-State: AOAM530QOcUhPggtUwArIsyjoLEebHdlT4omSi2k+1NwjLFg3Qob/bTD
-        l+MpcOeuPsAkbu4miWS8EueUfWUyvcGYf0c5LoPP7rLhjLA1D3KLRJs6NxqEiHVqBLt2KOOoCMb
-        8XOUk202W6h8IYY1ydqSdBA==
-X-Received: by 2002:adf:e783:: with SMTP id n3mr1332534wrm.37.1632764821988;
-        Mon, 27 Sep 2021 10:47:01 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwG+02rrPNofwdceC460HuS7nCJCrPJYQ1riXHwCvcpyjKPJT0xMmfSiF/IGwq7Y/JE3c3Yyw==
-X-Received: by 2002:adf:e783:: with SMTP id n3mr1332519wrm.37.1632764821806;
-        Mon, 27 Sep 2021 10:47:01 -0700 (PDT)
-Received: from thuth.remote.csb (p549bb2bd.dip0.t-ipconnect.de. [84.155.178.189])
-        by smtp.gmail.com with ESMTPSA id c30sm17398156wrb.74.2021.09.27.10.47.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Sep 2021 10:47:01 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH 7/9] s390x: Makefile: Remove snippet
- flatlib linking
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     david@redhat.com, linux-s390@vger.kernel.org, seiden@linux.ibm.com,
-        imbrenda@linux.ibm.com
-References: <20210922071811.1913-1-frankja@linux.ibm.com>
- <20210922071811.1913-8-frankja@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <329948a8-b4ea-1c4a-5392-3fd6aa8540f6@redhat.com>
-Date:   Mon, 27 Sep 2021 19:47:00 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S235999AbhI0SYU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Sep 2021 14:24:20 -0400
+Received: from mout.kundenserver.de ([212.227.17.24]:33291 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229875AbhI0SYT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Sep 2021 14:24:19 -0400
+Received: from mail-wm1-f46.google.com ([209.85.128.46]) by
+ mrelayeu.kundenserver.de (mreue106 [213.165.67.113]) with ESMTPSA (Nemesis)
+ id 1MKt3r-1mGxh702wv-00LAyB; Mon, 27 Sep 2021 20:22:40 +0200
+Received: by mail-wm1-f46.google.com with SMTP id d207-20020a1c1dd8000000b00307e2d1ec1aso678300wmd.5;
+        Mon, 27 Sep 2021 11:22:39 -0700 (PDT)
+X-Gm-Message-State: AOAM530J5gGUJ3kichtFZSMe8S7JTGFfH8GGB6J4rlEoeUD/lwy6dD7v
+        IEQx3/UXhV0U+Y4pWXaISvYZe7TBwknNJ+30nBo=
+X-Google-Smtp-Source: ABdhPJwCCfy48nJsv/jBkQ+FqTChrVTa3J/1b3crzTUhy/rlsn26nuFEnfQytCPMcD0SR1VltuyU2G/7abBHN508EYw=
+X-Received: by 2002:a05:600c:22d4:: with SMTP id 20mr539812wmg.82.1632766959604;
+ Mon, 27 Sep 2021 11:22:39 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210922071811.1913-8-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20210927161955.28494-1-rpalethorpe@suse.com>
+In-Reply-To: <20210927161955.28494-1-rpalethorpe@suse.com>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Mon, 27 Sep 2021 20:22:23 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a2kuZkoF1m0pTXWeq0gnzUG9oSTQKtjjdiCyo1ptmXPgA@mail.gmail.com>
+Message-ID: <CAK8P3a2kuZkoF1m0pTXWeq0gnzUG9oSTQKtjjdiCyo1ptmXPgA@mail.gmail.com>
+Subject: Re: [PATCH] x86/entry/ia32: Ensure s32 is sign extended to s64
+To:     Richard Palethorpe <rpalethorpe@suse.com>
+Cc:     "the arch/x86 maintainers" <x86@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, rpalethorpe@richiejp.com,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        LTP List <ltp@lists.linux.it>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:EOEOhVKtXUW4bSdluaJa5jihN3589/mpHa7f+YvsokOLqhtrBK+
+ ghODJDGHdSQi5x1i/T/lHKYWRaJ+OKr47H+oeodVaP5BSnlQwv2ehsp9S2RCP0e4Udhlbu+
+ rr47ttfDRhc+rUBdfwyW1+e3OXiDLW5biH1tsUJ18Rd22XRzzTbcgZTZ45YPPJMlV1KEH4R
+ hH4CZ2+A7U2vI4kwzU7hg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:i0ktgu2KnJM=:siyWKkDyvqhadWIMT55pOL
+ NDQrUHMbAyvtQx1LJ+wMKv1hEUmH6EyrbYQt6YqTDk42wmO/Dx81EN4EaGSiiCyD/0lHmuyl6
+ /VynQi0QtmajQk+Abn83HMr6uU91cs8cxBqNw1kaa3PtrPMewKPN20OjdMRzINX158InN5oDn
+ 0TR0NmVUs7teGDDVoCoa31+VEM6iOdmXyyjQqQCy1uJD9kDJIoYBKb8Pl+mTs/+bpQ9JfJWpz
+ M1Ez3FWYZzZswY0ZIq7aGTVc7sxyaaL47sURFxNW0ZaJ4ibKy2bx3WCP3JT0iajcUIpzi3xyZ
+ eGHzkBR1GbgePRJdViyzXfayWV1VhCNAZtp074bHVE3lUxv9HV9ZYVFd1Yh/DEm9q9nrL4D7x
+ I2CsZUU1ttTVfdj4eN1u+X4xeEL9BD14e5+T9KrI8jzc+MAVwF+DJ2lkPjGrx9t++eJApuix7
+ x5suKZtQjPaxAUADRKJfMU+x0wf3sjbDsEI5v1jfRCOwMtikjL2yswKKpyAfY0bSw6KfH64X0
+ +7udwvN24pD3flPZF0OKfpg82KzEeybzUxTZ6uxNd+vngKnAckp6fjDv6Cdnsr/SRqLMGitTr
+ 1CU7t7YTZObAbCSW1pdZTJtBjXvH9vjcdzrEeX5zZnOrCNS27vFxOWZIQl68z8vFQyo4r0NoF
+ UTff00gGnWO8z1Y1vFegdLpdWA1th9A2x4yymX+dOgXkxJ+07vw6IIyWqNSMqqmWMZOtigEyv
+ fUjs0ZnxgXpxfQd1oQ+OSMV/kLr1h+2RGP62O24iJLH75bnNleFK1SMxspC4vhbhpfiFyzaxA
+ zibAB6Q3VeKjyM2ZR19NUaGigkGkoEpuizuS9xUCHzr1fvqPDB5NQ63fPjW62HU7uRGane36t
+ NEGQl+ZzPHIUdaEGCFoQ==
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 22/09/2021 09.18, Janosch Frank wrote:
-> We can't link the flatlib as we do not export everything that it needs
-> and we don't (want to) call the init functions.
-> 
-> In the future we might implement a tiny lib that uses select lib
+On Mon, Sep 27, 2021 at 6:21 PM Richard Palethorpe <rpalethorpe@suse.com> wrote:
+>
+> Presently ia32 registers stored in ptregs are unconditionally cast to
+> unsigned int by the ia32 stub. They are then cast to long when passed
+> to __se_sys*, but will not be sign extended.
+>
+> This takes the sign of the syscall argument into account in the ia32
+> stub. It still casts to unsigned int to avoid implementation specific
+> behavior. However then casts to int or unsigned int as necessary. So
+> that the following cast to long sign extends the value.
+>
+> This fixes the io_pgetevents02 LTP test when compiled with
+> -m32. Presently the systemcall io_pgetevents_time64 unexpectedly
+> accepts -1 for the maximum number of events. It doesn't appear other
+> systemcalls with signed arguments are effected because they all have
+> compat variants defined and wired up. A less general solution is to
+> wire up the systemcall:
+> https://lore.kernel.org/ltp/20210921130127.24131-1-rpalethorpe@suse.com/
+>
+> Fixes: ebeb8c82ffaf ("syscalls/x86: Use 'struct pt_regs' based syscall calling for IA32_EMULATION and x32")
+> Signed-off-by: Richard Palethorpe <rpalethorpe@suse.com>
+> Suggested-by: Arnd Bergmann <arnd@arndb.de>
 
-s/select/selected/ ?
+Looks good to me, thanks for following through with this part, and for
+checking the other syscalls!
 
-> object files and re-implements functions like assert() and
-> test_facility() to be able to use some parts of the lib.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->   s390x/Makefile | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 5d1a33a0..d09c0a17 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -92,7 +92,7 @@ $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o $(FLATLIBS)
->   	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
->   
->   $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_asmlib) $(FLATLIBS)
-> -	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/snippets/c/flat.lds $(patsubst %.gbin,%.o,$@) $(snippet_asmlib) $(FLATLIBS)
-> +	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/snippets/c/flat.lds $(patsubst %.gbin,%.o,$@) $(snippet_asmlib)
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 
-Don't we need memcpy() and friends in some cases? ... well, likely not, 
-otherwise linking would fail... So:
+I've added this to my randconfig build tree as well, to see if
+it causes any unexpected compile-time issues, though I
+don't expect any problems here.
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+There are a few things that I think we should do as a follow-up:
 
+- do the same thing in the generic syscall wrapper, to ensure the
+  other architectures also do the sign-extension.
+
+- Fix the big-endian architectures (ppc64be, mips64be, sparc, s390
+  parisc) so they pass the correct signal mask, either using your original
+  approach, or by reworking the syscall to detect compat syscalls
+  at runtime, killing off the separate entry point
+
+- Go through the compat syscalls to see if any of them can be
+  removed once all architectures do sign-extension correctly.
+
+Are you motivated to help out with one or more of these as well?
+
+       Arnd
