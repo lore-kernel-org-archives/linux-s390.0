@@ -2,92 +2,94 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A720C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 22:32:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 037D5C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 23:13:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0022560FED
-	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 22:32:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D5E69611BD
+	for <linux-s390@archiver.kernel.org>; Mon, 27 Sep 2021 23:13:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237779AbhI0WeD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Sep 2021 18:34:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57980 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237861AbhI0WeC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Sep 2021 18:34:02 -0400
-Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F3D9C06176A
-        for <linux-s390@vger.kernel.org>; Mon, 27 Sep 2021 15:32:21 -0700 (PDT)
-Received: by mail-io1-xd2e.google.com with SMTP id q205so24802536iod.8
-        for <linux-s390@vger.kernel.org>; Mon, 27 Sep 2021 15:32:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=+UmxU11hST5wQMMsZTOdrPPgQ47TLPa20pybe++XQYM=;
-        b=DYK0QeVSPErU0fdUHY9fTGU4W7LYS3OpstW7jKN2zQIGz6Fg75r2GHQ3mNhW9RIn1l
-         +/XX+0IaT+QuP2WnY1RDSSQe/LzU370EV/dACbM1CoHg6kWxfp4JKYe9NsSJNOZspcJv
-         79kSmVRSpqY6HusQwOsl5Cca71RoZZnxCQ7faeNT+onSgNJoOacMUCqYfldqMMFZnJn1
-         op2n2nb0dzUlxGLwnR76PnSZAQEAPJSGaPxLjQP0iN7EFQdPXw6p08Wye3gAirxio6qw
-         Ay8cPI17oe8ngWi6HmVYmshTvXlSdR08xlvJOMOinmATWt5vmC9kQdW4ky3oHMIbMIRb
-         tKgw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=+UmxU11hST5wQMMsZTOdrPPgQ47TLPa20pybe++XQYM=;
-        b=grW+0xcDutE1z9yFeFCMOJnm8AgHnwm7UGvYa6cbxcMoJwy1k02bI3ZuQwTK1TkrX+
-         9EnaB9jZTge1ogzhkW/jaeF1vqTnlAEFf7/daxnUNMa2fVtzMP9VFV0swAWq/SdliI23
-         eVZClFLV3nxoVg/MIhvnUQLX2jRg/nxO1N1IfYP+8lvUkc68cxA0fkDecUClbMq9SwDC
-         NIpqGjnyXwQ4pFDKcoRRwH7GRXssi7ujXGVLNzQXlTQRvRNxqqDWfAk4pfOaLanPjPEz
-         UBBbPfDOklL+KcVyHUHULbobzsEWecBfFmg7Fp32UtUNWVUge5YGQmZFyxgwnGcfOrcl
-         eZfA==
-X-Gm-Message-State: AOAM533AXU1RoWAqmNJm4ZpR/KRfPh21XCsv51Y9Rzs4uJuJjy5VhVzi
-        pvCnHFyWojlzKnSKU4rcCN8OOQ==
-X-Google-Smtp-Source: ABdhPJzCRspGfuZEaibKYg9STMBXwDX6ihxLpFk5STZ/wJRDMFJCRfEhMCvkyfG9LlSO8u6kMpd4Fg==
-X-Received: by 2002:a02:3f4f:: with SMTP id c15mr1841581jaf.1.1632781940669;
-        Mon, 27 Sep 2021 15:32:20 -0700 (PDT)
-Received: from [192.168.1.116] ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id p4sm9291645ilj.26.2021.09.27.15.32.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Sep 2021 15:32:19 -0700 (PDT)
-Subject: Re: [PATCH v2 0/6] block: 5th batch of add_disk() error handling
- conversions
-To:     Luis Chamberlain <mcgrof@kernel.org>, gregkh@linuxfoundation.org,
-        chaitanya.kulkarni@wdc.com, atulgopinathan@gmail.com, hare@suse.de,
-        maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org,
-        colin.king@canonical.com, shubhankarvk@gmail.com,
-        baijiaju1990@gmail.com, trix@redhat.com,
-        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
-        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
-        sth@linux.ibm.com, hoeppner@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, borntraeger@de.ibm.com, oberpar@linux.ibm.com,
-        tj@kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20210927220232.1071926-1-mcgrof@kernel.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <25afa23b-52af-9b79-8bd8-5e31da62c291@kernel.dk>
-Date:   Mon, 27 Sep 2021 16:32:17 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S238033AbhI0XPI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 27 Sep 2021 19:15:08 -0400
+Received: from gandalf.ozlabs.org ([150.107.74.76]:59197 "EHLO
+        gandalf.ozlabs.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229943AbhI0XPH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Sep 2021 19:15:07 -0400
+X-Greylist: delayed 36081 seconds by postgrey-1.27 at vger.kernel.org; Mon, 27 Sep 2021 19:15:07 EDT
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4HJJN212Dmz4xVP;
+        Tue, 28 Sep 2021 09:13:22 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1632784407;
+        bh=CSBhgRacMH4wdNz2+6sz+UADE1Z/+Rt10XRo6G7F4qc=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=SpP9Ag4cak7uAXRzz2oEmCUoFYobVM1YDaU7H2umvim4BfissG2tOopwTVM+QWkPz
+         ghgj6oLQBTg5oDf2NWjGYSmE9cyVG2OnhS4PGKCG0kZdLg1y7LnWfeAAXywPMS731F
+         QZkED7zLRXNCfN+p5XJsCb/mEfuBMhjK0vBM2M/FronydUaFEXBcGAzRon4NUZDdUi
+         c5+mvpDKJwLSK8UzkrhrUYXZtS7fX7Bjmd8BdVkDlYlrHSSNC7PnfeGdU05fUui1SA
+         nmOZ+MwplIXOJUwftG2odSSkbquxMriRVgTLz1E8nWEaxVgFqlAtsezQzR2t7KNQX7
+         ksfYi+D9EIhBA==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Ard Biesheuvel <ardb@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc:     Keith Packard <keithpac@amazon.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
+        <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        "open list:S390" <linux-s390@vger.kernel.org>
+Subject: Re: [RFC PATCH 4/8] powerpc: add CPU field to struct thread_info
+In-Reply-To: <CAMj1kXEojbQbNzCP39KT4EzFAyW3J1Tfm_stCZ+fGo8_SO90PA@mail.gmail.com>
+References: <20210914121036.3975026-1-ardb@kernel.org>
+ <20210914121036.3975026-5-ardb@kernel.org>
+ <CAMj1kXEojbQbNzCP39KT4EzFAyW3J1Tfm_stCZ+fGo8_SO90PA@mail.gmail.com>
+Date:   Tue, 28 Sep 2021 09:13:20 +1000
+Message-ID: <87ee99lii7.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-In-Reply-To: <20210927220232.1071926-1-mcgrof@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 9/27/21 4:02 PM, Luis Chamberlain wrote:
-> This is the 5th series of driver conversions for add_disk() error
-> handling. This set along with the entire 7th set of patches can be
-> found on my 20210927-for-axboe-add-disk-error-handling branch [0].
+Ard Biesheuvel <ardb@kernel.org> writes:
+> On Tue, 14 Sept 2021 at 14:11, Ard Biesheuvel <ardb@kernel.org> wrote:
+>>
+>> The CPU field will be moved back into thread_info even when
+>> THREAD_INFO_IN_TASK is enabled, so add it back to powerpc's definition
+>> of struct thread_info.
+>>
+>> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+>
+> Michael,
+>
+> Do you have any objections or issues with this patch or the subsequent
+> ones cleaning up the task CPU kludge for ppc32? Christophe indicated
+> that he was happy with it.
 
-Applied 1-2.
+No objections, it looks good to me, thanks for cleaning up that horror :)
 
--- 
-Jens Axboe
+It didn't apply cleanly to master so I haven't tested it at all, if you can point me at a
+git tree with the dependencies I'd be happy to run some tests over it.
 
+cheers
