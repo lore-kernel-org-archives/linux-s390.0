@@ -2,111 +2,149 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 818D8C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 13:53:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B1E0C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 14:39:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6590F61206
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 13:53:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12CA360F0F
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 14:39:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241056AbhI1Nyu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Sep 2021 09:54:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55888 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241045AbhI1Nyt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 28 Sep 2021 09:54:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF84B6127C;
-        Tue, 28 Sep 2021 13:53:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632837189;
-        bh=jrbVenceAWLgQkHzrFIo4zTN1wFu086UNecp+tCchZ4=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=BJTpbVzxSlWP7bMXn78zpcAI8AzZBFum7ggL0nmew76COMAheV0+QtFCooIzVjSA+
-         8BTYrxda+iUt4es/uiEyCPAxXqJfu/6LLciq4r/IBalgwp0FbcCIjVx2qs2I5M8yyY
-         9MUZsUqJA8Wzkd560YijUKsvx54Y3nhT5/PNRqyjRt1rSNxgLMltgQPPPsanqi3v84
-         3pgfA/EtgGoCRNd75w4xMl3PrVxKHdDcAz/y9a2ZY2YZFj8NPQydK5G/tqtxxdEGT2
-         lRmWsIR4tF3IJIqtUlksoXB1ehXeu0YUl0qxeZms7xxpFa7nQqutq2pMNklY79Ncob
-         AMSiwHlYGRgtA==
-Received: by mail-oi1-f182.google.com with SMTP id z11so30082326oih.1;
-        Tue, 28 Sep 2021 06:53:09 -0700 (PDT)
-X-Gm-Message-State: AOAM531dVnBEuDH3ATIw4F2RoMjkS7VSJrKoPGGsilIDDLajKkC3b96q
-        Y/9cBT3iV1HvFLWZdWv2kVUZnNTbGa5zHzevTMI=
-X-Google-Smtp-Source: ABdhPJz9to8lWFr60Gpre4Od/46x6s4Nrtse/34SwP3rmoXnxlQkLzOc/1tmIX3U1LqO/1/3HTa84J5WaQo7iINmJLs=
-X-Received: by 2002:a05:6808:1148:: with SMTP id u8mr3628695oiu.33.1632837188990;
- Tue, 28 Sep 2021 06:53:08 -0700 (PDT)
+        id S241267AbhI1Oki (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Sep 2021 10:40:38 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17972 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231733AbhI1Oki (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 28 Sep 2021 10:40:38 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18SEGsFH032654;
+        Tue, 28 Sep 2021 10:38:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=X8RyxjDx5WUc1f1p9TAy/o0IqlcNUgf87xHZvEzvKH4=;
+ b=rnxvHfsRitw7twQnFmTPAP1HW6LYrzrJVQEO8a/ELVyqgwj1Z1NLpqoQAXHyhvuio+d0
+ x6AeVWmm9KSWPgUT++TGFVwCq63A1QcoHETjf5HXEtN70DCteNXZ6FlPOr/4eYoMz8Sa
+ Ut5ByFYe/Nj5SPFAxVmgxrQOpseWJjkV/AbF+1tvkRRwlL5QYK5tPFMzW1dy/8fcFovK
+ Xo9DbdlKsKOyDDNly8rqMqla4aNHhI6PiO1fBunyz8TnRUEIKolDBDNXgqy8cKkZlj8j
+ bw2nIM4Q8CBwDo5Ec1mVCma6busK15FO1WqfEUXDw1tzHea+HiMJziW6/P1yfmvw3OXP KA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bbktqvw9m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Sep 2021 10:38:56 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18SEWq0A023922;
+        Tue, 28 Sep 2021 10:38:56 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bbktqvw8v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Sep 2021 10:38:56 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18SEXGno032456;
+        Tue, 28 Sep 2021 14:38:53 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3b9u1jf331-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 28 Sep 2021 14:38:53 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18SEciHP57410014
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 28 Sep 2021 14:38:44 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D939942041;
+        Tue, 28 Sep 2021 14:38:43 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 47BBC42047;
+        Tue, 28 Sep 2021 14:38:43 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.4.56])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 28 Sep 2021 14:38:43 +0000 (GMT)
+Date:   Tue, 28 Sep 2021 16:38:41 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-mm@kvack.org,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+Subject: Re: [PATCH resend RFC 0/9] s390: fixes, cleanups and optimizations
+ for page table walkers
+Message-ID: <20210928163841.18344eb5@p-imbrenda>
+In-Reply-To: <98061eff-f856-fc1d-9f04-a31ac5fcd790@de.ibm.com>
+References: <20210909162248.14969-1-david@redhat.com>
+        <YVL1iwSicgWg1qx+@osiris>
+        <98061eff-f856-fc1d-9f04-a31ac5fcd790@de.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <20210914121036.3975026-1-ardb@kernel.org> <20210914121036.3975026-4-ardb@kernel.org>
-In-Reply-To: <20210914121036.3975026-4-ardb@kernel.org>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Tue, 28 Sep 2021 15:52:57 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXGfPYBRKoj5eBefr61kHc=m336g0EbPUeDRy+GZVGw26w@mail.gmail.com>
-Message-ID: <CAMj1kXGfPYBRKoj5eBefr61kHc=m336g0EbPUeDRy+GZVGw26w@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/8] s390: add CPU field to struct thread_info
-To:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Keith Packard <keithpac@amazon.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        "open list:S390" <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Fk5omedd_Eb4aYGUMmyVBNNHTOsJIl03
+X-Proofpoint-GUID: Mpx8QKBbenop1SEVmhUixRGw85NCSgbp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-28_05,2021-09-28_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 mlxscore=0
+ malwarescore=0 impostorscore=0 clxscore=1015 mlxlogscore=999 phishscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2109280083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 14 Sept 2021 at 14:11, Ard Biesheuvel <ardb@kernel.org> wrote:
->
-> The CPU field will be moved back into thread_info even when
-> THREAD_INFO_IN_TASK is enabled, so add it back to s390's definition of
-> struct thread_info.
->
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> ---
->  arch/s390/include/asm/thread_info.h | 1 +
->  1 file changed, 1 insertion(+)
->
+On Tue, 28 Sep 2021 13:06:26 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Heiko, Christian, Vasily,
+> Am 28.09.21 um 12:59 schrieb Heiko Carstens:
+> > On Thu, Sep 09, 2021 at 06:22:39PM +0200, David Hildenbrand wrote:  
+> >> Resend because I missed ccing people on the actual patches ...
+> >>
+> >> RFC because the patches are essentially untested and I did not actually
+> >> try to trigger any of the things these patches are supposed to fix. It
+> >> merely matches my current understanding (and what other code does :) ). I
+> >> did compile-test as far as possible.
+> >>
+> >> After learning more about the wonderful world of page tables and their
+> >> interaction with the mmap_sem and VMAs, I spotted some issues in our
+> >> page table walkers that allow user space to trigger nasty behavior when
+> >> playing dirty tricks with munmap() or mmap() of hugetlb. While some issues
+> >> should be hard to trigger, others are fairly easy because we provide
+> >> conventient interfaces (e.g., KVM_S390_GET_SKEYS and KVM_S390_SET_SKEYS).
+> >>
+> >> Future work:
+> >> - Don't use get_locked_pte() when it's not required to actually allocate
+> >>    page tables -- similar to how storage keys are now handled. Examples are
+> >>    get_pgste() and __gmap_zap.
+> >> - Don't use get_locked_pte() and instead let page fault logic allocate page
+> >>    tables when we actually do need page tables -- also, similar to how
+> >>    storage keys are now handled. Examples are set_pgste_bits() and
+> >>    pgste_perform_essa().
+> >> - Maybe switch to mm/pagewalk.c to avoid custom page table walkers. For
+> >>    __gmap_zap() that's very easy.
+> >>
+> >> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> >> Cc: Janosch Frank <frankja@linux.ibm.com>
+> >> Cc: Cornelia Huck <cohuck@redhat.com>
+> >> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> >> Cc: Heiko Carstens <hca@linux.ibm.com>
+> >> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> >> Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+> >> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> >> Cc: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>  
+> > 
+> > For the whole series:
+> > Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> > 
+> > Christian, given that this is mostly about KVM I'd assume this should
+> > go via the KVM tree. Patch 6 (pci_mmio) is already upstream.  
+> 
+> Right, I think I will queue this even without testing for now.
+> Claudio, is patch 7 ok for you with the explanation from David?
 
-Do you have any objections to this change? If you don't, could you
-please ack it so it can be taken through another tree (or if that is
-problematic for you, could you please propose another way of merging
-these changes?)
-
-Thanks,
-Ard.
-
-> diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
-> index e6674796aa6f..b2ffcb4fe000 100644
-> --- a/arch/s390/include/asm/thread_info.h
-> +++ b/arch/s390/include/asm/thread_info.h
-> @@ -37,6 +37,7 @@
->  struct thread_info {
->         unsigned long           flags;          /* low level flags */
->         unsigned long           syscall_work;   /* SYSCALL_WORK_ flags */
-> +       unsigned int            cpu;            /* current CPU */
->  };
->
->  /*
-> --
-> 2.30.2
->
+yes
