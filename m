@@ -2,164 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDD2CC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 11:21:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E2FCC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 12:28:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A64D16108F
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 11:21:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4E1E861058
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 12:28:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239387AbhI1LXD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Sep 2021 07:23:03 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49130 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231202AbhI1LXC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 28 Sep 2021 07:23:02 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18SAF6wx025223;
-        Tue, 28 Sep 2021 07:21:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=9TPbY8k07HdbQPZWh5HB+Ln8AmlEfqI1A6ByVNGIhJ8=;
- b=ZsvGrIWBmhugThk+ScfypeivMMDI4b97vCFuNsr+zhOG3BcG99UgJs5avHPx51qmgBch
- 2VLrsPKeoHhhhmEF+o/83dk9QUq3VWDblWGUzPe4MYNTc0fWyoO4JMOuNA0alsRXGGIP
- DTKSp6W3clmhSg6JKhFhKaRITTgs1jDKeuVCx699ClQ9vFNVvTVNxceQlNVfea/RqEt+
- oz1cAlJ3PKYfr1U5ZDyOobRZywgmcEYR8pVu5HkI9DDBwFDY8iUIYbARfGW8fbIM2OEq
- dO6FrDKSCawRenxEQkwBS/eiI2Qz9S3zGjW907uhjoSHoptyA584wYbvG1cDRdmQ9jcp mA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bbxq7cfep-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Sep 2021 07:21:23 -0400
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18SAkdkl028831;
-        Tue, 28 Sep 2021 07:21:23 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bbxq7cfe7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Sep 2021 07:21:22 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18SBDQgd005414;
-        Tue, 28 Sep 2021 11:21:20 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06fra.de.ibm.com with ESMTP id 3b9u1juq84-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Sep 2021 11:21:20 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18SBLFHG43319736
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Sep 2021 11:21:15 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7FA594C09C;
-        Tue, 28 Sep 2021 11:21:15 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 296A64C09B;
-        Tue, 28 Sep 2021 11:21:15 +0000 (GMT)
-Received: from [9.145.12.195] (unknown [9.145.12.195])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 28 Sep 2021 11:21:15 +0000 (GMT)
-Message-ID: <11d1b08d-6605-97f7-84f3-49f20f8cc0c2@linux.ibm.com>
-Date:   Tue, 28 Sep 2021 13:21:14 +0200
+        id S240570AbhI1M3w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Sep 2021 08:29:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51486 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240564AbhI1M3w (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Sep 2021 08:29:52 -0400
+Received: from mail-io1-xd2b.google.com (mail-io1-xd2b.google.com [IPv6:2607:f8b0:4864:20::d2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB531C061575
+        for <linux-s390@vger.kernel.org>; Tue, 28 Sep 2021 05:28:12 -0700 (PDT)
+Received: by mail-io1-xd2b.google.com with SMTP id r75so27093085iod.7
+        for <linux-s390@vger.kernel.org>; Tue, 28 Sep 2021 05:28:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=eUW2/IJFZY83nPJmflQgcvtOV5+nVA8I+eyXlqMJPRU=;
+        b=3rbyBzZUI4kM0wtWn3uTCiL+iFQn37kynJEfwzTuvV788lRHsOgrxQX//6Ptwtyvhm
+         PRk4feijU3wh94ty5i1N66Ig+sABpOoZVeSM47DP356owZxXG4KVg3Qk+fU5UpN7qjXC
+         jeSW+Bttk5kETwDV3GWvC4MYYvgsuJqIuQTZDyroLwERBzQS4FN9yhIxNHryOdoEOwa3
+         o/15DNQGaey/vFs6hguKBx6L7zxTznRm9cJa3vz3CKspK4BMmY/hSPddKOKPDaXtB5dT
+         Z+Mr9kmkrhnMk9UXoVcl7QPhre4NUeznnkriL3TH5rbTeZtGvIvFfgKW43pdABZ6Z0cz
+         KdMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=eUW2/IJFZY83nPJmflQgcvtOV5+nVA8I+eyXlqMJPRU=;
+        b=w/KhzAti2N31khQ5hW1OonIVUHNtnOpkuL9PvaNTBJDCj9KteSt77Yb/4ST0SpPmo1
+         Bn0P66Qco6MjCyzJuTOInaD9w1f8iihJ5c+wLGueDuo3AnYw6xJdSJYz9QInD6jn/8qr
+         fT8LKiqHXQHdBRoagw0hhg+TpF5/SYgf1DQVOfvh2Zx8/lC5ZHLEsGCiD23XFj07vvFG
+         18ptmMfnygZuF7UApj4jX9BZRJyBR1t+LuVXnNUi+cUbsH1cRTgNvxNXbqSlE7Ety8ML
+         sUjm/ejpsNEigDXxFTbZvdbFm5tume+2ZdXS3GJopb4JNvREmmKTao5lkd8+kZuRs4qP
+         kJSA==
+X-Gm-Message-State: AOAM532aCNtG3Z2mLjnCJHrJDCJxJmdT4lHg9KuPE1gf12dutfPjfLhU
+        MZlHCB95dlaP0B9UY1/6+dietQ==
+X-Google-Smtp-Source: ABdhPJwPZLFitXCog7R4G/mZxZzFOE8+azMCqbj1uCZcF9QhbMc4aOBoMdp9+4PWoLOwgLvLP0Uqqg==
+X-Received: by 2002:a6b:5114:: with SMTP id f20mr3764704iob.97.1632832092364;
+        Tue, 28 Sep 2021 05:28:12 -0700 (PDT)
+Received: from [192.168.1.116] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id j17sm856634ile.20.2021.09.28.05.28.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Sep 2021 05:28:11 -0700 (PDT)
+Subject: Re: [PATCH v2 0/6] block: 5th batch of add_disk() error handling
+ conversions
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Luis Chamberlain <mcgrof@kernel.org>, gregkh@linuxfoundation.org,
+        chaitanya.kulkarni@wdc.com, atulgopinathan@gmail.com, hare@suse.de,
+        maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org,
+        colin.king@canonical.com, shubhankarvk@gmail.com,
+        baijiaju1990@gmail.com, trix@redhat.com,
+        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
+        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        sth@linux.ibm.com, hoeppner@linux.ibm.com, gor@linux.ibm.com,
+        borntraeger@de.ibm.com, oberpar@linux.ibm.com, tj@kernel.org,
+        linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20210927220232.1071926-1-mcgrof@kernel.org>
+ <25afa23b-52af-9b79-8bd8-5e31da62c291@kernel.dk> <YVLV3s66GVVSQ+tj@osiris>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <bfd9f85a-d6fb-c05a-5ec3-2e15ee08062d@kernel.dk>
+Date:   Tue, 28 Sep 2021 06:28:11 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.0
+In-Reply-To: <YVLV3s66GVVSQ+tj@osiris>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
-Cc:     david@redhat.com, linux-s390@vger.kernel.org, seiden@linux.ibm.com,
-        imbrenda@linux.ibm.com
-References: <20210922071811.1913-1-frankja@linux.ibm.com>
- <20210922071811.1913-4-frankja@linux.ibm.com>
- <8035a911-4a76-50ed-cb07-edce48abdb9c@redhat.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH 3/9] s390x: uv-host: Fence a destroy cpu
- test on z15
-In-Reply-To: <8035a911-4a76-50ed-cb07-edce48abdb9c@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: SIMoU2SHbW8CuL1YnEIsIhmUpBK9SOP3
-X-Proofpoint-GUID: j8DDkCZWJTS1bvkkURBjgLzT8GQ1i8bs
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-28_05,2021-09-28_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1015 malwarescore=0 phishscore=0 mlxscore=0 spamscore=0
- adultscore=0 bulkscore=0 impostorscore=0 suspectscore=0 lowpriorityscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2109280063
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 9/27/21 17:26, Thomas Huth wrote:
-> On 22/09/2021 09.18, Janosch Frank wrote:
->> Firmware will not give us the expected return code on z15 so let's
->> fence it for the z15 machine generation.
+On 9/28/21 2:44 AM, Heiko Carstens wrote:
+> On Mon, Sep 27, 2021 at 04:32:17PM -0600, Jens Axboe wrote:
+>> On 9/27/21 4:02 PM, Luis Chamberlain wrote:
+>>> This is the 5th series of driver conversions for add_disk() error
+>>> handling. This set along with the entire 7th set of patches can be
+>>> found on my 20210927-for-axboe-add-disk-error-handling branch [0].
 >>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>    lib/s390x/asm/arch_def.h | 14 ++++++++++++++
->>    s390x/uv-host.c          | 11 +++++++----
->>    2 files changed, 21 insertions(+), 4 deletions(-)
->>
->> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
->> index aa80d840..c8d2722a 100644
->> --- a/lib/s390x/asm/arch_def.h
->> +++ b/lib/s390x/asm/arch_def.h
->> @@ -219,6 +219,20 @@ static inline unsigned short stap(void)
->>    	return cpu_address;
->>    }
->>    
->> +#define MACHINE_Z15A	0x8561
->> +#define MACHINE_Z15B	0x8562
->> +
->> +static inline uint16_t get_machine_id(void)
->> +{
->> +	uint64_t cpuid;
->> +
->> +	asm volatile("stidp %0" : "=Q" (cpuid));
->> +	cpuid = cpuid >> 16;
->> +	cpuid &= 0xffff;
->> +
->> +	return cpuid;
->> +}
->> +
->>    static inline int tprot(unsigned long addr)
->>    {
->>    	int cc;
->> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
->> index 66a11160..5e351120 100644
->> --- a/s390x/uv-host.c
->> +++ b/s390x/uv-host.c
->> @@ -111,6 +111,7 @@ static void test_config_destroy(void)
->>    static void test_cpu_destroy(void)
->>    {
->>    	int rc;
->> +	uint16_t machineid = get_machine_id();
->>    	struct uv_cb_nodata uvcb = {
->>    		.header.len = sizeof(uvcb),
->>    		.header.cmd = UVC_CMD_DESTROY_SEC_CPU,
->> @@ -125,10 +126,12 @@ static void test_cpu_destroy(void)
->>    	       "hdr invalid length");
->>    	uvcb.header.len += 8;
->>    
->> -	uvcb.handle += 1;
->> -	rc = uv_call(0, (uint64_t)&uvcb);
->> -	report(rc == 1 && uvcb.header.rc == UVC_RC_INV_CHANDLE, "invalid handle");
->> -	uvcb.handle -= 1;
->> +	if (machineid != MACHINE_Z15A && machineid != MACHINE_Z15B) {
->> +		uvcb.handle += 1;
->> +		rc = uv_call(0, (uint64_t)&uvcb);
->> +		report(rc == 1 && uvcb.header.rc == UVC_RC_INV_CHANDLE, "invalid handle");
->> +		uvcb.handle -= 1;
->> +	}
+>> Applied 1-2.
 > 
-> So this is a bug in the firmware? Any chance that it will still get fixed
-> for the z15? If so, would it make sense to turn this into a report_xfail()
-> instead?
-> 
->    Thomas
-> 
+> Hmm.. naturally I would have expected that the dasd patch also would
+> go via block tree. But let's not spend too much time figuring out what
+> gets routed where.
+> Applied 4-6. Thanks!
 
-No, a xfail will not help here.
+I left the ones that have active maintainers for them to pick. Unless
+someone has already acked/reviwed it, in which case I picked it up.
+I've got no problems picking them up directly, but unless it's been
+reviewed by the maintainer, I prefer if they either do so or pick
+them up.
+
+-- 
+Jens Axboe
 
