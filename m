@@ -2,103 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E54EC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 00:16:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF391C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 07:16:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4928E611EF
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 00:16:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AEC0B60240
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 07:16:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238241AbhI1AR5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 27 Sep 2021 20:17:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53376 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238236AbhI1AR4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 27 Sep 2021 20:17:56 -0400
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [IPv6:2404:9400:2:0:216:3eff:fee2:21ea])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C246C061575;
-        Mon, 27 Sep 2021 17:16:17 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4HJKmX5spJz4xLs;
-        Tue, 28 Sep 2021 10:16:12 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1632788176;
-        bh=40Qjcb8alQIKNQ7ovWDvb3uMDNOj6u2mSouvybd+c8U=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=YE4vK5P9YiusbQolaISGGqbw4MSmlgr0kC9O4dDE4vhOWZ2Fmo0BVq9wmxsDcZ3hV
-         W80h/uxllRg+IcULCeIMjbu3sqqPuAPrhZu9NMVfNoCPQsrpi2y4ER2uyYZY/53m0D
-         fzEBhgCmKTGrvLM/c7bXFjD8K1vu/5nMylk9VLD1Z2g4eAhWey750rJgPZlLTesnu1
-         rIaQj9Am5NVESisHbWmUMdEJgSwf5cPVGlWxWbpytvh99D8VzQKASAnBo3Awc53QqK
-         yX8rx2Tk57NXkKKqSY+WGSvevVjmx5jEYC5fZ/F48e11+PeLesWlKR8my9tSeWcRt+
-         yTiwhk81hk9gQ==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Ard Biesheuvel <ardb@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc:     Keith Packard <keithpac@amazon.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        "open list:S390" <linux-s390@vger.kernel.org>
-Subject: Re: [RFC PATCH 4/8] powerpc: add CPU field to struct thread_info
-In-Reply-To: <87ee99lii7.fsf@mpe.ellerman.id.au>
-References: <20210914121036.3975026-1-ardb@kernel.org>
- <20210914121036.3975026-5-ardb@kernel.org>
- <CAMj1kXEojbQbNzCP39KT4EzFAyW3J1Tfm_stCZ+fGo8_SO90PA@mail.gmail.com>
- <87ee99lii7.fsf@mpe.ellerman.id.au>
-Date:   Tue, 28 Sep 2021 10:16:10 +1000
-Message-ID: <87pmst1rn9.fsf@mpe.ellerman.id.au>
+        id S239182AbhI1HRl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Sep 2021 03:17:41 -0400
+Received: from pegase2.c-s.fr ([93.17.235.10]:44487 "EHLO pegase2.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239142AbhI1HRk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 28 Sep 2021 03:17:40 -0400
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4HJW4w1csMz9sY4;
+        Tue, 28 Sep 2021 09:16:00 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id dsEG85IsB9d9; Tue, 28 Sep 2021 09:16:00 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4HJW4w0hDKz9sXy;
+        Tue, 28 Sep 2021 09:16:00 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 01A628B775;
+        Tue, 28 Sep 2021 09:16:00 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id YYYmKCpsbY4J; Tue, 28 Sep 2021 09:15:59 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.203.48])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id A26C08B763;
+        Tue, 28 Sep 2021 09:15:59 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
+        by PO20335.IDSI0.si.c-s.fr (8.16.1/8.16.1) with ESMTPS id 18S7FnZ51452321
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Tue, 28 Sep 2021 09:15:49 +0200
+Received: (from chleroy@localhost)
+        by PO20335.IDSI0.si.c-s.fr (8.16.1/8.16.1/Submit) id 18S7Fnpb1452320;
+        Tue, 28 Sep 2021 09:15:49 +0200
+X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     Andrew Morton <akpm@linux-foundation.org>, arnd@arndb.de
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-arch@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Subject: [PATCH v2 4/4] s390: Use generic version of arch_is_kernel_initmem_freed()
+Date:   Tue, 28 Sep 2021 09:15:37 +0200
+Message-Id: <d4a15dc0e699e6a60858bff4d183a9b1aea90433.1632813331.git.christophe.leroy@csgroup.eu>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <ffa99e8e91e756b081427b27e408f275b7d43df7.1632813331.git.christophe.leroy@csgroup.eu>
+References: <ffa99e8e91e756b081427b27e408f275b7d43df7.1632813331.git.christophe.leroy@csgroup.eu>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Michael Ellerman <mpe@ellerman.id.au> writes:
-> Ard Biesheuvel <ardb@kernel.org> writes:
->> On Tue, 14 Sept 2021 at 14:11, Ard Biesheuvel <ardb@kernel.org> wrote:
->>>
->>> The CPU field will be moved back into thread_info even when
->>> THREAD_INFO_IN_TASK is enabled, so add it back to powerpc's definition
->>> of struct thread_info.
->>>
->>> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
->>
->> Michael,
->>
->> Do you have any objections or issues with this patch or the subsequent
->> ones cleaning up the task CPU kludge for ppc32? Christophe indicated
->> that he was happy with it.
->
-> No objections, it looks good to me, thanks for cleaning up that horror :)
->
-> It didn't apply cleanly to master so I haven't tested it at all, if you can point me at a
-> git tree with the dependencies I'd be happy to run some tests over it.
+Generic version of arch_is_kernel_initmem_freed() now does the same
+as s390 version.
 
-Actually I realised I can just drop the last patch.
+Remove the s390 version.
 
-So that looks fine, passes my standard quick build & boot on qemu tests,
-and builds with/without stack protector enabled.
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+---
+v2: No change
+---
+ arch/s390/include/asm/sections.h | 12 ------------
+ arch/s390/mm/init.c              |  3 ---
+ 2 files changed, 15 deletions(-)
 
-cheers
+diff --git a/arch/s390/include/asm/sections.h b/arch/s390/include/asm/sections.h
+index 85881dd48022..3fecaa4e8b74 100644
+--- a/arch/s390/include/asm/sections.h
++++ b/arch/s390/include/asm/sections.h
+@@ -2,20 +2,8 @@
+ #ifndef _S390_SECTIONS_H
+ #define _S390_SECTIONS_H
+ 
+-#define arch_is_kernel_initmem_freed arch_is_kernel_initmem_freed
+-
+ #include <asm-generic/sections.h>
+ 
+-extern bool initmem_freed;
+-
+-static inline int arch_is_kernel_initmem_freed(unsigned long addr)
+-{
+-	if (!initmem_freed)
+-		return 0;
+-	return addr >= (unsigned long)__init_begin &&
+-	       addr < (unsigned long)__init_end;
+-}
+-
+ /*
+  * .boot.data section contains variables "shared" between the decompressor and
+  * the decompressed kernel. The decompressor will store values in them, and
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index a04faf49001a..8c6f258a6183 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -58,8 +58,6 @@ unsigned long empty_zero_page, zero_page_mask;
+ EXPORT_SYMBOL(empty_zero_page);
+ EXPORT_SYMBOL(zero_page_mask);
+ 
+-bool initmem_freed;
+-
+ static void __init setup_zero_pages(void)
+ {
+ 	unsigned int order;
+@@ -214,7 +212,6 @@ void __init mem_init(void)
+ 
+ void free_initmem(void)
+ {
+-	initmem_freed = true;
+ 	__set_memory((unsigned long)_sinittext,
+ 		     (unsigned long)(_einittext - _sinittext) >> PAGE_SHIFT,
+ 		     SET_MEMORY_RW | SET_MEMORY_NX);
+-- 
+2.31.1
+
