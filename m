@@ -2,109 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94B26C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 08:44:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11F10C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 09:02:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7BD3060F12
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 08:44:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EA1FE611C7
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 09:02:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239723AbhI1Iqa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Sep 2021 04:46:30 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39034 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239618AbhI1Iq3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 28 Sep 2021 04:46:29 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18S8NPRj005548;
-        Tue, 28 Sep 2021 04:44:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=zBxfoBHkX8WZAFCzMW2WEkfCuH/znFi5cWiwbPqjqWM=;
- b=EGz9+271qGmkpAW3qZvfm5GhIfGvLkS9sQHypX5tsIotlkKWr2kV5oZY0YMYsWdeJIN7
- eUiRtCOCChOG9S8wIuGLIB2rLSTZa72xcVtajiOCtIpNi2CP8QArSEXGwiaiYw9EBVKL
- LHWObPhD6knPvm9aZh+SuHO92g3B6klmYQ1Sm6zqls3XkEqKAwclCbyjyKXGiH/nyJ6a
- B9K7lPZNN2FdYQZEzeJckB5wcVAZegaPQll5SQJGMHx08o1OOsCTWJp+Jg27qaBQOXLq
- Ll/w5rTWdDU0tzcImRkxehDQzZxDrcDjpG+P3c4PkbvhWPq/b4p6hTafmqFBgBSWQlbc sQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bagsfe4rh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Sep 2021 04:44:23 -0400
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18S8iNuH031289;
-        Tue, 28 Sep 2021 04:44:23 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bagsfe4qw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Sep 2021 04:44:23 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18S8hFQQ031611;
-        Tue, 28 Sep 2021 08:44:20 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 3b9u1jbtpu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Sep 2021 08:44:20 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18S8iGao59572508
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Sep 2021 08:44:16 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AA92E11C06C;
-        Tue, 28 Sep 2021 08:44:16 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 951DF11C069;
-        Tue, 28 Sep 2021 08:44:15 +0000 (GMT)
-Received: from osiris (unknown [9.145.163.77])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 28 Sep 2021 08:44:15 +0000 (GMT)
-Date:   Tue, 28 Sep 2021 10:44:14 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Luis Chamberlain <mcgrof@kernel.org>, gregkh@linuxfoundation.org,
-        chaitanya.kulkarni@wdc.com, atulgopinathan@gmail.com, hare@suse.de,
-        maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org,
-        colin.king@canonical.com, shubhankarvk@gmail.com,
-        baijiaju1990@gmail.com, trix@redhat.com,
-        dongsheng.yang@easystack.cn, ceph-devel@vger.kernel.org,
-        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
-        sth@linux.ibm.com, hoeppner@linux.ibm.com, gor@linux.ibm.com,
-        borntraeger@de.ibm.com, oberpar@linux.ibm.com, tj@kernel.org,
-        linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-mmc@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/6] block: 5th batch of add_disk() error handling
- conversions
-Message-ID: <YVLV3s66GVVSQ+tj@osiris>
-References: <20210927220232.1071926-1-mcgrof@kernel.org>
- <25afa23b-52af-9b79-8bd8-5e31da62c291@kernel.dk>
+        id S239639AbhI1JEV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Sep 2021 05:04:21 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:55570 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239761AbhI1JEU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Sep 2021 05:04:20 -0400
+Received: from relay1.suse.de (relay1.suse.de [149.44.160.133])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 7AED721BC2;
+        Tue, 28 Sep 2021 09:02:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1632819760;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=7rw75VSmRwP8/RIgXFPLCmhyy1FPhry8ZvpaNKqg7aQ=;
+        b=pWvl8r9N6tqQ508IhwJ0P2cgH9bILyurruAKGvqHocV6+0dOcAvYlz07rCporIsasrs+N7
+        f6gzMo0Akcn8ARvdw97rF1N2i9IRpCLOa4YTLu60KNiE0rakTzyY4Q3lPVsmO1pF5nJ0Za
+        JFzZ8m/DDx4trXvdRqUjnAE679OOhJk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1632819760;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=7rw75VSmRwP8/RIgXFPLCmhyy1FPhry8ZvpaNKqg7aQ=;
+        b=OV+rtC16fdoMmYxtaeEUVcBdefcxrTBtLO7r1A83cfYnwlIZ3Xaubkr77qI9b1SNYp11Qx
+        fybX1Zl3tv+JhmDg==
+Received: from g78 (unknown [10.163.24.38])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay1.suse.de (Postfix) with ESMTPS id 92F8725D50;
+        Tue, 28 Sep 2021 09:02:37 +0000 (UTC)
+References: <20210927161955.28494-1-rpalethorpe@suse.com>
+ <CAK8P3a2kuZkoF1m0pTXWeq0gnzUG9oSTQKtjjdiCyo1ptmXPgA@mail.gmail.com>
+User-agent: mu4e 1.4.15; emacs 27.2
+From:   Richard Palethorpe <rpalethorpe@suse.de>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     the arch/x86 maintainers <x86@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        rpalethorpe@richiejp.com,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        LTP List <ltp@lists.linux.it>
+Subject: Re: [PATCH] x86/entry/ia32: Ensure s32 is sign extended to s64
+Reply-To: rpalethorpe@suse.de
+In-reply-to: <CAK8P3a2kuZkoF1m0pTXWeq0gnzUG9oSTQKtjjdiCyo1ptmXPgA@mail.gmail.com>
+Date:   Tue, 28 Sep 2021 10:02:32 +0100
+Message-ID: <87pmstf4yf.fsf@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <25afa23b-52af-9b79-8bd8-5e31da62c291@kernel.dk>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: YxG9ke3W_jbTNpwVPcs7XrGQVIxP9RN0
-X-Proofpoint-ORIG-GUID: iz_w5IRro-Zutc101Wh7ZoX-CWSF6VdI
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-28_04,2021-09-28_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- mlxlogscore=999 bulkscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
- priorityscore=1501 phishscore=0 impostorscore=0 mlxscore=0 clxscore=1015
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2109280050
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 27, 2021 at 04:32:17PM -0600, Jens Axboe wrote:
-> On 9/27/21 4:02 PM, Luis Chamberlain wrote:
-> > This is the 5th series of driver conversions for add_disk() error
-> > handling. This set along with the entire 7th set of patches can be
-> > found on my 20210927-for-axboe-add-disk-error-handling branch [0].
-> 
-> Applied 1-2.
+Hello Arnd,
 
-Hmm.. naturally I would have expected that the dasd patch also would
-go via block tree. But let's not spend too much time figuring out what
-gets routed where.
-Applied 4-6. Thanks!
+Arnd Bergmann <arnd@arndb.de> writes:
+
+> On Mon, Sep 27, 2021 at 6:21 PM Richard Palethorpe <rpalethorpe@suse.com> wrote:
+>>
+>> Presently ia32 registers stored in ptregs are unconditionally cast to
+>> unsigned int by the ia32 stub. They are then cast to long when passed
+>> to __se_sys*, but will not be sign extended.
+>>
+>> This takes the sign of the syscall argument into account in the ia32
+>> stub. It still casts to unsigned int to avoid implementation specific
+>> behavior. However then casts to int or unsigned int as necessary. So
+>> that the following cast to long sign extends the value.
+>>
+>> This fixes the io_pgetevents02 LTP test when compiled with
+>> -m32. Presently the systemcall io_pgetevents_time64 unexpectedly
+>> accepts -1 for the maximum number of events. It doesn't appear other
+>> systemcalls with signed arguments are effected because they all have
+>> compat variants defined and wired up. A less general solution is to
+>> wire up the systemcall:
+>> https://lore.kernel.org/ltp/20210921130127.24131-1-rpalethorpe@suse.com/
+>>
+>> Fixes: ebeb8c82ffaf ("syscalls/x86: Use 'struct pt_regs' based syscall calling for IA32_EMULATION and x32")
+>> Signed-off-by: Richard Palethorpe <rpalethorpe@suse.com>
+>> Suggested-by: Arnd Bergmann <arnd@arndb.de>
+>
+> Looks good to me, thanks for following through with this part, and for
+> checking the other syscalls!
+>
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+
+Thanks for the feedback and suggestions.
+
+>
+> I've added this to my randconfig build tree as well, to see if
+> it causes any unexpected compile-time issues, though I
+> don't expect any problems here.
+>
+> There are a few things that I think we should do as a follow-up:
+>
+> - do the same thing in the generic syscall wrapper, to ensure the
+>   other architectures also do the sign-extension.
+>
+> - Fix the big-endian architectures (ppc64be, mips64be, sparc, s390
+>   parisc) so they pass the correct signal mask, either using your original
+>   approach, or by reworking the syscall to detect compat syscalls
+>   at runtime, killing off the separate entry point
+>
+> - Go through the compat syscalls to see if any of them can be
+>   removed once all architectures do sign-extension correctly.
+>
+> Are you motivated to help out with one or more of these as well?
+>
+>        Arnd
+
+I am motivated. There have been a number of nasty bugs in compat
+code. Including high-profile stuff like CVE-2021-22555. However also
+just relatively minor things which cause tests to fail and could be
+masking worse issues. I like the idea of removing as much syscall/arch
+specific compat code as possible.
+
+I also wonder whether syscalls like ftruncate64 can be generalised and
+if there would be any benefit to doing so. All it is doing is merging
+two u32 args into an s64 arg.
+
+-- 
+Thank you,
+Richard.
