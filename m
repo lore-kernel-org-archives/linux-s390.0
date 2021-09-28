@@ -2,36 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 578B0C07542
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 19:10:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0797C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 19:10:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3F93461209
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 19:10:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9B6266137B
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 19:10:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242444AbhI1TML (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Sep 2021 15:12:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33336 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242417AbhI1TMI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Sep 2021 15:12:08 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 785C6C061749;
-        Tue, 28 Sep 2021 12:10:26 -0700 (PDT)
+        id S242401AbhI1TMD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Sep 2021 15:12:03 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:41172 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242333AbhI1TMC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 28 Sep 2021 15:12:02 -0400
 Received: from zn.tnic (p200300ec2f13b20078349fd04295260b.dip0.t-ipconnect.de [IPv6:2003:ec:2f13:b200:7834:9fd0:4295:260b])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id DA8AE1EC07DB;
-        Tue, 28 Sep 2021 21:10:24 +0200 (CEST)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id D3CBA1EC0752;
+        Tue, 28 Sep 2021 21:10:20 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1632856225;
+        t=1632856221;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=7yHJ6e7Bmwkz50+RVEbqglMxxqHkOk9bZ0FbmEQ6oVM=;
-        b=cRCuyVmyUGb8xOIQSMdFgh+q/yOODAlKAwtInSXnW0wUPS8DC3fX5MxGqbz/sv1xBIjmLG
-        BoCCdS+ob7YklrRI3M7FYBFgEigdRC94JRaY484Z5hacTLLar7w1TNjumxLi0PurEgKc0Y
-        5bMSbEm2y+BypOL4qe9f5gfnPVzSgec=
+        bh=tI5EKQyiJ5raj9g6K0LwQyKzz9oZ1IWFygzYqGLLXlI=;
+        b=jtxYO/r269DfmnwCak/7lSzy7BxpGJEwUtOgQ1mfz1IJsyIbDJZwKE1zPG7z0Qr+qwkov1
+        699yIvchf1BPahMru19zZ+k+cLw1QtutQLg0TfBisiMooan1gV7VAIrqrF6Adoj3KyA2OU
+        Wz9Rnc6x8btJ/HpB/iZkiCjypBwqRNY=
 From:   Borislav Petkov <bp@alien8.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Andi Kleen <ak@linux.intel.com>, Andy Lutomirski <luto@kernel.org>,
@@ -61,9 +58,9 @@ Cc:     Andi Kleen <ak@linux.intel.com>, Andy Lutomirski <luto@kernel.org>,
         linux-efi@vger.kernel.org, platform-driver-x86@vger.kernel.org,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
         kexec@lists.infradead.org
-Subject: [PATCH 7/8] x86/sev: Replace occurrences of sev_es_active() with cc_platform_has()
-Date:   Tue, 28 Sep 2021 21:10:08 +0200
-Message-Id: <20210928191009.32551-8-bp@alien8.de>
+Subject: [PATCH 3/8] x86/sev: Add an x86 version of cc_platform_has()
+Date:   Tue, 28 Sep 2021 21:10:04 +0200
+Message-Id: <20210928191009.32551-4-bp@alien8.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210928191009.32551-1-bp@alien8.de>
 References: <20210928191009.32551-1-bp@alien8.de>
@@ -75,141 +72,170 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Replace uses of sev_es_active() with the more generic cc_platform_has()
-using CC_ATTR_GUEST_STATE_ENCRYPT. If future support is added for other
-memory encyrption techonologies, the use of CC_ATTR_GUEST_STATE_ENCRYPT
-can be updated, as required.
+Introduce an x86 version of the cc_platform_has() function. This will be
+used to replace vendor specific calls like sme_active(), sev_active(),
+etc.
 
 Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 ---
- arch/x86/include/asm/mem_encrypt.h |  2 --
- arch/x86/kernel/sev.c              |  6 +++---
- arch/x86/mm/mem_encrypt.c          | 24 +++---------------------
- arch/x86/realmode/init.c           |  3 +--
- 4 files changed, 7 insertions(+), 28 deletions(-)
+ arch/x86/Kconfig                   |  1 +
+ arch/x86/include/asm/mem_encrypt.h |  1 +
+ arch/x86/kernel/Makefile           |  6 +++
+ arch/x86/kernel/cc_platform.c      | 69 ++++++++++++++++++++++++++++++
+ arch/x86/mm/mem_encrypt.c          |  1 +
+ 5 files changed, 78 insertions(+)
+ create mode 100644 arch/x86/kernel/cc_platform.c
 
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index ab83c22d274e..9f190ec4f953 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1518,6 +1518,7 @@ config AMD_MEM_ENCRYPT
+ 	select ARCH_HAS_FORCE_DMA_UNENCRYPTED
+ 	select INSTRUCTION_DECODER
+ 	select ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
++	select ARCH_HAS_CC_PLATFORM
+ 	help
+ 	  Say yes to enable support for the encryption of system memory.
+ 	  This requires an AMD processor that supports Secure Memory
 diff --git a/arch/x86/include/asm/mem_encrypt.h b/arch/x86/include/asm/mem_encrypt.h
-index a5a58ccd1ee3..da14ede311aa 100644
+index 9c80c68d75b5..3fb9f5ebefa4 100644
 --- a/arch/x86/include/asm/mem_encrypt.h
 +++ b/arch/x86/include/asm/mem_encrypt.h
-@@ -51,7 +51,6 @@ void __init mem_encrypt_free_decrypted_mem(void);
- void __init mem_encrypt_init(void);
+@@ -13,6 +13,7 @@
+ #ifndef __ASSEMBLY__
  
- void __init sev_es_init_vc_handling(void);
--bool sev_es_active(void);
- 
- #define __bss_decrypted __section(".bss..decrypted")
- 
-@@ -74,7 +73,6 @@ static inline void __init sme_encrypt_kernel(struct boot_params *bp) { }
- static inline void __init sme_enable(struct boot_params *bp) { }
- 
- static inline void sev_es_init_vc_handling(void) { }
--static inline bool sev_es_active(void) { return false; }
- 
- static inline int __init
- early_set_memory_decrypted(unsigned long vaddr, unsigned long size) { return 0; }
-diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index a6895e440bc3..53a6837d354b 100644
---- a/arch/x86/kernel/sev.c
-+++ b/arch/x86/kernel/sev.c
-@@ -11,7 +11,7 @@
- 
- #include <linux/sched/debug.h>	/* For show_regs() */
- #include <linux/percpu-defs.h>
--#include <linux/mem_encrypt.h>
+ #include <linux/init.h>
 +#include <linux/cc_platform.h>
- #include <linux/printk.h>
- #include <linux/mm_types.h>
- #include <linux/set_memory.h>
-@@ -615,7 +615,7 @@ int __init sev_es_efi_map_ghcbs(pgd_t *pgd)
- 	int cpu;
- 	u64 pfn;
  
--	if (!sev_es_active())
-+	if (!cc_platform_has(CC_ATTR_GUEST_STATE_ENCRYPT))
- 		return 0;
+ #include <asm/bootparam.h>
  
- 	pflags = _PAGE_NX | _PAGE_RW;
-@@ -774,7 +774,7 @@ void __init sev_es_init_vc_handling(void)
+diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+index 8f4e8fa6ed75..2ff3e600f426 100644
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -21,6 +21,7 @@ CFLAGS_REMOVE_ftrace.o = -pg
+ CFLAGS_REMOVE_early_printk.o = -pg
+ CFLAGS_REMOVE_head64.o = -pg
+ CFLAGS_REMOVE_sev.o = -pg
++CFLAGS_REMOVE_cc_platform.o = -pg
+ endif
  
- 	BUILD_BUG_ON(offsetof(struct sev_es_runtime_data, ghcb_page) % PAGE_SIZE);
+ KASAN_SANITIZE_head$(BITS).o				:= n
+@@ -29,6 +30,7 @@ KASAN_SANITIZE_dumpstack_$(BITS).o			:= n
+ KASAN_SANITIZE_stacktrace.o				:= n
+ KASAN_SANITIZE_paravirt.o				:= n
+ KASAN_SANITIZE_sev.o					:= n
++KASAN_SANITIZE_cc_platform.o				:= n
  
--	if (!sev_es_active())
-+	if (!cc_platform_has(CC_ATTR_GUEST_STATE_ENCRYPT))
- 		return;
+ # With some compiler versions the generated code results in boot hangs, caused
+ # by several compilation units. To be safe, disable all instrumentation.
+@@ -47,6 +49,7 @@ endif
+ KCOV_INSTRUMENT		:= n
  
- 	if (!sev_es_check_cpu_features())
+ CFLAGS_head$(BITS).o	+= -fno-stack-protector
++CFLAGS_cc_platform.o	+= -fno-stack-protector
+ 
+ CFLAGS_irq.o := -I $(srctree)/$(src)/../include/asm/trace
+ 
+@@ -147,6 +150,9 @@ obj-$(CONFIG_UNWINDER_FRAME_POINTER)	+= unwind_frame.o
+ obj-$(CONFIG_UNWINDER_GUESS)		+= unwind_guess.o
+ 
+ obj-$(CONFIG_AMD_MEM_ENCRYPT)		+= sev.o
++
++obj-$(CONFIG_ARCH_HAS_CC_PLATFORM)	+= cc_platform.o
++
+ ###
+ # 64 bit specific files
+ ifeq ($(CONFIG_X86_64),y)
+diff --git a/arch/x86/kernel/cc_platform.c b/arch/x86/kernel/cc_platform.c
+new file mode 100644
+index 000000000000..03bb2f343ddb
+--- /dev/null
++++ b/arch/x86/kernel/cc_platform.c
+@@ -0,0 +1,69 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Confidential Computing Platform Capability checks
++ *
++ * Copyright (C) 2021 Advanced Micro Devices, Inc.
++ *
++ * Author: Tom Lendacky <thomas.lendacky@amd.com>
++ */
++
++#include <linux/export.h>
++#include <linux/cc_platform.h>
++#include <linux/mem_encrypt.h>
++
++#include <asm/processor.h>
++
++static bool __maybe_unused intel_cc_platform_has(enum cc_attr attr)
++{
++#ifdef CONFIG_INTEL_TDX_GUEST
++	return false;
++#else
++	return false;
++#endif
++}
++
++/*
++ * SME and SEV are very similar but they are not the same, so there are
++ * times that the kernel will need to distinguish between SME and SEV. The
++ * cc_platform_has() function is used for this.  When a distinction isn't
++ * needed, the CC_ATTR_MEM_ENCRYPT attribute can be used.
++ *
++ * The trampoline code is a good example for this requirement.  Before
++ * paging is activated, SME will access all memory as decrypted, but SEV
++ * will access all memory as encrypted.  So, when APs are being brought
++ * up under SME the trampoline area cannot be encrypted, whereas under SEV
++ * the trampoline area must be encrypted.
++ */
++static bool amd_cc_platform_has(enum cc_attr attr)
++{
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	switch (attr) {
++	case CC_ATTR_MEM_ENCRYPT:
++		return sme_me_mask;
++
++	case CC_ATTR_HOST_MEM_ENCRYPT:
++		return sme_me_mask && !(sev_status & MSR_AMD64_SEV_ENABLED);
++
++	case CC_ATTR_GUEST_MEM_ENCRYPT:
++		return sev_status & MSR_AMD64_SEV_ENABLED;
++
++	case CC_ATTR_GUEST_STATE_ENCRYPT:
++		return sev_status & MSR_AMD64_SEV_ES_ENABLED;
++
++	default:
++		return false;
++	}
++#else
++	return false;
++#endif
++}
++
++
++bool cc_platform_has(enum cc_attr attr)
++{
++	if (sme_me_mask)
++		return amd_cc_platform_has(attr);
++
++	return false;
++}
++EXPORT_SYMBOL_GPL(cc_platform_has);
 diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
-index 932007a6913b..2d04c39bea1d 100644
+index ff08dc463634..e29b1418d00c 100644
 --- a/arch/x86/mm/mem_encrypt.c
 +++ b/arch/x86/mm/mem_encrypt.c
-@@ -361,25 +361,6 @@ int __init early_set_memory_encrypted(unsigned long vaddr, unsigned long size)
- 	return early_set_memory_enc_dec(vaddr, size, true);
- }
+@@ -20,6 +20,7 @@
+ #include <linux/bitops.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/virtio_config.h>
++#include <linux/cc_platform.h>
  
--/*
-- * SME and SEV are very similar but they are not the same, so there are
-- * times that the kernel will need to distinguish between SME and SEV. The
-- * cc_platform_has() function is used for this.  When a distinction isn't
-- * needed, the CC_ATTR_MEM_ENCRYPT attribute can be used.
-- *
-- * The trampoline code is a good example for this requirement.  Before
-- * paging is activated, SME will access all memory as decrypted, but SEV
-- * will access all memory as encrypted.  So, when APs are being brought
-- * up under SME the trampoline area cannot be encrypted, whereas under SEV
-- * the trampoline area must be encrypted.
-- */
--
--/* Needs to be called from non-instrumentable code */
--bool noinstr sev_es_active(void)
--{
--	return sev_status & MSR_AMD64_SEV_ES_ENABLED;
--}
--
- /* Override for DMA direct allocation check - ARCH_HAS_FORCE_DMA_UNENCRYPTED */
- bool force_dma_unencrypted(struct device *dev)
- {
-@@ -449,7 +430,7 @@ static void print_mem_encrypt_feature_info(void)
- 		pr_cont(" SEV");
- 
- 	/* Encrypted Register State */
--	if (sev_es_active())
-+	if (cc_platform_has(CC_ATTR_GUEST_STATE_ENCRYPT))
- 		pr_cont(" SEV-ES");
- 
- 	pr_cont("\n");
-@@ -468,7 +449,8 @@ void __init mem_encrypt_init(void)
- 	 * With SEV, we need to unroll the rep string I/O instructions,
- 	 * but SEV-ES supports them through the #VC handler.
- 	 */
--	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) && !sev_es_active())
-+	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-+	    !cc_platform_has(CC_ATTR_GUEST_STATE_ENCRYPT))
- 		static_branch_enable(&sev_enable_key);
- 
- 	print_mem_encrypt_feature_info();
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index c878c5ee5a4c..4a3da7592b99 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -2,7 +2,6 @@
- #include <linux/io.h>
- #include <linux/slab.h>
- #include <linux/memblock.h>
--#include <linux/mem_encrypt.h>
- #include <linux/cc_platform.h>
- #include <linux/pgtable.h>
- 
-@@ -48,7 +47,7 @@ static void sme_sev_setup_real_mode(struct trampoline_header *th)
- 	if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT))
- 		th->flags |= TH_FLAGS_SME_ACTIVE;
- 
--	if (sev_es_active()) {
-+	if (cc_platform_has(CC_ATTR_GUEST_STATE_ENCRYPT)) {
- 		/*
- 		 * Skip the call to verify_cpu() in secondary_startup_64 as it
- 		 * will cause #VC exceptions when the AP can't handle them yet.
+ #include <asm/tlbflush.h>
+ #include <asm/fixmap.h>
 -- 
 2.29.2
 
