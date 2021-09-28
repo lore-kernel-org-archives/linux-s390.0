@@ -2,129 +2,173 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEA77C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 10:29:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EEB2C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 10:43:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 806A060FE3
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 10:29:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4DD466101E
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 10:43:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240136AbhI1KbZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Sep 2021 06:31:25 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32538 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240055AbhI1KbY (ORCPT
+        id S231342AbhI1KpP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Sep 2021 06:45:15 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36784 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240161AbhI1KpP (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 28 Sep 2021 06:31:24 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18S8sEdW035509;
-        Tue, 28 Sep 2021 06:29:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=PQeU7C76MiSQb8Cpy524WrJ4qxMuQBE5aX+bqIChG3k=;
- b=UGk9cebiBCrmQtvKmd0wn4fM+LR4aMJSCRidVWWufckfiy1j1YbAx7VGbui5P5hRD6ye
- FfUghDoUHxfv1EvQq+RLZc8n/6/C1WeBg0NeEHB3nOjHCTDMsrrZJlmOMGJhcIQY4Pm0
- z5I7jveWZny0c331aQYBXp8varwlPnt/QsWwKBzJbml/EW8wgqZwmOe75s44Qo5JzFDM
- /rn7m3uIMxsoZ02imiMVbsT3iKBK8UH+lyXB639JDVqMsTjNLAOk0m740BSU+hljYX26
- b16S0ZSKA7gdpwdyVxkpGgi9nTl66kJp73F4Y3t12ULuc7FRvpvssPbNqrmf8bne/oNk 6w== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bbtew8jwu-1
+        Tue, 28 Sep 2021 06:45:15 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18S9GInP006401;
+        Tue, 28 Sep 2021 06:43:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ content-transfer-encoding : in-reply-to; s=pp1;
+ bh=UXUqrhxvWfslFXoU9dYXa6K+2pOU1h+umMczfxjGqeE=;
+ b=hIqy0lQwNbv6lnZWrfYODTGltD7k1jhTSYgkI+AZ1FpLNbGvnr6E4uY2An+BxfZWoa8N
+ 1zMoBuVp8xnYycsVnx1i0v0OAND7X2OUDnfMej9FXt406QC2IbmDAidIcBi933T8bLeb
+ i3bd3XTkKQaYCcgZ6Tv84YecRLr+uVETH2Kwso6lUtuFbEFDVEvg1M7ulVcFlsfj/LHP
+ R7kNeKXV86Lua2/juHU+3VWZtyVki9wY7SiSb6ma1YsqTs7t7euvcK/Dl+0n82WiTa4z
+ SbWazK4IauMDmS9jlfwIV0dHRxfEIMSm9azWF2wgQ+XzU5A6HFtrnnujLOGZs8CE1y2X ag== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bc0929mb8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Sep 2021 06:29:40 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18SADuof003951;
-        Tue, 28 Sep 2021 10:29:39 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3b9ud9k953-1
+        Tue, 28 Sep 2021 06:43:33 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18SAXG2W031693;
+        Tue, 28 Sep 2021 10:43:31 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3b9u1jcvhb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Sep 2021 10:29:38 +0000
+        Tue, 28 Sep 2021 10:43:30 +0000
 Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18SATZPQ40108514
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18SAhROr1245722
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Sep 2021 10:29:35 GMT
+        Tue, 28 Sep 2021 10:43:27 GMT
 Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4D46D52052;
-        Tue, 28 Sep 2021 10:29:35 +0000 (GMT)
-Received: from [9.171.64.190] (unknown [9.171.64.190])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id CC0BF5205A;
-        Tue, 28 Sep 2021 10:29:34 +0000 (GMT)
-Message-ID: <b224bdf4-cd15-369e-e82a-95e77e8f798c@linux.ibm.com>
-Date:   Tue, 28 Sep 2021 12:29:34 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.0
-Subject: Re: [PATCH 5.10 048/103] s390/qeth: fix deadlock during failing
- recovery
-Content-Language: en-US
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Karsten Graul <kgraul@linux.ibm.com>
-References: <20210927170225.702078779@linuxfoundation.org>
- <20210927170227.414776158@linuxfoundation.org>
- <CA+G9fYs2a78_RXaqfE3WMjSOh=HhuS=OjVxh9Hswzrme+pqxqQ@mail.gmail.com>
-From:   Julian Wiedmann <jwi@linux.ibm.com>
-In-Reply-To: <CA+G9fYs2a78_RXaqfE3WMjSOh=HhuS=OjVxh9Hswzrme+pqxqQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: H-ZsEvG73U7IQqDIdrlHLkQwObtoFBm-
-X-Proofpoint-GUID: H-ZsEvG73U7IQqDIdrlHLkQwObtoFBm-
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        by IMSVA (Postfix) with ESMTP id 74E1B52067;
+        Tue, 28 Sep 2021 10:43:27 +0000 (GMT)
+Received: from osiris (unknown [9.145.163.77])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 3FF6452075;
+        Tue, 28 Sep 2021 10:43:27 +0000 (GMT)
+Date:   Tue, 28 Sep 2021 12:43:25 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc:     linux-s390@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>
+Subject: Re: debug_defconfig: error: call to '__write_overflow' declared with
+ attribute error: detected write beyond size of object passed as 1st
+ parameter
+Message-ID: <YVLxzffW9a/FAVTt@osiris>
+References: <20210924220235.nw5yicp5z27svvn5@lug-owl.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210924220235.nw5yicp5z27svvn5@lug-owl.de>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: u2hNPOXX5acvcus6Z-H55MB_ckFJwuwX
+X-Proofpoint-GUID: u2hNPOXX5acvcus6Z-H55MB_ckFJwuwX
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-09-28_05,2021-09-28_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
- lowpriorityscore=0 suspectscore=0 phishscore=0 mlxlogscore=999 spamscore=0
- bulkscore=0 priorityscore=1501 malwarescore=0 adultscore=0 impostorscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2109280058
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
+ mlxlogscore=999 spamscore=0 bulkscore=0 adultscore=0 mlxscore=0
+ lowpriorityscore=0 suspectscore=0 malwarescore=0 phishscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2109280061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 27.09.21 19:45, Naresh Kamboju wrote:
-> Following commit caused the build failures on s390,
-> 
-> On Mon, 27 Sept 2021 at 22:43, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
->>
->> From: Alexandra Winter <wintera@linux.ibm.com>
->>
->> [ Upstream commit d2b59bd4b06d84a4eadb520b0f71c62fe8ec0a62 ]
->>
+On Sat, Sep 25, 2021 at 12:02:35AM +0200, Jan-Benedict Glaw wrote:
+> Hi!
+>=20
+> I'm building a lot of Binutils/GCC targets and with those the Linux
+> kernel defconfigs.
+>=20
+> For s390, I started to see a build error when building the
+> debug_defconfig:
+>=20
+> [mk all 2021-09-20 04:27:45]   s390x-linux-gnu-gcc -Wp,-MMD,arch/s390/cry=
+pto/.paes_s390.o.d -nostdinc -isystem /var/lib/laminar/run/linux-s390-debug=
+_defconfig/8/toolchain/bin/../lib/gcc/s390x-linux-gnu/12.0.0/include -I./ar=
+ch/s390/include -I./arch/s390/include/generated  -I./include -I./arch/s390/=
+include/uapi -I./arch/s390/include/generated/uapi -I./include/uapi -I./incl=
+ude/generated/uapi -include ./include/linux/compiler-version.h -include ./i=
+nclude/linux/kconfig.h -include ./include/linux/compiler_types.h -D__KERNEL=
+__ -fmacro-prefix-map=3D./=3D -Wall -Wundef -Werror=3Dstrict-prototypes -Wn=
+o-trigraphs -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE -Werror=
+=3Dimplicit-function-declaration -Werror=3Dimplicit-int -Werror=3Dreturn-ty=
+pe -Wno-format-security -std=3Dgnu89 -m64 -fPIE -mbackchain -msoft-float -m=
+arch=3DzEC12 -mtune=3DzEC12 -Wa,-I./arch/s390/include -mpacked-stack -D__PA=
+CK_STACK -mindirect-branch=3Dthunk -mfunction-return=3Dthunk -mindirect-bra=
+nch-table -DCC_USING_EXPOLINE -pipe -Wno-sign-compare -fno-asynchronous-unw=
+ind-tables -DCONFIG_AS_CFI_VAL_OFFSET=3D1 -fno-delete-null-pointer-checks -=
+Wno-frame-address -Wno-format-truncation -Wno-format-overflow -Wno-address-=
+of-packed-member -O2 -fno-allow-store-data-races -Wframe-larger-than=3D2048=
+ -fno-stack-protector -Wimplicit-fallthrough=3D5 -Wno-main -Wno-unused-but-=
+set-variable -Wno-unused-const-variable -ftrivial-auto-var-init=3Dzero -ena=
+ble-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang -fno-s=
+tack-clash-protection -g -gdwarf-4 -pg -mrecord-mcount -mnop-mcount -mfentr=
+y -DCC_USING_NOP_MCOUNT -DCC_USING_FENTRY -fno-inline-functions-called-once=
+ -Wdeclaration-after-statement -Wvla -Wno-pointer-sign -Wno-stringop-trunca=
+tion -Wno-zero-length-bounds -Wno-array-bounds -Wno-stringop-overflow -Wno-=
+restrict -Wno-maybe-uninitialized -fno-strict-overflow -fno-stack-check -fc=
+onserve-stack -Werror=3Ddate-time -Werror=3Dincompatible-pointer-types -Wer=
+ror=3Ddesignated-init -Wno-packed-not-aligned  -DMODULE -fPIC  -DKBUILD_BAS=
+ENAME=3D'"paes_s390"' -DKBUILD_MODNAME=3D'"paes_s390"' -D__KBUILD_MODNAME=
+=3Dkmod_paes_s390 -c -o arch/s390/crypto/paes_s390.o arch/s390/crypto/paes_=
+s390.c
+> [mk all 2021-09-20 04:27:47] In file included from ./include/linux/string=
+=2Eh:262,
+> [mk all 2021-09-20 04:27:47]                  from ./include/linux/bitmap=
+=2Eh:10,
+> [mk all 2021-09-20 04:27:47]                  from ./include/linux/cpumas=
+k.h:12,
+> [mk all 2021-09-20 04:27:47]                  from ./include/linux/smp.h:=
+13,
+> [mk all 2021-09-20 04:27:47]                  from ./include/linux/lockde=
+p.h:14,
+> [mk all 2021-09-20 04:27:47]                  from ./include/linux/spinlo=
+ck.h:63,
+> [mk all 2021-09-20 04:27:47]                  from ./include/linux/mmzone=
+=2Eh:8,
+> [mk all 2021-09-20 04:27:47]                  from ./include/linux/gfp.h:=
+6,
+> [mk all 2021-09-20 04:27:47]                  from ./include/linux/slab.h=
+:15,
+> [mk all 2021-09-20 04:27:47]                  from ./include/linux/crypto=
+=2Eh:20,
+> [mk all 2021-09-20 04:27:47]                  from ./include/crypto/aes.h=
+:10,
+> [mk all 2021-09-20 04:27:47]                  from arch/s390/crypto/paes_=
+s390.c:16:
+> [mk all 2021-09-20 04:27:47] In function 'memcpy',
+> [mk all 2021-09-20 04:27:47]     inlined from '__paes_convert_key.part.0'=
+ at arch/s390/crypto/paes_s390.c:153:2:
+> [mk all 2021-09-20 04:27:47] ./include/linux/fortify-string.h:185:25: err=
+or: call to '__write_overflow' declared with attribute error: detected writ=
+e beyond size of object passed as 1st parameter
+> [mk all 2021-09-20 04:27:47]   185 |                         __write_over=
+flow();
+> [mk all 2021-09-20 04:27:47]       |                         ^~~~~~~~~~~~=
+~~~~~~
+> [mk all 2021-09-20 04:27:47] make[2]: *** [scripts/Makefile.build:277: ar=
+ch/s390/crypto/paes_s390.o] Error 1
+> [mk all 2021-09-20 04:27:47] make[1]: *** [scripts/Makefile.build:540: ar=
+ch/s390/crypto] Error 2
+> [mk all 2021-09-20 04:27:47] make: *** [Makefile:1868: arch/s390] Error 2
+>=20
+>=20
+> On a first glimpse, I don't see how this overflows. Is it a compiler
+> bug? Used GCC is "s390x-linux-gnu-gcc (GCC) 12.0.0 20210917
+> (experimental)", while an older build for debug_defconfig (using an
+> older GCC, probably ce3316e9c02c81c509173572c71a101f4eb62a24 as of Thu
+> Jun 24 13:49:51 2021 -0400) succeeded.
+>=20
+>   OTOH, I might have failed to pinpoint the actual bug and the newer GCC
+> correctly caught it?
 
-Yes, this depends on ee909d0b1dac ("s390/qeth: Fix deadlock in remove_discipline").
+This _looks_ like a compiler bug. Disassembling the function plus
+using pahole told me that everything should be ok. However I used
+gcc-11 instead of experimental gcc-12.
 
-
-> 
-> drivers/s390/net/qeth_core_main.c: In function 'qeth_close_dev_handler':
-> drivers/s390/net/qeth_core_main.c:83:9: error: too few arguments to
-> function 'ccwgroup_set_offline'
->    83 |         ccwgroup_set_offline(card->gdev);
->       |         ^~~~~~~~~~~~~~~~~~~~
-> In file included from drivers/s390/net/qeth_core.h:44,
->                  from drivers/s390/net/qeth_core_main.c:46:
-> arch/s390/include/asm/ccwgroup.h:61:5: note: declared here
->    61 | int ccwgroup_set_offline(struct ccwgroup_device *gdev, bool call_gdrv);
->       |     ^~~~~~~~~~~~~~~~~~~~
-> make[3]: *** [scripts/Makefile.build:280:
-> drivers/s390/net/qeth_core_main.o] Error 1
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> 
-> Build url:
-> https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1626658768#L73
-> 
-> 
-> --
-> Linaro LKFT
-> https://lkft.linaro.org
-> 
-
+Adding Harald, just in case I missed something.
