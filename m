@@ -2,134 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C576C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 22:07:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41F73C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Sep 2021 02:20:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8FBE6137A
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Sep 2021 22:07:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 160A461407
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Sep 2021 02:20:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241482AbhI1WJW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Sep 2021 18:09:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46412 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243003AbhI1WJV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Sep 2021 18:09:21 -0400
-Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01BEEC06161C
-        for <linux-s390@vger.kernel.org>; Tue, 28 Sep 2021 15:07:41 -0700 (PDT)
-Received: by mail-qk1-x72b.google.com with SMTP id q81so347585qke.5
-        for <linux-s390@vger.kernel.org>; Tue, 28 Sep 2021 15:07:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20210112.gappssmtp.com; s=20210112;
-        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hqLpx7Wm6Aikf3yaBVZ1DfYqAohja9hoxxDTJ4xjS7o=;
-        b=I79TXBeeKhqw/PkSZBawchrYJxCClh648BkPzWLbNa1UkVvlTTkBiT5/9JZ+EP89Ho
-         guh8PRCNJ/vUJtFdxBjphdv3bgHIkUSsNWXSjlUDvsWO3HOrWnzDZvk/lFdojijY2jBm
-         97fJyoUUndoubaQUCmKy2tXrCNSbPLATypEeOetRkXaSK7lLYOl8+AdZseYJPanJiAoB
-         KfXAL15/M4xU3OTAtvuix3kZ1MqdcjRGfyiy9wFV2n8BOIJUv9Q4ppd4p+p0P7dD6qbE
-         GLziTGb2w4zMAPXS6NDZ4GbcEi892+RAgDw4uV9gr7Gi4UuGL6DvBJ3bjf+mUAn+Yeim
-         ooKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
-         :mime-version:content-transfer-encoding;
-        bh=hqLpx7Wm6Aikf3yaBVZ1DfYqAohja9hoxxDTJ4xjS7o=;
-        b=T/KQbIDvzfHU/6bjADFr3DfJQe/u86ZFP9v4r/wO1tCkqeNMqSwHxzJ10jg3o09YIu
-         mJI3bCw1ITF0g8qLqFM2hxXMh1lZbsuPs7zxF4MRdAg3i7b+a5ZHNizhlrxiPv+YLFQo
-         iWQg7uTxOPBYBwLA+1/fSZvrwjzAHQvDtEwlgzHr2jYWgJ/QKM4FkIHcvrfugik2jaSa
-         neFWFgq/uaKrx9kb+B0+Xv50x6F/+CYpJEalCibX839Bb4wPV13+nGi/3tdyeJG0dUii
-         zJV8YecZprwxC3ZdcD34+KLQEfj8patUOG4qbZvgy0roNeDoN/Pq53PJ5ivGrqTKCb0l
-         E4yA==
-X-Gm-Message-State: AOAM530kwXBbnjLEBzZ0qe6jICzbRmf8vhTVoFxGuijHo3hB6Fv/g+Jn
-        nEMGPTy+eqh2HqJnkqpawp85qg==
-X-Google-Smtp-Source: ABdhPJwYa3sPb+5NPeY3D11qHxW63pqGnDrFPVG/BTx8yJXFd0HA44jnISUSxDVomkPI7Dkdn063kA==
-X-Received: by 2002:ae9:de86:: with SMTP id s128mr2452630qkf.146.1632866860009;
-        Tue, 28 Sep 2021 15:07:40 -0700 (PDT)
-Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
-        by smtp.gmail.com with ESMTPSA id e16sm332752qtq.18.2021.09.28.15.07.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Sep 2021 15:07:39 -0700 (PDT)
-Date:   Tue, 28 Sep 2021 15:07:39 -0700 (PDT)
-X-Google-Original-Date: Tue, 28 Sep 2021 15:07:35 PDT (-0700)
-Subject:     Re: [RFC PATCH 7/8] riscv: rely on core code to keep thread_info::cpu updated
-In-Reply-To: <20210914121036.3975026-8-ardb@kernel.org>
-CC:     linux-kernel@vger.kernel.org, ardb@kernel.org, keithpac@amazon.com,
-        linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org,
-        mpe@ellerman.id.au, benh@kernel.crashing.org,
-        christophe.leroy@csgroup.eu, paulus@samba.org,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        aou@eecs.berkeley.edu, hca@linux.ibm.com, gor@linux.ibm.com,
-        borntraeger@de.ibm.com, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, peterz@infradead.org, keescook@chromium.org,
-        luto@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-From:   Palmer Dabbelt <palmer@dabbelt.com>
-To:     ardb@kernel.org
-Message-ID: <mhng-7d24dba9-38a7-4267-b01c-388471412237@palmerdabbelt-glaptop>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        id S243695AbhI2CVj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Sep 2021 22:21:39 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:13384 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243048AbhI2CVj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Sep 2021 22:21:39 -0400
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HK0MV4Mt4z900D;
+        Wed, 29 Sep 2021 10:15:18 +0800 (CST)
+Received: from kwepemm600016.china.huawei.com (7.193.23.20) by
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Wed, 29 Sep 2021 10:19:53 +0800
+Received: from [10.67.102.67] (10.67.102.67) by kwepemm600016.china.huawei.com
+ (7.193.23.20) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Wed, 29 Sep
+ 2021 10:19:51 +0800
+Subject: Re: [PATCH V2 net-next 1/6] ethtool: add support to set/get tx
+ copybreak buf size via ethtool
+To:     Michal Kubecek <mkubecek@suse.cz>
+CC:     <davem@davemloft.net>, <kuba@kernel.org>, <andrew@lunn.ch>,
+        <amitc@mellanox.com>, <idosch@idosch.org>, <danieller@nvidia.com>,
+        <jesse.brandeburg@intel.com>, <anthony.l.nguyen@intel.com>,
+        <jdike@addtoit.com>, <richard@nod.at>,
+        <anton.ivanov@cambridgegreys.com>, <netanel@amazon.com>,
+        <akiyano@amazon.com>, <gtzalik@amazon.com>, <saeedb@amazon.com>,
+        <chris.snook@gmail.com>, <ulli.kroll@googlemail.com>,
+        <linus.walleij@linaro.org>, <jeroendb@google.com>,
+        <csully@google.com>, <awogbemila@google.com>, <jdmason@kudzu.us>,
+        <rain.1986.08.12@gmail.com>, <zyjzyj2000@gmail.com>,
+        <kys@microsoft.com>, <haiyangz@microsoft.com>, <mst@redhat.com>,
+        <jasowang@redhat.com>, <doshir@vmware.com>,
+        <pv-drivers@vmware.com>, <jwi@linux.ibm.com>,
+        <kgraul@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
+        <johannes@sipsolutions.net>, <netdev@vger.kernel.org>,
+        <lipeng321@huawei.com>, <chenhao288@hisilicon.com>,
+        <linux-s390@vger.kernel.org>
+References: <20210924142959.7798-1-huangguangbin2@huawei.com>
+ <20210924142959.7798-2-huangguangbin2@huawei.com>
+ <20210924230537.cxiopoi3mwlpgx5c@lion.mk-sys.cz>
+From:   "huangguangbin (A)" <huangguangbin2@huawei.com>
+Message-ID: <7be0fd4c-e940-8f1b-9fa2-8b0aae9a900a@huawei.com>
+Date:   Wed, 29 Sep 2021 10:19:51 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
+MIME-Version: 1.0
+In-Reply-To: <20210924230537.cxiopoi3mwlpgx5c@lion.mk-sys.cz>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.102.67]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ kwepemm600016.china.huawei.com (7.193.23.20)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 14 Sep 2021 05:10:35 PDT (-0700), ardb@kernel.org wrote:
-> Now that the core code switched back to using thread_info::cpu to keep
-> a task's CPU number, we no longer need to keep it in sync explicitly. So
-> just drop the code that does this.
->
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> ---
->  arch/riscv/kernel/asm-offsets.c | 1 -
->  arch/riscv/kernel/entry.S       | 5 -----
->  arch/riscv/kernel/head.S        | 1 -
->  3 files changed, 7 deletions(-)
->
-> diff --git a/arch/riscv/kernel/asm-offsets.c b/arch/riscv/kernel/asm-offsets.c
-> index 90f8ce64fa6f..478d9f02dab5 100644
-> --- a/arch/riscv/kernel/asm-offsets.c
-> +++ b/arch/riscv/kernel/asm-offsets.c
-> @@ -33,7 +33,6 @@ void asm_offsets(void)
->  	OFFSET(TASK_TI_PREEMPT_COUNT, task_struct, thread_info.preempt_count);
->  	OFFSET(TASK_TI_KERNEL_SP, task_struct, thread_info.kernel_sp);
->  	OFFSET(TASK_TI_USER_SP, task_struct, thread_info.user_sp);
-> -	OFFSET(TASK_TI_CPU, task_struct, thread_info.cpu);
->
->  	OFFSET(TASK_THREAD_F0,  task_struct, thread.fstate.f[0]);
->  	OFFSET(TASK_THREAD_F1,  task_struct, thread.fstate.f[1]);
-> diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
-> index 98f502654edd..459eb1714353 100644
-> --- a/arch/riscv/kernel/entry.S
-> +++ b/arch/riscv/kernel/entry.S
-> @@ -544,11 +544,6 @@ ENTRY(__switch_to)
->  	REG_L s9,  TASK_THREAD_S9_RA(a4)
->  	REG_L s10, TASK_THREAD_S10_RA(a4)
->  	REG_L s11, TASK_THREAD_S11_RA(a4)
-> -	/* Swap the CPU entry around. */
-> -	lw a3, TASK_TI_CPU(a0)
-> -	lw a4, TASK_TI_CPU(a1)
-> -	sw a3, TASK_TI_CPU(a1)
-> -	sw a4, TASK_TI_CPU(a0)
->  	/* The offset of thread_info in task_struct is zero. */
->  	move tp, a1
->  	ret
-> diff --git a/arch/riscv/kernel/head.S b/arch/riscv/kernel/head.S
-> index fce5184b22c3..d5ec30ef6f5d 100644
-> --- a/arch/riscv/kernel/head.S
-> +++ b/arch/riscv/kernel/head.S
-> @@ -317,7 +317,6 @@ clear_bss_done:
->  	call setup_trap_vector
->  	/* Restore C environment */
->  	la tp, init_task
-> -	sw zero, TASK_TI_CPU(tp)
->  	la sp, init_thread_union + THREAD_SIZE
->
->  #ifdef CONFIG_KASAN
 
-Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
 
-Thanks!
+On 2021/9/25 7:05, Michal Kubecek wrote:
+> On Fri, Sep 24, 2021 at 10:29:54PM +0800, Guangbin Huang wrote:
+>> From: Hao Chen <chenhao288@hisilicon.com>
+>>
+>> Add support for ethtool to set/get tx copybreak buf size.
+>>
+>> Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
+>> Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+>> ---
+>>   Documentation/networking/ethtool-netlink.rst | 24 ++++++++++++++++++++
+>>   include/uapi/linux/ethtool.h                 |  1 +
+>>   net/ethtool/common.c                         |  1 +
+>>   net/ethtool/ioctl.c                          |  1 +
+>>   4 files changed, 27 insertions(+)
+>>
+>> diff --git a/Documentation/networking/ethtool-netlink.rst b/Documentation/networking/ethtool-netlink.rst
+>> index d9b55b7a1a4d..a47b0255aaf9 100644
+>> --- a/Documentation/networking/ethtool-netlink.rst
+>> +++ b/Documentation/networking/ethtool-netlink.rst
+>> @@ -1521,6 +1521,30 @@ Kernel response contents:
+>>     ``ETHTOOL_A_PHC_VCLOCKS_INDEX``       s32     PHC index array
+>>     ====================================  ======  ==========================
+>>   
+>> +TUNABLE_SET
+>> +===========
+>> +
+>> +Request contents:
+>> +
+>> +  =====================================  ======  ==========================
+>> +  ``ETHTOOL_TX_COPYBREAK_BUF_SIZE``      u32     buf size for tx copybreak
+>> +  =====================================  ======  ==========================
+>> +
+>> +Tx copybreak buf size is used for tx copybreak feature, the feature is used
+>> +for small size packet or frag. It adds a queue based tx shared bounce buffer
+>> +to memcpy the small packet when the len of xmitted skb is below tx_copybreak
+>> +(value to distinguish small size and normal size), and reduce the overhead
+>> +of dma map and unmap when IOMMU is on.
+>> +
+>> +TUNABLE_GET
+>> +===========
+>> +
+>> +Kernel response contents:
+>> +
+>> +  ====================================  ======  ==========================
+>> +  ``ETHTOOL_TX_COPYBREAK_BUF_SIZE``     u32     buf size for tx copybreak
+>> +  ====================================  ======  ==========================
+> 
+> I have to repeat my concerns expressed in
+> 
+>    https://lore.kernel.org/netdev/20210826072618.2lu6spapkzdcuhyv@lion.mk-sys.cz
+> 
+> and earlier in more details in
+> 
+>    https://lore.kernel.org/netdev/20200325164958.GZ31519@unicorn.suse.cz
+> 
+> That being said, I don't understand why this patch adds description of
+> two new message types to the documentation of ethtool netlink API but it
+> does not actually add them to the API. Instead, it adds the new tunable
+> to ioctl API.
+> 
+> Michal
+> 
+
+Hi Michal, thanks for your opinion.
+Is there any documentation for ioctl API? We didn't find it.
+Or we add a new documentation of ioctl API for the new tunable?
+
+Guangbin
