@@ -2,115 +2,83 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC3A4C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Sep 2021 02:33:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C22C1C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Sep 2021 03:30:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D60D6613D3
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Sep 2021 02:33:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A9E176138F
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Sep 2021 03:30:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243827AbhI2CfK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Sep 2021 22:35:10 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:13386 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243824AbhI2CfI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Sep 2021 22:35:08 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HK0g360Wgz8ywd;
-        Wed, 29 Sep 2021 10:28:47 +0800 (CST)
-Received: from kwepemm600016.china.huawei.com (7.193.23.20) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Wed, 29 Sep 2021 10:33:25 +0800
-Received: from [10.67.102.67] (10.67.102.67) by kwepemm600016.china.huawei.com
- (7.193.23.20) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Wed, 29 Sep
- 2021 10:33:24 +0800
-Subject: Re: [PATCH V2 net-next 3/6] ethtool: add support to set/get rx buf
- len via ethtool
-To:     Michal Kubecek <mkubecek@suse.cz>
-CC:     <davem@davemloft.net>, <kuba@kernel.org>, <andrew@lunn.ch>,
-        <amitc@mellanox.com>, <idosch@idosch.org>, <danieller@nvidia.com>,
-        <jesse.brandeburg@intel.com>, <anthony.l.nguyen@intel.com>,
-        <jdike@addtoit.com>, <richard@nod.at>,
-        <anton.ivanov@cambridgegreys.com>, <netanel@amazon.com>,
-        <akiyano@amazon.com>, <saeedb@amazon.com>, <chris.snook@gmail.com>,
-        <ulli.kroll@googlemail.com>, <linus.walleij@linaro.org>,
-        <jeroendb@google.com>, <csully@google.com>,
-        <awogbemila@google.com>, <jdmason@kudzu.us>,
-        <rain.1986.08.12@gmail.com>, <zyjzyj2000@gmail.com>,
-        <kys@microsoft.com>, <haiyangz@microsoft.com>, <mst@redhat.com>,
-        <jasowang@redhat.com>, <doshir@vmware.com>,
-        <pv-drivers@vmware.com>, <jwi@linux.ibm.com>,
-        <kgraul@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
-        <johannes@sipsolutions.net>, <netdev@vger.kernel.org>,
-        <lipeng321@huawei.com>, <chenhao288@hisilicon.com>,
-        <linux-s390@vger.kernel.org>
-References: <20210924142959.7798-1-huangguangbin2@huawei.com>
- <20210924142959.7798-4-huangguangbin2@huawei.com>
- <20210924231400.aettgmbwx6m4pdok@lion.mk-sys.cz>
-From:   "huangguangbin (A)" <huangguangbin2@huawei.com>
-Message-ID: <3eedca6c-5c8d-d2d1-16e5-96a95b492e1a@huawei.com>
-Date:   Wed, 29 Sep 2021 10:33:23 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
-MIME-Version: 1.0
-In-Reply-To: <20210924231400.aettgmbwx6m4pdok@lion.mk-sys.cz>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+        id S243974AbhI2Dbx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Sep 2021 23:31:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43020 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S243349AbhI2Dbw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 28 Sep 2021 23:31:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DADA6136A;
+        Wed, 29 Sep 2021 03:30:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1632886212;
+        bh=lAsZkVWCgtK9MeeRJYwB3NBoT+2DxJthR4/1O1TAIes=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=dfVjJrubYTO47quRVYblsuacimy4FdB01c/nTYORGfFL1JUqj7Gjssp7j1DflRu19
+         DcZ6fguLWly3Lnj/eMqi4Cvk4LUTap0e9stLMmvC17RZxhUlHcPjGyoeqcfCrO0y4F
+         gBEkAfZBr2ag37SjeuamGob5UZM6VN4l8mYqaQXw=
+Date:   Tue, 28 Sep 2021 20:30:11 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     arnd@arndb.de, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-arch@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: [PATCH v2 2/4] mm: Make generic arch_is_kernel_initmem_freed()
+ do what it says
+Message-Id: <20210928203011.da1f059b72be9ada7d67fe35@linux-foundation.org>
+In-Reply-To: <ec69cc95a98548c862c22b742936244fdb0c7984.1632813331.git.christophe.leroy@csgroup.eu>
+References: <ffa99e8e91e756b081427b27e408f275b7d43df7.1632813331.git.christophe.leroy@csgroup.eu>
+        <ec69cc95a98548c862c22b742936244fdb0c7984.1632813331.git.christophe.leroy@csgroup.eu>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.102.67]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemm600016.china.huawei.com (7.193.23.20)
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, 28 Sep 2021 09:15:35 +0200 Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
+
+> Commit 7a5da02de8d6 ("locking/lockdep: check for freed initmem in
+> static_obj()") added arch_is_kernel_initmem_freed() which is supposed
+> to report whether an object is part of already freed init memory.
+> 
+> For the time being, the generic version of arch_is_kernel_initmem_freed()
+> always reports 'false', allthough free_initmem() is generically called
+> on all architectures.
+> 
+> Therefore, change the generic version of arch_is_kernel_initmem_freed()
+> to check whether free_initmem() has been called. If so, then check
+> if a given address falls into init memory.
+> 
+> In order to use function init_section_contains(), the fonction is
+> moved at the end of asm-generic/section.h
+
+i386 allmodconfig:
+
+In file included from arch/x86/platform/intel-quark/imr.c:28:
+./include/asm-generic/sections.h: In function 'arch_is_kernel_initmem_freed':
+./include/asm-generic/sections.h:171:6: error: 'system_state' undeclared (first use in this function)
+  171 |  if (system_state < SYSTEM_FREEING_INITMEM)
+      |      ^~~~~~~~~~~~
+./include/asm-generic/sections.h:171:6: note: each undeclared identifier is reported only once for each function it appears in
+./include/asm-generic/sections.h:171:21: error: 'SYSTEM_FREEING_INITMEM' undeclared (first use in this function)
+  171 |  if (system_state < SYSTEM_FREEING_INITMEM)
+      |                     ^~~~~~~~~~~~~~~~~~~~~~
 
 
-On 2021/9/25 7:14, Michal Kubecek wrote:
-> On Fri, Sep 24, 2021 at 10:29:56PM +0800, Guangbin Huang wrote:
->> From: Hao Chen <chenhao288@hisilicon.com>
->>
->> Add support to set rx buf len via ethtool -G parameter and get
->> rx buf len via ethtool -g parameter.
->>
->> Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
->> Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
->> ---
->>   Documentation/networking/ethtool-netlink.rst |  2 ++
->>   include/linux/ethtool.h                      | 18 ++++++++++++++++--
->>   include/uapi/linux/ethtool.h                 |  8 ++++++++
->>   include/uapi/linux/ethtool_netlink.h         |  1 +
->>   net/ethtool/netlink.h                        |  2 +-
->>   net/ethtool/rings.c                          | 17 ++++++++++++++++-
->>   6 files changed, 44 insertions(+), 4 deletions(-)
->>
->> diff --git a/Documentation/networking/ethtool-netlink.rst b/Documentation/networking/ethtool-netlink.rst
->> index a47b0255aaf9..9734b7c1e05d 100644
->> --- a/Documentation/networking/ethtool-netlink.rst
->> +++ b/Documentation/networking/ethtool-netlink.rst
->> @@ -841,6 +841,7 @@ Kernel response contents:
->>     ``ETHTOOL_A_RINGS_RX_MINI``           u32     size of RX mini ring
->>     ``ETHTOOL_A_RINGS_RX_JUMBO``          u32     size of RX jumbo ring
->>     ``ETHTOOL_A_RINGS_TX``                u32     size of TX ring
->> +  ``ETHTOOL_A_RINGS_RX_BUF_LEN``        u32     size of buffers on the ring
->>     ====================================  ======  ==========================
->>   
->>   
->> @@ -857,6 +858,7 @@ Request contents:
->>     ``ETHTOOL_A_RINGS_RX_MINI``           u32     size of RX mini ring
->>     ``ETHTOOL_A_RINGS_RX_JUMBO``          u32     size of RX jumbo ring
->>     ``ETHTOOL_A_RINGS_TX``                u32     size of TX ring
->> +  ``ETHTOOL_A_RINGS_RX_BUF_LEN``        u32     size of buffers on the ring
->>     ====================================  ======  ==========================
->>   
->>   Kernel checks that requested ring sizes do not exceed limits reported by
-> 
-> Would it make sense to let driver report also maximum supported value
-> like it does for existing ring parameters (ring sizes)?
-> 
-> Michal
-> 
-We think it have no sense to report maximum supported value.
-Rx buf len of hns3 driver only supports 2048 and 4096 at present, they are
-discrete value and checked by driver.
+I don't think it would be a good idea to include kernel.h from
+sections.h - it's unclear to me which is the "innermost" of those two. 
+It would be better to uninline arch_is_kernel_initmem_freed().  Surely
+there's no real reason for inlining it?
+
+Anyway, I'll drop the series for now.
+
