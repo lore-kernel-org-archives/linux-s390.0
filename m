@@ -2,147 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19B8BC433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Sep 2021 11:36:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C05A7C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Sep 2021 12:54:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E79B361390
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Sep 2021 11:36:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 971C861439
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Sep 2021 12:54:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350524AbhI3Li1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Sep 2021 07:38:27 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:42820 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1350523AbhI3Li0 (ORCPT
+        id S1351127AbhI3M4b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Sep 2021 08:56:31 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62764 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1351170AbhI3M4a (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Sep 2021 07:38:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633001804;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=d2DkrjLmS5cuqV/GQI0XL4Bc/b2l6NbJQU00lS8/LDs=;
-        b=huSqlDqoBY/kEMmnnh60Y/WtQFQ5nyxF2vqP3WK9o43G9PXBakFULcN9klLAPTtuOuypxd
-        ons+soomaztVQA+Msv4ZgeMPJRdwGgg00AVqb/LNCxc8/efxsHdQ6DNhmQfhLq2Nqi99C0
-        eQsaKkgeW8s5EJRO4/xLhtqOgYe5YmE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-430-VovEpZTwO3q3Hwz5eSJVSw-1; Thu, 30 Sep 2021 07:36:41 -0400
-X-MC-Unique: VovEpZTwO3q3Hwz5eSJVSw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B0CD51006AA4;
-        Thu, 30 Sep 2021 11:36:39 +0000 (UTC)
-Received: from localhost (unknown [10.39.192.253])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 410C719729;
-        Thu, 30 Sep 2021 11:36:29 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc:     Jason Wang <jasowang@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, markver@us.ibm.com,
+        Thu, 30 Sep 2021 08:56:30 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18UCUapQ028472;
+        Thu, 30 Sep 2021 08:54:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=9YUqKBOGrZeaWpxlV7/jnQU90tB+qyCPlOJUSkm5kiQ=;
+ b=Iu9OFJ8YIGA7AoymXC0BGisjZPWFZCAGDnhF0LAOgu/nlSF424POEG2vxqowL4sAd8ND
+ P9S0X1yz/3gfPwomaUqSgAFj9dMBAU1aEoF76LzaYg2ZH6sG4PPrwZcZ/kDc0X9qLXxn
+ zzxwKPN1ZSmqmXpHEFg1ZROBgk9vse985mwVnNI8voKpVhqfcPyUk2z4rQkQkRx99LO1
+ iGRZJ+lyxLQmm43UFB/WuKZXcEgLzdPdY37Bu5HLvmGwdMyLW4bxY2Z23Q9l9+3QKA7K
+ GGOvAhHI4l18lV1Xy1MQ2Ek/Hm2O2SrB53wtzC24l/dRbYFXcPWVq5QDE31Pm8A8QV35 ug== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bdda8rf88-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 30 Sep 2021 08:54:47 -0400
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18UCVImd032312;
+        Thu, 30 Sep 2021 08:54:47 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bdda8rf79-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 30 Sep 2021 08:54:47 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18UCq9SG018375;
+        Thu, 30 Sep 2021 12:54:44 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3b9udakn2g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 30 Sep 2021 12:54:44 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 18UCnWrM59638148
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 30 Sep 2021 12:49:32 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F151F52051;
+        Thu, 30 Sep 2021 12:54:40 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id DC11252050;
+        Thu, 30 Sep 2021 12:54:40 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
+        id 7CA4AE07C6; Thu, 30 Sep 2021 14:54:40 +0200 (CEST)
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-In-Reply-To: <20210930070444-mutt-send-email-mst@kernel.org>
-Organization: Red Hat GmbH
-References: <20210930012049.3780865-1-pasic@linux.ibm.com>
- <20210930070444-mutt-send-email-mst@kernel.org>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Thu, 30 Sep 2021 13:36:27 +0200
-Message-ID: <87fstm47no.fsf@redhat.com>
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [GIT PULL 0/1] KVM: s390: allow to compile without warning with W=1
+Date:   Thu, 30 Sep 2021 14:54:39 +0200
+Message-Id: <20210930125440.22777-1-borntraeger@de.ibm.com>
+X-Mailer: git-send-email 2.31.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: qcXRfKzkeInHC9DdD7ToAJn7eTkr4qG5
+X-Proofpoint-GUID: qac2m8AJ7HfAVuqo6mXSjwi7Tqtoe12G
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-30_04,2021-09-30_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=844 clxscore=1015
+ impostorscore=0 suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501
+ spamscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
+ definitions=main-2109300079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 30 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+Paolo,
 
-> On Thu, Sep 30, 2021 at 03:20:49AM +0200, Halil Pasic wrote:
->> This patch fixes a regression introduced by commit 82e89ea077b9
->> ("virtio-blk: Add validation for block size in config space") and
->> enables similar checks in verify() on big endian platforms.
->> 
->> The problem with checking multi-byte config fields in the verify
->> callback, on big endian platforms, and with a possibly transitional
->> device is the following. The verify() callback is called between
->> config->get_features() and virtio_finalize_features(). That we have a
->> device that offered F_VERSION_1 then we have the following options
->> either the device is transitional, and then it has to present the legacy
->> interface, i.e. a big endian config space until F_VERSION_1 is
->> negotiated, or we have a non-transitional device, which makes
->> F_VERSION_1 mandatory, and only implements the non-legacy interface and
->> thus presents a little endian config space. Because at this point we
->> can't know if the device is transitional or non-transitional, we can't
->> know do we need to byte swap or not.
->
-> Hmm which transport does this refer to?
-> Distinguishing between legacy and modern drivers is transport
-> specific.  PCI presents
-> legacy and modern at separate addresses so distinguishing
-> between these two should be no trouble.
+please pull for kvm/master a fix for W=1.
 
-Hm, what about transitional devices?
+The following changes since commit 5c49d1850ddd3240d20dc40b01f593e35a184f38:
 
-> Channel i/o has versioning so same thing?
+  KVM: VMX: Fix a TSX_CTRL_CPUID_CLEAR field mask issue (2021-09-27 11:25:40 -0400)
 
-It can turn off VERSION_1, but not legacy. (I had hacked up a patchset
-to potentially disable legacy some time ago, but did not have any
-resources to follow up on this.)
+are available in the Git repository at:
 
->
->> The virtio spec explicitly states that the driver MAY read config
->> between reading and writing the features so saying that first accessing
->> the config before feature negotiation is done is not an option. The
->> specification ain't clear about setting the features multiple times
->> before FEATURES_OK, so I guess that should be fine.
->> 
->> I don't consider this patch super clean, but frankly I don't think we
->> have a ton of options. Another option that may or man not be cleaner,
->> but is also IMHO much uglier is to figure out whether the device is
->> transitional by rejecting _F_VERSION_1, then resetting it and proceeding
->> according tho what we have figured out, hoping that the characteristics
->> of the device didn't change.
->
-> I am confused here. So is the problem at the device or at the driver level?
-> I suspect it's actually the host that has the issue, not
-> the guest?
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-5.15-1
 
-From my perspective the problem is that the version of the device
-remains in limbo as long as the features have not yet been finalized,
-which means that the endianness of the config space remains in limbo as
-well. Both device and driver might come to different conclusions.
+for you to fetch changes up to 25b5476a294cd5f7c7730f334f6b400d30bb783d:
 
->
->
->> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
->> Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
->> Reported-by: markver@us.ibm.com
->> ---
->>  drivers/virtio/virtio.c | 4 ++++
->>  1 file changed, 4 insertions(+)
->> 
->> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->> index 0a5b54034d4b..9dc3cfa17b1c 100644
->> --- a/drivers/virtio/virtio.c
->> +++ b/drivers/virtio/virtio.c
->> @@ -249,6 +249,10 @@ static int virtio_dev_probe(struct device *_d)
->>  		if (device_features & (1ULL << i))
->>  			__virtio_set_bit(dev, i);
->>  
->> +	/* Write back features before validate to know endianness */
->> +	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
->> +		dev->config->finalize_features(dev);
->> +
->>  	if (drv->validate) {
->>  		err = drv->validate(dev);
->>  		if (err)
->> 
->> base-commit: 02d5e016800d082058b3d3b7c3ede136cdc6ddcb
->> -- 
->> 2.25.1
+  KVM: s390: Function documentation fixes (2021-09-28 17:56:54 +0200)
 
+----------------------------------------------------------------
+KVM: s390: allow to compile without warning with W=1
+
+----------------------------------------------------------------
+Janosch Frank (1):
+      KVM: s390: Function documentation fixes
+
+ arch/s390/kvm/gaccess.c   | 12 ++++++++++++
+ arch/s390/kvm/intercept.c |  4 +++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
