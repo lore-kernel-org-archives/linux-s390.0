@@ -2,44 +2,44 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBEF3C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Sep 2021 11:25:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45F7BC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Sep 2021 11:26:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A653F615E0
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Sep 2021 11:25:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 258D2615E0
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Sep 2021 11:26:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350489AbhI3L1i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Sep 2021 07:27:38 -0400
+        id S1350484AbhI3L1m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Sep 2021 07:27:42 -0400
 Received: from pegase2.c-s.fr ([93.17.235.10]:40245 "EHLO pegase2.c-s.fr"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350458AbhI3L1g (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Sep 2021 07:27:36 -0400
+        id S1350502AbhI3L1k (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 30 Sep 2021 07:27:40 -0400
 Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-        by localhost (Postfix) with ESMTP id 4HKrX70rlzz9sX9;
-        Thu, 30 Sep 2021 13:25:43 +0200 (CEST)
+        by localhost (Postfix) with ESMTP id 4HKrX903MTz9sX5;
+        Thu, 30 Sep 2021 13:25:45 +0200 (CEST)
 X-Virus-Scanned: amavisd-new at c-s.fr
 Received: from pegase2.c-s.fr ([172.26.127.65])
         by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id TpLfoGdbZD5Q; Thu, 30 Sep 2021 13:25:43 +0200 (CEST)
+        with ESMTP id obKTeRCmPpU8; Thu, 30 Sep 2021 13:25:44 +0200 (CEST)
 Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase2.c-s.fr (Postfix) with ESMTP id 4HKrX61Ytcz9sX5;
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4HKrX64PLsz9sX3;
         Thu, 30 Sep 2021 13:25:42 +0200 (CEST)
 Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 1F8EA8B773;
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 7F71E8B773;
         Thu, 30 Sep 2021 13:25:42 +0200 (CEST)
 X-Virus-Scanned: amavisd-new at c-s.fr
 Received: from messagerie.si.c-s.fr ([127.0.0.1])
         by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id KWkHm5QCjSZ6; Thu, 30 Sep 2021 13:25:42 +0200 (CEST)
+        with ESMTP id fnYy186E_2Gs; Thu, 30 Sep 2021 13:25:42 +0200 (CEST)
 Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.203.149])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id C3DA58B763;
-        Thu, 30 Sep 2021 13:25:41 +0200 (CEST)
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 36CA78B763;
+        Thu, 30 Sep 2021 13:25:42 +0200 (CEST)
 Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
-        by PO20335.IDSI0.si.c-s.fr (8.16.1/8.16.1) with ESMTPS id 18UBO9ws1558822
+        by PO20335.IDSI0.si.c-s.fr (8.16.1/8.16.1) with ESMTPS id 18UBO9SS1558831
         (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
         Thu, 30 Sep 2021 13:24:09 +0200
 Received: (from chleroy@localhost)
-        by PO20335.IDSI0.si.c-s.fr (8.16.1/8.16.1/Submit) id 18UBO9i81558821;
+        by PO20335.IDSI0.si.c-s.fr (8.16.1/8.16.1/Submit) id 18UBO9XY1558830;
         Thu, 30 Sep 2021 13:24:09 +0200
 X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
 From:   Christophe Leroy <christophe.leroy@csgroup.eu>
@@ -49,10 +49,11 @@ Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
         linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         linux-arch@vger.kernel.org,
         Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH v3 2/4] mm: Make generic arch_is_kernel_initmem_freed() do what it says
-Date:   Thu, 30 Sep 2021 13:23:44 +0200
-Message-Id: <1d40783e676e07858be97d881f449ee7ea8adfb1.1633001016.git.christophe.leroy@csgroup.eu>
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH v3 4/4] s390: Use generic version of arch_is_kernel_initmem_freed()
+Date:   Thu, 30 Sep 2021 13:23:46 +0200
+Message-Id: <b6feb5dfe611a322de482762fc2df3a9eece70c7.1633001016.git.christophe.leroy@csgroup.eu>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <9ecfdee7dd4d741d172cb93ff1d87f1c58127c9a.1633001016.git.christophe.leroy@csgroup.eu>
 References: <9ecfdee7dd4d741d172cb93ff1d87f1c58127c9a.1633001016.git.christophe.leroy@csgroup.eu>
@@ -62,85 +63,69 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Commit 7a5da02de8d6 ("locking/lockdep: check for freed initmem in
-static_obj()") added arch_is_kernel_initmem_freed() which is supposed
-to report whether an object is part of already freed init memory.
+Generic version of arch_is_kernel_initmem_freed() now does the same
+as s390 version.
 
-For the time being, the generic version of arch_is_kernel_initmem_freed()
-always reports 'false', allthough free_initmem() is generically called
-on all architectures.
-
-Therefore, change the generic version of arch_is_kernel_initmem_freed()
-to check whether free_initmem() has been called. If so, then check
-if a given address falls into init memory.
-
-To ease the use of system_state, move it out of line into its only
-caller which is lockdep.c
+Remove the s390 version.
 
 Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
-v3: Move it out of sections.h into lockdep.c and fix the comment.
-
-v2: Change to using the new SYSTEM_FREEING_INITMEM state
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+v3: No change
+v2: No change
 ---
- include/asm-generic/sections.h | 14 --------------
- kernel/locking/lockdep.c       | 15 +++++++++++++++
- 2 files changed, 15 insertions(+), 14 deletions(-)
+ arch/s390/include/asm/sections.h | 12 ------------
+ arch/s390/mm/init.c              |  3 ---
+ 2 files changed, 15 deletions(-)
 
-diff --git a/include/asm-generic/sections.h b/include/asm-generic/sections.h
-index d16302d3eb59..596ab2092289 100644
---- a/include/asm-generic/sections.h
-+++ b/include/asm-generic/sections.h
-@@ -80,20 +80,6 @@ static inline int arch_is_kernel_data(unsigned long addr)
- }
- #endif
+diff --git a/arch/s390/include/asm/sections.h b/arch/s390/include/asm/sections.h
+index 85881dd48022..3fecaa4e8b74 100644
+--- a/arch/s390/include/asm/sections.h
++++ b/arch/s390/include/asm/sections.h
+@@ -2,20 +2,8 @@
+ #ifndef _S390_SECTIONS_H
+ #define _S390_SECTIONS_H
  
--/*
-- * Check if an address is part of freed initmem. This is needed on architectures
-- * with virt == phys kernel mapping, for code that wants to check if an address
-- * is part of a static object within [_stext, _end]. After initmem is freed,
-- * memory can be allocated from it, and such allocations would then have
-- * addresses within the range [_stext, _end].
-- */
--#ifndef arch_is_kernel_initmem_freed
+-#define arch_is_kernel_initmem_freed arch_is_kernel_initmem_freed
+-
+ #include <asm-generic/sections.h>
+ 
+-extern bool initmem_freed;
+-
 -static inline int arch_is_kernel_initmem_freed(unsigned long addr)
 -{
--	return 0;
+-	if (!initmem_freed)
+-		return 0;
+-	return addr >= (unsigned long)__init_begin &&
+-	       addr < (unsigned long)__init_end;
 -}
--#endif
 -
- /**
-  * memory_contains - checks if an object is contained within a memory region
-  * @begin: virtual address of the beginning of the memory region
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index bf1c00c881e4..8e118caf835e 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -788,6 +788,21 @@ static int very_verbose(struct lock_class *class)
-  * Is this the address of a static object:
-  */
- #ifdef __KERNEL__
-+/*
-+ * Check if an address is part of freed initmem. After initmem is freed,
-+ * memory can be allocated from it, and such allocations would then have
-+ * addresses within the range [_stext, _end].
-+ */
-+#ifndef arch_is_kernel_initmem_freed
-+static int arch_is_kernel_initmem_freed(unsigned long addr)
-+{
-+	if (system_state < SYSTEM_FREEING_INITMEM)
-+		return 0;
-+
-+	return init_section_contains((void *)addr, 1);
-+}
-+#endif
-+
- static int static_obj(const void *obj)
+ /*
+  * .boot.data section contains variables "shared" between the decompressor and
+  * the decompressed kernel. The decompressor will store values in them, and
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index a04faf49001a..8c6f258a6183 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -58,8 +58,6 @@ unsigned long empty_zero_page, zero_page_mask;
+ EXPORT_SYMBOL(empty_zero_page);
+ EXPORT_SYMBOL(zero_page_mask);
+ 
+-bool initmem_freed;
+-
+ static void __init setup_zero_pages(void)
  {
- 	unsigned long start = (unsigned long) &_stext,
+ 	unsigned int order;
+@@ -214,7 +212,6 @@ void __init mem_init(void)
+ 
+ void free_initmem(void)
+ {
+-	initmem_freed = true;
+ 	__set_memory((unsigned long)_sinittext,
+ 		     (unsigned long)(_einittext - _sinittext) >> PAGE_SHIFT,
+ 		     SET_MEMORY_RW | SET_MEMORY_NX);
 -- 
 2.31.1
 
