@@ -2,235 +2,216 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5A38C433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 07:21:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0015EC433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 08:04:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BED1E613A0
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 07:21:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D6E4B61A63
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 08:04:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231426AbhJAHX3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Oct 2021 03:23:29 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47802 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231300AbhJAHX3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Oct 2021 03:23:29 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1917EUqE003866;
-        Fri, 1 Oct 2021 03:21:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=+auYqQBWFVzXygfs16wfY6wyZrHBoiWb8QO4x6kT1oY=;
- b=j087lqmtblQnk5tQT1MFmP7tIemwQxkKeiVpl33+nrfszaW4xbiRCuQhZQgUU9xvgA2o
- Qm3OM9kjzSq3Vwgp8/nuf70yniVYgb3aN3g+jhYoAWtZo+WE0+cTVeokE+68Pkg/V+pj
- Jbg6A0hSw/pAc3veACOaOEV65sLnLZo8Dr76Z6oTAOxLm8175PR354P/g5c1jMFljUpS
- q7M8utJpBbddi/h0glDq36e2sRkn5/4096TdqAfxF+IMbjbIkmIiHrE7f1ZYM3L9AZqP
- KeTqDZguEb6LE/VFtdHYTfsOddwyUWai/5DkUY7FefNW4V6SLT0tTUEPUs0e+ErAHRhq wQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bdws484dd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 01 Oct 2021 03:21:42 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1917I6LN016830;
-        Fri, 1 Oct 2021 03:21:42 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bdws484cw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 01 Oct 2021 03:21:42 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1917I5Af027457;
-        Fri, 1 Oct 2021 07:21:40 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3b9udaue2a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 01 Oct 2021 07:21:40 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1917LaYv43647370
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 1 Oct 2021 07:21:36 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 080AFAE05D;
-        Fri,  1 Oct 2021 07:21:36 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 322A8AE056;
-        Fri,  1 Oct 2021 07:21:35 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.45.119])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Fri,  1 Oct 2021 07:21:35 +0000 (GMT)
-Date:   Fri, 1 Oct 2021 09:21:25 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Jason Wang <jasowang@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, markver@us.ibm.com,
-        Cornelia Huck <cohuck@redhat.com>,
+        id S1352662AbhJAIGS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Oct 2021 04:06:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34675 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1352692AbhJAIGN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Oct 2021 04:06:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633075469;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RgbMOii1S0zNC4XfQSp0PtfslNwqAcBT4JkfYppI8hA=;
+        b=OZ6Odsr6/Ou3OkNozU8+KOTyK3nS0Ixrk9QX6f0E/girQLne3Z+Is9xiDp5fBS64UJ2QJJ
+        J4OiR8XSuD8Ofhr/lztxeuhyEpafS27NrC/m8PGg0/CKDxzMRvbGmAk6yFhT398jbFG9aF
+        ivsCi/lBKUrmOC2Mfqkvs81CXDQABHw=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-347-noLEvAOGOAmVN2hNkrjFPg-1; Fri, 01 Oct 2021 04:04:28 -0400
+X-MC-Unique: noLEvAOGOAmVN2hNkrjFPg-1
+Received: by mail-wm1-f69.google.com with SMTP id x3-20020a05600c21c300b0030d2b0fb3b4so2838451wmj.5
+        for <linux-s390@vger.kernel.org>; Fri, 01 Oct 2021 01:04:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:to:cc:references:from:organization:subject
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=RgbMOii1S0zNC4XfQSp0PtfslNwqAcBT4JkfYppI8hA=;
+        b=XRjqFNkf2KeOiy9NyJBN/X/xxzg+GqzCdJ2CYX5P/jS2Sv21yL9dHX43F3mY1lrzcq
+         BDFBrrbWVrri/u6kxesMduzh8UkEYz60GaAnJ+oclYHBQJ1YXWb2zujkglgfyqrGuVy3
+         GJqK7DiNY9TfNs7vKgJttzoyzwnJrDYchbUr0W2MK+XHgV5YmKVSRHMotvka5cbXp6aU
+         9GQiizHzUKyggD9xG1PV/AdQJp/4aowkcyDr6Q/ctQO8s3YY0E1bFWQOvjZcZXEEpPv9
+         2GR1N0vNRN66D8pjm00Q+0trHnRbFzYwyO4DxEyavR+kaSvlN0e2gvu6w3WAtknhy6FE
+         cBhQ==
+X-Gm-Message-State: AOAM531ie1vHuoUEb4LgqFJVuvA6dHSMbNbq/U95/5/6K+Znr3J5CnBb
+        OUTp8Ou38fVdDo9EdIC04ISRIRrRKXk1SNRdIpShxFTyM27elE9+LUrBcOmHoMGonJGMwZgJelP
+        BgKD5FD8zWilka2Dy5uWOBg==
+X-Received: by 2002:a1c:f310:: with SMTP id q16mr3156059wmq.145.1633075467036;
+        Fri, 01 Oct 2021 01:04:27 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy09IiCKfFi33tOU52HzJrT7VrbqrMf/P7p34oNrrEfUQJ/n90uGLajbxmxEo4tDXieDpGReQ==
+X-Received: by 2002:a1c:f310:: with SMTP id q16mr3156030wmq.145.1633075466790;
+        Fri, 01 Oct 2021 01:04:26 -0700 (PDT)
+Received: from [192.168.3.132] (p5b0c64da.dip0.t-ipconnect.de. [91.12.100.218])
+        by smtp.gmail.com with ESMTPSA id z17sm5132732wrr.49.2021.10.01.01.04.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 01 Oct 2021 01:04:26 -0700 (PDT)
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Jianyong Wu <Jianyong.Wu@arm.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-Message-ID: <20211001092125.64fef348.pasic@linux.ibm.com>
-In-Reply-To: <20210930070444-mutt-send-email-mst@kernel.org>
-References: <20210930012049.3780865-1-pasic@linux.ibm.com>
- <20210930070444-mutt-send-email-mst@kernel.org>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        Eric Biederman <ebiederm@xmission.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-snps-arc@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-mm@kvack.org,
+        kexec@lists.infradead.org
+References: <20210927150518.8607-1-david@redhat.com>
+ <20210927150518.8607-4-david@redhat.com> <YVSW3uuu7mIcJMm3@kernel.org>
+ <830c1670-378b-0fb6-bd5e-208e545fa126@redhat.com>
+ <YVYqdN7MFdzBlCVm@kernel.org>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v1 3/4] memblock: add MEMBLOCK_DRIVER_MANAGED to mimic
+ IORESOURCE_SYSRAM_DRIVER_MANAGED
+Message-ID: <0d6c86ba-076b-5d4b-33a8-da267f951a85@redhat.com>
+Date:   Fri, 1 Oct 2021 10:04:24 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <YVYqdN7MFdzBlCVm@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: lH2xwuMhX2Y3AiUs1ca1bpVL38yP9cmT
-X-Proofpoint-GUID: xlT7K0u0aaQPp35iwhVj2WTFIDKe9dpn
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-30_07,2021-09-30_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1015 bulkscore=0 mlxlogscore=999 malwarescore=0 spamscore=0
- adultscore=0 suspectscore=0 phishscore=0 priorityscore=1501
- impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110010047
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 30 Sep 2021 07:12:21 -0400
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Thu, Sep 30, 2021 at 03:20:49AM +0200, Halil Pasic wrote:
-> > This patch fixes a regression introduced by commit 82e89ea077b9
-> > ("virtio-blk: Add validation for block size in config space") and
-> > enables similar checks in verify() on big endian platforms.
-> > 
-> > The problem with checking multi-byte config fields in the verify
-> > callback, on big endian platforms, and with a possibly transitional
-> > device is the following. The verify() callback is called between
-> > config->get_features() and virtio_finalize_features(). That we have a
-> > device that offered F_VERSION_1 then we have the following options
-> > either the device is transitional, and then it has to present the legacy
-> > interface, i.e. a big endian config space until F_VERSION_1 is
-> > negotiated, or we have a non-transitional device, which makes
-> > F_VERSION_1 mandatory, and only implements the non-legacy interface and
-> > thus presents a little endian config space. Because at this point we
-> > can't know if the device is transitional or non-transitional, we can't
-> > know do we need to byte swap or not.  
+On 30.09.21 23:21, Mike Rapoport wrote:
+> On Wed, Sep 29, 2021 at 06:54:01PM +0200, David Hildenbrand wrote:
+>> On 29.09.21 18:39, Mike Rapoport wrote:
+>>> Hi,
+>>>
+>>> On Mon, Sep 27, 2021 at 05:05:17PM +0200, David Hildenbrand wrote:
+>>>> Let's add a flag that corresponds to IORESOURCE_SYSRAM_DRIVER_MANAGED.
+>>>> Similar to MEMBLOCK_HOTPLUG, most infrastructure has to treat such memory
+>>>> like ordinary MEMBLOCK_NONE memory -- for example, when selecting memory
+>>>> regions to add to the vmcore for dumping in the crashkernel via
+>>>> for_each_mem_range().
+>>> Can you please elaborate on the difference in semantics of MEMBLOCK_HOTPLUG
+>>> and MEMBLOCK_DRIVER_MANAGED?
+>>> Unless I'm missing something they both mark memory that can be unplugged
+>>> anytime and so it should not be used in certain cases. Why is there a need
+>>> for a new flag?
+>>
+>> In the cover letter I have "Alternative B: Reuse MEMBLOCK_HOTPLUG.
+>> MEMBLOCK_HOTPLUG serves a different purpose, though.", but looking into the
+>> details it won't work as is.
+>>
+>> MEMBLOCK_HOTPLUG is used to mark memory early during boot that can later get
+>> hotunplugged again and should be placed into ZONE_MOVABLE if the
+>> "movable_node" kernel parameter is set.
+>>
+>> The confusing part is that we talk about "hotpluggable" but really mean
+>> "hotunpluggable": the reason is that HW flags DIMM slots that can later be
+>> hotplugged as "hotpluggable" even though there is already something
+>> hotplugged.
 > 
-> Hmm which transport does this refer to?
-
-It is the same with virtio-ccw and virtio-pci. I see the same problem
-with both on s390x. I didn't try with virtio-blk-pci-non-transitional
-yet (have to figure out how to do that with libvirt) for pci I used
-virtio-blk-pci.
-
-> Distinguishing between legacy and modern drivers is transport
-> specific.  PCI presents
-> legacy and modern at separate addresses so distinguishing
-> between these two should be no trouble.
-
-You mean the device id? Yes that is bolted down in the spec, but
-currently we don't exploit that information. Furthermore there
-is a fat chance that with QEMU even the allegedly non-transitional
-devices only present a little endian config space after VERSION_1
-was negotiated. Namely get_config for virtio-blk is implemented in
-virtio_blk_update_config() which does virtio_stl_p(vdev,
-&blkcfg.blk_size, blk_size) and in there we don't care
-about transitional or not:
-
-static inline bool virtio_access_is_big_endian(VirtIODevice *vdev)
-{
-#if defined(LEGACY_VIRTIO_IS_BIENDIAN)
-    return virtio_is_big_endian(vdev);
-#elif defined(TARGET_WORDS_BIGENDIAN)
-    if (virtio_vdev_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-        /* Devices conforming to VIRTIO 1.0 or later are always LE. */
-        return false;
-    }
-    return true;
-#else
-    return false;
-#endif
-}
-
-
-> Channel i/o has versioning so same thing?
->
-
-Don't think so. Both a transitional and a non-transitional device
-would have to accept revisions higher than 0 if the driver tried to
-negotiate those (and we do in our case).
- 
-> > The virtio spec explicitly states that the driver MAY read config
-> > between reading and writing the features so saying that first accessing
-> > the config before feature negotiation is done is not an option. The
-> > specification ain't clear about setting the features multiple times
-> > before FEATURES_OK, so I guess that should be fine.
-> > 
-> > I don't consider this patch super clean, but frankly I don't think we
-> > have a ton of options. Another option that may or man not be cleaner,
-> > but is also IMHO much uglier is to figure out whether the device is
-> > transitional by rejecting _F_VERSION_1, then resetting it and proceeding
-> > according tho what we have figured out, hoping that the characteristics
-> > of the device didn't change.  
+> MEMBLOCK_HOTPLUG name is indeed somewhat confusing, but still it's core
+> meaning "this memory may be removed" which does not differ from what
+> IORESOURCE_SYSRAM_DRIVER_MANAGED means.
 > 
-> I am confused here. So is the problem at the device or at the driver level?
+> MEMBLOCK_HOTPLUG regions are indeed placed into ZONE_MOVABLE, but more
+> importantly, they are avoided when we allocate memory from memblock.
+> 
+> So, in my view, both flags mean that the memory may be removed and it
+> should not be used for certain types of allocations.
 
-We have a driver regression. Since the 82e89ea077b9 ("virtio-blk: Add
-validation for block size in config space") virtio-blk is broken on
-s390.
+The semantics are different:
 
-The deeper problem is in the spec. We stated that the driver may read
-config space before the feature negotiation is finalized, but we didn't
-think enough about what happens when native endiannes is not little
-endian in the different cases.
+MEMBLOCK_HOTPLUG: memory is indicated as "System RAM" in the 
+firmware-provided memory map and added to the system early during boot; 
+we want this memory to be managed by ZONE_MOVABLE with "movable_node" 
+set on the kernel command line, because only then we want it to be 
+hotpluggable again. kexec *has to* indicate this memory to the second 
+kernel and can place kexec-images on this memory. After memory 
+hotunplug, kexec has to be re-armed.
 
-I believe, for non-transitional devices we have a problem in the host as
-well (i.e. in QEMU).
+MEMBLOCK_DRIVER_MANAGED: memory is not indicated as System RAM" in the 
+firmware-provided memory map; this memory is always detected and added 
+to the system by a driver; memory might not actually be physically 
+hotunpluggable and the ZONE selection does not depend on "movable_core". 
+kexec *must not* indicate this memory to the second kernel and *must 
+not* place kexec-images on this memory.
 
-> I suspect it's actually the host that has the issue, not
-> the guest?
 
-I tend to say we have a problem both in the host and in the guest. I'm
-more concerned about the problem in the guest, because that is a really
-nasty regression. For the host. I think for legacy we don't have a
-problem, because both sides would operate on the assumption no
-_F_VERSION_1, IMHO the implementation for the transitional devices is
-correct. For non-transitional flavor, it depends on the device. For
-example virtio-net and virtio-blk is broken, because we use primitives
-like virtio_stl_p() and those don't do the right thing before feature
-negotiation is completed. On the other hand virtio-crypto.c as a truly
-non-transitional device uses stl_le_p() and IMHO does the right thing.
+I would really advise against mixing concepts here.
 
-Thanks for your comments! I hope I managed to answer your questions. I
-need some guidance on how do we want to move forward on this.
 
-Regards,
-Halil
+What we could do is indicate *all* hotplugged memory (not just 
+IORESOURCE_SYSRAM_DRIVER_MANAGED memory) as MEMBLOCK_HOTPLUG and make 
+MEMBLOCK_HOTPLUG less dependent on "movable_node".
+
+MEMBLOCK_HOTPLUG for early boot memory: with "movable_core", place it in 
+ZONE_MOVABLE. Even without "movable_core", don't place early kernel 
+allocations on this memory.
+MEMBLOCK_HOTPLUG for all memory: don't place kexec images or on this 
+memory, independent of "movable_core".
+
+
+memblock would then not contain the information "contained in 
+firmware-provided memory map" vs. "not contained in firmware-provided 
+memory map"; but I think right now it's not strictly required to have 
+that information if we'd go down that path.
+
+>   
+>> For example, ranges in the ACPI SRAT that are marked as
+>> ACPI_SRAT_MEM_HOT_PLUGGABLE will be marked MEMBLOCK_HOTPLUG early during
+>> boot (drivers/acpi/numa/srat.c:acpi_numa_memory_affinity_init()). Later, we
+>> use that information to size ZONE_MOVABLE
+>> (mm/page_alloc.c:find_zone_movable_pfns_for_nodes()). This will make sure
+>> that these "hotpluggable" DIMMs can later get hotunplugged.
+>>
+>> Also, see should_skip_region() how this relates to the "movable_node" kernel
+>> parameter:
+>>
+>> 	/* skip hotpluggable memory regions if needed */
+>> 	if (movable_node_is_enabled() && memblock_is_hotpluggable(m) &&
+>> 	    (flags & MEMBLOCK_HOTPLUG))
+>> 		return true;
+> 
+> Hmm, I think that the movable_node_is_enabled() check here is excessive,
+> but I suspect we cannot simply remove it without breaking anything.
+
+The reasoning is: without "movable_core" we don't want this memory to be 
+hotunpluggable; consequently, we don't care if we place kexec-images on 
+this memory. MEMBLOCK_HOTPLUG is currently only active with "movable_core".
+
+If we remove that check, we will always not place early kernel 
+allocations on that memory, even if we don't care about ZONE_MOVABLE.
 
 > 
+> I'll take a deeper look on the potential consequences.
 > 
-> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-> > Reported-by: markver@us.ibm.com
-> > ---
-> >  drivers/virtio/virtio.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> > 
-> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > index 0a5b54034d4b..9dc3cfa17b1c 100644
-> > --- a/drivers/virtio/virtio.c
-> > +++ b/drivers/virtio/virtio.c
-> > @@ -249,6 +249,10 @@ static int virtio_dev_probe(struct device *_d)
-> >  		if (device_features & (1ULL << i))
-> >  			__virtio_set_bit(dev, i);
-> >  
-> > +	/* Write back features before validate to know endianness */
-> > +	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
-> > +		dev->config->finalize_features(dev);
-> > +
-> >  	if (drv->validate) {
-> >  		err = drv->validate(dev);
-> >  		if (err)
-> > 
-> > base-commit: 02d5e016800d082058b3d3b7c3ede136cdc6ddcb
-> > -- 
-> > 2.25.1  
-> 
+> BTW, is there anything that prevents putting kexec to hot-unplugable memory
+> that was cold-plugged on boot?
+
+I think it depends on how the platform handles hotunpluggable DIMMs or 
+hotunpluggable NUMA nodes. If the platform ends up indicates such memory 
+via MEMBLOCK_HOTPLUG, and "movable_core" is set, memory would be put 
+into ZONE_MOVABLE and kexec would not place kexec-images on that memory.
+
+-- 
+Thanks,
+
+David / dhildenb
 
