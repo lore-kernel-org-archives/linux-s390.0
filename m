@@ -2,103 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB645C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Sep 2021 22:10:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20083C433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 07:14:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D615661A52
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Sep 2021 22:10:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F338461246
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 07:14:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347196AbhI3WMc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Sep 2021 18:12:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33016 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230093AbhI3WMb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Sep 2021 18:12:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 965D361390;
-        Thu, 30 Sep 2021 22:10:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633039847;
-        bh=IwzBemW+hy1M1ewr7atFO0cSMjKx7nF1iOUj3EQWXE8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VMFkm4a+fgdg4zYaCkaWnSOTeOZ8uAbKkitUxM0+m4BBfXT2b5oLMM7rDTLawyLAE
-         NhhBOznSRQz5yRbiTNsvbV6E0IU3T5qz407KpFRCdUtW5hyDqK4d2pDAOMg4JRadt6
-         KWrjYIXEm0KrNBVtP+JPzhB2VrG3+5vrqbM5hiSfUBy+07gwCIoejO0uW/sH7DYI6V
-         pgwC0QydyQR/hM9nqnvQyR6gIiVBVoszYMQd2xY8yoPecdNAhtt2AC8GtVh+C0O4VI
-         bPLArmwwdAbQbiLreQFVTZM6xuVy7lVHSRkS66W+8O7Twsm9hTlzsCUC2ioP79rEse
-         MlAOzYU2R7N3A==
-Date:   Thu, 30 Sep 2021 15:10:46 -0700
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Juergen Gross <jgross@suse.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Shahab Vahedi <Shahab.Vahedi@synopsys.com>,
-        devicetree <devicetree@vger.kernel.org>,
-        iommu <iommu@lists.linux-foundation.org>,
-        kasan-dev <kasan-dev@googlegroups.com>,
-        KVM list <kvm@vger.kernel.org>,
-        alpha <linux-alpha@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        linux-usb@vger.kernel.org,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-sparc <sparclinux@vger.kernel.org>,
-        xen-devel@lists.xenproject.org
-Subject: Re: [PATCH v2 0/6] memblock: cleanup memblock_free interface
-Message-ID: <YVY15nd56j8x8udh@kernel.org>
-References: <20210930185031.18648-1-rppt@kernel.org>
- <CAHk-=wjS76My8aJLWJAHd-5GnMEVC1D+kV7DgtV9GjcbtqZdig@mail.gmail.com>
+        id S231162AbhJAHQ3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Oct 2021 03:16:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37678 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231209AbhJAHQ2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Oct 2021 03:16:28 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3D1C06177A
+        for <linux-s390@vger.kernel.org>; Fri,  1 Oct 2021 00:14:45 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id 66so8203040pgc.9
+        for <linux-s390@vger.kernel.org>; Fri, 01 Oct 2021 00:14:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=axtens.net; s=google;
+        h=from:to:cc:subject:in-reply-to:references:date:message-id
+         :mime-version;
+        bh=hQ5Dp9x0o7vj9OmS5x46emFCr7Zl/nJolk9+Z2BpJ/M=;
+        b=fe9H/w2X2vuAp8bhFAjKcirq956EvG0Xsc4F/qPYLCr7shEcx/7zVRCvPxYTKIseYq
+         cM0bGEaE6AOBmeVWMByscucDo3qj28Mo1bYpVvfDkpGyt16RzahFoQ3vLK88+7PljDI8
+         g4xwbvUg0m6Q0tlQhV1A905dnxfllF0FbKG5g=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
+         :message-id:mime-version;
+        bh=hQ5Dp9x0o7vj9OmS5x46emFCr7Zl/nJolk9+Z2BpJ/M=;
+        b=eHkx0VkIPLKuwFwRWUQdVyXjk/0ju0BTDcu5J+8nS01YTXT5tsLZlhyRnQOWD+YveF
+         Mlegw9iBe1IqIhY6JpQAMLv50DlmXVCYD8iiQ2I8pEuZbODb5WamwQD50XJ+sa9U9rSW
+         Ru6s6gxLG0/DgiWTumjHD6VoynZW9ouuRdfDJLhFZzGKALzyfViEicaAGlVOv8hmKS6N
+         FaPZ1tfpZQoykeG6uMweS4srUG9DV3woW0+iPWwxnJ0ZGrbtGjAjn6mBo/kJjqc3sGyo
+         SGjr9/gWJRtADKvcZ/5m0DvxfyN9JoVweVSXOLs9vQ4ddJHUSZ1OsB4q0uaTNfILiTbw
+         bpYQ==
+X-Gm-Message-State: AOAM531DVTsU7fwTU7hFaI6SipEnVdLiw806CRmf+Z05QIO7c89WlG/v
+        uRAiFoFtXbG0m8ZAnSknI/PQyA==
+X-Google-Smtp-Source: ABdhPJybs5wSHjwxNYuL3Oj52Xlb/bebURrnTQ6GT1WSxewTOdLpU3woiWbsUUuDzK3q3lC/kp1vUA==
+X-Received: by 2002:aa7:9a0e:0:b0:44a:3ae2:825c with SMTP id w14-20020aa79a0e000000b0044a3ae2825cmr8564635pfj.28.1633072484450;
+        Fri, 01 Oct 2021 00:14:44 -0700 (PDT)
+Received: from localhost ([2001:4479:e200:df00:c98c:9868:6328:c144])
+        by smtp.gmail.com with ESMTPSA id k12sm1219967pjf.32.2021.10.01.00.14.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 01 Oct 2021 00:14:43 -0700 (PDT)
+From:   Daniel Axtens <dja@axtens.net>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Andrew Morton <akpm@linux-foundation.org>, arnd@arndb.de
+Cc:     linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH v3 2/4] mm: Make generic arch_is_kernel_initmem_freed() do what it says
+In-Reply-To: <1d40783e676e07858be97d881f449ee7ea8adfb1.1633001016.git.christophe.leroy@csgroup.eu>
+References: <9ecfdee7dd4d741d172cb93ff1d87f1c58127c9a.1633001016.git.christophe.leroy@csgroup.eu> <1d40783e676e07858be97d881f449ee7ea8adfb1.1633001016.git.christophe.leroy@csgroup.eu>
+Date:   Fri, 01 Oct 2021 17:14:41 +1000
+Message-ID: <87ilyhmd26.fsf@linkitivity.dja.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wjS76My8aJLWJAHd-5GnMEVC1D+kV7DgtV9GjcbtqZdig@mail.gmail.com>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 30, 2021 at 02:20:33PM -0700, Linus Torvalds wrote:
-> On Thu, Sep 30, 2021 at 11:50 AM Mike Rapoport <rppt@kernel.org> wrote:
-> >
-> > The first patch is a cleanup of numa_distance allocation in arch_numa I've
-> > spotted during the conversion.
-> > The second patch is a fix for Xen memory freeing on some of the error
-> > paths.
-> 
-> Well, at least patch 2 looks like something that should go into 5.15
-> and be marked for stable.
-> 
-> Patch 1 looks like a trivial local cleanup, and could go in
-> immediately. Patch 4 might be in that same category.
-> 
-> The rest look like "next merge window" to me, since they are spread
-> out and neither bugfixes nor tiny localized cleanups (iow renaming
-> functions, global resulting search-and-replace things).
-> 
-> So my gut feel is that two (maybe three) of these patches should go in
-> asap, with three (maybe four) be left for 5.16.
-> 
-> IOW, not trat this as a single series.
-> 
-> Hmm?
+>  #ifdef __KERNEL__
+> +/*
+> + * Check if an address is part of freed initmem. After initmem is freed,
+> + * memory can be allocated from it, and such allocations would then have
+> + * addresses within the range [_stext, _end].
+> + */
+> +#ifndef arch_is_kernel_initmem_freed
+> +static int arch_is_kernel_initmem_freed(unsigned long addr)
+> +{
+> +	if (system_state < SYSTEM_FREEING_INITMEM)
+> +		return 0;
+> +
+> +	return init_section_contains((void *)addr, 1);
 
-Yes, why not :)
-I'd keep patch 4 for the next merge window, does not look urgent to me.
+Is init_section_contains sufficient here?
 
-Andrew, can you please take care of this or you'd prefer me resending
-everything separately?
- 
->              Linus
+include/asm-generic/sections.h says:
+ * [__init_begin, __init_end]: contains .init.* sections, but .init.text.*
+ *                   may be out of this range on some architectures.
+ * [_sinittext, _einittext]: contains .init.text.* sections
 
--- 
-Sincerely yours,
-Mike.
+init_section_contains only checks __init_*:
+static inline bool init_section_contains(void *virt, size_t size)
+{
+	return memory_contains(__init_begin, __init_end, virt, size);
+}
+
+Do we need to check against _sinittext and _einittext?
+
+Your proposed generic code will work for powerpc and s390 because those
+archs only test against __init_* anyway. I don't know if any platform
+actually does place .init.text outside of __init_begin=>__init_end, but
+the comment seems to suggest that they could.
+
+Kind regards,
+Daniel
