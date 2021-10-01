@@ -2,138 +2,145 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BFADC433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 13:03:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1A06C4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 14:03:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 44F1C61A83
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 13:03:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9FA061278
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 14:03:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352814AbhJANFJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Oct 2021 09:05:09 -0400
-Received: from mga14.intel.com ([192.55.52.115]:51101 "EHLO mga14.intel.com"
+        id S231700AbhJAOFD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Oct 2021 10:05:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353738AbhJANFI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 1 Oct 2021 09:05:08 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10123"; a="225083923"
-X-IronPort-AV: E=Sophos;i="5.85,339,1624345200"; 
-   d="scan'208";a="225083923"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Oct 2021 06:02:06 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.85,339,1624345200"; 
-   d="scan'208";a="521031519"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga008.fm.intel.com with ESMTP; 01 Oct 2021 06:02:02 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id DB7DF177; Fri,  1 Oct 2021 16:02:05 +0300 (EEST)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        id S231824AbhJAOE7 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 1 Oct 2021 10:04:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B184461439;
+        Fri,  1 Oct 2021 14:03:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1633096994;
+        bh=j7RiikMVul/vm+Prmyx1rYn9xETi77NUVt/50phH7k0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JIchVvHkPwXFrApRkJNJ1jo9dQIfHa2T63ZG1i87FhM0l0ZvtL87mlGvplRQBraes
+         vyMIL4dKf6z0JSmVBUSKIGtpiCVW0zfnCqS9jOnbL2dAZNjae538ZVygnqS9nR+eLF
+         xHUU2hdOzmpySeLHR8g8uhJ86dXHlY3KzJVFj48iCHOSsm/sFJxKKMIWTwhwBE82+F
+         FzjRuTX/sl0Oc1bN9a0bDb8maV8TNilTngNHqHbDe+oFp/6kLeNtnncm2EB6xtvQPd
+         RxHjszo7Yuib1/P1V58ChVRmeUZKnKnZO6L+qjCn49PqGMSsJSfKE5Y6LZatW8Cmz/
+         K9IirY56cVdeg==
+Date:   Fri, 1 Oct 2021 07:03:13 -0700
+From:   Mike Rapoport <rppt@kernel.org>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Jianyong Wu <Jianyong.Wu@arm.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v1 1/1] s390: Use string_upper() instead of open coded variant
-Date:   Fri,  1 Oct 2021 16:02:01 +0300
-Message-Id: <20211001130201.72545-1-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.33.0
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-snps-arc@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-mm@kvack.org,
+        kexec@lists.infradead.org
+Subject: Re: [PATCH v1 3/4] memblock: add MEMBLOCK_DRIVER_MANAGED to mimic
+ IORESOURCE_SYSRAM_DRIVER_MANAGED
+Message-ID: <YVcVIej0Wlyd9JAB@kernel.org>
+References: <20210927150518.8607-1-david@redhat.com>
+ <20210927150518.8607-4-david@redhat.com>
+ <YVSW3uuu7mIcJMm3@kernel.org>
+ <830c1670-378b-0fb6-bd5e-208e545fa126@redhat.com>
+ <YVYqdN7MFdzBlCVm@kernel.org>
+ <0d6c86ba-076b-5d4b-33a8-da267f951a85@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0d6c86ba-076b-5d4b-33a8-da267f951a85@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use string_upper() from string helper module instead of open coded variant.
+On Fri, Oct 01, 2021 at 10:04:24AM +0200, David Hildenbrand wrote:
+> On 30.09.21 23:21, Mike Rapoport wrote:
+> > On Wed, Sep 29, 2021 at 06:54:01PM +0200, David Hildenbrand wrote:
+> > > On 29.09.21 18:39, Mike Rapoport wrote:
+> > > > Hi,
+> > > > 
+> > > > On Mon, Sep 27, 2021 at 05:05:17PM +0200, David Hildenbrand wrote:
+> > > > > Let's add a flag that corresponds to IORESOURCE_SYSRAM_DRIVER_MANAGED.
+> > > > > Similar to MEMBLOCK_HOTPLUG, most infrastructure has to treat such memory
+> > > > > like ordinary MEMBLOCK_NONE memory -- for example, when selecting memory
+> > > > > regions to add to the vmcore for dumping in the crashkernel via
+> > > > > for_each_mem_range().
+> > > > Can you please elaborate on the difference in semantics of MEMBLOCK_HOTPLUG
+> > > > and MEMBLOCK_DRIVER_MANAGED?
+> > > > Unless I'm missing something they both mark memory that can be unplugged
+> > > > anytime and so it should not be used in certain cases. Why is there a need
+> > > > for a new flag?
+> > > 
+> > > In the cover letter I have "Alternative B: Reuse MEMBLOCK_HOTPLUG.
+> > > MEMBLOCK_HOTPLUG serves a different purpose, though.", but looking into the
+> > > details it won't work as is.
+> > > 
+> > > MEMBLOCK_HOTPLUG is used to mark memory early during boot that can later get
+> > > hotunplugged again and should be placed into ZONE_MOVABLE if the
+> > > "movable_node" kernel parameter is set.
+> > > 
+> > > The confusing part is that we talk about "hotpluggable" but really mean
+> > > "hotunpluggable": the reason is that HW flags DIMM slots that can later be
+> > > hotplugged as "hotpluggable" even though there is already something
+> > > hotplugged.
+> > 
+> > MEMBLOCK_HOTPLUG name is indeed somewhat confusing, but still it's core
+> > meaning "this memory may be removed" which does not differ from what
+> > IORESOURCE_SYSRAM_DRIVER_MANAGED means.
+> > 
+> > MEMBLOCK_HOTPLUG regions are indeed placed into ZONE_MOVABLE, but more
+> > importantly, they are avoided when we allocate memory from memblock.
+> > 
+> > So, in my view, both flags mean that the memory may be removed and it
+> > should not be used for certain types of allocations.
+> 
+> The semantics are different:
+> 
+> MEMBLOCK_HOTPLUG: memory is indicated as "System RAM" in the
+> firmware-provided memory map and added to the system early during boot; we
+> want this memory to be managed by ZONE_MOVABLE with "movable_node" set on
+> the kernel command line, because only then we want it to be hotpluggable
+> again. kexec *has to* indicate this memory to the second kernel and can
+> place kexec-images on this memory. After memory hotunplug, kexec has to be
+> re-armed.
+> 
+> MEMBLOCK_DRIVER_MANAGED: memory is not indicated as System RAM" in the
+> firmware-provided memory map; this memory is always detected and added to
+> the system by a driver; memory might not actually be physically
+> hotunpluggable and the ZONE selection does not depend on "movable_core".
+> kexec *must not* indicate this memory to the second kernel and *must not*
+> place kexec-images on this memory.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- arch/s390/mm/cmm.c    | 11 ++++-------
- arch/s390/mm/extmem.c | 21 ++++++++++++---------
- 2 files changed, 16 insertions(+), 16 deletions(-)
+Ok, this clarifies.
+This explanation should be a part of the changelog. The sentences about the
+zone selection could be probably skipped, because they are less important
+for this case. E.g something like:
 
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index 1141c8d5c0d0..2203164b39da 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -14,8 +14,8 @@
- #include <linux/moduleparam.h>
- #include <linux/gfp.h>
- #include <linux/sched.h>
-+#include <linux/string_helpers.h>
- #include <linux/sysctl.h>
--#include <linux/ctype.h>
- #include <linux/swap.h>
- #include <linux/kthread.h>
- #include <linux/oom.h>
-@@ -394,13 +394,10 @@ static int __init cmm_init(void)
- 		goto out_sysctl;
- #ifdef CONFIG_CMM_IUCV
- 	/* convert sender to uppercase characters */
--	if (sender) {
--		int len = strlen(sender);
--		while (len--)
--			sender[len] = toupper(sender[len]);
--	} else {
-+	if (sender)
-+		string_upper(sender, sender);
-+	else
- 		sender = cmm_default_sender;
--	}
- 
- 	rc = smsg_register_callback(SMSG_PREFIX, cmm_smsg_target);
- 	if (rc < 0)
-diff --git a/arch/s390/mm/extmem.c b/arch/s390/mm/extmem.c
-index 5060956b8e7d..2c8c5dc52472 100644
---- a/arch/s390/mm/extmem.c
-+++ b/arch/s390/mm/extmem.c
-@@ -12,12 +12,12 @@
- 
- #include <linux/kernel.h>
- #include <linux/string.h>
-+#include <linux/string_helpers.h>
- #include <linux/spinlock.h>
- #include <linux/list.h>
- #include <linux/slab.h>
- #include <linux/export.h>
- #include <linux/memblock.h>
--#include <linux/ctype.h>
- #include <linux/ioport.h>
- #include <linux/refcount.h>
- #include <linux/pgtable.h>
-@@ -89,15 +89,18 @@ static int segext_scode = DCSS_SEGEXTX;
- static void
- dcss_mkname(char *name, char *dcss_name)
- {
-+	/* Segment name is limited by 8 characters + NUL */
-+	char tmp[8 + 1];
- 	int i;
- 
--	for (i = 0; i < 8; i++) {
--		if (name[i] == '\0')
--			break;
--		dcss_name[i] = toupper(name[i]);
--	}
--	for (; i < 8; i++)
--		dcss_name[i] = ' ';
-+	/*
-+	 * This snprintf() call does two things:
-+	 * - makes a NUL-terminated copy of the input string
-+	 * - pads it with spaces
-+	 */
-+	snprintf(tmp, sizeof(tmp), "%s        ", name);
-+	string_upper(dcss_name, tmp);
-+
- 	ASCEBC(dcss_name, 8);
- }
- 
-@@ -109,7 +112,7 @@ dcss_mkname(char *name, char *dcss_name)
- static struct dcss_segment *
- segment_by_name (char *name)
- {
--	char dcss_name[9];
-+	char dcss_name[8];
- 	struct list_head *l;
- 	struct dcss_segment *tmp, *retval = NULL;
- 
+MEMBLOCK_HOTPLUG: memory is indicated as "System RAM" in the
+firmware-provided memory map and added to the system early during boot;
+kexec *has to* indicate this memory to the second kernel and can place
+kexec-images on this memory. After memory hotunplug, kexec has to be
+re-armed.
+
+MEMBLOCK_DRIVER_MANAGED: memory is not indicated as "System RAM" in the
+firmware-provided memory map; this memory is always detected and added to
+the system by a driver; memory might not actually be physically
+hotunpluggable.  kexec *must not* indicate this memory to the second kernel
+and *must not* place kexec-images on this memory.
+
 -- 
-2.33.0
-
+Sincerely yours,
+Mike.
