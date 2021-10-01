@@ -2,216 +2,157 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0015EC433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 08:04:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44CDCC433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 12:53:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D6E4B61A63
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 08:04:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 23D8F61A58
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Oct 2021 12:53:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352662AbhJAIGS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Oct 2021 04:06:18 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34675 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1352692AbhJAIGN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Oct 2021 04:06:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633075469;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=RgbMOii1S0zNC4XfQSp0PtfslNwqAcBT4JkfYppI8hA=;
-        b=OZ6Odsr6/Ou3OkNozU8+KOTyK3nS0Ixrk9QX6f0E/girQLne3Z+Is9xiDp5fBS64UJ2QJJ
-        J4OiR8XSuD8Ofhr/lztxeuhyEpafS27NrC/m8PGg0/CKDxzMRvbGmAk6yFhT398jbFG9aF
-        ivsCi/lBKUrmOC2Mfqkvs81CXDQABHw=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-347-noLEvAOGOAmVN2hNkrjFPg-1; Fri, 01 Oct 2021 04:04:28 -0400
-X-MC-Unique: noLEvAOGOAmVN2hNkrjFPg-1
-Received: by mail-wm1-f69.google.com with SMTP id x3-20020a05600c21c300b0030d2b0fb3b4so2838451wmj.5
-        for <linux-s390@vger.kernel.org>; Fri, 01 Oct 2021 01:04:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:to:cc:references:from:organization:subject
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=RgbMOii1S0zNC4XfQSp0PtfslNwqAcBT4JkfYppI8hA=;
-        b=XRjqFNkf2KeOiy9NyJBN/X/xxzg+GqzCdJ2CYX5P/jS2Sv21yL9dHX43F3mY1lrzcq
-         BDFBrrbWVrri/u6kxesMduzh8UkEYz60GaAnJ+oclYHBQJ1YXWb2zujkglgfyqrGuVy3
-         GJqK7DiNY9TfNs7vKgJttzoyzwnJrDYchbUr0W2MK+XHgV5YmKVSRHMotvka5cbXp6aU
-         9GQiizHzUKyggD9xG1PV/AdQJp/4aowkcyDr6Q/ctQO8s3YY0E1bFWQOvjZcZXEEpPv9
-         2GR1N0vNRN66D8pjm00Q+0trHnRbFzYwyO4DxEyavR+kaSvlN0e2gvu6w3WAtknhy6FE
-         cBhQ==
-X-Gm-Message-State: AOAM531ie1vHuoUEb4LgqFJVuvA6dHSMbNbq/U95/5/6K+Znr3J5CnBb
-        OUTp8Ou38fVdDo9EdIC04ISRIRrRKXk1SNRdIpShxFTyM27elE9+LUrBcOmHoMGonJGMwZgJelP
-        BgKD5FD8zWilka2Dy5uWOBg==
-X-Received: by 2002:a1c:f310:: with SMTP id q16mr3156059wmq.145.1633075467036;
-        Fri, 01 Oct 2021 01:04:27 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy09IiCKfFi33tOU52HzJrT7VrbqrMf/P7p34oNrrEfUQJ/n90uGLajbxmxEo4tDXieDpGReQ==
-X-Received: by 2002:a1c:f310:: with SMTP id q16mr3156030wmq.145.1633075466790;
-        Fri, 01 Oct 2021 01:04:26 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c64da.dip0.t-ipconnect.de. [91.12.100.218])
-        by smtp.gmail.com with ESMTPSA id z17sm5132732wrr.49.2021.10.01.01.04.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 01 Oct 2021 01:04:26 -0700 (PDT)
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Jianyong Wu <Jianyong.Wu@arm.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-snps-arc@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-mm@kvack.org,
-        kexec@lists.infradead.org
-References: <20210927150518.8607-1-david@redhat.com>
- <20210927150518.8607-4-david@redhat.com> <YVSW3uuu7mIcJMm3@kernel.org>
- <830c1670-378b-0fb6-bd5e-208e545fa126@redhat.com>
- <YVYqdN7MFdzBlCVm@kernel.org>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH v1 3/4] memblock: add MEMBLOCK_DRIVER_MANAGED to mimic
- IORESOURCE_SYSRAM_DRIVER_MANAGED
-Message-ID: <0d6c86ba-076b-5d4b-33a8-da267f951a85@redhat.com>
-Date:   Fri, 1 Oct 2021 10:04:24 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S231441AbhJAMzJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Oct 2021 08:55:09 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25250 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231437AbhJAMzI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Oct 2021 08:55:08 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 191BfekC013864;
+        Fri, 1 Oct 2021 08:53:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=9afJ2qjLSKuBEwPIpFU1S7G+NnaAmmNbXe5Ffp/3qDs=;
+ b=BIdyLzU8+DR4xEHOZMM3pkRvuryxZNpz3CHw984QmRmBX6OkBaBQc1ScWYU5rkPyP+1L
+ heu1TEUtLHYh/cnmeC2Hn290SBLHD/MGO3e0h+xw6pk3pMrCW9kjG3UJNxjN7are4S7i
+ kY/+W1ZaoKJVC+dpuBJTZ1zIdPU3kPpoCFIkBmunQwZmsOkCFD3pMeSeb0C+LDSLtTcc
+ Bd231YXS9zAM7tPx4rm46PZQjxAgJFqHU+/OB/jZqKzZHPzPt2+lxEGgjlW+1lm+tLdx
+ RLaPdrV/84CUAZQT1OOMqagJGF3wdAh6HGRTg9hs1iG8jeYJu5Sh1NSdGKH3fI9wn+Ag tg== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3be1p7snef-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 01 Oct 2021 08:53:04 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 191CmIrO007842;
+        Fri, 1 Oct 2021 12:53:02 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3b9u1ku464-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 01 Oct 2021 12:53:02 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 191ClmNf49676696
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 1 Oct 2021 12:47:48 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A282D5205F;
+        Fri,  1 Oct 2021 12:52:58 +0000 (GMT)
+Received: from thinkpad (unknown [9.171.7.108])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id EFA3E52051;
+        Fri,  1 Oct 2021 12:52:57 +0000 (GMT)
+Date:   Fri, 1 Oct 2021 14:52:56 +0200
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>
+Cc:     Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Jeremy Linton <jeremy.linton@arm.com>,
+        Hamza Mahfooz <someguy@effective-light.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Subject: Re: DPAA2 triggers, [PATCH] dma debug: report -EEXIST errors in
+ add_dma_entry
+Message-ID: <20211001145256.0323957a@thinkpad>
+In-Reply-To: <185e7ee4-3749-4ccb-6d2e-da6bc8f30c04@linux.ibm.com>
+References: <20210518125443.34148-1-someguy@effective-light.com>
+        <fd67fbac-64bf-f0ea-01e1-5938ccfab9d0@arm.com>
+        <20210914154504.z6vqxuh3byqwgfzx@skbuf>
+        <185e7ee4-3749-4ccb-6d2e-da6bc8f30c04@linux.ibm.com>
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <YVYqdN7MFdzBlCVm@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: F9ueB-YXoaqxOVwjoXdiCvjjdDtsFi5z
+X-Proofpoint-GUID: F9ueB-YXoaqxOVwjoXdiCvjjdDtsFi5z
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-01_02,2021-10-01_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 bulkscore=0 mlxscore=0
+ lowpriorityscore=0 spamscore=0 impostorscore=0 phishscore=0 clxscore=1011
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110010079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 30.09.21 23:21, Mike Rapoport wrote:
-> On Wed, Sep 29, 2021 at 06:54:01PM +0200, David Hildenbrand wrote:
->> On 29.09.21 18:39, Mike Rapoport wrote:
->>> Hi,
->>>
->>> On Mon, Sep 27, 2021 at 05:05:17PM +0200, David Hildenbrand wrote:
->>>> Let's add a flag that corresponds to IORESOURCE_SYSRAM_DRIVER_MANAGED.
->>>> Similar to MEMBLOCK_HOTPLUG, most infrastructure has to treat such memory
->>>> like ordinary MEMBLOCK_NONE memory -- for example, when selecting memory
->>>> regions to add to the vmcore for dumping in the crashkernel via
->>>> for_each_mem_range().
->>> Can you please elaborate on the difference in semantics of MEMBLOCK_HOTPLUG
->>> and MEMBLOCK_DRIVER_MANAGED?
->>> Unless I'm missing something they both mark memory that can be unplugged
->>> anytime and so it should not be used in certain cases. Why is there a need
->>> for a new flag?
->>
->> In the cover letter I have "Alternative B: Reuse MEMBLOCK_HOTPLUG.
->> MEMBLOCK_HOTPLUG serves a different purpose, though.", but looking into the
->> details it won't work as is.
->>
->> MEMBLOCK_HOTPLUG is used to mark memory early during boot that can later get
->> hotunplugged again and should be placed into ZONE_MOVABLE if the
->> "movable_node" kernel parameter is set.
->>
->> The confusing part is that we talk about "hotpluggable" but really mean
->> "hotunpluggable": the reason is that HW flags DIMM slots that can later be
->> hotplugged as "hotpluggable" even though there is already something
->> hotplugged.
+On Thu, 30 Sep 2021 15:37:33 +0200
+Karsten Graul <kgraul@linux.ibm.com> wrote:
+
+> On 14/09/2021 17:45, Ioana Ciornei wrote:
+> > On Wed, Sep 08, 2021 at 10:33:26PM -0500, Jeremy Linton wrote:
+> >> +DPAA2, netdev maintainers
+> >> Hi,
+> >>
+> >> On 5/18/21 7:54 AM, Hamza Mahfooz wrote:
+> >>> Since, overlapping mappings are not supported by the DMA API we should
+> >>> report an error if active_cacheline_insert returns -EEXIST.
+> >>
+> >> It seems this patch found a victim. I was trying to run iperf3 on a
+> >> honeycomb (5.14.0, fedora 35) and the console is blasting this error message
+> >> at 100% cpu. So, I changed it to a WARN_ONCE() to get the call trace, which
+> >> is attached below.
+> >>
+> > 
+> > These frags are allocated by the stack, transformed into a scatterlist
+> > by skb_to_sgvec and then DMA mapped with dma_map_sg. It was not the
+> > dpaa2-eth's decision to use two fragments from the same page (that will
+> > also end un in the same cacheline) in two different in-flight skbs.
+> > 
+> > Is this behavior normal?
+> > 
 > 
-> MEMBLOCK_HOTPLUG name is indeed somewhat confusing, but still it's core
-> meaning "this memory may be removed" which does not differ from what
-> IORESOURCE_SYSRAM_DRIVER_MANAGED means.
-> 
-> MEMBLOCK_HOTPLUG regions are indeed placed into ZONE_MOVABLE, but more
-> importantly, they are avoided when we allocate memory from memblock.
-> 
-> So, in my view, both flags mean that the memory may be removed and it
-> should not be used for certain types of allocations.
+> We see the same problem here and it started with 5.15-rc2 in our nightly CI runs.
+> The CI has panic_on_warn enabled so we see the panic every day now.
 
-The semantics are different:
+Adding a WARN for a case that be detected false-positive seems not
+acceptable, exactly for this reason (kernel panic on unaffected
+systems).
 
-MEMBLOCK_HOTPLUG: memory is indicated as "System RAM" in the 
-firmware-provided memory map and added to the system early during boot; 
-we want this memory to be managed by ZONE_MOVABLE with "movable_node" 
-set on the kernel command line, because only then we want it to be 
-hotpluggable again. kexec *has to* indicate this memory to the second 
-kernel and can place kexec-images on this memory. After memory 
-hotunplug, kexec has to be re-armed.
+So I guess it boils down to the question if the behavior that Ioana
+described is legit behavior, on a system that is dma coherent. We
+are apparently hitting the same scenario, although it could not yet be
+reproduced with debug printks for some reason.
 
-MEMBLOCK_DRIVER_MANAGED: memory is not indicated as System RAM" in the 
-firmware-provided memory map; this memory is always detected and added 
-to the system by a driver; memory might not actually be physically 
-hotunpluggable and the ZONE selection does not depend on "movable_core". 
-kexec *must not* indicate this memory to the second kernel and *must 
-not* place kexec-images on this memory.
+If the answer is yes, than please remove at lease the WARN, so that
+it will not make systems crash that behave valid, and have
+panic_on_warn set. Even a normal printk feels wrong to me in that
+case, it really sounds rather like you want to fix / better refine
+the overlap check, if you want to report anything here.
 
+BTW, there is already a WARN in the add_dma_entry() path, related
+to cachlline overlap and -EEXIST:
 
-I would really advise against mixing concepts here.
+add_dma_entry() -> active_cacheline_insert() -> -EEXIST ->
+active_cacheline_inc_overlap()
 
+That will only trigger when "overlap > ACTIVE_CACHELINE_MAX_OVERLAP".
+Not familiar with that code, but it seems that there are now two
+warnings for more or less the same, and the new warning is much more
+prone to false-positives.
 
-What we could do is indicate *all* hotplugged memory (not just 
-IORESOURCE_SYSRAM_DRIVER_MANAGED memory) as MEMBLOCK_HOTPLUG and make 
-MEMBLOCK_HOTPLUG less dependent on "movable_node".
+How do these 2 warnings relate, are they both really necessary?
+I think the new warning was only introduced because of some old
+TODO comment in add_dma_entry(), see commit 2b4bbc6231d78
+("dma-debug: report -EEXIST errors in add_dma_entry").
 
-MEMBLOCK_HOTPLUG for early boot memory: with "movable_core", place it in 
-ZONE_MOVABLE. Even without "movable_core", don't place early kernel 
-allocations on this memory.
-MEMBLOCK_HOTPLUG for all memory: don't place kexec images or on this 
-memory, independent of "movable_core".
-
-
-memblock would then not contain the information "contained in 
-firmware-provided memory map" vs. "not contained in firmware-provided 
-memory map"; but I think right now it's not strictly required to have 
-that information if we'd go down that path.
-
->   
->> For example, ranges in the ACPI SRAT that are marked as
->> ACPI_SRAT_MEM_HOT_PLUGGABLE will be marked MEMBLOCK_HOTPLUG early during
->> boot (drivers/acpi/numa/srat.c:acpi_numa_memory_affinity_init()). Later, we
->> use that information to size ZONE_MOVABLE
->> (mm/page_alloc.c:find_zone_movable_pfns_for_nodes()). This will make sure
->> that these "hotpluggable" DIMMs can later get hotunplugged.
->>
->> Also, see should_skip_region() how this relates to the "movable_node" kernel
->> parameter:
->>
->> 	/* skip hotpluggable memory regions if needed */
->> 	if (movable_node_is_enabled() && memblock_is_hotpluggable(m) &&
->> 	    (flags & MEMBLOCK_HOTPLUG))
->> 		return true;
-> 
-> Hmm, I think that the movable_node_is_enabled() check here is excessive,
-> but I suspect we cannot simply remove it without breaking anything.
-
-The reasoning is: without "movable_core" we don't want this memory to be 
-hotunpluggable; consequently, we don't care if we place kexec-images on 
-this memory. MEMBLOCK_HOTPLUG is currently only active with "movable_core".
-
-If we remove that check, we will always not place early kernel 
-allocations on that memory, even if we don't care about ZONE_MOVABLE.
-
-> 
-> I'll take a deeper look on the potential consequences.
-> 
-> BTW, is there anything that prevents putting kexec to hot-unplugable memory
-> that was cold-plugged on boot?
-
-I think it depends on how the platform handles hotunpluggable DIMMs or 
-hotunpluggable NUMA nodes. If the platform ends up indicates such memory 
-via MEMBLOCK_HOTPLUG, and "movable_core" is set, memory would be put 
-into ZONE_MOVABLE and kexec would not place kexec-images on that memory.
-
--- 
-Thanks,
-
-David / dhildenb
-
+That comment was initially added by Dan long time ago, and he
+added several fix-ups for overlap detection after that, including
+the "overlap > ACTIVE_CACHELINE_MAX_OVERLAP" stuff in
+active_cacheline_inc_overlap(). So could it be that the TODO
+comment was simply not valid any more, and better be removed
+instead of adding new / double warnings, that also generate
+false-positives and kernel crashes?
