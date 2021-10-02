@@ -2,284 +2,240 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6860BC433EF
-	for <linux-s390@archiver.kernel.org>; Sat,  2 Oct 2021 10:21:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1AA7C433EF
+	for <linux-s390@archiver.kernel.org>; Sat,  2 Oct 2021 12:09:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 45CB361AAA
-	for <linux-s390@archiver.kernel.org>; Sat,  2 Oct 2021 10:21:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D569F61B00
+	for <linux-s390@archiver.kernel.org>; Sat,  2 Oct 2021 12:09:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232770AbhJBKX1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 2 Oct 2021 06:23:27 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:29805 "EHLO
+        id S233006AbhJBMLN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 2 Oct 2021 08:11:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:37090 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232708AbhJBKX1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 Oct 2021 06:23:27 -0400
+        by vger.kernel.org with ESMTP id S232972AbhJBMLN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 Oct 2021 08:11:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633170101;
+        s=mimecast20190719; t=1633176567;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=ralEWdhrk09yJSkvlggMNWVcH3C+hpuchF+iW56D2YA=;
-        b=QjTiRe3EweDZhGozrYfTGnVPT1B9izZ8hqITW2FQCeSfInNZdA37V9XYRwSYwUvOSV+7Oi
-        e9dXRoVKcUZFjTFczqnuWcKWbmWWljNtjQ8sAhflZRptmUwG5z728MHkNe4SPmW8JWpWwg
-        nTY8CMMyswcHVJPVmQSJXnYJtXWO2XI=
+        bh=/l7+0a5Dc1Aijj3yF6yBWlmwwsTZcgNOfg/nDpXLfXA=;
+        b=fCs14jkq3cCsluy/ln/a3EAetLAe1BojCe05WvM6cs7g/Q77+homTU2rWtsTIpX/fnC65S
+        VA8l3uRSQBsuv6hXQuhfA2VDh+4CII67OQL+MhZRvy4FL3GdgeWpMVCKINKuQIMXn6cBLI
+        P/DAChTTXJX0MwXSuwzv9r91XukDm3U=
 Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
  [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-472-Z_MS6wtqP5-40NBwb4Z9hw-1; Sat, 02 Oct 2021 06:21:39 -0400
-X-MC-Unique: Z_MS6wtqP5-40NBwb4Z9hw-1
-Received: by mail-wm1-f70.google.com with SMTP id n30-20020a05600c3b9e00b002fbbaada5d7so7163581wms.7
-        for <linux-s390@vger.kernel.org>; Sat, 02 Oct 2021 03:21:39 -0700 (PDT)
+ us-mta-533-AfoTO6_tMBCRle0MIO33wg-1; Sat, 02 Oct 2021 08:09:26 -0400
+X-MC-Unique: AfoTO6_tMBCRle0MIO33wg-1
+Received: by mail-wm1-f70.google.com with SMTP id n30-20020a05600c3b9e00b002fbbaada5d7so7288619wms.7
+        for <linux-s390@vger.kernel.org>; Sat, 02 Oct 2021 05:09:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=ralEWdhrk09yJSkvlggMNWVcH3C+hpuchF+iW56D2YA=;
-        b=k0NTAUjngcbjytfpdhj8K8j62gKTgkwMmIX7MHinsjgmhxj8G1IbMeJBLaNpegZR3C
-         mfEWIWa8bcVaQB2XqzJpAt/DbnZO1sHK3q708c0tU8rEnnmCvwMshfJnRVhHcVq2nktZ
-         DFGX21Jr2yvneM4BikIpLtCc3NtQtwJYhRHsEn42QUxDLDI4wGOQ7o3gtuGN7l5SYieZ
-         KfjZLgUhmfRs7Fqz/ZgZp7Wdt0MLEwPCE/iCuwOqHo9dfkyKddb9xiXF1Qr1UUt+saKG
-         C1yLY77pHFvrMBg/VhcL6xr+X58nMjm9LnnfTMFbcA4CZbSHR6uJ7tMTdGnqBTs9f0Fe
-         4eYA==
-X-Gm-Message-State: AOAM530S3OcE06HDuBWQ/phutM646//Y5GneaTMdrdQMSOmWkNh68mBV
-        SQUS/n3tcypmyjxxz8WNGD6jJ3Qc2VBBXmcNbIsbIOqBg+VVN18GgUxf+TjuYAWbWLvJg9jINE/
-        oDnfRbWNgMim/wteUYPMtyg==
-X-Received: by 2002:adf:e309:: with SMTP id b9mr2717107wrj.81.1633170098264;
-        Sat, 02 Oct 2021 03:21:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxaYuniCZqgujfLZEPFmteRflgkqbcg4NLL2qSDJrEuxaqnXY86gX1bStILdbzjT4HLj8pVew==
-X-Received: by 2002:adf:e309:: with SMTP id b9mr2717071wrj.81.1633170097875;
-        Sat, 02 Oct 2021 03:21:37 -0700 (PDT)
+        bh=/l7+0a5Dc1Aijj3yF6yBWlmwwsTZcgNOfg/nDpXLfXA=;
+        b=TTY5N4Lmd1+3AMaJOZ7tc2Q9f02QeTKnekMo49KMWi66TCwL0UaFCa88uPEx775RKe
+         evCrlA5a4ugAnIKp4NyjKAsGJVqWWgnnmqUpNhzxgu+tQDfo//L4sqatNYDnsUAZlIdr
+         3/bsy35dD5AhYyjS6A9GlMwsLXZg0UeKhqWtWzw2WKf1gkkNKUGRIiKE52VL3qWtGoCz
+         aWKhG6rQF8pW5/oW1fvEK+S1q93gUk8no97zk/M11Y71qyIyXl4mh7hS36pHk1J0zUEe
+         5kRF2iA24BABjwbl+6EGgJPaXTDqGVScfvAU0XNb3dueS3UawXcAod7/1FDLq3AVqPML
+         OyMQ==
+X-Gm-Message-State: AOAM53255axEX3rQKrdt2iY7Hk2WJB0Kf+XylOiraly2LcPaN3As/ob+
+        XdOFqooPCF2VdhSJsKQn3sT9oHFFq9KaubhKZN6rFYHFU73tI6OtQpSHV0jl5f80y3jetA9egyn
+        str13CW9hpn/lniTpRseRdw==
+X-Received: by 2002:adf:a501:: with SMTP id i1mr3165414wrb.184.1633176565020;
+        Sat, 02 Oct 2021 05:09:25 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw38kfx3fxrscY8VHyOvNaEHcZggBOMmzmqc53e9zPq8Vw2+DVJj5c2u+5vTedBvpWiBw0D+A==
+X-Received: by 2002:adf:a501:: with SMTP id i1mr3165397wrb.184.1633176564766;
+        Sat, 02 Oct 2021 05:09:24 -0700 (PDT)
 Received: from redhat.com ([2.55.22.213])
-        by smtp.gmail.com with ESMTPSA id e22sm599592wme.36.2021.10.02.03.21.34
+        by smtp.gmail.com with ESMTPSA id c9sm11040352wmb.41.2021.10.02.05.09.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 Oct 2021 03:21:36 -0700 (PDT)
-Date:   Sat, 2 Oct 2021 06:21:32 -0400
+        Sat, 02 Oct 2021 05:09:24 -0700 (PDT)
+Date:   Sat, 2 Oct 2021 08:09:20 -0400
 From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     Jason Wang <jasowang@redhat.com>,
+To:     Cornelia Huck <cohuck@redhat.com>
+Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        Jason Wang <jasowang@redhat.com>,
         Xie Yongji <xieyongji@bytedance.com>,
         virtualization@lists.linux-foundation.org,
         linux-kernel@vger.kernel.org, markver@us.ibm.com,
-        Cornelia Huck <cohuck@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         linux-s390@vger.kernel.org
 Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-Message-ID: <20211002055605-mutt-send-email-mst@kernel.org>
+Message-ID: <20211002062331-mutt-send-email-mst@kernel.org>
 References: <20210930012049.3780865-1-pasic@linux.ibm.com>
- <20210930070444-mutt-send-email-mst@kernel.org>
- <20211001092125.64fef348.pasic@linux.ibm.com>
+ <87r1d64dl4.fsf@redhat.com>
+ <20210930130350.0cdc7c65.pasic@linux.ibm.com>
+ <87ilyi47wn.fsf@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211001092125.64fef348.pasic@linux.ibm.com>
+In-Reply-To: <87ilyi47wn.fsf@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Oct 01, 2021 at 09:21:25AM +0200, Halil Pasic wrote:
-> On Thu, 30 Sep 2021 07:12:21 -0400
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Thu, Sep 30, 2021 at 01:31:04PM +0200, Cornelia Huck wrote:
+> On Thu, Sep 30 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
-> > On Thu, Sep 30, 2021 at 03:20:49AM +0200, Halil Pasic wrote:
-> > > This patch fixes a regression introduced by commit 82e89ea077b9
-> > > ("virtio-blk: Add validation for block size in config space") and
-> > > enables similar checks in verify() on big endian platforms.
-> > > 
-> > > The problem with checking multi-byte config fields in the verify
-> > > callback, on big endian platforms, and with a possibly transitional
-> > > device is the following. The verify() callback is called between
-> > > config->get_features() and virtio_finalize_features(). That we have a
-> > > device that offered F_VERSION_1 then we have the following options
-> > > either the device is transitional, and then it has to present the legacy
-> > > interface, i.e. a big endian config space until F_VERSION_1 is
-> > > negotiated, or we have a non-transitional device, which makes
-> > > F_VERSION_1 mandatory, and only implements the non-legacy interface and
-> > > thus presents a little endian config space. Because at this point we
-> > > can't know if the device is transitional or non-transitional, we can't
-> > > know do we need to byte swap or not.  
-> > 
-> > Hmm which transport does this refer to?
-> 
-> It is the same with virtio-ccw and virtio-pci. I see the same problem
-> with both on s390x. I didn't try with virtio-blk-pci-non-transitional
-> yet (have to figure out how to do that with libvirt) for pci I used
-> virtio-blk-pci.
-> 
-> > Distinguishing between legacy and modern drivers is transport
-> > specific.  PCI presents
-> > legacy and modern at separate addresses so distinguishing
-> > between these two should be no trouble.
-> 
-> You mean the device id? Yes that is bolted down in the spec, but
-> currently we don't exploit that information. Furthermore there
-> is a fat chance that with QEMU even the allegedly non-transitional
-> devices only present a little endian config space after VERSION_1
-> was negotiated. Namely get_config for virtio-blk is implemented in
-> virtio_blk_update_config() which does virtio_stl_p(vdev,
-> &blkcfg.blk_size, blk_size) and in there we don't care
-> about transitional or not:
-> 
-> static inline bool virtio_access_is_big_endian(VirtIODevice *vdev)
-> {
-> #if defined(LEGACY_VIRTIO_IS_BIENDIAN)
->     return virtio_is_big_endian(vdev);
-> #elif defined(TARGET_WORDS_BIGENDIAN)
->     if (virtio_vdev_has_feature(vdev, VIRTIO_F_VERSION_1)) {
->         /* Devices conforming to VIRTIO 1.0 or later are always LE. */
->         return false;
->     }
->     return true;
-> #else
->     return false;
-> #endif
-> }
-> 
-
-ok so that's a QEMU bug. Any virtio 1.0 and up
-compatible device must use LE.
-It can also present a legacy config space where the
-endian depends on the guest.
-
-> > Channel i/o has versioning so same thing?
+> > On Thu, 30 Sep 2021 11:28:23 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
 > >
+> >> On Thu, Sep 30 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
+> >> 
+> >> > This patch fixes a regression introduced by commit 82e89ea077b9
+> >> > ("virtio-blk: Add validation for block size in config space") and
+> >> > enables similar checks in verify() on big endian platforms.
+> >> >
+> >> > The problem with checking multi-byte config fields in the verify
+> >> > callback, on big endian platforms, and with a possibly transitional
+> >> > device is the following. The verify() callback is called between
+> >> > config->get_features() and virtio_finalize_features(). That we have a
+> >> > device that offered F_VERSION_1 then we have the following options
+> >> > either the device is transitional, and then it has to present the legacy
+> >> > interface, i.e. a big endian config space until F_VERSION_1 is
+> >> > negotiated, or we have a non-transitional device, which makes
+> >> > F_VERSION_1 mandatory, and only implements the non-legacy interface and
+> >> > thus presents a little endian config space. Because at this point we
+> >> > can't know if the device is transitional or non-transitional, we can't
+> >> > know do we need to byte swap or not.
+> >> >
+> >> > The virtio spec explicitly states that the driver MAY read config
+> >> > between reading and writing the features so saying that first accessing
+> >> > the config before feature negotiation is done is not an option. The
+> >> > specification ain't clear about setting the features multiple times
+> >> > before FEATURES_OK, so I guess that should be fine.
+> >> >
+> >> > I don't consider this patch super clean, but frankly I don't think we
+> >> > have a ton of options. Another option that may or man not be cleaner,
+> >> > but is also IMHO much uglier is to figure out whether the device is
+> >> > transitional by rejecting _F_VERSION_1, then resetting it and proceeding
+> >> > according tho what we have figured out, hoping that the characteristics
+> >> > of the device didn't change.
+> >> >
+> >> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> >> > Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+> >> > Reported-by: markver@us.ibm.com
+> >> > ---
+> >> >  drivers/virtio/virtio.c | 4 ++++
+> >> >  1 file changed, 4 insertions(+)
+> >> >
+> >> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> >> > index 0a5b54034d4b..9dc3cfa17b1c 100644
+> >> > --- a/drivers/virtio/virtio.c
+> >> > +++ b/drivers/virtio/virtio.c
+> >> > @@ -249,6 +249,10 @@ static int virtio_dev_probe(struct device *_d)
+> >> >  		if (device_features & (1ULL << i))
+> >> >  			__virtio_set_bit(dev, i);
+> >> >  
+> >> > +	/* Write back features before validate to know endianness */
+> >> > +	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+> >> > +		dev->config->finalize_features(dev);  
+> >> 
+> >> This really looks like a mess :(
+> >> 
+> >> We end up calling ->finalize_features twice: once before ->validate, and
+> >> once after, that time with the complete song and dance. The first time,
+> >> we operate on one feature set; after validation, we operate on another,
+> >> and there might be interdependencies between the two (like a that a bit
+> >> is cleared because of another bit, which would not happen if validate
+> >> had a chance to clear that bit before).
+> >
+> > Basically the second set is a subset of the first set.
 > 
-> Don't think so. Both a transitional and a non-transitional device
-> would have to accept revisions higher than 0 if the driver tried to
-> negotiate those (and we do in our case).
-
-Yes, the modern driver does. And that one is known to be LE.
-legacy driver doesn't.
-
-> > > The virtio spec explicitly states that the driver MAY read config
-> > > between reading and writing the features so saying that first accessing
-> > > the config before feature negotiation is done is not an option. The
-> > > specification ain't clear about setting the features multiple times
-> > > before FEATURES_OK, so I guess that should be fine.
-> > > 
-> > > I don't consider this patch super clean, but frankly I don't think we
-> > > have a ton of options. Another option that may or man not be cleaner,
-> > > but is also IMHO much uglier is to figure out whether the device is
-> > > transitional by rejecting _F_VERSION_1, then resetting it and proceeding
-> > > according tho what we have figured out, hoping that the characteristics
-> > > of the device didn't change.  
-> > 
-> > I am confused here. So is the problem at the device or at the driver level?
+> I don't think that's clear.
 > 
-> We have a driver regression. Since the 82e89ea077b9 ("virtio-blk: Add
-> validation for block size in config space") virtio-blk is broken on
-> s390.
-
-Because of a qemu bug. I agree. It's worth working around in the driver
-since the qemu bug has been around for a very long time.
-
-
-> The deeper problem is in the spec. We stated that the driver may read
-> config space before the feature negotiation is finalized, but we didn't
-> think enough about what happens when native endiannes is not little
-> endian in the different cases.
-
-Because the spec is very clear that endian-ness is LE.
-I don't see a spec issue yet here, just an implementation issue.
-
-> I believe, for non-transitional devices we have a problem in the host as
-> well (i.e. in QEMU).
-
-Because QEMU ignores the spec and instead relies on the feature
-negotiation.
-
+> >
+> >> 
+> >> I'm not sure whether that is even a problem in the spec: while the
+> >> driver may read the config before finally accepting features
+> >
+> > I'm not sure I'm following you. Let me please qoute the specification:
+> > """
+> > 4. Read device feature bits, and write the subset of feature bits
+> > understood by the OS and driver to the device. During this step the driver MAY read (but MUST NOT write) the device-specific configuration fields to check that it can support the device before accepting it. 
+> > 5. Set the FEATURES_OK status bit. The driver MUST NOT accept new feature bits after this step. 
+> > """
+> > https://docs.oasis-open.org/virtio/virtio/v1.1/cs01/virtio-v1.1-cs01.html#x1-930001
 > 
-> > I suspect it's actually the host that has the issue, not
-> > the guest?
+> Yes, exactly, it MAY read before accepting features. How does the device
+> know whether the config space is little-endian or not?
+
+I think it knows simply because the spec says it's little-endian.
+
+
+
+> >
+> >> , it does
+> >> not really make sense to do so before a feature bit as basic as
+> >> VERSION_1 which determines the endianness has been negotiated. 
+> >
+> > Are you suggesting that ->verify() should be after
+> > virtio_finalize_features()?
 > 
-> I tend to say we have a problem both in the host and in the guest. I'm
-> more concerned about the problem in the guest, because that is a really
-> nasty regression.
-
-The problem is in the guest. The bug is in the host ;)
-
-> For the host. I think for legacy we don't have a
-> problem, because both sides would operate on the assumption no
-> _F_VERSION_1, IMHO the implementation for the transitional devices is
-> correct.
-
-Well no, the point of transitional is really to be 1.0 compliant
-*and* also expose a legacy interface.
-
-> For non-transitional flavor, it depends on the device. For
-> example virtio-net and virtio-blk is broken, because we use primitives
-> like virtio_stl_p() and those don't do the right thing before feature
-> negotiation is completed. On the other hand virtio-crypto.c as a truly
-> non-transitional device uses stl_le_p() and IMHO does the right thing.
+> No, that would defeat the entire purpose of verify. After
+> virtio_finalize_features(), we are done with feature negotiation.
 > 
-> Thanks for your comments! I hope I managed to answer your questions. I
-> need some guidance on how do we want to move forward on this.
+> > Wouldn't
+> > that mean that verify() can't reject feature bits? But that is the whole
+> > point of commit 82e89ea077b9 ("virtio-blk: Add validation for block size
+> > in config space"). Do you think that the commit in question is
+> > conceptually flawed? My understanding of the verify is, that it is supposed
+> > to fence features and feature bits we can't support, e.g. because of
+> > config space things, but I may be wrong.
 > 
-> Regards,
-> Halil
-
-OK so. I don't have a problem with the patch itself,
-assuming it's enough to work around all buggy hosts.
-I am especially worried about things like vhost/vhost-user,
-I suspect they might have a bug like this too, and
-I am not sure whether your work around is enough for these.
-Can you check please?
-
-If not we'll have to move all validate code to after FEATURES_OK
-is set.
-
-We do however want to document that this API can be called
-multiple times since that was not the case
-previously.
-
-Also, I would limit this to when
-- the validate callback exists
-- the guest endian-ness is not LE
-
-We also want to document the QEMU bug in a comment here,
-e.g. 
-
-/*
- * QEMU before version 6.2 incorrectly uses driver features with guest
- * endian-ness to set endian-ness for config space instead of just using
- * LE for the modern interface as per spec.
- * This breaks reading config in the validate callback.
- * To work around that, when device is 1.0 (so supposed to be LE)
- * but guest is not LE, then send the features to device one extra
- * time before validation.
- */
-
-Finally I'd like to see the QEMU bug fix before I merge this one,
-since it will be harder to test with a fix.
+> No, that commit is not really flawed on its own, I think the whole
+> procedure may be problematic.
+> 
+> >
+> > The trouble is, feature bits are not negotiated one by one, but basically all
+> > at once. I suppose, I did the next best thing to first negotiating
+> > VERSION_1.
+> 
+> We probably need to special-case VERSION_1 to move at least forward;
+> i.e. proceed as if we accepted it when reading the config space.
+> 
+> The problem is that we do not know what the device assumes when we read
+> the config space prior to setting FEATURES_OK. It may assume
+> little-endian if it offered VERSION_1, or it may not. The spec does not
+> really say what happens before feature negotiation has finished.
 
 
+So if your device is non transitional then it's LE.
+If it's transitional it exposes a legacy interface
+in addition to the modern one, and that one is guest endian.
+How does device know which interface is used?
+E.g. for PCI it's a separate address range.
+
+For ccw why not check the revision? legacy drivers use 0 for that.
 
 
-> > 
-> > 
-> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > > Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-> > > Reported-by: markver@us.ibm.com
-> > > ---
-> > >  drivers/virtio/virtio.c | 4 ++++
-> > >  1 file changed, 4 insertions(+)
-> > > 
-> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > index 0a5b54034d4b..9dc3cfa17b1c 100644
-> > > --- a/drivers/virtio/virtio.c
-> > > +++ b/drivers/virtio/virtio.c
-> > > @@ -249,6 +249,10 @@ static int virtio_dev_probe(struct device *_d)
-> > >  		if (device_features & (1ULL << i))
-> > >  			__virtio_set_bit(dev, i);
-> > >  
-> > > +	/* Write back features before validate to know endianness */
-> > > +	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
-> > > +		dev->config->finalize_features(dev);
-> > > +
-> > >  	if (drv->validate) {
-> > >  		err = drv->validate(dev);
-> > >  		if (err)
-> > > 
-> > > base-commit: 02d5e016800d082058b3d3b7c3ede136cdc6ddcb
-> > > -- 
-> > > 2.25.1  
-> > 
+> >
+> >
+> >> For
+> >> VERSION_1, we can probably go ahead and just assume that we will accept
+> >> it if offered, but what about other (future) bits?
+> >
+> > I don't quite understand.
+> 
+> There might be other bits in the future that change how the config space
+> works. We cannot assume that any of those bits will be accepted if
+> offered; i.e. we need a special hack for VERSION_1.
+> 
+> >
+> > Anyway, how do you think we should solve this problem?
+> 
+> This is a mess. For starters, we need to think about if we should do
+> something in the spec, and if yes, what.. Then, we can probably think
+> about how to implement that properly.
+> 
+> As we have an error right now that is basically a regression, we
+> probably need a band-aid to keep going. Not sure if your patch is the
+> right approach, maybe we really need to special-case VERSION_1 (the
+> "assume we accepted it" hack mentioned above.) This will likely fix the
+> reported problem (I assume that is s390x on QEMU); do we know about
+> other VMMs? Any other big-endian architectures?
+> 
+> Anyone have any better suggestions?
 
