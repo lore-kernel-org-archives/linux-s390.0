@@ -2,186 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 282CCC433F5
-	for <linux-s390@archiver.kernel.org>; Sat,  2 Oct 2021 18:21:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28A7DC433FE
+	for <linux-s390@archiver.kernel.org>; Sun,  3 Oct 2021 05:00:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 00C5761AFE
-	for <linux-s390@archiver.kernel.org>; Sat,  2 Oct 2021 18:21:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EFC7861A4F
+	for <linux-s390@archiver.kernel.org>; Sun,  3 Oct 2021 05:00:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233822AbhJBSWp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 2 Oct 2021 14:22:45 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:26545 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233819AbhJBSWk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 Oct 2021 14:22:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633198854;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=/BseWdc8UQJjK9a1ZYawAXysMdy6qiRjZCYAo+Mifu0=;
-        b=fIwlY0GLDYN6+dz/ng7faCpjt1bvOSDs1hDmyJ06nm7nn/KTx/qhAXvX7sr2w8V4gmvsDN
-        t3MB0uA+1Dr1L6s2OMRzGfBGOsUPkSxB3ecn1xDHxBDf0+rtK7BMrAlFgie/dsaNCosDZG
-        gXuLiCVuoAcqteh/fuK6sxE5nJKyApg=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-114-2E0NwkzJPWy9Otb9BRZNwA-1; Sat, 02 Oct 2021 14:20:53 -0400
-X-MC-Unique: 2E0NwkzJPWy9Otb9BRZNwA-1
-Received: by mail-wm1-f72.google.com with SMTP id x23-20020a05600c21d700b0030d23749278so5466469wmj.2
-        for <linux-s390@vger.kernel.org>; Sat, 02 Oct 2021 11:20:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=/BseWdc8UQJjK9a1ZYawAXysMdy6qiRjZCYAo+Mifu0=;
-        b=Nbv0sX0w5Jvv6ZqB4HAbOVSnZ/o923ULJG8i8H0aljt2dqOcX6Ik+wFfw+zON5N2s0
-         ySi9rYaExzV2JbiYGVwTLJLl/0X0VzzpCjIiMv3nDxpG1oQ/9a5XqdTbDYiDqSkqiOQN
-         OiLK5+3wC6Htydo/Wzl+pkJDEE3shcJ2A1yP2AUE3wTTLzzvOInoqJphKIFT0BNIJdIi
-         NmhZSw37aZIPIUgbsU0wVYhbbqRI7hdsgO9kzIwm74t67D61T1lGpdh30twgShWmar0E
-         VIAVUgVFBGXVBtKcbV0t4ltXyRXcjng1yKFzJXwXPPiRnZxVfmPAJyGJEzzWogMv/mif
-         LhHA==
-X-Gm-Message-State: AOAM533qS8w/3r4XMLPbDxQ6BJW2pKJbSBjUJtpEkHS3C4uwqtonGT/V
-        HEL3qVkwdT4gO0KIxPkjgPqHxeKPjoVkduxHgMUtTauE+A0QQfHrVCXJCpgLYecpP74jWnTEg+p
-        Yh95cHaPe3TYBqZHn0Rb+rQ==
-X-Received: by 2002:adf:dd49:: with SMTP id u9mr4550514wrm.341.1633198851277;
-        Sat, 02 Oct 2021 11:20:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwvZQk7jDjIn08h5VZz1gHIyPHtFcuVU64tR+3kyaT84IIZkayL+B4+uQQLa/omoliyoequsA==
-X-Received: by 2002:adf:dd49:: with SMTP id u9mr4550499wrm.341.1633198851080;
-        Sat, 02 Oct 2021 11:20:51 -0700 (PDT)
-Received: from redhat.com ([2.55.22.213])
-        by smtp.gmail.com with ESMTPSA id s3sm9210727wrm.40.2021.10.02.11.20.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 Oct 2021 11:20:50 -0700 (PDT)
-Date:   Sat, 2 Oct 2021 14:20:47 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        id S229484AbhJCFCm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 3 Oct 2021 01:02:42 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9364 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229450AbhJCFCm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Oct 2021 01:02:42 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1934eiEa029361;
+        Sun, 3 Oct 2021 01:00:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=9aTRdAry9oa2Td1IOB8PmdFe2TgHdkTyMDM7HsVccss=;
+ b=pK7Zn/YGFkmSao2D+JvtM0vGncNFMoTML27y1dDB28L6bqai8iODsCaJgjLQvYECtcDf
+ zDAVLVGNEi905b+AO7hRp4gQ6/t0IpAL/mlj91vgsOmndUfgJhfwYc4D6hY41zt42kWO
+ bcsnKd8bM6zdyAahdFJg7n55z82o0ZQkqnjX0JE2w6Qzwzj9wwJejD1h9sDtfAL/MrYn
+ 1fZf+ofCiqD0vaq9VIINYYZI7HCTYuMVY5zpV3IW4D0dQ1ZePU/OWSeLiK17qIoEVhEE
+ 5xJy1NbVYV2N/MdjBR8j6XRN9Ysa2iWEgbaMgUFue48+xtfIulagi0Jp/DgZqsetmgHM aQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bf5998dy0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 03 Oct 2021 01:00:52 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1934v8xV011206;
+        Sun, 3 Oct 2021 01:00:52 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bf5998du1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 03 Oct 2021 01:00:52 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1934upE6027032;
+        Sun, 3 Oct 2021 05:00:42 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3bef2a54fh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 03 Oct 2021 05:00:42 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19350cLj39256524
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 3 Oct 2021 05:00:38 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8F82611C06C;
+        Sun,  3 Oct 2021 05:00:38 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3E01D11C05C;
+        Sun,  3 Oct 2021 05:00:37 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.45.119])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Sun,  3 Oct 2021 05:00:37 +0000 (GMT)
+Date:   Sun, 3 Oct 2021 07:00:30 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
         Jason Wang <jasowang@redhat.com>,
         Xie Yongji <xieyongji@bytedance.com>,
         virtualization@lists.linux-foundation.org,
         linux-kernel@vger.kernel.org, markver@us.ibm.com,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-Message-ID: <20211002141351-mutt-send-email-mst@kernel.org>
+Message-ID: <20211003070030.658fc94e.pasic@linux.ibm.com>
+In-Reply-To: <20211002141351-mutt-send-email-mst@kernel.org>
 References: <20210930012049.3780865-1-pasic@linux.ibm.com>
- <20210930070444-mutt-send-email-mst@kernel.org>
- <87fstm47no.fsf@redhat.com>
+        <20210930070444-mutt-send-email-mst@kernel.org>
+        <87fstm47no.fsf@redhat.com>
+        <20211002141351-mutt-send-email-mst@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=US-ASCII
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zjFRvHS7YL9eje-eFWlRkxwM6doaGMQX
+X-Proofpoint-GUID: irBnKU-342cRIG5fuouN_yVNjvz8YDyW
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87fstm47no.fsf@redhat.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-02_07,2021-10-01_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ mlxlogscore=999 lowpriorityscore=0 adultscore=0 suspectscore=0
+ clxscore=1015 phishscore=0 priorityscore=1501 spamscore=0 impostorscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110030035
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 30, 2021 at 01:36:27PM +0200, Cornelia Huck wrote:
-> On Thu, Sep 30 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Sat, 2 Oct 2021 14:20:47 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> > >From my perspective the problem is that the version of the device  
+> > remains in limbo as long as the features have not yet been finalized,
+> > which means that the endianness of the config space remains in limbo as
+> > well. Both device and driver might come to different conclusions.  
 > 
-> > On Thu, Sep 30, 2021 at 03:20:49AM +0200, Halil Pasic wrote:
-> >> This patch fixes a regression introduced by commit 82e89ea077b9
-> >> ("virtio-blk: Add validation for block size in config space") and
-> >> enables similar checks in verify() on big endian platforms.
-> >> 
-> >> The problem with checking multi-byte config fields in the verify
-> >> callback, on big endian platforms, and with a possibly transitional
-> >> device is the following. The verify() callback is called between
-> >> config->get_features() and virtio_finalize_features(). That we have a
-> >> device that offered F_VERSION_1 then we have the following options
-> >> either the device is transitional, and then it has to present the legacy
-> >> interface, i.e. a big endian config space until F_VERSION_1 is
-> >> negotiated, or we have a non-transitional device, which makes
-> >> F_VERSION_1 mandatory, and only implements the non-legacy interface and
-> >> thus presents a little endian config space. Because at this point we
-> >> can't know if the device is transitional or non-transitional, we can't
-> >> know do we need to byte swap or not.
-> >
-> > Hmm which transport does this refer to?
-> > Distinguishing between legacy and modern drivers is transport
-> > specific.  PCI presents
-> > legacy and modern at separate addresses so distinguishing
-> > between these two should be no trouble.
+> Version === legacy versus modern?
+> It is true that feature negotiation can not be used by device to decide that
+> question simply because it happens too late.
+> So let's not use it for that then ;)
 > 
-> Hm, what about transitional devices?
-
-transitional devices can be accessed through a modern
-or a legacy interface, not both. Device knows how
-it's accessed. It should key endian-ness decisions on
-this not on feature negotiation.
-
-> > Channel i/o has versioning so same thing?
+> Yes we have VERSION_1 which looks like it should allow this, but
+> unfortunately it only helps with that for the driver, not the device.
 > 
-> It can turn off VERSION_1, but not legacy. (I had hacked up a patchset
-> to potentially disable legacy some time ago, but did not have any
-> resources to follow up on this.)
+> In practice legacy versus modern has to be determined by
+> transport specific versioning, luckily we have that for all
+> specified transports (can't say what happens with rproc).
 
-That's ok, my point is that revision is negotiated before config
-accesses, IIUC a legacy driver expecting BE will use revision 0, modern
-one will use revision 1 and up.
+So if we look at ccw, you say that the revision negotiation already
+determines whether VERSION_1 is negotiated or not, and the
+feature bit VERSION_1 is superfluous?
 
-> 
-> >
-> >> The virtio spec explicitly states that the driver MAY read config
-> >> between reading and writing the features so saying that first accessing
-> >> the config before feature negotiation is done is not an option. The
-> >> specification ain't clear about setting the features multiple times
-> >> before FEATURES_OK, so I guess that should be fine.
-> >> 
-> >> I don't consider this patch super clean, but frankly I don't think we
-> >> have a ton of options. Another option that may or man not be cleaner,
-> >> but is also IMHO much uglier is to figure out whether the device is
-> >> transitional by rejecting _F_VERSION_1, then resetting it and proceeding
-> >> according tho what we have figured out, hoping that the characteristics
-> >> of the device didn't change.
-> >
-> > I am confused here. So is the problem at the device or at the driver level?
-> > I suspect it's actually the host that has the issue, not
-> > the guest?
-> 
-> >From my perspective the problem is that the version of the device
-> remains in limbo as long as the features have not yet been finalized,
-> which means that the endianness of the config space remains in limbo as
-> well. Both device and driver might come to different conclusions.
+That would also imply, that 
+1) if revision > 0 was negotiated then the device must offer VERSION_1
+2) if revision > 0 was negotiated and the driver cleared VERSION_1
+   the device must refuse to operate.
+3) if revision > 0 was negotiated then the driver should reject 
+   to drive a device if it does not offer VERSION_1
+4) if revision > 0 was negotiated the driver must accept VERSION_1
+5) if revision > 0 was *not* negotiated then the device should not offer
+   VERSION_1 because at this point it is already certain that the device
+   can not act in accordance to the virtio 1.0 or higher interface.
 
-Version === legacy versus modern?
-It is true that feature negotiation can not be used by device to decide that
-question simply because it happens too late.
-So let's not use it for that then ;)
+Does that sound about right?
 
-Yes we have VERSION_1 which looks like it should allow this, but
-unfortunately it only helps with that for the driver, not the device.
+IMHO we should also change 
+https://docs.oasis-open.org/virtio/virtio/v1.1/cs01/virtio-v1.1-cs01.html#x1-160003
+and the definition of VERSION_1 because both sides have to know what is
+going on before features are fully negotiated. Or?
 
-In practice legacy versus modern has to be determined by
-transport specific versioning, luckily we have that for all
-specified transports (can't say what happens with rproc).
+Regards,
+Halil
 
-> 
-> >
-> >
-> >> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> >> Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-> >> Reported-by: markver@us.ibm.com
-> >> ---
-> >>  drivers/virtio/virtio.c | 4 ++++
-> >>  1 file changed, 4 insertions(+)
-> >> 
-> >> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> >> index 0a5b54034d4b..9dc3cfa17b1c 100644
-> >> --- a/drivers/virtio/virtio.c
-> >> +++ b/drivers/virtio/virtio.c
-> >> @@ -249,6 +249,10 @@ static int virtio_dev_probe(struct device *_d)
-> >>  		if (device_features & (1ULL << i))
-> >>  			__virtio_set_bit(dev, i);
-> >>  
-> >> +	/* Write back features before validate to know endianness */
-> >> +	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
-> >> +		dev->config->finalize_features(dev);
-> >> +
-> >>  	if (drv->validate) {
-> >>  		err = drv->validate(dev);
-> >>  		if (err)
-> >> 
-> >> base-commit: 02d5e016800d082058b3d3b7c3ede136cdc6ddcb
-> >> -- 
-> >> 2.25.1
+
 
