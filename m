@@ -2,122 +2,145 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9A41C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 09:25:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81758C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 09:36:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B8A8561213
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 09:25:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 673AE6128A
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 09:36:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229795AbhJDJ12 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Oct 2021 05:27:28 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:5292 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229478AbhJDJ12 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Oct 2021 05:27:28 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1949Ah0U001135;
-        Mon, 4 Oct 2021 05:25:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=vT7qGkc73f3PD6OnZ7iIGB4BRYsxeKDvvH9yz1S3no8=;
- b=HlViD0Py3eqjU2i7lAtCb4gWDrj8WrzE86g/KW8E68PvJLN+0XEGerwb5lUljQBn+t8n
- nJGtbOuEt2GWsaJZehqT4jefa/T72yeNotNAumP989/62AtxjECdfB8jGDjWuxCpPqbn
- WYPtK+hltZKbfBuVYWMwsrxr7l3qXKM9JhBX8v8NTvEn5faqJtCdZ8Fe/bXg3T8jo7mV
- TXW6PohkE5uv9JudPtqYL72+deBqlMLhgRo4VMCQjrU5pf421SqPqwX1nw8/kH9cybYr
- fWEssois8qryrlRrjScMxR1JzNVUrlseYGyBNXlj6eR10/SDBpDRpy/CjQ+/57ypiyxn nw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bfxdt8f4m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Oct 2021 05:25:37 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1949PbiW025706;
-        Mon, 4 Oct 2021 05:25:37 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bfxdt8f3s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Oct 2021 05:25:37 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1949CTXJ019358;
-        Mon, 4 Oct 2021 09:25:34 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3bef29krwb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Oct 2021 09:25:34 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1949KEII18547180
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Oct 2021 09:20:14 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3EF5952052;
-        Mon,  4 Oct 2021 09:25:31 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.45.119])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id 93E5952050;
-        Mon,  4 Oct 2021 09:25:30 +0000 (GMT)
-Date:   Mon, 4 Oct 2021 11:25:28 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, markver@us.ibm.com,
+        id S232198AbhJDJiK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Oct 2021 05:38:10 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:47906 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231805AbhJDJiJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Oct 2021 05:38:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633340180;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=hlABN2UfX8mmg4ng0oI/HDWFcaKFWagGNJM8HwtDihg=;
+        b=F7YrK3RBAgnWJ3QDhU3GrNHz022r7yRiR2Glygvs2++J8onyr9icyN6wMidHk+HWb5py3b
+        o+oWaQyjYZB6Z8s4cOhi7GnIErun1YJ1xUvoFSTNAnGzG/DuTykOKL4I1+wQ2RF4GCHble
+        rkUvMMqMu2pa56xQUZZTJ79lDJFfo4A=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-560-MDZ8qFBKP2Whbkrt_JF4zg-1; Mon, 04 Oct 2021 05:36:17 -0400
+X-MC-Unique: MDZ8qFBKP2Whbkrt_JF4zg-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B143E1006AA4;
+        Mon,  4 Oct 2021 09:36:14 +0000 (UTC)
+Received: from t480s.redhat.com (unknown [10.39.194.159])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 098A9100763D;
+        Mon,  4 Oct 2021 09:36:06 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Jianyong Wu <Jianyong.Wu@arm.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-Message-ID: <20211004112528.74442e52.pasic@linux.ibm.com>
-In-Reply-To: <87pmsl2rzd.fsf@redhat.com>
-References: <20210930012049.3780865-1-pasic@linux.ibm.com>
-        <87r1d64dl4.fsf@redhat.com>
-        <20210930130350.0cdc7c65.pasic@linux.ibm.com>
-        <87ilyi47wn.fsf@redhat.com>
-        <20211001162213.18d7375e.pasic@linux.ibm.com>
-        <87v92g3h9l.fsf@redhat.com>
-        <20211002082128-mutt-send-email-mst@kernel.org>
-        <87pmsl2rzd.fsf@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        Eric Biederman <ebiederm@xmission.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-snps-arc@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-mm@kvack.org,
+        kexec@lists.infradead.org
+Subject: [PATCH v2 0/5] mm/memory_hotplug: full support for add_memory_driver_managed() with CONFIG_ARCH_KEEP_MEMBLOCK
+Date:   Mon,  4 Oct 2021 11:36:00 +0200
+Message-Id: <20211004093605.5830-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: iSY6NboaJgOAOYom2ahH_CQcl1msSaq2
-X-Proofpoint-ORIG-GUID: wcV1khcVsbws-U_qnZdOO6FoCTCcQvQO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-10-04_02,2021-10-01_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
- spamscore=0 lowpriorityscore=0 impostorscore=0 priorityscore=1501
- clxscore=1015 mlxscore=0 adultscore=0 phishscore=0 malwarescore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110040063
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 04 Oct 2021 09:01:42 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+Architectures that require CONFIG_ARCH_KEEP_MEMBLOCK=y, such as arm64,
+don't cleanly support add_memory_driver_managed() yet. Most prominently,
+kexec_file can still end up placing kexec images on such driver-managed
+memory, resulting in undesired behavior, for example, having kexec images
+located on memory not part of the firmware-provided memory map.
 
-> On Sat, Oct 02 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Fri, Oct 01, 2021 at 05:18:46PM +0200, Cornelia Huck wrote:  
-> >> I'd say we need a hack here so that we assume little-endian config space
-> >> if VERSION_1 has been offered; if your patch here works, I assume QEMU
-> >> does what we expect (assmuming little-endian as well.) I'm mostly
-> >> wondering what happens if you use a different VMM; can we expect it to
-> >> work similar to QEMU?  
-> >
-> > Hard to say of course ... hopefully other VMMs are actually
-> > implementing the spec. E.g. IIUC rust vmm is modern only.  
-> 
-> Yes, I kind of hope they are simply doing LE config space accesses.
-> 
-> Are there any other VMMs that are actually supported on s390x (or other
-> BE architectures)?
-> 
+Teaching kexec to not place images on driver-managed memory is especially
+relevant for virtio-mem. Details can be found in commit 7b7b27214bba
+("mm/memory_hotplug: introduce add_memory_driver_managed()").
 
-I think zCX (z/OS Container Extensions) is relevant as it uses virtio.
-That is all I know about.
+Extend memblock with a new flag and set it from memory hotplug code
+when applicable. This is required to fully support virtio-mem on
+arm64, making also kexec_file behave like on x86-64.
 
-Regards,
-Halil
+v1 -> v2:
+- "memblock: improve MEMBLOCK_HOTPLUG documentation"
+-- Added
+- "memblock: add MEMBLOCK_DRIVER_MANAGED to mimic
+   IORESOURCE_SYSRAM_DRIVER_MANAGED"
+-- Improve documentation of MEMBLOCK_DRIVER_MANAGED
+- Refine patch descriptions
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Jianyong Wu <Jianyong.Wu@arm.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Vineet Gupta <vgupta@kernel.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Huacai Chen <chenhuacai@kernel.org>
+Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: kexec@lists.infradead.org
+
+David Hildenbrand (5):
+  mm/memory_hotplug: handle memblock_add_node() failures in
+    add_memory_resource()
+  memblock: improve MEMBLOCK_HOTPLUG documentation
+  memblock: allow to specify flags with memblock_add_node()
+  memblock: add MEMBLOCK_DRIVER_MANAGED to mimic
+    IORESOURCE_SYSRAM_DRIVER_MANAGED
+  mm/memory_hotplug: indicate MEMBLOCK_DRIVER_MANAGED with
+    IORESOURCE_SYSRAM_DRIVER_MANAGED
+
+ arch/arc/mm/init.c               |  4 ++--
+ arch/ia64/mm/contig.c            |  2 +-
+ arch/ia64/mm/init.c              |  2 +-
+ arch/m68k/mm/mcfmmu.c            |  3 ++-
+ arch/m68k/mm/motorola.c          |  6 ++++--
+ arch/mips/loongson64/init.c      |  4 +++-
+ arch/mips/sgi-ip27/ip27-memory.c |  3 ++-
+ arch/s390/kernel/setup.c         |  3 ++-
+ include/linux/memblock.h         | 25 +++++++++++++++++++++----
+ include/linux/mm.h               |  2 +-
+ kernel/kexec_file.c              |  5 +++++
+ mm/memblock.c                    | 13 +++++++++----
+ mm/memory_hotplug.c              | 11 +++++++++--
+ 13 files changed, 62 insertions(+), 21 deletions(-)
+
+
+base-commit: 9e1ff307c779ce1f0f810c7ecce3d95bbae40896
+-- 
+2.31.1
+
