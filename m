@@ -2,173 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E09FDC433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 20:01:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F74DC433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 20:31:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C83CE613D2
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 20:01:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 000C560F5B
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 20:31:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235816AbhJDUDO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Oct 2021 16:03:14 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:32526 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235660AbhJDUDL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Oct 2021 16:03:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633377682;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=KsdJcxDdgTF/zmQf/6TyWls50jhunD8gsTgc9KR7gmk=;
-        b=R9XBVNS01izHScLEDK6Z+5JyDNutRcHhDI9fiKIrmlWiFmWBx0Vast+ZiO6M/0y64GWYji
-        K1G3/SJ7e/M5U4+2GUzUbMGnWj5vEWCq9A0QmvTVC3X9xfKBaqStWoX2hOvSfvk0xA5c2e
-        0xBlHC1zDCgPHv3MWtNip2cL1OrZcYI=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-192-teb3kP8_MFi9eeDha2UKsQ-1; Mon, 04 Oct 2021 16:01:19 -0400
-X-MC-Unique: teb3kP8_MFi9eeDha2UKsQ-1
-Received: by mail-ed1-f72.google.com with SMTP id r11-20020aa7cfcb000000b003d4fbd652b9so18296612edy.14
-        for <linux-s390@vger.kernel.org>; Mon, 04 Oct 2021 13:01:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=KsdJcxDdgTF/zmQf/6TyWls50jhunD8gsTgc9KR7gmk=;
-        b=iudlFXfRuMcWhStx+eJHKb73dq7SPwvs7SMKFlxbek7y49x+m+KEbEqcsYRE9maiPO
-         tkppCQ/V4u6A9IdIkU9mSIVXvogQfzIAcM8HUD2k0LSTwrkPj7nsduwcIdM7AK3Q4pUY
-         CoNg1tDB5EyRYIWzY7AkGCSr9P822kGBeFeNblEvK9ONVKOskWzFhhGsB2ZoP2JEhB8E
-         ZV5AxHtZ36CPvZ32onVEPv74hQfE+S7hUg/2ZZ7hl4freiD2cBFEiLpUXY0nsjo6S/LR
-         asxs5kpTnlYZgn8SU04x3Jq59JurdHEH1Iw29NyKKywUsHekVVKhGfFgxdebeStXSPV7
-         8/DA==
-X-Gm-Message-State: AOAM5327EtU0g53I6Tls86U27VeND9ABpAdBjdK90c/ZTi6pMu40U/Mw
-        HGMu5F6TyLvW1PlBKOUWQ4nqFl5m8tORCpYL5z+uAc+Po8X3C5SHxiM5oHunVEQA0HdGo8PJ3CG
-        jEjvuhna33EwzwQ9ZK5AGKg==
-X-Received: by 2002:a05:6402:2906:: with SMTP id ee6mr17966510edb.170.1633377678168;
-        Mon, 04 Oct 2021 13:01:18 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyuHj3hrys0X5jcvBEKc8g2+iuDhizhWCRoVmy0jn4kkURJJbD11p6ILeMeXQvLwtLsevqp+A==
-X-Received: by 2002:a05:6402:2906:: with SMTP id ee6mr17966483edb.170.1633377677943;
-        Mon, 04 Oct 2021 13:01:17 -0700 (PDT)
-Received: from redhat.com ([2.55.147.134])
-        by smtp.gmail.com with ESMTPSA id z8sm6874865ejd.94.2021.10.04.13.01.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Oct 2021 13:01:17 -0700 (PDT)
-Date:   Mon, 4 Oct 2021 16:01:12 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, markver@us.ibm.com,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, virtio-dev@lists.oasis-open.org
-Subject: Re: [virtio-dev] Re: [RFC PATCH 1/1] virtio: write back features
- before verify
-Message-ID: <20211004160005-mutt-send-email-mst@kernel.org>
-References: <87fstm47no.fsf@redhat.com>
- <20211002141351-mutt-send-email-mst@kernel.org>
- <20211003070030.658fc94e.pasic@linux.ibm.com>
- <20211003021027-mutt-send-email-mst@kernel.org>
- <20211003032253-mutt-send-email-mst@kernel.org>
- <87ee912e45.fsf@redhat.com>
- <20211004083455-mutt-send-email-mst@kernel.org>
- <878rz83lx0.fsf@redhat.com>
- <20211004110152-mutt-send-email-mst@kernel.org>
- <87zgro23r1.fsf@redhat.com>
+        id S234139AbhJDUdq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Oct 2021 16:33:46 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46554 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233934AbhJDUdp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Oct 2021 16:33:45 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 194K27hl002892;
+        Mon, 4 Oct 2021 16:31:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=YSKuInWCPUB4cRcl9zVFp9tJjrcN0o3rJYA57zQkw9Y=;
+ b=jwQP6WwQs5/IHcOpT6T6FNiZtkwDaelmqrYi5iR/Qxu2CnNjGuPdp3FAM8/Ee1uxngtU
+ 0c+qV8HmJgLf0I9NxYsAXNpX4e79LKFuPje8N3RWB5ejDdOVYoRHUl16KOKIbBO8/OLo
+ FnHRlJ7o+UxR5DNbKQuhQURqLRpUmGnJ5WyVUhOJE7R8HFPzW6qNKmlCaR+3b1nMn679
+ h1js+OnyXhNN7qIYmTGhFJzzT8wfdJqcgzVQ0VVZj+QUbuMmdBy0QorrjhgxeUqxO3N+
+ oIdScdM4iLzh/z9KvEzUNatqTFgrBTiFo2lyTHutWXo04CC1tLo+pBTjNxrAtoWYHCLC NA== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bg89y8gfa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Oct 2021 16:31:54 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 194KSWAe014348;
+        Mon, 4 Oct 2021 20:31:52 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04fra.de.ibm.com with ESMTP id 3bef29sp3x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Oct 2021 20:31:52 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 194KVmmt64553404
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 4 Oct 2021 20:31:48 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9FDC9A4060;
+        Mon,  4 Oct 2021 20:31:48 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 59C78A405C;
+        Mon,  4 Oct 2021 20:31:48 +0000 (GMT)
+Received: from osiris (unknown [9.145.70.99])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon,  4 Oct 2021 20:31:48 +0000 (GMT)
+Date:   Mon, 4 Oct 2021 22:31:46 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v1 1/1] s390: Use string_upper() instead of open coded
+ variant
+Message-ID: <YVtksmjj1eGqw5GY@osiris>
+References: <20211001130201.72545-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87zgro23r1.fsf@redhat.com>
+In-Reply-To: <20211001130201.72545-1-andriy.shevchenko@linux.intel.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: SYvjJX6cks5LzrErIhpAa5Ruz3EB_7-2
+X-Proofpoint-GUID: SYvjJX6cks5LzrErIhpAa5Ruz3EB_7-2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-04_05,2021-10-04_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ spamscore=0 impostorscore=0 clxscore=1011 lowpriorityscore=0
+ mlxlogscore=999 priorityscore=1501 adultscore=0 phishscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110040138
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 04, 2021 at 05:45:06PM +0200, Cornelia Huck wrote:
-> On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Fri, Oct 01, 2021 at 04:02:01PM +0300, Andy Shevchenko wrote:
+> Use string_upper() from string helper module instead of open coded variant.
 > 
-> > On Mon, Oct 04, 2021 at 04:27:23PM +0200, Cornelia Huck wrote:
-> >> On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >> 
-> >> > On Mon, Oct 04, 2021 at 02:01:14PM +0200, Cornelia Huck wrote:
-> >> >> On Sun, Oct 03 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >> >> > @@ -160,6 +163,33 @@ \subsection{Legacy Interface: A Note on Feature
-> >> >> >  Specification text within these sections generally does not apply
-> >> >> >  to non-transitional devices.
-> >> >> >  
-> >> >> > +\begin{note}
-> >> >> > +The device offers different features when used through
-> >> >> > +the legacy interface and when operated in accordance with this
-> >> >> > +specification.
-> >> >> > +\end{note}
-> >> >> > +
-> >> >> > +Transitional drivers MUST use Devices only through the legacy interface
-> >> >> 
-> >> >> s/Devices only through the legacy interface/devices through the legacy
-> >> >> interface only/
-> >> >> 
-> >> >> ?
-> >> >
-> >> > Both versions are actually confused, since how do you
-> >> > find out that device does not offer VIRTIO_F_VERSION_1?
-> >> >
-> >> > I think what this should really say is
-> >> >
-> >> > Transitional drivers MUST NOT accept VIRTIO_F_VERSION_1 through
-> >> > the legacy interface.
-> >> 
-> >> Ok, that makes sense.
-> >> 
-> >> Would it make sense that transitional drivers MUST accept VERSION_1
-> >> through the non-legacy interface? Or is that redundant?
-> >
-> > We already have:
-> >
-> > A driver MUST accept VIRTIO_F_VERSION_1 if it is offered.
-> 
-> Yep, so it is redundant.
-> 
-> >
-> >
-> >> >
-> >> >
-> >> > Does linux actually satisfy this? Will it accept VIRTIO_F_VERSION_1
-> >> > through the legacy interface if offered?
-> >> 
-> >> I think that the Linux drivers will not operate on feature bit 32+ if
-> >> they are in legacy mode?
-> >
-> >
-> > Well ... with PCI there's no *way* for host to set bit 32 through
-> > legacy. But it might be possible with MMIO/CCW. Can you tell me
-> > what happens then?
-> 
-> ccw does not support accessing bit 32+, either. Not sure about mmio.
-> 
-> >
-> >
-> >> >> 
-> >> >> Generally, looks good to me.
-> >> >
-> >> > Do we want to also add explanation that features can be
-> >> > changed until FEATURES_OK?
-> >> 
-> >> I always considered that to be implict, as feature negotiation is not
-> >> over until we have FEATURES_OK. Not sure whether we need an extra note.
-> >
-> > Well Halil here says once you set a feature bit you can't clear it.
-> > So maybe not ...
-> 
-> Ok, so what about something like
-> 
-> "If FEATURES_OK is not set, the driver MAY change the set of features it
-> accepts."
-> 
-> in the device initialization section?
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  arch/s390/mm/cmm.c    | 11 ++++-------
+>  arch/s390/mm/extmem.c | 21 ++++++++++++---------
+>  2 files changed, 16 insertions(+), 16 deletions(-)
+...
+>  static void
+>  dcss_mkname(char *name, char *dcss_name)
+>  {
+> +	/* Segment name is limited by 8 characters + NUL */
+> +	char tmp[8 + 1];
+>  	int i;
+>  
+> -	for (i = 0; i < 8; i++) {
+> -		if (name[i] == '\0')
+> -			break;
+> -		dcss_name[i] = toupper(name[i]);
+> -	}
+> -	for (; i < 8; i++)
+> -		dcss_name[i] = ' ';
+> +	/*
+> +	 * This snprintf() call does two things:
+> +	 * - makes a NUL-terminated copy of the input string
+> +	 * - pads it with spaces
+> +	 */
+> +	snprintf(tmp, sizeof(tmp), "%s        ", name);
 
-Maybe "as long as". However Halil implied that some features are not
-turned off properly if that happens. Halil could you pls provide
-some examples?
+I can't say I like code where I have to count spaces in order to
+verify if the code is actually correct.
 
--- 
-MST
+> +	string_upper(dcss_name, tmp);
+...
+>  static struct dcss_segment *
+>  segment_by_name (char *name)
+>  {
+> -	char dcss_name[9];
+> +	char dcss_name[8];
 
+string_upper will copy the terminating NUL-byte. By reducing the size
+of dcss_name to 8 bytes this will result in stack corruption.
