@@ -2,80 +2,87 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2649C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 07:01:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09529C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 07:59:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8D160610E6
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 07:01:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E658D61360
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 07:59:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232937AbhJDHDq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Oct 2021 03:03:46 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:48680 "EHLO
+        id S229659AbhJDIAw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Oct 2021 04:00:52 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49190 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232375AbhJDHDn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Oct 2021 03:03:43 -0400
+        by vger.kernel.org with ESMTP id S229609AbhJDIAv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Oct 2021 04:00:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633330914;
+        s=mimecast20190719; t=1633334342;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=W/XfU4rWvDAgggUknehKIH8tN+C4S9auUfbUS+SGc1Y=;
-        b=Nx8a1I0q8zI++hdRCwsDmlLz+25pjLsE13NM33Y7xIYEqi47Rp/GCXjIeUU331iXYYkQNO
-        upacob8FpM3LDn2u9tynDC6M0lmKa2x28gVwBzXZ25XD4s1o421O39PgZRlSikj6hih91Y
-        2M2uNRNmZGXIf42b3wBhcjGiL78QwWk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-8-HVuoH5hPNc2doNzFCNwWqQ-1; Mon, 04 Oct 2021 03:01:51 -0400
-X-MC-Unique: HVuoH5hPNc2doNzFCNwWqQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CB74B91274;
-        Mon,  4 Oct 2021 07:01:48 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.66])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id D20AF51DFA;
-        Mon,  4 Oct 2021 07:01:44 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, markver@us.ibm.com,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-In-Reply-To: <20211002082128-mutt-send-email-mst@kernel.org>
-Organization: Red Hat GmbH
-References: <20210930012049.3780865-1-pasic@linux.ibm.com>
- <87r1d64dl4.fsf@redhat.com> <20210930130350.0cdc7c65.pasic@linux.ibm.com>
- <87ilyi47wn.fsf@redhat.com> <20211001162213.18d7375e.pasic@linux.ibm.com>
- <87v92g3h9l.fsf@redhat.com>
- <20211002082128-mutt-send-email-mst@kernel.org>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Mon, 04 Oct 2021 09:01:42 +0200
-Message-ID: <87pmsl2rzd.fsf@redhat.com>
+        bh=JWKzHhBNVWSFAM9ozeumGeLFGzAACD+GMCb+b6UXpM0=;
+        b=du2hzf5aH6GeyBA180sTXgdTHczUj/Yu5uQLkY7+rFadm5gRbThjO4sVmqGSFSoCEOlZKN
+        /np7o6BJ3YDCR9EA1HkXn99M4jgQ5okiOxUcIPh3rKwAsDeN9XwsSPznhGJAFnMIW5jeH2
+        69/ByBKORMPx3U/foTVS5WEUZgwqaDo=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-444-xg34amb-P2udAR39CNIuTQ-1; Mon, 04 Oct 2021 03:59:01 -0400
+X-MC-Unique: xg34amb-P2udAR39CNIuTQ-1
+Received: by mail-ed1-f69.google.com with SMTP id k2-20020a50ce42000000b003dadf140b15so4651574edj.19
+        for <linux-s390@vger.kernel.org>; Mon, 04 Oct 2021 00:59:01 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=JWKzHhBNVWSFAM9ozeumGeLFGzAACD+GMCb+b6UXpM0=;
+        b=buAo215m4XacEbu17Tmv2rlfsZ1P+yHVKx2Bx4I4NJXwOEJ9ds6bLL9H47OcHdz9Zg
+         QxAGFtgj1wwLb3mysU7JKx0s4ga6ntj6NgLdl7d0oGpFqy13uTKoLx38wBl/FhL3Tn1O
+         UtBl+4KE9HvZUpGfi/IzG5dhNoqp9N9YMUIQfythwLtye09bLTo1kcrIgI3lCORpxn4c
+         0hYr+JefVhvtJAydcq7ALKWzEsBLrKk2/1iIBfUMPj2xCitFapJyl+tb/COUGYD+Uxf5
+         BYL+Nco2n68RUZSZoEDSpbhhmFV4Ud8vvtKeewNvqmnW9++HiD5po8UEnQqXpTT/s8pu
+         jECQ==
+X-Gm-Message-State: AOAM532cSYIfQfKLxcUjwAiQ0LMxUrMCigYGzvQYv2rYKP6h0rGIu67k
+        MmeoaLCQv02diFbDSltygRH9tfWpJ2wqa9MxcZMb8Qv4aL1ij6qzpWKFNfCZsBoGZ+UrrNi1FFI
+        NfSApPBVH8G7IGTfVkfYD7w==
+X-Received: by 2002:aa7:c911:: with SMTP id b17mr7041838edt.5.1633334340160;
+        Mon, 04 Oct 2021 00:59:00 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzz4OR73zDiy9DChgDRER5fiNhRZ8aL0vtSC9rUlUA4MiSMjlQA7FTEerKyTi4bzfUJP4G0Lw==
+X-Received: by 2002:aa7:c911:: with SMTP id b17mr7041828edt.5.1633334340004;
+        Mon, 04 Oct 2021 00:59:00 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id g9sm6224244ejo.60.2021.10.04.00.58.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 04 Oct 2021 00:58:59 -0700 (PDT)
+Message-ID: <4e940025-bca2-c694-ff36-e3d0fe0dd304@redhat.com>
+Date:   Mon, 4 Oct 2021 09:58:57 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [GIT PULL 0/1] KVM: s390: allow to compile without warning with
+ W=1
+Content-Language: en-US
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+References: <20210930125440.22777-1-borntraeger@de.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20210930125440.22777-1-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Oct 02 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On 30/09/21 14:54, Christian Borntraeger wrote:
+>    git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-5.15-1
 
-> On Fri, Oct 01, 2021 at 05:18:46PM +0200, Cornelia Huck wrote:
->> I'd say we need a hack here so that we assume little-endian config space
->> if VERSION_1 has been offered; if your patch here works, I assume QEMU
->> does what we expect (assmuming little-endian as well.) I'm mostly
->> wondering what happens if you use a different VMM; can we expect it to
->> work similar to QEMU?
->
-> Hard to say of course ... hopefully other VMMs are actually
-> implementing the spec. E.g. IIUC rust vmm is modern only.
+Pulled, thanks!
 
-Yes, I kind of hope they are simply doing LE config space accesses.
-
-Are there any other VMMs that are actually supported on s390x (or other
-BE architectures)?
+Paolo
 
