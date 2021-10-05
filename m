@@ -2,103 +2,254 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5278C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 15:55:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 270C4C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 16:14:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9F6066126A
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 15:55:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0EB2261371
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 16:14:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233913AbhJEP5O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 11:57:14 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40160 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233705AbhJEP5O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 11:57:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633449323;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Knrgx1p0E4Syq4cv3Q9wXGfwnzsMCY1cNYGxXsf45qU=;
-        b=U/RltBQhxICZ//iEEh/JtjA3TWc6iP49XwuTE2kbfjX1ULVtjPortjw77FMfnI35YeyfbU
-        ymqBQRU5ST66RZPAtCgrI0kbPYLfvP/y6bR5Gh+YbZ4dQB0cwTQNmsDn2M42Y49ELoy2Gs
-        eAjSphMvugfSnE5oU704Hz1/eB5gHb4=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-123-Vk6z663XNl6kyNv5gEIfbA-1; Tue, 05 Oct 2021 11:55:22 -0400
-X-MC-Unique: Vk6z663XNl6kyNv5gEIfbA-1
-Received: by mail-wr1-f71.google.com with SMTP id m17-20020adffa11000000b00160c1ac74e9so186323wrr.9
-        for <linux-s390@vger.kernel.org>; Tue, 05 Oct 2021 08:55:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Knrgx1p0E4Syq4cv3Q9wXGfwnzsMCY1cNYGxXsf45qU=;
-        b=DJkFpPulU5A3LMzSki6sbQ9TP5cNKn4I0JzF1YSMlnFmGbYh4OPU4Km7+7q60gxLei
-         RIe+PB7viFpZOEt0I9VV/j7L1dcEABfWiZ21C3Mwt1+31gBvkxYx1CoX/zRMtIOS4a6d
-         DrXk8yt9kQh6XJC/cSqmO87ZzfwZZ4oBV0cff5keY/odPo9A4yb61vE5kpjdUeHWCCMy
-         o4csMRJccyauPK4J5s5L1jAMsq3QVAwC5Yan7sU4pcYjG4aYn/UYFXCOrxmCaEDDi6cZ
-         zNsy0O3rE8KgcUX5EWwB/hLpQ7BXOLN32ZZz0PorO0AScaDOcy63C6tm/FO4V7NiB1Zr
-         Sl+g==
-X-Gm-Message-State: AOAM530zM+R10rCO5OmZCsjSJVSdFFNlDJVaXzixkWl0GJmj9elRRjA4
-        9Gl4RPhYTUrn5UHhnAGOCU7hHFfIMfU6ZqQA8PeVtMa+RSUCVf1PHMaFeWzZ6VrE9DRX9af9Rcq
-        QerLrhq+hmrpoYEbbXZkFnAnYO3iMXZetiZ5WUCdG3sKzlfn1WFB6taLIelVzsbfB2iwr0w==
-X-Received: by 2002:a5d:598f:: with SMTP id n15mr22077821wri.74.1633449320965;
-        Tue, 05 Oct 2021 08:55:20 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxkx/b64SdlXraxRD5U/8/X/FIi8ODqBzjeS0JNxqNXS+psNHgWCHfWG9+BO7th6t0E8e7bGA==
-X-Received: by 2002:a5d:598f:: with SMTP id n15mr22077784wri.74.1633449320676;
-        Tue, 05 Oct 2021 08:55:20 -0700 (PDT)
-Received: from thuth.remote.csb (p549bb2bd.dip0.t-ipconnect.de. [84.155.178.189])
-        by smtp.gmail.com with ESMTPSA id i1sm19158556wrb.93.2021.10.05.08.55.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Oct 2021 08:55:20 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH] s390x: remove myself as reviewer
-To:     Cornelia Huck <cohuck@redhat.com>,
+        id S236392AbhJEQQs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 12:16:48 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40388 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235875AbhJEQQr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 12:16:47 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 195F9gf7006541;
+        Tue, 5 Oct 2021 12:14:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=NsuXP86vR7i1s9B4/CVp2zrhVNJidGURdPEtczlKUHY=;
+ b=YqPJoEt1XjebsOrRV9xcAQA2XF9rZezhVMB7JGLEODsd/cr42Rhkf8xQsFXxQ/ENIsEl
+ yCp/BFkY6NbUKRIK4aOoF+qMt0Upf0omXvYGl9ybzTIFhLPtK3OLaZ6/jVrMxMMdf3Vw
+ 8MGcgO27BP8Xvp1sSqSuAzY0xIb/HQL59mvnyotBzbluuCEsJt/jhW7l/FYTA80ASA9Q
+ XhPmUAWOgfG47VCQ8t17mTP4ZetZB8G/ZNpdVCi+drX6uoOnGS5BFSyq8BEr9fsR7IBO
+ w1UUnpF/mGu5/uLNFdrjbumxuwqHdtbwvKs14UG8NqI0eWX1hKD7HP7RIF/aUtXLlQ9z BA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bgq15ds5h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 12:14:56 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 195FOtvk024858;
+        Tue, 5 Oct 2021 12:14:55 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bgq15ds56-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 12:14:55 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 195GCsfg026264;
+        Tue, 5 Oct 2021 16:14:54 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04fra.de.ibm.com with ESMTP id 3bef2a299v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 16:14:53 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 195GEo4036634948
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 5 Oct 2021 16:14:50 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2ECD05204F;
+        Tue,  5 Oct 2021 16:14:50 +0000 (GMT)
+Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.6.58])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id C08EA5204E;
+        Tue,  5 Oct 2021 16:14:49 +0000 (GMT)
+Subject: Re: [kvm-unit-tests PATCH v2 1/5] s390x: Add specification exception
+ test
+To:     Thomas Huth <thuth@redhat.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20211005154114.173511-1-cohuck@redhat.com>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <a1163106-f9b9-d733-3701-2d0a08acb612@redhat.com>
-Date:   Tue, 5 Oct 2021 17:55:19 +0200
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20211005090921.1816373-1-scgl@linux.ibm.com>
+ <20211005090921.1816373-2-scgl@linux.ibm.com>
+ <f21d1d6e-41bd-cab2-d427-f79b734c433c@redhat.com>
+From:   Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>
+Message-ID: <ae035e27-17e5-a0ca-383a-4936e807918f@linux.vnet.ibm.com>
+Date:   Tue, 5 Oct 2021 18:14:49 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-In-Reply-To: <20211005154114.173511-1-cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <f21d1d6e-41bd-cab2-d427-f79b734c433c@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: v-elHm1TMEhPpV5QZ2tZ3XZpmdKl8n0-
+X-Proofpoint-GUID: sjIkUYTBbHKDxuM1JPyA7Gc72X1Yck11
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-05_02,2021-10-04_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ malwarescore=0 mlxlogscore=999 suspectscore=0 priorityscore=1501
+ spamscore=0 clxscore=1015 bulkscore=0 impostorscore=0 phishscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110050096
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 05/10/2021 17.41, Cornelia Huck wrote:
-> I don't really have time anymore to spend on s390x reviews
-> here, so don't raise false expectations. There are enough
-> capable people listed already :)
+On 10/5/21 4:51 PM, Thomas Huth wrote:
+> On 05/10/2021 11.09, Janis Schoetterl-Glausch wrote:
+>> Generate specification exceptions and check that they occur.
+>> With the iterations argument one can check if specification
+>> exception interpretation occurs, e.g. by using a high value and
+>> checking that the debugfs counters are substantially lower.
+>> The argument is also useful for estimating the performance benefit
+>> of interpretation.
+>>
+>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+>> ---
+>>   s390x/Makefile      |   1 +
+>>   s390x/spec_ex.c     | 182 ++++++++++++++++++++++++++++++++++++++++++++
+>>   s390x/unittests.cfg |   3 +
+>>   3 files changed, 186 insertions(+)
+>>   create mode 100644 s390x/spec_ex.c
+>>
+>> diff --git a/s390x/Makefile b/s390x/Makefile
+>> index ef8041a..57d7c9e 100644
+>> --- a/s390x/Makefile
+>> +++ b/s390x/Makefile
+>> @@ -24,6 +24,7 @@ tests += $(TEST_DIR)/mvpg.elf
+>>   tests += $(TEST_DIR)/uv-host.elf
+>>   tests += $(TEST_DIR)/edat.elf
+>>   tests += $(TEST_DIR)/mvpg-sie.elf
+>> +tests += $(TEST_DIR)/spec_ex.elf
+>>     tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>>   ifneq ($(HOST_KEY_DOCUMENT),)
+>> diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
+>> new file mode 100644
+>> index 0000000..dd0ee53
+>> --- /dev/null
+>> +++ b/s390x/spec_ex.c
+>> @@ -0,0 +1,182 @@
+>> +// SPDX-License-Identifier: GPL-2.0-only
+>> +/*
+>> + * © Copyright IBM Corp. 2021
 > 
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->   MAINTAINERS | 1 -
->   1 file changed, 1 deletion(-)
+> Could we please avoid non-ASCII characters in source code if possible? ... it's maybe best if you do the Copyright line similar to the other *.c files from IBM that are already in the repository.
+
+Yes, I'll remove it. I thought it would be fine since it's in a comment,
+didn't consider that it might cause trouble with some mail clients.
+So that's grounds for removal by itself.
 > 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 4fc01a5d54a1..590c0a4fd922 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -87,7 +87,6 @@ S390X
->   M: Thomas Huth <thuth@redhat.com>
->   M: Janosch Frank <frankja@linux.ibm.com>
->   S: Supported
-> -R: Cornelia Huck <cohuck@redhat.com>
->   R: Claudio Imbrenda <imbrenda@linux.ibm.com>
->   R: David Hildenbrand <david@redhat.com>
->   L: kvm@vger.kernel.org
+>> + * Specification exception test.
+>> + * Tests that specification exceptions occur when expected.
+>> + */
+>> +#include <stdlib.h>
+>> +#include <libcflat.h>
+>> +#include <asm/interrupt.h>
+>> +#include <asm/facility.h>
+>> +
+>> +static struct lowcore *lc = (struct lowcore *) 0;
+>> +
+>> +static bool expect_invalid_psw;
+>> +static struct psw expected_psw;
+>> +static struct psw fixup_psw;
+>> +
+>> +/* The standard program exception handler cannot deal with invalid old PSWs,
+>> + * especially not invalid instruction addresses, as in that case one cannot
+>> + * find the instruction following the faulting one from the old PSW.
+>> + * The PSW to return to is set by load_psw.
+>> + */
+>> +static void fixup_invalid_psw(void)
+>> +{
+>> +    if (expect_invalid_psw) {
+>> +        report(expected_psw.mask == lc->pgm_old_psw.mask
+>> +               && expected_psw.addr == lc->pgm_old_psw.addr,
+>> +               "Invalid program new PSW as expected");
+>> +        expect_invalid_psw = false;
+>> +    }
+>> +    lc->pgm_old_psw = fixup_psw;
+>> +}
+>> +
+>> +static void load_psw(struct psw psw)
+>> +{
+>> +    uint64_t r0 = 0, r1 = 0;
+>> +
+>> +    asm volatile (
+>> +        "    epsw    %0,%1\n"
+>> +        "    st    %0,%[mask]\n"
+>> +        "    st    %1,4+%[mask]\n"
+>> +        "    larl    %0,nop%=\n"
+>> +        "    stg    %0,%[addr]\n"
+>> +        "    lpswe    %[psw]\n"
+>> +        "nop%=:    nop\n"
+>> +        : "+&r"(r0), "+&a"(r1), [mask] "=&R"(fixup_psw.mask),
+>> +          [addr] "=&R"(fixup_psw.addr)
+> 
+> stg uses long displacement, so maybe the constraint should rather be "T" instead?
 
-Applied.
+Good catch.
+> 
+>> +        : [psw] "Q"(psw)
+>> +        : "cc", "memory"
+>> +    );
+>> +}
+>> +
 
-Thank you very much for your contributions, Cornelia!
+[...]
 
-  Thomas
+>> +static struct args parse_args(int argc, char **argv)
+>> +{
+>> +    struct args args = {
+>> +        .iterations = 1,
+>> +    };
+>> +    unsigned int i;
+>> +    long arg;
+>> +    bool no_arg;
+>> +    char *end;
+>> +
+>> +    for (i = 1; i < argc; i++) {
+>> +        no_arg = true;
+>> +        if (i < argc - 1) {
+>> +            no_arg = *argv[i+1] == '\0';
+>> +            arg = strtol(argv[i+1], &end, 10);
+> 
+> Nit: It's more common to use spaces around the "+" (i.e. "i + 1")
+
+Ok
+> 
+>> +            no_arg |= *end != '\0';
+>> +            no_arg |= arg < 0;
+>> +        }
+>> +
+>> +        if (!strcmp("--iterations", argv[i])) {
+>> +            if (no_arg)
+>> +                report_abort("--iterations needs a positive parameter");
+>> +            args.iterations = arg;
+>> +            ++i;
+>> +        } else {
+>> +            report_abort("Unsupported parameter '%s'",
+>> +                     argv[i]);
+>> +        }
+>> +    }
+>> +    return args;
+>> +}
+>> +
+>> +int main(int argc, char **argv)
+>> +{
+>> +    unsigned int i;
+>> +
+>> +    struct args args = parse_args(argc, argv);
+>> +
+>> +    report_prefix_push("specification exception");
+>> +    for (i = 0; spec_ex_triggers[i].name; i++) {
+>> +        report_prefix_push(spec_ex_triggers[i].name);
+>> +        test_spec_ex(&args, &spec_ex_triggers[i]);
+>> +        report_prefix_pop();
+>> +    }
+>> +    report_prefix_pop();
+>> +
+>> +    return report_summary();
+>> +}
+> 
+> Apart from the nits, this looks fine to me.
+
+Thanks for the review.
+> 
+>  Thomas
+> 
 
