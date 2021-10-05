@@ -2,77 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B29AC433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 05:17:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 402DDC433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 07:26:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F93361222
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 05:17:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2A1BF613B5
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 07:26:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229979AbhJEFSw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 01:18:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56860 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231618AbhJEFSs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 01:18:48 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD91C061745
-        for <linux-s390@vger.kernel.org>; Mon,  4 Oct 2021 22:16:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=pDHDPRb1cV5wLjHf0HUfnEwHldmE44D4P4bF7kopTGE=; b=Fkq6CHQ4R3OWyJ6XNRWS31bF3H
-        Yf492U9uvyfNN7Eaex9jhzkybH2Q5UmHHWzXtn7hVg4qRQOxQAMZhsw80rmKDLU+Tl4rBgdJUL4x5
-        8uLo+yTwhUU83akRS/jxnTF0xlNDqpi97L8nCYIyC4Dvzp0XGL4jSjUtgk8h1ZNSKp5HDWWKtfEgn
-        1eOEtxR/bPg9yqX4fTlUQOSe5x/w+whn9a+XEimfzGX+rJtiUraJENxgkapxO8t9qVM6pZ8tl+142
-        0HqHnYbS2TVpmEpzTGLPagu3WgCyUttkNvW5Vf6skJBamOSuez7gud6xLjsuSkzzfW2/BwVaJJ1dw
-        rnOiL7+Q==;
-Received: from [2601:1c0:6280:3f0::aa0b] (helo=bombadil.infradead.org)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mXcp0-008xFc-E9; Tue, 05 Oct 2021 05:16:58 +0000
-From:   Randy Dunlap <rdunlap@infradead.org>
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S232740AbhJEH2R (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 03:28:17 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2800 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232730AbhJEH2R (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 03:28:17 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1956ai5K006023;
+        Tue, 5 Oct 2021 03:26:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=PRP3XC71ks3K/eXBA18uRQOABwYCF7SJb1De18qjsI0=;
+ b=B0zQGKwYXq/xvgHfidZgWFo4IinBnF1pcAonlgvF5Rf/S5J0EldeFfKYYpHTIsLddsID
+ E97ajKbpUwSI0gSLsLNIZjsVqowHkJEEM/BgiQa8G4cPt3w3UJ5fQVayTmiR17kxiq0w
+ PkgcNiY3mZKKi7fE7RhWYLtZ5jiAiXM4vZnY1C8nj798U08aGKqjW9AMhOodBz42n50G
+ fGKmvrP+W2jFjEhzLGVi8CuwQLqDet2QRZppPy6kwOkqPPZuMUqk3IoX+TquTy/I38cd
+ p+9HBJjBbQTF4FjmF8bV7mrnFwbWX9yO8yFUq68QjUskJwL88i3qOo9z+gdQX2Jjf8pE UA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bggbcten4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 03:26:19 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1956uC8E006135;
+        Tue, 5 Oct 2021 03:26:19 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bggbctemm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 03:26:19 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1957DFGn009790;
+        Tue, 5 Oct 2021 07:26:17 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma01fra.de.ibm.com with ESMTP id 3bef29n7ca-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 07:26:16 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1957KnR646334430
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 5 Oct 2021 07:20:49 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BB77DA4060;
+        Tue,  5 Oct 2021 07:26:05 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3EC9DA4066;
+        Tue,  5 Oct 2021 07:26:01 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.45.119])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Tue,  5 Oct 2021 07:26:00 +0000 (GMT)
+Date:   Tue, 5 Oct 2021 09:25:39 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, markver@us.ibm.com,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>
-Subject: [PATCH] s390/debug: fix kernel-doc warnings
-Date:   Mon,  4 Oct 2021 22:16:57 -0700
-Message-Id: <20211005051657.16714-1-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.31.1
+        linux-s390@vger.kernel.org, qemu-devel@nongnu.org,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
+Message-ID: <20211005092539.145c9cc4.pasic@linux.ibm.com>
+In-Reply-To: <20211004090018-mutt-send-email-mst@kernel.org>
+References: <20210930012049.3780865-1-pasic@linux.ibm.com>
+        <20210930070444-mutt-send-email-mst@kernel.org>
+        <20211001092125.64fef348.pasic@linux.ibm.com>
+        <20211002055605-mutt-send-email-mst@kernel.org>
+        <87bl452d90.fsf@redhat.com>
+        <20211004090018-mutt-send-email-mst@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: -F2P042FRLjgFARHmllaFsm-zqvz094d
+X-Proofpoint-ORIG-GUID: xxy95EbSVU-JOjLT_dASGOoXfDN5fZVl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-04_05,2021-10-04_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ mlxlogscore=999 bulkscore=0 clxscore=1015 mlxscore=0 lowpriorityscore=0
+ malwarescore=0 spamscore=0 priorityscore=1501 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110050040
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Fix kernel-doc warning due to incorrect parameter name in
-kernel-doc function notation:
+On Mon, 4 Oct 2021 09:11:04 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-../arch/s390/include/asm/debug.h:484: warning: Function parameter or member 'pages' not described in 'DEFINE_STATIC_DEBUG_INFO'
-../arch/s390/include/asm/debug.h:484: warning: Excess function parameter 'pages_per_area' description in 'DEFINE_STATIC_DEBUG_INFO'
+> > >> static inline bool virtio_access_is_big_endian(VirtIODevice *vdev)
+> > >> {
+> > >> #if defined(LEGACY_VIRTIO_IS_BIENDIAN)
+> > >>     return virtio_is_big_endian(vdev);
+> > >> #elif defined(TARGET_WORDS_BIGENDIAN)
+> > >>     if (virtio_vdev_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+> > >>         /* Devices conforming to VIRTIO 1.0 or later are always LE. */
+> > >>         return false;
+> > >>     }
+> > >>     return true;
+> > >> #else
+> > >>     return false;
+> > >> #endif
+> > >> }
+> > >>   
+> > >
+> > > ok so that's a QEMU bug. Any virtio 1.0 and up
+> > > compatible device must use LE.
+> > > It can also present a legacy config space where the
+> > > endian depends on the guest.  
+> > 
+> > So, how is the virtio core supposed to determine this? A
+> > transport-specific callback?  
+> 
+> I'd say a field in VirtIODevice is easiest.
 
-Fixes: d72541f94512 ("s390/debug: add early tracing support")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
----
- arch/s390/include/asm/debug.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Wouldn't a call from transport code into virtio core
+be more handy? What I have in mind is stuff like vhost-user and vdpa. My
+understanding is, that for vhost setups where the config is outside qemu,
+we probably need a new  command that tells the vhost backend what
+endiannes to use for config. I don't think we can use
+VHOST_USER_SET_VRING_ENDIAN because  that one is on a virtqueue basis
+according to the doc. So for vhost-user and similar we would fire that
+command and probably also set the filed, while for devices for which
+control plane is handled by QEMU we would just set the field.
 
---- lnx-515-rc4.orig/arch/s390/include/asm/debug.h
-+++ lnx-515-rc4/arch/s390/include/asm/debug.h
-@@ -462,7 +462,7 @@ arch_initcall(VNAME(var, reg))
-  *
-  * @var: Name of debug_info_t variable
-  * @name: Name of debug log (e.g. used for debugfs entry)
-- * @pages_per_area: Number of pages per area
-+ * @pages: Number of pages per area
-  * @nr_areas: Number of debug areas
-  * @buf_size: Size of data area in each debug entry
-  * @view: Pointer to debug view struct
+Does that sound about right?
+
+
