@@ -2,111 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24A01C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 12:09:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A4C1C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 12:46:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0DE2761166
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 12:09:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DBC8A6124F
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 12:46:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233842AbhJEMLi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 08:11:38 -0400
-Received: from mga03.intel.com ([134.134.136.65]:52866 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233808AbhJEMLi (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 5 Oct 2021 08:11:38 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10127"; a="225662756"
-X-IronPort-AV: E=Sophos;i="5.85,348,1624345200"; 
-   d="scan'208";a="225662756"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2021 05:09:47 -0700
-X-IronPort-AV: E=Sophos;i="5.85,348,1624345200"; 
-   d="scan'208";a="589332377"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2021 05:09:45 -0700
-Received: from andy by smile with local (Exim 4.95)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1mXjGR-008sGX-11;
-        Tue, 05 Oct 2021 15:09:43 +0300
-Date:   Tue, 5 Oct 2021 15:09:43 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v1 1/1] s390: Use string_upper() instead of open coded
- variant
-Message-ID: <YVxAh+0SeLEgh85e@smile.fi.intel.com>
-References: <20211001130201.72545-1-andriy.shevchenko@linux.intel.com>
- <YVtksmjj1eGqw5GY@osiris>
- <YVwKXn1Nqwk+Ahsx@smile.fi.intel.com>
- <YVwSxGyx45gs2+ZW@osiris>
+        id S234080AbhJEMsU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 08:48:20 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61608 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234026AbhJEMsU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 08:48:20 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 195Cfe2S025229;
+        Tue, 5 Oct 2021 08:46:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ek2whv3pqDoimJiiO/YCyQNRCmDt/PNumxYsScMUZXA=;
+ b=Bsi4c2T6bALFksNcQH759H/pug3+8m5pVe5Dkid0B/TesaTlBYbalKouxMQAW0ddY4d6
+ MWKUVqadxeOWQoYlXQ75ooPZ70/S2o73GH1+Dm9mM3mZ2hi84YY8NrR9J6w92RBIbZzP
+ PK1tK7cTJ+qOQU2eS0yaUZS2JrKq9F5p7GkYyfC52uRGNUSlOz9h197QxDoCkHYY7H0C
+ Knq/6k9j0TfKFpWsDhT2Vn7KK7jv3v2Qe+R878haylZFfluw8QIg/djkxEjncDkouo8G
+ nVThRGyMyzCEyZ6kTXr/ZAeHACaiYGkPAcW1jJjdsZfTs0CR9SoP3J4EJZKkZyUwUOeH OQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bgpxcg3xk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 08:46:29 -0400
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 195CgSSQ027015;
+        Tue, 5 Oct 2021 08:46:29 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bgpxcg3wy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 08:46:28 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 195ChfF6007531;
+        Tue, 5 Oct 2021 12:46:26 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3beepjje6e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 12:46:26 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 195CkMgA64684470
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 5 Oct 2021 12:46:22 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C148D4C052;
+        Tue,  5 Oct 2021 12:46:22 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 33B4F4C046;
+        Tue,  5 Oct 2021 12:46:22 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.10.133])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  5 Oct 2021 12:46:22 +0000 (GMT)
+Date:   Tue, 5 Oct 2021 14:46:20 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v2 1/2] s390x: Remove assert from
+ arch_def.h
+Message-ID: <20211005144620.579e48c1@p-imbrenda>
+In-Reply-To: <20211005091153.1863139-2-scgl@linux.ibm.com>
+References: <20211005091153.1863139-1-scgl@linux.ibm.com>
+        <20211005091153.1863139-2-scgl@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YVwSxGyx45gs2+ZW@osiris>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 6isCI41i1JVouLcqAKo2CGfErCTDKSGS
+X-Proofpoint-GUID: cOCm9qIbyN4Mn7LBZm87nhOQkr_rX7jn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-05_01,2021-10-04_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
+ suspectscore=0 clxscore=1015 priorityscore=1501 mlxlogscore=999 mlxscore=0
+ malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
+ definitions=main-2110050074
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 05, 2021 at 10:54:28AM +0200, Heiko Carstens wrote:
-> On Tue, Oct 05, 2021 at 11:18:38AM +0300, Andy Shevchenko wrote:
-> > On Mon, Oct 04, 2021 at 10:31:46PM +0200, Heiko Carstens wrote:
-> > > On Fri, Oct 01, 2021 at 04:02:01PM +0300, Andy Shevchenko wrote:
+On Tue,  5 Oct 2021 11:11:52 +0200
+Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
 
-...
-
-> > > > +	char tmp[8 + 1];
-> > > >  	int i;
-> > > >  
-> > > > -	for (i = 0; i < 8; i++) {
-> > > > -		if (name[i] == '\0')
-> > > > -			break;
-> > > > -		dcss_name[i] = toupper(name[i]);
-> > > > -	}
-> > > > -	for (; i < 8; i++)
-> > > > -		dcss_name[i] = ' ';
-> > > > +	/*
-> > > > +	 * This snprintf() call does two things:
-> > > > +	 * - makes a NUL-terminated copy of the input string
-> > > > +	 * - pads it with spaces
-> > > > +	 */
-> > > > +	snprintf(tmp, sizeof(tmp), "%s        ", name);
-> > > 
-> > > I can't say I like code where I have to count spaces in order to
-> > > verify if the code is actually correct.
-> > 
-> > I understand your point, but have any idea how to make it differently
-> > and not ugly at the same time?
+> Do not use asserts in arch_def.h so it can be included by snippets.
+> The caller in stsi.c does not need to be adjusted, returning -1 causes
+> the test to fail.
 > 
-> Don't know. You could use strncopy+strlen+memset (with space
-> character). After all I'm not very convinced that the resulting code
-> buys us anything compared to the current variant.
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 
-Yup, so let's convert only the first part then.
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-...
-
-> > > > -	char dcss_name[9];
-> > > > +	char dcss_name[8];
-> > > 
-> > > string_upper will copy the terminating NUL-byte. By reducing the size
-> > > of dcss_name to 8 bytes this will result in stack corruption.
-> > 
-> > Nope. Even in the original code this additional byte is left unused.
+> ---
+>  lib/s390x/asm/arch_def.h | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
-> I'm talking about the new code, not the old code: If "name" points to
-> a NUL terminated eight chararacter string, then the new code will use
-> snprintf to copy it 1:1 to tmp, and the subsequent string_upper() will
-> copy the string (upper cased) to dcss_name, now including the NUL
-> terminating byte, which won't fit into dcss_name.
-> Am I missing something here?
-
-Ah, indeed, although it's rather bug in the implementation of above.
-But original code has it not in use.
-
--- 
-With Best Regards,
-Andy Shevchenko
-
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index 302ef1f..4167e2b 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -334,7 +334,7 @@ static inline int stsi(void *addr, int fc, int sel1, int sel2)
+>  	return cc;
+>  }
+>  
+> -static inline unsigned long stsi_get_fc(void)
+> +static inline int stsi_get_fc(void)
+>  {
+>  	register unsigned long r0 asm("0") = 0;
+>  	register unsigned long r1 asm("1") = 0;
+> @@ -346,7 +346,8 @@ static inline unsigned long stsi_get_fc(void)
+>  		     : "+d" (r0), [cc] "=d" (cc)
+>  		     : "d" (r1)
+>  		     : "cc", "memory");
+> -	assert(!cc);
+> +	if (cc != 0)
+> +		return -1;
+>  	return r0 >> 28;
+>  }
+>  
 
