@@ -2,117 +2,97 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0334EC433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 07:58:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F192C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 08:18:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D84A961352
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 07:58:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 607226120D
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 08:18:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232801AbhJEIAX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 04:00:23 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4838 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232778AbhJEIAW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 04:00:22 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19566hQd007193;
-        Tue, 5 Oct 2021 03:58:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=wMF/jAhmWE5c3yGFuczeo5g76zwIPVpZNasSwbDH1UY=;
- b=kkrgCYm5DnHeNcj1XV35gU5neDplixlY5q+e1Td6yuegV4sk9BCVchVb/9WnSDdEl3R8
- bEv/d2+gtGwhevWbDs/+vhIRgp+RKw/r8OTbmIhLeXLfRDGsK1Jfa8Tw8Xsg30sa0ENF
- pzFoSxd31i0xtVPndpdsu14ZAYE/TQ+i0obzEzV6uBxwCfGmDUhR1pjnLvGuCjiy89jr
- pxTghPQDZoLMntvZ5KxGhJ1pJxmbdn1XuC62CgOX76g6TJbLIHOvRoVI+tFGfB63rMVQ
- hv2w2iose6VoXv+hYUbexHgX1UYkzk8b/NO6Up54Q3ewsrAbIr2Xsa1qQJjZpQF7ytlk Xw== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bggmtasmk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Oct 2021 03:58:27 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1957uYun031428;
-        Tue, 5 Oct 2021 07:58:25 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3bef2aqfbe-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Oct 2021 07:58:24 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1957wIwo45482416
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 5 Oct 2021 07:58:18 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 768C6A406E;
-        Tue,  5 Oct 2021 07:58:18 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D6AAEA4051;
-        Tue,  5 Oct 2021 07:58:17 +0000 (GMT)
-Received: from li-43c5434c-23b8-11b2-a85c-c4958fb47a68.ibm.com (unknown [9.171.73.26])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  5 Oct 2021 07:58:17 +0000 (GMT)
-Subject: Re: [PATCH] s390/debug: fix kernel-doc warnings
-To:     Randy Dunlap <rdunlap@infradead.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>
-References: <20211005051657.16714-1-rdunlap@infradead.org>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <1eb273a2-dabe-c885-100f-6d62f09cf308@de.ibm.com>
-Date:   Tue, 5 Oct 2021 09:58:17 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S233249AbhJEIUd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 04:20:33 -0400
+Received: from mga01.intel.com ([192.55.52.88]:35781 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233174AbhJEIUd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 5 Oct 2021 04:20:33 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10127"; a="248943315"
+X-IronPort-AV: E=Sophos;i="5.85,348,1624345200"; 
+   d="scan'208";a="248943315"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2021 01:18:43 -0700
+X-IronPort-AV: E=Sophos;i="5.85,348,1624345200"; 
+   d="scan'208";a="589267458"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2021 01:18:41 -0700
+Received: from andy by smile with local (Exim 4.95)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1mXfeo-008pR6-6c;
+        Tue, 05 Oct 2021 11:18:38 +0300
+Date:   Tue, 5 Oct 2021 11:18:38 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v1 1/1] s390: Use string_upper() instead of open coded
+ variant
+Message-ID: <YVwKXn1Nqwk+Ahsx@smile.fi.intel.com>
+References: <20211001130201.72545-1-andriy.shevchenko@linux.intel.com>
+ <YVtksmjj1eGqw5GY@osiris>
 MIME-Version: 1.0
-In-Reply-To: <20211005051657.16714-1-rdunlap@infradead.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: gN9s7LqvqKHka9UymFumrdsJ7rh_zT6V
-X-Proofpoint-ORIG-GUID: gN9s7LqvqKHka9UymFumrdsJ7rh_zT6V
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-10-04_05,2021-10-04_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
- priorityscore=1501 suspectscore=0 malwarescore=0 phishscore=0 adultscore=0
- bulkscore=0 mlxscore=0 lowpriorityscore=0 spamscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
- definitions=main-2110050042
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YVtksmjj1eGqw5GY@osiris>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, Oct 04, 2021 at 10:31:46PM +0200, Heiko Carstens wrote:
+> On Fri, Oct 01, 2021 at 04:02:01PM +0300, Andy Shevchenko wrote:
+
+...
+
+> > +	/* Segment name is limited by 8 characters + NUL */
+> > +	char tmp[8 + 1];
+> >  	int i;
+> >  
+> > -	for (i = 0; i < 8; i++) {
+> > -		if (name[i] == '\0')
+> > -			break;
+> > -		dcss_name[i] = toupper(name[i]);
+> > -	}
+> > -	for (; i < 8; i++)
+> > -		dcss_name[i] = ' ';
+> > +	/*
+> > +	 * This snprintf() call does two things:
+> > +	 * - makes a NUL-terminated copy of the input string
+> > +	 * - pads it with spaces
+> > +	 */
+> > +	snprintf(tmp, sizeof(tmp), "%s        ", name);
+> 
+> I can't say I like code where I have to count spaces in order to
+> verify if the code is actually correct.
+
+I understand your point, but have any idea how to make it differently
+and not ugly at the same time?
+
+> > +	string_upper(dcss_name, tmp);
+
+...
+
+> >  static struct dcss_segment *
+> >  segment_by_name (char *name)
+> >  {
+> > -	char dcss_name[9];
+> > +	char dcss_name[8];
+> 
+> string_upper will copy the terminating NUL-byte. By reducing the size
+> of dcss_name to 8 bytes this will result in stack corruption.
+
+Nope. Even in the original code this additional byte is left unused.
+
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
-Am 05.10.21 um 07:16 schrieb Randy Dunlap:
-> Fix kernel-doc warning due to incorrect parameter name in
-> kernel-doc function notation:
-> 
-> ../arch/s390/include/asm/debug.h:484: warning: Function parameter or member 'pages' not described in 'DEFINE_STATIC_DEBUG_INFO'
-> ../arch/s390/include/asm/debug.h:484: warning: Excess function parameter 'pages_per_area' description in 'DEFINE_STATIC_DEBUG_INFO'
-> 
-> Fixes: d72541f94512 ("s390/debug: add early tracing support")
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-
-Thanks applied.
-
-> ---
->   arch/s390/include/asm/debug.h |    2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- lnx-515-rc4.orig/arch/s390/include/asm/debug.h
-> +++ lnx-515-rc4/arch/s390/include/asm/debug.h
-> @@ -462,7 +462,7 @@ arch_initcall(VNAME(var, reg))
->    *
->    * @var: Name of debug_info_t variable
->    * @name: Name of debug log (e.g. used for debugfs entry)
-> - * @pages_per_area: Number of pages per area
-> + * @pages: Number of pages per area
->    * @nr_areas: Number of debug areas
->    * @buf_size: Size of data area in each debug entry
->    * @view: Pointer to debug view struct
-> 
