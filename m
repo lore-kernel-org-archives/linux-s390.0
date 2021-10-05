@@ -2,75 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C29B2C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 15:41:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D786CC433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 15:42:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9FD5F60F9D
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 15:41:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B8BAC61154
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 15:42:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235689AbhJEPng (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 11:43:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:34976 "EHLO
+        id S235930AbhJEPoq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 11:44:46 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:42127 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235067AbhJEPnf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 11:43:35 -0400
+        by vger.kernel.org with ESMTP id S235588AbhJEPoq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 11:44:46 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633448504;
+        s=mimecast20190719; t=1633448575;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=F1YnQ45uzsCGa+tmqxZH6Vnvkbz/oLMOdniTcirbOJg=;
-        b=S0QlXBH1BD3t/1wbScjacrVYqNL2p65wUn852w5FY5I3mIG6CdEfeUP1OxrlASDJlq/yrm
-        OFwpT1Hteqo6/yY0r9CQppSPzzgc2g+xXjC00LWhUpq9Igri/z8Q5hg4OW32HJZexPF1zM
-        lMheQO/zgg97WMnKXJO4Fjovi+yJtwI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-410-Y_Lxx2xUMhKlkSuQhW3zrQ-1; Tue, 05 Oct 2021 11:41:43 -0400
-X-MC-Unique: Y_Lxx2xUMhKlkSuQhW3zrQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A8414100C609;
-        Tue,  5 Oct 2021 15:41:39 +0000 (UTC)
-Received: from gondolin.fritz.box (unknown [10.39.192.167])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8160C197FC;
-        Tue,  5 Oct 2021 15:41:38 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Cornelia Huck <cohuck@redhat.com>
-Subject: [kvm-unit-tests PATCH] s390x: remove myself as reviewer
-Date:   Tue,  5 Oct 2021 17:41:14 +0200
-Message-Id: <20211005154114.173511-1-cohuck@redhat.com>
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pKDntHxzJOetHKbIPGUlL8NO/wbE042BlEFlU+R/BTE=;
+        b=A0AUxVqj/YQodM1zJQG78Hq19h+ivq8l54O+8Bi3+lDJpRb8EK07NGVfrwqMUJITr0Eo1R
+        J7oYgUj53Xx5sZxL+dOLj0/nezmuWitAWsjDxazjAxsXZscLXhsEdvqh1rFkNfykrxAVue
+        IrzT+ia8jbpbBDYVAye9eOclGQuDARs=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-175-7Lh3_BykNzaSnP49xm6-Xg-1; Tue, 05 Oct 2021 11:42:52 -0400
+X-MC-Unique: 7Lh3_BykNzaSnP49xm6-Xg-1
+Received: by mail-wm1-f69.google.com with SMTP id n17-20020a7bc5d1000000b0030d4041f73eso1204164wmk.4
+        for <linux-s390@vger.kernel.org>; Tue, 05 Oct 2021 08:42:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=pKDntHxzJOetHKbIPGUlL8NO/wbE042BlEFlU+R/BTE=;
+        b=tco3ZKTcAAMnmlWH/XZ6/GmaXV5erwjUZm0RdmFkDYWc7YVCWY5eomrPqLBfXGES1e
+         fdJhGY7Nvb8JDnD9sHZ8c/iEktnh5zjUKE2zVYfPSrUbGPKKMtfg7vttxnhOOg7aDtz7
+         5HzD9tdqKI/XqyixCGLLEit1QZ9vHJey4V/6L+uEMSx7Vc+qJKi870SOKfkptemCU+nk
+         cR7RKZc9ZqwVQIvacu5MfzZIV9rbTBRSSPE+4loQAH1x10b8TCMO2nrm+wfyJ6tfhwr/
+         +U5CRyG7dNol4ZackuWv/8uOcBIkLUwALm5VsG9B/FwWl1RgaJYbzUFvvfwX12yMTfI2
+         mFCA==
+X-Gm-Message-State: AOAM530SS4ZBrzlK0iAMDoAqhSxgO4DG7z/FM9fW84aPTNULDSjLAQ6t
+        3A0ptstqMj/sAtSkvIVqvlS0S2IUSRQ8hqkMNnhFeFMWPoa18Sr3d7uT2TV7h+/GJUNnGUD+6bB
+        enCVmVDT+eb1xcl8lsj0DX33D3wAE4KSwPvtQuHuTbDsDJQ91E98a30llUTsdwLnZoGeW8w==
+X-Received: by 2002:adf:a154:: with SMTP id r20mr22999671wrr.326.1633448570994;
+        Tue, 05 Oct 2021 08:42:50 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyHSPI1IRwixTMGerHUDu4oO6qB21Y4tIuWzxQ2/xnPIsskWzR3SXr5r0UgA4SsVDAY0yR+Mg==
+X-Received: by 2002:adf:a154:: with SMTP id r20mr22999647wrr.326.1633448570792;
+        Tue, 05 Oct 2021 08:42:50 -0700 (PDT)
+Received: from thuth.remote.csb (p549bb2bd.dip0.t-ipconnect.de. [84.155.178.189])
+        by smtp.gmail.com with ESMTPSA id y191sm2699170wmc.36.2021.10.05.08.42.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 Oct 2021 08:42:50 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH v2 5/5] Use report_pass(...) instead of
+ report(1/true, ...)
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20211005090921.1816373-1-scgl@linux.ibm.com>
+ <20211005090921.1816373-6-scgl@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <c3ee78df-3caf-f9a7-90c2-624ab09e5949@redhat.com>
+Date:   Tue, 5 Oct 2021 17:42:49 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+In-Reply-To: <20211005090921.1816373-6-scgl@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-I don't really have time anymore to spend on s390x reviews
-here, so don't raise false expectations. There are enough
-capable people listed already :)
+On 05/10/2021 11.09, Janis Schoetterl-Glausch wrote:
+> Whitespace is kept consistent with the rest of the file.
+> 
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> ---
+>   s390x/css.c         |  4 ++--
+>   s390x/diag288.c     |  2 +-
+>   s390x/selftest.c    |  2 +-
+>   s390x/smp.c         | 16 ++++++++--------
+>   s390x/spec_ex.c     |  7 +++----
+>   x86/asyncpf.c       |  7 +++----
+>   x86/emulator.c      |  2 +-
+>   x86/hyperv_stimer.c | 18 ++++++++----------
+>   x86/svm_tests.c     | 17 ++++++++---------
+>   x86/syscall.c       |  2 +-
+>   x86/taskswitch2.c   |  2 +-
+>   x86/tsc_adjust.c    |  2 +-
+>   x86/vmx.c           |  6 +++---
+>   x86/vmx_tests.c     | 36 ++++++++++++++++++------------------
+>   14 files changed, 59 insertions(+), 64 deletions(-)
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- MAINTAINERS | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 4fc01a5d54a1..590c0a4fd922 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -87,7 +87,6 @@ S390X
- M: Thomas Huth <thuth@redhat.com>
- M: Janosch Frank <frankja@linux.ibm.com>
- S: Supported
--R: Cornelia Huck <cohuck@redhat.com>
- R: Claudio Imbrenda <imbrenda@linux.ibm.com>
- R: David Hildenbrand <david@redhat.com>
- L: kvm@vger.kernel.org
--- 
-2.31.1
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 
