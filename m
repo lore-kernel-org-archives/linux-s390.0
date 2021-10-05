@@ -2,134 +2,77 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C63FBC433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 01:55:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B29AC433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 05:17:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A3306610A3
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 01:55:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F93361222
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 05:17:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229606AbhJEB5b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Oct 2021 21:57:31 -0400
-Received: from gandalf.ozlabs.org ([150.107.74.76]:60133 "EHLO
-        gandalf.ozlabs.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229659AbhJEB53 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Oct 2021 21:57:29 -0400
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4HNgdx17Hfz4xbX;
-        Tue,  5 Oct 2021 12:55:33 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1633398938;
-        bh=gYlu6Qv+8m83iP3aG7acEoyr8D3DPbZlTHZ8jerl4Jw=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=oI6DgPAmrS6eid+iQKQamhFupmXA2CScxqKHRX+CJjC8/0fF1BV9+LamvP9D9eSE9
-         npjDtMfC1MNcKzde3tkhkeuyG4S9CqgWI+LezmFwIFfQSxbUaY4NuejzURphht7FGp
-         ek1oZ95ogFF9mgsmHq93KfvqDA7s9lg+SefS7Uu4jQH2xweVqk/OBZLY5w4Y8cz5FF
-         jyvaNEhNFclinElquxf3fKJ2na1IGJxwQje4Hg2exFycrlUGHsDHKTaqoiruy7a9vc
-         DhFa9QFOiNLbuIgQmTX/jgFIHs3lgRjeXXAezx290U6sPOlbkpQN1FwNvR9TVFpWGR
-         ggckHw/xPBG0Q==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Keith Packard <keithpac@amazon.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
+        id S229979AbhJEFSw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 01:18:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56860 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231618AbhJEFSs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 01:18:48 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD91C061745
+        for <linux-s390@vger.kernel.org>; Mon,  4 Oct 2021 22:16:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=pDHDPRb1cV5wLjHf0HUfnEwHldmE44D4P4bF7kopTGE=; b=Fkq6CHQ4R3OWyJ6XNRWS31bF3H
+        Yf492U9uvyfNN7Eaex9jhzkybH2Q5UmHHWzXtn7hVg4qRQOxQAMZhsw80rmKDLU+Tl4rBgdJUL4x5
+        8uLo+yTwhUU83akRS/jxnTF0xlNDqpi97L8nCYIyC4Dvzp0XGL4jSjUtgk8h1ZNSKp5HDWWKtfEgn
+        1eOEtxR/bPg9yqX4fTlUQOSe5x/w+whn9a+XEimfzGX+rJtiUraJENxgkapxO8t9qVM6pZ8tl+142
+        0HqHnYbS2TVpmEpzTGLPagu3WgCyUttkNvW5Vf6skJBamOSuez7gud6xLjsuSkzzfW2/BwVaJJ1dw
+        rnOiL7+Q==;
+Received: from [2601:1c0:6280:3f0::aa0b] (helo=bombadil.infradead.org)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mXcp0-008xFc-E9; Tue, 05 Oct 2021 05:16:58 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        "open list:S390" <linux-s390@vger.kernel.org>
-Subject: Re: [RFC PATCH 4/8] powerpc: add CPU field to struct thread_info
-In-Reply-To: <202109301045.15DDDA0B@keescook>
-References: <20210914121036.3975026-1-ardb@kernel.org>
- <20210914121036.3975026-5-ardb@kernel.org>
- <CAMj1kXEojbQbNzCP39KT4EzFAyW3J1Tfm_stCZ+fGo8_SO90PA@mail.gmail.com>
- <87ee99lii7.fsf@mpe.ellerman.id.au> <87pmst1rn9.fsf@mpe.ellerman.id.au>
- <CAMj1kXFXtbD3=L+QvCnwbyFr-qbWivZ0wRGT0N4LNxANPD8x4g@mail.gmail.com>
- <878rzf0zmb.fsf@mpe.ellerman.id.au> <202109301045.15DDDA0B@keescook>
-Date:   Tue, 05 Oct 2021 12:55:31 +1100
-Message-ID: <87ilycqlpo.fsf@mpe.ellerman.id.au>
+        linux-s390@vger.kernel.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>
+Subject: [PATCH] s390/debug: fix kernel-doc warnings
+Date:   Mon,  4 Oct 2021 22:16:57 -0700
+Message-Id: <20211005051657.16714-1-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Kees Cook <keescook@chromium.org> writes:
-> On Thu, Sep 30, 2021 at 08:46:04AM +1000, Michael Ellerman wrote:
->> Ard Biesheuvel <ardb@kernel.org> writes:
->> > On Tue, 28 Sept 2021 at 02:16, Michael Ellerman <mpe@ellerman.id.au> wrote:
->> >>
->> >> Michael Ellerman <mpe@ellerman.id.au> writes:
->> >> > Ard Biesheuvel <ardb@kernel.org> writes:
->> >> >> On Tue, 14 Sept 2021 at 14:11, Ard Biesheuvel <ardb@kernel.org> wrote:
->> >> >>>
->> >> >>> The CPU field will be moved back into thread_info even when
->> >> >>> THREAD_INFO_IN_TASK is enabled, so add it back to powerpc's definition
->> >> >>> of struct thread_info.
->> >> >>>
->> >> >>> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
->> >> >>
->> >> >> Michael,
->> >> >>
->> >> >> Do you have any objections or issues with this patch or the subsequent
->> >> >> ones cleaning up the task CPU kludge for ppc32? Christophe indicated
->> >> >> that he was happy with it.
->> >> >
->> >> > No objections, it looks good to me, thanks for cleaning up that horror :)
->> >> >
->> >> > It didn't apply cleanly to master so I haven't tested it at all, if you can point me at a
->> >> > git tree with the dependencies I'd be happy to run some tests over it.
->> >>
->> >> Actually I realised I can just drop the last patch.
->> >>
->> >> So that looks fine, passes my standard quick build & boot on qemu tests,
->> >> and builds with/without stack protector enabled.
->> >>
->> >
->> > Thanks.
->> >
->> > Do you have any opinion on how this series should be merged? Kees Cook
->> > is willing to take them via his cross-arch tree, or you could carry
->> > them if you prefer. Taking it via multiple trees at the same time is
->> > going to be tricky, or take two cycles, with I'd prefer to avoid.
->> 
->> I don't really mind. If Kees is happy to take it then that's OK by me.
->> 
->> If Kees put the series in a topic branch based off rc2 then I could
->> merge that, and avoid any conflicts.
->
-> I've created:
->
-> git://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git for-next/thread_info/cpu
->
-> it includes a --no-ff merge commit, which I'm not sure is desirable? Let
-> me know if I should adjust this, or if Linus will yell about this if I
-> send him a PR containing a merge commit? I'm not sure what's right here.
+Fix kernel-doc warning due to incorrect parameter name in
+kernel-doc function notation:
 
-It looks good to me.
+../arch/s390/include/asm/debug.h:484: warning: Function parameter or member 'pages' not described in 'DEFINE_STATIC_DEBUG_INFO'
+../arch/s390/include/asm/debug.h:484: warning: Excess function parameter 'pages_per_area' description in 'DEFINE_STATIC_DEBUG_INFO'
 
-I don't think Linus will be bothered about that merge. It has useful
-information, ie. explains why you're merging it and that arch
-maintainers have acked it, and quotes Ard's cover letter.
+Fixes: d72541f94512 ("s390/debug: add early tracing support")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
+---
+ arch/s390/include/asm/debug.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-cheers
+--- lnx-515-rc4.orig/arch/s390/include/asm/debug.h
++++ lnx-515-rc4/arch/s390/include/asm/debug.h
+@@ -462,7 +462,7 @@ arch_initcall(VNAME(var, reg))
+  *
+  * @var: Name of debug_info_t variable
+  * @name: Name of debug log (e.g. used for debugfs entry)
+- * @pages_per_area: Number of pages per area
++ * @pages: Number of pages per area
+  * @nr_areas: Number of debug areas
+  * @buf_size: Size of data area in each debug entry
+  * @view: Pointer to debug view struct
