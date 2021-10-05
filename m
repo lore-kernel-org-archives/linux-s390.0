@@ -2,112 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85AC5C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 11:11:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 502E6C4332F
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 11:13:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 67B3A60F93
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 11:11:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 32E8161528
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 11:13:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234318AbhJELNa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 07:13:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47057 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234128AbhJELNa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 07:13:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633432299;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=eeArBAcS9Q84SLX+oAxukLYME3k/d29Rm/s+++jGKPE=;
-        b=ZcCuFqMVf7URhd8RcB7JNygzxhK70C+piChv456ImybACHPAUOrnnsuILbVvNeBBBjiugQ
-        xcJTb33i7KpJZ5yza+lC6tWfyICx9Yiabvg2JH+b76RI8LX4mzT8C0zXYrYKfmzP+8er2q
-        0MGLSwos/0eof98r/50QdY3QUzq10fw=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-287-37yN3EZNNnWR6gScwNZVEw-1; Tue, 05 Oct 2021 07:11:38 -0400
-X-MC-Unique: 37yN3EZNNnWR6gScwNZVEw-1
-Received: by mail-ed1-f69.google.com with SMTP id x5-20020a50f185000000b003db0f796903so2091501edl.18
-        for <linux-s390@vger.kernel.org>; Tue, 05 Oct 2021 04:11:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=eeArBAcS9Q84SLX+oAxukLYME3k/d29Rm/s+++jGKPE=;
-        b=a/raAPhYTRSM56Lc1x1ejdkX74u1baSB9aZ+IxQBwffG4Ubryn3X10jfCoGcr6IlDP
-         5ISkc1GvuTH7kXLQo5FArJDgc0jR1cU9br2HOQZjZR1tvczuCPLpmEk+nqPqlq+L6KZ0
-         1CQLIxBKQ6eKIvMVu+qWJv4ccG7QyfhIxtNH3KpPjp3+GreonV0z0j235QEgH67cnWXR
-         rLrbGnprjP1YkVrBHqUuLjb4Jx3ZMtlWXBzOp3LU5Ec8jCbpdrj4KAxcyP5ETAuuneJB
-         vpF/gZgXW6n1dTXKLuKxu5UpJhwxDD2wbxhB1OWj3IyUm4o0r04g4D5KaTf2AWgHHNeN
-         5jHw==
-X-Gm-Message-State: AOAM532mejh/teS9M8rMKXd8ft27lFGVanb5b8eiiIIBSZEWVaeW6+3X
-        LoOkwNndF+uXAFT0IibieruOMNb3Tj5mNgyywD9XEM4OpK3x0CepZs7CfQlR1kTgB0FY2yCuQT9
-        U8bvn39F7HIeLEamVKAtBmA==
-X-Received: by 2002:a17:906:81da:: with SMTP id e26mr23837028ejx.296.1633432297527;
-        Tue, 05 Oct 2021 04:11:37 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxcsiNXEPQdBdUK3S2sCQgXB8aTeyms7C9ktkEXECdOiZs9AxXkmtcIiymlmiwW6qydZSPVfw==
-X-Received: by 2002:a17:906:81da:: with SMTP id e26mr23837003ejx.296.1633432297372;
-        Tue, 05 Oct 2021 04:11:37 -0700 (PDT)
-Received: from redhat.com ([2.55.147.134])
-        by smtp.gmail.com with ESMTPSA id q6sm7451568ejm.106.2021.10.05.04.11.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Oct 2021 04:11:36 -0700 (PDT)
-Date:   Tue, 5 Oct 2021 07:11:32 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, markver@us.ibm.com,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        qemu-devel@nongnu.org, Jason Wang <jasowang@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        linux-kernel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Xie Yongji <xieyongji@bytedance.com>
-Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-Message-ID: <20211005071128-mutt-send-email-mst@kernel.org>
-References: <20210930012049.3780865-1-pasic@linux.ibm.com>
- <20210930070444-mutt-send-email-mst@kernel.org>
- <20211001092125.64fef348.pasic@linux.ibm.com>
- <20211002055605-mutt-send-email-mst@kernel.org>
- <87bl452d90.fsf@redhat.com>
- <20211004090018-mutt-send-email-mst@kernel.org>
- <20211005092539.145c9cc4.pasic@linux.ibm.com>
- <20211005035014-mutt-send-email-mst@kernel.org>
- <20211005124634.2a774796.pasic@linux.ibm.com>
+        id S234207AbhJELPX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 07:15:23 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6386 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234165AbhJELPW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 07:15:22 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 195A1XYJ029266;
+        Tue, 5 Oct 2021 07:13:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=SOXWXcwMIz8uBqfL4uXH929m8bQsgVNK65Ah6LpznGQ=;
+ b=OIKqNZk0wkSh5HhidfqCK13cQzLMFNTWv2TOyUV9C1pW7lTvwzFrver6cGA6sFOycDeH
+ fgtKQfol11MHusUCHKeLDd/1OKbuX9QU4wFCFH5lnx9D9XM1fRghIL1LgNR9lSj/VaUn
+ ixms0lcUSBTluQZDPwbvWiYQxCOfNULfzHysoVGh1HHX0/kfPkhEEIjGTHLTn/iOJibl
+ aULu2hNeQcwj3ZfoLjKiAv+bvBAaownu/pd89bFwA/n/x7V9t7ZlDyxUyVBYja5ApozP
+ M812RAYXZg0F1706U638VIoHi2QWOxGaBUX8PETWYkGwaedpoHG1mx3tEMt2hon21++T BQ== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bgmkeshfq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 07:13:29 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 195BD0Sj003217;
+        Tue, 5 Oct 2021 11:13:27 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06fra.de.ibm.com with ESMTP id 3beepjfevq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 11:13:27 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 195B86r243057486
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 5 Oct 2021 11:08:06 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6F38F42041;
+        Tue,  5 Oct 2021 11:13:23 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2E8CE42042;
+        Tue,  5 Oct 2021 11:13:23 +0000 (GMT)
+Received: from osiris (unknown [9.145.46.219])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue,  5 Oct 2021 11:13:23 +0000 (GMT)
+Date:   Tue, 5 Oct 2021 13:13:21 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>
+Cc:     gor@linux.ibm.com, borntraeger@de.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: Fix strrchr() implementation
+Message-ID: <YVwzUbHcZkHQT0K4@osiris>
+References: <20211005072621.53500-1-roberto.sassu@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211005124634.2a774796.pasic@linux.ibm.com>
+In-Reply-To: <20211005072621.53500-1-roberto.sassu@huawei.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 8w7pAMI7f5L0qqi08dJmVxy8k8iKjIwo
+X-Proofpoint-ORIG-GUID: 8w7pAMI7f5L0qqi08dJmVxy8k8iKjIwo
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-04_05,2021-10-04_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ impostorscore=0 mlxlogscore=946 clxscore=1011 adultscore=0
+ priorityscore=1501 bulkscore=0 mlxscore=0 spamscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110050065
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 05, 2021 at 12:46:34PM +0200, Halil Pasic wrote:
-> On Tue, 5 Oct 2021 03:53:17 -0400
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Tue, Oct 05, 2021 at 09:26:21AM +0200, Roberto Sassu wrote:
+> Access the string at len - 1 instead of len.
 > 
-> > > Wouldn't a call from transport code into virtio core
-> > > be more handy? What I have in mind is stuff like vhost-user and vdpa. My
-> > > understanding is, that for vhost setups where the config is outside qemu,
-> > > we probably need a new  command that tells the vhost backend what
-> > > endiannes to use for config. I don't think we can use
-> > > VHOST_USER_SET_VRING_ENDIAN because  that one is on a virtqueue basis
-> > > according to the doc. So for vhost-user and similar we would fire that
-> > > command and probably also set the filed, while for devices for which
-> > > control plane is handled by QEMU we would just set the field.
-> > > 
-> > > Does that sound about right?  
-> > 
-> > I'm fine either way, but when would you invoke this?
-> > With my idea backends can check the field when get_config
-> > is invoked.
-> > 
-> > As for using this in VHOST, can we maybe re-use SET_FEATURES?
-> > 
-> > Kind of hacky but nice in that it will actually make existing backends
-> > work...
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> ---
+>  arch/s390/lib/string.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 > 
-> Basically the equivalent of this patch, just on the vhost interface,
-> right? Could work I have to look into it :)
+> diff --git a/arch/s390/lib/string.c b/arch/s390/lib/string.c
+> index cfcdf76d6a95..162a391788ad 100644
+> --- a/arch/s390/lib/string.c
+> +++ b/arch/s390/lib/string.c
+> @@ -261,12 +261,12 @@ char *strrchr(const char *s, int c)
+>  {
+>         size_t len = __strend(s) - s;
+>  
+> -       if (len)
+> -	       do {
+> -		       if (s[len] == (char) c)
+> -			       return (char *) s + len;
+> -	       } while (--len > 0);
+> -       return NULL;
+> +	if (len)
+> +		do {
+> +			if (s[len - 1] == (char) c)
+> +				return (char *) s + len - 1;
+> +		} while (--len > 0);
+> +	return NULL;
 
-yep
+You missed to tell what this is supposed to fix. The patch however is
+incorrect: the terminating null byte is considered part of the
+string. With your patch strrchr(somestring, 0) would not work
+correctly anymore.
 
+However our strrchr implementation is indeed broken, since for an
+empty string and searching for the null byte would incorrectly return
+NULL. Luckily there is not a single invocation in the kernel which
+doing that.
