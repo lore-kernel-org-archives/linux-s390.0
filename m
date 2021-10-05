@@ -2,100 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AED4DC433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 07:38:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96057C433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 07:53:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9191261506
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 07:38:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7E4DA61350
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 07:53:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231816AbhJEHkN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 03:40:13 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:36032 "EHLO
+        id S232511AbhJEHzO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 03:55:14 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24721 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230526AbhJEHkM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 03:40:12 -0400
+        by vger.kernel.org with ESMTP id S232108AbhJEHzO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 03:55:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633419502;
+        s=mimecast20190719; t=1633420403;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=EtTBfJ7umQKOo9c4zQtEMAqccC4CaaUVFj0BPcVpmPk=;
-        b=Xz+rDMB3u6YVvM0KG83ArDFLV5p1ME5fDm/fFxlsS13Z8+iY0QkUy2Ri6avlh4jVP34m36
-        wXJtjWGxCu8aVZTzdKbO1QpPrtwCX4x9JfjtR8KC16fB8CZFc4Ab7UFWwV4mOsLkQ6PDkR
-        uGvcSt2Uv0IqrNW/VGf0oFe+XtvjCqw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-520-N9l1X2KRMuymU2ciTndIsQ-1; Tue, 05 Oct 2021 03:38:21 -0400
-X-MC-Unique: N9l1X2KRMuymU2ciTndIsQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F331DA40C0;
-        Tue,  5 Oct 2021 07:38:19 +0000 (UTC)
-Received: from localhost (unknown [10.39.192.167])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id D750F18A50;
-        Tue,  5 Oct 2021 07:38:07 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        bh=8MQQUBfg6gmlUyb1M/tqnYV/yKo2UEgU362rTr4iyf0=;
+        b=BFBKEOpsNDaRGKjh7P5EZ57QM1trx5aQbj5F0mvCSlBBPZKLdoXKih9GIdRra1Jj/g87K6
+        6vP+ZlWah7pLHaa2ZBWKzO1bhspO9h3YR5gfTQpdLATlQPphI0Rj0rvxH0lRw0dsn4l9zH
+        7ewcxTACYB2Pk7MFSb1Wxl6J2DfR6KU=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-318-QKtCClpZNwSeRl2sIVyMSg-1; Tue, 05 Oct 2021 03:53:22 -0400
+X-MC-Unique: QKtCClpZNwSeRl2sIVyMSg-1
+Received: by mail-ed1-f72.google.com with SMTP id z6-20020a50cd06000000b003d2c2e38f1fso19807795edi.1
+        for <linux-s390@vger.kernel.org>; Tue, 05 Oct 2021 00:53:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=8MQQUBfg6gmlUyb1M/tqnYV/yKo2UEgU362rTr4iyf0=;
+        b=u5uiqclcNnzH2ByLxJ3nQuULxRkvzdM7mi1dJbN60IY3xUo+5I/DrbzGD+pA+hn3mu
+         Y4qJDwToDaMxCJfVaVbOv7KvRsN0/mUx/TlgIsrds2BOH/qsImfSRuerGdjzr6O3wmva
+         G5ABT4fBIRWhCtjH6TJJY6ma0GxZjGi8mDizxytxP1zTevfJDvE6Imilf9X8C4vzAkb2
+         Tiy7uIl5SyxD47t1aGPbz5jx2NyxFnN/RzFxqphc6yJRbxPX9pxHG3F14zl3fTqUYWp5
+         47M1HtT9wPHDh3cS6Or20CqRwH4QJB5+uuEKnUlmvSHufNn/Zw2s77qF87xetJP9xxHO
+         HUTA==
+X-Gm-Message-State: AOAM533rVnN1coknBrKqzBd7JHie9sZkiWL8mKwUkMuF0nI20oeciqcM
+        wlItKWnEdt1A6JpiM0SLG81oUq4kNTXo2gzNbLDoGjmuuRCnaUPbPrdng/Z5Sutz5MDR+q0kzE1
+        jJZ1SRP9iGRb2CGhB5RLpcQ==
+X-Received: by 2002:a05:6402:35cb:: with SMTP id z11mr14610265edc.252.1633420401452;
+        Tue, 05 Oct 2021 00:53:21 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxOHxXYAke10DbjPKeGoglSdZPOuPMBgTSaN3r5HKwcc031+p/zWsEEMu11Yvb7QTyz4BzKrw==
+X-Received: by 2002:a05:6402:35cb:: with SMTP id z11mr14610244edc.252.1633420401312;
+        Tue, 05 Oct 2021 00:53:21 -0700 (PDT)
+Received: from redhat.com ([2.55.147.134])
+        by smtp.gmail.com with ESMTPSA id u6sm8260227edt.30.2021.10.05.00.53.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Oct 2021 00:53:20 -0700 (PDT)
+Date:   Tue, 5 Oct 2021 03:53:17 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     Cornelia Huck <cohuck@redhat.com>,
         Jason Wang <jasowang@redhat.com>,
         Xie Yongji <xieyongji@bytedance.com>,
         virtualization@lists.linux-foundation.org,
         linux-kernel@vger.kernel.org, markver@us.ibm.com,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, virtio-dev@lists.oasis-open.org
-Subject: Re: [virtio-dev] Re: [RFC PATCH 1/1] virtio: write back features
- before verify
-In-Reply-To: <20211004160005-mutt-send-email-mst@kernel.org>
-Organization: Red Hat GmbH
-References: <87fstm47no.fsf@redhat.com>
- <20211002141351-mutt-send-email-mst@kernel.org>
- <20211003070030.658fc94e.pasic@linux.ibm.com>
- <20211003021027-mutt-send-email-mst@kernel.org>
- <20211003032253-mutt-send-email-mst@kernel.org>
- <87ee912e45.fsf@redhat.com>
- <20211004083455-mutt-send-email-mst@kernel.org>
- <878rz83lx0.fsf@redhat.com>
- <20211004110152-mutt-send-email-mst@kernel.org>
- <87zgro23r1.fsf@redhat.com>
- <20211004160005-mutt-send-email-mst@kernel.org>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Tue, 05 Oct 2021 09:38:05 +0200
-Message-ID: <87r1cz2a76.fsf@redhat.com>
+        linux-s390@vger.kernel.org, qemu-devel@nongnu.org
+Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
+Message-ID: <20211005035014-mutt-send-email-mst@kernel.org>
+References: <20210930012049.3780865-1-pasic@linux.ibm.com>
+ <20210930070444-mutt-send-email-mst@kernel.org>
+ <20211001092125.64fef348.pasic@linux.ibm.com>
+ <20211002055605-mutt-send-email-mst@kernel.org>
+ <87bl452d90.fsf@redhat.com>
+ <20211004090018-mutt-send-email-mst@kernel.org>
+ <20211005092539.145c9cc4.pasic@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211005092539.145c9cc4.pasic@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Tue, Oct 05, 2021 at 09:25:39AM +0200, Halil Pasic wrote:
+> On Mon, 4 Oct 2021 09:11:04 -0400
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > > >> static inline bool virtio_access_is_big_endian(VirtIODevice *vdev)
+> > > >> {
+> > > >> #if defined(LEGACY_VIRTIO_IS_BIENDIAN)
+> > > >>     return virtio_is_big_endian(vdev);
+> > > >> #elif defined(TARGET_WORDS_BIGENDIAN)
+> > > >>     if (virtio_vdev_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+> > > >>         /* Devices conforming to VIRTIO 1.0 or later are always LE. */
+> > > >>         return false;
+> > > >>     }
+> > > >>     return true;
+> > > >> #else
+> > > >>     return false;
+> > > >> #endif
+> > > >> }
+> > > >>   
+> > > >
+> > > > ok so that's a QEMU bug. Any virtio 1.0 and up
+> > > > compatible device must use LE.
+> > > > It can also present a legacy config space where the
+> > > > endian depends on the guest.  
+> > > 
+> > > So, how is the virtio core supposed to determine this? A
+> > > transport-specific callback?  
+> > 
+> > I'd say a field in VirtIODevice is easiest.
+> 
+> Wouldn't a call from transport code into virtio core
+> be more handy? What I have in mind is stuff like vhost-user and vdpa. My
+> understanding is, that for vhost setups where the config is outside qemu,
+> we probably need a new  command that tells the vhost backend what
+> endiannes to use for config. I don't think we can use
+> VHOST_USER_SET_VRING_ENDIAN because  that one is on a virtqueue basis
+> according to the doc. So for vhost-user and similar we would fire that
+> command and probably also set the filed, while for devices for which
+> control plane is handled by QEMU we would just set the field.
+> 
+> Does that sound about right?
 
-> On Mon, Oct 04, 2021 at 05:45:06PM +0200, Cornelia Huck wrote:
->> On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
->> 
->> > On Mon, Oct 04, 2021 at 04:27:23PM +0200, Cornelia Huck wrote:
->> >> On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
->> >> 
->> >> > Do we want to also add explanation that features can be
->> >> > changed until FEATURES_OK?
->> >> 
->> >> I always considered that to be implict, as feature negotiation is not
->> >> over until we have FEATURES_OK. Not sure whether we need an extra note.
->> >
->> > Well Halil here says once you set a feature bit you can't clear it.
->> > So maybe not ...
->> 
->> Ok, so what about something like
->> 
->> "If FEATURES_OK is not set, the driver MAY change the set of features it
->> accepts."
->> 
->> in the device initialization section?
->
-> Maybe "as long as". However Halil implied that some features are not
-> turned off properly if that happens. Halil could you pls provide
-> some examples?
+I'm fine either way, but when would you invoke this?
+With my idea backends can check the field when get_config
+is invoked.
 
-Yes, "as long as" sounds better.
+As for using this in VHOST, can we maybe re-use SET_FEATURES?
+
+Kind of hacky but nice in that it will actually make existing backends
+work...
+
+-- 
+MST
 
