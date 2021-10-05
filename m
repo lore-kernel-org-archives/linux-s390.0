@@ -2,84 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB91AC433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 12:08:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24A01C433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 12:09:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ADD3161163
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 12:08:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0DE2761166
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 12:09:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234419AbhJEMKk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 08:10:40 -0400
-Received: from frasgout.his.huawei.com ([185.176.79.56]:3933 "EHLO
-        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233808AbhJEMKk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 08:10:40 -0400
-Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.207])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4HNx9X6B9Yz67b9p;
-        Tue,  5 Oct 2021 20:05:20 +0800 (CST)
-Received: from roberto-ThinkStation-P620.huawei.com (10.204.63.22) by
- fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Tue, 5 Oct 2021 14:08:47 +0200
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-To:     <hca@linux.ibm.com>, <gor@linux.ibm.com>, <borntraeger@de.ibm.com>
-CC:     <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2] s390: Fix strrchr() implementation
-Date:   Tue, 5 Oct 2021 14:08:36 +0200
-Message-ID: <20211005120836.60630-1-roberto.sassu@huawei.com>
-X-Mailer: git-send-email 2.32.0
+        id S233842AbhJEMLi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 08:11:38 -0400
+Received: from mga03.intel.com ([134.134.136.65]:52866 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233808AbhJEMLi (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 5 Oct 2021 08:11:38 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10127"; a="225662756"
+X-IronPort-AV: E=Sophos;i="5.85,348,1624345200"; 
+   d="scan'208";a="225662756"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2021 05:09:47 -0700
+X-IronPort-AV: E=Sophos;i="5.85,348,1624345200"; 
+   d="scan'208";a="589332377"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2021 05:09:45 -0700
+Received: from andy by smile with local (Exim 4.95)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1mXjGR-008sGX-11;
+        Tue, 05 Oct 2021 15:09:43 +0300
+Date:   Tue, 5 Oct 2021 15:09:43 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v1 1/1] s390: Use string_upper() instead of open coded
+ variant
+Message-ID: <YVxAh+0SeLEgh85e@smile.fi.intel.com>
+References: <20211001130201.72545-1-andriy.shevchenko@linux.intel.com>
+ <YVtksmjj1eGqw5GY@osiris>
+ <YVwKXn1Nqwk+Ahsx@smile.fi.intel.com>
+ <YVwSxGyx45gs2+ZW@osiris>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.204.63.22]
-X-ClientProxiedBy: lhreml752-chm.china.huawei.com (10.201.108.202) To
- fraeml714-chm.china.huawei.com (10.206.15.33)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YVwSxGyx45gs2+ZW@osiris>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Fix two problems found in the strrchr() implementation for s390
-architectures: evaluate empty strings (return the string address instead of
-NULL, if '\0' is passed as second argument); evaluate the first character
-of non-empty strings (the current implementation stops at the second).
+On Tue, Oct 05, 2021 at 10:54:28AM +0200, Heiko Carstens wrote:
+> On Tue, Oct 05, 2021 at 11:18:38AM +0300, Andy Shevchenko wrote:
+> > On Mon, Oct 04, 2021 at 10:31:46PM +0200, Heiko Carstens wrote:
+> > > On Fri, Oct 01, 2021 at 04:02:01PM +0300, Andy Shevchenko wrote:
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Reported-by: Heiko Carstens <hca@linux.ibm.com> (incorrect behavior with empty strings)
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
----
- arch/s390/lib/string.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+...
 
-diff --git a/arch/s390/lib/string.c b/arch/s390/lib/string.c
-index cfcdf76d6a95..8127e110d154 100644
---- a/arch/s390/lib/string.c
-+++ b/arch/s390/lib/string.c
-@@ -259,14 +259,13 @@ EXPORT_SYMBOL(strcmp);
- #ifdef __HAVE_ARCH_STRRCHR
- char *strrchr(const char *s, int c)
- {
--       size_t len = __strend(s) - s;
--
--       if (len)
--	       do {
--		       if (s[len] == (char) c)
--			       return (char *) s + len;
--	       } while (--len > 0);
--       return NULL;
-+	size_t len = __strend(s) - s;
-+
-+	do {
-+		if (s[len] == (char) c)
-+			return (char *) s + len;
-+	} while (--len >= 0);
-+	return NULL;
- }
- EXPORT_SYMBOL(strrchr);
- #endif
+> > > > +	char tmp[8 + 1];
+> > > >  	int i;
+> > > >  
+> > > > -	for (i = 0; i < 8; i++) {
+> > > > -		if (name[i] == '\0')
+> > > > -			break;
+> > > > -		dcss_name[i] = toupper(name[i]);
+> > > > -	}
+> > > > -	for (; i < 8; i++)
+> > > > -		dcss_name[i] = ' ';
+> > > > +	/*
+> > > > +	 * This snprintf() call does two things:
+> > > > +	 * - makes a NUL-terminated copy of the input string
+> > > > +	 * - pads it with spaces
+> > > > +	 */
+> > > > +	snprintf(tmp, sizeof(tmp), "%s        ", name);
+> > > 
+> > > I can't say I like code where I have to count spaces in order to
+> > > verify if the code is actually correct.
+> > 
+> > I understand your point, but have any idea how to make it differently
+> > and not ugly at the same time?
+> 
+> Don't know. You could use strncopy+strlen+memset (with space
+> character). After all I'm not very convinced that the resulting code
+> buys us anything compared to the current variant.
+
+Yup, so let's convert only the first part then.
+
+...
+
+> > > > -	char dcss_name[9];
+> > > > +	char dcss_name[8];
+> > > 
+> > > string_upper will copy the terminating NUL-byte. By reducing the size
+> > > of dcss_name to 8 bytes this will result in stack corruption.
+> > 
+> > Nope. Even in the original code this additional byte is left unused.
+> 
+> I'm talking about the new code, not the old code: If "name" points to
+> a NUL terminated eight chararacter string, then the new code will use
+> snprintf to copy it 1:1 to tmp, and the subsequent string_upper() will
+> copy the string (upper cased) to dcss_name, now including the NUL
+> terminating byte, which won't fit into dcss_name.
+> Am I missing something here?
+
+Ah, indeed, although it's rather bug in the implementation of above.
+But original code has it not in use.
+
 -- 
-2.32.0
+With Best Regards,
+Andy Shevchenko
+
 
