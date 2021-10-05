@@ -2,180 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16FAAC43217
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 14:13:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1BAFC433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 14:15:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC5196113A
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 14:13:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C71F86113A
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 14:15:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236161AbhJEOPo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 10:15:44 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19004 "EHLO
+        id S235449AbhJEORd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 10:17:33 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27146 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236039AbhJEOOz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 10:14:55 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 195E8jw6014963;
-        Tue, 5 Oct 2021 10:13:05 -0400
+        by vger.kernel.org with ESMTP id S236433AbhJEORU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 10:17:20 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 195D2WpO022810;
+        Tue, 5 Oct 2021 10:15:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
  references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=ahhevMSQVbcaZDQFL9ujVBjSdb3OBb62fpPWDZp0cYA=;
- b=XzEsPyjyX29J7rfw7oaMocLCMNcL1T6vviEGBE/4gOPJj9/ySk0y04uf83o+/Xe4vhAF
- BjfaXqYCc+3DOlLySpuKCGO9RMq/Ntmb+Yk0gNwTRHD/uJ5+GkDb3yTlWTKgSxSNlV5e
- o80zmi6xUGOSKdgNDqp0Cj8FMwfhrHWgfQO/JHRbJiXOxvwPakBEYZ+CNaaOillHhS+l
- u7HJtYEvTAuMP0YH09AwfWg8F202UW9fT8BahPxLKWr8hMvzcUrBEMtbV6VM7RDH5v9o
- DIMB75Yooz8U6fLYU+mb/Y82X6pMB2RFLykkZWuD8Vs1tBUI8SgAL1XfUjW8juP5pNZL hg== 
+ bh=2WILOUitcrndYCn8gziycm16SrxxQDqEUbiXZpkLSBc=;
+ b=KYqiANCZaR2SwkqjfRGwgtTLBU8NVJTg1X5cDvcAn6f0B3ZlbxHu14SwY3zSm3/eFqgt
+ AKdieYwKzYzRDi0XNhCvH9q20ffDBe80KUa+06DAKUh5RVg5gp8PqeFRWy5ZA41+dPVx
+ JL8wjMa/h/AX6HYEPlmGbvoPXmhJdlowXKBNW7ZDZP6lwv9SF1gjQuq/1QbSxwZ/nf1y
+ zzrxWNj9d8HgZ9BcPqfzllXb/U1FtjrB7wHmZjKo440/2My6t5SFpn4fA6tb8WXaFkiL
+ 9O/ErvnemFBjTymLAGFHtkgxcQaaftDw7USzgjLQQJ/wIxPJsIy4NPp/yqeCuxqVmszk QA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bgr7984gs-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bgq7u28hh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Oct 2021 10:13:04 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 195E9Cgh016045;
-        Tue, 5 Oct 2021 10:13:04 -0400
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bgr7984fm-1
+        Tue, 05 Oct 2021 10:15:30 -0400
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 195DrY80005687;
+        Tue, 5 Oct 2021 10:15:29 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bgq7u28gd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Oct 2021 10:13:04 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 195ECkx5007665;
-        Tue, 5 Oct 2021 14:13:01 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03fra.de.ibm.com with ESMTP id 3bef29h5tc-1
+        Tue, 05 Oct 2021 10:15:29 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 195EDGkM017382;
+        Tue, 5 Oct 2021 14:15:27 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma01fra.de.ibm.com with ESMTP id 3bef29s4cb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Oct 2021 14:13:01 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 195ECvDU4653672
+        Tue, 05 Oct 2021 14:15:27 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 195EA4Rh49611256
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 5 Oct 2021 14:12:57 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BF10B52054;
-        Tue,  5 Oct 2021 14:12:57 +0000 (GMT)
-Received: from li-7e0de7cc-2d9d-11b2-a85c-de26c016e5ad.ibm.com (unknown [9.171.6.58])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 3D99B52065;
-        Tue,  5 Oct 2021 14:12:57 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH v2 2/2] s390x: Add specification exception
- interception test
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20211005091153.1863139-1-scgl@linux.ibm.com>
- <20211005091153.1863139-3-scgl@linux.ibm.com>
- <20211005150919.04425060@p-imbrenda>
-From:   Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>
-Message-ID: <c4826f20-f501-4c51-1109-40692ce8b1c7@linux.vnet.ibm.com>
-Date:   Tue, 5 Oct 2021 16:12:56 +0200
+        Tue, 5 Oct 2021 14:10:04 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8A2FFA406D;
+        Tue,  5 Oct 2021 14:15:21 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 91D27A4062;
+        Tue,  5 Oct 2021 14:15:20 +0000 (GMT)
+Received: from li-43c5434c-23b8-11b2-a85c-c4958fb47a68.ibm.com (unknown [9.171.76.223])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  5 Oct 2021 14:15:20 +0000 (GMT)
+Subject: Re: [PATCH v5 00/14] KVM: s390: pv: implement lazy destroy for reboot
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     cohuck@redhat.com, thuth@redhat.com, pasic@linux.ibm.com,
+        david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Ulrich.Weigand@de.ibm.com
+References: <20210920132502.36111-1-imbrenda@linux.ibm.com>
+ <fcfd5d04-1a08-f91e-7bc2-8878c6dcd1eb@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <566654e2-92fd-4e91-325e-ced6a89b7a0e@de.ibm.com>
+Date:   Tue, 5 Oct 2021 16:15:20 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.14.0
 MIME-Version: 1.0
-In-Reply-To: <20211005150919.04425060@p-imbrenda>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <fcfd5d04-1a08-f91e-7bc2-8878c6dcd1eb@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: TEG-Q5tZKZbBgeLUdSbvITrRjUc2sXm8
-X-Proofpoint-ORIG-GUID: Ry59FPdwoD3ppGNQGWgPm4ACjFjwH7Kn
+X-Proofpoint-GUID: eVrRzcQILvBPOgMZwrE0DEstCjF0LlWz
+X-Proofpoint-ORIG-GUID: _7xoNjSY8p5ENEbm2NnULYhM2UUi-ajy
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-10-05_02,2021-10-04_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- priorityscore=1501 lowpriorityscore=0 malwarescore=0 spamscore=0
- bulkscore=0 impostorscore=0 mlxlogscore=999 adultscore=0 phishscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110050084
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 mlxlogscore=999 spamscore=0 malwarescore=0
+ lowpriorityscore=0 bulkscore=0 clxscore=1015 mlxscore=0 suspectscore=0
+ impostorscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109230001 definitions=main-2110050084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/5/21 3:09 PM, Claudio Imbrenda wrote:
-> On Tue,  5 Oct 2021 11:11:53 +0200
-> Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
-> 
->> Check that specification exceptions cause intercepts when
->> specification exception interpretation is off.
->> Check that specification exceptions caused by program new PSWs
->> cause interceptions.
->> We cannot assert that non program new PSW specification exceptions
->> are interpreted because whether interpretation occurs or not is
->> configuration dependent.
->>
->> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->> ---
->>  s390x/Makefile             |  2 +
->>  lib/s390x/sie.h            |  1 +
->>  s390x/snippets/c/spec_ex.c | 20 +++++++++
->>  s390x/spec_ex-sie.c        | 83 ++++++++++++++++++++++++++++++++++++++
->>  s390x/unittests.cfg        |  3 ++
->>  5 files changed, 109 insertions(+)
->>  create mode 100644 s390x/snippets/c/spec_ex.c
->>  create mode 100644 s390x/spec_ex-sie.c
->>
->> diff --git a/s390x/Makefile b/s390x/Makefile
->> index ef8041a..7198882 100644
->> --- a/s390x/Makefile
->> +++ b/s390x/Makefile
->> @@ -24,6 +24,7 @@ tests += $(TEST_DIR)/mvpg.elf
->>  tests += $(TEST_DIR)/uv-host.elf
->>  tests += $(TEST_DIR)/edat.elf
->>  tests += $(TEST_DIR)/mvpg-sie.elf
->> +tests += $(TEST_DIR)/spec_ex-sie.elf
->>  
->>  tests_binary = $(patsubst %.elf,%.bin,$(tests))
->>  ifneq ($(HOST_KEY_DOCUMENT),)
->> @@ -85,6 +86,7 @@ snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
->>  # perquisites (=guests) for the snippet hosts.
->>  # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
->>  $(TEST_DIR)/mvpg-sie.elf: snippets = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
->> +$(TEST_DIR)/spec_ex-sie.elf: snippets = $(SNIPPET_DIR)/c/spec_ex.gbin
->>  
->>  $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o $(FLATLIBS)
->>  	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
->> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
->> index ca514ef..7ef7251 100644
->> --- a/lib/s390x/sie.h
->> +++ b/lib/s390x/sie.h
->> @@ -98,6 +98,7 @@ struct kvm_s390_sie_block {
->>  	uint8_t		fpf;			/* 0x0060 */
->>  #define ECB_GS		0x40
->>  #define ECB_TE		0x10
->> +#define ECB_SPECI	0x08
->>  #define ECB_SRSI	0x04
->>  #define ECB_HOSTPROTINT	0x02
->>  	uint8_t		ecb;			/* 0x0061 */
->> diff --git a/s390x/snippets/c/spec_ex.c b/s390x/snippets/c/spec_ex.c
->> new file mode 100644
->> index 0000000..bdba4f4
->> --- /dev/null
->> +++ b/s390x/snippets/c/spec_ex.c
->> @@ -0,0 +1,20 @@
->> +// SPDX-License-Identifier: GPL-2.0-only
->> +/*
->> + * © Copyright IBM Corp. 2021
->> + *
->> + * Snippet used by specification exception interception test.
->> + */
->> +#include <stdint.h>
->> +#include <asm/arch_def.h>
->> +
->> +__attribute__((section(".text"))) int main(void)
->> +{
->> +	struct lowcore *lowcore = (struct lowcore *) 0;
->> +	uint64_t bad_psw = 0;
->> +
->> +	/* PSW bit 12 has no name or meaning and must be 0 */
->> +	lowcore->pgm_new_psw.mask = 1UL << (63 - 12);
-> 
-> you can use the BIT or BIT_ULL macro
-> 
->> +	lowcore->pgm_new_psw.addr = 0xdeadbeee;
-> 
-> if the system is broken, it might actually jump at that address; in
-> that case, will the test fail?
 
-Broken how? If interpretation is overzealous the test might hang.
 
-[...]
+Am 05.10.21 um 15:26 schrieb Janosch Frank:
+> On 9/20/21 15:24, Claudio Imbrenda wrote:
+>> Previously, when a protected VM was rebooted or when it was shut down,
+>> its memory was made unprotected, and then the protected VM itself was
+>> destroyed. Looping over the whole address space can take some time,
+>> considering the overhead of the various Ultravisor Calls (UVCs). This
+>> means that a reboot or a shutdown would take a potentially long amount
+>> of time, depending on the amount of used memory.
+>>
+>> This patchseries implements a deferred destroy mechanism for protected
+>> guests. When a protected guest is destroyed, its memory is cleared in
+>> background, allowing the guest to restart or terminate significantly
+>> faster than before.
+>>
+>> There are 2 possibilities when a protected VM is torn down:
+>> * it still has an address space associated (reboot case)
+>> * it does not have an address space anymore (shutdown case)
+>>
+>> For the reboot case, the reference count of the mm is increased, and
+>> then a background thread is started to clean up. Once the thread went
+>> through the whole address space, the protected VM is actually
+>> destroyed.
+>>
+>> This means that the same address space can have memory belonging to
+>> more than one protected guest, although only one will be running, the
+>> others will in fact not even have any CPUs.
+>>
+>> The shutdown case is more controversial, and it will be dealt with in a
+>> future patchseries.
+>>
+>> When a guest is destroyed, its memory still counts towards its memory
+>> control group until it's actually freed (I tested this experimentally)
+> 
+> 
+> @Christian: I'd like to have #1-3 in early so we can focus on the more complicated stuff.
+
+Yes, makes perfect sense.
