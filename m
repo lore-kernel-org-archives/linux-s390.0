@@ -2,110 +2,148 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42904C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 13:36:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E461CC433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 13:38:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 252E66120A
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 13:36:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC1DD615A3
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 13:38:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235037AbhJENip (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 09:38:45 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44340 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S234694AbhJENim (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 09:38:42 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 195DXtm5019131;
-        Tue, 5 Oct 2021 09:36:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=ektqZ/mfyb7dAOJNyP0mSMY39E6jfqwsUuut/kZQ/C4=;
- b=rtaPLdNiOoA7CYBFJXvMHcYiL5pV09stDD7fjYmjaXbwvvG/IW9khIAf16M2r66e1WEr
- C5RBbNVUrq+Xg6mGcGAl2XTAEMnnSQimDDniNZVYt5EKMji3gKPgn13xZLFlP/TtvdMB
- bev2vli7tCvr35ZUlVbiIX7A9kHJLlKO56aN8e+hqiKAJTJlvibDj/y7A0nCP0i0Khd/
- pwJDJvSD8t0uTDDKvoLqrr9xY3af9pJCl6C+WgEO6KVyrONRr2CsysxDA3Cgp7Hk0vnD
- Uv+Gq9kzd9tTcPUum+pvoAc59h/aM+a9titm47a7yAmMXVxW+MH8da40jPetsZQg+jBw Qg== 
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bgnm9bef6-1
+        id S234318AbhJENkH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 09:40:07 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58408 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233975AbhJENkH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 09:40:07 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 195DaPFw016050;
+        Tue, 5 Oct 2021 09:38:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=xDAZK6EDYXlGHLA5HvmL/HdVAlGDOo2EAebFz7+iOXY=;
+ b=j0PPVSs1r12CxOzNzcEzH6w50YYR0H+9bmvSBZJ/M12voQAW8IB+UmgAl2CMWJHk8FA/
+ 9NArxzKlSGV2gF6g4urjPeXGintEFCMYi1xszAwOsSm5T0TCuNTanKuqxeIp/ezQIBUu
+ 6EAsgRT6nRgctfgjNxnuXEBxIM0Ifa1wsl3HBEf0BWtpTknMBBP6NRiztOadn4Cm6G6p
+ 4xiNcVZRe4RHo0OU2FZe+kkIVTV1tEgBjn40gOiIJ5/o1i2og47uG3lU7CXLVlmLmd0i
+ BzgUXPufX2iiEI8efH0/BKh7Uridkzky0oOisCXSNKLW/bg/iV6XMFY3lVMhV+yryvWN EQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bgpbpj72d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Oct 2021 09:36:45 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 195DWj7W022778;
-        Tue, 5 Oct 2021 13:36:43 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03fra.de.ibm.com with ESMTP id 3bef29gsxa-1
+        Tue, 05 Oct 2021 09:38:16 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 195DbefV023809;
+        Tue, 5 Oct 2021 09:38:16 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bgpbpj718-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Oct 2021 13:36:43 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 195DadM83867170
+        Tue, 05 Oct 2021 09:38:16 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 195DWcSZ001969;
+        Tue, 5 Oct 2021 13:38:13 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04fra.de.ibm.com with ESMTP id 3bef2a0ruk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Oct 2021 13:38:13 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 195Dc62E62390668
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 5 Oct 2021 13:36:39 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 216CE52069;
-        Tue,  5 Oct 2021 13:36:39 +0000 (GMT)
-Received: from osiris (unknown [9.145.46.219])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id CEF5A5207E;
-        Tue,  5 Oct 2021 13:36:38 +0000 (GMT)
-Date:   Tue, 5 Oct 2021 15:36:37 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>
-Cc:     Juergen Gross <jgross@suse.com>,
-        "gor@linux.ibm.com" <gor@linux.ibm.com>,
-        "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] s390: Fix strrchr() implementation
-Message-ID: <YVxU5fNTpFt/P0wk@osiris>
-References: <20211005120836.60630-1-roberto.sassu@huawei.com>
- <YVxP0OoUWQvhmqkq@osiris>
- <4eb4c1ea-d392-62fd-201f-472f24496f46@suse.com>
- <923ea0761d4d45158acbd1347d9bb6b5@huawei.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <923ea0761d4d45158acbd1347d9bb6b5@huawei.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 67M2sR0VWEH4Q98q3R6yU8XdcCyxG-A-
-X-Proofpoint-ORIG-GUID: 67M2sR0VWEH4Q98q3R6yU8XdcCyxG-A-
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Tue, 5 Oct 2021 13:38:06 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B0C68A4066;
+        Tue,  5 Oct 2021 13:38:06 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 03711A406D;
+        Tue,  5 Oct 2021 13:38:06 +0000 (GMT)
+Received: from li-43c5434c-23b8-11b2-a85c-c4958fb47a68.ibm.com (unknown [9.171.76.223])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  5 Oct 2021 13:38:05 +0000 (GMT)
+Subject: Re: [PATCH v5 02/14] KVM: s390: pv: avoid double free of sida page
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     cohuck@redhat.com, frankja@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Ulrich.Weigand@de.ibm.com
+References: <20210920132502.36111-1-imbrenda@linux.ibm.com>
+ <20210920132502.36111-3-imbrenda@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <1cd7259e-ab4c-1c3e-6846-e3c5ff26bda1@de.ibm.com>
+Date:   Tue, 5 Oct 2021 15:38:05 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
+In-Reply-To: <20210920132502.36111-3-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 3Mh7vKeMHyGk5-h_oEDqJIa_-Ddh-rFA
+X-Proofpoint-ORIG-GUID: GjNmMB0_x8_QXhJxxZTd3YjAhQUST0cF
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-10-05_02,2021-10-04_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1011 impostorscore=0 mlxlogscore=936 bulkscore=0 phishscore=0
- suspectscore=0 mlxscore=0 spamscore=0 malwarescore=0 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110050080
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ malwarescore=0 impostorscore=0 spamscore=0 bulkscore=0 suspectscore=0
+ adultscore=0 mlxlogscore=749 clxscore=1015 priorityscore=1501 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
+ definitions=main-2110050080
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 05, 2021 at 01:30:45PM +0000, Roberto Sassu wrote:
-> > From: Juergen Gross [mailto:jgross@suse.com]
-> > Sent: Tuesday, October 5, 2021 3:25 PM
-> > On 05.10.21 15:14, Heiko Carstens wrote:
-> > > On Tue, Oct 05, 2021 at 02:08:36PM +0200, Roberto Sassu wrote:
-> > >> Fix two problems found in the strrchr() implementation for s390
-> > >> architectures: evaluate empty strings (return the string address instead of
-> > >> NULL, if '\0' is passed as second argument); evaluate the first character
-> > >> of non-empty strings (the current implementation stops at the second).
-> > >>
-> > >> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> > >> Cc: stable@vger.kernel.org
-> > >> Reported-by: Heiko Carstens <hca@linux.ibm.com> (incorrect behavior with
-> > empty strings)
-> > >> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > >> ---
-> > >>   arch/s390/lib/string.c | 15 +++++++--------
-> > >>   1 file changed, 7 insertions(+), 8 deletions(-)
-> > >
-> > > Applied, thanks!
-> > >
-> > 
-> > Really? I just wanted to write a response: len is unsigned (size_t)
-> > and compared to be >= 0, which sounds like always true.
-> 
-> Thanks for catching this. Will fix it.
 
-I'll fix it. No need to resend.
+Am 20.09.21 um 15:24 schrieb Claudio Imbrenda:
+> If kvm_s390_pv_destroy_cpu is called more than once, we risk calling
+> free_page on a random page, since the sidad field is aliased with the
+> gbea, which is not guaranteed to be zero.
+> 
+> This can happen, for example, if userspace calls the KVM_PV_DISABLE
+> IOCTL, and it fails, and then userspace calls the same IOCTL again.
+> This scenario is only possible if KVM has some serious bug or if the
+> hardware is broken.
+> 
+> The solution is to simply return successfully immediately if the vCPU
+> was already non secure.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Fixes: 19e1227768863a1469797c13ef8fea1af7beac2c ("KVM: S390: protvirt: Introduce instruction data area bounce buffer")
+
+makes sense.
+
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+> ---
+>   arch/s390/kvm/pv.c | 19 +++++++++----------
+>   1 file changed, 9 insertions(+), 10 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index c8841f476e91..0a854115100b 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -16,18 +16,17 @@
+>   
+>   int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+>   {
+> -	int cc = 0;
+> +	int cc;
+>   
+> -	if (kvm_s390_pv_cpu_get_handle(vcpu)) {
+> -		cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
+> -				   UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
+> +	if (!kvm_s390_pv_cpu_get_handle(vcpu))
+> +		return 0;
+> +
+> +	cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu), UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
+> +
+> +	KVM_UV_EVENT(vcpu->kvm, 3, "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
+> +		     vcpu->vcpu_id, *rc, *rrc);
+> +	WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x", *rc, *rrc);
+>   
+> -		KVM_UV_EVENT(vcpu->kvm, 3,
+> -			     "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
+> -			     vcpu->vcpu_id, *rc, *rrc);
+> -		WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x",
+> -			  *rc, *rrc);
+> -	}
+>   	/* Intended memory leak for something that should never happen. */
+>   	if (!cc)
+>   		free_pages(vcpu->arch.pv.stor_base,
+> 
