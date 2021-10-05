@@ -2,122 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F74DC433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 20:31:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C63FBC433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 01:55:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 000C560F5B
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Oct 2021 20:31:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A3306610A3
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 01:55:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234139AbhJDUdq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Oct 2021 16:33:46 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46554 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233934AbhJDUdp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Oct 2021 16:33:45 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 194K27hl002892;
-        Mon, 4 Oct 2021 16:31:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=YSKuInWCPUB4cRcl9zVFp9tJjrcN0o3rJYA57zQkw9Y=;
- b=jwQP6WwQs5/IHcOpT6T6FNiZtkwDaelmqrYi5iR/Qxu2CnNjGuPdp3FAM8/Ee1uxngtU
- 0c+qV8HmJgLf0I9NxYsAXNpX4e79LKFuPje8N3RWB5ejDdOVYoRHUl16KOKIbBO8/OLo
- FnHRlJ7o+UxR5DNbKQuhQURqLRpUmGnJ5WyVUhOJE7R8HFPzW6qNKmlCaR+3b1nMn679
- h1js+OnyXhNN7qIYmTGhFJzzT8wfdJqcgzVQ0VVZj+QUbuMmdBy0QorrjhgxeUqxO3N+
- oIdScdM4iLzh/z9KvEzUNatqTFgrBTiFo2lyTHutWXo04CC1tLo+pBTjNxrAtoWYHCLC NA== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bg89y8gfa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Oct 2021 16:31:54 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 194KSWAe014348;
-        Mon, 4 Oct 2021 20:31:52 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04fra.de.ibm.com with ESMTP id 3bef29sp3x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Oct 2021 20:31:52 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 194KVmmt64553404
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Oct 2021 20:31:48 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9FDC9A4060;
-        Mon,  4 Oct 2021 20:31:48 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 59C78A405C;
-        Mon,  4 Oct 2021 20:31:48 +0000 (GMT)
-Received: from osiris (unknown [9.145.70.99])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon,  4 Oct 2021 20:31:48 +0000 (GMT)
-Date:   Mon, 4 Oct 2021 22:31:46 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S229606AbhJEB5b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Oct 2021 21:57:31 -0400
+Received: from gandalf.ozlabs.org ([150.107.74.76]:60133 "EHLO
+        gandalf.ozlabs.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229659AbhJEB53 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Oct 2021 21:57:29 -0400
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4HNgdx17Hfz4xbX;
+        Tue,  5 Oct 2021 12:55:33 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1633398938;
+        bh=gYlu6Qv+8m83iP3aG7acEoyr8D3DPbZlTHZ8jerl4Jw=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=oI6DgPAmrS6eid+iQKQamhFupmXA2CScxqKHRX+CJjC8/0fF1BV9+LamvP9D9eSE9
+         npjDtMfC1MNcKzde3tkhkeuyG4S9CqgWI+LezmFwIFfQSxbUaY4NuejzURphht7FGp
+         ek1oZ95ogFF9mgsmHq93KfvqDA7s9lg+SefS7Uu4jQH2xweVqk/OBZLY5w4Y8cz5FF
+         jyvaNEhNFclinElquxf3fKJ2na1IGJxwQje4Hg2exFycrlUGHsDHKTaqoiruy7a9vc
+         DhFa9QFOiNLbuIgQmTX/jgFIHs3lgRjeXXAezx290U6sPOlbkpQN1FwNvR9TVFpWGR
+         ggckHw/xPBG0Q==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Keith Packard <keithpac@amazon.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v1 1/1] s390: Use string_upper() instead of open coded
- variant
-Message-ID: <YVtksmjj1eGqw5GY@osiris>
-References: <20211001130201.72545-1-andriy.shevchenko@linux.intel.com>
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
+        <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        "open list:S390" <linux-s390@vger.kernel.org>
+Subject: Re: [RFC PATCH 4/8] powerpc: add CPU field to struct thread_info
+In-Reply-To: <202109301045.15DDDA0B@keescook>
+References: <20210914121036.3975026-1-ardb@kernel.org>
+ <20210914121036.3975026-5-ardb@kernel.org>
+ <CAMj1kXEojbQbNzCP39KT4EzFAyW3J1Tfm_stCZ+fGo8_SO90PA@mail.gmail.com>
+ <87ee99lii7.fsf@mpe.ellerman.id.au> <87pmst1rn9.fsf@mpe.ellerman.id.au>
+ <CAMj1kXFXtbD3=L+QvCnwbyFr-qbWivZ0wRGT0N4LNxANPD8x4g@mail.gmail.com>
+ <878rzf0zmb.fsf@mpe.ellerman.id.au> <202109301045.15DDDA0B@keescook>
+Date:   Tue, 05 Oct 2021 12:55:31 +1100
+Message-ID: <87ilycqlpo.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211001130201.72545-1-andriy.shevchenko@linux.intel.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: SYvjJX6cks5LzrErIhpAa5Ruz3EB_7-2
-X-Proofpoint-GUID: SYvjJX6cks5LzrErIhpAa5Ruz3EB_7-2
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-10-04_05,2021-10-04_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- spamscore=0 impostorscore=0 clxscore=1011 lowpriorityscore=0
- mlxlogscore=999 priorityscore=1501 adultscore=0 phishscore=0 mlxscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110040138
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Oct 01, 2021 at 04:02:01PM +0300, Andy Shevchenko wrote:
-> Use string_upper() from string helper module instead of open coded variant.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  arch/s390/mm/cmm.c    | 11 ++++-------
->  arch/s390/mm/extmem.c | 21 ++++++++++++---------
->  2 files changed, 16 insertions(+), 16 deletions(-)
-...
->  static void
->  dcss_mkname(char *name, char *dcss_name)
->  {
-> +	/* Segment name is limited by 8 characters + NUL */
-> +	char tmp[8 + 1];
->  	int i;
->  
-> -	for (i = 0; i < 8; i++) {
-> -		if (name[i] == '\0')
-> -			break;
-> -		dcss_name[i] = toupper(name[i]);
-> -	}
-> -	for (; i < 8; i++)
-> -		dcss_name[i] = ' ';
-> +	/*
-> +	 * This snprintf() call does two things:
-> +	 * - makes a NUL-terminated copy of the input string
-> +	 * - pads it with spaces
-> +	 */
-> +	snprintf(tmp, sizeof(tmp), "%s        ", name);
+Kees Cook <keescook@chromium.org> writes:
+> On Thu, Sep 30, 2021 at 08:46:04AM +1000, Michael Ellerman wrote:
+>> Ard Biesheuvel <ardb@kernel.org> writes:
+>> > On Tue, 28 Sept 2021 at 02:16, Michael Ellerman <mpe@ellerman.id.au> wrote:
+>> >>
+>> >> Michael Ellerman <mpe@ellerman.id.au> writes:
+>> >> > Ard Biesheuvel <ardb@kernel.org> writes:
+>> >> >> On Tue, 14 Sept 2021 at 14:11, Ard Biesheuvel <ardb@kernel.org> wrote:
+>> >> >>>
+>> >> >>> The CPU field will be moved back into thread_info even when
+>> >> >>> THREAD_INFO_IN_TASK is enabled, so add it back to powerpc's definition
+>> >> >>> of struct thread_info.
+>> >> >>>
+>> >> >>> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+>> >> >>
+>> >> >> Michael,
+>> >> >>
+>> >> >> Do you have any objections or issues with this patch or the subsequent
+>> >> >> ones cleaning up the task CPU kludge for ppc32? Christophe indicated
+>> >> >> that he was happy with it.
+>> >> >
+>> >> > No objections, it looks good to me, thanks for cleaning up that horror :)
+>> >> >
+>> >> > It didn't apply cleanly to master so I haven't tested it at all, if you can point me at a
+>> >> > git tree with the dependencies I'd be happy to run some tests over it.
+>> >>
+>> >> Actually I realised I can just drop the last patch.
+>> >>
+>> >> So that looks fine, passes my standard quick build & boot on qemu tests,
+>> >> and builds with/without stack protector enabled.
+>> >>
+>> >
+>> > Thanks.
+>> >
+>> > Do you have any opinion on how this series should be merged? Kees Cook
+>> > is willing to take them via his cross-arch tree, or you could carry
+>> > them if you prefer. Taking it via multiple trees at the same time is
+>> > going to be tricky, or take two cycles, with I'd prefer to avoid.
+>> 
+>> I don't really mind. If Kees is happy to take it then that's OK by me.
+>> 
+>> If Kees put the series in a topic branch based off rc2 then I could
+>> merge that, and avoid any conflicts.
+>
+> I've created:
+>
+> git://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git for-next/thread_info/cpu
+>
+> it includes a --no-ff merge commit, which I'm not sure is desirable? Let
+> me know if I should adjust this, or if Linus will yell about this if I
+> send him a PR containing a merge commit? I'm not sure what's right here.
 
-I can't say I like code where I have to count spaces in order to
-verify if the code is actually correct.
+It looks good to me.
 
-> +	string_upper(dcss_name, tmp);
-...
->  static struct dcss_segment *
->  segment_by_name (char *name)
->  {
-> -	char dcss_name[9];
-> +	char dcss_name[8];
+I don't think Linus will be bothered about that merge. It has useful
+information, ie. explains why you're merging it and that arch
+maintainers have acked it, and quotes Ard's cover letter.
 
-string_upper will copy the terminating NUL-byte. By reducing the size
-of dcss_name to 8 bytes this will result in stack corruption.
+cheers
