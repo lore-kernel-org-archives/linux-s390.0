@@ -2,267 +2,186 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 918A1C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 09:12:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B8C7C433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 10:07:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 792D9610E5
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 09:12:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0837D61054
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Oct 2021 10:07:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233568AbhJEJNz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 05:13:55 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29166 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233605AbhJEJNx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 05:13:53 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19586hD5012420;
-        Tue, 5 Oct 2021 05:12:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=vC6V3AWH5iR38Pg9eq/KmL6ksj4RuErGXmaestt/OGU=;
- b=B/BM8k4qpHhphDjnyPrlnAlYJ1TXT3WWCDoiGPZqfoOWNRQT0x/a5HC18ljNWbQ35qQq
- fyzC7U9eVq7I3WTeB/8QsOlsJvNDsk7AXqjrUBGMtEfPA7n8Iv5aHgJRFLlcC1+jw3IO
- P+Cu49LM1Zr0K5mpoU6n6DAPfzPLx5vHnm6uiBfuNG4meTGuoH8jPZycsisJywuUngrd
- SMBp5tkJAMBuS6cD6ymJhZlKuRURrbDdp7k1oZjAuglRw16ZOpN9oTM/gbtfETyyQH53
- 8nSy8ivusdZ/H5snS0b55Q5oM0aWqYFzxGkttsF64va/I2qeHhg/VNNCoB+950MjdFIG 0w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bggmtc9hq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Oct 2021 05:12:03 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1958MpF6010150;
-        Tue, 5 Oct 2021 05:12:02 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bggmtc9gy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Oct 2021 05:12:02 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19597275012374;
-        Tue, 5 Oct 2021 09:12:00 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06fra.de.ibm.com with ESMTP id 3beepjean4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Oct 2021 09:12:00 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1959BuOu6357656
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 5 Oct 2021 09:11:56 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 47EFE5204F;
-        Tue,  5 Oct 2021 09:11:56 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id DDC0B52052;
-        Tue,  5 Oct 2021 09:11:55 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v2 2/2] s390x: Add specification exception interception test
-Date:   Tue,  5 Oct 2021 11:11:53 +0200
-Message-Id: <20211005091153.1863139-3-scgl@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211005091153.1863139-1-scgl@linux.ibm.com>
-References: <20211005091153.1863139-1-scgl@linux.ibm.com>
+        id S233779AbhJEKJG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Oct 2021 06:09:06 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:60255 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232723AbhJEKJG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Oct 2021 06:09:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633428435;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=OYae2yiwAMbmoddnDd/+N8S6CedyqQgF0pFGpEEhW0A=;
+        b=KUOQrtzv2IZDr0uWBaHRwkCmCgtdaVRlk/xQul7LP/iQxTd8JV+3fLok9AtWZ2guSUB9Rj
+        2veB79FVEmvT1zwu7E3Qp1TO6WhcU/j+2jtm3nEAA4XNORHpUEDYTsEgix9kFDpcBIhwvC
+        BYIedDzq8shDkMaT9tarooqFTn56lwk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-53-5A82fE3ZNgWIVGUPDym7lQ-1; Tue, 05 Oct 2021 06:07:14 -0400
+X-MC-Unique: 5A82fE3ZNgWIVGUPDym7lQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 67F3491271;
+        Tue,  5 Oct 2021 10:07:12 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.167])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id EEA3219D9D;
+        Tue,  5 Oct 2021 10:06:59 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Cc:     Jason Wang <jasowang@redhat.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, markver@us.ibm.com,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, stefanha@redhat.com,
+        qemu-devel@nongnu.org,
+        Raphael Norwitz <raphael.norwitz@nutanix.com>
+Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
+In-Reply-To: <20211004040937-mutt-send-email-mst@kernel.org>
+Organization: Red Hat GmbH
+References: <20210930012049.3780865-1-pasic@linux.ibm.com>
+ <87r1d64dl4.fsf@redhat.com> <20210930130350.0cdc7c65.pasic@linux.ibm.com>
+ <87ilyi47wn.fsf@redhat.com> <20211001162213.18d7375e.pasic@linux.ibm.com>
+ <87v92g3h9l.fsf@redhat.com>
+ <20211002082128-mutt-send-email-mst@kernel.org>
+ <20211004042323.730c6a5e.pasic@linux.ibm.com>
+ <20211004040937-mutt-send-email-mst@kernel.org>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Tue, 05 Oct 2021 12:06:57 +0200
+Message-ID: <87o88323b2.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: DOoREeTQPJGqx90mddJTIJ4aB6jldKKI
-X-Proofpoint-ORIG-GUID: pggJNNjZhY5u5t2dnux1oNiphsR_ODnB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-10-04_05,2021-10-04_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
- priorityscore=1501 suspectscore=0 malwarescore=0 phishscore=0 adultscore=0
- bulkscore=0 mlxscore=0 lowpriorityscore=0 spamscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
- definitions=main-2110050052
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Check that specification exceptions cause intercepts when
-specification exception interpretation is off.
-Check that specification exceptions caused by program new PSWs
-cause interceptions.
-We cannot assert that non program new PSW specification exceptions
-are interpreted because whether interpretation occurs or not is
-configuration dependent.
+On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
----
- s390x/Makefile             |  2 +
- lib/s390x/sie.h            |  1 +
- s390x/snippets/c/spec_ex.c | 20 +++++++++
- s390x/spec_ex-sie.c        | 83 ++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg        |  3 ++
- 5 files changed, 109 insertions(+)
- create mode 100644 s390x/snippets/c/spec_ex.c
- create mode 100644 s390x/spec_ex-sie.c
+> On Mon, Oct 04, 2021 at 04:23:23AM +0200, Halil Pasic wrote:
+>> --------------------------8<---------------------
+>> 
+>> From: Halil Pasic <pasic@linux.ibm.com>
+>> Date: Thu, 30 Sep 2021 02:38:47 +0200
+>> Subject: [PATCH] virtio: write back feature VERSION_1 before verify
+>> 
+>> This patch fixes a regression introduced by commit 82e89ea077b9
+>> ("virtio-blk: Add validation for block size in config space") and
+>> enables similar checks in verify() on big endian platforms.
+>> 
+>> The problem with checking multi-byte config fields in the verify
+>> callback, on big endian platforms, and with a possibly transitional
+>> device is the following. The verify() callback is called between
+>> config->get_features() and virtio_finalize_features(). That we have a
+>> device that offered F_VERSION_1 then we have the following options
+>> either the device is transitional, and then it has to present the legacy
+>> interface, i.e. a big endian config space until F_VERSION_1 is
+>> negotiated, or we have a non-transitional device, which makes
+>> F_VERSION_1 mandatory, and only implements the non-legacy interface and
+>> thus presents a little endian config space. Because at this point we
+>> can't know if the device is transitional or non-transitional, we can't
+>> know do we need to byte swap or not.
+>
+> Well we established that we can know. Here's an alternative explanation:
+>
+> 	The virtio specification virtio-v1.1-cs01 states:
+>
+> 	Transitional devices MUST detect Legacy drivers by detecting that
+> 	VIRTIO_F_VERSION_1 has not been acknowledged by the driver.
+> 	This is exactly what QEMU as of 6.1 has done relying solely
+> 	on VIRTIO_F_VERSION_1 for detecting that.
+>
+> 	However, the specification also says:
+> 	driver MAY read (but MUST NOT write) the device-specific
+> 	configuration fields to check that it can support the device before
+> 	accepting it.
+>
+> 	In that case, any device relying solely on VIRTIO_F_VERSION_1
+> 	for detecting legacy drivers will return data in legacy format.
+> 	In particular, this implies that it is in big endian format
+> 	for big endian guests. This naturally confuses the driver
+> 	which expects little endian in the modern mode.
+>
+> 	It is probably a good idea to amend the spec to clarify that
+> 	VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
+> 	is complete. However, we already have regression so let's
+> 	try to address it.
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index ef8041a..7198882 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -24,6 +24,7 @@ tests += $(TEST_DIR)/mvpg.elf
- tests += $(TEST_DIR)/uv-host.elf
- tests += $(TEST_DIR)/edat.elf
- tests += $(TEST_DIR)/mvpg-sie.elf
-+tests += $(TEST_DIR)/spec_ex-sie.elf
- 
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- ifneq ($(HOST_KEY_DOCUMENT),)
-@@ -85,6 +86,7 @@ snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
- # perquisites (=guests) for the snippet hosts.
- # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
- $(TEST_DIR)/mvpg-sie.elf: snippets = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
-+$(TEST_DIR)/spec_ex-sie.elf: snippets = $(SNIPPET_DIR)/c/spec_ex.gbin
- 
- $(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o $(FLATLIBS)
- 	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
-diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
-index ca514ef..7ef7251 100644
---- a/lib/s390x/sie.h
-+++ b/lib/s390x/sie.h
-@@ -98,6 +98,7 @@ struct kvm_s390_sie_block {
- 	uint8_t		fpf;			/* 0x0060 */
- #define ECB_GS		0x40
- #define ECB_TE		0x10
-+#define ECB_SPECI	0x08
- #define ECB_SRSI	0x04
- #define ECB_HOSTPROTINT	0x02
- 	uint8_t		ecb;			/* 0x0061 */
-diff --git a/s390x/snippets/c/spec_ex.c b/s390x/snippets/c/spec_ex.c
-new file mode 100644
-index 0000000..bdba4f4
---- /dev/null
-+++ b/s390x/snippets/c/spec_ex.c
-@@ -0,0 +1,20 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * © Copyright IBM Corp. 2021
-+ *
-+ * Snippet used by specification exception interception test.
-+ */
-+#include <stdint.h>
-+#include <asm/arch_def.h>
-+
-+__attribute__((section(".text"))) int main(void)
-+{
-+	struct lowcore *lowcore = (struct lowcore *) 0;
-+	uint64_t bad_psw = 0;
-+
-+	/* PSW bit 12 has no name or meaning and must be 0 */
-+	lowcore->pgm_new_psw.mask = 1UL << (63 - 12);
-+	lowcore->pgm_new_psw.addr = 0xdeadbeee;
-+	asm volatile ("lpsw %0" :: "Q"(bad_psw));
-+	return 0;
-+}
-diff --git a/s390x/spec_ex-sie.c b/s390x/spec_ex-sie.c
-new file mode 100644
-index 0000000..b7e79de
---- /dev/null
-+++ b/s390x/spec_ex-sie.c
-@@ -0,0 +1,83 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * © Copyright IBM Corp. 2021
-+ *
-+ * Specification exception interception test.
-+ * Checks that specification exception interceptions occur as expected when
-+ * specification exception interpretation is off/on.
-+ */
-+#include <libcflat.h>
-+#include <sclp.h>
-+#include <asm/page.h>
-+#include <asm/arch_def.h>
-+#include <alloc_page.h>
-+#include <vm.h>
-+#include <sie.h>
-+
-+static struct vm vm;
-+extern const char _binary_s390x_snippets_c_spec_ex_gbin_start[];
-+extern const char _binary_s390x_snippets_c_spec_ex_gbin_end[];
-+
-+static void setup_guest(void)
-+{
-+	char *guest;
-+	int binary_size = ((uintptr_t)_binary_s390x_snippets_c_spec_ex_gbin_end -
-+			   (uintptr_t)_binary_s390x_snippets_c_spec_ex_gbin_start);
-+
-+	setup_vm();
-+	guest = alloc_pages(8);
-+	memcpy(guest, _binary_s390x_snippets_c_spec_ex_gbin_start, binary_size);
-+	sie_guest_create(&vm, (uint64_t) guest, HPAGE_SIZE);
-+}
-+
-+static void reset_guest(void)
-+{
-+	vm.sblk->gpsw.addr = PAGE_SIZE * 4;
-+	vm.sblk->gpsw.mask = PSW_MASK_64;
-+	vm.sblk->icptcode = 0;
-+}
-+
-+static void test_spec_ex_sie(void)
-+{
-+	setup_guest();
-+
-+	report_prefix_push("SIE spec ex interpretation");
-+	report_prefix_push("off");
-+	reset_guest();
-+	sie(&vm);
-+	/* interpretation off -> initial exception must cause interception */
-+	report(vm.sblk->icptcode == ICPT_PROGI
-+	       && vm.sblk->iprcc == PGM_INT_CODE_SPECIFICATION
-+	       && vm.sblk->gpsw.addr != 0xdeadbeee,
-+	       "Received specification exception intercept for initial exception");
-+	report_prefix_pop();
-+
-+	report_prefix_push("on");
-+	vm.sblk->ecb |= ECB_SPECI;
-+	reset_guest();
-+	sie(&vm);
-+	/* interpretation on -> configuration dependent if initial exception causes
-+	 * interception, but invalid new program PSW must
-+	 */
-+	report(vm.sblk->icptcode == ICPT_PROGI
-+	       && vm.sblk->iprcc == PGM_INT_CODE_SPECIFICATION,
-+	       "Received specification exception intercept");
-+	if (vm.sblk->gpsw.addr == 0xdeadbeee)
-+		report_info("Interpreted initial exception, intercepted invalid program new PSW exception");
-+	else
-+		report_info("Did not interpret initial exception");
-+	report_prefix_pop();
-+	report_prefix_pop();
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	if (!sclp_facilities.has_sief2) {
-+		report_skip("SIEF2 facility unavailable");
-+		goto out;
-+	}
-+
-+	test_spec_ex_sie();
-+out:
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 9e1802f..3b454b7 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -109,3 +109,6 @@ file = edat.elf
- 
- [mvpg-sie]
- file = mvpg-sie.elf
-+
-+[spec_ex-sie]
-+file = spec_ex-sie.elf
--- 
-2.31.1
+I prefer that explanation.
+
+>
+>
+>> 
+>> The virtio spec explicitly states that the driver MAY read config
+>> between reading and writing the features so saying that first accessing
+>> the config before feature negotiation is done is not an option. The
+>> specification ain't clear about setting the features multiple times
+>> before FEATURES_OK, so I guess that should be fine to set F_VERSION_1
+>> since at this point we already know that we are about to negotiate
+>> F_VERSION_1.
+>> 
+>> I don't consider this patch super clean, but frankly I don't think we
+>> have a ton of options. Another option that may or man not be cleaner,
+>> but is also IMHO much uglier is to figure out whether the device is
+>> transitional by rejecting _F_VERSION_1, then resetting it and proceeding
+>> according tho what we have figured out, hoping that the characteristics
+>> of the device didn't change.
+>
+> An empty line before tags.
+>
+>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+>> Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+>> Reported-by: markver@us.ibm.com
+>
+> Let's add more commits that are affected. E.g. virtio-net with MTU
+> feature bit set is affected too.
+>
+> So let's add Fixes tag for:
+> commit 14de9d114a82a564b94388c95af79a701dc93134
+> Author: Aaron Conole <aconole@redhat.com>
+> Date:   Fri Jun 3 16:57:12 2016 -0400
+>
+>     virtio-net: Add initial MTU advice feature
+>     
+> I think that's all, but pls double check me.
+
+I could not find anything else after a quick check.
+
+>
+>
+>> ---
+>>  drivers/virtio/virtio.c | 6 ++++++
+>>  1 file changed, 6 insertions(+)
+>> 
+>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+>> index 0a5b54034d4b..2b9358f2e22a 100644
+>> --- a/drivers/virtio/virtio.c
+>> +++ b/drivers/virtio/virtio.c
+>> @@ -239,6 +239,12 @@ static int virtio_dev_probe(struct device *_d)
+>>  		driver_features_legacy = driver_features;
+>>  	}
+>>  
+>> +	/* Write F_VERSION_1 feature to pin down endianness */
+>> +	if (device_features & (1ULL << VIRTIO_F_VERSION_1) & driver_features) {
+>> +		dev->features = (1ULL << VIRTIO_F_VERSION_1);
+>> +		dev->config->finalize_features(dev);
+>> +	}
+>> +
+>>  	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+>>  		dev->features = driver_features & device_features;
+>>  	else
+>> -- 
+>> 2.31.1
+
+I think we should go with this just to fix the nasty regression for now.
 
