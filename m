@@ -2,303 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1696AC433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 00:36:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAA40C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 09:44:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F368561354
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 00:36:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE565610C9
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 09:44:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237137AbhJFAiF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Oct 2021 20:38:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36928 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237120AbhJFAiE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 5 Oct 2021 20:38:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81C5A6128A;
-        Wed,  6 Oct 2021 00:36:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633480573;
-        bh=PwxAnmAxNnW0LkORB3c3YnoJI9QyHleuU4SqQmtBdp8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bP1h1gk9sPFJUm3xaK7uv59ir96gb6n13GYWINDE3fVKwKprjlXytBJ9jognAQWgW
-         9e+Wv1tMBX/zZyPhX95ld8QzYAgqqkCKYrRDu+0G6NMGRn6jrzaufxOXE9zVlLRrnF
-         9VTBo53jIveX7p+RlmPMJG14+lmQEx7G65GBi7dyH/bZ88Bj9DgpR8mdwrRu6A2U0f
-         Je6MYYxh7x7SFKj3++qSshoF+0m13ywbg7CiX6WX9M3E3pCVJshV8tzhixl6g05sDD
-         YOiTMqVbUKqxwDOdPpK6aoh7FhJiYFz5w2WI1e/lyxBiedKhsKhGJLfT8eqTJABsmy
-         g1w9joe94EgwA==
-Date:   Tue, 5 Oct 2021 17:36:09 -0700
-From:   Mike Rapoport <rppt@kernel.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Jianyong Wu <Jianyong.Wu@arm.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-snps-arc@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-mm@kvack.org,
-        kexec@lists.infradead.org
-Subject: Re: [PATCH v2 3/5] memblock: allow to specify flags with
- memblock_add_node()
-Message-ID: <YVzvefCmvLZSZTcR@kernel.org>
-References: <20211004093605.5830-1-david@redhat.com>
- <20211004093605.5830-4-david@redhat.com>
+        id S237758AbhJFJqi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Oct 2021 05:46:38 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48538 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230131AbhJFJqi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Oct 2021 05:46:38 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1969ZZ6N026404;
+        Wed, 6 Oct 2021 05:44:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=jUaxAu9kW7XFPDuERrOmKryk9MnNZtB5A+0WvKAdASE=;
+ b=Y12aTO6ChdIh+mBJkVHvz+mcb5YDviq1ntE+3YOJyqryNWHrZxzS1IpP5eTbykqKx4VF
+ 1ZjXVp3pzMIsW33bv1iInOgC8GLTbjZjThT6MaIBkn9jCs1/Jp+SJpj7fzBI3CmAGvbE
+ Uiy1X/NN+2XzhnXT7nNyvI38egAbxP4HeGXMX2Vn/FHVFFRiyjdXI/h8+oTxaLYmZg5c
+ xgY6dbl1rzz0JCuGsnUoyRGliqlVwwQqzUjHhOnFPcNYNAQOnocVND/Rcq2PCkGZxgzR
+ 4xPtth48yye84PpGj+Tg5YADHzjb/YuqgKRsO0YaAlxB7rR+Mhc87E3IrDg+OY4SCgvp Lw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bh11u1gr7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Oct 2021 05:44:45 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1969Zkjt027632;
+        Wed, 6 Oct 2021 05:44:45 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bh11u1gqt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Oct 2021 05:44:45 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1969giP1009391;
+        Wed, 6 Oct 2021 09:44:43 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04fra.de.ibm.com with ESMTP id 3bef2a8ja3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Oct 2021 09:44:42 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1969ieQm59244862
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 6 Oct 2021 09:44:40 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0DE8311C069;
+        Wed,  6 Oct 2021 09:44:40 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C0AD711C050;
+        Wed,  6 Oct 2021 09:44:39 +0000 (GMT)
+Received: from [9.145.176.174] (unknown [9.145.176.174])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  6 Oct 2021 09:44:39 +0000 (GMT)
+Message-ID: <3cf309f4-7644-ed41-5c3c-ad6eaac26917@linux.ibm.com>
+Date:   Wed, 6 Oct 2021 11:44:39 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211004093605.5830-4-david@redhat.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [kvm-unit-tests PATCH] s390x: remove myself as reviewer
+Content-Language: en-US
+To:     Thomas Huth <thuth@redhat.com>, Cornelia Huck <cohuck@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20211005154114.173511-1-cohuck@redhat.com>
+ <a1163106-f9b9-d733-3701-2d0a08acb612@redhat.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <a1163106-f9b9-d733-3701-2d0a08acb612@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: IB05dB6jTMg2DRrzJIEOfQWjrNMjOpjr
+X-Proofpoint-GUID: ZevZbvrCOW5Qip7gtsQzpENtsb3M1Ihv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-06_02,2021-10-04_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ phishscore=0 priorityscore=1501 spamscore=0 malwarescore=0 bulkscore=0
+ clxscore=1015 mlxscore=0 impostorscore=0 mlxlogscore=999 suspectscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110060060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 04, 2021 at 11:36:03AM +0200, David Hildenbrand wrote:
-> We want to specify flags when hotplugging memory. Let's prepare to pass
-> flags to memblock_add_node() by adjusting all existing users.
+On 10/5/21 17:55, Thomas Huth wrote:
+> On 05/10/2021 17.41, Cornelia Huck wrote:
+>> I don't really have time anymore to spend on s390x reviews
+>> here, so don't raise false expectations. There are enough
+>> capable people listed already :)
+>>
+>> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+>> ---
+>>    MAINTAINERS | 1 -
+>>    1 file changed, 1 deletion(-)
+>>
+>> diff --git a/MAINTAINERS b/MAINTAINERS
+>> index 4fc01a5d54a1..590c0a4fd922 100644
+>> --- a/MAINTAINERS
+>> +++ b/MAINTAINERS
+>> @@ -87,7 +87,6 @@ S390X
+>>    M: Thomas Huth <thuth@redhat.com>
+>>    M: Janosch Frank <frankja@linux.ibm.com>
+>>    S: Supported
+>> -R: Cornelia Huck <cohuck@redhat.com>
+>>    R: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>>    R: David Hildenbrand <david@redhat.com>
+>>    L: kvm@vger.kernel.org
 > 
-> Note that when hotplugging memory the system is already up and running
-> and we might have concurrent memblock users: for example, while we're
-> hotplugging memory, kexec_file code might search for suitable memory
-> regions to place kexec images. It's important to add the memory directly
-> to memblock via a single call with the right flags, instead of adding the
-> memory first and apply flags later: otherwise, concurrent memblock users
-> might temporarily stumble over memblocks with wrong flags, which will be
-> important in a follow-up patch that introduces a new flag to properly
-> handle add_memory_driver_managed().
+> Applied.
 > 
-> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Acked-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-
-> ---
->  arch/arc/mm/init.c               | 4 ++--
->  arch/ia64/mm/contig.c            | 2 +-
->  arch/ia64/mm/init.c              | 2 +-
->  arch/m68k/mm/mcfmmu.c            | 3 ++-
->  arch/m68k/mm/motorola.c          | 6 ++++--
->  arch/mips/loongson64/init.c      | 4 +++-
->  arch/mips/sgi-ip27/ip27-memory.c | 3 ++-
->  arch/s390/kernel/setup.c         | 3 ++-
->  include/linux/memblock.h         | 3 ++-
->  include/linux/mm.h               | 2 +-
->  mm/memblock.c                    | 9 +++++----
->  mm/memory_hotplug.c              | 2 +-
->  12 files changed, 26 insertions(+), 17 deletions(-)
+> Thank you very much for your contributions, Cornelia!
 > 
-> diff --git a/arch/arc/mm/init.c b/arch/arc/mm/init.c
-> index 699ecf119641..110eb69e9bee 100644
-> --- a/arch/arc/mm/init.c
-> +++ b/arch/arc/mm/init.c
-> @@ -59,13 +59,13 @@ void __init early_init_dt_add_memory_arch(u64 base, u64 size)
->  
->  		low_mem_sz = size;
->  		in_use = 1;
-> -		memblock_add_node(base, size, 0);
-> +		memblock_add_node(base, size, 0, MEMBLOCK_NONE);
->  	} else {
->  #ifdef CONFIG_HIGHMEM
->  		high_mem_start = base;
->  		high_mem_sz = size;
->  		in_use = 1;
-> -		memblock_add_node(base, size, 1);
-> +		memblock_add_node(base, size, 1, MEMBLOCK_NONE);
->  		memblock_reserve(base, size);
->  #endif
->  	}
-> diff --git a/arch/ia64/mm/contig.c b/arch/ia64/mm/contig.c
-> index 42e025cfbd08..24901d809301 100644
-> --- a/arch/ia64/mm/contig.c
-> +++ b/arch/ia64/mm/contig.c
-> @@ -153,7 +153,7 @@ find_memory (void)
->  	efi_memmap_walk(find_max_min_low_pfn, NULL);
->  	max_pfn = max_low_pfn;
->  
-> -	memblock_add_node(0, PFN_PHYS(max_low_pfn), 0);
-> +	memblock_add_node(0, PFN_PHYS(max_low_pfn), 0, MEMBLOCK_NONE);
->  
->  	find_initrd();
->  
-> diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-> index 5c6da8d83c1a..5d165607bf35 100644
-> --- a/arch/ia64/mm/init.c
-> +++ b/arch/ia64/mm/init.c
-> @@ -378,7 +378,7 @@ int __init register_active_ranges(u64 start, u64 len, int nid)
->  #endif
->  
->  	if (start < end)
-> -		memblock_add_node(__pa(start), end - start, nid);
-> +		memblock_add_node(__pa(start), end - start, nid, MEMBLOCK_NONE);
->  	return 0;
->  }
->  
-> diff --git a/arch/m68k/mm/mcfmmu.c b/arch/m68k/mm/mcfmmu.c
-> index eac9dde65193..6f1f25125294 100644
-> --- a/arch/m68k/mm/mcfmmu.c
-> +++ b/arch/m68k/mm/mcfmmu.c
-> @@ -174,7 +174,8 @@ void __init cf_bootmem_alloc(void)
->  	m68k_memory[0].addr = _rambase;
->  	m68k_memory[0].size = _ramend - _rambase;
->  
-> -	memblock_add_node(m68k_memory[0].addr, m68k_memory[0].size, 0);
-> +	memblock_add_node(m68k_memory[0].addr, m68k_memory[0].size, 0,
-> +			  MEMBLOCK_NONE);
->  
->  	/* compute total pages in system */
->  	num_pages = PFN_DOWN(_ramend - _rambase);
-> diff --git a/arch/m68k/mm/motorola.c b/arch/m68k/mm/motorola.c
-> index 9f3f77785aa7..2b05bb2bac00 100644
-> --- a/arch/m68k/mm/motorola.c
-> +++ b/arch/m68k/mm/motorola.c
-> @@ -410,7 +410,8 @@ void __init paging_init(void)
->  
->  	min_addr = m68k_memory[0].addr;
->  	max_addr = min_addr + m68k_memory[0].size;
-> -	memblock_add_node(m68k_memory[0].addr, m68k_memory[0].size, 0);
-> +	memblock_add_node(m68k_memory[0].addr, m68k_memory[0].size, 0,
-> +			  MEMBLOCK_NONE);
->  	for (i = 1; i < m68k_num_memory;) {
->  		if (m68k_memory[i].addr < min_addr) {
->  			printk("Ignoring memory chunk at 0x%lx:0x%lx before the first chunk\n",
-> @@ -421,7 +422,8 @@ void __init paging_init(void)
->  				(m68k_num_memory - i) * sizeof(struct m68k_mem_info));
->  			continue;
->  		}
-> -		memblock_add_node(m68k_memory[i].addr, m68k_memory[i].size, i);
-> +		memblock_add_node(m68k_memory[i].addr, m68k_memory[i].size, i,
-> +				  MEMBLOCK_NONE);
->  		addr = m68k_memory[i].addr + m68k_memory[i].size;
->  		if (addr > max_addr)
->  			max_addr = addr;
-> diff --git a/arch/mips/loongson64/init.c b/arch/mips/loongson64/init.c
-> index 76e0a9636a0e..4ac5ba80bbf6 100644
-> --- a/arch/mips/loongson64/init.c
-> +++ b/arch/mips/loongson64/init.c
-> @@ -77,7 +77,9 @@ void __init szmem(unsigned int node)
->  				(u32)node_id, mem_type, mem_start, mem_size);
->  			pr_info("       start_pfn:0x%llx, end_pfn:0x%llx, num_physpages:0x%lx\n",
->  				start_pfn, end_pfn, num_physpages);
-> -			memblock_add_node(PFN_PHYS(start_pfn), PFN_PHYS(node_psize), node);
-> +			memblock_add_node(PFN_PHYS(start_pfn),
-> +					  PFN_PHYS(node_psize), node,
-> +					  MEMBLOCK_NONE);
->  			break;
->  		case SYSTEM_RAM_RESERVED:
->  			pr_info("Node%d: mem_type:%d, mem_start:0x%llx, mem_size:0x%llx MB\n",
-> diff --git a/arch/mips/sgi-ip27/ip27-memory.c b/arch/mips/sgi-ip27/ip27-memory.c
-> index 6173684b5aaa..adc2faeecf7c 100644
-> --- a/arch/mips/sgi-ip27/ip27-memory.c
-> +++ b/arch/mips/sgi-ip27/ip27-memory.c
-> @@ -341,7 +341,8 @@ static void __init szmem(void)
->  				continue;
->  			}
->  			memblock_add_node(PFN_PHYS(slot_getbasepfn(node, slot)),
-> -					  PFN_PHYS(slot_psize), node);
-> +					  PFN_PHYS(slot_psize), node,
-> +					  MEMBLOCK_NONE);
->  		}
->  	}
->  }
-> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-> index 67e5fff96ee0..f3943f15af6e 100644
-> --- a/arch/s390/kernel/setup.c
-> +++ b/arch/s390/kernel/setup.c
-> @@ -593,7 +593,8 @@ static void __init setup_resources(void)
->  	 * part of the System RAM resource.
->  	 */
->  	if (crashk_res.end) {
-> -		memblock_add_node(crashk_res.start, resource_size(&crashk_res), 0);
-> +		memblock_add_node(crashk_res.start, resource_size(&crashk_res),
-> +				  0, MEMBLOCK_NONE);
->  		memblock_reserve(crashk_res.start, resource_size(&crashk_res));
->  		insert_resource(&iomem_resource, &crashk_res);
->  	}
-> diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-> index 4ee8dd2d63a7..2bc726e43a1b 100644
-> --- a/include/linux/memblock.h
-> +++ b/include/linux/memblock.h
-> @@ -104,7 +104,8 @@ static inline void memblock_discard(void) {}
->  #endif
->  
->  void memblock_allow_resize(void);
-> -int memblock_add_node(phys_addr_t base, phys_addr_t size, int nid);
-> +int memblock_add_node(phys_addr_t base, phys_addr_t size, int nid,
-> +		      enum memblock_flags flags);
->  int memblock_add(phys_addr_t base, phys_addr_t size);
->  int memblock_remove(phys_addr_t base, phys_addr_t size);
->  int memblock_free(phys_addr_t base, phys_addr_t size);
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 73a52aba448f..0117cb35b212 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -2447,7 +2447,7 @@ static inline unsigned long get_num_physpages(void)
->   * unsigned long max_zone_pfns[MAX_NR_ZONES] = {max_dma, max_normal_pfn,
->   * 							 max_highmem_pfn};
->   * for_each_valid_physical_page_range()
-> - * 	memblock_add_node(base, size, nid)
-> + *	memblock_add_node(base, size, nid, MEMBLOCK_NONE)
->   * free_area_init(max_zone_pfns);
->   */
->  void free_area_init(unsigned long *max_zone_pfn);
-> diff --git a/mm/memblock.c b/mm/memblock.c
-> index 184dcd2e5d99..47a56b223141 100644
-> --- a/mm/memblock.c
-> +++ b/mm/memblock.c
-> @@ -655,6 +655,7 @@ static int __init_memblock memblock_add_range(struct memblock_type *type,
->   * @base: base address of the new region
->   * @size: size of the new region
->   * @nid: nid of the new region
-> + * @flags: flags of the new region
->   *
->   * Add new memblock region [@base, @base + @size) to the "memory"
->   * type. See memblock_add_range() description for mode details
-> @@ -663,14 +664,14 @@ static int __init_memblock memblock_add_range(struct memblock_type *type,
->   * 0 on success, -errno on failure.
->   */
->  int __init_memblock memblock_add_node(phys_addr_t base, phys_addr_t size,
-> -				       int nid)
-> +				      int nid, enum memblock_flags flags)
->  {
->  	phys_addr_t end = base + size - 1;
->  
-> -	memblock_dbg("%s: [%pa-%pa] nid=%d %pS\n", __func__,
-> -		     &base, &end, nid, (void *)_RET_IP_);
-> +	memblock_dbg("%s: [%pa-%pa] nid=%d flags=%x %pS\n", __func__,
-> +		     &base, &end, nid, flags, (void *)_RET_IP_);
->  
-> -	return memblock_add_range(&memblock.memory, base, size, nid, 0);
-> +	return memblock_add_range(&memblock.memory, base, size, nid, flags);
->  }
->  
->  /**
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index 917b3528636d..5f873e7f5b29 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -1385,7 +1385,7 @@ int __ref add_memory_resource(int nid, struct resource *res, mhp_t mhp_flags)
->  	mem_hotplug_begin();
->  
->  	if (IS_ENABLED(CONFIG_ARCH_KEEP_MEMBLOCK)) {
-> -		ret = memblock_add_node(start, size, nid);
-> +		ret = memblock_add_node(start, size, nid, MEMBLOCK_NONE);
->  		if (ret)
->  			goto error_mem_hotplug_end;
->  	}
-> -- 
-> 2.31.1
+>    Thomas
 > 
 
--- 
-Sincerely yours,
-Mike.
+Yes, thanks for your reviews!
