@@ -2,205 +2,199 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB62CC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 15:06:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27B27C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 15:54:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C210B610C9
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 15:06:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 02A4A60F11
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 15:54:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239017AbhJFPIp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Oct 2021 11:08:45 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12989 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239000AbhJFPIo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Oct 2021 11:08:44 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 196EVu1L031318;
-        Wed, 6 Oct 2021 11:06:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=CSCaFGQKbQ0BBGBXLMCDk9QntjBm1YCC9kIlGGumUoU=;
- b=jSQ/RLK41e7lN4wkvxGzhA0D8bjmtzLJIV2BiML9agqVmieoZpg1NI+AWltLcxuYL4Ht
- iDoThUAyZGQHnHux+Swpc/ysXD5GqUyKddy9QtiR8RWCTZausQQFTef22mnjtH7xeEF1
- bv3HdtEPoBKE6IAEXPOqe0vwZCIA9oyeX4ILquXLFKeJaEAZXk/8AxMkIu0A7x2W7yPa
- fjcDC6fG2gW2KtQRd/kFLNLtzl4vjzfCgfV97S09nXfW9wL85z2O2E0wcd5ITnV/LY1H
- KZKJsqZvoFajN5cSJAvZE6hb7zwjLkfoYDYw8CDaNBlPWYiO3r+MepzYfIYVNA7F1A/y BQ== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bh1wvrwj3-1
+        id S232622AbhJFP4D (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Oct 2021 11:56:03 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40572 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S230014AbhJFP4C (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Oct 2021 11:56:02 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 196Fam55024338;
+        Wed, 6 Oct 2021 11:54:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=YVOZsWQsqzQcF7M5quXzwIKSlGys+PDhZXZPie/0uHM=;
+ b=IGrRXBHSQreW3nQ8uVlkOGm5sffxQhFIteS8S/1c+az/V+GUlqzan0hF3g5AmqfirHna
+ RZfdSuRtsxcA4AYV2wcLn1E/SXpHvtaqWoz4TyXtejeEuBSdS/FiXeatAmIhiUSPLJ3K
+ BzXc7mm0l+4Wn6DmULPdlqw2Xu5v+iUDzqCcst+slzhRbP2hak1a1U8uWF7HTAy13fhD
+ fBc3N1NsMkp8jYEVcQZFUXT4EgMFelXKVMCkRVtzF0FBar6SIylKbMimnvDiTzB6hBfu
+ EHlN9E/8WNadujoYsFLnsehLERasc/MeWA+5yaBl27HPIads3qKj9Ptb8n4S8Z6gyFwM dg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bhcsckybp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 06 Oct 2021 11:06:26 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 196EvJQQ020118;
-        Wed, 6 Oct 2021 15:06:24 GMT
+        Wed, 06 Oct 2021 11:54:09 -0400
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 196FamT0024363;
+        Wed, 6 Oct 2021 11:54:09 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bhcsckyb0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Oct 2021 11:54:09 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 196FmjI8003301;
+        Wed, 6 Oct 2021 15:54:07 GMT
 Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3bef2aevw0-1
+        by ppma06ams.nl.ibm.com with ESMTP id 3bhepcr2dq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 06 Oct 2021 15:06:23 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 196F6I4n37880194
+        Wed, 06 Oct 2021 15:54:07 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 196Fs1pC40567268
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 6 Oct 2021 15:06:18 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 62578A4064;
-        Wed,  6 Oct 2021 15:06:18 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EA66EA4067;
-        Wed,  6 Oct 2021 15:06:15 +0000 (GMT)
-Received: from thinkpad (unknown [9.171.8.189])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Wed,  6 Oct 2021 15:06:15 +0000 (GMT)
-Date:   Wed, 6 Oct 2021 17:06:13 +0200
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Hamza Mahfooz <someguy@effective-light.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-rdma@vger.kernel.org
-Subject: Re: DPAA2 triggers, [PATCH] dma debug: report -EEXIST errors in
- add_dma_entry
-Message-ID: <20211006170613.455e66c2@thinkpad>
-In-Reply-To: <4a96b583-1119-8b26-cc85-f77a6b4550a2@arm.com>
-References: <20210518125443.34148-1-someguy@effective-light.com>
-        <fd67fbac-64bf-f0ea-01e1-5938ccfab9d0@arm.com>
-        <20210914154504.z6vqxuh3byqwgfzx@skbuf>
-        <185e7ee4-3749-4ccb-6d2e-da6bc8f30c04@linux.ibm.com>
-        <20211001145256.0323957a@thinkpad>
-        <20211006151043.61fe9613@thinkpad>
-        <4a96b583-1119-8b26-cc85-f77a6b4550a2@arm.com>
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-Content-Type: text/plain; charset=US-ASCII
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Ot8L6gpKg8xoQxW_Z7rlAehLfzi_-EZ3
-X-Proofpoint-GUID: Ot8L6gpKg8xoQxW_Z7rlAehLfzi_-EZ3
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Wed, 6 Oct 2021 15:54:02 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CEF1B11C058;
+        Wed,  6 Oct 2021 15:54:01 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2E51811C04C;
+        Wed,  6 Oct 2021 15:54:01 +0000 (GMT)
+Received: from li-43c5434c-23b8-11b2-a85c-c4958fb47a68.ibm.com (unknown [9.171.18.96])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  6 Oct 2021 15:54:01 +0000 (GMT)
+Subject: Re: [PATCH v5 04/14] KVM: s390: pv: avoid stalls when making pages
+ secure
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     cohuck@redhat.com, frankja@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Ulrich.Weigand@de.ibm.com
+References: <20210920132502.36111-1-imbrenda@linux.ibm.com>
+ <20210920132502.36111-5-imbrenda@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <f1c3068c-6fa4-02e3-1513-464694660511@de.ibm.com>
+Date:   Wed, 6 Oct 2021 17:54:00 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
+In-Reply-To: <20210920132502.36111-5-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: udScA1uxJcZ4wc2zvBSjHXaTC1tiTXdI
+X-Proofpoint-GUID: bb-8SV5XLr36GD39aSeHgyC3rrrQXilB
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-10-06_04,2021-10-06_01,2020-04-07_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- malwarescore=0 phishscore=0 adultscore=0 clxscore=1011 priorityscore=1501
- lowpriorityscore=0 mlxlogscore=999 bulkscore=0 suspectscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110060095
+ clxscore=1015 phishscore=0 mlxlogscore=999 priorityscore=1501
+ lowpriorityscore=0 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110060097
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 6 Oct 2021 15:23:36 +0100
-Robin Murphy <robin.murphy@arm.com> wrote:
 
-> On 2021-10-06 14:10, Gerald Schaefer wrote:
-> > On Fri, 1 Oct 2021 14:52:56 +0200
-> > Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
-> > 
-> >> On Thu, 30 Sep 2021 15:37:33 +0200
-> >> Karsten Graul <kgraul@linux.ibm.com> wrote:
-> >>
-> >>> On 14/09/2021 17:45, Ioana Ciornei wrote:
-> >>>> On Wed, Sep 08, 2021 at 10:33:26PM -0500, Jeremy Linton wrote:
-> >>>>> +DPAA2, netdev maintainers
-> >>>>> Hi,
-> >>>>>
-> >>>>> On 5/18/21 7:54 AM, Hamza Mahfooz wrote:
-> >>>>>> Since, overlapping mappings are not supported by the DMA API we should
-> >>>>>> report an error if active_cacheline_insert returns -EEXIST.
-> >>>>>
-> >>>>> It seems this patch found a victim. I was trying to run iperf3 on a
-> >>>>> honeycomb (5.14.0, fedora 35) and the console is blasting this error message
-> >>>>> at 100% cpu. So, I changed it to a WARN_ONCE() to get the call trace, which
-> >>>>> is attached below.
-> >>>>>
-> >>>>
-> >>>> These frags are allocated by the stack, transformed into a scatterlist
-> >>>> by skb_to_sgvec and then DMA mapped with dma_map_sg. It was not the
-> >>>> dpaa2-eth's decision to use two fragments from the same page (that will
-> >>>> also end un in the same cacheline) in two different in-flight skbs.
-> >>>>
-> >>>> Is this behavior normal?
-> >>>>
-> >>>
-> >>> We see the same problem here and it started with 5.15-rc2 in our nightly CI runs.
-> >>> The CI has panic_on_warn enabled so we see the panic every day now.
-> >>
-> >> Adding a WARN for a case that be detected false-positive seems not
-> >> acceptable, exactly for this reason (kernel panic on unaffected
-> >> systems).
-> >>
-> >> So I guess it boils down to the question if the behavior that Ioana
-> >> described is legit behavior, on a system that is dma coherent. We
-> >> are apparently hitting the same scenario, although it could not yet be
-> >> reproduced with debug printks for some reason.
-> >>
-> >> If the answer is yes, than please remove at lease the WARN, so that
-> >> it will not make systems crash that behave valid, and have
-> >> panic_on_warn set. Even a normal printk feels wrong to me in that
-> >> case, it really sounds rather like you want to fix / better refine
-> >> the overlap check, if you want to report anything here.
-> > 
-> > Dan, Christoph, any opinion?
-> > 
-> > So far it all looks a lot like a false positive, so could you please
-> > see that those patches get reverted? I do wonder a bit why this is
-> > not an issue for others, we surely cannot be the only ones running
-> > CI with panic_on_warn.
+
+Am 20.09.21 um 15:24 schrieb Claudio Imbrenda:
+> Improve make_secure_pte to avoid stalls when the system is heavily
+> overcommitted. This was especially problematic in kvm_s390_pv_unpack,
+> because of the loop over all pages that needed unpacking.
 > 
-> What convinces you it's a false-positive? I'm hardly familiar with most 
-> of that callstack, but it appears to be related to mlx5, and I know that 
-> exists on expansion cards which could be plugged into a system with 
-> non-coherent PCIe where partial cacheline overlap *would* be a real 
-> issue. Of course it's dubious that there are many real use-cases for 
-> plugging a NIC with a 4-figure price tag into a little i.MX8 or 
-> whatever, but the point is that it *should* still work correctly.
-
-I would assume that a *proper* warning would check if we see the
-"non-coherent" case, e.g. by using dev_is_dma_coherent() and only
-report with potentially fatal WARN on systems where it is appropriate.
-
-However, I am certainly even less familiar with all that, and might
-just have gotten the wrong impression here.
-
-Also not sure about mlx5 relation here, it does not really show
-in the call trace, only in the err_printk() output, probably
-from dev_driver_string(dev) or dev_name(dev). But I do not see
-where mlx5 code would be involved here.
-
-[...]
-> According to the streaming DMA API documentation, it is *not* valid:
+> Due to the locks being held, it was not possible to simply replace
+> uv_call with uv_call_sched. A more complex approach was
+> needed, in which uv_call is replaced with __uv_call, which does not
+> loop. When the UVC needs to be executed again, -EAGAIN is returned, and
+> the caller (or its caller) will try again.
 > 
-> ".. warning::
+> When -EAGAIN is returned, the path is the same as when the page is in
+> writeback (and the writeback check is also performed, which is
+> harmless).
 > 
->    Memory coherency operates at a granularity called the cache
->    line width.  In order for memory mapped by this API to operate
->    correctly, the mapped region must begin exactly on a cache line
->    boundary and end exactly on one (to prevent two separately mapped
->    regions from sharing a single cache line).  Since the cache line size
->    may not be known at compile time, the API will not enforce this
->    requirement.  Therefore, it is recommended that driver writers who
->    don't take special care to determine the cache line size at run time
->    only map virtual regions that begin and end on page boundaries (which
->    are guaranteed also to be cache line boundaries)."
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Fixes: 214d9bbcd3a672 ("s390/mm: provide memory management functions for protected KVM guests")
+> ---
+>   arch/s390/kernel/uv.c     | 29 +++++++++++++++++++++++------
+>   arch/s390/kvm/intercept.c |  5 +++++
+>   2 files changed, 28 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index aeb0a15bcbb7..68a8fbafcb9c 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -180,7 +180,7 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
+>   {
+>   	pte_t entry = READ_ONCE(*ptep);
+>   	struct page *page;
+> -	int expected, rc = 0;
+> +	int expected, cc = 0;
+>   
+>   	if (!pte_present(entry))
+>   		return -ENXIO;
+> @@ -196,12 +196,25 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
+>   	if (!page_ref_freeze(page, expected))
+>   		return -EBUSY;
+>   	set_bit(PG_arch_1, &page->flags);
+> -	rc = uv_call(0, (u64)uvcb);
+> +	/*
+> +	 * If the UVC does not succeed or fail immediately, we don't want to
+> +	 * loop for long, or we might get stall notifications.
+> +	 * On the other hand, this is a complex scenario and we are holding a lot of
+> +	 * locks, so we can't easily sleep and reschedule. We try only once,
+> +	 * and if the UVC returned busy or partial completion, we return
+> +	 * -EAGAIN and we let the callers deal with it.
+> +	 */
+> +	cc = __uv_call(0, (u64)uvcb);
+>   	page_ref_unfreeze(page, expected);
+> -	/* Return -ENXIO if the page was not mapped, -EINVAL otherwise */
+> -	if (rc)
+> -		rc = uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+> -	return rc;
+> +	/*
+> +	 * Return -ENXIO if the page was not mapped, -EINVAL for other errors.
+> +	 * If busy or partially completed, return -EAGAIN.
+> +	 */
+> +	if (cc == UVC_CC_OK)
+> +		return 0;
+> +	else if (cc == UVC_CC_BUSY || cc == UVC_CC_PARTIAL)
+> +		return -EAGAIN;
+> +	return uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+>   }
+>   
+>   /*
+> @@ -254,6 +267,10 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+>   	mmap_read_unlock(gmap->mm);
+>   
+>   	if (rc == -EAGAIN) {
+> +		/*
+> +		 * If we are here because the UVC returned busy or partial
+> +		 * completion, this is just a useless check, but it is safe.
+> +		 */
+>   		wait_on_page_writeback(page);
+>   	} else if (rc == -EBUSY) {
+>   		/*
+> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+> index 72b25b7cc6ae..47833ade4da5 100644
+> --- a/arch/s390/kvm/intercept.c
+> +++ b/arch/s390/kvm/intercept.c
+> @@ -516,6 +516,11 @@ static int handle_pv_uvc(struct kvm_vcpu *vcpu)
+>   	 */
+>   	if (rc == -EINVAL)
+>   		return 0;
+> +	/*
+> +	 * If we got -EAGAIN here, we simply return it. It will eventually
+> +	 * get propagated all the way to userspace, which should then try
+> +	 * again.
+> +	 */
 
-Thanks, but I cannot really make a lot of sense out if this. Which
-driver exactly would be the one that needs to take care of the
-cache line alignment for sg elements? If this WARN is really reporting
-a bug, could you please help pointing to where it would need to be
-addressed?
+This cpoment is new over v4, right? Can this happen often? If not then this is ok
+otherwise we should consider your proposal of doing
 
-And does this really say that it is illegal to have multiple sg elements
-within the same cache line, regardless of cache coherence?
+if (rc == -EINVAL || rc == -EAGAIN)
 
-Adding linux-rdma@vger.kernel.org, sorry for the noise, but maybe somebody
-on that list can make more sense of this.
+to reduce overhead.
 
-For reference, the link to the start of this thread:
-https://lkml.kernel.org/r/fd67fbac-64bf-f0ea-01e1-5938ccfab9d0@arm.com
+Anyway,for both ways
+
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+>   	return rc;
+>   }
+>   
+> 
