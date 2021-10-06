@@ -2,184 +2,144 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FABDC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 14:23:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC69CC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 14:25:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 72BA461184
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 14:23:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9FF5F61184
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 14:25:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238734AbhJFOZg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Oct 2021 10:25:36 -0400
-Received: from foss.arm.com ([217.140.110.172]:56930 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238824AbhJFOZg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 6 Oct 2021 10:25:36 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 150E56D;
-        Wed,  6 Oct 2021 07:23:44 -0700 (PDT)
-Received: from [10.57.22.120] (unknown [10.57.22.120])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4929A3F66F;
-        Wed,  6 Oct 2021 07:23:42 -0700 (PDT)
-Subject: Re: DPAA2 triggers, [PATCH] dma debug: report -EEXIST errors in
- add_dma_entry
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Hamza Mahfooz <someguy@effective-light.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dan Williams <dan.j.williams@intel.com>
-Cc:     Karsten Graul <kgraul@linux.ibm.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-References: <20210518125443.34148-1-someguy@effective-light.com>
- <fd67fbac-64bf-f0ea-01e1-5938ccfab9d0@arm.com>
- <20210914154504.z6vqxuh3byqwgfzx@skbuf>
- <185e7ee4-3749-4ccb-6d2e-da6bc8f30c04@linux.ibm.com>
- <20211001145256.0323957a@thinkpad> <20211006151043.61fe9613@thinkpad>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <4a96b583-1119-8b26-cc85-f77a6b4550a2@arm.com>
-Date:   Wed, 6 Oct 2021 15:23:36 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S238749AbhJFO1s (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Oct 2021 10:27:48 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31052 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231356AbhJFO1r (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Oct 2021 10:27:47 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 196DSp9d001008;
+        Wed, 6 Oct 2021 10:25:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=rzPMALKGA6XMuv435p9x/PS4RHZse9EyIaUy6qjVuL0=;
+ b=NkfdQ8sQZSmHF5RPIQ9VvK0KzNLhHdfbXxWCrbVPoPzqs4vp0/SEFdK6CuU1x+TnMojB
+ Mlq+hGZH6pCferJ+3S4aewQ73XJnwwLOr5BvMobiXcCHeKa8n9hZgk5Y7CLsMXymJivx
+ 5FDHi5vRGwaz/zPxBNX9s8J7MTJKfrfEJQQEfxHCwkWWgbP98OFTppFiY7p4Oeb+5vLy
+ zli5w0qgpHc6bKJ9FznTcUBnUBROp3SaGkWJhojdL+CJhePJ5mnDGqrWVQw358UOkV9f
+ ngXbtarz8Ryo7orsKtTDyNYHKXv8IsaF3IV3MN+mnPAUs/B4FYOSE+O3etA/6NAyre7l hA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bhcqk9g4t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Oct 2021 10:25:46 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 196DTA6Z002572;
+        Wed, 6 Oct 2021 10:25:45 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bhcqk9g3f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Oct 2021 10:25:45 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 196ECDng030410;
+        Wed, 6 Oct 2021 14:25:42 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma05fra.de.ibm.com with ESMTP id 3bef2a3r8u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Oct 2021 14:25:42 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 196EKJnC55312836
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 6 Oct 2021 14:20:19 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3512311C05B;
+        Wed,  6 Oct 2021 14:25:38 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9A4D711C052;
+        Wed,  6 Oct 2021 14:25:37 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  6 Oct 2021 14:25:37 +0000 (GMT)
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org
+Cc:     Halil Pasic <pasic@linux.ibm.com>, markver@us.ibm.com,
+        Cornelia Huck <cohuck@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, stefanha@redhat.com,
+        Raphael Norwitz <raphael.norwitz@nutanix.com>,
+        qemu-devel@nongnu.org
+Subject: [PATCH 1/1] virtio: write back F_VERSION_1 before validate
+Date:   Wed,  6 Oct 2021 16:25:33 +0200
+Message-Id: <20211006142533.2735019-1-pasic@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20211006151043.61fe9613@thinkpad>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 6SJN1e6Wk8CcV1EJ_v0Cs0lygJFuRqfD
+X-Proofpoint-GUID: 6Ww4Q-dWxjfZ_JKOOMojtbiksYxrUCgh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-06_03,2021-10-06_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ malwarescore=0 bulkscore=0 adultscore=0 clxscore=1015 priorityscore=1501
+ suspectscore=0 phishscore=0 lowpriorityscore=0 spamscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
+ definitions=main-2110060089
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2021-10-06 14:10, Gerald Schaefer wrote:
-> On Fri, 1 Oct 2021 14:52:56 +0200
-> Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
-> 
->> On Thu, 30 Sep 2021 15:37:33 +0200
->> Karsten Graul <kgraul@linux.ibm.com> wrote:
->>
->>> On 14/09/2021 17:45, Ioana Ciornei wrote:
->>>> On Wed, Sep 08, 2021 at 10:33:26PM -0500, Jeremy Linton wrote:
->>>>> +DPAA2, netdev maintainers
->>>>> Hi,
->>>>>
->>>>> On 5/18/21 7:54 AM, Hamza Mahfooz wrote:
->>>>>> Since, overlapping mappings are not supported by the DMA API we should
->>>>>> report an error if active_cacheline_insert returns -EEXIST.
->>>>>
->>>>> It seems this patch found a victim. I was trying to run iperf3 on a
->>>>> honeycomb (5.14.0, fedora 35) and the console is blasting this error message
->>>>> at 100% cpu. So, I changed it to a WARN_ONCE() to get the call trace, which
->>>>> is attached below.
->>>>>
->>>>
->>>> These frags are allocated by the stack, transformed into a scatterlist
->>>> by skb_to_sgvec and then DMA mapped with dma_map_sg. It was not the
->>>> dpaa2-eth's decision to use two fragments from the same page (that will
->>>> also end un in the same cacheline) in two different in-flight skbs.
->>>>
->>>> Is this behavior normal?
->>>>
->>>
->>> We see the same problem here and it started with 5.15-rc2 in our nightly CI runs.
->>> The CI has panic_on_warn enabled so we see the panic every day now.
->>
->> Adding a WARN for a case that be detected false-positive seems not
->> acceptable, exactly for this reason (kernel panic on unaffected
->> systems).
->>
->> So I guess it boils down to the question if the behavior that Ioana
->> described is legit behavior, on a system that is dma coherent. We
->> are apparently hitting the same scenario, although it could not yet be
->> reproduced with debug printks for some reason.
->>
->> If the answer is yes, than please remove at lease the WARN, so that
->> it will not make systems crash that behave valid, and have
->> panic_on_warn set. Even a normal printk feels wrong to me in that
->> case, it really sounds rather like you want to fix / better refine
->> the overlap check, if you want to report anything here.
-> 
-> Dan, Christoph, any opinion?
-> 
-> So far it all looks a lot like a false positive, so could you please
-> see that those patches get reverted? I do wonder a bit why this is
-> not an issue for others, we surely cannot be the only ones running
-> CI with panic_on_warn.
+The virtio specification virtio-v1.1-cs01 states: Transitional devices
+MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
+been acknowledged by the driver.  This is exactly what QEMU as of 6.1
+has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
 
-What convinces you it's a false-positive? I'm hardly familiar with most 
-of that callstack, but it appears to be related to mlx5, and I know that 
-exists on expansion cards which could be plugged into a system with 
-non-coherent PCIe where partial cacheline overlap *would* be a real 
-issue. Of course it's dubious that there are many real use-cases for 
-plugging a NIC with a 4-figure price tag into a little i.MX8 or 
-whatever, but the point is that it *should* still work correctly.
+However, the specification also says: driver MAY read (but MUST NOT
+write) the device-specific configuration fields to check that it can
+support the device before setting FEATURES_OK.
 
-> We would need to disable DEBUG_DMA if this WARN stays in, which
-> would be a shame. Of course, in theory, this might also indicate
-> some real bug, but there really is no sign of that so far.
+In that case, any transitional device relying solely on
+VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
+legacy format.  In particular, this implies that it is in big endian
+format for big endian guests. This naturally confuses the driver which
+expects little endian in the modern mode.
 
-The whole point of DMA debug is to flag up things that you *do* get away 
-with on the vast majority of systems, precisely because most testing 
-happens on those systems rather than more esoteric embedded setups. Say 
-your system only uses dma-direct and a driver starts triggering the 
-warning for not calling dma_mapping_error(), would you argue for 
-removing that warning as well since dma_map_single() can't fail on your 
-machine so it's "not a bug"?
+It is probably a good idea to amend the spec to clarify that
+VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
+is complete. However, we already have regression so let's try to address
+it.
 
-> Having multiple sg elements in the same page (or cacheline) is
-> valid, correct? And this is also not a decision of the driver
-> IIUC, so if it was bug, it should be addressed in common code,
-> correct?
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
+Reported-by: markver@us.ibm.com
+---
+ drivers/virtio/virtio.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-According to the streaming DMA API documentation, it is *not* valid:
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 0a5b54034d4b..494cfecd3376 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -239,6 +239,16 @@ static int virtio_dev_probe(struct device *_d)
+ 		driver_features_legacy = driver_features;
+ 	}
+ 
++	/*
++	 * Some devices detect legacy solely via F_VERSION_1. Write
++	 * F_VERSION_1 to force LE for these when needed.
++	 */
++	if (drv->validate && !virtio_legacy_is_little_endian()
++			  && BIT_ULL(VIRTIO_F_VERSION_1) & device_features) {
++		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
++		dev->config->finalize_features(dev);
++	}
++
+ 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+ 		dev->features = driver_features & device_features;
+ 	else
 
-".. warning::
+base-commit: 60a9483534ed0d99090a2ee1d4bb0b8179195f51
+-- 
+2.25.1
 
-   Memory coherency operates at a granularity called the cache
-   line width.  In order for memory mapped by this API to operate
-   correctly, the mapped region must begin exactly on a cache line
-   boundary and end exactly on one (to prevent two separately mapped
-   regions from sharing a single cache line).  Since the cache line size
-   may not be known at compile time, the API will not enforce this
-   requirement.  Therefore, it is recommended that driver writers who
-   don't take special care to determine the cache line size at run time
-   only map virtual regions that begin and end on page boundaries (which
-   are guaranteed also to be cache line boundaries)."
-
->> BTW, there is already a WARN in the add_dma_entry() path, related
->> to cachlline overlap and -EEXIST:
->>
->> add_dma_entry() -> active_cacheline_insert() -> -EEXIST ->
->> active_cacheline_inc_overlap()
->>
->> That will only trigger when "overlap > ACTIVE_CACHELINE_MAX_OVERLAP".
->> Not familiar with that code, but it seems that there are now two
->> warnings for more or less the same, and the new warning is much more
->> prone to false-positives.
->>
->> How do these 2 warnings relate, are they both really necessary?
->> I think the new warning was only introduced because of some old
->> TODO comment in add_dma_entry(), see commit 2b4bbc6231d78
->> ("dma-debug: report -EEXIST errors in add_dma_entry").
-
-AFAICS they are different things. I believe the new warning is supposed 
-to be for the fundementally incorrect API usage (as above) of mapping 
-different regions overlapping within the same cacheline. The existing 
-one is about dma-debug losing internal consistency when tracking the 
-*same* region being mapped multiple times, which is a legal thing to do 
-- e.g. buffer sharing between devices - but if anyone's doing it to 
-excess that's almost certainly a bug (i.e. they probably intended to 
-unmap it in between but missed that out).
-
-Robin.
-
->> That comment was initially added by Dan long time ago, and he
->> added several fix-ups for overlap detection after that, including
->> the "overlap > ACTIVE_CACHELINE_MAX_OVERLAP" stuff in
->> active_cacheline_inc_overlap(). So could it be that the TODO
->> comment was simply not valid any more, and better be removed
->> instead of adding new / double warnings, that also generate
->> false-positives and kernel crashes?
-> 
