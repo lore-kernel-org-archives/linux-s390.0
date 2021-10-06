@@ -2,151 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 339DDC433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 12:15:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C41C8C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 12:17:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 15F8E610A8
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 12:15:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A273161163
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 12:17:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238452AbhJFMRJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Oct 2021 08:17:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50967 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238440AbhJFMRI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Oct 2021 08:17:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633522516;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=qnmDIGptsktOkioDWWXCssVddVdWstmqHBWueCna4kc=;
-        b=cKiG+WOybh2sZ2ZsquOVXREOamLakQY0NRF5kFPQpIHmLAar0SumRuYLGIjv4rjBwgZ1Et
-        gHXDMaFILOaRQLrS39E0aScUeTgvnUgqIoJYuKrhdH8LsqWTo7i++0Q/wte9m262C6g2Fz
-        cGVnXJuOXLIvsaCRD2dWgl8Ph3UPXmM=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-199-JG7vr57mPZ-xdOa8PYN8tQ-1; Wed, 06 Oct 2021 08:15:15 -0400
-X-MC-Unique: JG7vr57mPZ-xdOa8PYN8tQ-1
-Received: by mail-ed1-f69.google.com with SMTP id c8-20020a50d648000000b003daa53c7518so2398284edj.21
-        for <linux-s390@vger.kernel.org>; Wed, 06 Oct 2021 05:15:14 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=qnmDIGptsktOkioDWWXCssVddVdWstmqHBWueCna4kc=;
-        b=cPnmWcAeSIbFRZPOtmRurWYdA8B9ZT7TZ8vw6E2aRYgqlho9CTCIrGHNYrKs6p+89/
-         B1tQXWeFY52EOjidqvRZDF2TiEpC8mudcRLIpO/rJ5L+ZpubLuLbMiDampvZf2xLnMxR
-         hd7UvPW3ue23miucKhzNHIKDA1viFeeqqNAFN5MsMEEmIg3MGa4yxmC+UkUlerUrizpd
-         WRZFV79kEndvX4BE1zAdXZ2tzQ8auTpXMOY51KLxl3dNH9772mNSm9XVTJUXxZu8RR0b
-         UEnBSn/o+4CrdytXs6DH75chXhMHTVH/Pw4QNgd7FfF73jYU+D8PtwCwZBzcv8QPHvEc
-         ChyA==
-X-Gm-Message-State: AOAM533DroPOP2cqWiGzaka7Ce4Dn7Bi9rNu/l96BaTQKnLa9XtnwWBL
-        kRcJp+47O9xL0SkvyBcZ1h86EVCXqyrY9lIxMOAP6dYipPby/cw9fjHe4Krpj1Nc3WS0QZOExo3
-        bEyVsg5xg3olCGsWHio9HRw==
-X-Received: by 2002:a17:906:f208:: with SMTP id gt8mr21806747ejb.522.1633522513831;
-        Wed, 06 Oct 2021 05:15:13 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwG9wllx9y16DQrS76uUlfwpX+3oqTEzh8ajeSft32BLV8/8AcXlKmgVAU0xygywoNNmIYASA==
-X-Received: by 2002:a17:906:f208:: with SMTP id gt8mr21806715ejb.522.1633522513589;
-        Wed, 06 Oct 2021 05:15:13 -0700 (PDT)
-Received: from redhat.com ([2.55.147.134])
-        by smtp.gmail.com with ESMTPSA id k20sm8795905ejd.33.2021.10.06.05.15.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Oct 2021 05:15:12 -0700 (PDT)
-Date:   Wed, 6 Oct 2021 08:15:08 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, markver@us.ibm.com,
+        id S238192AbhJFMT3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Oct 2021 08:19:29 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45520 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S238116AbhJFMT1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Oct 2021 08:19:27 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 196AcIir030471;
+        Wed, 6 Oct 2021 08:17:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=3By4abvPiRAjKaxyIKru5TmqCCzfECwE3Q0W0WzAsjk=;
+ b=cYR4Gb1KuRI9zyvjh/022jEbEk0BqhGCHX95Ss5vInJ5XeMUTo5lfMEGYHPrX9gJHePe
+ 32WPsMb5yIWfvBS8W22syOxFLLRoa7Y1ZcCEjRpOmzL6Ga6Em8Gi2FPL8iJybTqHjsWC
+ GJB9TycA6R0rC4ScJmskTICL2xCBDuK/QZLWMMbvXAL+nA0gAcFib2UHBsbTGtqelBgx
+ s6/MbvT9y9fjXBpKdSv/4TMAB5wOLoPeSLMqcEDqL9zDQFJZN4um+WVsAa2a9QvmG7XS
+ PFpBXMj7BBRiHYxvvJHzE7nL0+w/7Chyga1DmSc9temv3tzhRFD9ooCCdsA9vcsmOxdw WA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bh8cavt1s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Oct 2021 08:17:34 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 196BPUEv008005;
+        Wed, 6 Oct 2021 08:17:34 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bh8cavt17-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Oct 2021 08:17:33 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 196CDMEX014373;
+        Wed, 6 Oct 2021 12:17:32 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3bef2a2c86-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 06 Oct 2021 12:17:32 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 196CC5iB55574868
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 6 Oct 2021 12:12:05 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 31669A405F;
+        Wed,  6 Oct 2021 12:17:27 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 14E4BA4068;
+        Wed,  6 Oct 2021 12:17:27 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed,  6 Oct 2021 12:17:27 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
+        id 28C8AE2567; Wed,  6 Oct 2021 14:17:26 +0200 (CEST)
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     KVM <kvm@vger.kernel.org>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, qemu-devel@nongnu.org
-Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-Message-ID: <20211006081430-mutt-send-email-mst@kernel.org>
-References: <20210930070444-mutt-send-email-mst@kernel.org>
- <20211001092125.64fef348.pasic@linux.ibm.com>
- <20211002055605-mutt-send-email-mst@kernel.org>
- <87bl452d90.fsf@redhat.com>
- <20211004090018-mutt-send-email-mst@kernel.org>
- <875yuc3ln2.fsf@redhat.com>
- <20211004110537-mutt-send-email-mst@kernel.org>
- <87wnms23hn.fsf@redhat.com>
- <20211004151408-mutt-send-email-mst@kernel.org>
- <87sfxezcjp.fsf@redhat.com>
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Jing Zhang <jingzhangos@google.com>,
+        Stefan Raspl <raspl@de.ibm.com>
+Subject: [PATCH] KVM: kvm_stat: do not show halt_wait_ns
+Date:   Wed,  6 Oct 2021 12:17:24 +0000
+Message-Id: <20211006121724.4154-1-borntraeger@de.ibm.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87sfxezcjp.fsf@redhat.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ORRKPysGotAO6SBUsQs-Mpyx8D_TZT2V
+X-Proofpoint-GUID: A-8NRpSnQ3bECARpxLWHF2oHpvw-dUQy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-06_02,2021-10-06_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ clxscore=1015 adultscore=0 mlxlogscore=701 spamscore=0 lowpriorityscore=0
+ bulkscore=0 malwarescore=0 impostorscore=0 phishscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
+ definitions=main-2110060076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Oct 06, 2021 at 12:13:14PM +0200, Cornelia Huck wrote:
-> On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Mon, Oct 04, 2021 at 05:50:44PM +0200, Cornelia Huck wrote:
-> >> On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >> 
-> >> > On Mon, Oct 04, 2021 at 04:33:21PM +0200, Cornelia Huck wrote:
-> >> >> On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >> >> 
-> >> >> > On Mon, Oct 04, 2021 at 02:19:55PM +0200, Cornelia Huck wrote:
-> >> >> >> 
-> >> >> >> [cc:qemu-devel]
-> >> >> >> 
-> >> >> >> On Sat, Oct 02 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >> >> >> 
-> >> >> >> > ok so that's a QEMU bug. Any virtio 1.0 and up
-> >> >> >> > compatible device must use LE.
-> >> >> >> > It can also present a legacy config space where the
-> >> >> >> > endian depends on the guest.
-> >> >> >> 
-> >> >> >> So, how is the virtio core supposed to determine this? A
-> >> >> >> transport-specific callback?
-> >> >> >
-> >> >> > I'd say a field in VirtIODevice is easiest.
-> >> >> 
-> >> >> The transport needs to set this as soon as it has figured out whether
-> >> >> we're using legacy or not.
-> >> >
-> >> > Basically on each device config access?
-> >> 
-> >> Prior to the first one, I think. It should not change again, should it?
-> >
-> > Well yes but we never prohibited someone from poking at both ..
-> > Doing it on each access means we don't have state to migrate.
-> 
-> Yes; if it isn't too high overhead, that's probably the safest way to
-> handle it.
-> 
-> >
-> >> >
-> >> >> I guess we also need to fence off any
-> >> >> accesses respectively error out the device if the driver tries any
-> >> >> read/write operations that would depend on that knowledge?
-> >> >> 
-> >> >> And using a field in VirtIODevice would probably need some care when
-> >> >> migrating. Hm...
-> >> >
-> >> > It's just a shorthand to minimize changes. No need to migrate I think.
-> >> 
-> >> If we migrate in from an older QEMU, we don't know whether we are
-> >> dealing with legacy or not, until feature negotiation is already
-> >> done... don't we have to ask the transport?
-> >
-> > Right but the only thing that can happen is config access.
-> 
-> Checking on each config space access would be enough then.
-> 
-> > Well and for legacy a kick I guess.
-> 
-> I think any driver that does something that is not config space access,
-> status access, or feature bit handling without VERSION_1 being set is
-> neccessarily legacy? Does that really need special handling?
+Similar to commit 111d0bda8eeb ("tools/kvm_stat: Exempt time-based
+counters"), we should not show timer values in kvm_stat. Remove the new
+halt_wait_ns.
 
-Likely not, I just wanted to be exact.
+Fixes: 87bcc5fa092f ("KVM: stats: Add halt_wait_ns stats for all architectures")
+Cc: Jing Zhang <jingzhangos@google.com>
+Cc: Stefan Raspl <raspl@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ tools/kvm/kvm_stat/kvm_stat | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/tools/kvm/kvm_stat/kvm_stat b/tools/kvm/kvm_stat/kvm_stat
+index b0bf56c5f120..5a5bd74f55bd 100755
+--- a/tools/kvm/kvm_stat/kvm_stat
++++ b/tools/kvm/kvm_stat/kvm_stat
+@@ -742,7 +742,7 @@ class DebugfsProvider(Provider):
+         The fields are all available KVM debugfs files
+ 
+         """
+-        exempt_list = ['halt_poll_fail_ns', 'halt_poll_success_ns']
++        exempt_list = ['halt_poll_fail_ns', 'halt_poll_success_ns', 'halt_wait_ns']
+         fields = [field for field in self.walkdir(PATH_DEBUGFS_KVM)[2]
+                   if field not in exempt_list]
+ 
 -- 
-MST
+2.32.0
 
