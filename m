@@ -2,207 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63686C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 16:15:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B88AC433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 17:56:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4576F61131
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 16:15:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EDE3A6103D
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Oct 2021 17:56:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239345AbhJFQQy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Oct 2021 12:16:54 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33992 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S232004AbhJFQQy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Oct 2021 12:16:54 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 196FbJOU012188;
-        Wed, 6 Oct 2021 12:15:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=IOCt3ebMzZB6KlH1GgT1rYe6xQXAd1+YICWeGDfKGJM=;
- b=jUk1AE0L8tTJyQVdeOo0KDCrLgwSuan7curFfF44YLusJsbCgJsDBEvGQZ5aIxKnbL55
- DpQaxJ1ecZahFxx0CyWe86K8kvBp/ECZ3+s7DHsuLFiT32Gh+UMn+0MHxHWtH0v8Xt9z
- /Q+rxMw1aVa3QSumTYwxTY5aQiouEYcFDXS01DLSVTcRI4YJjJ9mL1t7nIGteeYsYvBZ
- QnT39JCufWFgxxRZV6trDpl2pG/bwpP/UTbIa0HMtdc8R7LoCSLAsfbn/wydhZtIe5J6
- ATfd8iTuLuZtDH4TaionfLXJeKQ2vuA3NFWNpyWdFTlg262UQPkX967gh2qqOehe4xL6 OQ== 
+        id S229496AbhJFR6m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Oct 2021 13:58:42 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42400 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229633AbhJFR6l (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Oct 2021 13:58:41 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 196H7KSc010232;
+        Wed, 6 Oct 2021 13:56:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=ZBtT1LC8L/Da3I/jhNsn/bYlqusJNaFbMvfCELBu1wU=;
+ b=hGnJD2Otfs8G6k3UQCg1NisZYH8rn0tIfsAYa0BHBcAf1tk5rj+MJGjtKtF7ia/UER8V
+ fx/OymrW4TgUCgmXpT53Aww0w8Epq+8xgpNZ+iXS2SaXaQQ4eg/30BASulHxF0m/0kjG
+ x1XI9SFMWsB8WwEJUa0FDO5d44/ibDbx3ygm3KMkpEVMTrwrg8IikyZQ5mwpsmVMHImJ
+ 9d1yHYJaQSRAyQbhKlTY+Ucmz84Pm5ZkvSeYmWqonG9KyMuEUluKPkHD4E18OiWfWPK5
+ P1TqxJTZ/CbHUVsYtPEkWklK/4FVd9R3S7C6u4CXCvTE0q/aqGHBA3Lzz2szTKuBT6ol tQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bh8cb3atc-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bh38bark5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 06 Oct 2021 12:15:01 -0400
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 196FbeUQ013284;
-        Wed, 6 Oct 2021 12:15:01 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bh8cb3asp-1
+        Wed, 06 Oct 2021 13:56:48 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 196HOeDR007271;
+        Wed, 6 Oct 2021 13:56:48 -0400
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bh38barjt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 06 Oct 2021 12:15:00 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 196GCjcd009856;
-        Wed, 6 Oct 2021 16:14:59 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04fra.de.ibm.com with ESMTP id 3bef2achpt-1
+        Wed, 06 Oct 2021 13:56:48 -0400
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 196HqBaV002295;
+        Wed, 6 Oct 2021 17:56:47 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma01dal.us.ibm.com with ESMTP id 3bef2e3v0j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 06 Oct 2021 16:14:59 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 196G9SMp60293416
+        Wed, 06 Oct 2021 17:56:47 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 196HujaA37028250
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 6 Oct 2021 16:09:28 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1B81CAE056;
-        Wed,  6 Oct 2021 16:14:48 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5527BAE045;
-        Wed,  6 Oct 2021 16:14:47 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.10.200])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  6 Oct 2021 16:14:47 +0000 (GMT)
-Date:   Wed, 6 Oct 2021 18:14:44 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     kvm@vger.kernel.org, cohuck@redhat.com, frankja@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ulrich.Weigand@de.ibm.com
-Subject: Re: [PATCH v5 04/14] KVM: s390: pv: avoid stalls when making pages
- secure
-Message-ID: <20211006181444.532a1e43@p-imbrenda>
-In-Reply-To: <f1c3068c-6fa4-02e3-1513-464694660511@de.ibm.com>
-References: <20210920132502.36111-1-imbrenda@linux.ibm.com>
-        <20210920132502.36111-5-imbrenda@linux.ibm.com>
-        <f1c3068c-6fa4-02e3-1513-464694660511@de.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        Wed, 6 Oct 2021 17:56:45 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 107C66A054;
+        Wed,  6 Oct 2021 17:56:45 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 671486A04D;
+        Wed,  6 Oct 2021 17:56:44 +0000 (GMT)
+Received: from farman-thinkpad-t470p (unknown [9.163.16.42])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Wed,  6 Oct 2021 17:56:44 +0000 (GMT)
+Message-ID: <6649c066e16bced2786306c401f14113b4699d1f.camel@linux.ibm.com>
+Subject: Re: [PATCH 2/2] vfio-ccw: step down as maintainer
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Cornelia Huck <cohuck@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Date:   Wed, 06 Oct 2021 13:56:41 -0400
+In-Reply-To: <20211006160120.217636-3-cohuck@redhat.com>
+References: <20211006160120.217636-1-cohuck@redhat.com>
+         <20211006160120.217636-3-cohuck@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0lkMRY8HT1gZjeFdx466V6JfPsUApLI-
-X-Proofpoint-GUID: POmuNy5O8Vt6ClRrrd3JJu5a7SQe8j3f
+X-Proofpoint-ORIG-GUID: sPz3gxhRF_B0qTMTE_tBFjQXj04deH8l
+X-Proofpoint-GUID: 89y89X8HeKpizSj-fFGxvu1UWYGfZQpi
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-10-06_04,2021-10-06_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- clxscore=1015 adultscore=0 mlxlogscore=999 spamscore=0 lowpriorityscore=0
- bulkscore=0 malwarescore=0 impostorscore=0 phishscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
- definitions=main-2110060101
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 malwarescore=0 phishscore=0 spamscore=0 priorityscore=1501
+ mlxlogscore=946 mlxscore=0 bulkscore=0 impostorscore=0 clxscore=1015
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110060110
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 6 Oct 2021 17:54:00 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On Wed, 2021-10-06 at 18:01 +0200, Cornelia Huck wrote:
+> I currently don't have time to act as vfio-ccw maintainer
+> anymore, but I trust that I leave it in capable hands.
+> 
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 
-> Am 20.09.21 um 15:24 schrieb Claudio Imbrenda:
-> > Improve make_secure_pte to avoid stalls when the system is heavily
-> > overcommitted. This was especially problematic in kvm_s390_pv_unpack,
-> > because of the loop over all pages that needed unpacking.
-> > 
-> > Due to the locks being held, it was not possible to simply replace
-> > uv_call with uv_call_sched. A more complex approach was
-> > needed, in which uv_call is replaced with __uv_call, which does not
-> > loop. When the UVC needs to be executed again, -EAGAIN is returned, and
-> > the caller (or its caller) will try again.
-> > 
-> > When -EAGAIN is returned, the path is the same as when the page is in
-> > writeback (and the writeback check is also performed, which is
-> > harmless).
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > Fixes: 214d9bbcd3a672 ("s390/mm: provide memory management functions for protected KVM guests")
-> > ---
-> >   arch/s390/kernel/uv.c     | 29 +++++++++++++++++++++++------
-> >   arch/s390/kvm/intercept.c |  5 +++++
-> >   2 files changed, 28 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-> > index aeb0a15bcbb7..68a8fbafcb9c 100644
-> > --- a/arch/s390/kernel/uv.c
-> > +++ b/arch/s390/kernel/uv.c
-> > @@ -180,7 +180,7 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
-> >   {
-> >   	pte_t entry = READ_ONCE(*ptep);
-> >   	struct page *page;
-> > -	int expected, rc = 0;
-> > +	int expected, cc = 0;
-> >   
-> >   	if (!pte_present(entry))
-> >   		return -ENXIO;
-> > @@ -196,12 +196,25 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
-> >   	if (!page_ref_freeze(page, expected))
-> >   		return -EBUSY;
-> >   	set_bit(PG_arch_1, &page->flags);
-> > -	rc = uv_call(0, (u64)uvcb);
-> > +	/*
-> > +	 * If the UVC does not succeed or fail immediately, we don't want to
-> > +	 * loop for long, or we might get stall notifications.
-> > +	 * On the other hand, this is a complex scenario and we are holding a lot of
-> > +	 * locks, so we can't easily sleep and reschedule. We try only once,
-> > +	 * and if the UVC returned busy or partial completion, we return
-> > +	 * -EAGAIN and we let the callers deal with it.
-> > +	 */
-> > +	cc = __uv_call(0, (u64)uvcb);
-> >   	page_ref_unfreeze(page, expected);
-> > -	/* Return -ENXIO if the page was not mapped, -EINVAL otherwise */
-> > -	if (rc)
-> > -		rc = uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
-> > -	return rc;
-> > +	/*
-> > +	 * Return -ENXIO if the page was not mapped, -EINVAL for other errors.
-> > +	 * If busy or partially completed, return -EAGAIN.
-> > +	 */
-> > +	if (cc == UVC_CC_OK)
-> > +		return 0;
-> > +	else if (cc == UVC_CC_BUSY || cc == UVC_CC_PARTIAL)
-> > +		return -EAGAIN;
-> > +	return uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
-> >   }
-> >   
-> >   /*
-> > @@ -254,6 +267,10 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
-> >   	mmap_read_unlock(gmap->mm);
-> >   
-> >   	if (rc == -EAGAIN) {
-> > +		/*
-> > +		 * If we are here because the UVC returned busy or partial
-> > +		 * completion, this is just a useless check, but it is safe.
-> > +		 */
-> >   		wait_on_page_writeback(page);
-> >   	} else if (rc == -EBUSY) {
-> >   		/*
-> > diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-> > index 72b25b7cc6ae..47833ade4da5 100644
-> > --- a/arch/s390/kvm/intercept.c
-> > +++ b/arch/s390/kvm/intercept.c
-> > @@ -516,6 +516,11 @@ static int handle_pv_uvc(struct kvm_vcpu *vcpu)
-> >   	 */
-> >   	if (rc == -EINVAL)
-> >   		return 0;
-> > +	/*
-> > +	 * If we got -EAGAIN here, we simply return it. It will eventually
-> > +	 * get propagated all the way to userspace, which should then try
-> > +	 * again.
-> > +	 */  
-> 
-> This cpoment is new over v4, right? Can this happen often? If not then this is ok
-> otherwise we should consider your proposal of doing
+My immense thanks Conny, and with a bittersweet:
 
-yes, the comment is new. I would expect this to happen only when the
-system is under load. in any case this is better than busy waiting on
-the UVC
+Acked-by: Eric Farman <farman@linux.ibm.com>
 
+> ---
+>  MAINTAINERS | 1 -
+>  1 file changed, 1 deletion(-)
 > 
-> if (rc == -EINVAL || rc == -EAGAIN)
-> 
-> to reduce overhead.
-> 
-> Anyway,for both ways
-> 
-> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> 
-> >   	return rc;
-> >   }
-> >   
-> >   
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 0149e1a3e65e..92db89512678 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -16374,7 +16374,6 @@ F:	drivers/s390/crypto/vfio_ap_ops.c
+>  F:	drivers/s390/crypto/vfio_ap_private.h
+>  
+>  S390 VFIO-CCW DRIVER
+> -M:	Cornelia Huck <cohuck@redhat.com>
+>  M:	Eric Farman <farman@linux.ibm.com>
+>  M:	Matthew Rosato <mjrosato@linux.ibm.com>
+>  R:	Halil Pasic <pasic@linux.ibm.com>
 
