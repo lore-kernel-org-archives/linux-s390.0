@@ -2,146 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1281AC433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E043C433F5
 	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 08:52:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE56260F6F
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 08:52:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4317860F6F
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 08:52:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240592AbhJGIyP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Oct 2021 04:54:15 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32372 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S240614AbhJGIyI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Oct 2021 04:54:08 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1976ubHm017929;
-        Thu, 7 Oct 2021 04:52:14 -0400
+        id S240522AbhJGIyQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 7 Oct 2021 04:54:16 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32896 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240537AbhJGIyN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Oct 2021 04:54:13 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19786u8E002712;
+        Thu, 7 Oct 2021 04:52:20 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=ZACorKK8MIXh5CREQAwQlyoV64Ohx8HweHvXAvo5SEI=;
- b=SFYuuK1VFoiY+YHS0chJ1PyZXKAYccMSuao6TLp2qWltxD66xBrLG6t8Q/fP850wRwaq
- XV3bPbWIexc59XPsNWTmTQVnmMX31ZT+I26SBCvXj9jeG2C3aSaUJW00ZN3elQ0gOtt4
- zzEX5rABrTeb/3/+US6IW6Dq7gBaq37jiGa47PPNWt2asJ3UM2dxT0Uks84Me9rdq1rS
- i/73v9QNcJSZh0B0Z577jRr9iyN89dhFT6pYD2wNepZ/wIREDCqY9FPFHMucW5jLgAl0
- Oq5Cf81BxNotlRc0DEvSVDkBmWVKwJ3rXsTzaJXizwiM3DrRlXEZthJJDsksmXoMq14e zg== 
+ bh=FT2IV99QtWohoVuHtPbk3fJbQiHmrjdN2tjoxVa9VG8=;
+ b=PyD/5mqf6W16NORkXWr6Tm3xbKC5DwSgSATbx1xrWR9CaBWjWPRKO/5blJA6F/87GOp6
+ z2zAMzpx2Xy765Y6YyPHRFQ2xM4IQG7SzoeVDYD1cpc9+eGP4h6QLNZFvpDi9dpyrl5c
+ wdmS9rC7hiCo7UrVRdRn6kdgMgCy0aWc5puKLefEXlwF7H+gOqCMkmu9zxpHG/Y8oXn3
+ 0Js4DVlMdLo6XYJzCOhkXwYAPymHB85B7txe0H1kLBtgEdFKp3agAddI2uI0YRxDA5ik
+ XqQ1GYjqrVYjoS1yDQma/u1d5GloIqHW7Mr8qwBydqN3w7uT65wm2XAVLxTBTsoukml1 Lg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bhcsd790b-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bh1wwe32g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Oct 2021 04:52:14 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1977SKj4024707;
-        Thu, 7 Oct 2021 04:52:13 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bhcsd78yx-1
+        Thu, 07 Oct 2021 04:52:19 -0400
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1977mV8I012430;
+        Thu, 7 Oct 2021 04:52:19 -0400
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bh1wwe30b-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Oct 2021 04:52:13 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1978ptJx014908;
-        Thu, 7 Oct 2021 08:52:11 GMT
+        Thu, 07 Oct 2021 04:52:19 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1978puHl003748;
+        Thu, 7 Oct 2021 08:52:16 GMT
 Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3bef2aap0q-1
+        by ppma02fra.de.ibm.com with ESMTP id 3bef2aan4q-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Oct 2021 08:52:11 +0000
+        Thu, 07 Oct 2021 08:52:16 +0000
 Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1978keXm36700554
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1978kXkq49349110
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 7 Oct 2021 08:46:40 GMT
+        Thu, 7 Oct 2021 08:46:33 GMT
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 106E9AE070;
-        Thu,  7 Oct 2021 08:52:04 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 903DDAE04D;
+        Thu,  7 Oct 2021 08:51:57 +0000 (GMT)
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 77416AE077;
-        Thu,  7 Oct 2021 08:52:01 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B92F8AE065;
+        Thu,  7 Oct 2021 08:51:54 +0000 (GMT)
 Received: from linux6.. (unknown [9.114.12.104])
         by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  7 Oct 2021 08:52:01 +0000 (GMT)
+        Thu,  7 Oct 2021 08:51:54 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, thuth@redhat.com, seiden@linux.ibm.com,
         scgl@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v3 7/9] s390x: Add sthyi cc==0 r2+1 verification
-Date:   Thu,  7 Oct 2021 08:50:25 +0000
-Message-Id: <20211007085027.13050-8-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 5/9] lib: s390x: Add access key argument to tprot
+Date:   Thu,  7 Oct 2021 08:50:23 +0000
+Message-Id: <20211007085027.13050-6-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211007085027.13050-1-frankja@linux.ibm.com>
 References: <20211007085027.13050-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: YMVvroKvHdRNUb7T_cI4hdNth_x579pH
-X-Proofpoint-GUID: t5dH7Meo2UPYK5_vZnVU562WdIx8ILPm
+X-Proofpoint-ORIG-GUID: hBrVw29rcg85rPGvEZAEGpUyTlEFZrzH
+X-Proofpoint-GUID: 4t2C4tl_sylg8qrwnnOMW6yH4QVfZour
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-10-06_04,2021-10-07_01,2020-04-07_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- clxscore=1015 phishscore=0 mlxlogscore=999 priorityscore=1501
- lowpriorityscore=0 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ malwarescore=0 phishscore=0 adultscore=0 clxscore=1015 priorityscore=1501
+ lowpriorityscore=0 mlxlogscore=776 bulkscore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2109230001 definitions=main-2110070059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On success r2 + 1 should be 0, let's also check for that.
+From: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Currently there is only one callee passing a non zero key,
+but having the argument will be useful in the future.
+
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 ---
- s390x/sthyi.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ lib/s390x/asm/arch_def.h | 6 +++---
+ lib/s390x/sclp.c         | 2 +-
+ s390x/skrf.c             | 3 +--
+ 3 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/s390x/sthyi.c b/s390x/sthyi.c
-index db90b56f..4b153bf4 100644
---- a/s390x/sthyi.c
-+++ b/s390x/sthyi.c
-@@ -24,16 +24,16 @@ static inline int sthyi(uint64_t vaddr, uint64_t fcode, uint64_t *rc,
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index c8d2722a..b34aa792 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -233,15 +233,15 @@ static inline uint16_t get_machine_id(void)
+ 	return cpuid;
+ }
+ 
+-static inline int tprot(unsigned long addr)
++static inline int tprot(unsigned long addr, char access_key)
  {
- 	register uint64_t code asm("0") = fcode;
- 	register uint64_t addr asm("2") = vaddr;
--	register uint64_t rc3 asm("3") = 0;
-+	register uint64_t rc3 asm("3") = 42;
- 	int cc = 0;
+ 	int cc;
  
--	asm volatile(".insn rre,0xB2560000,%[r1],%[r2]\n"
--		     "ipm	 %[cc]\n"
--		     "srl	 %[cc],28\n"
--		     : [cc] "=d" (cc)
--		     : [code] "d" (code), [addr] "a" (addr), [r1] "i" (r1),
--		       [r2] "i" (r2)
--		     : "memory", "cc", "r3");
-+	asm volatile(
-+		".insn   rre,0xB2560000,%[r1],%[r2]\n"
-+		"ipm     %[cc]\n"
-+		"srl     %[cc],28\n"
-+		: [cc] "=d" (cc), "+d" (rc3)
-+		: [code] "d" (code), [addr] "a" (addr), [r1] "i" (r1), [r2] "i" (r2)
-+		: "memory", "cc");
- 	if (rc)
- 		*rc = rc3;
+ 	asm volatile(
+-		"	tprot	0(%1),0\n"
++		"	tprot	0(%1),0(%2)\n"
+ 		"	ipm	%0\n"
+ 		"	srl	%0,28\n"
+-		: "=d" (cc) : "a" (addr) : "cc");
++		: "=d" (cc) : "a" (addr), "a" (access_key << 4) : "cc");
  	return cc;
-@@ -139,16 +139,18 @@ static void test_fcode0(void)
- 	struct sthyi_hdr_sctn *hdr;
- 	struct sthyi_mach_sctn *mach;
- 	struct sthyi_par_sctn *par;
-+	uint64_t rc = 42;
+ }
  
- 	/* Zero destination memory. */
- 	memset(pagebuf, 0, PAGE_SIZE);
- 
- 	report_prefix_push("fcode 0");
--	sthyi((uint64_t)pagebuf, 0, NULL, 0, 2);
-+	sthyi((uint64_t)pagebuf, 0, &rc, 0, 2);
- 	hdr = (void *)pagebuf;
- 	mach = (void *)pagebuf + hdr->INFMOFF;
- 	par = (void *)pagebuf + hdr->INFPOFF;
- 
-+	report(!rc, "r2 + 1 == 0");
- 	test_fcode0_hdr(hdr);
- 	test_fcode0_mach(mach);
- 	test_fcode0_par(par);
+diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+index 9502d161..02722498 100644
+--- a/lib/s390x/sclp.c
++++ b/lib/s390x/sclp.c
+@@ -217,7 +217,7 @@ void sclp_memory_setup(void)
+ 	/* probe for r/w memory up to max memory size */
+ 	while (ram_size < max_ram_size) {
+ 		expect_pgm_int();
+-		cc = tprot(ram_size + storage_increment_size - 1);
++		cc = tprot(ram_size + storage_increment_size - 1, 0);
+ 		/* stop once we receive an exception or have protected memory */
+ 		if (clear_pgm_int() || cc != 0)
+ 			break;
+diff --git a/s390x/skrf.c b/s390x/skrf.c
+index 8ca7588c..ca4efbf1 100644
+--- a/s390x/skrf.c
++++ b/s390x/skrf.c
+@@ -103,8 +103,7 @@ static void test_tprot(void)
+ {
+ 	report_prefix_push("tprot");
+ 	expect_pgm_int();
+-	asm volatile("tprot	%[addr],0xf0(0)\n"
+-		     : : [addr] "a" (pagebuf) : );
++	tprot((unsigned long)pagebuf, 0xf);
+ 	check_pgm_int_code(PGM_INT_CODE_SPECIAL_OPERATION);
+ 	report_prefix_pop();
+ }
 -- 
 2.30.2
 
