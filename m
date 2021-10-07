@@ -2,124 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F674C433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 08:53:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D827C433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 08:58:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0DBB660F6F
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 08:53:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 380C4610C8
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 08:58:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232550AbhJGIzd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Oct 2021 04:55:33 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8446 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231661AbhJGIzc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Oct 2021 04:55:32 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1978Muic019436;
-        Thu, 7 Oct 2021 04:53:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=1IgqnY2S9Cl+JU0Q6jh6JwpEdBL6LiL9JGoNXR/r2hs=;
- b=WPQhoEowswNmrIzzMwg/hWuT0ejLTociDJ2VMUPz9Mn0XSPKri1osI4Ko4FsM/AsiAuN
- RwiLdFoCQTrePZP4SKi/569J6H7N78o0HhA/0VRetHJXJ65IVRgP3j4pZOeEmU9Gfn3n
- xaol4FyFfYGzSWhj73PSl+NLq+AjrPUEysoCmWvaYymiUH1I4Xo2OdBMDQuBmCaqZdqo
- VeBUePI800LjS+suU7O/igy1JzShPCqT2c5g+k3DdwrSCTtyvrdW+0w7dTH4E+9t2/cB
- hRziPfTWpxM9OT8yOlKA+IfmgVX8jFHrZ23jJbJv6phNGSxfKEP81RcfIQrb7bUtYb+j XA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bhhkny8vj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Oct 2021 04:53:39 -0400
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1978O5EX006491;
-        Thu, 7 Oct 2021 04:53:38 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bhhkny8ut-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Oct 2021 04:53:38 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1978pvE8013521;
-        Thu, 7 Oct 2021 08:53:36 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04fra.de.ibm.com with ESMTP id 3bef2ajp8x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Oct 2021 08:53:36 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1978q7EI36700670
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 7 Oct 2021 08:52:07 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BF1EDAE05F;
-        Thu,  7 Oct 2021 08:52:06 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7B64FAE08F;
-        Thu,  7 Oct 2021 08:52:04 +0000 (GMT)
-Received: from linux6.. (unknown [9.114.12.104])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  7 Oct 2021 08:52:04 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
+        id S240212AbhJGJA1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 7 Oct 2021 05:00:27 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:36058 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232573AbhJGJA1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Oct 2021 05:00:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633597113;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Y9ZGcWQ70cNIWMeA6AJTTGD4KbeGSTC1fkbkvYxMV8g=;
+        b=HUm2UyDO55A1sy2iVqR7vMFw8jg9fG+S3nmjZDFVmSj+VVSC1xV8/Y9RDwMYlBu8Y2rReq
+        xUemmoC6LXDl2+3gJoh3lSYZsD1mNELhgD56hXZp0B+HskHetjPdrFNHkts9+Hzehmhffz
+        l1gRjhJebYzGgFVDYf7h9lkcOikAPYY=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-305-neuGi4qENL2EXZp4R5zW8w-1; Thu, 07 Oct 2021 04:58:32 -0400
+X-MC-Unique: neuGi4qENL2EXZp4R5zW8w-1
+Received: by mail-wr1-f72.google.com with SMTP id k16-20020a5d6290000000b00160753b430fso4146274wru.11
+        for <linux-s390@vger.kernel.org>; Thu, 07 Oct 2021 01:58:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Y9ZGcWQ70cNIWMeA6AJTTGD4KbeGSTC1fkbkvYxMV8g=;
+        b=sm/4y2jf64Pr5S0wf9Uzp8bumF11LkdGWuuMuQcelcc0j9S7PRHzU0DigcEMRMtHSb
+         levFAqfDsQRNmmpNbTf5ICdKOnAmJedYtAhMc+0wNBkTuXjxbpDcgIjunL+/LKtU8hV5
+         z1SgZvYMafAZUt3lnQxwSjuYBwKYjKQlroU4Zl1dcii3e63UVWfhnNCCzawmPfZzvX2y
+         8k+wlGCJKv9cOmumJCKWGQ2NL76vsXhYotIhux//4aCVk4Fckc/cr7WegR/hGQ/aYaiY
+         lNM4DHz2sSvmuiC49bA9cFdtJtoyF1vCxiPPqL8r0BsT6C+0AJVBYWuX0/E+uq8aBlcJ
+         vk6A==
+X-Gm-Message-State: AOAM5324Ssn1HTVN70LaRB0eu8GrH9SoZRKOLtQ5MiTR1Nnq8rKawpN2
+        ScVlJ1H249s0TUnkhj5+jx0nIrYfQKy7ETidYab5Uxm+5djpcA3sS5ukiyT3EZAoF2nNndjcFlX
+        bdtvypi1I+qjnyeS146S8ag==
+X-Received: by 2002:a05:6000:18a2:: with SMTP id b2mr3826627wri.155.1633597110844;
+        Thu, 07 Oct 2021 01:58:30 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx6rHEwZT7LLjuRF0PqdY5tjZpr3pCYbJFPi9DeIHxwKz12ysk9I48QfAPxDZo+pqn7sQxggQ==
+X-Received: by 2002:a05:6000:18a2:: with SMTP id b2mr3826614wri.155.1633597110688;
+        Thu, 07 Oct 2021 01:58:30 -0700 (PDT)
+Received: from thuth.remote.csb (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id z18sm16954811wro.25.2021.10.07.01.58.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Oct 2021 01:58:30 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH v3 1/9] s390x: uv: Tolerate 0x100 query
+ return code
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, thuth@redhat.com, seiden@linux.ibm.com,
-        scgl@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v3 8/9] s390x: snippets: Set stackptr and stacktop in cstart.S
-Date:   Thu,  7 Oct 2021 08:50:26 +0000
-Message-Id: <20211007085027.13050-9-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211007085027.13050-1-frankja@linux.ibm.com>
+        david@redhat.com, seiden@linux.ibm.com, scgl@linux.ibm.com
 References: <20211007085027.13050-1-frankja@linux.ibm.com>
+ <20211007085027.13050-2-frankja@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <6e061173-d3bc-4a65-3278-048fb6e426ce@redhat.com>
+Date:   Thu, 7 Oct 2021 10:58:29 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Taza0J2yhzIsy-EWQv3TpODPrgDMgz8X
-X-Proofpoint-GUID: cJqNJfCmsdh__R7MHQ72-rkgjHyC7eNM
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-10-06_04,2021-10-07_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 malwarescore=0 suspectscore=0 adultscore=0 phishscore=0
- clxscore=1015 impostorscore=0 lowpriorityscore=0 mlxlogscore=999
- bulkscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110070059
+In-Reply-To: <20211007085027.13050-2-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We have a stack, so why not define it and be a step closer to include
-the lib into the snippets.
+On 07/10/2021 10.50, Janosch Frank wrote:
+> RC 0x100 is not an error but a notice that we could have gotten more
+> data from the Ultravisor if we had asked for it. So let's tolerate
+> them in our tests.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>   s390x/uv-guest.c | 4 +++-
+>   s390x/uv-host.c  | 8 +++++---
+>   2 files changed, 8 insertions(+), 4 deletions(-)
+> 
+> diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
+> index f05ae4c3..44ad2154 100644
+> --- a/s390x/uv-guest.c
+> +++ b/s390x/uv-guest.c
+> @@ -71,7 +71,9 @@ static void test_query(void)
+>   
+>   	uvcb.header.len = sizeof(uvcb);
+>   	cc = uv_call(0, (u64)&uvcb);
+> -	report(cc == 0 && uvcb.header.rc == UVC_RC_EXECUTED, "successful query");
+> +	report((!cc && uvcb.header.rc == UVC_RC_EXECUTED) ||
+> +	       (cc == 1 && uvcb.header.rc == 0x100),
+> +		"successful query");
+>   
+>   	/*
+>   	 * These bits have been introduced with the very first
+> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
+> index 28035707..4b72c24d 100644
+> --- a/s390x/uv-host.c
+> +++ b/s390x/uv-host.c
+> @@ -385,7 +385,7 @@ static void test_init(void)
+>   
+>   static void test_query(void)
+>   {
+> -	int i = 0;
+> +	int i = 0, cc;
+>   
+>   	uvcb_qui.header.cmd = UVC_CMD_QUI;
+>   	uvcb_qui.header.len = sizeof(uvcb_qui);
+> @@ -400,8 +400,10 @@ static void test_query(void)
+>   	report(uvcb_qui.header.rc == 0x100, "insf length");
+>   
+>   	uvcb_qui.header.len = sizeof(uvcb_qui);
+> -	uv_call(0, (uint64_t)&uvcb_qui);
+> -	report(uvcb_qui.header.rc == UVC_RC_EXECUTED, "successful query");
+> +	cc = uv_call(0, (uint64_t)&uvcb_qui);
+> +	report((!cc && uvcb_qui.header.rc == UVC_RC_EXECUTED) ||
+> +	       (cc == 1 && uvcb_qui.header.rc == 0x100),
+> +		"successful query");
+>   
+>   	for (i = 0; cmds[i].name; i++)
+>   		report(uv_query_test_call(cmds[i].call_bit), "%s", cmds[i].name);
+> 
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/snippets/c/cstart.S | 2 +-
- s390x/snippets/c/flat.lds | 2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/s390x/snippets/c/cstart.S b/s390x/snippets/c/cstart.S
-index a1754808..031a6b83 100644
---- a/s390x/snippets/c/cstart.S
-+++ b/s390x/snippets/c/cstart.S
-@@ -17,7 +17,7 @@ start:
- 	xgr \i,\i
- 	.endr
- 	/* 0x3000 is the stack page for now */
--	lghi	%r15, 0x4000 - 160
-+	lghi	%r15, stackptr
- 	sam64
- 	brasl	%r14, main
- 	/* For now let's only use cpu 0 in snippets so this will always work. */
-diff --git a/s390x/snippets/c/flat.lds b/s390x/snippets/c/flat.lds
-index ce3bfd69..59974b38 100644
---- a/s390x/snippets/c/flat.lds
-+++ b/s390x/snippets/c/flat.lds
-@@ -15,6 +15,8 @@ SECTIONS
- 		 QUAD(0x0000000000004000)
- 	}
- 	. = 0x4000;
-+	stackptr = . - 160;
-+	stacktop = .;
- 	.text : {
- 		*(.init)
- 		*(.text)
--- 
-2.30.2
+Acked-by: Thomas Huth <thuth@redhat.com>
 
