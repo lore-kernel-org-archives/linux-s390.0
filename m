@@ -2,123 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FAD4C433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 09:01:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40C11C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 09:02:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6B06560F3A
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 09:01:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1124061130
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 09:02:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232620AbhJGJDb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Oct 2021 05:03:31 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:47027 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232550AbhJGJDM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Oct 2021 05:03:12 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633597278;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+ypgwnUahS9XIzZmtGzPfOEo5zBah1g3vGbYlrZE5wc=;
-        b=DEUcbucYoE++v5ymax03ifIMSZkO2YtuEyunXsecRB4n/7ImIye5Cn/6ckh+pEhsUFcIzU
-        Teb7shT8YIC/vVWpPZap3olJYPuIToesvsS3p+oEulf3w7gyEHf70p01pz769R/BO+z7sW
-        HcOFeTuVJc8B8YXA0iQwCqGRBewXJYo=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-57-B3Fl76t0NkWT4WciP_ICQQ-1; Thu, 07 Oct 2021 05:01:16 -0400
-X-MC-Unique: B3Fl76t0NkWT4WciP_ICQQ-1
-Received: by mail-wr1-f71.google.com with SMTP id 41-20020adf812c000000b00160dfbfe1a2so460979wrm.3
-        for <linux-s390@vger.kernel.org>; Thu, 07 Oct 2021 02:01:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=+ypgwnUahS9XIzZmtGzPfOEo5zBah1g3vGbYlrZE5wc=;
-        b=yVCVfQ9sdbVKzISCBfGCFw93glu2k2Fug+sBpm9lKbrZHQ0XSG3aeqzl5HiNbIgRyq
-         YZ4rRJRBh6ncb7glo9ui24x//POCUlouW0QiQL1XBq22cbssBVo4ANNbbCv3on+KU8PJ
-         LTqLH8S0gw0hULaFwJ3SGBWwjbZ5m/9FzgobPcOJj4Z6evlVjkpJhgKIF9gbpwK+iAjV
-         5/OqXGRCKLJQZiEKWM6Y+85rQufPdr1fPeIgtecu4PoHoo4BeHJM8AjCCiy1J7OtN0AH
-         wbfVJjVConJwy+9QyMijrssSYZZtqmD6Q2UIgXXYQhbYLt4Q12fQZxdx5J/7WilIZYB3
-         LZqA==
-X-Gm-Message-State: AOAM531HM4Muk9/5UcbFvSvitcJkPBHMtysP7AVGR4C1Z0R59uXd9o2L
-        Pi+wQ5markpIXjmL0qHQZbQ/rIm8DeaFpUZD+0ZLXnNKnjiRFNNge7s+3vRD8V66ZNuStWE1Muy
-        Vz1jWQ58uUm2WEeKnsbZp1A==
-X-Received: by 2002:adf:f48d:: with SMTP id l13mr3758196wro.94.1633597275790;
-        Thu, 07 Oct 2021 02:01:15 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwgaecN01seRmQ+dQqy5rj6yiI6HVyvpAX4sDykCKyi3fXq3FZ2gjnh1zfS29aqYRUAj65W+g==
-X-Received: by 2002:adf:f48d:: with SMTP id l13mr3758170wro.94.1633597275598;
-        Thu, 07 Oct 2021 02:01:15 -0700 (PDT)
-Received: from thuth.remote.csb (nat-pool-str-t.redhat.com. [149.14.88.106])
-        by smtp.gmail.com with ESMTPSA id z6sm12166174wmp.1.2021.10.07.02.01.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 07 Oct 2021 02:01:15 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH v3 4/9] lib: s390x: uv: Add UVC_ERR_DEBUG
- switch
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, seiden@linux.ibm.com, scgl@linux.ibm.com
-References: <20211007085027.13050-1-frankja@linux.ibm.com>
- <20211007085027.13050-5-frankja@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <078d665b-18c7-5efc-ea0e-54edef5f7282@redhat.com>
-Date:   Thu, 7 Oct 2021 11:01:14 +0200
+        id S231797AbhJGJEo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 7 Oct 2021 05:04:44 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37122 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231661AbhJGJEo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Oct 2021 05:04:44 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1978JRww030896;
+        Thu, 7 Oct 2021 05:02:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=LIZcQMu5pkYTo0z3ZSJZyeHC2PaNP/F1G1nPx99qJt0=;
+ b=Fwuuiul8Cycu++v9j2zGO7dBIKK78HjMQBL5xhhZ3bWN16+yP8swimOf5k/adntXS1Yl
+ Vjik7LvQBAZFidiwzjgv6Vy4a7S82poqJRHkWNMSyylWHuJUjypi8oeVhG4aWDaMkUFM
+ iWiZR0UvUO/J1o8RrXsBsJmxPt+14HUN7DbAXdGCcXx931PSQNbnp+CH7oT3WGAYQxOT
+ mEqHiQLvGiSGyxlT8jw+yv01xdB+OgMekS23OPYuhX2qKfIu0eGkn4SyO5nVskC+KYA8
+ Hel3Z8yP+CGwpBmz4UJDylK2ywugs6Hviehdo9A+3WP6An3oUk+LyiuHm9JMrC1/zV5n RQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bhcsd7g1r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 07 Oct 2021 05:02:50 -0400
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1977r8Ni031669;
+        Thu, 7 Oct 2021 05:02:47 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bhcsd7g12-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 07 Oct 2021 05:02:47 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19791vvc003407;
+        Thu, 7 Oct 2021 09:02:45 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma01fra.de.ibm.com with ESMTP id 3bef2aaser-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 07 Oct 2021 09:02:44 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1978vJ7D54722924
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 7 Oct 2021 08:57:19 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3A5884C046;
+        Thu,  7 Oct 2021 09:02:40 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6DC884C05A;
+        Thu,  7 Oct 2021 09:02:39 +0000 (GMT)
+Received: from li-43c5434c-23b8-11b2-a85c-c4958fb47a68.ibm.com (unknown [9.171.7.98])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  7 Oct 2021 09:02:39 +0000 (GMT)
+Subject: Re: [PATCH 0/2] s390: downsize my responsibilities
+To:     Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+References: <20211006160120.217636-1-cohuck@redhat.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <9dc7d312-5541-60bb-5d8a-3b0dfd594cae@de.ibm.com>
+Date:   Thu, 7 Oct 2021 11:02:38 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-In-Reply-To: <20211007085027.13050-5-frankja@linux.ibm.com>
+In-Reply-To: <20211006160120.217636-1-cohuck@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XSPr6kLZ9lVDqtz-9YEisqGJ0kLv_qS_
+X-Proofpoint-GUID: q-ZtNZ3PpbRV0ov9HlYsyWN09KwdrQbg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-06_04,2021-10-07_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
+ clxscore=1015 phishscore=0 mlxlogscore=850 priorityscore=1501
+ lowpriorityscore=0 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110070063
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 07/10/2021 10.50, Janosch Frank wrote:
-> Every time something goes wrong in a way we don't expect, we need to
-> add debug prints to some UVC to get the unexpected return code.
+Am 06.10.21 um 18:01 schrieb Cornelia Huck:
+> I currently don't have as much time to work on s390 things
+> anymore, so let's adjust some of my entries.
 > 
-> Let's just put the printing behind a macro so we can enable it if
-> needed via a simple switch.
+> Cornelia Huck (2):
+>    KVM: s390: remove myself as reviewer
+>    vfio-ccw: step down as maintainer
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->   lib/s390x/asm/uv.h | 12 ++++++++++++
->   1 file changed, 12 insertions(+)
-> 
-> diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-> index 2f099553..16db086d 100644
-> --- a/lib/s390x/asm/uv.h
-> +++ b/lib/s390x/asm/uv.h
-> @@ -12,6 +12,11 @@
->   #ifndef _ASMS390X_UV_H_
->   #define _ASMS390X_UV_H_
->   
-> +/* Enables printing of command code and return codes for failed UVCs */
-> +#ifndef UVC_ERR_DEBUG
-> +#define UVC_ERR_DEBUG	0
-> +#endif
-> +
->   #define UVC_RC_EXECUTED		0x0001
->   #define UVC_RC_INV_CMD		0x0002
->   #define UVC_RC_INV_STATE	0x0003
-> @@ -194,6 +199,13 @@ static inline int uv_call_once(unsigned long r1, unsigned long r2)
->   		: [cc] "=d" (cc)
->   		: [r1] "a" (r1), [r2] "a" (r2)
->   		: "memory", "cc");
-> +
-> +	if (UVC_ERR_DEBUG && cc)
-> +		printf("UV call error: call %x rc %x rrc %x\n",
-> +		       ((struct uv_cb_header *)r2)->cmd,
-> +		       ((struct uv_cb_header *)r2)->rc,
-> +		       ((struct uv_cb_header *)r2)->rrc);
-> +
->   	return cc;
->   }
->   
-> 
+>   MAINTAINERS | 2 --
+>   1 file changed, 2 deletions(-)
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+Thank you for your work. Both patches applied. Will likely go via the s390 tree.
 
