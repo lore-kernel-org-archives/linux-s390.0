@@ -2,197 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3622C433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Oct 2021 15:08:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0FFCC433FE
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Oct 2021 15:22:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3C6060F9C
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Oct 2021 15:08:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A157860FD8
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Oct 2021 15:22:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242782AbhJHPKm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Oct 2021 11:10:42 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58505 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242778AbhJHPKm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Oct 2021 11:10:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633705726;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=PUCyJf0CD/kcfrq7C8GdCqWYBNHc0A3utB2YFlkZ+S0=;
-        b=EXIkvoZbUDjt0SdLXAwf6457T0L3GHlHF0C7MfPrWe4euWw4CsMoWotWD5zopiCd3zopgo
-        zt+VCsTBleqheYvQeoqVcjrT5wCS8GPptYDZI6zv/14cgbd3tN47eWrGlJzs66/5cJnaxk
-        FP1JSPEqyNvXTm55WZg8VrAwnFPXjDk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-477-Q5UmhENRNISgc1ByGcD4Ig-1; Fri, 08 Oct 2021 11:08:45 -0400
-X-MC-Unique: Q5UmhENRNISgc1ByGcD4Ig-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 48617814615;
-        Fri,  8 Oct 2021 15:08:37 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.51])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9CBE65BAF4;
-        Fri,  8 Oct 2021 15:08:13 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Halil Pasic <pasic@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Jason Wang <jasowang@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        markver@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, stefanha@redhat.com,
-        Raphael Norwitz <raphael.norwitz@nutanix.com>,
-        qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v2 1/1] virtio: write back F_VERSION_1 before validate
-In-Reply-To: <20211008155156.626e78b5.pasic@linux.ibm.com>
-Organization: Red Hat GmbH
-References: <20211008123422.1415577-1-pasic@linux.ibm.com>
- <20211008085839-mutt-send-email-mst@kernel.org>
- <20211008155156.626e78b5.pasic@linux.ibm.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Fri, 08 Oct 2021 17:08:11 +0200
-Message-ID: <87ily7y2p0.fsf@redhat.com>
+        id S242814AbhJHPYe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Oct 2021 11:24:34 -0400
+Received: from foss.arm.com ([217.140.110.172]:58598 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242780AbhJHPYd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 8 Oct 2021 11:24:33 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EF3811063;
+        Fri,  8 Oct 2021 08:22:37 -0700 (PDT)
+Received: from e113632-lin (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9B44F3F66F;
+        Fri,  8 Oct 2021 08:22:29 -0700 (PDT)
+From:   Valentin Schneider <valentin.schneider@arm.com>
+To:     Barry Song <21cnbao@gmail.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        LAK <linux-arm-kernel@lists.infradead.org>,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Aubrey Li <aubrey.li@linux.intel.com>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Jonathan Cameron <jonathan.cameron@huawei.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86 <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        YiFei Zhu <yifeifz2@illinois.edu>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Sergei Trofimovich <slyfox@gentoo.org>,
+        David Hildenbrand <david@redhat.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Chris Down <chris@chrisdown.name>,
+        Vipin Sharma <vipinsh@google.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH 2/2] sched: Centralize SCHED_{SMT, MC, CLUSTER} definitions
+In-Reply-To: <CAGsJ_4wqtcOdsFDzR98PFbjxRyTqzf7P3p3erup84SXESYonYw@mail.gmail.com>
+References: <20211008115347.425234-1-valentin.schneider@arm.com> <20211008115347.425234-3-valentin.schneider@arm.com> <CAGsJ_4wqtcOdsFDzR98PFbjxRyTqzf7P3p3erup84SXESYonYw@mail.gmail.com>
+Date:   Fri, 08 Oct 2021 16:22:27 +0100
+Message-ID: <87bl3zlex8.mognet@arm.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Oct 08 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
+On 09/10/21 01:37, Barry Song wrote:
+> On Sat, Oct 9, 2021 at 12:54 AM Valentin Schneider
+> <valentin.schneider@arm.com> wrote:
+>>
+>> Barry recently introduced a new CONFIG_SCHED_CLUSTER, and discussions
+>> around that highlighted that every architecture redefines its own help text
+>> and dependencies for CONFIG_SCHED_SMT and CONFIG_SCHED_MC.
+>>
+>> Move the definition of those to scheduler's Kconfig to centralize help text
+>> and generic dependencies (i.e. SMP). Make them depend on a matching
+>> ARCH_SUPPORTS_SCHED_* which the architectures can select with the relevant
+>> architecture-specific dependency.
+>>
+>> s390 uses its own topology table (set_sched_topology()) and doesn't seem to
+>> cope without SCHED_MC or SCHED_SMT, so those remain untogglable.
+>>
+>
+> Hi Valentin,
+> Thanks!
+> I believe this is a cleaner way for Kconfig itself. But I am not quite sure this
+> is always beneficial of all platforms. It would be perfect if the patch has no
+> side effects and doesn't change the existing behaviour. But it has side effects
+> by changing the default N to Y on a couple of platforms.
+>
 
-> On Fri, 8 Oct 2021 09:05:03 -0400
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
->
->> On Fri, Oct 08, 2021 at 02:34:22PM +0200, Halil Pasic wrote:
->> > The virtio specification virtio-v1.1-cs01 states: "Transitional devices
->> > MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
->> > been acknowledged by the driver."  This is exactly what QEMU as of 6.1
->> > has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
->> > 
->> > However, the specification also says: "... the driver MAY read (but MUST
->> > NOT write) the device-specific configuration fields to check that it can
->> > support the device ..." before setting FEATURES_OK.
->> > 
->> > In that case, any transitional device relying solely on
->> > VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
->> > legacy format.  In particular, this implies that it is in big endian
->> > format for big endian guests. This naturally confuses the driver which
->> > expects little endian in the modern mode.
->> > 
->> > It is probably a good idea to amend the spec to clarify that
->> > VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
->> > is complete. However, we already have a regression so let's try to address  
->> 
->> actually, regressions. and we can add 
->> "since originally before validate callback existed
->> config space was only read after
->> FEATURES_OK. See Fixes tags for relevant commits"
->> 
->> > it.
->
-> How about replacing the paragraph above with the following?
->
-> "It is probably a good idea to amend the spec to clarify that
-> VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
-> is complete. Before validate callback existed, config space was only
-> read after FEATURES_OK. However, we already have two regression, so
-> let's address this here as well."
->> > 
->> > The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
->> > the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
->> > virtio 1.0 is used on both sides. The latter renders virtio-blk
->> > unusable with DASD backing, because things simply don't work with
->> > the default.  
->
-> and add 
-> "See Fixes tags for relevant commits."
-> here.
->> 
->> Let's add a work around description now:
->> 
->> 
->> For QEMU, we can work around the issue by writing out the features
->> register with VIRTIO_F_VERSION_1 bit set.  We (ab) use the
-> s/features register/feature bits/
-> rationale: ccw does not have a features register, and qemu does not
-> really act as if its behavior was controlled by the values in a features
-> register. I.e. when we read the register we see VIRTIO_F_VERSION_!
-> because the feature is offered. In QEMU we basically read host_featues
-> but write the guest_features. And what drives device behavior is mostly
-> guest_features. 
->
-> s/(ab) use/(ab)use/
->
->> finalize_features config op for this. It's not enough to address vhost
->
-> s/It's/This is/
->
->> user and vhost block devices since these do not get the features until
->
-> s/vhost user and vhost block/some vhost-user and vhost-vdpa/ ?
->
-> Ratioale: I think vhost block is just a vhost-user device. On the other
-> hand vhost-user-fs works like charm because the config space is
-> implemented in qemu and not in the vhost-user device. I
-> didn't check vhost_net. I'm not even sure qemu offers a vhost_net
-> implementation. Anyway I wouldn't like to make any false statements here.
->
->> FEATURES_OK, however it looks like these two actually never handled the
->> endian-ness for legacy mode correctly, so at least that's not a
->> regression.
->> 
->> No devices except virtio net and virtio blk seem to be affected.
->> 
->> Long term the right thing to do is to fix the hypervisors.
->> 
->
-> Sounds good. Thanks! Are you OK with my changes proposed to your changes?
->
-> Regards,
-> Halil
->> 
->> > 
->> > Cc: <stable@vger.kernel.org> #v4.11
->> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
->> > Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in
->> > config space") Fixes: fe36cbe0671e ("virtio_net: clear MTU when out
->> > of range") Reported-by: markver@us.ibm.com
->> > ---
->> >  drivers/virtio/virtio.c | 11 +++++++++++
->> >  1 file changed, 11 insertions(+)
->> > 
->> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->> > index 0a5b54034d4b..236081afe9a2 100644
->> > --- a/drivers/virtio/virtio.c
->> > +++ b/drivers/virtio/virtio.c
->> > @@ -239,6 +239,17 @@ static int virtio_dev_probe(struct device *_d)
->> >  		driver_features_legacy = driver_features;
->> >  	}
->> >  
->> > +	/*
->> > +	 * Some devices detect legacy solely via F_VERSION_1. Write
->> > +	 * F_VERSION_1 to force LE config space accesses before
->> > FEATURES_OK for
->> > +	 * these when needed.
->> > +	 */
->> > +	if (drv->validate && !virtio_legacy_is_little_endian()
->> > +			  && device_features &
->> > BIT_ULL(VIRTIO_F_VERSION_1)) {
->> > +		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
->> > +		dev->config->finalize_features(dev);
->> > +	}
->> > +
->> >  	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
->> >  		dev->features = driver_features & device_features;
->> >  	else
->> > 
->> > base-commit: 60a9483534ed0d99090a2ee1d4bb0b8179195f51
+So x86 has it default yes, and a lot of others (e.g. arm64) have it default
+no.
 
-FWIW, with the amends:
+IMO you don't gain much by disabling them. SCHED_MC and SCHED_CLUSTER only
+control the presence of a sched_domain_topology_level - if it's useless it
+gets degenerated at domain build time. Some valid reasons for not using
+them is if the architecture defines its own topology table (e.g. powerpc
+has CACHE and MC levels which are not gated behind any CONFIG).
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+SCHED_SMT has an impact on code generated in sched/core.c, but that is also
+gated by a static key.
 
+So I'd say having them default yes is sensible. I'd even say we should
+change the "If unsure say N here." to "Y".
