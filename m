@@ -2,101 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D6CBC433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Oct 2021 09:27:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2658EC433FE
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Oct 2021 11:54:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E148360F70
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Oct 2021 09:27:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 061DE60FC2
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Oct 2021 11:54:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238154AbhJHJ24 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Oct 2021 05:28:56 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:44328 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229710AbhJHJ24 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Oct 2021 05:28:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633685221;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=G4YrEDTsQ3qN474doJ0BiLWciGuINsr3+uch9s8tM/0=;
-        b=TVDDiIq8tC3IX5yHd6Uii81aIPQfwoBrZSD+70+5d5FvyZoQCcesOJ1Xl+mUX3l5olC7uF
-        cTJ+VsL3U20CocSTdxVNfy+3ttdEGMCQb4CMvnbj4Iy5+u5PWAf7v9lFIfPY9B2ev9P7KR
-        KrcFogYoLqWvjl7aLUKWULVzJexS150=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-346-1oeQPHZaN4CAH0IbPenrDA-1; Fri, 08 Oct 2021 05:26:57 -0400
-X-MC-Unique: 1oeQPHZaN4CAH0IbPenrDA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F163010A8E03;
-        Fri,  8 Oct 2021 09:26:55 +0000 (UTC)
-Received: from thuth.com (dhcp-192-183.str.redhat.com [10.33.192.183])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 012425F4E7;
-        Fri,  8 Oct 2021 09:26:50 +0000 (UTC)
-From:   Thomas Huth <thuth@redhat.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Subject: [kvm-unit-tests PATCH] s390x/snippets: Define all things that are needed to link the libc
-Date:   Fri,  8 Oct 2021 11:26:49 +0200
-Message-Id: <20211008092649.959956-1-thuth@redhat.com>
+        id S240660AbhJHL4Z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Oct 2021 07:56:25 -0400
+Received: from foss.arm.com ([217.140.110.172]:46280 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240334AbhJHL4Z (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 8 Oct 2021 07:56:25 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 672C4ED1;
+        Fri,  8 Oct 2021 04:54:29 -0700 (PDT)
+Received: from e113632-lin.cambridge.arm.com (e113632-lin.cambridge.arm.com [10.1.196.57])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id B0B9C3F766;
+        Fri,  8 Oct 2021 04:54:21 -0700 (PDT)
+From:   Valentin Schneider <valentin.schneider@arm.com>
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org
+Cc:     Peter Zijlstra <peterz@infradead.org>, aubrey.li@linux.intel.com,
+        song.bao.hua@hisilicon.com, tim.c.chen@linux.intel.com,
+        jonathan.cameron@huawei.com, Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        YiFei Zhu <yifeifz2@illinois.edu>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Sergei Trofimovich <slyfox@gentoo.org>,
+        David Hildenbrand <david@redhat.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Chris Down <chris@chrisdown.name>,
+        Vipin Sharma <vipinsh@google.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Michal Hocko <mhocko@kernel.org>
+Subject: [PATCH 0/2] sched: cleanup CONFIG_SCHED_MC & friends
+Date:   Fri,  8 Oct 2021 12:53:45 +0100
+Message-Id: <20211008115347.425234-1-valentin.schneider@arm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In the long run, we want to use parts of the libc like memset() etc.,
-too. However, to be able to link it correctly, we have to provide
-some stub functions like puts() and exit() to avoid that too much
-other stuff from the lib folder gets pulled into the binaries, which
-we cannot provide in the snippets (like the sclp support).
+Hi folks,
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- s390x/Makefile            |  2 +-
- s390x/snippets/c/cstart.S | 11 +++++++++++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+This stems from Barry introducing a new CONFIG_SCHED_CLUSTER which highlighted
+the current state of similar Kconfigs isn't great:
+  http://lore.kernel.org/r/CAGsJ_4xZD0sG0Df666f0bvHOzuPMjnw0dN_mArER5k1pJ6LPLw@mail.gmail.com
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index ef8041a..b2a7c1f 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -80,7 +80,7 @@ asmlib = $(TEST_DIR)/cstart64.o $(TEST_DIR)/cpu.o
- FLATLIBS = $(libcflat)
- 
- SNIPPET_DIR = $(TEST_DIR)/snippets
--snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
-+snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o lib/auxinfo.o
- 
- # perquisites (=guests) for the snippet hosts.
- # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
-diff --git a/s390x/snippets/c/cstart.S b/s390x/snippets/c/cstart.S
-index a175480..1862703 100644
---- a/s390x/snippets/c/cstart.S
-+++ b/s390x/snippets/c/cstart.S
-@@ -20,6 +20,17 @@ start:
- 	lghi	%r15, 0x4000 - 160
- 	sam64
- 	brasl	%r14, main
-+	/*
-+	 * If main() returns, we stop the CPU with the code below. We also
-+	 * route some functions that are required by the libc (but not usable
-+	 * from snippets) to the CPU stop code below, so that snippets can
-+	 * still be linked against the libc code (to use non-related functions
-+	 * like memset() etc.)
-+	 */
-+.global puts
-+.global exit
-+puts:
-+exit:
- 	/* For now let's only use cpu 0 in snippets so this will always work. */
- 	xgr	%r0, %r0
- 	sigp    %r2, %r0, SIGP_STOP
--- 
-2.27.0
+The changes happen all in one big patch; the alternative would be to have one
+patch per arch that adds the ARCH_SUPPORTS_SCHED_* selection, then a final patch
+that adds the generic definitions and removes the arch ones (which I can do if
+that's a preferred approach).
+
+Briefly tested by setting ARCH=foo and playing around with menuconfig.
+
+Based on top of Peter's queue:
+  git://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git -b sched/next
+
+Patches are also available at:
+  https://git.gitlab.arm.com/linux-arm/linux-vs.git -b mainline/sched/topo_kconfig_cleanup
+
+Cheers,
+Valentin
+
+Valentin Schneider (2):
+  sched: Move Kconfig.preempt to sched/Kconfig
+  sched: Centralize SCHED_{SMT, MC, CLUSTER} definitions
+
+ arch/arm/Kconfig                          | 18 ++--------
+ arch/arm64/Kconfig                        | 26 ++------------
+ arch/ia64/Kconfig                         |  9 +----
+ arch/mips/Kconfig                         | 10 +-----
+ arch/parisc/Kconfig                       |  9 +----
+ arch/powerpc/Kconfig                      |  9 +----
+ arch/s390/Kconfig                         |  8 ++---
+ arch/sh/Kconfig                           |  1 +
+ arch/sh/mm/Kconfig                        |  9 -----
+ arch/sparc/Kconfig                        | 20 ++---------
+ arch/x86/Kconfig                          | 26 ++------------
+ init/Kconfig                              |  2 +-
+ kernel/{Kconfig.preempt => sched/Kconfig} | 41 +++++++++++++++++++++++
+ 13 files changed, 59 insertions(+), 129 deletions(-)
+ rename kernel/{Kconfig.preempt => sched/Kconfig} (79%)
+
+--
+2.25.1
 
