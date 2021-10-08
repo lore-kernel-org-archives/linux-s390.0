@@ -2,89 +2,153 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8475EC433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 18:07:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9CB0C433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Oct 2021 07:20:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6173F61175
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Oct 2021 18:07:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AC28261039
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Oct 2021 07:20:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243281AbhJGSJN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Oct 2021 14:09:13 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48974 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S243373AbhJGSJN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Oct 2021 14:09:13 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 197HX7bc009387;
-        Thu, 7 Oct 2021 14:07:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=7LpLDTRHXFsC4nZgyOmnyv5fLVJVby6YT8fyKx6CqSk=;
- b=j0XwB64Jz/PM6yWyDzpg9V9/oROfqgCi61BMMCnypeKMcDs2quRYDuoKCr/75Zp7NHfB
- 6pNpYo+lA9b8oLP6CfAsaMOnF2Rzq2X7IpaXXF6e5z3UFIDCRZO7KJS65a1aeFwJqd9z
- zgUrUC1E6u+bbMQ2gb/EqXsbxbh6uU3h2J+NwKGzg4Kr+ue+V5kWSLK1MrbPzG/ggUMA
- zz+sYRcwwmE3vVmAsaWaFjwEgVqpuQV/p735/jSUL7UT+FrGG+z4NwgResyIo3toyQlX
- Y71MpJntwV4LkkLztOYpIJ6by+WeqCR+ZhJa5O23ZCLIRMEkaPPGwBvUK8D4iq7uZDEt JQ== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bj1dsynp2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Oct 2021 14:07:18 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 197I42nZ023658;
-        Thu, 7 Oct 2021 18:07:16 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 3bef2bjtmb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Oct 2021 18:07:16 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 197I7CuX67043740
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 7 Oct 2021 18:07:12 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A09604C044;
-        Thu,  7 Oct 2021 18:07:12 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5D2084C062;
-        Thu,  7 Oct 2021 18:07:12 +0000 (GMT)
-Received: from osiris (unknown [9.145.86.18])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu,  7 Oct 2021 18:07:12 +0000 (GMT)
-Date:   Thu, 7 Oct 2021 20:07:10 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v1 1/1] s390: Use string_upper() instead of open coded
- variant
-Message-ID: <YV83TqdODBXRomA4@osiris>
-References: <20211001130201.72545-1-andriy.shevchenko@linux.intel.com>
+        id S229828AbhJHHWO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Oct 2021 03:22:14 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:38084 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229490AbhJHHWN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Oct 2021 03:22:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633677618;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=rqC/5VAETazVyO6TNWaj66dbCj9XhYnOIWIpjNlIq7I=;
+        b=GxWCD+RWiZnBPVeKjtm0f4UvvSyJcjo8vmARLZDC/cCT6JD08WamNEr468rZksbRlcE0BT
+        ScmVbUniY2GYO51s/Pxid57J1vBZoONUBHSjda/slmMG4FU3rQyqxu5MLOkpCy7Z8N3feZ
+        NI8Ew6R5JSIzrWC5F7xxGvFsqIGBQT8=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-39-0eAk0LOyOz6eov3ubawzAg-1; Fri, 08 Oct 2021 03:20:07 -0400
+X-MC-Unique: 0eAk0LOyOz6eov3ubawzAg-1
+Received: by mail-wr1-f70.google.com with SMTP id r25-20020adfab59000000b001609ddd5579so6557458wrc.21
+        for <linux-s390@vger.kernel.org>; Fri, 08 Oct 2021 00:20:07 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=rqC/5VAETazVyO6TNWaj66dbCj9XhYnOIWIpjNlIq7I=;
+        b=FOkwCF19z8UyKSWW/d9YxiMZdofcn9ILGeLymxi79BQO2DhNqaAWyS6P927jPn1nTz
+         tKG+FV9df6h1x8eBxkhZlQNDjyaFnGnaWky31FfOywMKlKgY7Neqj/zcAe8/ww9oOo5m
+         lIsILFW3IEXQvKZgDCRzg5wDr+QMAjJ/upQaTK3nVnvXJM6wVIvTOKZ34vK+Lnms4rJr
+         QCpXpLnPl3ZZNx7nR2J6cAkR9yoZ+TKR9qMPATKARy9nrJV//cSollBPzzN1LZUqS+zn
+         PbOwU7s7oNwEolGpdhjDF8Eb3RKj1ScD6UrJTDsH/h0gjmj1FPzZC4jKpP3BPpNpdEK0
+         V6BA==
+X-Gm-Message-State: AOAM532pNFMYyAGDc5HYTG9oZVUnuUmABCS31psNLy/eBIXlto9c2EdQ
+        5rsPS/3DjZ9qR3IfNQN80Mhzfn99ToqbWXKN1noFEWDg80LLG7GDlKq1NeCztKrcwyrhcAPlQoC
+        iSdtdWRJDHfhAbNiihMgLZg==
+X-Received: by 2002:adf:f6c1:: with SMTP id y1mr1986259wrp.172.1633677606419;
+        Fri, 08 Oct 2021 00:20:06 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx4jKSzfJVv6uoe0EHSmIxunSNd3S9zw3RdZ2AEWUZlmf9vr6835IAXGnldZEevqkJ0p6mUjA==
+X-Received: by 2002:adf:f6c1:: with SMTP id y1mr1986237wrp.172.1633677606223;
+        Fri, 08 Oct 2021 00:20:06 -0700 (PDT)
+Received: from thuth.remote.csb (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id b19sm9105609wmb.1.2021.10.08.00.20.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 08 Oct 2021 00:20:05 -0700 (PDT)
+Subject: Re: [kvm-unit-tests PATCH v3 9/9] s390x: snippets: Define all things
+ that are needed to link the lib
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, seiden@linux.ibm.com, scgl@linux.ibm.com
+References: <20211007085027.13050-1-frankja@linux.ibm.com>
+ <20211007085027.13050-10-frankja@linux.ibm.com>
+ <c3bed287-5c4c-a54b-4276-391c6cdb37f4@redhat.com>
+ <8c1cac56-3f4b-5f00-4e62-d14aebbb537d@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <bf94d76c-ee23-465e-1c2a-8c4ee1b006f7@redhat.com>
+Date:   Fri, 8 Oct 2021 09:20:04 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211001130201.72545-1-andriy.shevchenko@linux.intel.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NJDm2HhHsc2Lk0BADRBRAQBMHCa1MCNw
-X-Proofpoint-ORIG-GUID: NJDm2HhHsc2Lk0BADRBRAQBMHCa1MCNw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-10-07_03,2021-10-07_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- adultscore=0 mlxscore=0 spamscore=0 bulkscore=0 malwarescore=0
- clxscore=1015 priorityscore=1501 phishscore=0 mlxlogscore=904
- suspectscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2109230001 definitions=main-2110070117
+In-Reply-To: <8c1cac56-3f4b-5f00-4e62-d14aebbb537d@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Oct 01, 2021 at 04:02:01PM +0300, Andy Shevchenko wrote:
-> Use string_upper() from string helper module instead of open coded variant.
+On 07/10/2021 12.44, Janosch Frank wrote:
+> On 10/7/21 11:44, Thomas Huth wrote:
+>> On 07/10/2021 10.50, Janosch Frank wrote:
+>>> Let's just define all of the needed things so we can link libcflat.
+>>>
+>>> A significant portion of the lib won't work, like printing and
+>>> allocation but we can still use things like memset() which already
+>>> improves our lives significantly.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> ---
+>>>    s390x/snippets/c/cstart.S | 14 ++++++++++++++
+>>>    1 file changed, 14 insertions(+)
+>>>
+>>> diff --git a/s390x/snippets/c/cstart.S b/s390x/snippets/c/cstart.S
+>>> index 031a6b83..2d397669 100644
+>>> --- a/s390x/snippets/c/cstart.S
+>>> +++ b/s390x/snippets/c/cstart.S
+>>> @@ -20,6 +20,20 @@ start:
+>>>        lghi    %r15, stackptr
+>>>        sam64
+>>>        brasl    %r14, main
+>>> +/*
+>>> + * Defining things that the linker needs to link in libcflat and make
+>>> + * them result in sigp stop if called.
+>>> + */
+>>> +.globl sie_exit
+>>> +.globl sie_entry
+>>> +.globl smp_cpu_setup_state
+>>> +.globl ipl_args
+>>> +.globl auxinfo
+>>> +sie_exit:
+>>> +sie_entry:
+>>> +smp_cpu_setup_state:
+>>> +ipl_args:
+>>> +auxinfo:
+>>
+>> I think this likely could be done in a somewhat nicer way, e.g. by moving
 > 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  arch/s390/mm/cmm.c    | 11 ++++-------
->  arch/s390/mm/extmem.c | 21 ++++++++++++---------
->  2 files changed, 16 insertions(+), 16 deletions(-)
+> Definitely, as I said, it's a simple fix
 
-Applied, but as discussed only the cmm part.
+Alternatively, something like this might work, too:
+
+diff --git a/s390x/Makefile b/s390x/Makefile
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -80,7 +80,7 @@ asmlib = $(TEST_DIR)/cstart64.o $(TEST_DIR)/cpu.o
+  FLATLIBS = $(libcflat)
+  
+  SNIPPET_DIR = $(TEST_DIR)/snippets
+-snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
++snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o lib/auxinfo.o
+  
+  # perquisites (=guests) for the snippet hosts.
+  # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
+diff --git a/s390x/snippets/c/cstart.S b/s390x/snippets/c/cstart.S
+--- a/s390x/snippets/c/cstart.S
++++ b/s390x/snippets/c/cstart.S
+@@ -21,5 +21,9 @@ start:
+         sam64
+         brasl   %r14, main
+         /* For now let's only use cpu 0 in snippets so this will always work. */
++.global puts
++.global exit
++puts:
++exit:
+         xgr     %r0, %r0
+         sigp    %r2, %r0, SIGP_STOP
+
+I think that's more clear this way, since we're fencing the
+functions that caused the dependencies to the other functions
+from your patch. What do you think?
+
+  Thomas
+
