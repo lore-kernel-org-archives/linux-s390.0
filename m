@@ -2,148 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30120C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 11 Oct 2021 09:07:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4C9CC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 11 Oct 2021 10:01:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0A95C60EB6
-	for <linux-s390@archiver.kernel.org>; Mon, 11 Oct 2021 09:07:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 81F4660F0F
+	for <linux-s390@archiver.kernel.org>; Mon, 11 Oct 2021 10:01:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235182AbhJKJJm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 11 Oct 2021 05:09:42 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:50802 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235394AbhJKJJm (ORCPT
+        id S235716AbhJKKDW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 11 Oct 2021 06:03:22 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52410 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S235602AbhJKKDV (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Oct 2021 05:09:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1633943262;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=SDNmTw3S09hIeU8Xean1+IG/zrM+6vJwA8pmtg/de7s=;
-        b=WksvuGdqSdxiV7WLCBH3lm14DnsOUuVwDbQPQZRXU7nYqEjHfsCwVQMAbH+d1ooHktcQft
-        12KGUFNbbvygbK0GVhUVMy0vD6dSloKJ+D7/e69R0hNCDwM1dk5Nvxj78paIIrbVdZzID1
-        NpVxVjs70E6Yk0QDy9Lear3lddj65U4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-396-hIvBPOWyOviZmm_DpWdpRQ-1; Mon, 11 Oct 2021 05:07:31 -0400
-X-MC-Unique: hIvBPOWyOviZmm_DpWdpRQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6DCB3EC1A0;
-        Mon, 11 Oct 2021 09:07:29 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.101])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id EA5535F707;
-        Mon, 11 Oct 2021 09:07:13 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Halil Pasic <pasic@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org
-Cc:     Halil Pasic <pasic@linux.ibm.com>, stable@vger.kernel.org,
-        markver@us.ibm.com, Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, stefanha@redhat.com,
-        Raphael Norwitz <raphael.norwitz@nutanix.com>,
-        qemu-devel@nongnu.org
-Subject: Re: [PATCH v3 1/1] virtio: write back F_VERSION_1 before validate
-In-Reply-To: <20211011053921.1198936-1-pasic@linux.ibm.com>
-Organization: Red Hat GmbH
-References: <20211011053921.1198936-1-pasic@linux.ibm.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Mon, 11 Oct 2021 11:07:12 +0200
-Message-ID: <87czocx73z.fsf@redhat.com>
+        Mon, 11 Oct 2021 06:03:21 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19B938RY021282;
+        Mon, 11 Oct 2021 06:01:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=WCNQW008KqRadTwMEqOJX2IJ4+dVZVQvodrIMlZrvdQ=;
+ b=GmGL0WOzVowCFmYLDtnYmlEVWSiAIMvDubcuzEeu3q5Z6JHAsT/nEHi+tufCwmYmwAF9
+ fiU4kEEfcsLoOXBRPChU75uyfrdsvXBT+iMhdSS7wXXMvBRbwNZgrWtRBJIzWdaaxx6R
+ r4ycO9ZlNL+UCOFMG2zc5bE9iZBpw4Y18LZNl1itwRMdAfI5Hi9IhwYbSwlNu1EITSKh
+ BSYsvCJiNwXli/m3XhPJy4p1O7EmzeTijy0MdCSXbSyrsIkMGSucnuqMcoSZHZ58Kuwx
+ byUE7xB/m2Woj6eRjgFJbgylF0lOlCAl4rt1flcFrevDCob3329YK5z3XFyaSLQLoqJO 2Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bmj9s13ku-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Oct 2021 06:01:11 -0400
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19B9S7Fu030037;
+        Mon, 11 Oct 2021 06:01:11 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bmj9s13k0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Oct 2021 06:01:11 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19B9vmlt021154;
+        Mon, 11 Oct 2021 10:01:09 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 3bk2bhvj5n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Oct 2021 10:01:09 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19BA0pHq60490126
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 11 Oct 2021 10:00:51 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A2C7A11C069;
+        Mon, 11 Oct 2021 10:00:51 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 22A0B11C073;
+        Mon, 11 Oct 2021 10:00:51 +0000 (GMT)
+Received: from osiris (unknown [9.145.33.245])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 11 Oct 2021 10:00:51 +0000 (GMT)
+Date:   Mon, 11 Oct 2021 12:00:49 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     llvm@lists.linux.dev, linux-s390@vger.kernel.org,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Andreas Krebbel <krebbel@linux.ibm.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Jonas Paulsson <paulsson@linux.vnet.ibm.com>
+Subject: Re: clang-13: s390/kernel/head64.S:24:17: error: invalid operand for
+ instruction
+Message-ID: <YWQLUd+BQ1Cc88HG@osiris>
+References: <CA+G9fYuqwJD5bFO74vG6Mvbbt1G8rxzd_NDHg-gtOZ6rPjeu3A@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYuqwJD5bFO74vG6Mvbbt1G8rxzd_NDHg-gtOZ6rPjeu3A@mail.gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: IkMHF_JJLk0yR1ir2y9ttGHU4E_89xur
+X-Proofpoint-ORIG-GUID: 4joU-_84x3xGn-j9pomuJqH9vVMSAvf1
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-11_03,2021-10-07_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ mlxlogscore=853 clxscore=1011 mlxscore=0 adultscore=0 bulkscore=0
+ priorityscore=1501 spamscore=0 impostorscore=0 phishscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110110057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 11 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
+On Mon, Oct 11, 2021 at 11:47:42AM +0530, Naresh Kamboju wrote:
+> [Please ignore this email if it is already reported ]
+> 
+> Following s390 builds failed due to warnings / errors.
+> 
+> metadata:
+>     git_describe: v5.15-rc5
+>     git_repo: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+>     git_short_log: 64570fbc14f8 (\"Linux 5.15-rc5\")
+>     target_arch: s390
+>     toolchain: clang-13
+> 
+> 
+> Fail (2861 errors) s390 (tinyconfig) with clang-nightly
+>   @ https://builds.tuxbuild.com/1zL35IUSGhDGeVuyIrAp7eyzEUi/
+> Fail (2861 errors) s390 (tinyconfig) with clang-13
+>   @ https://builds.tuxbuild.com/1zL35Hn7wjErKsLDM6zAgh27BYJ/
+> Fail (4112 errors) s390 (allnoconfig) with clang-13
+>   @ https://builds.tuxbuild.com/1zL35HR60hSFvBmAcYJvKHm8Lko/
+> Fail (4112 errors) s390 (allnoconfig) with clang-nightly
+>   @ https://builds.tuxbuild.com/1zL35DTlrX9qRGCtGqgtmmMDjnQ/
+> Fail (23048 errors) s390 (defconfig) with clang-13
+>   @ https://builds.tuxbuild.com/1zL35DE2KWQUPxbbXeTbwIJaWXS/
+> Fail (23045 errors) s390 (defconfig) with clang-nightly
+>   @ https://builds.tuxbuild.com/1zL35EgeQfWQDXDupp4itkUO5At/
+> 
+> 
+> Build errors log:
+> ----------------
+> arch/s390/kernel/head64.S:24:17: error: invalid operand for instruction
+>  lctlg %c0,%c15,.Lctl-.LPG1(%r13) # load control registers
+>                 ^
+> arch/s390/kernel/head64.S:40:8: error: invalid operand for instruction
+>  lpswe .Ldw-.(%r13) # load disabled wait psw
 
-> The virtio specification virtio-v1.1-cs01 states: "Transitional devices
-> MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
-> been acknowledged by the driver."  This is exactly what QEMU as of 6.1
-> has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
->
-> However, the specification also says: "... the driver MAY read (but MUST
-> NOT write) the device-specific configuration fields to check that it can
-> support the device ..." before setting FEATURES_OK.
->
-> In that case, any transitional device relying solely on
-> VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
-> legacy format.  In particular, this implies that it is in big endian
-> format for big endian guests. This naturally confuses the driver which
-> expects little endian in the modern mode.
->
-> It is probably a good idea to amend the spec to clarify that
-> VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
-> is complete. Before validate callback existed, config space was only
-> read after FEATURES_OK. However, we already have two regressions, so
-> let's address this here as well.
->
-> The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
-> the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
-> virtio 1.0 is used on both sides. The latter renders virtio-blk unusable
-> with DASD backing, because things simply don't work with the default.
-> See Fixes tags for relevant commits.
->
-> For QEMU, we can work around the issue by writing out the feature bits
-> with VIRTIO_F_VERSION_1 bit set.  We (ab)use the finalize_features
-> config op for this. This isn't enough to address all vhost devices since
-> these do not get the features until FEATURES_OK, however it looks like
-> the affected devices actually never handled the endianness for legacy
-> mode correctly, so at least that's not a regression.
->
-> No devices except virtio net and virtio blk seem to be affected.
->
-> Long term the right thing to do is to fix the hypervisors.
->
-> Cc: <stable@vger.kernel.org> #v4.11
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-> Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
-> Reported-by: markver@us.ibm.com
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->
-> @Connie: I made some more commit message changes to accommodate Michael's
-> requests. I just assumed these will work or you as well and kept your
-> r-b. Please shout at me if it needs to be dropped :)
+You need to pass LLVM_IAS=0 on the make command line on s390 since
+commit f12b034afeb3 ("scripts/Makefile.clang: default to LLVM_IAS=1").
 
-No need to shout, still looks good to me :)
-
-> ---
->  drivers/virtio/virtio.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
->
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 0a5b54034d4b..236081afe9a2 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -239,6 +239,17 @@ static int virtio_dev_probe(struct device *_d)
->  		driver_features_legacy = driver_features;
->  	}
->  
-> +	/*
-> +	 * Some devices detect legacy solely via F_VERSION_1. Write
-> +	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
-> +	 * these when needed.
-> +	 */
-> +	if (drv->validate && !virtio_legacy_is_little_endian()
-> +			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
-> +		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
-> +		dev->config->finalize_features(dev);
-> +	}
-> +
->  	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
->  		dev->features = driver_features & device_features;
->  	else
->
-> base-commit: 60a9483534ed0d99090a2ee1d4bb0b8179195f51
-> -- 
-> 2.25.1
-
+LLVM's integrated assembler doesn't seem to work well when compiling
+the kernel for s390 yet.
