@@ -2,171 +2,197 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BE7DC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 11 Oct 2021 05:39:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5901C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 11 Oct 2021 06:17:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EB5CC60230
-	for <linux-s390@archiver.kernel.org>; Mon, 11 Oct 2021 05:39:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B78C360C41
+	for <linux-s390@archiver.kernel.org>; Mon, 11 Oct 2021 06:17:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231974AbhJKFll (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 11 Oct 2021 01:41:41 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52194 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234011AbhJKFll (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Oct 2021 01:41:41 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19B4482n036941;
-        Mon, 11 Oct 2021 01:39:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=4HW4pQ25GO1K6URUKRqS+7ujDcAMEDeHj0XORmuOSA8=;
- b=Fr4eXMe4OkDkyiQmqrBL1+8IzDGUg+4XlH/GOfVLDc05Wz+GqSmqX4QCgQgoN2InZsqQ
- 9al/6cazEusi2dieO+HhlZuuf94GIhONYgfFzw5/5SMHmBlarli8aWimkPx89jIVeGzp
- ORvIT7fpybLJ9ukJmQg6goAyXjRgxa85YzgQUapdX9TEfLXzAaTpFlSlHsYQwaH4EMSg
- zrCOfr22XNXArC6wQiTrcN+Cb7nEF5aWwvfW7BFqUHghCYQ2YMPoYRIHNKdqk+oH94b1
- GrBXyX5RKK/jG3gxcA8lMO6fcssgShwVAfL090RY1H7sL140D6AeZ8s0iguk/wV4DDYq qQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bm25mugj6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Oct 2021 01:39:32 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19B5K9pm038567;
-        Mon, 11 Oct 2021 01:39:32 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bm25mughk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Oct 2021 01:39:32 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19B5VlGF019479;
-        Mon, 11 Oct 2021 05:39:30 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3bk2bht3y9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Oct 2021 05:39:30 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19B5dQCl5440160
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 11 Oct 2021 05:39:27 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D9F3442045;
-        Mon, 11 Oct 2021 05:39:26 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 445CB42041;
-        Mon, 11 Oct 2021 05:39:26 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 11 Oct 2021 05:39:26 +0000 (GMT)
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xie Yongji <xieyongji@bytedance.com>,
-        virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org
-Cc:     Halil Pasic <pasic@linux.ibm.com>, stable@vger.kernel.org,
-        markver@us.ibm.com, Cornelia Huck <cohuck@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, stefanha@redhat.com,
-        Raphael Norwitz <raphael.norwitz@nutanix.com>,
-        qemu-devel@nongnu.org
-Subject: [PATCH v3 1/1] virtio: write back F_VERSION_1 before validate
-Date:   Mon, 11 Oct 2021 07:39:21 +0200
-Message-Id: <20211011053921.1198936-1-pasic@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
+        id S234104AbhJKGT4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 11 Oct 2021 02:19:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43582 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234123AbhJKGTz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Oct 2021 02:19:55 -0400
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59220C061762
+        for <linux-s390@vger.kernel.org>; Sun, 10 Oct 2021 23:17:55 -0700 (PDT)
+Received: by mail-ed1-x529.google.com with SMTP id d9so39477293edh.5
+        for <linux-s390@vger.kernel.org>; Sun, 10 Oct 2021 23:17:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=JgZFL1gbaLa9EwP6bgcRPQEmNK/hbPIe9fBJ0qz2WNE=;
+        b=Wn1NP/SCh1lD8vj0hwMTgkYtoME/EeJPlAmzpOBMrfg7wY3yiSCN0Ffgy7EGhmHRPC
+         zRP7m0Y/4+Rm7SZybudj81DF38xcOAVc8Nyg3mIMTy+wAEqIGuqXG8NeBGPaZ6OLFpoU
+         ln5kLnnhFqGos7H5t7+iF1Ul0zQEwfYjTOeMKPAj6lU+wf/Qp3F9r1F7eNjOZIXxaGEg
+         KoZ6nAO/xYkS7A8NBVh3x52f7ZK4SkdCPQSLHl1wumnP0378CA8BmoNLmuA6iHfK3zou
+         t4Z9Bry2XRLH0Uqzprc/zZppCg6s1eUAXvjWeRavbxlmoe9wLpfxiATGoBwEq2F3hobE
+         FheA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=JgZFL1gbaLa9EwP6bgcRPQEmNK/hbPIe9fBJ0qz2WNE=;
+        b=F4V9ca2q3xJdJN+gh+hiPcJH3yFGVFN6rvbPMZt1J3yh2z5ZAB6Lr1cOmeIOPuElF9
+         CGG3fPLQ6wsTE7BAPTZ3iZLcg4gNKUkz/L+zFw2Q9UNrQNxRkGIisV67Rs4S6ElakI2i
+         Lleif3xn4pefEsB2zUuS21qcgj0xLHMYp/dGyxQezeoSvCGy0v0vRXqp7SXuxN+ED8T3
+         UzeWVfQ98JWH004jsB403Z+MT4LwQA2Dx6TAILkBctMj2z5iNW5JjCy9ajQb3CsR7G+D
+         TPkCgAAHcYAMQdMrZyyYLc2ANvUvsGxfTkUj34S0ScjDcB13hC7Nhk7ZN+8VHr4NNz1M
+         y38Q==
+X-Gm-Message-State: AOAM533I4H5sOmynk0JckJ9BBb4BYfgC178sjGOpeL08efLdbe2Ap5A5
+        ipyX+WS8I1abOr1nqEsY2lSg35hJ++OlQXrewsrs7A==
+X-Google-Smtp-Source: ABdhPJwoQalBJZOhb3Yo1GbsmrfZ+B7X+l1AbPRIvtMqw7LXKPPxvt4v8nMcKO6w2OoJWga+avsMf5+tN/Uwwug30zQ=
+X-Received: by 2002:a17:906:c302:: with SMTP id s2mr22596326ejz.499.1633933073798;
+ Sun, 10 Oct 2021 23:17:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MkvVeVrmStp-ePltWRF4RTURcd9rcOLa
-X-Proofpoint-GUID: nhX1dJtH4R_VgKXe83_52DJi-xKWhRzH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-10-10_07,2021-10-07_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
- clxscore=1015 spamscore=0 suspectscore=0 lowpriorityscore=0 phishscore=0
- mlxlogscore=999 adultscore=0 impostorscore=0 malwarescore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110110032
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 11 Oct 2021 11:47:42 +0530
+Message-ID: <CA+G9fYuqwJD5bFO74vG6Mvbbt1G8rxzd_NDHg-gtOZ6rPjeu3A@mail.gmail.com>
+Subject: clang-13: s390/kernel/head64.S:24:17: error: invalid operand for instruction
+To:     llvm@lists.linux.dev, linux-s390@vger.kernel.org,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        open list <linux-kernel@vger.kernel.org>
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The virtio specification virtio-v1.1-cs01 states: "Transitional devices
-MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
-been acknowledged by the driver."  This is exactly what QEMU as of 6.1
-has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
+[Please ignore this email if it is already reported ]
 
-However, the specification also says: "... the driver MAY read (but MUST
-NOT write) the device-specific configuration fields to check that it can
-support the device ..." before setting FEATURES_OK.
+Following s390 builds failed due to warnings / errors.
 
-In that case, any transitional device relying solely on
-VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
-legacy format.  In particular, this implies that it is in big endian
-format for big endian guests. This naturally confuses the driver which
-expects little endian in the modern mode.
+metadata:
+    git_describe: v5.15-rc5
+    git_repo: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+    git_short_log: 64570fbc14f8 (\"Linux 5.15-rc5\")
+    target_arch: s390
+    toolchain: clang-13
 
-It is probably a good idea to amend the spec to clarify that
-VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
-is complete. Before validate callback existed, config space was only
-read after FEATURES_OK. However, we already have two regressions, so
-let's address this here as well.
 
-The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
-the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
-virtio 1.0 is used on both sides. The latter renders virtio-blk unusable
-with DASD backing, because things simply don't work with the default.
-See Fixes tags for relevant commits.
+Fail (2861 errors) s390 (tinyconfig) with clang-nightly
+  @ https://builds.tuxbuild.com/1zL35IUSGhDGeVuyIrAp7eyzEUi/
+Fail (2861 errors) s390 (tinyconfig) with clang-13
+  @ https://builds.tuxbuild.com/1zL35Hn7wjErKsLDM6zAgh27BYJ/
+Fail (4112 errors) s390 (allnoconfig) with clang-13
+  @ https://builds.tuxbuild.com/1zL35HR60hSFvBmAcYJvKHm8Lko/
+Fail (4112 errors) s390 (allnoconfig) with clang-nightly
+  @ https://builds.tuxbuild.com/1zL35DTlrX9qRGCtGqgtmmMDjnQ/
+Fail (23048 errors) s390 (defconfig) with clang-13
+  @ https://builds.tuxbuild.com/1zL35DE2KWQUPxbbXeTbwIJaWXS/
+Fail (23045 errors) s390 (defconfig) with clang-nightly
+  @ https://builds.tuxbuild.com/1zL35EgeQfWQDXDupp4itkUO5At/
 
-For QEMU, we can work around the issue by writing out the feature bits
-with VIRTIO_F_VERSION_1 bit set.  We (ab)use the finalize_features
-config op for this. This isn't enough to address all vhost devices since
-these do not get the features until FEATURES_OK, however it looks like
-the affected devices actually never handled the endianness for legacy
-mode correctly, so at least that's not a regression.
 
-No devices except virtio net and virtio blk seem to be affected.
+Build errors log:
+----------------
+arch/s390/kernel/head64.S:24:17: error: invalid operand for instruction
+ lctlg %c0,%c15,.Lctl-.LPG1(%r13) # load control registers
+                ^
+arch/s390/kernel/head64.S:40:8: error: invalid operand for instruction
+ lpswe .Ldw-.(%r13) # load disabled wait psw
+       ^
+make[3]: *** [scripts/Makefile.build:379: arch/s390/kernel/head64.o] Error 1
+In file included from kernel/sched/cputime.c:5:
+In file included from kernel/sched/sched.h:5:
+In file included from include/linux/sched.h:14:
+In file included from include/linux/pid.h:6:
+In file included from include/linux/wait.h:9:
+In file included from include/linux/spinlock.h:94:
+arch/s390/include/asm/spinlock.h:89:3: error: expected absolute expression
+                ALTERNATIVE("", ".long 0xb2fa0070", 49) /* NIAI 7 */
+                ^
+arch/s390/include/asm/alternative.h:111:2: note: expanded from macro
+'ALTERNATIVE'
+        ALTINSTR_REPLACEMENT(altinstr, 1)                               \
+        ^
+arch/s390/include/asm/alternative.h:106:2: note: expanded from macro
+'ALTINSTR_REPLACEMENT'
+        INSTR_LEN_SANITY_CHECK(altinstr_len(num))
+        ^
+arch/s390/include/asm/alternative.h:62:3: note: expanded from macro
+'INSTR_LEN_SANITY_CHECK'
+        ".if " len " > 254\n"                                           \
+         ^
+<inline asm>:5:5: note: instantiated into assembly here
+.if 6651b-6641b > 254
+    ^
+In file included from kernel/sched/cputime.c:5:
+In file included from kernel/sched/sched.h:5:
+In file included from include/linux/sched.h:14:
+In file included from include/linux/pid.h:6:
+In file included from include/linux/wait.h:9:
+In file included from include/linux/spinlock.h:94:
+arch/s390/include/asm/spinlock.h:89:3: error: cpu alternatives does
+not support instructions blocks > 254 bytes
+                ALTERNATIVE("", ".long 0xb2fa0070", 49) /* NIAI 7 */
+                ^
+arch/s390/include/asm/alternative.h:111:2: note: expanded from macro
+'ALTERNATIVE'
+        ALTINSTR_REPLACEMENT(altinstr, 1)                               \
+        ^
+arch/s390/include/asm/alternative.h:106:2: note: expanded from macro
+'ALTINSTR_REPLACEMENT'
+        INSTR_LEN_SANITY_CHECK(altinstr_len(num))
+        ^
+arch/s390/include/asm/alternative.h:63:3: note: expanded from macro
+'INSTR_LEN_SANITY_CHECK'
+        "\t.error \"cpu alternatives does not support instructions "    \
+         ^
+<inline asm>:6:2: note: instantiated into assembly here
+        .error "cpu alternatives does not support instructions blocks
+> 254 bytes"
+        ^
+In file included from kernel/sched/cputime.c:5:
+In file included from kernel/sched/sched.h:5:
+In file included from include/linux/sched.h:14:
+In file included from include/linux/pid.h:6:
+In file included from include/linux/wait.h:9:
+In file included from include/linux/spinlock.h:94:
+arch/s390/include/asm/spinlock.h:89:3: error: expected absolute expression
+                ALTERNATIVE("", ".long 0xb2fa0070", 49) /* NIAI 7 */
+                ^
+arch/s390/include/asm/alternative.h:111:2: note: expanded from macro
+'ALTERNATIVE'
+        ALTINSTR_REPLACEMENT(altinstr, 1)                               \
+        ^
+arch/s390/include/asm/alternative.h:106:2: note: expanded from macro
+'ALTINSTR_REPLACEMENT'
+        INSTR_LEN_SANITY_CHECK(altinstr_len(num))
+        ^
+arch/s390/include/asm/alternative.h:66:3: note: expanded from macro
+'INSTR_LEN_SANITY_CHECK'
+        ".if (" len ") %% 2\n"                                          \
+         ^
+<inline asm>:8:5: note: instantiated into assembly here
+.if (6651b-6641b) % 2
+    ^
+In file included from kernel/sched/cputime.c:5:
+In file included from kernel/sched/sched.h:5:
+In file included from include/linux/sched.h:14:
+In file included from include/linux/pid.h:6:
+In file included from include/linux/wait.h:9:
+In file included from include/linux/spinlock.h:94:
+arch/s390/include/asm/spinlock.h:89:3: error: cpu alternatives
+instructions length is odd
+                ALTERNATIVE("", ".long 0xb2fa0070", 49) /* NIAI 7 */
+                ^
 
-Long term the right thing to do is to fix the hypervisors.
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Cc: <stable@vger.kernel.org> #v4.11
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
-Reported-by: markver@us.ibm.com
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
+# To install tuxmake on your system globally:
+# sudo pip3 install -U tuxmake
+#
+# See https://docs.tuxmake.org/ for complete documentation.
 
-@Connie: I made some more commit message changes to accommodate Michael's
-requests. I just assumed these will work or you as well and kept your
-r-b. Please shout at me if it needs to be dropped :)
----
- drivers/virtio/virtio.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+tuxmake --runtime podman --target-arch s390 --toolchain clang-13
+--kconfig defconfig
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 0a5b54034d4b..236081afe9a2 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -239,6 +239,17 @@ static int virtio_dev_probe(struct device *_d)
- 		driver_features_legacy = driver_features;
- 	}
- 
-+	/*
-+	 * Some devices detect legacy solely via F_VERSION_1. Write
-+	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
-+	 * these when needed.
-+	 */
-+	if (drv->validate && !virtio_legacy_is_little_endian()
-+			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
-+		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
-+		dev->config->finalize_features(dev);
-+	}
-+
- 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
- 		dev->features = driver_features & device_features;
- 	else
-
-base-commit: 60a9483534ed0d99090a2ee1d4bb0b8179195f51
 -- 
-2.25.1
-
+Linaro LKFT
+https://lkft.linaro.org
