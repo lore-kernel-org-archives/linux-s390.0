@@ -2,115 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E0C3C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 13:50:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38824C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 14:11:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1310F60F3A
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 13:50:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1343C60EFE
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 14:11:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237031AbhJLNw7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Oct 2021 09:52:59 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:42242 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237041AbhJLNw6 (ORCPT
+        id S236695AbhJLONQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Oct 2021 10:13:16 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59992 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236846AbhJLONO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 12 Oct 2021 09:52:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634046655;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Lpesmbio9FZ09q7H/hgYyh50fUJ7X8y/Z2CXk6CH2Hw=;
-        b=TZ15TkeoCTw1fAFIxz+QMCLkYYi4vCxa8UJ8KLEujFZFO3hRee1BNLsnZvG+L2GsL1VBPZ
-        jT+tB9sw02kpCWMm8Jvekq3gbulRXPcXMQusgSuZGfMEPK5oHq2fTRvKJ5V9NumtSKlFBz
-        6feLgvjV0UmrR/2j0Ug7JhhEsmcZjs8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-353-7pqmE2CPNr-Jp9MqPCNWFg-1; Tue, 12 Oct 2021 09:50:52 -0400
-X-MC-Unique: 7pqmE2CPNr-Jp9MqPCNWFg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BBEE29126B;
-        Tue, 12 Oct 2021 13:50:50 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.61])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4468760BF4;
-        Tue, 12 Oct 2021 13:50:50 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     Pierre Morel <pmorel@linux.ibm.com>,
+        Tue, 12 Oct 2021 10:13:14 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19CDfQnS012661;
+        Tue, 12 Oct 2021 10:11:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=71cdKd02qfmaBKvYdLQNGQCFpTXIHmjd5LJS3JMWfKg=;
+ b=n3iVwMKkRaFmCFWLFooPzTD8TzbizbxDetmv27tQsoy8y4rcclzZ6JmB1m7WuGrDrSz3
+ lYdhjxT7LF3OPCMK/dTHcrgyZzNv3ufkuAG+KasbIPhePRaNF1BMymTfk3Zpqz+ZmyLO
+ Q4o3Su5/IDe49dSQbZexY3YKc9w5btCPCfj5+udthujzY2wL8EuE5TOjZEvf0ewI+ks0
+ 2AiV9mfB017zSDv+sBOtWl/CmMQMtvwdUJNMFGsuX6dBsQnmdwLgn5R6M+pcA4JuDwYm
+ SWG5+vUHPffxABPu08wfGYC0HCcvjYdV0mM3FP5R83OG2gVExq+EyZlIVahzR3Q8tLfs SA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bnbfch0bv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 10:11:11 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19CDwb2v030702;
+        Tue, 12 Oct 2021 10:11:11 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bnbfch09n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 10:11:11 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19CEA4if000955;
+        Tue, 12 Oct 2021 14:11:08 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3bk2bj9p1p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 14:11:07 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19CEAtfj20906314
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Oct 2021 14:10:55 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0EA24A408A;
+        Tue, 12 Oct 2021 14:10:55 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 551F4A408D;
+        Tue, 12 Oct 2021 14:10:49 +0000 (GMT)
+Received: from [9.152.222.57] (unknown [9.152.222.57])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Oct 2021 14:10:48 +0000 (GMT)
+Message-ID: <342e81ec-8c67-29ea-ae38-5911073ecdb0@linux.ibm.com>
+Date:   Tue, 12 Oct 2021 16:10:46 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [RFC PATCH 1/1] s390/cio: make ccw_device_dma_* more robust
+Content-Language: en-US
+To:     Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
         Vineeth Vijayan <vneethv@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         Michael Mueller <mimu@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, bfu@redhat.com,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [RFC PATCH 1/1] s390/cio: make ccw_device_dma_* more robust
-In-Reply-To: <20211011204837.7617301b.pasic@linux.ibm.com>
-Organization: Red Hat GmbH
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, bfu@redhat.com
 References: <20211011115955.2504529-1-pasic@linux.ibm.com>
  <466de207-e88d-ea93-beec-fbfe10e63a26@linux.ibm.com>
- <874k9ny6k6.fsf@redhat.com> <20211011204837.7617301b.pasic@linux.ibm.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date:   Tue, 12 Oct 2021 15:50:48 +0200
-Message-ID: <87pmsawdvr.fsf@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+ <874k9ny6k6.fsf@redhat.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <874k9ny6k6.fsf@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: y6iWKooQBWVeiI1LfeRUQN1dbUzuWijV
+X-Proofpoint-ORIG-GUID: xKrTCGWWtokDcIolwhDA-iIigP4CiYcz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-12_03,2021-10-12_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
+ impostorscore=0 priorityscore=1501 lowpriorityscore=0 spamscore=0
+ adultscore=0 clxscore=1015 phishscore=0 suspectscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110120082
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 11 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On Mon, 11 Oct 2021 16:33:45 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
->
->> On Mon, Oct 11 2021, Pierre Morel <pmorel@linux.ibm.com> wrote:
->> 
->> > On 10/11/21 1:59 PM, Halil Pasic wrote:  
->> >> diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
->> >> index 0fe7b2f2e7f5..c533d1dadc6b 100644
->> >> --- a/drivers/s390/cio/device_ops.c
->> >> +++ b/drivers/s390/cio/device_ops.c
->> >> @@ -825,13 +825,23 @@ EXPORT_SYMBOL_GPL(ccw_device_get_chid);
->> >>    */
->> >>   void *ccw_device_dma_zalloc(struct ccw_device *cdev, size_t size)
->> >>   {
->> >> -	return cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
->> >> +	void *addr;
->> >> +
->> >> +	if (!get_device(&cdev->dev))
->> >> +		return NULL;
->> >> +	addr = cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
->> >> +	if (IS_ERR_OR_NULL(addr))  
->> >
->> > I can be wrong but it seems that only dma_alloc_coherent() used in 
->> > cio_gp_dma_zalloc() report an error but the error is ignored and used as 
->> > a valid pointer.  
->> 
->> Hm, I thought dma_alloc_coherent() returned either NULL or a valid
->> address?
->
-> Yes, that is what is documented.
->
->> 
->> >
->> > So shouldn't we modify this function and just test for a NULL address here?  
->> 
->> If I read cio_gp_dma_zalloc() correctly, we either get NULL or a valid
->> address, so yes.
->> 
->
-> I don't think the extra care will hurt us too badly. I prefer to keep
-> the IS_ERR_OR_NULL() check because it needs less domain specific
-> knowledge to be understood, and because it is more robust.
 
-It feels weird, though -- I'd rather have a comment that tells me
-exactly what cio_gp_dma_zalloc() is supposed to return; I would have
-expected that a _zalloc function always gives me a valid pointer or
-NULL.
+On 10/11/21 16:33, Cornelia Huck wrote:
+> On Mon, Oct 11 2021, Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> On 10/11/21 1:59 PM, Halil Pasic wrote:
+>>> diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
+>>> index 0fe7b2f2e7f5..c533d1dadc6b 100644
+>>> --- a/drivers/s390/cio/device_ops.c
+>>> +++ b/drivers/s390/cio/device_ops.c
+>>> @@ -825,13 +825,23 @@ EXPORT_SYMBOL_GPL(ccw_device_get_chid);
+>>>     */
+>>>    void *ccw_device_dma_zalloc(struct ccw_device *cdev, size_t size)
+>>>    {
+>>> -	return cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
+>>> +	void *addr;
+>>> +
+>>> +	if (!get_device(&cdev->dev))
+>>> +		return NULL;
+>>> +	addr = cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
+>>> +	if (IS_ERR_OR_NULL(addr))
+>>
+>> I can be wrong but it seems that only dma_alloc_coherent() used in
+>> cio_gp_dma_zalloc() report an error but the error is ignored and used as
+>> a valid pointer.
+> 
+> Hm, I thought dma_alloc_coherent() returned either NULL or a valid
+> address?
 
+hum, my bad, checked the wrong function, should have use my glasses or 
+connect my brain.
+
+> 
+>>
+>> So shouldn't we modify this function and just test for a NULL address here?
+> 
+> If I read cio_gp_dma_zalloc() correctly, we either get NULL or a valid
+> address, so yes.
+> 
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
