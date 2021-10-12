@@ -2,107 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 467A7C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 17:19:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 180B4C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 18:25:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 21A7B610E7
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 17:19:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E5FE360ED4
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 18:25:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231826AbhJLRVT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Oct 2021 13:21:19 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19714 "EHLO
+        id S232281AbhJLS1p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Oct 2021 14:27:45 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41638 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231756AbhJLRVP (ORCPT
+        by vger.kernel.org with ESMTP id S232880AbhJLS1o (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 12 Oct 2021 13:21:15 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19CGb4vg000742;
-        Tue, 12 Oct 2021 13:18:50 -0400
+        Tue, 12 Oct 2021 14:27:44 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19CHfnlW005523;
+        Tue, 12 Oct 2021 14:25:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=jd9UyTmLqHs4rC9zO3ufWkJlFKNg7LlkKwuMV7wclLc=;
- b=LGJVOppeqFlgVUvQE+OR4AdLfwNPN9DU3rfVbv5rAZMbleYV/kimfZ0hc4k5Zo1YnHJz
- u4coE++EKh8IimDYL2MVNwVBy+FM/DzcQ/Llwz9romGmGsI8tqgPdzxPuDB6zmLy+62c
- 80ZoMYXtZgm37HPfhJPX/b+ECXWIce7P+yjVYEaSJZwBKcHZkCHF/Rf0gvMpcYlComQM
- /9DOhW5cz0OwEcNP6nzF0+D26CWyaUh0J1N1JegUzsd0NKMS5obgrBJXMefGnBCkK50V
- xQMullgLDPDDIkxp8t5RbW/N0hXJQHxhHrmhS+8tll2D4mokVvCzyKrBQ30I/VhYulSv tA== 
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=HjljicUc8K4UWNb9V2Ad2P6lDN0azjF8+m9yoIs2cXc=;
+ b=YSun5YxscLaQtZFHc5+VakSZ97dWSB6oAgqK+VbzofmN/1DrcR4ngbLuoDdBKpnWpYrs
+ yI2epWEL2Ua989Q7tc2Kz4OvxuKxEeBUW1bbfHWSHIs4TvNR55qLvXLH+Vfd5fyNKpro
+ R7aPsfSz8hJ/WoWzyatxmZ85rziA93VTiEDdHF7cB1h4Je97irtPRPb9axFqB4l1nLF+
+ iLcsd6IiyFgS7l3eOVPX2a91GUyv6cMCfrjunZ2UpSw6bNgSaCOg5vtf+y9NFYWyYus7
+ Q/DouPBxSmpwzHgoYWCB5Oeu1Cc/YggM1Z196IcdXEeV+NUm/V8CEvrNzWhZprxe107r ZA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bnakff8kj-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bnf018vkk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Oct 2021 13:18:50 -0400
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19CGfa1h016068;
-        Tue, 12 Oct 2021 13:18:49 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bnakff8jt-1
+        Tue, 12 Oct 2021 14:25:20 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19CHh6h0008318;
+        Tue, 12 Oct 2021 14:25:20 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bnf018vk1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Oct 2021 13:18:49 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19CHHN5r010428;
-        Tue, 12 Oct 2021 17:18:47 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3bk2q9k4k6-1
+        Tue, 12 Oct 2021 14:25:20 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19CINPnG015496;
+        Tue, 12 Oct 2021 18:25:18 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3bk2qa3jgs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Oct 2021 17:18:47 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19CHIiNb46268824
+        Tue, 12 Oct 2021 18:25:18 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19CIJeEs64487816
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Oct 2021 17:18:44 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BAEEA4059;
-        Tue, 12 Oct 2021 17:18:44 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 425AFA405F;
-        Tue, 12 Oct 2021 17:18:44 +0000 (GMT)
+        Tue, 12 Oct 2021 18:19:40 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 342ED4C058;
+        Tue, 12 Oct 2021 18:25:16 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D60924C044;
+        Tue, 12 Oct 2021 18:25:15 +0000 (GMT)
 Received: from osiris (unknown [9.145.95.158])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 12 Oct 2021 17:18:44 +0000 (GMT)
-Date:   Tue, 12 Oct 2021 19:18:42 +0200
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 12 Oct 2021 18:25:15 +0000 (GMT)
+Date:   Tue, 12 Oct 2021 20:25:14 +0200
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
+To:     Jiri Olsa <jolsa@redhat.com>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jiri Olsa <jolsa@redhat.com>
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 0/4] s390: DYNAMIC_FTRACE_WITH_DIRECT_CALL support
-Message-ID: <YWXDcoQEVm1uCCEP@osiris>
+Message-ID: <YWXTCm2S8WFIZKbh@osiris>
 References: <20211012133802.2460757-1-hca@linux.ibm.com>
  <20211012094852.7f6a59b8@gandalf.local.home>
  <YWWithSCGThguq7s@osiris>
- <20211012113404.29ac7c9c@gandalf.local.home>
-MIME-Version: 1.0
+ <YWXANRbkPIE3HtOE@krava>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211012113404.29ac7c9c@gandalf.local.home>
+In-Reply-To: <YWXANRbkPIE3HtOE@krava>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XELP0GaKTR8VkHLgi2JPf2Y1T6ApLpmU
-X-Proofpoint-ORIG-GUID: HeOwK_v4gq0HApu3O-uV1rn4qGdnM_AB
+X-Proofpoint-GUID: wXpCcBTUryJED5_ym5X2ycw3TaGgK5Az
+X-Proofpoint-ORIG-GUID: fGjxMn0CqYkSsvc_NxiDFum5QzUXB1kD
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-10-12_04,2021-10-12_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- malwarescore=0 mlxlogscore=800 adultscore=0 lowpriorityscore=0
- suspectscore=0 phishscore=0 priorityscore=1501 bulkscore=0 mlxscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110120094
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
+ phishscore=0 mlxlogscore=870 malwarescore=0 lowpriorityscore=0
+ adultscore=0 priorityscore=1501 suspectscore=0 spamscore=0 impostorscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110120097
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 12, 2021 at 11:34:04AM -0400, Steven Rostedt wrote:
-> On Tue, 12 Oct 2021 16:59:02 +0200
-> Heiko Carstens <hca@linux.ibm.com> wrote:
+On Tue, Oct 12, 2021 at 07:04:53PM +0200, Jiri Olsa wrote:
+> > > See here:
+> > > 
+> > >   https://lore.kernel.org/all/20211008091336.33616-1-jolsa@kernel.org/
+> > 
+> > I applied Jiri's patch set and the newly added selftest passes.
 > 
-> > One thing to note: Jiri adds a new a sample module, which obviously
-> > will not compile for s390. Not sure if the config mechanism I propose
-> > with this patch set is the best way to address this - it would then
-> > require to add a config option for each new sample module.
-> 
-> Is that really an issue?
-> 
-> We could just group them, as long as they have the same prefix.
-> 
-> HAVE_SAMPLE_FTRACE_DIRECT
-> HAVE_SAMPLE_FTRACE_MULTI_DIRECT
+> nice, could I have your Tested-by? ;-)
 
-Sure, works for me. I just thought I should mention this.
+Well, now I added also the missing pieces to ftrace-direct-multi
+sample module and when loading that and looking into
+/sys/kernel/debug/tracing/trace it looks like "my_direct_func" gets
+some random junk as parameter and nothing that could count as "ip".
+
+Will look into that, probably tomorrow.
