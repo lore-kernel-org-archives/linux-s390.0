@@ -2,164 +2,167 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CF59C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 10:18:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9484FC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 12:31:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 316D86101D
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 10:18:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F9C460E74
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 12:31:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235917AbhJLKUf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Oct 2021 06:20:35 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:38824 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235909AbhJLKUe (ORCPT
+        id S236454AbhJLMdd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Oct 2021 08:33:33 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32350 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S236346AbhJLMd0 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 12 Oct 2021 06:20:34 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19C9C6o1007781;
-        Tue, 12 Oct 2021 06:18:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=ajtnnQPYsZIaOVWtFcDlVc5hApbamOHVoABLoj+q3Eo=;
- b=oLpCzYXgSyeq01RoGl9oIvi1UjIKNE2SKwCpjdvIIkcGgBqgJYAgHz7kBnX3hQGlt3En
- S2E6/DWWiF8up3HVJP5gyfJIGxhPXmpA6sDtQ1JcvbuMVKJqRHeOCdBPNiN6xNzfFTem
- pnnygDyp6zYJyS9e4c8DxWzSUpQRL0qZyjWKTwrP/v8FdgmMdSLR48Fow+7nLj9sBb1v
- GhXUlBnX0ir09ahbIRP8106rtVHj18CWmzFNel12hEcnmKr2MGtvuf0mlQ2I75NXijCW
- dktwO7JGY8fILwOhW3gVw83hET+QbgORfA89pI6zO3kLuzEsO0TBQBhPknQgT8bT38K4 YQ== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bn7h09a7n-1
+        Tue, 12 Oct 2021 08:33:26 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19CAnGwf013182;
+        Tue, 12 Oct 2021 08:31:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=NGL6uHWcC/qeuSR1nITAcLMws/D4n1oX/88GgyPHGmA=;
+ b=Q5i6fvQHi4LemB7VEPAWBcXTlbNAaSpJ+smMK6Te2ea2aER/2MYsIsxVJ3SQ5WQQ5IWh
+ WoQyx7+6COCyZIhjyt7Ts/4kDs+MJxe+PAKfE1UIgU3dOLk3YYc8f7cvN404XhQx6/8G
+ T3r5lUrpVfLEaghCkAOoh/75JLMKgc8dMeYHQixQ5PX+MCG4zQx7jNUFzFOck9aZYijO
+ bDXk+hllQW5rvqnRNwE4bGoE478aLG8eRlZjQb01SiRxDs6bpLX/w4ACDbYX/8Ae07xX
+ 3cKUsO1G268nO6CKrko7lqiQJUgfCFgJooZI9qFSC7YybQOwt2p8VGSFLwYPWHBLF9v6 7A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bn66qnxe8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Oct 2021 06:18:32 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19CABPGf011129;
-        Tue, 12 Oct 2021 10:18:30 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma05fra.de.ibm.com with ESMTP id 3bk2q9nbv9-1
+        Tue, 12 Oct 2021 08:31:24 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19CCHV9C024781;
+        Tue, 12 Oct 2021 08:31:23 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bn66qnxd3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Oct 2021 10:18:29 +0000
+        Tue, 12 Oct 2021 08:31:23 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19CCDNrH015897;
+        Tue, 12 Oct 2021 12:31:21 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3bk2qa0cm1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 12:31:21 +0000
 Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19CAIOGU5243450
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19CCPQcc45744540
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Oct 2021 10:18:24 GMT
+        Tue, 12 Oct 2021 12:25:26 GMT
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C6EE9AE05F;
-        Tue, 12 Oct 2021 10:18:24 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DD253AE06C;
+        Tue, 12 Oct 2021 12:31:01 +0000 (GMT)
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EB0ACAE06F;
-        Tue, 12 Oct 2021 10:18:22 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by IMSVA (Postfix) with ESMTP id 5C96DAE068;
+        Tue, 12 Oct 2021 12:31:01 +0000 (GMT)
+Received: from [9.145.51.19] (unknown [9.145.51.19])
         by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 12 Oct 2021 10:18:22 +0000 (GMT)
-From:   Karsten Graul <kgraul@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH net-next 11/11] net/smc: stop links when their GID is removed
-Date:   Tue, 12 Oct 2021 12:17:43 +0200
-Message-Id: <20211012101743.2282031-12-kgraul@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211012101743.2282031-1-kgraul@linux.ibm.com>
-References: <20211012101743.2282031-1-kgraul@linux.ibm.com>
+        Tue, 12 Oct 2021 12:31:01 +0000 (GMT)
+Message-ID: <e18fb171-726e-dc28-7a09-3c110bb97ff8@linux.ibm.com>
+Date:   Tue, 12 Oct 2021 14:31:00 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [PATCH v5 08/14] KVM: s390: pv: handle secure storage exceptions
+ for normal guests
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Ulrich.Weigand@de.ibm.com
+References: <20210920132502.36111-1-imbrenda@linux.ibm.com>
+ <20210920132502.36111-9-imbrenda@linux.ibm.com>
+ <f442a49f-dbc4-5c38-ffa1-6b17742592c3@linux.ibm.com>
+ <20211012103550.501857f5@p-imbrenda>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20211012103550.501857f5@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 4w2ehPxNdhnOh-8_e5B_GUhv4cXqJF39
-X-Proofpoint-GUID: 4w2ehPxNdhnOh-8_e5B_GUhv4cXqJF39
+X-Proofpoint-ORIG-GUID: MKPzYILyVDBdDYwg7M7oY0AHhr8jawDl
+X-Proofpoint-GUID: QFIgnLzIa6ncCera3gjj78_TO1pb7O-h
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-12_02,2021-10-12_01,2020-04-07_01
+ definitions=2021-10-12_03,2021-10-12_01,2020-04-07_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 mlxlogscore=999 bulkscore=0 clxscore=1015 spamscore=0
- mlxscore=0 priorityscore=1501 suspectscore=0 impostorscore=0
- malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2109230001 definitions=main-2110120058
+ spamscore=0 impostorscore=0 suspectscore=0 bulkscore=0 phishscore=0
+ clxscore=1015 mlxlogscore=912 priorityscore=1501 mlxscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110120073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-With SMC-Rv2 the GID is an IP address that can be deleted from the
-device. When an IB_EVENT_GID_CHANGE event is provided then iterate over
-all active links and check if their GID is still defined. Otherwise
-stop the affected link.
+On 10/12/21 10:35, Claudio Imbrenda wrote:
+> On Tue, 12 Oct 2021 10:16:26 +0200
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+> 
+>> On 9/20/21 15:24, Claudio Imbrenda wrote:
+>>> With upcoming patches, normal guests might touch secure pages.
+>>>
+>>> This patch extends the existing exception handler to convert the pages
+>>> to non secure also when the exception is triggered by a normal guest.
+>>>
+>>> This can happen for example when a secure guest reboots; the first
+>>> stage of a secure guest is non secure, and in general a secure guest
+>>> can reboot into non-secure mode.
+>>>
+>>> If the secure memory of the previous boot has not been cleared up
+>>> completely yet, a non-secure guest might touch secure memory, which
+>>> will need to be handled properly.
+>>>
+>>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>>> ---
+>>>    arch/s390/mm/fault.c | 10 +++++++++-
+>>>    1 file changed, 9 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+>>> index eb68b4f36927..74784581f42d 100644
+>>> --- a/arch/s390/mm/fault.c
+>>> +++ b/arch/s390/mm/fault.c
+>>> @@ -767,6 +767,7 @@ void do_secure_storage_access(struct pt_regs *regs)
+>>>    	struct vm_area_struct *vma;
+>>>    	struct mm_struct *mm;
+>>>    	struct page *page;
+>>> +	struct gmap *gmap;
+>>>    	int rc;
+>>>    
+>>>    	/*
+>>> @@ -796,6 +797,14 @@ void do_secure_storage_access(struct pt_regs *regs)
+>>>    	}
+>>>    
+>>>    	switch (get_fault_type(regs)) {
+>>> +	case GMAP_FAULT:
+>>> +		gmap = (struct gmap *)S390_lowcore.gmap;
+>>> +		addr = __gmap_translate(gmap, addr);
+>>> +		if (IS_ERR_VALUE(addr)) {
+>>> +			do_fault_error(regs, VM_ACCESS_FLAGS, VM_FAULT_BADMAP);
+>>> +			break;
+>>> +		}
+>>> +		fallthrough;
+>>
+>> This would trigger an export and not a destroy, right?
+> 
+> correct. but this would only happen for leftover secure pages touched
+> by non-secure guests, before the background thread could clean them up.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_ib.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 53 insertions(+)
+I.e. we don't expect to need the destroy speed boost?
 
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 32f9d2fdc474..d93055ec17ae 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -295,6 +295,58 @@ int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
- 	return -ENODEV;
- }
- 
-+/* check if gid is still defined on smcibdev */
-+static bool smc_ib_check_link_gid(u8 gid[SMC_GID_SIZE], bool smcrv2,
-+				  struct smc_ib_device *smcibdev, u8 ibport)
-+{
-+	const struct ib_gid_attr *attr;
-+	bool rc = false;
-+	int i;
-+
-+	for (i = 0; !rc && i < smcibdev->pattr[ibport - 1].gid_tbl_len; i++) {
-+		attr = rdma_get_gid_attr(smcibdev->ibdev, ibport, i);
-+		if (IS_ERR(attr))
-+			continue;
-+
-+		rcu_read_lock();
-+		if ((!smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE) ||
-+		    (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP &&
-+		     !(ipv6_addr_type((const struct in6_addr *)&attr->gid)
-+				     & IPV6_ADDR_LINKLOCAL)))
-+			if (!memcmp(gid, &attr->gid, SMC_GID_SIZE))
-+				rc = true;
-+		rcu_read_unlock();
-+		rdma_put_gid_attr(attr);
-+	}
-+	return rc;
-+}
-+
-+/* check all links if the gid is still defined on smcibdev */
-+static void smc_ib_gid_check(struct smc_ib_device *smcibdev, u8 ibport)
-+{
-+	struct smc_link_group *lgr;
-+	int i;
-+
-+	spin_lock_bh(&smc_lgr_list.lock);
-+	list_for_each_entry(lgr, &smc_lgr_list.list, list) {
-+		if (strncmp(smcibdev->pnetid[ibport - 1], lgr->pnet_id,
-+			    SMC_MAX_PNETID_LEN))
-+			continue; /* lgr is not affected */
-+		if (list_empty(&lgr->list))
-+			continue;
-+		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
-+			if (lgr->lnk[i].state == SMC_LNK_UNUSED ||
-+			    lgr->lnk[i].smcibdev != smcibdev)
-+				continue;
-+			if (!smc_ib_check_link_gid(lgr->lnk[i].gid,
-+						   lgr->smc_version == SMC_V2,
-+						   smcibdev, ibport))
-+				smcr_port_err(smcibdev, ibport);
-+		}
-+	}
-+	spin_unlock_bh(&smc_lgr_list.lock);
-+}
-+
- static int smc_ib_remember_port_attr(struct smc_ib_device *smcibdev, u8 ibport)
- {
- 	int rc;
-@@ -333,6 +385,7 @@ static void smc_ib_port_event_work(struct work_struct *work)
- 		} else {
- 			clear_bit(port_idx, smcibdev->ports_going_away);
- 			smcr_port_add(smcibdev, port_idx + 1);
-+			smc_ib_gid_check(smcibdev, port_idx + 1);
- 		}
- 	}
- }
--- 
-2.25.1
+> 
+>>
+>>>    	case USER_FAULT:
+>>>    		mm = current->mm;
+>>>    		mmap_read_lock(mm);
+>>> @@ -824,7 +833,6 @@ void do_secure_storage_access(struct pt_regs *regs)
+>>>    		if (rc)
+>>>    			BUG();
+>>>    		break;
+>>> -	case GMAP_FAULT:
+>>>    	default:
+>>>    		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
+>>>    		WARN_ON_ONCE(1);
+>>>    
+>>
+> 
 
