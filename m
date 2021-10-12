@@ -2,167 +2,161 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9484FC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 12:31:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0AC2C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 13:37:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F9C460E74
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 12:31:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C85FA60724
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 13:37:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236454AbhJLMdd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Oct 2021 08:33:33 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32350 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S236346AbhJLMd0 (ORCPT
+        id S233296AbhJLNjG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Oct 2021 09:39:06 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21452 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232893AbhJLNjG (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 12 Oct 2021 08:33:26 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19CAnGwf013182;
-        Tue, 12 Oct 2021 08:31:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=NGL6uHWcC/qeuSR1nITAcLMws/D4n1oX/88GgyPHGmA=;
- b=Q5i6fvQHi4LemB7VEPAWBcXTlbNAaSpJ+smMK6Te2ea2aER/2MYsIsxVJ3SQ5WQQ5IWh
- WoQyx7+6COCyZIhjyt7Ts/4kDs+MJxe+PAKfE1UIgU3dOLk3YYc8f7cvN404XhQx6/8G
- T3r5lUrpVfLEaghCkAOoh/75JLMKgc8dMeYHQixQ5PX+MCG4zQx7jNUFzFOck9aZYijO
- bDXk+hllQW5rvqnRNwE4bGoE478aLG8eRlZjQb01SiRxDs6bpLX/w4ACDbYX/8Ae07xX
- 3cKUsO1G268nO6CKrko7lqiQJUgfCFgJooZI9qFSC7YybQOwt2p8VGSFLwYPWHBLF9v6 7A== 
+        Tue, 12 Oct 2021 09:39:06 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19CCaWHN025969;
+        Tue, 12 Oct 2021 09:37:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=WG15WcYuQXs6RQkmhoEJObFDOrJKXzFRAssgl9cooqU=;
+ b=nB1QX9Tl5BbbdWowbfS+mKPYPws4PtuAXumAsJTwqJMLyTbNL+kpZ6WklX2kv7kIF8/z
+ FgMbSeio6pBYBn+mM8SWHR3GJrdQQpTgC2qelTBfX9DT16lCOI87r6z96Z1z0kC85+jz
+ tO6HpmEJeUMMGjORbo0rO08llYBz3IXJ4gf0FePAwwCGfLI2t8w4uVD8jN3i+4vZ4G6m
+ vxi4HWxgb1dssuIiI8smqQQrJP90a09Jjv6g7NMg6rL89GUg+FKtEqN4AfsJfGq0LDi0
+ a0a8etAOpkwGWRpn8OHXQmvGoHr2CfGwIABo4Q6DIoFwSXJQjb33XwsVk/G3pYrQ0NiT yA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bn66qnxe8-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bn7h0duju-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Oct 2021 08:31:24 -0400
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19CCHV9C024781;
-        Tue, 12 Oct 2021 08:31:23 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bn66qnxd3-1
+        Tue, 12 Oct 2021 09:37:04 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19CCeSZk006810;
+        Tue, 12 Oct 2021 09:37:04 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bn7h0duhh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Oct 2021 08:31:23 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19CCDNrH015897;
-        Tue, 12 Oct 2021 12:31:21 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3bk2qa0cm1-1
+        Tue, 12 Oct 2021 09:37:03 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19CDROpI029859;
+        Tue, 12 Oct 2021 13:37:01 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma01fra.de.ibm.com with ESMTP id 3bk2q9ff0w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Oct 2021 12:31:21 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19CCPQcc45744540
+        Tue, 12 Oct 2021 13:37:00 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19CDaloT61669862
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Oct 2021 12:25:26 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DD253AE06C;
-        Tue, 12 Oct 2021 12:31:01 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5C96DAE068;
-        Tue, 12 Oct 2021 12:31:01 +0000 (GMT)
-Received: from [9.145.51.19] (unknown [9.145.51.19])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 12 Oct 2021 12:31:01 +0000 (GMT)
-Message-ID: <e18fb171-726e-dc28-7a09-3c110bb97ff8@linux.ibm.com>
-Date:   Tue, 12 Oct 2021 14:31:00 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.0
-Subject: Re: [PATCH v5 08/14] KVM: s390: pv: handle secure storage exceptions
- for normal guests
-Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ulrich.Weigand@de.ibm.com
-References: <20210920132502.36111-1-imbrenda@linux.ibm.com>
- <20210920132502.36111-9-imbrenda@linux.ibm.com>
- <f442a49f-dbc4-5c38-ffa1-6b17742592c3@linux.ibm.com>
- <20211012103550.501857f5@p-imbrenda>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20211012103550.501857f5@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        Tue, 12 Oct 2021 13:36:47 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 32B0F11C069;
+        Tue, 12 Oct 2021 13:36:47 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5686211C06C;
+        Tue, 12 Oct 2021 13:36:39 +0000 (GMT)
+Received: from li-748c07cc-28e5-11b2-a85c-e3822d7eceb3.ibm.com (unknown [9.171.57.92])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Oct 2021 13:36:38 +0000 (GMT)
+Message-ID: <13162b9e48402f306b3f50e6686d76a051138a75.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH 1/1]  s390/cio: make ccw_device_dma_* more robust
+From:   Vineeth Vijayan <vneethv@linux.ibm.com>
+To:     Halil Pasic <pasic@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, bfu@redhat.com
+Date:   Tue, 12 Oct 2021 15:36:36 +0200
+In-Reply-To: <20211011115955.2504529-1-pasic@linux.ibm.com>
+References: <20211011115955.2504529-1-pasic@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MKPzYILyVDBdDYwg7M7oY0AHhr8jawDl
-X-Proofpoint-GUID: QFIgnLzIa6ncCera3gjj78_TO1pb7O-h
+X-Proofpoint-ORIG-GUID: g-gKyBT5ISQyVVspeO-V9jTx8KHwnqsJ
+X-Proofpoint-GUID: LSIZLlfdhXbLS2fLjgwWsk8pzAAI-jNl
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-10-12_03,2021-10-12_01,2020-04-07_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 impostorscore=0 suspectscore=0 bulkscore=0 phishscore=0
- clxscore=1015 mlxlogscore=912 priorityscore=1501 mlxscore=0 adultscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110120073
+ phishscore=0 mlxlogscore=848 bulkscore=0 clxscore=1011 spamscore=0
+ mlxscore=0 priorityscore=1501 suspectscore=0 impostorscore=0
+ malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109230001 definitions=main-2110120079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/12/21 10:35, Claudio Imbrenda wrote:
-> On Tue, 12 Oct 2021 10:16:26 +0200
-> Janosch Frank <frankja@linux.ibm.com> wrote:
-> 
->> On 9/20/21 15:24, Claudio Imbrenda wrote:
->>> With upcoming patches, normal guests might touch secure pages.
->>>
->>> This patch extends the existing exception handler to convert the pages
->>> to non secure also when the exception is triggered by a normal guest.
->>>
->>> This can happen for example when a secure guest reboots; the first
->>> stage of a secure guest is non secure, and in general a secure guest
->>> can reboot into non-secure mode.
->>>
->>> If the secure memory of the previous boot has not been cleared up
->>> completely yet, a non-secure guest might touch secure memory, which
->>> will need to be handled properly.
->>>
->>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
->>> ---
->>>    arch/s390/mm/fault.c | 10 +++++++++-
->>>    1 file changed, 9 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
->>> index eb68b4f36927..74784581f42d 100644
->>> --- a/arch/s390/mm/fault.c
->>> +++ b/arch/s390/mm/fault.c
->>> @@ -767,6 +767,7 @@ void do_secure_storage_access(struct pt_regs *regs)
->>>    	struct vm_area_struct *vma;
->>>    	struct mm_struct *mm;
->>>    	struct page *page;
->>> +	struct gmap *gmap;
->>>    	int rc;
->>>    
->>>    	/*
->>> @@ -796,6 +797,14 @@ void do_secure_storage_access(struct pt_regs *regs)
->>>    	}
->>>    
->>>    	switch (get_fault_type(regs)) {
->>> +	case GMAP_FAULT:
->>> +		gmap = (struct gmap *)S390_lowcore.gmap;
->>> +		addr = __gmap_translate(gmap, addr);
->>> +		if (IS_ERR_VALUE(addr)) {
->>> +			do_fault_error(regs, VM_ACCESS_FLAGS, VM_FAULT_BADMAP);
->>> +			break;
->>> +		}
->>> +		fallthrough;
->>
->> This would trigger an export and not a destroy, right?
-> 
-> correct. but this would only happen for leftover secure pages touched
-> by non-secure guests, before the background thread could clean them up.
+Looks good. Thanks.
+Acked-by: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-I.e. we don't expect to need the destroy speed boost?
+Some minor questions below.
 
+On Mon, 2021-10-11 at 13:59 +0200, Halil Pasic wrote:
+> Since commit 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O
+> and
+> classic notifiers") we were supposed to make sure that
+> virtio_ccw_release_dev() completes before the ccw device and the
+> attached dma pool are torn down, but unfortunately we did
+> not.  Before
+> that commit it used to be OK to delay cleaning up the memory
+> allocated
+> by virtio-ccw indefinitely (which isn't really intuitive for guys
+> used
+> to destruction happens in reverse construction order), but now we
+> trigger a BUG_ON if the genpool is destroyed before all memory
+> allocated
+> form it.
+allocated from it ?
+>  Which brings down the guest. We can observe this problem, when
+> unregister_virtio_device() does not give up the last reference to the
+> virtio_device (e.g. because a virtio-scsi attached scsi disk got
+> removed
+> without previously unmounting its previously mounted  partition).
 > 
->>
->>>    	case USER_FAULT:
->>>    		mm = current->mm;
->>>    		mmap_read_lock(mm);
->>> @@ -824,7 +833,6 @@ void do_secure_storage_access(struct pt_regs *regs)
->>>    		if (rc)
->>>    			BUG();
->>>    		break;
->>> -	case GMAP_FAULT:
->>>    	default:
->>>    		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
->>>    		WARN_ON_ONCE(1);
->>>    
->>
+> To make sure that the genpool is only destroyed after all the
+> necessary
+> freeing is done let us take a reference on the ccw device on each
+> ccw_device_dma_zalloc() and give it up on each ccw_device_dma_free().
+> 
+> Actually there are multiple approaches to fixing the problem at hand
+> that can work. The upside of this one is that it is the safest one
+> while
+> remaining simple. We don't crash the guest even if the driver does
+> not
+> pair allocations and frees. The downside is the reference counting
+> overhead, that the reference counting for ccw devices becomes more
+> complex, in a sense that we need to pair the calls to the
+> aforementioned
+> functions for it to be correct, and that if we happen to leak, we
+> leak
+> more than necessary (the whole ccw device instead of just the
+> genpool).
+> 
+> Some alternatives to this approach are taking a reference in
+> virtio_ccw_online() and giving it up in virtio_ccw_release_dev() or
+> making sure virtio_ccw_release_dev() completes its work before
+> virtio_ccw_remove() returns. The downside of these approaches is that
+> these are less safe against programming errors.
+> 
+> Cc: <stable@vger.kernel.org> # v5.3
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Fixes: 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
+> classic notifiers")
+> Reported-by: bfu@redhat.com
+> 
+> ---
+> 
+> FYI I've proposed a different fix to this very same problem:
+> https://lore.kernel.org/lkml/20210915215742.1793314-1-pasic@linux.ibm.com/
+> 
+> This patch is more or less a result of that discussion.
 > 
 
