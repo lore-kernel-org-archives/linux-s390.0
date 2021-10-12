@@ -2,29 +2,29 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABE36C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 13:45:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16A56C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 13:45:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 94E8760E94
+	by mail.kernel.org (Postfix) with ESMTP id 008FB60555
 	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 13:45:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236936AbhJLNr5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S236678AbhJLNr5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Tue, 12 Oct 2021 09:47:57 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:14336 "EHLO
+Received: from szxga02-in.huawei.com ([45.249.212.188]:14337 "EHLO
         szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236678AbhJLNr4 (ORCPT
+        with ESMTP id S236921AbhJLNr4 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Oct 2021 09:47:56 -0400
 Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HTGyk6fHxz906g;
-        Tue, 12 Oct 2021 21:41:02 +0800 (CST)
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HTGyl2jNYz906t;
+        Tue, 12 Oct 2021 21:41:03 +0800 (CST)
 Received: from kwepemm600016.china.huawei.com (7.193.23.20) by
  dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Tue, 12 Oct 2021 21:45:40 +0800
+ 15.1.2308.8; Tue, 12 Oct 2021 21:45:44 +0800
 Received: from localhost.localdomain (10.67.165.24) by
  kwepemm600016.china.huawei.com (7.193.23.20) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Tue, 12 Oct 2021 21:45:39 +0800
+ 15.1.2308.8; Tue, 12 Oct 2021 21:45:42 +0800
 From:   Guangbin Huang <huangguangbin2@huawei.com>
 To:     <davem@davemloft.net>, <kuba@kernel.org>, <mkubecek@suse.cz>,
         <andrew@lunn.ch>, <amitc@mellanox.com>, <idosch@idosch.org>,
@@ -45,10 +45,12 @@ To:     <davem@davemloft.net>, <kuba@kernel.org>, <mkubecek@suse.cz>,
 CC:     <netdev@vger.kernel.org>, <lipeng321@huawei.com>,
         <chenhao288@hisilicon.com>, <huangguangbin2@huawei.com>,
         <linux-s390@vger.kernel.org>
-Subject: [PATCH V3 net-next 0/6] ethtool: add support to set/get tx copybreak buf size and rx buf len
-Date:   Tue, 12 Oct 2021 21:41:21 +0800
-Message-ID: <20211012134127.11761-1-huangguangbin2@huawei.com>
+Subject: [PATCH V3 net-next 3/6] ethtool: add support to set/get rx buf len via ethtool
+Date:   Tue, 12 Oct 2021 21:41:24 +0800
+Message-ID: <20211012134127.11761-4-huangguangbin2@huawei.com>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211012134127.11761-1-huangguangbin2@huawei.com>
+References: <20211012134127.11761-1-huangguangbin2@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
@@ -62,165 +64,179 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Hao Chen <chenhao288@hisilicon.com>
 
-This series add support to set/get tx copybreak buf size and rx buf len via
-ethtool and hns3 driver implements them.
+Add support to set rx buf len via ethtool -G parameter and get
+rx buf len via ethtool -g parameter.
 
-Tx copybreak buf size is used for tx copybreak feature which for small size
-packet or frag. Use ethtool --get-tunable command to get it, and ethtool
---set-tunable command to set it, examples are as follow:
+Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+---
+ Documentation/networking/ethtool-netlink.rst |  2 ++
+ include/linux/ethtool.h                      | 10 ++++++++++
+ include/uapi/linux/ethtool.h                 |  8 ++++++++
+ include/uapi/linux/ethtool_netlink.h         |  1 +
+ net/ethtool/netlink.h                        |  2 +-
+ net/ethtool/rings.c                          | 17 ++++++++++++++++-
+ 6 files changed, 38 insertions(+), 2 deletions(-)
 
-1. set tx spare buf size to 102400:
-$ ethtool --set-tunable eth1 tx-buf-size 102400
-
-2. get tx spare buf size:
-$ ethtool --get-tunable eth1 tx-buf-size
-tx-buf-size: 102400
-
-Rx buf len is buffer length of each rx BD. Use ethtool -g command to get
-it, and ethtool -G command to set it, examples are as follow:
-
-1. set rx buf len to 4096
-$ ethtool -G eth1 rx-buf-len 4096
-
-2. get rx buf len
-$ ethtool -g eth1
-...
-RX Buf Len:     4096
-
-
-Change log:
-V2 -> V3
-1.Remove documentation for tx copybreak buf size, there is description for
-it in userspace ethtool.
-2.Move extending parameters for get/set_ringparam function from patch3/6
-to patch 4/6.
-
-V1 -> V2
-1.Add documentation for rx buf len and tx copybreak buf size.
-2.Extend structure ringparam_ext for extenal ring params.
-3.Change type of ETHTOOL_A_RINGS_RX_BUF_LEN from NLA_U32 to
-  NLA_POLICY_MIN(NLA_U32, 1).
-4.Add supported_ring_params in ethtool_ops to indicate if support external
-  params.
-
-Hao Chen (6):
-  ethtool: add support to set/get tx copybreak buf size via ethtool
-  net: hns3: add support to set/get tx copybreak buf size via ethtool
-    for hns3 driver
-  ethtool: add support to set/get rx buf len via ethtool
-  ethtool: extend ringparam setting uAPI with rx_buf_len
-  net: hns3: add support to set/get rx buf len via ethtool for hns3
-    driver
-  net: hns3: remove the way to set tx spare buf via module parameter
-
- Documentation/networking/ethtool-netlink.rst  |   2 +
- arch/um/drivers/vector_kern.c                 |   4 +-
- drivers/net/can/c_can/c_can_ethtool.c         |   4 +-
- drivers/net/ethernet/3com/typhoon.c           |   4 +-
- drivers/net/ethernet/amazon/ena/ena_ethtool.c |   8 +-
- drivers/net/ethernet/amd/pcnet32.c            |   8 +-
- drivers/net/ethernet/amd/xgbe/xgbe-ethtool.c  |   8 +-
- .../ethernet/aquantia/atlantic/aq_ethtool.c   |   8 +-
- drivers/net/ethernet/atheros/atlx/atl1.c      |   8 +-
- drivers/net/ethernet/broadcom/b44.c           |   8 +-
- drivers/net/ethernet/broadcom/bcm63xx_enet.c  |  16 ++-
- drivers/net/ethernet/broadcom/bnx2.c          |   8 +-
- .../ethernet/broadcom/bnx2x/bnx2x_ethtool.c   |   8 +-
- .../net/ethernet/broadcom/bnxt/bnxt_ethtool.c |   8 +-
- drivers/net/ethernet/broadcom/tg3.c           |  10 +-
- .../net/ethernet/brocade/bna/bnad_ethtool.c   |   8 +-
- drivers/net/ethernet/cadence/macb_main.c      |   8 +-
- .../ethernet/cavium/liquidio/lio_ethtool.c    |   8 +-
- .../ethernet/cavium/thunder/nicvf_ethtool.c   |   8 +-
- drivers/net/ethernet/chelsio/cxgb/cxgb2.c     |   8 +-
- .../net/ethernet/chelsio/cxgb3/cxgb3_main.c   |   8 +-
- .../ethernet/chelsio/cxgb4/cxgb4_ethtool.c    |   8 +-
- .../ethernet/chelsio/cxgb4vf/cxgb4vf_main.c   |   8 +-
- .../net/ethernet/cisco/enic/enic_ethtool.c    |   8 +-
- drivers/net/ethernet/cortina/gemini.c         |   8 +-
- .../net/ethernet/emulex/benet/be_ethtool.c    |   4 +-
- drivers/net/ethernet/ethoc.c                  |   8 +-
- drivers/net/ethernet/faraday/ftgmac100.c      |   8 +-
- .../ethernet/freescale/enetc/enetc_ethtool.c  |   4 +-
- .../net/ethernet/freescale/gianfar_ethtool.c  |   8 +-
- .../net/ethernet/freescale/ucc_geth_ethtool.c |   8 +-
- drivers/net/ethernet/google/gve/gve_ethtool.c |   4 +-
- .../net/ethernet/hisilicon/hns/hns_ethtool.c  |   6 +-
- .../net/ethernet/hisilicon/hns3/hns3_enet.c   |  11 +-
- .../net/ethernet/hisilicon/hns3/hns3_enet.h   |   2 +
- .../ethernet/hisilicon/hns3/hns3_ethtool.c    | 116 ++++++++++++++++--
- .../net/ethernet/huawei/hinic/hinic_ethtool.c |   8 +-
- drivers/net/ethernet/ibm/emac/core.c          |   4 +-
- drivers/net/ethernet/ibm/ibmvnic.c            |   8 +-
- drivers/net/ethernet/intel/e100.c             |   8 +-
- .../net/ethernet/intel/e1000/e1000_ethtool.c  |   8 +-
- drivers/net/ethernet/intel/e1000e/ethtool.c   |   8 +-
- .../net/ethernet/intel/fm10k/fm10k_ethtool.c  |   8 +-
- .../net/ethernet/intel/i40e/i40e_ethtool.c    |   8 +-
- .../net/ethernet/intel/iavf/iavf_ethtool.c    |  12 +-
- drivers/net/ethernet/intel/ice/ice_ethtool.c  |   8 +-
- drivers/net/ethernet/intel/igb/igb_ethtool.c  |   8 +-
- drivers/net/ethernet/intel/igbvf/ethtool.c    |   8 +-
- drivers/net/ethernet/intel/igc/igc_ethtool.c  |   8 +-
- .../net/ethernet/intel/ixgb/ixgb_ethtool.c    |   8 +-
- .../net/ethernet/intel/ixgbe/ixgbe_ethtool.c  |   8 +-
- drivers/net/ethernet/intel/ixgbevf/ethtool.c  |   8 +-
- drivers/net/ethernet/marvell/mv643xx_eth.c    |   8 +-
- drivers/net/ethernet/marvell/mvneta.c         |   8 +-
- .../net/ethernet/marvell/mvpp2/mvpp2_main.c   |   8 +-
- .../marvell/octeontx2/nic/otx2_ethtool.c      |   8 +-
- drivers/net/ethernet/marvell/skge.c           |   8 +-
- drivers/net/ethernet/marvell/sky2.c           |   8 +-
- .../net/ethernet/mellanox/mlx4/en_ethtool.c   |   8 +-
- .../ethernet/mellanox/mlx5/core/en_ethtool.c  |   8 +-
- .../net/ethernet/mellanox/mlx5/core/en_rep.c  |   8 +-
- .../mellanox/mlx5/core/ipoib/ethtool.c        |   8 +-
- .../mellanox/mlxbf_gige/mlxbf_gige_ethtool.c  |   4 +-
- drivers/net/ethernet/micrel/ksz884x.c         |   5 +-
- .../net/ethernet/myricom/myri10ge/myri10ge.c  |   4 +-
- drivers/net/ethernet/neterion/s2io.c          |   4 +-
- .../ethernet/netronome/nfp/nfp_net_ethtool.c  |   8 +-
- drivers/net/ethernet/nvidia/forcedeth.c       |  10 +-
- .../oki-semi/pch_gbe/pch_gbe_ethtool.c        |  10 +-
- .../net/ethernet/pasemi/pasemi_mac_ethtool.c  |   4 +-
- .../ethernet/pensando/ionic/ionic_ethtool.c   |   8 +-
- .../qlogic/netxen/netxen_nic_ethtool.c        |   8 +-
- .../net/ethernet/qlogic/qede/qede_ethtool.c   |   8 +-
- .../ethernet/qlogic/qlcnic/qlcnic_ethtool.c   |   8 +-
- .../net/ethernet/qualcomm/emac/emac-ethtool.c |   8 +-
- drivers/net/ethernet/qualcomm/qca_debug.c     |   8 +-
- drivers/net/ethernet/realtek/8139cp.c         |   4 +-
- drivers/net/ethernet/realtek/r8169_main.c     |   4 +-
- drivers/net/ethernet/renesas/ravb_main.c      |   8 +-
- drivers/net/ethernet/renesas/sh_eth.c         |   8 +-
- drivers/net/ethernet/sfc/ef100_ethtool.c      |   4 +-
- drivers/net/ethernet/sfc/ethtool.c            |   8 +-
- drivers/net/ethernet/sfc/falcon/ethtool.c     |   8 +-
- .../ethernet/stmicro/stmmac/stmmac_ethtool.c  |   8 +-
- drivers/net/ethernet/tehuti/tehuti.c          |  10 +-
- drivers/net/ethernet/ti/am65-cpsw-ethtool.c   |   4 +-
- drivers/net/ethernet/ti/cpmac.c               |   8 +-
- drivers/net/ethernet/ti/cpsw_ethtool.c        |   8 +-
- drivers/net/ethernet/ti/cpsw_priv.h           |   8 +-
- .../net/ethernet/toshiba/spider_net_ethtool.c |   4 +-
- drivers/net/ethernet/xilinx/ll_temac_main.c   |  14 ++-
- .../net/ethernet/xilinx/xilinx_axienet_main.c |  14 ++-
- drivers/net/hyperv/netvsc_drv.c               |   8 +-
- drivers/net/netdevsim/ethtool.c               |   8 +-
- drivers/net/usb/r8152.c                       |   8 +-
- drivers/net/virtio_net.c                      |   4 +-
- drivers/net/vmxnet3/vmxnet3_ethtool.c         |   8 +-
- drivers/s390/net/qeth_ethtool.c               |   4 +-
- include/linux/ethtool.h                       |  18 ++-
- include/uapi/linux/ethtool.h                  |   9 ++
- include/uapi/linux/ethtool_netlink.h          |   1 +
- net/ethtool/common.c                          |   1 +
- net/ethtool/ioctl.c                           |  10 +-
- net/ethtool/netlink.h                         |   2 +-
- net/ethtool/rings.c                           |  32 ++++-
- net/mac80211/ethtool.c                        |   8 +-
- 106 files changed, 714 insertions(+), 205 deletions(-)
-
+diff --git a/Documentation/networking/ethtool-netlink.rst b/Documentation/networking/ethtool-netlink.rst
+index d9b55b7a1a4d..149d09998852 100644
+--- a/Documentation/networking/ethtool-netlink.rst
++++ b/Documentation/networking/ethtool-netlink.rst
+@@ -841,6 +841,7 @@ Kernel response contents:
+   ``ETHTOOL_A_RINGS_RX_MINI``           u32     size of RX mini ring
+   ``ETHTOOL_A_RINGS_RX_JUMBO``          u32     size of RX jumbo ring
+   ``ETHTOOL_A_RINGS_TX``                u32     size of TX ring
++  ``ETHTOOL_A_RINGS_RX_BUF_LEN``        u32     size of buffers on the ring
+   ====================================  ======  ==========================
+ 
+ 
+@@ -857,6 +858,7 @@ Request contents:
+   ``ETHTOOL_A_RINGS_RX_MINI``           u32     size of RX mini ring
+   ``ETHTOOL_A_RINGS_RX_JUMBO``          u32     size of RX jumbo ring
+   ``ETHTOOL_A_RINGS_TX``                u32     size of TX ring
++  ``ETHTOOL_A_RINGS_RX_BUF_LEN``        u32     size of buffers on the ring
+   ====================================  ======  ==========================
+ 
+ Kernel checks that requested ring sizes do not exceed limits reported by
+diff --git a/include/linux/ethtool.h b/include/linux/ethtool.h
+index 849524b55d89..9cd1b1953256 100644
+--- a/include/linux/ethtool.h
++++ b/include/linux/ethtool.h
+@@ -67,6 +67,14 @@ enum {
+ 	ETH_RSS_HASH_FUNCS_COUNT
+ };
+ 
++/**
++ * enum ethtool_supported_ring_param - indicator caps for setting ring params
++ * @ETHTOOL_RING_USE_RX_BUF_LEN: capture for setting rx_buf_len
++ */
++enum ethtool_supported_ring_param {
++	ETHTOOL_RING_USE_RX_BUF_LEN = BIT(0),
++};
++
+ #define __ETH_RSS_HASH_BIT(bit)	((u32)1 << (bit))
+ #define __ETH_RSS_HASH(name)	__ETH_RSS_HASH_BIT(ETH_RSS_HASH_##name##_BIT)
+ 
+@@ -420,6 +428,7 @@ struct ethtool_module_eeprom {
+  * @cap_link_lanes_supported: indicates if the driver supports lanes
+  *	parameter.
+  * @supported_coalesce_params: supported types of interrupt coalescing.
++ * @supported_ring_params: supported ring params.
+  * @get_drvinfo: Report driver/device information.  Should only set the
+  *	@driver, @version, @fw_version and @bus_info fields.  If not
+  *	implemented, the @driver and @bus_info fields will be filled in
+@@ -596,6 +605,7 @@ struct ethtool_module_eeprom {
+ struct ethtool_ops {
+ 	u32     cap_link_lanes_supported:1;
+ 	u32	supported_coalesce_params;
++	u32	supported_ring_params;
+ 	void	(*get_drvinfo)(struct net_device *, struct ethtool_drvinfo *);
+ 	int	(*get_regs_len)(struct net_device *);
+ 	void	(*get_regs)(struct net_device *, struct ethtool_regs *, void *);
+diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+index 266e95e4fb33..83544186cbb5 100644
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -535,6 +535,14 @@ struct ethtool_ringparam {
+ 	__u32	tx_pending;
+ };
+ 
++/**
++ * struct ethtool_ringparam_ext - RX/TX ring configuration
++ * @rx_buf_len: Current length of buffers on the rx ring.
++ */
++struct ethtool_ringparam_ext {
++	__u32	rx_buf_len;
++};
++
+ /**
+  * struct ethtool_channels - configuring number of network channel
+  * @cmd: ETHTOOL_{G,S}CHANNELS
+diff --git a/include/uapi/linux/ethtool_netlink.h b/include/uapi/linux/ethtool_netlink.h
+index 5545f1ca9237..3883fa4168e9 100644
+--- a/include/uapi/linux/ethtool_netlink.h
++++ b/include/uapi/linux/ethtool_netlink.h
+@@ -325,6 +325,7 @@ enum {
+ 	ETHTOOL_A_RINGS_RX_MINI,			/* u32 */
+ 	ETHTOOL_A_RINGS_RX_JUMBO,			/* u32 */
+ 	ETHTOOL_A_RINGS_TX,				/* u32 */
++	ETHTOOL_A_RINGS_RX_BUF_LEN,                     /* u32 */
+ 
+ 	/* add new constants above here */
+ 	__ETHTOOL_A_RINGS_CNT,
+diff --git a/net/ethtool/netlink.h b/net/ethtool/netlink.h
+index e8987e28036f..3183f1fc6990 100644
+--- a/net/ethtool/netlink.h
++++ b/net/ethtool/netlink.h
+@@ -355,7 +355,7 @@ extern const struct nla_policy ethnl_features_set_policy[ETHTOOL_A_FEATURES_WANT
+ extern const struct nla_policy ethnl_privflags_get_policy[ETHTOOL_A_PRIVFLAGS_HEADER + 1];
+ extern const struct nla_policy ethnl_privflags_set_policy[ETHTOOL_A_PRIVFLAGS_FLAGS + 1];
+ extern const struct nla_policy ethnl_rings_get_policy[ETHTOOL_A_RINGS_HEADER + 1];
+-extern const struct nla_policy ethnl_rings_set_policy[ETHTOOL_A_RINGS_TX + 1];
++extern const struct nla_policy ethnl_rings_set_policy[ETHTOOL_A_RINGS_RX_BUF_LEN + 1];
+ extern const struct nla_policy ethnl_channels_get_policy[ETHTOOL_A_CHANNELS_HEADER + 1];
+ extern const struct nla_policy ethnl_channels_set_policy[ETHTOOL_A_CHANNELS_COMBINED_COUNT + 1];
+ extern const struct nla_policy ethnl_coalesce_get_policy[ETHTOOL_A_COALESCE_HEADER + 1];
+diff --git a/net/ethtool/rings.c b/net/ethtool/rings.c
+index 4e097812a967..b7c66ce6490e 100644
+--- a/net/ethtool/rings.c
++++ b/net/ethtool/rings.c
+@@ -10,6 +10,7 @@ struct rings_req_info {
+ struct rings_reply_data {
+ 	struct ethnl_reply_data		base;
+ 	struct ethtool_ringparam	ringparam;
++	struct ethtool_ringparam_ext	ringparam_ext;
+ };
+ 
+ #define RINGS_REPDATA(__reply_base) \
+@@ -49,7 +50,8 @@ static int rings_reply_size(const struct ethnl_req_info *req_base,
+ 	       nla_total_size(sizeof(u32)) +	/* _RINGS_RX */
+ 	       nla_total_size(sizeof(u32)) +	/* _RINGS_RX_MINI */
+ 	       nla_total_size(sizeof(u32)) +	/* _RINGS_RX_JUMBO */
+-	       nla_total_size(sizeof(u32));	/* _RINGS_TX */
++	       nla_total_size(sizeof(u32)) +	/* _RINGS_TX */
++	       nla_total_size(sizeof(u32));     /* _RINGS_RX_BUF_LEN */
+ }
+ 
+ static int rings_fill_reply(struct sk_buff *skb,
+@@ -105,10 +107,12 @@ const struct nla_policy ethnl_rings_set_policy[] = {
+ 	[ETHTOOL_A_RINGS_RX_MINI]		= { .type = NLA_U32 },
+ 	[ETHTOOL_A_RINGS_RX_JUMBO]		= { .type = NLA_U32 },
+ 	[ETHTOOL_A_RINGS_TX]			= { .type = NLA_U32 },
++	[ETHTOOL_A_RINGS_RX_BUF_LEN]            = NLA_POLICY_MIN(NLA_U32, 1),
+ };
+ 
+ int ethnl_set_rings(struct sk_buff *skb, struct genl_info *info)
+ {
++	struct ethtool_ringparam_ext ringparam_ext = {};
+ 	struct ethtool_ringparam ringparam = {};
+ 	struct ethnl_req_info req_info = {};
+ 	struct nlattr **tb = info->attrs;
+@@ -142,6 +146,8 @@ int ethnl_set_rings(struct sk_buff *skb, struct genl_info *info)
+ 	ethnl_update_u32(&ringparam.rx_jumbo_pending,
+ 			 tb[ETHTOOL_A_RINGS_RX_JUMBO], &mod);
+ 	ethnl_update_u32(&ringparam.tx_pending, tb[ETHTOOL_A_RINGS_TX], &mod);
++	ethnl_update_u32(&ringparam_ext.rx_buf_len,
++			 tb[ETHTOOL_A_RINGS_RX_BUF_LEN], &mod);
+ 	ret = 0;
+ 	if (!mod)
+ 		goto out_ops;
+@@ -164,6 +170,15 @@ int ethnl_set_rings(struct sk_buff *skb, struct genl_info *info)
+ 		goto out_ops;
+ 	}
+ 
++	if (ringparam_ext.rx_buf_len != 0 &&
++	    !(ops->supported_ring_params & ETHTOOL_RING_USE_RX_BUF_LEN)) {
++		ret = -EOPNOTSUPP;
++		NL_SET_ERR_MSG_ATTR(info->extack,
++				    tb[ETHTOOL_A_RINGS_RX_BUF_LEN],
++				    "setting not supported rx buf len");
++		goto out_ops;
++	}
++
+ 	ret = dev->ethtool_ops->set_ringparam(dev, &ringparam);
+ 	if (ret < 0)
+ 		goto out_ops;
 -- 
 2.33.0
 
