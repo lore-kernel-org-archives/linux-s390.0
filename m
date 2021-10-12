@@ -2,133 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 133CAC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 17:05:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 467A7C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 17:19:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E23BB60ED4
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 17:05:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 21A7B610E7
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 17:19:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229996AbhJLRHB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Oct 2021 13:07:01 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34864 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229510AbhJLRHB (ORCPT
+        id S231826AbhJLRVT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Oct 2021 13:21:19 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19714 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231756AbhJLRVP (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 12 Oct 2021 13:07:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634058299;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Zv2suu7TZ2BZjNAY7Fx5N+NNNZcHunY8SSActvahWDE=;
-        b=V/h8sVsGe+ckFF2+JGsOwK6MEUwh+yHUdBggfI1zEoT+Zl54C3lMDlatzsOGzJozhSNjAz
-        Jmp/46Zp9o2FzLegvLsNt+qy3w325DuoDHshIiPj/pNON6YZcY0wou+ENweX+HQ33mT+Oe
-        PzWWdBQGO4ZFjFBmBI3Dssntp2Vufa0=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-331-q_7QuUjUPPKGh37MbhtUfg-1; Tue, 12 Oct 2021 13:04:57 -0400
-X-MC-Unique: q_7QuUjUPPKGh37MbhtUfg-1
-Received: by mail-ed1-f71.google.com with SMTP id v9-20020a50d849000000b003db459aa3f5so506535edj.15
-        for <linux-s390@vger.kernel.org>; Tue, 12 Oct 2021 10:04:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Zv2suu7TZ2BZjNAY7Fx5N+NNNZcHunY8SSActvahWDE=;
-        b=ZmPR0wtLB8cKEWXMf/GzpBGTWq+GBek3IgZJPVJjH+DK63BURGhov0wkoyCIz3ZI3u
-         i4AgmX/nVKOXU3J51gz9UqaGeFkzigqA9ahQM22p4L0193rsjvnkibsgjJNXPVkokIoW
-         1qTJv590v7yvcOVrS5YzKDgsOyc4HTTddaginGRMjSs5c6SE9YCcEdYixV2wBrKiP+xb
-         OX2YBgfkFu2vJ6aQ1mkRr6weoLUSBFiUrxCxnWafyb54sYtH7NLgCmLcTZN0gfmBpeUx
-         rOgPm9UilnzT6KsM1ys0dpcYpCLwk6n6J534cWLyO2Md1lOGw6g2nY/vzCyw8ZhiDdhV
-         l0cQ==
-X-Gm-Message-State: AOAM533ylRDG9MXhEYApRdvgORbHSvN7Me4MUsQDy1i4I/AjvdvkoEiu
-        TvKlx8TX7ax5u8IXnt8qGWJHmEdLsxAW4A1E/J2OdKUWUnTdRfY7yVEKRkLF85fbDvRZh9ENVT7
-        ZGSgppseD+HSbJ5KzrwEQ+A==
-X-Received: by 2002:a17:907:7848:: with SMTP id lb8mr33622162ejc.494.1634058295745;
-        Tue, 12 Oct 2021 10:04:55 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwHdjuAiKRrQdj3TGjYYQwVTXm0QdW86MwEWtHVztudehRLFxGkkxaVFB3lvRzbd7INiO0Xvg==
-X-Received: by 2002:a17:907:7848:: with SMTP id lb8mr33622143ejc.494.1634058295520;
-        Tue, 12 Oct 2021 10:04:55 -0700 (PDT)
-Received: from krava ([83.240.63.48])
-        by smtp.gmail.com with ESMTPSA id e13sm5226755eje.95.2021.10.12.10.04.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Oct 2021 10:04:54 -0700 (PDT)
-Date:   Tue, 12 Oct 2021 19:04:53 +0200
-From:   Jiri Olsa <jolsa@redhat.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        Tue, 12 Oct 2021 13:21:15 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19CGb4vg000742;
+        Tue, 12 Oct 2021 13:18:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=jd9UyTmLqHs4rC9zO3ufWkJlFKNg7LlkKwuMV7wclLc=;
+ b=LGJVOppeqFlgVUvQE+OR4AdLfwNPN9DU3rfVbv5rAZMbleYV/kimfZ0hc4k5Zo1YnHJz
+ u4coE++EKh8IimDYL2MVNwVBy+FM/DzcQ/Llwz9romGmGsI8tqgPdzxPuDB6zmLy+62c
+ 80ZoMYXtZgm37HPfhJPX/b+ECXWIce7P+yjVYEaSJZwBKcHZkCHF/Rf0gvMpcYlComQM
+ /9DOhW5cz0OwEcNP6nzF0+D26CWyaUh0J1N1JegUzsd0NKMS5obgrBJXMefGnBCkK50V
+ xQMullgLDPDDIkxp8t5RbW/N0hXJQHxhHrmhS+8tll2D4mokVvCzyKrBQ30I/VhYulSv tA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bnakff8kj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 13:18:50 -0400
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19CGfa1h016068;
+        Tue, 12 Oct 2021 13:18:49 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bnakff8jt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 13:18:49 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19CHHN5r010428;
+        Tue, 12 Oct 2021 17:18:47 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3bk2q9k4k6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 17:18:47 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19CHIiNb46268824
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Oct 2021 17:18:44 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8BAEEA4059;
+        Tue, 12 Oct 2021 17:18:44 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 425AFA405F;
+        Tue, 12 Oct 2021 17:18:44 +0000 (GMT)
+Received: from osiris (unknown [9.145.95.158])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 12 Oct 2021 17:18:44 +0000 (GMT)
+Date:   Tue, 12 Oct 2021 19:18:42 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiri Olsa <jolsa@redhat.com>
 Subject: Re: [PATCH 0/4] s390: DYNAMIC_FTRACE_WITH_DIRECT_CALL support
-Message-ID: <YWXANRbkPIE3HtOE@krava>
+Message-ID: <YWXDcoQEVm1uCCEP@osiris>
 References: <20211012133802.2460757-1-hca@linux.ibm.com>
  <20211012094852.7f6a59b8@gandalf.local.home>
  <YWWithSCGThguq7s@osiris>
+ <20211012113404.29ac7c9c@gandalf.local.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YWWithSCGThguq7s@osiris>
+In-Reply-To: <20211012113404.29ac7c9c@gandalf.local.home>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: XELP0GaKTR8VkHLgi2JPf2Y1T6ApLpmU
+X-Proofpoint-ORIG-GUID: HeOwK_v4gq0HApu3O-uV1rn4qGdnM_AB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-12_04,2021-10-12_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ malwarescore=0 mlxlogscore=800 adultscore=0 lowpriorityscore=0
+ suspectscore=0 phishscore=0 priorityscore=1501 bulkscore=0 mlxscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110120094
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 12, 2021 at 04:59:02PM +0200, Heiko Carstens wrote:
-> On Tue, Oct 12, 2021 at 09:48:52AM -0400, Steven Rostedt wrote:
-> > On Tue, 12 Oct 2021 15:37:58 +0200
-> > Heiko Carstens <hca@linux.ibm.com> wrote:
-> > > This small series adds DYNAMIC_FTRACE_WITH_DIRECT_CALL support for
-> > > s390 and is based on linux-next 20211012.
-> ...
-> > > Besides the architecture backend this also adds s390 ftrace direct
-> > > call samples, and slightly changes config option handling a bit, so
-> > > that options only have to be selected. This way also additional future
-> > > architectures can easily add their trampolines to the samples.
-> ...
-> > > If ok, I'd like to get this upstream via the s390 tree with the next
-> > > merge window.
-> > 
-> > A quick look at the patches look fine to me. I'll do a bit more digging
-> > before adding a Reviewed-by.
-> > 
-> > One thing you may want to note, we are working on fixing direct trampolines
-> > that conflict with the function graph tracer, and have patches that fix it.
-> > I'm not that familiar on how ftrace works on s390, but you may want to
-> > investigate this, because if s390 has the issues that x86 has, where you
-> > can't have both function graph tracing and a direct trampoline on the same
-> > function.
-> > 
-> > See here:
-> > 
-> >   https://lore.kernel.org/all/20211008091336.33616-1-jolsa@kernel.org/
+On Tue, Oct 12, 2021 at 11:34:04AM -0400, Steven Rostedt wrote:
+> On Tue, 12 Oct 2021 16:59:02 +0200
+> Heiko Carstens <hca@linux.ibm.com> wrote:
 > 
-> I applied Jiri's patch set and the newly added selftest passes.
+> > One thing to note: Jiri adds a new a sample module, which obviously
+> > will not compile for s390. Not sure if the config mechanism I propose
+> > with this patch set is the best way to address this - it would then
+> > require to add a config option for each new sample module.
+> 
+> Is that really an issue?
+> 
+> We could just group them, as long as they have the same prefix.
+> 
+> HAVE_SAMPLE_FTRACE_DIRECT
+> HAVE_SAMPLE_FTRACE_MULTI_DIRECT
 
-nice, could I have your Tested-by? ;-)
-
-thanks,
-jirka
-
-> 
-> Note: s390 will also get HAVE_DYNAMIC_FTRACE_WITH_ARGS support, which is
-> required for the new selftest - this is currently only in linux-next.
-> See commit 5740a7c71ab6 ("s390/ftrace: add HAVE_DYNAMIC_FTRACE_WITH_ARGS
-> support") in linux-next.
-> 
-> Also manually testing with loading the ftrace-direct test module and
-> enabling the function graph tracer seems to work correctly:
-> 
->   6) + 15.138 us   |            }
->   6)               |            wake_up_process() {
->   6)               |              my_direct_func [ftrace_direct]() {
->   6)               |                /* waking up ksoftirqd/6-44 */
->   6)   0.944 us    |              }
->   6)               |              try_to_wake_up() {
->   6)   0.185 us    |                kthread_is_per_cpu();
-> 
-> One thing to note: Jiri adds a new a sample module, which obviously
-> will not compile for s390. Not sure if the config mechanism I propose
-> with this patch set is the best way to address this - it would then
-> require to add a config option for each new sample module.
-> 
-
+Sure, works for me. I just thought I should mention this.
