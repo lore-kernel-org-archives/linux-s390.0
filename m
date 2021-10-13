@@ -2,65 +2,60 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67037C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 12:44:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24A78C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 12:47:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 48EAE610E8
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 12:44:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 006E860527
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 12:47:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232711AbhJMMqr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Oct 2021 08:46:47 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34420 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230219AbhJMMqq (ORCPT
+        id S233226AbhJMMtK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Oct 2021 08:49:10 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:48025 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231644AbhJMMtJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 13 Oct 2021 08:46:46 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19DCX8eM021026;
-        Wed, 13 Oct 2021 08:44:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=e4qeE39nNF63o3oTejjERAXSIzN7WFNAVqNCqaNZdS0=;
- b=bXdKh2QI46h+HoWTks3D/B3G7row03b3rYVbT/nIgjaVQgeqX2JEEXuQUfWPRZFUUyoB
- 55qM23TFN7JsXM9l/sPtCIDo7ycrFTvLVryj7J6PsdFITPsTcH0pd3N2j4HWSPhxMLxT
- euwBaWLbYhVJE+9tbS3PiasNQfw3SZjVtDTVoFMfASgzvgRYyQ7QL/ICl75qsrhQAPvx
- ZvoknCx3YXG8QvhQqnvvkofrNKgjCZWn7AFCa8Km27LzXzILVwnIHNWYRz19hM59Aasl
- d7yuXRcAJUB3Jf3O+F80/Sojw7aJSsk/kq0ABs52Az04B0VFZec1P4qggAuOGdnWpUNx CA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bntpwxx85-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Oct 2021 08:44:36 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19DBUBAi030380;
-        Wed, 13 Oct 2021 08:44:35 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bntpwxx74-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Oct 2021 08:44:35 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19DCfUTe016216;
-        Wed, 13 Oct 2021 12:44:33 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma05fra.de.ibm.com with ESMTP id 3bk2qa0fa5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Oct 2021 12:44:32 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19DCiKMl59441428
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Oct 2021 12:44:20 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6FB2BA406F;
-        Wed, 13 Oct 2021 12:44:20 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 727F2A407B;
-        Wed, 13 Oct 2021 12:44:13 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.29.112])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Wed, 13 Oct 2021 12:44:13 +0000 (GMT)
-Date:   Wed, 13 Oct 2021 14:44:08 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
+        Wed, 13 Oct 2021 08:49:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1634129226;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Wp+/d0F+qzlGdrrSoGXSKcXwbRm7uRB50CWJ1pV00sA=;
+        b=QTfNvJnvYCHpzqE66sRusuz1zu12vlFMJtnztwxJHUwYBkzKknvA73NKrPHeLAR6PxCJTg
+        2fxmvvWIR5fhtgBlTzAE95BoM6uDoBfkrPptCOyftCexUSTcji9m2zSfP/5ina8dZ921fx
+        r/UCLKppOJOSg2SEdosYUbsOHpEX+W0=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-177-oHizhZmNPCG8J7VR-DmWyg-1; Wed, 13 Oct 2021 08:47:05 -0400
+X-MC-Unique: oHizhZmNPCG8J7VR-DmWyg-1
+Received: by mail-wr1-f69.google.com with SMTP id r16-20020adfb1d0000000b00160bf8972ceso1871713wra.13
+        for <linux-s390@vger.kernel.org>; Wed, 13 Oct 2021 05:47:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Wp+/d0F+qzlGdrrSoGXSKcXwbRm7uRB50CWJ1pV00sA=;
+        b=CrXWlZfxKKi65MzQqquhH8agReNlrlLZKv7Et1U8sk9Z65Dp2TH8nVudOn57rYDUlq
+         bnjmrh7neL2uXsYUR1vzyPev3l74z0R6Iq3Z3y8qSMEIJe8thUAnnakb2Ne/pMXjhPsF
+         ayffR6JbXNB1Qc1Q8naYHJgWKzH0URdrLtgYz+e2jCRQscnvhoUpSQlInWTkAUkMu5Ah
+         RzZkpYFML/4UaVp7C/5vgh0uBJmAh+Rim6zBSZJNfXydaUq4W54HSot7zU3eKBhRQTp7
+         cEsxhqyklO9EDwvzPdPtM9Bgex/KIdqJ3oP0D6dzu7MvUJZr/q+IJSxcJvw9Xpr3qaj2
+         g7Ig==
+X-Gm-Message-State: AOAM531ZvLLBS6emY4B/b0N2XEgBk1DaZ6POT9tes0/UEOy+YB4uTM2b
+        zn1gpEMKyilsC1B09sf6GQdrOMEsr7AuSH71MmYWjfaxWcdK+JLQDmLMPSES9hIjDiTZPO4gD17
+        gdLd28qpYCQuNVUQ020bDkA==
+X-Received: by 2002:a7b:c258:: with SMTP id b24mr12306413wmj.160.1634129224184;
+        Wed, 13 Oct 2021 05:47:04 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw3bu0Nu2sTQ0+QNSDdqXyjCUIauFl76JolUN+8aoRczJi/YTb07iDFPZNwrmi/5HPNNvtB6A==
+X-Received: by 2002:a7b:c258:: with SMTP id b24mr12306384wmj.160.1634129223978;
+        Wed, 13 Oct 2021 05:47:03 -0700 (PDT)
+Received: from redhat.com ([2.55.30.112])
+        by smtp.gmail.com with ESMTPSA id b190sm5299164wmd.25.2021.10.13.05.47.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Oct 2021 05:47:03 -0700 (PDT)
+Date:   Wed, 13 Oct 2021 08:46:59 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Halil Pasic <pasic@linux.ibm.com>
 Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
         Jason Wang <jasowang@redhat.com>,
         Xie Yongji <xieyongji@bytedance.com>,
@@ -69,47 +64,42 @@ Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
         markver@us.ibm.com, Cornelia Huck <cohuck@redhat.com>,
         linux-s390@vger.kernel.org, stefanha@redhat.com,
         Raphael Norwitz <raphael.norwitz@nutanix.com>,
-        qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>
+        qemu-devel@nongnu.org
 Subject: Re: [PATCH v3 1/1] virtio: write back F_VERSION_1 before validate
-Message-ID: <20211013144408.2812d9bd.pasic@linux.ibm.com>
-In-Reply-To: <20211013081836-mutt-send-email-mst@kernel.org>
+Message-ID: <20211013084640-mutt-send-email-mst@kernel.org>
 References: <20211011053921.1198936-1-pasic@linux.ibm.com>
-        <20211013060923-mutt-send-email-mst@kernel.org>
-        <96561e29-e0d6-9a4d-3657-999bad59914e@de.ibm.com>
-        <20211013081836-mutt-send-email-mst@kernel.org>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ <20211013060923-mutt-send-email-mst@kernel.org>
+ <96561e29-e0d6-9a4d-3657-999bad59914e@de.ibm.com>
+ <20211013081836-mutt-send-email-mst@kernel.org>
+ <20211013144408.2812d9bd.pasic@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Jp0uxxHTXTE771ls4ramYMB1Oy-7C_gz
-X-Proofpoint-ORIG-GUID: AuiVxpbg965JdHptRviyaH---l1LWaGY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-13_05,2021-10-13_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 bulkscore=0 mlxlogscore=983 clxscore=1015 phishscore=0
- spamscore=0 mlxscore=0 priorityscore=1501 suspectscore=0 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110130084
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211013144408.2812d9bd.pasic@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 13 Oct 2021 08:24:53 -0400
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> > > OK this looks good! How about a QEMU patch to make it spec compliant on
-> > > BE?  
-> > 
-> > Who is going to do that? Halil? you? Conny?  
+On Wed, Oct 13, 2021 at 02:44:08PM +0200, Halil Pasic wrote:
+> On Wed, 13 Oct 2021 08:24:53 -0400
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-> Halil said he'll do it... Right, Halil?
+> > > > OK this looks good! How about a QEMU patch to make it spec compliant on
+> > > > BE?  
+> > > 
+> > > Who is going to do that? Halil? you? Conny?  
+> > 
+> > Halil said he'll do it... Right, Halil?
+> 
+> I can do it but not right away. Maybe in a couple of weeks. I have some
+> other bugs to hunt down, before proceeding to this. If somebody else
+> wants to do it, I'm fine with that as well.
+> 
+> Regards,
+> Halil
 
-I can do it but not right away. Maybe in a couple of weeks. I have some
-other bugs to hunt down, before proceeding to this. If somebody else
-wants to do it, I'm fine with that as well.
+Couple of weeks is ok I think.
 
-Regards,
-Halil
+-- 
+MST
+
