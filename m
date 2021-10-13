@@ -2,143 +2,155 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D556CC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 22:37:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5A19C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 05:54:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB684610A2
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Oct 2021 22:37:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAEC360FDC
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 05:54:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233748AbhJLWjd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Oct 2021 18:39:33 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55934 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S232419AbhJLWjd (ORCPT
+        id S229582AbhJMF4w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Oct 2021 01:56:52 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49673 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229690AbhJMF4w (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 12 Oct 2021 18:39:33 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19CL1cdF010905;
-        Tue, 12 Oct 2021 18:37:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=sCeXo3dqmkP0/xhNkOSvbSYV07M3tvRrK4r1EnU84Cw=;
- b=jmWXkZKLI5Zql9HD18VOCm80ynoGt/I550/eS1cYqrEZX31AOj8JITnikqhSiCGWQtJV
- RPPx/50aPIEFqSiX8/nDCY1CFL82FY0glrUkm1l4etCnyUEZ6JMGPygdMOJFBOrIyRiC
- 5BlXdaJJzEec78RSxld3Q10eWgfLO77KrCVA9nZtAUxB8ismy+675kVJXu3jHzb6OMlX
- i6sSrVpHUD6LJOmNIeiYwTe3s6fCkurW9xtnmaKXo+2GqCsTC2FwsEZpRE+hntvKdOsZ
- cME3ICWfELUNNkEE6zZkeWRnl7/XgJ0fwEobtjYY74DiJrvZ2fL6cGa3BwapKWwV0DHU OQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bnhwv9mbx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Oct 2021 18:37:30 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19CMbTWD025404;
-        Tue, 12 Oct 2021 18:37:29 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bnhwv9mbh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Oct 2021 18:37:29 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19CMXQSG029155;
-        Tue, 12 Oct 2021 22:37:27 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3bk2q9mv53-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Oct 2021 22:37:27 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19CMbOpv45810034
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Oct 2021 22:37:24 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0325D52083;
-        Tue, 12 Oct 2021 22:37:24 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.29.112])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id DF42152082;
-        Tue, 12 Oct 2021 22:37:22 +0000 (GMT)
-Date:   Wed, 13 Oct 2021 00:37:14 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     Pierre Morel <pmorel@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Wed, 13 Oct 2021 01:56:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1634104489;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=36TQyv1tkrVCD2OJe4MoRPXDFmMJ7xeIWgzS4AnZy0M=;
+        b=ILKWxCo2ZEFdXcFUYc1Mg6c7bqLNRMZWiT45TufXCBrN1WcVUa7CwCuym8FDfr2ac4NNnJ
+        E5V7Fiycn2UhmqSYi3sH0oodyO5Wl2jnFBPQ14SrT8dTlcBLdq4JTpjl7UP+u9hk3R5u/U
+        0iK1Zuffxamgly4oG/zBSNbTT3wEd5M=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-354--6RkrWdePeCaXVZvMZWb2w-1; Wed, 13 Oct 2021 01:54:47 -0400
+X-MC-Unique: -6RkrWdePeCaXVZvMZWb2w-1
+Received: by mail-wr1-f69.google.com with SMTP id v15-20020adfa1cf000000b00160940b17a2so1023609wrv.19
+        for <linux-s390@vger.kernel.org>; Tue, 12 Oct 2021 22:54:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=36TQyv1tkrVCD2OJe4MoRPXDFmMJ7xeIWgzS4AnZy0M=;
+        b=ofL6k70RVNrNMAebLfSGcvL4+iErR0VPh8tjADehIZWYhmp78am6WjPj3+2buySU49
+         OfLNXQNDUGgnzRx1NtWAElJ9x3sbvsfUncdsvULbeDUguV4OagWjXnh/17XoMfHzWm4p
+         MCyq0eINdt1Kl1CY/2HNyfaP3jomkdJk/5Go2TSVj5m86AphDrDnsNEFeitrE6cH5w6K
+         BW7X1JsKBHpqOuOwPKkBfFSZYKcfKaRFjHRn9cREQyWBud7lWRImPUoTnw+Sc8np4CPs
+         63P66B+4v0XyY+LhCgydi7jXyyBLU+bvmu3qfor+SLvgT84HA/bkWmAdHaeb4xt9y7hi
+         GyPg==
+X-Gm-Message-State: AOAM533NKF1FypZKQffx6Lkr/uQlazKe8acWXK0/hT2Z6O9DVHbfe53w
+        do79iB3JuQlOnN8yuAwQS+ChB/R90ctV45Ob6M1MeiLw6sybjSzURwxodABsUiFcoaYfcceDwi4
+        +bLXcj6r4UN5GQDimzDxr6vgsJOTWbp4CpGaiHP99D2CwpNWXDYH57GthiCQNtP76s0OBXQ==
+X-Received: by 2002:adf:ee8b:: with SMTP id b11mr20148271wro.349.1634104486496;
+        Tue, 12 Oct 2021 22:54:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwQIFqCrJmKi0oQJI/PaFHFODSUXwJ9TiIIfLaI3R4IHzQMNI/aFl83PINtlnvXqS5rO7oQ/Q==
+X-Received: by 2002:adf:ee8b:: with SMTP id b11mr20148239wro.349.1634104486179;
+        Tue, 12 Oct 2021 22:54:46 -0700 (PDT)
+Received: from thuth.remote.csb (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id r4sm699269wrz.58.2021.10.12.22.54.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Oct 2021 22:54:45 -0700 (PDT)
+Subject: Re: [RFC PATCH v1 3/6] KVM: s390: Simplify SIGP Restart
+To:     Eric Farman <farman@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, bfu@redhat.com,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [RFC PATCH 1/1] s390/cio: make ccw_device_dma_* more robust
-Message-ID: <20211013003714.1c411f0b.pasic@linux.ibm.com>
-In-Reply-To: <87pmsawdvr.fsf@redhat.com>
-References: <20211011115955.2504529-1-pasic@linux.ibm.com>
- <466de207-e88d-ea93-beec-fbfe10e63a26@linux.ibm.com>
- <874k9ny6k6.fsf@redhat.com>
- <20211011204837.7617301b.pasic@linux.ibm.com>
- <87pmsawdvr.fsf@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        Jason Herne <jjherne@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20211008203112.1979843-1-farman@linux.ibm.com>
+ <20211008203112.1979843-4-farman@linux.ibm.com>
+ <e3b874c1-e220-5e23-bd67-ed08c261e425@de.ibm.com>
+ <518fea79-1579-ee4a-c09b-ae4e70e32d96@redhat.com>
+ <0e4bb561170a287cea4124e9da56dfc4bd4a0eab.camel@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Message-ID: <d30c2f8b-73f1-5639-dbb4-2e70b5982c62@redhat.com>
+Date:   Wed, 13 Oct 2021 07:54:44 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <0e4bb561170a287cea4124e9da56dfc4bd4a0eab.camel@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FnNmoyxqV9kzXznksfIDmwOd5XzzJui5
-X-Proofpoint-GUID: ALJzMp_pvrvA8cXvFjEHX09NUna6vrZG
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-12_06,2021-10-12_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- bulkscore=0 lowpriorityscore=0 phishscore=0 priorityscore=1501
- malwarescore=0 suspectscore=0 mlxlogscore=718 adultscore=0 spamscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110120119
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 12 Oct 2021 15:50:48 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
-
-> >> If I read cio_gp_dma_zalloc() correctly, we either get NULL or a valid
-> >> address, so yes.
-> >>   
-> >
-> > I don't think the extra care will hurt us too badly. I prefer to keep
-> > the IS_ERR_OR_NULL() check because it needs less domain specific
-> > knowledge to be understood, and because it is more robust.  
+On 12/10/2021 17.31, Eric Farman wrote:
+> On Tue, 2021-10-12 at 17:23 +0200, Thomas Huth wrote:
+>> On 11/10/2021 09.45, Christian Borntraeger wrote:
+>>>
+>>> Am 08.10.21 um 22:31 schrieb Eric Farman:
+>>>> Now that we check for the STOP IRQ injection at the top of the
+>>>> SIGP
+>>>> handler (before the userspace/kernelspace check), we don't need
+>>>> to do
+>>>> it down here for the Restart order.
+>>>>
+>>>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>>>> ---
+>>>>    arch/s390/kvm/sigp.c | 11 +----------
+>>>>    1 file changed, 1 insertion(+), 10 deletions(-)
+>>>>
+>>>> diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+>>>> index 6ca01bbc72cf..0c08927ca7c9 100644
+>>>> --- a/arch/s390/kvm/sigp.c
+>>>> +++ b/arch/s390/kvm/sigp.c
+>>>> @@ -240,17 +240,8 @@ static int __sigp_sense_running(struct
+>>>> kvm_vcpu *vcpu,
+>>>>    static int __prepare_sigp_re_start(struct kvm_vcpu *vcpu,
+>>>>                       struct kvm_vcpu *dst_vcpu, u8 order_code)
+>>>>    {
+>>>> -    struct kvm_s390_local_interrupt *li = &dst_vcpu-
+>>>>> arch.local_int;
+>>>>        /* handle (RE)START in user space */
+>>>> -    int rc = -EOPNOTSUPP;
+>>>> -
+>>>> -    /* make sure we don't race with STOP irq injection */
+>>>> -    spin_lock(&li->lock);
+>>>> -    if (kvm_s390_is_stop_irq_pending(dst_vcpu))
+>>>> -        rc = SIGP_CC_BUSY;
+>>>> -    spin_unlock(&li->lock);
+>>>> -
+>>>> -    return rc;
+>>>> +    return -EOPNOTSUPP;
+>>>>    }
+>>>>    static int __prepare_sigp_cpu_reset(struct kvm_vcpu *vcpu,
+>>>>
+>>>
+>>> @thuth?
+>>> Question is, does it make sense to merge patch 2 and 3 to make
+>>> things more
+>>> obvious?
+>>
+>> Maybe.
+>>
+>> Anyway: Would it make sense to remove __prepare_sigp_re_start()
+>> completely
+>> now and let __prepare_sigp_unknown() set the return code in the
+>> "default:" case?
 > 
-> It feels weird, though -- I'd rather have a comment that tells me
+> We could, but that would affect the SIGP START case which also uses the
+> re_start routine. And if we're going down that path, we could remove
+> (INITIAL) CPU RESET handled in __prepare_sigp_cpu_reset, which does the
+> same thing (nothing). Not sure it buys us much, other than losing the
+> details in the different counters of which SIGP orders are processed.
 
-This way the change feels simpler and safer to me. I believe I explained
-the why above. But if you insist I can change it. I double checked the
-cio_gp_dma_zalloc() code, and more or less the code called by it. So
-now I don't feel uncomfortable with the simpler check.
+Ok, we likely shouldn't change the way of counting the SIGPs here...
+So what about removing the almost empty function and simply do the "rc = 
+-EOPNOTSUPP" right in the handle_sigp_dst() function? That's still the 
+easiest way to read the code, I think. And we should do the same with the 
+__prepare_sigp_cpu_reset() function (in a separate patch). Just my 0.02 € of 
+course.
 
-On the other hand, I'm not very happy doing changes solely based on
-somebody's feelings. It would feel much more comfortable with a reason
-based discussion.
-
-One reason to change this to a simple NULL check, is that the
-IS_ERR_OR_NULL() check could upset the reader of the client code,
-which only checks for NULL.
-
-On the other hand I do believe we have some risk of lumping together
-different errors here. E.g. dma_pool is NULL or dma ops are not set up
-properly. Currently we would communicate that kind of a problem as
--ENOMEM, which wouldn't be a great match. But since dma_alloc_coherent()
-returns either NULL or a valid pointer, and furthermore this looks like
-a common thing in all the mm-api, I decided to be inline with that.
-
-TLDR; If you insist, I will change this to a simple null pointer check.
-
-> exactly what cio_gp_dma_zalloc() is supposed to return; I would have
-> expected that a _zalloc function always gives me a valid pointer or
-> NULL.
-
-I don't think we have such a comment for dma_alloc_coherent() or even
-kmalloc(). I agree, it would be nice to have this behavior documented
-in the apidoc all over the place. But IMHO that is a different issue.
-
-Regards,
-Halil
+  Thomas
 
