@@ -2,98 +2,187 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D99DC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 11:17:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 046E0C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 11:24:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4207D60E8B
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 11:17:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DB9DB61056
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 11:24:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229580AbhJMLTR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Oct 2021 07:19:17 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:54068 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229535AbhJMLTR (ORCPT
+        id S230156AbhJML0W (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Oct 2021 07:26:22 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58560 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229664AbhJML0T (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 13 Oct 2021 07:19:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634123833;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=5TdvhY7A1PKQTW5dYxQK5JvraKuh0yKwBhUeqrGb7YY=;
-        b=S+7dENFF7i0m2zxeairEBsuj+SlHO1PVavUQj+4M07cJHhGDYYMF9N5Cr506rfbR4LPqOz
-        CdMCtSEmHiZUZbqQ0s9AiOUJLfh+4ly4gaBbGaj1IeTFWBrhrhwr+kgDHLk64w+y+GZZtf
-        wrcZDIED1USbQKeH2coscI0L/3RCWYA=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-1-NLzn6n07OBW4iLIH2k4yRQ-1; Wed, 13 Oct 2021 07:17:12 -0400
-X-MC-Unique: NLzn6n07OBW4iLIH2k4yRQ-1
-Received: by mail-wr1-f72.google.com with SMTP id k2-20020adfc702000000b0016006b2da9bso1723242wrg.1
-        for <linux-s390@vger.kernel.org>; Wed, 13 Oct 2021 04:17:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=5TdvhY7A1PKQTW5dYxQK5JvraKuh0yKwBhUeqrGb7YY=;
-        b=7hCgvTZkOMQx6iSh+/Kk5o6prthq0xQXCwvyJ/YEBlIg9fshx3xrDQFd7NLpAw2RwR
-         MZuJeZ5js8RakYdui+djn3anoHJ82erRvjBX7H+UA+bB0ZYUEqb3ztoTpyY0OtqcZcGL
-         LN27s++ttHAh5+bh1pNQ7+M2W2aAyf2JIfI5hh4YMLEv2ZU3WReiHduVNHYJHmQl8RiG
-         bN6l5OtuDood7A4AL2HBBrUWt8TxVB5lbIGeoNV4PaDZKifn/pYujp8adSXZA14BhlYi
-         5h91h6nt3Q+butk95vH/+8rQUhvEWwpmsjtqM+367s9ARAT+ccmltFrS5WR/td6NapL6
-         MiPA==
-X-Gm-Message-State: AOAM531qikh5Rm0d9uL2pEzEzGKkBJJchxNNl3W1Jp5YgaC/VWttzyaP
-        0M6yOr3rmbbYOdXg+lnd60XrB5Xf+6AWi/DXy5LynnOfTnlUq8qwjoOheQWS4EozScQcImXqTNB
-        s7JQK+4W9PMXOhKJLiLRd6Q==
-X-Received: by 2002:a1c:3b44:: with SMTP id i65mr12040882wma.129.1634123831510;
-        Wed, 13 Oct 2021 04:17:11 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzXRdXy2LZcbx6d8hytLN9yIL+mfjK6dYZHPkYfgk5BnMEJTZlYPG9mVNeqLfHJc9UAreBEqg==
-X-Received: by 2002:a1c:3b44:: with SMTP id i65mr12040865wma.129.1634123831328;
-        Wed, 13 Oct 2021 04:17:11 -0700 (PDT)
-Received: from thuth.remote.csb (p54886540.dip0.t-ipconnect.de. [84.136.101.64])
-        by smtp.gmail.com with ESMTPSA id u2sm12703481wrr.35.2021.10.13.04.17.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 13 Oct 2021 04:17:10 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH 1/2] lib: s390x: Fix PSW constant
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, seiden@linux.ibm.com
-References: <20211013102722.17160-1-frankja@linux.ibm.com>
- <20211013102722.17160-2-frankja@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <40322aa0-1eb6-c34e-7201-ee9422e88067@redhat.com>
-Date:   Wed, 13 Oct 2021 13:17:08 +0200
+        Wed, 13 Oct 2021 07:26:19 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19D9ihA8024150;
+        Wed, 13 Oct 2021 07:24:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=E/CRiS9YKBGOipiZLMur3q/Gu9YWSpriqGljYzhvoLk=;
+ b=qUb4A8LUqXMxe9NOmZwgO/NhGO3cIsui3mJTnSXJfm2o6DAUmSJ2ILHdp7mlgpJDgZmN
+ 3E6ePsp+O7Aa8goCMqqmsIO2XPaZK9xaxiyiOJXDxHO7KEoEKGTcBerBSJUDHDHHRoL6
+ 0wjcCQRXKnu9UKbtdnlMVTZoDty0cqTmd9mDLh9S9LtHM1kYCXkUUkbU1c5Gw3zTMmnp
+ cJb3+ftDtTDYbT4GlymSZkzZJHHad6kMQyxWgonJUM/NI6T5XdJiqc5JdfqkT5wXNaLv
+ /jEvOl3JlacJULN2obiBBSI7NX3HVZZNWnlqxi58cP1BOoFWkY3OCOWtkzFvr6fDwiLZ Gw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bnqmp8tj6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Oct 2021 07:24:05 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19DAq2ds026142;
+        Wed, 13 Oct 2021 07:24:05 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bnqmp8thd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Oct 2021 07:24:04 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19DBFcNt013781;
+        Wed, 13 Oct 2021 11:24:02 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 3bk2qafun1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Oct 2021 11:24:01 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19DBIKJG46137814
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 13 Oct 2021 11:18:21 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 08D7E52075;
+        Wed, 13 Oct 2021 11:23:56 +0000 (GMT)
+Received: from li-43c5434c-23b8-11b2-a85c-c4958fb47a68.ibm.com (unknown [9.171.3.131])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id C5C0C5205A;
+        Wed, 13 Oct 2021 11:23:51 +0000 (GMT)
+Subject: Re: [PATCH v3 1/1] virtio: write back F_VERSION_1 before validate
+To:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Cc:     Jason Wang <jasowang@redhat.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        markver@us.ibm.com, Cornelia Huck <cohuck@redhat.com>,
+        linux-s390@vger.kernel.org, stefanha@redhat.com,
+        Raphael Norwitz <raphael.norwitz@nutanix.com>,
+        qemu-devel@nongnu.org
+References: <20211011053921.1198936-1-pasic@linux.ibm.com>
+ <20211013060923-mutt-send-email-mst@kernel.org>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <96561e29-e0d6-9a4d-3657-999bad59914e@de.ibm.com>
+Date:   Wed, 13 Oct 2021 13:23:50 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.14.0
 MIME-Version: 1.0
-In-Reply-To: <20211013102722.17160-2-frankja@linux.ibm.com>
+In-Reply-To: <20211013060923-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: HT3wu4tdw-asF-6Di5ricBV3R2j4XXRu
+X-Proofpoint-ORIG-GUID: gXUvvXMpnSzkMBewd-1wAXM9mg8j7MD9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-13_03,2021-10-13_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ priorityscore=1501 bulkscore=0 impostorscore=0 lowpriorityscore=0
+ phishscore=0 clxscore=1011 mlxscore=0 adultscore=0 spamscore=0
+ suspectscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109230001 definitions=main-2110130071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 13/10/2021 12.27, Janosch Frank wrote:
-> Somehow the ";" got into that patch and now complicates compilation.
-> Let's remove it and put the constant in braces.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->   lib/s390x/asm/arch_def.h | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index b34aa792..40626d72 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -53,7 +53,7 @@ struct psw {
->   #define PSW_MASK_PSTATE			0x0001000000000000UL
->   #define PSW_MASK_EA			0x0000000100000000UL
->   #define PSW_MASK_BA			0x0000000080000000UL
-> -#define PSW_MASK_64			PSW_MASK_BA | PSW_MASK_EA;
-> +#define PSW_MASK_64			(PSW_MASK_BA | PSW_MASK_EA)
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
 
+Am 13.10.21 um 12:10 schrieb Michael S. Tsirkin:
+> On Mon, Oct 11, 2021 at 07:39:21AM +0200, Halil Pasic wrote:
+>> The virtio specification virtio-v1.1-cs01 states: "Transitional devices
+>> MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
+>> been acknowledged by the driver."  This is exactly what QEMU as of 6.1
+>> has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
+>>
+>> However, the specification also says: "... the driver MAY read (but MUST
+>> NOT write) the device-specific configuration fields to check that it can
+>> support the device ..." before setting FEATURES_OK.
+>>
+>> In that case, any transitional device relying solely on
+>> VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
+>> legacy format.  In particular, this implies that it is in big endian
+>> format for big endian guests. This naturally confuses the driver which
+>> expects little endian in the modern mode.
+>>
+>> It is probably a good idea to amend the spec to clarify that
+>> VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
+>> is complete. Before validate callback existed, config space was only
+>> read after FEATURES_OK. However, we already have two regressions, so
+>> let's address this here as well.
+>>
+>> The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
+>> the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
+>> virtio 1.0 is used on both sides. The latter renders virtio-blk unusable
+>> with DASD backing, because things simply don't work with the default.
+>> See Fixes tags for relevant commits.
+>>
+>> For QEMU, we can work around the issue by writing out the feature bits
+>> with VIRTIO_F_VERSION_1 bit set.  We (ab)use the finalize_features
+>> config op for this. This isn't enough to address all vhost devices since
+>> these do not get the features until FEATURES_OK, however it looks like
+>> the affected devices actually never handled the endianness for legacy
+>> mode correctly, so at least that's not a regression.
+>>
+>> No devices except virtio net and virtio blk seem to be affected.
+>>
+>> Long term the right thing to do is to fix the hypervisors.
+>>
+>> Cc: <stable@vger.kernel.org> #v4.11
+>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+>> Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+>> Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
+>> Reported-by: markver@us.ibm.com
+>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> 
+> OK this looks good! How about a QEMU patch to make it spec compliant on
+> BE?
+
+Who is going to do that? Halil? you? Conny?
+
+Can we get this kernel patch queued for 5.15 and stable without waiting for the QEMU patch
+as we have a regression with 4.14?
+> 
+>> ---
+>>
+>> @Connie: I made some more commit message changes to accommodate Michael's
+>> requests. I just assumed these will work or you as well and kept your
+>> r-b. Please shout at me if it needs to be dropped :)
+>> ---
+>>   drivers/virtio/virtio.c | 11 +++++++++++
+>>   1 file changed, 11 insertions(+)
+>>
+>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+>> index 0a5b54034d4b..236081afe9a2 100644
+>> --- a/drivers/virtio/virtio.c
+>> +++ b/drivers/virtio/virtio.c
+>> @@ -239,6 +239,17 @@ static int virtio_dev_probe(struct device *_d)
+>>   		driver_features_legacy = driver_features;
+>>   	}
+>>   
+>> +	/*
+>> +	 * Some devices detect legacy solely via F_VERSION_1. Write
+>> +	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
+>> +	 * these when needed.
+>> +	 */
+>> +	if (drv->validate && !virtio_legacy_is_little_endian()
+>> +			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
+>> +		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
+>> +		dev->config->finalize_features(dev);
+>> +	}
+>> +
+>>   	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+>>   		dev->features = driver_features & device_features;
+>>   	else
+>>
+>> base-commit: 60a9483534ed0d99090a2ee1d4bb0b8179195f51
+>> -- 
+>> 2.25.1
+> 
