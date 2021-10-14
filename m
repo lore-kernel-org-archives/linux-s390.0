@@ -2,140 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6071C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 14:15:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60C0DC4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 06:24:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C86EC60ED4
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Oct 2021 14:15:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4958B61166
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 06:24:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236544AbhJMORW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Oct 2021 10:17:22 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37692 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236499AbhJMORU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 13 Oct 2021 10:17:20 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19DCfDGr008993;
-        Wed, 13 Oct 2021 10:15:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=927uTHklffc9dfdHbdG9ELcykUv/pH6sdbKZxfLYaq4=;
- b=r7Ff4icN74LG46HQg/xRf7N9UdYoZmUzCSN0uyUbPmnxA2SggKVT32MojQ/+q8/+QPTm
- IeyDTvZAExnNgj5UkLBdprIOucxkPcrB8r+xKR1FgomiJHx0nvIyisGyIRtoUVUfxsir
- 9fa1dMkuktydMOfJXcJI9CXMvyefaxF02NBKl5IrCuqceQjGs1zwFCGFnBqRheiYTCxD
- 2/VxjrJ9TO0GcnuiFG5foxLTjl1nx+l6/VY//XXxwNc2eCzmU4eNw282NjQxDiGlfEzC
- r7OwgPRcPla+B7/k5Mvoh1RwgnMcrEGsLKgxURZi3jZyUZkW+1SlsUGJNIdqLCadoBjv iA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bnpf3dwpu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Oct 2021 10:15:16 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19DDikg6008975;
-        Wed, 13 Oct 2021 10:15:15 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bnpf3dwnv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Oct 2021 10:15:15 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19DEDVHf026977;
-        Wed, 13 Oct 2021 14:15:14 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3bk2qabkp4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Oct 2021 14:15:13 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19DE9NQd58655222
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Oct 2021 14:09:23 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1EAF04C05A;
-        Wed, 13 Oct 2021 14:15:01 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9251C4C058;
-        Wed, 13 Oct 2021 14:15:00 +0000 (GMT)
-Received: from [9.145.94.172] (unknown [9.145.94.172])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 13 Oct 2021 14:15:00 +0000 (GMT)
-Message-ID: <0d7bd4a7-48df-b515-f7c0-9248ba20e154@linux.ibm.com>
-Date:   Wed, 13 Oct 2021 16:14:59 +0200
+        id S230023AbhJNG0e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Oct 2021 02:26:34 -0400
+Received: from szxga08-in.huawei.com ([45.249.212.255]:25135 "EHLO
+        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230097AbhJNG0P (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Oct 2021 02:26:15 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.56])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4HVK7n5qdYz1DHYG;
+        Thu, 14 Oct 2021 14:22:29 +0800 (CST)
+Received: from kwepemm600016.china.huawei.com (7.193.23.20) by
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Thu, 14 Oct 2021 14:24:08 +0800
+Received: from [10.67.102.67] (10.67.102.67) by kwepemm600016.china.huawei.com
+ (7.193.23.20) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Thu, 14 Oct
+ 2021 14:24:06 +0800
+Subject: Re: [PATCH V3 net-next 3/6] ethtool: add support to set/get rx buf
+ len via ethtool
+To:     Jakub Kicinski <kuba@kernel.org>
+CC:     <davem@davemloft.net>, <mkubecek@suse.cz>, <andrew@lunn.ch>,
+        <amitc@mellanox.com>, <idosch@idosch.org>, <danieller@nvidia.com>,
+        <jesse.brandeburg@intel.com>, <anthony.l.nguyen@intel.com>,
+        <jdike@addtoit.com>, <richard@nod.at>,
+        <anton.ivanov@cambridgegreys.com>, <netanel@amazon.com>,
+        <akiyano@amazon.com>, <gtzalik@amazon.com>, <saeedb@amazon.com>,
+        <chris.snook@gmail.com>, <ulli.kroll@googlemail.com>,
+        <linus.walleij@linaro.org>, <jeroendb@google.com>,
+        <csully@google.com>, <awogbemila@google.com>, <jdmason@kudzu.us>,
+        <rain.1986.08.12@gmail.com>, <zyjzyj2000@gmail.com>,
+        <kys@microsoft.com>, <haiyangz@microsoft.com>, <mst@redhat.com>,
+        <jasowang@redhat.com>, <doshir@vmware.com>,
+        <pv-drivers@vmware.com>, <jwi@linux.ibm.com>,
+        <kgraul@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
+        <johannes@sipsolutions.net>, <netdev@vger.kernel.org>,
+        <lipeng321@huawei.com>, <chenhao288@hisilicon.com>,
+        <linux-s390@vger.kernel.org>
+References: <20211012134127.11761-1-huangguangbin2@huawei.com>
+ <20211012134127.11761-4-huangguangbin2@huawei.com>
+ <20211012112624.641ed3e9@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+From:   "huangguangbin (A)" <huangguangbin2@huawei.com>
+Message-ID: <a2d3a1b7-5574-208a-e62e-24b378f258b7@huawei.com>
+Date:   Thu, 14 Oct 2021 14:24:06 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.0
-Subject: Re: [kvm-unit-tests PATCH v3 4/9] lib: s390x: uv: Add UVC_ERR_DEBUG
- switch
-Content-Language: en-US
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, thuth@redhat.com, seiden@linux.ibm.com,
-        scgl@linux.ibm.com
-References: <20211007085027.13050-1-frankja@linux.ibm.com>
- <20211007085027.13050-5-frankja@linux.ibm.com>
-In-Reply-To: <20211007085027.13050-5-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <20211012112624.641ed3e9@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: J5tjhsoj_tSMBMN33O0xSVrJZhIMn3u0
-X-Proofpoint-ORIG-GUID: e-IROQ979PRd_BhevQTyUyk3hKSMdCdS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-13_05,2021-10-13_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 clxscore=1015 lowpriorityscore=0 mlxscore=0
- phishscore=0 adultscore=0 bulkscore=0 suspectscore=0 malwarescore=0
- spamscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2109230001 definitions=main-2110130096
+X-Originating-IP: [10.67.102.67]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ kwepemm600016.china.huawei.com (7.193.23.20)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/7/21 10:50, Janosch Frank wrote:
-> Every time something goes wrong in a way we don't expect, we need to
-> add debug prints to some UVC to get the unexpected return code.
-> 
-> Let's just put the printing behind a macro so we can enable it if
-> needed via a simple switch.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->   lib/s390x/asm/uv.h | 12 ++++++++++++
->   1 file changed, 12 insertions(+)
-> 
-> diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-> index 2f099553..16db086d 100644
-> --- a/lib/s390x/asm/uv.h
-> +++ b/lib/s390x/asm/uv.h
-> @@ -12,6 +12,11 @@
->   #ifndef _ASMS390X_UV_H_
->   #define _ASMS390X_UV_H_
->   
-> +/* Enables printing of command code and return codes for failed UVCs */
-> +#ifndef UVC_ERR_DEBUG
-> +#define UVC_ERR_DEBUG	0
-> +#endif
-> +
->   #define UVC_RC_EXECUTED		0x0001
->   #define UVC_RC_INV_CMD		0x0002
->   #define UVC_RC_INV_STATE	0x0003
-> @@ -194,6 +199,13 @@ static inline int uv_call_once(unsigned long r1, unsigned long r2)
->   		: [cc] "=d" (cc)
->   		: [r1] "a" (r1), [r2] "a" (r2)
->   		: "memory", "cc");
-> +
-> +	if (UVC_ERR_DEBUG && cc)
 
-That needs to check cc == 1...
 
-> +		printf("UV call error: call %x rc %x rrc %x\n",
-> +		       ((struct uv_cb_header *)r2)->cmd,
-> +		       ((struct uv_cb_header *)r2)->rc,
-> +		       ((struct uv_cb_header *)r2)->rrc);
-> +
->   	return cc;
->   }
->   
+On 2021/10/13 2:26, Jakub Kicinski wrote:
+> On Tue, 12 Oct 2021 21:41:24 +0800 Guangbin Huang wrote:
+>> From: Hao Chen <chenhao288@hisilicon.com>
+>>
+>> Add support to set rx buf len via ethtool -G parameter and get
+>> rx buf len via ethtool -g parameter.
+>>
+>> Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
+>> Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
 > 
+>> +  ``ETHTOOL_A_RINGS_RX_BUF_LEN``        u32     size of buffers on the ring
+>>     ====================================  ======  ==========================
+> 
+> Does the documentation build without warnings?
+> 
+Hi Jakub, there is no warning when we build documentation. It seems that the third
+column needs more '=' symbol, we add it in next version.
 
+>> diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+>> index 266e95e4fb33..83544186cbb5 100644
+>> --- a/include/uapi/linux/ethtool.h
+>> +++ b/include/uapi/linux/ethtool.h
+>> @@ -535,6 +535,14 @@ struct ethtool_ringparam {
+>>   	__u32	tx_pending;
+>>   };
+>>   
+>> +/**
+>> + * struct ethtool_ringparam_ext - RX/TX ring configuration
+>> + * @rx_buf_len: Current length of buffers on the rx ring.
+>> + */
+>> +struct ethtool_ringparam_ext {
+>> +	__u32	rx_buf_len;
+>> +};
+> 
+> This can be moved to include/linux/ethtool.h, user space does not need
+> to know about this structure.
+> 
+Ok.
+
+>> +	if (ringparam_ext.rx_buf_len != 0 &&
+>> +	    !(ops->supported_ring_params & ETHTOOL_RING_USE_RX_BUF_LEN)) {
+>> +		ret = -EOPNOTSUPP;
+>> +		NL_SET_ERR_MSG_ATTR(info->extack,
+>> +				    tb[ETHTOOL_A_RINGS_RX_BUF_LEN],
+>> +				    "setting not supported rx buf len");
+> 
+> "setting rx buf len not supported" sounds better
+> 
+Ok.
+
+>> +		goto out_ops;
+>> +	}
+>> +
+>>   	ret = dev->ethtool_ops->set_ringparam(dev, &ringparam);
+>>   	if (ret < 0)
+>>   		goto out_ops;
+> 
+> .
+> 
