@@ -2,507 +2,753 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBFF2C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFAABC4321E
 	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 16:48:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A277F61108
+	by mail.kernel.org (Postfix) with ESMTP id C819261108
 	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 16:48:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233362AbhJNQu5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Oct 2021 12:50:57 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12032 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231455AbhJNQuw (ORCPT
+        id S233344AbhJNQu7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Oct 2021 12:50:59 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42288 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233032AbhJNQuw (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
         Thu, 14 Oct 2021 12:50:52 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19EF1sEk003213;
-        Thu, 14 Oct 2021 12:48:44 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19EGAo4p032984;
+        Thu, 14 Oct 2021 12:48:45 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=F7v0qLInDs/8PKY0gu4L3oJWJahNTED5Fd07RWpUprk=;
- b=IY/+/LDSDe7RQo3KrxIVKyJYOrAH0X7E4sn7OnyR3iZEG48Cq7RIvjHqK8ZLllMHNFWY
- MFNwEwHixTHGj8nn3SxKmbHk4rqqWbJSm2sieHbk+KIFF+3FSGTDcRqkeisvn/UdvFoi
- 3/eSmjYMhLYG3W+PXbG9ld7+n9HfRjPvULlrS4Rpe+P8929vp8jEYeuWUhZNUhuZPntu
- axvLtse+I+8xAAfg+HqRrehcahkiofCl8PIPfZJq/TMmemClrjXB18u67EyN3tIjylTm
- VUXoTMQoWSTzxme7LMYfvzKne7+OihoEk0qXmWWusfSNP0PaqS5hdcvLtDxELVfk5bwd 4w== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bnt94bkpu-1
+ bh=w3vIkXuUD5ku44xTRMHMXKQzAd8EBjrSgBgmA4u1nok=;
+ b=rxK+HWYZrcX3EUlKZyE96i5WH3IRt/+Ib3ZRUa8Mz+zxbBG3k9u0C0RMZvYztwoVaKaD
+ IrH+L2gfJM2BwF8foAYelc9K+V8LNX9rZlw1jYtdrt2SRUHwonuWEOO2EopV1HNUIJDY
+ rGiaWAVdcIemB8sRqj10lgqqZv2a6nhqEJs9nRsv3QKtIjyPOTSvWM+h8AxJ4GQd6sH2
+ EXByszUS2kNN3qt8nFLk3PSU8X6TyJkuW8c7GBW0VU29Jq4xashJmfSpGtRGp89bjasv
+ DWsnm6GntF4FEjgSsutq+SCGPBZ45OOYOyo2bRoIDuZsuwQWAMhk5IWstO1xrGOdqJGq 7A== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bpm7bfqax-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Oct 2021 12:48:43 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19EGc6Pq024057;
+        Thu, 14 Oct 2021 12:48:44 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19EGbgUo012993;
         Thu, 14 Oct 2021 16:48:41 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 3bk2bjyngm-1
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma02fra.de.ibm.com with ESMTP id 3bk2qacgve-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Oct 2021 16:48:41 +0000
+        Thu, 14 Oct 2021 16:48:40 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19EGmdC364225708
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19EGmcCc61866292
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 14 Oct 2021 16:48:39 GMT
+        Thu, 14 Oct 2021 16:48:38 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 464CCA406E;
-        Thu, 14 Oct 2021 16:48:39 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 18D4AA4054;
+        Thu, 14 Oct 2021 16:48:38 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 140CEA4066;
-        Thu, 14 Oct 2021 16:48:39 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id D1C40A4066;
+        Thu, 14 Oct 2021 16:48:37 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 14 Oct 2021 16:48:39 +0000 (GMT)
+        Thu, 14 Oct 2021 16:48:37 +0000 (GMT)
 From:   Karsten Graul <kgraul@linux.ibm.com>
 To:     David Miller <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>
 Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>, linux-rdma@vger.kernel.org
-Subject: [PATCH net-next v2 08/11] net/smc: add v2 support to the work request layer
-Date:   Thu, 14 Oct 2021 18:47:49 +0200
-Message-Id: <20211014164752.3647027-9-kgraul@linux.ibm.com>
+Subject: [PATCH net-next v2 04/11] net/smc: add SMC-Rv2 connection establishment
+Date:   Thu, 14 Oct 2021 18:47:45 +0200
+Message-Id: <20211014164752.3647027-5-kgraul@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20211014164752.3647027-1-kgraul@linux.ibm.com>
 References: <20211014164752.3647027-1-kgraul@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dBl9ZNjFpX0NHJHJBbgutmuTZd0mfOsJ
-X-Proofpoint-ORIG-GUID: dBl9ZNjFpX0NHJHJBbgutmuTZd0mfOsJ
+X-Proofpoint-GUID: aZaKTKYNZGZq5g8Eiz-PYpqudK79Raqs
+X-Proofpoint-ORIG-GUID: aZaKTKYNZGZq5g8Eiz-PYpqudK79Raqs
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-10-14_09,2021-10-14_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- spamscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
- malwarescore=0 adultscore=0 phishscore=0 impostorscore=0 mlxlogscore=891
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ suspectscore=0 adultscore=0 clxscore=1015 mlxscore=0 mlxlogscore=999
+ malwarescore=0 spamscore=0 phishscore=0 impostorscore=0 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2109230001 definitions=main-2110140095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In the work request layer define one large v2 buffer for each link group
-that is used to transmit and receive large LLC control messages.
-Add the completion queue handling for this buffer.
+Send a CLC proposal message, and the remote side process this type of
+message and determine the target GID. Check for a valid route to this
+GID, and complete the connection establishment.
 
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- net/smc/smc_core.c |   7 +-
- net/smc/smc_core.h |  14 ++++
- net/smc/smc_ib.c   |   3 +-
- net/smc/smc_wr.c   | 194 ++++++++++++++++++++++++++++++++++++++++-----
- net/smc/smc_wr.h   |   2 +
- 5 files changed, 199 insertions(+), 21 deletions(-)
+ net/smc/af_smc.c   | 169 +++++++++++++++++++++++++++++++++++----------
+ net/smc/smc_clc.c  |  89 +++++++++++++++++++-----
+ net/smc/smc_clc.h  |  24 +++++--
+ net/smc/smc_core.h |   6 ++
+ net/smc/smc_ib.c   |  27 ++++++++
+ net/smc/smc_ib.h   |  13 ++++
+ 6 files changed, 267 insertions(+), 61 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 6bbd71de6bc0..1ccab993683d 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -837,13 +837,17 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
- 		}
- 		memcpy(lgr->pnet_id, ibdev->pnetid[ibport - 1],
- 		       SMC_MAX_PNETID_LEN);
-+		if (smc_wr_alloc_lgr_mem(lgr))
-+			goto free_wq;
- 		smc_llc_lgr_init(lgr, smc);
- 
- 		link_idx = SMC_SINGLE_LINK;
- 		lnk = &lgr->lnk[link_idx];
- 		rc = smcr_link_init(lgr, lnk, link_idx, ini);
--		if (rc)
-+		if (rc) {
-+			smc_wr_free_lgr_mem(lgr);
- 			goto free_wq;
-+		}
- 		lgr_list = &smc_lgr_list.list;
- 		lgr_lock = &smc_lgr_list.lock;
- 		atomic_inc(&lgr_cnt);
-@@ -1250,6 +1254,7 @@ static void smc_lgr_free(struct smc_link_group *lgr)
- 		if (!atomic_dec_return(&lgr->smcd->lgr_cnt))
- 			wake_up(&lgr->smcd->lgrs_deleted);
- 	} else {
-+		smc_wr_free_lgr_mem(lgr);
- 		if (!atomic_dec_return(&lgr_cnt))
- 			wake_up(&lgrs_deleted);
- 	}
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index dd3198bb6cb9..5997657ee9cc 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -42,11 +42,16 @@ enum smc_link_state {			/* possible states of a link */
- };
- 
- #define SMC_WR_BUF_SIZE		48	/* size of work request buffer */
-+#define SMC_WR_BUF_V2_SIZE	8192	/* size of v2 work request buffer */
- 
- struct smc_wr_buf {
- 	u8	raw[SMC_WR_BUF_SIZE];
- };
- 
-+struct smc_wr_v2_buf {
-+	u8	raw[SMC_WR_BUF_V2_SIZE];
-+};
-+
- #define SMC_WR_REG_MR_WAIT_TIME	(5 * HZ)/* wait time for ib_wr_reg_mr result */
- 
- enum smc_wr_reg_state {
-@@ -92,7 +97,11 @@ struct smc_link {
- 	struct smc_wr_tx_pend	*wr_tx_pends;	/* WR send waiting for CQE */
- 	struct completion	*wr_tx_compl;	/* WR send CQE completion */
- 	/* above four vectors have wr_tx_cnt elements and use the same index */
-+	struct ib_send_wr	*wr_tx_v2_ib;	/* WR send v2 meta data */
-+	struct ib_sge		*wr_tx_v2_sge;	/* WR send v2 gather meta data*/
-+	struct smc_wr_tx_pend	*wr_tx_v2_pend;	/* WR send v2 waiting for CQE */
- 	dma_addr_t		wr_tx_dma_addr;	/* DMA address of wr_tx_bufs */
-+	dma_addr_t		wr_tx_v2_dma_addr; /* DMA address of v2 tx buf*/
- 	atomic_long_t		wr_tx_id;	/* seq # of last sent WR */
- 	unsigned long		*wr_tx_mask;	/* bit mask of used indexes */
- 	u32			wr_tx_cnt;	/* number of WR send buffers */
-@@ -104,6 +113,7 @@ struct smc_link {
- 	struct ib_sge		*wr_rx_sges;	/* WR recv scatter meta data */
- 	/* above three vectors have wr_rx_cnt elements and use the same index */
- 	dma_addr_t		wr_rx_dma_addr;	/* DMA address of wr_rx_bufs */
-+	dma_addr_t		wr_rx_v2_dma_addr; /* DMA address of v2 rx buf*/
- 	u64			wr_rx_id;	/* seq # of last recv WR */
- 	u32			wr_rx_cnt;	/* number of WR recv buffers */
- 	unsigned long		wr_rx_tstamp;	/* jiffies when last buf rx */
-@@ -250,6 +260,10 @@ struct smc_link_group {
- 						/* client or server */
- 			struct smc_link		lnk[SMC_LINKS_PER_LGR_MAX];
- 						/* smc link */
-+			struct smc_wr_v2_buf	*wr_rx_buf_v2;
-+						/* WR v2 recv payload buffer */
-+			struct smc_wr_v2_buf	*wr_tx_buf_v2;
-+						/* WR v2 send payload buffer */
- 			char			peer_systemid[SMC_SYSTEMID_LEN];
- 						/* unique system_id of peer */
- 			struct smc_rtoken	rtokens[SMC_RMBS_PER_LGR_MAX]
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index d15bacbd73e0..32f9d2fdc474 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -601,6 +601,7 @@ void smc_ib_destroy_queue_pair(struct smc_link *lnk)
- /* create a queue pair within the protection domain for a link */
- int smc_ib_create_queue_pair(struct smc_link *lnk)
- {
-+	int sges_per_buf = (lnk->lgr->smc_version == SMC_V2) ? 2 : 1;
- 	struct ib_qp_init_attr qp_attr = {
- 		.event_handler = smc_ib_qp_event_handler,
- 		.qp_context = lnk,
-@@ -614,7 +615,7 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
- 			.max_send_wr = SMC_WR_BUF_CNT * 3,
- 			.max_recv_wr = SMC_WR_BUF_CNT * 3,
- 			.max_send_sge = SMC_IB_MAX_SEND_SGE,
--			.max_recv_sge = 1,
-+			.max_recv_sge = sges_per_buf,
- 		},
- 		.sq_sig_type = IB_SIGNAL_REQ_WR,
- 		.qp_type = IB_QPT_RC,
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index a419e9af36b9..22d7324969cd 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -101,19 +101,32 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
- 	}
- 
- 	pnd_snd_idx = smc_wr_tx_find_pending_index(link, wc->wr_id);
--	if (pnd_snd_idx == link->wr_tx_cnt)
--		return;
--	link->wr_tx_pends[pnd_snd_idx].wc_status = wc->status;
--	if (link->wr_tx_pends[pnd_snd_idx].compl_requested)
--		complete(&link->wr_tx_compl[pnd_snd_idx]);
--	memcpy(&pnd_snd, &link->wr_tx_pends[pnd_snd_idx], sizeof(pnd_snd));
--	/* clear the full struct smc_wr_tx_pend including .priv */
--	memset(&link->wr_tx_pends[pnd_snd_idx], 0,
--	       sizeof(link->wr_tx_pends[pnd_snd_idx]));
--	memset(&link->wr_tx_bufs[pnd_snd_idx], 0,
--	       sizeof(link->wr_tx_bufs[pnd_snd_idx]));
--	if (!test_and_clear_bit(pnd_snd_idx, link->wr_tx_mask))
--		return;
-+	if (pnd_snd_idx == link->wr_tx_cnt) {
-+		if (link->lgr->smc_version != SMC_V2 ||
-+		    link->wr_tx_v2_pend->wr_id != wc->wr_id)
-+			return;
-+		link->wr_tx_v2_pend->wc_status = wc->status;
-+		memcpy(&pnd_snd, link->wr_tx_v2_pend, sizeof(pnd_snd));
-+		/* clear the full struct smc_wr_tx_pend including .priv */
-+		memset(link->wr_tx_v2_pend, 0,
-+		       sizeof(*link->wr_tx_v2_pend));
-+		memset(link->lgr->wr_tx_buf_v2, 0,
-+		       sizeof(*link->lgr->wr_tx_buf_v2));
-+	} else {
-+		link->wr_tx_pends[pnd_snd_idx].wc_status = wc->status;
-+		if (link->wr_tx_pends[pnd_snd_idx].compl_requested)
-+			complete(&link->wr_tx_compl[pnd_snd_idx]);
-+		memcpy(&pnd_snd, &link->wr_tx_pends[pnd_snd_idx],
-+		       sizeof(pnd_snd));
-+		/* clear the full struct smc_wr_tx_pend including .priv */
-+		memset(&link->wr_tx_pends[pnd_snd_idx], 0,
-+		       sizeof(link->wr_tx_pends[pnd_snd_idx]));
-+		memset(&link->wr_tx_bufs[pnd_snd_idx], 0,
-+		       sizeof(link->wr_tx_bufs[pnd_snd_idx]));
-+		if (!test_and_clear_bit(pnd_snd_idx, link->wr_tx_mask))
-+			return;
-+	}
-+
- 	if (wc->status) {
- 		for_each_set_bit(i, link->wr_tx_mask, link->wr_tx_cnt) {
- 			/* clear full struct smc_wr_tx_pend including .priv */
-@@ -123,6 +136,12 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
- 			       sizeof(link->wr_tx_bufs[i]));
- 			clear_bit(i, link->wr_tx_mask);
- 		}
-+		if (link->lgr->smc_version == SMC_V2) {
-+			memset(link->wr_tx_v2_pend, 0,
-+			       sizeof(*link->wr_tx_v2_pend));
-+			memset(link->lgr->wr_tx_buf_v2, 0,
-+			       sizeof(*link->lgr->wr_tx_buf_v2));
-+		}
- 		/* terminate link */
- 		smcr_link_down_cond_sched(link);
- 	}
-@@ -256,6 +275,14 @@ int smc_wr_tx_put_slot(struct smc_link *link,
- 		test_and_clear_bit(idx, link->wr_tx_mask);
- 		wake_up(&link->wr_tx_wait);
- 		return 1;
-+	} else if (link->lgr->smc_version == SMC_V2 &&
-+		   pend->idx == link->wr_tx_cnt) {
-+		/* Large v2 buffer */
-+		memset(&link->wr_tx_v2_pend, 0,
-+		       sizeof(link->wr_tx_v2_pend));
-+		memset(&link->lgr->wr_tx_buf_v2, 0,
-+		       sizeof(link->lgr->wr_tx_buf_v2));
-+		return 1;
- 	}
- 
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index f21e74537f53..d4280262b829 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -439,6 +439,47 @@ static int smcr_clnt_conf_first_link(struct smc_sock *smc)
  	return 0;
-@@ -517,6 +544,7 @@ void smc_wr_remember_qp_attr(struct smc_link *lnk)
+ }
  
- static void smc_wr_init_sge(struct smc_link *lnk)
- {
-+	int sges_per_buf = (lnk->lgr->smc_version == SMC_V2) ? 2 : 1;
- 	u32 i;
- 
- 	for (i = 0; i < lnk->wr_tx_cnt; i++) {
-@@ -545,14 +573,44 @@ static void smc_wr_init_sge(struct smc_link *lnk)
- 		lnk->wr_tx_rdmas[i].wr_tx_rdma[1].wr.sg_list =
- 			lnk->wr_tx_rdma_sges[i].tx_rdma_sge[1].wr_tx_rdma_sge;
- 	}
++static bool smc_isascii(char *hostname)
++{
++	int i;
 +
-+	if (lnk->lgr->smc_version == SMC_V2) {
-+		lnk->wr_tx_v2_sge->addr = lnk->wr_tx_v2_dma_addr;
-+		lnk->wr_tx_v2_sge->length = SMC_WR_BUF_V2_SIZE;
-+		lnk->wr_tx_v2_sge->lkey = lnk->roce_pd->local_dma_lkey;
-+
-+		lnk->wr_tx_v2_ib->next = NULL;
-+		lnk->wr_tx_v2_ib->sg_list = lnk->wr_tx_v2_sge;
-+		lnk->wr_tx_v2_ib->num_sge = 1;
-+		lnk->wr_tx_v2_ib->opcode = IB_WR_SEND;
-+		lnk->wr_tx_v2_ib->send_flags =
-+			IB_SEND_SIGNALED | IB_SEND_SOLICITED;
-+	}
-+
-+	/* With SMC-Rv2 there can be messages larger than SMC_WR_TX_SIZE.
-+	 * Each ib_recv_wr gets 2 sges, the second one is a spillover buffer
-+	 * and the same buffer for all sges. When a larger message arrived then
-+	 * the content of the first small sge is copied to the beginning of
-+	 * the larger spillover buffer, allowing easy data mapping.
-+	 */
- 	for (i = 0; i < lnk->wr_rx_cnt; i++) {
--		lnk->wr_rx_sges[i].addr =
-+		int x = i * sges_per_buf;
-+
-+		lnk->wr_rx_sges[x].addr =
- 			lnk->wr_rx_dma_addr + i * SMC_WR_BUF_SIZE;
--		lnk->wr_rx_sges[i].length = SMC_WR_BUF_SIZE;
--		lnk->wr_rx_sges[i].lkey = lnk->roce_pd->local_dma_lkey;
-+		lnk->wr_rx_sges[x].length = SMC_WR_TX_SIZE;
-+		lnk->wr_rx_sges[x].lkey = lnk->roce_pd->local_dma_lkey;
-+		if (lnk->lgr->smc_version == SMC_V2) {
-+			lnk->wr_rx_sges[x + 1].addr =
-+					lnk->wr_rx_v2_dma_addr + SMC_WR_TX_SIZE;
-+			lnk->wr_rx_sges[x + 1].length =
-+					SMC_WR_BUF_V2_SIZE - SMC_WR_TX_SIZE;
-+			lnk->wr_rx_sges[x + 1].lkey =
-+					lnk->roce_pd->local_dma_lkey;
-+		}
- 		lnk->wr_rx_ibs[i].next = NULL;
--		lnk->wr_rx_ibs[i].sg_list = &lnk->wr_rx_sges[i];
--		lnk->wr_rx_ibs[i].num_sge = 1;
-+		lnk->wr_rx_ibs[i].sg_list = &lnk->wr_rx_sges[x];
-+		lnk->wr_rx_ibs[i].num_sge = sges_per_buf;
- 	}
- 	lnk->wr_reg.wr.next = NULL;
- 	lnk->wr_reg.wr.num_sge = 0;
-@@ -585,16 +643,45 @@ void smc_wr_free_link(struct smc_link *lnk)
- 				    DMA_FROM_DEVICE);
- 		lnk->wr_rx_dma_addr = 0;
- 	}
-+	if (lnk->wr_rx_v2_dma_addr) {
-+		ib_dma_unmap_single(ibdev, lnk->wr_rx_v2_dma_addr,
-+				    SMC_WR_BUF_V2_SIZE,
-+				    DMA_FROM_DEVICE);
-+		lnk->wr_rx_v2_dma_addr = 0;
-+	}
- 	if (lnk->wr_tx_dma_addr) {
- 		ib_dma_unmap_single(ibdev, lnk->wr_tx_dma_addr,
- 				    SMC_WR_BUF_SIZE * lnk->wr_tx_cnt,
- 				    DMA_TO_DEVICE);
- 		lnk->wr_tx_dma_addr = 0;
- 	}
-+	if (lnk->wr_tx_v2_dma_addr) {
-+		ib_dma_unmap_single(ibdev, lnk->wr_tx_v2_dma_addr,
-+				    SMC_WR_BUF_V2_SIZE,
-+				    DMA_TO_DEVICE);
-+		lnk->wr_tx_v2_dma_addr = 0;
-+	}
++	for (i = 0; i < SMC_MAX_HOSTNAME_LEN; i++)
++		if (!isascii(hostname[i]))
++			return false;
++	return true;
 +}
 +
-+void smc_wr_free_lgr_mem(struct smc_link_group *lgr)
++static void smc_conn_save_peer_info_fce(struct smc_sock *smc,
++					struct smc_clc_msg_accept_confirm *clc)
 +{
-+	if (lgr->smc_version < SMC_V2)
++	struct smc_clc_msg_accept_confirm_v2 *clc_v2 =
++		(struct smc_clc_msg_accept_confirm_v2 *)clc;
++	struct smc_clc_first_contact_ext *fce;
++	int clc_v2_len;
++
++	if (clc->hdr.version == SMC_V1 ||
++	    !(clc->hdr.typev2 & SMC_FIRST_CONTACT_MASK))
 +		return;
 +
-+	kfree(lgr->wr_rx_buf_v2);
-+	lgr->wr_rx_buf_v2 = NULL;
-+	kfree(lgr->wr_tx_buf_v2);
-+	lgr->wr_tx_buf_v2 = NULL;
- }
- 
- void smc_wr_free_link_mem(struct smc_link *lnk)
++	if (smc->conn.lgr->is_smcd) {
++		memcpy(smc->conn.lgr->negotiated_eid, clc_v2->d1.eid,
++		       SMC_MAX_EID_LEN);
++		clc_v2_len = offsetofend(struct smc_clc_msg_accept_confirm_v2,
++					 d1);
++	} else {
++		memcpy(smc->conn.lgr->negotiated_eid, clc_v2->r1.eid,
++		       SMC_MAX_EID_LEN);
++		clc_v2_len = offsetofend(struct smc_clc_msg_accept_confirm_v2,
++					 r1);
++	}
++	fce = (struct smc_clc_first_contact_ext *)(((u8 *)clc_v2) + clc_v2_len);
++	smc->conn.lgr->peer_os = fce->os_type;
++	smc->conn.lgr->peer_smc_release = fce->release;
++	if (smc_isascii(fce->hostname))
++		memcpy(smc->conn.lgr->peer_hostname, fce->hostname,
++		       SMC_MAX_HOSTNAME_LEN);
++}
++
+ static void smcr_conn_save_peer_info(struct smc_sock *smc,
+ 				     struct smc_clc_msg_accept_confirm *clc)
  {
-+	kfree(lnk->wr_tx_v2_ib);
-+	lnk->wr_tx_v2_ib = NULL;
-+	kfree(lnk->wr_tx_v2_sge);
-+	lnk->wr_tx_v2_sge = NULL;
-+	kfree(lnk->wr_tx_v2_pend);
-+	lnk->wr_tx_v2_pend = NULL;
- 	kfree(lnk->wr_tx_compl);
- 	lnk->wr_tx_compl = NULL;
- 	kfree(lnk->wr_tx_pends);
-@@ -619,8 +706,26 @@ void smc_wr_free_link_mem(struct smc_link *lnk)
- 	lnk->wr_rx_bufs = NULL;
+@@ -451,16 +492,6 @@ static void smcr_conn_save_peer_info(struct smc_sock *smc,
+ 	smc->conn.tx_off = bufsize * (smc->conn.peer_rmbe_idx - 1);
  }
  
-+int smc_wr_alloc_lgr_mem(struct smc_link_group *lgr)
+-static bool smc_isascii(char *hostname)
+-{
+-	int i;
+-
+-	for (i = 0; i < SMC_MAX_HOSTNAME_LEN; i++)
+-		if (!isascii(hostname[i]))
+-			return false;
+-	return true;
+-}
+-
+ static void smcd_conn_save_peer_info(struct smc_sock *smc,
+ 				     struct smc_clc_msg_accept_confirm *clc)
+ {
+@@ -472,22 +503,6 @@ static void smcd_conn_save_peer_info(struct smc_sock *smc,
+ 	smc->conn.peer_rmbe_size = bufsize - sizeof(struct smcd_cdc_msg);
+ 	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
+ 	smc->conn.tx_off = bufsize * smc->conn.peer_rmbe_idx;
+-	if (clc->hdr.version > SMC_V1 &&
+-	    (clc->hdr.typev2 & SMC_FIRST_CONTACT_MASK)) {
+-		struct smc_clc_msg_accept_confirm_v2 *clc_v2 =
+-			(struct smc_clc_msg_accept_confirm_v2 *)clc;
+-		struct smc_clc_first_contact_ext *fce =
+-			(struct smc_clc_first_contact_ext *)
+-				(((u8 *)clc_v2) + sizeof(*clc_v2));
+-
+-		memcpy(smc->conn.lgr->negotiated_eid, clc_v2->eid,
+-		       SMC_MAX_EID_LEN);
+-		smc->conn.lgr->peer_os = fce->os_type;
+-		smc->conn.lgr->peer_smc_release = fce->release;
+-		if (smc_isascii(fce->hostname))
+-			memcpy(smc->conn.lgr->peer_hostname, fce->hostname,
+-			       SMC_MAX_HOSTNAME_LEN);
+-	}
+ }
+ 
+ static void smc_conn_save_peer_info(struct smc_sock *smc,
+@@ -497,14 +512,16 @@ static void smc_conn_save_peer_info(struct smc_sock *smc,
+ 		smcd_conn_save_peer_info(smc, clc);
+ 	else
+ 		smcr_conn_save_peer_info(smc, clc);
++	smc_conn_save_peer_info_fce(smc, clc);
+ }
+ 
+ static void smc_link_save_peer_info(struct smc_link *link,
+-				    struct smc_clc_msg_accept_confirm *clc)
++				    struct smc_clc_msg_accept_confirm *clc,
++				    struct smc_init_info *ini)
+ {
+ 	link->peer_qpn = ntoh24(clc->r0.qpn);
+-	memcpy(link->peer_gid, clc->r0.lcl.gid, SMC_GID_SIZE);
+-	memcpy(link->peer_mac, clc->r0.lcl.mac, sizeof(link->peer_mac));
++	memcpy(link->peer_gid, ini->peer_gid, SMC_GID_SIZE);
++	memcpy(link->peer_mac, ini->peer_mac, sizeof(link->peer_mac));
+ 	link->peer_psn = ntoh24(clc->r0.psn);
+ 	link->peer_mtu = clc->r0.qp_mtu;
+ }
+@@ -769,6 +786,64 @@ static int smc_connect_clc(struct smc_sock *smc,
+ 				SMC_CLC_ACCEPT, CLC_WAIT_TIME);
+ }
+ 
++static void smc_fill_gid_list(struct smc_link_group *lgr,
++			      struct smc_gidlist *gidlist,
++			      struct smc_ib_device *known_dev, u8 *known_gid)
 +{
-+	if (lgr->smc_version < SMC_V2)
++	struct smc_init_info *alt_ini = NULL;
++
++	memset(gidlist, 0, sizeof(*gidlist));
++	memcpy(gidlist->list[gidlist->len++], known_gid, SMC_GID_SIZE);
++
++	alt_ini = kzalloc(sizeof(*alt_ini), GFP_KERNEL);
++	if (!alt_ini)
++		goto out;
++
++	alt_ini->vlan_id = lgr->vlan_id;
++	alt_ini->check_smcrv2 = true;
++	alt_ini->smcrv2.saddr = lgr->saddr;
++	smc_pnet_find_alt_roce(lgr, alt_ini, known_dev);
++
++	if (!alt_ini->smcrv2.ib_dev_v2)
++		goto out;
++
++	memcpy(gidlist->list[gidlist->len++], alt_ini->smcrv2.ib_gid_v2,
++	       SMC_GID_SIZE);
++
++out:
++	kfree(alt_ini);
++}
++
++static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
++				       struct smc_clc_msg_accept_confirm *aclc,
++				       struct smc_init_info *ini)
++{
++	struct smc_clc_msg_accept_confirm_v2 *clc_v2 =
++		(struct smc_clc_msg_accept_confirm_v2 *)aclc;
++	struct smc_clc_first_contact_ext *fce =
++		(struct smc_clc_first_contact_ext *)
++			(((u8 *)clc_v2) + sizeof(*clc_v2));
++
++	if (!ini->first_contact_peer || aclc->hdr.version == SMC_V1)
 +		return 0;
 +
-+	lgr->wr_rx_buf_v2 = kzalloc(SMC_WR_BUF_V2_SIZE, GFP_KERNEL);
-+	if (!lgr->wr_rx_buf_v2)
-+		return -ENOMEM;
-+	lgr->wr_tx_buf_v2 = kzalloc(SMC_WR_BUF_V2_SIZE, GFP_KERNEL);
-+	if (!lgr->wr_tx_buf_v2) {
-+		kfree(lgr->wr_rx_buf_v2);
-+		return -ENOMEM;
++	if (fce->v2_direct) {
++		memcpy(ini->smcrv2.nexthop_mac, &aclc->r0.lcl.mac, ETH_ALEN);
++		ini->smcrv2.uses_gateway = false;
++	} else {
++		if (smc_ib_find_route(smc->clcsock->sk->sk_rcv_saddr,
++				      smc_ib_gid_to_ipv4(aclc->r0.lcl.gid),
++				      ini->smcrv2.nexthop_mac,
++				      &ini->smcrv2.uses_gateway))
++			return SMC_CLC_DECL_NOROUTE;
++		if (!ini->smcrv2.uses_gateway) {
++			/* mismatch: peer claims indirect, but its direct */
++			return SMC_CLC_DECL_NOINDIRECT;
++		}
 +	}
 +	return 0;
 +}
 +
- int smc_wr_alloc_link_mem(struct smc_link *link)
+ /* setup for RDMA connection of client */
+ static int smc_connect_rdma(struct smc_sock *smc,
+ 			    struct smc_clc_msg_accept_confirm *aclc,
+@@ -776,11 +851,18 @@ static int smc_connect_rdma(struct smc_sock *smc,
  {
-+	int sges_per_buf = link->lgr->smc_version == SMC_V2 ? 2 : 1;
-+
- 	/* allocate link related memory */
- 	link->wr_tx_bufs = kcalloc(SMC_WR_BUF_CNT, SMC_WR_BUF_SIZE, GFP_KERNEL);
- 	if (!link->wr_tx_bufs)
-@@ -653,7 +758,7 @@ int smc_wr_alloc_link_mem(struct smc_link *link)
- 	if (!link->wr_tx_sges)
- 		goto no_mem_wr_tx_rdma_sges;
- 	link->wr_rx_sges = kcalloc(SMC_WR_BUF_CNT * 3,
--				   sizeof(link->wr_rx_sges[0]),
-+				   sizeof(link->wr_rx_sges[0]) * sges_per_buf,
- 				   GFP_KERNEL);
- 	if (!link->wr_rx_sges)
- 		goto no_mem_wr_tx_sges;
-@@ -672,8 +777,29 @@ int smc_wr_alloc_link_mem(struct smc_link *link)
- 				    GFP_KERNEL);
- 	if (!link->wr_tx_compl)
- 		goto no_mem_wr_tx_pends;
-+
-+	if (link->lgr->smc_version == SMC_V2) {
-+		link->wr_tx_v2_ib = kzalloc(sizeof(*link->wr_tx_v2_ib),
-+					    GFP_KERNEL);
-+		if (!link->wr_tx_v2_ib)
-+			goto no_mem_tx_compl;
-+		link->wr_tx_v2_sge = kzalloc(sizeof(*link->wr_tx_v2_sge),
-+					     GFP_KERNEL);
-+		if (!link->wr_tx_v2_sge)
-+			goto no_mem_v2_ib;
-+		link->wr_tx_v2_pend = kzalloc(sizeof(*link->wr_tx_v2_pend),
-+					      GFP_KERNEL);
-+		if (!link->wr_tx_v2_pend)
-+			goto no_mem_v2_sge;
-+	}
- 	return 0;
+ 	int i, reason_code = 0;
+ 	struct smc_link *link;
++	u8 *eid = NULL;
  
-+no_mem_v2_sge:
-+	kfree(link->wr_tx_v2_sge);
-+no_mem_v2_ib:
-+	kfree(link->wr_tx_v2_ib);
-+no_mem_tx_compl:
-+	kfree(link->wr_tx_compl);
- no_mem_wr_tx_pends:
- 	kfree(link->wr_tx_pends);
- no_mem_wr_tx_mask:
-@@ -725,6 +851,24 @@ int smc_wr_create_link(struct smc_link *lnk)
- 		rc = -EIO;
- 		goto out;
+ 	ini->is_smcd = false;
+-	ini->ib_lcl = &aclc->r0.lcl;
+ 	ini->ib_clcqpn = ntoh24(aclc->r0.qpn);
+ 	ini->first_contact_peer = aclc->hdr.typev2 & SMC_FIRST_CONTACT_MASK;
++	memcpy(ini->peer_systemid, aclc->r0.lcl.id_for_peer, SMC_SYSTEMID_LEN);
++	memcpy(ini->peer_gid, aclc->r0.lcl.gid, SMC_GID_SIZE);
++	memcpy(ini->peer_mac, aclc->r0.lcl.mac, ETH_ALEN);
++
++	reason_code = smc_connect_rdma_v2_prepare(smc, aclc, ini);
++	if (reason_code)
++		return reason_code;
+ 
+ 	mutex_lock(&smc_client_lgr_pending);
+ 	reason_code = smc_conn_create(smc, ini);
+@@ -802,8 +884,9 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 			if (l->peer_qpn == ntoh24(aclc->r0.qpn) &&
+ 			    !memcmp(l->peer_gid, &aclc->r0.lcl.gid,
+ 				    SMC_GID_SIZE) &&
+-			    !memcmp(l->peer_mac, &aclc->r0.lcl.mac,
+-				    sizeof(l->peer_mac))) {
++			    (aclc->hdr.version > SMC_V1 ||
++			     !memcmp(l->peer_mac, &aclc->r0.lcl.mac,
++				     sizeof(l->peer_mac)))) {
+ 				link = l;
+ 				break;
+ 			}
+@@ -822,7 +905,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
  	}
-+	if (lnk->lgr->smc_version == SMC_V2) {
-+		lnk->wr_rx_v2_dma_addr = ib_dma_map_single(ibdev,
-+			lnk->lgr->wr_rx_buf_v2, SMC_WR_BUF_V2_SIZE,
-+			DMA_FROM_DEVICE);
-+		if (ib_dma_mapping_error(ibdev, lnk->wr_rx_v2_dma_addr)) {
-+			lnk->wr_rx_v2_dma_addr = 0;
-+			rc = -EIO;
-+			goto dma_unmap;
-+		}
-+		lnk->wr_tx_v2_dma_addr = ib_dma_map_single(ibdev,
-+			lnk->lgr->wr_tx_buf_v2, SMC_WR_BUF_V2_SIZE,
-+			DMA_TO_DEVICE);
-+		if (ib_dma_mapping_error(ibdev, lnk->wr_tx_v2_dma_addr)) {
-+			lnk->wr_tx_v2_dma_addr = 0;
-+			rc = -EIO;
-+			goto dma_unmap;
-+		}
-+	}
- 	lnk->wr_tx_dma_addr = ib_dma_map_single(
- 		ibdev, lnk->wr_tx_bufs,	SMC_WR_BUF_SIZE * lnk->wr_tx_cnt,
- 		DMA_TO_DEVICE);
-@@ -742,6 +886,18 @@ int smc_wr_create_link(struct smc_link *lnk)
- 	return rc;
  
- dma_unmap:
-+	if (lnk->wr_rx_v2_dma_addr) {
-+		ib_dma_unmap_single(ibdev, lnk->wr_rx_v2_dma_addr,
-+				    SMC_WR_BUF_V2_SIZE,
-+				    DMA_FROM_DEVICE);
-+		lnk->wr_rx_v2_dma_addr = 0;
-+	}
-+	if (lnk->wr_tx_v2_dma_addr) {
-+		ib_dma_unmap_single(ibdev, lnk->wr_tx_v2_dma_addr,
-+				    SMC_WR_BUF_V2_SIZE,
-+				    DMA_TO_DEVICE);
-+		lnk->wr_tx_v2_dma_addr = 0;
-+	}
- 	ib_dma_unmap_single(ibdev, lnk->wr_rx_dma_addr,
- 			    SMC_WR_BUF_SIZE * lnk->wr_rx_cnt,
- 			    DMA_FROM_DEVICE);
-diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
-index 2bc626f230a5..6d2cdb231859 100644
---- a/net/smc/smc_wr.h
-+++ b/net/smc/smc_wr.h
-@@ -101,8 +101,10 @@ static inline int smc_wr_rx_post(struct smc_link *link)
+ 	if (ini->first_contact_local)
+-		smc_link_save_peer_info(link, aclc);
++		smc_link_save_peer_info(link, aclc, ini);
  
- int smc_wr_create_link(struct smc_link *lnk);
- int smc_wr_alloc_link_mem(struct smc_link *lnk);
-+int smc_wr_alloc_lgr_mem(struct smc_link_group *lgr);
- void smc_wr_free_link(struct smc_link *lnk);
- void smc_wr_free_link_mem(struct smc_link *lnk);
-+void smc_wr_free_lgr_mem(struct smc_link_group *lgr);
- void smc_wr_remember_qp_attr(struct smc_link *lnk);
- void smc_wr_remove_dev(struct smc_ib_device *smcibdev);
- void smc_wr_add_dev(struct smc_ib_device *smcibdev);
+ 	if (smc_rmb_rtoken_handling(&smc->conn, link, aclc)) {
+ 		reason_code = SMC_CLC_DECL_ERR_RTOK;
+@@ -845,8 +928,18 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 	}
+ 	smc_rmb_sync_sg_for_device(&smc->conn);
+ 
++	if (aclc->hdr.version > SMC_V1) {
++		struct smc_clc_msg_accept_confirm_v2 *clc_v2 =
++			(struct smc_clc_msg_accept_confirm_v2 *)aclc;
++
++		eid = clc_v2->r1.eid;
++		if (ini->first_contact_local)
++			smc_fill_gid_list(link->lgr, &ini->smcrv2.gidlist,
++					  link->smcibdev, link->gid);
++	}
++
+ 	reason_code = smc_clc_send_confirm(smc, ini->first_contact_local,
+-					   SMC_V1, NULL);
++					   aclc->hdr.version, eid, ini);
+ 	if (reason_code)
+ 		goto connect_abort;
+ 
+@@ -886,7 +979,7 @@ smc_v2_determine_accepted_chid(struct smc_clc_msg_accept_confirm_v2 *aclc,
+ 	int i;
+ 
+ 	for (i = 0; i < ini->ism_offered_cnt + 1; i++) {
+-		if (ini->ism_chid[i] == ntohs(aclc->chid)) {
++		if (ini->ism_chid[i] == ntohs(aclc->d1.chid)) {
+ 			ini->ism_selected = i;
+ 			return 0;
+ 		}
+@@ -940,11 +1033,11 @@ static int smc_connect_ism(struct smc_sock *smc,
+ 		struct smc_clc_msg_accept_confirm_v2 *clc_v2 =
+ 			(struct smc_clc_msg_accept_confirm_v2 *)aclc;
+ 
+-		eid = clc_v2->eid;
++		eid = clc_v2->d1.eid;
+ 	}
+ 
+ 	rc = smc_clc_send_confirm(smc, ini->first_contact_local,
+-				  aclc->hdr.version, eid);
++				  aclc->hdr.version, eid, NULL);
+ 	if (rc)
+ 		goto connect_abort;
+ 	mutex_unlock(&smc_server_lgr_pending);
+@@ -1735,7 +1828,7 @@ static int smc_listen_rdma_finish(struct smc_sock *new_smc,
+ 	int reason_code = 0;
+ 
+ 	if (local_first)
+-		smc_link_save_peer_info(link, cclc);
++		smc_link_save_peer_info(link, cclc, NULL);
+ 
+ 	if (smc_rmb_rtoken_handling(&new_smc->conn, link, cclc))
+ 		return SMC_CLC_DECL_ERR_RTOK;
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 8d44f06cf401..5cc2e2dc7417 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -31,6 +31,7 @@
+ #define SMCR_CLC_ACCEPT_CONFIRM_LEN 68
+ #define SMCD_CLC_ACCEPT_CONFIRM_LEN 48
+ #define SMCD_CLC_ACCEPT_CONFIRM_LEN_V2 78
++#define SMCR_CLC_ACCEPT_CONFIRM_LEN_V2 108
+ #define SMC_CLC_RECV_BUF_LEN	100
+ 
+ /* eye catcher "SMCR" EBCDIC for CLC messages */
+@@ -309,7 +310,8 @@ bool smc_clc_match_eid(u8 *negotiated_eid,
+ 
+ 	negotiated_eid[0] = 0;
+ 	read_lock(&smc_clc_eid_table.lock);
+-	if (smc_clc_eid_table.seid_enabled &&
++	if (peer_eid && local_eid &&
++	    smc_clc_eid_table.seid_enabled &&
+ 	    smc_v2_ext->hdr.flag.seid &&
+ 	    !memcmp(peer_eid, local_eid, SMC_MAX_EID_LEN)) {
+ 		memcpy(negotiated_eid, peer_eid, SMC_MAX_EID_LEN);
+@@ -391,6 +393,9 @@ smc_clc_msg_acc_conf_valid(struct smc_clc_msg_accept_confirm_v2 *clc_v2)
+ 		    (ntohs(hdr->length) != SMCD_CLC_ACCEPT_CONFIRM_LEN_V2 +
+ 				sizeof(struct smc_clc_first_contact_ext)))
+ 			return false;
++		if (hdr->typev1 == SMC_TYPE_R &&
++		    ntohs(hdr->length) < SMCR_CLC_ACCEPT_CONFIRM_LEN_V2)
++			return false;
+ 	}
+ 	return true;
+ }
+@@ -844,8 +849,8 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+ 	} else {
+ 		struct smc_clc_eid_entry *ueident;
+ 		u16 v2_ext_offset;
+-		u8 *eid = NULL;
+ 
++		v2_ext->hdr.flag.release = SMC_RELEASE;
+ 		v2_ext_offset = sizeof(*pclc_smcd) -
+ 			offsetofend(struct smc_clc_msg_smcd, v2_ext_offset);
+ 		if (ini->smc_type_v1 != SMC_TYPE_N)
+@@ -853,6 +858,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+ 						pclc_prfx->ipv6_prefixes_cnt *
+ 						sizeof(ipv6_prfx[0]);
+ 		pclc_smcd->v2_ext_offset = htons(v2_ext_offset);
++		plen += sizeof(*v2_ext);
+ 
+ 		read_lock(&smc_clc_eid_table.lock);
+ 		v2_ext->hdr.eid_cnt = smc_clc_eid_table.ueid_cnt;
+@@ -862,10 +868,13 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+ 			memcpy(v2_ext->user_eids[i++], ueident->eid,
+ 			       sizeof(ueident->eid));
+ 		}
+-		v2_ext->hdr.flag.seid = smc_clc_eid_table.seid_enabled;
+ 		read_unlock(&smc_clc_eid_table.lock);
++	}
++	if (smcd_indicated(ini->smc_type_v2)) {
++		u8 *eid = NULL;
++
++		v2_ext->hdr.flag.seid = smc_clc_eid_table.seid_enabled;
+ 		v2_ext->hdr.ism_gid_cnt = ini->ism_offered_cnt;
+-		v2_ext->hdr.flag.release = SMC_RELEASE;
+ 		v2_ext->hdr.smcd_v2_ext_offset = htons(sizeof(*v2_ext) -
+ 				offsetofend(struct smc_clnt_opts_area_hdr,
+ 					    smcd_v2_ext_offset) +
+@@ -873,7 +882,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+ 		smc_ism_get_system_eid(&eid);
+ 		if (eid && v2_ext->hdr.flag.seid)
+ 			memcpy(smcd_v2_ext->system_eid, eid, SMC_MAX_EID_LEN);
+-		plen += sizeof(*v2_ext) + sizeof(*smcd_v2_ext);
++		plen += sizeof(*smcd_v2_ext);
+ 		if (ini->ism_offered_cnt) {
+ 			for (i = 1; i <= ini->ism_offered_cnt; i++) {
+ 				gidchids[i - 1].gid =
+@@ -885,6 +894,9 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+ 				sizeof(struct smc_clc_smcd_gid_chid);
+ 		}
+ 	}
++	if (smcr_indicated(ini->smc_type_v2))
++		memcpy(v2_ext->roce, ini->smcrv2.ib_gid_v2, SMC_GID_SIZE);
++
+ 	pclc_base->hdr.length = htons(plen);
+ 	memcpy(trl->eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
+ 
+@@ -908,12 +920,14 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+ 		vec[i].iov_base = v2_ext;
+ 		vec[i++].iov_len = sizeof(*v2_ext) +
+ 				   (v2_ext->hdr.eid_cnt * SMC_MAX_EID_LEN);
+-		vec[i].iov_base = smcd_v2_ext;
+-		vec[i++].iov_len = sizeof(*smcd_v2_ext);
+-		if (ini->ism_offered_cnt) {
+-			vec[i].iov_base = gidchids;
+-			vec[i++].iov_len = ini->ism_offered_cnt *
++		if (smcd_indicated(ini->smc_type_v2)) {
++			vec[i].iov_base = smcd_v2_ext;
++			vec[i++].iov_len = sizeof(*smcd_v2_ext);
++			if (ini->ism_offered_cnt) {
++				vec[i].iov_base = gidchids;
++				vec[i++].iov_len = ini->ism_offered_cnt *
+ 					sizeof(struct smc_clc_smcd_gid_chid);
++			}
+ 		}
+ 	}
+ 	vec[i].iov_base = trl;
+@@ -936,13 +950,14 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 				       struct smc_clc_msg_accept_confirm_v2 *clc_v2,
+ 				       int first_contact, u8 version,
+-				       u8 *eid)
++				       u8 *eid, struct smc_init_info *ini)
+ {
+ 	struct smc_connection *conn = &smc->conn;
+ 	struct smc_clc_msg_accept_confirm *clc;
+ 	struct smc_clc_first_contact_ext fce;
++	struct smc_clc_fce_gid_ext gle;
+ 	struct smc_clc_msg_trail trl;
+-	struct kvec vec[3];
++	struct kvec vec[5];
+ 	struct msghdr msg;
+ 	int i, len;
+ 
+@@ -964,9 +979,10 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 		if (version == SMC_V1) {
+ 			clc->hdr.length = htons(SMCD_CLC_ACCEPT_CONFIRM_LEN);
+ 		} else {
+-			clc_v2->chid = htons(smc_ism_get_chid(conn->lgr->smcd));
+-			if (eid[0])
+-				memcpy(clc_v2->eid, eid, SMC_MAX_EID_LEN);
++			clc_v2->d1.chid =
++				htons(smc_ism_get_chid(conn->lgr->smcd));
++			if (eid && eid[0])
++				memcpy(clc_v2->d1.eid, eid, SMC_MAX_EID_LEN);
+ 			len = SMCD_CLC_ACCEPT_CONFIRM_LEN_V2;
+ 			if (first_contact)
+ 				smc_clc_fill_fce(&fce, &len);
+@@ -1005,6 +1021,26 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 		clc->r0.rmb_dma_addr = cpu_to_be64((u64)sg_dma_address
+ 				(conn->rmb_desc->sgt[link->link_idx].sgl));
+ 		hton24(clc->r0.psn, link->psn_initial);
++		if (version == SMC_V1) {
++			clc->hdr.length = htons(SMCR_CLC_ACCEPT_CONFIRM_LEN);
++		} else {
++			if (eid && eid[0])
++				memcpy(clc_v2->r1.eid, eid, SMC_MAX_EID_LEN);
++			len = SMCR_CLC_ACCEPT_CONFIRM_LEN_V2;
++			if (first_contact) {
++				smc_clc_fill_fce(&fce, &len);
++				fce.v2_direct = !link->lgr->uses_gateway;
++				memset(&gle, 0, sizeof(gle));
++				if (ini && clc->hdr.type == SMC_CLC_CONFIRM) {
++					gle.gid_cnt = ini->smcrv2.gidlist.len;
++					len += sizeof(gle);
++					len += gle.gid_cnt * sizeof(gle.gid[0]);
++				} else {
++					len += sizeof(gle.reserved);
++				}
++			}
++			clc_v2->hdr.length = htons(len);
++		}
+ 		memcpy(trl.eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
+ 	}
+ 
+@@ -1012,7 +1048,10 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 	i = 0;
+ 	vec[i].iov_base = clc_v2;
+ 	if (version > SMC_V1)
+-		vec[i++].iov_len = SMCD_CLC_ACCEPT_CONFIRM_LEN_V2 - sizeof(trl);
++		vec[i++].iov_len = (clc->hdr.typev1 == SMC_TYPE_D ?
++					SMCD_CLC_ACCEPT_CONFIRM_LEN_V2 :
++					SMCR_CLC_ACCEPT_CONFIRM_LEN_V2) -
++				   sizeof(trl);
+ 	else
+ 		vec[i++].iov_len = (clc->hdr.typev1 == SMC_TYPE_D ?
+ 						SMCD_CLC_ACCEPT_CONFIRM_LEN :
+@@ -1021,6 +1060,18 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 	if (version > SMC_V1 && first_contact) {
+ 		vec[i].iov_base = &fce;
+ 		vec[i++].iov_len = sizeof(fce);
++		if (!conn->lgr->is_smcd) {
++			if (clc->hdr.type == SMC_CLC_CONFIRM) {
++				vec[i].iov_base = &gle;
++				vec[i++].iov_len = sizeof(gle);
++				vec[i].iov_base = &ini->smcrv2.gidlist.list;
++				vec[i++].iov_len = gle.gid_cnt *
++						   sizeof(gle.gid[0]);
++			} else {
++				vec[i].iov_base = &gle.reserved;
++				vec[i++].iov_len = sizeof(gle.reserved);
++			}
++		}
+ 	}
+ 	vec[i].iov_base = &trl;
+ 	vec[i++].iov_len = sizeof(trl);
+@@ -1030,7 +1081,7 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 
+ /* send CLC CONFIRM message across internal TCP socket */
+ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
+-			 u8 version, u8 *eid)
++			 u8 version, u8 *eid, struct smc_init_info *ini)
+ {
+ 	struct smc_clc_msg_accept_confirm_v2 cclc_v2;
+ 	int reason_code = 0;
+@@ -1040,7 +1091,7 @@ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
+ 	memset(&cclc_v2, 0, sizeof(cclc_v2));
+ 	cclc_v2.hdr.type = SMC_CLC_CONFIRM;
+ 	len = smc_clc_send_confirm_accept(smc, &cclc_v2, clnt_first_contact,
+-					  version, eid);
++					  version, eid, ini);
+ 	if (len < ntohs(cclc_v2.hdr.length)) {
+ 		if (len >= 0) {
+ 			reason_code = -ENETUNREACH;
+@@ -1063,7 +1114,7 @@ int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact,
+ 	memset(&aclc_v2, 0, sizeof(aclc_v2));
+ 	aclc_v2.hdr.type = SMC_CLC_ACCEPT;
+ 	len = smc_clc_send_confirm_accept(new_smc, &aclc_v2, srv_first_contact,
+-					  version, negotiated_eid);
++					  version, negotiated_eid, NULL);
+ 	if (len < ntohs(aclc_v2.hdr.length))
+ 		len = len >= 0 ? -EPROTO : -new_smc->clcsock->sk->sk_err;
+ 
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index 37ce97f7fdb0..4f2fe278f404 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -54,6 +54,8 @@
+ #define SMC_CLC_DECL_NOSRVLINK	0x030b0000  /* SMC-R link from srv not found  */
+ #define SMC_CLC_DECL_VERSMISMAT	0x030c0000  /* SMC version mismatch	      */
+ #define SMC_CLC_DECL_MAX_DMB	0x030d0000  /* SMC-D DMB limit exceeded       */
++#define SMC_CLC_DECL_NOROUTE	0x030e0000  /* SMC-Rv2 conn. no route to peer */
++#define SMC_CLC_DECL_NOINDIRECT	0x030f0000  /* SMC-Rv2 conn. indirect mismatch*/
+ #define SMC_CLC_DECL_SYNCERR	0x04000000  /* synchronization error          */
+ #define SMC_CLC_DECL_PEERDECL	0x05000000  /* peer declined during handshake */
+ #define SMC_CLC_DECL_INTERR	0x09990000  /* internal error		      */
+@@ -213,11 +215,14 @@ struct smcd_clc_msg_accept_confirm_common {	/* SMCD accept/confirm */
+ #define SMC_CLC_OS_AIX		3
+ 
+ struct smc_clc_first_contact_ext {
+-	u8 reserved1;
+ #if defined(__BIG_ENDIAN_BITFIELD)
++	u8 v2_direct : 1,
++	   reserved  : 7;
+ 	u8 os_type : 4,
+ 	   release : 4;
+ #elif defined(__LITTLE_ENDIAN_BITFIELD)
++	u8 reserved  : 7,
++	   v2_direct : 1;
+ 	u8 release : 4,
+ 	   os_type : 4;
+ #endif
+@@ -225,6 +230,13 @@ struct smc_clc_first_contact_ext {
+ 	u8 hostname[SMC_MAX_HOSTNAME_LEN];
+ };
+ 
++struct smc_clc_fce_gid_ext {
++	u8 reserved[16];
++	u8 gid_cnt;
++	u8 reserved2[3];
++	u8 gid[][SMC_GID_SIZE];
++};
++
+ struct smc_clc_msg_accept_confirm {	/* clc accept / confirm message */
+ 	struct smc_clc_msg_hdr hdr;
+ 	union {
+@@ -239,13 +251,17 @@ struct smc_clc_msg_accept_confirm {	/* clc accept / confirm message */
+ struct smc_clc_msg_accept_confirm_v2 {	/* clc accept / confirm message */
+ 	struct smc_clc_msg_hdr hdr;
+ 	union {
+-		struct smcr_clc_msg_accept_confirm r0; /* SMC-R */
++		struct { /* SMC-R */
++			struct smcr_clc_msg_accept_confirm r0;
++			u8 eid[SMC_MAX_EID_LEN];
++			u8 reserved6[8];
++		} r1;
+ 		struct { /* SMC-D */
+ 			struct smcd_clc_msg_accept_confirm_common d0;
+ 			__be16 chid;
+ 			u8 eid[SMC_MAX_EID_LEN];
+ 			u8 reserved5[8];
+-		};
++		} d1;
+ 	};
+ };
+ 
+@@ -345,7 +361,7 @@ int smc_clc_wait_msg(struct smc_sock *smc, void *buf, int buflen,
+ int smc_clc_send_decline(struct smc_sock *smc, u32 peer_diag_info, u8 version);
+ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini);
+ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
+-			 u8 version, u8 *eid);
++			 u8 version, u8 *eid, struct smc_init_info *ini);
+ int smc_clc_send_accept(struct smc_sock *smc, bool srv_first_contact,
+ 			u8 version, u8 *negotiated_eid);
+ void smc_clc_init(void) __init;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 4a1778a7e3a5..128474f33b8f 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -288,6 +288,9 @@ struct smc_link_group {
+ 						/* link keep alive time */
+ 			u32			llc_termination_rsn;
+ 						/* rsn code for termination */
++			u8			nexthop_mac[ETH_ALEN];
++			u8			uses_gateway;
++			__be32			saddr;
+ 		};
+ 		struct { /* SMC-D */
+ 			u64			peer_gid;
+@@ -340,6 +343,9 @@ struct smc_init_info {
+ 	struct smc_clc_msg_local *ib_lcl;
+ 	u8			smcr_version;
+ 	u8			check_smcrv2;
++	u8			peer_gid[SMC_GID_SIZE];
++	u8			peer_mac[ETH_ALEN];
++	u8			peer_systemid[SMC_SYSTEMID_LEN];
+ 	struct smc_ib_device	*ib_dev;
+ 	u8			ib_gid[SMC_GID_SIZE];
+ 	u8			ib_port;
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index a8845343d183..9f72910af1d0 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -183,6 +183,33 @@ bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
+ 	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
+ }
+ 
++int smc_ib_find_route(__be32 saddr, __be32 daddr,
++		      u8 nexthop_mac[], u8 *uses_gateway)
++{
++	struct neighbour *neigh = NULL;
++	struct rtable *rt = NULL;
++	struct flowi4 fl4 = {
++		.saddr = saddr,
++		.daddr = daddr
++	};
++
++	if (daddr == cpu_to_be32(INADDR_NONE))
++		goto out;
++	rt = ip_route_output_flow(&init_net, &fl4, NULL);
++	if (IS_ERR(rt))
++		goto out;
++	if (rt->rt_uses_gateway && rt->rt_gw_family != AF_INET)
++		goto out;
++	neigh = rt->dst.ops->neigh_lookup(&rt->dst, NULL, &fl4.daddr);
++	if (neigh) {
++		memcpy(nexthop_mac, neigh->ha, ETH_ALEN);
++		*uses_gateway = rt->rt_uses_gateway;
++		return 0;
++	}
++out:
++	return -ENOENT;
++}
++
+ /* determine the gid for an ib-device port and vlan id */
+ int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
+ 			 unsigned short vlan_id, u8 gid[], u8 *sgid_index)
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index 3085f5180da7..c55cbd7be67a 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -59,6 +59,17 @@ struct smc_ib_device {				/* ib-device infos for smc */
+ 	int			ndev_ifidx[SMC_MAX_PORTS]; /* ndev if indexes */
+ };
+ 
++static inline __be32 smc_ib_gid_to_ipv4(u8 gid[SMC_GID_SIZE])
++{
++	struct in6_addr *addr6 = (struct in6_addr *)gid;
++
++	if (ipv6_addr_v4mapped(addr6) ||
++	    !(addr6->s6_addr32[0] | addr6->s6_addr32[1] | addr6->s6_addr32[2]))
++		return addr6->s6_addr32[3];
++	return cpu_to_be32(INADDR_NONE);
++}
++
++struct smc_init_info_smcrv2;
+ struct smc_buf_desc;
+ struct smc_link;
+ 
+@@ -91,6 +102,8 @@ void smc_ib_sync_sg_for_device(struct smc_link *lnk,
+ 			       enum dma_data_direction data_direction);
+ int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
+ 			 unsigned short vlan_id, u8 gid[], u8 *sgid_index);
++int smc_ib_find_route(__be32 saddr, __be32 daddr,
++		      u8 nexthop_mac[], u8 *uses_gateway);
+ bool smc_ib_is_valid_local_systemid(void);
+ int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+ #endif
 -- 
 2.25.1
 
