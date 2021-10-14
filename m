@@ -2,123 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29DEDC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 12:51:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74E3AC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 13:10:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0721160C4B
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 12:51:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5847B610CC
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 13:10:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231179AbhJNMxe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Oct 2021 08:53:34 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63326 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231140AbhJNMxd (ORCPT
+        id S230413AbhJNNMy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Oct 2021 09:12:54 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6926 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230010AbhJNNMx (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Oct 2021 08:53:33 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19ECCMh4025960;
-        Thu, 14 Oct 2021 08:51:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=HhDLkXNFzJc7wfnxlM+WvnFa7zQ6l96Ytou35Cyr3YA=;
- b=GyrBH7QMoFyjZyXvs7Kan12syGEiRAFje37XboYulVyizJCPalTDxJxU3EXxvCSLKGjN
- 12mWlScb5lhBDO0c4/vv466/zI6b4rYxIu7JVgyRcooOQ37OKrxQs1AyU0j/6LeXhgSD
- hdSQJsWf3pfidVVFUJPqGRh6AU+YxhEPrRNR6Bw77njckXvgcFfNtc9N5/5jZdJb0kyg
- zwzLR+CR2vMyjeDk2JVxxONi91eY6Pr81L1MsnEEnO0//YnCc3ULDaBbpqpfk9/xYKF5
- hXw9tMa5F8EqlfgySPqunumdxjNbhQ5zU0C7KncOuUk9MOuGC6vn7MCVkEaiNJOoFcr8 Cg== 
+        Thu, 14 Oct 2021 09:12:53 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19ED9Gka021652;
+        Thu, 14 Oct 2021 09:10:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=WThqPwMP2OLhr33ez5Gp6Jyfx+8H4EiSb+D3oodMMf4=;
+ b=rTaPoERli98kn3TRxuQ4AihNbZxJQ4zSb3mRqw6hNZjHLKN1ecmVEki7M9iq0JKxZU/e
+ zm4OpS1IUGF1ZeU8nP9pmRhssIuOLn2ORGvlN2M9H0NUvqedwaI3ya9VtXBfSxRIPXjd
+ 3uDTebB0i+DHkRTLKz4dQuD5aS3N/zuFWKyu9K2OL7LfksainLIW+W5532WK8qG+N2nt
+ 8ouChVv0BHn5qO5kXM4a77DKAvXSS5JqO5NVVcnJ4AcGw4YbIJlEqSrtqglysjgcQYxb
+ uuo5hy7xwyLWdGgYeBQe01jKNtWSKKjSm9ape4aeVMkpi5FLhT667AND2mgNqIn8N2OV qg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bpfr2qkec-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bnpf49rr2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Oct 2021 08:51:29 -0400
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19ECo0ng028600;
-        Thu, 14 Oct 2021 08:51:28 -0400
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bpfr2qkcs-1
+        Thu, 14 Oct 2021 09:10:48 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19ECqJlj040792;
+        Thu, 14 Oct 2021 09:10:48 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bnpf49rpx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Oct 2021 08:51:28 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19EClqOr029601;
-        Thu, 14 Oct 2021 12:51:24 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3bk2qajcnv-1
+        Thu, 14 Oct 2021 09:10:47 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19ED1WCV029176;
+        Thu, 14 Oct 2021 13:10:45 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3bk2qa5et1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Oct 2021 12:51:24 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19ECjeqm61997492
+        Thu, 14 Oct 2021 13:10:45 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19EDAg2147317416
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 14 Oct 2021 12:45:41 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 094FCA405B;
-        Thu, 14 Oct 2021 12:51:21 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DBA69A4051;
-        Thu, 14 Oct 2021 12:51:19 +0000 (GMT)
-Received: from linux6.. (unknown [9.114.12.104])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 14 Oct 2021 12:51:19 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, thuth@redhat.com, seiden@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v2 3/3] lib: s390x: Fix copyright message
-Date:   Thu, 14 Oct 2021 12:51:07 +0000
-Message-Id: <20211014125107.2877-4-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211014125107.2877-1-frankja@linux.ibm.com>
+        Thu, 14 Oct 2021 13:10:42 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 41E4F42049;
+        Thu, 14 Oct 2021 13:10:42 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F346F4203F;
+        Thu, 14 Oct 2021 13:10:41 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.15.174])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 14 Oct 2021 13:10:41 +0000 (GMT)
+Date:   Thu, 14 Oct 2021 15:10:14 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        thuth@redhat.com, seiden@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v2 3/3] lib: s390x: Fix copyright message
+Message-ID: <20211014151014.583ad407@p-imbrenda>
+In-Reply-To: <20211014125107.2877-4-frankja@linux.ibm.com>
 References: <20211014125107.2877-1-frankja@linux.ibm.com>
+        <20211014125107.2877-4-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _Cksg9rlvApmmZsIGcEnDFTIhHGarAIm
-X-Proofpoint-ORIG-GUID: gu9YOn7Ooq7Xi3kegdcsIg8uGQD2vkc_
+X-Proofpoint-GUID: rpW2vVlXDmNFnTyZ9WnB35ioK5Yndm0n
+X-Proofpoint-ORIG-GUID: 56hkh3IJcviI4E3RN62yUIgIqVzBeTio
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-10-14_07,2021-10-14_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- adultscore=0 clxscore=1015 malwarescore=0 spamscore=0 lowpriorityscore=0
- priorityscore=1501 phishscore=0 mlxlogscore=804 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110140080
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 clxscore=1015 lowpriorityscore=0 mlxscore=0
+ phishscore=0 adultscore=0 bulkscore=0 suspectscore=0 malwarescore=0
+ spamscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109230001 definitions=main-2110140084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The comma makes no sense, so let's remove it.
+On Thu, 14 Oct 2021 12:51:07 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/css.h  | 2 +-
- lib/s390x/sclp.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+> The comma makes no sense, so let's remove it.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-index d644971f..0db8a281 100644
---- a/lib/s390x/css.h
-+++ b/lib/s390x/css.h
-@@ -2,7 +2,7 @@
- /*
-  * CSS definitions
-  *
-- * Copyright IBM, Corp. 2020
-+ * Copyright IBM Corp. 2020
-  * Author: Pierre Morel <pmorel@linux.ibm.com>
-  */
- 
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index 28e526e2..61e9cf51 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -6,7 +6,7 @@
-  * Copyright (c) 2013 Alexander Graf <agraf@suse.de>
-  *
-  * and based on the file include/hw/s390x/sclp.h from QEMU
-- * Copyright IBM, Corp. 2012
-+ * Copyright IBM Corp. 2012
-  * Author: Christian Borntraeger <borntraeger@de.ibm.com>
-  */
- 
--- 
-2.30.2
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+> ---
+>  lib/s390x/css.h  | 2 +-
+>  lib/s390x/sclp.h | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+> index d644971f..0db8a281 100644
+> --- a/lib/s390x/css.h
+> +++ b/lib/s390x/css.h
+> @@ -2,7 +2,7 @@
+>  /*
+>   * CSS definitions
+>   *
+> - * Copyright IBM, Corp. 2020
+> + * Copyright IBM Corp. 2020
+>   * Author: Pierre Morel <pmorel@linux.ibm.com>
+>   */
+>  
+> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+> index 28e526e2..61e9cf51 100644
+> --- a/lib/s390x/sclp.h
+> +++ b/lib/s390x/sclp.h
+> @@ -6,7 +6,7 @@
+>   * Copyright (c) 2013 Alexander Graf <agraf@suse.de>
+>   *
+>   * and based on the file include/hw/s390x/sclp.h from QEMU
+> - * Copyright IBM, Corp. 2012
+> + * Copyright IBM Corp. 2012
+>   * Author: Christian Borntraeger <borntraeger@de.ibm.com>
+>   */
+>  
 
