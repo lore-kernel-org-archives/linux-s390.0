@@ -2,195 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC81DC4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 13:10:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A868C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 13:14:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A2EB2610CC
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 13:10:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7286E60F41
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 13:14:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231295AbhJNNMz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Oct 2021 09:12:55 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13368 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230010AbhJNNMz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Oct 2021 09:12:55 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19EBQrei014847;
-        Thu, 14 Oct 2021 09:10:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=HJcuhQqtA533qlF20rRHWY2AM9HiwhDDNbqBZYCZANc=;
- b=i50cHL/lRnDrgiGvxKgWEunSAGw2EVr+DHqkcrTejQVHCHuBu+2kNCfqf3gYDz4O0kyK
- tkynnWl7as4S7NA3dNxDTEzVA5yBm2jDKXpQu87ba5RaS+0UF9327TJuoaFmXTxNptc5
- WROwWTYClbTlxJ5Mix2125H/D7X7IlH6YtbIjC6y3jp2dShdASv7LlatNIw+wvhgDDk2
- dTObXwSsNtY6xenVSLuRcA+9RG5s4C3swnB8U1H0PQTll6oIww6q8twEJpxECx1uvZf0
- H89e0xyGldOVSxrCiFOCJ31MWNaJPFyaE4MsMJUNcAlXtFaFysY+YhvefarQtHvVtfht AQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bnnvgtpnq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Oct 2021 09:10:49 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19EBjaFZ028795;
-        Thu, 14 Oct 2021 09:10:49 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bnnvgtpmv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Oct 2021 09:10:49 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19ED1VT5029162;
-        Thu, 14 Oct 2021 13:10:47 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3bk2qa5eth-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Oct 2021 13:10:47 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19ED54ba29491510
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 14 Oct 2021 13:05:04 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 95A5442041;
-        Thu, 14 Oct 2021 13:10:44 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4F48B4205C;
-        Thu, 14 Oct 2021 13:10:44 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.15.174])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 14 Oct 2021 13:10:44 +0000 (GMT)
-Date:   Thu, 14 Oct 2021 15:09:25 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
-        thuth@redhat.com, seiden@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH v2 2/3] lib: s390x: snippet.h: Add a few
- constants that will make our life easier
-Message-ID: <20211014150925.13013d00@p-imbrenda>
-In-Reply-To: <20211014125107.2877-3-frankja@linux.ibm.com>
-References: <20211014125107.2877-1-frankja@linux.ibm.com>
-        <20211014125107.2877-3-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        id S230257AbhJNNQs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Oct 2021 09:16:48 -0400
+Received: from mga11.intel.com ([192.55.52.93]:29735 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230119AbhJNNQp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 Oct 2021 09:16:45 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10136"; a="225130686"
+X-IronPort-AV: E=Sophos;i="5.85,372,1624345200"; 
+   d="scan'208";a="225130686"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Oct 2021 06:14:34 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.85,372,1624345200"; 
+   d="scan'208";a="442099713"
+Received: from irvmail001.ir.intel.com ([10.43.11.63])
+  by orsmga006.jf.intel.com with ESMTP; 14 Oct 2021 06:14:25 -0700
+Received: from alobakin-mobl.ger.corp.intel.com (kkowalew-MOBL2.ger.corp.intel.com [10.213.18.104])
+        by irvmail001.ir.intel.com (8.14.3/8.13.6/MailSET/Hub) with ESMTP id 19EDELjE025920;
+        Thu, 14 Oct 2021 14:14:21 +0100
+From:   Alexander Lobakin <alexandr.lobakin@intel.com>
+To:     Guangbin Huang <huangguangbin2@huawei.com>
+Cc:     Alexander Lobakin <alexandr.lobakin@intel.com>,
+        davem@davemloft.net, kuba@kernel.org, mkubecek@suse.cz,
+        andrew@lunn.ch, amitc@mellanox.com, idosch@idosch.org,
+        danieller@nvidia.com, jesse.brandeburg@intel.com,
+        anthony.l.nguyen@intel.com, jdike@addtoit.com, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, netanel@amazon.com,
+        akiyano@amazon.com, gtzalik@amazon.com, saeedb@amazon.com,
+        chris.snook@gmail.com, ulli.kroll@googlemail.com,
+        linus.walleij@linaro.org, jeroendb@google.com, csully@google.com,
+        awogbemila@google.com, jdmason@kudzu.us, rain.1986.08.12@gmail.com,
+        zyjzyj2000@gmail.com, kys@microsoft.com, haiyangz@microsoft.com,
+        mst@redhat.com, jasowang@redhat.com, doshir@vmware.com,
+        pv-drivers@vmware.com, jwi@linux.ibm.com, kgraul@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, johannes@sipsolutions.net,
+        netdev@vger.kernel.org, lipeng321@huawei.com,
+        chenhao288@hisilicon.com, linux-s390@vger.kernel.org
+Subject: Re: [PATCH V4 net-next 0/6] ethtool: add support to set/get tx copybreak buf size and rx buf len
+Date:   Thu, 14 Oct 2021 15:14:20 +0200
+Message-Id: <20211014131420.23598-1-alexandr.lobakin@intel.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20211014113943.16231-1-huangguangbin2@huawei.com>
+References: <20211014113943.16231-1-huangguangbin2@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rHGlx_uniCXzcxiKp1ojD6hwGc5PBkld
-X-Proofpoint-ORIG-GUID: jqoYEJQv11kC_XIdP45lIQ0oceX0Qk1c
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-14_07,2021-10-14_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
- bulkscore=0 malwarescore=0 suspectscore=0 phishscore=0 mlxscore=0
- lowpriorityscore=0 priorityscore=1501 spamscore=0 impostorscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110140084
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 14 Oct 2021 12:51:06 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
+From: Guangbin Huang <huangguangbin2@huawei.com>
+Date: Thu, 14 Oct 2021 19:39:37 +0800
 
-> The variable names for the snippet objects are of gigantic length so
-> let's define a few macros to make them easier to read.
+Hi there,
+
+> From: Hao Chen <chenhao288@hisilicon.com>
 > 
-> Also add a standard PSW which should be used to start the snippet.
+> This series add support to set/get tx copybreak buf size and rx buf len via
+> ethtool and hns3 driver implements them.
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> ---
->  lib/s390x/snippet.h | 34 ++++++++++++++++++++++++++++++++++
->  s390x/mvpg-sie.c    | 13 ++++++-------
->  2 files changed, 40 insertions(+), 7 deletions(-)
->  create mode 100644 lib/s390x/snippet.h
+> Tx copybreak buf size is used for tx copybreak feature which for small size
+> packet or frag. Use ethtool --get-tunable command to get it, and ethtool
+> --set-tunable command to set it, examples are as follow:
 > 
-> diff --git a/lib/s390x/snippet.h b/lib/s390x/snippet.h
-> new file mode 100644
-> index 00000000..8e4765f8
-> --- /dev/null
-> +++ b/lib/s390x/snippet.h
-> @@ -0,0 +1,34 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Snippet definitions
-> + *
-> + * Copyright IBM Corp. 2021
-> + * Author: Janosch Frank <frankja@linux.ibm.com>
-> + */
-> +
-> +#ifndef _S390X_SNIPPET_H_
-> +#define _S390X_SNIPPET_H_
-> +
-> +/* This macro cuts down the length of the pointers to snippets */
-> +#define SNIPPET_NAME_START(type, file) \
-> +	_binary_s390x_snippets_##type##_##file##_gbin_start
-> +#define SNIPPET_NAME_END(type, file) \
-> +	_binary_s390x_snippets_##type##_##file##_gbin_end
-> +
-> +/* Returns the length of the snippet */
-> +#define SNIPPET_LEN(type, file) \
-> +	((uintptr_t)SNIPPET_NAME_END(type, file) - (uintptr_t)SNIPPET_NAME_START(type, file))
-> +
-> +/*
-> + * C snippet instructions start at 0x4000 due to the prefix and the
-> + * stack being before that. ASM snippets don't strictly need a stack
-> + * but keeping the starting address the same means less code.
-> + */
-> +#define SNIPPET_ENTRY_ADDR 0x4000
-> +
-> +/* Standard entry PSWs for snippets which can simply be copied into the guest PSW */
-> +static const struct psw snippet_psw = {
-> +	.mask = PSW_MASK_64,
-> +	.addr = SNIPPET_ENTRY_ADDR,
-> +};
-> +#endif
-> diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
-> index 5adcec1e..d526069d 100644
-> --- a/s390x/mvpg-sie.c
-> +++ b/s390x/mvpg-sie.c
-> @@ -19,6 +19,7 @@
->  #include <vm.h>
->  #include <sclp.h>
->  #include <sie.h>
-> +#include <snippet.h>
->  
->  static u8 *guest;
->  static struct vm vm;
-> @@ -27,8 +28,8 @@ static uint8_t *src;
->  static uint8_t *dst;
->  static uint8_t *cmp;
->  
-> -extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_start[];
-> -extern const char _binary_s390x_snippets_c_mvpg_snippet_gbin_end[];
-> +extern const char SNIPPET_NAME_START(c, mvpg_snippet)[];
-> +extern const char SNIPPET_NAME_END(c, mvpg_snippet)[];
->  int binary_size;
->  
->  static void test_mvpg_pei(void)
-> @@ -77,10 +78,9 @@ static void test_mvpg_pei(void)
->  
->  static void test_mvpg(void)
->  {
-> -	int binary_size = ((uintptr_t)_binary_s390x_snippets_c_mvpg_snippet_gbin_end -
-> -			   (uintptr_t)_binary_s390x_snippets_c_mvpg_snippet_gbin_start);
-> +	int binary_size = SNIPPET_LEN(c, mvpg_snippet);
->  
-> -	memcpy(guest, _binary_s390x_snippets_c_mvpg_snippet_gbin_start, binary_size);
-> +	memcpy(guest, SNIPPET_NAME_START(c, mvpg_snippet), binary_size);
->  	memset(src, 0x42, PAGE_SIZE);
->  	memset(dst, 0x43, PAGE_SIZE);
->  	sie(&vm);
-> @@ -96,8 +96,7 @@ static void setup_guest(void)
->  
->  	sie_guest_create(&vm, (uint64_t)guest, HPAGE_SIZE);
->  
-> -	vm.sblk->gpsw.addr = PAGE_SIZE * 4;
-> -	vm.sblk->gpsw.mask = PSW_MASK_64;
-> +	vm.sblk->gpsw = snippet_psw;
->  	vm.sblk->ictl = ICTL_OPEREXC | ICTL_PINT;
->  	/* Enable MVPG interpretation as we want to test KVM and not ourselves */
->  	vm.sblk->eca = ECA_MVPGI;
+> 1. set tx spare buf size to 102400:
+> $ ethtool --set-tunable eth1 tx-buf-size 102400
+> 
+> 2. get tx spare buf size:
+> $ ethtool --get-tunable eth1 tx-buf-size
+> tx-buf-size: 102400
 
+Isn't that supposed to be changed on changing Tx copybreak value
+itsef?
+And what if I set Tx copybreak buf size value lower than Tx
+copybreak? I see no sanity checks for this.
+
+> Rx buf len is buffer length of each rx BD. Use ethtool -g command to get
+> it, and ethtool -G command to set it, examples are as follow:
+> 
+> 1. set rx buf len to 4096
+> $ ethtool -G eth1 rx-buf-len 4096
+> 
+> 2. get rx buf len
+> $ ethtool -g eth1
+> ...
+> RX Buf Len:     4096
+
+Isn't that supposed to be changed on changing MTU?
+And what if I set Rx buf len value lower than MTU? I see no checks
+as well.
+
+That means, do we _really_ need two new tunables?
+
+> Change log:
+> V3 -> V4
+> 1.Fix a few allmodconfig compile warning.
+> 2.Add more '=' synbol to ethtool-netlink.rst to refine format.
+> 3.Move definement of struct ethtool_ringparam_ext to include/linux/ethtool.h.
+> 4.Move related modify of rings_fill_reply() from patch 4/6 to patch 3/6.
+> 
+> V2 -> V3
+> 1.Remove documentation for tx copybreak buf size, there is description for
+> it in userspace ethtool.
+> 2.Move extending parameters for get/set_ringparam function from patch3/6
+> to patch 4/6.
+> 
+> V1 -> V2
+> 1.Add documentation for rx buf len and tx copybreak buf size.
+> 2.Extend structure ringparam_ext for extenal ring params.
+> 3.Change type of ETHTOOL_A_RINGS_RX_BUF_LEN from NLA_U32 to
+>   NLA_POLICY_MIN(NLA_U32, 1).
+> 4.Add supported_ring_params in ethtool_ops to indicate if support external
+>   params.
+> 
+
+[snip]
+
+Thanks,
+Al
