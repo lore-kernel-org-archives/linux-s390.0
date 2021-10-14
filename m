@@ -2,74 +2,76 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31F53C4321E
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 16:48:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2A99C43219
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 16:48:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1A73161151
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 16:48:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C531461108
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 16:48:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233379AbhJNQuy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Oct 2021 12:50:54 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65448 "EHLO
+        id S233424AbhJNQu4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Oct 2021 12:50:56 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64498 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S232496AbhJNQuv (ORCPT
+        by vger.kernel.org with ESMTP id S232611AbhJNQuv (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
         Thu, 14 Oct 2021 12:50:51 -0400
 Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19EGUiZ1003161;
-        Thu, 14 Oct 2021 12:48:42 -0400
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19EGJv4F026727;
+        Thu, 14 Oct 2021 12:48:43 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=m8MvNHUp7uWpH0JtP1UpT7gLDncA2QZjKLaP7beoh94=;
- b=DEVkUo9d5pgYq4T3ZhNoTTTYVnFesNFLnAnMONMqFGYXfw3H/MPe00rs9vCLfWtQT1KE
- JGTRIS+gaxBjUpb+ST0Vgt1Qo7rzXEkjh2ecwr0UCJzPSR2otH98tBZcM4xHwxae6a2u
- rY/QK+Pwcg0Sy1rEIeklENolWLN/LLKUUkURVUbkyBs9v/QG6eweGG38AKp5m0VWNw+c
- eZok5hujGNSfYxQa04CDNK3e3p1tgeyC+qMdkBtAJPoCFcmKxzwqCwRLLVsrgmkQL0yl
- DAp+SIfR+EliOhfcumaT1A2F/ktxms4T8Jum4MylyJzD/Hu/pfqcwKuPpcK41wwJ8Gkm Lw== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=feRCSBy57lYmEWN9LvNoBsv7wKPhZaA5EFLRsz2ZWr0=;
+ b=LM0DpWW8jyfRgEk26+WG2bTOGa7I/HZxxE5Ry+wzO8N9gtTKSxdZhEMDWclJg6Et0INH
+ QakoLRpmSYig2Mk94rlrcRV10AjHAuKoeFYNI5jOp8ww4mbYevRwEfTrIHsCJOboE8gL
+ f431cTX12rmSfuwrV1twIJj2VeOjrovqg0eQT1mJTYFAC/3t6fO9XxE44yQ7z4XccIn4
+ 1BagNWP0TEIC0cOOmHM90iAXzx+F1z7hTKGqmipmgN29Ek04yzn3fSkjm5Avt8eoJRy0
+ aOaFbvFuK/J7diyd8xjMccLfIq27Gu95D6pZ1e0N6EXRHTCfLLx0/Gydho4LcGS3evWR SA== 
 Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bpgv4mktg-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bpgv4mktk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 14 Oct 2021 12:48:42 -0400
 Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19EGbpxG011898;
-        Thu, 14 Oct 2021 16:48:40 GMT
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19EGbpOp011893;
+        Thu, 14 Oct 2021 16:48:41 GMT
 Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04fra.de.ibm.com with ESMTP id 3bk2qavkaw-1
+        by ppma04fra.de.ibm.com with ESMTP id 3bk2qavkbb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Oct 2021 16:48:40 +0000
+        Thu, 14 Oct 2021 16:48:41 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19EGmb1G61604168
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19EGmb7j53281246
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Thu, 14 Oct 2021 16:48:37 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DCBDBA405C;
-        Thu, 14 Oct 2021 16:48:36 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C648DA4069;
+        Thu, 14 Oct 2021 16:48:37 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AE97FA405F;
-        Thu, 14 Oct 2021 16:48:36 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 88E25A4067;
+        Thu, 14 Oct 2021 16:48:37 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 14 Oct 2021 16:48:36 +0000 (GMT)
+        Thu, 14 Oct 2021 16:48:37 +0000 (GMT)
 From:   Karsten Graul <kgraul@linux.ibm.com>
 To:     David Miller <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>
 Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>, linux-rdma@vger.kernel.org
-Subject: [PATCH net-next v2 00/11] net/smc: introduce SMC-Rv2 support
-Date:   Thu, 14 Oct 2021 18:47:41 +0200
-Message-Id: <20211014164752.3647027-1-kgraul@linux.ibm.com>
+Subject: [PATCH net-next v2 03/11] net/smc: prepare for SMC-Rv2 connection
+Date:   Thu, 14 Oct 2021 18:47:44 +0200
+Message-Id: <20211014164752.3647027-4-kgraul@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 5S6gpfzkkJzQV_NPiQiyOSz5qEZePZRo
-X-Proofpoint-ORIG-GUID: 5S6gpfzkkJzQV_NPiQiyOSz5qEZePZRo
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+In-Reply-To: <20211014164752.3647027-1-kgraul@linux.ibm.com>
+References: <20211014164752.3647027-1-kgraul@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 9YVqQNSR_T_EsOOt5jK-a7GMp3JSlOTM
+X-Proofpoint-ORIG-GUID: 9YVqQNSR_T_EsOOt5jK-a7GMp3JSlOTM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-10-14_09,2021-10-14_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 phishscore=0
- mlxscore=0 priorityscore=1501 mlxlogscore=800 impostorscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ mlxscore=0 priorityscore=1501 mlxlogscore=999 impostorscore=0
  malwarescore=0 lowpriorityscore=0 bulkscore=0 spamscore=0 adultscore=0
  suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2109230001 definitions=main-2110140095
@@ -77,51 +79,270 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Please apply the following patch series for smc to netdev's net-next tree.
+Prepare the connection establishment with SMC-Rv2. Detect eligible
+RoCE cards and indicate all supported SMC modes for the connection.
 
-SMC-Rv2 support (see https://www.ibm.com/support/pages/node/6326337)
-provides routable RoCE support for SMC-R, eliminating the current
-same-subnet restriction, by exploiting the UDP encapsulation feature
-of the RoCE adapter hardware.
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/af_smc.c   | 97 +++++++++++++++++++++++++++++-----------------
+ net/smc/smc_clc.c  | 11 ++++++
+ net/smc/smc_clc.h  | 12 ++++++
+ net/smc/smc_core.h | 28 +++++++++++++
+ 4 files changed, 113 insertions(+), 35 deletions(-)
 
-Patch 1 ("net/smc: improved fix wait on already cleared link") is
-already applied on netdevs net tree but its changes are needed for
-this series on net-next. The patch is unchanged compared to the
-version on the net tree.
-
-v2: resend of the v1 patch series, and CC linux-rdma this time
-
-Karsten Graul (11):
-  net/smc: improved fix wait on already cleared link
-  net/smc: save stack space and allocate smc_init_info
-  net/smc: prepare for SMC-Rv2 connection
-  net/smc: add SMC-Rv2 connection establishment
-  net/smc: add listen processing for SMC-Rv2
-  net/smc: add v2 format of CLC decline message
-  net/smc: retrieve v2 gid from IB device
-  net/smc: add v2 support to the work request layer
-  net/smc: extend LLC layer for SMC-Rv2
-  net/smc: add netlink support for SMC-Rv2
-  net/smc: stop links when their GID is removed
-
- include/uapi/linux/smc.h |  17 +-
- net/smc/af_smc.c         | 431 +++++++++++++++++-------
- net/smc/smc.h            |  20 +-
- net/smc/smc_cdc.c        |   7 +-
- net/smc/smc_clc.c        | 147 +++++++--
- net/smc/smc_clc.h        |  55 +++-
- net/smc/smc_core.c       | 193 +++++++----
- net/smc/smc_core.h       |  50 ++-
- net/smc/smc_ib.c         | 160 ++++++++-
- net/smc/smc_ib.h         |  16 +-
- net/smc/smc_llc.c        | 684 ++++++++++++++++++++++++++++++---------
- net/smc/smc_llc.h        |  12 +-
- net/smc/smc_pnet.c       |  41 ++-
- net/smc/smc_tx.c         |  22 +-
- net/smc/smc_wr.c         | 237 ++++++++++++--
- net/smc/smc_wr.h         |  22 ++
- 16 files changed, 1691 insertions(+), 423 deletions(-)
-
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index f69ef3f2019f..f21e74537f53 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -608,7 +608,9 @@ static int smc_find_rdma_device(struct smc_sock *smc, struct smc_init_info *ini)
+ 	 * used for the internal TCP socket
+ 	 */
+ 	smc_pnet_find_roce_resource(smc->clcsock->sk, ini);
+-	if (!ini->ib_dev)
++	if (!ini->check_smcrv2 && !ini->ib_dev)
++		return SMC_CLC_DECL_NOSMCRDEV;
++	if (ini->check_smcrv2 && !ini->smcrv2.ib_dev_v2)
+ 		return SMC_CLC_DECL_NOSMCRDEV;
+ 	return 0;
+ }
+@@ -692,27 +694,42 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
+ 	int rc = 0;
+ 
+ 	/* check if there is an ism device available */
+-	if (ini->smcd_version & SMC_V1) {
+-		if (smc_find_ism_device(smc, ini) ||
+-		    smc_connect_ism_vlan_setup(smc, ini)) {
+-			if (ini->smc_type_v1 == SMC_TYPE_B)
+-				ini->smc_type_v1 = SMC_TYPE_R;
+-			else
+-				ini->smc_type_v1 = SMC_TYPE_N;
+-		} /* else ISM V1 is supported for this connection */
+-		if (smc_find_rdma_device(smc, ini)) {
+-			if (ini->smc_type_v1 == SMC_TYPE_B)
+-				ini->smc_type_v1 = SMC_TYPE_D;
+-			else
+-				ini->smc_type_v1 = SMC_TYPE_N;
+-		} /* else RDMA is supported for this connection */
+-	}
+-	if (smc_ism_is_v2_capable() && smc_find_ism_v2_device_clnt(smc, ini))
+-		ini->smc_type_v2 = SMC_TYPE_N;
++	if (!(ini->smcd_version & SMC_V1) ||
++	    smc_find_ism_device(smc, ini) ||
++	    smc_connect_ism_vlan_setup(smc, ini))
++		ini->smcd_version &= ~SMC_V1;
++	/* else ISM V1 is supported for this connection */
++
++	/* check if there is an rdma device available */
++	if (!(ini->smcr_version & SMC_V1) ||
++	    smc_find_rdma_device(smc, ini))
++		ini->smcr_version &= ~SMC_V1;
++	/* else RDMA is supported for this connection */
++
++	ini->smc_type_v1 = smc_indicated_type(ini->smcd_version & SMC_V1,
++					      ini->smcr_version & SMC_V1);
++
++	/* check if there is an ism v2 device available */
++	if (!(ini->smcd_version & SMC_V2) ||
++	    !smc_ism_is_v2_capable() ||
++	    smc_find_ism_v2_device_clnt(smc, ini))
++		ini->smcd_version &= ~SMC_V2;
++
++	/* check if there is an rdma v2 device available */
++	ini->check_smcrv2 = true;
++	ini->smcrv2.saddr = smc->clcsock->sk->sk_rcv_saddr;
++	if (!(ini->smcr_version & SMC_V2) ||
++	    smc->clcsock->sk->sk_family != AF_INET ||
++	    !smc_clc_ueid_count() ||
++	    smc_find_rdma_device(smc, ini))
++		ini->smcr_version &= ~SMC_V2;
++	ini->check_smcrv2 = false;
++
++	ini->smc_type_v2 = smc_indicated_type(ini->smcd_version & SMC_V2,
++					      ini->smcr_version & SMC_V2);
+ 
+ 	/* if neither ISM nor RDMA are supported, fallback */
+-	if (!smcr_indicated(ini->smc_type_v1) &&
+-	    ini->smc_type_v1 == SMC_TYPE_N && ini->smc_type_v2 == SMC_TYPE_N)
++	if (ini->smc_type_v1 == SMC_TYPE_N && ini->smc_type_v2 == SMC_TYPE_N)
+ 		rc = SMC_CLC_DECL_NOSMCDEV;
+ 
+ 	return rc;
+@@ -950,17 +967,24 @@ static int smc_connect_ism(struct smc_sock *smc,
+ static int smc_connect_check_aclc(struct smc_init_info *ini,
+ 				  struct smc_clc_msg_accept_confirm *aclc)
+ {
+-	if ((aclc->hdr.typev1 == SMC_TYPE_R &&
+-	     !smcr_indicated(ini->smc_type_v1)) ||
+-	    (aclc->hdr.typev1 == SMC_TYPE_D &&
+-	     ((!smcd_indicated(ini->smc_type_v1) &&
+-	       !smcd_indicated(ini->smc_type_v2)) ||
+-	      (aclc->hdr.version == SMC_V1 &&
+-	       !smcd_indicated(ini->smc_type_v1)) ||
+-	      (aclc->hdr.version == SMC_V2 &&
+-	       !smcd_indicated(ini->smc_type_v2)))))
++	if (aclc->hdr.typev1 != SMC_TYPE_R &&
++	    aclc->hdr.typev1 != SMC_TYPE_D)
+ 		return SMC_CLC_DECL_MODEUNSUPP;
+ 
++	if (aclc->hdr.version >= SMC_V2) {
++		if ((aclc->hdr.typev1 == SMC_TYPE_R &&
++		     !smcr_indicated(ini->smc_type_v2)) ||
++		    (aclc->hdr.typev1 == SMC_TYPE_D &&
++		     !smcd_indicated(ini->smc_type_v2)))
++			return SMC_CLC_DECL_MODEUNSUPP;
++	} else {
++		if ((aclc->hdr.typev1 == SMC_TYPE_R &&
++		     !smcr_indicated(ini->smc_type_v1)) ||
++		    (aclc->hdr.typev1 == SMC_TYPE_D &&
++		     !smcd_indicated(ini->smc_type_v1)))
++			return SMC_CLC_DECL_MODEUNSUPP;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -991,14 +1015,15 @@ static int __smc_connect(struct smc_sock *smc)
+ 		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_MEM,
+ 						    version);
+ 
+-	ini->smcd_version = SMC_V1;
+-	ini->smcd_version |= smc_ism_is_v2_capable() ? SMC_V2 : 0;
++	ini->smcd_version = SMC_V1 | SMC_V2;
++	ini->smcr_version = SMC_V1 | SMC_V2;
+ 	ini->smc_type_v1 = SMC_TYPE_B;
+-	ini->smc_type_v2 = smc_ism_is_v2_capable() ? SMC_TYPE_D : SMC_TYPE_N;
++	ini->smc_type_v2 = SMC_TYPE_B;
+ 
+ 	/* get vlan id from IP device */
+ 	if (smc_vlan_by_tcpsk(smc->clcsock, ini)) {
+ 		ini->smcd_version &= ~SMC_V1;
++		ini->smcr_version = 0;
+ 		ini->smc_type_v1 = SMC_TYPE_N;
+ 		if (!ini->smcd_version) {
+ 			rc = SMC_CLC_DECL_GETVLANERR;
+@@ -1026,15 +1051,17 @@ static int __smc_connect(struct smc_sock *smc)
+ 	/* check if smc modes and versions of CLC proposal and accept match */
+ 	rc = smc_connect_check_aclc(ini, aclc);
+ 	version = aclc->hdr.version == SMC_V1 ? SMC_V1 : SMC_V2;
+-	ini->smcd_version = version;
+ 	if (rc)
+ 		goto vlan_cleanup;
+ 
+ 	/* depending on previous steps, connect using rdma or ism */
+-	if (aclc->hdr.typev1 == SMC_TYPE_R)
++	if (aclc->hdr.typev1 == SMC_TYPE_R) {
++		ini->smcr_version = version;
+ 		rc = smc_connect_rdma(smc, aclc, ini);
+-	else if (aclc->hdr.typev1 == SMC_TYPE_D)
++	} else if (aclc->hdr.typev1 == SMC_TYPE_D) {
++		ini->smcd_version = version;
+ 		rc = smc_connect_ism(smc, aclc, ini);
++	}
+ 	if (rc)
+ 		goto vlan_cleanup;
+ 
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 1cc8a76b39f9..8d44f06cf401 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -114,6 +114,17 @@ static int smc_clc_ueid_add(char *ueid)
+ 	return rc;
+ }
+ 
++int smc_clc_ueid_count(void)
++{
++	int count;
++
++	read_lock(&smc_clc_eid_table.lock);
++	count = smc_clc_eid_table.ueid_cnt;
++	read_unlock(&smc_clc_eid_table.lock);
++
++	return count;
++}
++
+ int smc_nl_add_ueid(struct sk_buff *skb, struct genl_info *info)
+ {
+ 	struct nlattr *nla_ueid = info->attrs[SMC_NLA_EID_TABLE_ENTRY];
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index 974d01d16bb5..37ce97f7fdb0 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -282,6 +282,17 @@ static inline bool smcd_indicated(int smc_type)
+ 	return smc_type == SMC_TYPE_D || smc_type == SMC_TYPE_B;
+ }
+ 
++static inline u8 smc_indicated_type(int is_smcd, int is_smcr)
++{
++	if (is_smcd && is_smcr)
++		return SMC_TYPE_B;
++	if (is_smcd)
++		return SMC_TYPE_D;
++	if (is_smcr)
++		return SMC_TYPE_R;
++	return SMC_TYPE_N;
++}
++
+ /* get SMC-D info from proposal message */
+ static inline struct smc_clc_msg_smcd *
+ smc_get_clc_msg_smcd(struct smc_clc_msg_proposal *prop)
+@@ -343,6 +354,7 @@ void smc_clc_get_hostname(u8 **host);
+ bool smc_clc_match_eid(u8 *negotiated_eid,
+ 		       struct smc_clc_v2_extension *smc_v2_ext,
+ 		       u8 *peer_eid, u8 *local_eid);
++int smc_clc_ueid_count(void);
+ int smc_nl_dump_ueid(struct sk_buff *skb, struct netlink_callback *cb);
+ int smc_nl_add_ueid(struct sk_buff *skb, struct genl_info *info);
+ int smc_nl_remove_ueid(struct sk_buff *skb, struct genl_info *info);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 83d30b06016f..4a1778a7e3a5 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -302,6 +302,31 @@ struct smc_link_group {
+ 
+ struct smc_clc_msg_local;
+ 
++#define GID_LIST_SIZE	2
++
++struct smc_gidlist {
++	u8			len;
++	u8			list[GID_LIST_SIZE][SMC_GID_SIZE];
++};
++
++struct smc_init_info_smcrv2 {
++	/* Input fields */
++	__be32			saddr;
++	struct sock		*clc_sk;
++	__be32			daddr;
++
++	/* Output fields when saddr is set */
++	struct smc_ib_device	*ib_dev_v2;
++	u8			ib_port_v2;
++	u8			ib_gid_v2[SMC_GID_SIZE];
++
++	/* Additional output fields when clc_sk and daddr is set as well */
++	u8			uses_gateway;
++	u8			nexthop_mac[ETH_ALEN];
++
++	struct smc_gidlist	gidlist;
++};
++
+ struct smc_init_info {
+ 	u8			is_smcd;
+ 	u8			smc_type_v1;
+@@ -313,10 +338,13 @@ struct smc_init_info {
+ 	u8			negotiated_eid[SMC_MAX_EID_LEN];
+ 	/* SMC-R */
+ 	struct smc_clc_msg_local *ib_lcl;
++	u8			smcr_version;
++	u8			check_smcrv2;
+ 	struct smc_ib_device	*ib_dev;
+ 	u8			ib_gid[SMC_GID_SIZE];
+ 	u8			ib_port;
+ 	u32			ib_clcqpn;
++	struct smc_init_info_smcrv2 smcrv2;
+ 	/* SMC-D */
+ 	u64			ism_peer_gid[SMC_MAX_ISM_DEVS + 1];
+ 	struct smcd_dev		*ism_dev[SMC_MAX_ISM_DEVS + 1];
 -- 
 2.25.1
 
