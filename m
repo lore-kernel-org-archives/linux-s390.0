@@ -2,104 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4427C43217
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 11:44:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72421C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 12:51:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A9B7160295
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 11:44:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 56CC360C4B
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 12:51:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231225AbhJNLqM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Oct 2021 07:46:12 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:24312 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231194AbhJNLqK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Oct 2021 07:46:10 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HVS9f3BsmzRQHr;
-        Thu, 14 Oct 2021 19:39:34 +0800 (CST)
-Received: from kwepemm600016.china.huawei.com (7.193.23.20) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Thu, 14 Oct 2021 19:44:03 +0800
-Received: from localhost.localdomain (10.67.165.24) by
- kwepemm600016.china.huawei.com (7.193.23.20) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Thu, 14 Oct 2021 19:44:02 +0800
-From:   Guangbin Huang <huangguangbin2@huawei.com>
-To:     <davem@davemloft.net>, <kuba@kernel.org>, <mkubecek@suse.cz>,
-        <andrew@lunn.ch>, <amitc@mellanox.com>, <idosch@idosch.org>,
-        <danieller@nvidia.com>, <jesse.brandeburg@intel.com>,
-        <anthony.l.nguyen@intel.com>, <jdike@addtoit.com>,
-        <richard@nod.at>, <anton.ivanov@cambridgegreys.com>,
-        <netanel@amazon.com>, <akiyano@amazon.com>, <gtzalik@amazon.com>,
-        <saeedb@amazon.com>, <chris.snook@gmail.com>,
-        <ulli.kroll@googlemail.com>, <linus.walleij@linaro.org>,
-        <jeroendb@google.com>, <csully@google.com>,
-        <awogbemila@google.com>, <jdmason@kudzu.us>,
-        <rain.1986.08.12@gmail.com>, <zyjzyj2000@gmail.com>,
-        <kys@microsoft.com>, <haiyangz@microsoft.com>, <mst@redhat.com>,
-        <jasowang@redhat.com>, <doshir@vmware.com>,
-        <pv-drivers@vmware.com>, <jwi@linux.ibm.com>,
-        <kgraul@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
-        <johannes@sipsolutions.net>
-CC:     <netdev@vger.kernel.org>, <lipeng321@huawei.com>,
-        <chenhao288@hisilicon.com>, <huangguangbin2@huawei.com>,
-        <linux-s390@vger.kernel.org>
-Subject: [PATCH V4 net-next 6/6] net: hns3: remove the way to set tx spare buf via module parameter
-Date:   Thu, 14 Oct 2021 19:39:43 +0800
-Message-ID: <20211014113943.16231-7-huangguangbin2@huawei.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014113943.16231-1-huangguangbin2@huawei.com>
-References: <20211014113943.16231-1-huangguangbin2@huawei.com>
+        id S229912AbhJNMx2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Oct 2021 08:53:28 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14592 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229637AbhJNMx1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 Oct 2021 08:53:27 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19EB2eV5030641;
+        Thu, 14 Oct 2021 08:51:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=249FJjNc/JSAUYwPL6ayvTaSomzMHAMDlYFbc9Ul9h0=;
+ b=OWc2DFsg6GQWNqUGUP6BGLqNxpj999/rzpUdHKzbdMLuzhRAgnvAfzSczZ6Mv59KnpbG
+ EfrjFX2Id+Gkq9OSG8hM0rjKIt15xJNE0EQkr0fjs0qB1yO1tS0pQn97almTXK+MvOAX
+ AThlcdaUwST13fijbJ8EQAmYUVys2mis2VPV1oCj1yl6e0o6lksCr6UholVbDweWgUoL
+ YkypijgnfXYrNRJEvXry8f8LziUbUF7rePWtApVYmM0s+3GbqOs8/aE5kdGJ5iViDRsa
+ QT1naB3Uf3AnMFbrahXY+DahrNqoEeYrS0my7Z5pr3KCDbWxO5989w7/XJ/Xyts8dTRn pw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bpgv4e15k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Oct 2021 08:51:22 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19ECBlo8006987;
+        Thu, 14 Oct 2021 08:51:21 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bpgv4e14r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Oct 2021 08:51:21 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19EClX7H009100;
+        Thu, 14 Oct 2021 12:51:20 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 3bk2qa5986-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Oct 2021 12:51:19 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19ECpG7550856324
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 14 Oct 2021 12:51:16 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9F874A4055;
+        Thu, 14 Oct 2021 12:51:16 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6C25DA405F;
+        Thu, 14 Oct 2021 12:51:15 +0000 (GMT)
+Received: from linux6.. (unknown [9.114.12.104])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 14 Oct 2021 12:51:15 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, thuth@redhat.com, seiden@linux.ibm.com
+Subject: [kvm-unit-tests PATCH v2 0/3] s390x: Cleanup and maintenance 3
+Date:   Thu, 14 Oct 2021 12:51:04 +0000
+Message-Id: <20211014125107.2877-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.67.165.24]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- kwepemm600016.china.huawei.com (7.193.23.20)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: nT4JV5b2XqBeUih110JMwR4vY7-p36ZS
+X-Proofpoint-ORIG-GUID: M_Q3SxQtTRVKurtVF4qskP58WyHMB6Rq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-14_07,2021-10-14_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ mlxscore=0 priorityscore=1501 mlxlogscore=771 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 bulkscore=0 spamscore=0 adultscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110140080
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Hao Chen <chenhao288@hisilicon.com>
+Three small cleanup patches mostly improving snippet usage and small
+fixes.
 
-The way to set tx spare buf via module parameter is not such
-convenient as the way to set it via ethtool.
+v2:
+	* Simplified the snippet patch by always using 0x4000 as the start address
+	* Removed a few commas in weird places with new patch
 
-So,remove the way to set tx spare buf via module parameter.
+Janosch Frank (3):
+  lib: s390x: Fix PSW constant
+  lib: s390x: snippet.h: Add a few constants that will make our life
+    easier
+  lib: s390x: Fix copyright message
 
-Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
----
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ lib/s390x/asm/arch_def.h |  2 +-
+ lib/s390x/css.h          |  2 +-
+ lib/s390x/sclp.h         |  2 +-
+ lib/s390x/snippet.h      | 34 ++++++++++++++++++++++++++++++++++
+ s390x/mvpg-sie.c         | 13 ++++++-------
+ 5 files changed, 43 insertions(+), 10 deletions(-)
+ create mode 100644 lib/s390x/snippet.h
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 0dd8987d1228..bcab29d7ed9f 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -53,10 +53,6 @@ static int debug = -1;
- module_param(debug, int, 0);
- MODULE_PARM_DESC(debug, " Network interface message level setting");
- 
--static unsigned int tx_spare_buf_size;
--module_param(tx_spare_buf_size, uint, 0400);
--MODULE_PARM_DESC(tx_spare_buf_size, "Size used to allocate tx spare buffer");
--
- static unsigned int tx_sgl = 1;
- module_param(tx_sgl, uint, 0600);
- MODULE_PARM_DESC(tx_sgl, "Minimum number of frags when using dma_map_sg() to optimize the IOMMU mapping");
-@@ -1041,8 +1037,7 @@ static void hns3_init_tx_spare_buffer(struct hns3_enet_ring *ring)
- 	dma_addr_t dma;
- 	int order;
- 
--	alloc_size = tx_spare_buf_size ? tx_spare_buf_size :
--		     ring->tqp->handle->kinfo.tx_spare_buf_size;
-+	alloc_size = ring->tqp->handle->kinfo.tx_spare_buf_size;
- 	if (!alloc_size)
- 		return;
- 
 -- 
-2.33.0
+2.30.2
 
