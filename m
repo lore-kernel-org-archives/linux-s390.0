@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60C0DC4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 06:24:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF368C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 06:33:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4958B61166
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 06:24:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D29C9606A5
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Oct 2021 06:33:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230023AbhJNG0e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Oct 2021 02:26:34 -0400
-Received: from szxga08-in.huawei.com ([45.249.212.255]:25135 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230097AbhJNG0P (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Oct 2021 02:26:15 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.56])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4HVK7n5qdYz1DHYG;
-        Thu, 14 Oct 2021 14:22:29 +0800 (CST)
+        id S229617AbhJNGfK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Oct 2021 02:35:10 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:24311 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229457AbhJNGfJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Oct 2021 02:35:09 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HVKGn6brVzbd3T;
+        Thu, 14 Oct 2021 14:28:33 +0800 (CST)
 Received: from kwepemm600016.china.huawei.com (7.193.23.20) by
  dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Thu, 14 Oct 2021 14:24:08 +0800
+ 15.1.2308.8; Thu, 14 Oct 2021 14:32:54 +0800
 Received: from [10.67.102.67] (10.67.102.67) by kwepemm600016.china.huawei.com
  (7.193.23.20) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Thu, 14 Oct
- 2021 14:24:06 +0800
-Subject: Re: [PATCH V3 net-next 3/6] ethtool: add support to set/get rx buf
- len via ethtool
+ 2021 14:32:53 +0800
+Subject: Re: [PATCH V3 net-next 4/6] ethtool: extend ringparam setting uAPI
+ with rx_buf_len
 To:     Jakub Kicinski <kuba@kernel.org>
 CC:     <davem@davemloft.net>, <mkubecek@suse.cz>, <andrew@lunn.ch>,
         <amitc@mellanox.com>, <idosch@idosch.org>, <danieller@nvidia.com>,
@@ -46,15 +46,15 @@ CC:     <davem@davemloft.net>, <mkubecek@suse.cz>, <andrew@lunn.ch>,
         <lipeng321@huawei.com>, <chenhao288@hisilicon.com>,
         <linux-s390@vger.kernel.org>
 References: <20211012134127.11761-1-huangguangbin2@huawei.com>
- <20211012134127.11761-4-huangguangbin2@huawei.com>
- <20211012112624.641ed3e9@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <20211012134127.11761-5-huangguangbin2@huawei.com>
+ <20211012092802.3d44b0ab@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 From:   "huangguangbin (A)" <huangguangbin2@huawei.com>
-Message-ID: <a2d3a1b7-5574-208a-e62e-24b378f258b7@huawei.com>
-Date:   Thu, 14 Oct 2021 14:24:06 +0800
+Message-ID: <3e1d81be-7eee-99e9-6fb1-f14a0965380a@huawei.com>
+Date:   Thu, 14 Oct 2021 14:32:53 +0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <20211012112624.641ed3e9@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20211012092802.3d44b0ab@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Originating-IP: [10.67.102.67]
@@ -67,62 +67,19 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 2021/10/13 2:26, Jakub Kicinski wrote:
-> On Tue, 12 Oct 2021 21:41:24 +0800 Guangbin Huang wrote:
+On 2021/10/13 0:28, Jakub Kicinski wrote:
+> On Tue, 12 Oct 2021 21:41:25 +0800 Guangbin Huang wrote:
 >> From: Hao Chen <chenhao288@hisilicon.com>
 >>
->> Add support to set rx buf len via ethtool -G parameter and get
->> rx buf len via ethtool -g parameter.
->>
->> Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
->> Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+>> Add two new parameters ringparam_ext and extack for
+>> .get_ringparam and .set_ringparam to extend more ring params
+>> through netlink.
 > 
->> +  ``ETHTOOL_A_RINGS_RX_BUF_LEN``        u32     size of buffers on the ring
->>     ====================================  ======  ==========================
+> A few more warnings to fix:
 > 
-> Does the documentation build without warnings?
-> 
-Hi Jakub, there is no warning when we build documentation. It seems that the third
-column needs more '=' symbol, we add it in next version.
-
->> diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
->> index 266e95e4fb33..83544186cbb5 100644
->> --- a/include/uapi/linux/ethtool.h
->> +++ b/include/uapi/linux/ethtool.h
->> @@ -535,6 +535,14 @@ struct ethtool_ringparam {
->>   	__u32	tx_pending;
->>   };
->>   
->> +/**
->> + * struct ethtool_ringparam_ext - RX/TX ring configuration
->> + * @rx_buf_len: Current length of buffers on the rx ring.
->> + */
->> +struct ethtool_ringparam_ext {
->> +	__u32	rx_buf_len;
->> +};
-> 
-> This can be moved to include/linux/ethtool.h, user space does not need
-> to know about this structure.
-> 
-Ok.
-
->> +	if (ringparam_ext.rx_buf_len != 0 &&
->> +	    !(ops->supported_ring_params & ETHTOOL_RING_USE_RX_BUF_LEN)) {
->> +		ret = -EOPNOTSUPP;
->> +		NL_SET_ERR_MSG_ATTR(info->extack,
->> +				    tb[ETHTOOL_A_RINGS_RX_BUF_LEN],
->> +				    "setting not supported rx buf len");
-> 
-> "setting rx buf len not supported" sounds better
-> 
-Ok.
-
->> +		goto out_ops;
->> +	}
->> +
->>   	ret = dev->ethtool_ops->set_ringparam(dev, &ringparam);
->>   	if (ret < 0)
->>   		goto out_ops;
-> 
+> drivers/net/ethernet/micrel/ksz884x.c:6329: warning: Function parameter or member 'extack' not described in 'netdev_get_ringparam'
+> drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_ethtool.c:280: warning: Function parameter or member 'extack' not described in 'pch_gbe_get_ringparam'
+> drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_ethtool.c:304: warning: Function parameter or member 'extack' not described in 'pch_gbe_set_ringparam'
 > .
 > 
+Ok, we will fix them in next version.
