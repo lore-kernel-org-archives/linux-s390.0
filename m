@@ -2,108 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 382F0C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 15 Oct 2021 09:08:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2453FC433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 15 Oct 2021 13:06:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 14F2760F70
-	for <linux-s390@archiver.kernel.org>; Fri, 15 Oct 2021 09:08:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 08A8861151
+	for <linux-s390@archiver.kernel.org>; Fri, 15 Oct 2021 13:06:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236902AbhJOJKL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Oct 2021 05:10:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:20107 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236166AbhJOJKK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 15 Oct 2021 05:10:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634288883;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=hJqXmdMFj3XAcDTBzK//awAGj1JnVHCl7MMIlwOu05Y=;
-        b=PNUmbxVmxYPWDk91XU40uZ8jiGV7z1SF24fMlJmdEh2gDC8Cuqm4i8ekL1vAfolKMuC5Y3
-        KWVZDWsyOARF3mnrIq+uGwerTMOeQWM1gkiD3Nhb3oZ9d0mIqXEW23WBB47nTq0EKz4EeO
-        OBZnhsRhyXjsBZs1DNuPKY1BcY9FcFA=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-449-vezRihlEN9i99gyWR5dM7Q-1; Fri, 15 Oct 2021 05:08:00 -0400
-X-MC-Unique: vezRihlEN9i99gyWR5dM7Q-1
-Received: by mail-ed1-f70.google.com with SMTP id c25-20020a056402143900b003dc19782ea8so4129142edx.3
-        for <linux-s390@vger.kernel.org>; Fri, 15 Oct 2021 02:08:00 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=hJqXmdMFj3XAcDTBzK//awAGj1JnVHCl7MMIlwOu05Y=;
-        b=bZ2QQjA+Ao74PMgQdkFrAan29L8IgSLELc4k8EqCwT8luCSvTJg9tLSaGpEE2X1PG1
-         MDlTeyiAKPxbiSNxZoBx4PNv6M8A92nYsZuFGyDshOjVTeID5hmhH61lTWeKmhho/6P6
-         JlVra0WEkaaV/gjIgmpJpr/Gcer48btgO4zLS/ZQ61XdeibTCGxDbpPUbra5cxTakGuM
-         dTL0J6AJKhxx0WU3GID/RhmUpFoa3GNrKbQN4JDRyw/325x/UQ5ER87rZpnLQpGry63W
-         h36Y6j5dG+VVRotpavBnTNrScGZhgWSFYv6uLoyqRYKg9ZKNpAnij1ch8cF4QX8DpqpY
-         pNKw==
-X-Gm-Message-State: AOAM5330Vdv65/Aw7t6/JUPBfnbhcb5c11P5/eloFXWmxsrT3F68um35
-        84BNr1DyYXboSk+LlVdcWzMwFmue5NnK90mjO4kDwKqQvp4brwup5e3dlGkQqE8c5kQZbokPkfk
-        +Y102Tcj05Enrlrl2mNjXAQ==
-X-Received: by 2002:a17:906:7113:: with SMTP id x19mr5489024ejj.557.1634288879251;
-        Fri, 15 Oct 2021 02:07:59 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxMPJOeGYgYVhEVPIYGY8hDGQ/Y5o3fYULf44dGpiwY5cIXIHynpZokIe5BfdDi1RZ1oSkyzg==
-X-Received: by 2002:a17:906:7113:: with SMTP id x19mr5489003ejj.557.1634288879004;
-        Fri, 15 Oct 2021 02:07:59 -0700 (PDT)
-Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id dt4sm3616006ejb.27.2021.10.15.02.07.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 Oct 2021 02:07:58 -0700 (PDT)
-Message-ID: <5ca4405e-e2a8-a940-1c5f-e3a78894d337@redhat.com>
-Date:   Fri, 15 Oct 2021 11:07:29 +0200
+        id S235740AbhJONJB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Oct 2021 09:09:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35924 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235689AbhJONJB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Oct 2021 09:09:01 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E09EC061570;
+        Fri, 15 Oct 2021 06:06:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=GcG/LD4wXLRkh+mkTSYxktAgp6NtEFjg5wt7NUrIBQ8=; b=uayJR1a282ytfFfr7pGkZzKhEI
+        IluB/YpfG7Onwx7r1QjKfC1tsftLKfxav3VC38k67GpIyk/1ybeAGQUxvDR+zHqr8EKJVPlRZBA9/
+        /wpTA2a/mIgs+KwDypwHUlt5exYlO5YauSTxiForL6Zk2ddG+l9BfoSzKxtnDQxKPvn5PwybVyKMr
+        2sXVB6PGJ0CaomGm5OmpmwcYJjrxCbBh03Lz6TD+0UpZALAbk0Ks+Tm2EO0gwNMexvTrd+iVHfAOl
+        L1EzBGZvN5/X+htNwR68fjDLwpfpBBFno+c1d7bIoN6mV3eoharT65WSKmRRs2o1NAkDG7hXrV1hK
+        6PnwqnJg==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mbMtI-0091pf-5y; Fri, 15 Oct 2021 13:05:05 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 1918F300577;
+        Fri, 15 Oct 2021 15:04:50 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id C9DB5212B43C0; Fri, 15 Oct 2021 15:04:50 +0200 (CEST)
+Date:   Fri, 15 Oct 2021 15:04:50 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Valentin Schneider <valentin.schneider@arm.com>
+Cc:     Barry Song <21cnbao@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        LAK <linux-arm-kernel@lists.infradead.org>,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, Aubrey Li <aubrey.li@linux.intel.com>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Jonathan Cameron <jonathan.cameron@huawei.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86 <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        YiFei Zhu <yifeifz2@illinois.edu>,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Sergei Trofimovich <slyfox@gentoo.org>,
+        David Hildenbrand <david@redhat.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Chris Down <chris@chrisdown.name>,
+        Vipin Sharma <vipinsh@google.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH 2/2] sched: Centralize SCHED_{SMT, MC, CLUSTER}
+ definitions
+Message-ID: <YWl8cogsS2Lah1mk@hirez.programming.kicks-ass.net>
+References: <20211008115347.425234-1-valentin.schneider@arm.com>
+ <20211008115347.425234-3-valentin.schneider@arm.com>
+ <CAGsJ_4wqtcOdsFDzR98PFbjxRyTqzf7P3p3erup84SXESYonYw@mail.gmail.com>
+ <87bl3zlex8.mognet@arm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.0
-Subject: Re: [PATCH] KVM: kvm_stat: do not show halt_wait_ns
-Content-Language: en-US
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>,
-        Jing Zhang <jingzhangos@google.com>,
-        Stefan Raspl <raspl@de.ibm.com>
-References: <20211006121724.4154-1-borntraeger@de.ibm.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20211006121724.4154-1-borntraeger@de.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87bl3zlex8.mognet@arm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 06/10/21 14:17, Christian Borntraeger wrote:
-> Similar to commit 111d0bda8eeb ("tools/kvm_stat: Exempt time-based
-> counters"), we should not show timer values in kvm_stat. Remove the new
-> halt_wait_ns.
-> 
-> Fixes: 87bcc5fa092f ("KVM: stats: Add halt_wait_ns stats for all architectures")
-> Cc: Jing Zhang <jingzhangos@google.com>
-> Cc: Stefan Raspl <raspl@de.ibm.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
->   tools/kvm/kvm_stat/kvm_stat | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/tools/kvm/kvm_stat/kvm_stat b/tools/kvm/kvm_stat/kvm_stat
-> index b0bf56c5f120..5a5bd74f55bd 100755
-> --- a/tools/kvm/kvm_stat/kvm_stat
-> +++ b/tools/kvm/kvm_stat/kvm_stat
-> @@ -742,7 +742,7 @@ class DebugfsProvider(Provider):
->           The fields are all available KVM debugfs files
->   
->           """
-> -        exempt_list = ['halt_poll_fail_ns', 'halt_poll_success_ns']
-> +        exempt_list = ['halt_poll_fail_ns', 'halt_poll_success_ns', 'halt_wait_ns']
->           fields = [field for field in self.walkdir(PATH_DEBUGFS_KVM)[2]
->                     if field not in exempt_list]
->   
-> 
+On Fri, Oct 08, 2021 at 04:22:27PM +0100, Valentin Schneider wrote:
 
-Applied, thanks.
+> So x86 has it default yes, and a lot of others (e.g. arm64) have it default
+> no.
+> 
+> IMO you don't gain much by disabling them. SCHED_MC and SCHED_CLUSTER only
+> control the presence of a sched_domain_topology_level - if it's useless it
+> gets degenerated at domain build time. Some valid reasons for not using
+> them is if the architecture defines its own topology table (e.g. powerpc
+> has CACHE and MC levels which are not gated behind any CONFIG).
+> 
+> SCHED_SMT has an impact on code generated in sched/core.c, but that is also
+> gated by a static key.
+> 
+> So I'd say having them default yes is sensible. I'd even say we should
+> change the "If unsure say N here." to "Y".
 
-Paolo
+Right, so I tend to agree (and also that we should fix that Kconfig help
+text). But it would be very nice to have feedback from the affected arch
+maintainers.
 
