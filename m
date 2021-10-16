@@ -2,87 +2,90 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53977C433FE
-	for <linux-s390@archiver.kernel.org>; Sat, 16 Oct 2021 14:10:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2740AC433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 16 Oct 2021 16:22:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 36EF361222
-	for <linux-s390@archiver.kernel.org>; Sat, 16 Oct 2021 14:10:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E573260200
+	for <linux-s390@archiver.kernel.org>; Sat, 16 Oct 2021 16:22:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244321AbhJPOMS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 16 Oct 2021 10:12:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57464 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236207AbhJPOMR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 16 Oct 2021 10:12:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 7BBF5611AF;
-        Sat, 16 Oct 2021 14:10:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634393409;
-        bh=95aZ1CM7N8b8MKSJdRpoV5eWlnvchNidhqY/V1gcn5o=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=hlp4sXTYFOytoYomx4rai3lUX3wX+DImLdQXePkotWN8KXjTNsDkm5HVFoqS0Lw/j
-         z/Jsk89k+JvD+PLmaHBBoJah7tYuKpwaMPYlCaHyrWv849VF8mVnSDkZMl0/hFtYkr
-         dvMbBwtVnSHyGHGsohLSyP3TeczLbe1x1FH5ebILP3quGSjjuyJiKA1dsl8bWtaFNQ
-         SDMsM57a1uRz2TGgx93JcQ7kF+txlcbaNf/qMwpKmzepFA3rARITNo2bdUH6wKM27m
-         U4frN7RQPYRtf9n1+5tTlDvtqF6c5xNWsx5eh150LGKOy24S3i0pFmZUzKAn4Mircd
-         6vU4VsTGMqshQ==
-Content-Type: text/plain; charset="utf-8"
+        id S240654AbhJPQYk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 16 Oct 2021 12:24:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32912 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231163AbhJPQYk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 16 Oct 2021 12:24:40 -0400
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDFDAC061765
+        for <linux-s390@vger.kernel.org>; Sat, 16 Oct 2021 09:22:31 -0700 (PDT)
+Received: by mail-lf1-x136.google.com with SMTP id y26so56139479lfa.11
+        for <linux-s390@vger.kernel.org>; Sat, 16 Oct 2021 09:22:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=sOYjIwrVZxhUbNWSGTQPnQPa/h8wJ1cvVqLz000cP50=;
+        b=RnZYNq5deahqF01JorNo22IZo2i8ysNNiNOa7QuqWi+bPIs1TQECok+eoWk5bxsUFr
+         nG3rC4+Zz9gNN6vy6x8T1639Koh+kjmu4maD7WJMZ7JbO1SyKYRirbyxzpqoc+tkXtus
+         PXV704d2Amol+dm+IepBLYoQ39r9DR9bpVeqQ=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=sOYjIwrVZxhUbNWSGTQPnQPa/h8wJ1cvVqLz000cP50=;
+        b=jvG01xAqPIiQyZalzL6mOg7MJ1qTYnZ6riOyeYbn0G1GwZDAOhyTkmzBtmwpQj4RE0
+         TOf4kXkYUqqBMHORrH4RZiOFLIfsXsOT07HUK6IsHUN+Mk7N8Fnx5VfGCl1xwyskl1jr
+         /ebGcFuSMaLhWY24ryzm5QTADlCRMBabUc6dhEo+6G/5de6lK9/IMuM9TXiSVGEYsQ6P
+         /Bem9oQOuP/bRmJjVGYjU6C8nbDESsvcq8BRPsE3X2HEn+iWk6UtHKVfQZCuxsqBzheJ
+         n9gikQYboPTsCoS/Psj+TiL1szVv1IdQ78QaBJgMMOE64fXTNDfB0o+yIhx1YU0hOfGE
+         7iSA==
+X-Gm-Message-State: AOAM531w0oWhgH6Heh5wIsuxxmGwkapVXpkvixQlgI8F3M8ynGgN4nbA
+        OBtl6g26bIE+Tt2zTuj7Y81csisUX/6UELMO
+X-Google-Smtp-Source: ABdhPJxr7P6/oPyw7R3DvBjfT8LthYLMHq+YUua6zqv+Rl5GZfQA1d0DIZ/flFDkwQVG0vLBgUmWKQ==
+X-Received: by 2002:a2e:b888:: with SMTP id r8mr21340032ljp.196.1634401349570;
+        Sat, 16 Oct 2021 09:22:29 -0700 (PDT)
+Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com. [209.85.167.43])
+        by smtp.gmail.com with ESMTPSA id z5sm894653lfr.96.2021.10.16.09.22.28
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 16 Oct 2021 09:22:29 -0700 (PDT)
+Received: by mail-lf1-f43.google.com with SMTP id z11so54642178lfj.4
+        for <linux-s390@vger.kernel.org>; Sat, 16 Oct 2021 09:22:28 -0700 (PDT)
+X-Received: by 2002:a2e:934d:: with SMTP id m13mr16917423ljh.191.1634401348513;
+ Sat, 16 Oct 2021 09:22:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v3 00/10] net/smc: introduce SMC-Rv2 support
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <163439340946.2147.12741689734091144591.git-patchwork-notify@kernel.org>
-Date:   Sat, 16 Oct 2021 14:10:09 +0000
-References: <20211016093752.3564615-1-kgraul@linux.ibm.com>
-In-Reply-To: <20211016093752.3564615-1-kgraul@linux.ibm.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com,
-        linux-rdma@vger.kernel.org
+References: <your-ad-here.call-01634376368-ext-7035@work.hours>
+In-Reply-To: <your-ad-here.call-01634376368-ext-7035@work.hours>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sat, 16 Oct 2021 09:22:12 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whoe211F8ND-9hZvfnib0UA4gga8DZJ+YaBZNbE4fubdg@mail.gmail.com>
+Message-ID: <CAHk-=whoe211F8ND-9hZvfnib0UA4gga8DZJ+YaBZNbE4fubdg@mail.gmail.com>
+Subject: Re: [GIT PULL] s390 updates for 5.15-rc6
+To:     Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+On Sat, Oct 16, 2021 at 2:26 AM Vasily Gorbik <gor@linux.ibm.com> wrote:
+>
+> - Fix broken strrchr implementation.
 
-This series was applied to netdev/net-next.git (master)
-by David S. Miller <davem@davemloft.net>:
+I pulled this, but had to look at this commit just because it struck me as odd.
 
-On Sat, 16 Oct 2021 11:37:42 +0200 you wrote:
-> Please apply the following patch series for smc to netdev's net-next tree.
-> 
-> SMC-Rv2 support (see https://www.ibm.com/support/pages/node/6326337)
-> provides routable RoCE support for SMC-R, eliminating the current
-> same-subnet restriction, by exploiting the UDP encapsulation feature
-> of the RoCE adapter hardware.
-> 
-> [...]
+Is the generic strrchr() implementation so bad for s390 that it shows
+up? It looks like the s390 implementation wants to avoid checking
+separately against the final NUL character and basically uses the
+optimized strlen function to do so, but when strrchr has to walk the
+string _anyway_ this all looks a bit odd.
 
-Here is the summary with links:
-  - [net-next,v3,01/10] net/smc: save stack space and allocate smc_init_info
-    https://git.kernel.org/netdev/net-next/c/ed990df29f5b
-  - [net-next,v3,02/10] net/smc: prepare for SMC-Rv2 connection
-    https://git.kernel.org/netdev/net-next/c/42042dbbc2eb
-  - [net-next,v3,03/10] net/smc: add SMC-Rv2 connection establishment
-    https://git.kernel.org/netdev/net-next/c/e5c4744cfb59
-  - [net-next,v3,04/10] net/smc: add listen processing for SMC-Rv2
-    https://git.kernel.org/netdev/net-next/c/e49300a6bf62
-  - [net-next,v3,05/10] net/smc: add v2 format of CLC decline message
-    https://git.kernel.org/netdev/net-next/c/8ade200c269f
-  - [net-next,v3,06/10] net/smc: retrieve v2 gid from IB device
-    https://git.kernel.org/netdev/net-next/c/24fb68111d45
-  - [net-next,v3,07/10] net/smc: add v2 support to the work request layer
-    https://git.kernel.org/netdev/net-next/c/8799e310fb3f
-  - [net-next,v3,08/10] net/smc: extend LLC layer for SMC-Rv2
-    https://git.kernel.org/netdev/net-next/c/b4ba4652b3f8
-  - [net-next,v3,09/10] net/smc: add netlink support for SMC-Rv2
-    https://git.kernel.org/netdev/net-next/c/b0539f5eddc2
-  - [net-next,v3,10/10] net/smc: stop links when their GID is removed
-    https://git.kernel.org/netdev/net-next/c/29397e34c76b
+Not a big deal. I just get the feeling that s390 (and probably other
+architectures) might be a bit too eager to make their own helper
+string functions for reasons that may be historical ("we didn't have
+generic string functions at all long ago") or misguided ("we'll do an
+architecture-optimized version even for things that don't matter").
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+          Linus
