@@ -2,129 +2,93 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E58EC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Oct 2021 04:41:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0009BC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Oct 2021 10:42:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 480D8610E8
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Oct 2021 04:41:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9B6561002
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Oct 2021 10:42:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229998AbhJREnz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Oct 2021 00:43:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55098 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230128AbhJREnv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Oct 2021 00:43:51 -0400
-Received: from bombadil.infradead.org (unknown [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65870C06161C;
-        Sun, 17 Oct 2021 21:41:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-        :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=uLDzNdvlUbSBrRvj7vTZ1yPi5zMIqLpGLzeD42SrdLE=; b=0LfreBwXIkRrDhpgGOavc0Sbac
-        u8D5ZpvkjcMW8tJZH/vGcwrYnvFPYF4DfR5bj3rFCMQZeNjyi8QzpTni2uL7Qs6KlEMxLAXGyHKYs
-        QxVDuo8VxPGqHIVcQz8xSMzWFpWnqcc4t+IrQhfe0Qzhme7PYaVw1T8faWgtU8MBSIRH74P5cx9BP
-        hU6Y67KbQUztMWj0YayZNS0KmMdfS5lb8KTvW8iwZPJhlY2xUUBsQAjGNulA/lftPFaVgLOyxHFIZ
-        apoMSzbK7QjtRmJuHmP8EguhMZcUEzbemOQzieUE9j0OxDv+dHd+qtJbN65P8BGF30FOc7ZmeAjXD
-        O0v9tbGg==;
-Received: from 089144211028.atnat0020.highway.a1.net ([89.144.211.28] helo=localhost)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mcKSr-00E3VA-5M; Mon, 18 Oct 2021 04:41:33 +0000
-From:   Christoph Hellwig <hch@lst.de>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>, dm-devel@redhat.com,
-        linux-xfs@vger.kernel.org, nvdimm@lists.linux.dev,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH 11/11] dax: move bdev_dax_pgoff to fs/dax.c
-Date:   Mon, 18 Oct 2021 06:40:54 +0200
-Message-Id: <20211018044054.1779424-12-hch@lst.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211018044054.1779424-1-hch@lst.de>
-References: <20211018044054.1779424-1-hch@lst.de>
+        id S230515AbhJRKoj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Oct 2021 06:44:39 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9620 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231156AbhJRKog (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 18 Oct 2021 06:44:36 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19I8Gl99022664;
+        Mon, 18 Oct 2021 06:42:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=PrssSw8/E4DBlFjrjDZTjl3wj9emXrUBewYnwq5hZtY=;
+ b=i0gJ6/gd3HLhUKc1iOR1NKUQUXlr/tVhcaR09bNTaha0UrcZExUZ2lo3hn7rUWK8dayJ
+ mRl0Pa9CMVMyLBuLj5/z5h9Hk0iYiohzdEoNa+Hr6LMJJx0/CgpDSDwmplOZYpylokBH
+ uUEjiWPhD96xp0MVvAVg0ZB/ot8suuKcGZbnUFM8iBJjYJIm4okJU+jN9cPsIO+nyQLQ
+ bUukE9MQVNl/aqAIKjspjECuKUz3kQfi+t5eAy3WwV9Nv8PW7TVJBwxe4Z0PuqO2sylT
+ 58f2jGVt9k9aBTDQRh35p+NufjygaP4CN7RyamYd/lERQwVo8peVaih9fraXOc7Qi3fZ ZA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bs59b2v5g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 18 Oct 2021 06:42:17 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19IA1fX9038956;
+        Mon, 18 Oct 2021 06:42:17 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bs59b2v51-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 18 Oct 2021 06:42:17 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19IAXJQv014186;
+        Mon, 18 Oct 2021 10:42:15 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3bqpc93x2h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 18 Oct 2021 10:42:15 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19IAaO2256557872
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 18 Oct 2021 10:36:24 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2882D42061;
+        Mon, 18 Oct 2021 10:42:13 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CFFFF42057;
+        Mon, 18 Oct 2021 10:42:12 +0000 (GMT)
+Received: from osiris (unknown [9.145.168.130])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 18 Oct 2021 10:42:12 +0000 (GMT)
+Date:   Mon, 18 Oct 2021 12:42:11 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Huilong Deng <denghuilong@cdjrlc.com>
+Cc:     borntraeger@de.ibm.com, yury.norov@gmail.com, geert@linux-m68k.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390/bitops: Return true/false (not 1/0) from bool
+ functions
+Message-ID: <YW1PgzE2w/8Qg5Eb@osiris>
+References: <20211017092057.24179-1-denghuilong@cdjrlc.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211017092057.24179-1-denghuilong@cdjrlc.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ScNiDq2ZyLiHcgEJ_g-6h6J6hrWMRzBV
+X-Proofpoint-GUID: tZ5B0pz88oACRe6yNvDpdyybKS8E_mzO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-18_02,2021-10-14_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_spam_definite policy=outbound score=100 mlxlogscore=-1000
+ mlxscore=100 phishscore=0 adultscore=0 clxscore=1011 priorityscore=1501
+ suspectscore=0 malwarescore=0 spamscore=100 bulkscore=0 lowpriorityscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110180065
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-No functional changet, but this will allow for a tighter integration
-with the iomap code, including possible passing the partition offset
-in the iomap in the future.  For now it mostly avoids growing more
-callers outside of fs/dax.c.
+On Sun, Oct 17, 2021 at 05:20:57PM +0800, Huilong Deng wrote:
+> Signed-off-by: Huilong Deng <denghuilong@cdjrlc.com>
+> ---
+>  arch/s390/include/asm/bitops.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/dax/super.c | 14 --------------
- fs/dax.c            | 13 +++++++++++++
- include/linux/dax.h |  1 -
- 3 files changed, 13 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-index 803942586d1b6..c0910687fbcb2 100644
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -67,20 +67,6 @@ void dax_remove_host(struct gendisk *disk)
- }
- EXPORT_SYMBOL_GPL(dax_remove_host);
- 
--int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
--		pgoff_t *pgoff)
--{
--	sector_t start_sect = bdev ? get_start_sect(bdev) : 0;
--	phys_addr_t phys_off = (start_sect + sector) * 512;
--
--	if (pgoff)
--		*pgoff = PHYS_PFN(phys_off);
--	if (phys_off % PAGE_SIZE || size % PAGE_SIZE)
--		return -EINVAL;
--	return 0;
--}
--EXPORT_SYMBOL(bdev_dax_pgoff);
--
- /**
-  * dax_get_by_host() - temporary lookup mechanism for filesystem-dax
-  * @bdev: block device to find a dax_device for
-diff --git a/fs/dax.c b/fs/dax.c
-index 4e3e5a283a916..eb715363fd667 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -709,6 +709,19 @@ int dax_invalidate_mapping_entry_sync(struct address_space *mapping,
- 	return __dax_invalidate_entry(mapping, index, false);
- }
- 
-+static int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
-+		pgoff_t *pgoff)
-+{
-+	sector_t start_sect = bdev ? get_start_sect(bdev) : 0;
-+	phys_addr_t phys_off = (start_sect + sector) * 512;
-+
-+	if (pgoff)
-+		*pgoff = PHYS_PFN(phys_off);
-+	if (phys_off % PAGE_SIZE || size % PAGE_SIZE)
-+		return -EINVAL;
-+	return 0;
-+}
-+
- static int copy_cow_page_dax(struct block_device *bdev, struct dax_device *dax_dev,
- 			     sector_t sector, struct page *to, unsigned long vaddr)
- {
-diff --git a/include/linux/dax.h b/include/linux/dax.h
-index 439c3c70e347b..324363b798ecd 100644
---- a/include/linux/dax.h
-+++ b/include/linux/dax.h
-@@ -107,7 +107,6 @@ static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
- #endif
- 
- struct writeback_control;
--int bdev_dax_pgoff(struct block_device *, sector_t, size_t, pgoff_t *pgoff);
- #if IS_ENABLED(CONFIG_FS_DAX)
- int dax_add_host(struct dax_device *dax_dev, struct gendisk *disk);
- void dax_remove_host(struct gendisk *disk);
--- 
-2.30.2
-
+Applied, thanks.
