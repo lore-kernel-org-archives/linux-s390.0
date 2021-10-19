@@ -2,97 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77CFEC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 12:18:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2F84C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 13:02:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6598861360
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 12:18:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9401F60F57
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 13:02:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235589AbhJSMUW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Oct 2021 08:20:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34410 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235480AbhJSMUV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Oct 2021 08:20:21 -0400
-Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35F1AC06161C
-        for <linux-s390@vger.kernel.org>; Tue, 19 Oct 2021 05:18:09 -0700 (PDT)
-Received: by mail-il1-x131.google.com with SMTP id i6so913903ila.12
-        for <linux-s390@vger.kernel.org>; Tue, 19 Oct 2021 05:18:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=+u6Zw+sZeymRMtbHbtGbZtKzgW0EhyLBdVB1VY/1pQs=;
-        b=Tb48ymzvjxLTClrHNJYA4D2dVJ8Ztfbhzy0Ie48bKme14dbHEk7NHzUlD4CtsOuTVh
-         JgNzHEVLQhxIsPLhyJX7Z/VzlReaLnFXc1kKfHdgzt2BBNgXuoe+ZF4bik430vu4puMl
-         I+VMmrKJgTvifkJbrey0kcq4cSbLwlRG2Hgmwgr+LEzoG7E29CJqi0uqRCgehTOMKsrq
-         Jh6TX2smlG382jHo0pR4VfMS1s4K5fB1q8nrd8S+Dn/GnVyVBFeUcEAXY/7qL1iaBQvm
-         mo2ph9WGKLDLbO76XEykkT73n30KhxsNtReurXqJLhHlkq4NYNbpzmPgymF9ctR4BHQv
-         4WIw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=+u6Zw+sZeymRMtbHbtGbZtKzgW0EhyLBdVB1VY/1pQs=;
-        b=hhuU3psMX1uSwM80iXg/O0aKxfiA1XS6rUpkrnWVDa0YmPKz12lvkvjYe7HZ11F08o
-         9UCvCxy5UZzELjucHdI/Jrxw0PwOpBuAtf/yiDZCDE9USPC/+mAFV8SXMDM+QUfAAyZM
-         Lr9diONkT19+hikhggxkoZTk40w/9W5V8VlA4X+ZYHKK4UCsKXbi0MwyqnbDHsqrvmQA
-         5DNtgyezNWzajxM/0KQfl6s0tl27YNhZVnc4zusdVo+MC0np9R0t7kqwWpJU6zsrWfNt
-         kqEPqDPr2Y2YhVSgoX4Eyls1FODdyYl/SVSTaBB6YFCMRkB1tTp/MCL8+N9qgdueF9Ju
-         Opkw==
-X-Gm-Message-State: AOAM5337Q7GJljOqcChPmeg6iqj6jjQlI03xFIUV4Xzlq3kdXXvCK4SH
-        2KkHRPThpU40ioG47wsTdfV9pw==
-X-Google-Smtp-Source: ABdhPJwdq2OzbwJ+5kSgKNQu/1r0vmMuOrQGPUlHM7JK+ER+0G+nwVQiAnqSrEK4pLXtvo4sGlmmaw==
-X-Received: by 2002:a92:de47:: with SMTP id e7mr11929867ilr.282.1634645888670;
-        Tue, 19 Oct 2021 05:18:08 -0700 (PDT)
-Received: from localhost.localdomain ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id o14sm8393559ilq.81.2021.10.19.05.18.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Oct 2021 05:18:08 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-efi@vger.kernel.org,
-        linux-s390@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        linux-block@vger.kernel.org
-Subject: Re: more bdev_nr_sectors / bdev_nr_bytes conversions
-Date:   Tue, 19 Oct 2021 06:18:05 -0600
-Message-Id: <163464587890.599826.15140587721963730407.b4-ty@kernel.dk>
-X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211019062024.2171074-1-hch@lst.de>
-References: <20211019062024.2171074-1-hch@lst.de>
+        id S235557AbhJSNFC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Oct 2021 09:05:02 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55468 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230097AbhJSNFC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 19 Oct 2021 09:05:02 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19JCW7lC032484;
+        Tue, 19 Oct 2021 09:02:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=BEYA2FHx+bxhouW//MiueuLYrq1GxGRPlQD8mwmCvuQ=;
+ b=XPLZaDVQYrwC/TRJoCEkYxR8PpzGsDaAbLWAu6yMvJp/bvXPxmWheplyKYvbHUb+fvvm
+ SueI00v5uWE11GJ2/7k4x2nYq2Q/oL0LPZj6lMibt9Vr64tE1LANxiE7ZMBiWKvppzqJ
+ 9+fix4Z9yDuBALqdlXwHHNELL8JnzMeyEEZ0/yKVp/RX07l4EthtZCSxiUMDkUMa+OPG
+ QPYdZGxsVeuAKz0k6EF0cA89RsMwUke4Kb6C/w9OBnKd5K1Pm0FoLHSAYcjMVyfEAViA
+ zlqEI5I9ktDlIGBrTpW+kcPzTnE9TrjA6el5ag4u97a++M0em3Q/tZ8IWylUovg2hb6j aw== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bsvkg2q23-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 19 Oct 2021 09:02:40 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19JCvSY2022210;
+        Tue, 19 Oct 2021 13:02:37 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03fra.de.ibm.com with ESMTP id 3bqpc9g3cm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 19 Oct 2021 13:02:37 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19JD2Z9564815578
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 19 Oct 2021 13:02:35 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 007E35206D;
+        Tue, 19 Oct 2021 13:02:35 +0000 (GMT)
+Received: from li-c43276cc-23ad-11b2-a85c-bda00957cb67.ibm.com.com (unknown [9.145.18.150])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 6FD5C52051;
+        Tue, 19 Oct 2021 13:02:34 +0000 (GMT)
+From:   Steffen Maier <maier@linux.ibm.com>
+To:     Jens Axboe <axboe@kernel.dk>,
+        Nikanth Karthikesan <knikanth@suse.de>,
+        linux-block@vger.kernel.org, linux-doc@vger.kernel.org
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH] block: add documentation for inflight
+Date:   Tue, 19 Oct 2021 15:02:30 +0200
+Message-Id: <20211019130230.77594-1-maier@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: tX2B34PwpCTHNQgorju_mtGkvDAiVnk5
+X-Proofpoint-GUID: tX2B34PwpCTHNQgorju_mtGkvDAiVnk5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-19_01,2021-10-19_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ phishscore=0 adultscore=0 mlxlogscore=999 impostorscore=0 bulkscore=0
+ clxscore=1011 malwarescore=0 priorityscore=1501 spamscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110190081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 19 Oct 2021 08:20:21 +0200, Christoph Hellwig wrote:
-> these somehow slipped into a different branch, so here is another
-> small batch.
-> 
-> Diffstat:
->  ioctl.c          |   20 ++++++++------------
->  partitions/efi.c |    2 +-
->  partitions/ibm.c |   19 ++++++++++---------
->  3 files changed, 19 insertions(+), 22 deletions(-)
-> 
-> [...]
+Complements v2.6.32 commit a9327cac440b ("Seperate read and write
+statistics of in_flight requests") and commit 316d315bffa4 ("block:
+Seperate read and write statistics of in_flight requests v2").
 
-Applied, thanks!
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+---
+ Documentation/ABI/testing/sysfs-block | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-[1/3] block/ioctl: use bdev_nr_sectors and bdev_nr_bytes
-      commit: 946e99373037be4841e8b42dcd136e03093c9fd5
-[2/3] partitions/efi: use bdev_nr_bytes instead of open coding it
-      commit: f9831b885709978ed9d16833ceeb3a2ec174a2d2
-[3/3] partitions/ibm: use bdev_nr_sectors instead of open coding it
-      commit: 97eeb5fc14cc4b2091df8b841a07a1ac69f2d762
-
-Best regards,
+diff --git a/Documentation/ABI/testing/sysfs-block b/Documentation/ABI/testing/sysfs-block
+index a0ed87386639..b16b0c45a272 100644
+--- a/Documentation/ABI/testing/sysfs-block
++++ b/Documentation/ABI/testing/sysfs-block
+@@ -28,6 +28,22 @@ Description:
+ 		For more details refer Documentation/admin-guide/iostats.rst
+ 
+ 
++What:		/sys/block/<disk>/inflight
++Date:		October 2009
++Contact:	Jens Axboe <axboe@kernel.dk>, Nikanth Karthikesan <knikanth@suse.de>
++Description:
++		Reports the number of I/O requests currently in progress
++		(pending / in flight) in a device driver. This can be less
++		than the number of requests queued in the block device queue.
++		The report contains 2 fields: one for read requests
++		and one for write requests.
++		The value type is unsigned int.
++		Cf. Documentation/block/stat.rst which contains a single value for
++		requests in flight.
++		This is related to nr_requests in Documentation/block/queue-sysfs.rst
++		and for SCSI device also its queue_depth.
++
++
+ What:		/sys/block/<disk>/diskseq
+ Date:		February 2021
+ Contact:	Matteo Croce <mcroce@microsoft.com>
 -- 
-Jens Axboe
-
+2.27.0
 
