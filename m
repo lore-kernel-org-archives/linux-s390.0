@@ -2,148 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C3D9C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 07:01:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2BD8C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 11:39:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DF90661264
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 07:01:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8CC816137C
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 11:39:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234315AbhJSHD1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Oct 2021 03:03:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32872 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229584AbhJSHD0 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 19 Oct 2021 03:03:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 751EF61264;
-        Tue, 19 Oct 2021 07:01:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634626874;
-        bh=WULQsGTEJwt19CRpdjcDl/c2CFB3gMMJnWJdmGQga0M=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=k04egQL83NVWTov+uXYYVSys9+ZJ4fpLBBFQTpW7Q9/EqtFRJ/kXLkqCgC/zDCU2Z
-         jL69ucdnigZPLxfZLakiNRPhMNAeRgGiuEYkFoJSm7qVysMxBUpRsskYf/pt5SbzAv
-         9Gv31GGoMPqSyPbycTgcPoqPteYDZCJQJ3qRwVdAqosm5MDTBQrF7OWyTG0vPbzZZU
-         dRK0rmoRfTt0BXP9Vg5X6nHbQZqxgb1fSLis2oIhN8V8PFMgPj6yK6b9U+6suqx3f8
-         sMsFfuId2l+y9PBaO0vp0j8t0P93Vu6p9JFA6Tea+M4tP/kGaxVgO7Tg/VZB4sgfcB
-         dTsFF5/Wk3zwA==
-Received: by mail-ot1-f41.google.com with SMTP id 34-20020a9d0325000000b00552cae0decbso1240841otv.0;
-        Tue, 19 Oct 2021 00:01:14 -0700 (PDT)
-X-Gm-Message-State: AOAM530VhIE8Q9qmTbDx9MRCtxEi09nt/EMF5K8mPvGsd6E+YloG5cY/
-        wEzXClK9x+bbz48P5NT5ONUKOQmTe6fIfzWUXEU=
-X-Google-Smtp-Source: ABdhPJymjcl+It0ToY7DQK4sP+e0BUZFLur21MK3HrEaeJzR8K7KPxyn64yg9VuHuGbdf8ImkTE7pfnH4j3QDG3odmM=
-X-Received: by 2002:a05:6830:561:: with SMTP id f1mr3929996otc.30.1634626873733;
- Tue, 19 Oct 2021 00:01:13 -0700 (PDT)
+        id S235490AbhJSLly (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Oct 2021 07:41:54 -0400
+Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:59414
+        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235298AbhJSLlj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 19 Oct 2021 07:41:39 -0400
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com [209.85.215.198])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id F2CB14074D
+        for <linux-s390@vger.kernel.org>; Tue, 19 Oct 2021 11:39:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1634643566;
+        bh=nX+hgZuu9fE6BhknlkkEZCMXVcIn2J/gsqHaBdOU6g0=;
+        h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+         In-Reply-To:Content-Type;
+        b=KegxTO01XyXg5ktc6Scv/x72tjEP9P1n5XL0+Q7AvS3G8wXjYAYecGUmYOscCdNs5
+         CjFzMXNg6NYoz+o/QcMkFXuaqYt8dwCIbYXqQK7OuE4G5vYapzNezod8zU3CbLaD0W
+         yqDtdwTheXtuheJhuti7dOmRY99lvKIXcnuYcJeVfAYGbS+C43S7cCkDwYee8vNA5+
+         xGVAfarmbm62pD0HhTJDWBHxrMx8vbCDzeytq2p0n9p8EnROsM91EgnlWMIcMvzeHb
+         5m2hV7sqo6SfZnHwhkqwE4ixMGCCci0kqrYmXBFMmvgMircmDw0+0oaq4cRaUJWiIX
+         u/P69PKR15Agg==
+Received: by mail-pg1-f198.google.com with SMTP id 80-20020a630753000000b002997713c266so8667940pgh.9
+        for <linux-s390@vger.kernel.org>; Tue, 19 Oct 2021 04:39:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=nX+hgZuu9fE6BhknlkkEZCMXVcIn2J/gsqHaBdOU6g0=;
+        b=BxbyFs/jW5me5Czt13Als9r3fXFIqHFgoPWnph9gD6erW58pqezMb309cem20ptDZy
+         slYLjYduyvy4ZHVDSnPVI4Ue2FQ05rSyOWBCK+yFnyZtJiFSwaoUqwoQ2fT1h7K7y44o
+         KEwf8H9F4VXr+rf0KJqU7NhkNSc8Q7VGsEGbfEo0A75DoLS8HWkTAoh1YiCTsEZmRnuJ
+         UrH+KTEy9JYu+s7frd8QKGcajQleZHwmaFRgpaTVxTBQXKqhLjSfhFbYL7JcRbpadPIl
+         +A7Dk+oTpVTbARQjgygG5CVr01cdIASFW13nmJdtmCXPshyFmZ+lRAvUnCu4hQDJR6SI
+         043Q==
+X-Gm-Message-State: AOAM531JKukIg5tpjbPB+fGQFrbzoyGid1+yXRvVOinbH8sTKGeR9OEF
+        PbQhzLgcdkl1kpfzkh/q9Rdc/8oFrg/S+0jelOVJCYahuj+XtNMJS7aYLzNu7tQLTKGLzATqM6a
+        oD7aOQRtWO3TQ9j+XSs+OXTbh4qq9o7xPhyBeedE=
+X-Received: by 2002:a17:902:e282:b0:13f:62b1:9a06 with SMTP id o2-20020a170902e28200b0013f62b19a06mr32926771plc.1.1634643564633;
+        Tue, 19 Oct 2021 04:39:24 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzyXR2OsgUdzLBM3eT6ViBbK3B7Gx8dj2DyWABV4UYbeu2DDl1H4b7QR4zEJNVXlKGlLVsziw==
+X-Received: by 2002:a17:902:e282:b0:13f:62b1:9a06 with SMTP id o2-20020a170902e28200b0013f62b19a06mr32926746plc.1.1634643564357;
+        Tue, 19 Oct 2021 04:39:24 -0700 (PDT)
+Received: from [192.168.1.124] ([69.163.84.166])
+        by smtp.gmail.com with ESMTPSA id y18sm15951322pff.184.2021.10.19.04.39.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Oct 2021 04:39:23 -0700 (PDT)
+Subject: Re: [PATCH][linux-next] net/smc: prevent NULL dereference in
+ smc_find_rdma_v2_device_serv()
+To:     Karsten Graul <kgraul@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20211018183128.17743-1-tim.gardner@canonical.com>
+ <ceb1a1ce-b4a4-7908-7d18-832cca1bfbe2@linux.ibm.com>
+From:   Tim Gardner <tim.gardner@canonical.com>
+Message-ID: <00975c56-da9a-2583-ac42-ae6a83e40050@canonical.com>
+Date:   Tue, 19 Oct 2021 05:39:22 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-References: <20211019062024.2171074-1-hch@lst.de> <20211019062024.2171074-4-hch@lst.de>
-In-Reply-To: <20211019062024.2171074-4-hch@lst.de>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Tue, 19 Oct 2021 09:01:02 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXFuMtfyEyTUoVaFaSdOgZTC99CVy4M_XWYms8gFaE94fg@mail.gmail.com>
-Message-ID: <CAMj1kXFuMtfyEyTUoVaFaSdOgZTC99CVy4M_XWYms8gFaE94fg@mail.gmail.com>
-Subject: Re: [PATCH 3/3] partitions/ibm: use bdev_nr_sectors instead of open
- coding it
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Jens Axboe <axboe@kernel.dk>, Davidlohr Bueso <dave@stgolabs.net>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-block@vger.kernel.org, linux-efi <linux-efi@vger.kernel.org>,
-        "open list:S390" <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <ceb1a1ce-b4a4-7908-7d18-832cca1bfbe2@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 19 Oct 2021 at 08:20, Christoph Hellwig <hch@lst.de> wrote:
->
-> Use the proper helper to read the block device size and switch various
-> places to pass the size in terms of sectors which is more practical.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  block/partitions/ibm.c | 19 ++++++++++---------
->  1 file changed, 10 insertions(+), 9 deletions(-)
->
-> diff --git a/block/partitions/ibm.c b/block/partitions/ibm.c
-> index 9bca396aef4ad..d56912fe81732 100644
-> --- a/block/partitions/ibm.c
-> +++ b/block/partitions/ibm.c
-> @@ -198,7 +198,7 @@ static int find_lnx1_partitions(struct parsed_partitions *state,
->                                 char name[],
->                                 union label_t *label,
->                                 sector_t labelsect,
-> -                               loff_t i_size,
-> +                               sector_t nr_sectors,
->                                 dasd_information2_t *info)
->  {
->         loff_t offset, geo_size, size;
-> @@ -213,14 +213,14 @@ static int find_lnx1_partitions(struct parsed_partitions *state,
->         } else {
->                 /*
->                  * Formated w/o large volume support. If the sanity check
-> -                * 'size based on geo == size based on i_size' is true, then
-> +                * 'size based on geo == size based on br_sectors' is true,
 
-nr_sectors
 
->                  * we can safely assume that we know the formatted size of
->                  * the disk, otherwise we need additional information
->                  * that we can only get from a real DASD device.
->                  */
->                 geo_size = geo->cylinders * geo->heads
->                         * geo->sectors * secperblk;
-> -               size = i_size >> 9;
-> +               size = nr_sectors;
->                 if (size != geo_size) {
->                         if (!info) {
->                                 strlcat(state->pp_buf, "\n", PAGE_SIZE);
-> @@ -229,7 +229,7 @@ static int find_lnx1_partitions(struct parsed_partitions *state,
->                         if (!strcmp(info->type, "ECKD"))
->                                 if (geo_size < size)
->                                         size = geo_size;
-> -                       /* else keep size based on i_size */
-> +                       /* else keep size based on nr_sectors */
->                 }
->         }
->         /* first and only partition starts in the first block after the label */
-> @@ -293,7 +293,8 @@ int ibm_partition(struct parsed_partitions *state)
->         struct gendisk *disk = state->disk;
->         struct block_device *bdev = disk->part0;
->         int blocksize, res;
-> -       loff_t i_size, offset, size;
-> +       loff_t offset, size;
-> +       sector_t nr_sectors;
->         dasd_information2_t *info;
->         struct hd_geometry *geo;
->         char type[5] = {0,};
-> @@ -308,8 +309,8 @@ int ibm_partition(struct parsed_partitions *state)
->         blocksize = bdev_logical_block_size(bdev);
->         if (blocksize <= 0)
->                 goto out_symbol;
-> -       i_size = i_size_read(bdev->bd_inode);
-> -       if (i_size == 0)
-> +       nr_sectors = bdev_nr_sectors(bdev);
-> +       if (nr_sectors == 0)
->                 goto out_symbol;
->         info = kmalloc(sizeof(dasd_information2_t), GFP_KERNEL);
->         if (info == NULL)
-> @@ -336,7 +337,7 @@ int ibm_partition(struct parsed_partitions *state)
->                                                    label);
->                 } else if (!strncmp(type, "LNX1", 4)) {
->                         res = find_lnx1_partitions(state, geo, blocksize, name,
-> -                                                  label, labelsect, i_size,
-> +                                                  label, labelsect, nr_sectors,
->                                                    info);
->                 } else if (!strncmp(type, "CMS1", 4)) {
->                         res = find_cms1_partitions(state, geo, blocksize, name,
-> @@ -353,7 +354,7 @@ int ibm_partition(struct parsed_partitions *state)
->                 res = 1;
->                 if (info->format == DASD_FORMAT_LDL) {
->                         strlcat(state->pp_buf, "(nonl)", PAGE_SIZE);
-> -                       size = i_size >> 9;
-> +                       size = nr_sectors;
->                         offset = (info->label_block + 1) * (blocksize >> 9);
->                         put_partition(state, 1, offset, size-offset);
->                         strlcat(state->pp_buf, "\n", PAGE_SIZE);
-> --
-> 2.30.2
->
+On 10/19/21 12:33 AM, Karsten Graul wrote:
+> On 18/10/2021 20:31, Tim Gardner wrote:
+>> Coverity complains of a possible NULL dereference in smc_find_rdma_v2_device_serv().
+>>
+>> 1782        smc_v2_ext = smc_get_clc_v2_ext(pclc);
+>> CID 121151 (#1 of 1): Dereference null return value (NULL_RETURNS)
+>> 5. dereference: Dereferencing a pointer that might be NULL smc_v2_ext when calling smc_clc_match_eid. [show details]
+>> 1783        if (!smc_clc_match_eid(ini->negotiated_eid, smc_v2_ext, NULL, NULL))
+>> 1784                goto not_found;
+>>
+>> Fix this by checking for NULL.
+> 
+> Hmm that's a fundamental question for me: do we want to make the code checkers happy?
+> While I understand that those warnings give an uneasy feeling I am not sure
+> if the code should have additional (unneeded) checks only to avoid them.
+> 
+
+Coverity produces a lot of false positives. I thought this one might be 
+legitimate, but if you're comfortable that its not an issue then I'm OK 
+with that.
+
+> In this case all NULL checks are initially done in smc_listen_v2_check(),
+> afterwards no more NULL checks are needed. When we would like to add them
+> then a lot more checks are needed, e.g. 3 times in smc_find_ism_v2_device_serv()
+> (not sure why coverity does not complain about them, too).
+> 
+> Thoughts?
+> 
+
+Coverity probably has produced a report from the other call sites if 
+you've used a similar pattern, I just hadn't gotten to them yet.
+
+I'll just mark them all as false positives.
+
+rtg
+-- 
+-----------
+Tim Gardner
+Canonical, Inc
