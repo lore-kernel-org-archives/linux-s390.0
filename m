@@ -2,161 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 406ADC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 17:54:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0870C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 21:04:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 29D2160F57
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 17:54:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7907261156
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 21:04:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234891AbhJSR43 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Oct 2021 13:56:29 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:61454 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S234801AbhJSR40 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 19 Oct 2021 13:56:26 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19JGHhhl001976;
-        Tue, 19 Oct 2021 13:54:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=q/3DR9hWr4hjriuIEVzl47dAQxxL9n6DlZStTH7FA+4=;
- b=iUxgnPD4rjPIB9JzIGZqZwLhdtJ7AEQvC52wkAH2q65SvP9faeqYsvqz1wDr5FHeUlDT
- usYQ4UR4l+m8uM1Hrrkx3bCqCMnYjKSyg9Oq/KaYtEAgzo+praRj1Zeaz0ZhtWPov1rE
- EVW6UVNjDWMC7jB0vWuRp/XEMyE11OPoMzOWug080mv8BiaRXUTTczdFajOC4FqpnxZk
- Wtwt36SC64rCS6BXqVBIvooAWLCZvo33ED5iJkbULmo9Q8hDfNE2NEyfrGTnGpmygYmd
- y1XkPUJwS19tMHUQQ1GaJ5gzQMDGLyX1ULlZwBWSsLMTQ0I7VnEosYJWPhaSoWdaei+I Rg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bt1draavr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Oct 2021 13:54:12 -0400
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19JGkmMJ011074;
-        Tue, 19 Oct 2021 13:54:12 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bt1draav7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Oct 2021 13:54:12 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19JHrNHv006558;
-        Tue, 19 Oct 2021 17:54:10 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3bqpcbjr8f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Oct 2021 17:54:10 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19JHs70P35520954
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 19 Oct 2021 17:54:07 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E685EAE053;
-        Tue, 19 Oct 2021 17:54:06 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 73446AE045;
-        Tue, 19 Oct 2021 17:54:06 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 19 Oct 2021 17:54:06 +0000 (GMT)
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>, farman@linux.ibm.com,
-        kvm@vger.kernel.org
-Subject: [PATCH 3/3] KVM: s390: clear kicked_mask if not idle after set
-Date:   Tue, 19 Oct 2021 19:54:01 +0200
-Message-Id: <20211019175401.3757927-4-pasic@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211019175401.3757927-1-pasic@linux.ibm.com>
-References: <20211019175401.3757927-1-pasic@linux.ibm.com>
+        id S231738AbhJSVGj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Oct 2021 17:06:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42282 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231506AbhJSVGh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Oct 2021 17:06:37 -0400
+Received: from ms.lwn.net (ms.lwn.net [IPv6:2600:3c01:e000:3a1::42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4A61C06161C;
+        Tue, 19 Oct 2021 14:04:22 -0700 (PDT)
+Received: from localhost (unknown [IPv6:2601:281:8300:104d::5f6])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ms.lwn.net (Postfix) with ESMTPSA id 3F7BF7DE;
+        Tue, 19 Oct 2021 21:04:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 ms.lwn.net 3F7BF7DE
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lwn.net; s=20201203;
+        t=1634677462; bh=OBcS/ydQa8jx7fNfnnJNWUzruUCNqteSSCGMNGtXBQk=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=Air9jU1ddzD3XVn+ET5DV9x7i7OrWZN/DVwJuDI40ThC9obz0SBdkjOu5v3ED5Aql
+         cDw9YwdQ1+rjiFMHx+X9TDbqFr0CO8srUhKVmtpMZVB/jZjFf1yGdHQrtishdmziom
+         cFGB0ipeBza8mEAKWs2cQybPK60p4bAuYJvibSJ2haNPmlOQKUqDMdSjcqRA3mIHX/
+         ww4dy/PVMrBeMhtNcK7JeH3NtNkssHRA7q8Djycas+WVy1MiyCTysVulp5PjWd/gBG
+         iaLkP5VTXNTRueNPGPUiv2mJL6uv3DQqameEnDea84a5jjIHcnSxwD4yeHxOqVBSY6
+         bv4EoLj9O4lDg==
+From:   Jonathan Corbet <corbet@lwn.net>
+To:     Jens Axboe <axboe@kernel.dk>, Steffen Maier <maier@linux.ibm.com>,
+        Nikanth Karthikesan <knikanth@suse.de>,
+        linux-block@vger.kernel.org, linux-doc@vger.kernel.org
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH] block: add documentation for inflight
+In-Reply-To: <572fd6c4-ccb9-4799-3882-685efa4492ad@kernel.dk>
+References: <20211019130230.77594-1-maier@linux.ibm.com>
+ <572fd6c4-ccb9-4799-3882-685efa4492ad@kernel.dk>
+Date:   Tue, 19 Oct 2021 15:04:21 -0600
+Message-ID: <87lf2osp4a.fsf@meer.lwn.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rZtmK9zhXz0uxj3kfkvTk0v391lt4HVG
-X-Proofpoint-ORIG-GUID: TfSOrbrLVH_MZgr95rHj096R307ZfErf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-19_02,2021-10-19_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- adultscore=0 spamscore=0 suspectscore=0 malwarescore=0 lowpriorityscore=0
- priorityscore=1501 mlxlogscore=810 phishscore=0 impostorscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110190103
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The idea behind kicked mask is that we should not re-kick a vcpu
-from __airqs_kick_single_vcpu() that is already in the middle of
-being kicked by the same function.
+Jens Axboe <axboe@kernel.dk> writes:
 
-If however the vcpu that was idle before when the idle_mask was
-examined, is not idle any more after the kicked_mask is set, that
-means that we don't need to kick, and that we need to clear the
-bit we just set because we may be beyond the point where it would
-get cleared in the wake-up process. Since the time window is short,
-this is probably more a theoretical than a practical thing: the race
-window is small.
+> On 10/19/21 7:02 AM, Steffen Maier wrote:
+>> Complements v2.6.32 commit a9327cac440b ("Seperate read and write
+>> statistics of in_flight requests") and commit 316d315bffa4 ("block:
+>> Seperate read and write statistics of in_flight requests v2").
+>
+> Jon, probably better if you take this through the doc tree. You can
+> add my:
+>
+> Reviewed-by: Jens Axboe <axboe@kernel.dk>
 
-To get things harmonized let us also move the clear from vcpu_pre_run()
-to __unset_cpu_idle().
+Done.
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
----
- arch/s390/kvm/interrupt.c | 7 ++++++-
- arch/s390/kvm/kvm-s390.c  | 2 --
- 2 files changed, 6 insertions(+), 3 deletions(-)
+Thanks,
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 2245f4b8d362..3c80a2237ef5 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -426,6 +426,7 @@ static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
- 	clear_bit(vcpu->vcpu_idx, vcpu->kvm->arch.idle_mask);
-+	clear_bit(vcpu->vcpu_idx, vcpu->kvm->arch.gisa_int.kicked_mask);
- }
- 
- static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
-@@ -3064,7 +3065,11 @@ static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
- 			/* lately kicked but not yet running */
- 			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
- 				return;
--			kvm_s390_vcpu_wakeup(vcpu);
-+			/* if meanwhile not idle: clear  and don't kick */
-+			if (test_bit(vcpu_idx, kvm->arch.idle_mask))
-+				kvm_s390_vcpu_wakeup(vcpu);
-+			else
-+				clear_bit(vcpu_idx, gi->kicked_mask);
- 			return;
- 		}
- 	}
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 1c97493d21e1..6b779ef9f5fb 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4067,8 +4067,6 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
- 		kvm_s390_patch_guest_per_regs(vcpu);
- 	}
- 
--	clear_bit(vcpu->vcpu_idx, vcpu->kvm->arch.gisa_int.kicked_mask);
--
- 	vcpu->arch.sie_block->icptcode = 0;
- 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
- 	VCPU_EVENT(vcpu, 6, "entering sie flags %x", cpuflags);
--- 
-2.25.1
-
+jon
