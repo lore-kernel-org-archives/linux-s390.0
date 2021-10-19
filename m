@@ -2,50 +2,74 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EF76C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 14:20:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A0F4C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 15:22:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 56C5E611EF
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 14:20:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F0F8460F25
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Oct 2021 15:22:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229734AbhJSOWu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Oct 2021 10:22:50 -0400
-Received: from mail-dm6nam11on2087.outbound.protection.outlook.com ([40.107.223.87]:26432
-        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229649AbhJSOWs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 19 Oct 2021 10:22:48 -0400
+        id S231532AbhJSPYZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Oct 2021 11:24:25 -0400
+Received: from mx0a-00069f02.pphosted.com ([205.220.165.32]:2866 "EHLO
+        mx0a-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231235AbhJSPYY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 19 Oct 2021 11:24:24 -0400
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19JEG3tI004740;
+        Tue, 19 Oct 2021 15:21:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2021-07-09;
+ bh=k3FUUWJUpY4WWUbpRACVAFwltoRFmtWlt3rt/0xhAqU=;
+ b=WDZfGiVclEajxS7uqXrXSdC/ULnn/dADtJL3LWR/PYEPA0gM7rSBGdkFDFaR0ABQZ672
+ OwurMY7QwkyY1/IK4Z/trfMpP6Nu8Cq7kiK9jmYELqYaIuS88ze23mPixyOsa9aULRWi
+ vGVJqxOl15hrospAz9vuWfYq39XzWx8AsBxMveA3BmwxjiE8opn918rWUXQEM7DRNwjn
+ vumrzUDT2EQorobLSGHabXcbUA2k7AeXBb/QgGKn+vWHOwzm9DzQMGul9Y+GrtRsFPZZ
+ rtnT60PPGfu5mrdZTlzHYqp97OxFLEXOV7fXCQ6X5r4FYERSh5BMVtvNF9xeWfYwTCJb gA== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3bsqgmk7sf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 19 Oct 2021 15:21:43 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 19JFFXCA012850;
+        Tue, 19 Oct 2021 15:20:28 GMT
+Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2175.outbound.protection.outlook.com [104.47.58.175])
+        by userp3020.oracle.com with ESMTP id 3br8gsjcdn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 19 Oct 2021 15:20:28 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=apoCP1dV7lOvEzEQ406VUMX4mI2/uX4+B19QsQVlmWsC6HxWR5PaDYuuz/t/fiH3hEfzBqg+iqkPKjFlfOa5Lm9kw/CQag6Eh1oMBXgxermO/evPasJdksbjH0XLbwnoT5/vQujglKNlKXF+Hnua5tyY1dK9zihNBfZjG+U7ewWg+aJHlESH012dheRT1QP7A4Xmd46ZZOAVFzETuNjeleZSdeC/eXaDhd9QQmQd0mJMnFfFP0/qqmRhma8wy51/HQSdWs97KwIZ3jnpSQSOqTH7flxx5xijJLp9TlWPc7nHr1c8OGKU9s/vNTIfbR3YtXczprjhXRg8p05HFPW8tQ==
+ b=MBZqijgIRUyjPKhcozJ1DyJwixjkrIhhqNczSXdzTrhg4APv263D/Ge4G5IFTDMjSpbuD7/qwGiU/ZGzH2GL8W3wn40yT5KaFIbI4w2lIBkcrZU4XiCtSeo4csCnZ6dIz0CnqfzxzVy/IaMQ0f49HadoFao8j5l+pvZdCUZvKIvZZpM1r3XJoWgu+4jRwRUW1DwtBLhqerNj1vY0G9LmLg+bAPiUA49vK993XwbGBz8qicQxxcJel4GdGgxw3oHXDIxTYSHhCaD6aoEC2iicKAh60K975PD+E9GX9SKZVTDEcXanxBnSSQDZtlMBBFdOpUo2jA9xHSUNVKilcKZ7hA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/e9wu5F4y7wSsfpF+hkzHe6ZC8Rkdj6ZH/TEliBZZ20=;
- b=jJQZ6kAPfWr94NfTGVAHVkOdqGlwg1szymklWCi7o0Yrii2vN/E4wavgIf4wLObxW8TTwa31ENHR7QVdrGO0mlbBN/XUBIW0ZEKH2tSO9K9nQDGHD/HYMEVKx13dNlC2btRc3B/ByauYzJBHL5aAMyCT2c6qnSRcYh7hp3kAhXBRKDY9erC8j3B6hf8pTQJUTifU54ixJzGjYf3rBtM1zIrbsnNXrWnnpe9CyT/A8S/p0aEwnnuQgc7ORZom1vr0ZTM29mYEVWLzX7b0t6HX/il5FiShAiPcmm20qU5ZD4SJDKuJvm7az/eBOgP9Sq3K1UgmzKehHrjmasYwvCTucA==
+ bh=k3FUUWJUpY4WWUbpRACVAFwltoRFmtWlt3rt/0xhAqU=;
+ b=N5GcVFsJ962wjKdqM/mKzpoG+rGSzDXgcWdb9eRyHp+za905ItjoHPJHOA9b28dCcXgQ7qlhOEaWDhHIe24LOpZ4Fi2g2yNxnjVdIFjXu3uyfDmrgZNDezJnWVJd9O6fvgNsUN79Xv2DHO8+clxMRbabVIQHGT9Lw/D5dvfgpQoljZbO7PhZmj2fMjg8dOv/6rSr+utIXlvNiiVBo/+V59btdrkZbM6MT1v54XL/PpzHH9IiPW8setTc3/jnlUyt6OiPcKEOCeJejEQZBdyVZUUauz3y7dXaNTdH1yspHV20Sae66O752MekEN0OP4uXMUHRRFvjR4Fnp2+sHTjJ/A==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/e9wu5F4y7wSsfpF+hkzHe6ZC8Rkdj6ZH/TEliBZZ20=;
- b=mfw2gpl7iwr/w3s/usM3ZTjHN84jehzK0Fia8d0TbS7azTkrjD4vQdpHPxcVeUxZhPDW5RD7WafB+Fyql4LKdsiCKaiMY7lJNS4jk0h7Gfp2SXOc9TX5/UlCjod1vf80lthgxk+LRkQKpsrw9hR9ldVhPGiDUXryQnS8HrrZJmhf79qSJKyrzq/lWvQIkZpYFNJ0XqwphOEBBSR9kQiISdnfVJdlLgLGIsGcaOtfS7SvN9Ros8DohTGF1ZAcWUXWDBVglZzyJYn0xcZVD7kiJfEYBawOaYnuQi7s1GGzufLBz+GadL5IlFGHcfRmjossVJFSzAgafEAEGwre3EIRaA==
-Authentication-Results: intel.com; dkim=none (message not signed)
- header.d=none;intel.com; dmarc=none action=none header.from=nvidia.com;
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL1PR12MB5380.namprd12.prod.outlook.com (2603:10b6:208:314::7) with
+ bh=k3FUUWJUpY4WWUbpRACVAFwltoRFmtWlt3rt/0xhAqU=;
+ b=QjwAtCa8QMqTfPxmi/Ob+/wVpW+1HO5QgIj9HfvPdBM7IuCWLyctXnNsbwbQcc4YJq9WHIRAscte/QDQTR3kKGLPa3D+QMPdoEJM86aW0dWlAA/fMc1h1+e66RYm8JzSdy878ci1SoAJIj+Aii5ub47yGu4X3CilTH7vFhNFToc=
+Authentication-Results: nvidia.com; dkim=none (message not signed)
+ header.d=none;nvidia.com; dmarc=none action=none header.from=oracle.com;
+Received: from BLAPR10MB4835.namprd10.prod.outlook.com (2603:10b6:208:331::11)
+ by MN2PR10MB4045.namprd10.prod.outlook.com (2603:10b6:208:1b7::31) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4608.18; Tue, 19 Oct
- 2021 14:20:34 +0000
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::e8af:232:915e:2f95]) by BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::e8af:232:915e:2f95%8]) with mapi id 15.20.4628.015; Tue, 19 Oct 2021
- 14:20:33 +0000
-Date:   Tue, 19 Oct 2021 11:20:32 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     Joao Martins <joao.m.martins@oracle.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4608.17; Tue, 19 Oct
+ 2021 15:20:25 +0000
+Received: from BLAPR10MB4835.namprd10.prod.outlook.com
+ ([fe80::d809:9016:4511:2bc6]) by BLAPR10MB4835.namprd10.prod.outlook.com
+ ([fe80::d809:9016:4511:2bc6%8]) with mapi id 15.20.4608.018; Tue, 19 Oct 2021
+ 15:20:25 +0000
+Message-ID: <a0001855-4f08-78b7-64ae-80ebbbb04f8d@oracle.com>
+Date:   Tue, 19 Oct 2021 16:20:16 +0100
+Subject: Re: can we finally kill off CONFIG_FS_DAX_LIMITED
+Content-Language: en-US
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Christoph Hellwig <hch@lst.de>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
@@ -59,9 +83,8 @@ Cc:     Joao Martins <joao.m.martins@oracle.com>,
         Ralph Campbell <rcampbell@nvidia.com>,
         Alistair Popple <apopple@nvidia.com>,
         Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>
-Subject: Re: can we finally kill off CONFIG_FS_DAX_LIMITED
-Message-ID: <20211019142032.GT2744544@nvidia.com>
+        Dave Jiang <dave.jiang@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>
 References: <20210823214708.77979b3f@thinkpad>
  <CAPcyv4jijqrb1O5OOTd5ftQ2Q-5SVwNRM7XMQ+N3MAFxEfvxpA@mail.gmail.com>
  <e250feab-1873-c91d-5ea9-39ac6ef26458@oracle.com>
@@ -72,148 +95,133 @@ References: <20210823214708.77979b3f@thinkpad>
  <5ca908e3-b4ad-dfef-d75f-75073d4165f7@oracle.com>
  <20211018233045.GQ2744544@nvidia.com>
  <CAPcyv4i=Rsv3nNTH9LTc2BwCoMyDU639vdd9kVEzZXvuSY+dWA@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPcyv4i=Rsv3nNTH9LTc2BwCoMyDU639vdd9kVEzZXvuSY+dWA@mail.gmail.com>
-X-ClientProxiedBy: BLAPR03CA0111.namprd03.prod.outlook.com
- (2603:10b6:208:32a::26) To BL0PR12MB5506.namprd12.prod.outlook.com
- (2603:10b6:208:1cb::22)
+ <20211019142032.GT2744544@nvidia.com>
+From:   Joao Martins <joao.m.martins@oracle.com>
+In-Reply-To: <20211019142032.GT2744544@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: LO2P265CA0134.GBRP265.PROD.OUTLOOK.COM
+ (2603:10a6:600:9f::26) To BLAPR10MB4835.namprd10.prod.outlook.com
+ (2603:10b6:208:331::11)
 MIME-Version: 1.0
-Received: from mlx.ziepe.ca (142.162.113.129) by BLAPR03CA0111.namprd03.prod.outlook.com (2603:10b6:208:32a::26) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4608.17 via Frontend Transport; Tue, 19 Oct 2021 14:20:33 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1mcpyi-00GiBW-RW; Tue, 19 Oct 2021 11:20:32 -0300
+Received: from [10.175.162.43] (138.3.204.43) by LO2P265CA0134.GBRP265.PROD.OUTLOOK.COM (2603:10a6:600:9f::26) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4608.15 via Frontend Transport; Tue, 19 Oct 2021 15:20:22 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 4bea0c85-3098-4130-10aa-08d9930b9ce4
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5380:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BL1PR12MB53802340DA7A6332DACC6414C2BD9@BL1PR12MB5380.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Office365-Filtering-Correlation-Id: 5a66a871-33a0-4289-86e2-08d99313f990
+X-MS-TrafficTypeDiagnostic: MN2PR10MB4045:
+X-Microsoft-Antispam-PRVS: <MN2PR10MB404539B345B8F09B06129FCFBBBD9@MN2PR10MB4045.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:7691;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: drrfouxs/ouf/DTH0pUwWN484goBVKKGw44OQiOojD7afQK24r1l/edMIQJNfX94ofhpD/nYwpzFUgzgndsOe8vlXFuVAwdn26zabIUvczIdMUZX4TxTsYiq8MCH3kCr5Rvp2+JLATSY0bR51X4rkQPMGPtLtkbqpmUOcSUsC+TP23gs09pxMYn6vBSKpAU0HAvhVgFsuqseUBvfJ2EvQ8EExAWzWTUjIJNLGtvRwvZBi+QB4il6D0VUdrnIwNsFcFUc+5PTMLAWCTHOrh/TiV57v3q5pgwAkDHmmlwrKeAmOryLZUU4rvAzgBzvyEuffiFXupmraewmwVuQw7ozXW4/8j7SIbUlUj1veF72zt5sKB2OyMLoIzWisLKXO5zBHU1AeVOF535vkmtBzrtqZgn4k4DPthMh/1gV6PI16f3lbj4scnwElWZExKHS+i92jLWYec/Qa3hsO5ysQoyI4CtuPjG9zFCWXzJSbg/8WUES05/kf9MQwPXdy3zdZJipPbshLvb2jl0Y9rkwHIhpujZ+mO1GkVC3o7ZABn2WUcYXuudZPQ+XGAJ+8gaj5L/bfkg5EuKUYD0iLgSYJqLPbccPFapZej8IcckbsT+Zf+OV0ai8E0qsAb3fjgGxKzFOV8H+Sdq8t/4jIGM9cwWpEA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(38100700002)(5660300002)(186003)(83380400001)(4326008)(316002)(8936002)(36756003)(9746002)(1076003)(508600001)(9786002)(53546011)(26005)(8676002)(66476007)(66556008)(2616005)(54906003)(66946007)(7416002)(6916009)(33656002)(86362001)(426003)(2906002);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: IDlMGE8yfNOyB4TrnYb8nz9vHe6oyx6P5zEDE4wXErm4FpxEFMNOkOUd0Vz4yDKh/a54esqkknflSv35fU1eBMT87ODAsuDgUpmHsDHnrFU752EtfARZrfljzgyW3bKH8wUixUsXVh4TzaTk/VZzDY9MmA+PP3yWIOcjxPr9Sl/zVcT/Ay6gPE0oQ+vS5eq5NS97CPbWQayEE/+uFUiGN+fMszAd4MBu+VN1RrPh3+etjd99dAOUMxuve9W8BGBDopPZobLhmmyiMXxZb5P2yivIgYnsbarajQQiTdoSlyENSCyspyZzLNJq9CrNaWqbH3NOEQw2Zn4VWzN4Z3aBPQaBqGZYRpPVhQJl4xverNWqtSCvmLovDOJ57ElGFxYkpbtEu82zGAYnYrEfRfp4FBczcb9rrMrcVExNPthrutSSr/GHAtU55ublf9pqSmHV0WJHeuVSaIHOcR2pL12A6E3iMYL0qjgz7ctEZn1eXqewuMlvl2DmEi+4AgGrI6UiOdwx8md9R45dUatO9ANP3Cs7QZjqa7dAwCRScGGHeVkJPepZywcCY269NvXCZ5Adbmm/a83YDBltetN2+tvcivjMee8zLOo2XZPn8U1glmp3aIxlYIixXlr4ALU32v32VpgHsHYc9Aj5u/eeuU3n68Hu2L4zVgqve1UUhYzFgtXmCplxgEIM8hxj2R22vNj5ftw7FUU8QcvfAcQcur2k7A==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BLAPR10MB4835.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(66946007)(316002)(31686004)(8936002)(5660300002)(66476007)(2906002)(8676002)(508600001)(16576012)(26005)(956004)(2616005)(38100700002)(53546011)(186003)(6486002)(36756003)(83380400001)(31696002)(66556008)(7416002)(4326008)(6916009)(86362001)(6666004)(54906003)(45980500001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?mu9G2vdsuC1nsJSUE3ekq/s+IcUFHGofirJmF6K+uyxnyBdx9nxLji/cFJND?=
- =?us-ascii?Q?VUyUEPXM0R9vMu/fz4BdHDgyz07wKWJmftI0hHma9MVQubXF5L93UkvHivTZ?=
- =?us-ascii?Q?GayVl8sjhscwGNyhYZ30c4CkmnGYoNHjemWj3BuXvQExq/je5xr+U/1OD5XC?=
- =?us-ascii?Q?E5+jkRRtRuH9Lb1wLugEHUXhdvGy9+JAcHdaFCCLUScXVjOee9if2NMqptvG?=
- =?us-ascii?Q?YfQcQylpM2tXLGFOGw8gpkE9KV1HxsV4t5g3B+bW6dxBJe+CeTeBfAr5pisg?=
- =?us-ascii?Q?USo2yX6CGUGPXZ4xR/6ZxoMscGHvyeNjva5ntN3MF7dNnSt13whbSzf8T3ao?=
- =?us-ascii?Q?5/2TAayas8Z+Rkqmg0fd4OiMv8RYUSiXYMBwapQWfL7Wz14Z8jF68S7dOcM7?=
- =?us-ascii?Q?XYjeq/CiccnpNhH8fJ89XTaEp1O3bV9kpWYB7LSj6roPLqVpi4sCLuyCSk6W?=
- =?us-ascii?Q?w32cmGzX6UJXWfP1YL14VFfHcHG1HQFEbCu44A3tvBMFuWPpSBj35GEN5GOq?=
- =?us-ascii?Q?l/3rErP1As3r93Q3Mmz5xXc037b3Mm9nP+ZTFEZ/T/gzBvKfuw5rqz4esz6F?=
- =?us-ascii?Q?5jqqxyntapdQ9jnJ7TF6vsfW1TIebUpH1Us5FbkVLwIjlAmyWS0OO8Ox/Wnb?=
- =?us-ascii?Q?ZgRwZlB/GYxj1xf+WJ34qk3GYuly81YtZfTGZ9roTMqgp7QC83qRt4UWu3zF?=
- =?us-ascii?Q?ZOBQcjm9V00A2dh1LRG2Kov6uSlU7M9wbiaGdBs8omoZBrlgQRQEHr+E8yE5?=
- =?us-ascii?Q?itUdwxr8yYAkOBJ+w7vrZm1t8DN3Chst2I9LSNmlF/HSK8b8Kaosd7PoILMk?=
- =?us-ascii?Q?c3ZoP8U0VAsbQQ8g4ugD851JlQDKe3COPsvKFTuTPb8H8SjSWK2cDLRaerxs?=
- =?us-ascii?Q?o4RNk+iOeqHygwYvLgGxnsAEuZSVafm1yFjgT3RTEwk1uNoFsE8MQiSl3RIO?=
- =?us-ascii?Q?4kxSidyUXOi5S0ioa7cQtNGHzyj1Q6SwDfAFbvbvLT9VTtqMWY+Dhsp3xshA?=
- =?us-ascii?Q?09eopLGhOJRAiOE5ERmLn6gc2XydL+246/t3Us7YqDPAflhyJ9qc69JX2PfU?=
- =?us-ascii?Q?f3UW/sktdiM+gxk0nzkxZSHj3qbnxOJ9FXIqpCe4caqHbvJWM8OrAXH45Rry?=
- =?us-ascii?Q?OjNyH+nwMxJKnraXX6FXoTtt37uysrMVYUZ76wO4E/Ea0lkFeI+IHudLvcnA?=
- =?us-ascii?Q?XZAZdqZ58lwsP9FWDemcokb4KhYhH5OEwnwH8blriqDXfpq6BXgniGaAHkMG?=
- =?us-ascii?Q?2knY/jNAc6MmNGeuinq1eP40Pu1xKmYZUdmBWNHHgVpkJcruSOnAz1wKf/at?=
- =?us-ascii?Q?ozkIpINpCw1UoJ02diG7uqSG?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4bea0c85-3098-4130-10aa-08d9930b9ce4
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?alpBSXNNTDZlb1MyUnNhZEhRdnhnY1hsYWtBL3ArOVUvM2QyVkNpWEFiU0Ur?=
+ =?utf-8?B?ZzBTdmo1Szdta0ZLakl5QnBqOE5oNWI1MkVhVEJSdkdMZ1lkSWpJQll3T1Bo?=
+ =?utf-8?B?Um1PQlVuc1ExeFIrUlVBLzZuL24vbm95MHhhZUxNVko0enZrTnBoazZDc1Y5?=
+ =?utf-8?B?TkVaTHdiR3ppMVRzL3lZMXZPVDhCR3NOeWpKZ0pWdmVXRFJDeU9jYXhUVm1s?=
+ =?utf-8?B?NTU5cFZZU01jTnFMNXgzTWhrUjJhUkZWZmsrZFg0TW10WkpqYXpyTVRWTDUz?=
+ =?utf-8?B?aXpXUTQvY3c3dXJrZTZPTjgxSmk1dTJITFFCYjI4M3k4OEZzWGFIYi8yM3Vy?=
+ =?utf-8?B?WitkOEJEMUFaVnFUcWI2bWtEMDBLQnQ4WTV5UUhhZ2ZzeTVQZlR5VHpraVVr?=
+ =?utf-8?B?TVZsZ2o1cnFReHRyRzA4aGk0aXFXN2lNOEZ0T0NvWnpkcCtTRWZySXRTMkIw?=
+ =?utf-8?B?Ni9OOVZWd2hEM25LTG00VHhDbTgybk5EUk55V1B0L0FLVHhOK0xGVUphRmFB?=
+ =?utf-8?B?QlFCVEJabDl4RXBkeW1mNnBEYkhkZzJjUWNvZnU1UGY5WlI1eXBGTjdZTE5H?=
+ =?utf-8?B?YkZ2Ujlydm5TQUNET2tJTDE2Y3ZQY2JiYVlzcGphSzZmL28xUDVQL0UvMXZy?=
+ =?utf-8?B?bzVxV3BXZkU4MVE3SERaMy91VzlkMnRuczJuRENWcUJZTGJjYkJqQ093VWlx?=
+ =?utf-8?B?MGVZclZFYmZHT2dPQTlyZlJ4QTVCQUh4KzJCQ1FGVWlhSGh3TFN1SWZ5ems2?=
+ =?utf-8?B?T29idXQxZ2R3VzUvRm9UTUY0cTRMczlGeWpYMlFMZ2VTcE1OMVQ4VzRhejN4?=
+ =?utf-8?B?YnJMM1dOK2k0Q3pFQkVxR3dSL1lLOTJzekEyaS9zRXA2QnFxU1JpWndyQ21v?=
+ =?utf-8?B?ZXVKTEZudUc4SnQrMkUzNnBZNW5FV01waUVGdHFpMFJzS28zQ0swMWE5UGpB?=
+ =?utf-8?B?YWRDb1BZeGlKNDg0S1hsaGxQWWxJUnE4eVo2MnhuQnVnUXpIbjZlZHNzZ0d6?=
+ =?utf-8?B?MjVQdGozem5LUHBLdGxNVHZJcDlJZmk2N2VkK1ZIRWthN2thSnhmV2hNRis0?=
+ =?utf-8?B?UXp5c1dtd0tlTnEyS2tXeFJhUFI0VDR5a1pqbUFZRE14UUpaTlhYTFk3TCta?=
+ =?utf-8?B?SENaa0w3bm5sWHZSaUo3enliTWdGNndKdW53bGhZNmptODgxVHZiNVI5WEwx?=
+ =?utf-8?B?ZTFXU1JlakQzazRhWnFEL0QxeE82bGxUZm4ydHo1V051WWN6SEJVMzZLUFdJ?=
+ =?utf-8?B?NVZkRHFaeEZEOEhpSUVCZHlVYzVIYmlENWNEZnRsbE56eTc2M21xWUZ6UEZr?=
+ =?utf-8?B?cC9BNmhIamhxQys1SWxVaWE2S2ZIWWxIMXhkeWZyQmhVVFJBRUk1NnVOYzA4?=
+ =?utf-8?B?ZWdvU2pFS1ZHamZERVZ0aVFGV3JVNXp5bWlHeGNyRlMvM1JLSEw1U0xqVjFk?=
+ =?utf-8?B?a2dtcmZKdm9IbzhQMTQ0REVmMzNIS3pPNkRzVGxjZmRIc1dLRmNOL2JZeVcy?=
+ =?utf-8?B?dlE4VHVHVE1haEZORHo3ZHN0cXc5VGlDbFRSRDFDeC9rbWgrRGkza1U4Y1h2?=
+ =?utf-8?B?ZXBLdWtYcGpYTWZtb3E2M05raHJpS1Vhb1N1aDhsdGIrcStKdCt0bU5RSXhT?=
+ =?utf-8?B?Y0RVdlRmeHkyNCtHOVM1clRvVENHTVIzNnVtSmp1OEV1OXhFcklBUWFuQ2lu?=
+ =?utf-8?B?dUpQUFVJL2dLTzlwVWhBV2xyV28vV1BBYkEvMGJ4YU9RZXgwNmIzNW1rcEZp?=
+ =?utf-8?Q?lYE7zaw2uDncMC9cFiqZyRrwfQ8TDhPMDHJH2x7?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5a66a871-33a0-4289-86e2-08d99313f990
+X-MS-Exchange-CrossTenant-AuthSource: BLAPR10MB4835.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Oct 2021 14:20:33.7483
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Oct 2021 15:20:25.2536
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: wozdlSEEcDsTD7AxHYrp96bHb2V+BMMHFWVQpn6cHxFTHLr9M3etyPO9nwFD4vyd
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5380
+X-MS-Exchange-CrossTenant-UserPrincipalName: wQAsI3XNt79S/M0sYTuDP7gkXa2PNIEoOqXZXIq9HfBziWKpEV0tQ6HYosnM1eG5+1QP2PI2iSzA1mWrbG8/O1RiB0RZfvJeX+KStJDivfw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB4045
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10142 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 mlxscore=0 adultscore=0
+ spamscore=0 phishscore=0 bulkscore=0 suspectscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
+ definitions=main-2110190092
+X-Proofpoint-GUID: -xgAQ9qHhr7YPnpMS2bNkhNwCeOVXqiA
+X-Proofpoint-ORIG-GUID: -xgAQ9qHhr7YPnpMS2bNkhNwCeOVXqiA
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 18, 2021 at 09:26:24PM -0700, Dan Williams wrote:
-> On Mon, Oct 18, 2021 at 4:31 PM Jason Gunthorpe <jgg@nvidia.com> wrote:
-> >
-> > On Fri, Oct 15, 2021 at 01:22:41AM +0100, Joao Martins wrote:
-> >
-> > > dev_pagemap_mapping_shift() does a lookup to figure out
-> > > which order is the page table entry represents. is_zone_device_page()
-> > > is already used to gate usage of dev_pagemap_mapping_shift(). I think
-> > > this might be an artifact of the same issue as 3) in which PMDs/PUDs
-> > > are represented with base pages and hence you can't do what the rest
-> > > of the world does with:
-> >
-> > This code is looks broken as written.
-> >
-> > vma_address() relies on certain properties that I maybe DAX (maybe
-> > even only FSDAX?) sets on its ZONE_DEVICE pages, and
-> > dev_pagemap_mapping_shift() does not handle the -EFAULT return. It
-> > will crash if a memory failure hits any other kind of ZONE_DEVICE
-> > area.
+On 10/19/21 15:20, Jason Gunthorpe wrote:
+> On Mon, Oct 18, 2021 at 09:26:24PM -0700, Dan Williams wrote:
+>> On Mon, Oct 18, 2021 at 4:31 PM Jason Gunthorpe <jgg@nvidia.com> wrote:
+>>> On Fri, Oct 15, 2021 at 01:22:41AM +0100, Joao Martins wrote:
+>>> I'm not sure the comment is correct anyhow:
+>>>
+>>>                 /*
+>>>                  * Unmap the largest mapping to avoid breaking up
+>>>                  * device-dax mappings which are constant size. The
+>>>                  * actual size of the mapping being torn down is
+>>>                  * communicated in siginfo, see kill_proc()
+>>>                  */
+>>>                 unmap_mapping_range(page->mapping, start, size, 0);
+>>>
+>>> Beacuse for non PageAnon unmap_mapping_range() does either
+>>> zap_huge_pud(), __split_huge_pmd(), or zap_huge_pmd().
+>>>
+>>> Despite it's name __split_huge_pmd() does not actually split, it will
+>>> call __split_huge_pmd_locked:
+>>>
+>>>         } else if (!(pmd_devmap(*pmd) || is_pmd_migration_entry(*pmd)))
+>>>                 goto out;
+>>>         __split_huge_pmd_locked(vma, pmd, range.start, freeze);
+>>>
+>>> Which does
+>>>         if (!vma_is_anonymous(vma)) {
+>>>                 old_pmd = pmdp_huge_clear_flush_notify(vma, haddr, pmd);
+>>>
+>>> Which is a zap, not split.
+>>>
+>>> So I wonder if there is a reason to use anything other than 4k here
+>>> for DAX?
+>>>
+>>>>       tk->size_shift = page_shift(compound_head(p));
+>>>>
+>>>> ... as page_shift() would just return PAGE_SHIFT (as compound_order() is 0).
+>>>
+>>> And what would be so wrong with memory failure doing this as a 4k
+>>> page?
+>>
+>> device-dax does not support misaligned mappings. It makes hard
+>> guarantees for applications that can not afford the page table
+>> allocation overhead of sub-1GB mappings.
 > 
-> That case is gated with a TODO in memory_failure_dev_pagemap(). I
-> never got any response to queries about what to do about memory
-> failure vs HMM.
-
-Unfortunately neither Logan nor Felix noticed that TODO conditional
-when adding new types..
-
-But maybe it is dead code anyhow as it already has this:
-
-	cookie = dax_lock_page(page);
-	if (!cookie)
-		goto out;
-
-Right before? Doesn't that already always fail for anything that isn't
-a DAX?
-
-> > I'm not sure the comment is correct anyhow:
-> >
-> >                 /*
-> >                  * Unmap the largest mapping to avoid breaking up
-> >                  * device-dax mappings which are constant size. The
-> >                  * actual size of the mapping being torn down is
-> >                  * communicated in siginfo, see kill_proc()
-> >                  */
-> >                 unmap_mapping_range(page->mapping, start, size, 0);
-> >
-> > Beacuse for non PageAnon unmap_mapping_range() does either
-> > zap_huge_pud(), __split_huge_pmd(), or zap_huge_pmd().
-> >
-> > Despite it's name __split_huge_pmd() does not actually split, it will
-> > call __split_huge_pmd_locked:
-> >
-> >         } else if (!(pmd_devmap(*pmd) || is_pmd_migration_entry(*pmd)))
-> >                 goto out;
-> >         __split_huge_pmd_locked(vma, pmd, range.start, freeze);
-> >
-> > Which does
-> >         if (!vma_is_anonymous(vma)) {
-> >                 old_pmd = pmdp_huge_clear_flush_notify(vma, haddr, pmd);
-> >
-> > Which is a zap, not split.
-> >
-> > So I wonder if there is a reason to use anything other than 4k here
-> > for DAX?
-> >
-> > >       tk->size_shift = page_shift(compound_head(p));
-> > >
-> > > ... as page_shift() would just return PAGE_SHIFT (as compound_order() is 0).
-> >
-> > And what would be so wrong with memory failure doing this as a 4k
-> > page?
+> memory-failure is the wrong layer to enforce this anyhow - if someday
+> unmap_mapping_range() did learn to break up the 1GB pages then we'd
+> want to put the condition to preserve device-dax mappings there, not
+> way up in memory-failure.
 > 
-> device-dax does not support misaligned mappings. It makes hard
-> guarantees for applications that can not afford the page table
-> allocation overhead of sub-1GB mappings.
+> So we can just delete the detection of the page size and rely on the
+> zap code to wipe out the entire level, not split it. Which is what we
+> have today already.
 
-memory-failure is the wrong layer to enforce this anyhow - if someday
-unmap_mapping_range() did learn to break up the 1GB pages then we'd
-want to put the condition to preserve device-dax mappings there, not
-way up in memory-failure.
-
-So we can just delete the detection of the page size and rely on the
-zap code to wipe out the entire level, not split it. Which is what we
-have today already.
-
-Jason
+On a quick note, wrt to @size_shift: memory-failure reflects it back to
+userspace as contextual information (::addr_lsb) of the signal, when delivering
+the intended SIGBUS(code=BUS_MCEERR_*). So the size needs to be reported
+somehow.
