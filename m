@@ -2,68 +2,65 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75511C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 07:52:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF7FCC4167B
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 08:07:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5923760F57
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 07:52:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B81C960E8F
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 08:07:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbhJTHyf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Oct 2021 03:54:35 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24022 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229503AbhJTHyd (ORCPT
+        id S229627AbhJTIJR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Oct 2021 04:09:17 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47424 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229603AbhJTIJR (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 20 Oct 2021 03:54:33 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19K6iB6r011722;
-        Wed, 20 Oct 2021 03:52:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        Wed, 20 Oct 2021 04:09:17 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19K7Hf0u028013;
+        Wed, 20 Oct 2021 04:07:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=q5de9NsjcUlxTjFhuifPOey8eSlbyYuWuXYhNSMUUTw=;
- b=RC0dnvNM+ygqj743dUDbp+h8zKn6PL5OGsLw9z3CCfWApBlQLq7DCeIsikbeOebFMrTb
- pUJO9uW3Q1auVg7x4YI3F1eT314B7py0fp2xjPe/qIa1SJ7NK7rc37SwbSaW62kCx34x
- zjJR2Zy+B+eznucqOXUrfjxz1FgnKrWrwfH+L5DUvXVWi+6R7dbJrGAdAvbM14wAl9fg
- Zz7B70JeWHoVhWLQwRn+cZYFq29Kznb56/NpVGLVBNo9kaLbTGSx1fbQbcEbGmyl47JF
- qsWNjVyLlmzK52wO6UrxElS6imQGDLDop2VYFilXa1sBFfWmEp5LVBvFAigajjZeCYUV Vw== 
+ bh=r+tgeonmr4Hq5LiaoRauNu+8++LgDAY5Au6mZi76bGA=;
+ b=Svc38cPB2294kFYALDirLEfw+zhmyVImnEUokn1wYj2ho6OHncfkweC9QvPllkpaFnFp
+ ajo7EXub/QlrsOwZTzXPUZZKVmnAK7yX712ahUL0hrPTJ7wjhACTl4e1BQUmPCcS0wm+
+ hGfoyQLJjDobSy3EST7c3BQEUXRnfkPyW5oilUutH9KOiazZr8pCVHE3xbXBfLj5Xhzp
+ 33iSZ0kjYqK8HL0w0AupJBFNdbyiHwC97e4Q2PvSKwT5J3VVSR9P1EE0JZEFS1Ccch2X
+ 4/q0RpyQKBplgeNsYL0x5zJNIG1P2+JAm2MAStA+K/ov3EBONCFObC59qCr5INxF89cF Fg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bt8erqbmk-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3btekm8w1h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Oct 2021 03:52:17 -0400
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19K7YRbP014719;
-        Wed, 20 Oct 2021 03:52:17 -0400
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bt8erqbkv-1
+        Wed, 20 Oct 2021 04:07:03 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19K7u2wk014966;
+        Wed, 20 Oct 2021 04:07:02 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3btekm8w0q-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Oct 2021 03:52:16 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19K7hVXT029439;
-        Wed, 20 Oct 2021 07:52:15 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03fra.de.ibm.com with ESMTP id 3bqpc9qjc1-1
+        Wed, 20 Oct 2021 04:07:02 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19K7vbNM024399;
+        Wed, 20 Oct 2021 08:07:00 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma05fra.de.ibm.com with ESMTP id 3bqpc9yq0r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Oct 2021 07:52:15 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19K7kLHV49086834
+        Wed, 20 Oct 2021 08:06:59 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19K86uig60228004
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 20 Oct 2021 07:46:21 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C8E0642047;
-        Wed, 20 Oct 2021 07:52:11 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DA39C4204C;
-        Wed, 20 Oct 2021 07:52:10 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.29.112])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Wed, 20 Oct 2021 07:52:10 +0000 (GMT)
-Date:   Wed, 20 Oct 2021 09:52:08 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Wed, 20 Oct 2021 08:06:56 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A00845205A;
+        Wed, 20 Oct 2021 08:06:56 +0000 (GMT)
+Received: from ant.fritz.box (unknown [9.145.151.144])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id A58DA5204F;
+        Wed, 20 Oct 2021 08:06:55 +0000 (GMT)
+Subject: Re: [PATCH 1/3] KVM: s390: clear kicked_mask before sleeping again
+To:     Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
@@ -71,130 +68,76 @@ Cc:     Janosch Frank <frankja@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Pierre Morel <pmorel@linux.ibm.com>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
         Niklas Schnelle <schnelle@linux.ibm.com>, farman@linux.ibm.com,
-        kvm@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 3/3] KVM: s390: clear kicked_mask if not idle after set
-Message-ID: <20211020095208.5e34679a.pasic@linux.ibm.com>
-In-Reply-To: <c5c84a99-c56a-2232-7574-a6d207d7c11f@de.ibm.com>
+        kvm@vger.kernel.org
 References: <20211019175401.3757927-1-pasic@linux.ibm.com>
-        <20211019175401.3757927-4-pasic@linux.ibm.com>
-        <c5c84a99-c56a-2232-7574-a6d207d7c11f@de.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ <20211019175401.3757927-2-pasic@linux.ibm.com>
+From:   Michael Mueller <mimu@linux.ibm.com>
+Message-ID: <e26b8254-7e71-4079-bbbb-f43598c586e6@linux.ibm.com>
+Date:   Wed, 20 Oct 2021 10:06:55 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211019175401.3757927-2-pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6ymktboXP1mo8IuDPaF18MKXQ1kyE6PN
-X-Proofpoint-ORIG-GUID: ufZLra34ohiHToLeH_Ep1qbdjrpG8_w2
+X-Proofpoint-GUID: 8KYMXSRSsdoxopFX2X1xXh1vRkC9H86D
+X-Proofpoint-ORIG-GUID: pCXnAG6IhT0ZCRo4pZdb3-tJxtRK714X
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-10-20_02,2021-10-19_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 phishscore=0 clxscore=1015 suspectscore=0 adultscore=0
- malwarescore=0 mlxscore=0 bulkscore=0 mlxlogscore=999 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110200040
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
+ suspectscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
+ impostorscore=0 mlxlogscore=996 adultscore=0 priorityscore=1501
+ phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110200045
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 19 Oct 2021 23:35:25 +0200
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-
-> > @@ -426,6 +426,7 @@ static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
-> >   {
-> >   	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
-> >   	clear_bit(vcpu->vcpu_idx, vcpu->kvm->arch.idle_mask);
-> > +	clear_bit(vcpu->vcpu_idx, vcpu->kvm->arch.gisa_int.kicked_mask);
-
-BTW, do you know are bit-ops garanteed to be serialized as seen by
-another cpu even when acting on a different byte? I mean
-could the kick_single_vcpu() set the clear of the kicked_mask bit but
-not see the clear of the idle mask?
-
-If that is not true we may need some barriers, or possibly merging the
-two bitmasks like idle bit, kick bit alterating to ensure there
-absolutely ain't no race.
 
 
-> >   }
-> >   
-> >   static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
-> > @@ -3064,7 +3065,11 @@ static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
-> >   			/* lately kicked but not yet running */
-> >   			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
-> >   				return;
-> > -			kvm_s390_vcpu_wakeup(vcpu);
-> > +			/* if meanwhile not idle: clear  and don't kick */
-> > +			if (test_bit(vcpu_idx, kvm->arch.idle_mask))
-> > +				kvm_s390_vcpu_wakeup(vcpu);
-> > +			else
-> > +				clear_bit(vcpu_idx, gi->kicked_mask);  
+On 19.10.21 19:53, Halil Pasic wrote:
+> The idea behind kicked mask is that we should not re-kick a vcpu that
+> is already in the "kick" process, i.e. that was kicked and is
+> is about to be dispatched if certain conditions are met.
 > 
-> I think this is now a bug. We should not return but continue in that case, no?
+> The problem with the current implementation is, that it assumes the
+> kicked vcpu is going to enter SIE shortly. But under certain
+> circumstances, the vcpu we just kicked will be deemed non-runnable and
+> will remain in wait state. This can happen, if the interrupt(s) this
+> vcpu got kicked to deal with got already cleared (because the interrupts
+> got delivered to another vcpu). In this case kvm_arch_vcpu_runnable()
+> would return false, and the vcpu would remain in kvm_vcpu_block(),
+> but this time with its kicked_mask bit set. So next time around we
+> wouldn't kick the vcpu form __airqs_kick_single_vcpu(), but would assume
+> that we just kicked it.
 > 
-
-I don't think so. The purpose of this function is to kick a *single* vcpu
-that can handle *some* of the I/O interrupts indicated by the
-deliverable_mask. The deliverable mask predates the check of the idle_mask.
-I believe if we selected a suitable vcpu, that was idle and before we
-actually do a wakeup on it we see that it isn't idle any more, I believe
-it is as good if not better as performing the wakeup (and a new wakeup()
-call is pointless: this vcpu either already got the the irqs it can get,
-or is about to enter SIE soon to do so. We just saved a pointless call
-to wakeup().
-
+> Let us make sure the kicked_mask is cleared before we give up on
+> re-dispatching the vcpu.
 > 
-> I think it might be safer to also clear kicked_mask in __set_cpu_idle
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
 
-It would not hurt, but my guess is that kvm_arch_vcpu_runnable() before
-we really decide to go to sleep:
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
 
-void kvm_vcpu_block(struct kvm_vcpu *vcpu)                                      
-{ 
-[..]
-        for (;;) {                                                              
-                set_current_state(TASK_INTERRUPTIBLE);                          
-                                                                                
-                if (kvm_vcpu_check_block(vcpu) < 0)     <=== calls runnable()                        
-                        break;                                                  
-                                                                                
-                waited = true;                                                  
-                schedule();                                                     
-        } 
-
->  From a CPUs perspective: We have been running and are on our way to become idle.
-> There is no way that someone kicked us for a wakeup. In other words as long as we
-> are running, there is no point in kicking us but when going idle we should get rid
-> of old kick_mask bit.
-> Doesnt this cover your scenario?
-
-In practice probably yes, in theory I don't think so. I hope this is
-more of a theoretical problem than a practical one anyway. But let me
-discuss the theory anyway.
-
-Under the assumption that an arbitrary amount of time can pass between 
-1) for_each_set_bit finds the vcpus bit in the idle mask set
-and
-2) test_and_set_bit(kicked_mask) that returns a false (bit was not set,
-and we did set it)
-then if we choose an absurdly large amount of time, it is possible that
-we are past a whole cycle: an __unset_cpu_ilde() and an __set_cpu_idle()
-but we didn't reach set_current_state(TASK_INTERRUPTIBLE). If
-we set the bit at a suitable place there we theoretically may end up
-in a situation where the wakeup is ineffective because the state didn't
-change yet, but the bit gets set. So we end up in a stable sleeps and
-does not want to get woken up state. If the clear in
-kvm_arch_vcpu_runnable() does not save us... It could be that, that
-clear alone is sufficient. Because, before we really go to sleep we kind
-of attempt to wake up, and this guy clears on every attempted wakeup. So
-the clear in kvm_arch_vcpu_runnable() may be the only clear we need. Or?
-
-Anyway the scenario I described is very very far fetched I guess, but I
-prefer solutions that are theoretically race free over solutions that
-are practically race free if performance does not suffer.
-
-Regards,
-Halil
+> ---
+>   arch/s390/kvm/kvm-s390.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 6a6dd5e1daf6..1c97493d21e1 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -3363,6 +3363,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+>   
+>   int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
+>   {
+> +	clear_bit(vcpu->vcpu_idx, vcpu->kvm->arch.gisa_int.kicked_mask);
+>   	return kvm_s390_vcpu_has_irq(vcpu, 0);
+>   }
+>   
+> 
