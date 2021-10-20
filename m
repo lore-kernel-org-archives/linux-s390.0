@@ -2,110 +2,148 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E761C4167B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40444C4321E
 	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 11:51:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 340DF61361
+	by mail.kernel.org (Postfix) with ESMTP id 253C460EE9
 	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 11:51:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230170AbhJTLxu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Oct 2021 07:53:50 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56038 "EHLO
+        id S230167AbhJTLxt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Oct 2021 07:53:49 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62110 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230092AbhJTLxs (ORCPT
+        by vger.kernel.org with ESMTP id S230135AbhJTLxs (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
         Wed, 20 Oct 2021 07:53:48 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19KAMo1E019178;
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19KAHEkF012779;
         Wed, 20 Oct 2021 07:51:31 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type :
+ : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=3FLO5RAKBT7NtW6jsNlR4yLWz4QjFEuG/baql3doOG8=;
- b=A3w/2vooK6g0Lcln2kaL0/xdD9kbvnTfji8jdE1N17HaSIYGJaTyHjxvh9yviHboWbVg
- 0QdNQ5WLXge+tL0KYPquKmmYGELfts3F4DpvGjaM+KpMLdRHZ0FdOUlUZMzItxfsWxiz
- /Cy9u5cMFjjUY/6cKRtFJKcKXbJpDXpy8BWiMn4Skahufjy2PsK0aJztKY2WW1aPuJDs
- 03KgBajqnZcP/CePSHSAt3CDkTmYHu36jLjfep0UlY8nx9Y988LPEkaVAh5x9cye9L+z
- lymPFo8Q9ITXv2MS9tcRdpNA7TXNbw4xFDPtkNbegatJ2847leAL1uZmOXH9MuvryXP2 5w== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3btcaa09ga-1
+ bh=9mQOgumG51RSHMzvHb2R+mMePYtadAZsyBc4gtls/sg=;
+ b=cCMSqpipMqAyT1kaKCKA5ikjoIFioi5K7llogudSy9xG42QLf+lBCvbVVI7R6g5ArOOr
+ urrrGZhbbziJokYkYu9Fc5yIJes4P5R2p2PiZ6IeRUnYqLcojZXDdwtli8T9uB0FvQ1y
+ PCiMFO3d5DijTx58LIHie0fc/MoXXVdYqHFuhROpU5t6rcpc5F3nRC1soIie7JTAsYh8
+ aJ6EemWEo+9jUclc4QQ7tH2+bkvsomvrvj2I9rh208AtU0NHndSFe0QJGYfV4yD7YzV0
+ plKc56U7LCF9Neb0XUtqv4EM5Ih6qydHcJaqGYnGBOQno/Ej/Grx8ZAQxCULXB/kUfZJ 6A== 
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bth7ssqx7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Oct 2021 07:51:30 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19KBlaxw003913;
-        Wed, 20 Oct 2021 11:51:28 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 3bqp0k4287-1
+        Wed, 20 Oct 2021 07:51:31 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19KBlWht015264;
+        Wed, 20 Oct 2021 11:51:29 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3bqpc9sfvp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Oct 2021 11:51:28 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19KBpOmf2097874
+        Wed, 20 Oct 2021 11:51:29 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19KBpPkt60293592
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 20 Oct 2021 11:51:24 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D42885204F;
-        Wed, 20 Oct 2021 11:51:24 +0000 (GMT)
+        Wed, 20 Oct 2021 11:51:25 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4308F11C058;
+        Wed, 20 Oct 2021 11:51:25 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 30F0011C054;
+        Wed, 20 Oct 2021 11:51:25 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id C1EF45204E;
-        Wed, 20 Oct 2021 11:51:24 +0000 (GMT)
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed, 20 Oct 2021 11:51:25 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
-        id 6B4FCE06A7; Wed, 20 Oct 2021 13:51:24 +0200 (CEST)
+        id 7A505E07E2; Wed, 20 Oct 2021 13:51:24 +0200 (CEST)
 From:   Stefan Haberland <sth@linux.ibm.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
         linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 0/7] s390/dasd: cleanup and small fixes
-Date:   Wed, 20 Oct 2021 13:51:17 +0200
-Message-Id: <20211020115124.1735254-1-sth@linux.ibm.com>
+Subject: [PATCH 7/7] s390/dasd: fix possibly missed path verification
+Date:   Wed, 20 Oct 2021 13:51:24 +0200
+Message-Id: <20211020115124.1735254-8-sth@linux.ibm.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20211020115124.1735254-1-sth@linux.ibm.com>
+References: <20211020115124.1735254-1-sth@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1F2pX5SDazFG5MJ1YKlw3fGR1J9LyDKS
-X-Proofpoint-ORIG-GUID: 1F2pX5SDazFG5MJ1YKlw3fGR1J9LyDKS
+X-Proofpoint-GUID: L2uTfP41v_-Oxdcjwgwu_753L-mZqcj1
+X-Proofpoint-ORIG-GUID: L2uTfP41v_-Oxdcjwgwu_753L-mZqcj1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-10-20_04,2021-10-20_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- adultscore=0 clxscore=1015 mlxlogscore=911 lowpriorityscore=0
- impostorscore=0 priorityscore=1501 bulkscore=0 malwarescore=0 mlxscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ priorityscore=1501 mlxlogscore=999 clxscore=1015 impostorscore=0
+ bulkscore=0 lowpriorityscore=0 phishscore=0 suspectscore=0 spamscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2109230001 definitions=main-2110200066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Jens,
+__dasd_device_check_path_events() calls the discipline path event handler.
+This handler can leave the 'to be verified pathmask' populated for an
+additional verification.
 
-please apply this patchset for the upcomming merge window.
-There is some code cleanup and some smaller fixes.
+There is a race window where the worker has finished before
+dasd_path_clear_all_verify() is called which resets the tbvpm.
 
-Best regards,
-Stefan
+Due to this there could be outstanding path verifications missed.
 
-Heiko Carstens (2):
-  s390/dasd: handle request magic consistently as unsigned int
-  s390/dasd: fix kernel doc comment
+Fix by clearing the pathmasks before calling the handler and add them
+again in case of an error.
 
-Stefan Haberland (5):
-  s390/dasd: split up dasd_eckd_read_conf
-  s390/dasd: move dasd_eckd_read_fc_security
-  s390/dasd: summarize dasd configuration data in a separate structure
-  s390/dasd: fix missing path conf_data after failed allocation
-  s390/dasd: fix possibly missed path verification
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+---
+ drivers/s390/block/dasd.c     | 9 ++++++---
+ drivers/s390/block/dasd_int.h | 9 +++++++++
+ 2 files changed, 15 insertions(+), 3 deletions(-)
 
- drivers/s390/block/dasd.c          |   9 +-
- drivers/s390/block/dasd_3990_erp.c |   6 +-
- drivers/s390/block/dasd_eckd.c     | 294 ++++++++++++++---------------
- drivers/s390/block/dasd_eckd.h     |  13 +-
- drivers/s390/block/dasd_erp.c      |   8 +-
- drivers/s390/block/dasd_int.h      |  11 +-
- drivers/s390/block/dasd_ioctl.c    |   4 +-
- 7 files changed, 171 insertions(+), 174 deletions(-)
-
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index e34c6cc61983..8e87a31e329d 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -2077,12 +2077,15 @@ static void __dasd_device_check_path_events(struct dasd_device *device)
+ 
+ 	if (device->stopped & ~(DASD_STOPPED_DC_WAIT))
+ 		return;
++
++	dasd_path_clear_all_verify(device);
++	dasd_path_clear_all_fcsec(device);
++
+ 	rc = device->discipline->pe_handler(device, tbvpm, fcsecpm);
+ 	if (rc) {
++		dasd_path_add_tbvpm(device, tbvpm);
++		dasd_path_add_fcsecpm(device, fcsecpm);
+ 		dasd_device_set_timer(device, 50);
+-	} else {
+-		dasd_path_clear_all_verify(device);
+-		dasd_path_clear_all_fcsec(device);
+ 	}
+ };
+ 
+diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
+index 15d8731c1eee..8b458010f88a 100644
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -1305,6 +1305,15 @@ static inline void dasd_path_add_ppm(struct dasd_device *device, __u8 pm)
+ 			dasd_path_preferred(device, chp);
+ }
+ 
++static inline void dasd_path_add_fcsecpm(struct dasd_device *device, __u8 pm)
++{
++	int chp;
++
++	for (chp = 0; chp < 8; chp++)
++		if (pm & (0x80 >> chp))
++			dasd_path_fcsec(device, chp);
++}
++
+ /*
+  * set functions for path masks
+  * the existing path mask will be replaced by the given path mask
 -- 
 2.25.1
 
