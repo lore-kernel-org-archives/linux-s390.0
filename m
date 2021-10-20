@@ -2,106 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAE41C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 14:10:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A164EC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 14:44:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 93BD86138D
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 14:10:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 78E48610A1
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 14:44:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230234AbhJTONH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Oct 2021 10:13:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47266 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230235AbhJTONH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Oct 2021 10:13:07 -0400
-Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96132C061749
-        for <linux-s390@vger.kernel.org>; Wed, 20 Oct 2021 07:10:52 -0700 (PDT)
-Received: by mail-ot1-x330.google.com with SMTP id g62-20020a9d2dc4000000b0054752cfbc59so6278127otb.1
-        for <linux-s390@vger.kernel.org>; Wed, 20 Oct 2021 07:10:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=OwwXvtu1JuRXan9acu6rA91PNQ2tvb7gHdWKmp6i7XI=;
-        b=vUZB1MHttsHU4KeVvT2tp2DlaEolytMNDY7I7gpmhlXmqT13Uq6tP4ZUwCeRG0i7qV
-         R9BlDSoKCsOtp7E3+AJ70yaBMBkfYEsN+QoZphok8rkFykjUtsyJf3lpGuCmzPVErf7w
-         wIktR/xrLE0tE0pr32RVdFmRxAsC/7Xz7aMTXgHHURp3ccztHmaOnEdXKfNkuvhFOH6z
-         St5lJy3Z3b6nHkGxRtoiy/F4uJ80Pwduoclr0s5aLW0VHFlH8aLW88hshWCmN91gTU1I
-         8LpYDqh7UzDSZhGxi7b9VwrYY1FLFsBKoS7KUe3i5RJgFdUEvnWuoT1x6AcNu4rGCgPD
-         Efkg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=OwwXvtu1JuRXan9acu6rA91PNQ2tvb7gHdWKmp6i7XI=;
-        b=NPkB6Dr03GB6TDLOR9b0HRMDxgzcFYy8aWY8ZqQbDu/05GpDWnjgqjAQw0dhDYiL/w
-         K4P14dWDNmdqPkFwLquimeJAI9gq250JuhM//3eg9Vrog9Zjq8nTknz57cXucWtR9uaN
-         9eQReB/MHlcoRvYcsH+ZxOtD2JapfGigWxpYGcWaJQB2WaEjhRVd9Czr0rQuRiBzqFjM
-         NUlgBVE7PU6QlGhCv/nmRdp4+/+D4KmcHZOnT8eZiTS5ncubEjEiUD+9iNWTypGAGqBP
-         cREx6VmcPqdPUAkHVDXzntyev72zl9r1Ik0YsrOUkYSMp5vcG/D+m20QkCj9jOyPDn6/
-         +mdw==
-X-Gm-Message-State: AOAM533z3OaMyPNkqyIpBcPo4x4QXnbekdoD+Y8dtkIzVlPRGXQFl3Wq
-        4BvreRytHfbaxYzPAj1NbNzRzw==
-X-Google-Smtp-Source: ABdhPJywtoaZOCnIbWk8E+tfUStTYS0FtnLlCQ530+/FZxjdU02twrTwh9GtwcWgwP68t4hGrh+5Sw==
-X-Received: by 2002:a05:6830:2424:: with SMTP id k4mr100719ots.210.1634739051908;
-        Wed, 20 Oct 2021 07:10:51 -0700 (PDT)
-Received: from p1.localdomain ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id c3sm499546otr.42.2021.10.20.07.10.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Oct 2021 07:10:51 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Stefan Haberland <sth@linux.ibm.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 0/7] s390/dasd: cleanup and small fixes
-Date:   Wed, 20 Oct 2021 08:10:48 -0600
-Message-Id: <163473904605.733616.14248179151724257187.b4-ty@kernel.dk>
-X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211020115124.1735254-1-sth@linux.ibm.com>
-References: <20211020115124.1735254-1-sth@linux.ibm.com>
+        id S229691AbhJTOqX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Oct 2021 10:46:23 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51444 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229632AbhJTOqW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 20 Oct 2021 10:46:22 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19KCfeIp030056;
+        Wed, 20 Oct 2021 10:44:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ZK8jnYkL1n0N2Nup4rimcPgfzRHmdKfqVDA18sM2YTM=;
+ b=l186xdpbquDkaZwhw4kh7VDkwZ7rbCPWbyeLTbR8maY+silu+5iac51pn3V1ywoGqXeo
+ KUoB+6TtNA2JiwVz5obI25XuesrKxEzIQY1b8EX9Ty0zFOmMmPXrHpAF8C41t7OlSkGi
+ wKES1kYPTXdBunbYoXRrzSvKuyo1trZVoimE16FjgnrnyyPAsXG1MbRBgauWBBK/XeNJ
+ 1Rkk6mFzYjkQDn/SET0WIEfgjK1JkwCUF5XC5IfOA9a91AHPqKdoOu5Ve7XbeZheP+jr
+ YHcSJnGAvlFXXRlAo19/8zLHUUik43Q1MWvmSSIcWTEcErceXMQaxQjNd9LX9k5Oh+xg DA== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3btcaa4hb8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 20 Oct 2021 10:44:07 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19KEc8jn005370;
+        Wed, 20 Oct 2021 14:44:05 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma02fra.de.ibm.com with ESMTP id 3bqpca368w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 20 Oct 2021 14:44:05 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19KEi2io42336564
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 20 Oct 2021 14:44:02 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ED1E0A405F;
+        Wed, 20 Oct 2021 14:44:01 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9419BA405B;
+        Wed, 20 Oct 2021 14:44:01 +0000 (GMT)
+Received: from [9.145.45.114] (unknown [9.145.45.114])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 20 Oct 2021 14:44:01 +0000 (GMT)
+Message-ID: <1955ef45-d30f-5354-e514-2bc8f7d9cfb6@linux.ibm.com>
+Date:   Wed, 20 Oct 2021 16:44:01 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [PATCH] s390: replace snprintf in show functions with sysfs_emit
+Content-Language: en-US
+To:     Qing Wang <wangqing@vivo.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1634280655-4908-1-git-send-email-wangqing@vivo.com>
+From:   Stefan Haberland <sth@linux.ibm.com>
+In-Reply-To: <1634280655-4908-1-git-send-email-wangqing@vivo.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: akxf7yLa1SCqUuG80wPEEJZMnW1FFPg8
+X-Proofpoint-ORIG-GUID: akxf7yLa1SCqUuG80wPEEJZMnW1FFPg8
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-20_05,2021-10-20_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ adultscore=0 clxscore=1011 mlxlogscore=926 lowpriorityscore=0
+ impostorscore=0 priorityscore=1501 bulkscore=0 malwarescore=0 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110200085
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 20 Oct 2021 13:51:17 +0200, Stefan Haberland wrote:
-> please apply this patchset for the upcomming merge window.
-> There is some code cleanup and some smaller fixes.
-> 
-> Best regards,
-> Stefan
-> 
-> Heiko Carstens (2):
->   s390/dasd: handle request magic consistently as unsigned int
->   s390/dasd: fix kernel doc comment
-> 
-> [...]
+Am 15.10.21 um 08:50 schrieb Qing Wang:
+> show() must not use snprintf() when formatting the value to be
+> returned to user space.
+>
+> Fix the coccicheck warnings:
+> WARNING: use scnprintf or sprintf.
+>
+> Use sysfs_emit instead of scnprintf or sprintf makes more sense.
+>
+> Signed-off-by: Qing Wang <wangqing@vivo.com>
+> ---
+>   drivers/s390/block/dasd_devmap.c | 74 ++++++++++++++++++++--------------------
+>
 
-Applied, thanks!
-
-[1/7] s390/dasd: handle request magic consistently as unsigned int
-      commit: 169bbdacaa473a2f3abd3ab8170e1c7795931560
-[2/7] s390/dasd: fix kernel doc comment
-      commit: 10c78e53eea3d9359d4e2a0a4a17a73aacd85497
-[3/7] s390/dasd: split up dasd_eckd_read_conf
-      commit: 23596961b43752be871ea3a5756c7267f8140cff
-[4/7] s390/dasd: move dasd_eckd_read_fc_security
-      commit: 74e2f2110258d5cb5f3bcbf3f9813d523eb049b9
-[5/7] s390/dasd: summarize dasd configuration data in a separate structure
-      commit: 542e30ce8e6e1104e99c78a520a821b05b6ea98b
-[6/7] s390/dasd: fix missing path conf_data after failed allocation
-      commit: 9dffede0115e96d0ff0a07e4382569a9c6dba735
-[7/7] s390/dasd: fix possibly missed path verification
-      commit: a8e5d491dfc184c6b78cbb7f44107b01229c9df2
-
-Best regards,
--- 
-Jens Axboe
+Thanks for the DASD changes. While I am totally fine with the change 
+itself I agree with Joe's remark.
+Would you like to improve your patch? Otherwise I can add a small follow 
+on patch. Just let me know.
 
 
