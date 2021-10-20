@@ -2,150 +2,160 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C27CC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 15:56:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 517DAC4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 17:32:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B603611B0
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 15:56:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3CDEC6138D
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Oct 2021 17:32:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230515AbhJTP6n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Oct 2021 11:58:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34502 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230521AbhJTP6m (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 20 Oct 2021 11:58:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61DEF613A0;
-        Wed, 20 Oct 2021 15:56:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634745387;
-        bh=Eyq6ycvurFoSB71j4SWhf8f8a3eHcrqtLRm5rL0RayI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m62FCZeb+iv79EfZhPRCxgf6kVZAo4c5t7KjaqHbXSK6AoCk9LRUNN6BtyIjkgQwb
-         JFxcnuBQBs9QuJRejnKSMfzz1GhLJOJwIIjOalw83XkQ/2F57FlLS/97wKJ8rmcPTg
-         6uRT/LL/1znTQ4KGRzLG5bYOxR4rucBYlrdDmB5XmsmUeGMwS1rwD5rgefl8Tbev38
-         M2/MrBaY3hqECQdawb1cz9uBDCJPEhWv8G9YcKJ583YIfoLwHzbth87Mdo930qpDfN
-         NlxH1ky/6Il5lUew5w4e93lOqhJRPDDmcY/jDZx1MeQWhe/pioBJJ5mVwRIuaF4/jN
-         kv6pB4pP180gw==
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     davem@davemloft.net
-Cc:     netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        jwi@linux.ibm.com, kgraul@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, borntraeger@de.ibm.com,
-        linux-s390@vger.kernel.org
-Subject: [PATCH net-next 09/12] net: s390: constify and use eth_hw_addr_set()
-Date:   Wed, 20 Oct 2021 08:56:14 -0700
-Message-Id: <20211020155617.1721694-10-kuba@kernel.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211020155617.1721694-1-kuba@kernel.org>
-References: <20211020155617.1721694-1-kuba@kernel.org>
+        id S230196AbhJTRex (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Oct 2021 13:34:53 -0400
+Received: from out01.mta.xmission.com ([166.70.13.231]:39418 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229941AbhJTRew (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Oct 2021 13:34:52 -0400
+Received: from in01.mta.xmission.com ([166.70.13.51]:55338)
+        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1mdFS2-00EuET-9k; Wed, 20 Oct 2021 11:32:30 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95]:47416 helo=email.xmission.com)
+        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1mdFS0-009qGU-Te; Wed, 20 Oct 2021 11:32:29 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     <linux-kernel@vger.kernel.org>
+Cc:     <linux-arch@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Al Viro <viro@ZenIV.linux.org.uk>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        openrisc@lists.librecores.org, Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        David Miller <davem@davemloft.net>, sparclinux@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Maciej Rozycki <macro@orcam.me.uk>, linux-mips@vger.kernel.org,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev@lists.ozlabs.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        H Peter Anvin <hpa@zytor.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date:   Wed, 20 Oct 2021 12:32:20 -0500
+Message-ID: <87y26nmwkb.fsf@disp2133>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-XM-SPF: eid=1mdFS0-009qGU-Te;;;mid=<87y26nmwkb.fsf@disp2133>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX1+QTFOF+6WLUwS/6b+bA87HzOEzbRhNKPA=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: [PATCH 00/20] exit cleanups 
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Commit 406f42fa0d3c ("net-next: When a bond have a massive amount
-of VLANs...") introduced a rbtree for faster Ethernet address look
-up. To maintain netdev->dev_addr in this tree we need to make all
-the writes to it got through appropriate helpers.
 
-Make sure local references to netdev->dev_addr are constant.
+While looking at some issues related to the exit path in the kernel I
+found several instances where the code is not using the existing
+abstractions properly.
 
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
----
-CC: jwi@linux.ibm.com
-CC: kgraul@linux.ibm.com
-CC: hca@linux.ibm.com
-CC: gor@linux.ibm.com
-CC: borntraeger@de.ibm.com
-CC: linux-s390@vger.kernel.org
----
- drivers/s390/net/lcs.c            | 2 +-
- drivers/s390/net/qeth_core_main.c | 4 ++--
- drivers/s390/net/qeth_l2_main.c   | 6 +++---
- drivers/s390/net/qeth_l3_main.c   | 3 +--
- 4 files changed, 7 insertions(+), 8 deletions(-)
+This set of changes introduces force_fatal_sig a way of sending
+a signal and not allowing it to be caught, and corrects the
+misuse of the existing abstractions that I found.
 
-diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
-index c18fd48e02b6..2a6479740600 100644
---- a/drivers/s390/net/lcs.c
-+++ b/drivers/s390/net/lcs.c
-@@ -2162,7 +2162,7 @@ lcs_new_device(struct ccwgroup_device *ccwgdev)
- 	card->dev->ml_priv = card;
- 	card->dev->netdev_ops = &lcs_netdev_ops;
- 	card->dev->dev_port = card->portno;
--	memcpy(card->dev->dev_addr, card->mac, LCS_MAC_LENGTH);
-+	eth_hw_addr_set(card->dev, card->mac);
- #ifdef CONFIG_IP_MULTICAST
- 	if (!lcs_check_multicast_support(card))
- 		card->dev->netdev_ops = &lcs_mc_netdev_ops;
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index e9807d2996a9..15999a816054 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4375,7 +4375,7 @@ static int qeth_setadpparms_change_macaddr_cb(struct qeth_card *card,
- 	    !(adp_cmd->hdr.flags & QETH_SETADP_FLAGS_VIRTUAL_MAC))
- 		return -EADDRNOTAVAIL;
- 
--	ether_addr_copy(card->dev->dev_addr, adp_cmd->data.change_addr.addr);
-+	eth_hw_addr_set(card->dev, adp_cmd->data.change_addr.addr);
- 	return 0;
- }
- 
-@@ -5046,7 +5046,7 @@ int qeth_vm_request_mac(struct qeth_card *card)
- 		QETH_CARD_TEXT(card, 2, "badmac");
- 		QETH_CARD_HEX(card, 2, response->mac, ETH_ALEN);
- 	} else {
--		ether_addr_copy(card->dev->dev_addr, response->mac);
-+		eth_hw_addr_set(card->dev, response->mac);
- 	}
- 
- out:
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index dc6c00768d91..5b6187f2d9d6 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -71,7 +71,7 @@ static int qeth_l2_send_setdelmac_cb(struct qeth_card *card,
- 	return qeth_l2_setdelmac_makerc(card, cmd->hdr.return_code);
- }
- 
--static int qeth_l2_send_setdelmac(struct qeth_card *card, __u8 *mac,
-+static int qeth_l2_send_setdelmac(struct qeth_card *card, const __u8 *mac,
- 			   enum qeth_ipa_cmds ipacmd)
- {
- 	struct qeth_ipa_cmd *cmd;
-@@ -88,7 +88,7 @@ static int qeth_l2_send_setdelmac(struct qeth_card *card, __u8 *mac,
- 	return qeth_send_ipa_cmd(card, iob, qeth_l2_send_setdelmac_cb, NULL);
- }
- 
--static int qeth_l2_send_setmac(struct qeth_card *card, __u8 *mac)
-+static int qeth_l2_send_setmac(struct qeth_card *card, const __u8 *mac)
- {
- 	int rc;
- 
-@@ -377,7 +377,7 @@ static int qeth_l2_set_mac_address(struct net_device *dev, void *p)
- 	if (rc)
- 		return rc;
- 	ether_addr_copy(old_addr, dev->dev_addr);
--	ether_addr_copy(dev->dev_addr, addr->sa_data);
-+	eth_hw_addr_set(dev, addr->sa_data);
- 
- 	if (card->info.dev_addr_is_registered)
- 		qeth_l2_remove_mac(card, old_addr);
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 6fd3e288f059..e6e921310211 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -913,8 +913,7 @@ static int qeth_l3_iqd_read_initial_mac_cb(struct qeth_card *card,
- 	if (!is_valid_ether_addr(cmd->data.create_destroy_addr.mac_addr))
- 		return -EADDRNOTAVAIL;
- 
--	ether_addr_copy(card->dev->dev_addr,
--			cmd->data.create_destroy_addr.mac_addr);
-+	eth_hw_addr_set(card->dev, cmd->data.create_destroy_addr.mac_addr);
- 	return 0;
- }
- 
--- 
-2.31.1
+A lot of the misuse of the existing abstractions are silly things such
+as doing something after calling a no return function, rolling BUG by
+hand, doing more work than necessary to terminate a kernel thread, or
+calling do_exit(SIGKILL) instead of calling force_sig(SIGKILL).
 
+It is my plan after sending all of these changes out for review to place
+them in a topic branch for sending Linus.  Especially for the changes
+that depend upon the new helper force_fatal_sig this is important.
+
+Eric W. Biederman (20):
+      exit/doublefault: Remove apparently bogus comment about rewind_stack_do_exit
+      exit: Remove calls of do_exit after noreturn versions of die
+      reboot: Remove the unreachable panic after do_exit in reboot(2)
+      signal/sparc32: Remove unreachable do_exit in do_sparc_fault
+      signal/mips: Update (_save|_restore)_fp_context to fail with -EFAULT
+      signal/sh: Use force_sig(SIGKILL) instead of do_group_exit(SIGKILL)
+      signal/powerpc: On swapcontext failure force SIGSEGV
+      signal/sparc: In setup_tsb_params convert open coded BUG into BUG
+      signal/vm86_32: Replace open coded BUG_ON with an actual BUG_ON
+      signal/vm86_32: Properly send SIGSEGV when the vm86 state cannot be saved.
+      signal/s390: Use force_sigsegv in default_trap_handler
+      exit/kthread: Have kernel threads return instead of calling do_exit
+      signal: Implement force_fatal_sig
+      exit/syscall_user_dispatch: Send ordinary signals on failure
+      signal/sparc32: Exit with a fatal signal when try_to_clear_window_buffer fails
+      signal/sparc32: In setup_rt_frame and setup_fram use force_fatal_sig
+      signal/x86: In emulate_vsyscall force a signal instead of calling do_exit
+      exit/rtl8723bs: Replace the macro thread_exit with a simple return 0
+      exit/rtl8712: Replace the macro thread_exit with a simple return 0
+      exit/r8188eu: Replace the macro thread_exit with a simple return 0
+
+ arch/mips/kernel/r2300_fpu.S                       |  4 ++--
+ arch/mips/kernel/syscall.c                         |  9 --------
+ arch/nds32/kernel/traps.c                          |  2 +-
+ arch/nds32/mm/fault.c                              |  6 +----
+ arch/openrisc/kernel/traps.c                       |  2 +-
+ arch/openrisc/mm/fault.c                           |  4 +---
+ arch/powerpc/kernel/signal_32.c                    |  6 +++--
+ arch/powerpc/kernel/signal_64.c                    |  9 +++++---
+ arch/s390/include/asm/kdebug.h                     |  2 +-
+ arch/s390/kernel/dumpstack.c                       |  2 +-
+ arch/s390/kernel/traps.c                           |  2 +-
+ arch/s390/mm/fault.c                               |  2 --
+ arch/sh/kernel/cpu/fpu.c                           | 10 +++++----
+ arch/sh/kernel/traps.c                             |  2 +-
+ arch/sh/mm/fault.c                                 |  2 --
+ arch/sparc/kernel/signal_32.c                      |  4 ++--
+ arch/sparc/kernel/windows.c                        |  6 +++--
+ arch/sparc/mm/fault_32.c                           |  1 -
+ arch/sparc/mm/tsb.c                                |  2 +-
+ arch/x86/entry/vsyscall/vsyscall_64.c              |  3 ++-
+ arch/x86/kernel/doublefault_32.c                   |  3 ---
+ arch/x86/kernel/signal.c                           |  6 ++++-
+ arch/x86/kernel/vm86_32.c                          |  8 +++----
+ arch/xtensa/kernel/traps.c                         |  2 +-
+ arch/xtensa/mm/fault.c                             |  3 +--
+ drivers/firmware/stratix10-svc.c                   |  4 ++--
+ drivers/soc/ti/wkup_m3_ipc.c                       |  2 +-
+ drivers/staging/r8188eu/core/rtw_cmd.c             |  2 +-
+ drivers/staging/r8188eu/core/rtw_mp.c              |  2 +-
+ drivers/staging/r8188eu/include/osdep_service.h    |  2 --
+ drivers/staging/rtl8712/osdep_service.h            |  1 -
+ drivers/staging/rtl8712/rtl8712_cmd.c              |  2 +-
+ drivers/staging/rtl8723bs/core/rtw_cmd.c           |  2 +-
+ drivers/staging/rtl8723bs/core/rtw_xmit.c          |  2 +-
+ drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c     |  2 +-
+ .../rtl8723bs/include/osdep_service_linux.h        |  2 --
+ fs/ocfs2/journal.c                                 |  5 +----
+ include/linux/sched/signal.h                       |  1 +
+ kernel/entry/syscall_user_dispatch.c               | 12 ++++++----
+ kernel/kthread.c                                   |  2 +-
+ kernel/reboot.c                                    |  1 -
+ kernel/signal.c                                    | 26 ++++++++++++++--------
+ net/batman-adv/tp_meter.c                          |  2 +-
+ 43 files changed, 83 insertions(+), 91 deletions(-)
+
+Eric
