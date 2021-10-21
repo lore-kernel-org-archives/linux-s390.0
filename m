@@ -2,150 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F173CC43217
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Oct 2021 13:12:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABDE9C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Oct 2021 13:32:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DA55461212
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Oct 2021 13:12:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 931C2610CB
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Oct 2021 13:32:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231130AbhJUNOl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Oct 2021 09:14:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52504 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230190AbhJUNOi (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 21 Oct 2021 09:14:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48AE26128B;
-        Thu, 21 Oct 2021 13:12:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634821942;
-        bh=rX6qUnWXInrIBP+dqrgOd9ydTHr7T8WZIpz5ZhQ8G20=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=un1mptCW39SlEWo6OAfNZXHVOGj64ns9pZ/qSssq5MGj7dvnBQxo1JFTbU+s0w7bQ
-         w73booVkyJcIVAWCehgd8lxuMIAQi+8y8ZJyiLayqCi3DAjXmLqC5KvU/BAf7W/CJh
-         S0yJn58phlCfB3rByonJMkH/Vgu6xc5AESeTyb6JNPWzGfdETHr9+1+WROgAGIFfgV
-         4g2SvRO+CcNYT3ir6QtH/lvWQWEmblIlpQ8JiDnPWAc+5JIV1VeyebPxVEaCZVbh31
-         H9hdcLhnbtXtelkxPl4J4NV8FEwQdgw8bkB7gyEBPlSc4k4FCwQ22A1EjjiBSApHyK
-         ZsbDuCtyEmQsw==
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     davem@davemloft.net
-Cc:     netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Julian Wiedmann <jwi@linux.ibm.com>, kgraul@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com,
-        linux-s390@vger.kernel.org
-Subject: [PATCH net-next v2 09/12] net: s390: constify and use eth_hw_addr_set()
-Date:   Thu, 21 Oct 2021 06:12:11 -0700
-Message-Id: <20211021131214.2032925-10-kuba@kernel.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211021131214.2032925-1-kuba@kernel.org>
-References: <20211021131214.2032925-1-kuba@kernel.org>
+        id S230393AbhJUNfA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Oct 2021 09:35:00 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33832 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230374AbhJUNfA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 21 Oct 2021 09:35:00 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19LCLj84038810;
+        Thu, 21 Oct 2021 09:32:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=sgOHubR8R6J54xwngiqD0Y0ChXz2lRdk62x6cxNTnJE=;
+ b=SEGLJ6Tdu+0tsmMz9qciS1Js8x8vTMy7HMDk3G62w/2cu9Oz4hPj7HDV+VNCuOpVLC6F
+ 9okZ+UcDwy8t+EHPzAzewPbHCX1qoh5IS5NE5Ae29BrUPw0kDxvrde2NZRoLA8unnCB3
+ MQi3TD+nX5jk9WqAOwIwUi3YasOKH5eA/6WxBBA4WXV3Gh/nqw3NF5NcAQwJmOpgIp/3
+ lMpq60ISc8DPqao8Ep1mygkSN0D4q/Ne8WiljhwdPDwB5xpjXDg0FWCMsQbDUaV/Dgen
+ bWbLP/iZwLyTJMQigzW/9aGXL0V+BpHbAjFwrjZlw1Xw5RVovX03xGdws4qWkw83STKJ ig== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3btxutwmy2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Oct 2021 09:32:29 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19LBAsSg034394;
+        Thu, 21 Oct 2021 09:32:28 -0400
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3btxutwmxj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Oct 2021 09:32:28 -0400
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19LDNKvV018457;
+        Thu, 21 Oct 2021 13:32:28 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma02dal.us.ibm.com with ESMTP id 3bqpcd5chq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Oct 2021 13:32:27 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19LDWQjl36831726
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Oct 2021 13:32:27 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DFEE3AC065;
+        Thu, 21 Oct 2021 13:32:26 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6590DAC05B;
+        Thu, 21 Oct 2021 13:32:21 +0000 (GMT)
+Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com (unknown [9.211.103.136])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu, 21 Oct 2021 13:32:21 +0000 (GMT)
+Subject: Re: [PATCH v3 01/10] vfio/ccw: Remove unneeded GFP_DMA
+To:     Jason Gunthorpe <jgg@nvidia.com>, David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        Christoph Hellwig <hch@lst.de>
+References: <1-v3-57c1502c62fd+2190-ccw_mdev_jgg@nvidia.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+Message-ID: <5a6016b3-2e3f-0cf6-1e7a-2cd242fe46a8@linux.ibm.com>
+Date:   Thu, 21 Oct 2021 09:32:20 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1-v3-57c1502c62fd+2190-ccw_mdev_jgg@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: dQHjb8Ez5MbK_bJreSXQOqa-qwmcwmWa
+X-Proofpoint-GUID: N6Z06c8FDqqRjq_dvqnQhuBZQucCGB3C
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-21_04,2021-10-21_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ suspectscore=0 lowpriorityscore=0 priorityscore=1501 mlxscore=0
+ malwarescore=0 impostorscore=0 mlxlogscore=999 clxscore=1011 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110210072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Commit 406f42fa0d3c ("net-next: When a bond have a massive amount
-of VLANs...") introduced a rbtree for faster Ethernet address look
-up. To maintain netdev->dev_addr in this tree we need to make all
-the writes to it got through appropriate helpers.
+On 10/1/21 1:52 PM, Jason Gunthorpe wrote:
+> Since the ccw_io_region was split out of the private the allocation no
+> longer needs the GFP_DMA. Remove it.
+> 
+> Reported-by: Christoph Hellwig <hch@infradead.org>
+> Fixes: c98e16b2fa12 ("s390/cio: Convert ccw_io_region to pointer")
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-Make sure local references to netdev->dev_addr are constant.
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 
-Acked-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
----
-CC: kgraul@linux.ibm.com
-CC: hca@linux.ibm.com
-CC: gor@linux.ibm.com
-CC: borntraeger@de.ibm.com
-CC: linux-s390@vger.kernel.org
----
- drivers/s390/net/lcs.c            | 2 +-
- drivers/s390/net/qeth_core_main.c | 4 ++--
- drivers/s390/net/qeth_l2_main.c   | 6 +++---
- drivers/s390/net/qeth_l3_main.c   | 3 +--
- 4 files changed, 7 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
-index c18fd48e02b6..2a6479740600 100644
---- a/drivers/s390/net/lcs.c
-+++ b/drivers/s390/net/lcs.c
-@@ -2162,7 +2162,7 @@ lcs_new_device(struct ccwgroup_device *ccwgdev)
- 	card->dev->ml_priv = card;
- 	card->dev->netdev_ops = &lcs_netdev_ops;
- 	card->dev->dev_port = card->portno;
--	memcpy(card->dev->dev_addr, card->mac, LCS_MAC_LENGTH);
-+	eth_hw_addr_set(card->dev, card->mac);
- #ifdef CONFIG_IP_MULTICAST
- 	if (!lcs_check_multicast_support(card))
- 		card->dev->netdev_ops = &lcs_mc_netdev_ops;
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index e9807d2996a9..15999a816054 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4375,7 +4375,7 @@ static int qeth_setadpparms_change_macaddr_cb(struct qeth_card *card,
- 	    !(adp_cmd->hdr.flags & QETH_SETADP_FLAGS_VIRTUAL_MAC))
- 		return -EADDRNOTAVAIL;
- 
--	ether_addr_copy(card->dev->dev_addr, adp_cmd->data.change_addr.addr);
-+	eth_hw_addr_set(card->dev, adp_cmd->data.change_addr.addr);
- 	return 0;
- }
- 
-@@ -5046,7 +5046,7 @@ int qeth_vm_request_mac(struct qeth_card *card)
- 		QETH_CARD_TEXT(card, 2, "badmac");
- 		QETH_CARD_HEX(card, 2, response->mac, ETH_ALEN);
- 	} else {
--		ether_addr_copy(card->dev->dev_addr, response->mac);
-+		eth_hw_addr_set(card->dev, response->mac);
- 	}
- 
- out:
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index dc6c00768d91..5b6187f2d9d6 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -71,7 +71,7 @@ static int qeth_l2_send_setdelmac_cb(struct qeth_card *card,
- 	return qeth_l2_setdelmac_makerc(card, cmd->hdr.return_code);
- }
- 
--static int qeth_l2_send_setdelmac(struct qeth_card *card, __u8 *mac,
-+static int qeth_l2_send_setdelmac(struct qeth_card *card, const __u8 *mac,
- 			   enum qeth_ipa_cmds ipacmd)
- {
- 	struct qeth_ipa_cmd *cmd;
-@@ -88,7 +88,7 @@ static int qeth_l2_send_setdelmac(struct qeth_card *card, __u8 *mac,
- 	return qeth_send_ipa_cmd(card, iob, qeth_l2_send_setdelmac_cb, NULL);
- }
- 
--static int qeth_l2_send_setmac(struct qeth_card *card, __u8 *mac)
-+static int qeth_l2_send_setmac(struct qeth_card *card, const __u8 *mac)
- {
- 	int rc;
- 
-@@ -377,7 +377,7 @@ static int qeth_l2_set_mac_address(struct net_device *dev, void *p)
- 	if (rc)
- 		return rc;
- 	ether_addr_copy(old_addr, dev->dev_addr);
--	ether_addr_copy(dev->dev_addr, addr->sa_data);
-+	eth_hw_addr_set(dev, addr->sa_data);
- 
- 	if (card->info.dev_addr_is_registered)
- 		qeth_l2_remove_mac(card, old_addr);
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 6fd3e288f059..e6e921310211 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -913,8 +913,7 @@ static int qeth_l3_iqd_read_initial_mac_cb(struct qeth_card *card,
- 	if (!is_valid_ether_addr(cmd->data.create_destroy_addr.mac_addr))
- 		return -EADDRNOTAVAIL;
- 
--	ether_addr_copy(card->dev->dev_addr,
--			cmd->data.create_destroy_addr.mac_addr);
-+	eth_hw_addr_set(card->dev, cmd->data.create_destroy_addr.mac_addr);
- 	return 0;
- }
- 
--- 
-2.31.1
+> ---
+>   drivers/s390/cio/vfio_ccw_drv.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index 76099bcb765b45..371558ec92045d 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -161,7 +161,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+>   		return -ENODEV;
+>   	}
+>   
+> -	private = kzalloc(sizeof(*private), GFP_KERNEL | GFP_DMA);
+> +	private = kzalloc(sizeof(*private), GFP_KERNEL);
+>   	if (!private)
+>   		return -ENOMEM;
+>   
+> 
 
