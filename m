@@ -2,416 +2,344 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 261EEC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Oct 2021 12:01:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3586FC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Oct 2021 12:02:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 07F5D610EA
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Oct 2021 12:01:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1C25B60E96
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Oct 2021 12:02:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230293AbhJVMD3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Oct 2021 08:03:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57228 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229507AbhJVMD2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 22 Oct 2021 08:03:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEB6660C4C;
-        Fri, 22 Oct 2021 12:01:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634904070;
-        bh=qtLhW6yJc0m7cAPxwCcpju0k0Trvuqus6DX8RjrMrwQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=SAu9tSKCbqiJGF0fecRlvTkO/vclPKkUQHrLN615nSNbXoZjf33R7XvYXI5QsEkG+
-         c2EPr9rRutH1pzDZpBdjqtFclTmCJY2KuDd9ND8HboYNcNPjWcQ1Xoxw1E0ccYFfpa
-         Y+lpOpH2rdPgBzWPapFLNfYOReMJTfoQlRAJotreNpssaXo83NTLDnXaWHRHrK7UaS
-         OjqCeDgCfW/uJHO9Q3z46GJbdNJcU0Ig2mNldTDelBss2UrmemrQdjUJ5oEri8e3fV
-         pXex+MOYJcIpeh9QjfL9ehSGPNv+sT2If1HZwy4L6gFxVglwCpW7yBWAdP0UulQXQw
-         hrZ3PBI60yxzg==
-From:   Arnd Bergmann <arnd@kernel.org>
-To:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Waiman Long <longman@redhat.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-Subject: [PATCH] locking: remove spin_lock_flags() etc
-Date:   Fri, 22 Oct 2021 13:59:38 +0200
-Message-Id: <20211022120058.1031690-1-arnd@kernel.org>
-X-Mailer: git-send-email 2.29.2
+        id S230327AbhJVMEg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Oct 2021 08:04:36 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51014 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229771AbhJVMEf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 22 Oct 2021 08:04:35 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19MB0Qlu009418;
+        Fri, 22 Oct 2021 08:02:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=SckNpGiWQDiz1do1sX8nIoKADmLIRGl6RgRq8T9gVaM=;
+ b=OXXvgwCM/XZB6SrItmCJH5g5fBUGg/dOgswy0fwNqQdg3xHrHOnPPjd2Hq43HGmu28+i
+ fHgl+i7uuFEbJKWZXvw9W0pDCcgmQJ9oBDtLJjhzBTJ19v8hnum5oblxbdceEBPxT3zJ
+ 9JpKzUU8SWZS2A42EIZjhzQg381QaJ7WlvRJaLH8mS79QVakKsFa8eQTXNkso5U0Q5FU
+ lanSB5aNM6Tk6EjvL/dg0rc8hRXJzBJsJjsZiPP2sp2XBl39R3BrIrVKWnCtmZwB30Ni
+ dIeB7C8yPxbWbRpFRS9aBmFEoIVuD0Cp/joJWv3X2NYSd/CJsvUKD0v21otxq4LSrkTs Dg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3busa14p4g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 22 Oct 2021 08:02:17 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19MAoMoW025489;
+        Fri, 22 Oct 2021 08:02:17 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3busa14p3j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 22 Oct 2021 08:02:17 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19MBvjwB000738;
+        Fri, 22 Oct 2021 12:02:14 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 3bqp0kr3u3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 22 Oct 2021 12:02:11 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19MBu5NI54067530
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 22 Oct 2021 11:56:05 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9B10C5208C;
+        Fri, 22 Oct 2021 12:02:00 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 639555205A;
+        Fri, 22 Oct 2021 12:02:00 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v3 2/2] s390x: Test specification exceptions during transaction
+Date:   Fri, 22 Oct 2021 14:01:56 +0200
+Message-Id: <20211022120156.281567-3-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20211022120156.281567-1-scgl@linux.ibm.com>
+References: <20211022120156.281567-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: w8pWsi2gERWSm-lWaPPMYqjsOrOEcIsF
+X-Proofpoint-ORIG-GUID: 0Z-TX7hKC5dfJkbQ0yYoItMv4Vm0ktqR
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-22_03,2021-10-21_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 adultscore=0
+ mlxscore=0 suspectscore=0 malwarescore=0 spamscore=0 mlxlogscore=999
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110220068
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+Program interruptions during transactional execution cause other
+interruption codes.
+Check that we see the expected code for (some) specification exceptions.
 
-parisc, ia64 and powerpc32 are the only remaining architectures that
-provide custom arch_{spin,read,write}_lock_flags() functions, which are
-meant to re-enable interrupts while waiting for a spinlock.
-
-However, none of these can actually run into this codepath, because
-it is only called on architectures without CONFIG_GENERIC_LOCKBREAK,
-or when CONFIG_DEBUG_LOCK_ALLOC is set without CONFIG_LOCKDEP, and none
-of those combinations are possible on the three architectures.
-
-Going back in the git history, it appears that arch/mn10300 may have
-been able to run into this code path, but there is a good chance that
-it never worked. On the architectures that still exist, it was
-already impossible to hit back in 2008 after the introduction of
-CONFIG_GENERIC_LOCKBREAK, and possibly earlier.
-
-As this is all dead code, just remove it and the helper functions built
-around it. For arch/ia64, the inline asm could be cleaned up, but
-it seems safer to leave it untouched.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 ---
- arch/ia64/include/asm/spinlock.h           | 23 ++++++----------------
- arch/openrisc/include/asm/spinlock.h       |  3 ---
- arch/parisc/include/asm/spinlock.h         | 15 --------------
- arch/powerpc/include/asm/simple_spinlock.h | 21 --------------------
- arch/s390/include/asm/spinlock.h           |  8 --------
- include/linux/lockdep.h                    | 17 ----------------
- include/linux/rwlock.h                     | 15 --------------
- include/linux/rwlock_api_smp.h             |  6 ++----
- include/linux/spinlock.h                   | 13 ------------
- include/linux/spinlock_api_smp.h           |  9 ---------
- include/linux/spinlock_up.h                |  1 -
- kernel/locking/spinlock.c                  |  3 +--
- 12 files changed, 9 insertions(+), 125 deletions(-)
+ lib/s390x/asm/arch_def.h |   1 +
+ s390x/spec_ex.c          | 172 +++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 168 insertions(+), 5 deletions(-)
 
-diff --git a/arch/ia64/include/asm/spinlock.h b/arch/ia64/include/asm/spinlock.h
-index 864775970c50..0e5c1ad3239c 100644
---- a/arch/ia64/include/asm/spinlock.h
-+++ b/arch/ia64/include/asm/spinlock.h
-@@ -124,18 +124,13 @@ static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
- 	__ticket_spin_unlock(lock);
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 40626d7..f7fb467 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -55,6 +55,7 @@ struct psw {
+ #define PSW_MASK_BA			0x0000000080000000UL
+ #define PSW_MASK_64			(PSW_MASK_BA | PSW_MASK_EA)
+ 
++#define CTL0_TRANSACT_EX_CTL		(63 -  8)
+ #define CTL0_LOW_ADDR_PROT		(63 - 35)
+ #define CTL0_EDAT			(63 - 40)
+ #define CTL0_IEP			(63 - 43)
+diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
+index ec3322a..f3628bd 100644
+--- a/s390x/spec_ex.c
++++ b/s390x/spec_ex.c
+@@ -4,9 +4,14 @@
+  *
+  * Specification exception test.
+  * Tests that specification exceptions occur when expected.
++ * This includes specification exceptions occurring during transactional execution
++ * as these result in another interruption code (the transactional-execution-aborted
++ * bit is set).
+  */
+ #include <stdlib.h>
++#include <htmintrin.h>
+ #include <libcflat.h>
++#include <asm/barrier.h>
+ #include <asm/interrupt.h>
+ #include <asm/facility.h>
+ 
+@@ -92,18 +97,23 @@ static void not_even(void)
+ struct spec_ex_trigger {
+ 	const char *name;
+ 	void (*func)(void);
++	bool transactable;
+ 	void (*fixup)(void);
+ };
+ 
+ static const struct spec_ex_trigger spec_ex_triggers[] = {
+-	{ "psw_bit_12_is_1", &psw_bit_12_is_1, &fixup_invalid_psw},
+-	{ "bad_alignment", &bad_alignment, NULL},
+-	{ "not_even", &not_even, NULL},
+-	{ NULL, NULL, NULL},
++	{ "psw_bit_12_is_1", &psw_bit_12_is_1, false, &fixup_invalid_psw},
++	{ "bad_alignment", &bad_alignment, true, NULL},
++	{ "not_even", &not_even, true, NULL},
++	{ NULL, NULL, true, NULL},
+ };
+ 
+ struct args {
+ 	uint64_t iterations;
++	uint64_t max_retries;
++	uint64_t suppress_info;
++	uint64_t max_failures;
++	bool diagnose;
+ };
+ 
+ static void test_spec_ex(struct args *args,
+@@ -131,14 +141,132 @@ static void test_spec_ex(struct args *args,
+ 		    expected_pgm);
  }
  
--static __always_inline void arch_spin_lock_flags(arch_spinlock_t *lock,
--						  unsigned long flags)
--{
--	arch_spin_lock(lock);
--}
--#define arch_spin_lock_flags	arch_spin_lock_flags
--
- #ifdef ASM_SUPPORTED
- 
- static __always_inline void
--arch_read_lock_flags(arch_rwlock_t *lock, unsigned long flags)
-+arch_read_lock(arch_rwlock_t *lock)
- {
-+	unsigned long flags = 0;
++#define TRANSACTION_COMPLETED 4
++#define TRANSACTION_MAX_RETRIES 5
 +
- 	__asm__ __volatile__ (
- 		"tbit.nz p6, p0 = %1,%2\n"
- 		"br.few 3f\n"
-@@ -157,13 +152,8 @@ arch_read_lock_flags(arch_rwlock_t *lock, unsigned long flags)
- 		: "p6", "p7", "r2", "memory");
- }
- 
--#define arch_read_lock_flags arch_read_lock_flags
--#define arch_read_lock(lock) arch_read_lock_flags(lock, 0)
--
- #else /* !ASM_SUPPORTED */
- 
--#define arch_read_lock_flags(rw, flags) arch_read_lock(rw)
--
- #define arch_read_lock(rw)								\
- do {											\
- 	arch_rwlock_t *__read_lock_ptr = (rw);						\
-@@ -186,8 +176,10 @@ do {								\
- #ifdef ASM_SUPPORTED
- 
- static __always_inline void
--arch_write_lock_flags(arch_rwlock_t *lock, unsigned long flags)
-+arch_write_lock(arch_rwlock_t *lock)
- {
-+	unsigned long flags = 0;
++/* NULL must be passed to __builtin_tbegin via constant, forbid diagnose from
++ * being NULL to keep things simple
++ */
++static int __attribute__((nonnull))
++with_transaction(void (*trigger)(void), struct __htm_tdb *diagnose)
++{
++	int cc;
 +
- 	__asm__ __volatile__ (
- 		"tbit.nz p6, p0 = %1, %2\n"
- 		"mov ar.ccv = r0\n"
-@@ -210,9 +202,6 @@ arch_write_lock_flags(arch_rwlock_t *lock, unsigned long flags)
- 		: "ar.ccv", "p6", "p7", "r2", "r29", "memory");
- }
- 
--#define arch_write_lock_flags arch_write_lock_flags
--#define arch_write_lock(rw) arch_write_lock_flags(rw, 0)
--
- #define arch_write_trylock(rw)							\
- ({										\
- 	register long result;							\
-diff --git a/arch/openrisc/include/asm/spinlock.h b/arch/openrisc/include/asm/spinlock.h
-index a8940bdfcb7e..264944a71535 100644
---- a/arch/openrisc/include/asm/spinlock.h
-+++ b/arch/openrisc/include/asm/spinlock.h
-@@ -19,9 +19,6 @@
- 
- #include <asm/qrwlock.h>
- 
--#define arch_read_lock_flags(lock, flags) arch_read_lock(lock)
--#define arch_write_lock_flags(lock, flags) arch_write_lock(lock)
--
- #define arch_spin_relax(lock)	cpu_relax()
- #define arch_read_relax(lock)	cpu_relax()
- #define arch_write_relax(lock)	cpu_relax()
-diff --git a/arch/parisc/include/asm/spinlock.h b/arch/parisc/include/asm/spinlock.h
-index fa5ee8a45dbd..a6e5d66a7656 100644
---- a/arch/parisc/include/asm/spinlock.h
-+++ b/arch/parisc/include/asm/spinlock.h
-@@ -23,21 +23,6 @@ static inline void arch_spin_lock(arch_spinlock_t *x)
- 			continue;
- }
- 
--static inline void arch_spin_lock_flags(arch_spinlock_t *x,
--					unsigned long flags)
--{
--	volatile unsigned int *a;
--
--	a = __ldcw_align(x);
--	while (__ldcw(a) == 0)
--		while (*a == 0)
--			if (flags & PSW_SM_I) {
--				local_irq_enable();
--				local_irq_disable();
--			}
--}
--#define arch_spin_lock_flags arch_spin_lock_flags
--
- static inline void arch_spin_unlock(arch_spinlock_t *x)
++	cc = __builtin_tbegin(diagnose);
++	if (cc == _HTM_TBEGIN_STARTED) {
++		trigger();
++		__builtin_tend();
++		return -TRANSACTION_COMPLETED;
++	} else {
++		return -cc;
++	}
++}
++
++static int retry_transaction(const struct spec_ex_trigger *trigger, unsigned int max_retries,
++			     struct __htm_tdb *tdb, uint16_t expected_pgm)
++{
++	int trans_result, i;
++	uint16_t pgm;
++
++	for (i = 0; i < max_retries; i++) {
++		expect_pgm_int();
++		trans_result = with_transaction(trigger->func, tdb);
++		if (trans_result == -_HTM_TBEGIN_TRANSIENT) {
++			mb();
++			pgm = lc->pgm_int_code;
++			if (pgm == 0)
++				continue;
++			else if (pgm == expected_pgm)
++				return 0;
++		}
++		return trans_result;
++	}
++	return -TRANSACTION_MAX_RETRIES;
++}
++
++static void test_spec_ex_trans(struct args *args, const struct spec_ex_trigger *trigger)
++{
++	const uint16_t expected_pgm = PGM_INT_CODE_SPECIFICATION
++			      | PGM_INT_CODE_TX_ABORTED_EVENT;
++	union {
++		struct __htm_tdb tdb;
++		uint64_t dwords[sizeof(struct __htm_tdb) / sizeof(uint64_t)];
++	} diag;
++	unsigned int i, failures = 0;
++	int trans_result;
++
++	if (!test_facility(73)) {
++		report_skip("transactional-execution facility not installed");
++		return;
++	}
++	ctl_set_bit(0, CTL0_TRANSACT_EX_CTL); /* enable transactional-exec */
++
++	for (i = 0; i < args->iterations && failures <= args->max_failures; i++) {
++		register_pgm_cleanup_func(trigger->fixup);
++		trans_result = retry_transaction(trigger, args->max_retries, &diag.tdb, expected_pgm);
++		register_pgm_cleanup_func(NULL);
++		switch (trans_result) {
++		case 0:
++			continue;
++		case -_HTM_TBEGIN_INDETERMINATE:
++		case -_HTM_TBEGIN_PERSISTENT:
++			if (failures < args->suppress_info)
++				report_info("transaction failed with cc %d",
++					    -trans_result);
++			break;
++		case -_HTM_TBEGIN_TRANSIENT:
++			report_fail("Program interrupt: expected(%d) == received(%d)",
++				    expected_pgm,
++				    clear_pgm_int());
++			goto out;
++		case -TRANSACTION_COMPLETED:
++			report_fail("Transaction completed without exception");
++			goto out;
++		case -TRANSACTION_MAX_RETRIES:
++			if (failures < args->suppress_info)
++				report_info("Retried transaction %lu times without exception",
++					    args->max_retries);
++			break;
++		default:
++			report_fail("Invalid return transaction result");
++			goto out;
++		}
++
++		if (failures < args->suppress_info)
++			report_info("transaction abort code: %llu", diag.tdb.abort_code);
++		if (args->diagnose && failures < args->suppress_info) {
++			for (i = 0; i < 32; i++)
++				report_info("diag+%03d: %016lx", i*8, diag.dwords[i]);
++		}
++		++failures;
++	}
++	if (failures <= args->max_failures) {
++		report_pass(
++			"Program interrupt: always expected(%d) == received(%d), transaction failures: %u",
++			expected_pgm,
++			expected_pgm,
++			failures);
++	} else {
++		report_fail("Too many transaction failures: %u", failures);
++	}
++	if (failures > args->suppress_info)
++		report_info("Suppressed some transaction failure information messages");
++
++out:
++	ctl_clear_bit(0, CTL0_TRANSACT_EX_CTL);
++}
++
+ static struct args parse_args(int argc, char **argv)
  {
- 	volatile unsigned int *a;
-diff --git a/arch/powerpc/include/asm/simple_spinlock.h b/arch/powerpc/include/asm/simple_spinlock.h
-index 8985791a2ba5..7ae6aeef8464 100644
---- a/arch/powerpc/include/asm/simple_spinlock.h
-+++ b/arch/powerpc/include/asm/simple_spinlock.h
-@@ -123,27 +123,6 @@ static inline void arch_spin_lock(arch_spinlock_t *lock)
+ 	struct args args = {
+ 		.iterations = 1,
++		.max_retries = 20,
++		.suppress_info = 20,
++		.diagnose = false
+ 	};
+ 	unsigned int i;
+ 	long arg;
+-	bool no_arg;
++	bool no_arg, max_failures = false;
+ 	char *end;
+ 
+ 	for (i = 1; i < argc; i++) {
+@@ -155,11 +283,35 @@ static struct args parse_args(int argc, char **argv)
+ 				report_abort("--iterations needs a positive parameter");
+ 			args.iterations = arg;
+ 			++i;
++		} else if (!strcmp("--max-retries", argv[i])) {
++			if (no_arg)
++				report_abort("--max-retries needs a positive parameter");
++			args.max_retries = arg;
++			++i;
++		} else if (!strcmp("--suppress-info", argv[i])) {
++			if (no_arg)
++				report_abort("--suppress-info needs a positive parameter");
++			args.suppress_info = arg;
++			++i;
++		} else if (!strcmp("--max-failures", argv[i])) {
++			if (no_arg)
++				report_abort("--max-failures needs a positive parameter");
++			args.max_failures = arg;
++			max_failures = true;
++			++i;
++		} else if (!strcmp("--diagnose", argv[i])) {
++			args.diagnose = true;
++		} else if (!strcmp("--no-diagnose", argv[i])) {
++			args.diagnose = false;
+ 		} else {
+ 			report_abort("Unsupported parameter '%s'",
+ 				     argv[i]);
+ 		}
  	}
++
++	if (!max_failures)
++		args.max_failures = args.iterations / 1000;
++
+ 	return args;
  }
  
--static inline
--void arch_spin_lock_flags(arch_spinlock_t *lock, unsigned long flags)
--{
--	unsigned long flags_dis;
--
--	while (1) {
--		if (likely(__arch_spin_trylock(lock) == 0))
--			break;
--		local_save_flags(flags_dis);
--		local_irq_restore(flags);
--		do {
--			HMT_low();
--			if (is_shared_processor())
--				splpar_spin_yield(lock);
--		} while (unlikely(lock->slock != 0));
--		HMT_medium();
--		local_irq_restore(flags_dis);
--	}
--}
--#define arch_spin_lock_flags arch_spin_lock_flags
--
- static inline void arch_spin_unlock(arch_spinlock_t *lock)
- {
- 	__asm__ __volatile__("# arch_spin_unlock\n\t"
-diff --git a/arch/s390/include/asm/spinlock.h b/arch/s390/include/asm/spinlock.h
-index ef59588a3042..888a2f1c9ee3 100644
---- a/arch/s390/include/asm/spinlock.h
-+++ b/arch/s390/include/asm/spinlock.h
-@@ -67,14 +67,6 @@ static inline void arch_spin_lock(arch_spinlock_t *lp)
- 		arch_spin_lock_wait(lp);
+@@ -177,5 +329,15 @@ int main(int argc, char **argv)
+ 	}
+ 	report_prefix_pop();
+ 
++	report_prefix_push("specification exception during transaction");
++	for (i = 0; spec_ex_triggers[i].name; i++) {
++		if (spec_ex_triggers[i].transactable) {
++			report_prefix_push(spec_ex_triggers[i].name);
++			test_spec_ex_trans(&args, &spec_ex_triggers[i]);
++			report_prefix_pop();
++		}
++	}
++	report_prefix_pop();
++
+ 	return report_summary();
  }
- 
--static inline void arch_spin_lock_flags(arch_spinlock_t *lp,
--					unsigned long flags)
--{
--	if (!arch_spin_trylock_once(lp))
--		arch_spin_lock_wait(lp);
--}
--#define arch_spin_lock_flags	arch_spin_lock_flags
--
- static inline int arch_spin_trylock(arch_spinlock_t *lp)
- {
- 	if (!arch_spin_trylock_once(lp))
-diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
-index 9fe165beb0f9..467b94257105 100644
---- a/include/linux/lockdep.h
-+++ b/include/linux/lockdep.h
-@@ -481,23 +481,6 @@ do {								\
- 
- #endif /* CONFIG_LOCK_STAT */
- 
--#ifdef CONFIG_LOCKDEP
--
--/*
-- * On lockdep we dont want the hand-coded irq-enable of
-- * _raw_*_lock_flags() code, because lockdep assumes
-- * that interrupts are not re-enabled during lock-acquire:
-- */
--#define LOCK_CONTENDED_FLAGS(_lock, try, lock, lockfl, flags) \
--	LOCK_CONTENDED((_lock), (try), (lock))
--
--#else /* CONFIG_LOCKDEP */
--
--#define LOCK_CONTENDED_FLAGS(_lock, try, lock, lockfl, flags) \
--	lockfl((_lock), (flags))
--
--#endif /* CONFIG_LOCKDEP */
--
- #ifdef CONFIG_PROVE_LOCKING
- extern void print_irqtrace_events(struct task_struct *curr);
- #else
-diff --git a/include/linux/rwlock.h b/include/linux/rwlock.h
-index 7ce9a51ae5c0..2c0ad417ce3c 100644
---- a/include/linux/rwlock.h
-+++ b/include/linux/rwlock.h
-@@ -30,31 +30,16 @@ do {								\
- 
- #ifdef CONFIG_DEBUG_SPINLOCK
-  extern void do_raw_read_lock(rwlock_t *lock) __acquires(lock);
--#define do_raw_read_lock_flags(lock, flags) do_raw_read_lock(lock)
-  extern int do_raw_read_trylock(rwlock_t *lock);
-  extern void do_raw_read_unlock(rwlock_t *lock) __releases(lock);
-  extern void do_raw_write_lock(rwlock_t *lock) __acquires(lock);
--#define do_raw_write_lock_flags(lock, flags) do_raw_write_lock(lock)
-  extern int do_raw_write_trylock(rwlock_t *lock);
-  extern void do_raw_write_unlock(rwlock_t *lock) __releases(lock);
- #else
--
--#ifndef arch_read_lock_flags
--# define arch_read_lock_flags(lock, flags)	arch_read_lock(lock)
--#endif
--
--#ifndef arch_write_lock_flags
--# define arch_write_lock_flags(lock, flags)	arch_write_lock(lock)
--#endif
--
- # define do_raw_read_lock(rwlock)	do {__acquire(lock); arch_read_lock(&(rwlock)->raw_lock); } while (0)
--# define do_raw_read_lock_flags(lock, flags) \
--		do {__acquire(lock); arch_read_lock_flags(&(lock)->raw_lock, *(flags)); } while (0)
- # define do_raw_read_trylock(rwlock)	arch_read_trylock(&(rwlock)->raw_lock)
- # define do_raw_read_unlock(rwlock)	do {arch_read_unlock(&(rwlock)->raw_lock); __release(lock); } while (0)
- # define do_raw_write_lock(rwlock)	do {__acquire(lock); arch_write_lock(&(rwlock)->raw_lock); } while (0)
--# define do_raw_write_lock_flags(lock, flags) \
--		do {__acquire(lock); arch_write_lock_flags(&(lock)->raw_lock, *(flags)); } while (0)
- # define do_raw_write_trylock(rwlock)	arch_write_trylock(&(rwlock)->raw_lock)
- # define do_raw_write_unlock(rwlock)	do {arch_write_unlock(&(rwlock)->raw_lock); __release(lock); } while (0)
- #endif
-diff --git a/include/linux/rwlock_api_smp.h b/include/linux/rwlock_api_smp.h
-index abfb53ab11be..f1db6f17c4fb 100644
---- a/include/linux/rwlock_api_smp.h
-+++ b/include/linux/rwlock_api_smp.h
-@@ -157,8 +157,7 @@ static inline unsigned long __raw_read_lock_irqsave(rwlock_t *lock)
- 	local_irq_save(flags);
- 	preempt_disable();
- 	rwlock_acquire_read(&lock->dep_map, 0, 0, _RET_IP_);
--	LOCK_CONTENDED_FLAGS(lock, do_raw_read_trylock, do_raw_read_lock,
--			     do_raw_read_lock_flags, &flags);
-+	LOCK_CONTENDED(lock, do_raw_read_trylock, do_raw_read_lock);
- 	return flags;
- }
- 
-@@ -184,8 +183,7 @@ static inline unsigned long __raw_write_lock_irqsave(rwlock_t *lock)
- 	local_irq_save(flags);
- 	preempt_disable();
- 	rwlock_acquire(&lock->dep_map, 0, 0, _RET_IP_);
--	LOCK_CONTENDED_FLAGS(lock, do_raw_write_trylock, do_raw_write_lock,
--			     do_raw_write_lock_flags, &flags);
-+	LOCK_CONTENDED(lock, do_raw_write_trylock, do_raw_write_lock);
- 	return flags;
- }
- 
-diff --git a/include/linux/spinlock.h b/include/linux/spinlock.h
-index c04e99edfe92..40e467cdee2d 100644
---- a/include/linux/spinlock.h
-+++ b/include/linux/spinlock.h
-@@ -176,7 +176,6 @@ do {									\
- 
- #ifdef CONFIG_DEBUG_SPINLOCK
-  extern void do_raw_spin_lock(raw_spinlock_t *lock) __acquires(lock);
--#define do_raw_spin_lock_flags(lock, flags) do_raw_spin_lock(lock)
-  extern int do_raw_spin_trylock(raw_spinlock_t *lock);
-  extern void do_raw_spin_unlock(raw_spinlock_t *lock) __releases(lock);
- #else
-@@ -187,18 +186,6 @@ static inline void do_raw_spin_lock(raw_spinlock_t *lock) __acquires(lock)
- 	mmiowb_spin_lock();
- }
- 
--#ifndef arch_spin_lock_flags
--#define arch_spin_lock_flags(lock, flags)	arch_spin_lock(lock)
--#endif
--
--static inline void
--do_raw_spin_lock_flags(raw_spinlock_t *lock, unsigned long *flags) __acquires(lock)
--{
--	__acquire(lock);
--	arch_spin_lock_flags(&lock->raw_lock, *flags);
--	mmiowb_spin_lock();
--}
--
- static inline int do_raw_spin_trylock(raw_spinlock_t *lock)
- {
- 	int ret = arch_spin_trylock(&(lock)->raw_lock);
-diff --git a/include/linux/spinlock_api_smp.h b/include/linux/spinlock_api_smp.h
-index 6b8e1a0b137b..51fa0dab68c4 100644
---- a/include/linux/spinlock_api_smp.h
-+++ b/include/linux/spinlock_api_smp.h
-@@ -108,16 +108,7 @@ static inline unsigned long __raw_spin_lock_irqsave(raw_spinlock_t *lock)
- 	local_irq_save(flags);
- 	preempt_disable();
- 	spin_acquire(&lock->dep_map, 0, 0, _RET_IP_);
--	/*
--	 * On lockdep we dont want the hand-coded irq-enable of
--	 * do_raw_spin_lock_flags() code, because lockdep assumes
--	 * that interrupts are not re-enabled during lock-acquire:
--	 */
--#ifdef CONFIG_LOCKDEP
- 	LOCK_CONTENDED(lock, do_raw_spin_trylock, do_raw_spin_lock);
--#else
--	do_raw_spin_lock_flags(lock, &flags);
--#endif
- 	return flags;
- }
- 
-diff --git a/include/linux/spinlock_up.h b/include/linux/spinlock_up.h
-index 0ac9112c1bbe..16521074b6f7 100644
---- a/include/linux/spinlock_up.h
-+++ b/include/linux/spinlock_up.h
-@@ -62,7 +62,6 @@ static inline void arch_spin_unlock(arch_spinlock_t *lock)
- #define arch_spin_is_locked(lock)	((void)(lock), 0)
- /* for sched/core.c and kernel_lock.c: */
- # define arch_spin_lock(lock)		do { barrier(); (void)(lock); } while (0)
--# define arch_spin_lock_flags(lock, flags)	do { barrier(); (void)(lock); } while (0)
- # define arch_spin_unlock(lock)	do { barrier(); (void)(lock); } while (0)
- # define arch_spin_trylock(lock)	({ barrier(); (void)(lock); 1; })
- #endif /* DEBUG_SPINLOCK */
-diff --git a/kernel/locking/spinlock.c b/kernel/locking/spinlock.c
-index c5830cfa379a..b562f9289372 100644
---- a/kernel/locking/spinlock.c
-+++ b/kernel/locking/spinlock.c
-@@ -378,8 +378,7 @@ unsigned long __lockfunc _raw_spin_lock_irqsave_nested(raw_spinlock_t *lock,
- 	local_irq_save(flags);
- 	preempt_disable();
- 	spin_acquire(&lock->dep_map, subclass, 0, _RET_IP_);
--	LOCK_CONTENDED_FLAGS(lock, do_raw_spin_trylock, do_raw_spin_lock,
--				do_raw_spin_lock_flags, &flags);
-+	LOCK_CONTENDED(lock, do_raw_spin_trylock, do_raw_spin_lock);
- 	return flags;
- }
- EXPORT_SYMBOL(_raw_spin_lock_irqsave_nested);
 -- 
-2.29.2
+2.31.1
 
