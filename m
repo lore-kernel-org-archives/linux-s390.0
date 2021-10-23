@@ -2,94 +2,201 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C0DCC433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 23 Oct 2021 16:05:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBD29C433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 23 Oct 2021 20:54:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1414360F9E
-	for <linux-s390@archiver.kernel.org>; Sat, 23 Oct 2021 16:05:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 96F0160ED3
+	for <linux-s390@archiver.kernel.org>; Sat, 23 Oct 2021 20:54:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230051AbhJWQHf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 23 Oct 2021 12:07:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60218 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229901AbhJWQHe (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 23 Oct 2021 12:07:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51A1E6109E;
-        Sat, 23 Oct 2021 16:05:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635005115;
-        bh=a0FullCysk1UJY/SuwNW+JkwKz1DX5zFsZR7u65jCCk=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=YcA0X7ZJT9KPq++0vy4Zc9YPjW55ngCXT3XYqy0oc0V32YWSyFzKjWH46Wfk6JUB6
-         PCIDwfEBeDkcsFDGtdhqthdSSccuQ4eBo6P/LqmrXl9bChhrw5voAlYoYh7iNIzAji
-         I/i5bgtEUMvO3AEqG3qlH4MZ1DNT15pXqUIREZ0Yj9fWIMtdEKWa5Dl0hx2Av4mXBx
-         aZYfYYaL5Ja4lDViVX9MnZlv3E1cOX3kebEmYI6h4HSEkK5Cu3dI3EbNPUElSQ0S/m
-         arVBv2qit0AEO2JDL2ItsVAj0xcsKg0bg0oX/nPHGUknfGsiTy2YfqGtAARZUCZBYT
-         WlW6qCwcUiNFA==
-Received: by mail-wm1-f43.google.com with SMTP id 193-20020a1c01ca000000b00327775075f7so7440134wmb.5;
-        Sat, 23 Oct 2021 09:05:15 -0700 (PDT)
-X-Gm-Message-State: AOAM53104sgHT455SKw/nCLQ+2DmR7UQH8Q0rOPpZBlfJr0HxHgiM5nl
-        PG6STbi3Srwj7X7BDwhMJA7ar3RAApKwyU2XHuc=
-X-Google-Smtp-Source: ABdhPJzw9bHMXdBR8sTpnXzuM1z62QqWWvXCArLgXmJmvR/CFzjvKRNvYnRPFIYed1aqogH5ms1MCPnMvzTwp0uq874=
-X-Received: by 2002:a05:600c:4f42:: with SMTP id m2mr36618604wmq.82.1635005113773;
- Sat, 23 Oct 2021 09:05:13 -0700 (PDT)
+        id S230415AbhJWU5O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 23 Oct 2021 16:57:14 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65378 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S230142AbhJWU5O (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 23 Oct 2021 16:57:14 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19NKgUTr029534;
+        Sat, 23 Oct 2021 16:54:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=nDpay4QtSlj7zYDpfuufBQ/erd3Q7otWWp1itAd2JsI=;
+ b=Lp/AJcfFxWwS+52EOBSMi/K5Pdg79Sa0TvBLC7ot8CA4aOuIMRfv63PSVwktZ9DkTp1k
+ 74C6TiNGAJclW5jkZ6Scp89ErWEi99PBgQL/XOU48fRHK4wirwdVp8iKmdLmx0DNC4tx
+ 6ZwLJPQgawP5uqh2wp4Wr9rzl6HCfQ+SzQVu1ouVHwY9OZdyLD+Ywcd/NrKHpAlNDsuD
+ cVNeTFZgUTrkaXOqzghOL06UbI4VXj6c1HXZAIU1D+cdctb3yMq1Ym0lqSnehUE3SykX
+ rUP+TI/EgEjx5FwsCGj2SITBOCVnwWHhqB36//FMcZy7lpa2aBd9BGi4g6I+2pFCHvzb uw== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bvejur657-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 23 Oct 2021 16:54:50 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19NKsHlH023467;
+        Sat, 23 Oct 2021 20:54:48 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3bva19b95e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 23 Oct 2021 20:54:48 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19NKsk6X7340722
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 23 Oct 2021 20:54:46 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 072E152051;
+        Sat, 23 Oct 2021 20:54:46 +0000 (GMT)
+Received: from [9.145.189.27] (unknown [9.145.189.27])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id A9FB05204E;
+        Sat, 23 Oct 2021 20:54:45 +0000 (GMT)
+Message-ID: <7c0af228-e098-5657-934e-d2bd2bff5ee3@linux.ibm.com>
+Date:   Sat, 23 Oct 2021 22:54:45 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Missing driver-specific sysfs attributes of scsi_device [was: Re:
+ [PATCH v4 00/46] Register SCSI sysfs attributes earlier]
+Content-Language: en-US
+To:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Bart Van Assche <bvanassche@acm.org>
+Cc:     linux-scsi@vger.kernel.org,
+        Linux-Next Mailing List <linux-next@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Benjamin Block <bblock@linux.ibm.com>
+References: <20211012233558.4066756-1-bvanassche@acm.org>
+ <163478764102.7011.9375895285870786953.b4-ty@oracle.com>
+From:   Steffen Maier <maier@linux.ibm.com>
+In-Reply-To: <163478764102.7011.9375895285870786953.b4-ty@oracle.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: SXoiBcY5tMdKikwDCG-EKQFuQcbz2Q9V
+X-Proofpoint-GUID: SXoiBcY5tMdKikwDCG-EKQFuQcbz2Q9V
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-References: <20211022120058.1031690-1-arnd@kernel.org> <cc8e3c58-457d-fdf3-6a62-98bde0cefdea@redhat.com>
-In-Reply-To: <cc8e3c58-457d-fdf3-6a62-98bde0cefdea@redhat.com>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Sat, 23 Oct 2021 18:04:57 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a0YjaRS+aUCOKGjsfkR3TM49PrG6U4ftG_Fz+OFuyCb0w@mail.gmail.com>
-Message-ID: <CAK8P3a0YjaRS+aUCOKGjsfkR3TM49PrG6U4ftG_Fz+OFuyCb0w@mail.gmail.com>
-Subject: Re: [PATCH] locking: remove spin_lock_flags() etc
-To:     Waiman Long <longman@redhat.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-ia64@vger.kernel.org,
-        Openrisc <openrisc@lists.librecores.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-23_03,2021-10-22_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ suspectscore=0 clxscore=1011 priorityscore=1501 lowpriorityscore=0
+ mlxlogscore=999 spamscore=0 impostorscore=0 phishscore=0 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110230133
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Oct 23, 2021 at 3:37 AM Waiman Long <longman@redhat.com> wrote:
->> On 10/22/21 7:59 AM, Arnd Bergmann wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
-> >
-> > As this is all dead code, just remove it and the helper functions built
-> > around it. For arch/ia64, the inline asm could be cleaned up, but
-> > it seems safer to leave it untouched.
-> >
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
->
-> Does that mean we can also remove the GENERIC_LOCKBREAK config option
-> from the Kconfig files as well?
+Hi Bart, hi Martin,
 
- I couldn't figure this out.
+since Friday 2021-10-22 our CI reports errors with linux-next. It complains 
+about missing zfcp-lun resources (although that's a follow-on error). Machines 
+that have their root-fs on zfcp-attached SCSI disk(s) are stuck in boot. 
+Looking at user visible effects, I see zfcp-specific sysfs attributes of 
+scsi_device missing:
 
-What I see is that the only architectures setting GENERIC_LOCKBREAK are
-nds32, parisc, powerpc, s390, sh and sparc64, while the only architectures
-implementing arch_spin_is_contended() are arm32, csky and ia64.
+$ lszfcp -D
+/usr/sbin/lszfcp: line 390: 
+/sys/bus/ccw/drivers/zfcp/0.0.1780/host0/rport-0:0-0/target0:0:0/0:0:0:1089224725//hba_id: 
+No such file or directory
+/usr/sbin/lszfcp: line 391: 
+/sys/bus/ccw/drivers/zfcp/0.0.1780/host0/rport-0:0-0/target0:0:0/0:0:0:1089224725//wwpn: 
+No such file or directory
+/usr/sbin/lszfcp: line 392: 
+/sys/bus/ccw/drivers/zfcp/0.0.1780/host0/rport-0:0-0/target0:0:0/0:0:0:1089224725//fcp_lun: 
+No such file or directory
 
-The part I don't understand is whether the option actually does anything
-useful any more after commit d89c70356acf ("locking/core: Remove break_lock
-field when CONFIG_GENERIC_LOCKBREAK=y").
+That made me think of this patch series. It also happened so that Martin 
+applied the series to 5.16/scsi-queue on 2021-10-21. Linux-next merged it on 
+2021-10-22:
 
-      Arnd
+Merging scsi-mkp/for-next (83c3a7beaef7 scsi: lpfc: Update lpfc version to 
+14.0.0.3)
+$ git merge -m Merge branch 'for-next' of 
+git://git.kernel.org/pub/scm/linux/kernel/git/mkp/scsi.git scsi-mkp/for-next
+...
++ drivers/s390/scsi/zfcp_ext.h                    |   4 +-
++ drivers/s390/scsi/zfcp_fsf.c                    |   2 +-
++ drivers/s390/scsi/zfcp_scsi.c                   |   8 +-
++ drivers/s390/scsi/zfcp_sysfs.c                  |  52 ++--
+[https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=next-20211022&id=cf6c9d12750cf6f3f6aeffcd0bdb36b1ac993f44]
+
+So this seems to match with the occurrence of problems for us.
+
+I wonder if any of the other LLDDs see similar problems. I left those LLDD 
+patches in the list below, that also were migrated from sdev_attrs to sdev_groups.
+
+Guess it would be good to fix this before the v5.16 merge window opens 
+(2021-11-08 after predicted v5.15 release? [http://phb-crystal-ball.org/]) so 
+the error does not land in Linus' tree (which our CI also tests).
+
+Not sure if I'll find time to dig deeper.
+
+On 10/21/21 05:42, Martin K. Petersen wrote:
+> On Tue, 12 Oct 2021 16:35:12 -0700, Bart Van Assche wrote:
+> 
+>> For certain user space software, e.g. udev, it is important that sysfs
+>> attributes are registered before the KOBJ_ADD uevent is emitted. Hence
+>> this patch series that removes the device_create_file() and
+>> sysfs_create_groups() calls from the SCSI core. Please consider this
+>> patch series for kernel v5.16.
+>>
+>> Thanks,
+>>
+>> [...]
+> 
+> Applied to 5.16/scsi-queue, thanks!
+> 
+> [01/46] scsi: core: Register sysfs attributes earlier
+>          https://git.kernel.org/mkp/scsi/c/92c4b58b15c5
+> [02/46] ata: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/c3f69c7f629f
+> [03/46] firewire: sbp2: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/5e88e67b6f3b
+
+> [06/46] scsi: zfcp: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/d8d7cf3f7d07
+
+> [10/46] scsi: 53c700: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/90cb6538b5da
+> [11/46] scsi: aacraid: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/bd16d71185c8
+
+> [18/46] scsi: cxlflash: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/780c678912fb
+
+> [21/46] scsi: hpsa: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/4cd16323b523
+
+> [25/46] scsi: ipr: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/47d1e6ae0e1e
+
+> [28/46] scsi: megaraid: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/09723bb252ca
+> [29/46] scsi: mpt3sas: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/1bb3ca27d2ca
+
+> [31/46] scsi: myrb: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/582c0360db90
+> [32/46] scsi: myrs: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/087c3ace6337
+
+> [42/46] scsi: smartpqi: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/64fc9015fbeb
+
+> [45/46] scsi: usb: Switch to attribute groups
+>          https://git.kernel.org/mkp/scsi/c/01e570febaaa
+> [46/46] scsi: core: Remove two host template members that are no longer used
+>          https://git.kernel.org/mkp/scsi/c/a47c6b713e89
+
+
+
+-- 
+Mit freundlichen Gruessen / Kind regards
+Steffen Maier
+
+Linux on IBM Z and LinuxONE
+
+https://www.ibm.com/privacy/us/en/
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Gregor Pillen
+Geschaeftsfuehrung: Dirk Wittkopp
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
