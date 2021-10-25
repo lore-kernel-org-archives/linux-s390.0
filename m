@@ -2,226 +2,149 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FD5CC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 18:28:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E748C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 18:51:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7528C60FDC
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 18:28:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0E60B6103C
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 18:51:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233165AbhJYSbU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Oct 2021 14:31:20 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28240 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230111AbhJYSbT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 25 Oct 2021 14:31:19 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19PINXkl015214;
-        Mon, 25 Oct 2021 18:28:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=1mvSTNGvLCV9PUnuowvpAPqkZCNOXCY1NojWMzHPPXY=;
- b=pQlDintzTv0LWhek4yEQ/KEGBFGTirSxupafObyOW6Dl0eZEiYpSzTTzLpLxp/7itLmm
- KO4mHqhVj6KgQnX6y53DlqwPZM8aY+40O2t0usSfbg76MBI/BruBFoTbT1wvHqvCL/8Y
- Kdm+Jo7So42OKfuGYScNWbdtKZncVHZSoF0TYIhZmyInnVN0L5gRr2qrPtR4MT3znhv+
- nx24oSdjltc2lg2A7fChBephBSAKlKtmEhy8sQk6PK7FtwIc1omCOvFchdQsx62VG6+3
- NLpg/o29BgVLgRx6FtljpNzyavqn5jOlEUJCw8gNQ5WIoyHJA6dc2InFSQFNc4S0Nk5o 4w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bx1gh0r0q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Oct 2021 18:28:57 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19PISuBv007246;
-        Mon, 25 Oct 2021 18:28:56 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bx1gh0qya-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Oct 2021 18:28:56 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19PIHXpQ006162;
-        Mon, 25 Oct 2021 18:28:54 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3bwqsteusf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Oct 2021 18:28:54 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19PISoBE43385276
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 25 Oct 2021 18:28:50 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AD384A4059;
-        Mon, 25 Oct 2021 18:28:50 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4C0F1A4057;
-        Mon, 25 Oct 2021 18:28:50 +0000 (GMT)
-Received: from li-43c5434c-23b8-11b2-a85c-c4958fb47a68.ibm.com (unknown [9.171.19.138])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 25 Oct 2021 18:28:50 +0000 (GMT)
-Subject: Re: [kvm-unit-tests PATCH v3 2/2] s390x: Test specification
- exceptions during transaction
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20211022120156.281567-1-scgl@linux.ibm.com>
- <20211022120156.281567-3-scgl@linux.ibm.com>
- <20211025193012.3be31938@p-imbrenda>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <71c181b9-6216-dc89-5ab8-619e08d04538@de.ibm.com>
-Date:   Mon, 25 Oct 2021 20:28:49 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S232664AbhJYSyD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Oct 2021 14:54:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44768 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231128AbhJYSyB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Oct 2021 14:54:01 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE389C061745
+        for <linux-s390@vger.kernel.org>; Mon, 25 Oct 2021 11:51:38 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1mf53b-0008I3-JX; Mon, 25 Oct 2021 20:50:51 +0200
+Received: from pengutronix.de (2a03-f580-87bc-d400-e094-d8e8-b5aa-4a00.ip6.dokom21.de [IPv6:2a03:f580:87bc:d400:e094:d8e8:b5aa:4a00])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        (Authenticated sender: mkl-all@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id 8048569DABA;
+        Mon, 25 Oct 2021 18:50:41 +0000 (UTC)
+Date:   Mon, 25 Oct 2021 20:50:40 +0200
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     Guangbin Huang <huangguangbin2@huawei.com>, davem@davemloft.net,
+        mkubecek@suse.cz, andrew@lunn.ch, amitc@mellanox.com,
+        idosch@idosch.org, danieller@nvidia.com,
+        jesse.brandeburg@intel.com, anthony.l.nguyen@intel.com,
+        jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com,
+        netanel@amazon.com, akiyano@amazon.com, saeedb@amazon.com,
+        chris.snook@gmail.com, ulli.kroll@googlemail.com,
+        linus.walleij@linaro.org, jeroendb@google.com, csully@google.com,
+        awogbemila@google.com, jdmason@kudzu.us, rain.1986.08.12@gmail.com,
+        zyjzyj2000@gmail.com, kys@microsoft.com, haiyangz@microsoft.com,
+        mst@redhat.com, jasowang@redhat.com, doshir@vmware.com,
+        pv-drivers@vmware.com, jwi@linux.ibm.com, kgraul@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, johannes@sipsolutions.net,
+        netdev@vger.kernel.org, lipeng321@huawei.com,
+        chenhao288@hisilicon.com, linux-s390@vger.kernel.org
+Subject: Re: [PATCH V4 net-next 4/6] ethtool: extend ringparam setting uAPI
+ with rx_buf_len
+Message-ID: <20211025185040.xj27ujo5wubirz6u@pengutronix.de>
+References: <20211014113943.16231-1-huangguangbin2@huawei.com>
+ <20211014113943.16231-5-huangguangbin2@huawei.com>
+ <20211025131149.ya42sw64vkh7zrcr@pengutronix.de>
+ <20211025132718.5wtos3oxjhzjhymr@pengutronix.de>
+ <20211025104505.43461b53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 MIME-Version: 1.0
-In-Reply-To: <20211025193012.3be31938@p-imbrenda>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NlwWvrJ3-zfnDHQ6oWGqrs-70TYxIeMG
-X-Proofpoint-ORIG-GUID: GykHcxTWWroGpgAwKoh_SFbZoCSA7hAl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-25_06,2021-10-25_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- clxscore=1015 phishscore=0 mlxlogscore=999 impostorscore=0
- lowpriorityscore=0 adultscore=0 priorityscore=1501 mlxscore=0 bulkscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110250105
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="zmvvm7jx7bbxbmoe"
+Content-Disposition: inline
+In-Reply-To: <20211025104505.43461b53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-s390@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
+--zmvvm7jx7bbxbmoe
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Am 25.10.21 um 19:30 schrieb Claudio Imbrenda:
-> On Fri, 22 Oct 2021 14:01:56 +0200
-> Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
-> 
->> Program interruptions during transactional execution cause other
->> interruption codes.
->> Check that we see the expected code for (some) specification exceptions.
->>
->> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->> ---
->>   lib/s390x/asm/arch_def.h |   1 +
->>   s390x/spec_ex.c          | 172 +++++++++++++++++++++++++++++++++++++--
->>   2 files changed, 168 insertions(+), 5 deletions(-)
->>
->> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
->> index 40626d7..f7fb467 100644
->> --- a/lib/s390x/asm/arch_def.h
->> +++ b/lib/s390x/asm/arch_def.h
->> @@ -55,6 +55,7 @@ struct psw {
->>   #define PSW_MASK_BA			0x0000000080000000UL
->>   #define PSW_MASK_64			(PSW_MASK_BA | PSW_MASK_EA)
->>   
->> +#define CTL0_TRANSACT_EX_CTL		(63 -  8)
->>   #define CTL0_LOW_ADDR_PROT		(63 - 35)
->>   #define CTL0_EDAT			(63 - 40)
->>   #define CTL0_IEP			(63 - 43)
->> diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
->> index ec3322a..f3628bd 100644
->> --- a/s390x/spec_ex.c
->> +++ b/s390x/spec_ex.c
->> @@ -4,9 +4,14 @@
->>    *
->>    * Specification exception test.
->>    * Tests that specification exceptions occur when expected.
->> + * This includes specification exceptions occurring during transactional execution
->> + * as these result in another interruption code (the transactional-execution-aborted
->> + * bit is set).
->>    */
->>   #include <stdlib.h>
->> +#include <htmintrin.h>
->>   #include <libcflat.h>
->> +#include <asm/barrier.h>
->>   #include <asm/interrupt.h>
->>   #include <asm/facility.h>
->>   
->> @@ -92,18 +97,23 @@ static void not_even(void)
->>   struct spec_ex_trigger {
->>   	const char *name;
->>   	void (*func)(void);
->> +	bool transactable;
->>   	void (*fixup)(void);
->>   };
->>   
->>   static const struct spec_ex_trigger spec_ex_triggers[] = {
->> -	{ "psw_bit_12_is_1", &psw_bit_12_is_1, &fixup_invalid_psw},
->> -	{ "bad_alignment", &bad_alignment, NULL},
->> -	{ "not_even", &not_even, NULL},
->> -	{ NULL, NULL, NULL},
->> +	{ "psw_bit_12_is_1", &psw_bit_12_is_1, false, &fixup_invalid_psw},
->> +	{ "bad_alignment", &bad_alignment, true, NULL},
->> +	{ "not_even", &not_even, true, NULL},
->> +	{ NULL, NULL, true, NULL},
->>   };
->>   
->>   struct args {
->>   	uint64_t iterations;
->> +	uint64_t max_retries;
->> +	uint64_t suppress_info;
->> +	uint64_t max_failures;
->> +	bool diagnose;
->>   };
->>   
->>   static void test_spec_ex(struct args *args,
->> @@ -131,14 +141,132 @@ static void test_spec_ex(struct args *args,
->>   		    expected_pgm);
->>   }
->>   
->> +#define TRANSACTION_COMPLETED 4
->> +#define TRANSACTION_MAX_RETRIES 5
->> +
->> +/* NULL must be passed to __builtin_tbegin via constant, forbid diagnose from
->> + * being NULL to keep things simple
->> + */
->> +static int __attribute__((nonnull))
->> +with_transaction(void (*trigger)(void), struct __htm_tdb *diagnose)
->> +{
->> +	int cc;
->> +
-> 
-> if you want to be extra sure, put an assert here (although I'm not sure
-> how nonnull works, I have never seen it before)
-> 
->> +	cc = __builtin_tbegin(diagnose);
->> +	if (cc == _HTM_TBEGIN_STARTED) {
->> +		trigger();
->> +		__builtin_tend();
->> +		return -TRANSACTION_COMPLETED;
->> +	} else {
->> +		return -cc;
->> +	}
->> +}
->> +
->> +static int retry_transaction(const struct spec_ex_trigger *trigger, unsigned int max_retries,
->> +			     struct __htm_tdb *tdb, uint16_t expected_pgm)
->> +{
->> +	int trans_result, i;
->> +	uint16_t pgm;
->> +
->> +	for (i = 0; i < max_retries; i++) {
->> +		expect_pgm_int();
->> +		trans_result = with_transaction(trigger->func, tdb);
->> +		if (trans_result == -_HTM_TBEGIN_TRANSIENT) {
->> +			mb();
->> +			pgm = lc->pgm_int_code;
->> +			if (pgm == 0)
->> +				continue;
->> +			else if (pgm == expected_pgm)
->> +				return 0;
->> +		}
->> +		return trans_result;
->> +	}
->> +	return -TRANSACTION_MAX_RETRIES;
-> 
-> so this means that a test will be considered failed if the transaction
-> failed too many times?
-> this means that could fail if the test is run on busy system, even if
-> the host running the unit test is correct
+On 25.10.2021 10:45:05, Jakub Kicinski wrote:
+> On Mon, 25 Oct 2021 15:27:18 +0200 Marc Kleine-Budde wrote:
+> > On 25.10.2021 15:11:49, Marc Kleine-Budde wrote:
+> > > On 14.10.2021 19:39:41, Guangbin Huang wrote: =20
+> > > > From: Hao Chen <chenhao288@hisilicon.com>
+> > > >=20
+> > > > Add two new parameters ringparam_ext and extack for
+> > > > .get_ringparam and .set_ringparam to extend more ring params
+> > > > through netlink.
+> > > >=20
+> > > > Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
+> > > > Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com> =20
+> > >=20
+> > > While discussing a different ethtool ring param extension, =20
+> >=20
+> > Let me explain my requirements:
+> >=20
+> > There is a not Ethernet based bus system, called CAN (mainly used in the
+> > automotive and industrial world). It comes in 2 different generations or
+> > modes (CAN-2.0 and CAN-FD) and the 3rd one CAN-XL has already been
+> > specified.
+> >=20
+> > Due to different frame sizes used in these CAN modes and HW limitations,
+> > we need the possibility to set a RX/TX ring configuration for each of
+> > these modes.
+> >=20
+> > The approach Andrew suggested is two-fold. First introduce a "struct
+> > ethtool_kringparam" that's only used inside the kernel, as "struct
+> > ethtool_ringparam" is ABI. Then extend "struct ethtool_kringparam" as
+> > needed.
+>=20
+> Indeed, there are different ways to extend the API for drivers,
+> I think it comes down to personal taste. I find the "inheritance"=20
+> models in C (kstruct usually contains the old struct as some "base")
+> awkward.
+>=20
+> I don't think we have agreed-on best practice in the area.
 
-Can we use constrained transactions for this test? those will succeed.
+The set/get_coalesce as just extended, using a 3rd parameter for the new
+values:
+
+| 	int	(*set_coalesce)(struct net_device *,
+| 				struct ethtool_coalesce *,
+| 				struct kernel_ethtool_coalesce *,
+| 				struct netlink_ext_ack *);
+
+https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=
+=3Df3ccfda19319
+
+regards,
+Marc
+
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+
+--zmvvm7jx7bbxbmoe
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEK3kIWJt9yTYMP3ehqclaivrt76kFAmF2/HsACgkQqclaivrt
+76nIXggAnPumYY/CZI//RmCZL3I5ORqzeWWPSJ894gSIwmskhycjPlah1mvi+MUM
+fOaahsRlvENVgBO1YHF9rHH54glllHP7r0p3boZsolOOXCwIJ+KVcgD3jfhPrRBu
+dC7+4N6yiBXCZ0EwbJt3uxn2ooiSTZtbVrkB+rC1AX9SkJqOPHNc0OszYq3+54J0
+zezwjT4rXCyabF5NBvxRwp0oVV+9oh7wMQsxVF/y/bUtOQBDDUkAJMU4KhRKwYjN
+c1A0Fx5clY0FTw0PsLncWvcDNRpuLPKBxU1U+9j1EuZCXHy21UIP75+Fw4K7bL1P
+qhgyZFlcwBXXCbjm5fPokysPou58yA==
+=+ovD
+-----END PGP SIGNATURE-----
+
+--zmvvm7jx7bbxbmoe--
