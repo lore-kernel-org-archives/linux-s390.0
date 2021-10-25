@@ -2,114 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1127AC43219
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 09:57:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4EBDC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 09:58:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F109B60C41
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 09:57:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BBC6760FDC
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 09:58:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232773AbhJYKAC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Oct 2021 06:00:02 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56482 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232734AbhJYJ7g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 25 Oct 2021 05:59:36 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19P9PxGu020661;
-        Mon, 25 Oct 2021 09:57:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=raKGaq7KbvGpgVfi7/Y+T3jPC8X2N0kxS80GlNBhIYE=;
- b=SgMdP7uheI9DqstsgIHY0/PWDfCG/EsO7INfuSxxnp8/ozyfzZt7F8k11HlPwrPjh/yG
- pqWUCNBumKZFtB6taXpmRo+izWAtrXsLIIj7dTYh+LRFBsxgMAb1AEr/zHVMBTKeg1ra
- PzwsIPUMBrDgZYOjWAkwi6NQ0khtUCKDQXe356Zy5Tkc0ir5GmavUfDsLnnxr/Qus4rZ
- sWxbbtopOuqztivHhliwd0cFIDkjkaZBhPbQF8fflbtAC4rkVQ10rMAxf0fCatRJba7m
- D2yK6xAD0sMH8gNF8dYh9OMVlVxQjg5v91+Ibm1rjcmRdccx7WrhtWLlLBPbzfjVXLE/ 1g== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bwsxs0m44-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Oct 2021 09:57:12 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19P9h4GD010060;
-        Mon, 25 Oct 2021 09:57:10 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3bva19m9cj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Oct 2021 09:57:10 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19P9v7cd60686672
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 25 Oct 2021 09:57:07 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3743211C06E;
-        Mon, 25 Oct 2021 09:57:07 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E5FC211C05C;
-        Mon, 25 Oct 2021 09:57:06 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 25 Oct 2021 09:57:06 +0000 (GMT)
-From:   Julian Wiedmann <jwi@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     linux-netdev <netdev@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
+        id S232554AbhJYKAi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Oct 2021 06:00:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33940 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229764AbhJYKAi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Oct 2021 06:00:38 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77274C061745;
+        Mon, 25 Oct 2021 02:58:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=kBcBoUwV55Vzzvl24KD3p0ArPNxglJAR5S99vkQU21A=; b=MBCIXeXhf6eTBncr2QpHLUaYS7
+        6G6hOzIwUql2vqiXbPvPa9A34kSeid/gzxP9EN8BQVKIOSUqesYOAciHBywhpFV3bEqT11li2ezNu
+        zXx9DIsxagTnN0sBGW93C3YbKy15aQnc8uqykO8jv9JtgA7VFmGzMn4I4p3JH8gdxJP7oqeAJkvZK
+        9hy4dbsx6zYQT7WBZKaHuQoTx6ibgTsFc6MJcGaipDs9afWbC+XldzOHN6X5mUvDpqD4/OWFj24A9
+        qTxIRw6JiXreO28PuVyy/+uQk7JTwDJ6Zg/u5Y+Y7ul3SpvRSdBp1gBelToDOuKySSBC3ttwob/pS
+        /4/6lXZQ==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mewjU-00C7ZM-Sf; Mon, 25 Oct 2021 09:57:33 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 9A95B3002AE;
+        Mon, 25 Oct 2021 11:57:28 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 74DE220C6C150; Mon, 25 Oct 2021 11:57:28 +0200 (CEST)
+Date:   Mon, 25 Oct 2021 11:57:28 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Waiman Long <longman@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 9/9] s390/qeth: update kerneldoc for qeth_add_hw_header()
-Date:   Mon, 25 Oct 2021 11:56:58 +0200
-Message-Id: <20211025095658.3527635-10-jwi@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211025095658.3527635-1-jwi@linux.ibm.com>
-References: <20211025095658.3527635-1-jwi@linux.ibm.com>
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-ia64@vger.kernel.org,
+        Openrisc <openrisc@lists.librecores.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH] locking: remove spin_lock_flags() etc
+Message-ID: <YXZ/iLB7BvZtzDMp@hirez.programming.kicks-ass.net>
+References: <20211022120058.1031690-1-arnd@kernel.org>
+ <cc8e3c58-457d-fdf3-6a62-98bde0cefdea@redhat.com>
+ <CAK8P3a0YjaRS+aUCOKGjsfkR3TM49PrG6U4ftG_Fz+OFuyCb0w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: c4NNRu9oXs6kHe1QKI7zN6FEFf2GvPrO
-X-Proofpoint-GUID: c4NNRu9oXs6kHe1QKI7zN6FEFf2GvPrO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-25_03,2021-10-25_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- lowpriorityscore=0 adultscore=0 phishscore=0 mlxscore=0 spamscore=0
- malwarescore=0 clxscore=1015 impostorscore=0 mlxlogscore=999
- priorityscore=1501 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2109230001 definitions=main-2110250058
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a0YjaRS+aUCOKGjsfkR3TM49PrG6U4ftG_Fz+OFuyCb0w@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-qeth_add_hw_header() is missing documentation for some of its
-parameters, fix that up.
+On Sat, Oct 23, 2021 at 06:04:57PM +0200, Arnd Bergmann wrote:
+> On Sat, Oct 23, 2021 at 3:37 AM Waiman Long <longman@redhat.com> wrote:
+> >> On 10/22/21 7:59 AM, Arnd Bergmann wrote:
+> > > From: Arnd Bergmann <arnd@arndb.de>
+> > >
+> > > As this is all dead code, just remove it and the helper functions built
+> > > around it. For arch/ia64, the inline asm could be cleaned up, but
+> > > it seems safer to leave it untouched.
+> > >
+> > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> >
+> > Does that mean we can also remove the GENERIC_LOCKBREAK config option
+> > from the Kconfig files as well?
+> 
+>  I couldn't figure this out.
+> 
+> What I see is that the only architectures setting GENERIC_LOCKBREAK are
+> nds32, parisc, powerpc, s390, sh and sparc64, while the only architectures
+> implementing arch_spin_is_contended() are arm32, csky and ia64.
+> 
+> The part I don't understand is whether the option actually does anything
+> useful any more after commit d89c70356acf ("locking/core: Remove break_lock
+> field when CONFIG_GENERIC_LOCKBREAK=y").
 
-Reported-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+Urgh, what a mess.. AFAICT there's still code in
+kernel/locking/spinlock.c that relies on it. Specifically when
+GENERIC_LOCKBREAK=y we seem to create _lock*() variants that are
+basically TaS locks which drop preempt/irq disable while spinning.
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 6e410497826a..26c55f67289f 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3873,12 +3873,14 @@ static unsigned int qeth_count_elements(struct sk_buff *skb,
- 
- /**
-  * qeth_add_hw_header() - add a HW header to an skb.
-+ * @queue: TX queue that the skb will be placed on.
-  * @skb: skb that the HW header should be added to.
-  * @hdr: double pointer to a qeth_hdr. When returning with >= 0,
-  *	 it contains a valid pointer to a qeth_hdr.
-  * @hdr_len: length of the HW header.
-  * @proto_len: length of protocol headers that need to be in same page as the
-  *	       HW header.
-+ * @elements: returns the required number of buffer elements for this skb.
-  *
-  * Returns the pushed length. If the header can't be pushed on
-  * (eg. because it would cross a page boundary), it is allocated from
--- 
-2.25.1
+Anybody having this on and not having native TaS locks is in for a rude
+surprise I suppose... sparc64 being the obvious candidate there :/
+
+
 
