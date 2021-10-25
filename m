@@ -2,133 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00024C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:35:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C74AC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 14:32:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DBAE860C49
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:35:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 55E8660720
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 14:32:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232336AbhJYNh6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Oct 2021 09:37:58 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4766 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S230137AbhJYNh5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 25 Oct 2021 09:37:57 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19PCM7Rb027995;
-        Mon, 25 Oct 2021 13:35:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=fHHD9B8mtynP5WXDmVFBLONkqPX/iz1PqWtIiJuk6Mo=;
- b=LtXbwlSyQx9lueQWlhpRkfFGyBgppwZp9JK7NlW5roEvcpVFUO3j4dgJMZi3SAdPpmkh
- Ny9IPI1WgI3K9UD/b7d2UodHlFhPtzTMn5x9/wuonmh+WF89YrV/Lk+wtfBjbwpMbMgP
- oCnnW93i4xTTiiLKPXFa9U/ohT+YyvpTtmG3Z9MZw7n2SnSgUdVKRNu4TwsufkuhRnFs
- BrkK00cXTkWj3yNrvwJsPDb14n1cKi9oFltA1rqC7V9CVfkKq+9Fdnq231CaMcrvyLcO
- jyh+XGvLu6iLwezG9Sb+CwZLMAg/VAzdms6LeoHan/g0GYYU8HOh5IwhX1iD6QhSo2Wx Hw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bwt6sdhjw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Oct 2021 13:35:32 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19PDUCDc004274;
-        Mon, 25 Oct 2021 13:35:32 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bwt6sdhjg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Oct 2021 13:35:32 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19PDX41v030819;
-        Mon, 25 Oct 2021 13:35:30 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma02fra.de.ibm.com with ESMTP id 3bva18wmuf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Oct 2021 13:35:30 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19PDZRrZ37880274
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 25 Oct 2021 13:35:27 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 31596A4059;
-        Mon, 25 Oct 2021 13:35:27 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8FEC7A4057;
-        Mon, 25 Oct 2021 13:35:26 +0000 (GMT)
-Received: from [9.171.63.35] (unknown [9.171.63.35])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 25 Oct 2021 13:35:26 +0000 (GMT)
-Message-ID: <1285bc39-b3fc-55b1-5422-a1474cd31c28@linux.ibm.com>
-Date:   Mon, 25 Oct 2021 15:35:25 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH net-next 6/9] s390/qeth: fix various format strings
-Content-Language: en-US
-To:     Vladimir Oltean <olteanv@gmail.com>
+        id S233617AbhJYOfB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Oct 2021 10:35:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40860 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233622AbhJYOet (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Oct 2021 10:34:49 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B4B0C061243;
+        Mon, 25 Oct 2021 07:32:27 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id l13so244626edi.8;
+        Mon, 25 Oct 2021 07:32:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=OvHxVdBiq3d0CEHZOgKJHqAMPLyqFUfAkg1FgJZBk5U=;
+        b=FuTwxA7YU4/jmi9fqEtV1A6jZEvWOXDHdkw+YVVk6VZQsr8Xh5BHOQhKz4kZ+p634T
+         G17MmUWoT2INkiYnXywpkfp1UvWfuARIwqp4jnMLA14kmB4wiZDE93qtqcBUEYG8UUbI
+         qLCGYDacT4whWwcU0WF/Nk2cBXGYFNzpy4VrMPnvVJVq9xBRPzKhRFeG8TT2zHq1bH+7
+         gV5JoEocHxz+I6cbe/q66bB4bVc21LwhNn4nmsHmgFrRrLgQLceY5gmaqpqmi264iZ45
+         d5jlZEOHVuU5PINSf79fDlj3tVggczIJ2WYO9wCFKNlLLi8JzBHpNVlnGyungpjiMjYI
+         JonQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=OvHxVdBiq3d0CEHZOgKJHqAMPLyqFUfAkg1FgJZBk5U=;
+        b=OW2WAvZS8TBBk7aawN9D/Mat/XpraFUJ5xn4IoGnTppbmNTlyEeUXv5Bcwhr0bLg+l
+         oK72+3MqERpCLcPaywKLC9Jy3se2EchowGobkbKV7kfLyIS8GDEKURUWQe1OAHUvHCmt
+         vRO1zN1AiIyFO9nxjeD0KGZnWq6KK7gxJ+Q8ufCTR6Lkw2jk0JSglh8HNgS77k5nf1cD
+         57pXadKokPiEasxhDnDA2jcn6proCmv3/y+B2AZ+bFLDrTetD8KW5Ns/Em3+Gu6dxWYy
+         JSsWoMCbHCUEbBEN5Z6w562z0pJRZfb9pEDlC+zqUc8+kDVMbzFgVGLFvAk6ThYbD4fc
+         kYZA==
+X-Gm-Message-State: AOAM532QQp3/v3H8vgQwZ5BpYdfFC/URUkkv4WvFa/vJkio4Sduy3g72
+        9QtULspSzydFn4U0d0A4UAo=
+X-Google-Smtp-Source: ABdhPJzlp2Ahx4Ltr2Ak6WT06DgmlcVqLiqGhNKXwxlx8Tb160yQctirUyz0zKe5yCc4pwPM92+2HA==
+X-Received: by 2002:a17:907:764c:: with SMTP id kj12mr8373378ejc.290.1635172340010;
+        Mon, 25 Oct 2021 07:32:20 -0700 (PDT)
+Received: from skbuf ([188.25.174.251])
+        by smtp.gmail.com with ESMTPSA id k6sm1078863eds.55.2021.10.25.07.32.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Oct 2021 07:32:19 -0700 (PDT)
+Date:   Mon, 25 Oct 2021 17:32:18 +0300
+From:   Vladimir Oltean <olteanv@gmail.com>
+To:     Julian Wiedmann <jwi@linux.ibm.com>
 Cc:     David Miller <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>,
         linux-netdev <netdev@vger.kernel.org>,
         linux-s390 <linux-s390@vger.kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>,
         Karsten Graul <kgraul@linux.ibm.com>
+Subject: Re: [PATCH net-next 6/9] s390/qeth: fix various format strings
+Message-ID: <20211025143218.tedvthmjddi4ecgp@skbuf>
 References: <20211025095658.3527635-1-jwi@linux.ibm.com>
  <20211025095658.3527635-7-jwi@linux.ibm.com>
  <20211025132229.4opytunnnqnhxzdf@skbuf>
-From:   Julian Wiedmann <jwi@linux.ibm.com>
-In-Reply-To: <20211025132229.4opytunnnqnhxzdf@skbuf>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _bZlejI_RvJJATZs2hw1ngJxHg6I4qnO
-X-Proofpoint-ORIG-GUID: MCwoo5l6AKVcjCE-UF9urisHKUS3mjE4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-25_05,2021-10-25_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
- suspectscore=0 phishscore=0 mlxlogscore=999 spamscore=0 malwarescore=0
- impostorscore=0 adultscore=0 bulkscore=0 priorityscore=1501 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
- definitions=main-2110250083
+ <1285bc39-b3fc-55b1-5422-a1474cd31c28@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1285bc39-b3fc-55b1-5422-a1474cd31c28@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 25.10.21 15:22, Vladimir Oltean wrote:
-> On Mon, Oct 25, 2021 at 11:56:55AM +0200, Julian Wiedmann wrote:
->> From: Heiko Carstens <hca@linux.ibm.com>
->>
->> Various format strings don't match with types of parameters.
->> Fix all of them.
->>
->> Acked-by: Julian Wiedmann <jwi@linux.ibm.com>
->> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
->> Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
->> ---
->>  drivers/s390/net/qeth_l2_main.c | 14 +++++++-------
->>  1 file changed, 7 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
->> index adba52da9cab..0347fc184786 100644
->> --- a/drivers/s390/net/qeth_l2_main.c
->> +++ b/drivers/s390/net/qeth_l2_main.c
->> @@ -661,13 +661,13 @@ static void qeth_l2_dev2br_fdb_notify(struct qeth_card *card, u8 code,
->>  					 card->dev, &info.info, NULL);
->>  		QETH_CARD_TEXT(card, 4, "andelmac");
->>  		QETH_CARD_TEXT_(card, 4,
->> -				"mc%012lx", ether_addr_to_u64(ntfy_mac));
->> +				"mc%012llx", ether_addr_to_u64(ntfy_mac));
->>  	} else {
->>  		call_switchdev_notifiers(SWITCHDEV_FDB_ADD_TO_BRIDGE,
->>  					 card->dev, &info.info, NULL);
->>  		QETH_CARD_TEXT(card, 4, "anaddmac");
->>  		QETH_CARD_TEXT_(card, 4,
->> -				"mc%012lx", ether_addr_to_u64(ntfy_mac));
->> +				"mc%012llx", ether_addr_to_u64(ntfy_mac));
+On Mon, Oct 25, 2021 at 03:35:25PM +0200, Julian Wiedmann wrote:
+> On 25.10.21 15:22, Vladimir Oltean wrote:
+> > On Mon, Oct 25, 2021 at 11:56:55AM +0200, Julian Wiedmann wrote:
+> >> From: Heiko Carstens <hca@linux.ibm.com>
+> >>
+> >> Various format strings don't match with types of parameters.
+> >> Fix all of them.
+> >>
+> >> Acked-by: Julian Wiedmann <jwi@linux.ibm.com>
+> >> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> >> Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+> >> ---
+> >>  drivers/s390/net/qeth_l2_main.c | 14 +++++++-------
+> >>  1 file changed, 7 insertions(+), 7 deletions(-)
+> >>
+> >> diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+> >> index adba52da9cab..0347fc184786 100644
+> >> --- a/drivers/s390/net/qeth_l2_main.c
+> >> +++ b/drivers/s390/net/qeth_l2_main.c
+> >> @@ -661,13 +661,13 @@ static void qeth_l2_dev2br_fdb_notify(struct qeth_card *card, u8 code,
+> >>  					 card->dev, &info.info, NULL);
+> >>  		QETH_CARD_TEXT(card, 4, "andelmac");
+> >>  		QETH_CARD_TEXT_(card, 4,
+> >> -				"mc%012lx", ether_addr_to_u64(ntfy_mac));
+> >> +				"mc%012llx", ether_addr_to_u64(ntfy_mac));
+> >>  	} else {
+> >>  		call_switchdev_notifiers(SWITCHDEV_FDB_ADD_TO_BRIDGE,
+> >>  					 card->dev, &info.info, NULL);
+> >>  		QETH_CARD_TEXT(card, 4, "anaddmac");
+> >>  		QETH_CARD_TEXT_(card, 4,
+> >> -				"mc%012lx", ether_addr_to_u64(ntfy_mac));
+> >> +				"mc%012llx", ether_addr_to_u64(ntfy_mac));
+> > 
+> > You can print MAC addresses using the "%pM" printf format specifier, and
+> > the ntfy_mac as argument.
+> > 
 > 
-> You can print MAC addresses using the "%pM" printf format specifier, and
-> the ntfy_mac as argument.
-> 
+> Unfortunately not - no pointers allowed in such s390 dbf trace entries. See
+> e19e5be8b4ca ("s390/qeth: sanitize strings in debug messages").
 
-Unfortunately not - no pointers allowed in such s390 dbf trace entries. See
-e19e5be8b4ca ("s390/qeth: sanitize strings in debug messages").
+Is this because __debug_sprintf_event() saves just the printf-formatted
+string and evaluates it only when the trace buffer is shown? Sorry for
+my ignorance.
