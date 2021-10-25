@@ -2,34 +2,34 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E748C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 18:51:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC405C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 19:02:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0E60B6103C
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 18:51:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A213160E52
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 19:02:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232664AbhJYSyD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Oct 2021 14:54:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44768 "EHLO
+        id S233699AbhJYTEp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Oct 2021 15:04:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231128AbhJYSyB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Oct 2021 14:54:01 -0400
+        with ESMTP id S233588AbhJYTEo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Oct 2021 15:04:44 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE389C061745
-        for <linux-s390@vger.kernel.org>; Mon, 25 Oct 2021 11:51:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC0D5C061745
+        for <linux-s390@vger.kernel.org>; Mon, 25 Oct 2021 12:02:21 -0700 (PDT)
 Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <mkl@pengutronix.de>)
-        id 1mf53b-0008I3-JX; Mon, 25 Oct 2021 20:50:51 +0200
+        id 1mf5Dm-00010z-7d; Mon, 25 Oct 2021 21:01:22 +0200
 Received: from pengutronix.de (2a03-f580-87bc-d400-e094-d8e8-b5aa-4a00.ip6.dokom21.de [IPv6:2a03:f580:87bc:d400:e094:d8e8:b5aa:4a00])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (Client did not present a certificate)
         (Authenticated sender: mkl-all@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id 8048569DABA;
-        Mon, 25 Oct 2021 18:50:41 +0000 (UTC)
-Date:   Mon, 25 Oct 2021 20:50:40 +0200
+        by smtp.blackshift.org (Postfix) with ESMTPSA id 2ED6D69DAD3;
+        Mon, 25 Oct 2021 19:01:16 +0000 (UTC)
+Date:   Mon, 25 Oct 2021 21:01:14 +0200
 From:   Marc Kleine-Budde <mkl@pengutronix.de>
 To:     Jakub Kicinski <kuba@kernel.org>
 Cc:     Guangbin Huang <huangguangbin2@huawei.com>, davem@davemloft.net,
@@ -49,7 +49,7 @@ Cc:     Guangbin Huang <huangguangbin2@huawei.com>, davem@davemloft.net,
         chenhao288@hisilicon.com, linux-s390@vger.kernel.org
 Subject: Re: [PATCH V4 net-next 4/6] ethtool: extend ringparam setting uAPI
  with rx_buf_len
-Message-ID: <20211025185040.xj27ujo5wubirz6u@pengutronix.de>
+Message-ID: <20211025190114.zbqgzsfiv7zav7aq@pengutronix.de>
 References: <20211014113943.16231-1-huangguangbin2@huawei.com>
  <20211014113943.16231-5-huangguangbin2@huawei.com>
  <20211025131149.ya42sw64vkh7zrcr@pengutronix.de>
@@ -57,7 +57,7 @@ References: <20211014113943.16231-1-huangguangbin2@huawei.com>
  <20211025104505.43461b53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="zmvvm7jx7bbxbmoe"
+        protocol="application/pgp-signature"; boundary="tsachftpl2w422kb"
 Content-Disposition: inline
 In-Reply-To: <20211025104505.43461b53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
@@ -69,37 +69,12 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
---zmvvm7jx7bbxbmoe
+--tsachftpl2w422kb
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 On 25.10.2021 10:45:05, Jakub Kicinski wrote:
-> On Mon, 25 Oct 2021 15:27:18 +0200 Marc Kleine-Budde wrote:
-> > On 25.10.2021 15:11:49, Marc Kleine-Budde wrote:
-> > > On 14.10.2021 19:39:41, Guangbin Huang wrote: =20
-> > > > From: Hao Chen <chenhao288@hisilicon.com>
-> > > >=20
-> > > > Add two new parameters ringparam_ext and extack for
-> > > > .get_ringparam and .set_ringparam to extend more ring params
-> > > > through netlink.
-> > > >=20
-> > > > Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
-> > > > Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com> =20
-> > >=20
-> > > While discussing a different ethtool ring param extension, =20
-> >=20
-> > Let me explain my requirements:
-> >=20
-> > There is a not Ethernet based bus system, called CAN (mainly used in the
-> > automotive and industrial world). It comes in 2 different generations or
-> > modes (CAN-2.0 and CAN-FD) and the 3rd one CAN-XL has already been
-> > specified.
-> >=20
-> > Due to different frame sizes used in these CAN modes and HW limitations,
-> > we need the possibility to set a RX/TX ring configuration for each of
-> > these modes.
-> >=20
 > > The approach Andrew suggested is two-fold. First introduce a "struct
 > > ethtool_kringparam" that's only used inside the kernel, as "struct
 > > ethtool_ringparam" is ABI. Then extend "struct ethtool_kringparam" as
@@ -112,16 +87,18 @@ On 25.10.2021 10:45:05, Jakub Kicinski wrote:
 >=20
 > I don't think we have agreed-on best practice in the area.
 
-The set/get_coalesce as just extended, using a 3rd parameter for the new
-values:
+=46rom my point of view, if there already is an extension mainline:
 
-| 	int	(*set_coalesce)(struct net_device *,
-| 				struct ethtool_coalesce *,
-| 				struct kernel_ethtool_coalesce *,
-| 				struct netlink_ext_ack *);
-
-https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=
+| https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=
 =3Df3ccfda19319
+
+I'm more in the flavor for modeling other extensions the same way. Would
+be more consistent to name the new struct "kernel_"ethtool_ringparam,
+following the coalescing example:
+
+| struct kernel_ethtool_ringparam {
+|        __u32   rx_buf_len;
+| };
 
 regards,
 Marc
@@ -132,19 +109,19 @@ Embedded Linux                   | https://www.pengutronix.de  |
 Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
 Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
 
---zmvvm7jx7bbxbmoe
+--tsachftpl2w422kb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEK3kIWJt9yTYMP3ehqclaivrt76kFAmF2/HsACgkQqclaivrt
-76nIXggAnPumYY/CZI//RmCZL3I5ORqzeWWPSJ894gSIwmskhycjPlah1mvi+MUM
-fOaahsRlvENVgBO1YHF9rHH54glllHP7r0p3boZsolOOXCwIJ+KVcgD3jfhPrRBu
-dC7+4N6yiBXCZ0EwbJt3uxn2ooiSTZtbVrkB+rC1AX9SkJqOPHNc0OszYq3+54J0
-zezwjT4rXCyabF5NBvxRwp0oVV+9oh7wMQsxVF/y/bUtOQBDDUkAJMU4KhRKwYjN
-c1A0Fx5clY0FTw0PsLncWvcDNRpuLPKBxU1U+9j1EuZCXHy21UIP75+Fw4K7bL1P
-qhgyZFlcwBXXCbjm5fPokysPou58yA==
-=+ovD
+iQEzBAABCgAdFiEEK3kIWJt9yTYMP3ehqclaivrt76kFAmF2/vgACgkQqclaivrt
+76nIzAf/ew+QcoVunJ7n3YtQOE87/Pm9xz0d87FykWZTcmxFJ0h+HtzXuma7LYPh
+swmGDwvdCA6iGv3NG4lhsXHCNFaqaj+vERZnjNIJjbns8bJ8JmqzvYFABTE3LaPY
+i51d5d82npzuIEyrcWJuB52V8ZoA/n4gak7trEEe5q4mRy+86qjveIAoLju9vR9E
+QtFkd3CaXHrLwSaiTJE5vc4RgXkKwDgGB6elo6U2aXhc2DQuwrHKfJrxAOROVxuX
+pqH3usxLLMEfFLNp6+yL6g3AWDSeRc2zTMo404j1H1blNMqS5Cqd9QrxzvjALUtO
+wDAy/KhQcx7nJ1NSoq3MOFwrHCnwSg==
+=ZA5r
 -----END PGP SIGNATURE-----
 
---zmvvm7jx7bbxbmoe--
+--tsachftpl2w422kb--
