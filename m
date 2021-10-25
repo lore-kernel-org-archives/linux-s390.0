@@ -2,150 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83CEAC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:23:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73B90C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:28:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 64D936054F
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:23:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A19060555
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:28:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229813AbhJYN0H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Oct 2021 09:26:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53230 "EHLO
+        id S229727AbhJYNad (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Oct 2021 09:30:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229993AbhJYN0H (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Oct 2021 09:26:07 -0400
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33E0AC061745;
-        Mon, 25 Oct 2021 06:23:45 -0700 (PDT)
-Received: by mail-ed1-x531.google.com with SMTP id n1so16633802edd.0;
-        Mon, 25 Oct 2021 06:23:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=yTBMjjMrdazRANwBzBLPu9MzeYKj7kmUXGzwCTyy3lM=;
-        b=LQdOwrEEEAY0vyqei2WTvbHGpLC5LdSlLjtrBy4ZngPEn+0i7NFxMVa0M9RhYL2wJY
-         fGnTUyf0ut0lYIudO74OwkqPviAaakqYM7b4m4UMfymy/STAd3x5Gck8sx9vZe1NLjKt
-         Nu4s080NNnvWgRxAnDyPyQxFO2oCh6+i7/c7AjJMe1n6ZEL/SpEfXwSeDn1okcKTiTR1
-         In3e5pyCHCycun1MVkFpGu/MfYw8DQluK0JswnwrhUgzaBJXrBeCMeT+OR7Uidqwmy9V
-         FhwLktkJco7jzJMu6DXejIJG2JUuICkWizZelkbggvW10F5V2VHADuXV4tN63o74H2Ks
-         kLNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=yTBMjjMrdazRANwBzBLPu9MzeYKj7kmUXGzwCTyy3lM=;
-        b=wapVQD2uEAjN130AYJrPoIb4KZRq+uLJV2S7NeiGozSQHVAZ+klnKIZmHjx7YaaO7h
-         Pi0ro2WXpB9VhrVe56iCxdYTyxH72ua+ryIYESCT1M36taEoIsweCnu3U6CCnMBOZ4NZ
-         7fSDyilEZMSM+7fyi1v248HpSRK0dOfcR08jolVL3QfZKx1zfXpFcdIaiMGEq2Bx4yRK
-         mY8WDV81WObcGNvW3QKCnbbW/jJzyajnuRXOJ5dPXD5rGUjOy2HKxGQkDQo8nkE0hXPF
-         KfE/IPL1ccL55M9zVTNDh4xOuLMlrhXVAV5tUsFrseexe+Pd8aZtX4/LvVnLsnjMvpRP
-         WXYw==
-X-Gm-Message-State: AOAM530sZTnWX4TNA5ZTWtNXwrRiaLFQfEfYqPAJmtWtQaBkejdpzHeN
-        /2u7YSDGZ7zutvBW+mdWa2I=
-X-Google-Smtp-Source: ABdhPJyyLQSRbVPT69UKVmezlJ/kVUWUXgYUlMgV4jzSA9RMdoOpK4+QJTv0NymtjL3OmLrdCObHnA==
-X-Received: by 2002:a17:906:c005:: with SMTP id e5mr22321246ejz.480.1635168153977;
-        Mon, 25 Oct 2021 06:22:33 -0700 (PDT)
-Received: from skbuf ([188.25.174.251])
-        by smtp.gmail.com with ESMTPSA id r15sm5881046edd.96.2021.10.25.06.22.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Oct 2021 06:22:30 -0700 (PDT)
-Date:   Mon, 25 Oct 2021 16:22:29 +0300
-From:   Vladimir Oltean <olteanv@gmail.com>
-To:     Julian Wiedmann <jwi@linux.ibm.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        linux-netdev <netdev@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>
-Subject: Re: [PATCH net-next 6/9] s390/qeth: fix various format strings
-Message-ID: <20211025132229.4opytunnnqnhxzdf@skbuf>
-References: <20211025095658.3527635-1-jwi@linux.ibm.com>
- <20211025095658.3527635-7-jwi@linux.ibm.com>
+        with ESMTP id S230111AbhJYNad (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Oct 2021 09:30:33 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F373AC061745
+        for <linux-s390@vger.kernel.org>; Mon, 25 Oct 2021 06:28:10 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1mf00d-00034N-5t; Mon, 25 Oct 2021 15:27:27 +0200
+Received: from pengutronix.de (2a03-f580-87bc-d400-d7c8-7df6-a4ac-55f0.ip6.dokom21.de [IPv6:2a03:f580:87bc:d400:d7c8:7df6:a4ac:55f0])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        (Authenticated sender: mkl-all@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id F250369D6B4;
+        Mon, 25 Oct 2021 13:27:18 +0000 (UTC)
+Date:   Mon, 25 Oct 2021 15:27:18 +0200
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     Guangbin Huang <huangguangbin2@huawei.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, mkubecek@suse.cz,
+        andrew@lunn.ch, amitc@mellanox.com, idosch@idosch.org,
+        danieller@nvidia.com, jesse.brandeburg@intel.com,
+        anthony.l.nguyen@intel.com, jdike@addtoit.com, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, netanel@amazon.com,
+        akiyano@amazon.com, saeedb@amazon.com, chris.snook@gmail.com,
+        ulli.kroll@googlemail.com, linus.walleij@linaro.org,
+        jeroendb@google.com, csully@google.com, awogbemila@google.com,
+        jdmason@kudzu.us, rain.1986.08.12@gmail.com, zyjzyj2000@gmail.com,
+        kys@microsoft.com, haiyangz@microsoft.com, mst@redhat.com,
+        jasowang@redhat.com, doshir@vmware.com, pv-drivers@vmware.com,
+        jwi@linux.ibm.com, kgraul@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, johannes@sipsolutions.net,
+        netdev@vger.kernel.org, lipeng321@huawei.com,
+        chenhao288@hisilicon.com, linux-s390@vger.kernel.org
+Subject: Re: [PATCH V4 net-next 4/6] ethtool: extend ringparam setting uAPI
+ with rx_buf_len
+Message-ID: <20211025132718.5wtos3oxjhzjhymr@pengutronix.de>
+References: <20211014113943.16231-1-huangguangbin2@huawei.com>
+ <20211014113943.16231-5-huangguangbin2@huawei.com>
+ <20211025131149.ya42sw64vkh7zrcr@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="a5nxfjdi3kj6ctbj"
 Content-Disposition: inline
-In-Reply-To: <20211025095658.3527635-7-jwi@linux.ibm.com>
+In-Reply-To: <20211025131149.ya42sw64vkh7zrcr@pengutronix.de>
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-s390@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 25, 2021 at 11:56:55AM +0200, Julian Wiedmann wrote:
-> From: Heiko Carstens <hca@linux.ibm.com>
-> 
-> Various format strings don't match with types of parameters.
-> Fix all of them.
-> 
-> Acked-by: Julian Wiedmann <jwi@linux.ibm.com>
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-> ---
->  drivers/s390/net/qeth_l2_main.c | 14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-> index adba52da9cab..0347fc184786 100644
-> --- a/drivers/s390/net/qeth_l2_main.c
-> +++ b/drivers/s390/net/qeth_l2_main.c
-> @@ -661,13 +661,13 @@ static void qeth_l2_dev2br_fdb_notify(struct qeth_card *card, u8 code,
->  					 card->dev, &info.info, NULL);
->  		QETH_CARD_TEXT(card, 4, "andelmac");
->  		QETH_CARD_TEXT_(card, 4,
-> -				"mc%012lx", ether_addr_to_u64(ntfy_mac));
-> +				"mc%012llx", ether_addr_to_u64(ntfy_mac));
->  	} else {
->  		call_switchdev_notifiers(SWITCHDEV_FDB_ADD_TO_BRIDGE,
->  					 card->dev, &info.info, NULL);
->  		QETH_CARD_TEXT(card, 4, "anaddmac");
->  		QETH_CARD_TEXT_(card, 4,
-> -				"mc%012lx", ether_addr_to_u64(ntfy_mac));
-> +				"mc%012llx", ether_addr_to_u64(ntfy_mac));
 
-You can print MAC addresses using the "%pM" printf format specifier, and
-the ntfy_mac as argument.
+--a5nxfjdi3kj6ctbj
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->  	}
->  }
->  
-> @@ -765,8 +765,8 @@ static void qeth_l2_br2dev_worker(struct work_struct *work)
->  	int err = 0;
->  
->  	kfree(br2dev_event_work);
-> -	QETH_CARD_TEXT_(card, 4, "b2dw%04x", event);
-> -	QETH_CARD_TEXT_(card, 4, "ma%012lx", ether_addr_to_u64(addr));
-> +	QETH_CARD_TEXT_(card, 4, "b2dw%04lx", event);
-> +	QETH_CARD_TEXT_(card, 4, "ma%012llx", ether_addr_to_u64(addr));
->  
->  	rcu_read_lock();
->  	/* Verify preconditions are still valid: */
-> @@ -795,7 +795,7 @@ static void qeth_l2_br2dev_worker(struct work_struct *work)
->  				if (err) {
->  					QETH_CARD_TEXT(card, 2, "b2derris");
->  					QETH_CARD_TEXT_(card, 2,
-> -							"err%02x%03d", event,
-> +							"err%02lx%03d", event,
->  							lowerdev->ifindex);
->  				}
->  			}
-> @@ -813,7 +813,7 @@ static void qeth_l2_br2dev_worker(struct work_struct *work)
->  			break;
->  		}
->  		if (err)
-> -			QETH_CARD_TEXT_(card, 2, "b2derr%02x", event);
-> +			QETH_CARD_TEXT_(card, 2, "b2derr%02lx", event);
->  	}
->  
->  unlock:
-> @@ -878,7 +878,7 @@ static int qeth_l2_switchdev_event(struct notifier_block *unused,
->  	while (lowerdev) {
->  		if (qeth_l2_must_learn(lowerdev, dstdev)) {
->  			card = lowerdev->ml_priv;
-> -			QETH_CARD_TEXT_(card, 4, "b2dqw%03x", event);
-> +			QETH_CARD_TEXT_(card, 4, "b2dqw%03lx", event);
->  			rc = qeth_l2_br2dev_queue_work(brdev, lowerdev,
->  						       dstdev, event,
->  						       fdb_info->addr);
-> -- 
-> 2.25.1
-> 
+On 25.10.2021 15:11:49, Marc Kleine-Budde wrote:
+> On 14.10.2021 19:39:41, Guangbin Huang wrote:
+> > From: Hao Chen <chenhao288@hisilicon.com>
+> >=20
+> > Add two new parameters ringparam_ext and extack for
+> > .get_ringparam and .set_ringparam to extend more ring params
+> > through netlink.
+> >=20
+> > Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
+> > Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+>=20
+> While discussing a different ethtool ring param extension,
+
+Let me explain my requirements:
+
+There is a not Ethernet based bus system, called CAN (mainly used in the
+automotive and industrial world). It comes in 2 different generations or
+modes (CAN-2.0 and CAN-FD) and the 3rd one CAN-XL has already been
+specified.
+
+Due to different frame sizes used in these CAN modes and HW limitations,
+we need the possibility to set a RX/TX ring configuration for each of
+these modes.
+
+The approach Andrew suggested is two-fold. First introduce a "struct
+ethtool_kringparam" that's only used inside the kernel, as "struct
+ethtool_ringparam" is ABI. Then extend "struct ethtool_kringparam" as
+needed.
+
+regards,
+Marc
+
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+
+--a5nxfjdi3kj6ctbj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEK3kIWJt9yTYMP3ehqclaivrt76kFAmF2sLMACgkQqclaivrt
+76mD4ggAiGfmXNdWCHSK3g0D5S8ey5SEX+qxEf7WBkQ0F6pQcZmaCT+cGJu8ZuN6
+Kh1kk102/iRQnA+/kGBZfNbHyUcBN6yvAB4QrXLxWDKm6klE3VwcZXbIn06Xfy+5
+Cuf63DbshxEcLLalTJW+a1ZX7SXHc3ErJ3Ve6P26wdYQT+Cn42y14se8odbTALBT
+gevTE9B1jPFvaWBE3kD0E18H1S99iygpXWU+j83pGNslvXrNTxgv/wHkYkTAgk07
+d/tG7LWD9cggcQPlzlLSeKg/C8SquOq6e01yIAJqdq2Kg+jRQHWbqsLth8FVvmrE
+4h4DmYg0THrrekJ/gp2L8GwPjJTdGg==
+=n9LB
+-----END PGP SIGNATURE-----
+
+--a5nxfjdi3kj6ctbj--
