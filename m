@@ -2,115 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48D0CC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:06:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53CCEC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:12:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E3A660F92
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:06:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E5D060EFF
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:12:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233441AbhJYNJF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Oct 2021 09:09:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33808 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233340AbhJYNJF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 25 Oct 2021 09:09:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C838C60F92;
-        Mon, 25 Oct 2021 13:06:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635167202;
-        bh=ZCuob8BZrhlG+EmJNscDR7p2oOKkE8Oq9/x5u4oFHEA=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=FuPaO5h+P7m9O6f7jRX/FomhBE8wpXrQg46b5X/6nDR7a9FqlQoUCB6YkaGCFB4Qg
-         9D0CqlTmvZwvwJoh4muObhBZmgmwMAb2I+SYudFaX7JYcTkGlmq+i4fWkanSJLgR8Z
-         jUwIOx7GR2kLD0UUChm2UfR21umaKf01WuYBFZMWUzBgwv2B8JfwjcwD++K4i0EwgG
-         +f5C0c0QSkTihCtJyXq/srIkiZfs/y50C2PSJPY/WZFtQxrY5DR7iJM/RE3f8JwOga
-         SlBTGoq31CwHhSi2fX8vx7KhB0B/6wLW7b15SLXQodFLa9nbkIa2Np6fw+sWezH3z8
-         EHLEv5gY54ilQ==
-Received: by mail-wm1-f53.google.com with SMTP id b133-20020a1c808b000000b0032ca4d18aebso9291702wmd.2;
-        Mon, 25 Oct 2021 06:06:42 -0700 (PDT)
-X-Gm-Message-State: AOAM530JJJXzVpVQci/B5m5pceKZ3rEt3msx00ppM2V6g5vnHHJnQvEz
-        F/k1JcQRh3dDsnxVnTS+lRgrxQK2Taol7sqXJI4=
-X-Google-Smtp-Source: ABdhPJzvjBncUZE2QFv7r8anYBis3Hwxw5+smqgbcmZGe49Rh+5b7Sf365AJDO4MLIyZVs8sWDAX066taTW3DQLxG28=
-X-Received: by 2002:a05:600c:1548:: with SMTP id f8mr19963769wmg.35.1635167201284;
- Mon, 25 Oct 2021 06:06:41 -0700 (PDT)
+        id S233438AbhJYNPP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Oct 2021 09:15:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50784 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233371AbhJYNPP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Oct 2021 09:15:15 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32F32C061745
+        for <linux-s390@vger.kernel.org>; Mon, 25 Oct 2021 06:12:53 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1mezlf-0000lR-Oi; Mon, 25 Oct 2021 15:11:59 +0200
+Received: from pengutronix.de (2a03-f580-87bc-d400-d7c8-7df6-a4ac-55f0.ip6.dokom21.de [IPv6:2a03:f580:87bc:d400:d7c8:7df6:a4ac:55f0])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        (Authenticated sender: mkl-all@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id 51E3C69D67D;
+        Mon, 25 Oct 2021 13:11:50 +0000 (UTC)
+Date:   Mon, 25 Oct 2021 15:11:49 +0200
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     Guangbin Huang <huangguangbin2@huawei.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, mkubecek@suse.cz,
+        andrew@lunn.ch, amitc@mellanox.com, idosch@idosch.org,
+        danieller@nvidia.com, jesse.brandeburg@intel.com,
+        anthony.l.nguyen@intel.com, jdike@addtoit.com, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, netanel@amazon.com,
+        akiyano@amazon.com, gtzalik@amazon.com, saeedb@amazon.com,
+        chris.snook@gmail.com, ulli.kroll@googlemail.com,
+        linus.walleij@linaro.org, jeroendb@google.com, csully@google.com,
+        awogbemila@google.com, jdmason@kudzu.us, rain.1986.08.12@gmail.com,
+        zyjzyj2000@gmail.com, kys@microsoft.com, haiyangz@microsoft.com,
+        mst@redhat.com, jasowang@redhat.com, doshir@vmware.com,
+        pv-drivers@vmware.com, jwi@linux.ibm.com, kgraul@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, johannes@sipsolutions.net,
+        netdev@vger.kernel.org, lipeng321@huawei.com,
+        chenhao288@hisilicon.com, linux-s390@vger.kernel.org
+Subject: Re: [PATCH V4 net-next 4/6] ethtool: extend ringparam setting uAPI
+ with rx_buf_len
+Message-ID: <20211025131149.ya42sw64vkh7zrcr@pengutronix.de>
+References: <20211014113943.16231-1-huangguangbin2@huawei.com>
+ <20211014113943.16231-5-huangguangbin2@huawei.com>
 MIME-Version: 1.0
-References: <20211022120058.1031690-1-arnd@kernel.org> <cc8e3c58-457d-fdf3-6a62-98bde0cefdea@redhat.com>
- <CAK8P3a0YjaRS+aUCOKGjsfkR3TM49PrG6U4ftG_Fz+OFuyCb0w@mail.gmail.com> <YXZ/iLB7BvZtzDMp@hirez.programming.kicks-ass.net>
-In-Reply-To: <YXZ/iLB7BvZtzDMp@hirez.programming.kicks-ass.net>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Mon, 25 Oct 2021 15:06:24 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a2Luz7sd5cM1OdZhYCs_UPzo+2qVQYSZPfR2QN+0DkyRg@mail.gmail.com>
-Message-ID: <CAK8P3a2Luz7sd5cM1OdZhYCs_UPzo+2qVQYSZPfR2QN+0DkyRg@mail.gmail.com>
-Subject: Re: [PATCH] locking: remove spin_lock_flags() etc
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Waiman Long <longman@redhat.com>, Ingo Molnar <mingo@redhat.com>,
-        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-ia64@vger.kernel.org,
-        Openrisc <openrisc@lists.librecores.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ntrls4rhrigaspck"
+Content-Disposition: inline
+In-Reply-To: <20211014113943.16231-5-huangguangbin2@huawei.com>
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-s390@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 25, 2021 at 11:57 AM Peter Zijlstra <peterz@infradead.org> wrote:
-> On Sat, Oct 23, 2021 at 06:04:57PM +0200, Arnd Bergmann wrote:
-> > On Sat, Oct 23, 2021 at 3:37 AM Waiman Long <longman@redhat.com> wrote:
-> > >> On 10/22/21 7:59 AM, Arnd Bergmann wrote:
-> > > > From: Arnd Bergmann <arnd@arndb.de>
-> > > >
-> > > > As this is all dead code, just remove it and the helper functions built
-> > > > around it. For arch/ia64, the inline asm could be cleaned up, but
-> > > > it seems safer to leave it untouched.
-> > > >
-> > > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > >
-> > > Does that mean we can also remove the GENERIC_LOCKBREAK config option
-> > > from the Kconfig files as well?
-> >
-> >  I couldn't figure this out.
-> >
-> > What I see is that the only architectures setting GENERIC_LOCKBREAK are
-> > nds32, parisc, powerpc, s390, sh and sparc64, while the only architectures
-> > implementing arch_spin_is_contended() are arm32, csky and ia64.
-> >
-> > The part I don't understand is whether the option actually does anything
-> > useful any more after commit d89c70356acf ("locking/core: Remove break_lock
-> > field when CONFIG_GENERIC_LOCKBREAK=y").
->
-> Urgh, what a mess.. AFAICT there's still code in
-> kernel/locking/spinlock.c that relies on it. Specifically when
-> GENERIC_LOCKBREAK=y we seem to create _lock*() variants that are
-> basically TaS locks which drop preempt/irq disable while spinning.
->
-> Anybody having this on and not having native TaS locks is in for a rude
-> surprise I suppose... sparc64 being the obvious candidate there :/
 
-Is this a problem on s390 and powerpc, those two being the ones
-that matter in practice?
+--ntrls4rhrigaspck
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On s390, we pick between the cmpxchg() based directed-yield when
-running on virtualized CPUs, and a normal qspinlock when running on a
-dedicated CPU.
+On 14.10.2021 19:39:41, Guangbin Huang wrote:
+> From: Hao Chen <chenhao288@hisilicon.com>
+>=20
+> Add two new parameters ringparam_ext and extack for
+> .get_ringparam and .set_ringparam to extend more ring params
+> through netlink.
+>=20
+> Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
+> Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
 
-On PowerPC, we pick at compile-time between either the qspinlock
-(default-enabled on Book3S-64, i.e. all server chips) or a ll/sc based
-spinlock plus vm_yield() (default on embedded and 32-bit mac).
+While discussing a different ethtool ring param extension, Andrew Lunn
+suggested a different approach to extend the get/set_ringparam
+callbacks. See:
 
-       Arnd
+https://lore.kernel.org/all/YXaimhlXkpBKRQin@lunn.ch/
+
+regards,
+Marc
+
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+
+--ntrls4rhrigaspck
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEK3kIWJt9yTYMP3ehqclaivrt76kFAmF2rRIACgkQqclaivrt
+76n5tgf/TDqh5rLwE8ioUgOIyWQQ89IWZEELsdebvOV3prQCQ5JwbHhDeYuRawkk
+uReapAiNI0n6rb2CRf2hO85ngwPMrJcWbWoMK0pkn6ih/YRgeamEMASs7EYaB6xT
+YE7SUWnEfbQYxmJUNPqizL+0hJqAOaMqQ1Bcb73b1vT1UVT3Yafla0rbqRmoqBLm
+ZVwefAkU+eKMhxUt4eAo4XvB52ui9ahLoug8M19u1h6aMlOCak+y9LLDwO1/lItE
+0osicrwTmbL4DNPjiZBF9Nhp5vd26ni1j/Npjv4kWQQ2rU443aw2FEKe++dGaGC7
+0iF42Hq4PtTVLmlxdzTxi/JKiGK40A==
+=gUwe
+-----END PGP SIGNATURE-----
+
+--ntrls4rhrigaspck--
