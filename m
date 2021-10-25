@@ -2,96 +2,104 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF097C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 17:45:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13ED9C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 18:25:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CF66B60F0F
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 17:45:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ED86160E0B
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 18:25:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233619AbhJYRrb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Oct 2021 13:47:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44392 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232657AbhJYRra (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 25 Oct 2021 13:47:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C39B460F4F;
-        Mon, 25 Oct 2021 17:45:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635183908;
-        bh=bhjdTGOIGvU3IA/dEUMtefq7QpPdbxtZdNryKp8NUgY=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=SQz6JfrCueWoQ0oWcVHw6w8nKPyKw1iqJNIwb5WLWtPivB1hSfO1iD+HVNtbGSShm
-         Fz1VGjLjvHRdE5+qjAMNPvj3XygelMqo8CAN3f5XBn4fNOVZa0eDVGDOHZgzogi2/A
-         u/UKp3BK+mfmcg2781YUPkDPv2QdkwAD6tA1MuHTZlGoE02ixVg1K9zXRSOo9CM8p7
-         PcBUM0GZbCjvB3m/YtJITaa+vG7sdM0/+xWWMGM4uzrZpsn95hNvf8opRtDDG63t9P
-         tAOMHbFCrVDC37XaxCYSFcTQ9RgM3amrsU9flWt8qMG7rSiAmpcGWTxSIW0wpbS0zE
-         FnG+N9P8eJbsA==
-Date:   Mon, 25 Oct 2021 10:45:05 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     Guangbin Huang <huangguangbin2@huawei.com>, davem@davemloft.net,
-        mkubecek@suse.cz, andrew@lunn.ch, amitc@mellanox.com,
-        idosch@idosch.org, danieller@nvidia.com,
-        jesse.brandeburg@intel.com, anthony.l.nguyen@intel.com,
-        jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com,
-        netanel@amazon.com, akiyano@amazon.com, saeedb@amazon.com,
-        chris.snook@gmail.com, ulli.kroll@googlemail.com,
-        linus.walleij@linaro.org, jeroendb@google.com, csully@google.com,
-        awogbemila@google.com, jdmason@kudzu.us, rain.1986.08.12@gmail.com,
-        zyjzyj2000@gmail.com, kys@microsoft.com, haiyangz@microsoft.com,
-        mst@redhat.com, jasowang@redhat.com, doshir@vmware.com,
-        pv-drivers@vmware.com, jwi@linux.ibm.com, kgraul@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, johannes@sipsolutions.net,
-        netdev@vger.kernel.org, lipeng321@huawei.com,
-        chenhao288@hisilicon.com, linux-s390@vger.kernel.org
-Subject: Re: [PATCH V4 net-next 4/6] ethtool: extend ringparam setting uAPI
- with rx_buf_len
-Message-ID: <20211025104505.43461b53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20211025132718.5wtos3oxjhzjhymr@pengutronix.de>
-References: <20211014113943.16231-1-huangguangbin2@huawei.com>
-        <20211014113943.16231-5-huangguangbin2@huawei.com>
-        <20211025131149.ya42sw64vkh7zrcr@pengutronix.de>
-        <20211025132718.5wtos3oxjhzjhymr@pengutronix.de>
+        id S233524AbhJYS2P (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Oct 2021 14:28:15 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:31935 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233217AbhJYS2I (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 25 Oct 2021 14:28:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635186345;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WmLX7TLtZ9IDJ1JQ+2m7C+nUTKDcem4HGFPTzsvzRlk=;
+        b=Wv+Bn4dxhZd55LviAVyViBWcPOU0Rp9ilELfxoHmfPRFMsMTnWyr1KV+vnUb7HxdBQFDfC
+        8u0icaeLpBJuKsHO4IauhD6FqbM2usvJnAy9dRHnG8kAyJQ3OJOmAhBHBf4caR9CwOQhVl
+        MPkAtyhKscX5eicRiWleuN3BY3eHf84=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-80-pXULrgXMNu2BFbQqJnWKPA-1; Mon, 25 Oct 2021 14:25:40 -0400
+X-MC-Unique: pXULrgXMNu2BFbQqJnWKPA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3722410B3959;
+        Mon, 25 Oct 2021 18:25:37 +0000 (UTC)
+Received: from llong.remote.csb (unknown [10.22.18.111])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 28C21100763D;
+        Mon, 25 Oct 2021 18:25:33 +0000 (UTC)
+Subject: Re: [PATCH] locking: remove spin_lock_flags() etc
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-ia64@vger.kernel.org,
+        Openrisc <openrisc@lists.librecores.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>
+References: <20211022120058.1031690-1-arnd@kernel.org>
+ <cc8e3c58-457d-fdf3-6a62-98bde0cefdea@redhat.com>
+ <CAK8P3a0YjaRS+aUCOKGjsfkR3TM49PrG6U4ftG_Fz+OFuyCb0w@mail.gmail.com>
+ <YXZ/iLB7BvZtzDMp@hirez.programming.kicks-ass.net>
+ <CAK8P3a2Luz7sd5cM1OdZhYCs_UPzo+2qVQYSZPfR2QN+0DkyRg@mail.gmail.com>
+ <2413f412-a390-bbc0-e848-e2a77d1f0ab3@redhat.com>
+ <CAK8P3a3JEBF-dEg0iVThMMRNK3CDxY+mRtTeStMusycnethO_g@mail.gmail.com>
+From:   Waiman Long <longman@redhat.com>
+Message-ID: <d7af2422-3264-b9bb-b515-da4351743448@redhat.com>
+Date:   Mon, 25 Oct 2021 14:25:32 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <CAK8P3a3JEBF-dEg0iVThMMRNK3CDxY+mRtTeStMusycnethO_g@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 25 Oct 2021 15:27:18 +0200 Marc Kleine-Budde wrote:
-> On 25.10.2021 15:11:49, Marc Kleine-Budde wrote:
-> > On 14.10.2021 19:39:41, Guangbin Huang wrote:  
-> > > From: Hao Chen <chenhao288@hisilicon.com>
-> > > 
-> > > Add two new parameters ringparam_ext and extack for
-> > > .get_ringparam and .set_ringparam to extend more ring params
-> > > through netlink.
-> > > 
-> > > Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
-> > > Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>  
-> > 
-> > While discussing a different ethtool ring param extension,  
-> 
-> Let me explain my requirements:
-> 
-> There is a not Ethernet based bus system, called CAN (mainly used in the
-> automotive and industrial world). It comes in 2 different generations or
-> modes (CAN-2.0 and CAN-FD) and the 3rd one CAN-XL has already been
-> specified.
-> 
-> Due to different frame sizes used in these CAN modes and HW limitations,
-> we need the possibility to set a RX/TX ring configuration for each of
-> these modes.
-> 
-> The approach Andrew suggested is two-fold. First introduce a "struct
-> ethtool_kringparam" that's only used inside the kernel, as "struct
-> ethtool_ringparam" is ABI. Then extend "struct ethtool_kringparam" as
-> needed.
+On 10/25/21 11:44 AM, Arnd Bergmann wrote:
+> On Mon, Oct 25, 2021 at 5:28 PM Waiman Long <longman@redhat.com> wrote:
+>> On 10/25/21 9:06 AM, Arnd Bergmann wrote:
+>>> On s390, we pick between the cmpxchg() based directed-yield when
+>>> running on virtualized CPUs, and a normal qspinlock when running on a
+>>> dedicated CPU.
+>> I am not aware that s390 is using qspinlocks at all as I don't see
+>> ARCH_USE_QUEUED_SPINLOCKS being set anywhere under arch/s390. I only see
+>> that it uses a cmpxchg based spinlock.
+> Sorry, I should not have said "normal" here. See arch/s390/lib/spinlock.c
+> for their custom queued spinlocks as implemented in arch_spin_lock_queued().
+> I don't know if that code actually does the same thing as the generic qspinlock,
+> but it seems at least similar.
 
-Indeed, there are different ways to extend the API for drivers,
-I think it comes down to personal taste. I find the "inheritance" 
-models in C (kstruct usually contains the old struct as some "base")
-awkward.
+Yes, you are right. Their queued lock code looks like a custom version 
+of the pvqspinlock code.
 
-I don't think we have agreed-on best practice in the area.
+Cheers,
+Longman
+
