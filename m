@@ -2,117 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C74AC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 14:32:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7C5EC433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 14:41:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 55E8660720
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 14:32:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 899AA60724
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 14:41:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233617AbhJYOfB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Oct 2021 10:35:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40860 "EHLO
+        id S232937AbhJYOnW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Oct 2021 10:43:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233622AbhJYOet (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Oct 2021 10:34:49 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B4B0C061243;
-        Mon, 25 Oct 2021 07:32:27 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id l13so244626edi.8;
-        Mon, 25 Oct 2021 07:32:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=OvHxVdBiq3d0CEHZOgKJHqAMPLyqFUfAkg1FgJZBk5U=;
-        b=FuTwxA7YU4/jmi9fqEtV1A6jZEvWOXDHdkw+YVVk6VZQsr8Xh5BHOQhKz4kZ+p634T
-         G17MmUWoT2INkiYnXywpkfp1UvWfuARIwqp4jnMLA14kmB4wiZDE93qtqcBUEYG8UUbI
-         qLCGYDacT4whWwcU0WF/Nk2cBXGYFNzpy4VrMPnvVJVq9xBRPzKhRFeG8TT2zHq1bH+7
-         gV5JoEocHxz+I6cbe/q66bB4bVc21LwhNn4nmsHmgFrRrLgQLceY5gmaqpqmi264iZ45
-         d5jlZEOHVuU5PINSf79fDlj3tVggczIJ2WYO9wCFKNlLLi8JzBHpNVlnGyungpjiMjYI
-         JonQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=OvHxVdBiq3d0CEHZOgKJHqAMPLyqFUfAkg1FgJZBk5U=;
-        b=OW2WAvZS8TBBk7aawN9D/Mat/XpraFUJ5xn4IoGnTppbmNTlyEeUXv5Bcwhr0bLg+l
-         oK72+3MqERpCLcPaywKLC9Jy3se2EchowGobkbKV7kfLyIS8GDEKURUWQe1OAHUvHCmt
-         vRO1zN1AiIyFO9nxjeD0KGZnWq6KK7gxJ+Q8ufCTR6Lkw2jk0JSglh8HNgS77k5nf1cD
-         57pXadKokPiEasxhDnDA2jcn6proCmv3/y+B2AZ+bFLDrTetD8KW5Ns/Em3+Gu6dxWYy
-         JSsWoMCbHCUEbBEN5Z6w562z0pJRZfb9pEDlC+zqUc8+kDVMbzFgVGLFvAk6ThYbD4fc
-         kYZA==
-X-Gm-Message-State: AOAM532QQp3/v3H8vgQwZ5BpYdfFC/URUkkv4WvFa/vJkio4Sduy3g72
-        9QtULspSzydFn4U0d0A4UAo=
-X-Google-Smtp-Source: ABdhPJzlp2Ahx4Ltr2Ak6WT06DgmlcVqLiqGhNKXwxlx8Tb160yQctirUyz0zKe5yCc4pwPM92+2HA==
-X-Received: by 2002:a17:907:764c:: with SMTP id kj12mr8373378ejc.290.1635172340010;
-        Mon, 25 Oct 2021 07:32:20 -0700 (PDT)
-Received: from skbuf ([188.25.174.251])
-        by smtp.gmail.com with ESMTPSA id k6sm1078863eds.55.2021.10.25.07.32.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Oct 2021 07:32:19 -0700 (PDT)
-Date:   Mon, 25 Oct 2021 17:32:18 +0300
-From:   Vladimir Oltean <olteanv@gmail.com>
-To:     Julian Wiedmann <jwi@linux.ibm.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        linux-netdev <netdev@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
+        with ESMTP id S232866AbhJYOnW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Oct 2021 10:43:22 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82314C061745;
+        Mon, 25 Oct 2021 07:40:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=I97oc9kS0hxonuSgC18bwLyEuuHyR5BjA3g3cz+StFk=; b=fFKP9rs4D2Npzo47cjKm17xnDL
+        mnZs+FfL6mBbrPRwuacU8oISILWxsnNi7ZuMz61CuSJ1QMPl2TQreluUzhkqRRUI4lBbEZXeaBO1s
+        ZXMdk9jHBpFCtwxGqrYPvonpw/OV3jLOkrbqXgilnq7SCHNPEsrwy1fXol7lzJe2UqoHGQO447vOu
+        QKLAo22Qs5t9oHPVsqjpMqrhsIEiimGViYptsdGGD98azVSz512YvOHfRB/OU7Vyn1E/bXZmZy5gf
+        4k6cm+wWoq9NTCPkDo7Ma1V4LZuHP2S5ly8dVZqHdFX+ziR3TjYBNCJOOiY8z6Bt0rs6ou4GLgxIt
+        c0F3H/XQ==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mf12c-00GBQq-5S; Mon, 25 Oct 2021 14:34:33 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 8B8163002AE;
+        Mon, 25 Oct 2021 16:33:32 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 6DE4F20C6C153; Mon, 25 Oct 2021 16:33:32 +0200 (CEST)
+Date:   Mon, 25 Oct 2021 16:33:32 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Waiman Long <longman@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>
-Subject: Re: [PATCH net-next 6/9] s390/qeth: fix various format strings
-Message-ID: <20211025143218.tedvthmjddi4ecgp@skbuf>
-References: <20211025095658.3527635-1-jwi@linux.ibm.com>
- <20211025095658.3527635-7-jwi@linux.ibm.com>
- <20211025132229.4opytunnnqnhxzdf@skbuf>
- <1285bc39-b3fc-55b1-5422-a1474cd31c28@linux.ibm.com>
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-ia64@vger.kernel.org,
+        Openrisc <openrisc@lists.librecores.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH] locking: remove spin_lock_flags() etc
+Message-ID: <YXbAPIm47WwpYYup@hirez.programming.kicks-ass.net>
+References: <20211022120058.1031690-1-arnd@kernel.org>
+ <cc8e3c58-457d-fdf3-6a62-98bde0cefdea@redhat.com>
+ <CAK8P3a0YjaRS+aUCOKGjsfkR3TM49PrG6U4ftG_Fz+OFuyCb0w@mail.gmail.com>
+ <YXZ/iLB7BvZtzDMp@hirez.programming.kicks-ass.net>
+ <CAK8P3a2Luz7sd5cM1OdZhYCs_UPzo+2qVQYSZPfR2QN+0DkyRg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1285bc39-b3fc-55b1-5422-a1474cd31c28@linux.ibm.com>
+In-Reply-To: <CAK8P3a2Luz7sd5cM1OdZhYCs_UPzo+2qVQYSZPfR2QN+0DkyRg@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 25, 2021 at 03:35:25PM +0200, Julian Wiedmann wrote:
-> On 25.10.21 15:22, Vladimir Oltean wrote:
-> > On Mon, Oct 25, 2021 at 11:56:55AM +0200, Julian Wiedmann wrote:
-> >> From: Heiko Carstens <hca@linux.ibm.com>
-> >>
-> >> Various format strings don't match with types of parameters.
-> >> Fix all of them.
-> >>
-> >> Acked-by: Julian Wiedmann <jwi@linux.ibm.com>
-> >> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> >> Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-> >> ---
-> >>  drivers/s390/net/qeth_l2_main.c | 14 +++++++-------
-> >>  1 file changed, 7 insertions(+), 7 deletions(-)
-> >>
-> >> diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-> >> index adba52da9cab..0347fc184786 100644
-> >> --- a/drivers/s390/net/qeth_l2_main.c
-> >> +++ b/drivers/s390/net/qeth_l2_main.c
-> >> @@ -661,13 +661,13 @@ static void qeth_l2_dev2br_fdb_notify(struct qeth_card *card, u8 code,
-> >>  					 card->dev, &info.info, NULL);
-> >>  		QETH_CARD_TEXT(card, 4, "andelmac");
-> >>  		QETH_CARD_TEXT_(card, 4,
-> >> -				"mc%012lx", ether_addr_to_u64(ntfy_mac));
-> >> +				"mc%012llx", ether_addr_to_u64(ntfy_mac));
-> >>  	} else {
-> >>  		call_switchdev_notifiers(SWITCHDEV_FDB_ADD_TO_BRIDGE,
-> >>  					 card->dev, &info.info, NULL);
-> >>  		QETH_CARD_TEXT(card, 4, "anaddmac");
-> >>  		QETH_CARD_TEXT_(card, 4,
-> >> -				"mc%012lx", ether_addr_to_u64(ntfy_mac));
-> >> +				"mc%012llx", ether_addr_to_u64(ntfy_mac));
-> > 
-> > You can print MAC addresses using the "%pM" printf format specifier, and
-> > the ntfy_mac as argument.
-> > 
+On Mon, Oct 25, 2021 at 03:06:24PM +0200, Arnd Bergmann wrote:
+> On Mon, Oct 25, 2021 at 11:57 AM Peter Zijlstra <peterz@infradead.org> wrote:
+> > On Sat, Oct 23, 2021 at 06:04:57PM +0200, Arnd Bergmann wrote:
+> > > On Sat, Oct 23, 2021 at 3:37 AM Waiman Long <longman@redhat.com> wrote:
+> > > >> On 10/22/21 7:59 AM, Arnd Bergmann wrote:
+> > > > > From: Arnd Bergmann <arnd@arndb.de>
+> > > > >
+> > > > > As this is all dead code, just remove it and the helper functions built
+> > > > > around it. For arch/ia64, the inline asm could be cleaned up, but
+> > > > > it seems safer to leave it untouched.
+> > > > >
+> > > > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > > >
+> > > > Does that mean we can also remove the GENERIC_LOCKBREAK config option
+> > > > from the Kconfig files as well?
+> > >
+> > >  I couldn't figure this out.
+> > >
+> > > What I see is that the only architectures setting GENERIC_LOCKBREAK are
+> > > nds32, parisc, powerpc, s390, sh and sparc64, while the only architectures
+> > > implementing arch_spin_is_contended() are arm32, csky and ia64.
+> > >
+> > > The part I don't understand is whether the option actually does anything
+> > > useful any more after commit d89c70356acf ("locking/core: Remove break_lock
+> > > field when CONFIG_GENERIC_LOCKBREAK=y").
+> >
+> > Urgh, what a mess.. AFAICT there's still code in
+> > kernel/locking/spinlock.c that relies on it. Specifically when
+> > GENERIC_LOCKBREAK=y we seem to create _lock*() variants that are
+> > basically TaS locks which drop preempt/irq disable while spinning.
+> >
+> > Anybody having this on and not having native TaS locks is in for a rude
+> > surprise I suppose... sparc64 being the obvious candidate there :/
 > 
-> Unfortunately not - no pointers allowed in such s390 dbf trace entries. See
-> e19e5be8b4ca ("s390/qeth: sanitize strings in debug messages").
+> Is this a problem on s390 and powerpc, those two being the ones
+> that matter in practice?
+> 
+> On s390, we pick between the cmpxchg() based directed-yield when
+> running on virtualized CPUs, and a normal qspinlock when running on a
+> dedicated CPU.
+> 
+> On PowerPC, we pick at compile-time between either the qspinlock
+> (default-enabled on Book3S-64, i.e. all server chips) or a ll/sc based
+> spinlock plus vm_yield() (default on embedded and 32-bit mac).
 
-Is this because __debug_sprintf_event() saves just the printf-formatted
-string and evaluates it only when the trace buffer is shown? Sorry for
-my ignorance.
+Urgh, yeah, so this crud undermines the whole point of having a fair
+lock. I'm thinking s390 and Power want to have this fixed.
