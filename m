@@ -2,106 +2,84 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25D64C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 12:25:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9210C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:00:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 059DB60EFE
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 12:25:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 96A3D6108B
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 13:00:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233088AbhJYM1l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Oct 2021 08:27:41 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28883 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232951AbhJYM1j (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 25 Oct 2021 08:27:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1635164717;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=18r9doZrRUt+BZbjEGhEOloW0CqhcTxE7FqwLW3Bz2k=;
-        b=djjFLCnfWJRQuDHKw5NFIpGO0scigJgFKpJss4MZ/MJx6Jbjah83pL9TCMPub3fSLy8B3t
-        vimtamFQ4LkkeGMZ3jDU//qrfJGsAWlDsKdC7a5jlrN4TjTCIZy2ukKqcXmswuotD2+z68
-        uPwCj/EUVh6T91/izHtKsVNjej+Ir0k=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-261-IH8Y8G2DNyiwuqNjEg9AKA-1; Mon, 25 Oct 2021 08:25:14 -0400
-X-MC-Unique: IH8Y8G2DNyiwuqNjEg9AKA-1
-Received: by mail-ed1-f69.google.com with SMTP id b17-20020a056402351100b003dd23c083b1so7849422edd.0
-        for <linux-s390@vger.kernel.org>; Mon, 25 Oct 2021 05:25:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=18r9doZrRUt+BZbjEGhEOloW0CqhcTxE7FqwLW3Bz2k=;
-        b=xqvy8NPTfYyZUy5hJBvoFuTDVuZifRlyll5A8Zra6TbyR2+Ljs1jK8TiX4goxrEAnR
-         V9ZyhOO0AEpiRWJCiCVJ2+XXKnGAAnS0gU1YNiForV4WZGsIhlXo3M+2SZQqym8w8xec
-         9xReN5NzVWUekBIg8P4q1ISC4E0g+EibfuIegfBDlkGplqNtoFENsVnkr4MKpX/cZPw3
-         UQoBbKpArAzvjnx1HNw+6t072G0NPG9kJIn07S4ehSXwmpOmsQCVRNQqXS5kUZ91oSI+
-         I9jhNWxKgdFpTjtZn9aCKjEuCNoEVzmEMfqXUFU/XWkfgGjJfJeXN16Bxjoy1oPOTNHD
-         5FkA==
-X-Gm-Message-State: AOAM530IugkaP8lkNYt1pKbsENX38/jhx+vLmfIy4J9RhghvLV3rPhVU
-        UgHyOneVc5Fg5QxA9B72yes9LfxzWtFyb9CWEBp+gHJ2fmacfXVuydDXOHcMIu9TzpftCRGxD8+
-        /xmH2hO4ERFzRXKBfCyBQ49Ps3J1CHIrCIR02RhGOdrf3T676zC0r+QZBL23hfVzvRrikZw==
-X-Received: by 2002:a05:6402:5114:: with SMTP id m20mr25817508edd.256.1635164713026;
-        Mon, 25 Oct 2021 05:25:13 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyDE2vtGk/FAnvNWNoKQg2UsRP1gq3GewEgLeJl6BRtSGccZejtvGjAdkUOW/VFxysNmyOaYw==
-X-Received: by 2002:a05:6402:5114:: with SMTP id m20mr25817469edd.256.1635164712785;
-        Mon, 25 Oct 2021 05:25:12 -0700 (PDT)
-Received: from thuth.remote.csb (tmo-096-150.customers.d1-online.com. [80.187.96.150])
-        by smtp.gmail.com with ESMTPSA id j11sm7341803ejt.114.2021.10.25.05.25.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 Oct 2021 05:25:12 -0700 (PDT)
-Subject: Re: [kvm-unit-tests PATCH v3 1/1] s390x: Add specification exception
- interception test
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Janosch Frank <frankja@de.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20211022131057.1308851-1-scgl@linux.ibm.com>
- <20211022131057.1308851-2-scgl@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <e1448e42-3023-ec4f-8c57-bef4d1850b1a@redhat.com>
-Date:   Mon, 25 Oct 2021 14:25:11 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S233417AbhJYNCb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Oct 2021 09:02:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59004 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233387AbhJYNCa (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 25 Oct 2021 09:02:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id 70AD961039;
+        Mon, 25 Oct 2021 13:00:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1635166808;
+        bh=v77wx+z38xJQ+aMTUWSVLHBZ9+jgDqJ1AGLDZUIN2I4=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=XnRcQ88ISKT/uVQITv5MIIquA0TD6kMzrL/HAKrl61zkcxLo8uwIem/drpG2nDMwN
+         TF9UPozpQ14x9FAQ5AmjjshfrnmaHTeIaSSIV17Mkz80F/gY5GEk1mBkHyEssokwuJ
+         WtDSLU4zm0QVKKmtUN3Ijbarr1nbJhAdqwW/A7eRcq9Yt4w3V9CJ6zZIpHYcPenI5H
+         YyHFTm5+fuvnc7C3ECem2vE1t8bMWJQfIeFXLHDeV8qSaKvl0VMh8X7EbKW/4omvUg
+         Y2HHA1otTW9AT0W2E9+s335SW3mcEniMKcKkLiZAxduW5N1ZM3QEICzPVtNHL2zBl7
+         rTVyHI2lDo0dw==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20211022131057.1308851-2-scgl@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next 0/9] s390/qeth: updates 2021-10-25
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163516680841.24806.1994768160149085786.git-patchwork-notify@kernel.org>
+Date:   Mon, 25 Oct 2021 13:00:08 +0000
+References: <20211025095658.3527635-1-jwi@linux.ibm.com>
+In-Reply-To: <20211025095658.3527635-1-jwi@linux.ibm.com>
+To:     Julian Wiedmann <jwi@linux.ibm.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com, kgraul@linux.ibm.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 22/10/2021 15.10, Janis Schoetterl-Glausch wrote:
-> Check that specification exceptions cause intercepts when
-> specification exception interpretation is off.
-> Check that specification exceptions caused by program new PSWs
-> cause interceptions.
-> We cannot assert that non program new PSW specification exceptions
-> are interpreted because whether interpretation occurs or not is
-> configuration dependent.
+Hello:
+
+This series was applied to netdev/net-next.git (master)
+by David S. Miller <davem@davemloft.net>:
+
+On Mon, 25 Oct 2021 11:56:49 +0200 you wrote:
+> Hi Dave & Jakub,
 > 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> Reviewed-by: Janosch Frank <frankja@de.ibm.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-> ---
->   s390x/Makefile             |  2 +
->   lib/s390x/sie.h            |  1 +
->   s390x/snippets/c/spec_ex.c | 21 ++++++++++
->   s390x/spec_ex-sie.c        | 82 ++++++++++++++++++++++++++++++++++++++
->   s390x/unittests.cfg        |  3 ++
->   5 files changed, 109 insertions(+)
->   create mode 100644 s390x/snippets/c/spec_ex.c
->   create mode 100644 s390x/spec_ex-sie.c
+> please apply the following patch series for qeth to netdev's net-next tree.
+> 
+> This brings some minor maintenance improvements, and a bunch of cleanups
+> so that the W=1 build passes without warning.
+> 
+> [...]
 
-Thanks, I've pushed it to the repository now.
+Here is the summary with links:
+  - [net-next,1/9] s390/qeth: improve trace entries for MAC address (un)registration
+    https://git.kernel.org/netdev/net-next/c/0969becb5f76
+  - [net-next,2/9] s390/qeth: remove .do_ioctl() callback from driver discipline
+    https://git.kernel.org/netdev/net-next/c/2decb0b7ba2d
+  - [net-next,3/9] s390/qeth: move qdio's QAOB cache into qeth
+    https://git.kernel.org/netdev/net-next/c/a18c28f0aeeb
+  - [net-next,4/9] s390/qeth: clarify remaining dev_kfree_skb_any() users
+    https://git.kernel.org/netdev/net-next/c/fdd3c5f076b6
+  - [net-next,5/9] s390/qeth: don't keep track of Input Queue count
+    https://git.kernel.org/netdev/net-next/c/dc15012bb083
+  - [net-next,6/9] s390/qeth: fix various format strings
+    https://git.kernel.org/netdev/net-next/c/22e2b5cdb0b9
+  - [net-next,7/9] s390/qeth: add __printf format attribute to qeth_dbf_longtext
+    https://git.kernel.org/netdev/net-next/c/79140e22d245
+  - [net-next,8/9] s390/qeth: fix kernel doc comments
+    https://git.kernel.org/netdev/net-next/c/7ffaef824c9a
+  - [net-next,9/9] s390/qeth: update kerneldoc for qeth_add_hw_header()
+    https://git.kernel.org/netdev/net-next/c/56c5af2566a7
 
-  Thomas
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
