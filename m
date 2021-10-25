@@ -2,90 +2,105 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECD42C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 15:44:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1252C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 16:00:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D5BED61002
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 15:44:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77F5360EB1
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 16:00:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232657AbhJYPrH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Oct 2021 11:47:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59672 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232679AbhJYPrG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 25 Oct 2021 11:47:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B50461002;
-        Mon, 25 Oct 2021 15:44:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635176684;
-        bh=t/cG3NYZufoQXI80MvoVKxbOhh2gfbNI54UCGBT3C9s=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=gxmadbL12O9CP1CNjr+LPFEaW4SzKdMH7wBlnUxy2TzbQ9gtUNV7DEu1WSahSAdvL
-         u/BXtC5jblBxPTnpfFqJLIzEtCppyKyls5mNlnSUYhZum9GY/TH9dg/+vSn7xHICbC
-         GLEZE6+WCHun6enc8dfKsjr2kBQWjDquNQv9BmuqxtjICcILdqOVO5TSfQnsQr7pUo
-         9mokyel9t8DVcl3p+kpJ5J3zE1W6ObHH5vLJl7Mp+ES8XFxHce3uPgJ/Mf77S+X4Hm
-         jYNewKS1aqWHMc6o18eqCgLn8SvSOXBCAmZWVHf49oAPQY46Q6rUNL5PhVtyNchEfn
-         6muiFFPGVzArQ==
-Received: by mail-wm1-f49.google.com with SMTP id z11-20020a1c7e0b000000b0030db7b70b6bso13618944wmc.1;
-        Mon, 25 Oct 2021 08:44:44 -0700 (PDT)
-X-Gm-Message-State: AOAM530Cn/8lzBrbj2Km/5FXTNqESozWc4szJDAsB9a9uzUki1tusjUC
-        Sz1FiNP9ty7KA5mK/2nKPd8l9wNTrklcDOj8fZQ=
-X-Google-Smtp-Source: ABdhPJwVwah/t3YoUqrQSaMsXvLvLT7cunG21zPbQEpZN6hLw+z/xKNabDoDNkoQgi86rA+/qLopU3mOKvl8de4bOgo=
-X-Received: by 2002:a7b:ce93:: with SMTP id q19mr7749701wmj.98.1635176682689;
- Mon, 25 Oct 2021 08:44:42 -0700 (PDT)
+        id S233627AbhJYQCd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Oct 2021 12:02:33 -0400
+Received: from mail-pl1-f179.google.com ([209.85.214.179]:44898 "EHLO
+        mail-pl1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230447AbhJYQCc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Oct 2021 12:02:32 -0400
+Received: by mail-pl1-f179.google.com with SMTP id t11so8229405plq.11;
+        Mon, 25 Oct 2021 09:00:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=0u8W/iYUBoL/HAmKfloyvmKN5Wzvk8aMyu1vdRl20Ig=;
+        b=l6+r0KjEOWZ5S9PWNzV1lqo1XJl8yhNk2ALQNAAntroFHPzrZWDuBUyQlJed420hJK
+         ipLfemsh0NBOZT5n5jfOX9J7ExzY4F90CZUf2ArM0WTfnGKXQCP8YhCvbwIb8QvaoK8a
+         nnQx5+5qarJGSIgaV3v5k6lD6VVH7uTelaD06eVg5J/HYFvGGQD1xIbqDjUEl+apArA+
+         PkjRYdzdof6SjuaGq5TJVVcYRFUJb27dau3PBfmDJC99eaDYUcks+O2SEPK6LmDAYaQm
+         3bZJFHZyEY/8SYGVrk6ypub3wNOs8iFH5DSszNvR9ovmALHCGMmvvVmq4L7mV13cuY3F
+         hJbA==
+X-Gm-Message-State: AOAM533msCKduQVBeRREy+AML4cKNonkRkklKbPx4j7mWi4IWKZgSHmL
+        8JgfFk+Qi9ZUmvpq4WMqO5WxklRndOiXTg==
+X-Google-Smtp-Source: ABdhPJwTQYXbQvR9Jcn0daCHQvVLuzkh/0+OpFLt1PZ0b42pfMnghUC8JClcjh+S9pQ6jm3McyOzsA==
+X-Received: by 2002:a17:90b:4a4d:: with SMTP id lb13mr36265214pjb.122.1635177607387;
+        Mon, 25 Oct 2021 09:00:07 -0700 (PDT)
+Received: from bvanassche-linux.mtv.corp.google.com ([2620:15c:211:201:f863:1daa:afe1:156])
+        by smtp.gmail.com with ESMTPSA id 23sm21888090pjc.37.2021.10.25.09.00.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 Oct 2021 09:00:06 -0700 (PDT)
+Subject: Re: [PATCH v2] scsi: core: Fix early registration of sysfs attributes
+ for scsi_device
+To:     Julian Wiedmann <jwi@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        martin.petersen@oracle.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, bblock@linux.ibm.com,
+        linux-next@vger.kernel.org, linux-s390@vger.kernel.org
+References: <b5e69621-e2ee-750a-e542-a27aaa9293e5@acm.org>
+ <20211024221620.760160-1-maier@linux.ibm.com>
+ <2f5e5d18-7ba9-10f6-1855-84546172b473@linux.ibm.com>
+From:   Bart Van Assche <bvanassche@acm.org>
+Message-ID: <eaa30030-120a-8e72-82d9-873e992007fd@acm.org>
+Date:   Mon, 25 Oct 2021 09:00:05 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-References: <20211022120058.1031690-1-arnd@kernel.org> <cc8e3c58-457d-fdf3-6a62-98bde0cefdea@redhat.com>
- <CAK8P3a0YjaRS+aUCOKGjsfkR3TM49PrG6U4ftG_Fz+OFuyCb0w@mail.gmail.com>
- <YXZ/iLB7BvZtzDMp@hirez.programming.kicks-ass.net> <CAK8P3a2Luz7sd5cM1OdZhYCs_UPzo+2qVQYSZPfR2QN+0DkyRg@mail.gmail.com>
- <2413f412-a390-bbc0-e848-e2a77d1f0ab3@redhat.com>
-In-Reply-To: <2413f412-a390-bbc0-e848-e2a77d1f0ab3@redhat.com>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Mon, 25 Oct 2021 17:44:26 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a3JEBF-dEg0iVThMMRNK3CDxY+mRtTeStMusycnethO_g@mail.gmail.com>
-Message-ID: <CAK8P3a3JEBF-dEg0iVThMMRNK3CDxY+mRtTeStMusycnethO_g@mail.gmail.com>
-Subject: Re: [PATCH] locking: remove spin_lock_flags() etc
-To:     Waiman Long <longman@redhat.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-ia64@vger.kernel.org,
-        Openrisc <openrisc@lists.librecores.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <2f5e5d18-7ba9-10f6-1855-84546172b473@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 25, 2021 at 5:28 PM Waiman Long <longman@redhat.com> wrote:
-> On 10/25/21 9:06 AM, Arnd Bergmann wrote:
-> >
-> > On s390, we pick between the cmpxchg() based directed-yield when
-> > running on virtualized CPUs, and a normal qspinlock when running on a
-> > dedicated CPU.
->
-> I am not aware that s390 is using qspinlocks at all as I don't see
-> ARCH_USE_QUEUED_SPINLOCKS being set anywhere under arch/s390. I only see
-> that it uses a cmpxchg based spinlock.
+On 10/25/21 2:23 AM, Julian Wiedmann wrote:
+> On 25.10.21 00:16, Steffen Maier wrote:
+>>   void scsi_sysfs_device_initialize(struct scsi_device *sdev)
+>>   {
+>> -	int i, j = 0;
+>> +	int i = 0;
+>>   	unsigned long flags;
+>>   	struct Scsi_Host *shost = sdev->host;
+>>   	struct scsi_host_template *hostt = shost->hostt;
+>> @@ -1583,15 +1583,15 @@ void scsi_sysfs_device_initialize(struct scsi_device *sdev)
+>>   	scsi_enable_async_suspend(&sdev->sdev_gendev);
+>>   	dev_set_name(&sdev->sdev_gendev, "%d:%d:%d:%llu",
+>>   		     sdev->host->host_no, sdev->channel, sdev->id, sdev->lun);
+>> -	sdev->gendev_attr_groups[j++] = &scsi_sdev_attr_group;
+>> +	sdev->sdev_gendev.groups = sdev->gendev_attr_groups;
+>>   	if (hostt->sdev_groups) {
+>>   		for (i = 0; hostt->sdev_groups[i] &&
+>> -			     j < ARRAY_SIZE(sdev->gendev_attr_groups);
+>> -		     i++, j++) {
+>> -			sdev->gendev_attr_groups[j] = hostt->sdev_groups[i];
+>> +			     i < ARRAY_SIZE(sdev->gendev_attr_groups);
+>> +		     i++) {
+>> +			sdev->gendev_attr_groups[i] = hostt->sdev_groups[i];
+>>   		}
+>>   	}
+>> -	WARN_ON_ONCE(j >= ARRAY_SIZE(sdev->gendev_attr_groups));
+>> +	WARN_ON_ONCE(i >= ARRAY_SIZE(sdev->gendev_attr_groups));
+>>   
+> 
+> Can't we simply assign the hostt->sdev_groups now, without the additional
+> indirection?
+> 
+> sdev->sdev_gendev.groups = hostt->sdev_groups;
 
-Sorry, I should not have said "normal" here. See arch/s390/lib/spinlock.c
-for their custom queued spinlocks as implemented in arch_spin_lock_queued().
-I don't know if that code actually does the same thing as the generic qspinlock,
-but it seems at least similar.
+Hi Steffen,
 
-       Arnd
+Please let me know if you wouldn't have the time to integrate the 
+approach mentioned above in a new version of your patch.
+
+Thanks,
+
+Bart.
