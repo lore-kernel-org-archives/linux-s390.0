@@ -2,140 +2,172 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E79EC4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 07:19:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8196AC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 09:24:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0066360724
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 07:19:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6428E60F92
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Oct 2021 09:24:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231279AbhJYHWK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Oct 2021 03:22:10 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3258 "EHLO
+        id S230146AbhJYJ0h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Oct 2021 05:26:37 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4486 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231133AbhJYHWJ (ORCPT
+        by vger.kernel.org with ESMTP id S230010AbhJYJ0h (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 25 Oct 2021 03:22:09 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19P3qPHp010969;
-        Mon, 25 Oct 2021 03:19:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=r9NZASqRXXwCsirGPISArBmLj+26uqiuuX2sxpyOTZA=;
- b=N5bygwkZXNQkGz4MB8xQBGJ3J2PjwFdRYz1OvASvVzwsxkUNVXrlA2z29mJHqm2hWPHo
- Fdx3YUt4CHPiTQG5t+sMK+41LbI4QShZu7xYqJn6JKVCTHzp0i5FsJHvAB/tz2aCL6Li
- 8AreWem4y161h25RJRMaznE0F37zmUwX0GvmG8zrtx3493sJsqTdMjITaD26qyDBLRDv
- c7pBAWhTvZuB7tNRhW0gHsdTe20jmb9RK2gjPA8jGhYDnauGVZDLyLc7LPpkoL322Xxx
- YoKuPcZp0yoUH0UdoBgqzRsU8weKDILEHuEPjMF8APG8oLqkko1tRJ+ySk5KsM1lpEdZ Vw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bw008aemu-1
+        Mon, 25 Oct 2021 05:26:37 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19P759RG012696;
+        Mon, 25 Oct 2021 05:24:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=PO340YsaGcgMAYBxeHlAvJJ6UIEJH6wkWIABAKDcBrU=;
+ b=sQqs6hZLy7dG32cryjBeBBsTMyImmAn0C+ZDjk3qW5+0ktTT35n3egjtiP8ng1E63MPl
+ qGj7Faw+rEnQ1fm4Cx9IR0ciZrnrST8HXiflYGo1Res4pOQA2jeSRBg2qODY4x/xkb7p
+ b5mfBYV7ZQkyZs82uGd9an+Az8QhFqElicFqSU1aFik/ZdhekJp0T/lW7mFumInG4fY3
+ 0NH6QT0xITSiooFSalyWOj8vhCVz4cGUlvlyeo7OKMsZx+jneDQd0mg+qVNMgZvboVnZ
+ VJI8Or+0FbL0g0oa/xVDXyoLXE1sBD+MDe58CVkDl+M137Y6v6mQfjcVU3ZmIHqZFkV5 og== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bvych5qhe-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Oct 2021 03:19:47 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19P74QNn005089;
-        Mon, 25 Oct 2021 03:19:47 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bw008aem6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Oct 2021 03:19:46 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19P7IpHp007813;
-        Mon, 25 Oct 2021 07:19:44 GMT
+        Mon, 25 Oct 2021 05:24:00 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19P9MNdt025706;
+        Mon, 25 Oct 2021 09:23:58 GMT
 Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06fra.de.ibm.com with ESMTP id 3bv9njhfpt-1
+        by ppma04fra.de.ibm.com with ESMTP id 3bva1a2gw8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Oct 2021 07:19:44 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19P7Jf0O3539466
+        Mon, 25 Oct 2021 09:23:58 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19P9NsfW64029074
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 25 Oct 2021 07:19:41 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2A8D64C05A;
-        Mon, 25 Oct 2021 07:19:41 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 171614C04A;
-        Mon, 25 Oct 2021 07:19:41 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 25 Oct 2021 07:19:41 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id BCD3CE079A; Mon, 25 Oct 2021 09:19:40 +0200 (CEST)
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL 1/2] KVM: s390: clear kicked_mask before sleeping again
-Date:   Mon, 25 Oct 2021 09:19:39 +0200
-Message-Id: <20211025071940.43696-2-borntraeger@de.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211025071940.43696-1-borntraeger@de.ibm.com>
-References: <20211025071940.43696-1-borntraeger@de.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: AMnyj63fI-dQ8Tej6Ex0q2TqNkWxZaXA
-X-Proofpoint-ORIG-GUID: NS6LsRFGkgRFVjq_zT5UtUvHoKVOsBxb
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Mon, 25 Oct 2021 09:23:54 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B51FAAE051;
+        Mon, 25 Oct 2021 09:23:54 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 51907AE045;
+        Mon, 25 Oct 2021 09:23:54 +0000 (GMT)
+Received: from [9.171.63.35] (unknown [9.171.63.35])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 25 Oct 2021 09:23:54 +0000 (GMT)
+Message-ID: <2f5e5d18-7ba9-10f6-1855-84546172b473@linux.ibm.com>
+Date:   Mon, 25 Oct 2021 11:23:54 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [PATCH v2] scsi: core: Fix early registration of sysfs attributes
+ for scsi_device
+Content-Language: en-US
+To:     Steffen Maier <maier@linux.ibm.com>, bvanassche@acm.org,
+        martin.petersen@oracle.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, bblock@linux.ibm.com,
+        linux-next@vger.kernel.org, linux-s390@vger.kernel.org
+References: <b5e69621-e2ee-750a-e542-a27aaa9293e5@acm.org>
+ <20211024221620.760160-1-maier@linux.ibm.com>
+From:   Julian Wiedmann <jwi@linux.ibm.com>
+In-Reply-To: <20211024221620.760160-1-maier@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Mt8gxOf6GMmN8eB5xKwqDNJbvrliUWxZ
+X-Proofpoint-GUID: Mt8gxOf6GMmN8eB5xKwqDNJbvrliUWxZ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-25_02,2021-10-25_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
- mlxscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
- priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0 clxscore=1015
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110250040
+ definitions=2021-10-25_03,2021-10-25_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ malwarescore=0 impostorscore=0 mlxlogscore=999 suspectscore=0
+ clxscore=1011 priorityscore=1501 spamscore=0 adultscore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110250054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+On 25.10.21 00:16, Steffen Maier wrote:
+> v4.17 commit 86b87cde0b55 ("scsi: core: host template attribute groups")
+> introduced explicit sysfs_create_groups() in scsi_sysfs_add_sdev()
+> and sysfs_remove_groups() in __scsi_remove_device(), both for sdev_gendev,
+> based on a new field const struct attribute_group **sdev_groups
+> of struct scsi_host_template.
+> 
 
-The idea behind kicked mask is that we should not re-kick a vcpu that
-is already in the "kick" process, i.e. that was kicked and is
-is about to be dispatched if certain conditions are met.
+...
 
-The problem with the current implementation is, that it assumes the
-kicked vcpu is going to enter SIE shortly. But under certain
-circumstances, the vcpu we just kicked will be deemed non-runnable and
-will remain in wait state. This can happen, if the interrupt(s) this
-vcpu got kicked to deal with got already cleared (because the interrupts
-got delivered to another vcpu). In this case kvm_arch_vcpu_runnable()
-would return false, and the vcpu would remain in kvm_vcpu_block(),
-but this time with its kicked_mask bit set. So next time around we
-wouldn't kick the vcpu form __airqs_kick_single_vcpu(), but would assume
-that we just kicked it.
+> Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+> Fixes: 92c4b58b15c5 ("scsi: core: Register sysfs attributes earlier")
+> ---
+> 
+> Changes in v2:
+> * integrated Bart's feedback of updating the comment for
+>   the gendev_attr_groups declaration to match the code change
+> * in that spirit also adapted the vector size of that field
+> * eliminated the now unnecessary second loop counter 'j'
+> 
+>  drivers/scsi/scsi_sysfs.c  | 12 ++++++------
+>  include/scsi/scsi_device.h |  7 +++----
+>  2 files changed, 9 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+> index c26f0e29e8cd..d73e84e1cb37 100644
+> --- a/drivers/scsi/scsi_sysfs.c
+> +++ b/drivers/scsi/scsi_sysfs.c
+> @@ -1571,7 +1571,7 @@ static struct device_type scsi_dev_type = {
+>  
+>  void scsi_sysfs_device_initialize(struct scsi_device *sdev)
+>  {
+> -	int i, j = 0;
+> +	int i = 0;
+>  	unsigned long flags;
+>  	struct Scsi_Host *shost = sdev->host;
+>  	struct scsi_host_template *hostt = shost->hostt;
+> @@ -1583,15 +1583,15 @@ void scsi_sysfs_device_initialize(struct scsi_device *sdev)
+>  	scsi_enable_async_suspend(&sdev->sdev_gendev);
+>  	dev_set_name(&sdev->sdev_gendev, "%d:%d:%d:%llu",
+>  		     sdev->host->host_no, sdev->channel, sdev->id, sdev->lun);
+> -	sdev->gendev_attr_groups[j++] = &scsi_sdev_attr_group;
+> +	sdev->sdev_gendev.groups = sdev->gendev_attr_groups;
+>  	if (hostt->sdev_groups) {
+>  		for (i = 0; hostt->sdev_groups[i] &&
+> -			     j < ARRAY_SIZE(sdev->gendev_attr_groups);
+> -		     i++, j++) {
+> -			sdev->gendev_attr_groups[j] = hostt->sdev_groups[i];
+> +			     i < ARRAY_SIZE(sdev->gendev_attr_groups);
+> +		     i++) {
+> +			sdev->gendev_attr_groups[i] = hostt->sdev_groups[i];
+>  		}
+>  	}
+> -	WARN_ON_ONCE(j >= ARRAY_SIZE(sdev->gendev_attr_groups));
+> +	WARN_ON_ONCE(i >= ARRAY_SIZE(sdev->gendev_attr_groups));
+>  
 
-Let us make sure the kicked_mask is cleared before we give up on
-re-dispatching the vcpu.
+Can't we simply assign the hostt->sdev_groups now, without the additional
+indirection?
 
-Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
-Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20211019175401.3757927-2-pasic@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 1 +
- 1 file changed, 1 insertion(+)
+sdev->sdev_gendev.groups = hostt->sdev_groups;
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 6a6dd5e1daf6..1c97493d21e1 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3363,6 +3363,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
- 
- int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
- {
-+	clear_bit(vcpu->vcpu_idx, vcpu->kvm->arch.gisa_int.kicked_mask);
- 	return kvm_s390_vcpu_has_irq(vcpu, 0);
- }
- 
--- 
-2.31.1
+
+>  	device_initialize(&sdev->sdev_dev);
+>  	sdev->sdev_dev.parent = get_device(&sdev->sdev_gendev);
+> diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
+> index b1e9b3bd3a60..b6f0d031217e 100644
+> --- a/include/scsi/scsi_device.h
+> +++ b/include/scsi/scsi_device.h
+> @@ -226,11 +226,10 @@ struct scsi_device {
+>  	struct device		sdev_gendev,
+>  				sdev_dev;
+>  	/*
+> -	 * The array size 6 provides space for one attribute group for the
+> -	 * SCSI core, four attribute groups defined by SCSI LLDs and one
+> -	 * terminating NULL pointer.
+> +	 * The array size 5 provides space for four attribute groups
+> +	 * defined by SCSI LLDs and one terminating NULL pointer.
+>  	 */
+> -	const struct attribute_group *gendev_attr_groups[6];
+> +	const struct attribute_group *gendev_attr_groups[5];
+>  
+>  	struct execute_work	ew; /* used to get process context on put */
+>  	struct work_struct	requeue_work;
+> 
 
