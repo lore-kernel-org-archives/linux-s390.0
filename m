@@ -2,143 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29679C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 09:38:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F12BC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 10:01:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0908E60551
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 09:38:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2720A60F46
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 10:01:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232709AbhJZJlR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Oct 2021 05:41:17 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48648 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230451AbhJZJlR (ORCPT
+        id S234084AbhJZKDY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Oct 2021 06:03:24 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:38164 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234523AbhJZKDR (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 26 Oct 2021 05:41:17 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19Q8Tt2u021400;
-        Tue, 26 Oct 2021 09:38:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
+        Tue, 26 Oct 2021 06:03:17 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19Q8o7gf007203;
+        Tue, 26 Oct 2021 10:00:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to : sender :
  content-transfer-encoding : mime-version; s=pp1;
- bh=5OchYLqpnnEkWLBWyeS+I/bGHLZdRbYrebYSuBnZaao=;
- b=nxgIYv02YC7bc8AUu6d2nU0n+t/kqTP73+fSxQQSJNw/d8rMxITaiI8WWShMkpabou94
- iaqIcwXndpFMowYOgsMD4jE3fQjTkOIxJvCRBolgJrb+dpz/Nf/VcFNfwGqscyi/DZnN
- L86uyyilDWeBV6jWvYhWOyY4GZfu4N/+Q0qQcBZQT3G0bA39ppyN8vmCfsiv/uPGdfbw
- BOkiLftG/qTmidGyZkRFkiZOw/a3GwdRCnh/M1sfr4VRnBOXoauFEAPEd7Yt2/rS6D7S
- dr3CLtjzfXTYApHdsuL5BdsV7/gI7C+Q6qt+BiKb27n56NiZ0iwSqsNPqcSne+6HqUvQ bw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bx4k87qr9-1
+ bh=kCLjwJNz/9j4kibMotrYLNkEFO6mORC07ogDQFFB4zg=;
+ b=mPc62hFWJgWzl5WOe40cUpNsGtHQHO1BrR4JlJz2HWRdLfEOTcn+qCp0duhMpnImCUsn
+ GTXliHRZjf4yl17JBYcuuf1vPkzhzdhzB/NvuyCdhrqrBeKhzFo8H37qQfxNICfnDROO
+ 7JhQ3yC//8OCLiPnGh7NxvLPgPEdr55aBSXM7oZkkX4VC67RWwowPrZUrMQWwp34OjIr
+ LpZ/tQolnhXV5RXLIl5q798PJzDCrStnGC5o+nHb2897+cNfvT63GhAbXYkz2pFcaRLR
+ WYDzelUuOSndlE8EmYbHJYCDA09TnYfd7fd/pWTFhXcP8GeAzwdlw+u94SJffFMwEvgf mQ== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bx4k2gh0a-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Oct 2021 09:38:52 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19Q9YBTR032624;
-        Tue, 26 Oct 2021 09:38:51 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bx4k87qqs-1
+        Tue, 26 Oct 2021 10:00:37 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19Q9rpVG012137;
+        Tue, 26 Oct 2021 10:00:35 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06fra.de.ibm.com with ESMTP id 3bx4ehkt7e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Oct 2021 09:38:51 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19Q9bB93024803;
-        Tue, 26 Oct 2021 09:38:50 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma02fra.de.ibm.com with ESMTP id 3bx4f5bnhb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Oct 2021 09:38:49 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19Q9WdaI59310504
+        Tue, 26 Oct 2021 10:00:34 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19QA0Vam58393084
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Oct 2021 09:32:39 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5ADB5A405E;
-        Tue, 26 Oct 2021 09:38:46 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DE160A4055;
-        Tue, 26 Oct 2021 09:38:45 +0000 (GMT)
-Received: from li-43c5434c-23b8-11b2-a85c-c4958fb47a68.ibm.com (unknown [9.171.51.215])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 26 Oct 2021 09:38:45 +0000 (GMT)
-Subject: Re: [PATCH 11/20] signal/s390: Use force_sigsegv in
- default_trap_handler
-To:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-kernel@vger.kernel.org
-Cc:     linux-arch@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Al Viro <viro@ZenIV.linux.org.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-References: <87y26nmwkb.fsf@disp2133>
- <20211020174406.17889-11-ebiederm@xmission.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <7c99f791-4a87-ae52-bee7-cb794b0741d2@de.ibm.com>
-Date:   Tue, 26 Oct 2021 11:38:44 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
-In-Reply-To: <20211020174406.17889-11-ebiederm@xmission.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+        Tue, 26 Oct 2021 10:00:31 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AF89311C064;
+        Tue, 26 Oct 2021 10:00:31 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A664D11C06E;
+        Tue, 26 Oct 2021 10:00:31 +0000 (GMT)
+Received: from t480-pf1aa2c2 (unknown [9.145.156.133])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 26 Oct 2021 10:00:31 +0000 (GMT)
+Received: from bblock by t480-pf1aa2c2 with local (Exim 4.94.2)
+        (envelope-from <bblock@linux.ibm.com>)
+        id 1mfJFv-000w2x-2q; Tue, 26 Oct 2021 12:00:31 +0200
+Date:   Tue, 26 Oct 2021 12:00:31 +0200
+From:   Benjamin Block <bblock@linux.ibm.com>
+To:     Steffen Maier <maier@linux.ibm.com>, bvanassche@acm.org
+Cc:     jwi@linux.ibm.com, martin.petersen@oracle.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org, gregkh@linuxfoundation.org,
+        linux-next@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3] scsi: core: Fix early registration of sysfs
+ attributes for scsi_device
+Message-ID: <YXfRvxKu/xXVubF8@t480-pf1aa2c2.linux.ibm.com>
+References: <2f5e5d18-7ba9-10f6-1855-84546172b473@linux.ibm.com>
+ <20211026014240.4098365-1-maier@linux.ibm.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20211026014240.4098365-1-maier@linux.ibm.com>
+Sender: Benjamin Block <bblock@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: wOnCrEJWusXWZSSGrMyKIp26j2DdWA-4
-X-Proofpoint-ORIG-GUID: 3Yl_va_89ctxG_rGJ2F6ZiZfzsDC-bwO
-Content-Transfer-Encoding: 7bit
+X-Proofpoint-GUID: pGTS_-CuMXCH0gfalXKAQ7zMg37iVfea
+X-Proofpoint-ORIG-GUID: pGTS_-CuMXCH0gfalXKAQ7zMg37iVfea
+Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-10-26_02,2021-10-26_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- lowpriorityscore=0 phishscore=0 impostorscore=0 malwarescore=0 spamscore=0
- mlxscore=0 adultscore=0 mlxlogscore=886 suspectscore=0 priorityscore=1501
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ priorityscore=1501 mlxscore=0 spamscore=0 bulkscore=0 impostorscore=0
+ suspectscore=0 adultscore=0 malwarescore=0 phishscore=0 mlxlogscore=999
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2110150000 definitions=main-2110260053
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Am 20.10.21 um 19:43 schrieb Eric W. Biederman:
-> Reading the history it is unclear why default_trap_handler calls
-> do_exit.  It is not even menthioned in the commit where the change
-> happened.  My best guess is that because it is unknown why the
-> exception happened it was desired to guarantee the process never
-> returned to userspace.
+On Tue, Oct 26, 2021 at 03:42:40AM +0200, Steffen Maier wrote:
+> v4.17 commit 86b87cde0b55 ("scsi: core: host template attribute groups")
+> introduced explicit sysfs_create_groups() in scsi_sysfs_add_sdev()
+> and sysfs_remove_groups() in __scsi_remove_device(), both for sdev_gendev,
+> based on a new field const struct attribute_group **sdev_groups
+> of struct scsi_host_template.
 > 
-> Using do_exit(SIGSEGV) has the problem that it will only terminate one
-> thread of a process, leaving the process in an undefined state.
-> 
-> Use force_sigsegv(SIGSEGV) instead which effectively has the same
-> behavior except that is uses the ordinary signal mechanism and
-> terminates all threads of a process and is generally well defined.
+> Commit 92c4b58b15c5 ("scsi: core: Register sysfs attributes earlier")
+> removed above explicit (de)registration of scsi_device attribute groups.
+> It also converted all scsi_device attributes and attribute_groups to
+> end up in a new field const struct attribute_group *gendev_attr_groups[6]
+> of struct scsi_device. However, that new field was not used anywhere.
 
-Do I get that right, that programs can not block SIGSEGV from force_sigsegv
-with a signal handler? Thats how I read the code. If this is true
-then
+Oh.. damn, I didn't notice either.
 
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Fixes: ca2ab03237ec ("[PATCH] s390: core changes")
-> History Tree: https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
-> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-> ---
->   arch/s390/kernel/traps.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+> Surprisingly, this only caused missing LLDD specific scsi_device sysfs
+> attributes. Whereas, scsi core attributes from scsi_sdev_attr_groups
+> did continue to exist because of scsi_dev_type.groups.
+
+Hmm, maybe this is out of scope for this fix, but couldn't we
+essentially do the same thing for the host attributes. Have the
+`shost_class` take the `scsi_shost_attr_group` as default attributes for
+the shost class, and then assign the `shost_groups` from the LLDD
+template to `shost_dev.groups` as optional attributes? 
+
+Then we get rid of the indirection loop in `hosts.c` as well, that was
+introduce with he original patch by Bart.
+
+Just a shot in the dark, I don't know whether the `struct class` behaves
+the same in this case as `struct device_type`.
+
 > 
-> diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-> index bcefc2173de4..51729ea2cf8e 100644
-> --- a/arch/s390/kernel/traps.c
-> +++ b/arch/s390/kernel/traps.c
-> @@ -84,7 +84,7 @@ static void default_trap_handler(struct pt_regs *regs)
->   {
->   	if (user_mode(regs)) {
->   		report_user_fault(regs, SIGSEGV, 0);
-> -		do_exit(SIGSEGV);
-> +		force_sigsegv(SIGSEGV);
->   	} else
->   		die(regs, "Unknown program exception");
->   }
+> We separate scsi core attibutes from LLDD specific attributes.
+> Hence, we keep the initializing assignment scsi_dev_type =
+> { .groups = scsi_sdev_attr_groups, } as this takes care of core
+> attributes. Without the separation, it would cause attribute double
+> registration due to scsi_dev_type.groups and sdev_gendev.groups.
 > 
+> Julian suggested to assign the sdev_groups pointer of the
+> scsi_host_template directly to the groups pointer of sdev_gendev.
+> This way we can delete the container scsi_device.gendev_attr_groups
+> and the loop copying each entry from hostt->sdev_groups to
+> sdev->gendev_attr_groups.
+> 
+> Alternative approaches ruled out:
+> Assigning gendev_attr_groups to sdev_dev has no visible effect.
+> Assigning sdev->gendev_attr_groups to scsi_dev_type.groups
+> caused scsi_device of all scsi host types to get LLDD specific
+> attributes of the LLDD for which the last sdev alloc happened to occur,
+> as that overwrote scsi_dev_type.groups,
+> e.g. scsi_debug had zfcp-specific scsi_device attributes.
+> 
+> Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+> Fixes: 92c4b58b15c5 ("scsi: core: Register sysfs attributes earlier")
+> Suggested-by: Julian Wiedmann <jwi@linux.ibm.com>
+
+-- 
+Best Regards, Benjamin Block  / Linux on IBM Z Kernel Development / IBM Systems
+IBM Deutschland Research & Development GmbH    /    https://www.ibm.com/privacy
+Vorsitz. AufsR.: Gregor Pillen         /        Geschäftsführung: Dirk Wittkopp
+Sitz der Gesellschaft: Böblingen / Registergericht: AmtsG Stuttgart, HRB 243294
