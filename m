@@ -2,218 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36BB4C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 14:56:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05923C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 17:32:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1FABB60E73
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 14:56:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC4776103C
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 17:32:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233726AbhJZO6X (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Oct 2021 10:58:23 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55666 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231178AbhJZO6W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 26 Oct 2021 10:58:22 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19QDkAc6027055;
-        Tue, 26 Oct 2021 14:55:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=a227DL1MWcEzOfb2kTBHeBAcS29Z6xXBRzh8+Ji87Sc=;
- b=ddn1Fz6PxH8IskPaXG87uj8ARVbNRM6cIYoh7oltu5G4IdcV995SijnCcSWgnSqJwz2A
- eb2Id+SzxdVY1skUcW1wsqNjwn7rkLTlc6is68NT5arHT9ciZIfM40vOALOFQ7ojbgAw
- gCvAKdWKRhuh3fphx4Ywofnm1TcgTpFr4YQQCzNqjGlcazMOeSJFx/Vf/+bBSti7Rx/f
- KeBziAmvpVfQw6xc+RV7D5D/NQboFLwPvG1Bvwif+i5HQsP2L6pxNg7nji9gegPgzaed
- P97aJosdead1gDftFJSyfjM2wtXOBRmTZ0QPXZNPtZEaf/egQ2XmJwBJnhNhoPnnloJn IA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bx59720x3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Oct 2021 14:55:58 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19QEs6si029466;
-        Tue, 26 Oct 2021 14:55:57 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3bx59720w3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Oct 2021 14:55:57 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19QEldQI018554;
-        Tue, 26 Oct 2021 14:55:56 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3bx4edpq0p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Oct 2021 14:55:55 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19QEtqXr60096922
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Oct 2021 14:55:52 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 73B8242041;
-        Tue, 26 Oct 2021 14:55:52 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 072B342049;
-        Tue, 26 Oct 2021 14:55:52 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.0.93])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 26 Oct 2021 14:55:51 +0000 (GMT)
-Date:   Tue, 26 Oct 2021 16:55:49 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v3 2/2] s390x: Test specification
- exceptions during transaction
-Message-ID: <20211026165549.18137134@p-imbrenda>
-In-Reply-To: <32dfb400-4191-44f8-354e-809fac890b63@linux.vnet.ibm.com>
-References: <20211022120156.281567-1-scgl@linux.ibm.com>
-        <20211022120156.281567-3-scgl@linux.ibm.com>
-        <20211025193012.3be31938@p-imbrenda>
-        <32dfb400-4191-44f8-354e-809fac890b63@linux.vnet.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        id S237823AbhJZRfG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Oct 2021 13:35:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41996 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237578AbhJZRfF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Oct 2021 13:35:05 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B78D8C061745
+        for <linux-s390@vger.kernel.org>; Tue, 26 Oct 2021 10:32:41 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id w15so16227181edc.9
+        for <linux-s390@vger.kernel.org>; Tue, 26 Oct 2021 10:32:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=VmdSeOz3tGynEfdRHSi/l2aNe64eCuVaGO+sKEKzIEs=;
+        b=lFV1Kn9YSWpfRCXDLTgIzTtK5Onr2mc2xw8HrdtAXKgEOa8JSMMOp+98zvouEDwNbi
+         LECWd36JYV6hYOh7pSs09hzFodgLMAqbeBHPUtLI/OFMrjklw1ze+9RsWJc4Xgdp9Ycd
+         yJTFVP46RJ66WeBfZCYfQMJEURfUi08jaTynqLog1wiWpN+BJlzeGq8LVpxQcSDWERUS
+         qM60ROO/o+LXmKhmPFYjeXtKCW0UwXGUikQW6NXM9WL/B9T12Nxna/LMwG/bxJL2xc7n
+         VoDp+86dk9OienrE3chWVnqRzRfEiJuoGS0a7iR/SClLyg08YfRidoWz2vOvZaTRqH4f
+         vWtw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=VmdSeOz3tGynEfdRHSi/l2aNe64eCuVaGO+sKEKzIEs=;
+        b=mWxJL48Wx9Tz/y5ewRzhKmh3wiri70ya7RaXwQRNLwz4hdf+a8yIJSg0Wf+nyQHfWV
+         RDRU/wALbKL5VEdB7JbJWqY5sXukEtrjfDy+DxCC/jCH+scwBiEwb6MnUZPfuiB5m+Vo
+         D/l46qSmTvxZ3EfbsnrbfxQorxXVO0u57l80Dw8RLCRvQhOtFbyZUmJinUZkvVqiENrZ
+         Z7rlg7caJy2/37cS/tEw6iEN0ypqLly842GuwMaAJBm0lGGiziYB8JoLGFQIhNfz8S1P
+         VRtNPYw3KVMoXQQk0NpYr3cA4HdSZU6FRE3kOdLGqIsz0CN85uCQTWCdEt5+evJ93IXa
+         nmuw==
+X-Gm-Message-State: AOAM53046Xra/c99RmC0C/tgy5U/b1AZfSi6zYjfH4RHXaq+PfKBU+c9
+        945yvVgLDItGd4JtA5ETGn8h5A8ct/Wv/N4isqIHt8CdD+WgAA==
+X-Google-Smtp-Source: ABdhPJzOdAE7OzEdd31gDoFVlnoaXRqLqGfNn3B0fTL1hI5KdSaeQgNdrCI+0YkElhBcHgyE5wnKl4iwKHdUpBckXGc=
+X-Received: by 2002:a05:6402:5255:: with SMTP id t21mr36568076edd.103.1635269555221;
+ Tue, 26 Oct 2021 10:32:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: wdEehobYG5_gpyFnbzDJXDmCr5eLUD92
-X-Proofpoint-GUID: J0G5_THnQQG-wa7zgtIgUNYxo3Q2pOhc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-26_04,2021-10-26_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
- mlxlogscore=999 phishscore=0 adultscore=0 impostorscore=0 bulkscore=0
- mlxscore=0 lowpriorityscore=0 priorityscore=1501 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2110260083
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 26 Oct 2021 23:02:24 +0530
+Message-ID: <CA+G9fYtFTjVz-hN=HdF56vKYpY5LhKoscyWTv7gQxzjoboHzwQ@mail.gmail.com>
+Subject: s390: {standard input}:11: Error: Unrecognized opcode: `pushq'
+To:     linux-s390@vger.kernel.org,
+        open list <linux-kernel@vger.kernel.org>,
+        Linux-Next Mailing List <linux-next@vger.kernel.org>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 26 Oct 2021 16:22:40 +0200
-Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com> wrote:
+[Please ignore this email if it is already reported ]
 
-> On 10/25/21 19:30, Claudio Imbrenda wrote:
-> > On Fri, 22 Oct 2021 14:01:56 +0200
-> > Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
-> >   
-> >> Program interruptions during transactional execution cause other
-> >> interruption codes.
-> >> Check that we see the expected code for (some) specification exceptions.
-> >>
-> >> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> >> ---  
-> 
-> [...]
-> 
-> >> +#define TRANSACTION_MAX_RETRIES 5
-> >> +
-> >> +/* NULL must be passed to __builtin_tbegin via constant, forbid diagnose from
-> >> + * being NULL to keep things simple
-> >> + */
-> >> +static int __attribute__((nonnull))
-> >> +with_transaction(void (*trigger)(void), struct __htm_tdb *diagnose)
-> >> +{
-> >> +	int cc;
-> >> +  
-> > 
-> > if you want to be extra sure, put an assert here (although I'm not sure
-> > how nonnull works, I have never seen it before)  
-> 
-> Ok, with nonnull, the compiler might warn you if you pass NULL.
+Regression found on s390 gcc-8/9/10 and gcc-11 built with defconfig
+Following build warnings / errors reported on linux next 20211025.
 
-fair enough
+metadata:
+    git_describe: next-20211025
+    git_repo: https://gitlab.com/Linaro/lkft/mirrors/next/linux-next
+    git_short_log: 9ae1fbdeabd3 (\"Add linux-next specific files for 20211025\")
+    target_arch: s390
+    toolchain: gcc-10
 
-> >   
-> >> +	cc = __builtin_tbegin(diagnose);
-> >> +	if (cc == _HTM_TBEGIN_STARTED) {
-> >> +		trigger();
-> >> +		__builtin_tend();
-> >> +		return -TRANSACTION_COMPLETED;
-> >> +	} else {
-> >> +		return -cc;
-> >> +	}
-> >> +}
-> >> +
-> >> +static int retry_transaction(const struct spec_ex_trigger *trigger, unsigned int max_retries,
-> >> +			     struct __htm_tdb *tdb, uint16_t expected_pgm)
-> >> +{
-> >> +	int trans_result, i;
-> >> +	uint16_t pgm;
-> >> +
-> >> +	for (i = 0; i < max_retries; i++) {
-> >> +		expect_pgm_int();
-> >> +		trans_result = with_transaction(trigger->func, tdb);
-> >> +		if (trans_result == -_HTM_TBEGIN_TRANSIENT) {
-> >> +			mb();
-> >> +			pgm = lc->pgm_int_code;
-> >> +			if (pgm == 0)
-> >> +				continue;
-> >> +			else if (pgm == expected_pgm)
-> >> +				return 0;
-> >> +		}
-> >> +		return trans_result;
-> >> +	}
-> >> +	return -TRANSACTION_MAX_RETRIES;  
-> > 
-> > so this means that a test will be considered failed if the transaction
-> > failed too many times?  
-> 
-> Yes.
-> > 
-> > this means that could fail if the test is run on busy system, even if
-> > the host running the unit test is correct  
-> 
-> I suppose so, don't know how likely that is.
+build error :
+--------------
+<stdin>:1559:2: warning: #warning syscall futex_waitv not implemented [-Wcpp]
+{standard input}: Assembler messages:
+{standard input}:11: Error: Unrecognized opcode: `pushq'
+{standard input}:12: Error: Unrecognized opcode: `movq'
+{standard input}:13: Error: Unrecognized opcode: `pushq'
+{standard input}:14: Error: Unrecognized opcode: `movq'
+{standard input}:15: Error: Unrecognized opcode: `call'
+{standard input}:16: Error: Unrecognized opcode: `popq'
+{standard input}:17: Error: Unrecognized opcode: `leave'
+{standard input}:18: Error: Unrecognized opcode: `ret'
+make[3]: *** [/builds/linux/scripts/Makefile.build:288:
+samples/ftrace/ftrace-direct-multi.o] Error 1
+make[3]: Target '__build' not remade because of errors.
+make[2]: *** [/builds/linux/scripts/Makefile.build:571: samples/ftrace] Error 2
 
-I don't like the idea of failing a test when the implementation is
-correct, just because the system might be a little more busy than
-expected.
 
-if you can't find a way to refactor the test so that it doesn't fail if
-there are too many retries, then at least make it a skip?
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-but I'd really like to see something that does not fail on a correctly
-implemented system just because the test machine was too busy.
+build link:
+-----------
+https://builds.tuxbuild.com/1zzgG8V6qSBH9457ca0kOcQR756/build.log
 
-> > 
-> > also, do you really need to use negative values? it's probably easier
-> > to read if you stick to positive values, and less prone to mistakes if
-> > you accidentally forget a - somewhere.  
-> 
-> Ok.
-> >   
-> >> +}
-> >> +
-> >> +static void test_spec_ex_trans(struct args *args, const struct spec_ex_trigger *trigger)
-> >> +{
-> >> +	const uint16_t expected_pgm = PGM_INT_CODE_SPECIFICATION
-> >> +			      | PGM_INT_CODE_TX_ABORTED_EVENT;
-> >> +	union {
-> >> +		struct __htm_tdb tdb;
-> >> +		uint64_t dwords[sizeof(struct __htm_tdb) / sizeof(uint64_t)];
-> >> +	} diag;
-> >> +	unsigned int i, failures = 0;
-> >> +	int trans_result;
-> >> +
-> >> +	if (!test_facility(73)) {
-> >> +		report_skip("transactional-execution facility not installed");
-> >> +		return;
-> >> +	}
-> >> +	ctl_set_bit(0, CTL0_TRANSACT_EX_CTL); /* enable transactional-exec */
-> >> +
-> >> +	for (i = 0; i < args->iterations && failures <= args->max_failures; i++) {
-> >> +		register_pgm_cleanup_func(trigger->fixup);
-> >> +		trans_result = retry_transaction(trigger, args->max_retries, &diag.tdb, expected_pgm);  
-> > 
-> > so you retry each iteration up to args->max_retries times, and if a
-> > transaction aborts too many times (maybe because the host system is
-> > very busy), then you consider it a fail
-> >   
-> 
-> [...]
+build config:
+-------------
+https://builds.tuxbuild.com/1zzgG8V6qSBH9457ca0kOcQR756/config
 
+# To install tuxmake on your system globally
+# sudo pip3 install -U tuxmake
+tuxmake --runtime podman --target-arch s390 --toolchain gcc-10
+--kconfig defconfig
+
+--
+Linaro LKFT
+https://lkft.linaro.org
