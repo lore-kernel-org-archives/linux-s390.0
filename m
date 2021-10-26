@@ -2,35 +2,36 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F448C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 14:41:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1DCBC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 14:55:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3D82C60FC2
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 14:41:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD19B603E5
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 14:55:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236001AbhJZOny (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Oct 2021 10:43:54 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:29941 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235433AbhJZOnv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Oct 2021 10:43:51 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HdvXW63DbzbnPZ;
-        Tue, 26 Oct 2021 22:36:43 +0800 (CST)
-Received: from kwepemm600016.china.huawei.com (7.193.23.20) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.15; Tue, 26 Oct 2021 22:41:22 +0800
-Received: from [10.67.102.67] (10.67.102.67) by kwepemm600016.china.huawei.com
- (7.193.23.20) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.15; Tue, 26 Oct
- 2021 22:41:20 +0800
-Subject: Re: [PATCH V4 net-next 4/6] ethtool: extend ringparam setting uAPI
- with rx_buf_len
-To:     Marc Kleine-Budde <mkl@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>
-CC:     <davem@davemloft.net>, <mkubecek@suse.cz>, <andrew@lunn.ch>,
-        <amitc@mellanox.com>, <idosch@idosch.org>, <danieller@nvidia.com>,
+        id S236135AbhJZO6K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Oct 2021 10:58:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235818AbhJZO6K (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 26 Oct 2021 10:58:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29DC860E74;
+        Tue, 26 Oct 2021 14:55:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1635260146;
+        bh=L00Ey8pUReMds1W4+nA5X/CSUlaE39wuDJ1S7E8qLQY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=h3HYj9w392XlBuNu1K0Br5ZMS8CJsQc9YFYCLaJSKGjIHeRFgxXTHiaeD6X7qtks8
+         NH5IupIRuW0046KYfXqwuFULRXoZMhXApWoIppSt9oSF59rSu7RPT9xaUCao+SsqxZ
+         2bX76/F8S6xYEUZoI04FST31pDotnO99KYG5v0Cz8wDhVhM9Bv5GQB3tq20awMVSu8
+         P8S1im705r1IhCGScf9Uru5ABarVmBEfpGF4RSLgc60wfI0g0Gn4Q+SRDOmnHKwrHN
+         d0VzdlvL+WtIwx4Ig5uP18P2GZs/BBy9oU6rXLqqVm0pZD9KZUtnrQhPqaJ9TD66xJ
+         fx7DDqpvfqWAw==
+Date:   Tue, 26 Oct 2021 07:55:44 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     "huangguangbin (A)" <huangguangbin2@huawei.com>
+Cc:     Marc Kleine-Budde <mkl@pengutronix.de>, <davem@davemloft.net>,
+        <mkubecek@suse.cz>, <andrew@lunn.ch>, <amitc@mellanox.com>,
+        <idosch@idosch.org>, <danieller@nvidia.com>,
         <jesse.brandeburg@intel.com>, <anthony.l.nguyen@intel.com>,
         <jdike@addtoit.com>, <richard@nod.at>,
         <anton.ivanov@cambridgegreys.com>, <netanel@amazon.com>,
@@ -46,62 +47,57 @@ CC:     <davem@davemloft.net>, <mkubecek@suse.cz>, <andrew@lunn.ch>,
         <johannes@sipsolutions.net>, <netdev@vger.kernel.org>,
         <lipeng321@huawei.com>, <chenhao288@hisilicon.com>,
         <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH V4 net-next 4/6] ethtool: extend ringparam setting uAPI
+ with rx_buf_len
+Message-ID: <20211026075544.65256820@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <8ce654b8-4a31-2d43-df7e-607528ba44d5@huawei.com>
 References: <20211014113943.16231-1-huangguangbin2@huawei.com>
- <20211014113943.16231-5-huangguangbin2@huawei.com>
- <20211025131149.ya42sw64vkh7zrcr@pengutronix.de>
- <20211025132718.5wtos3oxjhzjhymr@pengutronix.de>
- <20211025104505.43461b53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <20211025190114.zbqgzsfiv7zav7aq@pengutronix.de>
-From:   "huangguangbin (A)" <huangguangbin2@huawei.com>
-Message-ID: <8ce654b8-4a31-2d43-df7e-607528ba44d5@huawei.com>
-Date:   Tue, 26 Oct 2021 22:41:19 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        <20211014113943.16231-5-huangguangbin2@huawei.com>
+        <20211025131149.ya42sw64vkh7zrcr@pengutronix.de>
+        <20211025132718.5wtos3oxjhzjhymr@pengutronix.de>
+        <20211025104505.43461b53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        <20211025190114.zbqgzsfiv7zav7aq@pengutronix.de>
+        <8ce654b8-4a31-2d43-df7e-607528ba44d5@huawei.com>
 MIME-Version: 1.0
-In-Reply-To: <20211025190114.zbqgzsfiv7zav7aq@pengutronix.de>
-Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.102.67]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemm600016.china.huawei.com (7.193.23.20)
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, 26 Oct 2021 22:41:19 +0800 huangguangbin (A) wrote:
+> On 2021/10/26 3:01, Marc Kleine-Budde wrote:
+> > On 25.10.2021 10:45:05, Jakub Kicinski wrote:  
+> >> Indeed, there are different ways to extend the API for drivers,
+> >> I think it comes down to personal taste. I find the "inheritance"
+> >> models in C (kstruct usually contains the old struct as some "base")
+> >> awkward.
+> >>
+> >> I don't think we have agreed-on best practice in the area.  
+> > 
+> >  From my point of view, if there already is an extension mainline:
+> > 
+> > | https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=f3ccfda19319
+> > 
+> > I'm more in the flavor for modeling other extensions the same way. Would
+> > be more consistent to name the new struct "kernel_"ethtool_ringparam,
+> > following the coalescing example:
+> > 
+> > | struct kernel_ethtool_ringparam {
+> > |        __u32   rx_buf_len;
 
+nit: no __, just u32. It's not uAPI.
 
-On 2021/10/26 3:01, Marc Kleine-Budde wrote:
-> On 25.10.2021 10:45:05, Jakub Kicinski wrote:
->>> The approach Andrew suggested is two-fold. First introduce a "struct
->>> ethtool_kringparam" that's only used inside the kernel, as "struct
->>> ethtool_ringparam" is ABI. Then extend "struct ethtool_kringparam" as
->>> needed.
->>
->> Indeed, there are different ways to extend the API for drivers,
->> I think it comes down to personal taste. I find the "inheritance"
->> models in C (kstruct usually contains the old struct as some "base")
->> awkward.
->>
->> I don't think we have agreed-on best practice in the area.
+> > | };
+> > 
+> > regards,
+> > Marc
+> >   
+> We think ethtool_ringparam_ext is more easy to understand it is extension of
+> struct ethtool_ringparam. However, we don't mind to keep the same way and modify
+> to the name kernel_ethtool_ringparam if everyone agrees.
 > 
->  From my point of view, if there already is an extension mainline:
-> 
-> | https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=f3ccfda19319
-> 
-> I'm more in the flavor for modeling other extensions the same way. Would
-> be more consistent to name the new struct "kernel_"ethtool_ringparam,
-> following the coalescing example:
-> 
-> | struct kernel_ethtool_ringparam {
-> |        __u32   rx_buf_len;
-> | };
-> 
-> regards,
-> Marc
-> 
-We think ethtool_ringparam_ext is more easy to understand it is extension of
-struct ethtool_ringparam. However, we don't mind to keep the same way and modify
-to the name kernel_ethtool_ringparam if everyone agrees.
+> Does anyone have other opinions?
 
-Does anyone have other opinions?
+Either way is fine by me. Andrew's way is fine too, as long as we don't
+embed the old structure into the new one but translate field-by-field.
