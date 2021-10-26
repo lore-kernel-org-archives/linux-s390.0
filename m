@@ -2,112 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42A84C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 18:31:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3DE0C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 20:41:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1878A61040
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 18:31:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AF8DA60FBF
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 20:41:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235317AbhJZSeD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Oct 2021 14:34:03 -0400
-Received: from mail-pj1-f53.google.com ([209.85.216.53]:43914 "EHLO
-        mail-pj1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236171AbhJZSdy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Oct 2021 14:33:54 -0400
-Received: by mail-pj1-f53.google.com with SMTP id k2-20020a17090ac50200b001a218b956aaso182004pjt.2;
-        Tue, 26 Oct 2021 11:31:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=uopvb2qp8VpwzAYgXBeb+ewVZo7WAA32gjRIR84G0wU=;
-        b=BTVV6d3NnLUwSFmMkXiKSaRQ6UUysYTs88FVC4xZC1qcRHUZmgFPbhwqjbMf5ZxCP9
-         cR2fGr5XS8Krr7hh2uag4FvK8004kETYr3F88puWBiSgXgad8veiQFXtCKumvVTtoHER
-         w7D7c91qqfXevkefdkKWQ+c9mdbW7P8bG+s5lj4mjzBvDtu8LH2J/Ei7doT0UeJtyY64
-         wY1bwXVZr7hgjVG5pKXfTy8Mz2IUf1fDcncnPgHsQoyzwTxxT0eGC1ZjLr9u/giwnFEM
-         hzk1bNwNQD1Rqo0uMOr/h3aA/FgYUtBNeZXy6mbchhdKtt8Lt4muSDykYdIZlG7qGGxf
-         Sb7g==
-X-Gm-Message-State: AOAM530o3ydGC14Y8N5JeF3WQdlYy8tgKxOjRHKrB5KcuQufOEQVWERv
-        V9Tv0HQGY30D8VuSh8xDu3oFHZLKwjWNaQ==
-X-Google-Smtp-Source: ABdhPJwIBY9eQePiQquBgu8ef6u3xdUlwf1y8/xhypVAxNK/Dt9TMM4HXHBa57YhxnWdZ05ZncjkDg==
-X-Received: by 2002:a17:90a:4e42:: with SMTP id t2mr461259pjl.108.1635273089765;
-        Tue, 26 Oct 2021 11:31:29 -0700 (PDT)
-Received: from bvanassche-linux.mtv.corp.google.com ([2620:15c:211:201:26a4:3b5f:3c4f:53f5])
-        by smtp.gmail.com with ESMTPSA id b6sm26555566pfv.171.2021.10.26.11.31.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Oct 2021 11:31:29 -0700 (PDT)
-Subject: Re: [PATCH v3] scsi: core: Fix early registration of sysfs attributes
- for scsi_device
-To:     Steffen Maier <maier@linux.ibm.com>, jwi@linux.ibm.com,
-        martin.petersen@oracle.com, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, bblock@linux.ibm.com,
-        linux-next@vger.kernel.org, linux-s390@vger.kernel.org
-References: <2f5e5d18-7ba9-10f6-1855-84546172b473@linux.ibm.com>
- <20211026014240.4098365-1-maier@linux.ibm.com>
-From:   Bart Van Assche <bvanassche@acm.org>
-Message-ID: <9a2535ec-7380-f948-d132-763d3d2140c5@acm.org>
-Date:   Tue, 26 Oct 2021 11:31:28 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S239249AbhJZUoJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Oct 2021 16:44:09 -0400
+Received: from brightrain.aerifal.cx ([216.12.86.13]:39660 "EHLO
+        brightrain.aerifal.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239252AbhJZUoI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Oct 2021 16:44:08 -0400
+Date:   Tue, 26 Oct 2021 16:26:27 -0400
+From:   Rich Felker <dalias@libc.org>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        =?utf-8?B?QW5kcsOp?= Almeida <andrealmeid@collabora.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org
+Subject: Re: [PATCH 2/2] futex: remove futex_cmpxchg detection
+Message-ID: <20211026202625.GU7074@brightrain.aerifal.cx>
+References: <20211026100432.1730393-1-arnd@kernel.org>
+ <20211026100432.1730393-2-arnd@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20211026014240.4098365-1-maier@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211026100432.1730393-2-arnd@kernel.org>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/25/21 6:42 PM, Steffen Maier wrote:
-> diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-> index c26f0e29e8cd..fa064bf9a55c 100644
-> --- a/drivers/scsi/scsi_sysfs.c
-> +++ b/drivers/scsi/scsi_sysfs.c
-> @@ -1571,7 +1571,6 @@ static struct device_type scsi_dev_type = {
->   
->   void scsi_sysfs_device_initialize(struct scsi_device *sdev)
->   {
-> -	int i, j = 0;
->   	unsigned long flags;
->   	struct Scsi_Host *shost = sdev->host;
->   	struct scsi_host_template *hostt = shost->hostt;
-> @@ -1583,15 +1582,7 @@ void scsi_sysfs_device_initialize(struct scsi_device *sdev)
->   	scsi_enable_async_suspend(&sdev->sdev_gendev);
->   	dev_set_name(&sdev->sdev_gendev, "%d:%d:%d:%llu",
->   		     sdev->host->host_no, sdev->channel, sdev->id, sdev->lun);
-> -	sdev->gendev_attr_groups[j++] = &scsi_sdev_attr_group;
-> -	if (hostt->sdev_groups) {
-> -		for (i = 0; hostt->sdev_groups[i] &&
-> -			     j < ARRAY_SIZE(sdev->gendev_attr_groups);
-> -		     i++, j++) {
-> -			sdev->gendev_attr_groups[j] = hostt->sdev_groups[i];
-> -		}
-> -	}
-> -	WARN_ON_ONCE(j >= ARRAY_SIZE(sdev->gendev_attr_groups));
-> +	sdev->sdev_gendev.groups = hostt->sdev_groups;
->   
->   	device_initialize(&sdev->sdev_dev);
->   	sdev->sdev_dev.parent = get_device(&sdev->sdev_gendev);
-> diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
-> index b1e9b3bd3a60..b97e142a7ca9 100644
-> --- a/include/scsi/scsi_device.h
-> +++ b/include/scsi/scsi_device.h
-> @@ -225,12 +225,6 @@ struct scsi_device {
->   
->   	struct device		sdev_gendev,
->   				sdev_dev;
-> -	/*
-> -	 * The array size 6 provides space for one attribute group for the
-> -	 * SCSI core, four attribute groups defined by SCSI LLDs and one
-> -	 * terminating NULL pointer.
-> -	 */
-> -	const struct attribute_group *gendev_attr_groups[6];
->   
->   	struct execute_work	ew; /* used to get process context on put */
->   	struct work_struct	requeue_work;
+On Tue, Oct 26, 2021 at 12:03:48PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> Now that all architectures have a working futex implementation
+> in any configuration, remove the runtime detection code.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/arc/Kconfig              |  1 -
+>  arch/arm/Kconfig              |  1 -
+>  arch/arm64/Kconfig            |  1 -
+>  arch/csky/Kconfig             |  1 -
+>  arch/m68k/Kconfig             |  1 -
+>  arch/riscv/Kconfig            |  1 -
+>  arch/s390/Kconfig             |  1 -
+>  arch/sh/Kconfig               |  1 -
+>  arch/um/Kconfig               |  1 -
+>  arch/um/kernel/skas/uaccess.c |  1 -
+>  arch/xtensa/Kconfig           |  1 -
+>  init/Kconfig                  |  8 --------
+>  kernel/futex/core.c           | 35 -----------------------------------
+>  kernel/futex/futex.h          |  6 ------
+>  kernel/futex/syscalls.c       | 22 ----------------------
+>  15 files changed, 82 deletions(-)
 
-Thanks!
+Acked-by: Rich Felker <dalias@libc.org>
 
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
